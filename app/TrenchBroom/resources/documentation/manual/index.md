@@ -332,6 +332,7 @@ Entity Drag Tool      2D, 3D       Permanent     Creating entities by drag and d
 Resize Tool           2D, 3D       Permanent*    Resizing brushes by dragging faces
 Move Tool             2D, 3D       Permanent*    Moving objects around
 Rotate Tool           2D, 3D       Modal         Rotating objects
+Sweep Tool            2D, 3D       Modal         Sweeping brush faces into runs of brushes
 Scale Tool            2D, 3D       Modal         Scaling brushes
 Shear Tool            2D, 3D       Modal         Shearing brushes
 Clip Tool             2D, 3D       Modal         Clipping brushes
@@ -343,6 +344,7 @@ Tool                  Menu
 ----                  -----------
 Complex Shape Tool    #menu(Menu/Edit/Tools/Brush Tool)
 Rotate Tool           #menu(Menu/Edit/Tools/Rotate Tool)
+Sweep Tool            #menu(Menu/Edit/Tools/Sweep Tool)
 Scale Tool            #menu(Menu/Edit/Tools/Scale Tool)
 Shear Tool            #menu(Menu/Edit/Tools/Shear Tool)
 Clip Tool             #menu(Menu/Edit/Tools/Clip Tool)
@@ -360,6 +362,7 @@ State                 Effect
 -----                 ------
 Complex Shape Tool    Discard all placed points; deactivate tool
 Clip Tool             Discard most recently placed clip point; deactivate tool
+Sweep Tool            Move the destination cap back onto the selected faces; deactivate tool
 Vertex Tool           Discard current vertex selection; deactivate tool
 Selection Tool        Discard current selection
 
@@ -770,6 +773,28 @@ In the 2D viewport, clip points are just snapped to the visible grid, so they ar
 #### Matching Clip Plane
 
 ![Matching a clip plane](images/MatchingClipPlane.gif) The clip plane can also be defined by matching it to an existing brush face. To match a clip plane to an existing brush face, you have to double click that face in the 3D viewport. As a result, the brush face gets an orange outline, and a clip plane is defined to match the face's plane exactly. This can be quite useful when shaping geometry to other geometry. Note that the plane points of the clip plane are the plane points of the brush face to which the clip plane was matched, so there should be no trouble with microleaks when using this particular function.
+
+### Sweeping {#sweeping}
+
+The sweep tool fills the gap between the selected brush faces and a copy of those faces, called the destination cap, with a run of brushes. Depending on where you place the destination cap and which path you choose, this lofts the faces along a straight line, revolves them around an axis to build arches and pipes, or routes them through an S-curve, optionally twisting and tapering along the way. To use the sweep tool, select one or more brush faces and choose #menu(Menu/Edit/Tools/Sweep Tool).
+
+![Rotating a face to form a bend with the Sweep Tool](images/SweepTool.gif) 
+
+When the sweep tool is active, a ghost outline shows where the destination cap will end up, and a handle allows you to place it:
+
+- Dragging the center of the handle moves the destination cap.
+- Dragging one of the rings rotates it about the corresponding axis.
+- Dragging the green handle scales it uniformly, flaring or tapering the sweep.
+
+The generated brushes are shown as a preview in the viewports while you place the destination cap. The controls above the editing views determine how the gap is filled:
+
+- **Segments** is the number of brushes created between the selected faces and the destination cap.
+- **Path** selects how the brushes are laid out: Arc revolves the faces around an axis derived from the rotation, Straight lofts them along a line, and S-bend routes them through an S-curve. The destination cap ends up in the same place in each mode.
+- **Iterations** repeats the sweep, continuing from the previous destination cap. For example, an arc that rises while turning becomes a spiral staircase when swept for multiple iterations.
+- **Snap to integer grid** rounds the vertices of the generated brushes to integer coordinates.
+- **Reset** moves the destination cap back onto the selected faces.
+
+Hit #action(Controls/Map view/Perform sweep) to fill the gap with brushes and select them. Hitting #action(Controls/Map view/Cancel) moves the destination cap back onto the selected faces, and hitting it again deactivates the tool.
 
 ### Vertex Editing {#vertex_editing}
 

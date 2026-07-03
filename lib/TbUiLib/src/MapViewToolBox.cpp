@@ -35,6 +35,7 @@
 #include "ui/RotateTool.h"
 #include "ui/ScaleTool.h"
 #include "ui/ShearTool.h"
+#include "ui/SweepTool.h"
 #include "ui/VertexTool.h"
 
 #include "kd/contracts.h"
@@ -114,6 +115,16 @@ const RotateTool& MapViewToolBox::rotateTool() const
 RotateTool& MapViewToolBox::rotateTool()
 {
   return KDL_CONST_OVERLOAD(rotateTool());
+}
+
+const SweepTool& MapViewToolBox::sweepTool() const
+{
+  return *m_sweepTool;
+}
+
+SweepTool& MapViewToolBox::sweepTool()
+{
+  return KDL_CONST_OVERLOAD(sweepTool());
 }
 
 const ScaleTool& MapViewToolBox::scaleTool() const
@@ -282,6 +293,33 @@ void MapViewToolBox::moveRotationCenter(const vm::vec3d& delta)
   m_rotateTool->setRotationCenter(center + delta);
 }
 
+bool MapViewToolBox::canToggleSweepTool() const
+{
+  const auto& map = m_document.map();
+  return sweepToolActive() || map.selection().hasBrushFaces();
+}
+
+void MapViewToolBox::toggleSweepTool()
+{
+  if (canToggleSweepTool())
+  {
+    toggleTool(sweepTool());
+  }
+}
+
+bool MapViewToolBox::sweepToolActive() const
+{
+  return m_sweepTool->active();
+}
+
+void MapViewToolBox::performSweep()
+{
+  contract_pre(sweepToolActive());
+
+  m_sweepTool->commitSweep();
+  deactivateCurrentTool();
+}
+
 bool MapViewToolBox::canToggleScaleTool() const
 {
   const auto& map = m_document.map();
@@ -397,7 +435,7 @@ bool MapViewToolBox::controlPointToolActive() const
 
 bool MapViewToolBox::anyModalToolActive() const
 {
-  return rotateToolActive() || scaleToolActive() || shearToolActive()
+  return rotateToolActive() || sweepToolActive() || scaleToolActive() || shearToolActive()
          || anyNodeHandleToolActive();
 }
 
@@ -432,6 +470,7 @@ void MapViewToolBox::createTools(QStackedLayout* bookCtrl)
   m_moveObjectsTool = std::make_unique<MoveObjectsTool>(m_document);
   m_extrudeTool = std::make_unique<ExtrudeTool>(m_document);
   m_rotateTool = std::make_unique<RotateTool>(m_document);
+  m_sweepTool = std::make_unique<SweepTool>(m_document);
   m_scaleTool = std::make_unique<ScaleTool>(m_document);
   m_shearTool = std::make_unique<ShearTool>(m_document);
   m_vertexTool = std::make_unique<VertexTool>(m_document);
@@ -442,6 +481,7 @@ void MapViewToolBox::createTools(QStackedLayout* bookCtrl)
   addExclusiveToolGroup(
     assembleBrushTool(),
     rotateTool(),
+    sweepTool(),
     scaleTool(),
     shearTool(),
     controlPointTool(),
@@ -460,6 +500,7 @@ void MapViewToolBox::createTools(QStackedLayout* bookCtrl)
   suppressWhileActive(
     assembleBrushTool(), moveObjectsTool(), extrudeTool(), drawShapeTool());
   suppressWhileActive(rotateTool(), moveObjectsTool(), extrudeTool(), drawShapeTool());
+  suppressWhileActive(sweepTool(), moveObjectsTool(), extrudeTool(), drawShapeTool());
   suppressWhileActive(scaleTool(), moveObjectsTool(), extrudeTool(), drawShapeTool());
   suppressWhileActive(shearTool(), moveObjectsTool(), extrudeTool(), drawShapeTool());
   suppressWhileActive(vertexTool(), moveObjectsTool(), extrudeTool(), drawShapeTool());
@@ -471,6 +512,7 @@ void MapViewToolBox::createTools(QStackedLayout* bookCtrl)
 
   registerTool(moveObjectsTool(), bookCtrl);
   registerTool(rotateTool(), bookCtrl);
+  registerTool(sweepTool(), bookCtrl);
   registerTool(scaleTool(), bookCtrl);
   registerTool(shearTool(), bookCtrl);
   registerTool(extrudeTool(), bookCtrl);
@@ -539,6 +581,10 @@ void MapViewToolBox::updateToolPage()
   if (rotateToolActive())
   {
     rotateTool().showPage();
+  }
+  else if (sweepToolActive())
+  {
+    sweepTool().showPage();
   }
   else if (scaleToolActive())
   {

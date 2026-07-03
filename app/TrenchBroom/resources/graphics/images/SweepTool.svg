@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   width="24"
+   height="24"
+   viewBox="0 0 24 24"
+   version="1.1"
+   id="svg5"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+   <g
+      id="fit"
+      transform="translate(12,12) scale(1.15) translate(-12,-11.688)">
+      <g
+         id="icon"
+         transform="translate(-1.1920929e-7,0.12018959)">
+         <g
+            id="spin-arrow"
+            transform="translate(0.25017643,-2.08411547)">
+            <path
+               id="path4"
+               style="fill:none;stroke:#109cff;stroke-width:1;stroke-linecap:round;stroke-linejoin:round"
+               d="m 4.35,8.05 a 8.85,5.85 0 0 1 14.35,0" />
+            <path
+               id="arrow-head"
+               style="fill:#109cff;fill-opacity:1;stroke:none"
+               d="M 20.098,9.329 15.584,8.026 18.398,4.948 Z" />
+         </g>
+         <g
+            id="side-arch"
+            style="stroke:#ff7f01;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1">
+            <rect
+               id="left-end"
+               x="2.9264238"
+               y="14.12543"
+               width="4.9936337"
+               height="4.9936337"
+               style="fill:none;fill-opacity:0.431373" />
+            <rect
+               id="right-end"
+               x="16.079943"
+               y="14.12543"
+               width="4.9936337"
+               height="4.9936337"
+               style="fill:#ff7d00;fill-opacity:0.431373" />
+            <path
+               id="outer-arc"
+               style="fill:none"
+               d="m 2.9264238,14.12543 a 9.0735762,6 0 0 1 18.1471522,0" />
+            <path
+               id="inner-front-arc"
+               style="fill:none"
+               d="m 7.9200575,14.12543 a 4.0799427,2.7000002 0 0 1 8.1598855,0" />
+            <path
+               id="inner-back-arc"
+               style="fill:none"
+               d="m 7.9200575,19.119064 a 4.0799427,2.7000002 0 0 1 8.1598855,0" />
+         </g>
+      </g>
+   </g>
+</svg>

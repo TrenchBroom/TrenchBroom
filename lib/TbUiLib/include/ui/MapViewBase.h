@@ -211,6 +211,8 @@ public: // tool mode actions
   void toggleClipSide();
   void performClip();
 
+  void performSweep();
+
 public: // misc actions
   void resetCameraZoom();
   void cancel();

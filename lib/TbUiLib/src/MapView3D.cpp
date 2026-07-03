@@ -64,6 +64,7 @@
 #include "ui/SelectionTool.h"
 #include "ui/SetBrushFaceAttributesTool.h"
 #include "ui/ShearToolController.h"
+#include "ui/SweepToolController.h"
 #include "ui/VertexTool.h"
 #include "ui/VertexToolController.h"
 
@@ -105,6 +106,7 @@ void MapView3D::initializeToolChain(MapViewToolBox& toolBox)
   addToolController(
     std::make_unique<MoveObjectsToolController>(toolBox.moveObjectsTool()));
   addToolController(std::make_unique<RotateToolController3D>(toolBox.rotateTool()));
+  addToolController(std::make_unique<SweepToolController3D>(toolBox.sweepTool()));
   addToolController(std::make_unique<ScaleToolController3D>(toolBox.scaleTool()));
   addToolController(std::make_unique<ShearToolController3D>(toolBox.shearTool()));
   addToolController(std::make_unique<ExtrudeToolController3D>(toolBox.extrudeTool()));

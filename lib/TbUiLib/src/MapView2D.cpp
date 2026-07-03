@@ -57,6 +57,7 @@
 #include "ui/ScaleToolController.h"
 #include "ui/SelectionTool.h"
 #include "ui/ShearToolController.h"
+#include "ui/SweepToolController.h"
 #include "ui/VertexTool.h"
 #include "ui/VertexToolController.h"
 
@@ -128,6 +129,7 @@ void MapView2D::initializeToolChain(MapViewToolBox& toolBox)
   addToolController(
     std::make_unique<MoveObjectsToolController>(toolBox.moveObjectsTool()));
   addToolController(std::make_unique<RotateToolController2D>(toolBox.rotateTool()));
+  addToolController(std::make_unique<SweepToolController2D>(toolBox.sweepTool()));
   addToolController(std::make_unique<ScaleToolController2D>(toolBox.scaleTool()));
   addToolController(std::make_unique<ShearToolController2D>(toolBox.shearTool()));
   addToolController(std::make_unique<ExtrudeToolController2D>(toolBox.extrudeTool()));
