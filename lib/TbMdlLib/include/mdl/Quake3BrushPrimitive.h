@@ -89,4 +89,34 @@ Quake3BrushPrimitiveMatrix uvAxesToBrushPrimitiveMatrix(
   const vm::vec2f& offset,
   const vm::vec2f& textureSize);
 
+/**
+ * A brush primitive texture matrix decomposed into TrenchBroom's parallel UV coordinate
+ * system. Unlike Quake3BrushPrimitiveUVAxes, the projection scale and rotation are kept
+ * as separate, human-readable attributes (the axes are unit length and merely encode the
+ * rotation) instead of being folded into the axes. This lets a loaded brush primitive
+ * face report the same offset/scale/rotation the user would see in NetRadiant and round
+ * trip through a save/load cycle.
+ */
+struct Quake3BrushPrimitiveParallelUV
+{
+  vm::vec3d uAxis;
+  vm::vec3d vAxis;
+  vm::vec2f offset;
+  vm::vec2f scale;
+  float rotation;
+};
+
+/**
+ * Decomposes a brush primitive texture matrix into a parallel UV coordinate system, given
+ * the face normal and the texture's dimensions. The result reproduces the matrix exactly
+ * (it is the inverse of the serialization performed by uvAxesToBrushPrimitiveMatrix)
+ * while keeping the scale and rotation as separate attributes. The rotation is measured
+ * against TrenchBroom's parallel base axes (see computeInitialAxes()), so it matches a
+ * natively created face.
+ */
+Quake3BrushPrimitiveParallelUV brushPrimitiveMatrixToParallelUV(
+  const vm::vec3d& normal,
+  const Quake3BrushPrimitiveMatrix& matrix,
+  const vm::vec2f& textureSize);
+
 } // namespace tb::mdl

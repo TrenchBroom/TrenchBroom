@@ -19,9 +19,13 @@
 
 #include "mdl/Quake3BrushPrimitive.h"
 
+#include "mdl/ParallelUVCoordSystem.h"
+
+#include "vm/scalar.h"
 #include "vm/vec.h"
 
 #include <cmath>
+#include <tuple>
 
 namespace tb::mdl
 {
@@ -103,6 +107,52 @@ Quake3BrushPrimitiveMatrix uvAxesToBrushPrimitiveMatrix(
       vm::dot(vAxis, texY) / texH,
       double(offset.y()) / texH},
   };
+}
+
+Quake3BrushPrimitiveParallelUV brushPrimitiveMatrixToParallelUV(
+  const vm::vec3d& normal,
+  const Quake3BrushPrimitiveMatrix& matrix,
+  const vm::vec2f& textureSize)
+{
+  const auto uvAxes = brushPrimitiveMatrixToUVAxes(normal, matrix, textureSize);
+
+  const auto lenU = vm::length(uvAxes.uAxis);
+  const auto lenV = vm::length(uvAxes.vAxis);
+
+  // Store unit axes and keep the projection scale as a separate attribute, so that
+  // TrenchBroom reports the same scale factor NetRadiant would (e.g. 0.5) instead of
+  // baking it into the axes as a length of 2.
+  auto uAxis = lenU > 0.0 ? uvAxes.uAxis / lenU : uvAxes.uAxis;
+  auto vAxis = lenV > 0.0 ? uvAxes.vAxis / lenV : uvAxes.vAxis;
+  auto scale = vm::vec2f{
+    lenU > 0.0 ? float(1.0 / lenU) : 1.0f, lenV > 0.0 ? float(1.0 / lenV) : 1.0f};
+
+  // A negative determinant of the matrix' linear part means the projection is mirrored.
+  // TrenchBroom represents this with a negative scale factor rather than a flipped axis,
+  // so fold the mirroring into the V axis (matching NetRadiant's TexMatToFakeTexCoords,
+  // which resolves the "which axis was flipped" ambiguity in favour of V).
+  const auto determinant =
+    matrix.row0.x() * matrix.row1.y() - matrix.row0.y() * matrix.row1.x();
+  if (determinant < 0.0)
+  {
+    vAxis = -vAxis;
+    scale = vm::vec2f{scale.x(), -scale.y()};
+  }
+
+  // Measure the rotation about the texture normal (the cross of the parallel base axes),
+  // the same axis ParallelUVCoordSystem::setRotation rotates about, so a face rotated in
+  // the editor round trips through a save and load unchanged. atan2 yields a small signed
+  // angle at 0 (rather than the acos based measure_angle, which can flip to ~360 for an
+  // unrotated face); vm::correct then snaps that residual noise to 0 before it is folded
+  // into the [0, 360) range.
+  const auto [baseUAxis, baseVAxis] = computeInitialAxes(normal);
+  const auto textureNormal = vm::cross(baseUAxis, baseVAxis);
+  const auto cosRotation = vm::dot(uAxis, baseUAxis);
+  const auto sinRotation = vm::dot(vm::cross(baseUAxis, uAxis), textureNormal);
+  const auto rotation = vm::normalize_degrees(
+    float(vm::correct(vm::to_degrees(std::atan2(sinRotation, cosRotation)), 4)));
+
+  return {uAxis, vAxis, uvAxes.offset, scale, rotation};
 }
 
 } // namespace tb::mdl

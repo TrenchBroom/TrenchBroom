@@ -31,6 +31,13 @@
 namespace tb::mdl
 {
 
+/**
+ * Generates two vectors which are perpendicular to `normal` and perpendicular to each
+ * other. These are the axes of a parallel UV coordinate system with rotation 0, so they
+ * define the reference frame that a rotation angle is measured against.
+ */
+std::tuple<vm::vec3d, vm::vec3d> computeInitialAxes(const vm::vec3d& normal);
+
 class ParallelUVCoordSystemSnapshot : public UVCoordSystemSnapshot
 {
 private:

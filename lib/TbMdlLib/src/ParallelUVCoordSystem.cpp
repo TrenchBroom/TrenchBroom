@@ -38,19 +38,6 @@ namespace
 {
 
 /**
- * Generates two vectors which are perpendicular to `normal` and perpendicular to each
- * other.
- */
-std::tuple<vm::vec3d, vm::vec3d> computeInitialAxes(const vm::vec3d& normal)
-{
-  const auto uAxis = vm::find_abs_max_component(normal) == vm::axis::z
-                       ? vm::normalize(vm::cross(vm::vec3d{0, 1, 0}, normal))
-                       : vm::normalize(vm::cross(vm::vec3d{0, 0, 1}, normal));
-
-  return {uAxis, vm::normalize(vm::cross(uAxis, normal))};
-}
-
-/**
  * Rotate CCW by `angle` radians about `normal`.
  */
 std::tuple<vm::vec3d, vm::vec3d> applyRotation(
@@ -64,6 +51,15 @@ std::tuple<vm::vec3d, vm::vec3d> applyRotation(
 }
 
 } // namespace
+
+std::tuple<vm::vec3d, vm::vec3d> computeInitialAxes(const vm::vec3d& normal)
+{
+  const auto uAxis = vm::find_abs_max_component(normal) == vm::axis::z
+                       ? vm::normalize(vm::cross(vm::vec3d{0, 1, 0}, normal))
+                       : vm::normalize(vm::cross(vm::vec3d{0, 0, 1}, normal));
+
+  return {uAxis, vm::normalize(vm::cross(uAxis, normal))};
+}
 
 ParallelUVCoordSystemSnapshot::ParallelUVCoordSystemSnapshot(
   const vm::vec3d& uAxis, const vm::vec3d& vAxis)
@@ -113,8 +109,8 @@ ParallelUVCoordSystem::ParallelUVCoordSystem(
 {
   const auto normal = vm::normalize(vm::cross(point2 - point0, point1 - point0));
   std::tie(m_uAxis, m_vAxis) = computeInitialAxes(normal);
-  std::tie(m_uAxis, m_vAxis) =
-    applyRotation(uAxis(), vAxis(), normal, double(attribs.rotation()));
+  std::tie(m_uAxis, m_vAxis) = applyRotation(
+    uAxis(), vAxis(), normal, vm::to_radians(double(attribs.rotation())));
 }
 
 ParallelUVCoordSystem::ParallelUVCoordSystem(

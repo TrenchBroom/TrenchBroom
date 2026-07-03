@@ -18,12 +18,16 @@
  */
 
 #include "mdl/CatchConfig.h"
+#include "mdl/ParallelUVCoordSystem.h"
 #include "mdl/Quake3BrushPrimitive.h"
 
 #include "vm/approx.h"
+#include "vm/quat.h"
+#include "vm/scalar.h"
 #include "vm/vec.h"
 #include "vm/vec_io.h" // IWYU pragma: keep
 
+#include <tuple>
 #include <vector>
 
 #include <catch2/catch_test_macros.hpp>
@@ -105,6 +109,73 @@ TEST_CASE("Quake3BrushPrimitive")
     CHECK(uvAxes.uAxis == vm::approx{texX, 0.0001});
     CHECK(uvAxes.vAxis == vm::approx{texY, 0.0001});
     CHECK(uvAxes.offset == vm::vec2f{0, 0});
+  }
+
+  SECTION("parallel UV decomposition round trips modified attributes")
+  {
+    // Build the projection that a face with the given offset/scale/rotation would have,
+    // serialize it to a brush primitive matrix (the way the map writer does), then
+    // decompose it back and check the attributes survive. This mirrors a save/load round
+    // trip and covers non-64 texture sizes, so it fails for the old code that always
+    // assumed 64x64 and discarded scale/rotation.
+    struct TestCase
+    {
+      vm::vec3d normal;
+      vm::vec2f textureSize;
+      vm::vec2f offset;
+      vm::vec2f scale;
+      float rotation;
+    };
+
+    // clang-format off
+    const auto testCases = std::vector<TestCase>{
+      {{0, 0, 1},  {64, 64},   {0, 0},   {0.5f, 0.5f},   0.0f},
+      {{0, 0, 1},  {128, 128}, {16, -8}, {0.5f, 0.5f},   0.0f},
+      {{0, 0, 1},  {128, 256}, {10, 20}, {0.25f, 2.0f},  30.0f},
+      {{0, 1, 0},  {64, 128},  {-12, 7}, {1.0f, 0.5f},   210.0f},
+      {{1, 0, 0},  {256, 256}, {5, 5},   {0.75f, 0.75f}, 90.0f},
+      {vm::normalize(vm::vec3d{1, 2, 3}),
+                   {64, 64},   {3, -4},  {0.5f, 1.5f},   45.0f},
+      // a mirror is folded onto the V axis, so a mirrored face has a negative Y scale
+      {{0, 0, 1},  {128, 128}, {-10, -20}, {0.5f, -0.5f}, 45.0f},
+      // rotations at the 180 and 270 degree boundaries with all attributes modified
+      {{0, 1, 0},  {64, 128},  {12, 7},    {0.75f, 1.5f}, 180.0f},
+      {{1, 0, 0},  {256, 256}, {5, 5},     {2.0f, 0.5f},  270.0f},
+      // a second oblique normal
+      {vm::normalize(vm::vec3d{-3, 1, -2}),
+                   {128, 256}, {6, -9},    {0.5f, 1.5f},  90.0f},
+    };
+    // clang-format on
+
+    for (const auto& testCase : testCases)
+    {
+      const auto [baseUAxis, baseVAxis] = computeInitialAxes(testCase.normal);
+      const auto textureNormal = vm::cross(baseUAxis, baseVAxis);
+      const auto rotation =
+        vm::quatd{textureNormal, vm::to_radians(double(testCase.rotation))};
+      const auto uAxis = rotation * baseUAxis;
+      const auto vAxis = rotation * baseVAxis;
+
+      // the effective axes as stored by the serializer (axes divided by their scale)
+      const auto effectiveUAxis = uAxis / double(testCase.scale.x());
+      const auto effectiveVAxis = vAxis / double(testCase.scale.y());
+
+      const auto matrix = uvAxesToBrushPrimitiveMatrix(
+        testCase.normal,
+        effectiveUAxis,
+        effectiveVAxis,
+        testCase.offset,
+        testCase.textureSize);
+
+      const auto uv =
+        brushPrimitiveMatrixToParallelUV(testCase.normal, matrix, testCase.textureSize);
+
+      CHECK(uv.offset == vm::approx{testCase.offset, 0.0001f});
+      CHECK(uv.scale == vm::approx{testCase.scale, 0.0001f});
+      CHECK(uv.rotation == vm::approx{testCase.rotation, 0.01f});
+      CHECK(uv.uAxis == vm::approx{uAxis, 0.0001});
+      CHECK(uv.vAxis == vm::approx{vAxis, 0.0001});
+    }
   }
 }
 
