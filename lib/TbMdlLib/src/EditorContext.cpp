@@ -101,6 +101,16 @@ void EditorContext::setShowBrushes(const bool showBrushes)
   m_showBrushes = showBrushes;
 }
 
+bool EditorContext::showPatches() const
+{
+  return m_showPatches;
+}
+
+void EditorContext::setShowPatches(const bool showPatches)
+{
+  m_showPatches = showPatches;
+}
+
 bool EditorContext::blockSelection() const
 {
   return m_blockSelection;
@@ -279,6 +289,11 @@ bool EditorContext::visible(const PatchNode& patchNode) const
   if (patchNode.selected())
   {
     return true;
+  }
+
+  if (!m_showPatches)
+  {
+    return false;
   }
 
   if (patchNode.hasTag(m_hiddenTags))

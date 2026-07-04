@@ -192,6 +192,7 @@ void MapDocument::updateMapFromPreferences()
 
   m_map->editorContext().setShowPointEntities(pref(Preferences::ShowPointEntities));
   m_map->editorContext().setShowBrushes(pref(Preferences::ShowBrushes));
+  m_map->editorContext().setShowPatches(pref(Preferences::ShowPatches));
   m_map->editorContext().setAlignmentLock(pref(Preferences::AlignmentLock));
   m_map->editorContext().setUVLock(pref(Preferences::UVLock));
 }

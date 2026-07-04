@@ -46,6 +46,7 @@ private:
 
   bool m_showPointEntities = true;
   bool m_showBrushes = true;
+  bool m_showPatches = true;
 
   bool m_blockSelection = false;
 
@@ -75,6 +76,9 @@ public:
 
   bool showBrushes() const;
   void setShowBrushes(bool showBrushes);
+
+  bool showPatches() const;
+  void setShowPatches(bool showPatches);
 
   bool blockSelection() const;
   void setBlockSelection(bool blockSelection);
