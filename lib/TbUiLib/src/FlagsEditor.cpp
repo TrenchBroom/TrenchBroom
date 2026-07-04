@@ -19,9 +19,12 @@
 
 #include "ui/FlagsEditor.h"
 
+#include <QBoxLayout>
 #include <QCheckBox>
 #include <QGridLayout>
+#include <QPushButton>
 
+#include "ui/QStyleUtils.h"
 #include "ui/QWidgetUtils.h"
 #include "ui/ViewConstants.h"
 
@@ -32,9 +35,46 @@ namespace tb::ui
 
 FlagsEditor::FlagsEditor(const size_t numCols, QWidget* parent)
   : QWidget{parent}
+  , m_checkBoxContainer{new QWidget{this}}
   , m_numCols{numCols}
 {
   contract_pre(m_numCols > 0);
+
+  auto* allButton = new QPushButton{tr("All")};
+  setEmphasizedStyle(allButton);
+  auto* noneButton = new QPushButton{tr("None")};
+  setEmphasizedStyle(noneButton);
+
+  connect(allButton, &QAbstractButton::clicked, this, [this]() {
+    for (size_t i = 0u; i < m_checkBoxes.size(); ++i)
+    {
+      m_checkBoxes[i]->setCheckState(Qt::CheckState::Checked);
+      emit flagChanged(i, 1, ~0, ~0);
+    }
+  });
+  connect(noneButton, &QAbstractButton::clicked, this, [this]() {
+    for (size_t i = 0u; i < m_checkBoxes.size(); ++i)
+    {
+      m_checkBoxes[i]->setCheckState(Qt::CheckState::Unchecked);
+      emit flagChanged(i, 0, 0, 0);
+    }
+  });
+
+  auto* buttonLayout = new QHBoxLayout{};
+  buttonLayout->setContentsMargins(0, 0, 0, 0);
+  buttonLayout->setSpacing(LayoutConstants::NarrowHMargin);
+  buttonLayout->addStretch(1);
+  buttonLayout->addWidget(allButton);
+  buttonLayout->addWidget(noneButton);
+  buttonLayout->addStretch(1);
+
+
+  auto* layout = new QVBoxLayout{};
+  layout->setSpacing(LayoutConstants::MediumVMargin);
+  layout->setSizeConstraint(QLayout::SetMinimumSize);
+  layout->addWidget(m_checkBoxContainer);
+  layout->addLayout(buttonLayout);
+  setLayout(layout);
 }
 
 void FlagsEditor::setFlags(const QStringList& labels, const QStringList& tooltips)
@@ -62,11 +102,16 @@ void FlagsEditor::setFlags(
   m_checkBoxes.resize(count, nullptr);
   m_values.resize(count, 0);
 
-  deleteChildWidgetsLaterAndDeleteLayout(this);
+  deleteChildWidgetsLaterAndDeleteLayout(m_checkBoxContainer);
 
   auto* layout = new QGridLayout{};
   layout->setHorizontalSpacing(LayoutConstants::WideHMargin);
-  layout->setVerticalSpacing(0);
+#if defined(Q_OS_MACOS)
+  layout->setVerticalSpacing(LayoutConstants::WideVMargin);
+#else
+  layout->setVerticalSpacing(LayoutConstants::NarrowVMargin);
+#endif
+  layout->setContentsMargins(0, 0, 0, 0);
   layout->setSizeConstraint(QLayout::SetMinimumSize);
 
   for (size_t row = 0; row < numRows; ++row)
@@ -101,7 +146,7 @@ void FlagsEditor::setFlags(
   contract_post(std::ranges::all_of(
     m_checkBoxes, [](const auto* checkBox) { return checkBox != nullptr; }));
 
-  setLayout(layout);
+  m_checkBoxContainer->setLayout(layout);
 }
 
 void FlagsEditor::setFlagValue(const int on, const int mixed)

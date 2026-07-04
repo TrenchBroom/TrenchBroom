@@ -58,12 +58,14 @@ void PopupButton::buttonClicked(bool checked)
 {
   if (checked)
   {
-    // TODO: unfortunately it seems like we need to show the popup first, before
-    // m_window->size() contains useful data, and we need the size to position the popup.
-    // This show() puts the window at (0, 0) on Ubuntu, but positionTouchingWidget() is
-    // able to move it without any flicker. Need to confirm on other OS'es.
-    m_window->show();
+    // Compute the popup's size and position it before showing it. Under Wayland,
+    // top-level (and popup) windows cannot be moved to an arbitrary screen position
+    // once shown, so showing first and repositioning afterwards is unreliable there.
+    m_window->adjustSize();
     m_window->positionTouchingWidget(this);
+    m_window->show();
+    m_window->raise();
+    m_window->activateWindow();
   }
   else
   {
