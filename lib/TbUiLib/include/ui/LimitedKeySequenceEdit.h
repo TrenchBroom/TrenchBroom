@@ -39,6 +39,8 @@ public:
 
   void setMaxCount(size_t maxCount);
 
+  void cancel();
+
 protected:
   void keyPressEvent(QKeyEvent* event) override;
 private slots:

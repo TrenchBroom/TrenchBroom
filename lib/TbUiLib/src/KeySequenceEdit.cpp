@@ -77,7 +77,14 @@ void KeySequenceEdit::setKeySequence(const QKeySequence& keySequence)
 
 void KeySequenceEdit::clear()
 {
-  m_keySequenceEdit->clear();
+  if (m_keySequenceEdit->keySequence() != QKeySequence{})
+  {
+    m_keySequenceEdit->clear();
+  }
+  else
+  {
+    m_keySequenceEdit->cancel();
+  }
 }
 
 } // namespace tb::ui
