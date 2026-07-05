@@ -50,6 +50,7 @@
 #include "mdl/Entity.h"
 #include "mdl/EntityNode.h"
 #include "mdl/EntityNodeBase.h"
+#include "mdl/EnvironmentConfig.h"
 #include "mdl/ExportOptions.h"
 #include "mdl/GameInfo.h"
 #include "mdl/Grid.h"
@@ -133,6 +134,7 @@
 #include <string>
 #include <variant>
 #include <vector>
+
 
 namespace tb::ui
 {
@@ -1020,12 +1022,13 @@ bool MapWindow::saveDocument()
 bool MapWindow::saveDocumentAs()
 {
   auto& map = m_document->map();
-  const auto& originalPath = map.path();
-  const auto directory = originalPath.parent_path();
-  const auto fileName = originalPath.filename();
+
+  const auto defaultPath = map.persistent()
+                             ? map.path()
+                             : m_appController.environmentConfig().userDataFolderPath;
 
   const auto newFileName = QFileDialog::getSaveFileName(
-    this, tr("Save map file"), pathAsQPath(originalPath), "Map files (*.map)");
+    this, tr("Save map file"), pathAsQPath(defaultPath), "Map files (*.map)");
   if (newFileName.isEmpty())
   {
     return false;
