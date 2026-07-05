@@ -182,6 +182,7 @@ target_sources(TbUiLib
     ${CMAKE_CURRENT_SOURCE_DIR}/src/SetBrushFaceAttributesTool.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/ShearTool.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/ShearToolController.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/KeyboardShortcutUtils.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/SignalDelayer.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/SliderWithLabel.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/SmartChoiceEditor.cpp
@@ -421,6 +422,7 @@ target_sources(TbUiLib
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/SetBrushFaceAttributesTool.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/ShearTool.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/ShearToolController.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/KeyboardShortcutUtils.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/SignalDelayer.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/SliderWithLabel.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/SmartChoiceEditor.h
