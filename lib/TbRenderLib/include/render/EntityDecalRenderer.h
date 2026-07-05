@@ -90,6 +90,12 @@ public:
   void invalidate();
 
   /**
+   * Invalidate the given materials. Used to refresh the renderer after materials have
+   * finished processing asynchronously.
+   */
+  void invalidateMaterials(const std::vector<const gl::Material*>& materials);
+
+  /**
    * Equivalent to removeNode() on all added nodes.
    */
   void clear();

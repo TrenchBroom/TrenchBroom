@@ -781,6 +781,7 @@ void MapRenderer::resourcesWereProcessed(const std::vector<gl::ResourceId>& reso
   m_defaultRenderer->invalidateMaterials(materials);
   m_selectionRenderer->invalidateMaterials(materials);
   m_lockedRenderer->invalidateMaterials(materials);
+  m_entityDecalRenderer->invalidateMaterials(materials);
 
   const auto& entityModelManager = m_map.entityModelManager();
   const auto entityModels =
