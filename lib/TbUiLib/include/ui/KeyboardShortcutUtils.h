@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010 Kristian Duske
+ Copyright (C) 2026 Kristian Duske
 
  This file is part of TrenchBroom.
 
@@ -19,32 +19,11 @@
 
 #pragma once
 
-#include <QKeySequenceEdit>
+class QKeySequence;
 
 namespace tb::ui
 {
 
-class LimitedKeySequenceEdit : public QKeySequenceEdit
-{
-  Q_OBJECT
-public:
-  static constexpr size_t MaxCount = 4;
-
-private:
-  size_t m_maxCount = MaxCount;
-  size_t m_count = 0;
-
-public:
-  explicit LimitedKeySequenceEdit(QWidget* parent = nullptr);
-
-  void setMaxCount(size_t maxCount);
-
-  void cancel();
-
-protected:
-  void keyPressEvent(QKeyEvent* event) override;
-private slots:
-  void resetCount();
-};
+bool isSupportedShortcut(const QKeySequence& keySequence);
 
 } // namespace tb::ui

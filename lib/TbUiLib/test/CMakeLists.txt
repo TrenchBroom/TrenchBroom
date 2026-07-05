@@ -31,6 +31,7 @@ target_sources(TbUiLibTest
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_ScaleTool.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_SelectionTool.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_ShearTool.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_KeyboardShortcutUtils.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_SystemPaths.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_TextOutputAdapter.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_UpdateVersion.cpp

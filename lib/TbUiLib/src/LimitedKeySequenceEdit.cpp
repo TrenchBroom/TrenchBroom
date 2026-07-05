@@ -20,6 +20,9 @@
 #include "ui/LimitedKeySequenceEdit.h"
 
 #include <QKeyEvent>
+#include <QKeySequence>
+
+#include "ui/KeyboardShortcutUtils.h"
 
 #include <algorithm>
 
@@ -38,8 +41,21 @@ void LimitedKeySequenceEdit::setMaxCount(size_t maxCount)
   m_maxCount = std::min(maxCount, MaxCount);
 }
 
+void LimitedKeySequenceEdit::cancel()
+{
+  setKeySequence(QKeySequence{});
+  emit keySequenceChanged(QKeySequence{});
+  emit editingFinished();
+}
+
 void LimitedKeySequenceEdit::keyPressEvent(QKeyEvent* event)
 {
+  if (!isSupportedShortcut(QKeySequence{event->keyCombination()}))
+  {
+    event->accept();
+    return;
+  }
+
   QKeySequenceEdit::keyPressEvent(event);
   if (event->modifiers() == Qt::NoModifier)
   {

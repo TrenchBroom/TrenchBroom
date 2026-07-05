@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010 Kristian Duske
+ Copyright (C) 2026 Kristian Duske
 
  This file is part of TrenchBroom.
 
@@ -17,34 +17,31 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#pragma once
+#include <QKeySequence>
 
-#include <QKeySequenceEdit>
+#include "ui/CatchConfig.h"
+#include "ui/KeyboardShortcutUtils.h"
+
+#include <catch2/catch_test_macros.hpp>
 
 namespace tb::ui
 {
 
-class LimitedKeySequenceEdit : public QKeySequenceEdit
+TEST_CASE("KeyboardShortcutUtils")
 {
-  Q_OBJECT
-public:
-  static constexpr size_t MaxCount = 4;
+  SECTION("Accepts supported shortcuts")
+  {
+    CHECK(isSupportedShortcut(QKeySequence{Qt::Key_A}));
+    CHECK(isSupportedShortcut(QKeySequence{Qt::CTRL | Qt::Key_Return}));
+  }
 
-private:
-  size_t m_maxCount = MaxCount;
-  size_t m_count = 0;
-
-public:
-  explicit LimitedKeySequenceEdit(QWidget* parent = nullptr);
-
-  void setMaxCount(size_t maxCount);
-
-  void cancel();
-
-protected:
-  void keyPressEvent(QKeyEvent* event) override;
-private slots:
-  void resetCount();
-};
+  SECTION("Rejects lock state keys")
+  {
+    CHECK(!isSupportedShortcut(QKeySequence{Qt::Key_CapsLock}));
+    CHECK(!isSupportedShortcut(QKeySequence{Qt::CTRL | Qt::Key_CapsLock}));
+    CHECK(!isSupportedShortcut(QKeySequence{Qt::Key_NumLock}));
+    CHECK(!isSupportedShortcut(QKeySequence{Qt::Key_ScrollLock}));
+  }
+}
 
 } // namespace tb::ui

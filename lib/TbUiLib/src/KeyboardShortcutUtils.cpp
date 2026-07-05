@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010 Kristian Duske
+ Copyright (C) 2026 Kristian Duske
 
  This file is part of TrenchBroom.
 
@@ -17,34 +17,30 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#pragma once
+#include "ui/KeyboardShortcutUtils.h"
 
-#include <QKeySequenceEdit>
+#include <QKeySequence>
+
+#include <algorithm>
+#include <ranges>
 
 namespace tb::ui
 {
-
-class LimitedKeySequenceEdit : public QKeySequenceEdit
+namespace
 {
-  Q_OBJECT
-public:
-  static constexpr size_t MaxCount = 4;
 
-private:
-  size_t m_maxCount = MaxCount;
-  size_t m_count = 0;
+bool isSupportedShortcutKey(const Qt::Key key)
+{
+  return key != Qt::Key_CapsLock && key != Qt::Key_NumLock && key != Qt::Key_ScrollLock;
+}
 
-public:
-  explicit LimitedKeySequenceEdit(QWidget* parent = nullptr);
+} // namespace
 
-  void setMaxCount(size_t maxCount);
-
-  void cancel();
-
-protected:
-  void keyPressEvent(QKeyEvent* event) override;
-private slots:
-  void resetCount();
-};
+bool isSupportedShortcut(const QKeySequence& keySequence)
+{
+  return std::ranges::all_of(
+    std::views::iota(0u, uint(keySequence.count())),
+    [&](const auto i) { return isSupportedShortcutKey(keySequence[i].key()); });
+}
 
 } // namespace tb::ui

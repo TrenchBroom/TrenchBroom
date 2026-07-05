@@ -28,6 +28,7 @@
 #include "ui/ActionContext.h"
 #include "ui/ActionManager.h"
 #include "ui/ActionMenu.h"
+#include "ui/KeyboardShortcutUtils.h"
 #include "ui/MapDocument.h"
 #include "ui/QPathUtils.h"
 
@@ -139,6 +140,11 @@ bool KeyboardShortcutModel::setData(
   // We take a copy here on purpose in order to set the key further below.
   auto& actionInfo = this->actionInfo(index.row());
   auto keyboardShortcuts = prefs.getPendingValue(actionInfo.keyboardShortcutPreference());
+  const auto keySequence = value.value<QKeySequence>();
+  if (!isSupportedShortcut(keySequence))
+  {
+    return false;
+  }
 
   switch (index.column())
   {
@@ -147,7 +153,7 @@ bool KeyboardShortcutModel::setData(
     {
       keyboardShortcuts.emplace_back();
     }
-    keyboardShortcuts[0] = value.value<QKeySequence>();
+    keyboardShortcuts[0] = keySequence;
     break;
   case 1:
     if (keyboardShortcuts.empty())
@@ -158,7 +164,7 @@ bool KeyboardShortcutModel::setData(
     {
       keyboardShortcuts.emplace_back();
     }
-    keyboardShortcuts[1] = value.value<QKeySequence>();
+    keyboardShortcuts[1] = keySequence;
     break;
   default:
     break;
