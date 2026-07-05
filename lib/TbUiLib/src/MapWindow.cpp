@@ -1020,9 +1020,8 @@ bool MapWindow::saveDocument()
 bool MapWindow::saveDocumentAs()
 {
   auto& map = m_document->map();
+
   const auto& originalPath = map.path();
-  const auto directory = originalPath.parent_path();
-  const auto fileName = originalPath.filename();
 
   const auto newFileName = QFileDialog::getSaveFileName(
     this, tr("Save map file"), pathAsQPath(originalPath), "Map files (*.map)");
