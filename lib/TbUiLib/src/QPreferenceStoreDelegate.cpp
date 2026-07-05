@@ -33,6 +33,7 @@
 #include <QTimer>
 
 #include "Macros.h"
+#include "ui/KeyboardShortcutUtils.h"
 #include "ui/QPathUtils.h"
 
 #include "kd/ranges/to.h"
@@ -230,15 +231,19 @@ bool QPreferenceStoreDelegate::load(
           jsonArray | std::views::transform([](const auto& x) {
             return QKeySequence::fromString(x.toString(), QKeySequence::PortableText);
           })
-          | kdl::ranges::to<std::vector>();
+          | std::views::filter(isSupportedShortcut) | kdl::ranges::to<std::vector>();
         return true;
       }
     }
     else if (jsonValue.isString())
     {
       // fallback for legacy preference files
-      value.push_back(
-        QKeySequence::fromString(jsonValue.toString(), QKeySequence::PortableText));
+      if (const auto keySequence =
+            QKeySequence::fromString(jsonValue.toString(), QKeySequence::PortableText);
+          isSupportedShortcut(keySequence))
+      {
+        value.push_back(keySequence);
+      }
       return true;
     }
   }

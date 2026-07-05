@@ -151,6 +151,24 @@ TEST_CASE("QPreferenceStore")
         QKeySequence::fromString("Ctrl+Alt+W", QKeySequence::PortableText)});
   }
 
+  SECTION("filters unsupported shortcuts")
+  {
+    env.createFile(preferenceFilename, R"({
+  "some/path": ["A", "Caps Lock", "Ctrl+Caps Lock", "Num Lock", "Scroll Lock", "Ctrl+Return"]
+}
+)");
+
+    auto preferenceStore = QPreferenceStore{pathAsQString(preferenceFilePath), 50ms};
+
+    auto value = std::vector<QKeySequence>{};
+    CHECK(preferenceStore.load("some/path", value));
+    CHECK(
+      value
+      == std::vector<QKeySequence>{
+        QKeySequence::fromString("A", QKeySequence::PortableText),
+        QKeySequence::fromString("Ctrl+Return", QKeySequence::PortableText)});
+  }
+
   SECTION("preferences aren't saved immediately")
   {
     auto preferenceStore = QPreferenceStore{pathAsQString(preferenceFilePath), 500ms};
