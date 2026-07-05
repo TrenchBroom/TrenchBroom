@@ -42,6 +42,7 @@
 #include <algorithm>
 #include <cstring>
 #include <ranges>
+#include <unordered_set>
 
 namespace tb::render
 {
@@ -160,6 +161,20 @@ void EntityDecalRenderer::invalidate()
   for (auto& [ent, data] : m_entities)
   {
     invalidateDecalData(data);
+  }
+}
+
+void EntityDecalRenderer::invalidateMaterials(
+  const std::vector<const gl::Material*>& materials)
+{
+  const auto materialSet =
+    std::unordered_set<const gl::Material*>{materials.begin(), materials.end()};
+  for (auto& [ent, data] : m_entities)
+  {
+    if (materialSet.contains(data.material))
+    {
+      invalidateDecalData(data);
+    }
   }
 }
 
