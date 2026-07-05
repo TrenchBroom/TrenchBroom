@@ -573,10 +573,28 @@ TEST_CASE("BrushFace")
     CHECK(face.projectedArea(vm::axis::z) == vm::approx{0.0});
   }
 
+  SECTION("bounds")
+  {
+    const auto worldBounds = vm::bbox3d{8192.0};
+    const auto builder = BrushBuilder{MapFormat::Standard, worldBounds};
+
+    auto brush =
+      builder.createCuboid(
+        vm::bbox3d{vm::vec3d{-32, -64, -16}, vm::vec3d{32, 64, 16}}, "material")
+      | kdl::value();
+
+    const auto faceIndex = brush.findFace(vm::vec3d{1, 0, 0});
+    REQUIRE(faceIndex);
+    const auto& face = brush.face(*faceIndex);
+
+    CHECK(face.bounds() == vm::bbox3d{vm::vec3d{32, -64, -16}, vm::vec3d{32, 64, 16}});
+  }
+
   SECTION("testSetRotation_Paraxial")
   {
     const auto worldBounds = vm::bbox3d{8192.0};
-    gl::Material material("testMaterial", gl::createTextureResource(gl::Texture{64, 64}));
+    const gl::Material material(
+      "testMaterial", gl::createTextureResource(gl::Texture{64, 64}));
 
     auto builder = BrushBuilder{MapFormat::Standard, worldBounds};
     auto cube = builder.createCube(128.0, "") | kdl::value();

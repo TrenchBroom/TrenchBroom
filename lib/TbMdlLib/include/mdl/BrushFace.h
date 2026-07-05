@@ -191,6 +191,7 @@ public:
   const vm::plane3d& boundary() const;
   const vm::vec3d& normal() const;
   vm::vec3d center() const;
+  vm::bbox3d bounds() const;
   vm::vec3d boundsCenter() const;
   double projectedArea(vm::axis::type axis) const;
   double area() const;
