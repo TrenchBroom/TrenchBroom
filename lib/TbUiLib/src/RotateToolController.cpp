@@ -19,18 +19,10 @@
 
 #include "ui/RotateToolController.h"
 
-#include "PreferenceManager.h"
-#include "Preferences.h"
-#include "gl/ActiveShader.h"
-#include "gl/GlInterface.h"
-#include "gl/Shaders.h"
 #include "mdl/Hit.h"
 #include "mdl/HitFilter.h"
-#include "render/Circle.h"
-#include "render/RenderBatch.h"
 #include "render/RenderContext.h"
-#include "render/RenderService.h"
-#include "render/Renderable.h"
+#include "ui/AngleIndicatorRenderer.h"
 #include "ui/HandleDragTracker.h"
 #include "ui/InputState.h"
 #include "ui/MoveHandleDragTracker.h"
@@ -39,64 +31,16 @@
 #include "ui/ToolController.h"
 
 #include "vm/intersection.h"
-#include "vm/mat_ext.h"
-#include "vm/quat.h"
-#include "vm/util.h"
+#include "vm/scalar.h"
 #include "vm/vec.h"
 
 #include <functional>
 #include <memory>
-#include <sstream>
 
 namespace tb::ui
 {
 namespace
 {
-
-class AngleIndicatorRenderer : public render::DirectRenderable
-{
-private:
-  vm::vec3d m_position;
-  render::Circle m_circle;
-
-public:
-  AngleIndicatorRenderer(
-    const vm::vec3d& position,
-    const float radius,
-    const vm::axis::type axis,
-    const vm::vec3d& startAxis,
-    const vm::vec3d& endAxis)
-    : m_position{position}
-    , m_circle{radius, 24, true, axis, vm::vec3f{startAxis}, vm::vec3f{endAxis}}
-  {
-  }
-
-  void prepare(gl::Gl& gl, gl::VboManager& vboManager) override
-  {
-    m_circle.prepare(gl, vboManager);
-  }
-
-  void render(render::RenderContext& renderContext) override
-  {
-    auto& gl = renderContext.gl();
-
-    gl.disable(GL_DEPTH_TEST);
-
-    gl.pushAttrib(GL_POLYGON_BIT);
-    gl.disable(GL_CULL_FACE);
-    gl.polygonMode(GL_FRONT_AND_BACK, GL_FILL);
-
-    auto translation = render::MultiplyModelMatrix{
-      renderContext.transformation(), vm::translation_matrix(vm::vec3f{m_position})};
-    auto shader = gl::ActiveShader{
-      gl, renderContext.shaderManager(), gl::Shaders::VaryingPUniformCShader};
-    shader.set("Color", RgbaF{1.0f, 1.0f, 1.0f, 0.2f});
-    m_circle.render(gl, shader.program());
-
-    gl.enable(GL_DEPTH_TEST);
-    gl.popAttrib();
-  }
-};
 
 using RenderHighlight = std::function<void(
   const InputState&,
@@ -167,50 +111,16 @@ public:
     render::RenderBatch& renderBatch) const override
   {
     m_renderHighlight(inputState, renderContext, renderBatch, m_area);
-    renderAngleIndicator(renderContext, renderBatch, dragState.initialHandlePosition);
-    renderAngleText(renderContext, renderBatch);
-  }
 
-private:
-  void renderAngleIndicator(
-    render::RenderContext& renderContext,
-    render::RenderBatch& renderBatch,
-    const vm::vec3d& initialHandlePosition) const
-  {
-    if (const auto handleRadius =
-          static_cast<float>(m_tool.majorHandleRadius(renderContext.camera()));
-        handleRadius > 0.0f)
-    {
-      const auto center = m_tool.rotationCenter();
-      const auto axis = m_tool.rotationAxis(m_area);
-      const auto startAxis = vm::normalize(initialHandlePosition - center);
-      const auto endAxis = vm::quatd{axis, m_angle} * startAxis;
-
-      renderBatch.addOneShot(new AngleIndicatorRenderer{
-        center, handleRadius, vm::find_abs_max_component(axis), startAxis, endAxis});
-    }
-  }
-
-  void renderAngleText(
-    render::RenderContext& renderContext, render::RenderBatch& renderBatch) const
-  {
     const auto center = m_tool.rotationCenter();
-
-    auto renderService = render::RenderService{renderContext, renderBatch};
-
-    renderService.setForegroundColor(pref(Preferences::SelectedInfoOverlayTextColor));
-    renderService.setBackgroundColor(
-      pref(Preferences::SelectedInfoOverlayBackgroundColor));
-    renderService.renderString(angleString(vm::to_degrees(m_angle)), vm::vec3f{center});
-  }
-
-  std::string angleString(const double angle) const
-  {
-    auto str = std::stringstream{};
-    str.precision(2);
-    str.setf(std::ios::fixed);
-    str << angle;
-    return str.str();
+    renderAngleIndicator(
+      renderBatch,
+      m_tool.majorHandleRadius(renderContext.camera()),
+      center,
+      m_tool.rotationAxis(m_area),
+      dragState.initialHandlePosition,
+      m_angle);
+    renderAngleText(renderContext, renderBatch, center, vm::to_degrees(m_angle));
   }
 };
 
