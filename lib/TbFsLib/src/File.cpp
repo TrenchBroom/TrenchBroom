@@ -171,13 +171,7 @@ Result<void> CFile::read(char* val, const size_t position, const size_t size) co
 
 Result<CFile::BufferType> CFile::buffer(const size_t position, const size_t size) const
 {
-#if defined __APPLE__
-  // AppleClang doesn't support std::shared_ptr<T[]> (new as of C++17)
-  auto buffer = BufferType{new char[size], std::default_delete<char[]>{}};
-#else
-  // G++ doesn't support using std::shared_ptr<T> to manage T[]
   auto buffer = std::shared_ptr<char[]>{new char[size]};
-#endif
 
   return read(buffer.get(), position, size)
          | kdl::transform([&]() { return std::move(buffer); });
