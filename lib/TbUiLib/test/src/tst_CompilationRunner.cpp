@@ -39,7 +39,6 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 #include "ui/TextOutputAdapter.h"
 
 #include "kd/k.h"
-#include "kd/path_utils.h"
 #include "kd/string_utils.h"
 
 #include <chrono>
@@ -309,20 +308,25 @@ TEST_CASE("CompilationExportMapTaskRunner")
 
   SECTION("exportMap")
   {
-    const auto exportPath =
-      GENERATE("${WORK_DIR_PATH}/exported.map", "${WORK_DIR_PATH}\\exported.map");
+    const auto [exportSpec, expectedFilePath] =
+      GENERATE(table<std::string, std::filesystem::path>({
+        {"${WORK_DIR_PATH}/exported.map", "exported.map"},
+        {"${WORK_DIR_PATH}\\exported.map", "exported.map"},
+        {"exported.map", "exported.map"},
+        {"some/nested/exported.map", "some/nested/exported.map"},
+      }));
 
-    CAPTURE(exportPath);
+    CAPTURE(exportSpec);
 
     auto node = new mdl::EntityNode{mdl::Entity{}};
     addNodes(map, {{parentForNodes(map), {node}}});
 
-    auto task = mdl::CompilationExportMap{K(enabled), !K(stripTbProperties), exportPath};
+    auto task = mdl::CompilationExportMap{K(enabled), !K(stripTbProperties), exportSpec};
 
     auto runner = CompilationExportMapTaskRunner{context, task};
     REQUIRE_NOTHROW(runner.execute());
 
-    CHECK(testEnvironment.fileExists("exported.map"));
+    CHECK(testEnvironment.fileExists(expectedFilePath));
   }
 
   SECTION("variable interpolation error")
@@ -359,20 +363,23 @@ TEST_CASE("CompilationCopyFilesTaskRunner")
     const auto sourcePath = "my_map.map";
     testEnvironment.createFile(sourcePath, "{}");
 
-    const auto targetPath = GENERATE("some/other/path"s, "some\\other\\path"s);
+    const auto [targetSpec, expectedTargetPath] =
+      GENERATE(table<std::string, std::filesystem::path>({
+        {"${WORK_DIR_PATH}/some/other/path", "some/other/path"},
+        {"${WORK_DIR_PATH}\\some\\other\\path", "some/other/path"},
+        {"some/other/path", "some/other/path"},
+        {"some\\other\\path", "some/other/path"},
+      }));
 
-    CAPTURE(targetPath);
+    CAPTURE(targetSpec);
 
-    auto task = mdl::CompilationCopyFiles{
-      true,
-      (testEnvironment.dir() / sourcePath).string(),
-      (testEnvironment.dir() / targetPath).string()};
+    auto task = mdl::CompilationCopyFiles{true, sourcePath, targetSpec};
     auto runner = CompilationCopyFilesTaskRunner{context, task};
 
     REQUIRE_NOTHROW(runner.execute());
 
-    CHECK(testEnvironment.directoryExists(kdl::parse_path(targetPath)));
-    CHECK(testEnvironment.loadFile(kdl::parse_path(targetPath) / sourcePath) == "{}");
+    CHECK(testEnvironment.directoryExists(expectedTargetPath));
+    CHECK(testEnvironment.loadFile(expectedTargetPath / sourcePath) == "{}");
   }
 
   SECTION("variable interpolation errors")
@@ -410,28 +417,30 @@ TEST_CASE("CompilationRenameFileTaskRunner")
     const auto sourcePath = "my_map.map";
     testEnvironment.createFile(sourcePath, "{}");
 
-    const auto targetPathStr =
-      GENERATE("some/other/path/your_map.map"s, "some\\other\\path\\your_map.map"s);
+    const auto [targetSpec, expectedTargetPath] =
+      GENERATE(table<std::string, std::filesystem::path>({
+        {"${WORK_DIR_PATH}/some/other/path/your_map.map", "some/other/path/your_map.map"},
+        {"${WORK_DIR_PATH}\\some\\other\\path\\your_map.map",
+         "some/other/path/your_map.map"},
+        {"some/other/path/your_map.map", "some/other/path/your_map.map"},
+        {"some\\other\\path\\your_map.map", "some/other/path/your_map.map"},
+      }));
 
-    CAPTURE(targetPathStr);
+    CAPTURE(targetSpec);
 
-    const auto targetPath = kdl::parse_path(targetPathStr);
     if (overwrite)
     {
-      testEnvironment.createDirectory(targetPath.parent_path());
-      testEnvironment.createFile(targetPath, "{...}");
-      REQUIRE(testEnvironment.loadFile(targetPath) == "{...}");
+      testEnvironment.createDirectory(expectedTargetPath.parent_path());
+      testEnvironment.createFile(expectedTargetPath, "{...}");
+      REQUIRE(testEnvironment.loadFile(expectedTargetPath) == "{...}");
     }
 
-    auto task = mdl::CompilationRenameFile{
-      true,
-      (testEnvironment.dir() / sourcePath).string(),
-      (testEnvironment.dir() / targetPathStr).string()};
+    auto task = mdl::CompilationRenameFile{true, sourcePath, targetSpec};
     auto runner = CompilationRenameFileTaskRunner{context, task};
 
     REQUIRE_NOTHROW(runner.execute());
 
-    CHECK(testEnvironment.loadFile(targetPath) == "{}");
+    CHECK(testEnvironment.loadFile(expectedTargetPath) == "{}");
   }
 
   SECTION("variable interpolation errors")
@@ -453,13 +462,14 @@ TEST_CASE("CompilationDeleteFilesTaskRunner")
   auto fixture = mdl::MapFixture{};
   auto& map = fixture.create();
 
-  auto variables = el::NullVariableStore{};
+  auto testEnvironment = fs::TestEnvironment{};
+
+  const auto testWorkDir = testEnvironment.dir().string();
+  auto variables = CompilationVariables{map, testWorkDir};
   auto output = QTextEdit{};
   auto outputAdapter = TextOutputAdapter{&output};
 
   auto context = CompilationContext{map, variables, outputAdapter, false};
-
-  auto testEnvironment = fs::TestEnvironment{};
 
   SECTION("deleteTargetPattern")
   {
@@ -473,8 +483,12 @@ TEST_CASE("CompilationDeleteFilesTaskRunner")
     testEnvironment.createFile(file3, "");
     testEnvironment.createDirectory(dir);
 
-    auto task =
-      mdl::CompilationDeleteFiles{K(enabled), (testEnvironment.dir() / "*.lit").string()};
+    const auto targetSpec = GENERATE(
+      std::filesystem::path{"${WORK_DIR_PATH}/*.lit"}, std::filesystem::path{"*.lit"});
+
+    CAPTURE(targetSpec);
+
+    auto task = mdl::CompilationDeleteFiles{K(enabled), targetSpec.string()};
     auto runner = CompilationDeleteFilesTaskRunner{context, task};
 
     REQUIRE_NOTHROW(runner.execute());

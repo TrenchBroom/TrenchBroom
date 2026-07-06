@@ -1655,7 +1655,7 @@ Name
 :    The name of this compilation profile. Need not be unique and can even be empty.
 
 Working directory
-:   A working directory for the compilation profile. This is optional, but very useful because it can be referred to as a variable when specifying the parameters of each task (see below). Variables are allowed (see below).
+:   A working directory for the compilation profile. This is optional, but very useful because it can be referred to as a variable when specifying the parameters of each task (see below). Variables are allowed (see below). Furthermore, relative paths will be interpreted as relative to this directory.
 
 Tasks
 :   A list of tasks which are executed sequentially when the compilation profile is run.
@@ -1673,7 +1673,7 @@ Layers marked "Omit From Export" will not be present in the exported map.
 #### Parameters
 
 Target
-:    The path of the exported file. Variables are allowed.
+:    The path of the exported file. Variables are allowed. Relative paths are implicitly relative to the working directory.
 
 Strip TB specific entity properties
 :    Strip any entity properties starting with _tb_ from the exported map file. Some compilers cannot handle these properties.
@@ -1695,7 +1695,7 @@ Stop on nonzero error code
 
 ### Copy Files
 
-Copies one or more files.
+Copies one or more files. Relative paths are implicitly relative to the working directory.
 
 #### Parameters
 
@@ -1707,7 +1707,7 @@ Target
 
 ### Rename File
 
-Renames or moves one file.
+Renames or moves one file. Relative paths are implicitly relative to the working directory.
 
 #### Parameters
 
@@ -1719,7 +1719,7 @@ Target
 
 ### Delete Files
 
-Deletes one or more files.
+Deletes one or more files. Relative paths are implicitly relative to the working directory.
 
 #### Parameters
 
@@ -1748,11 +1748,11 @@ If the [game configuration](#game_configuration) for the current game includes c
 It is recommended to use the following general process for compiling maps and to adapt it to your specified needs:
 
 1. Set the working directory to `${MAP_DIR_PATH}`.
-2. Add an *Export Map* task and set its target to `${WORK_DIR_PATH}/${MAP_BASE_NAME}-compile.map`.
+2. Add an *Export Map* task and set its target to `${MAP_BASE_NAME}-compile.map`.
 3. Add *Run Tool* tasks for the compilation tools that you wish to run. Use the expressions `${MAP_BASE_NAME}-compile.map` and `${MAP_BASE_NAME}.bsp` to specify the input and output files for the tools. Since you have set a working directory, you don't need to specify absolute paths here.
-4. Finally, add a *Copy Files* task and set its source to `${WORK_DIR_PATH}/${MAP_BASE_NAME}.bsp` and its target to `${GAME_DIR_PATH}/${MODS[-1]}/maps`. This copies the file to the maps directory within the last enabled mod.
+4. Finally, add a *Copy Files* task and set its source to `${MAP_BASE_NAME}.bsp` and its target to `${GAME_DIR_PATH}/${MODS[-1]}/maps`. This copies the file to the maps directory within the last enabled mod.
 
-The last step will copy the bsp file to the appropriate directory within the game path. You can add more *Copy Files* tasks if the compilation produces more than just a bsp file (e.g. lightmap files). Alternatively, you can use a wildcard expression such as `${WORK_DIR_PATH}/${MAP_BASE_NAME}.*` to copy related files.
+The last step will copy the bsp file to the appropriate directory within the game path. You can add more *Copy Files* tasks if the compilation produces more than just a bsp file (e.g. lightmap files). Alternatively, you can use a wildcard expression such as `${MAP_BASE_NAME}.*` to copy related files.
 
 To run a compilation profile, click the 'Run' button in the compilation dialog. Note that the 'Run' button changes into a 'Stop' button once the compilation profile is running. If you click on this button again, TrenchBroom will terminate the currently running tool. A running compilation will also be terminated if you close the compilation dialog or if you close the main window, but TrenchBroom will ask you before this happens. Note that the compilation tools are run in the background. You can keep working on your map if you wish.
 
