@@ -38,6 +38,7 @@ TEST_CASE("loadM32Texture")
 
   CHECK(texture.width() == 2);
   CHECK(texture.height() == 2);
+  CHECK(texture.mask() == gl::TextureMask::On);
 
   checkColor(texture, 0, 0, 255, 0, 0, 255);
   checkColor(texture, 1, 0, 0, 255, 0, 180);

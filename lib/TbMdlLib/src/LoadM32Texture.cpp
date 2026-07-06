@@ -69,6 +69,7 @@ Result<gl::Texture> loadM32Texture(fs::Reader& reader)
     const auto offsets = readSizeVec(M32Layout::MipLevels, reader);
 
     auto mip0AverageColor = Color{RgbaF{}};
+    auto hasTransparency = false;
     auto buffers = gl::TextureBufferList{};
 
     for (size_t mipLevel = 0; mipLevel < M32Layout::MipLevels; mipLevel++)
@@ -104,6 +105,7 @@ Result<gl::Texture> loadM32Texture(fs::Reader& reader)
           colorSum[0] += static_cast<uint32_t>(rgbaData[(i * 4) + 0]);
           colorSum[1] += static_cast<uint32_t>(rgbaData[(i * 4) + 1]);
           colorSum[2] += static_cast<uint32_t>(rgbaData[(i * 4) + 2]);
+          hasTransparency = hasTransparency || rgbaData[(i * 4) + 3] != 255;
         }
 
         mip0AverageColor = RgbaF{
@@ -119,7 +121,7 @@ Result<gl::Texture> loadM32Texture(fs::Reader& reader)
       heights[0],
       mip0AverageColor,
       GL_RGBA,
-      gl::TextureMask::Off,
+      hasTransparency ? gl::TextureMask::On : gl::TextureMask::Off,
       gl::NoEmbeddedDefaults{},
       std::move(buffers)};
   }
