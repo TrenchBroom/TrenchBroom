@@ -19,6 +19,7 @@
 
 #include "mdl/LoadSpriteModel.h"
 
+#include "Macros.h"
 #include "fs/ReaderException.h"
 #include "gl/IndexRangeMap.h"
 #include "gl/IndexRangeMapBuilder.h"
@@ -218,6 +219,80 @@ Result<Palette> parseEmbeddedPalette(
   return makePalette(data, PaletteColorFormat::Rgba);
 }
 
+auto makeTris(
+  const Orientation orientation,
+  const float x1,
+  const float x2,
+  const float y1,
+  const float y2)
+{
+  // For most orientation types, the sprite is billboarded
+  // entirely in the vertex shader using the x (horizontal) and y
+  // (vertical) components, with z unused (see
+  // EntityModel.vertsh). But Orientation::Oriented ignores the
+  // camera and is rotated like a regular model, i.e. using the
+  // same local axis convention as AngleVectors() in Quake:
+  // local +x is forward, local +y is left (so local -y is
+  // right), and local +z is up. So the horizontal offset must go
+  // into -y and the vertical offset into z.
+
+  switch (orientation)
+  {
+  case Orientation::ViewPlaneParallelUpright:
+  case Orientation::FacingUpright:
+  case Orientation::ViewPlaneParallel:
+  case Orientation::ViewPlaneParallelOriented:
+    return std::vector{
+      EntityModelVertex{{x1, y1, 0}, {0, 1}},
+      EntityModelVertex{{x1, y2, 0}, {0, 0}},
+      EntityModelVertex{{x2, y2, 0}, {1, 0}},
+
+      EntityModelVertex{{x2, y2, 0}, {1, 0}},
+      EntityModelVertex{{x2, y1, 0}, {1, 1}},
+      EntityModelVertex{{x1, y1, 0}, {0, 1}},
+    };
+  case Orientation::Oriented:
+    return std::vector{
+      EntityModelVertex{{0, -x1, y1}, {0, 1}},
+      EntityModelVertex{{0, -x1, y2}, {0, 0}},
+      EntityModelVertex{{0, -x2, y2}, {1, 0}},
+
+      EntityModelVertex{{0, -x2, y2}, {1, 0}},
+      EntityModelVertex{{0, -x2, y1}, {1, 1}},
+      EntityModelVertex{{0, -x1, y1}, {0, 1}},
+    };
+    switchDefault();
+  }
+}
+
+auto makeBounds(
+  const Orientation orientation,
+  const float x1,
+  const float x2,
+  const float y1,
+  const float y2)
+{
+  // see makeTriangles for the reasoning of the two cases
+
+  switch (orientation)
+  {
+  case Orientation::ViewPlaneParallelUpright:
+  case Orientation::FacingUpright:
+  case Orientation::ViewPlaneParallel:
+  case Orientation::ViewPlaneParallelOriented:
+    return vm::bbox3f{
+      {vm::min(x1, x2), vm::min(x1, x2), vm::min(y1, y2)},
+      {vm::max(x1, x2), vm::max(x1, x2), vm::max(y1, y2)},
+    };
+  case Orientation::Oriented:
+    return vm::bbox3f{
+      {0, -x2, y1},
+      {0, -x1, y2},
+    };
+    switchDefault();
+  }
+}
+
 } // namespace
 
 bool canLoadSpriteModel(const std::filesystem::path& path, fs::Reader reader)
@@ -289,30 +364,18 @@ Result<EntityModelData> loadSpriteModel(
                          const auto x2 = x1 + w;
                          const auto y2 = y1 + h;
 
-                         const auto bboxMin =
-                           vm::vec3f{vm::min(x1, x2), vm::min(x1, x2), vm::min(y1, y2)};
-                         const auto bboxMax =
-                           vm::vec3f{vm::max(x1, x2), vm::max(x1, x2), vm::max(y1, y2)};
-                         auto& modelFrame =
-                           data.addFrame(std::to_string(i), {bboxMin, bboxMax});
+                         const auto tris = makeTris(orientationType, x1, x2, y1, y2);
+                         const auto bounds = makeBounds(orientationType, x1, x2, y1, y2);
+
+                         auto& modelFrame = data.addFrame(std::to_string(i), bounds);
                          modelFrame.setSkinOffset(i);
-
-                         const auto triangles = std::vector<EntityModelVertex>{
-                           EntityModelVertex{{x1, y1, 0}, {0, 1}},
-                           EntityModelVertex{{x1, y2, 0}, {0, 0}},
-                           EntityModelVertex{{x2, y2, 0}, {1, 0}},
-
-                           EntityModelVertex{{x2, y2, 0}, {1, 0}},
-                           EntityModelVertex{{x2, y1, 0}, {1, 1}},
-                           EntityModelVertex{{x1, y1, 0}, {0, 1}},
-                         };
 
                          auto size = gl::IndexRangeMap::Size{};
                          size.inc(gl::PrimType::Triangles, 2);
 
                          auto builder =
                            gl::IndexRangeMapBuilder<EntityModelVertex::Type>{6, size};
-                         builder.addTriangles(triangles);
+                         builder.addTriangles(tris);
 
                          surface.addMesh(
                            modelFrame, builder.vertices(), builder.indices());
