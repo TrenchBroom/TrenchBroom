@@ -22,6 +22,7 @@
 #include <QDebug>
 #include <QPaintEvent>
 #include <QPainter>
+#include <QtSystemDetection>
 
 namespace tb::ui
 {
@@ -60,7 +61,7 @@ Splitter::Splitter(
   : QSplitter{orientation, parent}
   , m_drawKnob{drawKnob}
 {
-#ifdef __APPLE__
+#if defined(Q_OS_MACOS)
   connect(this, &QSplitter::splitterMoved, this, &Splitter::doSplitterMoved);
 #endif
 }
@@ -74,7 +75,7 @@ Splitter::Splitter(const DrawKnob drawKnob, QWidget* parent)
   : QSplitter{parent}
   , m_drawKnob{drawKnob}
 {
-#ifdef __APPLE__
+#if defined(Q_OS_MACOS)
   connect(this, &QSplitter::splitterMoved, this, &Splitter::doSplitterMoved);
 #endif
 }
@@ -89,7 +90,7 @@ QSplitterHandle* Splitter::createHandle()
   return new SplitterHandle{orientation(), m_drawKnob, this};
 }
 
-#ifdef __APPLE__
+#if defined(Q_OS_MACOS)
 void Splitter::doSplitterMoved()
 {
   for (int i = 0; i < count(); ++i)

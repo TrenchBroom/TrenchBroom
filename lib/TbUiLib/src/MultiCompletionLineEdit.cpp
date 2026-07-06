@@ -26,6 +26,7 @@
 #include <QScrollBar>
 #include <QShortcut>
 #include <QtGlobal>
+#include <QtSystemDetection>
 
 namespace tb::ui
 {
@@ -40,7 +41,7 @@ MultiCompletionLineEdit::MultiCompletionLineEdit(const QString& contents, QWidge
 {
   auto* shortcut = new QShortcut(
     QKeySequence(
-#ifdef __APPLE__
+#if defined(Q_OS_MACOS)
       +Qt::META
 #else
       +Qt::CTRL

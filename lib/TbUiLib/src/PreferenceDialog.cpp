@@ -28,12 +28,13 @@
 #include <QStackedWidget>
 #include <QToolBar>
 #include <QToolButton>
+#include <QtSystemDetection>
 
 #include "PreferenceManager.h"
 #include "ui/ImageUtils.h"
 #include "ui/QStyleUtils.h"
 #include "ui/UpdatePreferencePane.h"
-#if !defined __APPLE__
+#if !defined(Q_OS_MACOS)
 #include "ui/BorderLine.h"
 #endif
 #include "ui/ColorsPreferencePane.h"
@@ -206,7 +207,7 @@ void PreferenceDialog::createGui()
   setLayout(layout);
 
   layout->setMenuBar(m_toolBar);
-#if !defined __APPLE__
+#if !defined(Q_OS_MACOS)
   layout->addWidget(new BorderLine{});
 #endif
   layout->addWidget(m_stackedWidget, 1);

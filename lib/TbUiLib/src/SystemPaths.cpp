@@ -24,6 +24,7 @@
 #include <QProcessEnvironment>
 #include <QStandardPaths>
 #include <QString>
+#include <QtSystemDetection>
 
 #include "fs/DiskIO.h"
 #include "fs/PathInfo.h"
@@ -59,7 +60,7 @@ std::filesystem::path appDirectory()
 
 std::optional<std::filesystem::path> appImageFile()
 {
-#if defined __linux__ || defined __FreeBSD__
+#if defined(Q_OS_LINUX) || defined(Q_OS_FREEBSD)
   if (const auto* appImagePath = std::getenv("APPIMAGE"))
   {
     if (const auto appImagePathStr = std::string{appImagePath}; !appImagePathStr.empty())
@@ -83,7 +84,7 @@ std::filesystem::path userDataDirectory()
     return parentPath / "config";
   }
 
-#if defined __linux__ || defined __FreeBSD__
+#if defined(Q_OS_LINUX) || defined(Q_OS_FREEBSD)
   // Compatibility with wxWidgets
   return pathFromQString(QDir::homePath()) / ".TrenchBroom";
 #else

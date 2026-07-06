@@ -20,6 +20,7 @@
 #include "ui/InputEvent.h"
 
 #include <QApplication>
+#include <QtSystemDetection>
 
 #include "kd/contracts.h"
 #include "kd/overload.h"
@@ -403,7 +404,7 @@ void InputEventRecorder::recordEvent(const QWheelEvent& qtEvent)
   // all OS'es and doesn't give any way of knowing. see:
   // https://bugreports.qt.io/browse/QTBUG-30948
   const bool swapXY =
-#ifdef __APPLE__
+#if defined(Q_OS_MACOS)
     false;
 #else
     qtEvent.modifiers().testFlag(Qt::AltModifier);

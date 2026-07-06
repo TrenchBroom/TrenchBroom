@@ -23,6 +23,7 @@
 #include <QFileInfo>                 // IWYU pragma: keep
 #include <QNtfsPermissionCheckGuard> // IWYU pragma: keep
 #include <QProcess>
+#include <QtSystemDetection>
 
 #include "Macros.h" // IWYU pragma: keep
 #include "PreferenceManager.h"
@@ -51,9 +52,9 @@ bool shouldEnableUpdating()
     return false;
   }
 
-#if defined(_WIN32)
+#if defined(Q_OS_WIN)
   return SystemPaths::appFile().filename() == "TrenchBroom.exe";
-#elif defined(__APPLE__)
+#elif defined(Q_OS_MACOS)
   return SystemPaths::appFile().filename() == "TrenchBroom";
 #else
   return SystemPaths::appImageFile() != std::nullopt;
@@ -62,7 +63,7 @@ bool shouldEnableUpdating()
 
 auto getScriptPath()
 {
-#if defined(_WIN32)
+#if defined(Q_OS_WIN)
   return SystemPaths::findResourceFile(
     std::filesystem::path{"update/install_update.bat"});
 #else
@@ -72,9 +73,9 @@ auto getScriptPath()
 
 std::optional<std::filesystem::path> getAppFolderPath()
 {
-#if defined(_WIN32)
+#if defined(Q_OS_WIN)
   return SystemPaths::appDirectory();
-#elif defined(__APPLE__)
+#elif defined(Q_OS_MACOS)
   return SystemPaths::appDirectory().parent_path().parent_path();
 #else
   return SystemPaths::appImageFile();
@@ -104,7 +105,7 @@ std::optional<std::filesystem::path> getAppFolderPath()
 
 bool getRequiresAdminPrivileges([[maybe_unused]] const std::filesystem::path& targetPath)
 {
-#if defined _WIN32
+#if defined(Q_OS_WIN)
   // enable NTFS permission checks:
   const auto permissionGuard = QNtfsPermissionCheckGuard{};
   Q_ASSERT(qAreNtfsPermissionChecksEnabled());
@@ -117,9 +118,9 @@ bool getRequiresAdminPrivileges([[maybe_unused]] const std::filesystem::path& ta
 
 auto getRelativeAppPath()
 {
-#if defined(_WIN32)
+#if defined(Q_OS_WIN)
   return std::filesystem::path{"trenchbroom.exe"};
-#elif defined(__APPLE__)
+#elif defined(Q_OS_MACOS)
   return std::filesystem::path{"Contents/MacOS/TrenchBroom"};
 #else
   return std::filesystem::path{};
@@ -152,19 +153,19 @@ auto makeCheckForUpdates(const UpdateVersion& currentVersion)
 auto prepareUpdate(
   const QString& downloadedUpdatePath, const upd::UpdateConfig& updateConfig)
 {
-#if defined(_WIN32)
+#if defined(Q_OS_WIN)
   return upd::unzip(
            downloadedUpdatePath,
            updateConfig.workDirPath + "/TrenchBroom",
            updateConfig.logFilePath)
            ? std::optional{updateConfig.workDirPath + "/TrenchBroom"}
            : std::nullopt;
-#elif defined(__APPLE__)
+#elif defined(Q_OS_MACOS)
   return upd::unzip(
            downloadedUpdatePath, updateConfig.workDirPath, updateConfig.logFilePath)
            ? std::optional{updateConfig.workDirPath + "/TrenchBroom.app"}
            : std::nullopt;
-#elif defined(__linux__)
+#elif defined(Q_OS_LINUX)
   return upd::unzip(
            downloadedUpdatePath, updateConfig.workDirPath, updateConfig.logFilePath)
            ? std::optional{updateConfig.workDirPath + "/TrenchBroom.AppImage"}

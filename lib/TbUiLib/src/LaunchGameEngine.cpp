@@ -22,6 +22,7 @@
 #include <QProcess>
 #include <QString>
 #include <QStringList>
+#include <QtSystemDetection>
 
 #include "el/Interpolate.h"
 #include "mdl/GameEngineProfile.h"
@@ -69,7 +70,7 @@ Result<void> launchGameEngineProfile(
            }
 
            constexpr auto isMacOs =
-#ifdef __APPLE__
+#if defined(Q_OS_MACOS)
              true;
 #else
              false;

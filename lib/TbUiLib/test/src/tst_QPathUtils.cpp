@@ -18,6 +18,7 @@
  */
 
 #include <QString>
+#include <QtSystemDetection>
 
 #include "ui/CatchConfig.h"
 #include "ui/QPathUtils.h"
@@ -39,7 +40,7 @@ TEST_CASE("pathAsQPath")
   using T = std::tuple<std::filesystem::path, QString>;
 
   // clang-format off
-  #ifdef _WIN32
+  #if defined(Q_OS_WIN)
   const auto 
   [fsPath,                             qPath] = GENERATE(values<T>({
   {LR"()",                              R"()"},
@@ -69,7 +70,7 @@ TEST_CASE("pathAsQString")
   using T = std::tuple<std::filesystem::path, std::string>;
 
   // clang-format off
-  #ifdef _WIN32
+  #if defined(Q_OS_WIN)
   const auto 
   [fsPath,                             qPath] = GENERATE(values<T>({
   {LR"()",                              R"()"},
@@ -99,7 +100,7 @@ TEST_CASE("pathAsGenericQString")
   using T = std::tuple<std::filesystem::path, QString>;
 
   // clang-format off
-  #ifdef _WIN32
+  #if defined(Q_OS_WIN)
   const auto 
   [fsPath,                             qPath] = GENERATE(values<T>({
   {LR"()",                              R"()"},
@@ -129,7 +130,7 @@ TEST_CASE("pathFromQString")
   using T = std::tuple<QString, std::filesystem::path>;
 
   // clang-format off
-  #ifdef _WIN32
+  #if defined(Q_OS_WIN)
   const auto 
   [qPath,                              fsPath] = GENERATE(values<T>({
   {R"()",                              LR"()"},

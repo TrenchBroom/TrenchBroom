@@ -18,6 +18,7 @@
  */
 
 #include <QList>
+#include <QtSystemDetection>
 
 #include "ui/CatchConfig.h"
 #include "ui/UpdateVersion.h"
@@ -129,9 +130,9 @@ TEST_CASE("chooseAsset")
       {"TrenchBroom-Linux-x86_64-v2025.3-RC3-Release.zip", QUrl{}, 0},
     };
 
-#if defined(_WIN32)
+#if defined(Q_OS_WIN)
     CHECK(chooseAsset(assets) == assets[0]);
-#elif defined(__APPLE__)
+#elif defined(Q_OS_MACOS)
 #if defined(__arm64__)
     CHECK(chooseAsset(assets) == assets[1]);
 #else
@@ -151,9 +152,9 @@ TEST_CASE("chooseAsset")
       {"TrenchBroom-Linux-x86_64-v2025.3-Release.zip", QUrl{}, 0},
     };
 
-#if defined(_WIN32)
+#if defined(Q_OS_WIN)
     CHECK(chooseAsset(assets) == assets[0]);
-#elif defined(__APPLE__)
+#elif defined(Q_OS_MACOS)
 #if defined(__arm64__)
     CHECK(chooseAsset(assets) == assets[1]);
 #else

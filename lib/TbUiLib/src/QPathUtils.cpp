@@ -20,6 +20,7 @@
 #include "ui/QPathUtils.h"
 
 #include <QFileInfo>
+#include <QtSystemDetection>
 
 #include "kd/path_utils.h"
 
@@ -33,7 +34,7 @@ QString pathAsQPath(const std::filesystem::path& path)
 
 QString pathAsQString(const std::filesystem::path& path)
 {
-#ifdef _WIN32
+#if defined(Q_OS_WIN)
   return QString::fromStdWString(path.wstring());
 #else
   return QString::fromStdString(path.string());
@@ -42,7 +43,7 @@ QString pathAsQString(const std::filesystem::path& path)
 
 QString pathAsGenericQString(const std::filesystem::path& path)
 {
-#ifdef _WIN32
+#if defined(Q_OS_WIN)
   return QString::fromStdWString(path.generic_wstring());
 #else
   return QString::fromStdString(path.generic_string());
@@ -51,7 +52,7 @@ QString pathAsGenericQString(const std::filesystem::path& path)
 
 std::filesystem::path pathFromQString(const QString& path)
 {
-#ifdef _WIN32
+#if defined(Q_OS_WIN)
   return std::filesystem::path{kdl::parse_path(path.toStdWString())};
 #else
   return std::filesystem::path{kdl::parse_path(path.toStdString())};
