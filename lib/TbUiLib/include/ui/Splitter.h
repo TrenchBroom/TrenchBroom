@@ -20,6 +20,7 @@
 #pragma once
 
 #include <QSplitter>
+#include <QtSystemDetection>
 
 namespace tb::ui
 {
@@ -61,7 +62,7 @@ public:
 protected:
   QSplitterHandle* createHandle() override;
 
-#ifdef __APPLE__
+#if defined(Q_OS_MACOS)
   // on macOS, the widgets are not repainted properly when the splitter moves, so we force
   // them to repaint
 private slots:

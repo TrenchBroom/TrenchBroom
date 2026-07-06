@@ -25,6 +25,7 @@
 #include <QLineEdit>
 #include <QPushButton>
 #include <QStackedWidget>
+#include <QtSystemDetection>
 
 #include "fs/DiskIO.h"
 #include "fs/PathInfo.h"
@@ -137,9 +138,9 @@ bool GameEngineProfileEditor::isValidEnginePath(const QString& str) const
   {
     const auto path = pathFromQString(str);
     return fs::Disk::pathInfo(path) == fs::PathInfo::File
-#ifdef __APPLE__
-           || (fs::Disk::pathInfo(path) == fs::PathInfo::Directory 
-           && kdl::ci::str_is_equal(path.extension().string(), ".app"))
+#if defined(Q_OS_MACOS)
+           || (fs::Disk::pathInfo(path) == fs::PathInfo::Directory
+               && kdl::ci::str_is_equal(path.extension().string(), ".app"))
 #endif
       ;
   }

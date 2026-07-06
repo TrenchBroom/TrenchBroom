@@ -21,6 +21,7 @@
 #include <QJsonObject>
 #include <QKeySequence>
 #include <QLockFile>
+#include <QtSystemDetection>
 
 #include "Observer.h"
 #include "TestEnvironment.h"
@@ -178,7 +179,7 @@ TEST_CASE("QPreferenceStore")
   }
 
   // The following tests are unreliable on Windows
-#if !defined(_WIN32) && !defined(_WIN64)
+#if !defined(Q_OS_WIN)
   SECTION("preferences are saved after a delay")
   {
     auto preferenceStore = QPreferenceStore{pathAsQString(preferenceFilePath), 100ms};
@@ -257,7 +258,7 @@ TEST_CASE("QPreferenceStore")
 TEST_CASE("Preference lock file")
 {
 // ensure that a lock file can be created in a directory with non-ASCII characters
-#ifdef _WIN32
+#if defined(Q_OS_WIN)
   const auto lockFilePath =
     getFixtureRoot() / LR"(test\Кристиян\ぁ\preferences-v2.json.lck)";
 #else

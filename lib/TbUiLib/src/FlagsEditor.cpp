@@ -23,6 +23,7 @@
 #include <QCheckBox>
 #include <QGridLayout>
 #include <QPushButton>
+#include <QtSystemDetection>
 
 #include "ui/QStyleUtils.h"
 #include "ui/QWidgetUtils.h"

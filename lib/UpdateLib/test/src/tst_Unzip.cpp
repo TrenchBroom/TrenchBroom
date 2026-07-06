@@ -22,6 +22,7 @@
 #include <QFileInfo>
 #include <QProcess>
 #include <QTemporaryDir>
+#include <QtSystemDetection>
 #include <QtTest/QTest>
 
 #include "TestUtils.h"

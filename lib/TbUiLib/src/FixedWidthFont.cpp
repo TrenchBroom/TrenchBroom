@@ -20,13 +20,14 @@
 #include "ui/FixedWidthFont.h"
 
 #include <QFontDatabase>
+#include <QtSystemDetection>
 
 namespace tb::ui::Fonts
 {
 
 QFont fixedWidthFont()
 {
-#if defined __APPLE__
+#if defined(Q_OS_MACOS)
   auto font = QFont{"Monaco"};
   font.setStyleHint(QFont::TypeWriter);
   return font;

@@ -22,6 +22,7 @@
 #include <QHBoxLayout>
 #include <QResizeEvent>
 #include <QStackedLayout>
+#include <QtSystemDetection>
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
@@ -52,7 +53,7 @@ void MapViewBar::createGui(MapDocument& document)
 
   m_viewEditor = new ViewPopupEditor{document};
 
-#ifdef __APPLE__
+#if defined(Q_OS_MACOS)
   const auto vMargin = pref(Preferences::Theme) == Preferences::DarkTheme
                          ? LayoutConstants::MediumVMargin
                          : 0;

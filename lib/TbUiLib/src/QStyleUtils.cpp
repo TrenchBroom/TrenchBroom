@@ -27,6 +27,7 @@
 #include <QPalette>
 #include <QString>
 #include <QWidget>
+#include <QtSystemDetection>
 
 #include "ui/BorderLine.h" // IWYU pragma: keep
 #include "ui/ImageUtils.h"
@@ -123,7 +124,7 @@ void setBaseWindowColor(QWidget* widget)
 
 void insertTitleBarSeparator([[maybe_unused]] QVBoxLayout* layout)
 {
-#ifdef _WIN32
+#if defined(Q_OS_WIN)
   layout->insertWidget(0, new BorderLine{}, 1);
 #endif
 }

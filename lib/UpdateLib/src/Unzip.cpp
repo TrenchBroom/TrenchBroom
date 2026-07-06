@@ -22,6 +22,7 @@
 #include <QDir>
 #include <QFileInfo>
 #include <QProcess>
+#include <QtSystemDetection>
 
 #include "update/Logging.h"
 

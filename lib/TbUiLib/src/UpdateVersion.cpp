@@ -20,6 +20,7 @@
 #include "ui/UpdateVersion.h"
 
 #include <QRegularExpression>
+#include <QtSystemDetection>
 
 #include "kd/overload.h"
 #include "kd/reflection_impl.h"
@@ -197,10 +198,10 @@ namespace
 {
 auto buildAssetPattern()
 {
-#if defined(_WIN32)
+#if defined(Q_OS_WIN)
   return QRegularExpression{
     R"(TrenchBroom-Win64-AMD64-v\d{4}\.\d+(?:-RC(\d+))?-Release.zip)"};
-#elif defined(__APPLE__)
+#elif defined(Q_OS_MACOS)
 #if defined(__arm64__)
   return QRegularExpression{
     R"(TrenchBroom-macOS-arm64-v\d{4}\.\d+(?:-RC(\d+))?-Release.zip)"};

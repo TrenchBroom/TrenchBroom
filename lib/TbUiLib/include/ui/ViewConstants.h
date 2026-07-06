@@ -19,11 +19,13 @@
 
 #pragma once
 
+#include <QtSystemDetection>
+
 namespace tb::ui
 {
 namespace LayoutConstants
 {
-#if defined _WIN32
+#if defined(Q_OS_WIN)
 static constexpr int DialogOuterMargin = 20;
 static constexpr int DialogButtonTopMargin = 10;
 static constexpr int DialogButtonLeftMargin = 7;
@@ -44,7 +46,7 @@ static constexpr int ChoiceSizeDelta = 0;
 static constexpr int TextBoxInnerMargin = 5;
 static constexpr int TabBarBarLeftMargin = 10;
 static constexpr int ToggleButtonStyle = 0;
-#elif defined __APPLE__
+#elif defined(Q_OS_MACOS)
 static constexpr int DialogOuterMargin = 20;
 static constexpr int DialogButtonTopMargin = 10;
 static constexpr int DialogButtonLeftMargin = 10;

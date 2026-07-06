@@ -20,6 +20,7 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 #include <QCoreApplication>
 #include <QObject>
 #include <QTextEdit>
+#include <QtSystemDetection>
 #include <QtTest/QSignalSpy>
 
 #include "CmdTool.h"
@@ -237,7 +238,7 @@ str
 escaped str)"));
   }
 
-#if !defined(_WIN32) && !defined(_WIN64)
+#if !defined(Q_OS_WIN)
   // the test is unreliable on Windows
   SECTION("toolAborts")
   {
@@ -261,7 +262,7 @@ escaped str)"));
   }
 #endif
 
-#if !defined(__APPLE__) || defined(NDEBUG)
+#if !defined(Q_OS_MACOS) || defined(NDEBUG)
   // the test is unreliable on macOS in debug mode
   SECTION("toolCrashes")
   {
@@ -280,7 +281,7 @@ escaped str)"));
     REQUIRE(exec.executeAndWait(5000ms));
 
     CHECK(exec.started);
-#if defined _WIN32
+#if defined(Q_OS_WIN)
     // QProcess does not report a crash on SIGSEGV on Windows
     CHECK(exec.errored == treatNonZeroResultCodeAsError);
     CHECK(exec.ended == !treatNonZeroResultCodeAsError);

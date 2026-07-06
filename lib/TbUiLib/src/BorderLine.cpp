@@ -19,6 +19,8 @@
 
 #include "ui/BorderLine.h"
 
+#include <QtSystemDetection>
+
 #include "ui/ViewConstants.h"
 
 namespace tb::ui
@@ -35,7 +37,7 @@ BorderLine::BorderLine(const Direction direction, const int thickness, QWidget* 
   if (direction == Direction::Horizontal)
   {
     setFrameShape(QFrame::HLine);
-#if !defined __APPLE__
+#if !defined(Q_OS_MACOS)
     // necessary to remove extra space around the horizontal line
     setFixedHeight(thickness);
 #endif
@@ -43,7 +45,7 @@ BorderLine::BorderLine(const Direction direction, const int thickness, QWidget* 
   else
   {
     setFrameShape(QFrame::VLine);
-#if !defined __APPLE__
+#if !defined(Q_OS_MACOS)
     // this makes the vertical line disappear on macOS
     setFixedWidth(thickness);
 #endif

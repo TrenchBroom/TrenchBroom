@@ -20,6 +20,7 @@
 #pragma once
 
 #include <QObject>
+#include <QtSystemDetection>
 
 #include "Result.h"
 
@@ -97,7 +98,7 @@ public:
     std::unique_ptr<mdl::GameManager> gameManager);
 
   static constexpr auto useSDI =
-#ifdef _WIN32
+#if defined(Q_OS_WIN)
     true;
 #else
     false;

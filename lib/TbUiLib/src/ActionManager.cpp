@@ -21,6 +21,7 @@
 
 #include <QKeySequence>
 #include <QString>
+#include <QtSystemDetection>
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
@@ -1056,7 +1057,7 @@ void ActionManager::createEditMenu()
     QObject::tr("Delete"),
     ActionContext::Any,
     QKeySequence{
-#ifdef __APPLE__
+#if defined(Q_OS_MACOS)
       Qt::Key_Backspace
 #else
       QKeySequence::Delete
@@ -1858,7 +1859,7 @@ void ActionManager::createViewMenu()
     "Menu/View/Maximize Current View",
     QObject::tr("Maximize Current View"),
     ActionContext::Any,
-#ifdef Q_OS_MACOS
+#if defined(Q_OS_MACOS)
     // Command + Space opens Spotlight so we can't use it, so use Ctrl + Space instead.
     QKeySequence{Qt::META | Qt::Key_Space},
 #else
