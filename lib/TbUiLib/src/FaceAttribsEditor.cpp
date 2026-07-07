@@ -131,16 +131,24 @@ void FaceAttribsEditor::justifyClicked(const mdl::UvJustifyDirection uvJustifyDi
 
 void FaceAttribsEditor::fitClicked(const mdl::UvFitDirection uvFitDirection)
 {
-  const auto uvPolicy = qApp->keyboardModifiers().testFlag(Qt::ShiftModifier)
-                          ? mdl::UvPolicy::prev
-                          : mdl::UvPolicy::next;
+  if (qApp->keyboardModifiers().testFlag(Qt::ControlModifier))
+  {
+    fitUVPerfectly(m_document.map(), uvFitDirection);
+  }
+  else
+  {
+    const auto uvPolicy = qApp->keyboardModifiers().testFlag(Qt::ShiftModifier)
+                            ? mdl::UvPolicy::prev
+                            : mdl::UvPolicy::next;
 
-  fitUV(m_document.map(), uvFitDirection, uvPolicy);
+    fitUV(m_document.map(), uvFitDirection, uvPolicy);
+  }
 }
 
 void FaceAttribsEditor::autoFitClicked()
 {
-  autoFitUV(m_document.map());
+  const auto fitPerfectly = qApp->keyboardModifiers().testFlag(Qt::ControlModifier);
+  autoFitUV(m_document.map(), fitPerfectly);
 }
 
 void FaceAttribsEditor::xOffsetChanged(const double value)
@@ -422,18 +430,26 @@ Hold %1 to cycle backwards.)")
     tr(
       R"(Fit texture horizontally.
 Click again to cycle through options.
-Hold %1 to cycle backwards.)")
-      .arg(nativeModifierLabel(Qt::SHIFT)),
+Hold %1 to cycle backwards.
+Hold %2 to fit perfectly.)")
+      .arg(nativeModifierLabel(Qt::SHIFT))
+      .arg(nativeModifierLabel(Qt::CTRL)),
     this);
   m_fitVButton = createBitmapButton(
     "FitTextureVertically.svg",
     tr(R"(Fit texture vertically.
 Click again to cycle through options.
-Hold %1 to cycle backwards.)")
-      .arg(nativeModifierLabel(Qt::SHIFT)),
+Hold %1 to cycle backwards.
+Hold %2 to fit perfectly.)")
+      .arg(nativeModifierLabel(Qt::SHIFT))
+      .arg(nativeModifierLabel(Qt::CTRL)),
     this);
-  m_autoFitButton =
-    createBitmapButton("AutoFitTexture.svg", tr("Fit texture to face."), this);
+  m_autoFitButton = createBitmapButton(
+    "AutoFitTexture.svg",
+    tr(R"(Fit texture to face.
+Hold %1 to fit perfectly.)")
+      .arg(nativeModifierLabel(Qt::CTRL)),
+    this);
 
   auto* innerLayout = new QGridLayout{};
   innerLayout->addWidget(m_justifyUpButton, 0, 1);

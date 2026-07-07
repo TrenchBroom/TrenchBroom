@@ -1018,11 +1018,13 @@ Justify      Change the offset to justify the texture to the face's bounding box
 Fit          Change the scale to fit the texture (or a multiple of it) onto the face while keeping it justified.
 
 
-![Align, justify and fit buttons](images/AlignJustifyFit.png) Click one of the four triangle buttons to justify the texture against the face's bounding box. If the texture size in the chosen direction is a multiple of the face size along the same axis, you can press the justify button multiple times to step through different options. This can be helpful to justify a texture from a texture atlas. Hold shift when clicking to step through the options in the opposite direction.
+![Align, justify and fit buttons](images/AlignJustifyFit.png) Click one of the four triangle buttons to justify the texture against the face's bounding box. If the texture size in the chosen direction is a multiple of the face size along the same axis, you can press the justify button multiple times to step through different options. This can be helpful to justify a texture from a texture atlas. Hold #key(Shift) when clicking to step through the options in the opposite direction.
 
-The lower three buttons are used to align and fit the texture. Click on the leftmost button to align the texture to the face edges. Click repeatedly to cycle through the face edges. Hold shift while clicking to cycle in the opposite direction. The two remaining buttons fit the texture horizontally and vertically. Again, you can click again to cycle through different fitting options. Repeated clicks cycle through integer fit factors, increasing the repeat count (or, below 1, the corresponding integer divisor) one step at a time. Again, hold shift to cycle through the options in the opposite direction.
+The lower three buttons are used to align and fit the texture. Click on the leftmost button to align the texture to the face edges. Click repeatedly to cycle through the face edges. Hold #key(Shift) while clicking to cycle in the opposite direction.
 
-The button in the center of the four justification arrows auto fits the texture, i.e. it aligns, justifies and fits the texture.
+The two remaining buttons fit the texture horizontally and vertically. Again, you can click again to cycle through different fitting options. Repeated clicks cycle through integer fit factors, increasing the repeat count (or, below 1, the corresponding integer divisor) one step at a time. Again, hold #key(Shift) to cycle through the options in the opposite direction. To obtain a perfect fit where the texture is fit to the face regardless of the existing scaling, hold #key(Ctrl) while clicking the fit buttons.
+
+The button in the center of the four justification arrows auto fits the texture, i.e. it aligns, justifies and fits the texture. To obtain a perfect fit, hold #key(Ctrl) while clicking the auto fit button.
 
 #### The Face Attribute Editor {#face_attribute_editor}
 
