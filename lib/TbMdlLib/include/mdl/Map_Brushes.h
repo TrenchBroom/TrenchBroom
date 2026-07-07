@@ -84,6 +84,6 @@ void alignUV(Map& map, UvPolicy uvPolicy);
 void justifyUV(Map& map, UvJustifyDirection uvJustifyDirection, UvPolicy uvPolicy);
 void fitUV(Map& map, UvFitDirection uvFitDirection, UvPolicy uvPolicy);
 void fitUVPerfectly(Map& map, UvFitDirection uvFitDirection);
-void autoFitUV(Map& map);
+void autoFitUV(Map& map, bool fitPerfectly);
 
 } // namespace tb::mdl

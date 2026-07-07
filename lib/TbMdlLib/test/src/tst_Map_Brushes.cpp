@@ -1165,7 +1165,7 @@ TEST_CASE("Map_Brushes")
 
       deselectAll(map);
       selectBrushFaces(map, {{brushNode, iFront}, {brushNode, iRight}});
-      autoFitUV(map);
+      autoFitUV(map, false);
 
       // front face is now aligned
       CHECK(getFace(*brushNode, iFront).uAxis() == vm::approx{vm::vec3d{1, 0, 0}});
@@ -1226,7 +1226,7 @@ TEST_CASE("Map_Brushes")
       REQUIRE(getFace(*brushNode, iRight).uAxis() == vm::approx{vm::vec3d{0, 1, 0}});
       REQUIRE(getFace(*brushNode, iRight).vAxis() == vm::approx{vm::vec3d{0, 0, -1}});
 
-      autoFitUV(map);
+      autoFitUV(map, false);
 
       CHECK(getFace(*brushNode, iFront).uAxis() == vm::approx{vm::vec3d{1, 0, 0}});
       CHECK(getFace(*brushNode, iFront).vAxis() == vm::approx{vm::vec3d{0, 0, -1}});
@@ -1277,7 +1277,7 @@ TEST_CASE("Map_Brushes")
 
       deselectAll(map);
       selectBrushFaces(map, {{brushNode, iFront}, {brushNode, iRight}});
-      autoFitUV(map);
+      autoFitUV(map, false);
 
       const auto modifiedFrontAttributes = getFace(*brushNode, iFront).attributes();
       const auto modifiedRightAttributes = getFace(*brushNode, iRight).attributes();
@@ -1294,6 +1294,103 @@ TEST_CASE("Map_Brushes")
 
       REQUIRE(getFace(*brushNode, iFront).attributes() == modifiedFrontAttributes);
       REQUIRE(getFace(*brushNode, iRight).attributes() == modifiedRightAttributes);
+    }
+  }
+
+  SECTION("autoFitUV with fitPerfectly")
+  {
+    auto& map = fixture.create(QuakeFixtureConfig);
+
+    auto* brushNode = createBrushNode(map);
+    addNodes(map, {{parentForNodes(map), {brushNode}}});
+
+    const auto iFront = *brushNode->brush().findFace(vm::vec3d{0, -1, 0});
+    REQUIRE(iFront);
+
+    const auto iTop = *brushNode->brush().findFace(vm::vec3d{0, 0, 1});
+    REQUIRE(iTop);
+
+    deselectAll(map);
+    selectBrushFaces(map, {{brushNode, iFront}});
+    REQUIRE(setBrushFaceAttributes(
+      map,
+      {
+        .xOffset = SetValue{5.0f},
+        .yOffset = SetValue{9.0f},
+        .rotation = SetValue{15.0f},
+        .xScale = SetValue{1.3f},
+        .yScale = SetValue{0.8f},
+      }));
+
+    const auto originalFrontAttributes = getFace(*brushNode, iFront).attributes();
+    const auto originalTopAttributes = getFace(*brushNode, iTop).attributes();
+
+    auto expectedBrush = brushNode->brush();
+    auto& expectedFace = expectedBrush.face(iFront);
+
+    evaluate(align(expectedFace, UvPolicy::closest), expectedFace);
+    evaluate(
+      justify(expectedFace, UvAxis::u, UvSign::plus, UvPolicy::closest), expectedFace);
+    evaluate(
+      justify(expectedFace, UvAxis::v, UvSign::plus, UvPolicy::closest), expectedFace);
+
+    const auto invariantUVertex = anchorVertex(expectedFace, UvAxis::u, UvSign::plus);
+    const auto previousUCoords = vm::vec2f{
+      expectedFace.toUVCoordSystemMatrix(
+        expectedFace.attributes().offset(), expectedFace.attributes().scale())
+      * invariantUVertex};
+    evaluate(fitPerfectly(expectedFace, UvAxis::u), expectedFace);
+    const auto newUCoords = vm::vec2f{
+      expectedFace.toUVCoordSystemMatrix(
+        expectedFace.attributes().offset(), expectedFace.attributes().scale())
+      * invariantUVertex};
+    const auto uDelta = previousUCoords - newUCoords;
+    evaluate(
+      {.xOffset = AddValue{uDelta.x()}, .yOffset = AddValue{uDelta.y()}}, expectedFace);
+
+    const auto invariantVVertex = anchorVertex(expectedFace, UvAxis::v, UvSign::plus);
+    const auto previousVCoords = vm::vec2f{
+      expectedFace.toUVCoordSystemMatrix(
+        expectedFace.attributes().offset(), expectedFace.attributes().scale())
+      * invariantVVertex};
+    evaluate(fitPerfectly(expectedFace, UvAxis::v), expectedFace);
+    const auto newVCoords = vm::vec2f{
+      expectedFace.toUVCoordSystemMatrix(
+        expectedFace.attributes().offset(), expectedFace.attributes().scale())
+      * invariantVVertex};
+    const auto vDelta = previousVCoords - newVCoords;
+    evaluate(
+      {.xOffset = AddValue{vDelta.x()}, .yOffset = AddValue{vDelta.y()}}, expectedFace);
+
+    const auto expectedAttributes = expectedFace.attributes();
+
+    autoFitUV(map, true);
+
+    CHECK_THAT(
+      getFace(*brushNode, iFront).attributes(),
+      !MatchesBrushFaceAttributes(originalFrontAttributes));
+    CHECK_THAT(
+      getFace(*brushNode, iFront).attributes(),
+      MatchesBrushFaceAttributes(expectedAttributes));
+
+    // top face was not affected
+    CHECK_THAT(
+      getFace(*brushNode, iTop).attributes(),
+      MatchesBrushFaceAttributes(originalTopAttributes));
+
+    SECTION("Undo and redo")
+    {
+      map.undoCommand();
+
+      CHECK_THAT(
+        getFace(*brushNode, iFront).attributes(),
+        MatchesBrushFaceAttributes(originalFrontAttributes));
+
+      map.redoCommand();
+
+      CHECK_THAT(
+        getFace(*brushNode, iFront).attributes(),
+        MatchesBrushFaceAttributes(expectedAttributes));
     }
   }
 }
