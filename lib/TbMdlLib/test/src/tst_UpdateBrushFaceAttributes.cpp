@@ -42,7 +42,7 @@ TEST_CASE("UpdateBrushFaceAttributes")
   static constexpr auto Vlv = MapFormat::Valve;
   static constexpr auto UvU = UvAxis::u;
   static constexpr auto UvV = UvAxis::v;
-  static constexpr auto UvBest = UvPolicy::best;
+  static constexpr auto UvBest = UvPolicy::closest;
   static constexpr auto UvNext = UvPolicy::next;
   static constexpr auto UvPrev = UvPolicy::prev;
   static constexpr auto UvPls = UvSign::plus;

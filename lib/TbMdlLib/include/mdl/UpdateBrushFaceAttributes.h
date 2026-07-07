@@ -141,7 +141,7 @@ UpdateBrushFaceAttributes resetAllToParaxial(
 
 enum class UvPolicy
 {
-  best,
+  closest,
   next,
   prev,
 };

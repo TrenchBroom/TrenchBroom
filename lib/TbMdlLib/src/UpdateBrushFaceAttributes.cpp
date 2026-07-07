@@ -78,7 +78,7 @@ T findNextScaleFactor(const T f, const UvPolicy uvPolicy)
   const auto nextMagnitude = [&]() -> T {
     switch (uvPolicy)
     {
-    case UvPolicy::best:
+    case UvPolicy::closest:
       return magnitude >= T(1) ? vm::round(magnitude)
                                : T(1) / vm::round(T(1) / magnitude);
     case UvPolicy::next:
@@ -194,20 +194,21 @@ std::tuple<vm::vec2d, bool> findEdgeToAlignTo(
     | kdl::ranges::to<std::vector>();
 
   // find the edge vec that is closest to the U axis
-  const auto iBestMatch = std::ranges::max_element(edgeVecs, std::less<double>{}, dot);
-  contract_assert(iBestMatch != std::ranges::end(edgeVecs));
+  const auto iClosestMatch = std::ranges::max_element(edgeVecs, std::less<double>{}, dot);
+  contract_assert(iClosestMatch != std::ranges::end(edgeVecs));
 
-  const auto isExactMatch = vm::is_equal(dot(*iBestMatch), 1.0, vm::Cd::angle_epsilon());
+  const auto isExactMatch =
+    vm::is_equal(dot(*iClosestMatch), 1.0, vm::Cd::angle_epsilon());
 
   const auto edgeToAlignTo = [&] {
     switch (uvPolicy)
     {
-    case UvPolicy::best:
-      return *iBestMatch;
+    case UvPolicy::closest:
+      return *iClosestMatch;
     case UvPolicy::next:
-      return isExactMatch ? *kdl::succ(edgeVecs, iBestMatch) : *iBestMatch;
+      return isExactMatch ? *kdl::succ(edgeVecs, iClosestMatch) : *iClosestMatch;
     case UvPolicy::prev:
-      return isExactMatch ? *kdl::pred(edgeVecs, iBestMatch) : *iBestMatch;
+      return isExactMatch ? *kdl::pred(edgeVecs, iClosestMatch) : *iClosestMatch;
       switchDefault();
     }
   }();
@@ -338,8 +339,8 @@ std::ostream& operator<<(std::ostream& lhs, const UvPolicy rhs)
 {
   switch (rhs)
   {
-  case UvPolicy::best:
-    lhs << "best";
+  case UvPolicy::closest:
+    lhs << "closest";
     break;
   case UvPolicy::next:
     lhs << "next";
@@ -408,7 +409,8 @@ vm::vec3d anchorVertex(
 
 bool isAligned(const BrushFace& brushFace)
 {
-  const auto [edgeToAlignTo, isExactMatch] = findEdgeToAlignTo(brushFace, UvPolicy::best);
+  const auto [edgeToAlignTo, isExactMatch] =
+    findEdgeToAlignTo(brushFace, UvPolicy::closest);
   return isExactMatch;
 }
 
@@ -447,7 +449,7 @@ bool isJustified(const BrushFace& brushFace, const UvAxis uvAxis, const UvSign u
 
 bool isFitted(const BrushFace& brushFace, UvAxis uvAxis)
 {
-  const auto value = scaleFactorToFit(brushFace, uvAxis, UvPolicy::best);
+  const auto value = scaleFactorToFit(brushFace, uvAxis, UvPolicy::closest);
 
   switch (uvAxis)
   {
@@ -507,23 +509,23 @@ UpdateBrushFaceAttributes justify(
 
   const auto currentOffset =
     normalizeOffset(vm::dot(brushFace.attributes().offset(), axis), textureLength);
-  const auto iBestMatch = std::ranges::min_element(
+  const auto iClosestMatch = std::ranges::min_element(
     potentialOffsets, std::less<float>{}, [&](const auto& potentialOffset) {
       return std::abs(potentialOffset - currentOffset);
     });
 
   const auto isExactMatch =
-    vm::is_equal(*iBestMatch, currentOffset, vm::Cf::almost_zero());
+    vm::is_equal(*iClosestMatch, currentOffset, vm::Cf::almost_zero());
   const auto newValue = [&] {
     switch (uvPolicy)
     {
-    case UvPolicy::best:
+    case UvPolicy::closest:
       return potentialOffsets.front();
     case UvPolicy::next:
-      return isExactMatch ? *kdl::succ(potentialOffsets, iBestMatch)
+      return isExactMatch ? *kdl::succ(potentialOffsets, iClosestMatch)
                           : potentialOffsets.front();
     case UvPolicy::prev:
-      return isExactMatch ? *kdl::pred(potentialOffsets, iBestMatch)
+      return isExactMatch ? *kdl::pred(potentialOffsets, iClosestMatch)
                           : potentialOffsets.front();
       switchDefault();
     }

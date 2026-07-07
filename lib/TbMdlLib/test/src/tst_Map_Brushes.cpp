@@ -874,13 +874,13 @@ TEST_CASE("Map_Brushes")
 
     auto expectedBrush = brushNode->brush();
     evaluate(
-      justify(expectedBrush.face(*faceIndex), UvAxis::u, UvSign::plus, UvPolicy::best),
+      justify(expectedBrush.face(*faceIndex), UvAxis::u, UvSign::plus, UvPolicy::closest),
       expectedBrush.face(*faceIndex));
     const auto expectedAttributes = expectedBrush.face(*faceIndex).attributes();
     const auto expectedUAxis = expectedBrush.face(*faceIndex).uAxis();
     const auto expectedVAxis = expectedBrush.face(*faceIndex).vAxis();
 
-    justifyUV(map, UvJustifyDirection::Left, UvPolicy::best);
+    justifyUV(map, UvJustifyDirection::Left, UvPolicy::closest);
 
     const auto& justifiedFace = getFace(*brushNode, *faceIndex);
     CHECK_THAT(
