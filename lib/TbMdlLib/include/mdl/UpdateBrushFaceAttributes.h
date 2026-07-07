@@ -187,6 +187,7 @@ UpdateBrushFaceAttributes justify(
   const BrushFace& brushFace, UvAxis uvAxis, UvSign uvSign, UvPolicy uvPolicy);
 UpdateBrushFaceAttributes fit(
   const BrushFace& brushFace, UvAxis uvAxis, UvPolicy uvPolicy);
+UpdateBrushFaceAttributes fitPerfectly(const BrushFace& brushFace, UvAxis uvAxis);
 
 void evaluate(
   const UpdateBrushFaceAttributes& updateBrushFaceAttributes, BrushFace& brushFace);

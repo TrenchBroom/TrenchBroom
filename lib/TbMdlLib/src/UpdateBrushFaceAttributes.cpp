@@ -98,8 +98,7 @@ T findNextScaleFactor(const T f, const UvPolicy uvPolicy)
   return sign * nextMagnitude;
 }
 
-auto scaleFactorToFit(
-  const BrushFace& brushFace, const UvAxis uvAxis, const UvPolicy uvPolicy)
+auto faceAndTextureLength(const BrushFace& brushFace, const UvAxis uvAxis)
 {
   const auto axis = toAxis(uvAxis);
 
@@ -117,11 +116,31 @@ auto scaleFactorToFit(
   const auto faceLength = *iMax - *iMin;
   const auto textureLength = vm::dot(brushFace.textureSize(), axis);
 
+  return std::make_pair(faceLength, textureLength);
+}
+
+auto scaleFactorToFit(
+  const BrushFace& brushFace, const UvAxis uvAxis, const UvPolicy uvPolicy)
+{
+  const auto axis = toAxis(uvAxis);
+  const auto [faceLength, textureLength] = faceAndTextureLength(brushFace, uvAxis);
+
   const auto currentScale = vm::dot(brushFace.attributes().scale(), axis);
   const auto currentFactor = currentScale * textureLength / faceLength;
 
   const auto nextFactor = findNextScaleFactor(currentFactor, uvPolicy);
   return nextFactor * faceLength / textureLength;
+}
+
+auto scaleFactorToFitPerfectly(const BrushFace& brushFace, const UvAxis uvAxis)
+{
+  const auto axis = toAxis(uvAxis);
+  const auto [faceLength, textureLength] = faceAndTextureLength(brushFace, uvAxis);
+
+  const auto currentScale = vm::dot(brushFace.attributes().scale(), axis);
+  const auto sign = currentScale < 0.0f ? -1.0f : 1.0f;
+
+  return sign * faceLength / textureLength;
 }
 
 void evaluate(const std::optional<AxisOp>& axisOp, BrushFace& brushFace)
@@ -549,6 +568,24 @@ UpdateBrushFaceAttributes fit(
   const BrushFace& brushFace, const UvAxis uvAxis, const UvPolicy uvPolicy)
 {
   const auto value = scaleFactorToFit(brushFace, uvAxis, uvPolicy);
+
+  switch (uvAxis)
+  {
+  case UvAxis::u:
+    return {
+      .xScale = SetValue{value},
+    };
+  case UvAxis::v:
+    return {
+      .yScale = SetValue{value},
+    };
+    switchDefault();
+  }
+}
+
+UpdateBrushFaceAttributes fitPerfectly(const BrushFace& brushFace, const UvAxis uvAxis)
+{
+  const auto value = scaleFactorToFitPerfectly(brushFace, uvAxis);
 
   switch (uvAxis)
   {
