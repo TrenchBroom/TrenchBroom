@@ -308,6 +308,20 @@ void fitUV(Map& map, const UvFitDirection uvFitDirection, const UvPolicy uvPolic
   });
 }
 
+void fitUVPerfectly(Map& map, const UvFitDirection uvFitDirection)
+{
+  applyAndSwap(
+    map, "Fit Texture Perfectly", map.selection().allBrushFaces(), [&](auto& brushFace) {
+      const auto [uvAxis, uvSign] = convertFitDirection(brushFace, uvFitDirection);
+
+      const auto invariantVertex = anchorVertex(brushFace, uvAxis, uvSign);
+      compensateOffset(brushFace, invariantVertex, [&] {
+        evaluate(mdl::fitPerfectly(brushFace, uvAxis), brushFace);
+      });
+      return true;
+    });
+}
+
 void autoFitUV(Map& map)
 {
   applyAndSwap(
