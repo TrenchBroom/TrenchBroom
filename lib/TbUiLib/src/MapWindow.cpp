@@ -1869,7 +1869,8 @@ bool MapWindow::canConvertSelectionToPatches() const
 {
   const auto& map = m_document->map();
   const auto& selection = map.selection();
-  return selection.hasAnyBrushFaces();
+  return mdl::hasPatchSupport(map.worldNode().mapFormat())
+         && selection.hasAnyBrushFaces();
 }
 
 void MapWindow::toggleAlignmentLock()
