@@ -234,6 +234,11 @@ void CommandProcessor::rollbackTransaction()
   transaction.commands.clear();
 }
 
+bool CommandProcessor::isTransactionActive() const
+{
+  return !m_transactionStack.empty();
+}
+
 bool CommandProcessor::isCurrentDocumentStateObservable() const
 {
   return m_transactionStack.size() < 2
