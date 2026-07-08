@@ -250,49 +250,6 @@ TEST_CASE("vector_utils_test.vec_append_non_common_range_moves")
   CHECK(src[1].movedFrom);
 }
 
-TEST_CASE("vector_utils_test.vec_slice")
-{
-  using vec = std::vector<int>;
-
-  CHECK_THAT(vec_slice(vec{}, 0, 0), Equals(vec{}));
-  CHECK_THAT(vec_slice(vec{1, 2, 3}, 0, 0), Equals(vec{}));
-  CHECK_THAT(vec_slice(vec{1, 2, 3}, 1, 0), Equals(vec{}));
-  CHECK_THAT(vec_slice(vec{1, 2, 3}, 2, 0), Equals(vec{}));
-  CHECK_THAT(vec_slice(vec{1, 2, 3}, 3, 0), Equals(vec{}));
-  CHECK_THAT(vec_slice(vec{1, 2, 3}, 0, 1), Equals(vec{1}));
-  CHECK_THAT(vec_slice(vec{1, 2, 3}, 1, 1), Equals(vec{2}));
-  CHECK_THAT(vec_slice(vec{1, 2, 3}, 2, 1), Equals(vec{3}));
-  CHECK_THAT(vec_slice(vec{1, 2, 3}, 0, 2), Equals(vec{1, 2}));
-  CHECK_THAT(vec_slice(vec{1, 2, 3}, 1, 2), Equals(vec{2, 3}));
-  CHECK_THAT(vec_slice(vec{1, 2, 3}, 0, 3), Equals(vec{1, 2, 3}));
-}
-
-TEST_CASE("vector_utils_test.vec_slice_prefix")
-{
-  using vec = std::vector<int>;
-
-  CHECK_THAT(vec_slice_prefix(vec{}, 0), Equals(vec{}));
-  CHECK_THAT(vec_slice_prefix(vec{1}, 1), Equals(vec{1}));
-  CHECK_THAT(vec_slice_prefix(vec{1}, 0), Equals(vec{}));
-  CHECK_THAT(vec_slice_prefix(vec{1, 2, 3}, 3), Equals(vec{1, 2, 3}));
-  CHECK_THAT(vec_slice_prefix(vec{1, 2, 3}, 2), Equals(vec{1, 2}));
-  CHECK_THAT(vec_slice_prefix(vec{1, 2, 3}, 1), Equals(vec{1}));
-  CHECK_THAT(vec_slice_prefix(vec{1, 2, 3}, 0), Equals(vec{}));
-}
-
-TEST_CASE("vector_utils_test.vec_slice_suffix")
-{
-  using vec = std::vector<int>;
-
-  CHECK_THAT(vec_slice_suffix(vec{}, 0), Equals(vec{}));
-  CHECK_THAT(vec_slice_suffix(vec{1}, 0), Equals(vec{}));
-  CHECK_THAT(vec_slice_suffix(vec{1}, 1), Equals(vec{1}));
-  CHECK_THAT(vec_slice_suffix(vec{1, 2, 3}, 0), Equals(vec{}));
-  CHECK_THAT(vec_slice_suffix(vec{1, 2, 3}, 1), Equals(vec{3}));
-  CHECK_THAT(vec_slice_suffix(vec{1, 2, 3}, 2), Equals(vec{2, 3}));
-  CHECK_THAT(vec_slice_suffix(vec{1, 2, 3}, 3), Equals(vec{1, 2, 3}));
-}
-
 template <typename T>
 void test_erase(std::vector<T> from, const T& x, const std::vector<T>& exp)
 {

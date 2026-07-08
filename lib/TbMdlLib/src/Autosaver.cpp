@@ -30,6 +30,7 @@
 #include "kd/contracts.h"
 #include "kd/path_utils.h"
 #include "kd/ranges/enumerate_view.h"
+#include "kd/ranges/to.h"
 #include "kd/result.h"
 #include "kd/result_fold.h"
 #include "kd/string_format.h"
@@ -75,7 +76,7 @@ Result<std::vector<std::filesystem::path>> thinBackups(
     return backups;
   }
 
-  const auto toDelete = kdl::vec_slice_prefix(backups, 1);
+  const auto toDelete = backups | std::views::take(1);
   return toDelete | std::views::transform([&](auto filename) {
            return fs.deleteFile(filename) | kdl::transform([&](const auto deleted) {
                     if (deleted)
@@ -85,7 +86,7 @@ Result<std::vector<std::filesystem::path>> thinBackups(
                   });
          })
          | kdl::fold | kdl::transform([&]() {
-             return kdl::vec_slice_suffix(backups, backups.size() - 1);
+             return backups | std::views::drop(1) | kdl::ranges::to<std::vector>();
            });
 }
 
