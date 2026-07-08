@@ -76,7 +76,8 @@ Result<std::vector<std::filesystem::path>> thinBackups(
     return backups;
   }
 
-  const auto toDelete = backups | std::views::take(1);
+  const auto numToDelete = backups.size() - maxBackups + 1;
+  const auto toDelete = backups | std::views::take(numToDelete);
   return toDelete | std::views::transform([&](auto filename) {
            return fs.deleteFile(filename) | kdl::transform([&](const auto deleted) {
                     if (deleted)
@@ -86,7 +87,8 @@ Result<std::vector<std::filesystem::path>> thinBackups(
                   });
          })
          | kdl::fold | kdl::transform([&]() {
-             return backups | std::views::drop(1) | kdl::ranges::to<std::vector>();
+             return backups | std::views::drop(numToDelete)
+                    | kdl::ranges::to<std::vector>();
            });
 }
 

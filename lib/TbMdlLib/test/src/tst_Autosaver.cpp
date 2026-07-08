@@ -346,6 +346,115 @@ TEST_CASE("Autosaver")
 )",
         }));
     }
+
+    SECTION("1 extra backup is deleted")
+    {
+      const auto initialPaths = std::vector<std::filesystem::path>{
+        "autosave/test.1.map",
+        "autosave/test.2.map",
+        "autosave/test.3.map",
+        "autosave/test.4.map",
+      };
+
+      for (const auto& path : initialPaths)
+      {
+        env.createFile(path, path.string());
+      }
+
+      REQUIRE(env.directoryContents("autosave") == initialPaths);
+
+      REQUIRE(map.saveAs(env.dir() / "test.map"));
+      REQUIRE(env.fileExists("test.map"));
+
+      auto autosaver = Autosaver{map, 100ms, maxBackups};
+
+      // modify the map
+      addNodes(map, {{map.editorContext().currentLayer(), {new EntityNode{{}}}}});
+
+      std::this_thread::sleep_for(100ms);
+      autosaver.triggerAutosave();
+
+      // the two oldest backups (test.1, test.2) must be deleted so that the total
+      // number of backups doesn't exceed maxBackups
+      const auto allPaths = std::vector<std::filesystem::path>{
+        "autosave/test.1.map",
+        "autosave/test.2.map",
+        "autosave/test.3.map",
+      };
+
+      CHECK(env.directoryContents("autosave") == allPaths);
+      CHECK_THAT(
+        allPaths | std::views::transform(loadFile),
+        RangeEquals(std::vector{
+          "autosave/test.3.map",
+          "autosave/test.4.map",
+          R"(// Game: Test
+// Format: Standard
+// entity 0
+{
+"classname" "worldspawn"
+}
+// entity 1
+{
+}
+)",
+        }));
+    }
+
+    SECTION("2 extra backups are deleted")
+    {
+      const auto initialPaths = std::vector<std::filesystem::path>{
+        "autosave/test.1.map",
+        "autosave/test.2.map",
+        "autosave/test.3.map",
+        "autosave/test.4.map",
+        "autosave/test.5.map",
+      };
+
+      for (const auto& path : initialPaths)
+      {
+        env.createFile(path, path.string());
+      }
+
+      REQUIRE(env.directoryContents("autosave") == initialPaths);
+
+      REQUIRE(map.saveAs(env.dir() / "test.map"));
+      REQUIRE(env.fileExists("test.map"));
+
+      auto autosaver = Autosaver{map, 100ms, maxBackups};
+
+      // modify the map
+      addNodes(map, {{map.editorContext().currentLayer(), {new EntityNode{{}}}}});
+
+      std::this_thread::sleep_for(100ms);
+      autosaver.triggerAutosave();
+
+      // the three oldest backups (test.1, test.2, test.3) must be deleted so that
+      // the total number of backups doesn't exceed maxBackups
+      const auto allPaths = std::vector<std::filesystem::path>{
+        "autosave/test.1.map",
+        "autosave/test.2.map",
+        "autosave/test.3.map",
+      };
+
+      CHECK(env.directoryContents("autosave") == allPaths);
+      CHECK_THAT(
+        allPaths | std::views::transform(loadFile),
+        RangeEquals(std::vector{
+          "autosave/test.4.map",
+          "autosave/test.5.map",
+          R"(// Game: Test
+// Format: Standard
+// entity 0
+{
+"classname" "worldspawn"
+}
+// entity 1
+{
+}
+)",
+        }));
+    }
   }
 }
 
