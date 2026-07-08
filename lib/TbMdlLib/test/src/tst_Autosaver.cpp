@@ -29,6 +29,7 @@
 #include "mdl/MapFixture.h"
 #include "mdl/Map_Nodes.h"
 #include "mdl/TestFactory.h"
+#include "mdl/Transaction.h"
 
 #include "kd/vector_utils.h"
 
@@ -127,6 +128,34 @@ TEST_CASE("Autosaver")
     CHECK(env.directoryExists("autosave"));
   }
 
+  SECTION("Don't trigger autosave while a transaction is active")
+  {
+    REQUIRE(map.saveAs(env.dir() / "test.map"));
+    REQUIRE(env.fileExists("test.map"));
+
+    auto autosaver = Autosaver{map, 100ms};
+
+    auto transaction = Transaction{map};
+
+    // modify the map
+    addNodes(
+      map,
+      {{map.editorContext().currentLayer(), {createBrushNode(map, "some_material")}}});
+
+    std::this_thread::sleep_for(100ms);
+    autosaver.triggerAutosave();
+
+    CHECK(!env.fileExists("autosave/test.1.map"));
+    CHECK(!env.directoryExists("autosave"));
+
+    transaction.commit();
+
+    autosaver.triggerAutosave();
+
+    CHECK(env.fileExists("autosave/test.1.map"));
+    CHECK(env.directoryExists("autosave"));
+  }
+
   SECTION("Trigger another save when the interval expires again and the map is changed")
   {
     REQUIRE(map.saveAs(env.dir() / "test.map"));
@@ -151,7 +180,7 @@ TEST_CASE("Autosaver")
     std::this_thread::sleep_for(100ms);
 
     autosaver.triggerAutosave();
-    CHECK_FALSE(env.fileExists("autosave/test.2.map"));
+    CHECK(!env.fileExists("autosave/test.2.map"));
 
     // modify the map
     addNodes(

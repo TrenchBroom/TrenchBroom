@@ -25,6 +25,7 @@
 #include "fs/FileSystem.h"
 #include "fs/PathInfo.h"
 #include "fs/TraversalMode.h"
+#include "mdl/CommandProcessor.h"
 #include "mdl/Map.h"
 
 #include "kd/contracts.h"
@@ -148,7 +149,8 @@ void Autosaver::triggerAutosave()
 {
   if (
     m_map.modified() && m_map.modificationCount() != m_lastModificationCount
-    && Clock::now() - m_lastSaveTime >= m_saveInterval && m_map.persistent())
+    && Clock::now() - m_lastSaveTime >= m_saveInterval && m_map.persistent()
+    && !m_map.commandProcessor().isTransactionActive())
   {
     autosave();
   }
