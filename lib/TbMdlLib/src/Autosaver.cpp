@@ -25,11 +25,13 @@
 #include "fs/FileSystem.h"
 #include "fs/PathInfo.h"
 #include "fs/TraversalMode.h"
+#include "mdl/CommandProcessor.h"
 #include "mdl/Map.h"
 
 #include "kd/contracts.h"
 #include "kd/path_utils.h"
 #include "kd/ranges/enumerate_view.h"
+#include "kd/ranges/to.h"
 #include "kd/result.h"
 #include "kd/result_fold.h"
 #include "kd/string_format.h"
@@ -75,7 +77,8 @@ Result<std::vector<std::filesystem::path>> thinBackups(
     return backups;
   }
 
-  const auto toDelete = kdl::vec_slice_prefix(backups, 1);
+  const auto numToDelete = backups.size() - maxBackups + 1;
+  const auto toDelete = backups | std::views::take(numToDelete);
   return toDelete | std::views::transform([&](auto filename) {
            return fs.deleteFile(filename) | kdl::transform([&](const auto deleted) {
                     if (deleted)
@@ -85,7 +88,8 @@ Result<std::vector<std::filesystem::path>> thinBackups(
                   });
          })
          | kdl::fold | kdl::transform([&]() {
-             return kdl::vec_slice_suffix(backups, backups.size() - 1);
+             return backups | std::views::drop(numToDelete)
+                    | kdl::ranges::to<std::vector>();
            });
 }
 
@@ -145,7 +149,8 @@ void Autosaver::triggerAutosave()
 {
   if (
     m_map.modified() && m_map.modificationCount() != m_lastModificationCount
-    && Clock::now() - m_lastSaveTime >= m_saveInterval && m_map.persistent())
+    && Clock::now() - m_lastSaveTime >= m_saveInterval && m_map.persistent()
+    && !m_map.commandProcessor().isTransactionActive())
   {
     autosave();
   }

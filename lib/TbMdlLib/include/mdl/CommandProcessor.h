@@ -208,6 +208,11 @@ public:
   void rollbackTransaction();
 
   /**
+   * Indicates whether a transaction is currently active.
+   */
+  bool isTransactionActive() const;
+
+  /**
    * Indicates whether the current document state is observable.
    *
    * If no transaction is active, the state is observable.

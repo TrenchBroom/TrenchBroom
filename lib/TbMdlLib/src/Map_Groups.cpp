@@ -104,7 +104,8 @@ void linkGroups(Map& map, const std::vector<GroupNode*>& groupNodes)
   {
     const auto& sourceGroupNode = *groupNodes.front();
     const auto targetGroupNodes =
-      kdl::vec_slice_suffix(groupNodes, groupNodes.size() - 1);
+      groupNodes | std::views::drop(1) | kdl::ranges::to<std::vector>();
+
     copyAndReturnLinkIds(sourceGroupNode, targetGroupNodes)
       | kdl::transform([&](auto linkIds) {
           auto linkIdVector = linkIds | kdl::views::as_rvalue

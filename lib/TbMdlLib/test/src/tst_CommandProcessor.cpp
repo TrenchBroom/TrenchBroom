@@ -627,6 +627,65 @@ TEST_CASE("CommandProcessor")
       });
   }
 
+  SECTION("isTransactionActive")
+  {
+    SECTION("No enclosing transaction")
+    {
+      CHECK(!commandProcessor.isTransactionActive());
+
+      commandProcessor.executeAndStore(std::make_unique<NullCommand>("command"));
+      CHECK(!commandProcessor.isTransactionActive());
+    }
+
+    SECTION("One enclosing one shot transaction")
+    {
+      REQUIRE(!commandProcessor.isTransactionActive());
+
+      commandProcessor.startTransaction("", TransactionScope::Oneshot);
+      CHECK(commandProcessor.isTransactionActive());
+
+      commandProcessor.executeAndStore(std::make_unique<NullCommand>("command"));
+      CHECK(commandProcessor.isTransactionActive());
+
+      commandProcessor.commitTransaction();
+      CHECK(!commandProcessor.isTransactionActive());
+    }
+
+    SECTION("One enclosing long running transaction")
+    {
+      REQUIRE(!commandProcessor.isTransactionActive());
+
+      commandProcessor.startTransaction("", TransactionScope::LongRunning);
+      CHECK(commandProcessor.isTransactionActive());
+
+      commandProcessor.executeAndStore(std::make_unique<NullCommand>("command"));
+      CHECK(commandProcessor.isTransactionActive());
+
+      commandProcessor.commitTransaction();
+      CHECK(!commandProcessor.isTransactionActive());
+    }
+
+    SECTION("Nested transactions")
+    {
+      REQUIRE(!commandProcessor.isTransactionActive());
+
+      commandProcessor.startTransaction("outer", TransactionScope::Oneshot);
+      CHECK(commandProcessor.isTransactionActive());
+
+      commandProcessor.startTransaction("inner", TransactionScope::Oneshot);
+      CHECK(commandProcessor.isTransactionActive());
+
+      commandProcessor.executeAndStore(std::make_unique<NullCommand>("command"));
+      CHECK(commandProcessor.isTransactionActive());
+
+      commandProcessor.commitTransaction();
+      CHECK(commandProcessor.isTransactionActive());
+
+      commandProcessor.commitTransaction();
+      CHECK(!commandProcessor.isTransactionActive());
+    }
+  }
+
   SECTION("isCurrentDocumentStateObservable")
   {
     SECTION("No enclosing transaction")
