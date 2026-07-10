@@ -62,8 +62,6 @@ public:
 
   bool doActivate() override;
 
-  const mdl::Grid& grid() const;
-
   void updateToolPageAxis(RotateHandle::HitArea area);
 
   double angle() const;
@@ -100,6 +98,8 @@ public:
     render::RenderContext& renderContext,
     render::RenderBatch& renderBatch,
     RotateHandle::HitArea area);
+
+  const mdl::Grid& grid() const;
 
 private:
   QWidget* doCreatePage(QWidget* parent) override;

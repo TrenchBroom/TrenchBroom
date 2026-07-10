@@ -45,11 +45,6 @@ bool RotateTool::doActivate()
   return true;
 }
 
-const mdl::Grid& RotateTool::grid() const
-{
-  return m_document.map().grid();
-}
-
 void RotateTool::updateToolPageAxis(const RotateHandle::HitArea area)
 {
   handleHitAreaDidChangeNotifier(area);
@@ -178,6 +173,11 @@ void RotateTool::renderHighlight3D(
 QWidget* RotateTool::doCreatePage(QWidget* parent)
 {
   return new RotateToolPage{m_document, *this, parent};
+}
+
+const mdl::Grid& RotateTool::grid() const
+{
+  return m_document.map().grid();
 }
 
 } // namespace tb::ui
