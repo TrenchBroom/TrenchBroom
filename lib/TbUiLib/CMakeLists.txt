@@ -172,6 +172,7 @@ target_sources(TbUiLib
     ${CMAKE_CURRENT_SOURCE_DIR}/src/RenderView.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/ReplaceMaterialDialog.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/RotateHandle.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/RotateHandleController.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/RotateTool.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/RotateToolController.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/RotateToolPage.cpp
@@ -414,6 +415,7 @@ target_sources(TbUiLib
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/RenderView.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/ReplaceMaterialDialog.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/RotateHandle.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/RotateHandleController.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/RotateTool.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/RotateToolController.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/RotateToolPage.h
