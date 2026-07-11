@@ -174,6 +174,7 @@ target_sources(TbUiLib
     ${CMAKE_CURRENT_SOURCE_DIR}/src/RotateTool.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/RotateToolController.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/RotateToolPage.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/SweepToolUtils.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/ScaleTool.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/ScaleToolController.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/ScaleToolPage.cpp
@@ -414,6 +415,7 @@ target_sources(TbUiLib
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/RotateTool.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/RotateToolController.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/RotateToolPage.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/SweepToolUtils.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/ScaleTool.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/ScaleToolController.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/ScaleToolPage.h
