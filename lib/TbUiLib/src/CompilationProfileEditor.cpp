@@ -332,6 +332,12 @@ void CompilationProfileEditor::setProfile(mdl::CompilationProfile* profile)
   refresh();
 }
 
+void CompilationProfileEditor::refreshTaskEditors()
+{
+  m_taskList->updateTasks();
+  refresh();
+}
+
 void CompilationProfileEditor::refresh()
 {
   if (m_profile)

@@ -201,6 +201,7 @@ public:
 
 public:
   void reloadTasks();
+  void updateTasks();
 
 private:
   size_t itemCount() const override;

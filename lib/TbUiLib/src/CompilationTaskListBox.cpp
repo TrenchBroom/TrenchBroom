@@ -586,6 +586,13 @@ void CompilationTaskListBox::reloadTasks()
   reload();
 }
 
+void CompilationTaskListBox::updateTasks()
+{
+  // Refresh existing task editors without rebuilding the list, so scroll position and
+  // selection survive external changes such as editing Launch Engine profiles.
+  updateItems();
+}
+
 size_t CompilationTaskListBox::itemCount() const
 {
   return m_profile ? m_profile->tasks.size() : 0;

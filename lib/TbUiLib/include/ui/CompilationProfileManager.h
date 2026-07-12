@@ -64,6 +64,7 @@ public:
   bool selectProfile(const mdl::CompilationProfile& profile);
   void selectFirstProfile();
   const mdl::CompilationConfig& config() const;
+  void refreshTaskEditors();
 
 private:
   void updateGui();

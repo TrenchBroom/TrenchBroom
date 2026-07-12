@@ -143,6 +143,11 @@ const mdl::CompilationConfig& CompilationProfileManager::config() const
   return m_config;
 }
 
+void CompilationProfileManager::refreshTaskEditors()
+{
+  m_profileEditor->refreshTaskEditors();
+}
+
 void CompilationProfileManager::addProfile()
 {
   m_config.profiles.push_back(mdl::CompilationProfile{"unnamed", "${MAP_DIR_PATH}", {}});
