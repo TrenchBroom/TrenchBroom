@@ -18,6 +18,7 @@
  */
 
 #include "Logger.h"
+#include "Uuid.h"
 #include "fs/TestEnvironment.h"
 #include "mdl/CatchConfig.h"
 #include "mdl/GameManager.h"
@@ -337,6 +338,7 @@ TEST_CASE("GameManager")
           const auto gameEngineConfig = GameEngineConfig{
             .profiles = {
               {
+                .id = generateUuid(),
                 .name = "name",
                 .path = "workDir",
                 .parameterSpec = "parameters",

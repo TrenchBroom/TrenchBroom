@@ -17,6 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Uuid.h"
 #include "mdl/CatchConfig.h"
 #include "mdl/GameEngineConfig.h"
 #include "mdl/ParseGameEngineConfig.h"
@@ -102,15 +103,60 @@ TEST_CASE("GameEngineConfigParserTest.parseTwoProfiles")
     parseGameEngineConfig(config)
     == mdl::GameEngineConfig{
       {{
+         .id = generateUuid(),
          .name = "winquake",
          .path = R"(C:\Quake\winquake.exe)",
          .parameterSpec = "-flag1 -flag2",
        },
        {
+         .id = generateUuid(),
          .name = "glquake",
          .path = R"(C:\Quake\glquake.exe)",
          .parameterSpec = "-flag3 -flag4",
        }}});
+}
+
+TEST_CASE("GameEngineConfigParserTest.parseProfileWithExplicitId")
+{
+  const auto config = R"(
+{
+	"profiles": [
+		{
+			"name": "winquake",
+			"parameters": "-flag1 -flag2",
+			"path": "C:\\Quake\\winquake.exe",
+			"id": "11111111-2222-3333-4444-555555555555"
+		}
+	],
+	"version": 1
+}
+)";
+
+  const auto result = parseGameEngineConfig(config);
+  REQUIRE(result);
+  REQUIRE(result.value().profiles.size() == 1u);
+  CHECK(result.value().profiles[0].id == "11111111-2222-3333-4444-555555555555");
+}
+
+TEST_CASE("GameEngineConfigParserTest.parseProfileWithoutIdGeneratesId")
+{
+  const auto config = R"(
+{
+	"profiles": [
+		{
+			"name": "winquake",
+			"parameters": "-flag1 -flag2",
+			"path": "C:\\Quake\\winquake.exe"
+		}
+	],
+	"version": 1
+}
+)";
+
+  const auto result = parseGameEngineConfig(config);
+  REQUIRE(result);
+  REQUIRE(result.value().profiles.size() == 1u);
+  CHECK(result.value().profiles[0].id != "");
 }
 
 } // namespace tb::mdl

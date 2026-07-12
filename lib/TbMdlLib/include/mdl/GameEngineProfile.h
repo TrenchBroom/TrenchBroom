@@ -29,6 +29,7 @@ namespace tb::mdl
 
 struct GameEngineProfile
 {
+  std::string id;
   std::string name;
   std::filesystem::path path;
   std::string parameterSpec;
