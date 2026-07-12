@@ -8,6 +8,7 @@ target_sources(TbBaseLibTest PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Notifier.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_PreferenceManager.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Tokenizer.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Uuid.cpp
 )
 
 add_compile_definitions(CATCH_CONFIG_ENABLE_ALL_STRINGMAKERS=1)
