@@ -62,6 +62,15 @@ CompilationDialog::CompilationDialog(
   setMinimumSize(600, 300);
   resize(800, 600);
   updateCompileButtons();
+
+  m_notifierConnection +=
+    m_appController.gameManager().gameEngineConfigDidChangeNotifier.connect(
+      [this](const auto& gameInfo) {
+        if (&gameInfo == &m_document.map().gameInfo())
+        {
+          m_profileManager->refreshTaskEditors();
+        }
+      });
 }
 
 bool CompilationDialog::selectProfile(const mdl::CompilationProfile& profile)

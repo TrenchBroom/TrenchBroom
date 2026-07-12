@@ -21,6 +21,7 @@
 
 #include <QDialog>
 
+#include "NotifierConnection.h"
 #include "ui/CompilationRun.h"
 
 class QLabel;
@@ -56,6 +57,8 @@ private:
   QLabel* m_currentRunLabel = nullptr;
   QTextEdit* m_output = nullptr;
   CompilationRun m_run;
+
+  NotifierConnection m_notifierConnection;
 
 public:
   explicit CompilationDialog(
