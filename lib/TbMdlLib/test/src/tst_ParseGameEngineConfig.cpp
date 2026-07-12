@@ -101,8 +101,16 @@ TEST_CASE("GameEngineConfigParserTest.parseTwoProfiles")
   CHECK(
     parseGameEngineConfig(config)
     == mdl::GameEngineConfig{
-      {{"winquake", R"(C:\Quake\winquake.exe)", "-flag1 -flag2"},
-       {"glquake", R"(C:\Quake\glquake.exe)", "-flag3 -flag4"}}});
+      {{
+         .name = "winquake",
+         .path = R"(C:\Quake\winquake.exe)",
+         .parameterSpec = "-flag1 -flag2",
+       },
+       {
+         .name = "glquake",
+         .path = R"(C:\Quake\glquake.exe)",
+         .parameterSpec = "-flag3 -flag4",
+       }}});
 }
 
 } // namespace tb::mdl

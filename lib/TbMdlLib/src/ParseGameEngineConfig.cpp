@@ -41,9 +41,9 @@ namespace
 GameEngineProfile toProfile(const el::EvaluationContext& context, const el::Value& value)
 {
   return {
-    value.at(context, "name").stringValue(context),
-    std::filesystem::path{value.at(context, "path").stringValue(context)},
-    value.at(context, "parameters").stringValue(context),
+    .name = value.at(context, "name").stringValue(context),
+    .path = std::filesystem::path{value.at(context, "path").stringValue(context)},
+    .parameterSpec = value.at(context, "parameters").stringValue(context),
   };
 }
 

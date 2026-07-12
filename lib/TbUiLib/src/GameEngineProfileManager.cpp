@@ -106,7 +106,11 @@ const mdl::GameEngineConfig& GameEngineProfileManager::config() const
 
 void GameEngineProfileManager::addProfile()
 {
-  m_config.profiles.push_back(mdl::GameEngineProfile{"", {}, ""});
+  m_config.profiles.push_back(mdl::GameEngineProfile{
+    .name = "",
+    .path = {},
+    .parameterSpec = "",
+  });
   m_profileList->reloadProfiles();
   m_profileList->setCurrentRow(int(m_config.profiles.size() - 1));
 }
