@@ -22,20 +22,40 @@
 #include "stduuid/uuid.h"
 
 #include <algorithm>
+#include <array>
+#include <functional>
+#include <random>
 
 namespace tb
 {
+namespace
+{
+
+auto makeRandomSeed()
+{
+  auto rd = std::random_device{};
+  auto data = std::array<int, std::mt19937::state_size>{};
+  std::ranges::generate(data, std::ref(rd));
+  return data;
+}
+
+auto makeRandomGenerator()
+{
+  const auto randomSeed = makeRandomSeed();
+  auto seq = std::seed_seq{std::begin(randomSeed), std::end(randomSeed)};
+  return std::mt19937{seq};
+}
+
+} // namespace
 
 std::string generateUuid()
 {
-  std::random_device rd;
-  auto seed_data = std::array<int, std::mt19937::state_size>{};
-  std::ranges::generate(seed_data, std::ref(rd));
-  std::seed_seq seq(std::begin(seed_data), std::end(seed_data));
-  std::mt19937 generator(seq);
-  uuids::uuid_random_generator gen{generator};
+  // Seed the Mersenne Twister once per thread and reuse it; seeding is an expensive
+  // operation.
+  static thread_local auto randomGenerator = makeRandomGenerator();
 
-  return uuids::to_string(gen());
+  auto uuidGenerator = uuids::uuid_random_generator{randomGenerator};
+  return uuids::to_string(uuidGenerator());
 }
 
 } // namespace tb
