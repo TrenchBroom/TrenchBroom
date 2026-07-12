@@ -172,6 +172,24 @@ private slots:
   deleteCopyAndMove(CompilationRunToolTaskRunner);
 };
 
+class CompilationLaunchEngineTaskRunner : public CompilationTaskRunner
+{
+  Q_OBJECT
+private:
+  mdl::CompilationLaunchEngine m_task;
+
+public:
+  CompilationLaunchEngineTaskRunner(
+    CompilationContext& context, mdl::CompilationLaunchEngine task);
+  ~CompilationLaunchEngineTaskRunner() override;
+
+private:
+  void doExecute() override;
+  void doTerminate() override;
+
+  deleteCopyAndMove(CompilationLaunchEngineTaskRunner);
+};
+
 class CompilationRunner : public QObject
 {
   Q_OBJECT

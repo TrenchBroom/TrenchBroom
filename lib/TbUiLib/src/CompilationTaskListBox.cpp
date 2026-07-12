@@ -21,16 +21,20 @@
 
 #include <QBoxLayout>
 #include <QCheckBox>
+#include <QComboBox>
 #include <QCompleter>
 #include <QFileDialog>
 #include <QFormLayout>
 #include <QHBoxLayout>
 #include <QLineEdit>
 #include <QPushButton>
+#include <QSignalBlocker>
 
 #include "el/Interpolate.h"
 #include "mdl/CompilationProfile.h"
 #include "mdl/CompilationTask.h"
+#include "mdl/GameInfo.h"
+#include "mdl/Map.h"
 #include "ui/BorderLine.h"
 #include "ui/CompilationVariables.h"
 #include "ui/FileDialogDefaultDir.h"
@@ -567,6 +571,97 @@ void CompilationRunToolTaskEditor::treatNonZeroResultCodeAsErrorChanged(const in
   task().treatNonZeroResultCodeAsError = value;
 }
 
+// CompilationLaunchEngineTaskEditor
+
+CompilationLaunchEngineTaskEditor::CompilationLaunchEngineTaskEditor(
+  MapDocument& document,
+  mdl::CompilationProfile& profile,
+  mdl::CompilationTask& task,
+  QWidget* parent)
+  : CompilationTaskEditorBase{"Launch Engine", document, profile, task, parent}
+{
+  contract_pre(std::holds_alternative<mdl::CompilationLaunchEngine>(task));
+
+  auto* formLayout = new QFormLayout{};
+  formLayout->setContentsMargins(
+    LayoutConstants::WideHMargin,
+    LayoutConstants::WideVMargin,
+    LayoutConstants::WideHMargin,
+    LayoutConstants::WideVMargin);
+  formLayout->setVerticalSpacing(LayoutConstants::NarrowVMargin);
+  formLayout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
+  addMainLayout(formLayout);
+
+  m_engineProfileEditor = new QComboBox{};
+  m_engineProfileEditor->setToolTip(
+    tr("The Launch Engine profile to start when this task runs"));
+  formLayout->addRow("Engine Profile", m_engineProfileEditor);
+
+  m_treatLaunchFailureAsError = new QCheckBox{"Stop on launch failure"};
+  m_treatLaunchFailureAsError->setToolTip(
+    tr("Stop compilation if the engine cannot be launched"));
+  formLayout->addRow("", m_treatLaunchFailureAsError);
+
+  connect(
+    m_engineProfileEditor,
+    QOverload<int>::of(&QComboBox::currentIndexChanged),
+    this,
+    &CompilationLaunchEngineTaskEditor::engineProfileChanged);
+  connect(
+    m_treatLaunchFailureAsError,
+    &QCheckBox::checkStateChanged,
+    this,
+    &CompilationLaunchEngineTaskEditor::treatLaunchFailureAsErrorChanged);
+}
+
+void CompilationLaunchEngineTaskEditor::updateItem()
+{
+  CompilationTaskEditorBase::updateItem();
+
+  const auto signalBlocker = QSignalBlocker{m_engineProfileEditor};
+  m_engineProfileEditor->clear();
+
+  const auto& engineProfiles = m_document.map().gameInfo().gameEngineConfig.profiles;
+  for (const auto& engineProfile : engineProfiles)
+  {
+    m_engineProfileEditor->addItem(
+      QString::fromStdString(engineProfile.name),
+      QString::fromStdString(engineProfile.id));
+  }
+
+  m_engineProfileEditor->setCurrentIndex(
+    m_engineProfileEditor->findData(QString::fromStdString(task().engineProfileId)));
+
+  if (m_treatLaunchFailureAsError->isChecked() != task().treatLaunchFailureAsError)
+  {
+    m_treatLaunchFailureAsError->setCheckState(
+      task().treatLaunchFailureAsError ? Qt::CheckState::Checked
+                                       : Qt::CheckState::Unchecked);
+  }
+}
+
+mdl::CompilationLaunchEngine& CompilationLaunchEngineTaskEditor::task()
+{
+  // This is safe because we know what type of task the editor was initialized with.
+  // We have to do this to avoid using a template as the base class.
+  return std::get<mdl::CompilationLaunchEngine>(m_task);
+}
+
+void CompilationLaunchEngineTaskEditor::engineProfileChanged(const int index)
+{
+  if (index >= 0)
+  {
+    task().engineProfileId =
+      m_engineProfileEditor->itemData(index).toString().toStdString();
+  }
+}
+
+void CompilationLaunchEngineTaskEditor::treatLaunchFailureAsErrorChanged(const int state)
+{
+  const auto value = (state == Qt::Checked);
+  task().treatLaunchFailureAsError = value;
+}
+
 // CompilationTaskListBox
 
 CompilationTaskListBox::CompilationTaskListBox(MapDocument& document, QWidget* parent)
@@ -620,6 +715,10 @@ ControlListBoxItemRenderer* CompilationTaskListBox::createItemRenderer(
       },
       [&](const mdl::CompilationRunTool&) -> ControlListBoxItemRenderer* {
         return new CompilationRunToolTaskEditor{m_document, *m_profile, task, parent};
+      },
+      [&](const mdl::CompilationLaunchEngine&) -> ControlListBoxItemRenderer* {
+        return new CompilationLaunchEngineTaskEditor{
+          m_document, *m_profile, task, parent};
       }),
     task);
 

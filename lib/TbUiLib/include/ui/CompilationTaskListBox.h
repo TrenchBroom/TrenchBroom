@@ -26,6 +26,7 @@
 
 class QCheckBox;
 class QCompleter;
+class QComboBox;
 class QHBoxLayout;
 class QLayout;
 class QLineEdit;
@@ -185,6 +186,28 @@ private slots:
   void toolSpecChanged(const QString& text);
   void parameterSpecChanged(const QString& text);
   void treatNonZeroResultCodeAsErrorChanged(int state);
+};
+
+class CompilationLaunchEngineTaskEditor : public CompilationTaskEditorBase
+{
+  Q_OBJECT
+private:
+  QComboBox* m_engineProfileEditor = nullptr;
+  QCheckBox* m_treatLaunchFailureAsError = nullptr;
+
+public:
+  CompilationLaunchEngineTaskEditor(
+    MapDocument& document,
+    mdl::CompilationProfile& profile,
+    mdl::CompilationTask& task,
+    QWidget* parent = nullptr);
+
+private:
+  void updateItem() override;
+  mdl::CompilationLaunchEngine& task();
+private slots:
+  void engineProfileChanged(int index);
+  void treatLaunchFailureAsErrorChanged(int state);
 };
 
 class CompilationTaskListBox : public ControlListBox

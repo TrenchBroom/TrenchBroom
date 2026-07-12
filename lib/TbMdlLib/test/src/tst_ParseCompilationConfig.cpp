@@ -413,7 +413,82 @@ TEST_CASE("CompilationConfigParser")
       }});
   }
 
-  SECTION("parseOneProfileWithNameAndFourTasks")
+  SECTION("parseOneProfileWithNameAndOneLaunchEngineTaskWithMissingEngineProfileId")
+  {
+    const auto config = R"(
+{
+  'version': 1,
+  'profiles': [
+    {
+      'name' : 'A profile',
+      'workdir' : '',
+      'tasks': [ {  'type' : 'launchEngine' } ]
+    }
+  ]
+})";
+
+    CHECK(parseCompilationConfig(config).is_error());
+  }
+
+  SECTION("parseOneProfileWithNameAndOneLaunchEngineTask")
+  {
+    const auto config = R"(
+{
+  'version': 1,
+  'unexpectedKey': '',
+  'profiles': [{
+      'name' : 'A profile',
+      'unexpectedKey' : '',
+      'workdir' : '',
+      'tasks' : [{
+        'type' : 'launchEngine',
+        'unexpectedKey' : '',
+        'engineProfileId' : 'Quakespasm'
+      }]
+    }]
+})";
+
+    CHECK(
+      parseCompilationConfig(config)
+      == mdl::CompilationConfig{{
+        {"A profile",
+         "",
+         {
+           mdl::CompilationLaunchEngine{
+             K(enabled), "Quakespasm", !K(treatLaunchFailureAsError)},
+         }},
+      }});
+  }
+
+  SECTION("parseOneProfileWithNameAndOneLaunchEngineTaskWithLaunchFailureAsError")
+  {
+    const auto config = R"(
+{
+  'version': 1,
+  'profiles': [{
+      'name' : 'A profile',
+      'workdir' : '',
+      'tasks' : [{
+        'type' : 'launchEngine',
+        'engineProfileId' : 'Quakespasm',
+        'treatLaunchFailureAsError': true
+      }]
+    }]
+})";
+
+    CHECK(
+      parseCompilationConfig(config)
+      == mdl::CompilationConfig{{
+        {"A profile",
+         "",
+         {
+           mdl::CompilationLaunchEngine{
+             K(enabled), "Quakespasm", K(treatLaunchFailureAsError)},
+         }},
+      }});
+  }
+
+  SECTION("parseOneProfileWithNameAndFiveTasks")
   {
     const auto config = R"(
 {
@@ -443,6 +518,12 @@ TEST_CASE("CompilationConfigParser")
       'type':'delete',
       'target': 'some other target',
       'enabled': false
+    },
+    {
+      'type':'launchEngine',
+      'engineProfileId': 'Quakespasm',
+      'treatLaunchFailureAsError': true,
+      'enabled': true
     }]
   }]
 })";
@@ -458,6 +539,8 @@ TEST_CASE("CompilationConfigParser")
            mdl::CompilationCopyFiles{!K(enabled), "the source", "the target"},
            mdl::CompilationRenameFile{K(enabled), "the source", "the target"},
            mdl::CompilationDeleteFiles{!K(enabled), "some other target"},
+           mdl::CompilationLaunchEngine{
+             K(enabled), "Quakespasm", K(treatLaunchFailureAsError)},
          }},
       }});
   }

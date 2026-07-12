@@ -24,10 +24,14 @@
 
 #include "mdl/CompilationConfig.h"
 #include "mdl/CompilationProfile.h"
+#include "mdl/GameManager.h"
+#include "mdl/Map.h"
+#include "ui/AppController.h"
 #include "ui/BitmapButton.h"
 #include "ui/BorderLine.h"
 #include "ui/CompilationProfileEditor.h"
 #include "ui/CompilationProfileListBox.h"
+#include "ui/MapDocument.h"
 #include "ui/MiniToolBarLayout.h"
 #include "ui/QStyleUtils.h"
 #include "ui/TitledPanel.h"
@@ -39,8 +43,12 @@ namespace tb::ui
 {
 
 CompilationProfileManager::CompilationProfileManager(
-  MapDocument& document, mdl::CompilationConfig config, QWidget* parent)
+  AppController& appController,
+  MapDocument& document,
+  mdl::CompilationConfig config,
+  QWidget* parent)
   : QWidget{parent}
+  , m_document{document}
   , m_config{std::move(config)}
 {
   setBaseWindowColor(this);
@@ -111,6 +119,15 @@ CompilationProfileManager::CompilationProfileManager(
   {
     m_profileList->setCurrentRow(0);
   }
+
+  m_notifierConnection +=
+    appController.gameManager().gameEngineConfigDidChangeNotifier.connect(
+      [this](const auto& gameInfo) {
+        if (&gameInfo == &m_document.map().gameInfo())
+        {
+          m_profileEditor->refreshTaskEditors();
+        }
+      });
 }
 
 const mdl::CompilationProfile* CompilationProfileManager::selectedProfile() const
@@ -141,11 +158,6 @@ void CompilationProfileManager::selectFirstProfile()
 const mdl::CompilationConfig& CompilationProfileManager::config() const
 {
   return m_config;
-}
-
-void CompilationProfileManager::refreshTaskEditors()
-{
-  m_profileEditor->refreshTaskEditors();
 }
 
 void CompilationProfileManager::addProfile()

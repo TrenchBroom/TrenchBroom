@@ -25,6 +25,7 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 
 #include "mdl/CompilationConfig.h"
 #include "mdl/CompilationProfile.h"
+#include "ui/AppControllerFixture.h"
 #include "ui/CatchConfig.h"
 #include "ui/CompilationProfileListBox.h"
 #include "ui/CompilationProfileManager.h"
@@ -39,6 +40,9 @@ namespace tb::ui
 
 TEST_CASE("CompilationProfileManager")
 {
+  auto appControllerFixture = AppControllerFixture{};
+  auto& appController = appControllerFixture.appController();
+
   auto fixture = MapDocumentFixture{};
   auto& document = fixture.create();
 
@@ -48,7 +52,8 @@ TEST_CASE("CompilationProfileManager")
   {
     SECTION("returns null when no profile is selected")
     {
-      auto manager = std::make_unique<CompilationProfileManager>(document, config);
+      auto manager =
+        std::make_unique<CompilationProfileManager>(appController, document, config);
 
       CHECK(manager->selectedProfile() == nullptr);
     }
@@ -58,7 +63,8 @@ TEST_CASE("CompilationProfileManager")
       config.profiles.push_back(mdl::CompilationProfile{"test 1", "", {}});
       config.profiles.push_back(mdl::CompilationProfile{"test 2", "", {}});
 
-      auto manager = std::make_unique<CompilationProfileManager>(document, config);
+      auto manager =
+        std::make_unique<CompilationProfileManager>(appController, document, config);
 
       auto* profileListBox = manager->findChild<CompilationProfileListBox*>();
       REQUIRE(profileListBox != nullptr);
@@ -82,7 +88,8 @@ TEST_CASE("CompilationProfileManager")
       config.profiles.push_back(mdl::CompilationProfile{"test 1", "", {}});
       config.profiles.push_back(mdl::CompilationProfile{"test 2", "", {}});
 
-      auto manager = std::make_unique<CompilationProfileManager>(document, config);
+      auto manager =
+        std::make_unique<CompilationProfileManager>(appController, document, config);
 
       REQUIRE(manager->selectedProfile() != nullptr);
       CHECK(manager->selectedProfile()->name == "test 1");
@@ -99,7 +106,8 @@ TEST_CASE("CompilationProfileManager")
       config.profiles.push_back(mdl::CompilationProfile{"test 1", "", {}});
       config.profiles.push_back(mdl::CompilationProfile{"test 2", "", {}});
 
-      auto manager = std::make_unique<CompilationProfileManager>(document, config);
+      auto manager =
+        std::make_unique<CompilationProfileManager>(appController, document, config);
 
       REQUIRE(manager->selectedProfile() != nullptr);
       CHECK(manager->selectedProfile()->name == "test 1");
@@ -121,7 +129,8 @@ TEST_CASE("CompilationProfileManager")
       config.profiles.push_back(mdl::CompilationProfile{"test 2", "", {}});
       config.profiles.push_back(mdl::CompilationProfile{"test 3", "", {}});
 
-      auto manager = std::make_unique<CompilationProfileManager>(document, config);
+      auto manager =
+        std::make_unique<CompilationProfileManager>(appController, document, config);
 
       manager->selectProfile(config.profiles[2]);
       REQUIRE(manager->selectedProfile() != nullptr);
@@ -135,7 +144,8 @@ TEST_CASE("CompilationProfileManager")
 
     SECTION("does nothing when there are no profiles")
     {
-      auto manager = std::make_unique<CompilationProfileManager>(document, config);
+      auto manager =
+        std::make_unique<CompilationProfileManager>(appController, document, config);
 
       manager->selectFirstProfile();
 
@@ -147,7 +157,8 @@ TEST_CASE("CompilationProfileManager")
   {
     config.profiles.push_back(mdl::CompilationProfile{"test 1", "", {}});
 
-    auto manager = std::make_unique<CompilationProfileManager>(document, config);
+    auto manager =
+      std::make_unique<CompilationProfileManager>(appController, document, config);
 
     manager->resize(700, 400);
     manager->show();
@@ -178,7 +189,8 @@ TEST_CASE("CompilationProfileManager")
     config.profiles.push_back(mdl::CompilationProfile{"test 1", "", {}});
     config.profiles.push_back(mdl::CompilationProfile{"test 2", "", {}});
 
-    auto manager = std::make_unique<CompilationProfileManager>(document, config);
+    auto manager =
+      std::make_unique<CompilationProfileManager>(appController, document, config);
 
     manager->resize(700, 400);
     manager->show();
@@ -215,7 +227,8 @@ TEST_CASE("CompilationProfileManager")
 
   SECTION("add profile by clicking button")
   {
-    auto manager = std::make_unique<CompilationProfileManager>(document, config);
+    auto manager =
+      std::make_unique<CompilationProfileManager>(appController, document, config);
 
     manager->resize(700, 400);
     manager->show();
@@ -239,7 +252,8 @@ TEST_CASE("CompilationProfileManager")
     config.profiles.push_back(mdl::CompilationProfile{"test 1", "", {}});
     config.profiles.push_back(mdl::CompilationProfile{"test 2", "", {}});
 
-    auto manager = std::make_unique<CompilationProfileManager>(document, config);
+    auto manager =
+      std::make_unique<CompilationProfileManager>(appController, document, config);
 
     manager->resize(700, 400);
     manager->show();

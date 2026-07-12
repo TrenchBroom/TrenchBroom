@@ -1693,6 +1693,20 @@ Parameters
 Stop on nonzero error code
 :    Stop the compilation process if this tool returns an error.
 
+### Launch Engine
+
+Starts one of the current game's configured Launch Engine profiles.
+
+This is useful as the final task in a compile profile, after exporting the map, running compile tools, and copying the output files into the game directory.
+
+#### Parameters
+
+Engine Profile
+:    The Launch Engine profile to start.
+
+Stop on launch failure
+:    Stop the compilation process if the engine cannot be launched. If this is unchecked, the failure is reported and the remaining tasks continue.
+
 ### Copy Files
 
 Copies one or more files. Relative paths are implicitly relative to the working directory.
@@ -1751,10 +1765,11 @@ It is recommended to use the following general process for compiling maps and to
 2. Add an *Export Map* task and set its target to `${MAP_BASE_NAME}-compile.map`.
 3. Add *Run Tool* tasks for the compilation tools that you wish to run. Use the expressions `${MAP_BASE_NAME}-compile.map` and `${MAP_BASE_NAME}.bsp` to specify the input and output files for the tools. Since you have set a working directory, you don't need to specify absolute paths here.
 4. Finally, add a *Copy Files* task and set its source to `${MAP_BASE_NAME}.bsp` and its target to `${GAME_DIR_PATH}/${MODS[-1]}/maps`. This copies the file to the maps directory within the last enabled mod.
+5. Optionally add a *Launch Engine* task at the end to start the game with the latest compiled files.
 
-The last step will copy the bsp file to the appropriate directory within the game path. You can add more *Copy Files* tasks if the compilation produces more than just a bsp file (e.g. lightmap files). Alternatively, you can use a wildcard expression such as `${MAP_BASE_NAME}.*` to copy related files.
+The last step will copy the bsp file to the appropriate directory within the game path. You can add more *Copy Files* tasks if the compilation produces more than just a bsp file (e.g. lightmap files). Alternatively, you can use a wildcard expression such as `${MAP_BASE_NAME}.*` to copy related files. If you add a *Launch Engine* task, place it after any file copying tasks so the game starts with the latest compiled output.
 
-To run a compilation profile, click the 'Run' button in the compilation dialog. Note that the 'Run' button changes into a 'Stop' button once the compilation profile is running. If you click on this button again, TrenchBroom will terminate the currently running tool. A running compilation will also be terminated if you close the compilation dialog or if you close the main window, but TrenchBroom will ask you before this happens. Note that the compilation tools are run in the background. You can keep working on your map if you wish.
+To run a compilation profile, click the 'Compile' button in the compilation dialog. Once the compilation profile is running, you can click the 'Stop' button to terminate the currently running tool. A running compilation will also be terminated if you close the compilation dialog or if you close the main window, but TrenchBroom will ask you before this happens. Note that the compilation tools are run in the background. You can keep working on your map if you wish.
 
 If you want to test your compilation profile without actually running it, click the 'Test' button. A test run will only print what each task will do without actually executing it.
 
@@ -1764,7 +1779,7 @@ Once the compilation is done, you can launch a game engine and check out your ma
 
 Before you can launch a game engine in TrenchBroom, you have to make your engine(s) known to TrenchBroom. You can do this by bringing up the game engine profile dialog either from the launch dialog (see below) or from the [game configuration](#game_configuration).
 
-There are two ways to launch a game engine from within TrenchBroom. Either click the 'Launch' button in the compilation dialog or choose #menu(Menu/Run/Launch...). This brings up the launch dialog shown in the following screenshot.
+You can launch a game engine manually by clicking the 'Launch' button in the compilation dialog or choosing #menu(Menu/Run/Launch...). This brings up the launch dialog shown in the following screenshot.
 
 ![Launch Dialog (Mac OS X)](images/LaunchGameEngineDialog.png)
 

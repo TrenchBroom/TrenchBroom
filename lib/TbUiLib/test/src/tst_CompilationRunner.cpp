@@ -29,6 +29,7 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 #include "mdl/CompilationProfile.h"
 #include "mdl/CompilationTask.h"
 #include "mdl/EntityNode.h"
+#include "mdl/GameEngineProfile.h"
 #include "mdl/Map.h"
 #include "mdl/MapFixture.h"
 #include "mdl/Map_Nodes.h"
@@ -292,6 +293,121 @@ escaped str)"));
 #endif
 }
 
+TEST_CASE("CompilationLaunchEngineTaskRunner")
+{
+  auto fixtureConfig = mdl::MapFixtureConfig{};
+  fixtureConfig.gameInfo.gameEngineConfig.profiles = {
+    mdl::GameEngineProfile{
+      .id = "quakespasm-id",
+      .name = "Quakespasm",
+      .path = CMD_TOOL_PATH,
+      .parameterSpec = "--exit 0"},
+    mdl::GameEngineProfile{
+      .id = "missing-engine-id",
+      .name = "Missing Engine",
+      .path = "/does/not/exist",
+      .parameterSpec = ""},
+  };
+
+  auto fixture = mdl::MapFixture{};
+  auto& map = fixture.create(fixtureConfig);
+
+  SECTION("launchEngine")
+  {
+    auto variables = el::NullVariableStore{};
+    auto output = QTextEdit{};
+    auto outputAdapter = TextOutputAdapter{&output};
+
+    auto context = CompilationContext{map, variables, outputAdapter, false};
+
+    auto task = mdl::CompilationLaunchEngine{
+      K(enabled), "quakespasm-id", !K(treatLaunchFailureAsError)};
+    auto runner = CompilationLaunchEngineTaskRunner{context, task};
+
+    auto exec = ExecuteTask{runner};
+    REQUIRE(exec.executeAndWait(5000ms));
+
+    CHECK(exec.started);
+    CHECK_FALSE(exec.errored);
+    CHECK(exec.ended);
+    CHECK_THAT(
+      output.toPlainText().toStdString(),
+      ContainsSubstring("#### Launching engine profile 'Quakespasm' at '"));
+  }
+
+  SECTION("invalidEngineProfile")
+  {
+    auto variables = el::NullVariableStore{};
+    auto output = QTextEdit{};
+    auto outputAdapter = TextOutputAdapter{&output};
+
+    auto context = CompilationContext{map, variables, outputAdapter, false};
+
+    const auto engineProfileId = GENERATE(""s, "deleted-profile-id"s);
+    const auto treatLaunchFailureAsError = GENERATE(true, false);
+    CAPTURE(engineProfileId, treatLaunchFailureAsError);
+    auto task = mdl::CompilationLaunchEngine{
+      K(enabled), engineProfileId, treatLaunchFailureAsError};
+    auto runner = CompilationLaunchEngineTaskRunner{context, task};
+
+    auto exec = ExecuteTask{runner};
+    REQUIRE(exec.executeAndWait(5000ms));
+
+    CHECK(exec.started);
+    CHECK(exec.errored == treatLaunchFailureAsError);
+    CHECK(exec.ended == !treatLaunchFailureAsError);
+    CHECK_THAT(
+      output.toPlainText().toStdString(), ContainsSubstring("#### Launch failed: "));
+  }
+
+  SECTION("launchFailure")
+  {
+    auto variables = el::NullVariableStore{};
+    auto output = QTextEdit{};
+    auto outputAdapter = TextOutputAdapter{&output};
+
+    auto context = CompilationContext{map, variables, outputAdapter, false};
+
+    const auto treatLaunchFailureAsError = GENERATE(true, false);
+    CAPTURE(treatLaunchFailureAsError);
+    auto task = mdl::CompilationLaunchEngine{
+      K(enabled), "missing-engine-id", treatLaunchFailureAsError};
+    auto runner = CompilationLaunchEngineTaskRunner{context, task};
+
+    auto exec = ExecuteTask{runner};
+    REQUIRE(exec.executeAndWait(5000ms));
+
+    CHECK(exec.started);
+    CHECK(exec.errored == treatLaunchFailureAsError);
+    CHECK(exec.ended == !treatLaunchFailureAsError);
+    CHECK_THAT(
+      output.toPlainText().toStdString(), ContainsSubstring("#### Launch failed: "));
+  }
+
+  SECTION("testModeDoesNotLaunch")
+  {
+    auto variables = el::NullVariableStore{};
+    auto output = QTextEdit{};
+    auto outputAdapter = TextOutputAdapter{&output};
+
+    auto context = CompilationContext{map, variables, outputAdapter, true};
+
+    auto task = mdl::CompilationLaunchEngine{
+      K(enabled), "missing-engine-id", K(treatLaunchFailureAsError)};
+    auto runner = CompilationLaunchEngineTaskRunner{context, task};
+
+    auto exec = ExecuteTask{runner};
+    REQUIRE(exec.executeAndWait(5000ms));
+
+    CHECK(exec.started);
+    CHECK_FALSE(exec.errored);
+    CHECK(exec.ended);
+    CHECK_THAT(
+      output.toPlainText().toStdString(),
+      ContainsSubstring("#### Launching engine profile 'Missing Engine' at '"));
+  }
+}
+
 TEST_CASE("CompilationExportMapTaskRunner")
 {
   auto fixture = mdl::MapFixture{};
@@ -515,6 +631,13 @@ TEST_CASE("CompilationRunner")
   fixtureConfig.gameInfo.gameConfig.fileFormats = std::vector<mdl::MapFormatConfig>{
     {"Valve", {}},
   };
+  fixtureConfig.gameInfo.gameEngineConfig.profiles = {
+    mdl::GameEngineProfile{
+      .id = "quakespasm-id",
+      .name = "Quakespasm",
+      .path = CMD_TOOL_PATH,
+      .parameterSpec = "--exit 0"},
+  };
 
   auto fixture = mdl::MapFixture{};
   auto& map = fixture.load(
@@ -560,6 +683,60 @@ TEST_CASE("CompilationRunner")
     REQUIRE(compilationEndedSpy.count() == 1);
 
     CHECK_FALSE(testEnvironment.fileExists(should_not_exist));
+  }
+
+  SECTION("runLaunchEngineTask")
+  {
+    auto compilationProfile = mdl::CompilationProfile{
+      "name",
+      testEnvironment.dir().string(),
+      {
+        mdl::CompilationLaunchEngine{
+          K(enabled), "quakespasm-id", !K(treatLaunchFailureAsError)},
+      }};
+
+    auto runner = CompilationRunner{
+      CompilationContext{map, variables, outputAdapter, false}, compilationProfile};
+
+    auto compilationStartedSpy = QSignalSpy{&runner, SIGNAL(compilationStarted())};
+    auto compilationEndedSpy = QSignalSpy{&runner, SIGNAL(compilationEnded())};
+
+    REQUIRE(compilationStartedSpy.isValid());
+    REQUIRE(compilationEndedSpy.isValid());
+
+    runner.execute();
+    REQUIRE(!runner.running());
+    REQUIRE(compilationStartedSpy.count() == 1);
+    REQUIRE(compilationEndedSpy.count() == 1);
+
+    CHECK_THAT(
+      output.toPlainText().toStdString(),
+      ContainsSubstring("#### Launching engine profile 'Quakespasm' at '"));
+  }
+
+  SECTION("disabledLaunchEngineTaskIsIgnored")
+  {
+    auto compilationProfile = mdl::CompilationProfile{
+      "name",
+      testEnvironment.dir().string(),
+      {
+        mdl::CompilationLaunchEngine{!K(enabled), "", K(treatLaunchFailureAsError)},
+      }};
+
+    auto runner = CompilationRunner{
+      CompilationContext{map, variables, outputAdapter, false}, compilationProfile};
+
+    auto compilationStartedSpy = QSignalSpy{&runner, SIGNAL(compilationStarted())};
+    auto compilationEndedSpy = QSignalSpy{&runner, SIGNAL(compilationEnded())};
+
+    REQUIRE(compilationStartedSpy.isValid());
+    REQUIRE(compilationEndedSpy.isValid());
+
+    runner.execute();
+    REQUIRE(!runner.running());
+    REQUIRE(compilationStartedSpy.count() == 0);
+    REQUIRE(compilationEndedSpy.count() == 0);
+    CHECK(output.toPlainText().isEmpty());
   }
 
   SECTION("interpolateToolsVariables")

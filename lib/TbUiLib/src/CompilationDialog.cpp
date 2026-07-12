@@ -62,15 +62,6 @@ CompilationDialog::CompilationDialog(
   setMinimumSize(600, 300);
   resize(800, 600);
   updateCompileButtons();
-
-  m_notifierConnection +=
-    m_appController.gameManager().gameEngineConfigDidChangeNotifier.connect(
-      [this](const auto& gameInfo) {
-        if (&gameInfo == &m_document.map().gameInfo())
-        {
-          m_profileManager->refreshTaskEditors();
-        }
-      });
 }
 
 bool CompilationDialog::selectProfile(const mdl::CompilationProfile& profile)
@@ -98,7 +89,8 @@ void CompilationDialog::createGui()
 
   const auto& compilationConfig = m_document.map().gameInfo().compilationConfig;
 
-  m_profileManager = new CompilationProfileManager{m_document, compilationConfig};
+  m_profileManager =
+    new CompilationProfileManager{m_appController, m_document, compilationConfig};
 
   auto* outputPanel = new TitledPanel{tr("Output")};
   m_output = new QTextEdit{};

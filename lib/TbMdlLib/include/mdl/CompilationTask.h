@@ -73,12 +73,23 @@ struct CompilationRunTool
     CompilationRunTool, enabled, toolSpec, parameterSpec, treatNonZeroResultCodeAsError);
 };
 
+struct CompilationLaunchEngine
+{
+  bool enabled;
+  std::string engineProfileId;
+  bool treatLaunchFailureAsError;
+
+  kdl_reflect_decl(
+    CompilationLaunchEngine, enabled, engineProfileId, treatLaunchFailureAsError);
+};
+
 using CompilationTask = std::variant<
   CompilationExportMap,
   CompilationCopyFiles,
   CompilationRenameFile,
   CompilationDeleteFiles,
-  CompilationRunTool>;
+  CompilationRunTool,
+  CompilationLaunchEngine>;
 
 std::ostream& operator<<(std::ostream& lhs, const CompilationTask& rhs);
 
