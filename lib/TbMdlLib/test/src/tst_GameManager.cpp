@@ -18,6 +18,7 @@
  */
 
 #include "Logger.h"
+#include "Observer.h"
 #include "Uuid.h"
 #include "fs/TestEnvironment.h"
 #include "mdl/CatchConfig.h"
@@ -308,6 +309,9 @@ TEST_CASE("GameManager")
               },
             }};
 
+          auto compilationConfigDidChange =
+            Observer<GameInfo>{gameManager.compilationConfigDidChangeNotifier};
+
           REQUIRE(gameManager.updateCompilationConfig("Quake", compilationConfig, logger)
                     .is_success());
 
@@ -315,6 +319,13 @@ TEST_CASE("GameManager")
           REQUIRE(gameInfo != nullptr);
           CHECK(gameInfo->compilationConfig == compilationConfig);
           CHECK(env.fileExists(userPath / "Quake/CompilationProfiles.cfg"));
+          CHECK(compilationConfigDidChange.notifications == std::vector{*gameInfo});
+
+          // updating with the same config again should not notify
+          compilationConfigDidChange.reset();
+          REQUIRE(gameManager.updateCompilationConfig("Quake", compilationConfig, logger)
+                    .is_success());
+          CHECK(compilationConfigDidChange.notifications == std::vector<GameInfo>{});
         })
       | kdl::transform_error([](const auto& e) { FAIL(e); });
   }
@@ -345,6 +356,9 @@ TEST_CASE("GameManager")
               },
             }};
 
+          auto gameEngineConfigDidChange =
+            Observer<GameInfo>{gameManager.gameEngineConfigDidChangeNotifier};
+
           REQUIRE(gameManager.updateGameEngineConfig("Quake", gameEngineConfig, logger)
                     .is_success());
 
@@ -352,6 +366,13 @@ TEST_CASE("GameManager")
           REQUIRE(gameInfo != nullptr);
           CHECK(gameInfo->gameEngineConfig == gameEngineConfig);
           CHECK(env.fileExists(userPath / "Quake/GameEngineProfiles.cfg"));
+          CHECK(gameEngineConfigDidChange.notifications == std::vector{*gameInfo});
+
+          // updating with the same config again should not notify
+          gameEngineConfigDidChange.reset();
+          REQUIRE(gameManager.updateGameEngineConfig("Quake", gameEngineConfig, logger)
+                    .is_success());
+          CHECK(gameEngineConfigDidChange.notifications == std::vector<GameInfo>{});
         })
       | kdl::transform_error([](const auto& e) { FAIL(e); });
   }

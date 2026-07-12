@@ -206,11 +206,11 @@ void backupFile(
 }
 
 template <typename Config>
-Result<void> writeConfig(
+Result<bool> writeConfig(
   fs::WritableFileSystem& fs,
   GameInfo& gameInfo,
-  Config GameInfo::* configField,
-  bool GameInfo::* parseFailedField,
+  Config GameInfo::*configField,
+  bool GameInfo::*parseFailedField,
   Config newConfig,
   const std::filesystem::path& filename,
   const std::string_view configLabel,
@@ -227,7 +227,7 @@ Result<void> writeConfig(
     // https://github.com/TrenchBroom/TrenchBroom/issues/3424)
     logger.debug() << "Skipping writing unchanged " << configLabel << " for "
                    << gameInfo.gameConfig.name;
-    return Result<void>{};
+    return false;
   }
 
   const auto profilesPath = gameInfo.gameConfig.configFileFolder() / filename;
@@ -241,10 +241,11 @@ Result<void> writeConfig(
          | kdl::transform([&]() {
              currentConfig = std::move(newConfig);
              logger.debug() << "Wrote " << configLabel << " to " << profilesPath;
+             return true;
            });
 }
 
-Result<void> writeCompilationConfig(
+Result<bool> writeCompilationConfig(
   fs::WritableFileSystem& fs,
   GameInfo& gameInfo,
   CompilationConfig compilationConfig,
@@ -261,7 +262,9 @@ Result<void> writeCompilationConfig(
     logger);
 }
 
-Result<void> writeGameEngineConfig(
+// Returns whether gameInfo.gameEngineConfig was actually updated (false if the write
+// was skipped because the config was unchanged), so callers can gate a notifier on it.
+Result<bool> writeGameEngineConfig(
   fs::WritableFileSystem& fs,
   GameInfo& gameInfo,
   GameEngineConfig gameEngineConfig,
@@ -322,7 +325,13 @@ Result<void> GameManager::updateCompilationConfig(
   if (auto* info = gameInfo(gameName))
   {
     return writeCompilationConfig(
-      *m_configFs, *info, std::move(compilationConfig), logger);
+             *m_configFs, *info, std::move(compilationConfig), logger)
+           | kdl::transform([&](const auto changed) {
+               if (changed)
+               {
+                 compilationConfigDidChangeNotifier(*info);
+               }
+             });
   }
   return Error{fmt::format("Unknown game: {}", gameName)};
 }
@@ -332,7 +341,13 @@ Result<void> GameManager::updateGameEngineConfig(
 {
   if (auto* info = gameInfo(gameName))
   {
-    return writeGameEngineConfig(*m_configFs, *info, std::move(gameEngineConfig), logger);
+    return writeGameEngineConfig(*m_configFs, *info, std::move(gameEngineConfig), logger)
+           | kdl::transform([&](const auto changed) {
+               if (changed)
+               {
+                 gameEngineConfigDidChangeNotifier(*info);
+               }
+             });
   }
   return Error{fmt::format("Unknown game: {}", gameName)};
 }

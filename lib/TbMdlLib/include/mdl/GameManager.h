@@ -19,6 +19,7 @@
 
 #pragma once
 
+#include "Notifier.h"
 #include "mdl/CompilationConfig.h"
 #include "mdl/GameInfo.h"
 
@@ -45,6 +46,9 @@ private:
   std::vector<GameInfo> m_gameInfos;
 
 public:
+  Notifier<const GameInfo&> compilationConfigDidChangeNotifier;
+  Notifier<const GameInfo&> gameEngineConfigDidChangeNotifier;
+
   GameManager(
     std::unique_ptr<fs::WritableFileSystem> configFs, std::vector<GameInfo> gameInfos);
 
