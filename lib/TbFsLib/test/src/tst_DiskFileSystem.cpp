@@ -154,6 +154,15 @@ TEST_CASE("DiskFileSystemTest")
         "anotherDir/test3.map",
       }));
 
+    // querying with mismatched case must still return paths with the true on-disk
+    // case, including the portion covered by the search path itself
+    CHECK_THAT(
+      fs.find("ANOTHerDir", fs::TraversalMode::Flat),
+      MatchesPathsResult({
+        "anotherDir/subDirTest",
+        "anotherDir/test3.map",
+      }));
+
     CHECK_THAT(
       fs.find(".", fs::TraversalMode::Recursive),
       MatchesPathsResult({
@@ -218,6 +227,9 @@ TEST_CASE("DiskFileSystemTest")
     checkOpenFile("test.txt");
     checkOpenFile("anotherDir/test3.map");
     checkOpenFile("anotherDir/../anotherDir/./test3.map");
+
+    // opening a file with mismatched case must still succeed
+    checkOpenFile("ANOTHerDir/TEST3.MAP");
   }
 }
 

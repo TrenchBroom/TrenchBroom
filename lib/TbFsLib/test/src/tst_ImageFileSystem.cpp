@@ -913,10 +913,7 @@ TEST_CASE("Hierarchical ImageFileSystems")
 
   SECTION("openFile")
   {
-    const auto amnet_cfg = fs->openFile("amnet.cfg") | kdl::value();
-
-    auto reader = amnet_cfg->reader();
-    CHECK(reader.readString(reader.size()) == R"(//
+    const auto expectedContents = std::string{R"(//
 // my stuff
 //
 
@@ -944,7 +941,16 @@ bind mouse1 v30
 
 alias v30 "fov 30; sensitivity 7; bind mouse1 v90"
 alias v90 "fov 90; sensitivity 13; bind mouse1 v30"
-)");
+)"};
+
+    const auto amnet_cfg = fs->openFile("amnet.cfg") | kdl::value();
+    auto reader = amnet_cfg->reader();
+    CHECK(reader.readString(reader.size()) == expectedContents);
+
+    // opening a file with mismatched case must still succeed
+    const auto amnet_cfg_mismatched = fs->openFile("AMNET.CFG") | kdl::value();
+    auto mismatchedReader = amnet_cfg_mismatched->reader();
+    CHECK(mismatchedReader.readString(mismatchedReader.size()) == expectedContents);
   }
 }
 
