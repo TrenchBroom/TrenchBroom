@@ -35,6 +35,7 @@
 #include <fmt/std.h>
 
 #include <algorithm>
+#include <mutex>
 #include <optional>
 #include <ranges>
 #include <unordered_map>
@@ -85,6 +86,7 @@ bool operator!=(const VirtualMountPointId& lhs, const VirtualMountPointId& rhs)
 Result<std::filesystem::path> VirtualFileSystem::makeAbsolute(
   const std::filesystem::path& path) const
 {
+  const auto lock = std::shared_lock{*m_mutex};
   for (auto it = m_mountPoints.rbegin(); it != m_mountPoints.rend(); ++it)
   {
     const auto& mountPoint = *it;
@@ -106,6 +108,7 @@ Result<std::filesystem::path> VirtualFileSystem::makeAbsolute(
 
 PathInfo VirtualFileSystem::pathInfo(const std::filesystem::path& path) const
 {
+  const auto lock = std::shared_lock{*m_mutex};
   for (auto it = m_mountPoints.rbegin(); it != m_mountPoints.rend(); ++it)
   {
     const auto& mountPoint = *it;
@@ -133,6 +136,7 @@ PathInfo VirtualFileSystem::pathInfo(const std::filesystem::path& path) const
 const FileSystemMetadata* VirtualFileSystem::metadata(
   const std::filesystem::path& path, const std::string& key) const
 {
+  const auto lock = std::shared_lock{*m_mutex};
   for (auto it = m_mountPoints.rbegin(); it != m_mountPoints.rend(); ++it)
   {
     const auto& mountPoint = *it;
@@ -153,6 +157,7 @@ const FileSystemMetadata* VirtualFileSystem::metadata(
 VirtualMountPointId VirtualFileSystem::mount(
   const std::filesystem::path& path, std::unique_ptr<FileSystem> fs)
 {
+  const auto lock = std::unique_lock{*m_mutex};
   const auto id = VirtualMountPointId{};
   m_mountPoints.push_back({id, path, std::move(fs)});
   return id;
@@ -160,6 +165,7 @@ VirtualMountPointId VirtualFileSystem::mount(
 
 bool VirtualFileSystem::unmount(const VirtualMountPointId& id)
 {
+  const auto lock = std::unique_lock{*m_mutex};
   if (const auto it = std::ranges::find_if(
         m_mountPoints, [&](const auto& mountPoint) { return mountPoint.id == id; });
       it != m_mountPoints.end())
@@ -172,6 +178,7 @@ bool VirtualFileSystem::unmount(const VirtualMountPointId& id)
 
 void VirtualFileSystem::unmountAll()
 {
+  const auto lock = std::unique_lock{*m_mutex};
   m_mountPoints.clear();
 }
 
@@ -258,6 +265,7 @@ Result<std::vector<std::filesystem::path>> findMatchesForMountedFileSystem(
 Result<std::vector<std::filesystem::path>> VirtualFileSystem::doFind(
   const std::filesystem::path& path, const TraversalMode& traversalMode) const
 {
+  const auto lock = std::shared_lock{*m_mutex};
   return m_mountPoints | std::views::transform([&](const auto& mountPoint) {
            return findMatchesForMountedFileSystem(mountPoint, path, traversalMode);
          })
@@ -303,6 +311,7 @@ Result<std::vector<std::filesystem::path>> VirtualFileSystem::doFind(
 Result<std::shared_ptr<File>> VirtualFileSystem::doOpenFile(
   const std::filesystem::path& path) const
 {
+  const auto lock = std::shared_lock{*m_mutex};
   for (auto it = m_mountPoints.rbegin(); it != m_mountPoints.rend(); ++it)
   {
     const auto& mountPoint = *it;

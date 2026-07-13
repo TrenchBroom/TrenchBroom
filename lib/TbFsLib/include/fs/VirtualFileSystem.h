@@ -24,6 +24,7 @@
 
 #include <filesystem>
 #include <memory>
+#include <shared_mutex>
 #include <vector>
 
 namespace tb::fs
@@ -54,6 +55,14 @@ class VirtualFileSystem : public FileSystem
 {
 private:
   std::vector<VirtualMountPoint> m_mountPoints;
+
+  /** Guards m_mountPoints against concurrent writes (mount, unmount) vs. reads
+   * (makeAbsolute, pathInfo, metadata, doFind, doOpenFile) from other threads. This can
+   * occur via GameFileSystem::reloadWads() racing with background material/model loading.
+   * Allocated on the heap because VirtualFileSystem must stay movable.
+   */
+  mutable std::unique_ptr<std::shared_mutex> m_mutex =
+    std::make_unique<std::shared_mutex>();
 
 public:
   Result<std::filesystem::path> makeAbsolute(
