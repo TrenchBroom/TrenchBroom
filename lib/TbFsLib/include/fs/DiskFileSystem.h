@@ -24,6 +24,7 @@
 
 #include <filesystem>
 #include <memory>
+#include <shared_mutex>
 #include <string>
 #include <variant>
 
@@ -51,6 +52,11 @@ protected:
    * empty tree.
    */
   std::unique_ptr<DiskEntry> m_cacheRoot;
+
+  /**
+   * Guards m_cacheRoot against concurrent reload() and reads.
+   */
+  mutable std::shared_mutex m_mutex;
 
 public:
   explicit DiskFileSystem(const std::filesystem::path& root);

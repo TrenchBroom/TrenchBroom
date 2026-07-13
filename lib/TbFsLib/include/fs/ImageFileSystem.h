@@ -30,6 +30,7 @@
 #include <filesystem>
 #include <functional>
 #include <memory>
+#include <shared_mutex>
 #include <unordered_map>
 
 namespace tb::fs
@@ -49,9 +50,24 @@ protected:
   ImageEntry m_root;
   std::unordered_map<std::string, FileSystemMetadata> m_metadata;
 
+  /**
+   * Guards m_root and m_metadata against concurrent reload() and reads. Only reload()
+   * and the read-only pathInfo/metadata/doFind/doOpenFile paths take this lock -
+   * addFile() runs solely from within doReadDirectory(), itself only ever called from
+   * reload() while the exclusive lock is already held, so it needs no lock of its own.
+   *
+   * unique_ptr, not a plain std::shared_mutex member, because ImageFileSystemBase must
+   * stay movable.
+   */
+  mutable std::unique_ptr<std::shared_mutex> m_mutex =
+    std::make_unique<std::shared_mutex>();
+
   ImageFileSystemBase();
 
 public:
+  ImageFileSystemBase(ImageFileSystemBase&&) noexcept;
+  ImageFileSystemBase& operator=(ImageFileSystemBase&&) noexcept;
+
   ~ImageFileSystemBase() override;
 
   Result<std::filesystem::path> makeAbsolute(

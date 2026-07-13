@@ -32,6 +32,8 @@
 #include <fmt/std.h>
 
 #include <memory>
+#include <mutex>
+#include <shared_mutex>
 #include <string>
 #include <tuple>
 
@@ -78,6 +80,8 @@ Result<std::filesystem::path> DiskFileSystem::makeAbsolute(
 
 Result<void> DiskFileSystem::reload()
 {
+  const auto lock = std::unique_lock{m_mutex};
+
   auto error = std::error_code{};
   auto it = std::filesystem::recursive_directory_iterator{
     m_root, std::filesystem::directory_options::follow_directory_symlink, error};
@@ -139,6 +143,7 @@ PathInfo DiskFileSystem::pathInfo(const std::filesystem::path& path) const
     return PathInfo::Unknown;
   }
 
+  const auto lock = std::shared_lock{m_mutex};
   if (!m_cacheRoot)
   {
     return PathInfo::Unknown;
@@ -158,6 +163,8 @@ const FileSystemMetadata* DiskFileSystem::metadata(
 Result<std::vector<std::filesystem::path>> DiskFileSystem::doFind(
   const std::filesystem::path& path, const TraversalMode& traversalMode) const
 {
+  const auto lock = std::shared_lock{m_mutex};
+
   auto result = std::vector<std::filesystem::path>{};
   // guards against a reload() racing between the base find() wrapper's pathInfo()
   // check and this call clearing the cache out from under it
@@ -177,6 +184,8 @@ Result<std::vector<std::filesystem::path>> DiskFileSystem::doFind(
 Result<std::shared_ptr<File>> DiskFileSystem::doOpenFile(
   const std::filesystem::path& path) const
 {
+  const auto lock = std::shared_lock{m_mutex};
+
   // guards against a reload() racing between the base openFile() wrapper's
   // pathInfo() check and this call clearing the cache out from under it
   if (!m_cacheRoot)

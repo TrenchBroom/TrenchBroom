@@ -31,6 +31,8 @@
 
 #include <cassert>
 #include <memory>
+#include <mutex>
+#include <shared_mutex>
 
 namespace tb::fs
 {
@@ -39,6 +41,10 @@ ImageFileSystemBase::ImageFileSystemBase()
   : m_root{ImageDirectoryEntry{{}, {}, {}}}
 {
 }
+
+ImageFileSystemBase::ImageFileSystemBase(ImageFileSystemBase&&) noexcept = default;
+ImageFileSystemBase& ImageFileSystemBase::operator=(ImageFileSystemBase&&) noexcept =
+  default;
 
 ImageFileSystemBase::~ImageFileSystemBase() = default;
 
@@ -50,6 +56,7 @@ Result<std::filesystem::path> ImageFileSystemBase::makeAbsolute(
 
 Result<void> ImageFileSystemBase::reload()
 {
+  const auto lock = std::unique_lock{*m_mutex};
   m_root = ImageDirectoryEntry{{}, {}, {}};
   return doReadDirectory();
 }
@@ -80,6 +87,7 @@ void ImageFileSystemBase::addFile(const std::filesystem::path& path, GetImageFil
 
 PathInfo ImageFileSystemBase::pathInfo(const std::filesystem::path& path) const
 {
+  const auto lock = std::shared_lock{*m_mutex};
   const auto* entry = findCachedEntry(kdl::path_to_lower(path), m_root);
   return entry ? isDirectoryEntry(*entry) ? PathInfo::Directory : PathInfo::File
                : PathInfo::Unknown;
@@ -88,6 +96,7 @@ PathInfo ImageFileSystemBase::pathInfo(const std::filesystem::path& path) const
 const FileSystemMetadata* ImageFileSystemBase::metadata(
   const std::filesystem::path& path, const std::string& key) const
 {
+  const auto lock = std::shared_lock{*m_mutex};
   if (findCachedEntry(kdl::path_to_lower(path), m_root))
   {
     if (const auto it = m_metadata.find(key); it != m_metadata.end())
@@ -101,6 +110,7 @@ const FileSystemMetadata* ImageFileSystemBase::metadata(
 Result<std::vector<std::filesystem::path>> ImageFileSystemBase::doFind(
   const std::filesystem::path& path, const TraversalMode& traversalMode) const
 {
+  const auto lock = std::shared_lock{*m_mutex};
   auto result = std::vector<std::filesystem::path>{};
   withCachedEntry(
     kdl::path_to_lower(path),
@@ -115,6 +125,7 @@ Result<std::vector<std::filesystem::path>> ImageFileSystemBase::doFind(
 Result<std::shared_ptr<File>> ImageFileSystemBase::doOpenFile(
   const std::filesystem::path& path) const
 {
+  const auto lock = std::shared_lock{*m_mutex};
   return withCachedEntry(
     kdl::path_to_lower(path),
     m_root,

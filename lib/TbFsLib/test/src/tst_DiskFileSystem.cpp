@@ -33,6 +33,10 @@
 #include <fmt/std.h>
 
 #include <filesystem>
+#include <functional>
+#include <thread>
+#include <tuple>
+#include <vector>
 
 #include <catch2/catch_test_macros.hpp>
 
@@ -525,6 +529,53 @@ TEST_CASE("DiskFileSystem reload")
 
     CHECK(fs.pathInfo("brokenLink") == fs::PathInfo::Unknown);
   }
+}
+
+TEST_CASE("DiskFileSystem concurrent reload vs. reads")
+{
+  using ThreadFunc = std::function<void()>;
+
+  // WritableDiskFileSystem's reload-after-write firing on a potentially-live
+  // DiskFileSystem instance while other threads read from it. Not a deterministic
+  // assertion of absence-of-race (that's what running this under -DTB_ENABLE_TSAN=ON is
+  // for) - this just exercises the pattern under contention, with a fixed iteration count
+  // so it terminates (a lock-ordering bug here would hang or crash rather than fail an
+  // assertion).
+  const auto env = makeTestEnvironment();
+
+  auto fs = DiskFileSystem{env.dir()};
+
+  constexpr auto numReaderThreads = 4;
+  constexpr auto numIterations = 500;
+
+  auto reloader = ThreadFunc{[&]() {
+    for (auto i = 0; i < numIterations; ++i)
+    {
+      std::ignore = fs.reload();
+    }
+  }};
+
+  auto reader = ThreadFunc{[&]() {
+    for (auto i = 0; i < numIterations; ++i)
+    {
+      static_cast<void>(fs.pathInfo("anotherDir"));
+      static_cast<void>(fs.find("anotherDir", fs::TraversalMode::Flat));
+      static_cast<void>(fs.openFile("test.txt"));
+    }
+  }};
+
+  auto threads =
+    kdl::views::concat(
+      std::views::single(reloader), kdl::views::repeat(reader, numReaderThreads))
+    | std::views::transform([](auto func) { return std::thread{std::move(func)}; })
+    | kdl::ranges::to<std::vector>();
+
+  for (auto& thread : threads)
+  {
+    thread.join();
+  }
+
+  CHECK(fs.pathInfo("anotherDir") == fs::PathInfo::Directory);
 }
 
 } // namespace tb::fs
