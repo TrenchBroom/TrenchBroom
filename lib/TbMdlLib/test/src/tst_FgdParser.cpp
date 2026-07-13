@@ -1251,6 +1251,28 @@ model({"path"
       defs.value(), [](const auto& def) { return def.name == "worldspawn"; }));
   }
 
+  SECTION("parseIncludeEscapingBasePath")
+  {
+    // an @include path that escapes the host file's directory (here, into the sibling
+    // parseInclude fixture directory) must be rejected rather than followed - the host
+    // file's own definitions should still parse
+    const auto path =
+      getFixtureRoot() / "test/mdl/FgdParser/parseIncludeEscapingBasePath/host.fgd";
+    auto file = fs::Disk::openFile(path) | kdl::value();
+    auto reader = file->reader().buffer();
+
+    auto parser = FgdParser{reader.stringView(), RgbaF{1.0f, 1.0f, 1.0f, 1.0f}, path};
+
+    auto status = TestParserStatus{};
+    auto defs = parser.parseDefinitions(status);
+    REQUIRE(defs);
+    CHECK(defs.value().size() == 1u);
+    CHECK(std::ranges::any_of(
+      defs.value(), [](const auto& def) { return def.name == "worldspawn"; }));
+    CHECK(std::ranges::none_of(
+      defs.value(), [](const auto& def) { return def.name == "info_player_start"; }));
+  }
+
   SECTION("parseStringContinuations")
   {
     const auto file = R"(

@@ -28,7 +28,6 @@
 #include "Logger.h"
 #include "Notifier.h"
 #include "PreferenceManager.h"
-#include "fs/DiskFileSystem.h"
 #include "fs/DiskIO.h"
 #include "fs/PathInfo.h"
 #include "fs/TraversalMode.h"
@@ -68,9 +67,8 @@ Result<std::vector<std::string>> findAvailableMods(const mdl::GameInfo& gameInfo
 
   const auto defaultMod =
     gameInfo.gameConfig.fileSystemConfig.searchPath.filename().string();
-  const auto fs = fs::DiskFileSystem{gamePath};
-  return fs.find(
-           "",
+  return fs::Disk::find(
+           gamePath,
            fs::TraversalMode::Flat,
            fs::makePathInfoPathMatcher({fs::PathInfo::Directory}))
          | kdl::transform([&](const auto& subDirs) {

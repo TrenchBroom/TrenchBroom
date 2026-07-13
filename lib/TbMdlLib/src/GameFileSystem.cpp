@@ -169,23 +169,19 @@ void GameFileSystem::addFileSystemPackages(
 
   if (fs::Disk::pathInfo(searchPath) == fs::PathInfo::Directory)
   {
-    const auto diskFS = fs::DiskFileSystem{searchPath};
-    diskFS.find(
-      std::filesystem::path{},
+    fs::Disk::find(
+      searchPath,
       fs::TraversalMode::Flat,
       fs::makeExtensionPathMatcher(packageExtensions))
       | kdl::and_then([&](auto packagePaths) {
           std::ranges::sort(packagePaths);
           return packagePaths | kdl::views::as_rvalue
-                 | std::views::transform([&](auto packagePath) {
-                     return diskFS.makeAbsolute(packagePath)
-                            | kdl::and_then([&](const auto& absPackagePath) {
-                                return createImageFileSystem(
-                                  packageFormat, absPackagePath);
-                              })
+                 | std::views::transform([&](auto absPackagePath) {
+                     return createImageFileSystem(packageFormat, absPackagePath)
                             | kdl::transform([&](auto fs) {
                                 logger.info()
-                                  << "Adding file system package " << packagePath;
+                                  << "Adding file system package "
+                                  << absPackagePath.lexically_relative(searchPath);
                                 mount("", std::move(fs));
                               });
                    })

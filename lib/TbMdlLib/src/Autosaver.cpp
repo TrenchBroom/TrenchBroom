@@ -20,9 +20,7 @@
 #include "mdl/Autosaver.h"
 
 #include "Logger.h"
-#include "fs/DiskFileSystem.h"
 #include "fs/DiskIO.h"
-#include "fs/FileSystem.h"
 #include "fs/PathInfo.h"
 #include "fs/TraversalMode.h"
 #include "mdl/CommandProcessor.h"
@@ -48,27 +46,27 @@ namespace tb::mdl
 namespace
 {
 
-Result<fs::WritableDiskFileSystem> createBackupFileSystem(
+Result<std::filesystem::path> ensureAutosaveDirectory(
   const std::filesystem::path& mapPath)
 {
   const auto basePath = mapPath.parent_path();
   const auto autosavePath = basePath / "autosave";
 
   return fs::Disk::createDirectory(autosavePath)
-         | kdl::transform([&](auto) { return fs::WritableDiskFileSystem{autosavePath}; });
+         | kdl::transform([&](auto) { return autosavePath; });
 }
 
 Result<std::vector<std::filesystem::path>> collectBackups(
-  const fs::FileSystem& fs, const std::filesystem::path& mapBasename)
+  const std::filesystem::path& autosavePath, const std::filesystem::path& mapBasename)
 {
-  return fs.find({}, fs::TraversalMode::Flat, makeBackupPathMatcher(mapBasename))
+  return fs::Disk::find(
+           autosavePath, fs::TraversalMode::Flat, makeBackupPathMatcher(mapBasename))
          | kdl::transform(
            [](auto backupPaths) { return kdl::vec_sort(std::move(backupPaths)); });
 }
 
 Result<std::vector<std::filesystem::path>> thinBackups(
   Logger& logger,
-  fs::WritableDiskFileSystem& fs,
   const std::vector<std::filesystem::path>& backups,
   const size_t maxBackups)
 {
@@ -80,12 +78,13 @@ Result<std::vector<std::filesystem::path>> thinBackups(
   const auto numToDelete = backups.size() - maxBackups + 1;
   const auto toDelete = backups | std::views::take(numToDelete);
   return toDelete | std::views::transform([&](auto filename) {
-           return fs.deleteFile(filename) | kdl::transform([&](const auto deleted) {
-                    if (deleted)
-                    {
-                      logger.debug() << "Deleted autosave backup " << filename;
-                    }
-                  });
+           return fs::Disk::deleteFile(filename)
+                  | kdl::transform([&](const auto deleted) {
+                      if (deleted)
+                      {
+                        logger.debug() << "Deleted autosave backup " << filename;
+                      }
+                    });
          })
          | kdl::fold | kdl::transform([&]() {
              return backups | std::views::drop(numToDelete)
@@ -100,15 +99,16 @@ std::filesystem::path makeBackupName(
 }
 
 Result<void> cleanBackups(
-  fs::WritableDiskFileSystem& fs,
   const std::vector<std::filesystem::path>& backups,
-  const std::filesystem::path& mapBasename)
+  const std::filesystem::path& mapBasename,
+  const std::filesystem::path& autosavePath)
 {
   const auto cleanBackup = [&](const auto i, const auto& backup) {
     const auto& oldName = backup.filename();
     const auto newName = makeBackupName(mapBasename, size_t(i) + 1);
 
-    return oldName != newName ? fs.moveFile(oldName, newName) : Result<void>{};
+    return oldName != newName ? fs::Disk::moveFile(backup, autosavePath / newName)
+                              : Result<void>{};
   };
 
   return backups | kdl::views::enumerate | std::views::transform([&](const auto& pair) {
@@ -164,17 +164,17 @@ void Autosaver::autosave()
   const auto mapFilename = mapPath.filename();
   const auto mapBasename = mapPath.stem();
 
-  createBackupFileSystem(mapPath) | kdl::and_then([&](auto fs) {
-    return collectBackups(fs, mapBasename) | kdl::and_then([&](auto backups) {
-             return thinBackups(m_map.logger(), fs, backups, m_maxBackups);
+  ensureAutosaveDirectory(mapPath) | kdl::and_then([&](const auto& autosavePath) {
+    return collectBackups(autosavePath, mapBasename) | kdl::and_then([&](auto backups) {
+             return thinBackups(m_map.logger(), backups, m_maxBackups);
            })
            | kdl::and_then([&](auto remainingBackups) {
-               return cleanBackups(fs, remainingBackups, mapBasename)
-                      | kdl::and_then([&]() {
+               return cleanBackups(remainingBackups, mapBasename, autosavePath)
+                      | kdl::and_then([&]() -> Result<std::filesystem::path> {
                           contract_assert(remainingBackups.size() < m_maxBackups);
 
                           const auto backupNo = remainingBackups.size() + 1;
-                          return fs.makeAbsolute(makeBackupName(mapBasename, backupNo));
+                          return autosavePath / makeBackupName(mapBasename, backupNo);
                         });
              });
   }) | kdl::and_then([&](const auto& backupFilePath) {
