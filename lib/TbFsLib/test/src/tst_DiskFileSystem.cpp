@@ -25,6 +25,10 @@
 #include "fs/TestEnvironment.h"
 #include "fs/TraversalMode.h"
 
+#include "kd/ranges/concat_view.h"
+#include "kd/ranges/repeat_view.h"
+#include "kd/ranges/to.h"
+
 #include <fmt/format.h>
 #include <fmt/std.h>
 
@@ -430,6 +434,84 @@ TEST_CASE("WritableDiskFileSystemTest")
     CHECK(fs.copyFile("test2.map", "dir1/test2.map") == Result<void>{});
     CHECK(fs.pathInfo("test2.map") == fs::PathInfo::File);
     CHECK(fs.pathInfo("dir1/test2.map") == fs::PathInfo::File);
+  }
+}
+
+TEST_CASE("DiskFileSystem reload")
+{
+  SECTION("reload picks up changes made directly to the backing directory")
+  {
+    auto env = makeTestEnvironment();
+    auto fs = DiskFileSystem{env.dir()};
+
+    CHECK(fs.pathInfo("newDir") == fs::PathInfo::Unknown);
+
+    // bypass DiskFileSystem and mutate the backing directory directly
+    env.createDirectory("newDir");
+    env.createFile("newDir/newFile.txt", "some content");
+
+    // the cache is stale until reload() is called
+    CHECK(fs.pathInfo("newDir") == fs::PathInfo::Unknown);
+    CHECK(fs.pathInfo("newDir/newFile.txt") == fs::PathInfo::Unknown);
+
+    CHECK(fs.reload() == Result<void>{});
+    CHECK(fs.pathInfo("newDir") == fs::PathInfo::Directory);
+    CHECK(fs.pathInfo("newDir/newFile.txt") == fs::PathInfo::File);
+  }
+
+  SECTION("constructing over a non-existent root does not error")
+  {
+    auto env = makeTestEnvironment();
+    const auto rootPath = env.dir() / "doesNotExistYet";
+
+    auto fs = DiskFileSystem{rootPath};
+    CHECK(fs.pathInfo(".") == fs::PathInfo::Unknown);
+    CHECK(fs.pathInfo("anything") == fs::PathInfo::Unknown);
+    CHECK(
+      fs.find(".", fs::TraversalMode::Flat)
+      == Result<std::vector<std::filesystem::path>>{Error{
+        fmt::format("Path {} does not denote a directory", std::filesystem::path{"."})}});
+
+    // create the root directory (with some contents) after construction
+    env.createDirectory("doesNotExistYet");
+    env.createFile("doesNotExistYet/file.txt", "some content");
+
+    CHECK(fs.reload() == Result<void>{});
+    CHECK(fs.pathInfo(".") == fs::PathInfo::Directory);
+    CHECK(fs.pathInfo("file.txt") == fs::PathInfo::File);
+    CHECK_THAT(fs.find(".", fs::TraversalMode::Flat), MatchesPathsResult({"file.txt"}));
+  }
+
+  SECTION("find/pathInfo/openFile behave consistently through a symlinked directory")
+  {
+    auto env = makeTestEnvironment();
+    env.createDirectory("realDir");
+    env.createFile("realDir/realFile.txt", "some content");
+    env.createSymLink("realDir", "linkedDir");
+
+    auto fs = DiskFileSystem{env.dir()};
+
+    CHECK(fs.pathInfo("linkedDir") == fs::PathInfo::Directory);
+    CHECK(fs.pathInfo("linkedDir/realFile.txt") == fs::PathInfo::File);
+
+    CHECK_THAT(
+      fs.find("linkedDir", fs::TraversalMode::Flat),
+      MatchesPathsResult({
+        "linkedDir/realFile.txt",
+      }));
+
+    const auto file = fs.openFile("linkedDir/realFile.txt") | kdl::value();
+    CHECK(file->reader().readString(file->size()) == "some content");
+  }
+
+  SECTION("a broken symlink is neither a directory nor a file")
+  {
+    auto env = makeTestEnvironment();
+    env.createSymLink("doesNotExist", "brokenLink");
+
+    auto fs = DiskFileSystem{env.dir()};
+
+    CHECK(fs.pathInfo("brokenLink") == fs::PathInfo::Unknown);
   }
 }
 
