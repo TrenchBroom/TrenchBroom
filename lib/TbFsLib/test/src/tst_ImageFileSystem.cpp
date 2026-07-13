@@ -857,6 +857,15 @@ TEST_CASE("Hierarchical ImageFileSystems")
         "pics/tag1.pcx",
       }));
 
+    // querying with mismatched case must still return paths with the true on-disk /
+    // in-archive case, including the portion covered by the search path itself
+    CHECK_THAT(
+      fs->find("PICS", fs::TraversalMode::Flat),
+      MatchesPathsResult({
+        "pics/tag2.pcx",
+        "pics/tag1.pcx",
+      }));
+
     CHECK_THAT(
       fs->find("", fs::TraversalMode::Recursive),
       MatchesPathsResult({

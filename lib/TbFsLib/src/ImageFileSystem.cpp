@@ -95,7 +95,7 @@ auto withEntry(
                  ? withEntry(
                      kdl::path_pop_front(searchPathLC),
                      *entryIt,
-                     currentPath / nameLC,
+                     currentPath / getName(*entryIt),
                      f,
                      defaultResult)
                  : defaultResult;
@@ -126,7 +126,10 @@ void withEntry(
           if (entryIt != directoryEntry.entries.end())
           {
             withEntry(
-              kdl::path_pop_front(searchPathLC), *entryIt, currentPath / nameLC, f);
+              kdl::path_pop_front(searchPathLC),
+              *entryIt,
+              currentPath / getName(*entryIt),
+              f);
           }
         },
         [&](const ImageFileEntry&) {}),
