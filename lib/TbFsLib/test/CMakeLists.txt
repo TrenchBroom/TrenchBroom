@@ -1,6 +1,7 @@
 add_executable(TbFsLibTest)
 
 target_sources(TbFsLibTest PRIVATE
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_CachedFileTree.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_DiskFileSystem.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_DiskIO.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_FileSystem.cpp

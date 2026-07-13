@@ -20,18 +20,17 @@
 #pragma once
 
 #include "Result.h"
+#include "fs/CachedFileTree.h"
 #include "fs/FileSystem.h"
 #include "fs/FileSystemMetadata.h"
 
 #include "kd/contracts.h"
-#include "kd/path_hash.h"
 #include "kd/result.h"
 
 #include <filesystem>
 #include <functional>
 #include <memory>
 #include <unordered_map>
-#include <variant>
 
 namespace tb::fs
 {
@@ -40,21 +39,9 @@ class File;
 
 using GetImageFile = std::function<Result<std::shared_ptr<File>>()>;
 
-struct ImageFileEntry
-{
-  std::filesystem::path name;
-  GetImageFile getFile;
-};
-
-struct ImageDirectoryEntry;
-using ImageEntry = std::variant<ImageDirectoryEntry, ImageFileEntry>;
-
-struct ImageDirectoryEntry
-{
-  std::filesystem::path name;
-  std::vector<ImageEntry> entries;
-  std::unordered_map<std::filesystem::path, size_t, kdl::path_hash> entryMapLC;
-};
+using ImageFileEntry = CachedFileEntry<GetImageFile>;
+using ImageDirectoryEntry = CachedDirectoryEntry<GetImageFile>;
+using ImageEntry = CachedEntry<GetImageFile>;
 
 class ImageFileSystemBase : public FileSystem
 {
