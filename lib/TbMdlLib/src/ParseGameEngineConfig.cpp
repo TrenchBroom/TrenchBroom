@@ -19,6 +19,7 @@
 
 #include "mdl/ParseGameEngineConfig.h"
 
+#include "Uuid.h"
 #include "el/EvaluationContext.h"
 #include "el/ParseExpression.h"
 #include "el/Value.h"
@@ -41,9 +42,11 @@ namespace
 GameEngineProfile toProfile(const el::EvaluationContext& context, const el::Value& value)
 {
   return {
-    value.at(context, "name").stringValue(context),
-    std::filesystem::path{value.at(context, "path").stringValue(context)},
-    value.at(context, "parameters").stringValue(context),
+    .id = value.contains(context, "id") ? value.at(context, "id").stringValue(context)
+                                        : generateUuid(),
+    .name = value.at(context, "name").stringValue(context),
+    .path = std::filesystem::path{value.at(context, "path").stringValue(context)},
+    .parameterSpec = value.at(context, "parameters").stringValue(context),
   };
 }
 

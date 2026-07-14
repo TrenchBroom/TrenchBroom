@@ -22,6 +22,7 @@
 #include <QBoxLayout>
 #include <QToolButton>
 
+#include "Uuid.h"
 #include "mdl/GameEngineConfig.h"
 #include "mdl/GameEngineProfile.h"
 #include "ui/BitmapButton.h"
@@ -106,7 +107,12 @@ const mdl::GameEngineConfig& GameEngineProfileManager::config() const
 
 void GameEngineProfileManager::addProfile()
 {
-  m_config.profiles.push_back(mdl::GameEngineProfile{"", {}, ""});
+  m_config.profiles.push_back(mdl::GameEngineProfile{
+    .id = generateUuid(),
+    .name = "",
+    .path = {},
+    .parameterSpec = "",
+  });
   m_profileList->reloadProfiles();
   m_profileList->setCurrentRow(int(m_config.profiles.size() - 1));
 }

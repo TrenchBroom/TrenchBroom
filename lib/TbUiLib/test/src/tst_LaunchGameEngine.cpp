@@ -18,6 +18,7 @@
  */
 
 #include "CmdTool.h"
+#include "Uuid.h"
 #include "el/VariableStore.h"
 #include "mdl/GameEngineProfile.h"
 #include "ui/CatchConfig.h"
@@ -39,9 +40,10 @@ TEST_CASE("launchGameEngineProfile")
   SECTION("return an error if engine doesn't exist")
   {
     auto profile = mdl::GameEngineProfile{
-      "some_name",
-      "/does/not/exist",
-      "",
+      .id = generateUuid(),
+      .name = "some_name",
+      .path = "/does/not/exist",
+      .parameterSpec = "",
     };
 
     CHECK(launchGameEngineProfile(profile, variables).is_error());
@@ -50,9 +52,10 @@ TEST_CASE("launchGameEngineProfile")
   SECTION("passes arguments correctly to the engine")
   {
     auto profile = mdl::GameEngineProfile{
-      "some_name",
-      CMD_TOOL_PATH,
-      R"(--printArgs 1 2 str "string with spaces")",
+      .id = generateUuid(),
+      .name = "some_name",
+      .path = CMD_TOOL_PATH,
+      .parameterSpec = R"(--printArgs 1 2 str "string with spaces")",
     };
 
     auto logFile = kdl::tmp_file{};

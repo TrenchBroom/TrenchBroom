@@ -21,6 +21,7 @@
 
 #include <QWidget>
 
+#include "NotifierConnection.h"
 #include "mdl/CompilationConfig.h"
 
 #include <string>
@@ -37,6 +38,7 @@ struct CompilationProfile;
 
 namespace ui
 {
+class AppController;
 class CompilationProfileListBox;
 class CompilationProfileEditor;
 class MapDocument;
@@ -51,14 +53,20 @@ class CompilationProfileManager : public QWidget
 {
   Q_OBJECT
 private:
+  MapDocument& m_document;
   mdl::CompilationConfig m_config;
   CompilationProfileListBox* m_profileList = nullptr;
   CompilationProfileEditor* m_profileEditor = nullptr;
   QAbstractButton* m_removeProfileButton = nullptr;
 
+  NotifierConnection m_notifierConnection;
+
 public:
   CompilationProfileManager(
-    MapDocument& document, mdl::CompilationConfig config, QWidget* parent = nullptr);
+    AppController& appController,
+    MapDocument& document,
+    mdl::CompilationConfig config,
+    QWidget* parent = nullptr);
 
   const mdl::CompilationProfile* selectedProfile() const;
   bool selectProfile(const mdl::CompilationProfile& profile);

@@ -89,7 +89,8 @@ void CompilationDialog::createGui()
 
   const auto& compilationConfig = m_document.map().gameInfo().compilationConfig;
 
-  m_profileManager = new CompilationProfileManager{m_document, compilationConfig};
+  m_profileManager =
+    new CompilationProfileManager{m_appController, m_document, compilationConfig};
 
   auto* outputPanel = new TitledPanel{tr("Output")};
   m_output = new QTextEdit{};

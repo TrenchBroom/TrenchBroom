@@ -32,9 +32,12 @@
 #include "mdl/CompilationProfile.h"
 #include "mdl/CompilationTask.h"
 #include "mdl/ExportOptions.h"
+#include "mdl/GameEngineProfile.h"
+#include "mdl/GameInfo.h"
 #include "mdl/Map.h"
 #include "ui/CompilationContext.h"
 #include "ui/CompilationVariables.h"
+#include "ui/LaunchGameEngine.h"
 #include "ui/QPathUtils.h"
 
 #include "kd/cmd_utils.h"
@@ -49,6 +52,7 @@
 #include <fmt/format.h>
 #include <fmt/std.h>
 
+#include <algorithm>
 #include <ranges>
 #include <string>
 
@@ -473,6 +477,71 @@ void CompilationRunToolTaskRunner::processReadyReadStandardOutput()
   }
 }
 
+CompilationLaunchEngineTaskRunner::CompilationLaunchEngineTaskRunner(
+  CompilationContext& context, mdl::CompilationLaunchEngine task)
+  : CompilationTaskRunner{context}
+  , m_task{std::move(task)}
+{
+}
+
+CompilationLaunchEngineTaskRunner::~CompilationLaunchEngineTaskRunner() = default;
+
+void CompilationLaunchEngineTaskRunner::doExecute()
+{
+  emit start();
+
+  const auto fail = [&](const QString& message) {
+    m_context << "#### Launch failed: " << message << "\n";
+    if (m_task.treatLaunchFailureAsError)
+    {
+      emit error();
+    }
+    else
+    {
+      m_context << "#### Continuing despite launch failure\n";
+      emit end();
+    }
+  };
+
+  if (m_task.engineProfileId.empty())
+  {
+    fail("Engine profile is not set");
+    return;
+  }
+
+  const auto& engineProfiles = m_context.map().gameInfo().gameEngineConfig.profiles;
+  const auto profileIt = std::ranges::find_if(engineProfiles, [&](const auto& profile) {
+    return profile.id == m_task.engineProfileId;
+  });
+
+  if (profileIt == std::end(engineProfiles))
+  {
+    fail(
+      QString{"Engine profile '"} + QString::fromStdString(m_task.engineProfileId)
+      + "' was not found");
+    return;
+  }
+
+  const auto& profile = *profileIt;
+  m_context << "#### Launching engine profile '" << QString::fromStdString(profile.name)
+            << "' at '" << pathAsQString(profile.path) << "'\n";
+
+  if (m_context.test())
+  {
+    emit end();
+    return;
+  }
+
+  launchGameEngineProfile(profile, LaunchGameEngineVariables{m_context.map()})
+    | kdl::transform([&]() {
+        m_context << "#### Launched\n";
+        emit end();
+      })
+    | kdl::transform_error([&](auto e) { fail(QString::fromStdString(e.msg)); });
+}
+
+void CompilationLaunchEngineTaskRunner::doTerminate() {}
+
 CompilationRunner::CompilationRunner(
   CompilationContext context, const mdl::CompilationProfile& profile, QObject* parent)
   : QObject{parent}
@@ -525,6 +594,13 @@ CompilationRunner::TaskRunnerList CompilationRunner::createTaskRunners(
           {
             result.push_back(
               std::make_unique<CompilationRunToolTaskRunner>(context, runTool));
+          }
+        },
+        [&](const mdl::CompilationLaunchEngine& launchEngine) {
+          if (launchEngine.enabled)
+          {
+            result.push_back(
+              std::make_unique<CompilationLaunchEngineTaskRunner>(context, launchEngine));
           }
         }),
       task);

@@ -72,6 +72,15 @@ el::Value toValue(const CompilationTask& task)
         map["tool"] = el::Value{runTool.toolSpec};
         map["parameters"] = el::Value{runTool.parameterSpec};
         return map;
+      },
+      [](const CompilationLaunchEngine& launchEngine) {
+        auto map = el::MapType{};
+        map["type"] = el::Value{"launchEngine"};
+        map["enabled"] = el::Value{launchEngine.enabled};
+        map["engineProfileId"] = el::Value{launchEngine.engineProfileId};
+        map["treatLaunchFailureAsError"] =
+          el::Value{launchEngine.treatLaunchFailureAsError};
+        return map;
       }),
     task)};
 }

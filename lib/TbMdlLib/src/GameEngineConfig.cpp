@@ -30,6 +30,7 @@ namespace
 el::Value toValue(const GameEngineProfile& profile)
 {
   return el::Value{el::MapType{
+    {"id", el::Value{profile.id}},
     {"name", el::Value{profile.name}},
     {"path", el::Value{profile.path.string()}},
     {"parameters", el::Value{profile.parameterSpec}},

@@ -113,6 +113,24 @@ CompilationRunTool toToolTask(
   };
 }
 
+CompilationLaunchEngine toLaunchEngineTask(
+  const el::EvaluationContext& context, const el::Value& value)
+{
+  const auto enabled = value.contains(context, "enabled")
+                         ? value.at(context, "enabled").booleanValue(context)
+                         : true;
+  const auto treatLaunchFailureAsError =
+    value.contains(context, "treatLaunchFailureAsError")
+      ? value.at(context, "treatLaunchFailureAsError").booleanValue(context)
+      : false;
+
+  return {
+    enabled,
+    value.at(context, "engineProfileId").stringValue(context),
+    treatLaunchFailureAsError,
+  };
+}
+
 CompilationTask toTask(const el::EvaluationContext& context, const el::Value& value)
 {
   const auto typeName = value.at(context, "type").stringValue(context);
@@ -136,6 +154,10 @@ CompilationTask toTask(const el::EvaluationContext& context, const el::Value& va
   if (typeName == "tool")
   {
     return toToolTask(context, value);
+  }
+  if (typeName == "launchEngine")
+  {
+    return toLaunchEngineTask(context, value);
   }
 
   throw ParserException{fmt::format("Unknown compilation task type '{}'", typeName)};

@@ -79,6 +79,7 @@ private slots:
 
 public:
   void setProfile(mdl::CompilationProfile* profile);
+  void refreshTaskEditors();
 
 private:
   void refresh();

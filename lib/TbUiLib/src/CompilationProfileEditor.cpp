@@ -28,6 +28,8 @@
 
 #include "mdl/CompilationProfile.h"
 #include "mdl/CompilationTask.h"
+#include "mdl/GameInfo.h"
+#include "mdl/Map.h"
 #include "ui/BitmapButton.h"
 #include "ui/BorderLine.h"
 #include "ui/CompilationTaskListBox.h"
@@ -207,6 +209,7 @@ void CompilationProfileEditor::addTask()
   auto* renameFileAction = menu.addAction("Rename File");
   auto* deleteFilesAction = menu.addAction("Delete Files");
   auto* runToolAction = menu.addAction("Run Tool");
+  auto* launchEngineAction = menu.addAction("Launch Engine");
 
   auto task = [&](const auto* chosenAction) -> std::optional<mdl::CompilationTask> {
     if (chosenAction == exportMapAction)
@@ -232,6 +235,14 @@ void CompilationProfileEditor::addTask()
     {
       return mdl::CompilationRunTool{
         K(enabled), "", "", !K(treatNonZeroResultCodeAsError)};
+    }
+    if (chosenAction == launchEngineAction)
+    {
+      const auto& engineProfiles = m_document.map().gameInfo().gameEngineConfig.profiles;
+      return mdl::CompilationLaunchEngine{
+        K(enabled),
+        engineProfiles.empty() ? "" : engineProfiles.front().id,
+        !K(treatLaunchFailureAsError)};
     }
     {
       return std::nullopt;
@@ -329,6 +340,12 @@ void CompilationProfileEditor::setProfile(mdl::CompilationProfile* profile)
   m_profile = profile;
   m_taskList->setProfile(profile);
   m_stackedWidget->setCurrentIndex(m_profile ? 1 : 0);
+  refresh();
+}
+
+void CompilationProfileEditor::refreshTaskEditors()
+{
+  m_taskList->updateTasks();
   refresh();
 }
 

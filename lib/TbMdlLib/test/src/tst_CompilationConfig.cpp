@@ -258,6 +258,45 @@ TEST_CASE("toValue")
         enabled,
         treatNonZeroResultCodeAsError)));
   }
+
+  SECTION("launch engine task")
+  {
+    const auto enabled = GENERATE(true, false);
+    const auto treatLaunchFailureAsError = GENERATE(true, false);
+
+    CHECK(
+      toValue(CompilationConfig{{
+        {"name",
+         "workDirSpec",
+         {
+           CompilationLaunchEngine{
+             enabled,
+             "engineProfileId",
+             treatLaunchFailureAsError,
+           },
+         }},
+      }})
+      == parse(fmt::format(
+        R"({{
+        "version": 1.0,
+        "profiles": [
+          {{
+            "name": "name",
+            "workdir": "workDirSpec",
+            "tasks": [
+              {{
+                "type": "launchEngine",
+                "enabled": {},
+                "engineProfileId": "engineProfileId",
+                "treatLaunchFailureAsError": {}
+              }}
+            ]
+          }}
+        ]
+      }})",
+        enabled,
+        treatLaunchFailureAsError)));
+  }
 }
 
 } // namespace tb::mdl

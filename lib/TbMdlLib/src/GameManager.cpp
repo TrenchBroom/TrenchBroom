@@ -205,72 +205,80 @@ void backupFile(
   }
 }
 
-Result<void> writeCompilationConfig(
+template <typename Config>
+Result<bool> writeConfig(
+  fs::WritableFileSystem& fs,
+  GameInfo& gameInfo,
+  Config GameInfo::*configField,
+  bool GameInfo::*parseFailedField,
+  Config newConfig,
+  const std::filesystem::path& filename,
+  const std::string_view configLabel,
+  Logger& logger)
+{
+  auto& currentConfig = gameInfo.*configField;
+  auto& parseFailed = gameInfo.*parseFailedField;
+
+  if (!parseFailed && currentConfig == newConfig)
+  {
+    // NOTE: this is not just an optimization, but important for ensuring that
+    // we don't clobber data saved by a newer version of TB, unless we actually
+    // make changes to the config in this version of TB (see:
+    // https://github.com/TrenchBroom/TrenchBroom/issues/3424)
+    logger.debug() << "Skipping writing unchanged " << configLabel << " for "
+                   << gameInfo.gameConfig.name;
+    return false;
+  }
+
+  const auto profilesPath = gameInfo.gameConfig.configFileFolder() / filename;
+  backupFile(fs, profilesPath, parseFailed, logger);
+
+  return fs.createDirectory(profilesPath.parent_path()) | kdl::and_then([&](auto) {
+           auto stream = std::stringstream{};
+           stream << toValue(newConfig) << "\n";
+           return fs.createFileAtomic(profilesPath, stream.str());
+         })
+         | kdl::transform([&]() {
+             currentConfig = std::move(newConfig);
+             logger.debug() << "Wrote " << configLabel << " to " << profilesPath;
+             return true;
+           });
+}
+
+Result<bool> writeCompilationConfig(
   fs::WritableFileSystem& fs,
   GameInfo& gameInfo,
   CompilationConfig compilationConfig,
   Logger& logger)
 {
-  if (
-    !gameInfo.compilationConfigParseFailed
-    && gameInfo.compilationConfig == compilationConfig)
-  {
-    // NOTE: this is not just an optimization, but important for ensuring that
-    // we don't clobber data saved by a newer version of TB, unless we actually
-    // make changes to the config in this version of TB (see:
-    // https://github.com/TrenchBroom/TrenchBroom/issues/3424)
-    logger.debug() << "Skipping writing unchanged compilation config for "
-                   << gameInfo.gameConfig.name;
-    return Result<void>{};
-  }
-
-  const auto profilesPath =
-    gameInfo.gameConfig.configFileFolder() / compilationConfigFilename;
-  backupFile(fs, profilesPath, gameInfo.compilationConfigParseFailed, logger);
-
-  return fs.createDirectory(profilesPath.parent_path()) | kdl::and_then([&](auto) {
-           auto stream = std::stringstream{};
-           stream << toValue(compilationConfig) << "\n";
-           return fs.createFileAtomic(profilesPath, stream.str());
-         })
-         | kdl::transform([&]() {
-             gameInfo.compilationConfig = std::move(compilationConfig);
-             logger.debug() << "Wrote compilation config to " << profilesPath;
-           });
+  return writeConfig(
+    fs,
+    gameInfo,
+    &GameInfo::compilationConfig,
+    &GameInfo::compilationConfigParseFailed,
+    std::move(compilationConfig),
+    compilationConfigFilename,
+    "compilation config",
+    logger);
 }
 
-Result<void> writeGameEngineConfig(
+// Returns whether gameInfo.gameEngineConfig was actually updated (false if the write
+// was skipped because the config was unchanged), so callers can gate a notifier on it.
+Result<bool> writeGameEngineConfig(
   fs::WritableFileSystem& fs,
   GameInfo& gameInfo,
   GameEngineConfig gameEngineConfig,
   Logger& logger)
 {
-  if (
-    !gameInfo.gameEngineConfigParseFailed
-    && gameInfo.gameEngineConfig == gameEngineConfig)
-  {
-    // NOTE: this is not just an optimization, but important for ensuring that
-    // we don't clobber data saved by a newer version of TB, unless we actually
-    // make changes to the config in this version of TB (see:
-    // https://github.com/TrenchBroom/TrenchBroom/issues/3424)
-    logger.debug() << "Skipping writing unchanged game engine config for "
-                   << gameInfo.gameConfig.name;
-    return Result<void>{};
-  }
-
-  const auto profilesPath =
-    gameInfo.gameConfig.configFileFolder() / gameEngineConfigFilename;
-  backupFile(fs, profilesPath, gameInfo.gameEngineConfigParseFailed, logger);
-
-  return fs.createDirectory(profilesPath.parent_path()) | kdl::and_then([&](auto) {
-           auto stream = std::stringstream{};
-           stream << toValue(gameEngineConfig) << "\n";
-           return fs.createFileAtomic(profilesPath, stream.str());
-         })
-         | kdl::transform([&]() {
-             gameInfo.gameEngineConfig = std::move(gameEngineConfig);
-             logger.debug() << "Wrote game engine config to " << profilesPath;
-           });
+  return writeConfig(
+    fs,
+    gameInfo,
+    &GameInfo::gameEngineConfig,
+    &GameInfo::gameEngineConfigParseFailed,
+    std::move(gameEngineConfig),
+    gameEngineConfigFilename,
+    "game engine config",
+    logger);
 }
 
 } // namespace
@@ -317,7 +325,13 @@ Result<void> GameManager::updateCompilationConfig(
   if (auto* info = gameInfo(gameName))
   {
     return writeCompilationConfig(
-      *m_configFs, *info, std::move(compilationConfig), logger);
+             *m_configFs, *info, std::move(compilationConfig), logger)
+           | kdl::transform([&](const auto changed) {
+               if (changed)
+               {
+                 compilationConfigDidChangeNotifier(*info);
+               }
+             });
   }
   return Error{fmt::format("Unknown game: {}", gameName)};
 }
@@ -327,7 +341,13 @@ Result<void> GameManager::updateGameEngineConfig(
 {
   if (auto* info = gameInfo(gameName))
   {
-    return writeGameEngineConfig(*m_configFs, *info, std::move(gameEngineConfig), logger);
+    return writeGameEngineConfig(*m_configFs, *info, std::move(gameEngineConfig), logger)
+           | kdl::transform([&](const auto changed) {
+               if (changed)
+               {
+                 gameEngineConfigDidChangeNotifier(*info);
+               }
+             });
   }
   return Error{fmt::format("Unknown game: {}", gameName)};
 }
