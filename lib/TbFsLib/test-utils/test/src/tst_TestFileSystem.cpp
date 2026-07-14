@@ -182,6 +182,13 @@ TEST_CASE("TestFileSystem")
     CHECK(fs.openFile("some_dir/some_dir_file_1") == some_dir_file_1);
     CHECK(fs.openFile("some_dir/nested_dir/nested_dir_file_1") == nested_dir_file_1);
   }
+
+  SECTION("reload")
+  {
+    // no-op: the tree is supplied directly by the test author, never scanned
+    CHECK(fs.reload() == Result<void>{});
+    CHECK(fs.pathInfo("root_file_1") == fs::PathInfo::File);
+  }
 }
 
 } // namespace tb::fs

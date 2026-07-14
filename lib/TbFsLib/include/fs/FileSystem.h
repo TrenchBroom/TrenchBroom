@@ -64,6 +64,11 @@ public:
    */
   virtual PathInfo pathInfo(const std::filesystem::path& path) const = 0;
 
+  /** Reloads this file system, refreshing any cached view of its contents from the
+   * underlying storage.
+   */
+  virtual Result<void> reload() = 0;
+
   /** Returns the meta data associated with the given path and key, or null if no metadata
    * is associated with the given path and key.
    */

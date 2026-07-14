@@ -106,6 +106,15 @@ Result<std::filesystem::path> VirtualFileSystem::makeAbsolute(
   return Error{fmt::format("Failed to make absolute path of {}", path)};
 }
 
+Result<void> VirtualFileSystem::reload()
+{
+  const auto lock = std::shared_lock{*m_mutex};
+  return m_mountPoints | std::views::transform([](const auto& mountPoint) {
+           return mountPoint.mountedFileSystem->reload();
+         })
+         | kdl::fold;
+}
+
 PathInfo VirtualFileSystem::pathInfo(const std::filesystem::path& path) const
 {
   const auto lock = std::shared_lock{*m_mutex};
@@ -340,6 +349,11 @@ Result<std::filesystem::path> WritableVirtualFileSystem::makeAbsolute(
   const std::filesystem::path& path) const
 {
   return m_virtualFs.makeAbsolute(path);
+}
+
+Result<void> WritableVirtualFileSystem::reload()
+{
+  return m_virtualFs.reload();
 }
 
 PathInfo WritableVirtualFileSystem::pathInfo(const std::filesystem::path& path) const

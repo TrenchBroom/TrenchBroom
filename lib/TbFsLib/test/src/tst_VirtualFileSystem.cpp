@@ -784,6 +784,34 @@ TEST_CASE("VirtualFileSystem")
   }
 }
 
+TEST_CASE("VirtualFileSystem reload")
+{
+  // TestFileSystem has no mutable backing state to observe a reload against, so this
+  // uses real DiskFileSystem mounts to confirm reload() propagates to every mount
+  // point, not just the first one.
+  auto env1 = TestEnvironment{[](auto& e) { e.createDirectory("dir"); }};
+  auto env2 = TestEnvironment{[](auto& e) { e.createDirectory("dir"); }};
+
+  auto vfs = VirtualFileSystem{};
+  vfs.mount("fs1", std::make_unique<DiskFileSystem>(env1.dir()));
+  vfs.mount("fs2", std::make_unique<DiskFileSystem>(env2.dir()));
+
+  CHECK(vfs.pathInfo("fs1/newFile.txt") == fs::PathInfo::Unknown);
+  CHECK(vfs.pathInfo("fs2/newFile.txt") == fs::PathInfo::Unknown);
+
+  // bypass the mounted DiskFileSystems and mutate their backing directories directly
+  env1.createFile("newFile.txt", "content1");
+  env2.createFile("newFile.txt", "content2");
+
+  // the mounted DiskFileSystems' caches are stale until reload() is called
+  CHECK(vfs.pathInfo("fs1/newFile.txt") == fs::PathInfo::Unknown);
+  CHECK(vfs.pathInfo("fs2/newFile.txt") == fs::PathInfo::Unknown);
+
+  CHECK(vfs.reload() == Result<void>{});
+  CHECK(vfs.pathInfo("fs1/newFile.txt") == fs::PathInfo::File);
+  CHECK(vfs.pathInfo("fs2/newFile.txt") == fs::PathInfo::File);
+}
+
 TEST_CASE("VirtualFileSystem concurrent mount/unmount vs. reads")
 {
   using ThreadFunc = std::function<void()>;

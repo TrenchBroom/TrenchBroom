@@ -76,6 +76,9 @@ public:
 
   Result<std::filesystem::path> makeAbsolute(
     const std::filesystem::path& path) const override;
+
+  Result<void> reload() override;
+
   PathInfo pathInfo(const std::filesystem::path& path) const override;
   const FileSystemMetadata* metadata(
     const std::filesystem::path& path, const std::string& key) const override;

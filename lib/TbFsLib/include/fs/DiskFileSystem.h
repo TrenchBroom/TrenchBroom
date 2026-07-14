@@ -67,10 +67,7 @@ public:
   Result<std::filesystem::path> makeAbsolute(
     const std::filesystem::path& path) const override;
 
-  /**
-   * Reload this file system's cached directory tree from disk.
-   */
-  Result<void> reload();
+  Result<void> reload() override;
 
   PathInfo pathInfo(const std::filesystem::path& path) const override;
 

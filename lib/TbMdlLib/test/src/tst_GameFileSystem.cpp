@@ -19,15 +19,26 @@
 
 #include "Logger.h"
 #include "TestEnvironment.h"
+#include "fs/DiskFileSystem.h"
 #include "fs/PathInfo.h"
+#include "fs/TestEnvironment.h"
 #include "fs/TestUtils.h"
+#include "fs/TraversalMode.h"
 #include "mdl/CatchConfig.h"
 #include "mdl/EnvironmentConfig.h"
 #include "mdl/GameConfig.h"
 #include "mdl/GameFileSystem.h"
 #include "mdl/TestUtils.h"
 
+#include "kd/ranges/concat_view.h"
+#include "kd/ranges/repeat_view.h"
+#include "kd/ranges/to.h"
+
 #include <filesystem>
+#include <functional>
+#include <thread>
+#include <tuple>
+#include <vector>
 
 #include <catch2/catch_test_macros.hpp>
 
@@ -152,6 +163,62 @@ TEST_CASE("GameFileSystem")
     CHECK(fs.pathInfo("id1_pak0_loose_file.txt") == fs::PathInfo::File);
     CHECK(fs.pathInfo("mod1_pak0_1.txt") == fs::PathInfo::Unknown);
   }
+}
+
+TEST_CASE("GameFileSystem concurrent reload/mount/unmount vs. reads")
+{
+  using ThreadFunc = std::function<void()>;
+
+  // Confirms VirtualFileSystem's mount-point lock and DiskFileSystem's cache lock
+  // compose correctly together: one thread repeatedly reloads and remounts a
+  // DiskFileSystem while other threads concurrently read through the same
+  // GameFileSystem. Not a deterministic assertion of absence-of-race (that's what
+  // running this under -DTB_ENABLE_TSAN=ON is for) - this just exercises the pattern
+  // under contention, with a fixed iteration count so it terminates (a lock-ordering
+  // bug here would hang or crash rather than fail an assertion).
+  auto env = fs::TestEnvironment{[](auto& e) {
+    e.createDirectory("dir");
+    e.createFile("dir/file.txt", "some content");
+  }};
+
+  auto gfs = GameFileSystem{};
+  gfs.mount("", std::make_unique<fs::DiskFileSystem>(env.dir()));
+
+  constexpr auto numReaderThreads = 4;
+  constexpr auto numIterations = 500;
+
+  auto writer = ThreadFunc{[&]() {
+    for (auto i = 0; i < numIterations; ++i)
+    {
+      std::ignore = gfs.reload();
+
+      auto diskFs = std::make_unique<fs::DiskFileSystem>(env.dir());
+      const auto id = gfs.mount("mnt", std::move(diskFs));
+      gfs.unmount(id);
+    }
+  }};
+
+  auto reader = ThreadFunc{[&]() {
+    for (auto i = 0; i < numIterations; ++i)
+    {
+      static_cast<void>(gfs.pathInfo("dir"));
+      static_cast<void>(gfs.find("dir", fs::TraversalMode::Flat));
+      static_cast<void>(gfs.openFile("dir/file.txt"));
+    }
+  }};
+
+  auto threads =
+    kdl::views::concat(
+      std::views::single(writer), kdl::views::repeat(reader, numReaderThreads))
+    | std::views::transform([](auto func) { return std::thread{std::move(func)}; })
+    | kdl::ranges::to<std::vector>();
+
+  for (auto& thread : threads)
+  {
+    thread.join();
+  }
+
+  CHECK(gfs.pathInfo("dir") == fs::PathInfo::Directory);
 }
 
 } // namespace tb::mdl

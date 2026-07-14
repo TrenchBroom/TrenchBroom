@@ -110,6 +110,11 @@ Result<std::filesystem::path> TestFileSystem::makeAbsolute(
   return m_absolutePathPrefix / path;
 }
 
+Result<void> TestFileSystem::reload()
+{
+  return kdl::void_success;
+}
+
 namespace
 {
 void doFindImpl(

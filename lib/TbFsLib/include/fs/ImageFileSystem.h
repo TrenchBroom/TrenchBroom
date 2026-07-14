@@ -73,10 +73,7 @@ public:
   Result<std::filesystem::path> makeAbsolute(
     const std::filesystem::path& path) const override;
 
-  /**
-   * Reload this file system.
-   */
-  Result<void> reload();
+  Result<void> reload() override;
 
   void setMetadata(std::unordered_map<std::string, FileSystemMetadata> metadata);
 
