@@ -136,6 +136,19 @@ TEST_CASE("path_to_lower")
   CHECK(path_to_lower(path{"/THIS/that"}) == path{"/this/that"});
   CHECK(path_to_lower(path{"/THIS/THAT"}) == path{"/this/that"});
   CHECK(path_to_lower(path{"C:\\THIS\\THAT"}) == path{"c:\\this\\that"});
+
+  SECTION("characters outside the codepage are preserved and don't throw")
+  {
+    // U+3041 HIRAGANA LETTER SMALL A, not representable in common Windows ANSI
+    // codepages - path_to_lower used to throw here on Windows (it round-tripped
+    // through a codepage-dependent narrow encoding); it must now leave such
+    // characters untouched instead of throwing.
+    const auto nonAsciiPath = parse_utf8_path("THIS/\xE3\x81\x81/THAT");
+    const auto expected = parse_utf8_path("this/\xE3\x81\x81/that");
+
+    CHECK_NOTHROW(path_to_lower(nonAsciiPath));
+    CHECK(path_to_lower(nonAsciiPath) == expected);
+  }
 }
 
 TEST_CASE("PathTest.path_clip")
