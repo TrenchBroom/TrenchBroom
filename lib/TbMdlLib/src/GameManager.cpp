@@ -38,7 +38,6 @@
 #include <iostream>
 #include <sstream>
 #include <tuple>
-#include <utility>
 
 namespace tb::mdl
 {
@@ -49,11 +48,7 @@ const auto gameConfigFilename = "GameConfig.cfg";
 const auto compilationConfigFilename = "CompilationProfiles.cfg";
 const auto gameEngineConfigFilename = "GameEngineProfiles.cfg";
 
-// The second element points at the WritableDiskFileSystem mounted at userGameDir - it
-// is used by migrateConfigFiles to refresh that filesystem's cached directory tree
-// after migrating files with a raw Disk:: call that bypasses it.
-Result<std::pair<std::unique_ptr<fs::WritableVirtualFileSystem>, fs::DiskFileSystem*>>
-createFileSystem(
+Result<std::unique_ptr<fs::WritableVirtualFileSystem>> createFileSystem(
   const std::vector<std::filesystem::path>& gameConfigSearchDirs,
   const std::filesystem::path& userGameDir)
 {
@@ -67,20 +62,14 @@ createFileSystem(
   }
 
   return fs::Disk::createDirectory(userGameDir) | kdl::transform([&](auto) {
-           auto userGameDirFs = std::make_unique<fs::WritableDiskFileSystem>(userGameDir);
-           auto* const userGameDirFsPtr = userGameDirFs.get();
-           return std::
-             pair<std::unique_ptr<fs::WritableVirtualFileSystem>, fs::DiskFileSystem*>{
-               std::make_unique<fs::WritableVirtualFileSystem>(
-                 std::move(virtualFs), std::move(userGameDirFs)),
-               userGameDirFsPtr};
+           return std::make_unique<fs::WritableVirtualFileSystem>(
+             std::move(virtualFs),
+             std::make_unique<fs::WritableDiskFileSystem>(userGameDir));
          });
 }
 
 Result<void> migrateConfigFiles(
-  fs::DiskFileSystem& userGameDirFs,
-  const std::filesystem::path& userGameDir,
-  const GameConfig& config)
+  fs::FileSystem& fs, const std::filesystem::path& userGameDir, const GameConfig& config)
 {
   const auto legacyDir = userGameDir / config.name;
   const auto newDir = userGameDir / config.configFileFolder();
@@ -95,7 +84,7 @@ Result<void> migrateConfigFiles(
       break;
     case fs::PathInfo::Unknown:
       return fs::Disk::renameDirectory(legacyDir, newDir)
-             | kdl::transform([&]() { std::ignore = userGameDirFs.reload(); });
+             | kdl::transform([&]() { std::ignore = fs.reload(); });
     }
   }
   return Result<void>{};
@@ -140,8 +129,7 @@ Result<void> loadGameEngineConfig(const fs::FileSystem& fs, GameInfo& gameInfo)
 }
 
 Result<GameConfig> loadGameConfig(
-  fs::DiskFileSystem& userGameDirFs,
-  const fs::FileSystem& fs,
+  fs::FileSystem& fs,
   const std::filesystem::path& userGameDir,
   const std::filesystem::path& path)
 {
@@ -151,7 +139,7 @@ Result<GameConfig> loadGameConfig(
              return parseGameConfig(reader.stringView(), absolutePath);
            })
          | kdl::transform([&](auto config) {
-             migrateConfigFiles(userGameDirFs, userGameDir, config)
+             migrateConfigFiles(fs, userGameDir, config)
                | kdl::transform_error([&](auto e) {
                    std::cerr << "Could not migrate user config files: '" << e.msg << "\n";
                  });
@@ -160,28 +148,25 @@ Result<GameConfig> loadGameConfig(
 }
 
 Result<GameInfo> loadGameInfo(
-  fs::DiskFileSystem& userGameDirFs,
-  const fs::FileSystem& fs,
+  fs::FileSystem& fs,
   const std::filesystem::path& userGameDir,
   const std::filesystem::path& path,
   std::vector<std::string>& warnings)
 {
   const auto saveWarning = [&](const auto& e) { warnings.push_back(e.msg); };
 
-  return loadGameConfig(userGameDirFs, fs, userGameDir, path)
-         | kdl::transform([&](auto gameConfig) {
-             auto gameInfo = makeGameInfo(std::move(gameConfig));
+  return loadGameConfig(fs, userGameDir, path) | kdl::transform([&](auto gameConfig) {
+           auto gameInfo = makeGameInfo(std::move(gameConfig));
 
-             loadCompilationConfig(fs, gameInfo) | kdl::transform_error(saveWarning);
-             loadGameEngineConfig(fs, gameInfo) | kdl::transform_error(saveWarning);
+           loadCompilationConfig(fs, gameInfo) | kdl::transform_error(saveWarning);
+           loadGameEngineConfig(fs, gameInfo) | kdl::transform_error(saveWarning);
 
-             return gameInfo;
-           });
+           return gameInfo;
+         });
 }
 
 Result<std::vector<GameInfo>> loadGameInfos(
-  fs::DiskFileSystem& userGameDirFs,
-  const fs::FileSystem& fs,
+  fs::FileSystem& fs,
   const std::filesystem::path& userGameDir,
   std::vector<std::string>& warnings)
 {
@@ -192,8 +177,7 @@ Result<std::vector<GameInfo>> loadGameInfos(
          | kdl::transform([&](auto configFiles) {
              auto [gameInfos, errors] =
                configFiles | std::views::transform([&](const auto& configFilePath) {
-                 return loadGameInfo(
-                   userGameDirFs, fs, userGameDir, configFilePath, warnings);
+                 return loadGameInfo(fs, userGameDir, configFilePath, warnings);
                })
                | kdl::collect();
 
@@ -356,12 +340,9 @@ Result<kdl::multi_value<GameManager, std::vector<std::string>>> initializeGameMa
   const std::filesystem::path& userGameDir)
 {
   return createFileSystem(gameConfigSearchDirs, userGameDir)
-         | kdl::and_then([&](auto fsAndUserGameDirFs) {
-             auto fs = std::move(fsAndUserGameDirFs.first);
-             auto* userGameDirFs = fsAndUserGameDirFs.second;
-
+         | kdl::and_then([&](auto fs) {
              auto warnings = std::vector<std::string>{};
-             return loadGameInfos(*userGameDirFs, *fs, userGameDir, warnings)
+             return loadGameInfos(*fs, userGameDir, warnings)
                     | kdl::transform([&](auto gameInfos) {
                         return kdl::multi_value{
                           GameManager{std::move(fs), std::move(gameInfos)},
