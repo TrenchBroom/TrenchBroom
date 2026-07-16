@@ -217,6 +217,7 @@ void CompilationProfileEditor::addTask()
       return mdl::CompilationExportMap{
         K(enabled),
         !K(stripTbProperties),
+        std::nullopt,
         "${WORK_DIR_PATH}/${MAP_BASE_NAME}-compile.map"};
     }
     if (chosenAction == copyFilesAction)

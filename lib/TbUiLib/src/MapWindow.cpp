@@ -1092,8 +1092,11 @@ bool MapWindow::exportDocumentAsMap()
     return false;
   }
 
-  const auto options =
-    mdl::MapExportOptions{pathFromQString(newFileName), !K(stripTbProperties)};
+  const auto options = mdl::MapExportOptions{
+    pathFromQString(newFileName),
+    !K(stripTbProperties),
+    std::nullopt,
+  };
   return exportDocument(options);
 }
 

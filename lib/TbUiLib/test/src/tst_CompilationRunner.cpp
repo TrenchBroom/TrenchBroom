@@ -437,7 +437,12 @@ TEST_CASE("CompilationExportMapTaskRunner")
     auto node = new mdl::EntityNode{mdl::Entity{}};
     addNodes(map, {{parentForNodes(map), {node}}});
 
-    auto task = mdl::CompilationExportMap{K(enabled), !K(stripTbProperties), exportSpec};
+    auto task = mdl::CompilationExportMap{
+      K(enabled),
+      !K(stripTbProperties),
+      std::nullopt,
+      exportSpec,
+    };
 
     auto runner = CompilationExportMapTaskRunner{context, task};
     REQUIRE_NOTHROW(runner.execute());
@@ -451,7 +456,11 @@ TEST_CASE("CompilationExportMapTaskRunner")
     addNodes(map, {{parentForNodes(map), {node}}});
 
     auto task = mdl::CompilationExportMap{
-      K(enabled), !K(stripTbProperties), "${WORK_DIR_PATH/exported.map"};
+      K(enabled),
+      !K(stripTbProperties),
+      std::nullopt,
+      "${WORK_DIR_PATH/exported.map",
+    };
 
     auto runner = CompilationExportMapTaskRunner{context, task};
     REQUIRE_NOTHROW(runner.execute());

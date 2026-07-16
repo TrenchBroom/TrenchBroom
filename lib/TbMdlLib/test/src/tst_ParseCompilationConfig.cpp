@@ -185,7 +185,8 @@ TEST_CASE("CompilationConfigParser")
         {"A profile",
          "",
          {
-           mdl::CompilationExportMap{K(enabled), !K(stripTbProperties), "the target"},
+           mdl::CompilationExportMap{
+             K(enabled), !K(stripTbProperties), std::nullopt, "the target"},
          }},
       }});
   }
@@ -210,7 +211,34 @@ TEST_CASE("CompilationConfigParser")
         {"A profile",
          "",
          {
-           mdl::CompilationExportMap{K(enabled), K(stripTbProperties), "the target"},
+           mdl::CompilationExportMap{
+             K(enabled), K(stripTbProperties), std::nullopt, "the target"},
+         }},
+      }});
+  }
+
+  SECTION("parseOneProfileWithNameAndOneExportTaskWithStripEntityPattern")
+  {
+    const auto config = R"(
+{
+  'version': 1,
+  'profiles': [
+    {
+      'name' : 'A profile',
+      'workdir' : '',
+      'tasks' : [ { 'type' : 'export', 'stripTbProperties': true, 'stripEntityPattern': 'info_player_*', 'target' : 'the target' } ]
+    }
+  ]
+})";
+
+    CHECK(
+      parseCompilationConfig(config)
+      == mdl::CompilationConfig{{
+        {"A profile",
+         "",
+         {
+           mdl::CompilationExportMap{
+             K(enabled), K(stripTbProperties), "info_player_*", "the target"},
          }},
       }});
   }

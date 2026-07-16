@@ -74,6 +74,15 @@ TEST_CASE("toValue")
   {
     const auto enabled = GENERATE(true, false);
     const auto stripTbProperties = GENERATE(true, false);
+    const auto stripEntityPattern = GENERATE(std::optional{"some pattern"}, std::nullopt);
+
+    CAPTURE(enabled, stripTbProperties, stripEntityPattern);
+
+    const auto stripEntityPatternStr =
+      stripEntityPattern | kdl::optional_transform([](const auto& pattern) {
+        return fmt::format(R"("stripEntityPattern": "{}",)", pattern);
+      })
+      | kdl::optional_value_or("");
 
     CHECK(
       toValue(CompilationConfig{{
@@ -83,6 +92,7 @@ TEST_CASE("toValue")
            CompilationExportMap{
              enabled,
              stripTbProperties,
+             stripEntityPattern,
              "targetSpec",
            },
          }},
@@ -99,6 +109,7 @@ TEST_CASE("toValue")
                 "type": "export",
                 "enabled": {},
                 "stripTbProperties": {},
+                {}
                 "target": "targetSpec"
               }}
             ]
@@ -106,7 +117,8 @@ TEST_CASE("toValue")
         ]
       }})",
         enabled,
-        stripTbProperties)));
+        stripTbProperties,
+        stripEntityPatternStr)));
   }
 
   SECTION("copy task")

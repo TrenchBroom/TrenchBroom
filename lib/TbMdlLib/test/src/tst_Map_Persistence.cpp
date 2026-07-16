@@ -170,8 +170,11 @@ TEST_CASE("Map_Persistence")
       addNodes(map, {{parentForNodes(map), {entityNode}}});
 
       const auto filename = "test.map";
-      REQUIRE(
-        map.exportAs(MapExportOptions{env.dir() / filename, !K(stripTbProperties)}));
+      REQUIRE(map.exportAs(MapExportOptions{
+        env.dir() / filename,
+        !K(stripTbProperties),
+        std::nullopt,
+      }));
       REQUIRE(env.fileExists(filename));
       CHECK(env.loadFile(filename) == R"(// entity 0
 {
@@ -197,8 +200,11 @@ TEST_CASE("Map_Persistence")
       auto* layerNode = new mdl::LayerNode{std::move(layer)};
       addNodes(map, {{&map.worldNode(), {layerNode}}});
 
-      REQUIRE(map.exportAs(
-        MapExportOptions{env.dir() / newDocumentPath, !K(stripTbProperties)}));
+      REQUIRE(map.exportAs(MapExportOptions{
+        env.dir() / newDocumentPath,
+        !K(stripTbProperties),
+        std::nullopt,
+      }));
       REQUIRE(env.fileExists(newDocumentPath));
       CHECK(env.loadFile(newDocumentPath) == R"(// entity 0
 {
@@ -216,8 +222,11 @@ TEST_CASE("Map_Persistence")
       auto* layerNode = new mdl::LayerNode{mdl::Layer{"Layer"}};
       addNodes(map, {{&map.worldNode(), {layerNode}}});
 
-      REQUIRE(map.exportAs(
-        MapExportOptions{env.dir() / newDocumentPath, K(stripTbProperties)}));
+      REQUIRE(map.exportAs(MapExportOptions{
+        env.dir() / newDocumentPath,
+        K(stripTbProperties),
+        std::nullopt,
+      }));
       REQUIRE(env.fileExists(newDocumentPath));
       CHECK(env.loadFile(newDocumentPath) == R"(// entity 0
 {
@@ -226,6 +235,28 @@ TEST_CASE("Map_Persistence")
 // entity 1
 {
 "classname" "func_group"
+}
+)");
+    }
+
+    SECTION("Strip entities")
+    {
+      const auto newDocumentPath = std::filesystem::path{"test.map"};
+
+      auto& map = fixture.create(QuakeFixtureConfig);
+
+      auto* entityNode = new mdl::EntityNode{mdl::Entity{{{"classname", "light"}}}};
+      addNodes(map, {{parentForNodes(map), {entityNode}}});
+
+      REQUIRE(map.exportAs(MapExportOptions{
+        env.dir() / newDocumentPath,
+        !K(stripTbProperties),
+        "light",
+      }));
+      REQUIRE(env.fileExists(newDocumentPath));
+      CHECK(env.loadFile(newDocumentPath) == R"(// entity 0
+{
+"classname" "worldspawn"
 }
 )");
     }

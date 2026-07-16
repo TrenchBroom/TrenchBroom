@@ -37,6 +37,10 @@ el::Value toValue(const CompilationTask& task)
         map["type"] = el::Value{"export"};
         map["enabled"] = el::Value{exportMap.enabled};
         map["stripTbProperties"] = el::Value{exportMap.stripTbProperties};
+        if (const auto& stripEntityPattern = exportMap.stripEntityPattern)
+        {
+          map["stripEntityPattern"] = el::Value{*stripEntityPattern};
+        }
         map["target"] = el::Value{exportMap.targetSpec};
         return map;
       },

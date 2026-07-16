@@ -49,9 +49,15 @@ CompilationExportMap toExportTask(
     value.atOrDefault(context, "stripTbProperties", el::Value{false})
       .booleanValue(context);
 
+  auto stripEntityPattern =
+    value.contains(context, "stripEntityPattern")
+      ? std::optional{value.at(context, "stripEntityPattern").stringValue(context)}
+      : std::nullopt;
+
   return {
     enabled,
     stripTbProperties,
+    std::move(stripEntityPattern),
     value.at(context, "target").stringValue(context),
   };
 }
