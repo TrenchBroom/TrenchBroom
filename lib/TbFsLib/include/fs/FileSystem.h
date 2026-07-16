@@ -34,6 +34,18 @@ namespace tb::fs
 enum class PathInfo;
 struct TraversalMode;
 
+/** A FileSystem provides access to a hierarchy of files and directories, abstracting
+ * over how they are physically stored, e.g. on disk or inside an archive.
+ *
+ * Every FileSystem implementation is case insensitive in one direction only: paths
+ * passed *into* pathInfo(), find(), openFile() and path matchers are matched without
+ * regard to case, but paths returned *from* find() always reflect the true stored
+ * case of every path component - the on-disk case for DiskFileSystem, the in-archive
+ * case for ImageFileSystemBase-derived filesystems - never the case the caller
+ * queried with, and never all-lowercase. This holds even for the portion of a
+ * returned path that was already covered by a case-mismatched search path passed to
+ * find().
+ */
 class FileSystem
 {
 public:
@@ -47,9 +59,15 @@ public:
   virtual Result<std::filesystem::path> makeAbsolute(
     const std::filesystem::path& path) const = 0;
 
-  /** Indicates whether the given path denotes a file, a directory, or is unknown.
+  /** Indicates whether the given path denotes a file, a directory, or is unknown. The
+   * given path is matched case insensitively.
    */
   virtual PathInfo pathInfo(const std::filesystem::path& path) const = 0;
+
+  /** Reloads this file system, refreshing any cached view of its contents from the
+   * underlying storage.
+   */
+  virtual Result<void> reload() = 0;
 
   /** Returns the meta data associated with the given path and key, or null if no metadata
    * is associated with the given path and key.
@@ -59,7 +77,9 @@ public:
 
   /** Returns a vector of paths listing the contents of the directory  at the given path
    * that satisfy the given path matcher. The returned paths are relative to the root of
-   * this file system.
+   * this file system. The given path is matched case insensitively, but every returned
+   * path reflects the true stored case of each of its components, regardless of the
+   * case of the given path.
    *
    * @param path the path to the directory to search
    * @param traversalMode the traversal mode
@@ -70,7 +90,8 @@ public:
     const TraversalMode& traversalMode,
     const PathMatcher& pathMatcher = matchAnyPath) const;
 
-  /** Open a file at the given path and return it.
+  /** Open a file at the given path and return it. The given path is matched case
+   * insensitively.
    */
   Result<std::shared_ptr<File>> openFile(const std::filesystem::path& path) const;
 

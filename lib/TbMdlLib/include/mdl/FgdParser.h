@@ -27,7 +27,6 @@
 #include "vm/bbox.h"
 
 #include <filesystem>
-#include <memory>
 #include <optional>
 #include <string>
 #include <vector>
@@ -37,11 +36,6 @@ namespace tb
 class ParserStatus;
 
 struct FileLocation;
-
-namespace fs
-{
-class FileSystem;
-} // namespace fs
 
 namespace mdl
 {
@@ -92,7 +86,7 @@ private:
   using Token = FgdTokenizer::Token;
 
   std::vector<std::filesystem::path> m_paths;
-  std::unique_ptr<fs::FileSystem> m_fs;
+  std::filesystem::path m_basePath;
 
   FgdTokenizer m_tokenizer;
 

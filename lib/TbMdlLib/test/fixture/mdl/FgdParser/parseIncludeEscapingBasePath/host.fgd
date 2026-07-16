@@ -1,0 +1,4 @@
+@SolidClass = worldspawn : "World entity"
+[]
+
+@include "../parseInclude/include.fgd"

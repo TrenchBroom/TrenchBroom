@@ -37,6 +37,7 @@
 #include <algorithm>
 #include <iostream>
 #include <sstream>
+#include <tuple>
 
 namespace tb::mdl
 {
@@ -68,7 +69,7 @@ Result<std::unique_ptr<fs::WritableVirtualFileSystem>> createFileSystem(
 }
 
 Result<void> migrateConfigFiles(
-  const std::filesystem::path& userGameDir, const GameConfig& config)
+  fs::FileSystem& fs, const std::filesystem::path& userGameDir, const GameConfig& config)
 {
   const auto legacyDir = userGameDir / config.name;
   const auto newDir = userGameDir / config.configFileFolder();
@@ -82,7 +83,8 @@ Result<void> migrateConfigFiles(
     case fs::PathInfo::Directory:
       break;
     case fs::PathInfo::Unknown:
-      return fs::Disk::renameDirectory(legacyDir, newDir);
+      return fs::Disk::renameDirectory(legacyDir, newDir)
+             | kdl::transform([&]() { std::ignore = fs.reload(); });
     }
   }
   return Result<void>{};
@@ -127,7 +129,7 @@ Result<void> loadGameEngineConfig(const fs::FileSystem& fs, GameInfo& gameInfo)
 }
 
 Result<GameConfig> loadGameConfig(
-  const fs::FileSystem& fs,
+  fs::FileSystem& fs,
   const std::filesystem::path& userGameDir,
   const std::filesystem::path& path)
 {
@@ -137,15 +139,16 @@ Result<GameConfig> loadGameConfig(
              return parseGameConfig(reader.stringView(), absolutePath);
            })
          | kdl::transform([&](auto config) {
-             migrateConfigFiles(userGameDir, config) | kdl::transform_error([&](auto e) {
-               std::cerr << "Could not migrate user config files: '" << e.msg << "\n";
-             });
+             migrateConfigFiles(fs, userGameDir, config)
+               | kdl::transform_error([&](auto e) {
+                   std::cerr << "Could not migrate user config files: '" << e.msg << "\n";
+                 });
              return config;
            });
 }
 
 Result<GameInfo> loadGameInfo(
-  const fs::FileSystem& fs,
+  fs::FileSystem& fs,
   const std::filesystem::path& userGameDir,
   const std::filesystem::path& path,
   std::vector<std::string>& warnings)
@@ -163,7 +166,7 @@ Result<GameInfo> loadGameInfo(
 }
 
 Result<std::vector<GameInfo>> loadGameInfos(
-  const fs::FileSystem& fs,
+  fs::FileSystem& fs,
   const std::filesystem::path& userGameDir,
   std::vector<std::string>& warnings)
 {

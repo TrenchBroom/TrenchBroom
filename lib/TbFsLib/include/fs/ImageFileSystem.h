@@ -20,18 +20,18 @@
 #pragma once
 
 #include "Result.h"
+#include "fs/CachedFileTree.h"
 #include "fs/FileSystem.h"
 #include "fs/FileSystemMetadata.h"
 
 #include "kd/contracts.h"
-#include "kd/path_hash.h"
 #include "kd/result.h"
 
 #include <filesystem>
 #include <functional>
 #include <memory>
+#include <shared_mutex>
 #include <unordered_map>
-#include <variant>
 
 namespace tb::fs
 {
@@ -40,21 +40,9 @@ class File;
 
 using GetImageFile = std::function<Result<std::shared_ptr<File>>()>;
 
-struct ImageFileEntry
-{
-  std::filesystem::path name;
-  GetImageFile getFile;
-};
-
-struct ImageDirectoryEntry;
-using ImageEntry = std::variant<ImageDirectoryEntry, ImageFileEntry>;
-
-struct ImageDirectoryEntry
-{
-  std::filesystem::path name;
-  std::vector<ImageEntry> entries;
-  std::unordered_map<std::filesystem::path, size_t, kdl::path_hash> entryMapLC;
-};
+using ImageFileEntry = CachedFileEntry<GetImageFile>;
+using ImageDirectoryEntry = CachedDirectoryEntry<GetImageFile>;
+using ImageEntry = CachedEntry<GetImageFile>;
 
 class ImageFileSystemBase : public FileSystem
 {
@@ -62,18 +50,30 @@ protected:
   ImageEntry m_root;
   std::unordered_map<std::string, FileSystemMetadata> m_metadata;
 
+  /**
+   * Guards m_root and m_metadata against concurrent reload() and reads. Only reload()
+   * and the read-only pathInfo/metadata/doFind/doOpenFile paths take this lock -
+   * addFile() runs solely from within doReadDirectory(), itself only ever called from
+   * reload() while the exclusive lock is already held, so it needs no lock of its own.
+   *
+   * unique_ptr, not a plain std::shared_mutex member, because ImageFileSystemBase must
+   * stay movable.
+   */
+  mutable std::unique_ptr<std::shared_mutex> m_mutex =
+    std::make_unique<std::shared_mutex>();
+
   ImageFileSystemBase();
 
 public:
+  ImageFileSystemBase(ImageFileSystemBase&&) noexcept;
+  ImageFileSystemBase& operator=(ImageFileSystemBase&&) noexcept;
+
   ~ImageFileSystemBase() override;
 
   Result<std::filesystem::path> makeAbsolute(
     const std::filesystem::path& path) const override;
 
-  /**
-   * Reload this file system.
-   */
-  Result<void> reload();
+  Result<void> reload() override;
 
   void setMetadata(std::unordered_map<std::string, FileSystemMetadata> metadata);
 

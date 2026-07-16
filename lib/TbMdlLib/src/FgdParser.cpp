@@ -22,7 +22,7 @@
 #include "ParserException.h"
 #include "ParserStatus.h"
 #include "el/Expression.h"
-#include "fs/DiskFileSystem.h"
+#include "fs/DiskIO.h"
 #include "mdl/EntityDefinitionClassInfo.h"
 #include "mdl/LegacyModelDefinitionParser.h"
 #include "mdl/ParseModelDefinition.h"
@@ -30,6 +30,7 @@
 
 #include "kd/contracts.h"
 #include "kd/invoke.h"
+#include "kd/path_utils.h"
 #include "kd/result.h"
 #include "kd/string_compare.h"
 #include "kd/string_format.h"
@@ -212,7 +213,7 @@ FgdParser::FgdParser(
 {
   if (!path.empty() && path.is_absolute())
   {
-    m_fs = std::make_unique<fs::DiskFileSystem>(path.parent_path());
+    m_basePath = path.parent_path();
     pushIncludePath(path.filename());
   }
 }
@@ -1128,7 +1129,7 @@ std::vector<EntityDefinitionClassInfo> FgdParser::parseInclude(ParserStatus& sta
 std::vector<EntityDefinitionClassInfo> FgdParser::handleInclude(
   ParserStatus& status, const std::filesystem::path& path)
 {
-  if (!m_fs)
+  if (m_basePath.empty())
   {
     status.error(
       m_tokenizer.location(),
@@ -1144,7 +1145,18 @@ std::vector<EntityDefinitionClassInfo> FgdParser::handleInclude(
   status.debug(m_tokenizer.location(), fmt::format("Parsing included file '{}'", path));
 
   const auto filePath = currentRoot() / path;
-  return m_fs->openFile(filePath) | kdl::transform([&](auto file) {
+  const auto normalizedFilePath = filePath.lexically_normal();
+  if (
+    filePath.is_absolute()
+    || (!normalizedFilePath.empty() && kdl::path_front(normalizedFilePath) == ".."))
+  {
+    status.error(
+      m_tokenizer.location(),
+      fmt::format("Skipping include file outside of base path: {} ({})", path, filePath));
+    return {};
+  }
+
+  return fs::Disk::openFile(m_basePath / filePath) | kdl::transform([&](auto file) {
            status.debug(
              m_tokenizer.location(),
              fmt::format("Resolved '{}' to '{}'", path, filePath));

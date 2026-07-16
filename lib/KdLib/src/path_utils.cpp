@@ -58,7 +58,19 @@ std::filesystem::path path_front(const std::filesystem::path& path)
 
 std::filesystem::path path_to_lower(const std::filesystem::path& path)
 {
+#ifdef _WIN32
+  // path.string() narrows through the process's codepage and throws if the path
+  // contains a character the codepage can't represent - operate on the native UTF-16
+  // form instead, which round-trips losslessly and never throws; str_to_lower only
+  // touches ASCII 'A'-'Z' anyway, so per-code-unit lowering is equivalent.
+  auto native = path.native();
+  std::ranges::transform(native, native.begin(), [](const wchar_t c) {
+    return (c < L'A' || c > L'Z') ? c : static_cast<wchar_t>(c + L'a' - L'A');
+  });
+  return std::filesystem::path{std::move(native)};
+#else
   return std::filesystem::path{str_to_lower(path.string())};
+#endif
 }
 
 std::filesystem::path path_clip(
