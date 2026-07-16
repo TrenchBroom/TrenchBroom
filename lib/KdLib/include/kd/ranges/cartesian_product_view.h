@@ -26,6 +26,7 @@
 #include <cstdint>
 #include <ranges>
 #include <tuple>
+#include <utility>
 
 namespace kdl
 {
@@ -324,7 +325,8 @@ public:
 
     friend constexpr auto iter_move(const iterator& i) noexcept(
       noexcept(detail::cartesian_all_noexcept_iter_move(
-        i.current_, std::index_sequence_for<First, Vs...>()))
+        std::declval<iterator const&>().current_,
+        std::index_sequence_for<First, Vs...>()))
       && detail::cartesian_all_nothrow_move_constructible<Const, First, Vs...>())
     {
       return detail::tuple_transform(std::ranges::iter_move, i.current_);
@@ -332,7 +334,9 @@ public:
 
     friend constexpr void iter_swap(const iterator& x, const iterator& y) noexcept(
       noexcept(detail::cartesian_all_noexcept_iter_swap(
-        x.current_, y.current_, std::index_sequence_for<First, Vs...>())))
+        std::declval<iterator const&>().current_,
+        std::declval<iterator const&>().current_,
+        std::index_sequence_for<First, Vs...>())))
       requires(
         std::indirectly_swappable<
           std::ranges::iterator_t<detail::maybe_const<Const, First>>>
