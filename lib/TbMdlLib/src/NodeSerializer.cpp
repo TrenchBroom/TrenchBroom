@@ -21,6 +21,7 @@
 
 #include "mdl/BrushFace.h"
 #include "mdl/BrushNode.h"
+#include "mdl/EntityNode.h"
 #include "mdl/EntityProperties.h"
 #include "mdl/GroupNode.h"
 #include "mdl/LayerNode.h"
@@ -102,6 +103,16 @@ void NodeSerializer::setStripEntityPattern(std::optional<std::string> stripEntit
   m_stripEntityPattern = std::move(stripEntityPattern);
 }
 
+const std::optional<Entity>& NodeSerializer::entityToAdd() const
+{
+  return m_entityToAdd;
+}
+
+void NodeSerializer::setEntityToAdd(std::optional<Entity> entityToAdd)
+{
+  m_entityToAdd = std::move(entityToAdd);
+}
+
 void NodeSerializer::beginFile(
   const std::vector<const Node*>& rootNodes, kdl::task_manager& taskManager)
 {
@@ -112,6 +123,11 @@ void NodeSerializer::beginFile(
 
 void NodeSerializer::endFile()
 {
+  if (m_entityToAdd)
+  {
+    auto entityNode = EntityNode{*m_entityToAdd};
+    entity(entityNode, entityNode.entity().properties(), {}, entityNode);
+  }
   doEndFile();
 }
 

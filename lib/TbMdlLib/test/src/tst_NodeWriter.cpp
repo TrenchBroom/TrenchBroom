@@ -241,6 +241,35 @@ TEST_CASE("NodeWriter")
     CHECK(actual == expected);
   }
 
+  SECTION("setEntityNodeToAdd")
+  {
+    auto map = WorldNode{{}, {}, MapFormat::Standard};
+
+    const auto entityToAdd = Entity{{
+      {"classname", "info_compile_settings"},
+      {"message", "added by export"},
+    }};
+
+    auto str = std::stringstream{};
+    auto writer = NodeWriter{map, str};
+    writer.setEntityToAdd(entityToAdd);
+    writer.writeMap(taskManager);
+
+    const auto actual = str.str();
+    const auto expected =
+      R"(// entity 0
+{
+"classname" "worldspawn"
+}
+// entity 1
+{
+"classname" "info_compile_settings"
+"message" "added by export"
+}
+)";
+    CHECK(actual == expected);
+  }
+
   SECTION("writeDaikatanaMap")
   {
     const auto worldBounds = vm::bbox3d{8192.0};

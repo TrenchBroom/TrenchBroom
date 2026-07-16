@@ -36,6 +36,7 @@ namespace mdl
 {
 class BrushNode;
 class BrushFace;
+class Entity;
 class EntityNode;
 class LayerNode;
 class Node;
@@ -58,6 +59,7 @@ public:
   void setExporting(bool exporting);
   void setStripTbProperties(bool stripTbProperties);
   void setStripEntityPattern(std::optional<std::string> stripEntityPattern);
+  void setEntityToAdd(std::optional<Entity> entityToAdd);
   void writeMap(kdl::task_manager& taskManager);
 
 private:

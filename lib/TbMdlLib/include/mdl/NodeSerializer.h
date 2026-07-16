@@ -19,6 +19,8 @@
 
 #pragma once
 
+#include "mdl/Entity.h"
+
 #include <optional>
 #include <string>
 #include <vector>
@@ -32,6 +34,7 @@ namespace tb::mdl
 {
 class BrushNode;
 class BrushFace;
+class EntityNode;
 class EntityProperty;
 class GroupNode;
 class LayerNode;
@@ -65,6 +68,7 @@ private:
   bool m_exporting = false;
   bool m_stripTbProperties = false;
   std::optional<std::string> m_stripEntityPattern;
+  std::optional<Entity> m_entityToAdd;
 
 public:
   virtual ~NodeSerializer();
@@ -82,6 +86,9 @@ public:
 
   const std::optional<std::string>& stripEntityPattern() const;
   void setStripEntityPattern(std::optional<std::string> stripEntityPattern);
+
+  const std::optional<Entity>& entityToAdd() const;
+  void setEntityToAdd(std::optional<Entity> entityToAdd);
 
 public:
   /**
