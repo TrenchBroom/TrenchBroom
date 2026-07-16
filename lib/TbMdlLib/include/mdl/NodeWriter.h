@@ -21,6 +21,8 @@
 
 #include <map>
 #include <memory>
+#include <optional>
+#include <string>
 #include <vector>
 
 namespace kdl
@@ -55,6 +57,7 @@ public:
 
   void setExporting(bool exporting);
   void setStripTbProperties(bool stripTbProperties);
+  void setStripEntityPattern(std::optional<std::string> stripEntityPattern);
   void writeMap(kdl::task_manager& taskManager);
 
 private:

@@ -142,6 +142,105 @@ TEST_CASE("NodeWriter")
     CHECK(actual == expected);
   }
 
+  SECTION("stripEntityPattern")
+  {
+    auto map = WorldNode{{}, {}, MapFormat::Standard};
+
+    auto* matchingPointEntityNode = new EntityNode{Entity{{
+      {"classname", "info_player_start"},
+      {"origin", "0 0 0"},
+    }}};
+    auto* caseMatchingPointEntityNode = new EntityNode{Entity{{
+      {"classname", "INFO_PLAYER_DEATHMATCH"},
+      {"origin", "64 0 0"},
+    }}};
+    auto* nonMatchingPointEntityNode = new EntityNode{Entity{{
+      {"classname", "light"},
+      {"origin", "128 0 0"},
+    }}};
+
+    map.defaultLayer()->addChild(matchingPointEntityNode);
+    map.defaultLayer()->addChild(caseMatchingPointEntityNode);
+    map.defaultLayer()->addChild(nonMatchingPointEntityNode);
+
+    auto str = std::stringstream{};
+    auto writer = NodeWriter{map, str};
+    writer.setStripEntityPattern("info_*");
+    writer.writeMap(taskManager);
+
+    const auto actual = str.str();
+    const auto expected =
+      R"(// entity 0
+{
+"classname" "worldspawn"
+}
+// entity 1
+{
+"classname" "light"
+"origin" "128 0 0"
+}
+)";
+    CHECK(actual == expected);
+  }
+
+  SECTION("stripEntityPattern strips brush entities")
+  {
+    const auto worldBounds = vm::bbox3d{8192.0};
+
+    auto worldNode = WorldNode{{}, {}, MapFormat::Standard};
+    auto builder = BrushBuilder{worldNode.mapFormat(), worldBounds};
+
+    auto* matchingBrushEntityNode = new EntityNode{Entity{{
+      {"classname", "info_brush_entity"},
+    }}};
+    matchingBrushEntityNode->addChild(
+      new BrushNode{builder.createCube(64.0, "none") | kdl::value()});
+
+    worldNode.defaultLayer()->addChild(matchingBrushEntityNode);
+
+    auto str = std::stringstream{};
+    auto writer = NodeWriter{worldNode, str};
+    writer.setStripEntityPattern("info_*");
+    writer.writeMap(taskManager);
+
+    const auto actual = str.str();
+    const auto expected =
+      R"(// entity 0
+{
+"classname" "worldspawn"
+}
+)";
+    CHECK(actual == expected);
+  }
+
+  SECTION("stripEntityPattern keeps entities without a classname")
+  {
+    auto worldNode = WorldNode{{}, {}, MapFormat::Standard};
+
+    auto* entityNodeWithoutClassname = new EntityNode{Entity{{
+      {"some_key", "some_value"},
+    }}};
+    worldNode.defaultLayer()->addChild(entityNodeWithoutClassname);
+
+    auto str = std::stringstream{};
+    auto writer = NodeWriter{worldNode, str};
+    writer.setStripEntityPattern("info_*");
+    writer.writeMap(taskManager);
+
+    const auto actual = str.str();
+    const auto expected =
+      R"(// entity 0
+{
+"classname" "worldspawn"
+}
+// entity 1
+{
+"some_key" "some_value"
+}
+)";
+    CHECK(actual == expected);
+  }
+
   SECTION("writeDaikatanaMap")
   {
     const auto worldBounds = vm::bbox3d{8192.0};

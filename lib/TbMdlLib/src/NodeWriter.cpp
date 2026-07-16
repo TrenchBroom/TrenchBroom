@@ -115,6 +115,11 @@ void NodeWriter::setStripTbProperties(const bool stripTbProperties)
   m_serializer->setStripTbProperties(stripTbProperties);
 }
 
+void NodeWriter::setStripEntityPattern(std::optional<std::string> stripEntityPattern)
+{
+  m_serializer->setStripEntityPattern(std::move(stripEntityPattern));
+}
+
 void NodeWriter::writeMap(kdl::task_manager& taskManager)
 {
   m_serializer->beginFile({&m_world}, taskManager);

@@ -19,6 +19,7 @@
 
 #pragma once
 
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -63,6 +64,7 @@ private:
   ObjectNo m_brushNo = 0;
   bool m_exporting = false;
   bool m_stripTbProperties = false;
+  std::optional<std::string> m_stripEntityPattern;
 
 public:
   virtual ~NodeSerializer();
@@ -77,6 +79,9 @@ public:
 
   bool stripTbProperties() const;
   void setStripTbProperties(bool stripTbProperties);
+
+  const std::optional<std::string>& stripEntityPattern() const;
+  void setStripEntityPattern(std::optional<std::string> stripEntityPattern);
 
 public:
   /**

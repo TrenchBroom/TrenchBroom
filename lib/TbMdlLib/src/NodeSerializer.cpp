@@ -41,6 +41,24 @@
 
 namespace tb::mdl
 {
+namespace
+{
+
+bool shouldStripEntity(
+  const std::vector<EntityProperty>& properties,
+  const std::optional<std::string>& classnamePattern)
+{
+  if (!classnamePattern)
+  {
+    return false;
+  }
+
+  const auto iClassname = findEntityProperty(properties, EntityPropertyKeys::Classname);
+  return iClassname != properties.end()
+         && kdl::ci::str_matches_glob(iClassname->value(), *classnamePattern);
+}
+
+} // namespace
 
 NodeSerializer::~NodeSerializer() = default;
 
@@ -72,6 +90,16 @@ bool NodeSerializer::stripTbProperties() const
 void NodeSerializer::setStripTbProperties(const bool stripTbProperties)
 {
   m_stripTbProperties = stripTbProperties;
+}
+
+const std::optional<std::string>& NodeSerializer::stripEntityPattern() const
+{
+  return m_stripEntityPattern;
+}
+
+void NodeSerializer::setStripEntityPattern(std::optional<std::string> stripEntityPattern)
+{
+  m_stripEntityPattern = std::move(stripEntityPattern);
 }
 
 void NodeSerializer::beginFile(
@@ -169,17 +197,20 @@ void NodeSerializer::entity(
   const std::vector<EntityProperty>& extraProperties,
   const Node& brushParent)
 {
-  beginEntity(node, properties, extraProperties);
+  if (!shouldStripEntity(properties, m_stripEntityPattern))
+  {
+    beginEntity(node, properties, extraProperties);
 
-  brushParent.visitChildren(kdl::overload(
-    [](const WorldNode&) {},
-    [](const LayerNode&) {},
-    [](const GroupNode&) {},
-    [](const EntityNode&) {},
-    [&](const BrushNode& brushNode) { brush(brushNode); },
-    [&](const PatchNode& patchNode) { patch(patchNode); }));
+    brushParent.visitChildren(kdl::overload(
+      [](const WorldNode&) {},
+      [](const LayerNode&) {},
+      [](const GroupNode&) {},
+      [](const EntityNode&) {},
+      [&](const BrushNode& brushNode) { brush(brushNode); },
+      [&](const PatchNode& patchNode) { patch(patchNode); }));
 
-  endEntity(node);
+    endEntity(node);
+  }
 }
 
 void NodeSerializer::entity(
@@ -188,9 +219,12 @@ void NodeSerializer::entity(
   const std::vector<EntityProperty>& extraProperties,
   const std::vector<BrushNode*>& entityBrushes)
 {
-  beginEntity(node, properties, extraProperties);
-  brushes(entityBrushes);
-  endEntity(node);
+  if (!shouldStripEntity(properties, m_stripEntityPattern))
+  {
+    beginEntity(node, properties, extraProperties);
+    brushes(entityBrushes);
+    endEntity(node);
+  }
 }
 
 void NodeSerializer::beginEntity(
