@@ -23,6 +23,8 @@
 #include "kd/reflection_decl.h"
 
 #include <filesystem>
+#include <optional>
+#include <string>
 #include <variant>
 
 namespace tb::mdl
@@ -32,8 +34,9 @@ struct MapExportOptions
 {
   std::filesystem::path exportPath;
   bool stripTbProperties;
+  std::optional<std::string> stripEntityPattern;
 
-  kdl_reflect_decl(MapExportOptions, exportPath, stripTbProperties);
+  kdl_reflect_decl(MapExportOptions, exportPath, stripTbProperties, stripEntityPattern);
 };
 
 enum class ObjMtlPathMode
