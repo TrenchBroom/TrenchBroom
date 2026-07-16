@@ -153,6 +153,14 @@ Variables are allowed.)");
   setupCompleter(m_targetEditor);
   formLayout->addRow("File Path", m_targetEditor);
 
+  m_stripEntityPattern = new QLineEdit{};
+  m_stripEntityPattern->setToolTip(
+    tr("Set a GLOB pattern to strip any entities with a matching classname. Example: "
+       "'info_player_*' to strip all info_player_start and all info_player_deatchmatch "
+       "entities."));
+  m_stripEntityPattern->setPlaceholderText("enter GLOB pattern");
+  formLayout->addRow("Strip Entities", m_stripEntityPattern);
+
   m_stripTbProperties = new QCheckBox{"Strip TrenchBroom specific entity properties"};
   m_stripTbProperties->setToolTip(
     tr("Set this checkbox to strip any entity properties starting with _tb_ from the "
@@ -164,6 +172,11 @@ Variables are allowed.)");
     &QLineEdit::textChanged,
     this,
     &CompilationExportMapTaskEditor::targetSpecChanged);
+  connect(
+    m_stripEntityPattern,
+    &QLineEdit::textChanged,
+    this,
+    &CompilationExportMapTaskEditor::stripEntityPatternChanged);
   connect(
     m_stripTbProperties,
     &QCheckBox::checkStateChanged,
@@ -186,6 +199,13 @@ void CompilationExportMapTaskEditor::updateItem()
     m_stripTbProperties->setCheckState(
       task().stripTbProperties ? Qt::CheckState::Checked : Qt::CheckState::Unchecked);
   }
+
+  const auto stripEntityPattern =
+    QString::fromStdString(task().stripEntityPattern.value_or(""));
+  if (m_stripEntityPattern->text() != stripEntityPattern)
+  {
+    m_stripEntityPattern->setText(stripEntityPattern);
+  }
 }
 
 mdl::CompilationExportMap& CompilationExportMapTaskEditor::task()
@@ -198,6 +218,18 @@ mdl::CompilationExportMap& CompilationExportMapTaskEditor::task()
 void CompilationExportMapTaskEditor::targetSpecChanged(const QString& text)
 {
   task().targetSpec = text.toStdString();
+}
+
+void CompilationExportMapTaskEditor::stripEntityPatternChanged(const QString& text)
+{
+  if (text.isEmpty())
+  {
+    task().stripEntityPattern = std::nullopt;
+  }
+  else
+  {
+    task().stripEntityPattern = text.toStdString();
+  }
 }
 
 void CompilationExportMapTaskEditor::stripTbPropertiesChanged(const int state)

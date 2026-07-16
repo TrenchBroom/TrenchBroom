@@ -1675,6 +1675,9 @@ Layers marked "Omit From Export" will not be present in the exported map.
 Target
 :    The path of the exported file. Variables are allowed. Relative paths are implicitly relative to the working directory.
 
+Strip Entities
+:    Set a GLOB pattern to strip any entities with a matching classname. Example: 'info_player_*' to strip all info_player_start and all info_player_deatchmatch entities.
+
 Strip TB specific entity properties
 :    Strip any entity properties starting with _tb_ from the exported map file. Some compilers cannot handle these properties.
 
