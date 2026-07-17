@@ -295,14 +295,18 @@ void justifyUV(
     });
 }
 
-void fitUV(Map& map, const UvFitDirection uvFitDirection, const UvPolicy uvPolicy)
+void fitUV(
+  Map& map,
+  const UvFitDirection uvFitDirection,
+  const UvPolicy uvPolicy,
+  const UvFitMode uvFitMode)
 {
   applyAndSwap(map, "Fit Texture", map.selection().allBrushFaces(), [&](auto& brushFace) {
     const auto [uvAxis, uvSign] = convertFitDirection(brushFace, uvFitDirection);
 
     const auto invariantVertex = anchorVertex(brushFace, uvAxis, uvSign);
     compensateOffset(brushFace, invariantVertex, [&] {
-      evaluate(mdl::fit(brushFace, uvAxis, uvPolicy), brushFace);
+      evaluate(mdl::fit(brushFace, uvAxis, uvPolicy, uvFitMode), brushFace);
     });
     return true;
   });
@@ -321,12 +325,16 @@ void autoFitUV(Map& map)
 
       const auto invariantUVertex = anchorVertex(brushFace, UvAxis::u, UvSign::plus);
       compensateOffset(brushFace, invariantUVertex, [&] {
-        evaluate(mdl::fit(brushFace, UvAxis::u, UvPolicy::best), brushFace);
+        evaluate(
+          mdl::fit(brushFace, UvAxis::u, UvPolicy::best, UvFitMode::fitToFace),
+          brushFace);
       });
 
       const auto invariantVVertex = anchorVertex(brushFace, UvAxis::v, UvSign::plus);
       compensateOffset(brushFace, invariantVVertex, [&] {
-        evaluate(mdl::fit(brushFace, UvAxis::v, UvPolicy::best), brushFace);
+        evaluate(
+          mdl::fit(brushFace, UvAxis::v, UvPolicy::best, UvFitMode::fitToFace),
+          brushFace);
       });
 
       return true;

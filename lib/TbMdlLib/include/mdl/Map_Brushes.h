@@ -34,6 +34,7 @@ class UVCoordSystemSnapshot;
 enum class UvAxis;
 enum class UvSign;
 enum class UvPolicy;
+enum class UvFitMode;
 
 struct UpdateBrushFaceAttributes;
 
@@ -82,7 +83,8 @@ bool flipUV(
 
 void alignUV(Map& map, UvPolicy uvPolicy);
 void justifyUV(Map& map, UvJustifyDirection uvJustifyDirection, UvPolicy uvPolicy);
-void fitUV(Map& map, UvFitDirection uvFitDirection, UvPolicy uvPolicy);
+void fitUV(
+  Map& map, UvFitDirection uvFitDirection, UvPolicy uvPolicy, UvFitMode uvFitMode);
 void autoFitUV(Map& map);
 
 } // namespace tb::mdl

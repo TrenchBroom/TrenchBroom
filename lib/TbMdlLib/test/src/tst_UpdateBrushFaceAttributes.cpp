@@ -47,6 +47,8 @@ TEST_CASE("UpdateBrushFaceAttributes")
   static constexpr auto UvPrev = UvPolicy::prev;
   static constexpr auto UvPls = UvSign::plus;
   static constexpr auto UvMns = UvSign::minus;
+  static constexpr auto UvFit = UvFitMode::fitToFace;
+  static constexpr auto UvTrim = UvFitMode::trimSheet;
 
   SECTION("copyAll")
   {
@@ -925,6 +927,7 @@ TEST_CASE("UpdateBrushFaceAttributes")
       double,
       UvAxis,
       UvPolicy,
+      UvFitMode,
       vm::vec3d,
       vm::vec2d>;
 
@@ -937,65 +940,85 @@ TEST_CASE("UpdateBrushFaceAttributes")
          initialRotation,
          axis,
          policy,
+         fitMode,
          brushSize,
          expectedScale] = GENERATE(values<T>({
           // U axis
-          // brush size == texture size
-          {Std, {0, 0}, {1, 1}, 0, UvU, UvBest, {64, 64, 64}, {1, 0}},
-          {Std, {0, 0}, {1.6, 1}, 0, UvU, UvBest, {64, 64, 64}, {2, 0}},
-          {Std, {0, 0}, {2, 1}, 0, UvU, UvBest, {64, 64, 64}, {2, 0}},
+          // brush size == texture size: the texture is not larger than the face, so the
+          // fit mode has no effect
+          {Std, {0, 0}, {1, 1}, 0, UvU, UvBest, UvFit, {64, 64, 64}, {1, 0}},
+          {Std, {0, 0}, {1.6, 1}, 0, UvU, UvBest, UvFit, {64, 64, 64}, {2, 0}},
+          {Std, {0, 0}, {2, 1}, 0, UvU, UvBest, UvFit, {64, 64, 64}, {2, 0}},
 
-          {Std, {0, 0}, {1, 1}, 0, UvU, UvNext, {64, 64, 64}, {2, 0}},
-          {Std, {0, 0}, {1, 1}, 0, UvU, UvPrev, {64, 64, 64}, {0.5, 0}},
-          {Std, {0, 8}, {1, 1}, 0, UvU, UvNext, {64, 64, 64}, {2, 0}},
-          {Std, {16, 8}, {1, 1}, 0, UvU, UvNext, {64, 64, 64}, {2, 0}},
+          {Std, {0, 0}, {1, 1}, 0, UvU, UvNext, UvFit, {64, 64, 64}, {2, 0}},
+          {Std, {0, 0}, {1, 1}, 0, UvU, UvPrev, UvFit, {64, 64, 64}, {0.5, 0}},
+          {Std, {0, 8}, {1, 1}, 0, UvU, UvNext, UvFit, {64, 64, 64}, {2, 0}},
+          {Std, {16, 8}, {1, 1}, 0, UvU, UvNext, UvFit, {64, 64, 64}, {2, 0}},
 
-          {Std, {0, 0}, {1.2, 1}, 0, UvU, UvNext, {64, 64, 64}, {2, 0}},
-          {Std, {0, 0}, {1.2, 1}, 0, UvU, UvPrev, {64, 64, 64}, {1, 0}},
+          {Std, {0, 0}, {1.2, 1}, 0, UvU, UvNext, UvFit, {64, 64, 64}, {2, 0}},
+          {Std, {0, 0}, {1.2, 1}, 0, UvU, UvPrev, UvFit, {64, 64, 64}, {1, 0}},
 
-          {Std, {0, 0}, {1.6, 1}, 0, UvU, UvNext, {64, 64, 64}, {2, 0}},
-          {Std, {0, 0}, {1.6, 1}, 0, UvU, UvPrev, {64, 64, 64}, {1, 0}},
+          {Std, {0, 0}, {1.6, 1}, 0, UvU, UvNext, UvFit, {64, 64, 64}, {2, 0}},
+          {Std, {0, 0}, {1.6, 1}, 0, UvU, UvPrev, UvFit, {64, 64, 64}, {1, 0}},
 
-          {Std, {0, 0}, {2, 1}, 0, UvU, UvNext, {64, 64, 64}, {3, 0}},
-          {Std, {0, 0}, {2, 1}, 0, UvU, UvPrev, {64, 64, 64}, {1, 0}},
+          {Std, {0, 0}, {2, 1}, 0, UvU, UvNext, UvFit, {64, 64, 64}, {3, 0}},
+          {Std, {0, 0}, {2, 1}, 0, UvU, UvPrev, UvFit, {64, 64, 64}, {1, 0}},
 
-          {Vlv, {0, 0}, {2, 1}, 0, UvU, UvNext, {64, 64, 64}, {3, 0}},
-          {Vlv, {0, 0}, {2, 1}, 0, UvU, UvPrev, {64, 64, 64}, {1, 0}},
+          {Vlv, {0, 0}, {2, 1}, 0, UvU, UvNext, UvFit, {64, 64, 64}, {3, 0}},
+          {Vlv, {0, 0}, {2, 1}, 0, UvU, UvPrev, UvFit, {64, 64, 64}, {1, 0}},
 
-          // brush size != texture size
-          {Std, {0, 0}, {1, 1}, 0, UvU, UvBest, {48, 48, 48}, {0.75, 0}},
-          {Std, {0, 0}, {1.6, 1}, 0, UvU, UvBest, {48, 48, 48}, {1.5, 0}},
-          {Std, {0, 0}, {2, 1}, 0, UvU, UvBest, {48, 48, 48}, {2.25, 0}},
+          // brush size != texture size: the texture is larger than the face
+          // trimSheet selects the 1/nth subdivision behavior
+          {Std, {0, 0}, {1, 1}, 0, UvU, UvBest, UvTrim, {48, 48, 48}, {0.75, 0}},
+          {Std, {0, 0}, {1.6, 1}, 0, UvU, UvBest, UvTrim, {48, 48, 48}, {1.5, 0}},
+          {Std, {0, 0}, {2, 1}, 0, UvU, UvBest, UvTrim, {48, 48, 48}, {2.25, 0}},
 
-          {Std, {0, 0}, {1, 1}, 0, UvU, UvNext, {48, 48, 48}, {1.5, 0}},
-          {Std, {0, 0}, {1, 1}, 0, UvU, UvPrev, {48, 48, 48}, {0.75, 0}},
-          {Std, {0, 8}, {1, 1}, 0, UvU, UvNext, {48, 48, 48}, {1.5, 0}},
-          {Std, {16, 8}, {1, 1}, 0, UvU, UvNext, {48, 48, 48}, {1.5, 0}},
+          {Std, {0, 0}, {1, 1}, 0, UvU, UvNext, UvTrim, {48, 48, 48}, {1.5, 0}},
+          {Std, {0, 0}, {1, 1}, 0, UvU, UvPrev, UvTrim, {48, 48, 48}, {0.75, 0}},
+          {Std, {0, 8}, {1, 1}, 0, UvU, UvNext, UvTrim, {48, 48, 48}, {1.5, 0}},
+          {Std, {16, 8}, {1, 1}, 0, UvU, UvNext, UvTrim, {48, 48, 48}, {1.5, 0}},
 
-          {Std, {0, 0}, {0.75, 1}, 0, UvU, UvNext, {48, 48, 48}, {1.5, 0}},
-          {Std, {0, 0}, {0.75, 1}, 0, UvU, UvPrev, {48, 48, 48}, {0.375, 0}},
+          {Std, {0, 0}, {0.75, 1}, 0, UvU, UvNext, UvTrim, {48, 48, 48}, {1.5, 0}},
+          {Std, {0, 0}, {0.75, 1}, 0, UvU, UvPrev, UvTrim, {48, 48, 48}, {0.375, 0}},
 
-          {Vlv, {0, 0}, {0.75, 1}, 0, UvU, UvNext, {48, 48, 48}, {1.5, 0}},
-          {Vlv, {0, 0}, {0.75, 1}, 0, UvU, UvPrev, {48, 48, 48}, {0.375, 0}},
+          {Vlv, {0, 0}, {0.75, 1}, 0, UvU, UvNext, UvTrim, {48, 48, 48}, {1.5, 0}},
+          {Vlv, {0, 0}, {0.75, 1}, 0, UvU, UvPrev, UvTrim, {48, 48, 48}, {0.375, 0}},
+
+          // fitToFace fits the whole texture onto the face regardless of policy
+          {Std, {0, 0}, {1, 1}, 0, UvU, UvBest, UvFit, {48, 48, 48}, {0.75, 0}},
+          {Std, {0, 0}, {1.6, 1}, 0, UvU, UvBest, UvFit, {48, 48, 48}, {0.75, 0}},
+          {Std, {0, 0}, {2, 1}, 0, UvU, UvBest, UvFit, {48, 48, 48}, {0.75, 0}},
+          {Std, {0, 0}, {1, 1}, 0, UvU, UvNext, UvFit, {48, 48, 48}, {0.75, 0}},
+          {Std, {0, 0}, {1, 1}, 0, UvU, UvPrev, UvFit, {48, 48, 48}, {0.75, 0}},
+          {Std, {0, 0}, {0.75, 1}, 0, UvU, UvNext, UvFit, {48, 48, 48}, {0.75, 0}},
+          {Std, {0, 0}, {0.75, 1}, 0, UvU, UvPrev, UvFit, {48, 48, 48}, {0.75, 0}},
 
           // V axis
           // brush size == texture size
-          {Std, {0, 0}, {1, 1.6}, 0, UvV, UvBest, {64, 64, 64}, {0, 2}},
+          {Std, {0, 0}, {1, 1.6}, 0, UvV, UvBest, UvFit, {64, 64, 64}, {0, 2}},
 
-          {Std, {0, 0}, {1, 1}, 0, UvV, UvNext, {64, 64, 64}, {0, 2}},
-          {Std, {0, 0}, {1, 1}, 0, UvV, UvPrev, {64, 64, 64}, {0, 0.5}},
+          {Std, {0, 0}, {1, 1}, 0, UvV, UvNext, UvFit, {64, 64, 64}, {0, 2}},
+          {Std, {0, 0}, {1, 1}, 0, UvV, UvPrev, UvFit, {64, 64, 64}, {0, 0.5}},
 
-          // brush size != texture size
-          {Std, {0, 0}, {1, 1.6}, 0, UvV, UvBest, {48, 48, 48}, {0, 1.5}},
+          // brush size != texture size: the texture is larger than the face
+          {Std, {0, 0}, {1, 1.6}, 0, UvV, UvBest, UvTrim, {48, 48, 48}, {0, 1.5}},
 
-          {Std, {0, 0}, {1, 1}, 0, UvV, UvNext, {48, 48, 48}, {0, 1.5}},
-          {Std, {0, 0}, {1, 1}, 0, UvV, UvPrev, {48, 48, 48}, {0, 0.75}},
+          {Std, {0, 0}, {1, 1}, 0, UvV, UvNext, UvTrim, {48, 48, 48}, {0, 1.5}},
+          {Std, {0, 0}, {1, 1}, 0, UvV, UvPrev, UvTrim, {48, 48, 48}, {0, 0.75}},
 
-          {Std, {0, 0}, {1, 0.75}, 0, UvV, UvNext, {48, 48, 48}, {0, 1.5}},
-          {Std, {0, 0}, {1, 0.75}, 0, UvV, UvPrev, {48, 48, 48}, {0, 0.375}},
+          {Std, {0, 0}, {1, 0.75}, 0, UvV, UvNext, UvTrim, {48, 48, 48}, {0, 1.5}},
+          {Std, {0, 0}, {1, 0.75}, 0, UvV, UvPrev, UvTrim, {48, 48, 48}, {0, 0.375}},
+
+          // fitToFace fits the whole texture onto the face regardless of policy
+          {Std, {0, 0}, {1, 1.6}, 0, UvV, UvBest, UvFit, {48, 48, 48}, {0, 0.75}},
+          {Std, {0, 0}, {1, 1}, 0, UvV, UvNext, UvFit, {48, 48, 48}, {0, 0.75}},
+          {Std, {0, 0}, {1, 1}, 0, UvV, UvPrev, UvFit, {48, 48, 48}, {0, 0.75}},
+          {Std, {0, 0}, {1, 0.75}, 0, UvV, UvNext, UvFit, {48, 48, 48}, {0, 0.75}},
+          {Std, {0, 0}, {1, 0.75}, 0, UvV, UvPrev, UvFit, {48, 48, 48}, {0, 0.75}},
         }));
 
-      CAPTURE(mapFormat, initialOffset, initialScale, initialRotation, axis, policy);
+      CAPTURE(
+        mapFormat, initialOffset, initialScale, initialRotation, axis, policy, fitMode);
 
       auto material =
         gl::Material{"material", gl::createTextureResource(gl::Texture{64, 64})};
@@ -1024,7 +1047,7 @@ TEST_CASE("UpdateBrushFaceAttributes")
           frontFace);
 
         CHECK_THAT(
-          fit(frontFace, axis, policy),
+          fit(frontFace, axis, policy, fitMode),
           MatchesUpdateBrushFaceAttributes(UpdateBrushFaceAttributes{
             .xScale = axis == UvU ? std::optional{SetValue{float(expectedScale.x())}}
                                   : std::nullopt,

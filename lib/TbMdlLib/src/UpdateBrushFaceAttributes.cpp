@@ -99,7 +99,10 @@ T findNextScaleFactor(const T f, const UvPolicy uvPolicy)
 }
 
 auto scaleFactorToFit(
-  const BrushFace& brushFace, const UvAxis uvAxis, const UvPolicy uvPolicy)
+  const BrushFace& brushFace,
+  const UvAxis uvAxis,
+  const UvPolicy uvPolicy,
+  const UvFitMode uvFitMode)
 {
   const auto axis = toAxis(uvAxis);
 
@@ -118,6 +121,16 @@ auto scaleFactorToFit(
   const auto textureLength = vm::dot(brushFace.textureSize(), axis);
 
   const auto currentScale = vm::dot(brushFace.attributes().scale(), axis);
+
+  // If the texture is larger than the face, fitToFace scales it so that the entire
+  // texture is visible on the face instead of snapping to a 1/nth subdivision (which
+  // trimSheet keeps for trim sheet textures).
+  if (uvFitMode == UvFitMode::fitToFace && textureLength > faceLength)
+  {
+    const auto sign = currentScale < 0.0f ? -1.0f : 1.0f;
+    return sign * faceLength / textureLength;
+  }
+
   const auto currentFactor = currentScale * textureLength / faceLength;
 
   const auto nextFactor = findNextScaleFactor(currentFactor, uvPolicy);
@@ -461,7 +474,8 @@ bool isJustified(const BrushFace& brushFace, const UvAxis uvAxis, const UvSign u
 
 bool isFitted(const BrushFace& brushFace, UvAxis uvAxis)
 {
-  const auto value = scaleFactorToFit(brushFace, uvAxis, UvPolicy::best);
+  const auto value =
+    scaleFactorToFit(brushFace, uvAxis, UvPolicy::best, UvFitMode::fitToFace);
 
   switch (uvAxis)
   {
@@ -558,9 +572,12 @@ UpdateBrushFaceAttributes justify(
 }
 
 UpdateBrushFaceAttributes fit(
-  const BrushFace& brushFace, const UvAxis uvAxis, const UvPolicy uvPolicy)
+  const BrushFace& brushFace,
+  const UvAxis uvAxis,
+  const UvPolicy uvPolicy,
+  const UvFitMode uvFitMode)
 {
-  const auto value = scaleFactorToFit(brushFace, uvAxis, uvPolicy);
+  const auto value = scaleFactorToFit(brushFace, uvAxis, uvPolicy, uvFitMode);
 
   switch (uvAxis)
   {

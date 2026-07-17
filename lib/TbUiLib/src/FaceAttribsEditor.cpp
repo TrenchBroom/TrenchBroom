@@ -135,7 +135,7 @@ void FaceAttribsEditor::fitClicked(const mdl::UvFitDirection uvFitDirection)
                           ? mdl::UvPolicy::prev
                           : mdl::UvPolicy::next;
 
-  fitUV(m_document.map(), uvFitDirection, uvPolicy);
+  fitUV(m_document.map(), uvFitDirection, uvPolicy, mdl::UvFitMode::fitToFace);
 }
 
 void FaceAttribsEditor::autoFitClicked()
