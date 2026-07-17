@@ -20,14 +20,13 @@
 #pragma once
 
 #include "Macros.h"
-#include "mdl/BrushFaceAttributes.h"
+#include "mdl/UVAttributes.h"
 
 #include "vm/mat.h"
 #include "vm/plane.h"
 #include "vm/vec.h"
 
 #include <memory>
-#include <tuple>
 
 namespace tb::mdl
 {
@@ -73,42 +72,44 @@ public:
   virtual vm::vec3d vAxis() const = 0;
   virtual vm::vec3d normal() const = 0;
 
+  /**
+   * Returns the UV attributes of this coordinate system. Coordinate systems which store
+   * the attributes return them unchanged and ignore the given texture size; coordinate
+   * systems which derive the attributes from their axes require it.
+   */
+  virtual UVAttributes uvAttributes(const vm::vec2f& textureSize) const = 0;
+  virtual void setUVAttributes(
+    const UVAttributes& uvAttributes, const vm::vec2f& textureSize) = 0;
+
   virtual void resetCache(
-    const vm::vec3d& point0,
-    const vm::vec3d& point1,
-    const vm::vec3d& point2,
-    const BrushFaceAttributes& attribs) = 0;
+    const vm::vec3d& point0, const vm::vec3d& point1, const vm::vec3d& point2) = 0;
   virtual void reset(const vm::vec3d& normal) = 0;
   virtual void resetToParaxial(const vm::vec3d& normal, float angle) = 0;
   virtual void resetToParallel(const vm::vec3d& normal, float angle) = 0;
 
+  virtual vm::vec2f uvCoords(const vm::vec3d& point, const vm::vec2f& textureSize) const;
   vm::vec2f uvCoords(
     const vm::vec3d& point,
-    const BrushFaceAttributes& attribs,
+    const UVAttributes& uvAttributes,
     const vm::vec2f& textureSize) const;
 
-  virtual void setRotation(const vm::vec3d& normal, float oldAngle, float newAngle) = 0;
   virtual void transform(
     const vm::plane3d& oldBoundary,
     const vm::plane3d& newBoundary,
     const vm::mat4x4d& transformation,
-    BrushFaceAttributes& attribs,
     const vm::vec2f& textureSize,
     bool lockTexture,
     const vm::vec3d& invariant) = 0;
   void setNormal(
-    const vm::vec3d& oldNormal,
-    const vm::vec3d& newNormal,
-    const BrushFaceAttributes& attribs,
-    WrapStyle style);
+    const vm::vec3d& oldNormal, const vm::vec3d& newNormal, WrapStyle style);
 
   void translate(
     const vm::vec3d& normal,
     const vm::vec3d& up,
     const vm::vec3d& right,
     const vm::vec2f& offset,
-    BrushFaceAttributes& attribs) const;
-  void rotate(const vm::vec3d& normal, float angle, BrushFaceAttributes& attribs) const;
+    const vm::vec2f& textureSize);
+  void rotate(const vm::vec3d& normal, float angle, const vm::vec2f& textureSize);
   virtual void shear(const vm::vec3d& normal, const vm::vec2f& factors) = 0;
 
   vm::mat4x4d toMatrix(const vm::vec2f& offset, const vm::vec2f& scale) const;
@@ -117,28 +118,25 @@ public:
   virtual float measureAngle(
     float currentAngle, const vm::vec2f& center, const vm::vec2f& point) const = 0;
 
-  virtual std::tuple<std::unique_ptr<UVCoordSystem>, BrushFaceAttributes> toParallel(
+  virtual std::unique_ptr<UVCoordSystem> toParallel(
     const vm::vec3d& point0,
     const vm::vec3d& point1,
     const vm::vec3d& point2,
-    const BrushFaceAttributes& attribs) const = 0;
-  virtual std::tuple<std::unique_ptr<UVCoordSystem>, BrushFaceAttributes> toParaxial(
+    const vm::vec2f& textureSize) const = 0;
+  virtual std::unique_ptr<UVCoordSystem> toParaxial(
     const vm::vec3d& point0,
     const vm::vec3d& point1,
     const vm::vec3d& point2,
-    const BrushFaceAttributes& attribs) const = 0;
+    const vm::vec2f& textureSize) const = 0;
 
 private:
   friend class UVCoordSystemSnapshot;
 
   virtual bool isRotationInverted(const vm::vec3d& normal) const = 0;
 
-  virtual void updateNormalWithProjection(
-    const vm::vec3d& newNormal, const BrushFaceAttributes& attribs) = 0;
+  virtual void updateNormalWithProjection(const vm::vec3d& newNormal) = 0;
   virtual void updateNormalWithRotation(
-    const vm::vec3d& oldNormal,
-    const vm::vec3d& newNormal,
-    const BrushFaceAttributes& attribs) = 0;
+    const vm::vec3d& oldNormal, const vm::vec3d& newNormal) = 0;
 
 protected:
   vm::vec2f computeUVCoords(const vm::vec3d& point, const vm::vec2f& scale) const;

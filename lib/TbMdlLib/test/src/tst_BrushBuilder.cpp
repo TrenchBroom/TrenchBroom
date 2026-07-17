@@ -24,6 +24,7 @@
 #include "mdl/MapFormat.h"
 #include "mdl/Matchers.h"
 #include "mdl/Polyhedron3.h"
+#include "mdl/UVAttributes.h"
 
 #include "kd/range_fold.h"
 #include "kd/ranges/to.h"
@@ -50,6 +51,7 @@ auto makeFace(const std::tuple<vm::vec3d, vm::vec3d, vm::vec3d>& face)
            std::get<1>(face),
            std::get<2>(face),
            BrushFaceAttributes{"someName"},
+           UVAttributes{},
            MapFormat::Standard)
          | kdl::value();
 };
@@ -98,15 +100,15 @@ TEST_CASE("BrushBuilder")
   SECTION("createCubeDefaults")
   {
     auto defaultAttribs = BrushFaceAttributes{"defaultMaterial"};
-    defaultAttribs.setOffset({0.5f, 0.5f});
-    defaultAttribs.setScale({0.5f, 0.5f});
-    defaultAttribs.setRotation(45.0f);
     defaultAttribs.setSurfaceContents(1);
     defaultAttribs.setSurfaceFlags(2);
     defaultAttribs.setSurfaceValue(0.1f);
     defaultAttribs.setColor(RgbB{255, 255, 255});
 
-    auto builder = BrushBuilder{MapFormat::Standard, worldBounds, defaultAttribs};
+    const auto defaultUVAttribs = UVAttributes{{0.5f, 0.5f}, {0.5f, 0.5f}, 45.0f};
+
+    auto builder =
+      BrushBuilder{MapFormat::Standard, worldBounds, defaultAttribs, defaultUVAttribs};
 
     builder.createCube(128.0, "someName") | kdl::transform([&](const auto& cube) {
       CHECK(cube.fullySpecified());
@@ -116,21 +118,26 @@ TEST_CASE("BrushBuilder")
         cube.faces()
           | std::views::transform([](const auto& face) { return face.attributes(); }),
         RangeEquals(std::vector{6u, BrushFaceAttributes{"someName", defaultAttribs}}));
+
+      CHECK_THAT(
+        cube.faces()
+          | std::views::transform([](const auto& face) { return face.uvAttributes(); }),
+        RangeEquals(std::vector{6u, defaultUVAttribs}));
     }) | kdl::transform_error([](const auto& e) { FAIL(e); });
   }
 
   SECTION("createBrushDefaults")
   {
     auto defaultAttribs = BrushFaceAttributes{"defaultMaterial"};
-    defaultAttribs.setOffset({0.5f, 0.5f});
-    defaultAttribs.setScale({0.5f, 0.5f});
-    defaultAttribs.setRotation(45.0f);
     defaultAttribs.setSurfaceContents(1);
     defaultAttribs.setSurfaceFlags(2);
     defaultAttribs.setSurfaceValue(0.1f);
     defaultAttribs.setColor(RgbB{255, 255, 255});
 
-    auto builder = BrushBuilder{MapFormat::Standard, worldBounds, defaultAttribs};
+    const auto defaultUVAttribs = UVAttributes{{0.5f, 0.5f}, {0.5f, 0.5f}, 45.0f};
+
+    auto builder =
+      BrushBuilder{MapFormat::Standard, worldBounds, defaultAttribs, defaultUVAttribs};
 
     builder.createBrush(
       Polyhedron3{
@@ -153,6 +160,12 @@ TEST_CASE("BrushBuilder")
               | std::views::transform([](const auto& face) { return face.attributes(); }),
             RangeEquals(
               std::vector{6u, BrushFaceAttributes{"someName", defaultAttribs}}));
+
+          CHECK_THAT(
+            brush.faces() | std::views::transform([](const auto& face) {
+              return face.uvAttributes();
+            }),
+            RangeEquals(std::vector{6u, defaultUVAttribs}));
         })
       | kdl::transform_error([](const auto& e) { FAIL(e); });
   }

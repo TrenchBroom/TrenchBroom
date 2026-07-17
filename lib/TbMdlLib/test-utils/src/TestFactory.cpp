@@ -41,7 +41,8 @@ BrushNode* createBrushNode(
   auto builder = BrushBuilder{
     worldNode.mapFormat(),
     map.worldBounds(),
-    map.gameInfo().gameConfig.faceAttribsConfig.defaults};
+    map.gameInfo().gameConfig.faceAttribsConfig.defaults,
+    map.gameInfo().gameConfig.faceAttribsConfig.uvDefaults};
 
   auto brush = builder.createCube(32.0, materialName) | kdl::value();
   brushFunc(brush);

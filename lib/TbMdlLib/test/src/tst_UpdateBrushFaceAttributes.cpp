@@ -26,6 +26,7 @@
 #include "mdl/CatchConfig.h"
 #include "mdl/MapFormat.h"
 #include "mdl/Matchers.h"
+#include "mdl/UVAttributes.h"
 #include "mdl/UpdateBrushFaceAttributes.h"
 
 #include "kd/k.h"
@@ -51,14 +52,12 @@ TEST_CASE("UpdateBrushFaceAttributes")
   SECTION("copyAll")
   {
     auto attributes = BrushFaceAttributes{"some_material"};
-    attributes.setOffset({1, 2});
-    attributes.setRotation(45.0f);
-    attributes.setScale({2, 3});
+    const auto uvAttributes = UVAttributes{{1, 2}, {2, 3}, 45.0f};
 
     SECTION("with surface attributes and color unset")
     {
       CHECK(
-        copyAll(attributes)
+        copyAll(attributes, uvAttributes)
         == UpdateBrushFaceAttributes{
           .materialName = "some_material",
           .xOffset = SetValue{1.0f},
@@ -79,7 +78,7 @@ TEST_CASE("UpdateBrushFaceAttributes")
       attributes.setColor(RgbaB{1, 2, 3, 4});
 
       CHECK(
-        copyAll(attributes)
+        copyAll(attributes, uvAttributes)
         == UpdateBrushFaceAttributes{
           .materialName = "some_material",
           .xOffset = SetValue{1.0f},
@@ -98,16 +97,15 @@ TEST_CASE("UpdateBrushFaceAttributes")
   SECTION("copyAllExceptContentFlags")
   {
     auto attributes = BrushFaceAttributes{"some_material"};
-    attributes.setOffset({1, 2});
-    attributes.setRotation(45.0f);
-    attributes.setScale({2, 3});
     attributes.setSurfaceFlags(2);
     attributes.setSurfaceContents(3);
     attributes.setSurfaceValue(11.0f);
     attributes.setColor(RgbaB{1, 2, 3, 4});
 
+    const auto uvAttributes = UVAttributes{{1, 2}, {2, 3}, 45.0f};
+
     CHECK(
-      copyAllExceptContentFlags(attributes)
+      copyAllExceptContentFlags(attributes, uvAttributes)
       == UpdateBrushFaceAttributes{
         .materialName = "some_material",
         .xOffset = SetValue{1.0f},
@@ -123,17 +121,10 @@ TEST_CASE("UpdateBrushFaceAttributes")
 
   SECTION("resetAll")
   {
-    auto defaultAttributes = BrushFaceAttributes{"some_material"};
-    defaultAttributes.setOffset({1, 2});
-    defaultAttributes.setRotation(45.0f);
-    defaultAttributes.setScale({2, 3});
-    defaultAttributes.setSurfaceFlags(2);
-    defaultAttributes.setSurfaceContents(3);
-    defaultAttributes.setSurfaceValue(11.0f);
-    defaultAttributes.setColor(RgbaB{1, 2, 3, 4});
+    const auto defaultUVAttributes = UVAttributes{{1, 2}, {2, 3}, 45.0f};
 
     CHECK(
-      resetAll(defaultAttributes)
+      resetAll(defaultUVAttributes)
       == UpdateBrushFaceAttributes{
         .xOffset = SetValue{0.0f},
         .yOffset = SetValue{0.0f},
@@ -146,17 +137,10 @@ TEST_CASE("UpdateBrushFaceAttributes")
 
   SECTION("resetAllToParaxial")
   {
-    auto defaultAttributes = BrushFaceAttributes{"some_material"};
-    defaultAttributes.setOffset({1, 2});
-    defaultAttributes.setRotation(45.0f);
-    defaultAttributes.setScale({2, 3});
-    defaultAttributes.setSurfaceFlags(2);
-    defaultAttributes.setSurfaceContents(3);
-    defaultAttributes.setSurfaceValue(11.0f);
-    defaultAttributes.setColor(RgbaB{1, 2, 3, 4});
+    const auto defaultUVAttributes = UVAttributes{{1, 2}, {2, 3}, 45.0f};
 
     CHECK(
-      resetAllToParaxial(defaultAttributes)
+      resetAllToParaxial(defaultUVAttributes)
       == UpdateBrushFaceAttributes{
         .xOffset = SetValue{0.0f},
         .yOffset = SetValue{0.0f},
@@ -1042,6 +1026,7 @@ TEST_CASE("UpdateBrushFaceAttributes")
                        {0, 1, 0},
                        {1, 0, 0},
                        BrushFaceAttributes{"some_material"},
+                       UVAttributes{},
                        MapFormat::Quake2)
                        .value();
 
@@ -1060,14 +1045,14 @@ TEST_CASE("UpdateBrushFaceAttributes")
       const auto update = UpdateBrushFaceAttributes{.xOffset = valueOp};
 
       {
-        auto attributes = brushFace.attributes();
-        attributes.setXOffset(originalValue);
-        brushFace.setAttributes(attributes);
+        auto uvAttributes = brushFace.uvAttributes();
+        uvAttributes.offset[0] = originalValue;
+        brushFace.setUVAttributes(uvAttributes);
       }
 
       evaluate(update, brushFace);
 
-      CHECK(brushFace.attributes().xOffset() == expectedValue);
+      CHECK(brushFace.uvAttributes().offset.x() == expectedValue);
     }
 
     SECTION("FlagOp")
@@ -1115,17 +1100,17 @@ TEST_CASE("UpdateBrushFaceAttributes")
       };
 
       auto expectedAttributes = BrushFaceAttributes{"other_material"};
-      expectedAttributes.setOffset({2, 3});
-      expectedAttributes.setRotation(45.0f);
-      expectedAttributes.setScale({4, 5});
       expectedAttributes.setSurfaceFlags(0xFF);
       expectedAttributes.setSurfaceContents(0xFF);
       expectedAttributes.setSurfaceValue(6.0f);
       expectedAttributes.setColor(RgbaB{1, 2, 3, 4});
 
+      const auto expectedUVAttributes = UVAttributes{{2, 3}, {4, 5}, 45.0f};
+
       evaluate(update, brushFace);
 
       CHECK(brushFace.attributes() == expectedAttributes);
+      CHECK(brushFace.uvAttributes() == expectedUVAttributes);
     }
 
     SECTION("No evaluation")
@@ -1144,10 +1129,12 @@ TEST_CASE("UpdateBrushFaceAttributes")
       };
 
       const auto expectedAttributes = brushFace.attributes();
+      const auto expectedUVAttributes = brushFace.uvAttributes();
 
       evaluate(update, brushFace);
 
       CHECK(brushFace.attributes() == expectedAttributes);
+      CHECK(brushFace.uvAttributes() == expectedUVAttributes);
     }
   }
 }

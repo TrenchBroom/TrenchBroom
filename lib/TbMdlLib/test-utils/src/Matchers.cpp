@@ -197,9 +197,6 @@ BrushFaceAttributesMatcher::BrushFaceAttributesMatcher(BrushFaceAttributes expec
 bool BrushFaceAttributesMatcher::match(const BrushFaceAttributes& in) const
 {
   return in.materialName() == m_expected.materialName()
-         && in.offset() == vm::approx{m_expected.offset()}
-         && in.scale() == vm::approx{m_expected.scale()}
-         && in.rotation() == vm::approx{m_expected.rotation()}
          && in.surfaceContents() == m_expected.surfaceContents()
          && in.surfaceFlags() == m_expected.surfaceFlags()
          && in.surfaceValue() == m_expected.surfaceValue()
@@ -209,6 +206,28 @@ bool BrushFaceAttributesMatcher::match(const BrushFaceAttributes& in) const
 std::string BrushFaceAttributesMatcher::describe() const
 {
   return fmt::format("{}", fmt::streamed(m_expected));
+}
+
+UVAttributesMatcher::UVAttributesMatcher(const UVAttributes& expected)
+  : m_expected{expected}
+{
+}
+
+bool UVAttributesMatcher::match(const UVAttributes& in) const
+{
+  return in.offset == vm::approx{m_expected.offset}
+         && in.scale == vm::approx{m_expected.scale}
+         && in.rotation == vm::approx{m_expected.rotation};
+}
+
+std::string UVAttributesMatcher::describe() const
+{
+  return fmt::format("{}", fmt::streamed(m_expected));
+}
+
+UVAttributesMatcher MatchesUVAttributes(const UVAttributes& expected)
+{
+  return UVAttributesMatcher{expected};
 }
 
 BrushFaceAttributesMatcher MatchesBrushFaceAttributes(BrushFaceAttributes expected)

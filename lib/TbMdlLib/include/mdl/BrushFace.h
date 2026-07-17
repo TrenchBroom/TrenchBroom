@@ -25,6 +25,7 @@
 #include "mdl/BrushFaceAttributes.h"
 #include "mdl/BrushGeometry.h"
 #include "mdl/Tag.h"
+#include "mdl/UVAttributes.h"
 
 #include "kd/reflection_decl.h"
 
@@ -130,6 +131,7 @@ public:
     const vm::vec3d& point1,
     const vm::vec3d& point2,
     const BrushFaceAttributes& attributes,
+    const UVAttributes& uvAttributes,
     MapFormat mapFormat);
 
   /**
@@ -145,6 +147,7 @@ public:
     const vm::vec3d& point1,
     const vm::vec3d& point2,
     const BrushFaceAttributes& attributes,
+    const UVAttributes& uvAttributes,
     MapFormat mapFormat);
 
   /**
@@ -160,6 +163,7 @@ public:
     const vm::vec3d& point2,
     const vm::vec3d& point3,
     const BrushFaceAttributes& attributes,
+    const UVAttributes& uvAttributes,
     const vm::vec3d& uAxis,
     const vm::vec3d& vAxis,
     MapFormat mapFormat);
@@ -183,7 +187,7 @@ public:
   void restoreUVCoordSystemSnapshot(const UVCoordSystemSnapshot& coordSystemSnapshot);
   void copyUVCoordSystemFromFace(
     const UVCoordSystemSnapshot& coordSystemSnapshot,
-    const BrushFaceAttributes& attributes,
+    const UVAttributes& uvAttributes,
     const vm::plane3d& sourceFacePlane,
     WrapStyle wrapStyle);
 
@@ -200,6 +204,9 @@ public:
   const BrushFaceAttributes& attributes() const;
   void setAttributes(const BrushFaceAttributes& attributes);
   bool setAttributes(const BrushFace& other);
+
+  UVAttributes uvAttributes() const;
+  void setUVAttributes(const UVAttributes& uvAttributes);
 
   int resolvedSurfaceContents() const;
   int resolvedSurfaceFlags() const;

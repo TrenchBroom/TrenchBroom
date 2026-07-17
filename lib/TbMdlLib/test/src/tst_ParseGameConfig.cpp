@@ -27,6 +27,7 @@
 #include "mdl/ParseGameConfig.h"
 #include "mdl/Tag.h"
 #include "mdl/TagMatcher.h"
+#include "mdl/UVAttributes.h"
 
 #include <filesystem>
 #include <string>
@@ -715,13 +716,13 @@ TEST_CASE("GameConfigParser")
 )%";
 
     mdl::BrushFaceAttributes expectedBrushFaceAttributes("defaultMaterial");
-    expectedBrushFaceAttributes.setOffset(vm::vec2f(0.0f, 0.0f));
-    expectedBrushFaceAttributes.setScale(vm::vec2f(0.5f, 0.5f));
-    expectedBrushFaceAttributes.setRotation(0.0f);
     expectedBrushFaceAttributes.setSurfaceContents(1 << 0);
     expectedBrushFaceAttributes.setSurfaceFlags(1 << 1);
     expectedBrushFaceAttributes.setSurfaceValue(0.0f);
     expectedBrushFaceAttributes.setColor(RgbB(0, 128, 255));
+
+    const auto expectedUVAttributes =
+      mdl::UVAttributes{vm::vec2f(0.0f, 0.0f), vm::vec2f(0.5f, 0.5f), 0.0f};
 
     CHECK(
       parseGameConfig(config)
@@ -798,7 +799,8 @@ TEST_CASE("GameConfigParser")
              "Brushes with this flag allow a player to move up and down a vertical "
              "surface",
              1 << 29}}},
-          expectedBrushFaceAttributes},
+          expectedBrushFaceAttributes,
+          expectedUVAttributes},
         {
           mdl::SmartTag{
             "Trigger",

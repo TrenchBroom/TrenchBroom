@@ -785,11 +785,11 @@ void FaceAttribsEditor::updateControls()
 
     const auto& firstFace = faceHandles[0].face();
     const auto& materialName = firstFace.attributes().materialName();
-    const auto xOffset = firstFace.attributes().xOffset();
-    const auto yOffset = firstFace.attributes().yOffset();
-    const auto rotation = firstFace.attributes().rotation();
-    const auto xScale = firstFace.attributes().xScale();
-    const auto yScale = firstFace.attributes().yScale();
+    const auto xOffset = firstFace.uvAttributes().offset.x();
+    const auto yOffset = firstFace.uvAttributes().offset.y();
+    const auto rotation = firstFace.uvAttributes().rotation;
+    const auto xScale = firstFace.uvAttributes().scale.x();
+    const auto yScale = firstFace.uvAttributes().scale.y();
     auto setSurfaceFlags = firstFace.resolvedSurfaceFlags();
     auto setSurfaceContents = firstFace.resolvedSurfaceContents();
     auto mixedSurfaceFlags = 0;
@@ -805,11 +805,11 @@ void FaceAttribsEditor::updateControls()
     {
       const auto& face = faceHandles[i].face();
       materialMulti |= (materialName != face.attributes().materialName());
-      xOffsetMulti |= (xOffset != face.attributes().xOffset());
-      yOffsetMulti |= (yOffset != face.attributes().yOffset());
-      rotationMulti |= (rotation != face.attributes().rotation());
-      xScaleMulti |= (xScale != face.attributes().xScale());
-      yScaleMulti |= (yScale != face.attributes().yScale());
+      xOffsetMulti |= (xOffset != face.uvAttributes().offset.x());
+      yOffsetMulti |= (yOffset != face.uvAttributes().offset.y());
+      rotationMulti |= (rotation != face.uvAttributes().rotation);
+      xScaleMulti |= (xScale != face.uvAttributes().scale.x());
+      yScaleMulti |= (yScale != face.uvAttributes().scale.y());
       surfaceValueMulti |= (surfaceValue != face.resolvedSurfaceValue());
       colorValueMulti |= (colorValue != face.attributes().color());
       hasSurfaceValue |= face.attributes().surfaceValue().has_value();

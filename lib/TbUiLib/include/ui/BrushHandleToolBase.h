@@ -65,7 +65,8 @@ public:
     const auto builder = mdl::BrushBuilder{
       map.worldNode().mapFormat(),
       map.worldBounds(),
-      map.gameInfo().gameConfig.faceAttribsConfig.defaults};
+      map.gameInfo().gameConfig.faceAttribsConfig.defaults,
+      map.gameInfo().gameConfig.faceAttribsConfig.uvDefaults};
     builder.createBrush(polyhedron, map.currentMaterialName())
       | kdl::transform([&](auto b) {
           for (const auto* selectedBrushNode : map.selection().brushes)

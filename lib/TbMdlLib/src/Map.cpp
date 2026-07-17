@@ -244,7 +244,10 @@ Result<std::unique_ptr<WorldNode>> createWorldNode(
   if (!config.forceEmptyNewMap)
   {
     const auto builder = BrushBuilder{
-      worldNode->mapFormat(), worldBounds, config.faceAttribsConfig.defaults};
+      worldNode->mapFormat(),
+      worldBounds,
+      config.faceAttribsConfig.defaults,
+      config.faceAttribsConfig.uvDefaults};
     builder.createCuboid({128.0, 128.0, 32.0}, BrushFaceAttributes::NoMaterialName)
       | kdl::transform(
         [&](auto b) { worldNode->defaultLayer()->addChild(new BrushNode{std::move(b)}); })

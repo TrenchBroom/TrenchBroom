@@ -21,8 +21,6 @@
 
 #include "kd/reflection_impl.h"
 
-#include "vm/vec_io.h" // IWYU pragma: keep
-
 #include <string>
 
 namespace tb::mdl
@@ -38,9 +36,6 @@ BrushFaceAttributes::BrushFaceAttributes(std::string_view materialName)
 BrushFaceAttributes::BrushFaceAttributes(
   std::string_view materialName, const BrushFaceAttributes& other)
   : m_materialName{materialName}
-  , m_offset{other.m_offset}
-  , m_scale{other.m_scale}
-  , m_rotation{other.m_rotation}
   , m_surfaceContents{other.m_surfaceContents}
   , m_surfaceFlags{other.m_surfaceFlags}
   , m_surfaceValue{other.m_surfaceValue}
@@ -53,47 +48,6 @@ kdl_reflect_impl(BrushFaceAttributes);
 const std::string& BrushFaceAttributes::materialName() const
 {
   return m_materialName;
-}
-
-const vm::vec2f& BrushFaceAttributes::offset() const
-{
-  return m_offset;
-}
-
-float BrushFaceAttributes::xOffset() const
-{
-  return m_offset.x();
-}
-
-float BrushFaceAttributes::yOffset() const
-{
-  return m_offset.y();
-}
-
-vm::vec2f BrushFaceAttributes::modOffset(
-  const vm::vec2f& offset, const vm::vec2f& size) const
-{
-  return offset - snapDown(offset, size);
-}
-
-const vm::vec2f& BrushFaceAttributes::scale() const
-{
-  return m_scale;
-}
-
-float BrushFaceAttributes::xScale() const
-{
-  return m_scale.x();
-}
-
-float BrushFaceAttributes::yScale() const
-{
-  return m_scale.y();
-}
-
-float BrushFaceAttributes::rotation() const
-{
-  return m_rotation;
 }
 
 bool BrushFaceAttributes::hasSurfaceAttributes() const
@@ -126,87 +80,11 @@ const std::optional<Color>& BrushFaceAttributes::color() const
   return m_color;
 }
 
-bool BrushFaceAttributes::valid() const
-{
-  return !vm::is_zero(m_scale.x(), vm::Cf::almost_zero())
-         && !vm::is_zero(m_scale.y(), vm::Cf::almost_zero());
-}
-
 bool BrushFaceAttributes::setMaterialName(const std::string& materialName)
 {
   if (materialName != m_materialName)
   {
     m_materialName = materialName;
-    return true;
-  }
-  return false;
-}
-
-bool BrushFaceAttributes::setOffset(const vm::vec2f& offset)
-{
-  if (offset != m_offset)
-  {
-    m_offset = offset;
-    return true;
-  }
-  return false;
-}
-
-bool BrushFaceAttributes::setXOffset(const float xOffset)
-{
-  if (xOffset != m_offset.x())
-  {
-    m_offset[0] = xOffset;
-    return true;
-  }
-  return false;
-}
-
-bool BrushFaceAttributes::setYOffset(const float yOffset)
-{
-  if (yOffset != m_offset.y())
-  {
-    m_offset[1] = yOffset;
-    return true;
-  }
-  return false;
-}
-
-bool BrushFaceAttributes::setScale(const vm::vec2f& scale)
-{
-  if (scale != m_scale)
-  {
-    m_scale = scale;
-    return true;
-  }
-  return false;
-}
-
-bool BrushFaceAttributes::setXScale(const float xScale)
-{
-  if (xScale != m_scale.x())
-  {
-    m_scale[0] = xScale;
-    return true;
-  }
-  return false;
-}
-
-bool BrushFaceAttributes::setYScale(const float yScale)
-{
-  if (yScale != m_scale.y())
-  {
-    m_scale[1] = yScale;
-    return true;
-  }
-  return false;
-}
-
-bool BrushFaceAttributes::setRotation(const float rotation)
-{
-  if (rotation != m_rotation)
-  {
-    m_rotation = rotation;
     return true;
   }
   return false;

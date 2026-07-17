@@ -334,7 +334,8 @@ std::map<mdl::Node*, std::vector<std::unique_ptr<mdl::BrushNode>>> generateSweep
   const auto builder = mdl::BrushBuilder{
     map.worldNode().mapFormat(),
     map.worldBounds(),
-    map.gameInfo().gameConfig.faceAttribsConfig.defaults};
+    map.gameInfo().gameConfig.faceAttribsConfig.defaults,
+    map.gameInfo().gameConfig.faceAttribsConfig.uvDefaults};
 
   const auto materialName = map.currentMaterialName();
   auto* material = map.materialManager().material(materialName);

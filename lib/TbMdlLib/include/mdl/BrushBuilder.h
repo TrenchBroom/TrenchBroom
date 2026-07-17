@@ -23,6 +23,7 @@
 #include "Result.h"
 #include "mdl/CircleShape.h"
 #include "mdl/Polyhedron3.h"
+#include "mdl/UVAttributes.h"
 
 #include "vm/bbox.h"
 #include "vm/util.h"
@@ -42,13 +43,15 @@ private:
   MapFormat m_mapFormat;
   const vm::bbox3d m_worldBounds;
   const BrushFaceAttributes m_defaultAttribs;
+  const UVAttributes m_defaultUVAttribs;
 
 public:
   BrushBuilder(MapFormat mapFormat, const vm::bbox3d& worldBounds);
   BrushBuilder(
     MapFormat mapFormat,
     const vm::bbox3d& worldBounds,
-    BrushFaceAttributes defaultAttribs);
+    BrushFaceAttributes defaultAttribs,
+    const UVAttributes& defaultUVAttribs);
 
   Result<Brush> createCube(double size, const std::string& materialName) const;
   Result<Brush> createCube(

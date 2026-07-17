@@ -145,9 +145,11 @@ void MapReader::onStandardBrushFace(
   const vm::vec3d& point2,
   const vm::vec3d& point3,
   const BrushFaceAttributes& attribs,
+  const UVAttributes& uvAttribs,
   ParserStatus& status)
 {
-  BrushFace::createFromStandard(point1, point2, point3, attribs, targetMapFormat)
+  BrushFace::createFromStandard(
+    point1, point2, point3, attribs, uvAttribs, targetMapFormat)
     | kdl::transform([&](auto face) {
         face.setFilePosition(location.line, location.column.value_or(1));
         onBrushFace(std::move(face), status);
@@ -163,12 +165,13 @@ void MapReader::onValveBrushFace(
   const vm::vec3d& point2,
   const vm::vec3d& point3,
   const BrushFaceAttributes& attribs,
+  const UVAttributes& uvAttribs,
   const vm::vec3d& uAxis,
   const vm::vec3d& vAxis,
   ParserStatus& status)
 {
   BrushFace::createFromValve(
-    point1, point2, point3, attribs, uAxis, vAxis, targetMapFormat)
+    point1, point2, point3, attribs, uvAttribs, uAxis, vAxis, targetMapFormat)
     | kdl::transform([&](BrushFace&& face) {
         face.setFilePosition(location.line, location.column.value_or(1));
         onBrushFace(std::move(face), status);

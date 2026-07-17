@@ -141,16 +141,17 @@ void compensateOffset(
 {
   if (vertex)
   {
+    const auto previousUVAttributes = brushFace.uvAttributes();
     const auto previousUvCoords = vm::vec2f{
       brushFace.toUVCoordSystemMatrix(
-        brushFace.attributes().offset(), brushFace.attributes().scale())
+        previousUVAttributes.offset, previousUVAttributes.scale)
       * *vertex};
 
     f();
 
+    const auto newUVAttributes = brushFace.uvAttributes();
     const auto newUvCoords = vm::vec2f{
-      brushFace.toUVCoordSystemMatrix(
-        brushFace.attributes().offset(), brushFace.attributes().scale())
+      brushFace.toUVCoordSystemMatrix(newUVAttributes.offset, newUVAttributes.scale)
       * *vertex};
     const auto delta = previousUvCoords - newUvCoords;
 
@@ -174,7 +175,8 @@ bool createBrush(Map& map, const std::vector<vm::vec3d>& points)
   const auto builder = BrushBuilder{
     map.worldNode().mapFormat(),
     map.worldBounds(),
-    map.gameInfo().gameConfig.faceAttribsConfig.defaults};
+    map.gameInfo().gameConfig.faceAttribsConfig.defaults,
+    map.gameInfo().gameConfig.faceAttribsConfig.uvDefaults};
 
   return builder.createBrush(points, map.currentMaterialName())
          | kdl::and_then([&](auto b) -> Result<void> {
@@ -212,14 +214,14 @@ bool setBrushFaceAttributes(Map& map, const UpdateBrushFaceAttributes& update)
 bool copyUV(
   Map& map,
   const UVCoordSystemSnapshot& coordSystemSnapshot,
-  const BrushFaceAttributes& attribs,
+  const UVAttributes& uvAttribs,
   const vm::plane3d& sourceFacePlane,
   const WrapStyle wrapStyle)
 {
   return applyAndSwap(
     map, "Copy UV Alignment", map.selection().allBrushFaces(), [&](auto& face) {
       face.copyUVCoordSystemFromFace(
-        coordSystemSnapshot, attribs, sourceFacePlane, wrapStyle);
+        coordSystemSnapshot, uvAttribs, sourceFacePlane, wrapStyle);
       return true;
     });
 }

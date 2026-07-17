@@ -24,6 +24,7 @@
 #include "el/Expression.h"
 #include "mdl/BrushFaceAttributes.h"
 #include "mdl/Tag.h"
+#include "mdl/UVAttributes.h"
 
 #include "kd/reflection_decl.h"
 
@@ -111,6 +112,7 @@ struct FaceAttribsConfig
   FlagsConfig surfaceFlags;
   FlagsConfig contentFlags;
   BrushFaceAttributes defaults{BrushFaceAttributes::NoMaterialName};
+  UVAttributes uvDefaults;
 
   kdl_reflect_decl(FaceAttribsConfig, surfaceFlags, contentFlags);
 };

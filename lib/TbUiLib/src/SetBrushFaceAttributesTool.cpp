@@ -278,14 +278,16 @@ void transferFaceAttributes(
   else
   {
     setBrushFaceAttributes(
-      map, mdl::copyAllExceptContentFlags(sourceFaceHandle.face().attributes()));
+      map,
+      mdl::copyAllExceptContentFlags(
+        sourceFaceHandle.face().attributes(), sourceFaceHandle.face().uvAttributes()));
 
     if (auto snapshot = sourceFaceHandle.face().takeUVCoordSystemSnapshot())
     {
       copyUV(
         map,
         *snapshot,
-        sourceFaceHandle.face().attributes(),
+        sourceFaceHandle.face().uvAttributes(),
         sourceFaceHandle.face().boundary(),
         style);
     }
