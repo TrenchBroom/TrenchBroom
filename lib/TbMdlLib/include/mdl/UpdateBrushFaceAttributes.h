@@ -148,6 +148,14 @@ enum class UvPolicy
 
 std::ostream& operator<<(std::ostream& lhs, UvPolicy rhs);
 
+enum class UvFitMode
+{
+  fitToFace,
+  trimSheet,
+};
+
+std::ostream& operator<<(std::ostream& lhs, UvFitMode rhs);
+
 enum class UvAxis
 {
   u,

@@ -351,6 +351,20 @@ std::ostream& operator<<(std::ostream& lhs, const UvPolicy rhs)
   return lhs;
 }
 
+std::ostream& operator<<(std::ostream& lhs, const UvFitMode rhs)
+{
+  switch (rhs)
+  {
+  case UvFitMode::fitToFace:
+    lhs << "fitToFace";
+    break;
+  case UvFitMode::trimSheet:
+    lhs << "trimSheet";
+    break;
+  }
+  return lhs;
+}
+
 std::ostream& operator<<(std::ostream& lhs, const UvAxis rhs)
 {
   switch (rhs)
