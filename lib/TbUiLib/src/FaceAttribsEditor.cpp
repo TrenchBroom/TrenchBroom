@@ -135,7 +135,11 @@ void FaceAttribsEditor::fitClicked(const mdl::UvFitDirection uvFitDirection)
                           ? mdl::UvPolicy::prev
                           : mdl::UvPolicy::next;
 
-  fitUV(m_document.map(), uvFitDirection, uvPolicy, mdl::UvFitMode::fitToFace);
+  const auto uvFitMode = qApp->keyboardModifiers().testFlag(Qt::ControlModifier)
+                           ? mdl::UvFitMode::trimSheet
+                           : mdl::UvFitMode::fitToFace;
+
+  fitUV(m_document.map(), uvFitDirection, uvPolicy, uvFitMode);
 }
 
 void FaceAttribsEditor::autoFitClicked()
@@ -422,15 +426,19 @@ Hold %1 to cycle backwards.)")
     tr(
       R"(Fit texture horizontally.
 Click again to cycle through options.
-Hold %1 to cycle backwards.)")
-      .arg(nativeModifierLabel(Qt::SHIFT)),
+Hold %1 to cycle backwards.
+Hold %2 to keep trim sheet subdivisions.)")
+      .arg(nativeModifierLabel(Qt::SHIFT))
+      .arg(nativeModifierLabel(Qt::CTRL)),
     this);
   m_fitVButton = createBitmapButton(
     "FitTextureVertically.svg",
     tr(R"(Fit texture vertically.
 Click again to cycle through options.
-Hold %1 to cycle backwards.)")
-      .arg(nativeModifierLabel(Qt::SHIFT)),
+Hold %1 to cycle backwards.
+Hold %2 to keep trim sheet subdivisions.)")
+      .arg(nativeModifierLabel(Qt::SHIFT))
+      .arg(nativeModifierLabel(Qt::CTRL)),
     this);
   m_autoFitButton =
     createBitmapButton("AutoFitTexture.svg", tr("Fit texture to face."), this);
