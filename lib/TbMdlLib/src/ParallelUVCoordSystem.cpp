@@ -37,19 +37,6 @@ namespace
 {
 
 /**
- * Generates two vectors which are perpendicular to `normal` and perpendicular to each
- * other.
- */
-std::tuple<vm::vec3d, vm::vec3d> computeInitialAxes(const vm::vec3d& normal)
-{
-  const auto uAxis = vm::find_abs_max_component(normal) == vm::axis::z
-                       ? vm::normalize(vm::cross(vm::vec3d{0, 1, 0}, normal))
-                       : vm::normalize(vm::cross(vm::vec3d{0, 0, 1}, normal));
-
-  return {uAxis, vm::normalize(vm::cross(uAxis, normal))};
-}
-
-/**
  * Rotate CCW by `angle` radians about `normal`.
  */
 std::tuple<vm::vec3d, vm::vec3d> applyRotation(
@@ -63,6 +50,77 @@ std::tuple<vm::vec3d, vm::vec3d> applyRotation(
 }
 
 } // namespace
+
+std::tuple<vm::vec3d, vm::vec3d> computeInitialAxes(const vm::vec3d& normal)
+{
+  const auto uAxis = vm::find_abs_max_component(normal) == vm::axis::z
+                       ? vm::normalize(vm::cross(vm::vec3d{0, 1, 0}, normal))
+                       : vm::normalize(vm::cross(vm::vec3d{0, 0, 1}, normal));
+
+  return {uAxis, vm::normalize(vm::cross(uAxis, normal))};
+}
+
+std::tuple<vm::vec3d, vm::vec3d> projectUVAxes(
+  const vm::vec3d& uAxis, const vm::vec3d& vAxis, const vm::vec3d& newNormal)
+{
+  // Goal: (uAxis, vAxis) define the UV projection that was used for a face with an old
+  // normal. We want to update (uAxis, vAxis) to be usable on a face with newNormal.
+  // Since this is the "projection" method (attempts to emulate ParaxialUVCoordSystem),
+  // we want to modify (uAxis, vAxis) as little as possible and only make 90 degree
+  // rotations if necessary.
+
+  // Method: build a cube where the front face is the old UV projection (uAxis, vAxis)
+  // and the other 5 faces are 90 degree rotations from that. Use the "face" whose UV
+  // normal (cross product of the U and V axis) is closest to newNormal (the new face
+  // normal).
+
+  auto possibleUVAxes = std::vector<std::pair<vm::vec3d, vm::vec3d>>{};
+  possibleUVAxes.emplace_back(uAxis, vAxis); // front
+  possibleUVAxes.emplace_back(vAxis, uAxis); // back
+  const auto rotations = std::vector<vm::quatd>{
+    vm::quatd{vm::normalize(uAxis), vm::to_radians(90.0)},  // bottom
+    vm::quatd{vm::normalize(uAxis), vm::to_radians(-90.0)}, // top
+    vm::quatd{vm::normalize(vAxis), vm::to_radians(90.0)},  // left
+    vm::quatd{vm::normalize(vAxis), vm::to_radians(-90.0)}, // right
+  };
+  for (const auto& rotation : rotations)
+  {
+    possibleUVAxes.emplace_back(rotation * uAxis, rotation * vAxis);
+  }
+  contract_assert(possibleUVAxes.size() == 6);
+
+  auto possibleUVNormals = std::vector<vm::vec3d>{};
+  for (const auto& axes : possibleUVAxes)
+  {
+    const auto normal = vm::normalize(vm::cross(axes.first, axes.second));
+    possibleUVNormals.push_back(normal);
+  }
+  contract_assert(possibleUVNormals.size() == 6);
+
+  // Find the index in possibleUVNormals of the normal closest to the newNormal (face
+  // normal)
+  auto cosAngles = std::vector<double>{};
+  for (const auto& uvNormal : possibleUVNormals)
+  {
+    const auto cosAngle = vm::dot(uvNormal, newNormal);
+    cosAngles.push_back(cosAngle);
+  }
+  contract_assert(cosAngles.size() == 6);
+
+  const auto index =
+    std::distance(cosAngles.begin(), std::ranges::max_element(cosAngles));
+  contract_assert(index >= 0);
+  contract_assert(index < 6);
+
+  // Skip 0 because it is "no change".
+  // Skip 1 because it's a 180 degree flip, we prefer to just project the "front" texture
+  // axes.
+  if (index >= 2)
+  {
+    return possibleUVAxes[static_cast<size_t>(index)];
+  }
+  return {uAxis, vAxis};
+}
 
 ParallelUVCoordSystemSnapshot::ParallelUVCoordSystemSnapshot(
   const vm::vec3d& uAxis, const vm::vec3d& vAxis)
@@ -91,6 +149,12 @@ void ParallelUVCoordSystemSnapshot::doRestore(ParallelUVCoordSystem& coordSystem
 
 void ParallelUVCoordSystemSnapshot::doRestore(
   ParaxialUVCoordSystem& /* coordSystem */) const
+{
+  contract_assert(false);
+}
+
+void ParallelUVCoordSystemSnapshot::doRestore(
+  PrimitiveUVCoordSystem& /* coordSystem */) const
 {
   contract_assert(false);
 }
@@ -131,8 +195,7 @@ std::unique_ptr<UVCoordSystem> ParallelUVCoordSystem::fromParaxial(
   const vm::vec3d& point2,
   const UVAttributes& uvAttributes)
 {
-  const auto tempParaxial =
-    ParaxialUVCoordSystem{point0, point1, point2, uvAttributes};
+  const auto tempParaxial = ParaxialUVCoordSystem{point0, point1, point2, uvAttributes};
   return std::make_unique<ParallelUVCoordSystem>(
     tempParaxial.uAxis(), tempParaxial.vAxis(), uvAttributes);
 }
@@ -167,8 +230,7 @@ vm::vec3d ParallelUVCoordSystem::normal() const
   return vm::normalize(vm::cross(uAxis(), vAxis()));
 }
 
-UVAttributes ParallelUVCoordSystem::uvAttributes(
-  const vm::vec2f& /* textureSize */) const
+UVAttributes ParallelUVCoordSystem::uvAttributes(const vm::vec2f& /* textureSize */) const
 {
   return m_uvAttributes;
 }
@@ -280,8 +342,8 @@ void ParallelUVCoordSystem::transform(
 
   // since the center should be invariant, the offsets are determined by the difference of
   // the current and the original texture coordinates of the center
-  const auto newOffset = vm::correct(
-    modOffset(oldInvariantUVCoords - newInvariantUVCoords, textureSize), 4);
+  const auto newOffset =
+    vm::correct(modOffset(oldInvariantUVCoords - newInvariantUVCoords, textureSize), 4);
   contract_assert(!vm::is_nan(newOffset));
   m_uvAttributes.offset = newOffset;
 }
@@ -345,64 +407,7 @@ bool ParallelUVCoordSystem::isRotationInverted(const vm::vec3d& /* normal */) co
 
 void ParallelUVCoordSystem::updateNormalWithProjection(const vm::vec3d& newNormal)
 {
-  // Goal: (m_uAxis, m_vAxis) define the UV projection that was used for a face with
-  // oldNormal. We want to update (m_uAxis, m_vAxis) to be usable on a face with
-  // newNormal. Since this is the "projection" method (attempts to emulate
-  // ParaxialUVCoordSystem), we want to modify (m_uAxis, m_vAxis) as little as possible
-  // and only make 90 degree rotations if necessary.
-
-  // Method: build a cube where the front face is the old UV projection (m_uAxis, m_vAxis)
-  // and the other 5 faces are 90 degree rotations from that. Use the "face" whose UV
-  // normal (cross product of the U and V axis) is closest to newNormal (the new face
-  // normal).
-
-  auto possibleUVAxes = std::vector<std::pair<vm::vec3d, vm::vec3d>>{};
-  possibleUVAxes.emplace_back(uAxis(), vAxis()); // front
-  possibleUVAxes.emplace_back(vAxis(), uAxis()); // back
-  const auto rotations = std::vector<vm::quatd>{
-    vm::quatd{vm::normalize(uAxis()), vm::to_radians(90.0)},  // bottom
-    vm::quatd{vm::normalize(uAxis()), vm::to_radians(-90.0)}, // top
-    vm::quatd{vm::normalize(vAxis()), vm::to_radians(90.0)},  // left
-    vm::quatd{vm::normalize(vAxis()), vm::to_radians(-90.0)}, // right
-  };
-  for (const auto& rotation : rotations)
-  {
-    possibleUVAxes.emplace_back(rotation * uAxis(), rotation * vAxis());
-  }
-  contract_assert(possibleUVAxes.size() == 6);
-
-  auto possibleUVNormals = std::vector<vm::vec3d>{};
-  for (const auto& axes : possibleUVAxes)
-  {
-    const auto normal = vm::normalize(vm::cross(axes.first, axes.second));
-    possibleUVNormals.push_back(normal);
-  }
-  contract_assert(possibleUVNormals.size() == 6);
-
-  // Find the index in possibleUVNormals of the normal closest to the newNormal (face
-  // normal)
-  auto cosAngles = std::vector<double>{};
-  for (const auto& uvNormal : possibleUVNormals)
-  {
-    const auto cosAngle = vm::dot(uvNormal, newNormal);
-    cosAngles.push_back(cosAngle);
-  }
-  contract_assert(cosAngles.size() == 6);
-
-  const auto index =
-    std::distance(cosAngles.begin(), std::ranges::max_element(cosAngles));
-  contract_assert(index >= 0);
-  contract_assert(index < 6);
-
-  // Skip 0 because it is "no change".
-  // Skip 1 because it's a 180 degree flip, we prefer to just project the "front" texture
-  // axes.
-  if (index >= 2)
-  {
-    const auto& axes = possibleUVAxes[static_cast<size_t>(index)];
-    m_uAxis = axes.first;
-    m_vAxis = axes.second;
-  }
+  std::tie(m_uAxis, m_vAxis) = projectUVAxes(uAxis(), vAxis(), newNormal);
 }
 
 void ParallelUVCoordSystem::updateNormalWithRotation(

@@ -32,6 +32,7 @@ namespace tb::mdl
 {
 class ParallelUVCoordSystem;
 class ParaxialUVCoordSystem;
+class PrimitiveUVCoordSystem;
 class UVCoordSystem;
 
 class UVCoordSystemSnapshot
@@ -44,9 +45,11 @@ public:
 private:
   virtual void doRestore(ParallelUVCoordSystem& coordSystem) const = 0;
   virtual void doRestore(ParaxialUVCoordSystem& coordSystem) const = 0;
+  virtual void doRestore(PrimitiveUVCoordSystem& coordSystem) const = 0;
 
   friend class ParallelUVCoordSystem;
   friend class ParaxialUVCoordSystem;
+  friend class PrimitiveUVCoordSystem;
 };
 
 enum class WrapStyle
@@ -100,8 +103,7 @@ public:
     const vm::vec2f& textureSize,
     bool lockTexture,
     const vm::vec3d& invariant) = 0;
-  void setNormal(
-    const vm::vec3d& oldNormal, const vm::vec3d& newNormal, WrapStyle style);
+  void setNormal(const vm::vec3d& oldNormal, const vm::vec3d& newNormal, WrapStyle style);
 
   void translate(
     const vm::vec3d& normal,
