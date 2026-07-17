@@ -20,6 +20,7 @@
 #pragma once
 
 #include "ui/RotateHandle.h"
+#include "ui/RotateHandleController.h"
 #include "ui/Tool.h"
 
 #include "vm/scalar.h"
@@ -46,7 +47,7 @@ namespace ui
 {
 class MapDocument;
 
-class RotateTool : public Tool
+class RotateTool : public Tool, public RotateHandleDelegate
 {
 private:
   MapDocument& m_document;
@@ -62,8 +63,6 @@ public:
 
   bool doActivate() override;
 
-  const mdl::Grid& grid() const;
-
   void updateToolPageAxis(RotateHandle::HitArea area);
 
   double angle() const;
@@ -73,7 +72,6 @@ public:
   void setRotationCenter(const vm::vec3d& position);
   void resetRotationCenter();
 
-  double majorHandleRadius(const gl::Camera& camera) const;
   double minorHandleRadius(const gl::Camera& camera) const;
 
   void beginRotation();
@@ -83,23 +81,16 @@ public:
   double snapRotationAngle(double angle) const;
   void applyRotation(const vm::vec3d& center, const vm::vec3d& axis, double angle);
 
-  mdl::Hit pick2D(const vm::ray3d& pickRay, const gl::Camera& camera);
-  mdl::Hit pick3D(const vm::ray3d& pickRay, const gl::Camera& camera);
-
-  vm::vec3d rotationAxis(RotateHandle::HitArea area) const;
-
-  void renderHandle2D(
-    render::RenderContext& renderContext, render::RenderBatch& renderBatch);
-  void renderHandle3D(
-    render::RenderContext& renderContext, render::RenderBatch& renderBatch);
-  void renderHighlight2D(
-    render::RenderContext& renderContext,
-    render::RenderBatch& renderBatch,
-    RotateHandle::HitArea area);
-  void renderHighlight3D(
-    render::RenderContext& renderContext,
-    render::RenderBatch& renderBatch,
-    RotateHandle::HitArea area);
+  // RotateHandleDelegate
+  Tool& tool() override;
+  const Tool& tool() const override;
+  const mdl::Grid& grid() const override;
+  RotateHandle& handle() override;
+  double handleSnapAngle() const override;
+  void handleClicked(RotateHandle::HitArea area) override;
+  vm::vec3d handleCenter() const override;
+  void setHandleCenter(const vm::vec3d& position) override;
+  std::unique_ptr<RingDragTracker> beginRingDrag() override;
 
 private:
   QWidget* doCreatePage(QWidget* parent) override;

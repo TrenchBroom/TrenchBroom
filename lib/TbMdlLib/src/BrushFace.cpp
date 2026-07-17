@@ -310,6 +310,15 @@ vm::vec3d BrushFace::center() const
     std::begin(boundary), std::end(boundary), BrushGeometry::GetVertexPosition());
 }
 
+vm::bbox3d BrushFace::bounds() const
+{
+  contract_pre(m_geometry != nullptr);
+
+  const auto& boundary = m_geometry->boundary();
+  return vm::bbox3d::merge_all(
+    std::begin(boundary), std::end(boundary), BrushGeometry::GetVertexPosition());
+}
+
 vm::vec3d BrushFace::boundsCenter() const
 {
   contract_pre(m_geometry != nullptr);

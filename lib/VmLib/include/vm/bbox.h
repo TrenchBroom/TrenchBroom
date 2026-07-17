@@ -161,6 +161,18 @@ public:
   }
 
   /**
+   * Creates a new point-sized bounding box for the given point.
+   *
+   * @param point the point
+   */
+  constexpr explicit bbox(const vec<T, S>& point)
+    : min(point)
+    , max(point)
+  {
+    assert(is_valid());
+  }
+
+  /**
    * Creates a new bounding box with the given min and max values. The values are assumed
    * to be correct, that is, for each component, the corresponding value of the min point
    * is smaller than or equal to the corresponding value of the max point.
@@ -234,8 +246,7 @@ public:
   constexpr static bbox<T, S> merge_all(I cur, I end, const G& get = G())
   {
     assert(cur != end);
-    const auto first = get(*cur++);
-    bbox<T, S> result(first, first);
+    bbox<T, S> result(get(*cur++));
     while (cur != end)
     {
       result = merge(result, get(*cur++));

@@ -22,7 +22,6 @@
 #include "mdl/Entity.h"
 #include "mdl/EntityNode.h"
 #include "mdl/Grid.h"
-#include "mdl/Hit.h"
 #include "mdl/Map.h"
 #include "mdl/Map_Geometry.h"
 #include "mdl/TransactionScope.h"
@@ -32,6 +31,32 @@
 
 namespace tb::ui
 {
+namespace
+{
+
+class RotateRingDragTracker : public RingDragTracker
+{
+private:
+  RotateTool& m_tool;
+
+public:
+  explicit RotateRingDragTracker(RotateTool& tool)
+    : m_tool{tool}
+  {
+    m_tool.beginRotation();
+  }
+
+  void apply(const vm::vec3d& center, const vm::vec3d& axis, const double angle) override
+  {
+    m_tool.applyRotation(center, axis, angle);
+  }
+
+  void end() override { m_tool.commitRotation(); }
+
+  void cancel() override { m_tool.cancelRotation(); }
+};
+
+} // namespace
 
 RotateTool::RotateTool(MapDocument& document)
   : Tool{false}
@@ -43,11 +68,6 @@ bool RotateTool::doActivate()
 {
   resetRotationCenter();
   return true;
-}
-
-const mdl::Grid& RotateTool::grid() const
-{
-  return m_document.map().grid();
 }
 
 void RotateTool::updateToolPageAxis(const RotateHandle::HitArea area)
@@ -94,11 +114,6 @@ void RotateTool::resetRotationCenter()
   }
 }
 
-double RotateTool::majorHandleRadius(const gl::Camera& camera) const
-{
-  return m_handle.majorHandleRadius(camera);
-}
-
 double RotateTool::minorHandleRadius(const gl::Camera& camera) const
 {
   return m_handle.minorHandleRadius(camera);
@@ -133,51 +148,54 @@ void RotateTool::applyRotation(
   rotateSelection(map, center, axis, angle);
 }
 
-mdl::Hit RotateTool::pick2D(const vm::ray3d& pickRay, const gl::Camera& camera)
-{
-  return m_handle.pick2D(pickRay, camera);
-}
-
-mdl::Hit RotateTool::pick3D(const vm::ray3d& pickRay, const gl::Camera& camera)
-{
-  return m_handle.pick3D(pickRay, camera);
-}
-
-vm::vec3d RotateTool::rotationAxis(const RotateHandle::HitArea area) const
-{
-  return m_handle.rotationAxis(area);
-}
-
-void RotateTool::renderHandle2D(
-  render::RenderContext& renderContext, render::RenderBatch& renderBatch)
-{
-  m_handle.renderHandle2D(renderContext, renderBatch);
-}
-
-void RotateTool::renderHandle3D(
-  render::RenderContext& renderContext, render::RenderBatch& renderBatch)
-{
-  m_handle.renderHandle3D(renderContext, renderBatch);
-}
-
-void RotateTool::renderHighlight2D(
-  render::RenderContext& renderContext,
-  render::RenderBatch& renderBatch,
-  const RotateHandle::HitArea area)
-{
-  m_handle.renderHighlight2D(renderContext, renderBatch, area);
-}
-void RotateTool::renderHighlight3D(
-  render::RenderContext& renderContext,
-  render::RenderBatch& renderBatch,
-  const RotateHandle::HitArea area)
-{
-  m_handle.renderHighlight3D(renderContext, renderBatch, area);
-}
-
 QWidget* RotateTool::doCreatePage(QWidget* parent)
 {
   return new RotateToolPage{m_document, *this, parent};
+}
+
+Tool& RotateTool::tool()
+{
+  return *this;
+}
+
+const Tool& RotateTool::tool() const
+{
+  return *this;
+}
+
+const mdl::Grid& RotateTool::grid() const
+{
+  return m_document.map().grid();
+}
+
+RotateHandle& RotateTool::handle()
+{
+  return m_handle;
+}
+
+double RotateTool::handleSnapAngle() const
+{
+  return angle();
+}
+
+void RotateTool::handleClicked(const RotateHandle::HitArea area)
+{
+  updateToolPageAxis(area);
+}
+
+vm::vec3d RotateTool::handleCenter() const
+{
+  return rotationCenter();
+}
+
+void RotateTool::setHandleCenter(const vm::vec3d& position)
+{
+  setRotationCenter(position);
+}
+
+std::unique_ptr<RingDragTracker> RotateTool::beginRingDrag()
+{
+  return std::make_unique<RotateRingDragTracker>(*this);
 }
 
 } // namespace tb::ui

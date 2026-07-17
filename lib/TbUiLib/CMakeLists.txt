@@ -10,6 +10,7 @@ target_sources(TbUiLib
     ${CMAKE_CURRENT_SOURCE_DIR}/src/ActionInfo.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/ActionManager.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/ActionMenu.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/AngleIndicatorRenderer.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Animation.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/AppController.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/AppInfoPanel.cpp
@@ -171,9 +172,14 @@ target_sources(TbUiLib
     ${CMAKE_CURRENT_SOURCE_DIR}/src/RenderView.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/ReplaceMaterialDialog.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/RotateHandle.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/RotateHandleController.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/RotateTool.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/RotateToolController.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/RotateToolPage.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/SweepTool.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/SweepToolController.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/SweepToolPage.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/SweepToolUtils.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/ScaleTool.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/ScaleToolController.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/ScaleToolPage.cpp
@@ -244,6 +250,7 @@ target_sources(TbUiLib
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/ActionInfo.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/ActionManager.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/ActionMenu.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/AngleIndicatorRenderer.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/Animation.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/AppController.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/AppInfoPanel.h
@@ -411,9 +418,14 @@ target_sources(TbUiLib
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/RenderView.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/ReplaceMaterialDialog.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/RotateHandle.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/RotateHandleController.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/RotateTool.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/RotateToolController.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/RotateToolPage.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/SweepTool.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/SweepToolController.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/SweepToolPage.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/SweepToolUtils.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/ScaleTool.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/ScaleToolController.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/ScaleToolPage.h
