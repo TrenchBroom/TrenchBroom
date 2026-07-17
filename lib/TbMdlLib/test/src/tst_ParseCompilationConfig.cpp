@@ -186,7 +186,7 @@ TEST_CASE("CompilationConfigParser")
          "",
          {
            mdl::CompilationExportMap{
-             K(enabled), !K(stripTbProperties), std::nullopt, "the target"},
+             K(enabled), !K(stripTbProperties), std::nullopt, std::nullopt, "the target"},
          }},
       }});
   }
@@ -212,7 +212,7 @@ TEST_CASE("CompilationConfigParser")
          "",
          {
            mdl::CompilationExportMap{
-             K(enabled), K(stripTbProperties), std::nullopt, "the target"},
+             K(enabled), K(stripTbProperties), std::nullopt, std::nullopt, "the target"},
          }},
       }});
   }
@@ -238,7 +238,41 @@ TEST_CASE("CompilationConfigParser")
          "",
          {
            mdl::CompilationExportMap{
-             K(enabled), K(stripTbProperties), "info_player_*", "the target"},
+             K(enabled),
+             K(stripTbProperties),
+             "info_player_*",
+             std::nullopt,
+             "the target"},
+         }},
+      }});
+  }
+
+  SECTION("parseOneProfileWithNameAndOneExportTaskWithEntityToAdd")
+  {
+    const auto config = R"(
+{
+  'version': 1,
+  'profiles': [
+    {
+      'name' : 'A profile',
+      'workdir' : '',
+      'tasks' : [ { 'type' : 'export', 'stripTbProperties': true, 'entityToAdd': [ { 'key': 'classname', 'value': 'info_player_start' } ], 'target' : 'the target' } ]
+    }
+  ]
+})";
+
+    CHECK(
+      parseCompilationConfig(config)
+      == mdl::CompilationConfig{{
+        {"A profile",
+         "",
+         {
+           mdl::CompilationExportMap{
+             K(enabled),
+             K(stripTbProperties),
+             std::nullopt,
+             mdl::Entity{{{"classname", "info_player_start"}}},
+             "the target"},
          }},
       }});
   }

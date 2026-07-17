@@ -1096,6 +1096,7 @@ bool MapWindow::exportDocumentAsMap()
     pathFromQString(newFileName),
     !K(stripTbProperties),
     std::nullopt,
+    std::nullopt,
   };
   return exportDocument(options);
 }

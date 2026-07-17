@@ -22,8 +22,11 @@
 #include "mdl/CatchConfig.h"
 #include "mdl/CompilationConfig.h"
 
+#include "kd/ranges/to.h"
+
 #include <fmt/format.h>
 
+#include <ranges>
 #include <string_view>
 
 #include <catch2/catch_test_macros.hpp>
@@ -31,6 +34,24 @@
 
 namespace tb::mdl
 {
+namespace
+{
+
+std::optional<std::string> entityToStr(const std::optional<Entity>& entity)
+{
+  return entity | kdl::optional_transform([](const auto& e) {
+           const auto array = el::Value{
+             e.properties() | std::views::transform([](const auto& p) {
+               return el::Value{el::MapType{
+                 {"key", el::Value{p.key()}},
+                 {"value", el::Value{p.value()}},
+               }};
+             })
+             | kdl::ranges::to<el::ArrayType>()};
+
+           return array.asString();
+         });
+}
 
 auto parse(const std::string_view str)
 {
@@ -41,6 +62,8 @@ auto parse(const std::string_view str)
            | kdl::if_error([](const auto& e) { FAIL(e); });
   });
 }
+
+} // namespace
 
 TEST_CASE("toValue")
 {
@@ -75,14 +98,22 @@ TEST_CASE("toValue")
     const auto enabled = GENERATE(true, false);
     const auto stripTbProperties = GENERATE(true, false);
     const auto stripEntityPattern = GENERATE(std::optional{"some pattern"}, std::nullopt);
-
-    CAPTURE(enabled, stripTbProperties, stripEntityPattern);
+    const auto entityToAdd =
+      GENERATE(std::optional{Entity{{{"classname", "some_class"}}}}, std::nullopt);
 
     const auto stripEntityPatternStr =
       stripEntityPattern | kdl::optional_transform([](const auto& pattern) {
         return fmt::format(R"("stripEntityPattern": "{}",)", pattern);
       })
       | kdl::optional_value_or("");
+
+    const auto entityToAddStr = entityToStr(entityToAdd)
+                                | kdl::optional_transform([](const auto& entityStr) {
+                                    return fmt::format(R"(entityToAdd: {},)", entityStr);
+                                  })
+                                | kdl::optional_value_or("");
+
+    CAPTURE(enabled, stripTbProperties, stripEntityPatternStr, entityToAddStr);
 
     CHECK(
       toValue(CompilationConfig{{
@@ -93,6 +124,7 @@ TEST_CASE("toValue")
              enabled,
              stripTbProperties,
              stripEntityPattern,
+             entityToAdd,
              "targetSpec",
            },
          }},
@@ -110,6 +142,7 @@ TEST_CASE("toValue")
                 "enabled": {},
                 "stripTbProperties": {},
                 {}
+                {}
                 "target": "targetSpec"
               }}
             ]
@@ -118,7 +151,8 @@ TEST_CASE("toValue")
       }})",
         enabled,
         stripTbProperties,
-        stripEntityPatternStr)));
+        stripEntityPatternStr,
+        entityToAddStr)));
   }
 
   SECTION("copy task")

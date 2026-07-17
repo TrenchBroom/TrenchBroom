@@ -39,6 +39,21 @@ namespace tb::mdl
 namespace
 {
 
+Entity toEntity(const el::EvaluationContext& context, const el::Value& entityValue)
+{
+  auto entityProperties = entityValue.arrayValue(context)
+                          | std::views::transform([&](const auto& propertyValue) {
+                              const auto& map = propertyValue.mapValue(context);
+                              return EntityProperty{
+                                map.at("key").stringValue(context),
+                                map.at("value").stringValue(context),
+                              };
+                            })
+                          | kdl::ranges::to<std::vector>();
+
+  return Entity{std::move(entityProperties)};
+}
+
 CompilationExportMap toExportTask(
   const el::EvaluationContext& context, const el::Value& value)
 {
@@ -54,10 +69,16 @@ CompilationExportMap toExportTask(
       ? std::optional{value.at(context, "stripEntityPattern").stringValue(context)}
       : std::nullopt;
 
+  auto entityToAdd =
+    value.contains(context, "entityToAdd")
+      ? std::optional{toEntity(context, value.at(context, "entityToAdd"))}
+      : std::nullopt;
+
   return {
     enabled,
     stripTbProperties,
     std::move(stripEntityPattern),
+    std::move(entityToAdd),
     value.at(context, "target").stringValue(context),
   };
 }

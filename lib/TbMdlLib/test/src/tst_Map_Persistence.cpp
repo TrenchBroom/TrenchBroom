@@ -174,6 +174,7 @@ TEST_CASE("Map_Persistence")
         env.dir() / filename,
         !K(stripTbProperties),
         std::nullopt,
+        std::nullopt,
       }));
       REQUIRE(env.fileExists(filename));
       CHECK(env.loadFile(filename) == R"(// entity 0
@@ -204,6 +205,7 @@ TEST_CASE("Map_Persistence")
         env.dir() / newDocumentPath,
         !K(stripTbProperties),
         std::nullopt,
+        std::nullopt,
       }));
       REQUIRE(env.fileExists(newDocumentPath));
       CHECK(env.loadFile(newDocumentPath) == R"(// entity 0
@@ -225,6 +227,7 @@ TEST_CASE("Map_Persistence")
       REQUIRE(map.exportAs(MapExportOptions{
         env.dir() / newDocumentPath,
         K(stripTbProperties),
+        std::nullopt,
         std::nullopt,
       }));
       REQUIRE(env.fileExists(newDocumentPath));
@@ -252,11 +255,43 @@ TEST_CASE("Map_Persistence")
         env.dir() / newDocumentPath,
         !K(stripTbProperties),
         "light",
+        std::nullopt,
       }));
       REQUIRE(env.fileExists(newDocumentPath));
       CHECK(env.loadFile(newDocumentPath) == R"(// entity 0
 {
 "classname" "worldspawn"
+}
+)");
+    }
+
+    SECTION("Add entity")
+    {
+      const auto newDocumentPath = std::filesystem::path{"test.map"};
+
+      auto& map = fixture.create(QuakeFixtureConfig);
+
+      auto* entityNode = new mdl::EntityNode{mdl::Entity{{{"classname", "light"}}}};
+      addNodes(map, {{parentForNodes(map), {entityNode}}});
+
+      REQUIRE(map.exportAs(MapExportOptions{
+        env.dir() / newDocumentPath,
+        !K(stripTbProperties),
+        std::nullopt,
+        mdl::Entity{{{"classname", "info_player_start"}}},
+      }));
+      REQUIRE(env.fileExists(newDocumentPath));
+      CHECK(env.loadFile(newDocumentPath) == R"(// entity 0
+{
+"classname" "worldspawn"
+}
+// entity 1
+{
+"classname" "light"
+}
+// entity 2
+{
+"classname" "info_player_start"
 }
 )");
     }

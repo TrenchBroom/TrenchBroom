@@ -139,6 +139,7 @@ void CompilationExportMapTaskRunner::doExecute()
                        targetPath,
                        m_task.stripTbProperties,
                        m_task.stripEntityPattern,
+                       m_task.entityToAdd,
                      };
                      return m_context.map().exportAs(options);
                    });

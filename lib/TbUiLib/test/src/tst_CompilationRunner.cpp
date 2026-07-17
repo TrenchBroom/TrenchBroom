@@ -441,6 +441,7 @@ TEST_CASE("CompilationExportMapTaskRunner")
       K(enabled),
       !K(stripTbProperties),
       std::nullopt,
+      std::nullopt,
       exportSpec,
     };
 
@@ -458,6 +459,7 @@ TEST_CASE("CompilationExportMapTaskRunner")
     auto task = mdl::CompilationExportMap{
       K(enabled),
       !K(stripTbProperties),
+      std::nullopt,
       std::nullopt,
       "${WORK_DIR_PATH/exported.map",
     };
