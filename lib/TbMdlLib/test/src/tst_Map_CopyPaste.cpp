@@ -333,7 +333,7 @@ common/caulk
 }
 })";
 
-      auto& map = fixture.create({.mapFormat = MapFormat::Quake3});
+      auto& map = fixture.create({.mapFormat = MapFormat::Quake3_Legacy});
       const auto& worldNode = map.worldNode();
 
       const auto& defaultLayerNode = *worldNode.defaultLayer();

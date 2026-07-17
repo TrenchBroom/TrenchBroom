@@ -64,12 +64,12 @@ TEST_CASE("Issue.addSelectableNodes")
   auto* innerGroupNode = new GroupNode{Group{"inner"}};
   auto* pointEntityNode = new EntityNode{Entity{}};
   auto* brushNode = new BrushNode{
-    BrushBuilder{MapFormat::Quake3, worldBounds}.createCube(64.0, "material")
+    BrushBuilder{MapFormat::Quake3_Legacy, worldBounds}.createCube(64.0, "material")
     | kdl::value()};
 
   auto* brushEntityNode = new EntityNode{Entity{}};
   auto* entityBrushNode = new BrushNode{
-    BrushBuilder{MapFormat::Quake3, worldBounds}.createCube(64.0, "material")
+    BrushBuilder{MapFormat::Quake3_Legacy, worldBounds}.createCube(64.0, "material")
     | kdl::value()};
   brushEntityNode->addChild(entityBrushNode);
 

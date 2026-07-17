@@ -51,6 +51,7 @@ namespace mdl
 {
 class UVCoordSystem;
 class UVCoordSystemSnapshot;
+struct Quake3BrushPrimitiveMatrix;
 enum class WrapStyle;
 enum class MapFormat;
 
@@ -94,6 +95,13 @@ private:
 
   AssetReference<gl::Material> m_materialReference;
   std::unique_ptr<UVCoordSystem> m_uvCoordSystem;
+
+  // For faces loaded from a Quake 3 brush primitive: the raw texture matrix, kept until
+  // the material (and hence the real texture size) is available so the projection can
+  // be converted exactly. Null once the conversion has been finalized (or for any other
+  // face).
+  std::unique_ptr<Quake3BrushPrimitiveMatrix> m_brushPrimitiveMatrix;
+
   BrushFaceGeometry* m_geometry = nullptr;
 
   mutable size_t m_lineNumber = 0;
@@ -164,6 +172,25 @@ public:
     const vm::vec3d& vAxis,
     MapFormat mapFormat);
 
+  /**
+   * Creates a face from a Quake 3 brush primitive texture matrix.
+   *
+   * Used when loading a Quake 3 (brush primitives) format map. The matrix yields
+   * normalized texture coordinates, so a faithful conversion needs the texture size,
+   * which is not yet known while loading. The face is therefore given a provisional
+   * projection (assuming a 64x64 texture) and keeps the raw matrix so that
+   * finalizeBrushPrimitiveProjection() can recompute it once the material is assigned.
+   *
+   * The returned face has a UVCoordSystem matching the given format.
+   */
+  static Result<BrushFace> createFromBrushPrimitive(
+    const vm::vec3d& point1,
+    const vm::vec3d& point2,
+    const vm::vec3d& point3,
+    const BrushFaceAttributes& attributes,
+    const Quake3BrushPrimitiveMatrix& matrix,
+    MapFormat mapFormat);
+
   static Result<BrushFace> create(
     const vm::vec3d& point0,
     const vm::vec3d& point1,
@@ -213,6 +240,17 @@ public:
   vm::vec2f modOffset(const vm::vec2f& offset) const;
 
   bool setMaterial(gl::Material* material);
+
+  /**
+   * Finalizes a face loaded from a Quake 3 brush primitive: if a raw texture matrix is
+   * still pending and the assigned material's texture has been loaded, the projection is
+   * recomputed using the real texture size and decomposed into offset/scale/rotation, and
+   * the pending matrix is cleared. Returns true if the projection changed.
+   *
+   * Does nothing (returns false) for faces without a pending matrix or whose texture is
+   * not yet available, in which case the provisional 64x64 projection is kept.
+   */
+  bool finalizeBrushPrimitiveProjection();
 
   vm::vec3d uAxis() const;
   vm::vec3d vAxis() const;

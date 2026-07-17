@@ -169,6 +169,15 @@ protected: // implement MapParser interface
     const vm::vec3d& uAxis,
     const vm::vec3d& vAxis,
     ParserStatus& status) override;
+  void onBrushPrimitiveFace(
+    const FileLocation& location,
+    MapFormat targetMapFormat,
+    const vm::vec3d& point1,
+    const vm::vec3d& point2,
+    const vm::vec3d& point3,
+    const BrushFaceAttributes& attribs,
+    const Quake3BrushPrimitiveMatrix& matrix,
+    ParserStatus& status) override;
   void onPatch(
     const FileLocation& startLocation,
     const FileLocation& endLocation,

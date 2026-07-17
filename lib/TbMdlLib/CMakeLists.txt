@@ -164,6 +164,7 @@ target_sources(TbMdlLib
     ${CMAKE_CURRENT_SOURCE_DIR}/src/PropertyKeyWithDoubleQuotationMarksValidator.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/PropertyValueWithDoubleQuotationMarksValidator.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/PushSelection.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/Quake3BrushPrimitive.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Quake3Shader.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Quake3ShaderParser.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/ReparentNodesCommand.cpp

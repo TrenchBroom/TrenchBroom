@@ -42,17 +42,19 @@ class PatchNode;
 
 class MapFileSerializer : public NodeSerializer
 {
+protected:
+  struct PrecomputedString
+  {
+    std::string string;
+    size_t lineCount;
+  };
+
 private:
   using LineStack = std::vector<size_t>;
   LineStack m_startLineStack;
   size_t m_line;
   std::ostream& m_stream;
 
-  struct PrecomputedString
-  {
-    std::string string;
-    size_t lineCount;
-  };
   std::unordered_map<const Node*, PrecomputedString> m_nodeToPrecomputedString;
 
 public:
@@ -79,8 +81,9 @@ private:
   size_t startLine();
 
 private: // threadsafe
-  virtual void doWriteBrushFace(std::ostream& stream, const BrushFace& face) const = 0;
-  PrecomputedString writeBrushFaces(const Brush& brush) const;
+  virtual PrecomputedString writeBrush(const Brush& brush) const;
+  virtual void writeBrushFace(std::ostream& stream, const BrushFace& face) const = 0;
+
   PrecomputedString writePatch(const BezierPatch& patch) const;
 };
 

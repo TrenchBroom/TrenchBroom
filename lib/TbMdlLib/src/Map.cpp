@@ -1072,7 +1072,7 @@ void Map::updateAllFaceTags()
     [](PatchNode&) {}));
 }
 
-void Map::updateFaceTagsAfterResourcesWhereProcessed(
+void Map::updateFaceTagsAfterResourcesWereProcessed(
   const std::vector<gl::ResourceId>& resourceIds)
 {
   // Some textures contain embedded default values for surface flags and such, so we
@@ -1099,6 +1099,37 @@ void Map::updateFaceTagsAfterResourcesWhereProcessed(
           {
             brushNode.updateFaceTags(i, *m_tagManager);
           }
+        }
+      }
+    },
+    [](PatchNode&) {}));
+}
+
+void Map::finalizeBrushPrimitiveFacesAfterResourcesWereProcessed(
+  const std::vector<gl::ResourceId>& resourceIds)
+{
+  // Faces loaded from Quake 3 brush primitives keep their raw texture matrix until the
+  // texture size is known. Textures are processed asynchronously, so we convert the
+  // projection here, once the relevant texture resources have been processed.
+
+  const auto materials = m_materialManager->findMaterialsByTextureResourceId(resourceIds);
+  const auto materialSet =
+    std::unordered_set<const gl::Material*>{materials.begin(), materials.end()};
+
+  worldNode().accept(kdl::overload(
+    [](auto&& thisLambda, WorldNode& worldNode) { worldNode.visitChildren(thisLambda); },
+    [](auto&& thisLambda, LayerNode& layerNode) { layerNode.visitChildren(thisLambda); },
+    [](auto&& thisLambda, GroupNode& groupNode) { groupNode.visitChildren(thisLambda); },
+    [](auto&& thisLambda, EntityNode& entityNode) {
+      entityNode.visitChildren(thisLambda);
+    },
+    [&](BrushNode& brushNode) {
+      const auto& faces = brushNode.brush().faces();
+      for (size_t i = 0; i < faces.size(); ++i)
+      {
+        if (materialSet.contains(faces[i].material()))
+        {
+          brushNode.finalizeBrushPrimitiveFace(i);
         }
       }
     },
@@ -1709,7 +1740,8 @@ void Map::brushFacesDidChange(const std::vector<BrushFaceHandle>& brushFaces)
 
 void Map::resourcesWereProcessed(const std::vector<gl::ResourceId>& resourceIds)
 {
-  updateFaceTagsAfterResourcesWhereProcessed(resourceIds);
+  finalizeBrushPrimitiveFacesAfterResourcesWereProcessed(resourceIds);
+  updateFaceTagsAfterResourcesWereProcessed(resourceIds);
 }
 
 void Map::selectionWillChange()

@@ -52,11 +52,11 @@ TEST_CASE("ObjSerializer.writeBrush")
 
   auto taskManager = kdl::task_manager{};
 
-  auto map = mdl::WorldNode{{}, {}, mdl::MapFormat::Quake3};
+  auto map = WorldNode{{}, {}, MapFormat::Quake3_Legacy};
 
-  auto builder = mdl::BrushBuilder{map.mapFormat(), worldBounds};
+  auto builder = BrushBuilder{map.mapFormat(), worldBounds};
   auto* brushNode =
-    new mdl::BrushNode{builder.createCube(64.0, "some_material") | kdl::value()};
+    new BrushNode{builder.createCube(64.0, "some_material") | kdl::value()};
   map.defaultLayer()->addChild(brushNode);
 
   auto objStream = std::ostringstream{};
@@ -121,10 +121,10 @@ TEST_CASE("ObjSerializer.writePatch")
 
   auto taskManager = kdl::task_manager{};
 
-  auto map = mdl::WorldNode{{}, {}, mdl::MapFormat::Quake3};
+  auto map = WorldNode{{}, {}, MapFormat::Quake3_Legacy};
 
-  auto builder = mdl::BrushBuilder{map.mapFormat(), worldBounds};
-  auto* patchNode = new mdl::PatchNode{mdl::BezierPatch{
+  auto builder = BrushBuilder{map.mapFormat(), worldBounds};
+  auto* patchNode = new PatchNode{BezierPatch{
     3,
     3,
     {{0, 0, 0},
@@ -404,11 +404,11 @@ TEST_CASE("ObjSerializer.writeRelativeMaterialPath")
   auto material = gl::Material{"some_material", std::move(textureResource)};
   material.setRelativePath("textures/some_material.png");
 
-  auto map = mdl::WorldNode{{}, {}, mdl::MapFormat::Quake3};
+  auto map = WorldNode{{}, {}, MapFormat::Quake3_Legacy};
 
-  auto builder = mdl::BrushBuilder{map.mapFormat(), worldBounds};
+  auto builder = BrushBuilder{map.mapFormat(), worldBounds};
   auto* brushNode =
-    new mdl::BrushNode{builder.createCube(64.0, "some_material") | kdl::value()};
+    new BrushNode{builder.createCube(64.0, "some_material") | kdl::value()};
   map.defaultLayer()->addChild(brushNode);
 
   for (size_t i = 0; i < brushNode->brush().faceCount(); ++i)

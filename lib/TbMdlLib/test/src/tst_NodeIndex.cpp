@@ -81,7 +81,7 @@ TEST_CASE("NodeIndex")
         {
           {"some_key", "a_value"},
         },
-        MapFormat::Quake3};
+        MapFormat::Quake3_Legacy};
 
       i.addNode(worldNode);
 

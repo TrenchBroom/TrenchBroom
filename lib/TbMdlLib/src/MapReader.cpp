@@ -33,6 +33,7 @@
 #include "mdl/LockState.h"
 #include "mdl/MapFormat.h"
 #include "mdl/PatchNode.h"
+#include "mdl/Quake3BrushPrimitive.h"
 #include "mdl/VisibilityState.h"
 #include "mdl/WorldNode.h"
 
@@ -169,6 +170,26 @@ void MapReader::onValveBrushFace(
 {
   BrushFace::createFromValve(
     point1, point2, point3, attribs, uAxis, vAxis, targetMapFormat)
+    | kdl::transform([&](BrushFace&& face) {
+        face.setFilePosition(location.line, location.column.value_or(1));
+        onBrushFace(std::move(face), status);
+      })
+    | kdl::transform_error(
+      [&](auto e) { status.error(location, fmt::format("Skipping face: {}", e.msg)); });
+}
+
+void MapReader::onBrushPrimitiveFace(
+  const FileLocation& location,
+  const MapFormat targetMapFormat,
+  const vm::vec3d& point1,
+  const vm::vec3d& point2,
+  const vm::vec3d& point3,
+  const BrushFaceAttributes& attribs,
+  const Quake3BrushPrimitiveMatrix& matrix,
+  ParserStatus& status)
+{
+  BrushFace::createFromBrushPrimitive(
+    point1, point2, point3, attribs, matrix, targetMapFormat)
     | kdl::transform([&](BrushFace&& face) {
         face.setFilePosition(location.line, location.column.value_or(1));
         onBrushFace(std::move(face), status);

@@ -336,7 +336,10 @@ private:
   void updateFaceTags(const std::vector<BrushFaceHandle>& faces);
   void updateAllFaceTags();
 
-  void updateFaceTagsAfterResourcesWhereProcessed(
+  void updateFaceTagsAfterResourcesWereProcessed(
+    const std::vector<gl::ResourceId>& resourceIds);
+
+  void finalizeBrushPrimitiveFacesAfterResourcesWereProcessed(
     const std::vector<gl::ResourceId>& resourceIds);
 
 private: // validation

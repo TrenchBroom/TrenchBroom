@@ -31,6 +31,7 @@
 #include "mdl/ParallelUVCoordSystem.h"
 #include "mdl/ParaxialUVCoordSystem.h"
 #include "mdl/Polyhedron.h"
+#include "mdl/Quake3BrushPrimitive.h"
 #include "mdl/TestUtils.h"
 
 #include "kd/collection_utils.h"
@@ -41,6 +42,9 @@
 #include "vm/approx.h"
 #include "vm/mat.h"
 #include "vm/mat_ext.h"
+#include "vm/plane.h"
+#include "vm/quat.h"
+#include "vm/scalar.h"
 #include "vm/vec.h"
 #include "vm/vec_io.h" // IWYU pragma: keep
 
@@ -933,6 +937,123 @@ TEST_CASE("BrushFace")
         CHECK(face.attributes().scale() == vm::vec2f{-1, 1});
       }
     }
+  }
+}
+
+TEST_CASE("BrushFace.brushPrimitiveProjection")
+{
+  // Points on a plane whose normal is computed the same way BrushFace does.
+  const auto p1 = vm::vec3d{0, 0, 0};
+  const auto p2 = vm::vec3d{0, 64, 0};
+  const auto p3 = vm::vec3d{64, 0, 0};
+  const auto normal = vm::from_points(p1, p2, p3)->normal;
+
+  // Build the texture matrix a 128x128 texture would produce for a face with scale 0.5,
+  // rotation 30 and offset (16, -8).
+  const auto textureSize = vm::vec2f{128, 128};
+  const auto scale = vm::vec2f{0.5f, 0.5f};
+  const auto rotation = 30.0f;
+  const auto offset = vm::vec2f{16, -8};
+
+  const auto [baseUAxis, baseVAxis] = computeInitialAxes(normal);
+  const auto textureNormal = vm::cross(baseUAxis, baseVAxis);
+  const auto rot = vm::quatd{textureNormal, vm::to_radians(double(rotation))};
+  const auto matrix = uvAxesToBrushPrimitiveMatrix(
+    normal,
+    (rot * baseUAxis) / double(scale.x()),
+    (rot * baseVAxis) / double(scale.y()),
+    offset,
+    textureSize);
+
+  auto face =
+    BrushFace::createFromBrushPrimitive(
+      p1, p2, p3, BrushFaceAttributes{"m"}, matrix, MapFormat::Quake3_BrushPrimitives)
+    | kdl::value();
+
+  SECTION("provisional projection assumes a 64x64 texture until finalized")
+  {
+    // Scale and offset are half of the real values because they were derived assuming a
+    // 64x64 rather than a 128x128 texture; rotation is texture-size independent.
+    CHECK(face.attributes().scale() == vm::approx{vm::vec2f{1, 1}, 0.0001f});
+    CHECK(face.attributes().offset() == vm::approx{vm::vec2f{8, -4}, 0.0001f});
+    CHECK(face.attributes().rotation() == vm::approx{rotation, 0.01f});
+  }
+
+  SECTION("finalizing with the real texture size restores the attributes")
+  {
+    auto material = gl::Material{"m", gl::createTextureResource(gl::Texture{128, 128})};
+    face.setMaterial(&material);
+
+    CHECK(face.finalizeBrushPrimitiveProjection());
+
+    CHECK(face.attributes().scale() == vm::approx{scale, 0.0001f});
+    CHECK(face.attributes().offset() == vm::approx{offset, 0.0001f});
+    CHECK(face.attributes().rotation() == vm::approx{rotation, 0.01f});
+
+    // Finalizing is a one-shot operation: there is nothing left to do afterwards.
+    CHECK_FALSE(face.finalizeBrushPrimitiveProjection());
+  }
+
+  SECTION("finalizing does nothing while the texture is unavailable")
+  {
+    CHECK_FALSE(face.finalizeBrushPrimitiveProjection());
+    CHECK(face.attributes().scale() == vm::approx{vm::vec2f{1, 1}, 0.0001f});
+  }
+}
+
+TEST_CASE("BrushFace.brushPrimitiveProjectionRoundTrip")
+{
+  // A face built from a brush primitive matrix and finalized with the real texture size
+  // reports the offset, scale and rotation it was built from, for any combination of
+  // modified attributes. A mirror is folded onto the V axis (negative Y scale).
+  const auto p1 = vm::vec3d{0, 0, 0};
+  const auto p2 = vm::vec3d{0, 64, 0};
+  const auto p3 = vm::vec3d{64, 0, 0};
+  const auto normal = vm::from_points(p1, p2, p3)->normal;
+  const auto [baseUAxis, baseVAxis] = computeInitialAxes(normal);
+  const auto textureNormal = vm::cross(baseUAxis, baseVAxis);
+
+  struct TestCase
+  {
+    vm::vec2f textureSize;
+    vm::vec2f offset;
+    vm::vec2f scale;
+    float rotation;
+  };
+
+  // clang-format off
+  const auto testCases = std::vector<TestCase>{
+    {{128, 256}, {16, -8},   {0.5f, 0.5f},  30.0f},
+    {{128, 128}, {-10, -20}, {0.5f, -0.5f}, 45.0f},
+    {{64, 128},  {12, 7},    {0.75f, 1.5f}, 180.0f},
+    {{256, 256}, {5, 5},     {2.0f, 0.5f},  270.0f},
+  };
+  // clang-format on
+
+  for (const auto& testCase : testCases)
+  {
+    const auto rot = vm::quatd{textureNormal, vm::to_radians(double(testCase.rotation))};
+    const auto matrix = uvAxesToBrushPrimitiveMatrix(
+      normal,
+      (rot * baseUAxis) / double(testCase.scale.x()),
+      (rot * baseVAxis) / double(testCase.scale.y()),
+      testCase.offset,
+      testCase.textureSize);
+
+    auto face =
+      BrushFace::createFromBrushPrimitive(
+        p1, p2, p3, BrushFaceAttributes{"m"}, matrix, MapFormat::Quake3_BrushPrimitives)
+      | kdl::value();
+
+    const auto w = size_t(testCase.textureSize.x());
+    const auto h = size_t(testCase.textureSize.y());
+    auto material = gl::Material{"m", gl::createTextureResource(gl::Texture{w, h})};
+    face.setMaterial(&material);
+
+    CHECK(face.finalizeBrushPrimitiveProjection());
+    CHECK(face.attributes().offset() == vm::approx{testCase.offset, 0.0001f});
+    CHECK(face.attributes().scale() == vm::approx{testCase.scale, 0.0001f});
+    CHECK(face.attributes().rotation() == vm::approx{testCase.rotation, 0.01f});
   }
 }
 

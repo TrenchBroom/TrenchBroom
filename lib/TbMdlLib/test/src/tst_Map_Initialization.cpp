@@ -320,7 +320,7 @@ TEST_CASE("Map_Initialization")
       gameInfo.gameConfig.fileFormats = std::vector<MapFormatConfig>{
         {"Valve", {}},
         {"Standard", {}},
-        {"Quake3", {}},
+        {"Quake3 (Valve)", {}},
       };
 
       SECTION("Detect Valve Format Map")

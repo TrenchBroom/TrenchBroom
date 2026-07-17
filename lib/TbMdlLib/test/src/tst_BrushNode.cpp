@@ -55,7 +55,7 @@ TEST_CASE("BrushNode")
     const auto worldBounds = vm::bbox3d{4096.0};
 
     auto* brushNode = new BrushNode{
-      BrushBuilder{MapFormat::Quake3, worldBounds}.createCube(64.0, "testure")
+      BrushBuilder{MapFormat::Quake3_Legacy, worldBounds}.createCube(64.0, "testure")
       | kdl::value()};
     auto entityNode = EntityNode{Entity{}};
 
@@ -161,7 +161,7 @@ TEST_CASE("BrushNode")
     {
       const auto worldBounds = vm::bbox3d{8192.0};
 
-      auto builder = BrushBuilder{MapFormat::Quake3, worldBounds};
+      auto builder = BrushBuilder{MapFormat::Quake3_Legacy, worldBounds};
       auto brushNode =
         BrushNode{builder.createCube(64.0, "some_material") | kdl::value()};
       transformNode(
@@ -192,7 +192,7 @@ TEST_CASE("BrushNode")
     {
       const auto worldBounds = vm::bbox3d{8192.0};
 
-      auto builder = BrushBuilder{MapFormat::Quake3, worldBounds};
+      auto builder = BrushBuilder{MapFormat::Quake3_Legacy, worldBounds};
 
       auto brushNode =
         BrushNode{builder.createCube(64.0, "some_material") | kdl::value()};

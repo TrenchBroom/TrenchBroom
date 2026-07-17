@@ -64,7 +64,7 @@ TEST_CASE("WorldReader")
   SECTION("Empty map")
   {
     const auto data = "";
-    auto reader = WorldReader{data, mdl::MapFormat::Standard, {}};
+    auto reader = WorldReader{data, MapFormat::Standard, {}};
 
     auto worldResult = reader.read(worldBounds, status, taskManager);
     REQUIRE(worldResult);
@@ -79,7 +79,7 @@ TEST_CASE("WorldReader")
   {
     const auto data = "{}";
 
-    auto reader = WorldReader{data, mdl::MapFormat::Standard, {}};
+    auto reader = WorldReader{data, MapFormat::Standard, {}};
 
     auto worldResult = reader.read(worldBounds, status, taskManager);
     REQUIRE(worldResult);
@@ -100,7 +100,7 @@ TEST_CASE("WorldReader")
 )";
 
 
-    auto reader = WorldReader{data, mdl::MapFormat::Standard, {}};
+    auto reader = WorldReader{data, MapFormat::Standard, {}};
 
     auto worldResult = reader.read(worldBounds, status, taskManager);
     REQUIRE(worldResult);
@@ -108,11 +108,11 @@ TEST_CASE("WorldReader")
     const auto& worldNode = worldResult.value();
     CHECK(worldNode != nullptr);
     CHECK(worldNode->childCount() == 1u);
-    auto* defaultLayer = dynamic_cast<mdl::LayerNode*>(worldNode->children().at(0));
+    auto* defaultLayer = dynamic_cast<LayerNode*>(worldNode->children().at(0));
     REQUIRE(defaultLayer != nullptr);
     REQUIRE(!defaultLayer->hasChildren());
 
-    CHECK(worldNode->entity().hasProperty(mdl::EntityPropertyKeys::Classname));
+    CHECK(worldNode->entity().hasProperty(EntityPropertyKeys::Classname));
     CHECK(worldNode->entity().hasProperty("message"));
     CHECK(*worldNode->entity().property("message") == "yay");
 
@@ -132,7 +132,7 @@ TEST_CASE("WorldReader")
 }
 )";
 
-    auto reader = WorldReader{data, mdl::MapFormat::Standard, {}};
+    auto reader = WorldReader{data, MapFormat::Standard, {}};
 
     auto worldResult = reader.read(worldBounds, status, taskManager);
     REQUIRE(worldResult);
@@ -155,7 +155,7 @@ TEST_CASE("WorldReader")
 )";
 
 
-    auto reader = WorldReader{data, mdl::MapFormat::Standard, {}};
+    auto reader = WorldReader{data, MapFormat::Standard, {}};
 
     auto worldResult = reader.read(worldBounds, status, taskManager);
     REQUIRE(worldResult);
@@ -163,7 +163,7 @@ TEST_CASE("WorldReader")
     const auto& world = worldResult.value();
     REQUIRE(world != nullptr);
     REQUIRE(world->childCount() == 1u);
-    auto* defaultLayer = dynamic_cast<mdl::LayerNode*>(world->children().at(0));
+    auto* defaultLayer = dynamic_cast<LayerNode*>(world->children().at(0));
     REQUIRE(defaultLayer != nullptr);
 
     CHECK(defaultLayer->layer().color() == Color{RgbF{0.0f, 1.0f, 0.0f}});
@@ -187,25 +187,24 @@ TEST_CASE("WorldReader")
 )";
 
 
-    auto reader = WorldReader{data, mdl::MapFormat::Standard, {}};
+    auto reader = WorldReader{data, MapFormat::Standard, {}};
 
     auto worldResult = reader.read(worldBounds, status, taskManager);
     REQUIRE(worldResult);
 
     const auto& worldNode = worldResult.value();
     CHECK(worldNode != nullptr);
-    CHECK(worldNode->entity().hasProperty(mdl::EntityPropertyKeys::Classname));
+    CHECK(worldNode->entity().hasProperty(EntityPropertyKeys::Classname));
     CHECK(worldNode->entity().hasProperty("message"));
     CHECK(*worldNode->entity().property("message") == "yay");
 
     CHECK(worldNode->childCount() == 1u);
-    auto* defaultLayerNode = dynamic_cast<mdl::LayerNode*>(worldNode->children().front());
+    auto* defaultLayerNode = dynamic_cast<LayerNode*>(worldNode->children().front());
     CHECK(defaultLayerNode != nullptr);
     CHECK(defaultLayerNode->childCount() == 1u);
-    CHECK(defaultLayerNode->layer().sortIndex() == mdl::Layer::defaultLayerSortIndex());
+    CHECK(defaultLayerNode->layer().sortIndex() == Layer::defaultLayerSortIndex());
 
-    auto* entityNode =
-      static_cast<mdl::EntityNode*>(defaultLayerNode->children().front());
+    auto* entityNode = static_cast<EntityNode*>(defaultLayerNode->children().front());
     CHECK(entityNode->entity().hasProperty("classname"));
     CHECK(*entityNode->entity().property("classname") == "info_player_deathmatch");
     CHECK(entityNode->entity().hasProperty("origin"));
@@ -229,7 +228,7 @@ TEST_CASE("WorldReader")
 }
 })";
 
-    auto reader = WorldReader{data, mdl::MapFormat::Standard, {}};
+    auto reader = WorldReader{data, MapFormat::Standard, {}};
 
     auto worldResult = reader.read(worldBounds, status, taskManager);
     REQUIRE(worldResult);
@@ -239,7 +238,7 @@ TEST_CASE("WorldReader")
     auto* defaultLayer = world->children().front();
     CHECK(defaultLayer->childCount() == 1u);
 
-    auto* brushNode = static_cast<mdl::BrushNode*>(defaultLayer->children().front());
+    auto* brushNode = static_cast<BrushNode*>(defaultLayer->children().front());
     checkBrushUVCoordSystem(brushNode, false);
     const auto& faces = brushNode->brush().faces();
     CHECK(faces.size() == 6u);
@@ -309,7 +308,7 @@ TEST_CASE("WorldReader")
 }
 })";
 
-    auto reader = WorldReader{data, mdl::MapFormat::Standard, {}};
+    auto reader = WorldReader{data, MapFormat::Standard, {}};
 
     auto worldResult = reader.read(worldBounds, status, taskManager);
     REQUIRE(worldResult);
@@ -319,7 +318,7 @@ TEST_CASE("WorldReader")
     auto* defaultLayer = world->children().front();
     CHECK(defaultLayer->childCount() == 1u);
 
-    auto* brushNode = static_cast<mdl::BrushNode*>(defaultLayer->children().front());
+    auto* brushNode = static_cast<BrushNode*>(defaultLayer->children().front());
     checkBrushUVCoordSystem(brushNode, false);
     const auto& faces = brushNode->brush().faces();
     CHECK(faces.size() == 6u);
@@ -352,7 +351,7 @@ TEST_CASE("WorldReader")
 }
 })";
 
-    auto reader = WorldReader{data, mdl::MapFormat::Standard, {}};
+    auto reader = WorldReader{data, MapFormat::Standard, {}};
 
     auto worldResult = reader.read(worldBounds, status, taskManager);
     REQUIRE(worldResult);
@@ -362,7 +361,7 @@ TEST_CASE("WorldReader")
     auto* defaultLayer = world->children().front();
     CHECK(defaultLayer->childCount() == 1u);
 
-    auto* brushNode = static_cast<mdl::BrushNode*>(defaultLayer->children().front());
+    auto* brushNode = static_cast<BrushNode*>(defaultLayer->children().front());
     checkBrushUVCoordSystem(brushNode, false);
     const auto& faces = brushNode->brush().faces();
     CHECK(faces.size() == 6u);
@@ -426,7 +425,7 @@ TEST_CASE("WorldReader")
 }
 })";
 
-    auto reader = WorldReader{data, mdl::MapFormat::Valve, {}};
+    auto reader = WorldReader{data, MapFormat::Valve, {}};
 
     auto worldResult = reader.read(worldBounds, status, taskManager);
     REQUIRE(worldResult);
@@ -435,7 +434,7 @@ TEST_CASE("WorldReader")
     CHECK(world->childCount() == 1u);
     auto* defaultLayer = world->children().front();
     CHECK(defaultLayer->childCount() == 1u);
-    auto* brush = static_cast<mdl::BrushNode*>(defaultLayer->children().front());
+    auto* brush = static_cast<BrushNode*>(defaultLayer->children().front());
     checkBrushUVCoordSystem(brush, true);
   }
 
@@ -454,7 +453,7 @@ TEST_CASE("WorldReader")
 }
 })";
 
-    auto reader = WorldReader{data, mdl::MapFormat::Quake2, {}};
+    auto reader = WorldReader{data, MapFormat::Quake2, {}};
 
     auto worldResult = reader.read(worldBounds, status, taskManager);
     REQUIRE(worldResult);
@@ -464,7 +463,7 @@ TEST_CASE("WorldReader")
     CHECK(world->childCount() == 1u);
     auto* defaultLayer = world->children().front();
     CHECK(defaultLayer->childCount() == 1u);
-    auto* brush = static_cast<mdl::BrushNode*>(defaultLayer->children().front());
+    auto* brush = static_cast<BrushNode*>(defaultLayer->children().front());
     checkBrushUVCoordSystem(brush, false);
 
     SECTION("surface attributes for face attribsExplicit")
@@ -524,7 +523,7 @@ TEST_CASE("WorldReader")
 }
 })";
 
-    auto reader = WorldReader{data, mdl::MapFormat::Quake2_Valve, {}};
+    auto reader = WorldReader{data, MapFormat::Quake2_Valve, {}};
 
     auto worldResult = reader.read(worldBounds, status, taskManager);
     REQUIRE(worldResult);
@@ -533,7 +532,7 @@ TEST_CASE("WorldReader")
     CHECK(world->childCount() == 1u);
     auto* defaultLayer = world->children().front();
     CHECK(defaultLayer->childCount() == 1u);
-    auto* brush = static_cast<mdl::BrushNode*>(defaultLayer->children().front());
+    auto* brush = static_cast<BrushNode*>(defaultLayer->children().front());
     checkBrushUVCoordSystem(brush, true);
   }
 
@@ -554,7 +553,7 @@ TEST_CASE("WorldReader")
 }
 })";
 
-    auto reader = WorldReader{data, mdl::MapFormat::Quake3_Valve, {}};
+    auto reader = WorldReader{data, MapFormat::Quake3_Valve, {}};
 
     auto worldResult = reader.read(worldBounds, status, taskManager);
     REQUIRE(worldResult);
@@ -563,7 +562,7 @@ TEST_CASE("WorldReader")
     CHECK(world->childCount() == 1u);
     auto* defaultLayer = world->children().front();
     CHECK(defaultLayer->childCount() == 1u);
-    auto* brush = static_cast<mdl::BrushNode*>(defaultLayer->children().front());
+    auto* brush = static_cast<BrushNode*>(defaultLayer->children().front());
     checkBrushUVCoordSystem(brush, true);
   }
 
@@ -582,7 +581,7 @@ TEST_CASE("WorldReader")
 }
 })";
 
-    auto reader = WorldReader{data, mdl::MapFormat::Daikatana, {}};
+    auto reader = WorldReader{data, MapFormat::Daikatana, {}};
 
     auto worldResult = reader.read(worldBounds, status, taskManager);
     REQUIRE(worldResult);
@@ -592,8 +591,7 @@ TEST_CASE("WorldReader")
     auto* defaultLayer = world->children().front();
     CHECK(defaultLayer->childCount() == 1u);
 
-    const auto* brushNode =
-      static_cast<mdl::BrushNode*>(defaultLayer->children().front());
+    const auto* brushNode = static_cast<BrushNode*>(defaultLayer->children().front());
     checkBrushUVCoordSystem(brushNode, false);
     const auto& brush = brushNode->brush();
 
@@ -627,7 +625,7 @@ TEST_CASE("WorldReader")
 }
 })";
 
-    auto reader = WorldReader{data, mdl::MapFormat::Daikatana, {}};
+    auto reader = WorldReader{data, MapFormat::Daikatana, {}};
 
     auto worldResult = reader.read(worldBounds, status, taskManager);
     REQUIRE(worldResult);
@@ -637,8 +635,7 @@ TEST_CASE("WorldReader")
     auto* defaultLayer = world->children().front();
     CHECK(defaultLayer->childCount() == 1u);
 
-    const auto* brushNode =
-      static_cast<mdl::BrushNode*>(defaultLayer->children().front());
+    const auto* brushNode = static_cast<BrushNode*>(defaultLayer->children().front());
     checkBrushUVCoordSystem(brushNode, false);
     const auto& brush = brushNode->brush();
 
@@ -679,7 +676,7 @@ TEST_CASE("WorldReader")
 )";
 
 
-    auto reader = WorldReader{data, mdl::MapFormat::Daikatana, {}};
+    auto reader = WorldReader{data, MapFormat::Daikatana, {}};
 
     auto worldResult = reader.read(worldBounds, status, taskManager);
     REQUIRE(worldResult);
@@ -688,7 +685,7 @@ TEST_CASE("WorldReader")
     CHECK(world->childCount() == 1u);
     auto* defaultLayer = world->children().front();
     CHECK(defaultLayer->childCount() == 1u);
-    auto* brush = static_cast<mdl::BrushNode*>(defaultLayer->children().front());
+    auto* brush = static_cast<BrushNode*>(defaultLayer->children().front());
     checkBrushUVCoordSystem(brush, false);
   }
 
@@ -707,7 +704,7 @@ TEST_CASE("WorldReader")
 }
 })";
 
-    auto reader = WorldReader{data, mdl::MapFormat::Standard, {}};
+    auto reader = WorldReader{data, MapFormat::Standard, {}};
 
     auto worldResult = reader.read(worldBounds, status, taskManager);
     REQUIRE(worldResult);
@@ -716,7 +713,7 @@ TEST_CASE("WorldReader")
     CHECK(world->childCount() == 1u);
     auto* defaultLayer = world->children().front();
     CHECK(defaultLayer->childCount() == 1u);
-    auto* brush = static_cast<mdl::BrushNode*>(defaultLayer->children().front());
+    auto* brush = static_cast<BrushNode*>(defaultLayer->children().front());
     checkBrushUVCoordSystem(brush, false);
   }
 
@@ -757,7 +754,7 @@ TEST_CASE("WorldReader")
 }
 })";
 
-    auto reader = WorldReader{data, mdl::MapFormat::Quake2, {}};
+    auto reader = WorldReader{data, MapFormat::Quake2, {}};
 
     auto worldResult = reader.read(worldBounds, status, taskManager);
     REQUIRE(worldResult);
@@ -765,12 +762,12 @@ TEST_CASE("WorldReader")
     const auto& world = worldResult.value();
     CHECK(world->childCount() == 2u);
 
-    auto* defaultLayerNode = dynamic_cast<mdl::LayerNode*>(world->children().at(0));
-    auto* myLayerNode = dynamic_cast<mdl::LayerNode*>(world->children().at(1));
+    auto* defaultLayerNode = dynamic_cast<LayerNode*>(world->children().at(0));
+    auto* myLayerNode = dynamic_cast<LayerNode*>(world->children().at(1));
     CHECK(defaultLayerNode != nullptr);
     CHECK(myLayerNode != nullptr);
 
-    CHECK(defaultLayerNode->layer().sortIndex() == mdl::Layer::defaultLayerSortIndex());
+    CHECK(defaultLayerNode->layer().sortIndex() == Layer::defaultLayerSortIndex());
     // The layer didn't have a sort index (saved in an older version of TB), so it's
     // assigned 0
     CHECK(myLayerNode->layer().sortIndex() == 0);
@@ -805,7 +802,7 @@ TEST_CASE("WorldReader")
 "_tb_layer_omit_from_export" "1"
 })";
 
-    auto reader = WorldReader{data, mdl::MapFormat::Quake2, {}};
+    auto reader = WorldReader{data, MapFormat::Quake2, {}};
 
     auto worldResult = reader.read(worldBounds, status, taskManager);
     REQUIRE(worldResult);
@@ -814,9 +811,9 @@ TEST_CASE("WorldReader")
     REQUIRE(world->childCount() == 3u);
 
     // NOTE: They are listed in world->children() in file order, not sort index order
-    auto* defaultLayerNode = dynamic_cast<mdl::LayerNode*>(world->children().at(0));
-    auto* sortNode1 = dynamic_cast<mdl::LayerNode*>(world->children().at(1));
-    auto* sortNode0 = dynamic_cast<mdl::LayerNode*>(world->children().at(2));
+    auto* defaultLayerNode = dynamic_cast<LayerNode*>(world->children().at(0));
+    auto* sortNode1 = dynamic_cast<LayerNode*>(world->children().at(1));
+    auto* sortNode0 = dynamic_cast<LayerNode*>(world->children().at(2));
 
     REQUIRE(defaultLayerNode != nullptr);
     REQUIRE(sortNode0 != nullptr);
@@ -825,7 +822,7 @@ TEST_CASE("WorldReader")
     CHECK(sortNode0->name() == "Sort Index 0");
     CHECK(sortNode1->name() == "Sort Index 1");
 
-    CHECK(defaultLayerNode->layer().sortIndex() == mdl::Layer::defaultLayerSortIndex());
+    CHECK(defaultLayerNode->layer().sortIndex() == Layer::defaultLayerSortIndex());
     CHECK(sortNode0->layer().sortIndex() == 0);
     CHECK(sortNode1->layer().sortIndex() == 1);
 
@@ -867,7 +864,7 @@ TEST_CASE("WorldReader")
 "_tb_layer_sort_index" "1"
 })";
 
-    auto reader = WorldReader{data, mdl::MapFormat::Quake2, {}};
+    auto reader = WorldReader{data, MapFormat::Quake2, {}};
 
     auto worldResult = reader.read(worldBounds, status, taskManager);
     REQUIRE(worldResult);
@@ -876,10 +873,10 @@ TEST_CASE("WorldReader")
     CHECK(world->childCount() == 4u);
 
     // NOTE: They are listed in world->children() in file order, not sort index order
-    auto* defaultLayerNode = dynamic_cast<mdl::LayerNode*>(world->children().at(0));
-    auto* sortNode5 = dynamic_cast<mdl::LayerNode*>(world->children().at(1));
-    auto* sortNode3 = dynamic_cast<mdl::LayerNode*>(world->children().at(2));
-    auto* sortNode1 = dynamic_cast<mdl::LayerNode*>(world->children().at(3));
+    auto* defaultLayerNode = dynamic_cast<LayerNode*>(world->children().at(0));
+    auto* sortNode5 = dynamic_cast<LayerNode*>(world->children().at(1));
+    auto* sortNode3 = dynamic_cast<LayerNode*>(world->children().at(2));
+    auto* sortNode1 = dynamic_cast<LayerNode*>(world->children().at(3));
 
     REQUIRE(nullptr != defaultLayerNode);
     REQUIRE(nullptr != sortNode1);
@@ -890,7 +887,7 @@ TEST_CASE("WorldReader")
     CHECK(sortNode3->name() == "Sort Index 3");
     CHECK(sortNode5->name() == "Sort Index 5");
 
-    CHECK(defaultLayerNode->layer().sortIndex() == mdl::Layer::defaultLayerSortIndex());
+    CHECK(defaultLayerNode->layer().sortIndex() == Layer::defaultLayerSortIndex());
     // We allow gaps in sort indices so they remain 1, 3, 5
     CHECK(sortNode1->layer().sortIndex() == 1);
     CHECK(sortNode3->layer().sortIndex() == 3);
@@ -946,7 +943,7 @@ TEST_CASE("WorldReader")
 "_tb_layer_sort_index" "12"
 })end";
 
-    auto reader = WorldReader{data, mdl::MapFormat::Quake2, {}};
+    auto reader = WorldReader{data, MapFormat::Quake2, {}};
 
     auto worldResult = reader.read(worldBounds, status, taskManager);
     REQUIRE(worldResult);
@@ -955,13 +952,13 @@ TEST_CASE("WorldReader")
     CHECK(world->childCount() == 7u);
 
     // NOTE: They are listed in world->children() in file order, not sort index order
-    auto* defaultLayerNode = dynamic_cast<mdl::LayerNode*>(world->children().at(0));
-    auto* sortMinusOneNode = dynamic_cast<mdl::LayerNode*>(world->children().at(1));
-    auto* sortNode8 = dynamic_cast<mdl::LayerNode*>(world->children().at(2));
-    auto* sortNode8second = dynamic_cast<mdl::LayerNode*>(world->children().at(3));
-    auto* sortNode10 = dynamic_cast<mdl::LayerNode*>(world->children().at(4));
-    auto* sortNode10second = dynamic_cast<mdl::LayerNode*>(world->children().at(5));
-    auto* sortNode12 = dynamic_cast<mdl::LayerNode*>(world->children().at(6));
+    auto* defaultLayerNode = dynamic_cast<LayerNode*>(world->children().at(0));
+    auto* sortMinusOneNode = dynamic_cast<LayerNode*>(world->children().at(1));
+    auto* sortNode8 = dynamic_cast<LayerNode*>(world->children().at(2));
+    auto* sortNode8second = dynamic_cast<LayerNode*>(world->children().at(3));
+    auto* sortNode10 = dynamic_cast<LayerNode*>(world->children().at(4));
+    auto* sortNode10second = dynamic_cast<LayerNode*>(world->children().at(5));
+    auto* sortNode12 = dynamic_cast<LayerNode*>(world->children().at(6));
 
     REQUIRE(nullptr != defaultLayerNode);
     REQUIRE(nullptr != sortMinusOneNode);
@@ -978,7 +975,7 @@ TEST_CASE("WorldReader")
     CHECK(sortNode10second->name() == "Sort Index 10 (second)");
     CHECK(sortNode12->name() == "Sort Index 12");
 
-    CHECK(defaultLayerNode->layer().sortIndex() == mdl::Layer::defaultLayerSortIndex());
+    CHECK(defaultLayerNode->layer().sortIndex() == Layer::defaultLayerSortIndex());
 
     // This one was invalid so it got moved to the end
     CHECK(sortMinusOneNode->layer().sortIndex() == 13);
@@ -1042,7 +1039,7 @@ TEST_CASE("WorldReader")
 }
 })";
 
-    auto reader = WorldReader{data, mdl::MapFormat::Quake2, {}};
+    auto reader = WorldReader{data, MapFormat::Quake2, {}};
 
     auto worldResult = reader.read(worldBounds, status, taskManager);
     REQUIRE(worldResult);
@@ -1118,7 +1115,7 @@ TEST_CASE("WorldReader")
 }
 })";
 
-    auto reader = WorldReader{data, mdl::MapFormat::Quake2, {}};
+    auto reader = WorldReader{data, MapFormat::Quake2, {}};
 
     auto worldResult = reader.read(worldBounds, status, taskManager);
     REQUIRE(worldResult);
@@ -1163,7 +1160,7 @@ TEST_CASE("WorldReader")
 }
 )";
 
-    auto reader = WorldReader{data, mdl::MapFormat::Standard, {}};
+    auto reader = WorldReader{data, MapFormat::Standard, {}};
 
     auto worldResult = reader.read(worldBounds, status, taskManager);
     REQUIRE(worldResult);
@@ -1172,15 +1169,14 @@ TEST_CASE("WorldReader")
     CHECK(world->childCount() == 2u);
 
     // NOTE: They are listed in world->children() in file order, not sort index order
-    auto* defaultLayerNode = dynamic_cast<mdl::LayerNode*>(world->children().at(0));
-    auto* customLayerNode = dynamic_cast<mdl::LayerNode*>(world->children().at(1));
+    auto* defaultLayerNode = dynamic_cast<LayerNode*>(world->children().at(0));
+    auto* customLayerNode = dynamic_cast<LayerNode*>(world->children().at(1));
 
     REQUIRE(defaultLayerNode != nullptr);
     REQUIRE(customLayerNode != nullptr);
 
-    auto* groupNode1 = dynamic_cast<mdl::GroupNode*>(customLayerNode->children().front());
-    auto* groupNode2 =
-      dynamic_cast<mdl::GroupNode*>(defaultLayerNode->children().front());
+    auto* groupNode1 = dynamic_cast<GroupNode*>(customLayerNode->children().front());
+    auto* groupNode2 = dynamic_cast<GroupNode*>(defaultLayerNode->children().front());
 
     REQUIRE(groupNode1 != nullptr);
     REQUIRE(groupNode2 != nullptr);
@@ -1210,51 +1206,25 @@ TEST_CASE("WorldReader")
             })";
 
 
-    auto reader = WorldReader{data, mdl::MapFormat::Quake3, {}};
+    auto reader = WorldReader{data, MapFormat::Quake3_BrushPrimitives, {}};
 
     auto worldResult = reader.read(worldBounds, status, taskManager);
     REQUIRE(worldResult);
 
     const auto& world = worldResult.value();
-    // TODO 2427: Assert one brush!
-    CHECK(world->defaultLayer()->childCount() == 0u);
-  }
-
-  SECTION("Brush primitive and legacy brush")
-  {
-    const auto data = R"(
-{
-"classname" "worldspawn"
-{
-brushDef
-{
-( -64 64 64 ) ( 64 -64 64 ) ( -64 -64 64 ) ( ( 0.015625 0 -0 ) ( -0 0.015625 0 ) ) common/caulk 0 0 0
-( -64 64 64 ) ( 64 64 -64 ) ( 64 64 64 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) common/caulk 0 0 0
-( 64 64 64 ) ( 64 -64 -64 ) ( 64 -64 64 ) ( ( 0.015625 0 -0 ) ( -0 0.015625 0 ) ) common/caulk 0 0 0
-( 64 64 -64 ) ( -64 -64 -64 ) ( 64 -64 -64 ) ( ( 0.015625 0 -0 ) ( -0 0.015625 0 ) ) common/caulk 0 0 0
-( 64 -64 -64 ) ( -64 -64 64 ) ( 64 -64 64 ) ( ( 0.015625 0 -0 ) ( -0 0.015625 0 ) ) common/caulk 0 0 0
-( -64 -64 64 ) ( -64 64 -64 ) ( -64 64 64 ) ( ( 0.015625 0 -0 ) ( -0 0.015625 0 ) ) common/caulk 0 0 0
-}
-}
-{
-( 64 64 64 ) ( 64 -64 64 ) ( -64 64 64 ) common/caulk 0 0 0 1 1 134217728 0 0
-( 64 64 64 ) ( -64 64 64 ) ( 64 64 -64 ) common/caulk 0 0 0 1 1 134217728 0 0
-( 64 64 64 ) ( 64 64 -64 ) ( 64 -64 64 ) common/caulk 0 0 0 1 1 134217728 0 0
-( -64 -64 -64 ) ( 64 -64 -64 ) ( -64 64 -64 ) common/caulk 0 0 0 1 1 134217728 0 0
-( -64 -64 -64 ) ( -64 -64 64 ) ( 64 -64 -64 ) common/caulk 0 0 0 1 1 134217728 0 0
-( -64 -64 -64 ) ( -64 64 -64 ) ( -64 -64 64 ) common/caulk 0 0 0 1 1 134217728 0 0
-}
-})";
-
-
-    auto reader = WorldReader{data, mdl::MapFormat::Quake3, {}};
-
-    auto worldResult = reader.read(worldBounds, status, taskManager);
-    REQUIRE(worldResult);
-
-    const auto& world = worldResult.value();
-    // TODO 2427: Assert two brushes!
     CHECK(world->defaultLayer()->childCount() == 1u);
+
+    auto* brushNode = static_cast<BrushNode*>(world->defaultLayer()->children().front());
+
+    // brush primitives are stored in a parallel UV coordinate system (issue 2427)
+    checkBrushUVCoordSystem(brushNode, true);
+
+    const auto& faces = brushNode->brush().faces();
+    CHECK(faces.size() == 6u);
+    for (const auto& face : faces)
+    {
+      CHECK(face.attributes().materialName() == "common/caulk");
+    }
   }
 
   SECTION("Quake 3 patch")
@@ -1278,7 +1248,7 @@ common/caulk
 }
 })";
 
-    auto reader = WorldReader{data, mdl::MapFormat::Quake3, {}};
+    auto reader = WorldReader{data, MapFormat::Quake3_Legacy, {}};
 
     auto worldResult = reader.read(worldBounds, status, taskManager);
     REQUIRE(worldResult);
@@ -1287,7 +1257,7 @@ common/caulk
     CHECK(world->defaultLayer()->childCount() == 1u);
 
     const auto* patchNode =
-      dynamic_cast<mdl::PatchNode*>(world->defaultLayer()->children().front());
+      dynamic_cast<PatchNode*>(world->defaultLayer()->children().front());
     CHECK(patchNode != nullptr);
 
     const auto& patch = patchNode->patch();
@@ -1297,7 +1267,7 @@ common/caulk
 
     CHECK_THAT(
       patch.controlPoints(),
-      Equals(std::vector<mdl::BezierPatch::Point>{
+      Equals(std::vector<BezierPatch::Point>{
         {-64, -64, 4, 0, 0},
         {-64, 0, 4, 0, -0.25},
         {-64, 64, 4, 0, -0.5},
@@ -1327,7 +1297,7 @@ common/caulk
 })";
 
 
-    auto reader = WorldReader{data, mdl::MapFormat::Quake2, {}};
+    auto reader = WorldReader{data, MapFormat::Quake2, {}};
 
     CHECK_NOTHROW(reader.read(worldBounds, status, taskManager));
   }
@@ -1340,7 +1310,7 @@ common/caulk
 "message" "yay \"Mr. Robot!\""
 })";
 
-    auto reader = WorldReader{data, mdl::MapFormat::Standard, {}};
+    auto reader = WorldReader{data, MapFormat::Standard, {}};
 
     auto worldResult = reader.read(worldBounds, status, taskManager);
     REQUIRE(worldResult);
@@ -1350,7 +1320,7 @@ common/caulk
     CHECK(worldNode->childCount() == 1u);
     CHECK_FALSE(worldNode->children().front()->hasChildren());
 
-    CHECK(worldNode->entity().hasProperty(mdl::EntityPropertyKeys::Classname));
+    CHECK(worldNode->entity().hasProperty(EntityPropertyKeys::Classname));
     CHECK(worldNode->entity().hasProperty("message"));
     CHECK(*worldNode->entity().property("message") == "yay \\\"Mr. Robot!\\\"");
   }
@@ -1363,7 +1333,7 @@ common/caulk
 "path" "c:\a\b\c\"
 })";
 
-    auto reader = WorldReader{data, mdl::MapFormat::Standard, {}};
+    auto reader = WorldReader{data, MapFormat::Standard, {}};
 
     auto worldResult = reader.read(worldBounds, status, taskManager);
     REQUIRE(worldResult);
@@ -1373,7 +1343,7 @@ common/caulk
     CHECK(worldNode->childCount() == 1u);
     CHECK_FALSE(worldNode->children().front()->hasChildren());
 
-    CHECK(worldNode->entity().hasProperty(mdl::EntityPropertyKeys::Classname));
+    CHECK(worldNode->entity().hasProperty(EntityPropertyKeys::Classname));
     CHECK(worldNode->entity().hasProperty("path"));
     CHECK(*worldNode->entity().property("path") == "c:\\a\\b\\c\\");
   }
@@ -1386,7 +1356,7 @@ common/caulk
 "path" "c:\\a\\b\\c\\"
 })";
 
-    auto reader = WorldReader{data, mdl::MapFormat::Standard, {}};
+    auto reader = WorldReader{data, MapFormat::Standard, {}};
 
     auto worldResult = reader.read(worldBounds, status, taskManager);
     REQUIRE(worldResult);
@@ -1396,7 +1366,7 @@ common/caulk
     CHECK(worldNode->childCount() == 1u);
     CHECK_FALSE(worldNode->children().front()->hasChildren());
 
-    CHECK(worldNode->entity().hasProperty(mdl::EntityPropertyKeys::Classname));
+    CHECK(worldNode->entity().hasProperty(EntityPropertyKeys::Classname));
     CHECK(worldNode->entity().hasProperty("path"));
     CHECK(*worldNode->entity().property("path") == "c:\\\\a\\\\b\\\\c\\\\");
   }
@@ -1409,7 +1379,7 @@ common/caulk
 "message" "test\\"
 })";
 
-    auto reader = WorldReader{data, mdl::MapFormat::Standard, {}};
+    auto reader = WorldReader{data, MapFormat::Standard, {}};
 
     auto worldResult = reader.read(worldBounds, status, taskManager);
     REQUIRE(worldResult);
@@ -1419,7 +1389,7 @@ common/caulk
     CHECK(worldNode->childCount() == 1u);
     CHECK_FALSE(worldNode->children().front()->hasChildren());
 
-    CHECK(worldNode->entity().hasProperty(mdl::EntityPropertyKeys::Classname));
+    CHECK(worldNode->entity().hasProperty(EntityPropertyKeys::Classname));
     CHECK(worldNode->entity().hasProperty("message"));
     CHECK(*worldNode->entity().property("message") == "test\\\\");
   }
@@ -1433,7 +1403,7 @@ common/caulk
 "message" "vm::line1\nvm::line2d"
 })";
 
-    auto reader = WorldReader{data, mdl::MapFormat::Standard, {}};
+    auto reader = WorldReader{data, MapFormat::Standard, {}};
 
     auto worldResult = reader.read(worldBounds, status, taskManager);
     REQUIRE(worldResult);
@@ -1443,7 +1413,7 @@ common/caulk
     CHECK(worldNode->childCount() == 1u);
     CHECK_FALSE(worldNode->children().front()->hasChildren());
 
-    CHECK(worldNode->entity().hasProperty(mdl::EntityPropertyKeys::Classname));
+    CHECK(worldNode->entity().hasProperty(EntityPropertyKeys::Classname));
     CHECK(worldNode->entity().hasProperty("message"));
     CHECK(*worldNode->entity().property("message") == "vm::line1\\nvm::line2d");
   }
@@ -1454,7 +1424,7 @@ common/caulk
     const auto file = fs::Disk::openFile(mapPath) | kdl::value();
     auto fileReader = file->reader().buffer();
 
-    auto worldReader = WorldReader{fileReader.stringView(), mdl::MapFormat::Quake2, {}};
+    auto worldReader = WorldReader{fileReader.stringView(), MapFormat::Quake2, {}};
     auto worldResult = worldReader.read(worldBounds, status, taskManager);
     REQUIRE(worldResult);
 
@@ -1462,11 +1432,11 @@ common/caulk
     REQUIRE(worldNode != nullptr);
     REQUIRE(1u == worldNode->childCount());
 
-    auto* layerNode = dynamic_cast<mdl::LayerNode*>(worldNode->children().at(0));
+    auto* layerNode = dynamic_cast<LayerNode*>(worldNode->children().at(0));
     REQUIRE(layerNode != nullptr);
     REQUIRE(1u == layerNode->childCount());
 
-    auto* brushNode = dynamic_cast<mdl::BrushNode*>(layerNode->children().at(0));
+    auto* brushNode = dynamic_cast<BrushNode*>(layerNode->children().at(0));
     REQUIRE(brushNode != nullptr);
 
     CHECK(brushNode->logicalBounds() == vm::bbox3d{{-512, -512, -64}, {512, 512, 0}});
@@ -1494,7 +1464,7 @@ common/caulk
 })";
 
 
-    auto reader = WorldReader{data, mdl::MapFormat::Standard, {}};
+    auto reader = WorldReader{data, MapFormat::Standard, {}};
 
     auto worldResult = reader.read(worldBounds, status, taskManager);
     REQUIRE(worldResult);
@@ -1503,17 +1473,17 @@ common/caulk
     REQUIRE(world != nullptr);
     REQUIRE(world->childCount() == 1u);
 
-    auto* defaultLayer = dynamic_cast<mdl::LayerNode*>(world->children().front());
+    auto* defaultLayer = dynamic_cast<LayerNode*>(world->children().front());
     REQUIRE(defaultLayer != nullptr);
     REQUIRE(defaultLayer->childCount() == 1u);
 
-    auto* brush = dynamic_cast<mdl::BrushNode*>(defaultLayer->children().front());
+    auto* brush = dynamic_cast<BrushNode*>(defaultLayer->children().front());
     REQUIRE(brush != nullptr);
 
     for (const auto& face : brush->brush().faces())
     {
       CHECK(!face.attributes().materialName().empty());
-      CHECK(face.attributes().materialName() == mdl::BrushFaceAttributes::NoMaterialName);
+      CHECK(face.attributes().materialName() == BrushFaceAttributes::NoMaterialName);
     }
   }
 
@@ -1552,7 +1522,7 @@ common/caulk
       materialName);
 
 
-    auto reader = WorldReader{data, mdl::MapFormat::Standard, {}};
+    auto reader = WorldReader{data, MapFormat::Standard, {}};
 
     auto worldResult = reader.read(worldBounds, status, taskManager);
     REQUIRE(worldResult);
@@ -1562,12 +1532,12 @@ common/caulk
     REQUIRE(worldNode->childCount() == 1u);
 
     const auto* defaultLayerNode =
-      dynamic_cast<mdl::LayerNode*>(worldNode->children().front());
+      dynamic_cast<LayerNode*>(worldNode->children().front());
     REQUIRE(defaultLayerNode != nullptr);
     REQUIRE(defaultLayerNode->childCount() == 1u);
 
     const auto* brushNode =
-      dynamic_cast<mdl::BrushNode*>(defaultLayerNode->children().front());
+      dynamic_cast<BrushNode*>(defaultLayerNode->children().front());
     REQUIRE(brushNode != nullptr);
 
     CHECK(brushNode->brush().face(0).attributes().materialName() == expectedName);
@@ -1598,7 +1568,7 @@ common/caulk
             )";
 
 
-    auto reader = WorldReader{data, mdl::MapFormat::Standard, {}};
+    auto reader = WorldReader{data, MapFormat::Standard, {}};
 
     auto worldResult = reader.read(worldBounds, status, taskManager);
     REQUIRE(worldResult);
@@ -1608,9 +1578,8 @@ common/caulk
     CHECK(world->defaultLayer()->childCount() == 2u);
 
     auto* groupNode1 =
-      dynamic_cast<mdl::GroupNode*>(world->defaultLayer()->children().front());
-    auto* groupNode2 =
-      dynamic_cast<mdl::GroupNode*>(world->defaultLayer()->children().back());
+      dynamic_cast<GroupNode*>(world->defaultLayer()->children().front());
+    auto* groupNode2 = dynamic_cast<GroupNode*>(world->defaultLayer()->children().back());
 
     REQUIRE(groupNode1 != nullptr);
     REQUIRE(groupNode2 != nullptr);
@@ -1643,7 +1612,7 @@ common/caulk
             )";
 
 
-    auto reader = WorldReader{data, mdl::MapFormat::Standard, {}};
+    auto reader = WorldReader{data, MapFormat::Standard, {}};
 
     auto worldResult = reader.read(worldBounds, status, taskManager);
     REQUIRE(worldResult);
@@ -1652,8 +1621,7 @@ common/caulk
     REQUIRE(world != nullptr);
     CHECK(world->defaultLayer()->childCount() == 1);
 
-    auto* groupNode =
-      dynamic_cast<mdl::GroupNode*>(world->defaultLayer()->children().front());
+    auto* groupNode = dynamic_cast<GroupNode*>(world->defaultLayer()->children().front());
 
     CHECK(groupNode != nullptr);
     CHECK(groupNode->linkId() == "abcd");
@@ -1693,7 +1661,7 @@ common/caulk
             )";
 
 
-    auto reader = WorldReader{data, mdl::MapFormat::Standard, {}};
+    auto reader = WorldReader{data, MapFormat::Standard, {}};
 
     auto worldResult = reader.read(worldBounds, status, taskManager);
     REQUIRE(worldResult);
@@ -1702,12 +1670,9 @@ common/caulk
     REQUIRE(world != nullptr);
     CHECK(world->defaultLayer()->childCount() == 3u);
 
-    auto* groupNode1 =
-      dynamic_cast<mdl::GroupNode*>(world->defaultLayer()->children()[0]);
-    auto* groupNode2 =
-      dynamic_cast<mdl::GroupNode*>(world->defaultLayer()->children()[1]);
-    auto* groupNode3 =
-      dynamic_cast<mdl::GroupNode*>(world->defaultLayer()->children()[2]);
+    auto* groupNode1 = dynamic_cast<GroupNode*>(world->defaultLayer()->children()[0]);
+    auto* groupNode2 = dynamic_cast<GroupNode*>(world->defaultLayer()->children()[1]);
+    auto* groupNode3 = dynamic_cast<GroupNode*>(world->defaultLayer()->children()[2]);
 
     REQUIRE(groupNode1 != nullptr);
     REQUIRE(groupNode2 != nullptr);
@@ -1742,7 +1707,7 @@ common/caulk
             )";
 
 
-    auto reader = WorldReader{data, mdl::MapFormat::Standard, {}};
+    auto reader = WorldReader{data, MapFormat::Standard, {}};
 
     auto worldResult = reader.read(worldBounds, status, taskManager);
     REQUIRE(worldResult);
@@ -1751,8 +1716,7 @@ common/caulk
     REQUIRE(world != nullptr);
     CHECK(world->defaultLayer()->childCount() == 1u);
 
-    auto* groupNode =
-      dynamic_cast<mdl::GroupNode*>(world->defaultLayer()->children().front());
+    auto* groupNode = dynamic_cast<GroupNode*>(world->defaultLayer()->children().front());
     CHECK(groupNode != nullptr);
 
     CHECK(groupNode->group().transformation() == vm::mat4x4d{});
@@ -1841,7 +1805,7 @@ common/caulk
             )";
 
 
-    auto reader = WorldReader{data, mdl::MapFormat::Standard, {}};
+    auto reader = WorldReader{data, MapFormat::Standard, {}};
 
     auto worldResult = reader.read(worldBounds, status, taskManager);
     REQUIRE(worldResult);
@@ -1851,32 +1815,32 @@ common/caulk
     REQUIRE(world->defaultLayer()->childCount() == 4u);
 
     const auto* groupNode_1_abcd =
-      dynamic_cast<mdl::GroupNode*>(world->defaultLayer()->children()[0]);
+      dynamic_cast<GroupNode*>(world->defaultLayer()->children()[0]);
 
     REQUIRE(groupNode_1_abcd->childCount() == 1u);
     const auto* groupNode_1_2_abcd =
-      dynamic_cast<mdl::GroupNode*>(groupNode_1_abcd->children().front());
+      dynamic_cast<GroupNode*>(groupNode_1_abcd->children().front());
 
     const auto* groupNode_2_xyz =
-      dynamic_cast<mdl::GroupNode*>(world->defaultLayer()->children()[1]);
+      dynamic_cast<GroupNode*>(world->defaultLayer()->children()[1]);
 
     REQUIRE(groupNode_2_xyz->childCount() == 1u);
     const auto* groupNode_2_1_xyz =
-      dynamic_cast<mdl::GroupNode*>(groupNode_2_xyz->children().front());
+      dynamic_cast<GroupNode*>(groupNode_2_xyz->children().front());
 
     const auto* groupNode_3_xyz =
-      dynamic_cast<mdl::GroupNode*>(world->defaultLayer()->children()[2]);
+      dynamic_cast<GroupNode*>(world->defaultLayer()->children()[2]);
 
     const auto* groupNode_4_fgh =
-      dynamic_cast<mdl::GroupNode*>(world->defaultLayer()->children()[3]);
+      dynamic_cast<GroupNode*>(world->defaultLayer()->children()[3]);
 
     REQUIRE(groupNode_4_fgh->childCount() == 1u);
     const auto* groupNode_4_1 =
-      dynamic_cast<mdl::GroupNode*>(groupNode_4_fgh->children().front());
+      dynamic_cast<GroupNode*>(groupNode_4_fgh->children().front());
 
     REQUIRE(groupNode_4_1->childCount() == 1u);
     const auto* groupNode_4_1_1_fgh =
-      dynamic_cast<mdl::GroupNode*>(groupNode_4_1->children().front());
+      dynamic_cast<GroupNode*>(groupNode_4_1->children().front());
 
     CHECK(groupNode_1_abcd->linkId() == "abcd");
     CHECK(
@@ -1926,7 +1890,7 @@ common/caulk
             )";
 
 
-    auto reader = WorldReader{data, mdl::MapFormat::Standard, {}};
+    auto reader = WorldReader{data, MapFormat::Standard, {}};
 
     auto worldResult = reader.read(worldBounds, status, taskManager);
     REQUIRE(worldResult);
@@ -1937,8 +1901,7 @@ common/caulk
 
     SECTION("Empty list")
     {
-      auto* entityNode =
-        dynamic_cast<mdl::EntityNode*>(world->defaultLayer()->children()[0]);
+      auto* entityNode = dynamic_cast<EntityNode*>(world->defaultLayer()->children()[0]);
       REQUIRE(entityNode != nullptr);
 
       CHECK_THAT(
@@ -1948,8 +1911,7 @@ common/caulk
 
     SECTION("Two protected properties")
     {
-      auto* entityNode =
-        dynamic_cast<mdl::EntityNode*>(world->defaultLayer()->children()[1]);
+      auto* entityNode = dynamic_cast<EntityNode*>(world->defaultLayer()->children()[1]);
       REQUIRE(entityNode != nullptr);
 
       CHECK_THAT(
@@ -1959,8 +1921,7 @@ common/caulk
 
     SECTION("Escaped semicolon")
     {
-      auto* entityNode =
-        dynamic_cast<mdl::EntityNode*>(world->defaultLayer()->children()[2]);
+      auto* entityNode = dynamic_cast<EntityNode*>(world->defaultLayer()->children()[2]);
       REQUIRE(entityNode != nullptr);
 
       CHECK_THAT(
@@ -1980,7 +1941,7 @@ common/caulk
 
     auto worldResult = WorldReader::tryRead(
       data,
-      {mdl::MapFormat::Standard, mdl::MapFormat::Valve},
+      {MapFormat::Standard, MapFormat::Valve},
       worldBounds,
       {},
       status,
@@ -1989,7 +1950,7 @@ common/caulk
 
     const auto& world = worldResult.value();
     REQUIRE(world != nullptr);
-    CHECK(world->mapFormat() == mdl::MapFormat::Standard);
+    CHECK(world->mapFormat() == MapFormat::Standard);
   }
 }
 
@@ -2015,7 +1976,7 @@ TEST_CASE("WorldReader (Regression)", "[regression]")
 }
 })";
 
-    auto reader = WorldReader{data, mdl::MapFormat::Standard, {}};
+    auto reader = WorldReader{data, MapFormat::Standard, {}};
     auto world = reader.read(worldBounds, status, taskManager);
     CHECK(world != nullptr);
   }
@@ -2035,7 +1996,7 @@ TEST_CASE("WorldReader (Regression)", "[regression]")
 }
 })";
 
-    auto reader = WorldReader{data, mdl::MapFormat::Standard, {}};
+    auto reader = WorldReader{data, MapFormat::Standard, {}};
     auto worldResult = reader.read(worldBounds, status, taskManager);
     REQUIRE(worldResult);
 
@@ -2046,7 +2007,7 @@ TEST_CASE("WorldReader (Regression)", "[regression]")
     auto* defaultLayer = world->children().front();
     CHECK(defaultLayer->childCount() == 1u);
 
-    auto* brushNode = static_cast<mdl::BrushNode*>(defaultLayer->children().front());
+    auto* brushNode = static_cast<BrushNode*>(defaultLayer->children().front());
     checkBrushUVCoordSystem(brushNode, false);
     const auto& faces = brushNode->brush().faces();
     CHECK(faces.size() == 6u);
@@ -2072,7 +2033,7 @@ TEST_CASE("WorldReader (Regression)", "[regression]")
 ( -559 1090 96 ) ( -598 1090 96 ) ( -598 1055 96 ) mt_sr_v13 -16 0 0 1 1
 }
 })";
-    auto reader = WorldReader{data, mdl::MapFormat::Standard, {}};
+    auto reader = WorldReader{data, MapFormat::Standard, {}};
     auto worldResult = reader.read(worldBounds, status, taskManager);
     REQUIRE(worldResult);
 
@@ -2082,7 +2043,7 @@ TEST_CASE("WorldReader (Regression)", "[regression]")
     CHECK(world->childCount() == 1u);
     auto* defaultLayer = world->children().front();
     CHECK(defaultLayer->childCount() == 1u);
-    auto* brush = static_cast<mdl::BrushNode*>(defaultLayer->children().front());
+    auto* brush = static_cast<BrushNode*>(defaultLayer->children().front());
     checkBrushUVCoordSystem(brush, false);
   }
 
@@ -2100,7 +2061,7 @@ TEST_CASE("WorldReader (Regression)", "[regression]")
 ( -32 1136 32 ) ( -32 1152 -96 ) ( -32 1120 -96 ) b_rc_v4 0 32 90 1 1
 }
 })";
-    auto reader = WorldReader{data, mdl::MapFormat::Standard, {}};
+    auto reader = WorldReader{data, MapFormat::Standard, {}};
     auto worldResult = reader.read(worldBounds, status, taskManager);
     REQUIRE(worldResult);
 
@@ -2110,8 +2071,70 @@ TEST_CASE("WorldReader (Regression)", "[regression]")
     CHECK(world->childCount() == 1u);
     auto* defaultLayer = world->children().front();
     CHECK(defaultLayer->childCount() == 1u);
-    auto* brush = static_cast<mdl::BrushNode*>(defaultLayer->children().front());
+    auto* brush = static_cast<BrushNode*>(defaultLayer->children().front());
     checkBrushUVCoordSystem(brush, false);
+  }
+}
+
+TEST_CASE("WorldReader format autodetection")
+{
+  // The brush primitives (brushDef) parser also accepts bare legacy brushes, so for
+  // auto-detection to be correct the candidate list must try the legacy format before the
+  // brush primitives format. This guards against the regression that caused legacy maps
+  // to be saved as brushDef.
+  auto taskManager = kdl::task_manager{};
+  const auto worldBounds = vm::bbox3d{8192.0};
+  auto status = TestParserStatus{};
+
+  const auto candidates = std::vector{
+    MapFormat::Quake3_Legacy,
+    MapFormat::Quake3_Valve,
+    MapFormat::Quake3_BrushPrimitives,
+  };
+
+  SECTION("a legacy map is detected as Quake3 (legacy), not brushDef")
+  {
+    const auto data = R"(
+{
+"classname" "worldspawn"
+{
+( -0 -0 -16 ) ( -0 -0  -0 ) ( 64 -0 -16 ) common/caulk 0 0 0 1 1
+( -0 -0 -16 ) ( -0 64 -16 ) ( -0 -0  -0 ) common/caulk 0 0 0 1 1
+( -0 -0 -16 ) ( 64 -0 -16 ) ( -0 64 -16 ) common/caulk 0 0 0 1 1
+( 64 64  -0 ) ( -0 64  -0 ) ( 64 64 -16 ) common/caulk 0 0 0 1 1
+( 64 64  -0 ) ( 64 64 -16 ) ( 64 -0  -0 ) common/caulk 0 0 0 1 1
+( 64 64  -0 ) ( 64 -0  -0 ) ( -0 64  -0 ) common/caulk 0 0 0 1 1
+}
+})";
+
+    auto world =
+      WorldReader::tryRead(data, candidates, worldBounds, {}, status, taskManager);
+    REQUIRE(world);
+    CHECK(world.value()->mapFormat() == MapFormat::Quake3_Legacy);
+  }
+
+  SECTION("a brush primitive map is detected as Quake3 (brush primitives)")
+  {
+    const auto data = R"(
+{
+"classname" "worldspawn"
+{
+brushDef
+{
+( -64 64 64 ) ( 64 -64 64 ) ( -64 -64 64 ) ( ( 0.015625 0 -0 ) ( -0 0.015625 0 ) ) common/caulk 0 0 0
+( -64 64 64 ) ( 64 64 -64 ) ( 64 64 64 ) ( ( 0.015625 0 0 ) ( 0 0.015625 0 ) ) common/caulk 0 0 0
+( 64 64 64 ) ( 64 -64 -64 ) ( 64 -64 64 ) ( ( 0.015625 0 -0 ) ( -0 0.015625 0 ) ) common/caulk 0 0 0
+( 64 64 -64 ) ( -64 -64 -64 ) ( 64 -64 -64 ) ( ( 0.015625 0 -0 ) ( -0 0.015625 0 ) ) common/caulk 0 0 0
+( 64 -64 -64 ) ( -64 -64 64 ) ( 64 -64 64 ) ( ( 0.015625 0 -0 ) ( -0 0.015625 0 ) ) common/caulk 0 0 0
+( -64 -64 64 ) ( -64 64 -64 ) ( -64 64 64 ) ( ( 0.015625 0 -0 ) ( -0 0.015625 0 ) ) common/caulk 0 0 0
+}
+}
+})";
+
+    auto world =
+      WorldReader::tryRead(data, candidates, worldBounds, {}, status, taskManager);
+    REQUIRE(world);
+    CHECK(world.value()->mapFormat() == MapFormat::Quake3_BrushPrimitives);
   }
 }
 

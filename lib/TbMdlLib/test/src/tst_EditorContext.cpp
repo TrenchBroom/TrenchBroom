@@ -52,7 +52,7 @@ protected:
 
   EditorContextTest()
     : worldBounds{8192.0}
-    , worldNode{{}, {}, MapFormat::Quake3}
+    , worldNode{{}, {}, MapFormat::Quake3_Legacy}
   {
   }
 

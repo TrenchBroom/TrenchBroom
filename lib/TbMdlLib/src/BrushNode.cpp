@@ -139,6 +139,15 @@ void BrushNode::setFaceMaterial(const size_t faceIndex, gl::Material* material)
   invalidateVertexCache();
 }
 
+void BrushNode::finalizeBrushPrimitiveFace(const size_t faceIndex)
+{
+  if (m_brush.face(faceIndex).finalizeBrushPrimitiveProjection())
+  {
+    invalidateIssues();
+    invalidateVertexCache();
+  }
+}
+
 static bool containsPatch(const Brush& brush, const PatchGrid& grid)
 {
   if (!brush.bounds().contains(grid.bounds))

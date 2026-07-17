@@ -39,14 +39,14 @@ namespace tb::mdl
 
 TEST_CASE("convertToString")
 {
-  auto worldNode = WorldNode({}, Entity{}, MapFormat::Quake3);
+  auto worldNode = WorldNode({}, Entity{}, MapFormat::Quake3_Legacy);
 
   // explicitly set link IDs
   setLinkId(worldNode, "world_link_id");
 
   CHECK(convertToString(worldNode) == R"(WorldNode{
   m_entityPropertyConfig: EntityPropertyConfig{defaultModelScaleExpression: nullopt, setDefaultProperties: 0, updateAnglePropertyAfterTransform: 1},
-  m_mapFormat: Quake3,
+  m_mapFormat: Quake3_Legacy,
   m_entity: Entity{m_properties: [EntityProperty{m_key: classname, m_value: worldspawn}], m_protectedProperties: []},
   m_children: [
     LayerNode{
@@ -81,7 +81,7 @@ TEST_CASE("convertToString")
 
   CHECK(convertToString(worldNode) == R"(WorldNode{
   m_entityPropertyConfig: EntityPropertyConfig{defaultModelScaleExpression: nullopt, setDefaultProperties: 0, updateAnglePropertyAfterTransform: 1},
-  m_mapFormat: Quake3,
+  m_mapFormat: Quake3_Legacy,
   m_entity: Entity{m_properties: [EntityProperty{m_key: classname, m_value: worldspawn}], m_protectedProperties: []},
   m_children: [
     LayerNode{

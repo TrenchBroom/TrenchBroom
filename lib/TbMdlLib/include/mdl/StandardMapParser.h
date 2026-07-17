@@ -124,18 +124,17 @@ private:
 
   void parseObjects(ParserStatus& status);
   void parseObject(ParserStatus& status);
+  void parseBrush(ParserStatus& status, const FileLocation& startLocation);
   void parseBrushPrimitive(ParserStatus& status, const FileLocation& startLocation);
-  void parseBrush(
-    ParserStatus& status, const FileLocation& startLocation, bool primitive);
 
-  void parseFace(ParserStatus& status, bool primitive);
+  void parseFace(ParserStatus& status);
   void parseQuakeFace(ParserStatus& status);
   void parseQuake2Face(ParserStatus& status);
   void parseQuake2ValveFace(ParserStatus& status);
   void parseHexen2Face(ParserStatus& status);
   void parseDaikatanaFace(ParserStatus& status);
   void parseValveFace(ParserStatus& status);
-  void parsePrimitiveFace(ParserStatus& status);
+  void parseBrushPrimitiveFace(ParserStatus& status);
 
   void parsePatch(ParserStatus& status, const FileLocation& startLocation);
 
