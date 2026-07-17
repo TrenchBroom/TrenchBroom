@@ -142,7 +142,7 @@ CompilationExportMapTaskEditor::CompilationExportMapTaskEditor(
     LayoutConstants::WideVMargin,
     LayoutConstants::WideHMargin,
     LayoutConstants::WideVMargin);
-  formLayout->setVerticalSpacing(LayoutConstants::NarrowVMargin);
+  formLayout->setVerticalSpacing(LayoutConstants::MediumVMargin);
   formLayout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
   addMainLayout(formLayout);
 
@@ -253,7 +253,7 @@ CompilationCopyFilesTaskEditor::CompilationCopyFilesTaskEditor(
     LayoutConstants::WideVMargin,
     LayoutConstants::WideHMargin,
     LayoutConstants::WideVMargin);
-  formLayout->setVerticalSpacing(LayoutConstants::NarrowVMargin);
+  formLayout->setVerticalSpacing(LayoutConstants::MediumVMargin);
   formLayout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
   addMainLayout(formLayout);
 
@@ -337,7 +337,7 @@ CompilationRenameFileTaskEditor::CompilationRenameFileTaskEditor(
     LayoutConstants::WideVMargin,
     LayoutConstants::WideHMargin,
     LayoutConstants::WideVMargin);
-  formLayout->setVerticalSpacing(LayoutConstants::NarrowVMargin);
+  formLayout->setVerticalSpacing(LayoutConstants::MediumVMargin);
   formLayout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
   addMainLayout(formLayout);
 
@@ -422,7 +422,7 @@ CompilationDeleteFilesTaskEditor::CompilationDeleteFilesTaskEditor(
     LayoutConstants::WideVMargin,
     LayoutConstants::WideHMargin,
     LayoutConstants::WideVMargin);
-  formLayout->setVerticalSpacing(LayoutConstants::NarrowVMargin);
+  formLayout->setVerticalSpacing(LayoutConstants::MediumVMargin);
   formLayout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
   addMainLayout(formLayout);
 
@@ -482,7 +482,7 @@ CompilationRunToolTaskEditor::CompilationRunToolTaskEditor(
     LayoutConstants::WideVMargin,
     LayoutConstants::WideHMargin,
     LayoutConstants::WideVMargin);
-  formLayout->setVerticalSpacing(LayoutConstants::NarrowVMargin);
+  formLayout->setVerticalSpacing(LayoutConstants::MediumVMargin);
   formLayout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
   addMainLayout(formLayout);
 
@@ -620,7 +620,7 @@ CompilationLaunchEngineTaskEditor::CompilationLaunchEngineTaskEditor(
     LayoutConstants::WideVMargin,
     LayoutConstants::WideHMargin,
     LayoutConstants::WideVMargin);
-  formLayout->setVerticalSpacing(LayoutConstants::NarrowVMargin);
+  formLayout->setVerticalSpacing(LayoutConstants::MediumVMargin);
   formLayout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
   addMainLayout(formLayout);
 
