@@ -19,7 +19,7 @@
 
 #include "base/Uuid.h"
 
-#include "stduuid/uuid.h"
+#include <uuid.h>
 
 #include <algorithm>
 #include <array>
