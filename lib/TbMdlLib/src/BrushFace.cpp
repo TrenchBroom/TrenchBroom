@@ -121,6 +121,7 @@ Result<BrushFace> BrushFace::create(
   const vm::vec3d& point1,
   const vm::vec3d& point2,
   const BrushFaceAttributes& attributes,
+  const UVAttributes& uvAttributes,
   const MapFormat mapFormat)
 {
   return isParallelUVCoordSystem(mapFormat) ? BrushFace::create(
@@ -129,73 +130,57 @@ Result<BrushFace> BrushFace::create(
                                                 point2,
                                                 attributes,
                                                 std::make_unique<ParallelUVCoordSystem>(
-                                                  point0, point1, point2, attributes))
+                                                  point0, point1, point2, uvAttributes))
                                             : BrushFace::create(
                                                 point0,
                                                 point1,
                                                 point2,
                                                 attributes,
                                                 std::make_unique<ParaxialUVCoordSystem>(
-                                                  point0, point1, point2, attributes));
+                                                  point0, point1, point2, uvAttributes));
 }
 
 Result<BrushFace> BrushFace::createFromStandard(
   const vm::vec3d& point0,
   const vm::vec3d& point1,
   const vm::vec3d& point2,
-  const BrushFaceAttributes& inputAttribs,
+  const BrushFaceAttributes& attributes,
+  const UVAttributes& uvAttributes,
   const MapFormat mapFormat)
 {
   contract_pre(mapFormat != MapFormat::Unknown);
 
-  auto uvCoordSystem = std::unique_ptr<UVCoordSystem>{};
-  auto attribs = BrushFaceAttributes{""};
+  auto uvCoordSystem =
+    isParallelUVCoordSystem(mapFormat)
+      // Convert paraxial to parallel
+      ? ParallelUVCoordSystem::fromParaxial(point0, point1, point2, uvAttributes)
+      // Pass through paraxial
+      : std::make_unique<ParaxialUVCoordSystem>(point0, point1, point2, uvAttributes);
 
-  if (isParallelUVCoordSystem(mapFormat))
-  {
-    // Convert paraxial to parallel
-    std::tie(uvCoordSystem, attribs) =
-      ParallelUVCoordSystem::fromParaxial(point0, point1, point2, inputAttribs);
-  }
-  else
-  {
-    // Pass through paraxial
-    uvCoordSystem =
-      std::make_unique<ParaxialUVCoordSystem>(point0, point1, point2, inputAttribs);
-    attribs = inputAttribs;
-  }
-
-  return BrushFace::create(point0, point1, point2, attribs, std::move(uvCoordSystem));
+  return BrushFace::create(point0, point1, point2, attributes, std::move(uvCoordSystem));
 }
 
 Result<BrushFace> BrushFace::createFromValve(
   const vm::vec3d& point1,
   const vm::vec3d& point2,
   const vm::vec3d& point3,
-  const BrushFaceAttributes& inputAttribs,
+  const BrushFaceAttributes& attributes,
+  const UVAttributes& uvAttributes,
   const vm::vec3d& uAxis,
   const vm::vec3d& vAxis,
   MapFormat mapFormat)
 {
   contract_pre(mapFormat != MapFormat::Unknown);
 
-  auto uvCoordSystem = std::unique_ptr<UVCoordSystem>{};
-  auto attribs = BrushFaceAttributes{""};
+  auto uvCoordSystem =
+    isParallelUVCoordSystem(mapFormat)
+      // Pass through parallel
+      ? std::make_unique<ParallelUVCoordSystem>(uAxis, vAxis, uvAttributes)
+      // Convert parallel to paraxial
+      : ParaxialUVCoordSystem::fromParallel(
+          point1, point2, point3, uvAttributes, uAxis, vAxis);
 
-  if (isParallelUVCoordSystem(mapFormat))
-  {
-    // Pass through parallel
-    uvCoordSystem = std::make_unique<ParallelUVCoordSystem>(uAxis, vAxis);
-    attribs = inputAttribs;
-  }
-  else
-  {
-    // Convert parallel to paraxial
-    std::tie(uvCoordSystem, attribs) = ParaxialUVCoordSystem::fromParallel(
-      point1, point2, point3, inputAttribs, uAxis, vAxis);
-  }
-
-  return BrushFace::create(point1, point2, point3, attribs, std::move(uvCoordSystem));
+  return BrushFace::create(point1, point2, point3, attributes, std::move(uvCoordSystem));
 }
 
 Result<BrushFace> BrushFace::create(
@@ -255,7 +240,7 @@ void BrushFace::restoreUVCoordSystemSnapshot(
 
 void BrushFace::copyUVCoordSystemFromFace(
   const UVCoordSystemSnapshot& coordSystemSnapshot,
-  const BrushFaceAttributes& attributes,
+  const UVAttributes& uvAttributes,
   const vm::plane3d& sourceFacePlane,
   const WrapStyle wrapStyle)
 {
@@ -270,19 +255,20 @@ void BrushFace::copyUVCoordSystemFromFace(
   // Get the UV coords at the refPoint using the source face's attributes and tex coord
   // system
   const auto desriedCoords =
-    m_uvCoordSystem->uvCoords(refPoint, attributes, vm::vec2f{1, 1});
+    m_uvCoordSystem->uvCoords(refPoint, uvAttributes, vm::vec2f{1, 1});
 
-  m_uvCoordSystem->setNormal(
-    sourceFacePlane.normal, m_boundary.normal, m_attributes, wrapStyle);
+  m_uvCoordSystem->setNormal(sourceFacePlane.normal, m_boundary.normal, wrapStyle);
 
   // Adjust the offset on this face so that the UV coordinates at the refPoint stay
   // the same
   if (!vm::is_zero(seam.direction, vm::Cd::almost_zero()))
   {
-    const auto currentCoords =
-      m_uvCoordSystem->uvCoords(refPoint, m_attributes, vm::vec2f::one());
+    const auto currentCoords = m_uvCoordSystem->uvCoords(refPoint, vm::vec2f::one());
     const auto offsetChange = desriedCoords - currentCoords;
-    m_attributes.setOffset(correct(modOffset(m_attributes.offset() + offsetChange), 4));
+
+    auto newUVAttributes = this->uvAttributes();
+    newUVAttributes.offset = correct(modOffset(newUVAttributes.offset + offsetChange), 4);
+    setUVAttributes(newUVAttributes);
   }
 }
 
@@ -403,24 +389,34 @@ const BrushFaceAttributes& BrushFace::attributes() const
 
 void BrushFace::setAttributes(const BrushFaceAttributes& attributes)
 {
-  const auto oldRotation = m_attributes.rotation();
   m_attributes = attributes;
-  m_uvCoordSystem->setRotation(m_boundary.normal, oldRotation, m_attributes.rotation());
 }
 
 bool BrushFace::setAttributes(const BrushFace& other)
 {
   auto result = false;
   result |= m_attributes.setMaterialName(other.attributes().materialName());
-  result |= m_attributes.setXOffset(other.attributes().xOffset());
-  result |= m_attributes.setYOffset(other.attributes().yOffset());
-  result |= m_attributes.setRotation(other.attributes().rotation());
-  result |= m_attributes.setXScale(other.attributes().xScale());
-  result |= m_attributes.setYScale(other.attributes().yScale());
   result |= m_attributes.setSurfaceContents(other.attributes().surfaceContents());
   result |= m_attributes.setSurfaceFlags(other.attributes().surfaceFlags());
   result |= m_attributes.setSurfaceValue(other.attributes().surfaceValue());
+
+  const auto otherUVAttributes = other.uvAttributes();
+  if (uvAttributes() != otherUVAttributes)
+  {
+    setUVAttributes(otherUVAttributes);
+    result = true;
+  }
   return result;
+}
+
+UVAttributes BrushFace::uvAttributes() const
+{
+  return m_uvCoordSystem->uvAttributes(textureSize());
+}
+
+void BrushFace::setUVAttributes(const UVAttributes& uvAttributes)
+{
+  m_uvCoordSystem->setUVAttributes(uvAttributes, textureSize());
 }
 
 namespace
@@ -486,7 +482,7 @@ void BrushFace::resetUVCoordSystemCache()
 {
   if (m_uvCoordSystem)
   {
-    m_uvCoordSystem->resetCache(m_points[0], m_points[1], m_points[2], m_attributes);
+    m_uvCoordSystem->resetCache(m_points[0], m_points[1], m_points[2]);
   }
 }
 
@@ -511,7 +507,7 @@ vm::vec2f BrushFace::textureSize() const
 
 vm::vec2f BrushFace::modOffset(const vm::vec2f& offset) const
 {
-  return m_attributes.modOffset(offset, textureSize());
+  return mdl::modOffset(offset, textureSize());
 }
 
 bool BrushFace::setMaterial(gl::Material* material)
@@ -547,33 +543,25 @@ void BrushFace::resetUVAxesToParaxial()
 
 void BrushFace::convertToParaxial()
 {
-  auto [newUVCoordSystem, newAttributes] =
-    m_uvCoordSystem->toParaxial(m_points[0], m_points[1], m_points[2], m_attributes);
-
-  m_attributes = newAttributes;
-  m_uvCoordSystem = std::move(newUVCoordSystem);
+  m_uvCoordSystem =
+    m_uvCoordSystem->toParaxial(m_points[0], m_points[1], m_points[2], textureSize());
 }
 
 void BrushFace::convertToParallel()
 {
-  auto [newUVCoordSystem, newAttributes] =
-    m_uvCoordSystem->toParallel(m_points[0], m_points[1], m_points[2], m_attributes);
-
-  m_attributes = newAttributes;
-  m_uvCoordSystem = std::move(newUVCoordSystem);
+  m_uvCoordSystem =
+    m_uvCoordSystem->toParallel(m_points[0], m_points[1], m_points[2], textureSize());
 }
 
 void BrushFace::translateUV(
   const vm::vec3d& up, const vm::vec3d& right, const vm::vec2f& offset)
 {
-  m_uvCoordSystem->translate(m_boundary.normal, up, right, offset, m_attributes);
+  m_uvCoordSystem->translate(m_boundary.normal, up, right, offset, textureSize());
 }
 
 void BrushFace::rotateUV(const float angle)
 {
-  const auto oldRotation = m_attributes.rotation();
-  m_uvCoordSystem->rotate(m_boundary.normal, angle, m_attributes);
-  m_uvCoordSystem->setRotation(m_boundary.normal, oldRotation, m_attributes.rotation());
+  m_uvCoordSystem->rotate(m_boundary.normal, angle, textureSize());
 }
 
 void BrushFace::shearUV(const vm::vec2f& factors)
@@ -614,14 +602,16 @@ void BrushFace::flipUV(
     flipUAxis = !flipUAxis;
   }
 
+  auto uvAttributes = this->uvAttributes();
   if (flipUAxis)
   {
-    m_attributes.setXScale(-m_attributes.xScale());
+    uvAttributes.scale[0] = -uvAttributes.scale.x();
   }
   else
   {
-    m_attributes.setYScale(-m_attributes.yScale());
+    uvAttributes.scale[1] = -uvAttributes.scale.y();
   }
+  setUVAttributes(uvAttributes);
 }
 
 Result<void> BrushFace::transform(const vm::mat4x4d& transform, const bool lockAlignment)
@@ -647,13 +637,7 @@ Result<void> BrushFace::transform(const vm::mat4x4d& transform, const bool lockA
 
   return setPoints(m_points[0], m_points[1], m_points[2]) | kdl::transform([&]() {
            m_uvCoordSystem->transform(
-             oldBoundary,
-             m_boundary,
-             transform,
-             m_attributes,
-             textureSize(),
-             lockAlignment,
-             invariant);
+             oldBoundary, m_boundary, transform, textureSize(), lockAlignment, invariant);
          });
 }
 
@@ -685,18 +669,21 @@ Result<void> BrushFace::updatePointsFromVertices()
                // Get the UV coordinates at the refPoint using the old face's attribs
                // and UV coordinage system
                const auto desriedCoords =
-                 m_uvCoordSystem->uvCoords(refPoint, m_attributes, vm::vec2f{1, 1});
+                 m_uvCoordSystem->uvCoords(refPoint, vm::vec2f{1, 1});
 
                m_uvCoordSystem->setNormal(
-                 oldPlane.normal, m_boundary.normal, m_attributes, WrapStyle::Projection);
+                 oldPlane.normal, m_boundary.normal, WrapStyle::Projection);
 
                // Adjust the offset on this face so that the UV coordinates at the
                // refPoint stay the same
                const auto currentCoords =
-                 m_uvCoordSystem->uvCoords(refPoint, m_attributes, vm::vec2f{1, 1});
+                 m_uvCoordSystem->uvCoords(refPoint, vm::vec2f{1, 1});
                const auto offsetChange = desriedCoords - currentCoords;
-               m_attributes.setOffset(
-                 correct(modOffset(m_attributes.offset() + offsetChange), 4));
+
+               auto uvAttributes = this->uvAttributes();
+               uvAttributes.offset =
+                 correct(modOffset(uvAttributes.offset + offsetChange), 4);
+               setUVAttributes(uvAttributes);
              }
            });
 }
@@ -725,7 +712,7 @@ vm::mat4x4d BrushFace::fromUVCoordSystemMatrix(
 
 float BrushFace::measureUVAngle(const vm::vec2f& center, const vm::vec2f& point) const
 {
-  return m_uvCoordSystem->measureAngle(m_attributes.rotation(), center, point);
+  return m_uvCoordSystem->measureAngle(uvAttributes().rotation, center, point);
 }
 
 size_t BrushFace::vertexCount() const
@@ -798,7 +785,7 @@ void BrushFace::deselect()
 
 vm::vec2f BrushFace::uvCoords(const vm::vec3d& point) const
 {
-  return m_uvCoordSystem->uvCoords(point, m_attributes, textureSize());
+  return m_uvCoordSystem->uvCoords(point, textureSize());
 }
 
 std::optional<double> BrushFace::intersectWithRay(const vm::ray3d& ray) const

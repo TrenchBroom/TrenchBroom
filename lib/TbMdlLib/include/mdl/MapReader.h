@@ -158,6 +158,7 @@ protected: // implement MapParser interface
     const vm::vec3d& point2,
     const vm::vec3d& point3,
     const BrushFaceAttributes& attribs,
+    const UVAttributes& uvAttribs,
     ParserStatus& status) override;
   void onValveBrushFace(
     const FileLocation& location,
@@ -166,6 +167,7 @@ protected: // implement MapParser interface
     const vm::vec3d& point2,
     const vm::vec3d& point3,
     const BrushFaceAttributes& attribs,
+    const UVAttributes& uvAttribs,
     const vm::vec3d& uAxis,
     const vm::vec3d& vAxis,
     ParserStatus& status) override;

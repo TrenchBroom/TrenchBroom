@@ -112,8 +112,8 @@ private:
   {
     auto& gl = renderContext.gl();
 
-    const auto& offset = m_helper.face()->attributes().offset();
-    const auto& scale = m_helper.face()->attributes().scale();
+    const auto& offset = m_helper.face()->uvAttributes().offset;
+    const auto& scale = m_helper.face()->uvAttributes().scale;
     const auto toTex = m_helper.face()->toUVCoordSystemMatrix(offset, scale);
 
     const auto* material = m_helper.face()->material();

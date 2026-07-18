@@ -358,10 +358,9 @@ TEST_CASE("Brush")
 
     auto& topFace = brush.face(*topFaceIndex);
 
-    auto attributes = topFace.attributes();
-    attributes.setXOffset(64.0f);
-    attributes.setYOffset(-48.0f);
-    topFace.setAttributes(attributes);
+    auto uvAttributes = topFace.uvAttributes();
+    uvAttributes.offset = vm::vec2f{64.0f, -48.0f};
+    topFace.setUVAttributes(uvAttributes);
 
     auto newBrush = brush;
     newBrush.cloneFaceAttributesFrom(brush);

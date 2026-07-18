@@ -40,6 +40,7 @@
 #include "mdl/ParallelUVCoordSystem.h"
 #include "mdl/TestFactory.h"
 #include "mdl/TestUtils.h"
+#include "mdl/UVAttributes.h"
 #include "mdl/WorldNode.h"
 
 #include "kd/ranges/to.h"
@@ -1175,7 +1176,7 @@ TEST_CASE("Map_Geometry")
       auto* entityNode = new EntityNode{Entity{}};
       addNodes(map, {{parentForNodes(map), {entityNode}}});
 
-      auto texAlignment = ParallelUVCoordSystem{{1, 0, 0}, {0, 1, 0}};
+      auto texAlignment = ParallelUVCoordSystem{{1, 0, 0}, {0, 1, 0}, UVAttributes{}};
       auto texAlignmentSnapshot = texAlignment.takeSnapshot();
 
       auto brush1 = builder.createCuboid(vm::bbox3d{{0, 0, 0}, {32, 64, 64}}, "material")
@@ -1291,7 +1292,8 @@ TEST_CASE("Map_Geometry")
       auto* entityNode = new EntityNode{Entity{}};
       addNodes(map, {{parentForNodes(map), {entityNode}}});
 
-      auto texAlignment = ParallelUVCoordSystem{vm::vec3d{1, 0, 0}, vm::vec3d{0, 1, 0}};
+      auto texAlignment =
+        ParallelUVCoordSystem{vm::vec3d{1, 0, 0}, vm::vec3d{0, 1, 0}, UVAttributes{}};
       auto texAlignmentSnapshot = texAlignment.takeSnapshot();
 
       auto brush1 = builder.createCuboid(

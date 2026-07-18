@@ -19,8 +19,6 @@
 
 #include "mdl/UVCoordSystem.h"
 
-#include "mdl/BrushFace.h"
-
 #include "vm/mat.h"
 #include "vm/mat_ext.h"
 
@@ -39,16 +37,23 @@ UVCoordSystem::UVCoordSystem() = default;
 UVCoordSystem::~UVCoordSystem() = default;
 
 vm::vec2f UVCoordSystem::uvCoords(
+  const vm::vec3d& point, const vm::vec2f& textureSize) const
+{
+  return uvCoords(point, uvAttributes(textureSize), textureSize);
+}
+
+vm::vec2f UVCoordSystem::uvCoords(
   const vm::vec3d& point,
-  const BrushFaceAttributes& attribs,
+  const UVAttributes& uvAttributes,
   const vm::vec2f& textureSize) const
 {
-  return (computeUVCoords(point, attribs.scale()) + attribs.offset()) / textureSize;
+  return (computeUVCoords(point, uvAttributes.scale) + uvAttributes.offset) / textureSize;
 }
 
 bool operator==(const UVCoordSystem& lhs, const UVCoordSystem& rhs)
 {
-  return lhs.uAxis() == rhs.uAxis() && lhs.vAxis() == rhs.vAxis();
+  return lhs.uAxis() == rhs.uAxis() && lhs.vAxis() == rhs.vAxis()
+         && lhs.uvAttributes(vm::vec2f{1, 1}) == rhs.uvAttributes(vm::vec2f{1, 1});
 }
 
 bool operator!=(const UVCoordSystem& lhs, const UVCoordSystem& rhs)
@@ -57,20 +62,17 @@ bool operator!=(const UVCoordSystem& lhs, const UVCoordSystem& rhs)
 }
 
 void UVCoordSystem::setNormal(
-  const vm::vec3d& oldNormal,
-  const vm::vec3d& newNormal,
-  const BrushFaceAttributes& attribs,
-  const WrapStyle style)
+  const vm::vec3d& oldNormal, const vm::vec3d& newNormal, const WrapStyle style)
 {
   if (oldNormal != newNormal)
   {
     switch (style)
     {
     case WrapStyle::Rotation:
-      updateNormalWithRotation(oldNormal, newNormal, attribs);
+      updateNormalWithRotation(oldNormal, newNormal);
       break;
     case WrapStyle::Projection:
-      updateNormalWithProjection(newNormal, attribs);
+      updateNormalWithProjection(newNormal);
       break;
     }
   }
@@ -81,7 +83,7 @@ void UVCoordSystem::translate(
   const vm::vec3d& up,
   const vm::vec3d& right,
   const vm::vec2f& offset,
-  BrushFaceAttributes& attribs) const
+  const vm::vec2f& textureSize)
 {
   const auto toPlane = vm::plane_projection_matrix(0.0, normal);
   const auto fromPlane = vm::invert(toPlane);
@@ -152,24 +154,30 @@ void UVCoordSystem::translate(
     actualOffset[vIndex] = +offset.y();
   }
 
+  auto uvAttributes = this->uvAttributes(textureSize);
+
   // Flip offset direction when texture scale is negative
-  if (attribs.scale().x() < 0.0f)
+  if (uvAttributes.scale.x() < 0.0f)
   {
     actualOffset[0] *= -1.0f;
   }
-  if (attribs.scale().y() < 0.0f)
+  if (uvAttributes.scale.y() < 0.0f)
   {
     actualOffset[1] *= -1.0f;
   }
 
-  attribs.setOffset(attribs.offset() + actualOffset);
+  uvAttributes.offset = uvAttributes.offset + actualOffset;
+  setUVAttributes(uvAttributes, textureSize);
 }
 
 void UVCoordSystem::rotate(
-  const vm::vec3d& normal, const float angle, BrushFaceAttributes& attribs) const
+  const vm::vec3d& normal, const float angle, const vm::vec2f& textureSize)
 {
   const auto actualAngle = isRotationInverted(normal) ? -angle : angle;
-  attribs.setRotation(attribs.rotation() + actualAngle);
+
+  auto uvAttributes = this->uvAttributes(textureSize);
+  uvAttributes.rotation = uvAttributes.rotation + actualAngle;
+  setUVAttributes(uvAttributes, textureSize);
 }
 
 vm::mat4x4d UVCoordSystem::toMatrix(const vm::vec2f& o, const vm::vec2f& s) const

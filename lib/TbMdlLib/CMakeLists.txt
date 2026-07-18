@@ -149,6 +149,7 @@ target_sources(TbMdlLib
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Palette.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/ParallelUVCoordSystem.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/ParaxialUVCoordSystem.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/PrimitiveUVCoordSystem.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/ParseCompilationConfig.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/ParseGameConfig.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/ParseGameEngineConfig.cpp
@@ -190,6 +191,7 @@ target_sources(TbMdlLib
     ${CMAKE_CURRENT_SOURCE_DIR}/src/UpdateLinkedGroupsCommand.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/UpdateLinkedGroupsCommandBase.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/UpdateLinkedGroupsHelper.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/UVAttributes.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/UVCoordSystem.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/UVUtils.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Validator.cpp

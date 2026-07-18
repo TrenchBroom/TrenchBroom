@@ -234,9 +234,9 @@ public:
     const auto newCenterInFaceCoords = vm::vec2f{toFaceNew * oldCenterInWorldCoords};
 
     const auto delta = (oldCenterInFaceCoords - newCenterInFaceCoords)
-                       / m_helper.face()->attributes().scale();
+                       / m_helper.face()->uvAttributes().scale;
     const auto newOffset =
-      vm::correct(m_helper.face()->attributes().offset() + delta, 4, 0.0f);
+      vm::correct(m_helper.face()->uvAttributes().offset + delta, 4, 0.0f);
 
     setBrushFaceAttributes(
       m_map,
@@ -295,7 +295,7 @@ std::optional<float> computeInitialAngle(
 {
   return hitPointInFaceCoords(helper, inputState)
          | kdl::optional_transform([&](const auto& point) {
-             return measureAngle(helper, point) - helper.face()->attributes().rotation();
+             return measureAngle(helper, point) - helper.face()->uvAttributes().rotation;
            });
 }
 
@@ -367,7 +367,7 @@ std::unique_ptr<GestureTracker> UVRotateTool::acceptMouseDrag(
     return nullptr;
   }
 
-  if (!m_helper.face()->attributes().valid())
+  if (!mdl::isValid(m_helper.face()->uvAttributes()))
   {
     return nullptr;
   }
@@ -388,7 +388,7 @@ void UVRotateTool::render(
 
   if (
     inputState.anyToolDragging() || !m_helper.valid()
-    || !m_helper.face()->attributes().valid())
+    || !mdl::isValid(m_helper.face()->uvAttributes()))
   {
     return;
   }

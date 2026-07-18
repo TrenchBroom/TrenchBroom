@@ -31,6 +31,7 @@
 #include "mdl/LayerNode.h"
 #include "mdl/NodeIndex.h"
 #include "mdl/PatchNode.h"
+#include "mdl/UVAttributes.h"
 #include "mdl/WorldNode.h"
 
 #include <string>
@@ -134,8 +135,8 @@ TEST_CASE("NodeIndex")
 
     SECTION("BrushNode")
     {
-      const auto builder =
-        BrushBuilder{MapFormat::Valve, vm::bbox3d{8192.0}, BrushFaceAttributes{""}};
+      const auto builder = BrushBuilder{
+        MapFormat::Valve, vm::bbox3d{8192.0}, BrushFaceAttributes{""}, UVAttributes{}};
 
       auto brush = builder.createCube(32.0, "default_material").value();
       brush.face(0).setAttributes(BrushFaceAttributes{"material_0"});

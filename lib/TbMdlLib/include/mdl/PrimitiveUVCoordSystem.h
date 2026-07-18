@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010 Kristian Duske
+ Copyright (C) 2026 Thomas Jones
 
  This file is part of TrenchBroom.
 
@@ -22,37 +22,24 @@
 #include "Macros.h"
 #include "mdl/UVCoordSystem.h"
 
-#include "vm/mat.h"
 #include "vm/vec.h"
 
 #include <memory>
-#include <tuple>
 
 namespace tb::mdl
 {
 
-/**
- * Generates two vectors which are perpendicular to `normal` and perpendicular to each
- * other.
- */
-std::tuple<vm::vec3d, vm::vec3d> computeInitialAxes(const vm::vec3d& normal);
-
-/**
- * Projects the given UV axes onto a face with the given normal by applying only 90
- * degree rotations if necessary.
- */
-std::tuple<vm::vec3d, vm::vec3d> projectUVAxes(
-  const vm::vec3d& uAxis, const vm::vec3d& vAxis, const vm::vec3d& newNormal);
-
-class ParallelUVCoordSystemSnapshot : public UVCoordSystemSnapshot
+class PrimitiveUVCoordSystemSnapshot : public UVCoordSystemSnapshot
 {
 private:
   vm::vec3d m_uAxis;
   vm::vec3d m_vAxis;
+  vm::vec2f m_offset;
 
 public:
-  ParallelUVCoordSystemSnapshot(const vm::vec3d& uAxis, const vm::vec3d& vAxis);
-  explicit ParallelUVCoordSystemSnapshot(const ParallelUVCoordSystem* coordSystem);
+  PrimitiveUVCoordSystemSnapshot(
+    const vm::vec3d& uAxis, const vm::vec3d& vAxis, const vm::vec2f& offset);
+  explicit PrimitiveUVCoordSystemSnapshot(const PrimitiveUVCoordSystem* coordSystem);
 
   std::unique_ptr<UVCoordSystemSnapshot> clone() const override;
 
@@ -62,29 +49,28 @@ private:
   void doRestore(PrimitiveUVCoordSystem& coordSystem) const override;
 };
 
-class ParallelUVCoordSystem : public UVCoordSystem
+/**
+ * A UV coordinate system for Quake 3 brush primitives. The authoritative data are the
+ * UV axes and the offset, which map world space points to normalized UV space (in
+ * texture repeats) independently of the texture size. The UV attributes (offset, scale
+ * and rotation) are derived from the axes on the fly.
+ */
+class PrimitiveUVCoordSystem : public UVCoordSystem
 {
 private:
   vm::vec3d m_uAxis;
   vm::vec3d m_vAxis;
-  UVAttributes m_uvAttributes;
+  vm::vec2f m_offset;
 
-  friend class ParallelUVCoordSystemSnapshot;
+  friend class PrimitiveUVCoordSystemSnapshot;
 
 public:
-  ParallelUVCoordSystem(
-    const vm::vec3d& point0,
-    const vm::vec3d& point1,
-    const vm::vec3d& point2,
-    const UVAttributes& uvAttributes);
-  ParallelUVCoordSystem(
-    const vm::vec3d& uAxis, const vm::vec3d& vAxis, const UVAttributes& uvAttributes);
-
-  static std::unique_ptr<UVCoordSystem> fromParaxial(
-    const vm::vec3d& point0,
-    const vm::vec3d& point1,
-    const vm::vec3d& point2,
-    const UVAttributes& uvAttributes);
+  PrimitiveUVCoordSystem(
+    const vm::vec3d& uAxis, const vm::vec3d& vAxis, const vm::vec2f& offset);
+  PrimitiveUVCoordSystem(
+    const vm::vec3d& normal,
+    const UVAttributes& uvAttributes,
+    const vm::vec2f& textureSize);
 
   std::unique_ptr<UVCoordSystem> clone() const override;
   std::unique_ptr<UVCoordSystemSnapshot> takeSnapshot() const override;
@@ -100,10 +86,12 @@ public:
 
   void resetCache(
     const vm::vec3d& point0, const vm::vec3d& point1, const vm::vec3d& point2) override;
-
   void reset(const vm::vec3d& normal) override;
   void resetToParaxial(const vm::vec3d& normal, float angle) override;
   void resetToParallel(const vm::vec3d& normal, float angle) override;
+
+  using UVCoordSystem::uvCoords;
+  vm::vec2f uvCoords(const vm::vec3d& point, const vm::vec2f& textureSize) const override;
 
   void transform(
     const vm::plane3d& oldBoundary,
@@ -130,16 +118,18 @@ public:
     const vm::vec2f& textureSize) const override;
 
 private:
+  void setAxes(
+    const vm::vec3d& normal,
+    const UVAttributes& uvAttributes,
+    const vm::vec2f& textureSize);
+
   bool isRotationInverted(const vm::vec3d& normal) const override;
 
   void updateNormalWithProjection(const vm::vec3d& newNormal) override;
   void updateNormalWithRotation(
     const vm::vec3d& oldNormal, const vm::vec3d& newNormal) override;
 
-  float computeRotationAngle(
-    const vm::plane3d& oldBoundary, const vm::mat4x4d& transformation) const;
-
-  deleteCopyAndMove(ParallelUVCoordSystem);
+  deleteCopyAndMove(PrimitiveUVCoordSystem);
 };
 
 } // namespace tb::mdl

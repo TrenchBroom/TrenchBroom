@@ -32,6 +32,7 @@
 #include "mdl/Matchers.h"
 #include "mdl/TestFactory.h"
 #include "mdl/TestUtils.h"
+#include "mdl/UVAttributes.h"
 #include "mdl/UVCoordSystem.h"
 #include "mdl/UpdateBrushFaceAttributes.h"
 
@@ -128,12 +129,13 @@ TEST_CASE("Map_Brushes")
 
       {
         const auto& firstAttrs = getFace(*brushNode, firstFaceIndex).attributes();
+        const auto firstUVAttrs = getFace(*brushNode, firstFaceIndex).uvAttributes();
         CHECK(firstAttrs.materialName() == "first");
-        CHECK(firstAttrs.xOffset() == 32.0f);
-        CHECK(firstAttrs.yOffset() == 64.0f);
-        CHECK(firstAttrs.rotation() == 90.0f);
-        CHECK(firstAttrs.xScale() == 2.0f);
-        CHECK(firstAttrs.yScale() == 4.0f);
+        CHECK(firstUVAttrs.offset.x() == 32.0f);
+        CHECK(firstUVAttrs.offset.y() == 64.0f);
+        CHECK(firstUVAttrs.rotation == 90.0f);
+        CHECK(firstUVAttrs.scale.x() == 2.0f);
+        CHECK(firstUVAttrs.scale.y() == 4.0f);
         CHECK(firstAttrs.surfaceFlags() == 63u);
         CHECK(firstAttrs.surfaceContents() == 12u);
         CHECK(firstAttrs.surfaceValue() == 3.14f);
@@ -160,12 +162,13 @@ TEST_CASE("Map_Brushes")
 
       {
         const auto& secondAttrs = getFace(*brushNode, secondFaceIndex).attributes();
+        const auto secondUVAttrs = getFace(*brushNode, secondFaceIndex).uvAttributes();
         CHECK(secondAttrs.materialName() == "second");
-        CHECK(secondAttrs.xOffset() == 16.0f);
-        CHECK(secondAttrs.yOffset() == 48.0f);
-        CHECK(secondAttrs.rotation() == 45.0f);
-        CHECK(secondAttrs.xScale() == 1.0f);
-        CHECK(secondAttrs.yScale() == 1.0f);
+        CHECK(secondUVAttrs.offset.x() == 16.0f);
+        CHECK(secondUVAttrs.offset.y() == 48.0f);
+        CHECK(secondUVAttrs.rotation == 45.0f);
+        CHECK(secondUVAttrs.scale.x() == 1.0f);
+        CHECK(secondUVAttrs.scale.y() == 1.0f);
         CHECK(secondAttrs.surfaceFlags() == 18u);
         CHECK(secondAttrs.surfaceContents() == 2048u);
         CHECK(secondAttrs.surfaceValue() == 1.0f);
@@ -176,11 +179,17 @@ TEST_CASE("Map_Brushes")
       selectBrushFaces(map, {{brushNode, thirdFaceIndex}});
 
       setBrushFaceAttributes(
-        map, copyAll(getFace(*brushNode, secondFaceIndex).attributes()));
+        map,
+        copyAll(
+          getFace(*brushNode, secondFaceIndex).attributes(),
+          getFace(*brushNode, secondFaceIndex).uvAttributes()));
 
       CHECK(
         getFace(*brushNode, thirdFaceIndex).attributes()
         == getFace(*brushNode, secondFaceIndex).attributes());
+      CHECK(
+        getFace(*brushNode, thirdFaceIndex).uvAttributes()
+        == getFace(*brushNode, secondFaceIndex).uvAttributes());
 
       auto thirdFaceContentsFlags =
         getFace(*brushNode, thirdFaceIndex).attributes().surfaceContents();
@@ -189,26 +198,37 @@ TEST_CASE("Map_Brushes")
       selectBrushFaces(map, {{brushNode, secondFaceIndex}});
 
       setBrushFaceAttributes(
-        map, copyAll(getFace(*brushNode, firstFaceIndex).attributes()));
+        map,
+        copyAll(
+          getFace(*brushNode, firstFaceIndex).attributes(),
+          getFace(*brushNode, firstFaceIndex).uvAttributes()));
 
       CHECK(
         getFace(*brushNode, secondFaceIndex).attributes()
         == getFace(*brushNode, firstFaceIndex).attributes());
+      CHECK(
+        getFace(*brushNode, secondFaceIndex).uvAttributes()
+        == getFace(*brushNode, firstFaceIndex).uvAttributes());
 
       deselectAll(map);
       selectBrushFaces(map, {{brushNode, thirdFaceIndex}});
       setBrushFaceAttributes(
-        map, copyAllExceptContentFlags(getFace(*brushNode, firstFaceIndex).attributes()));
+        map,
+        copyAllExceptContentFlags(
+          getFace(*brushNode, firstFaceIndex).attributes(),
+          getFace(*brushNode, firstFaceIndex).uvAttributes()));
 
       {
         const auto& firstAttrs = getFace(*brushNode, firstFaceIndex).attributes();
+        const auto firstUVAttrs = getFace(*brushNode, firstFaceIndex).uvAttributes();
         const auto& newThirdAttrs = getFace(*brushNode, thirdFaceIndex).attributes();
+        const auto newThirdUVAttrs = getFace(*brushNode, thirdFaceIndex).uvAttributes();
         CHECK(newThirdAttrs.materialName() == firstAttrs.materialName());
-        CHECK(newThirdAttrs.xOffset() == firstAttrs.xOffset());
-        CHECK(newThirdAttrs.yOffset() == firstAttrs.yOffset());
-        CHECK(newThirdAttrs.rotation() == firstAttrs.rotation());
-        CHECK(newThirdAttrs.xScale() == firstAttrs.xScale());
-        CHECK(newThirdAttrs.yScale() == firstAttrs.yScale());
+        CHECK(newThirdUVAttrs.offset.x() == firstUVAttrs.offset.x());
+        CHECK(newThirdUVAttrs.offset.y() == firstUVAttrs.offset.y());
+        CHECK(newThirdUVAttrs.rotation == firstUVAttrs.rotation);
+        CHECK(newThirdUVAttrs.scale.x() == firstUVAttrs.scale.x());
+        CHECK(newThirdUVAttrs.scale.y() == firstUVAttrs.scale.y());
         CHECK(newThirdAttrs.surfaceFlags() == firstAttrs.surfaceFlags());
         CHECK(newThirdAttrs.surfaceContents() == thirdFaceContentsFlags);
         CHECK(newThirdAttrs.surfaceValue() == firstAttrs.surfaceValue());
@@ -280,7 +300,10 @@ TEST_CASE("Map_Brushes")
         selectNodes(map, {lavabrush});
 
         CHECK(setBrushFaceAttributes(
-          map, copyAllExceptContentFlags(getFace(*waterbrush, 0).attributes())));
+          map,
+          copyAllExceptContentFlags(
+            getFace(*waterbrush, 0).attributes(),
+            getFace(*waterbrush, 0).uvAttributes())));
 
         SECTION("Check lavabrush is now inheriting the water content flags")
         {
@@ -324,12 +347,13 @@ TEST_CASE("Map_Brushes")
 
     SECTION("Reset attributes to defaults")
     {
-      auto defaultFaceAttrs = BrushFaceAttributes{BrushFaceAttributes::NoMaterialName};
-      defaultFaceAttrs.setXScale(0.5f);
-      defaultFaceAttrs.setYScale(2.0f);
+      const auto defaultFaceAttrs =
+        BrushFaceAttributes{BrushFaceAttributes::NoMaterialName};
+      const auto defaultUVAttrs = UVAttributes{.scale = vm::vec2f{0.5f, 2.0f}};
 
       auto fixtureConfig = MapFixtureConfig{};
       fixtureConfig.gameInfo.gameConfig.faceAttribsConfig.defaults = defaultFaceAttrs;
+      fixtureConfig.gameInfo.gameConfig.faceAttribsConfig.uvDefaults = defaultUVAttrs;
 
       auto& map = fixture.create(fixtureConfig);
 
@@ -348,19 +372,19 @@ TEST_CASE("Map_Brushes")
         setBrushFaceAttributes(map, {.rotation = AddValue{2.0f}});
       }
 
-      REQUIRE(getFace(*brushNode, faceIndex).attributes().rotation() == 10.0f);
+      REQUIRE(getFace(*brushNode, faceIndex).uvAttributes().rotation == 10.0f);
 
-      setBrushFaceAttributes(map, resetAll(defaultFaceAttrs));
+      setBrushFaceAttributes(map, resetAll(defaultUVAttrs));
 
-      CHECK(getFace(*brushNode, faceIndex).attributes().xOffset() == 0.0f);
-      CHECK(getFace(*brushNode, faceIndex).attributes().yOffset() == 0.0f);
-      CHECK(getFace(*brushNode, faceIndex).attributes().rotation() == 0.0f);
+      CHECK(getFace(*brushNode, faceIndex).uvAttributes().offset.x() == 0.0f);
+      CHECK(getFace(*brushNode, faceIndex).uvAttributes().offset.y() == 0.0f);
+      CHECK(getFace(*brushNode, faceIndex).uvAttributes().rotation == 0.0f);
       CHECK(
-        getFace(*brushNode, faceIndex).attributes().xScale()
-        == defaultFaceAttrs.xScale());
+        getFace(*brushNode, faceIndex).uvAttributes().scale.x()
+        == defaultUVAttrs.scale.x());
       CHECK(
-        getFace(*brushNode, faceIndex).attributes().yScale()
-        == defaultFaceAttrs.yScale());
+        getFace(*brushNode, faceIndex).uvAttributes().scale.y()
+        == defaultUVAttrs.scale.y());
 
       CHECK(getFace(*brushNode, faceIndex).uAxis() == initialX);
       CHECK(getFace(*brushNode, faceIndex).vAxis() == initialY);
@@ -442,23 +466,26 @@ TEST_CASE("Map_Brushes")
 
     const auto originalTargetFaceAttributes =
       getFace(*brushNode, *targetFaceIndex).attributes();
+    const auto originalTargetUVAttributes =
+      getFace(*brushNode, *targetFaceIndex).uvAttributes();
     const auto originalTargetUAxis = getFace(*brushNode, *targetFaceIndex).uAxis();
     const auto originalTargetVAxis = getFace(*brushNode, *targetFaceIndex).vAxis();
 
     const auto& sourceFace = getFace(*brushNode, *sourceFaceIndex);
     const auto sourceSnapshot = sourceFace.takeUVCoordSystemSnapshot();
-    const auto sourceAttributes = sourceFace.attributes();
+    const auto sourceUVAttributes = sourceFace.uvAttributes();
     const auto sourcePlane = sourceFace.boundary();
 
-    CHECK(
-      copyUV(map, *sourceSnapshot, sourceAttributes, sourcePlane, WrapStyle::Projection));
+    CHECK(copyUV(
+      map, *sourceSnapshot, sourceUVAttributes, sourcePlane, WrapStyle::Projection));
 
-    auto expectedAttributes = originalTargetFaceAttributes;
-    expectedAttributes.setXOffset(0.36245f);
-    expectedAttributes.setYOffset(0.501574f);
+    const auto expectedAttributes = originalTargetFaceAttributes;
+    auto expectedUVAttributes = originalTargetUVAttributes;
+    expectedUVAttributes.offset = vm::vec2f{0.36245f, 0.501574f};
 
     const auto& targetFace = getFace(*brushNode, *targetFaceIndex);
     CHECK_THAT(targetFace.attributes(), MatchesBrushFaceAttributes(expectedAttributes));
+    CHECK_THAT(targetFace.uvAttributes(), MatchesUVAttributes(expectedUVAttributes));
     CHECK(targetFace.uAxis() == vm::approx{vm::vec3d{0, -1, 0}});
     CHECK(targetFace.vAxis() == vm::approx{vm::vec3d{-0.374607, 0, -0.927184}});
 
@@ -470,6 +497,8 @@ TEST_CASE("Map_Brushes")
       CHECK_THAT(
         undoneTargetFace.attributes(),
         MatchesBrushFaceAttributes(originalTargetFaceAttributes));
+      CHECK_THAT(
+        undoneTargetFace.uvAttributes(), MatchesUVAttributes(originalTargetUVAttributes));
       CHECK(undoneTargetFace.uAxis() == vm::approx{originalTargetUAxis});
       CHECK(undoneTargetFace.vAxis() == vm::approx{originalTargetVAxis});
 
@@ -478,6 +507,8 @@ TEST_CASE("Map_Brushes")
       const auto& redoneTargetFace = getFace(*brushNode, *targetFaceIndex);
       CHECK_THAT(
         redoneTargetFace.attributes(), MatchesBrushFaceAttributes(expectedAttributes));
+      CHECK_THAT(
+        redoneTargetFace.uvAttributes(), MatchesUVAttributes(expectedUVAttributes));
       CHECK(redoneTargetFace.uAxis() == vm::approx{vm::vec3d{0, -1, 0}});
       CHECK(redoneTargetFace.vAxis() == vm::approx{vm::vec3d{-0.374607, 0, -0.927184}});
     }
@@ -511,16 +542,20 @@ TEST_CASE("Map_Brushes")
     const auto delta = vm::vec2f{4.0f, 8.0f};
 
     const auto originalFaceAttributes = getFace(*brushNode, *faceIndex).attributes();
+    const auto originalFaceUVAttributes = getFace(*brushNode, *faceIndex).uvAttributes();
     const auto originalUAxis = getFace(*brushNode, *faceIndex).uAxis();
     const auto originalVAxis = getFace(*brushNode, *faceIndex).vAxis();
 
     const auto originalOtherFaceAttributes =
       getFace(*brushNode, *otherFaceIndex).attributes();
+    const auto originalOtherFaceUVAttributes =
+      getFace(*brushNode, *otherFaceIndex).uvAttributes();
 
     auto expectedBrush = brushNode->brush();
     expectedBrush.face(*faceIndex)
       .translateUV(vm::vec3d{cameraUp}, vm::vec3d{cameraRight}, delta);
     const auto expectedAttributes = expectedBrush.face(*faceIndex).attributes();
+    const auto expectedUVAttributes = expectedBrush.face(*faceIndex).uvAttributes();
     const auto expectedUAxis = expectedBrush.face(*faceIndex).uAxis();
     const auto expectedVAxis = expectedBrush.face(*faceIndex).vAxis();
 
@@ -528,12 +563,16 @@ TEST_CASE("Map_Brushes")
 
     const auto& movedFace = getFace(*brushNode, *faceIndex);
     CHECK_THAT(movedFace.attributes(), MatchesBrushFaceAttributes(expectedAttributes));
+    CHECK_THAT(movedFace.uvAttributes(), MatchesUVAttributes(expectedUVAttributes));
     CHECK(movedFace.uAxis() == vm::approx{expectedUAxis});
     CHECK(movedFace.vAxis() == vm::approx{expectedVAxis});
 
     CHECK_THAT(
       getFace(*brushNode, *otherFaceIndex).attributes(),
       MatchesBrushFaceAttributes(originalOtherFaceAttributes));
+    CHECK_THAT(
+      getFace(*brushNode, *otherFaceIndex).uvAttributes(),
+      MatchesUVAttributes(originalOtherFaceUVAttributes));
 
     SECTION("Undo and redo")
     {
@@ -542,21 +581,30 @@ TEST_CASE("Map_Brushes")
       const auto& undoneFace = getFace(*brushNode, *faceIndex);
       CHECK_THAT(
         undoneFace.attributes(), MatchesBrushFaceAttributes(originalFaceAttributes));
+      CHECK_THAT(
+        undoneFace.uvAttributes(), MatchesUVAttributes(originalFaceUVAttributes));
       CHECK(undoneFace.uAxis() == vm::approx{originalUAxis});
       CHECK(undoneFace.vAxis() == vm::approx{originalVAxis});
       CHECK_THAT(
         getFace(*brushNode, *otherFaceIndex).attributes(),
         MatchesBrushFaceAttributes(originalOtherFaceAttributes));
+      CHECK_THAT(
+        getFace(*brushNode, *otherFaceIndex).uvAttributes(),
+        MatchesUVAttributes(originalOtherFaceUVAttributes));
 
       map.redoCommand();
 
       const auto& redoneFace = getFace(*brushNode, *faceIndex);
       CHECK_THAT(redoneFace.attributes(), MatchesBrushFaceAttributes(expectedAttributes));
+      CHECK_THAT(redoneFace.uvAttributes(), MatchesUVAttributes(expectedUVAttributes));
       CHECK(redoneFace.uAxis() == vm::approx{expectedUAxis});
       CHECK(redoneFace.vAxis() == vm::approx{expectedVAxis});
       CHECK_THAT(
         getFace(*brushNode, *otherFaceIndex).attributes(),
         MatchesBrushFaceAttributes(originalOtherFaceAttributes));
+      CHECK_THAT(
+        getFace(*brushNode, *otherFaceIndex).uvAttributes(),
+        MatchesUVAttributes(originalOtherFaceUVAttributes));
     }
   }
 
@@ -579,15 +627,19 @@ TEST_CASE("Map_Brushes")
     REQUIRE(setBrushFaceAttributes(map, {.rotation = SetValue{10.0f}}));
 
     const auto originalFaceAttributes = getFace(*brushNode, *faceIndex).attributes();
+    const auto originalFaceUVAttributes = getFace(*brushNode, *faceIndex).uvAttributes();
     const auto originalUAxis = getFace(*brushNode, *faceIndex).uAxis();
     const auto originalVAxis = getFace(*brushNode, *faceIndex).vAxis();
 
     const auto originalOtherFaceAttributes =
       getFace(*brushNode, *otherFaceIndex).attributes();
+    const auto originalOtherFaceUVAttributes =
+      getFace(*brushNode, *otherFaceIndex).uvAttributes();
 
     auto expectedBrush = brushNode->brush();
     expectedBrush.face(*faceIndex).rotateUV(15.0f);
     const auto expectedAttributes = expectedBrush.face(*faceIndex).attributes();
+    const auto expectedUVAttributes = expectedBrush.face(*faceIndex).uvAttributes();
     const auto expectedUAxis = expectedBrush.face(*faceIndex).uAxis();
     const auto expectedVAxis = expectedBrush.face(*faceIndex).vAxis();
 
@@ -595,12 +647,16 @@ TEST_CASE("Map_Brushes")
 
     const auto& rotatedFace = getFace(*brushNode, *faceIndex);
     CHECK_THAT(rotatedFace.attributes(), MatchesBrushFaceAttributes(expectedAttributes));
+    CHECK_THAT(rotatedFace.uvAttributes(), MatchesUVAttributes(expectedUVAttributes));
     CHECK(rotatedFace.uAxis() == vm::approx{expectedUAxis});
     CHECK(rotatedFace.vAxis() == vm::approx{expectedVAxis});
 
     CHECK_THAT(
       getFace(*brushNode, *otherFaceIndex).attributes(),
       MatchesBrushFaceAttributes(originalOtherFaceAttributes));
+    CHECK_THAT(
+      getFace(*brushNode, *otherFaceIndex).uvAttributes(),
+      MatchesUVAttributes(originalOtherFaceUVAttributes));
 
     SECTION("Undo and redo")
     {
@@ -609,21 +665,30 @@ TEST_CASE("Map_Brushes")
       const auto& undoneFace = getFace(*brushNode, *faceIndex);
       CHECK_THAT(
         undoneFace.attributes(), MatchesBrushFaceAttributes(originalFaceAttributes));
+      CHECK_THAT(
+        undoneFace.uvAttributes(), MatchesUVAttributes(originalFaceUVAttributes));
       CHECK(undoneFace.uAxis() == vm::approx{originalUAxis});
       CHECK(undoneFace.vAxis() == vm::approx{originalVAxis});
       CHECK_THAT(
         getFace(*brushNode, *otherFaceIndex).attributes(),
         MatchesBrushFaceAttributes(originalOtherFaceAttributes));
+      CHECK_THAT(
+        getFace(*brushNode, *otherFaceIndex).uvAttributes(),
+        MatchesUVAttributes(originalOtherFaceUVAttributes));
 
       map.redoCommand();
 
       const auto& redoneFace = getFace(*brushNode, *faceIndex);
       CHECK_THAT(redoneFace.attributes(), MatchesBrushFaceAttributes(expectedAttributes));
+      CHECK_THAT(redoneFace.uvAttributes(), MatchesUVAttributes(expectedUVAttributes));
       CHECK(redoneFace.uAxis() == vm::approx{expectedUAxis});
       CHECK(redoneFace.vAxis() == vm::approx{expectedVAxis});
       CHECK_THAT(
         getFace(*brushNode, *otherFaceIndex).attributes(),
         MatchesBrushFaceAttributes(originalOtherFaceAttributes));
+      CHECK_THAT(
+        getFace(*brushNode, *otherFaceIndex).uvAttributes(),
+        MatchesUVAttributes(originalOtherFaceUVAttributes));
     }
   }
 
@@ -646,15 +711,19 @@ TEST_CASE("Map_Brushes")
     const auto factors = vm::vec2f{0.25f, -0.5f};
 
     const auto originalFaceAttributes = getFace(*brushNode, *faceIndex).attributes();
+    const auto originalFaceUVAttributes = getFace(*brushNode, *faceIndex).uvAttributes();
     const auto originalUAxis = getFace(*brushNode, *faceIndex).uAxis();
     const auto originalVAxis = getFace(*brushNode, *faceIndex).vAxis();
 
     const auto originalOtherFaceAttributes =
       getFace(*brushNode, *otherFaceIndex).attributes();
+    const auto originalOtherFaceUVAttributes =
+      getFace(*brushNode, *otherFaceIndex).uvAttributes();
 
     auto expectedBrush = brushNode->brush();
     expectedBrush.face(*faceIndex).shearUV(factors);
     const auto expectedAttributes = expectedBrush.face(*faceIndex).attributes();
+    const auto expectedUVAttributes = expectedBrush.face(*faceIndex).uvAttributes();
     const auto expectedUAxis = expectedBrush.face(*faceIndex).uAxis();
     const auto expectedVAxis = expectedBrush.face(*faceIndex).vAxis();
 
@@ -662,12 +731,16 @@ TEST_CASE("Map_Brushes")
 
     const auto& shearedFace = getFace(*brushNode, *faceIndex);
     CHECK_THAT(shearedFace.attributes(), MatchesBrushFaceAttributes(expectedAttributes));
+    CHECK_THAT(shearedFace.uvAttributes(), MatchesUVAttributes(expectedUVAttributes));
     CHECK(shearedFace.uAxis() == vm::approx{expectedUAxis});
     CHECK(shearedFace.vAxis() == vm::approx{expectedVAxis});
 
     CHECK_THAT(
       getFace(*brushNode, *otherFaceIndex).attributes(),
       MatchesBrushFaceAttributes(originalOtherFaceAttributes));
+    CHECK_THAT(
+      getFace(*brushNode, *otherFaceIndex).uvAttributes(),
+      MatchesUVAttributes(originalOtherFaceUVAttributes));
 
     SECTION("Undo and redo")
     {
@@ -676,21 +749,30 @@ TEST_CASE("Map_Brushes")
       const auto& undoneFace = getFace(*brushNode, *faceIndex);
       CHECK_THAT(
         undoneFace.attributes(), MatchesBrushFaceAttributes(originalFaceAttributes));
+      CHECK_THAT(
+        undoneFace.uvAttributes(), MatchesUVAttributes(originalFaceUVAttributes));
       CHECK(undoneFace.uAxis() == vm::approx{originalUAxis});
       CHECK(undoneFace.vAxis() == vm::approx{originalVAxis});
       CHECK_THAT(
         getFace(*brushNode, *otherFaceIndex).attributes(),
         MatchesBrushFaceAttributes(originalOtherFaceAttributes));
+      CHECK_THAT(
+        getFace(*brushNode, *otherFaceIndex).uvAttributes(),
+        MatchesUVAttributes(originalOtherFaceUVAttributes));
 
       map.redoCommand();
 
       const auto& redoneFace = getFace(*brushNode, *faceIndex);
       CHECK_THAT(redoneFace.attributes(), MatchesBrushFaceAttributes(expectedAttributes));
+      CHECK_THAT(redoneFace.uvAttributes(), MatchesUVAttributes(expectedUVAttributes));
       CHECK(redoneFace.uAxis() == vm::approx{expectedUAxis});
       CHECK(redoneFace.vAxis() == vm::approx{expectedVAxis});
       CHECK_THAT(
         getFace(*brushNode, *otherFaceIndex).attributes(),
         MatchesBrushFaceAttributes(originalOtherFaceAttributes));
+      CHECK_THAT(
+        getFace(*brushNode, *otherFaceIndex).uvAttributes(),
+        MatchesUVAttributes(originalOtherFaceUVAttributes));
     }
   }
 
@@ -722,16 +804,20 @@ TEST_CASE("Map_Brushes")
     const auto flipDirection = vm::direction::left;
 
     const auto originalFaceAttributes = getFace(*brushNode, *faceIndex).attributes();
+    const auto originalFaceUVAttributes = getFace(*brushNode, *faceIndex).uvAttributes();
     const auto originalUAxis = getFace(*brushNode, *faceIndex).uAxis();
     const auto originalVAxis = getFace(*brushNode, *faceIndex).vAxis();
 
     const auto originalOtherFaceAttributes =
       getFace(*brushNode, *otherFaceIndex).attributes();
+    const auto originalOtherFaceUVAttributes =
+      getFace(*brushNode, *otherFaceIndex).uvAttributes();
 
     auto expectedBrush = brushNode->brush();
     expectedBrush.face(*faceIndex)
       .flipUV(vm::vec3d{cameraUp}, vm::vec3d{cameraRight}, flipDirection);
     const auto expectedAttributes = expectedBrush.face(*faceIndex).attributes();
+    const auto expectedUVAttributes = expectedBrush.face(*faceIndex).uvAttributes();
     const auto expectedUAxis = expectedBrush.face(*faceIndex).uAxis();
     const auto expectedVAxis = expectedBrush.face(*faceIndex).vAxis();
 
@@ -739,12 +825,16 @@ TEST_CASE("Map_Brushes")
 
     const auto& flippedFace = getFace(*brushNode, *faceIndex);
     CHECK_THAT(flippedFace.attributes(), MatchesBrushFaceAttributes(expectedAttributes));
+    CHECK_THAT(flippedFace.uvAttributes(), MatchesUVAttributes(expectedUVAttributes));
     CHECK(flippedFace.uAxis() == vm::approx{expectedUAxis});
     CHECK(flippedFace.vAxis() == vm::approx{expectedVAxis});
 
     CHECK_THAT(
       getFace(*brushNode, *otherFaceIndex).attributes(),
       MatchesBrushFaceAttributes(originalOtherFaceAttributes));
+    CHECK_THAT(
+      getFace(*brushNode, *otherFaceIndex).uvAttributes(),
+      MatchesUVAttributes(originalOtherFaceUVAttributes));
 
     SECTION("Undo and redo")
     {
@@ -753,21 +843,30 @@ TEST_CASE("Map_Brushes")
       const auto& undoneFace = getFace(*brushNode, *faceIndex);
       CHECK_THAT(
         undoneFace.attributes(), MatchesBrushFaceAttributes(originalFaceAttributes));
+      CHECK_THAT(
+        undoneFace.uvAttributes(), MatchesUVAttributes(originalFaceUVAttributes));
       CHECK(undoneFace.uAxis() == vm::approx{originalUAxis});
       CHECK(undoneFace.vAxis() == vm::approx{originalVAxis});
       CHECK_THAT(
         getFace(*brushNode, *otherFaceIndex).attributes(),
         MatchesBrushFaceAttributes(originalOtherFaceAttributes));
+      CHECK_THAT(
+        getFace(*brushNode, *otherFaceIndex).uvAttributes(),
+        MatchesUVAttributes(originalOtherFaceUVAttributes));
 
       map.redoCommand();
 
       const auto& redoneFace = getFace(*brushNode, *faceIndex);
       CHECK_THAT(redoneFace.attributes(), MatchesBrushFaceAttributes(expectedAttributes));
+      CHECK_THAT(redoneFace.uvAttributes(), MatchesUVAttributes(expectedUVAttributes));
       CHECK(redoneFace.uAxis() == vm::approx{expectedUAxis});
       CHECK(redoneFace.vAxis() == vm::approx{expectedVAxis});
       CHECK_THAT(
         getFace(*brushNode, *otherFaceIndex).attributes(),
         MatchesBrushFaceAttributes(originalOtherFaceAttributes));
+      CHECK_THAT(
+        getFace(*brushNode, *otherFaceIndex).uvAttributes(),
+        MatchesUVAttributes(originalOtherFaceUVAttributes));
     }
   }
 
@@ -790,17 +889,21 @@ TEST_CASE("Map_Brushes")
     REQUIRE(setBrushFaceAttributes(map, {.rotation = SetValue{0.0f}}));
 
     const auto originalFaceAttributes = getFace(*brushNode, *faceIndex).attributes();
+    const auto originalFaceUVAttributes = getFace(*brushNode, *faceIndex).uvAttributes();
     const auto originalUAxis = getFace(*brushNode, *faceIndex).uAxis();
     const auto originalVAxis = getFace(*brushNode, *faceIndex).vAxis();
 
     const auto originalOtherFaceAttributes =
       getFace(*brushNode, *otherFaceIndex).attributes();
+    const auto originalOtherFaceUVAttributes =
+      getFace(*brushNode, *otherFaceIndex).uvAttributes();
 
     auto expectedBrush = brushNode->brush();
     evaluate(
       align(expectedBrush.face(*faceIndex), UvPolicy::next),
       expectedBrush.face(*faceIndex));
     const auto expectedAttributes = expectedBrush.face(*faceIndex).attributes();
+    const auto expectedUVAttributes = expectedBrush.face(*faceIndex).uvAttributes();
     const auto expectedUAxis = expectedBrush.face(*faceIndex).uAxis();
     const auto expectedVAxis = expectedBrush.face(*faceIndex).vAxis();
 
@@ -808,14 +911,18 @@ TEST_CASE("Map_Brushes")
 
     const auto& alignedFace = getFace(*brushNode, *faceIndex);
     CHECK_THAT(
-      alignedFace.attributes(), !MatchesBrushFaceAttributes(originalFaceAttributes));
+      alignedFace.uvAttributes(), !MatchesUVAttributes(originalFaceUVAttributes));
     CHECK_THAT(alignedFace.attributes(), MatchesBrushFaceAttributes(expectedAttributes));
+    CHECK_THAT(alignedFace.uvAttributes(), MatchesUVAttributes(expectedUVAttributes));
     CHECK(alignedFace.uAxis() == vm::approx{expectedUAxis});
     CHECK(alignedFace.vAxis() == vm::approx{expectedVAxis});
 
     CHECK_THAT(
       getFace(*brushNode, *otherFaceIndex).attributes(),
       MatchesBrushFaceAttributes(originalOtherFaceAttributes));
+    CHECK_THAT(
+      getFace(*brushNode, *otherFaceIndex).uvAttributes(),
+      MatchesUVAttributes(originalOtherFaceUVAttributes));
 
     SECTION("Undo and redo")
     {
@@ -824,21 +931,30 @@ TEST_CASE("Map_Brushes")
       const auto& undoneFace = getFace(*brushNode, *faceIndex);
       CHECK_THAT(
         undoneFace.attributes(), MatchesBrushFaceAttributes(originalFaceAttributes));
+      CHECK_THAT(
+        undoneFace.uvAttributes(), MatchesUVAttributes(originalFaceUVAttributes));
       CHECK(undoneFace.uAxis() == vm::approx{originalUAxis});
       CHECK(undoneFace.vAxis() == vm::approx{originalVAxis});
       CHECK_THAT(
         getFace(*brushNode, *otherFaceIndex).attributes(),
         MatchesBrushFaceAttributes(originalOtherFaceAttributes));
+      CHECK_THAT(
+        getFace(*brushNode, *otherFaceIndex).uvAttributes(),
+        MatchesUVAttributes(originalOtherFaceUVAttributes));
 
       map.redoCommand();
 
       const auto& redoneFace = getFace(*brushNode, *faceIndex);
       CHECK_THAT(redoneFace.attributes(), MatchesBrushFaceAttributes(expectedAttributes));
+      CHECK_THAT(redoneFace.uvAttributes(), MatchesUVAttributes(expectedUVAttributes));
       CHECK(redoneFace.uAxis() == vm::approx{expectedUAxis});
       CHECK(redoneFace.vAxis() == vm::approx{expectedVAxis});
       CHECK_THAT(
         getFace(*brushNode, *otherFaceIndex).attributes(),
         MatchesBrushFaceAttributes(originalOtherFaceAttributes));
+      CHECK_THAT(
+        getFace(*brushNode, *otherFaceIndex).uvAttributes(),
+        MatchesUVAttributes(originalOtherFaceUVAttributes));
     }
   }
 
@@ -866,17 +982,21 @@ TEST_CASE("Map_Brushes")
       }));
 
     const auto originalFaceAttributes = getFace(*brushNode, *faceIndex).attributes();
+    const auto originalFaceUVAttributes = getFace(*brushNode, *faceIndex).uvAttributes();
     const auto originalUAxis = getFace(*brushNode, *faceIndex).uAxis();
     const auto originalVAxis = getFace(*brushNode, *faceIndex).vAxis();
 
     const auto originalOtherFaceAttributes =
       getFace(*brushNode, *otherFaceIndex).attributes();
+    const auto originalOtherFaceUVAttributes =
+      getFace(*brushNode, *otherFaceIndex).uvAttributes();
 
     auto expectedBrush = brushNode->brush();
     evaluate(
       justify(expectedBrush.face(*faceIndex), UvAxis::u, UvSign::plus, UvPolicy::best),
       expectedBrush.face(*faceIndex));
     const auto expectedAttributes = expectedBrush.face(*faceIndex).attributes();
+    const auto expectedUVAttributes = expectedBrush.face(*faceIndex).uvAttributes();
     const auto expectedUAxis = expectedBrush.face(*faceIndex).uAxis();
     const auto expectedVAxis = expectedBrush.face(*faceIndex).vAxis();
 
@@ -884,15 +1004,19 @@ TEST_CASE("Map_Brushes")
 
     const auto& justifiedFace = getFace(*brushNode, *faceIndex);
     CHECK_THAT(
-      justifiedFace.attributes(), !MatchesBrushFaceAttributes(originalFaceAttributes));
+      justifiedFace.uvAttributes(), !MatchesUVAttributes(originalFaceUVAttributes));
     CHECK_THAT(
       justifiedFace.attributes(), MatchesBrushFaceAttributes(expectedAttributes));
+    CHECK_THAT(justifiedFace.uvAttributes(), MatchesUVAttributes(expectedUVAttributes));
     CHECK(justifiedFace.uAxis() == vm::approx{expectedUAxis});
     CHECK(justifiedFace.vAxis() == vm::approx{expectedVAxis});
 
     CHECK_THAT(
       getFace(*brushNode, *otherFaceIndex).attributes(),
       MatchesBrushFaceAttributes(originalOtherFaceAttributes));
+    CHECK_THAT(
+      getFace(*brushNode, *otherFaceIndex).uvAttributes(),
+      MatchesUVAttributes(originalOtherFaceUVAttributes));
 
     SECTION("Undo and redo")
     {
@@ -901,21 +1025,30 @@ TEST_CASE("Map_Brushes")
       const auto& undoneFace = getFace(*brushNode, *faceIndex);
       CHECK_THAT(
         undoneFace.attributes(), MatchesBrushFaceAttributes(originalFaceAttributes));
+      CHECK_THAT(
+        undoneFace.uvAttributes(), MatchesUVAttributes(originalFaceUVAttributes));
       CHECK(undoneFace.uAxis() == vm::approx{originalUAxis});
       CHECK(undoneFace.vAxis() == vm::approx{originalVAxis});
       CHECK_THAT(
         getFace(*brushNode, *otherFaceIndex).attributes(),
         MatchesBrushFaceAttributes(originalOtherFaceAttributes));
+      CHECK_THAT(
+        getFace(*brushNode, *otherFaceIndex).uvAttributes(),
+        MatchesUVAttributes(originalOtherFaceUVAttributes));
 
       map.redoCommand();
 
       const auto& redoneFace = getFace(*brushNode, *faceIndex);
       CHECK_THAT(redoneFace.attributes(), MatchesBrushFaceAttributes(expectedAttributes));
+      CHECK_THAT(redoneFace.uvAttributes(), MatchesUVAttributes(expectedUVAttributes));
       CHECK(redoneFace.uAxis() == vm::approx{expectedUAxis});
       CHECK(redoneFace.vAxis() == vm::approx{expectedVAxis});
       CHECK_THAT(
         getFace(*brushNode, *otherFaceIndex).attributes(),
         MatchesBrushFaceAttributes(originalOtherFaceAttributes));
+      CHECK_THAT(
+        getFace(*brushNode, *otherFaceIndex).uvAttributes(),
+        MatchesUVAttributes(originalOtherFaceUVAttributes));
     }
   }
 
@@ -944,11 +1077,14 @@ TEST_CASE("Map_Brushes")
       }));
 
     const auto originalFaceAttributes = getFace(*brushNode, *faceIndex).attributes();
+    const auto originalFaceUVAttributes = getFace(*brushNode, *faceIndex).uvAttributes();
     const auto originalUAxis = getFace(*brushNode, *faceIndex).uAxis();
     const auto originalVAxis = getFace(*brushNode, *faceIndex).vAxis();
 
     const auto originalOtherFaceAttributes =
       getFace(*brushNode, *otherFaceIndex).attributes();
+    const auto originalOtherFaceUVAttributes =
+      getFace(*brushNode, *otherFaceIndex).uvAttributes();
 
     auto expectedBrush = brushNode->brush();
     auto& expectedFace = expectedBrush.face(*faceIndex);
@@ -956,14 +1092,14 @@ TEST_CASE("Map_Brushes")
     const auto invariantVertex = anchorVertex(expectedFace, UvAxis::u, UvSign::minus);
     const auto previousUvCoords = vm::vec2f{
       expectedFace.toUVCoordSystemMatrix(
-        expectedFace.attributes().offset(), expectedFace.attributes().scale())
+        expectedFace.uvAttributes().offset, expectedFace.uvAttributes().scale)
       * invariantVertex};
 
     evaluate(fit(expectedFace, UvAxis::u, UvPolicy::next), expectedFace);
 
     const auto newUvCoords = vm::vec2f{
       expectedFace.toUVCoordSystemMatrix(
-        expectedFace.attributes().offset(), expectedFace.attributes().scale())
+        expectedFace.uvAttributes().offset, expectedFace.uvAttributes().scale)
       * invariantVertex};
     const auto delta = previousUvCoords - newUvCoords;
 
@@ -975,21 +1111,25 @@ TEST_CASE("Map_Brushes")
       expectedFace);
 
     const auto expectedAttributes = expectedFace.attributes();
+    const auto expectedUVAttributes = expectedFace.uvAttributes();
     const auto expectedUAxis = expectedFace.uAxis();
     const auto expectedVAxis = expectedFace.vAxis();
 
     fitUV(map, UvFitDirection::Horizontal, UvPolicy::next);
 
     const auto& fittedFace = getFace(*brushNode, *faceIndex);
-    CHECK_THAT(
-      fittedFace.attributes(), !MatchesBrushFaceAttributes(originalFaceAttributes));
+    CHECK_THAT(fittedFace.uvAttributes(), !MatchesUVAttributes(originalFaceUVAttributes));
     CHECK_THAT(fittedFace.attributes(), MatchesBrushFaceAttributes(expectedAttributes));
+    CHECK_THAT(fittedFace.uvAttributes(), MatchesUVAttributes(expectedUVAttributes));
     CHECK(fittedFace.uAxis() == vm::approx{expectedUAxis});
     CHECK(fittedFace.vAxis() == vm::approx{expectedVAxis});
 
     CHECK_THAT(
       getFace(*brushNode, *otherFaceIndex).attributes(),
       MatchesBrushFaceAttributes(originalOtherFaceAttributes));
+    CHECK_THAT(
+      getFace(*brushNode, *otherFaceIndex).uvAttributes(),
+      MatchesUVAttributes(originalOtherFaceUVAttributes));
 
     SECTION("Undo and redo")
     {
@@ -998,21 +1138,30 @@ TEST_CASE("Map_Brushes")
       const auto& undoneFace = getFace(*brushNode, *faceIndex);
       CHECK_THAT(
         undoneFace.attributes(), MatchesBrushFaceAttributes(originalFaceAttributes));
+      CHECK_THAT(
+        undoneFace.uvAttributes(), MatchesUVAttributes(originalFaceUVAttributes));
       CHECK(undoneFace.uAxis() == vm::approx{originalUAxis});
       CHECK(undoneFace.vAxis() == vm::approx{originalVAxis});
       CHECK_THAT(
         getFace(*brushNode, *otherFaceIndex).attributes(),
         MatchesBrushFaceAttributes(originalOtherFaceAttributes));
+      CHECK_THAT(
+        getFace(*brushNode, *otherFaceIndex).uvAttributes(),
+        MatchesUVAttributes(originalOtherFaceUVAttributes));
 
       map.redoCommand();
 
       const auto& redoneFace = getFace(*brushNode, *faceIndex);
       CHECK_THAT(redoneFace.attributes(), MatchesBrushFaceAttributes(expectedAttributes));
+      CHECK_THAT(redoneFace.uvAttributes(), MatchesUVAttributes(expectedUVAttributes));
       CHECK(redoneFace.uAxis() == vm::approx{expectedUAxis});
       CHECK(redoneFace.vAxis() == vm::approx{expectedVAxis});
       CHECK_THAT(
         getFace(*brushNode, *otherFaceIndex).attributes(),
         MatchesBrushFaceAttributes(originalOtherFaceAttributes));
+      CHECK_THAT(
+        getFace(*brushNode, *otherFaceIndex).uvAttributes(),
+        MatchesUVAttributes(originalOtherFaceUVAttributes));
     }
   }
 
@@ -1065,6 +1214,7 @@ TEST_CASE("Map_Brushes")
       REQUIRE(getFace(*brushNode, iRight).vAxis() == vm::approx{vm::vec3d{0, 0, -1}});
 
       const auto originalTopAttributes = getFace(*brushNode, iTop).attributes();
+      const auto originalTopUVAttributes = getFace(*brushNode, iTop).uvAttributes();
 
       deselectAll(map);
       selectBrushFaces(map, {{brushNode, iFront}, {brushNode, iRight}});
@@ -1082,6 +1232,9 @@ TEST_CASE("Map_Brushes")
       CHECK_THAT(
         getFace(*brushNode, iTop).attributes(),
         MatchesBrushFaceAttributes(originalTopAttributes));
+      CHECK_THAT(
+        getFace(*brushNode, iTop).uvAttributes(),
+        MatchesUVAttributes(originalTopUVAttributes));
     }
 
     SECTION(
@@ -1175,28 +1328,28 @@ TEST_CASE("Map_Brushes")
           .yScale = SetValue{32.0f},
         }));
 
-      const auto originalFrontAttributes = getFace(*brushNode, iFront).attributes();
-      const auto originalRightAttributes = getFace(*brushNode, iRight).attributes();
+      const auto originalFrontUVAttributes = getFace(*brushNode, iFront).uvAttributes();
+      const auto originalRightUVAttributes = getFace(*brushNode, iRight).uvAttributes();
 
       deselectAll(map);
       selectBrushFaces(map, {{brushNode, iFront}, {brushNode, iRight}});
       autoFitUV(map);
 
-      const auto modifiedFrontAttributes = getFace(*brushNode, iFront).attributes();
-      const auto modifiedRightAttributes = getFace(*brushNode, iRight).attributes();
+      const auto modifiedFrontUVAttributes = getFace(*brushNode, iFront).uvAttributes();
+      const auto modifiedRightUVAttributes = getFace(*brushNode, iRight).uvAttributes();
 
-      REQUIRE(modifiedFrontAttributes != originalFrontAttributes);
-      REQUIRE(modifiedRightAttributes != originalRightAttributes);
+      REQUIRE(modifiedFrontUVAttributes != originalFrontUVAttributes);
+      REQUIRE(modifiedRightUVAttributes != originalRightUVAttributes);
 
       map.undoCommand();
 
-      REQUIRE(getFace(*brushNode, iFront).attributes() == originalFrontAttributes);
-      REQUIRE(getFace(*brushNode, iRight).attributes() == originalRightAttributes);
+      REQUIRE(getFace(*brushNode, iFront).uvAttributes() == originalFrontUVAttributes);
+      REQUIRE(getFace(*brushNode, iRight).uvAttributes() == originalRightUVAttributes);
 
       map.redoCommand();
 
-      REQUIRE(getFace(*brushNode, iFront).attributes() == modifiedFrontAttributes);
-      REQUIRE(getFace(*brushNode, iRight).attributes() == modifiedRightAttributes);
+      REQUIRE(getFace(*brushNode, iFront).uvAttributes() == modifiedFrontUVAttributes);
+      REQUIRE(getFace(*brushNode, iRight).uvAttributes() == modifiedRightUVAttributes);
     }
   }
 }

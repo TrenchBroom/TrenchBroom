@@ -251,11 +251,11 @@ TEST_CASE("WorldReader")
       vm::vec3d{64.0, 0.0, -16.0});
     CHECK(face1 != nullptr);
     CHECK(face1->attributes().materialName() == "tex1");
-    CHECK(face1->attributes().xOffset() == 1.0);
-    CHECK(face1->attributes().yOffset() == 2.0);
-    CHECK(face1->attributes().rotation() == 3.0);
-    CHECK(face1->attributes().xScale() == 4.0);
-    CHECK(face1->attributes().yScale() == 5.0);
+    CHECK(face1->uvAttributes().offset.x() == 1.0);
+    CHECK(face1->uvAttributes().offset.y() == 2.0);
+    CHECK(face1->uvAttributes().rotation == 3.0);
+    CHECK(face1->uvAttributes().scale.x() == 4.0);
+    CHECK(face1->uvAttributes().scale.y() == 5.0);
 
     CHECK(
       findFaceByPoints(
@@ -330,11 +330,11 @@ TEST_CASE("WorldReader")
       vm::vec3d{0.0, 0.0, 0.0},
       vm::vec3d{64.0, 0.0, -16.0});
     CHECK(face != nullptr);
-    CHECK(face->attributes().xOffset() == 22.0f);
-    CHECK(face->attributes().xOffset() == 22.0f);
-    CHECK(face->attributes().rotation() == 56.2f);
-    CHECK(face->attributes().xScale() == 1.03433f);
-    CHECK(face->attributes().yScale() == -0.55f);
+    CHECK(face->uvAttributes().offset.x() == 22.0f);
+    CHECK(face->uvAttributes().offset.x() == 22.0f);
+    CHECK(face->uvAttributes().rotation == 56.2f);
+    CHECK(face->uvAttributes().scale.x() == 1.03433f);
+    CHECK(face->uvAttributes().scale.y() == -0.55f);
   }
 
   SECTION("Curly brace in material name")

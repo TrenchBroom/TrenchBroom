@@ -831,6 +831,7 @@ void ClipTool::updateBrushes()
         p2,
         p3,
         mdl::BrushFaceAttributes(map.currentMaterialName()),
+        mdl::UVAttributes{},
         map.worldNode().mapFormat())
         | kdl::and_then([&](mdl::BrushFace&& clipFace) {
             setFaceAttributes(brush.faces(), clipFace);

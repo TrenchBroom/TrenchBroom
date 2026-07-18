@@ -22,6 +22,7 @@
 #include "StringMakers.h"
 #include "mdl/BrushFaceAttributes.h"
 #include "mdl/CatchConfig.h"
+#include "mdl/UVAttributes.h"
 #include "mdl/UpdateBrushFaceAttributes.h"
 
 #include <cassert>
@@ -79,6 +80,21 @@ public:
 };
 
 BrushFaceAttributesMatcher MatchesBrushFaceAttributes(BrushFaceAttributes expected);
+
+class UVAttributesMatcher : public Catch::Matchers::MatcherBase<UVAttributes>
+{
+private:
+  UVAttributes m_expected;
+
+public:
+  explicit UVAttributesMatcher(const UVAttributes& expected);
+
+  bool match(const UVAttributes& in) const override;
+
+  std::string describe() const override;
+};
+
+UVAttributesMatcher MatchesUVAttributes(const UVAttributes& expected);
 
 class UpdateBrushFaceAttributesMatcher
   : public Catch::Matchers::MatcherBase<UpdateBrushFaceAttributes>
