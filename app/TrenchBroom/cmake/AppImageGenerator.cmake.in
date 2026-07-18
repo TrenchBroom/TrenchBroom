@@ -65,6 +65,16 @@ list(JOIN GTK3_LIBRARY_NAMES ";" TB_LINUXDEPLOY_EXCLUDED_LIBRARIES)
 # DEPLOY_PLATFORM_THEMES bundles the GTK 3 and xdg-desktop-portal themes. The
 # AppRun hook selects GTK 3 on GTK-based desktops and xdg-desktop-portal
 # elsewhere, while allowing users to override QT_QPA_PLATFORMTHEME.
+
+# Because our install() rules use COMPONENT TrenchBroom, CPack's staging
+# install for the External generator places everything under
+# ${CPACK_TEMPORARY_DIRECTORY}/TrenchBroom/usr/... instead of merging it
+# directly into ${CPACK_TEMPORARY_DIRECTORY}/usr/..., which is where
+# linuxdeploy (and the rest of this script) expect to find it. Flatten it.
+if(EXISTS "${CPACK_TEMPORARY_DIRECTORY}/TrenchBroom/usr")
+  file(COPY "${CPACK_TEMPORARY_DIRECTORY}/TrenchBroom/usr" DESTINATION "${CPACK_TEMPORARY_DIRECTORY}")
+endif()
+
 file(
   COPY "@TB_RESOURCE_DIR@/linux/trenchbroom-platform-theme.sh"
   DESTINATION "${CPACK_TEMPORARY_DIRECTORY}/apprun-hooks"

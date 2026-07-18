@@ -478,4 +478,13 @@ elseif(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     set(CPACK_GENERATOR "External")
 endif()
 
+# FetchContent'd dependencies (cpptrace, tinyxml2, ...) register their own
+# install components (headers, pkgconfig, *_development, Unspecified) for
+# their dev artifacts, none of which belong in a packaged TrenchBroom build.
+# On Linux, having more than one component present also makes CPack stage
+# each into its own <component>/usr/... subdirectory instead of merging them
+# into usr/ directly, which broke linuxdeploy's executable lookup. Restrict
+# packaging to just the component we actually ship, on every platform.
+set(CPACK_COMPONENTS_ALL "TrenchBroom")
+
 include(CPack)
