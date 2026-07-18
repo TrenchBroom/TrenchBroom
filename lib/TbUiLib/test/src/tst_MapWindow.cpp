@@ -20,8 +20,8 @@
 #include <QApplication>
 #include <QComboBox>
 
-#include "Result.h"
 #include "TestEnvironment.h"
+#include "base/Result.h"
 #include "gl/GlManager.h"
 #include "gl/Resource.h"
 #include "gl/ResourceManager.h"

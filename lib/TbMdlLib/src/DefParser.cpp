@@ -19,9 +19,9 @@
 
 #include "mdl/DefParser.h"
 
-#include "FileLocation.h"
-#include "ParserException.h"
-#include "ParserStatus.h"
+#include "base/FileLocation.h"
+#include "base/ParserException.h"
+#include "base/ParserStatus.h"
 #include "mdl/EntityDefinitionClassInfo.h"
 #include "mdl/EntityProperties.h"
 #include "mdl/LegacyModelDefinitionParser.h"

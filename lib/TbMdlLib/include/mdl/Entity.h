@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "Result.h"
+#include "base/Result.h"
 #include "el/Forward.h" // IWYU pragma: keep
 #include "mdl/AssetReference.h"
 #include "mdl/EntityProperties.h"

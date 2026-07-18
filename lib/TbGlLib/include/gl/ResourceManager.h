@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "Notifier.h"
+#include "base/Notifier.h"
 #include "gl/Resource.h"
 #include "gl/ResourceId.h"
 

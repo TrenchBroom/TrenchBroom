@@ -25,9 +25,9 @@
 #include <QVBoxLayout>
 #include <QWidget>
 
-#include "Logger.h"
-#include "Notifier.h"
-#include "PreferenceManager.h"
+#include "base/Logger.h"
+#include "base/Notifier.h"
+#include "base/PreferenceManager.h"
 #include "fs/DiskIO.h"
 #include "fs/PathInfo.h"
 #include "fs/TraversalMode.h"

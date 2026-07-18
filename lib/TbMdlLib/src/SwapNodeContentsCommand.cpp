@@ -19,7 +19,7 @@
 
 #include "mdl/SwapNodeContentsCommand.h"
 
-#include "Notifier.h"
+#include "base/Notifier.h"
 #include "mdl/GameInfo.h"
 #include "mdl/Map.h"
 #include "mdl/Map_Assets.h"

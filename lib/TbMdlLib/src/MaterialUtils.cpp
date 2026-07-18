@@ -19,7 +19,7 @@
 
 #include "mdl/MaterialUtils.h"
 
-#include "Logger.h"
+#include "base/Logger.h"
 #include "fs/FileSystem.h"
 #include "fs/PathInfo.h"
 #include "fs/TraversalMode.h"

@@ -21,8 +21,8 @@
 
 #include <QKeySequence>
 
-#include "Color.h"
-#include "Preference.h"
+#include "base/Color.h"
+#include "base/Preference.h"
 
 #include "vm/util.h"
 

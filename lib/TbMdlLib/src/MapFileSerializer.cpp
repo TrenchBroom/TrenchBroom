@@ -19,7 +19,7 @@
 
 #include "mdl/MapFileSerializer.h"
 
-#include "Macros.h"
+#include "base/Macros.h"
 #include "mdl/BezierPatch.h"
 #include "mdl/BrushFace.h"
 #include "mdl/BrushNode.h"

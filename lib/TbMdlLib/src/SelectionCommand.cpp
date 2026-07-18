@@ -19,8 +19,8 @@
 
 #include "mdl/SelectionCommand.h"
 
-#include "Logger.h"
-#include "Macros.h"
+#include "base/Logger.h"
+#include "base/Macros.h"
 #include "mdl/BrushFace.h"
 #include "mdl/BrushFaceHandle.h"
 #include "mdl/BrushFaceReference.h"

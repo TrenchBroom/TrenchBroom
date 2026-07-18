@@ -19,8 +19,8 @@
 
 #pragma once
 
-#include "Logger.h"
-#include "Macros.h"
+#include "base/Logger.h"
+#include "base/Macros.h"
 
 #include <filesystem>
 #include <fstream>

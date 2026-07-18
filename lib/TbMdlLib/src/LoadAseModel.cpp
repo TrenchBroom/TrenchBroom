@@ -19,9 +19,9 @@
 
 #include "mdl/LoadAseModel.h"
 
-#include "Logger.h"
-#include "Parser.h"
-#include "Tokenizer.h"
+#include "base/Logger.h"
+#include "base/Parser.h"
+#include "base/Tokenizer.h"
 #include "gl/Material.h" // IWYU pragma: keep
 #include "gl/MaterialIndexRangeMap.h"
 #include "gl/MaterialIndexRangeMapBuilder.h"

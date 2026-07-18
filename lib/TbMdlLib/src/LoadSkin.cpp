@@ -19,7 +19,7 @@
 
 #include "mdl/LoadSkin.h"
 
-#include "Logger.h"
+#include "base/Logger.h"
 #include "fs/FileSystem.h"
 #include "mdl/LoadTexture.h"
 #include "mdl/MaterialUtils.h"

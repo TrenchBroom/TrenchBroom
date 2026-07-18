@@ -19,8 +19,8 @@
 
 #include "mdl/MapFixture.h"
 
-#include "Logger.h"
 #include "TestEnvironment.h"
+#include "base/Logger.h"
 #include "gl/Resource.h"
 #include "gl/ResourceManager.h"
 #include "gl/TestGl.h"

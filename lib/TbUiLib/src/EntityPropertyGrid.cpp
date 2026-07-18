@@ -32,7 +32,7 @@
 #include <QTimer>
 #include <QToolButton>
 
-#include "Macros.h"
+#include "base/Macros.h"
 #include "mdl/EntityNodeBase.h" // IWYU pragma: keep
 #include "mdl/Map.h"
 #include "mdl/Map_Entities.h"

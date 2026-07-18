@@ -21,7 +21,7 @@
 
 #include <QObject>
 
-#include "Result.h"
+#include "base/Result.h"
 
 #include <string>
 

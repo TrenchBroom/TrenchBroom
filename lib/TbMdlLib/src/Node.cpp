@@ -19,7 +19,7 @@
 
 #include "mdl/Node.h"
 
-#include "Macros.h"
+#include "base/Macros.h"
 #include "mdl/EntityProperties.h"
 #include "mdl/Issue.h"
 #include "mdl/Validator.h"

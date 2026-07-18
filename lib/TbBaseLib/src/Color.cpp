@@ -18,7 +18,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Color.h"
+#include "base/Color.h"
 
 namespace tb
 {

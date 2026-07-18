@@ -21,9 +21,9 @@
 
 #include <QBrush>
 
-#include "Macros.h"
-#include "PreferenceManager.h"
 #include "Preferences.h"
+#include "base/Macros.h"
+#include "base/PreferenceManager.h"
 #include "ui/Action.h"
 #include "ui/ActionContext.h"
 #include "ui/ActionManager.h"

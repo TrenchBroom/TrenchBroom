@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "Color.h"
+#include "base/Color.h"
 #include "gl/MaterialIndexArrayRenderer.h"
 #include "render/EdgeRenderer.h"
 #include "render/Renderable.h"

@@ -26,8 +26,8 @@
 #include <QVBoxLayout>
 #include <QtGlobal>
 
-#include "PreferenceManager.h"
 #include "Preferences.h"
+#include "base/PreferenceManager.h"
 #include "gl/Material.h"
 #include "gl/MaterialManager.h"
 #include "mdl/GameInfo.h"

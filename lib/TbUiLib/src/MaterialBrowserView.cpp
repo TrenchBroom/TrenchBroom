@@ -24,8 +24,8 @@
 #include <QMenu>
 #include <QTextStream>
 
-#include "PreferenceManager.h"
 #include "Preferences.h"
+#include "base/PreferenceManager.h"
 #include "gl/ActiveShader.h"
 #include "gl/FontManager.h"
 #include "gl/Material.h"

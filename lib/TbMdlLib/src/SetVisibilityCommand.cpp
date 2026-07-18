@@ -19,7 +19,7 @@
 
 #include "mdl/SetVisibilityCommand.h"
 
-#include "Macros.h"
+#include "base/Macros.h"
 #include "mdl/Map.h"
 #include "mdl/Node.h"
 #include "mdl/VisibilityState.h"

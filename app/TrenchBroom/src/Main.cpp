@@ -31,7 +31,7 @@
 #include <QSurfaceFormat>
 #include <QtGlobal>
 
-#include "PreferenceManager.h"
+#include "base/PreferenceManager.h"
 #include "Preferences.h"
 #include "ui/Action.h"
 #include "ui/ActionBuilder.h"

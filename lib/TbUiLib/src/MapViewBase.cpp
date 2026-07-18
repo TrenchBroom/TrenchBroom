@@ -28,9 +28,9 @@
 #include <QString>
 #include <QtGlobal>
 
-#include "Logger.h"
-#include "PreferenceManager.h"
 #include "Preferences.h"
+#include "base/Logger.h"
+#include "base/PreferenceManager.h"
 #include "gl/Camera.h"
 #include "gl/FontDescriptor.h"
 #include "gl/FontManager.h"

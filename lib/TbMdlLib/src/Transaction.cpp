@@ -19,7 +19,7 @@
 
 #include "mdl/Transaction.h"
 
-#include "Logger.h"
+#include "base/Logger.h"
 #include "mdl/Map.h"
 #include "mdl/TransactionScope.h"
 

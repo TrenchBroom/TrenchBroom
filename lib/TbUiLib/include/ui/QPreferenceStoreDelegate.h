@@ -25,8 +25,8 @@
 #include <QObject>
 #include <QString>
 
-#include "Color.h"
-#include "Notifier.h"
+#include "base/Color.h"
+#include "base/Notifier.h"
 #include "ui/QPreferenceStoreUtils.h"
 
 #include <chrono>

@@ -19,7 +19,7 @@
 
 #include "ui/DrawShapeTool.h"
 
-#include "Logger.h"
+#include "base/Logger.h"
 #include "mdl/Brush.h" // IWYU pragma: keep
 #include "mdl/BrushNode.h"
 #include "mdl/Map.h"

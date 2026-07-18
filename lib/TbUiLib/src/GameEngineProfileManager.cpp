@@ -22,7 +22,7 @@
 #include <QBoxLayout>
 #include <QToolButton>
 
-#include "Uuid.h"
+#include "base/Uuid.h"
 #include "mdl/GameEngineConfig.h"
 #include "mdl/GameEngineProfile.h"
 #include "ui/BitmapButton.h"

@@ -26,7 +26,7 @@
 #include <QScrollBar>
 #include <QtGlobal>
 
-#include "PreferenceManager.h"
+#include "base/PreferenceManager.h"
 #include "mdl/EntityDefinitionManager.h"
 #include "mdl/EntityDefinitionUtils.h"
 #include "mdl/GameInfo.h"

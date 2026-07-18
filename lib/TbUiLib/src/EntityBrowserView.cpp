@@ -19,8 +19,8 @@
 
 #include "ui/EntityBrowserView.h"
 
-#include "PreferenceManager.h"
 #include "Preferences.h"
+#include "base/PreferenceManager.h"
 #include "el/VariableStore.h"
 #include "gl/ActiveShader.h"
 #include "gl/FontDescriptor.h"

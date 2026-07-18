@@ -19,7 +19,7 @@
 
 #include "mdl/PatchNode.h"
 
-#include "Macros.h"
+#include "base/Macros.h"
 #include "mdl/BrushNode.h"
 #include "mdl/EditorContext.h"
 #include "mdl/EntityNode.h"

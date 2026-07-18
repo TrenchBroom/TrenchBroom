@@ -19,9 +19,9 @@
 
 #pragma once
 
-#include "ColorComponentType.h"
-#include "ColorT.h"
-#include "ColorVariantT.h"
+#include "base/ColorComponentType.h"
+#include "base/ColorT.h"
+#include "base/ColorVariantT.h"
 
 #include "vm/scalar.h"
 #include "vm/vec.h"

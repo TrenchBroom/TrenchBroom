@@ -19,8 +19,8 @@
 
 #include "mdl/Map.h"
 
-#include "Logger.h"
-#include "SimpleParserStatus.h"
+#include "base/Logger.h"
+#include "base/SimpleParserStatus.h"
 #include "fs/DiskIO.h"
 #include "fs/PathInfo.h"
 #include "gl/MaterialManager.h"

@@ -19,7 +19,7 @@
 
 #include "render/PrimitiveRenderer.h"
 
-#include "Color.h"
+#include "base/Color.h"
 #include "gl/ActiveShader.h"
 #include "gl/GlInterface.h"
 #include "gl/Shaders.h"

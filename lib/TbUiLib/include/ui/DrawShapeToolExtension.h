@@ -21,8 +21,8 @@
 
 #include <QWidget>
 
-#include "Notifier.h"
-#include "Result.h"
+#include "base/Notifier.h"
+#include "base/Result.h"
 #include "mdl/Brush.h"
 #include "mdl/BrushBuilder.h"
 

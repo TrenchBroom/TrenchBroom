@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "Notifier.h"
+#include "base/Notifier.h"
 #include "mdl/CompilationConfig.h"
 #include "mdl/GameInfo.h"
 

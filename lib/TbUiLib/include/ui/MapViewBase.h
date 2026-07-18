@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "NotifierConnection.h"
+#include "base/NotifierConnection.h"
 #include "ui/ActionContext.h"
 #include "ui/CameraLinkHelper.h"
 #include "ui/MapView.h"

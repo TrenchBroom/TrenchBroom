@@ -19,8 +19,8 @@
 
 #include "render/Compass3D.h"
 
-#include "PreferenceManager.h"
 #include "Preferences.h"
+#include "base/PreferenceManager.h"
 
 #include "vm/mat.h"
 

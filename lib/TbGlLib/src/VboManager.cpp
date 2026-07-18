@@ -19,7 +19,7 @@
 
 #include "gl/VboManager.h"
 
-#include "Macros.h"
+#include "base/Macros.h"
 #include "gl/GlUtils.h"
 #include "gl/Vbo.h"
 

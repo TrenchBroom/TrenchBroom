@@ -39,8 +39,8 @@
 #include <QVBoxLayout>
 #include <QtGlobal>
 
-#include "PreferenceManager.h"
 #include "Preferences.h"
+#include "base/PreferenceManager.h"
 #include "gl/GlManager.h"
 #include "gl/ResourceManager.h"
 #include "mdl/Autosaver.h"

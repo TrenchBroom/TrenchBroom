@@ -18,7 +18,7 @@
  */
 
 #include "CmdTool.h"
-#include "Uuid.h"
+#include "base/Uuid.h"
 #include "el/VariableStore.h"
 #include "mdl/GameEngineProfile.h"
 #include "ui/CatchConfig.h"

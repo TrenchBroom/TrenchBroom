@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "NotifierConnection.h"
+#include "base/NotifierConnection.h"
 #include "mdl/Brush.h"
 #include "mdl/BrushFaceHandle.h"
 #include "mdl/HitType.h"

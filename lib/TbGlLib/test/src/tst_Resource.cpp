@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Result.h"
+#include "base/Result.h"
 #include "gl/MockTaskRunner.h"
 #include "gl/Resource.h"
 #include "gl/TestGl.h"

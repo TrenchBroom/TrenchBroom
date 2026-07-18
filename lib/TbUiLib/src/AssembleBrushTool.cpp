@@ -19,8 +19,8 @@
 
 #include "ui/AssembleBrushTool.h"
 
-#include "Error.h" // IWYU pragma: keep
-#include "Logger.h"
+#include "base/Error.h" // IWYU pragma: keep
+#include "base/Logger.h"
 #include "mdl/BrushBuilder.h"
 #include "mdl/BrushNode.h"
 #include "mdl/GameConfig.h"

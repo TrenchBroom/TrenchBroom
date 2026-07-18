@@ -19,7 +19,7 @@
 
 #include "mdl/Map_Assets.h"
 
-#include "Logger.h"
+#include "base/Logger.h"
 #include "gl/MaterialManager.h"
 #include "mdl/EntityModelManager.h"
 #include "mdl/GameConfig.h"

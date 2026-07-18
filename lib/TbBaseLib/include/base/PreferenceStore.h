@@ -19,8 +19,8 @@
 
 #pragma once
 
-#include "Color.h"
-#include "Notifier.h"
+#include "base/Color.h"
+#include "base/Notifier.h"
 
 #include <filesystem>
 #include <string>

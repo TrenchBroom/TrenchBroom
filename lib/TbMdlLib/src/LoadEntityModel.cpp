@@ -19,7 +19,7 @@
 
 #include "mdl/LoadEntityModel.h"
 
-#include "Result.h"
+#include "base/Result.h"
 #include "fs/FileSystem.h"
 #include "gl/Resource.h"
 #include "mdl/EntityModel.h"

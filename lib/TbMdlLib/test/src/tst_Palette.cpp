@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Result.h"
 #include "TestEnvironment.h"
+#include "base/Result.h"
 #include "fs/DiskIO.h"
 #include "mdl/CatchConfig.h"
 #include "mdl/Palette.h"

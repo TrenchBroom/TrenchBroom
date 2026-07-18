@@ -19,8 +19,8 @@
 
 #include "ui/CameraLinkHelper.h"
 
-#include "PreferenceManager.h"
 #include "Preferences.h"
+#include "base/PreferenceManager.h"
 #include "gl/Camera.h"
 
 #include "kd/set_temp.h"

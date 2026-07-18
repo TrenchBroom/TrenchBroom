@@ -19,9 +19,9 @@
 
 #pragma once
 
-#include "Color.h"
-#include "Parser.h"
-#include "Tokenizer.h"
+#include "base/Color.h"
+#include "base/Parser.h"
+#include "base/Tokenizer.h"
 #include "mdl/EntityDefinitionParser.h"
 
 #include "vm/bbox.h"

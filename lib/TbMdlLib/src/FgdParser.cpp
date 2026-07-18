@@ -19,8 +19,8 @@
 
 #include "mdl/FgdParser.h"
 
-#include "ParserException.h"
-#include "ParserStatus.h"
+#include "base/ParserException.h"
+#include "base/ParserStatus.h"
 #include "el/Expression.h"
 #include "fs/DiskIO.h"
 #include "mdl/EntityDefinitionClassInfo.h"

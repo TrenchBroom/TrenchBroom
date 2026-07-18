@@ -20,8 +20,8 @@
 
 #include "ui/ScaleToolController.h"
 
-#include "PreferenceManager.h"
 #include "Preferences.h"
+#include "base/PreferenceManager.h"
 #include "gl/Camera.h"
 #include "mdl/Hit.h"
 #include "mdl/HitFilter.h"

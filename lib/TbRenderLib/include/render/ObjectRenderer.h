@@ -19,8 +19,8 @@
 
 #pragma once
 
-#include "Color.h"
-#include "Macros.h"
+#include "base/Color.h"
+#include "base/Macros.h"
 #include "render/BrushRenderer.h"
 #include "render/EntityRenderer.h"
 #include "render/GroupRenderer.h"

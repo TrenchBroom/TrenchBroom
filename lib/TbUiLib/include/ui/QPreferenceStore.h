@@ -22,8 +22,8 @@
 
 #include <QString>
 
-#include "NotifierConnection.h"
-#include "PreferenceStore.h"
+#include "base/NotifierConnection.h"
+#include "base/PreferenceStore.h"
 
 #include <chrono>
 #include <filesystem>

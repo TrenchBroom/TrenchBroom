@@ -21,7 +21,7 @@
 
 #include <QWidget>
 
-#include "NotifierConnection.h"
+#include "base/NotifierConnection.h"
 
 #include <string>
 

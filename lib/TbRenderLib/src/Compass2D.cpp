@@ -19,8 +19,8 @@
 
 #include "render/Compass2D.h"
 
-#include "PreferenceManager.h"
 #include "Preferences.h"
+#include "base/PreferenceManager.h"
 #include "gl/Camera.h"
 #include "render/RenderContext.h"
 

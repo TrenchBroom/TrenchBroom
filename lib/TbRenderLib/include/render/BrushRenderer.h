@@ -19,8 +19,8 @@
 
 #pragma once
 
-#include "Color.h"
-#include "Macros.h"
+#include "base/Color.h"
+#include "base/Macros.h"
 #include "mdl/BrushGeometry.h"
 #include "render/AllocationTracker.h"
 #include "render/EdgeRenderer.h"

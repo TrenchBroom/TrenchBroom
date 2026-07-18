@@ -27,8 +27,8 @@
 #include <QRadioButton>
 #include <QScrollArea>
 
-#include "PreferenceManager.h"
 #include "Preferences.h"
+#include "base/PreferenceManager.h"
 #include "mdl/EditorContext.h"
 #include "mdl/EntityDefinition.h"
 #include "mdl/EntityDefinitionGroup.h"

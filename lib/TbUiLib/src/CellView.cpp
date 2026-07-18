@@ -25,8 +25,8 @@
 #include <QScrollBar>
 #include <QToolTip>
 
-#include "PreferenceManager.h"
 #include "Preferences.h"
+#include "base/PreferenceManager.h"
 #include "gl/ActiveShader.h"
 #include "gl/FontDescriptor.h"
 #include "gl/FontManager.h"

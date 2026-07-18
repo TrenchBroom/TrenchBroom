@@ -19,7 +19,7 @@
 
 #include "mdl/LoadWalTexture.h"
 
-#include "Color.h"
+#include "base/Color.h"
 #include "fs/Reader.h"
 #include "fs/ReaderException.h"
 #include "mdl/MaterialUtils.h"

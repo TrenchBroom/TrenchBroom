@@ -17,9 +17,9 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Color.h"
-#include "PreferenceManager.h"
-#include "PreferenceStore.h"
+#include "base/Color.h"
+#include "base/PreferenceManager.h"
+#include "base/PreferenceStore.h"
 
 #include "kd/k.h"
 

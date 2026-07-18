@@ -19,8 +19,8 @@
 
 #include "render/GroupLinkRenderer.h"
 
-#include "PreferenceManager.h"
 #include "Preferences.h"
+#include "base/PreferenceManager.h"
 #include "mdl/EditorContext.h"
 #include "mdl/GroupNode.h"
 #include "mdl/LinkedGroupUtils.h"

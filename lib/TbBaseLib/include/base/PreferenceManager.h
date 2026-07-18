@@ -19,9 +19,9 @@
 
 #pragma once
 
-#include "Notifier.h"
-#include "Preference.h"
-#include "PreferenceStore.h"
+#include "base/Notifier.h"
+#include "base/Preference.h"
+#include "base/PreferenceStore.h"
 
 #include <any>
 #include <functional>

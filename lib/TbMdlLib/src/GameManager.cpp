@@ -19,7 +19,7 @@
 
 #include "mdl/GameManager.h"
 
-#include "Logger.h"
+#include "base/Logger.h"
 #include "fs/DiskFileSystem.h"
 #include "fs/DiskIO.h"
 #include "fs/PathInfo.h"

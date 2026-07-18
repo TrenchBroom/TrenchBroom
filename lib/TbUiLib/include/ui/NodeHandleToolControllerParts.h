@@ -19,8 +19,8 @@
 
 #pragma once
 
-#include "PreferenceManager.h"
 #include "Preferences.h"
+#include "base/PreferenceManager.h"
 #include "gl/Camera.h"
 #include "mdl/HitType.h"
 #include "render/RenderContext.h"

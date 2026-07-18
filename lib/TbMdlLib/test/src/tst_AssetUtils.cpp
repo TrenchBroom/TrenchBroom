@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Result.h"
 #include "TestLogger.h"
+#include "base/Result.h"
 #include "mdl/AssetUtils.h"
 #include "mdl/CatchConfig.h"
 

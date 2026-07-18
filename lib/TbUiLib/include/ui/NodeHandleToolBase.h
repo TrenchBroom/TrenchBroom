@@ -19,9 +19,9 @@
 
 #pragma once
 
-#include "NotifierConnection.h"
-#include "PreferenceManager.h"
 #include "Preferences.h"
+#include "base/NotifierConnection.h"
+#include "base/PreferenceManager.h"
 #include "mdl/Command.h"
 #include "mdl/CommandProcessor.h"
 #include "mdl/Hit.h"

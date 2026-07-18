@@ -19,9 +19,9 @@
 
 #include "ui/MapDocument.h"
 
-#include "LoggingHub.h"
-#include "PreferenceManager.h"
 #include "Preferences.h"
+#include "base/LoggingHub.h"
+#include "base/PreferenceManager.h"
 #include "fs/DiskIO.h"
 #include "gl/MaterialManager.h"
 #include "gl/ResourceManager.h"

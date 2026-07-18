@@ -19,8 +19,8 @@
 
 #include "ui/MapView3D.h"
 
-#include "PreferenceManager.h"
 #include "Preferences.h"
+#include "base/PreferenceManager.h"
 #include "gl/PerspectiveCamera.h"
 #include "mdl/BezierPatch.h"
 #include "mdl/BrushFace.h"

@@ -21,8 +21,8 @@
 
 #include <QGridLayout>
 
-#include "PreferenceManager.h"
 #include "Preferences.h"
+#include "base/PreferenceManager.h"
 #include "mdl/Map.h"
 #include "mdl/PointTrace.h"
 #include "ui/FourPaneMapView.h"

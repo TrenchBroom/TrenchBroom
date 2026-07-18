@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "NotifierConnection.h"
+#include "base/NotifierConnection.h"
 
 #include "kd/contracts.h"
 #include "kd/set_temp.h"

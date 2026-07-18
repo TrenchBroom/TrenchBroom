@@ -19,9 +19,9 @@
 
 #include "mdl/StandardMapParser.h"
 
-#include "Color.h"
-#include "FileLocation.h"
-#include "ParserStatus.h"
+#include "base/Color.h"
+#include "base/FileLocation.h"
+#include "base/ParserStatus.h"
 #include "mdl/BrushFace.h"
 #include "mdl/EntityProperties.h"
 

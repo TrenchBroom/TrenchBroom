@@ -19,9 +19,9 @@
 
 #pragma once
 
-#include "Color.h"
-#include "Macros.h"
-#include "NotifierConnection.h"
+#include "base/Color.h"
+#include "base/Macros.h"
+#include "base/NotifierConnection.h"
 
 #include <filesystem>
 #include <memory>

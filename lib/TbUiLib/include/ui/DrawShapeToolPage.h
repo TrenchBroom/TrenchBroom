@@ -21,8 +21,8 @@
 
 #include <QWidget>
 
-#include "Notifier.h"
-#include "NotifierConnection.h"
+#include "base/Notifier.h"
+#include "base/NotifierConnection.h"
 
 class QStackedLayout;
 class QToolButton;

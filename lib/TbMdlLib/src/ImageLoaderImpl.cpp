@@ -19,7 +19,7 @@
 
 #include "mdl/ImageLoaderImpl.h"
 
-#include "Macros.h"
+#include "base/Macros.h"
 
 #include "kd/contracts.h"
 

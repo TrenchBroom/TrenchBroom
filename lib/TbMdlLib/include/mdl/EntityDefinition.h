@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "Color.h"
+#include "base/Color.h"
 #include "mdl/DecalDefinition.h"
 #include "mdl/ModelDefinition.h"
 #include "mdl/PropertyDefinition.h"

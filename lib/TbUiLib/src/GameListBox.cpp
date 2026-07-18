@@ -19,7 +19,7 @@
 
 #include "ui/GameListBox.h"
 
-#include "PreferenceManager.h"
+#include "base/PreferenceManager.h"
 #include "mdl/GameConfig.h"
 #include "mdl/GameManager.h"
 #include "ui/AppController.h"

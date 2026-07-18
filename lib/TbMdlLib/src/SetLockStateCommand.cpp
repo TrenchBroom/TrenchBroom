@@ -19,7 +19,7 @@
 
 #include "mdl/SetLockStateCommand.h"
 
-#include "Macros.h"
+#include "base/Macros.h"
 #include "mdl/BrushNode.h"
 #include "mdl/EntityNode.h"
 #include "mdl/GroupNode.h"

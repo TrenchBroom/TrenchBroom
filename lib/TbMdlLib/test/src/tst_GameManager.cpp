@@ -17,9 +17,9 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Logger.h"
 #include "Observer.h"
-#include "Uuid.h"
+#include "base/Logger.h"
+#include "base/Uuid.h"
 #include "fs/TestEnvironment.h"
 #include "mdl/CatchConfig.h"
 #include "mdl/GameManager.h"

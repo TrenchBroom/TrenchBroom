@@ -19,9 +19,9 @@
 
 #include "mdl/Map_CopyPaste.h"
 
-#include "Logger.h"
-#include "SimpleParserStatus.h"
-#include "Uuid.h"
+#include "base/Logger.h"
+#include "base/SimpleParserStatus.h"
+#include "base/Uuid.h"
 #include "mdl/BrushFace.h"
 #include "mdl/BrushFaceHandle.h"
 #include "mdl/BrushFaceReader.h"

@@ -29,9 +29,9 @@
 #include <QSurfaceFormat>
 #include <QTimer>
 
-#include "Logger.h"
-#include "PreferenceManager.h"
 #include "Preferences.h"
+#include "base/Logger.h"
+#include "base/PreferenceManager.h"
 #include "fs/DiskIO.h"
 #include "fs/PathInfo.h"
 #include "gl/FontManager.h"

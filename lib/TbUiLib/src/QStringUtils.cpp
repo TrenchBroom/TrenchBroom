@@ -22,7 +22,7 @@
 #include <QByteArray>
 #include <QStringEncoder>
 
-#include "Macros.h"
+#include "base/Macros.h"
 #include "mdl/MapTextEncoding.h"
 
 namespace tb::ui

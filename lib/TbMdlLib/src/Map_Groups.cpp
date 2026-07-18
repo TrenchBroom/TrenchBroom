@@ -19,8 +19,8 @@
 
 #include "mdl/Map_Groups.h"
 
-#include "Logger.h"
-#include "Uuid.h"
+#include "base/Logger.h"
+#include "base/Uuid.h"
 #include "mdl/ApplyAndSwap.h"
 #include "mdl/CurrentGroupCommand.h"
 #include "mdl/EditorContext.h"

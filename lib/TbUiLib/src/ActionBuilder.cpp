@@ -22,7 +22,7 @@
 #include <QMenuBar>
 #include <QToolBar>
 
-#include "PreferenceManager.h"
+#include "base/PreferenceManager.h"
 #include "ui/Action.h"
 #include "ui/ActionManager.h"
 #include "ui/ActionMenu.h"

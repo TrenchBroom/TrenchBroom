@@ -19,7 +19,7 @@
 
 #include "mdl/Map_Geometry.h"
 
-#include "Logger.h"
+#include "base/Logger.h"
 #include "mdl/AddRemoveNodesCommand.h"
 #include "mdl/ApplyAndSwap.h"
 #include "mdl/BrushBuilder.h"

@@ -19,8 +19,8 @@
 
 #include "render/GroupRenderer.h"
 
-#include "PreferenceManager.h"
 #include "Preferences.h"
+#include "base/PreferenceManager.h"
 #include "gl/PrimType.h"
 #include "gl/VertexType.h"
 #include "mdl/EditorContext.h"

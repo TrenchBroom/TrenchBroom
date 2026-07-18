@@ -21,7 +21,7 @@
 
 #include <QListWidget>
 
-#include "NotifierConnection.h"
+#include "base/NotifierConnection.h"
 
 class QPushButton;
 class QLabel;

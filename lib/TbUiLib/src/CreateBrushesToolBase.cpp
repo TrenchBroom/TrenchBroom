@@ -19,8 +19,8 @@
 
 #include "ui/CreateBrushesToolBase.h"
 
-#include "PreferenceManager.h"
 #include "Preferences.h"
+#include "base/PreferenceManager.h"
 #include "mdl/BrushNode.h"
 #include "mdl/Map.h"
 #include "mdl/Map_Nodes.h"

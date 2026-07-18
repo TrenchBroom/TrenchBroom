@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2023 Kristian Duske
+ Copyright (C) 2010 Kristian Duske
 
  This file is part of TrenchBroom.
 
@@ -19,14 +19,22 @@
 
 #pragma once
 
-#include "Error.h"
+#include "base/FileLocation.h"
 
-#include "kd/result.h"
+#include <optional>
+#include <stdexcept>
+#include <string>
 
 namespace tb
 {
 
-template <typename Value, typename FirstError = Error, typename... MoreErrors>
-using Result = kdl::result<Value, FirstError, MoreErrors...>;
+class ParserException : public std::runtime_error
+{
+public:
+  using std::runtime_error::runtime_error;
+
+  explicit ParserException(
+    const std::optional<FileLocation>& location, const std::string& str = "");
+};
 
 } // namespace tb

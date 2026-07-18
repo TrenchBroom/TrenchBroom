@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Notifier.h"
+#include "base/Notifier.h"
 
 #include <tuple>
 #include <vector>

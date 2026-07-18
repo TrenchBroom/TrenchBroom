@@ -19,8 +19,8 @@
 
 #include "ui/ExtrudeToolController.h"
 
-#include "PreferenceManager.h"
 #include "Preferences.h"
+#include "base/PreferenceManager.h"
 #include "gl/Camera.h"
 #include "gl/PrimType.h"
 #include "gl/VertexArray.h"

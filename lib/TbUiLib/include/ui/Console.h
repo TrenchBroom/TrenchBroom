@@ -21,8 +21,8 @@
 
 #include <QMutex>
 
-#include "Logger.h"
-#include "LoggerCache.h"
+#include "base/Logger.h"
+#include "base/LoggerCache.h"
 #include "ui/TabBook.h"
 
 #include <string_view>

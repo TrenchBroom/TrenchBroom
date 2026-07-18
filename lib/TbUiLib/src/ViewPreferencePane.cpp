@@ -26,8 +26,8 @@
 #include <QSignalBlocker>
 #include <QtGlobal>
 
-#include "PreferenceManager.h"
 #include "Preferences.h"
+#include "base/PreferenceManager.h"
 #include "gl/MiniGl.h"
 #include "ui/FormWithSectionsLayout.h"
 #include "ui/QStyleUtils.h"

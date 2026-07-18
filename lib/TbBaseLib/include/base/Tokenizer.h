@@ -19,9 +19,9 @@
 
 #pragma once
 
-#include "Macros.h"
-#include "ParserException.h"
-#include "Token.h"
+#include "base/Macros.h"
+#include "base/ParserException.h"
+#include "base/Token.h"
 
 #include "kd/contracts.h"
 #include "kd/ranges/to.h"

@@ -19,8 +19,8 @@
 
 #pragma once
 
-#include "Color.h"
-#include "Preference.h"
+#include "base/Color.h"
+#include "base/Preference.h"
 #include "el/Expression.h"
 #include "mdl/BrushFaceAttributes.h"
 #include "mdl/Tag.h"

@@ -22,8 +22,8 @@
 #include <QObject>
 #include <QProcess>
 
-#include "Macros.h"
-#include "Result.h"
+#include "base/Macros.h"
+#include "base/Result.h"
 #include "mdl/CompilationTask.h"
 #include "ui/CompilationContext.h"
 

@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "SimpleParserStatus.h"
+#include "base/SimpleParserStatus.h"
 
 #include <string>
 

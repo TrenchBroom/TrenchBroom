@@ -19,8 +19,8 @@
 
 #include "render/EdgeRenderer.h"
 
-#include "PreferenceManager.h"
 #include "Preferences.h"
+#include "base/PreferenceManager.h"
 #include "gl/ActiveShader.h"
 #include "gl/GlInterface.h"
 #include "gl/PrimType.h"

@@ -21,7 +21,7 @@
 
 #include "mdl/LoadAssimpModel.h"
 
-#include "ParserException.h"
+#include "base/ParserException.h"
 #include "fs/File.h"
 #include "fs/FileSystem.h"
 #include "fs/PathInfo.h"

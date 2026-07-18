@@ -23,7 +23,7 @@
 #include <QCloseEvent>
 #include <QDialogButtonBox>
 
-#include "Logger.h"
+#include "base/Logger.h"
 #include "mdl/GameManager.h"
 #include "ui/AppController.h"
 #include "ui/BorderLine.h"

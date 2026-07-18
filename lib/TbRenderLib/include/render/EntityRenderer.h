@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "Color.h"
+#include "base/Color.h"
 #include "gl/AttrString.h"
 #include "render/EdgeRenderer.h"
 #include "render/EntityModelRenderer.h"

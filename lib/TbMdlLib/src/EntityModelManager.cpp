@@ -19,7 +19,7 @@
 
 #include "mdl/EntityModelManager.h"
 
-#include "Logger.h"
+#include "base/Logger.h"
 #include "gl/CreateResource.h"
 #include "gl/MaterialIndexRangeRenderer.h"
 #include "mdl/EntityModel.h"

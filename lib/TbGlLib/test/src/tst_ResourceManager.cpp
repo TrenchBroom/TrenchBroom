@@ -18,7 +18,7 @@
  */
 
 #include "Observer.h"
-#include "Result.h"
+#include "base/Result.h"
 #include "gl/MockTaskRunner.h"
 #include "gl/Resource.h"
 #include "gl/ResourceManager.h"

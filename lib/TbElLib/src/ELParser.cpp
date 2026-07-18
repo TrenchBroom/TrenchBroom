@@ -19,9 +19,9 @@
 
 #include "el/ELParser.h"
 
-#include "FileLocation.h"
-#include "ParserException.h"
-#include "Result.h"
+#include "base/FileLocation.h"
+#include "base/ParserException.h"
+#include "base/Result.h"
 #include "el/Exceptions.h"
 #include "el/Expression.h"
 #include "el/Value.h"

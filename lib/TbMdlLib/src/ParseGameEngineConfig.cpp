@@ -19,7 +19,7 @@
 
 #include "mdl/ParseGameEngineConfig.h"
 
-#include "Uuid.h"
+#include "base/Uuid.h"
 #include "el/EvaluationContext.h"
 #include "el/ParseExpression.h"
 #include "el/Value.h"

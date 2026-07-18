@@ -17,9 +17,9 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "NotifierConnection.h"
+#include "base/NotifierConnection.h"
 
-#include "Notifier.h"
+#include "base/Notifier.h"
 
 #include "kd/memory_utils.h"
 

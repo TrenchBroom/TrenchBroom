@@ -19,8 +19,8 @@
 
 #pragma once
 
-#include "Logger.h"
-#include "LoggerCache.h"
+#include "base/Logger.h"
+#include "base/LoggerCache.h"
 
 #include <mutex>
 #include <string_view>

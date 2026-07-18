@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "LoggerCache.h"
+#include "base/LoggerCache.h"
 
 namespace tb
 {

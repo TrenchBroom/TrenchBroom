@@ -19,8 +19,8 @@
  */
 
 
-#include "Logger.h"
 #include "TestEnvironment.h"
+#include "base/Logger.h"
 #include "fs/DiskFileSystem.h"
 #include "fs/DiskIO.h"
 #include "fs/Reader.h"

@@ -19,8 +19,8 @@
 
 #include "mdl/Map_Nodes.h"
 
-#include "Logger.h"
-#include "Uuid.h"
+#include "base/Logger.h"
+#include "base/Uuid.h"
 #include "mdl/AddRemoveNodesCommand.h"
 #include "mdl/BrushNode.h"
 #include "mdl/EditorContext.h"

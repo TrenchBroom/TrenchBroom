@@ -26,7 +26,7 @@
 #include <QTextStream>
 
 #include "KeyStrings.h"
-#include "PreferenceManager.h"
+#include "base/PreferenceManager.h"
 #include "Preferences.h"
 #include "ui/ActionManager.h"
 #include "ui/ActionMenu.h"

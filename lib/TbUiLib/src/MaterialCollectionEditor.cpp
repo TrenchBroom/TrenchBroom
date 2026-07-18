@@ -23,7 +23,7 @@
 #include <QToolButton>
 #include <QVBoxLayout>
 
-#include "PreferenceManager.h"
+#include "base/PreferenceManager.h"
 #include "mdl/GameInfo.h"
 #include "mdl/Map.h"
 #include "mdl/Map_Assets.h"

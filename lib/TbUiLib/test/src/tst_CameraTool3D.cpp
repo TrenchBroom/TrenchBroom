@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "PreferenceManager.h"
 #include "Preferences.h"
+#include "base/PreferenceManager.h"
 #include "gl/PerspectiveCamera.h"
 #include "ui/CameraTool3D.h"
 #include "ui/CatchConfig.h"

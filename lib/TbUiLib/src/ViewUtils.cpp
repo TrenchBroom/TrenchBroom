@@ -24,7 +24,7 @@
 #include <QString>
 #include <QWidget>
 
-#include "PreferenceManager.h"
+#include "base/PreferenceManager.h"
 #include "mdl/EntityDefinitionFileSpec.h"
 #include "mdl/GameInfo.h"
 #include "mdl/Map.h"

@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "Macros.h"
+#include "base/Macros.h"
 #include "mdl/UndoableCommand.h"
 #include "mdl/UpdateLinkedGroupsHelper.h"
 

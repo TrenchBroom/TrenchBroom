@@ -19,7 +19,7 @@
 
 #include "mdl/Autosaver.h"
 
-#include "Logger.h"
+#include "base/Logger.h"
 #include "fs/DiskIO.h"
 #include "fs/PathInfo.h"
 #include "fs/TraversalMode.h"

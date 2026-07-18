@@ -21,10 +21,10 @@
 
 #include "Exceptions.h"
 #include "Expression.h"
-#include "FileLocation.h"
-#include "Macros.h"
-#include "Result.h"
 #include "Value.h"
+#include "base/FileLocation.h"
+#include "base/Macros.h"
+#include "base/Result.h"
 
 #include <memory>
 #include <optional>

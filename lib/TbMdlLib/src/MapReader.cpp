@@ -19,10 +19,10 @@
 
 #include "mdl/MapReader.h"
 
-#include "Error.h" // IWYU pragma: keep
-#include "FileLocation.h"
-#include "ParserStatus.h"
-#include "Uuid.h"
+#include "base/Error.h" // IWYU pragma: keep
+#include "base/FileLocation.h"
+#include "base/ParserStatus.h"
+#include "base/Uuid.h"
 #include "mdl/BrushFace.h"
 #include "mdl/BrushNode.h"
 #include "mdl/Entity.h"

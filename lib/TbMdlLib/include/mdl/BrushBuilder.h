@@ -20,7 +20,7 @@
 #pragma once
 
 #include "BrushFaceAttributes.h"
-#include "Result.h"
+#include "base/Result.h"
 #include "mdl/CircleShape.h"
 #include "mdl/Polyhedron3.h"
 

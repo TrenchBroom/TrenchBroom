@@ -26,8 +26,8 @@
 #include <QTimer>
 #include <QWidget>
 
-#include "PreferenceManager.h"
 #include "Preferences.h"
+#include "base/PreferenceManager.h"
 #include "gl/ActiveShader.h"
 #include "gl/GlManager.h"
 #include "gl/PrimType.h"

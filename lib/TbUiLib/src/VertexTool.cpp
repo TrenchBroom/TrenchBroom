@@ -19,9 +19,9 @@
 
 #include "ui/VertexTool.h"
 
-#include "Macros.h"
-#include "PreferenceManager.h"
 #include "Preferences.h"
+#include "base/Macros.h"
+#include "base/PreferenceManager.h"
 #include "mdl/BrushVertexCommands.h"
 #include "mdl/HitFilter.h"
 #include "mdl/Map_Geometry.h"

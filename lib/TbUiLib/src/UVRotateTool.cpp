@@ -19,8 +19,8 @@
 
 #include "ui/UVRotateTool.h"
 
-#include "PreferenceManager.h"
 #include "Preferences.h"
+#include "base/PreferenceManager.h"
 #include "gl/ActiveShader.h"
 #include "gl/OrthographicCamera.h"
 #include "gl/Shaders.h"

@@ -19,8 +19,8 @@
 
 #pragma once
 
-#include "ColorT.h"
-#include "Result.h"
+#include "base/ColorT.h"
+#include "base/Result.h"
 
 #include "kd/reflection_impl.h"
 

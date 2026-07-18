@@ -20,7 +20,7 @@
 
 #include "ui/SweepToolUtils.h"
 
-#include "Logger.h"
+#include "base/Logger.h"
 #include "gl/MaterialManager.h"
 #include "mdl/BrushBuilder.h"
 #include "mdl/BrushFace.h" // IWYU pragma: keep

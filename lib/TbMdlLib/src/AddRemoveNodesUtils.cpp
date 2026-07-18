@@ -19,7 +19,7 @@
 
 #include "mdl/AddRemoveNodesUtils.h"
 
-#include "Notifier.h"
+#include "base/Notifier.h"
 #include "mdl/Map.h"
 #include "mdl/Node.h"
 

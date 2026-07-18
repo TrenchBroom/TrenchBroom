@@ -19,7 +19,7 @@
 
 #include "mdl/Map_Selection.h"
 
-#include "Logger.h"
+#include "base/Logger.h"
 #include "mdl/BrushBuilder.h"
 #include "mdl/BrushFace.h"
 #include "mdl/EditorContext.h"

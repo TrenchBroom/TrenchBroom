@@ -21,8 +21,8 @@
 
 #include <QtSystemDetection>
 
-#include "PreferenceManager.h"
 #include "Preferences.h"
+#include "base/PreferenceManager.h"
 #include "gl/PerspectiveCamera.h"
 #include "mdl/Hit.h"
 #include "mdl/HitFilter.h"

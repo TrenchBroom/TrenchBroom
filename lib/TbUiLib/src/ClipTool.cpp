@@ -19,9 +19,9 @@
 
 #include "ui/ClipTool.h"
 
-#include "Logger.h"
-#include "PreferenceManager.h"
 #include "Preferences.h"
+#include "base/Logger.h"
+#include "base/PreferenceManager.h"
 #include "gl/Camera.h"
 #include "mdl/BrushFace.h"
 #include "mdl/BrushNode.h"

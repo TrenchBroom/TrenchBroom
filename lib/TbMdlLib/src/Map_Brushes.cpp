@@ -19,7 +19,7 @@
 
 #include "mdl/Map_Brushes.h"
 
-#include "Logger.h"
+#include "base/Logger.h"
 #include "mdl/ApplyAndSwap.h"
 #include "mdl/BrushBuilder.h"
 #include "mdl/BrushFace.h"

@@ -19,8 +19,8 @@
 
 #include "render/RenderService.h"
 
-#include "PreferenceManager.h"
 #include "Preferences.h"
+#include "base/PreferenceManager.h"
 #include "gl/AttrString.h"
 #include "gl/Camera.h"
 #include "gl/FontDescriptor.h"

@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "Macros.h"
+#include "base/Macros.h"
 #include "mdl/BrushFaceAttributes.h"
 
 #include "vm/mat.h"

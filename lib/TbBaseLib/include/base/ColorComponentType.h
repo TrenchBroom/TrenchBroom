@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "ColorChannel.h"
+#include "base/ColorChannel.h"
 
 #include "vm/from_chars.h"
 

@@ -19,9 +19,9 @@
 
 #include "ui/RotateHandle.h"
 
-#include "Macros.h"
-#include "PreferenceManager.h"
 #include "Preferences.h"
+#include "base/Macros.h"
+#include "base/PreferenceManager.h"
 #include "gl/Camera.h"
 #include "mdl/Hit.h"
 #include "render/RenderBatch.h"
