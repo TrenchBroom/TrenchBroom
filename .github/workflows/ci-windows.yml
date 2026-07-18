@@ -19,17 +19,12 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          submodules: recursive
 
       - name: Setup common prerequisites
         uses: ./.github/actions/setup-common
 
       - name: Setup shared CI environment
         uses: ./.github/actions/setup-shared-env
-
-      - name: Bootstrap vcpkg
-        shell: pwsh
-        run: ${{ github.workspace }}/vcpkg/bootstrap-vcpkg.bat
 
       - name: Install dependencies
         shell: pwsh
@@ -57,20 +52,6 @@ jobs:
           New-Item -ItemType Directory -Path "$env:CCACHE_DIR" -Force | Out-Null
           ccache --set-config=max_size=1G
           ccache --zero-stats
-
-      - name: Add NuGet sources
-        shell: pwsh
-        run: |
-          .$(${{ env.VCPKG_EXE }} fetch nuget) `
-            sources add `
-            -Source "${{ env.FEED_URL }}" `
-            -StorePasswordInClearText `
-            -Name GitHubPackages `
-            -UserName "${{ env.USERNAME }}" `
-            -Password "${{ secrets.GITHUB_TOKEN }}"
-          .$(${{ env.VCPKG_EXE }} fetch nuget) `
-            setapikey "${{ secrets.GITHUB_TOKEN }}" `
-            -Source "${{ env.FEED_URL }}"
 
       - name: Build
         run: cmd.exe /c CI-windows.bat

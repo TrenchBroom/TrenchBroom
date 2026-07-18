@@ -6,23 +6,17 @@ To see how releases of TrenchBroom are packaged, consult our CI scripts instead.
 
 ## All Platforms
 
-First, clone the TrenchBroom repository. `--recursive` is needed because we use git submodules:
+First, clone the TrenchBroom repository:
 
 ```bash
-git clone --recursive https://github.com/TrenchBroom/TrenchBroom.git
-```
-
-If you have an existing git clone, you can update submodules using:
-
-```bash
-git submodule update --init --recursive
+git clone https://github.com/TrenchBroom/TrenchBroom.git
 ```
 
 ## Dependencies
 
-### VCPKG
+### FetchContent
 
-TrenchBroom uses [vcpkg](https://vcpkg.io/) to manage build dependencies except for Qt. vcpkg is integrated into TrenchBroom's build system and will download and build all dependencies once  during cmake's configure phase. This is an automatic process, but it can take a little while when it happens for the first time.
+TrenchBroom uses CMake's [FetchContent](https://cmake.org/cmake/help/latest/module/FetchContent.html) to manage build dependencies except for Qt. The dependencies are declared in `cmake/dependencies/` and are downloaded and built automatically during cmake's configure and build phases. This is an automatic process, but it can take a little while when it happens for the first time.
 
 ### Qt
 
