@@ -209,11 +209,6 @@ if(WIN32)
             COMMAND ${CMAKE_COMMAND} -E copy "${TB_RESOURCE_DIR}/win32/icons/DocIcon.ico"    "${CMAKE_CURRENT_BINARY_DIR}"
             COMMAND ${CMAKE_COMMAND} -E copy "${TB_RESOURCE_DIR}/win32/icons/WindowIcon.ico" "${CMAKE_CURRENT_BINARY_DIR}")
 
-    # Copy DLLs to app directory
-    add_custom_command(TARGET TrenchBroom POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:freeimage::FreeImage>" "$<TARGET_FILE_DIR:TrenchBroom>"
-    )
-
     # Run windeployqt which copies the Qt dlls into the deployable folder, along with necessary runtime dlls by the compiler
     # Only copy translations on release builds, as deploying them takes significantly longer
     if(NOT TB_SKIP_WINDEPLOYQT)

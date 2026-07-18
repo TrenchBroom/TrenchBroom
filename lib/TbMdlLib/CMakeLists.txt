@@ -211,7 +211,7 @@ target_link_libraries(TbMdlLib
     CompilerConfig
     PrecompileStdHeaders
     assimp
-    freeimage::FreeImage
+    FreeImage
     miniz
     tinyxml2::tinyxml2
   PUBLIC
