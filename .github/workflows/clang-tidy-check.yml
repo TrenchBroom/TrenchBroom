@@ -41,7 +41,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt update
-          sudo apt install build-essential libxi-dev libxrandr-dev libxxf86vm-dev freeglut3-dev mesa-common-dev libgl1-mesa-dev libglu1-mesa-dev libglm-dev pandoc cmake p7zip-full ninja-build libglew-dev libfreeimage-dev libfreetype6-dev libtinyxml2-dev libassimp-dev libfuse2
+          sudo apt install build-essential libxi-dev libxrandr-dev libxxf86vm-dev freeglut3-dev mesa-common-dev libgl1-mesa-dev libglu1-mesa-dev libglm-dev pandoc cmake p7zip-full ninja-build libglew-dev zlib1g-dev libfuse2
 
       - name: Add NuGet sources
         shell: bash
@@ -61,7 +61,7 @@ jobs:
         run: |
           mkdir -p build
           cd build
-          cmake .. -GNinja -DCMAKE_PREFIX_PATH="cmake/packages;$QT_ROOT_DIR" -DCMAKE_BUILD_TYPE=Release -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DTB_ENABLE_PCH=0
+          cmake .. -GNinja -DCMAKE_PREFIX_PATH="$QT_ROOT_DIR" -DCMAKE_BUILD_TYPE=Release -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DTB_ENABLE_PCH=0
 
       - name: Run clang-tidy
         uses: cpp-linter/cpp-linter-action@v2
