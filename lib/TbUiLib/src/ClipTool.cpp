@@ -19,7 +19,6 @@
 
 #include "ui/ClipTool.h"
 
-#include "Preferences.h"
 #include "base/Logger.h"
 #include "base/PreferenceManager.h"
 #include "gl/Camera.h"
@@ -34,6 +33,7 @@
 #include "mdl/SelectionChange.h"
 #include "mdl/Transaction.h"
 #include "mdl/WorldNode.h"
+#include "prefs/Preferences.h"
 #include "render/BrushRenderer.h"
 #include "render/RenderService.h"
 #include "ui/MapDocument.h"

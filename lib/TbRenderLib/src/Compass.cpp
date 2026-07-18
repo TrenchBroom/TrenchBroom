@@ -19,7 +19,6 @@
 
 #include "render/Compass.h"
 
-#include "Preferences.h"
 #include "base/PreferenceManager.h"
 #include "gl/ActiveShader.h"
 #include "gl/Camera.h"
@@ -32,6 +31,7 @@
 #include "gl/VertexArray.h"
 #include "gl/VertexType.h"
 #include "mdl/BasicShapes.h"
+#include "prefs/Preferences.h"
 #include "render/RenderBatch.h"
 #include "render/RenderContext.h"
 #include "render/Transformation.h"

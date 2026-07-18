@@ -27,7 +27,7 @@
 
 #include "KeyStrings.h"
 #include "base/PreferenceManager.h"
-#include "Preferences.h"
+#include "prefs/Preferences.h"
 #include "ui/ActionManager.h"
 #include "ui/ActionMenu.h"
 #include "ui/QPathUtils.h"

@@ -19,9 +19,9 @@
 
 #include "ui/CameraTool2D.h"
 
-#include "Preferences.h"
 #include "base/PreferenceManager.h"
 #include "gl/OrthographicCamera.h"
+#include "prefs/Preferences.h"
 #include "ui/GestureTracker.h"
 #include "ui/InputState.h"
 

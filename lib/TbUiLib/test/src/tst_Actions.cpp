@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Preferences.h"
+#include "prefs/Preferences.h"
 #include "ui/Action.h"
 #include "ui/ActionInfo.h"
 #include "ui/ActionManager.h"

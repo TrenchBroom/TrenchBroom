@@ -21,9 +21,9 @@
 
 #include <QColorDialog>
 
-#include "Preferences.h"
 #include "base/Macros.h"
 #include "base/PreferenceManager.h"
+#include "prefs/Preferences.h"
 #include "ui/QColorUtils.h"
 #include "ui/QPathUtils.h"
 

@@ -21,10 +21,10 @@
 
 #include <QGridLayout>
 
-#include "Preferences.h"
 #include "base/PreferenceManager.h"
 #include "mdl/Map.h"
 #include "mdl/PointTrace.h"
+#include "prefs/Preferences.h"
 #include "ui/FourPaneMapView.h"
 #include "ui/Inspector.h"
 #include "ui/MapDocument.h"

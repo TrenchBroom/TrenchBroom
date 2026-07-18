@@ -19,7 +19,6 @@
 
 #pragma once
 
-#include "Preferences.h"
 #include "base/NotifierConnection.h"
 #include "base/PreferenceManager.h"
 #include "mdl/Command.h"
@@ -36,6 +35,7 @@
 #include "mdl/Transaction.h"
 #include "mdl/TransactionScope.h"
 #include "mdl/UndoableCommand.h"
+#include "prefs/Preferences.h"
 #include "render/RenderBatch.h"
 #include "render/RenderService.h"
 #include "ui/InputState.h"

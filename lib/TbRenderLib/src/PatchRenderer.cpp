@@ -19,7 +19,6 @@
 
 #include "render/PatchRenderer.h"
 
-#include "Preferences.h"
 #include "base/PreferenceManager.h"
 #include "gl/ActiveShader.h"
 #include "gl/Camera.h"
@@ -34,6 +33,7 @@
 #include "gl/VertexType.h"
 #include "mdl/EditorContext.h"
 #include "mdl/PatchNode.h"
+#include "prefs/Preferences.h"
 #include "render/RenderBatch.h"
 #include "render/RenderContext.h"
 

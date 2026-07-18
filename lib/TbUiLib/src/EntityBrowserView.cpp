@@ -19,7 +19,6 @@
 
 #include "ui/EntityBrowserView.h"
 
-#include "Preferences.h"
 #include "base/PreferenceManager.h"
 #include "el/VariableStore.h"
 #include "gl/ActiveShader.h"
@@ -42,6 +41,7 @@
 #include "mdl/EntityModel.h"
 #include "mdl/EntityModelManager.h"
 #include "mdl/Map.h"
+#include "prefs/Preferences.h"
 #include "render/Transformation.h"
 #include "ui/MapDocument.h"
 

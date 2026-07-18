@@ -29,7 +29,6 @@
 #include <QSurfaceFormat>
 #include <QTimer>
 
-#include "Preferences.h"
 #include "base/Logger.h"
 #include "base/PreferenceManager.h"
 #include "fs/DiskIO.h"
@@ -41,6 +40,7 @@
 #include "mdl/EnvironmentConfig.h"
 #include "mdl/GameManager.h"
 #include "mdl/MapHeader.h"
+#include "prefs/Preferences.h"
 #include "ui/AboutDialog.h"
 #include "ui/ActionManager.h"
 #include "ui/CrashDialog.h"

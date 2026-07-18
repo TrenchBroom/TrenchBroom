@@ -20,7 +20,6 @@
 
 #include "ui/ScaleTool.h"
 
-#include "Preferences.h"
 #include "base/PreferenceManager.h"
 #include "gl/Camera.h"
 #include "mdl/Grid.h"
@@ -30,6 +29,7 @@
 #include "mdl/Map_Geometry.h"
 #include "mdl/PickResult.h"
 #include "mdl/TransactionScope.h"
+#include "prefs/Preferences.h"
 #include "ui/MapDocument.h"
 #include "ui/ScaleToolPage.h"
 

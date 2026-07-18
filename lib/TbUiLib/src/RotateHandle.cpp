@@ -19,11 +19,11 @@
 
 #include "ui/RotateHandle.h"
 
-#include "Preferences.h"
 #include "base/Macros.h"
 #include "base/PreferenceManager.h"
 #include "gl/Camera.h"
 #include "mdl/Hit.h"
+#include "prefs/Preferences.h"
 #include "render/RenderBatch.h"
 #include "render/RenderContext.h"
 #include "render/RenderService.h"

@@ -27,7 +27,6 @@
 #include <QRadioButton>
 #include <QScrollArea>
 
-#include "Preferences.h"
 #include "base/PreferenceManager.h"
 #include "mdl/EditorContext.h"
 #include "mdl/EntityDefinition.h"
@@ -38,6 +37,7 @@
 #include "mdl/Tag.h"
 #include "mdl/TagType.h"
 #include "mdl/WorldNode.h"
+#include "prefs/Preferences.h"
 #include "ui/BorderPanel.h"
 #include "ui/MapDocument.h"
 #include "ui/PopupButton.h"

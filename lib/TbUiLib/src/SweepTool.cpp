@@ -20,7 +20,6 @@
 
 #include "ui/SweepTool.h"
 
-#include "Preferences.h"
 #include "base/PreferenceManager.h"
 #include "gl/Camera.h"
 #include "mdl/BrushFace.h" // IWYU pragma: keep
@@ -32,6 +31,7 @@
 #include "mdl/Map_Selection.h"
 #include "mdl/Node.h"
 #include "mdl/Transaction.h"
+#include "prefs/Preferences.h"
 #include "render/BrushRenderer.h"
 #include "render/RenderBatch.h"
 #include "render/RenderContext.h"

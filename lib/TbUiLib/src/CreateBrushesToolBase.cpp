@@ -19,13 +19,13 @@
 
 #include "ui/CreateBrushesToolBase.h"
 
-#include "Preferences.h"
 #include "base/PreferenceManager.h"
 #include "mdl/BrushNode.h"
 #include "mdl/Map.h"
 #include "mdl/Map_Nodes.h"
 #include "mdl/Map_Selection.h"
 #include "mdl/Transaction.h"
+#include "prefs/Preferences.h"
 #include "render/BrushRenderer.h"
 #include "render/SelectionBoundsRenderer.h"
 #include "ui/MapDocument.h"

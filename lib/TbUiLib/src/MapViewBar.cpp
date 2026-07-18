@@ -24,8 +24,8 @@
 #include <QStackedLayout>
 #include <QtSystemDetection>
 
-#include "Preferences.h"
 #include "base/PreferenceManager.h"
+#include "prefs/Preferences.h"
 #include "ui/MapDocument.h"
 #include "ui/ViewConstants.h"
 #include "ui/ViewEditor.h"

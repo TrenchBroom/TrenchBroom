@@ -19,7 +19,6 @@
 
 #include "render/FaceRenderer.h"
 
-#include "Preferences.h"
 #include "base/PreferenceManager.h"
 #include "gl/ActiveShader.h"
 #include "gl/Camera.h"
@@ -29,6 +28,7 @@
 #include "gl/PrimType.h"
 #include "gl/Shaders.h"
 #include "gl/Texture.h"
+#include "prefs/Preferences.h"
 #include "render/BrushRendererArrays.h"
 #include "render/RenderBatch.h"
 #include "render/RenderContext.h"

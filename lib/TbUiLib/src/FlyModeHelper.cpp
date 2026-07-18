@@ -22,9 +22,9 @@
 #include <QElapsedTimer>
 #include <QMouseEvent>
 
-#include "Preferences.h"
 #include "base/PreferenceManager.h"
 #include "gl/Camera.h"
+#include "prefs/Preferences.h"
 
 #include "vm/vec.h"
 

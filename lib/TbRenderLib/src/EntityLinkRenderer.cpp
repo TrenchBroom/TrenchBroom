@@ -19,7 +19,6 @@
 
 #include "render/EntityLinkRenderer.h"
 
-#include "Preferences.h"
 #include "base/PreferenceManager.h"
 #include "mdl/BrushNode.h"
 #include "mdl/EditorContext.h"
@@ -32,6 +31,7 @@
 #include "mdl/PatchNode.h"
 #include "mdl/Selection.h"
 #include "mdl/WorldNode.h"
+#include "prefs/Preferences.h"
 
 #include "kd/overload.h"
 

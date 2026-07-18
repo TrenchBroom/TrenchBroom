@@ -32,7 +32,7 @@
 #include <QtGlobal>
 
 #include "base/PreferenceManager.h"
-#include "Preferences.h"
+#include "prefs/Preferences.h"
 #include "ui/Action.h"
 #include "ui/ActionBuilder.h"
 #include "ui/ActionExecutionContext.h"

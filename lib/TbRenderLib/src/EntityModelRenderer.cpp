@@ -19,7 +19,6 @@
 
 #include "render/EntityModelRenderer.h"
 
-#include "Preferences.h"
 #include "base/Logger.h"
 #include "base/PreferenceManager.h"
 #include "gl/ActiveShader.h"
@@ -34,6 +33,7 @@
 #include "mdl/EntityModel.h"
 #include "mdl/EntityModelManager.h"
 #include "mdl/EntityNode.h"
+#include "prefs/Preferences.h"
 #include "render/RenderBatch.h"
 #include "render/RenderContext.h"
 #include "render/Transformation.h"

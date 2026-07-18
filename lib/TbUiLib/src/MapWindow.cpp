@@ -39,7 +39,6 @@
 #include <QVBoxLayout>
 #include <QtGlobal>
 
-#include "Preferences.h"
 #include "base/PreferenceManager.h"
 #include "gl/GlManager.h"
 #include "gl/ResourceManager.h"
@@ -74,6 +73,7 @@
 #include "mdl/PatchNode.h"
 #include "mdl/VisualEffect.h"
 #include "mdl/WorldNode.h"
+#include "prefs/Preferences.h"
 #include "ui/Action.h"
 #include "ui/ActionBuilder.h"
 #include "ui/ActionExecutionContext.h"

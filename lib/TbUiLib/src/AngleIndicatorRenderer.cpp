@@ -19,11 +19,11 @@
 
 #include "ui/AngleIndicatorRenderer.h"
 
-#include "Preferences.h"
 #include "base/PreferenceManager.h"
 #include "gl/ActiveShader.h"
 #include "gl/GlInterface.h"
 #include "gl/Shaders.h"
+#include "prefs/Preferences.h"
 #include "render/Circle.h"
 #include "render/RenderBatch.h"
 #include "render/RenderContext.h"

@@ -19,7 +19,6 @@
 
 #include "render/MapRenderer.h"
 
-#include "Preferences.h"
 #include "base/PreferenceManager.h"
 #include "gl/MaterialManager.h"
 #include "gl/ResourceId.h"
@@ -39,6 +38,7 @@
 #include "mdl/PatchNode.h"
 #include "mdl/SelectionChange.h"
 #include "mdl/WorldNode.h"
+#include "prefs/Preferences.h"
 #include "render/BrushRenderer.h"
 #include "render/EntityDecalRenderer.h"
 #include "render/EntityLinkRenderer.h"

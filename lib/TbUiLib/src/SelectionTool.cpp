@@ -19,7 +19,6 @@
 
 #include "ui/SelectionTool.h"
 
-#include "Preferences.h"
 #include "base/PreferenceManager.h"
 #include "mdl/BrushFace.h"
 #include "mdl/BrushNode.h"
@@ -37,6 +36,7 @@
 #include "mdl/Transaction.h"
 #include "mdl/TransactionScope.h"
 #include "mdl/WorldNode.h"
+#include "prefs/Preferences.h"
 #include "render/RenderContext.h"
 #include "ui/GestureTracker.h"
 #include "ui/InputState.h"

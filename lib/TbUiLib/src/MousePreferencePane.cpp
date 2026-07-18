@@ -23,8 +23,8 @@
 #include <QLabel>
 #include <QSignalBlocker>
 
-#include "Preferences.h"
 #include "base/PreferenceManager.h"
+#include "prefs/Preferences.h"
 #include "ui/FormWithSectionsLayout.h"
 #include "ui/QStyleUtils.h"
 #include "ui/SliderWithLabel.h"

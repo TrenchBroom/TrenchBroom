@@ -19,12 +19,12 @@
 
 #include "render/GridRenderer.h"
 
-#include "Preferences.h"
 #include "base/PreferenceManager.h"
 #include "gl/ActiveShader.h"
 #include "gl/OrthographicCamera.h"
 #include "gl/PrimType.h"
 #include "gl/Shaders.h"
+#include "prefs/Preferences.h"
 #include "render/RenderContext.h"
 
 #include "vm/bbox.h"
