@@ -2,9 +2,9 @@ include(FetchContent)
 
 include(cmake/dependencies/CompilerConfig.cmake)
 
+include(cmake/dependencies/assimp.cmake)
 include(cmake/dependencies/stduuid.cmake)
 
-find_package(assimp CONFIG REQUIRED)
 find_package(cpptrace CONFIG REQUIRED)
 find_package(freeimage CONFIG REQUIRED)
 find_package(freetype CONFIG REQUIRED)
