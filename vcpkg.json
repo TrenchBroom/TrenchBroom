@@ -15,10 +15,6 @@
       "version>=": "3.10.0"
     },
     {
-      "name": "fmt",
-      "version>=": "11.2.0"
-    },
-    {
       "name": "freeimage",
       "version>=": "3.18.0#25",
       "platform": "!linux"

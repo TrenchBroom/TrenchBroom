@@ -3,6 +3,7 @@ include(FetchContent)
 include(cmake/dependencies/CompilerConfig.cmake)
 
 include(cmake/dependencies/assimp.cmake)
+include(cmake/dependencies/fmt.cmake)
 include(cmake/dependencies/stduuid.cmake)
 
 find_package(cpptrace CONFIG REQUIRED)
@@ -10,7 +11,6 @@ find_package(freeimage CONFIG REQUIRED)
 find_package(freetype CONFIG REQUIRED)
 find_package(Catch2 CONFIG REQUIRED)
 find_package(ctre CONFIG REQUIRED)
-find_package(fmt CONFIG REQUIRED)
 find_package(miniz CONFIG REQUIRED)
 find_package(tinyxml2 CONFIG REQUIRED)
 
