@@ -3,10 +3,6 @@
   "version": "1.0.0",
   "dependencies": [
     {
-      "name": "catch2",
-      "version>=": "3.10.0"
-    },
-    {
       "name": "cpptrace",
       "version>=": "1.0.4"
     },
