@@ -43,6 +43,7 @@ RUN apt-get update && apt-get install -y software-properties-common && \
       libxkbcommon-dev \
       libxkbcommon-x11-0 \
       ccache \
+      file \
       wget \
       curl \
       git \
