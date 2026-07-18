@@ -1,3 +1,5 @@
+include(cmake/dependencies/CompilerConfig.cmake)
+
 find_package(assimp CONFIG REQUIRED)
 find_package(cpptrace CONFIG REQUIRED)
 find_package(freeimage CONFIG REQUIRED)
