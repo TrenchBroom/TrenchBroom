@@ -15,10 +15,6 @@
       "name": "freetype",
       "version>=": "2.11.1",
       "platform": "!linux"
-    },
-    {
-      "name": "miniz",
-      "version>=": "2.2.0#1"
     }
   ],
   "builtin-baseline": "9a5d7860d1e3c0e394495744cecbf0f5cf41306a",

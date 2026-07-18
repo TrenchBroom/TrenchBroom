@@ -6,13 +6,13 @@ include(cmake/dependencies/assimp.cmake)
 include(cmake/dependencies/catch2.cmake)
 include(cmake/dependencies/ctre.cmake)
 include(cmake/dependencies/fmt.cmake)
+include(cmake/dependencies/miniz.cmake)
 include(cmake/dependencies/stduuid.cmake)
 include(cmake/dependencies/tinyxml2.cmake)
 
 find_package(cpptrace CONFIG REQUIRED)
 find_package(freeimage CONFIG REQUIRED)
 find_package(freetype CONFIG REQUIRED)
-find_package(miniz CONFIG REQUIRED)
 
 # Find Qt and OpenGL
 find_package(OpenGL REQUIRED)
