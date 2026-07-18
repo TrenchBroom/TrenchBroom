@@ -30,5 +30,5 @@ find_package(Threads)
 # Use the fast-float library for from_chars on AppleClang, where std::from_chars is not
 # available for floating point types.
 if (CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
-find_package(FastFloat CONFIG REQUIRED)
+include(cmake/dependencies/fast-float.cmake)
 endif()
