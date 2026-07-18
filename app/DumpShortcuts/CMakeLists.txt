@@ -26,7 +26,6 @@ if(WIN32)
     # Copy DLLs to app directory
     add_custom_command(TARGET DumpShortcuts POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:freeimage::FreeImage>" "$<TARGET_FILE_DIR:DumpShortcuts>"
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:freetype>" "$<TARGET_FILE_DIR:DumpShortcuts>"
     )
     
     # Run windeployqt which copies the Qt dlls into the deployable folder, along with necessary runtime dlls by the compiler
