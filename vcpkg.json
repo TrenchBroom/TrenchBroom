@@ -3,10 +3,6 @@
   "version": "1.0.0",
   "dependencies": [
     {
-      "name": "cpptrace",
-      "version>=": "1.0.4"
-    },
-    {
       "name": "freeimage",
       "version>=": "3.18.0#25",
       "platform": "!linux"
