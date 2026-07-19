@@ -452,6 +452,34 @@ mdl::Hit ExtrudeTool::pick2D(
 {
   using namespace mdl::HitFilters;
 
+  const auto makeEdgeHit = [&](const EdgeInfo& edgeInfo) -> mdl::Hit {
+    const auto& [leftFaceHandle, rightFaceHandle, leftDot, rightDot, segment, distance] =
+      edgeInfo;
+    const auto hitPoint = vm::point_at_distance(pickRay, distance.position1);
+    const auto handlePosition = vm::point_at_distance(segment, distance.position2);
+
+    // Select the face that is perpendicular to the view direction or the back facing
+    // one.
+    if (
+      leftDot >= -vm::Cd::almost_zero() && !vm::is_zero(rightDot, vm::Cd::almost_zero()))
+    {
+      return {
+        ExtrudeHitType,
+        distance.position1,
+        hitPoint,
+        ExtrudeHitData{
+          leftFaceHandle,
+          vm::plane3d{handlePosition, pickRay.direction},
+          handlePosition}};
+    }
+    return {
+      ExtrudeHitType,
+      distance.position1,
+      hitPoint,
+      ExtrudeHitData{
+        rightFaceHandle, vm::plane3d{handlePosition, pickRay.direction}, handlePosition}};
+  };
+
   const auto& hit = pickResult.first(type(mdl::BrushNode::BrushHitType) && selected());
   if (hit.isMatch())
   {
@@ -465,27 +493,7 @@ mdl::Hit ExtrudeTool::pick2D(
     return mdl::Hit::NoHit;
   }
 
-  const auto [leftFaceHandle, rightFaceHandle, leftDot, rightDot, segment, distance] =
-    *edgeInfo;
-  const auto hitPoint = vm::point_at_distance(pickRay, distance.position1);
-  const auto handlePosition = vm::point_at_distance(segment, distance.position2);
-
-  // Select the face that is perpendicular to the view direction or the back facing one.
-  if (leftDot >= -vm::Cd::almost_zero() && !vm::is_zero(rightDot, vm::Cd::almost_zero()))
-  {
-    return {
-      ExtrudeHitType,
-      distance.position1,
-      hitPoint,
-      ExtrudeHitData{
-        leftFaceHandle, vm::plane3d{handlePosition, pickRay.direction}, handlePosition}};
-  }
-  return {
-    ExtrudeHitType,
-    distance.position1,
-    hitPoint,
-    ExtrudeHitData{
-      rightFaceHandle, vm::plane3d{handlePosition, pickRay.direction}, handlePosition}};
+  return makeEdgeHit(*edgeInfo);
 }
 
 mdl::Hit ExtrudeTool::pick3D(
@@ -494,6 +502,27 @@ mdl::Hit ExtrudeTool::pick3D(
   const mdl::PickResult& pickResult) const
 {
   using namespace mdl::HitFilters;
+
+  const auto makeEdgeHit = [&](const EdgeInfo& edgeInfo) -> mdl::Hit {
+    const auto& [leftFaceHandle, rightFaceHandle, leftDot, rightDot, segment, distance] =
+      edgeInfo;
+    const auto hitPoint = vm::point_at_distance(pickRay, distance.position1);
+    const auto handlePosition = vm::point_at_distance(segment, distance.position2);
+
+    // choose the face that we are seeing from behind
+    const auto dragFaceHandle = leftDot > rightDot ? leftFaceHandle : rightFaceHandle;
+    const auto referenceFaceHandle =
+      leftDot > rightDot ? rightFaceHandle : leftFaceHandle;
+
+    return {
+      ExtrudeHitType,
+      distance.position1,
+      hitPoint,
+      ExtrudeHitData{
+        dragFaceHandle,
+        vm::plane3d{handlePosition, referenceFaceHandle.face().normal()},
+        handlePosition}};
+  };
 
   const auto& hit = pickResult.first(type(mdl::BrushNode::BrushHitType) && selected());
   if (const auto faceHandle = hitToFaceHandle(hit))
@@ -515,23 +544,7 @@ mdl::Hit ExtrudeTool::pick3D(
     return mdl::Hit::NoHit;
   }
 
-  const auto [leftFaceHandle, rightFaceHandle, leftDot, rightDot, segment, distance] =
-    *edgeInfo;
-  const auto hitPoint = vm::point_at_distance(pickRay, distance.position1);
-  const auto handlePosition = vm::point_at_distance(segment, distance.position2);
-
-  // choose the face that we are seeing from behind
-  const auto dragFaceHandle = leftDot > rightDot ? leftFaceHandle : rightFaceHandle;
-  const auto referenceFaceHandle = leftDot > rightDot ? rightFaceHandle : leftFaceHandle;
-
-  return {
-    ExtrudeHitType,
-    distance.position1,
-    hitPoint,
-    ExtrudeHitData{
-      dragFaceHandle,
-      vm::plane3d{handlePosition, referenceFaceHandle.face().normal()},
-      handlePosition}};
+  return makeEdgeHit(*edgeInfo);
 }
 
 const std::vector<ExtrudeDragHandle>& ExtrudeTool::proposedDragHandles() const
