@@ -38,6 +38,7 @@
 #include "ui/InputState.h"
 
 #include "kd/contracts.h"
+#include "kd/ranges/adjacent_transform_view.h"
 #include "kd/ranges/to.h"
 
 #include "vm/distance.h" // IWYU pragma: keep
@@ -282,14 +283,28 @@ struct ExtrudeDragDelegate : public HandleDragTrackerDelegate
 auto createExtrudeDragTracker(
   ExtrudeTool& tool, const InputState& inputState, const mdl::Hit& hit, const bool split)
 {
+  const auto toNormal = [](const auto& proposedDragHandle) {
+    return proposedDragHandle.faceHandle.face().boundary().normal;
+  };
+
+  const auto equalNormals = [](const auto& lhs, const auto& rhs) {
+    // normals are either identical or opposing
+    return vm::dot(lhs, rhs) > 0.0;
+  };
+
   const auto initialHandlePosition = hit.target<ExtrudeHitData>().initialHandlePosition;
+
+  const auto proposedDragHandles = tool.proposedDragHandles();
+  const auto pairwiseEqual = proposedDragHandles | std::views::transform(toNormal)
+                             | kdl::views::pairwise_transform(equalNormals);
+  const auto canSplit = split && std::ranges::all_of(pairwiseEqual, std::identity{});
 
   return createHandleDragTracker(
     ExtrudeDragDelegate{
       tool,
       {tool.proposedDragHandles(),
        ExtrudeTool::getDragFaces(tool.proposedDragHandles()),
-       split}},
+       canSplit}},
     inputState,
     initialHandlePosition,
     hit.hitPoint());
