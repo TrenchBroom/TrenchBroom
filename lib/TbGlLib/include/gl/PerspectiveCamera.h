@@ -40,6 +40,10 @@ public:
     const vm::vec3f& direction,
     const vm::vec3f& up);
 
+  float pitch() const;
+  float yaw() const;
+
+
   float fov() const;
   float zoomedFov() const;
   void setFov(float fov);
