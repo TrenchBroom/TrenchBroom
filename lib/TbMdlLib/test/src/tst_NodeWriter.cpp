@@ -46,16 +46,17 @@
 
 namespace tb::mdl
 {
+
 TEST_CASE("NodeWriter")
 {
   auto taskManager = kdl::task_manager{};
 
   SECTION("writeEmptyMap")
   {
-    auto map = WorldNode{{}, {}, MapFormat::Standard};
+    auto worldNode = WorldNode{{}, {}, MapFormat::Standard};
 
     auto str = std::stringstream{};
-    auto writer = NodeWriter{map, str};
+    auto writer = NodeWriter{worldNode, str};
     writer.writeMap(taskManager);
 
     const auto actual = str.str();
@@ -70,10 +71,10 @@ TEST_CASE("NodeWriter")
 
   SECTION("writeWorldspawn")
   {
-    auto map = WorldNode{{}, {{"message", "holy damn"}}, MapFormat::Standard};
+    auto worldNode = WorldNode{{}, {{"message", "holy damn"}}, MapFormat::Standard};
 
     auto str = std::stringstream{};
-    auto writer = NodeWriter{map, str};
+    auto writer = NodeWriter{worldNode, str};
     writer.writeMap(taskManager);
 
     const auto actual = str.str();
@@ -89,17 +90,17 @@ TEST_CASE("NodeWriter")
 
   SECTION("writeDefaultLayerProperties")
   {
-    auto map = WorldNode{{}, {}, MapFormat::Standard};
-    map.defaultLayer()->setVisibilityState(VisibilityState::Hidden);
-    map.defaultLayer()->setLockState(LockState::Locked);
+    auto worldNode = WorldNode{{}, {}, MapFormat::Standard};
+    worldNode.defaultLayer()->setVisibilityState(VisibilityState::Hidden);
+    worldNode.defaultLayer()->setLockState(LockState::Locked);
 
-    auto layer = map.defaultLayer()->layer();
+    auto layer = worldNode.defaultLayer()->layer();
     layer.setColor(RgbF{0.25f, 0.75f, 1.0f});
     layer.setOmitFromExport(true);
-    map.defaultLayer()->setLayer(std::move(layer));
+    worldNode.defaultLayer()->setLayer(std::move(layer));
 
     auto str = std::stringstream{};
-    auto writer = NodeWriter{map, str};
+    auto writer = NodeWriter{worldNode, str};
     writer.writeMap(taskManager);
 
     const auto actual = str.str();
@@ -118,17 +119,17 @@ TEST_CASE("NodeWriter")
 
   SECTION("stripTbProperties")
   {
-    auto map = WorldNode{{}, {}, MapFormat::Standard};
-    map.defaultLayer()->setVisibilityState(VisibilityState::Hidden);
-    map.defaultLayer()->setLockState(LockState::Locked);
+    auto worldNode = WorldNode{{}, {}, MapFormat::Standard};
+    worldNode.defaultLayer()->setVisibilityState(VisibilityState::Hidden);
+    worldNode.defaultLayer()->setLockState(LockState::Locked);
 
-    auto layer = map.defaultLayer()->layer();
+    auto layer = worldNode.defaultLayer()->layer();
     layer.setColor(RgbF{0.25f, 0.75f, 1.0f});
     layer.setOmitFromExport(true);
-    map.defaultLayer()->setLayer(std::move(layer));
+    worldNode.defaultLayer()->setLayer(std::move(layer));
 
     auto str = std::stringstream{};
-    auto writer = NodeWriter{map, str};
+    auto writer = NodeWriter{worldNode, str};
     writer.setStripTbProperties(true);
     writer.writeMap(taskManager);
 
@@ -144,7 +145,7 @@ TEST_CASE("NodeWriter")
 
   SECTION("stripEntityPattern")
   {
-    auto map = WorldNode{{}, {}, MapFormat::Standard};
+    auto worldNode = WorldNode{{}, {}, MapFormat::Standard};
 
     auto* matchingPointEntityNode = new EntityNode{Entity{{
       {"classname", "info_player_start"},
@@ -159,12 +160,12 @@ TEST_CASE("NodeWriter")
       {"origin", "128 0 0"},
     }}};
 
-    map.defaultLayer()->addChild(matchingPointEntityNode);
-    map.defaultLayer()->addChild(caseMatchingPointEntityNode);
-    map.defaultLayer()->addChild(nonMatchingPointEntityNode);
+    worldNode.defaultLayer()->addChild(matchingPointEntityNode);
+    worldNode.defaultLayer()->addChild(caseMatchingPointEntityNode);
+    worldNode.defaultLayer()->addChild(nonMatchingPointEntityNode);
 
     auto str = std::stringstream{};
-    auto writer = NodeWriter{map, str};
+    auto writer = NodeWriter{worldNode, str};
     writer.setStripEntityPattern("info_*");
     writer.writeMap(taskManager);
 
@@ -243,7 +244,7 @@ TEST_CASE("NodeWriter")
 
   SECTION("setEntityNodeToAdd")
   {
-    auto map = WorldNode{{}, {}, MapFormat::Standard};
+    auto worldNode = WorldNode{{}, {}, MapFormat::Standard};
 
     const auto entityToAdd = Entity{{
       {"classname", "info_compile_settings"},
@@ -251,7 +252,7 @@ TEST_CASE("NodeWriter")
     }};
 
     auto str = std::stringstream{};
-    auto writer = NodeWriter{map, str};
+    auto writer = NodeWriter{worldNode, str};
     writer.setEntityToAdd(entityToAdd);
     writer.writeMap(taskManager);
 
@@ -274,9 +275,9 @@ TEST_CASE("NodeWriter")
   {
     const auto worldBounds = vm::bbox3d{8192.0};
 
-    auto map = WorldNode{{}, {}, MapFormat::Daikatana};
+    auto worldNode = WorldNode{{}, {}, MapFormat::Daikatana};
 
-    auto builder = BrushBuilder{map.mapFormat(), worldBounds};
+    auto builder = BrushBuilder{worldNode.mapFormat(), worldBounds};
     auto brush1 = builder.createCube(64.0, "none") | kdl::value();
     for (auto& face : brush1.faces())
     {
@@ -285,13 +286,13 @@ TEST_CASE("NodeWriter")
       face.setAttributes(attributes);
     }
     auto* brushNode1 = new BrushNode{std::move(brush1)};
-    map.defaultLayer()->addChild(brushNode1);
+    worldNode.defaultLayer()->addChild(brushNode1);
 
     auto* brushNode2 = new BrushNode{builder.createCube(64.0, "none") | kdl::value()};
-    map.defaultLayer()->addChild(brushNode2);
+    worldNode.defaultLayer()->addChild(brushNode2);
 
     auto str = std::stringstream{};
-    auto writer = NodeWriter{map, str};
+    auto writer = NodeWriter{worldNode, str};
     writer.writeMap(taskManager);
 
     const auto actual = str.str();
@@ -326,9 +327,9 @@ TEST_CASE("NodeWriter")
   {
     const auto worldBounds = vm::bbox3d{8192.0};
 
-    auto map = WorldNode{{}, {}, MapFormat::Quake2_Valve};
+    auto worldNode = WorldNode{{}, {}, MapFormat::Quake2_Valve};
 
-    auto builder = BrushBuilder{map.mapFormat(), worldBounds};
+    auto builder = BrushBuilder{worldNode.mapFormat(), worldBounds};
     auto brush1 = builder.createCube(64.0, "e1u1/alarm0") | kdl::value();
 
     // set +Z face to e1u1/brwater with contents 0, flags 0, value 0
@@ -360,10 +361,10 @@ TEST_CASE("NodeWriter")
     // other faces are e1u1/alarm0 with unset contents/flags/value
 
     auto* brushNode1 = new BrushNode{std::move(brush1)};
-    map.defaultLayer()->addChild(brushNode1);
+    worldNode.defaultLayer()->addChild(brushNode1);
 
     auto str = std::stringstream{};
-    auto writer = NodeWriter{map, str};
+    auto writer = NodeWriter{worldNode, str};
     writer.writeMap(taskManager);
 
     const auto actual = str.str();
@@ -390,14 +391,14 @@ TEST_CASE("NodeWriter")
   {
     const auto worldBounds = vm::bbox3d{8192.0};
 
-    auto map = WorldNode{{}, {}, MapFormat::Quake3_Valve};
+    auto worldNode = WorldNode{{}, {}, MapFormat::Quake3_Valve};
 
-    auto builder = BrushBuilder{map.mapFormat(), worldBounds};
+    auto builder = BrushBuilder{worldNode.mapFormat(), worldBounds};
     auto* brushNode1 = new BrushNode{builder.createCube(64.0, "none") | kdl::value()};
-    map.defaultLayer()->addChild(brushNode1);
+    worldNode.defaultLayer()->addChild(brushNode1);
 
     auto str = std::stringstream{};
-    auto writer = NodeWriter{map, str};
+    auto writer = NodeWriter{worldNode, str};
     writer.writeMap(taskManager);
 
     const auto actual = str.str();
@@ -424,14 +425,14 @@ TEST_CASE("NodeWriter")
   {
     const auto worldBounds = vm::bbox3d{8192.0};
 
-    auto map = WorldNode{{}, {}, MapFormat::Standard};
+    auto worldNode = WorldNode{{}, {}, MapFormat::Standard};
 
-    auto builder = BrushBuilder{map.mapFormat(), worldBounds};
+    auto builder = BrushBuilder{worldNode.mapFormat(), worldBounds};
     auto* brushNode = new BrushNode{builder.createCube(64.0, "none") | kdl::value()};
-    map.defaultLayer()->addChild(brushNode);
+    worldNode.defaultLayer()->addChild(brushNode);
 
     auto str = std::stringstream{};
-    auto writer = NodeWriter{map, str};
+    auto writer = NodeWriter{worldNode, str};
     writer.writeMap(taskManager);
 
     const auto actual = str.str();
@@ -457,21 +458,21 @@ TEST_CASE("NodeWriter")
   {
     const auto worldBounds = vm::bbox3d{8192.0};
 
-    auto map = WorldNode{{}, {}, MapFormat::Standard};
+    auto worldNode = WorldNode{{}, {}, MapFormat::Standard};
 
     auto layer = Layer{"Custom Layer"};
     REQUIRE(layer.sortIndex() == Layer::invalidSortIndex());
     layer.setSortIndex(0);
 
     auto* layerNode = new LayerNode{std::move(layer)};
-    map.addChild(layerNode);
+    worldNode.addChild(layerNode);
 
-    auto builder = BrushBuilder{map.mapFormat(), worldBounds};
+    auto builder = BrushBuilder{worldNode.mapFormat(), worldBounds};
     auto* brushNode = new BrushNode{builder.createCube(64.0, "none") | kdl::value()};
     layerNode->addChild(brushNode);
 
     auto str = std::stringstream{};
-    auto writer = NodeWriter{map, str};
+    auto writer = NodeWriter{worldNode, str};
     writer.writeMap(taskManager);
 
     const auto actual = str.str();
@@ -504,7 +505,7 @@ TEST_CASE("NodeWriter")
 
   SECTION("writeWorldspawnWithCustomLayerWithSortIndex")
   {
-    auto map = WorldNode{{}, {}, MapFormat::Standard};
+    auto worldNode = WorldNode{{}, {}, MapFormat::Standard};
 
     auto layer = Layer{"Custom Layer"};
     layer.setSortIndex(1);
@@ -514,10 +515,10 @@ TEST_CASE("NodeWriter")
     layerNode->setLockState(LockState::Locked);
     layerNode->setVisibilityState(VisibilityState::Hidden);
 
-    map.addChild(layerNode);
+    worldNode.addChild(layerNode);
 
     auto str = std::stringstream{};
-    auto writer = NodeWriter{map, str};
+    auto writer = NodeWriter{worldNode, str};
     writer.writeMap(taskManager);
 
     const auto actual = str.str();
@@ -546,18 +547,18 @@ TEST_CASE("NodeWriter")
   {
     const auto worldBounds = vm::bbox3d{8192.0};
 
-    auto map = WorldNode{{}, {}, MapFormat::Standard};
+    auto worldNode = WorldNode{{}, {}, MapFormat::Standard};
 
     auto* groupNode = new GroupNode{Group{"Group"}};
     setLinkId(*groupNode, "group_link_id");
-    map.defaultLayer()->addChild(groupNode);
+    worldNode.defaultLayer()->addChild(groupNode);
 
-    auto builder = BrushBuilder{map.mapFormat(), worldBounds};
+    auto builder = BrushBuilder{worldNode.mapFormat(), worldBounds};
     auto* brushNode = new BrushNode{builder.createCube(64.0, "none") | kdl::value()};
     groupNode->addChild(brushNode);
 
     auto str = std::stringstream{};
-    auto writer = NodeWriter{map, str};
+    auto writer = NodeWriter{worldNode, str};
     writer.writeMap(taskManager);
 
     const auto actual = str.str();
@@ -592,21 +593,21 @@ TEST_CASE("NodeWriter")
   {
     const auto worldBounds = vm::bbox3d{8192.0};
 
-    auto map = WorldNode{{}, {}, MapFormat::Standard};
+    auto worldNode = WorldNode{{}, {}, MapFormat::Standard};
 
     auto* layerNode = new LayerNode{Layer{"Custom Layer"}};
-    map.addChild(layerNode);
+    worldNode.addChild(layerNode);
 
     auto* groupNode = new GroupNode{Group{"Group"}};
     setLinkId(*groupNode, "group_link_id");
     layerNode->addChild(groupNode);
 
-    auto builder = BrushBuilder{map.mapFormat(), worldBounds};
+    auto builder = BrushBuilder{worldNode.mapFormat(), worldBounds};
     auto* brushNode = new BrushNode{builder.createCube(64.0, "none") | kdl::value()};
     groupNode->addChild(brushNode);
 
     auto str = std::stringstream{};
-    auto writer = NodeWriter{map, str};
+    auto writer = NodeWriter{worldNode, str};
     writer.writeMap(taskManager);
 
     const auto actual = str.str();
@@ -650,10 +651,10 @@ TEST_CASE("NodeWriter")
   {
     const auto worldBounds = vm::bbox3d{8192.0};
 
-    auto map = WorldNode{{}, {}, MapFormat::Standard};
+    auto worldNode = WorldNode{{}, {}, MapFormat::Standard};
 
     auto* layerNode = new LayerNode{Layer{"Custom Layer"}};
-    map.addChild(layerNode);
+    worldNode.addChild(layerNode);
 
     auto* outerGroupNode = new GroupNode{Group{"Outer Group"}};
     setLinkId(*outerGroupNode, "outer_group_link_id");
@@ -663,12 +664,12 @@ TEST_CASE("NodeWriter")
     setLinkId(*innerGroupNode, "inner_group_link_id");
     outerGroupNode->addChild(innerGroupNode);
 
-    auto builder = BrushBuilder{map.mapFormat(), worldBounds};
+    auto builder = BrushBuilder{worldNode.mapFormat(), worldBounds};
     auto* brushNode = new BrushNode{builder.createCube(64.0, "none") | kdl::value()};
     innerGroupNode->addChild(brushNode);
 
     auto str = std::stringstream{};
-    auto writer = NodeWriter{map, str};
+    auto writer = NodeWriter{worldNode, str};
     writer.writeMap(taskManager);
 
     const auto actual = str.str();
@@ -722,11 +723,11 @@ TEST_CASE("NodeWriter")
   {
     const auto worldBounds = vm::bbox3d{8192.0};
 
-    auto map = WorldNode{{}, {}, MapFormat::Standard};
+    auto worldNode = WorldNode{{}, {}, MapFormat::Standard};
 
     auto* layerNode1 = new LayerNode{Layer{"Custom Layer 1"}};
     layerNode1->setPersistentId(1u);
-    map.addChild(layerNode1);
+    worldNode.addChild(layerNode1);
 
     auto* outerGroupNode = new GroupNode{Group{"Outer Group"}};
     outerGroupNode->setPersistentId(21u);
@@ -740,14 +741,14 @@ TEST_CASE("NodeWriter")
 
     auto* layerNode2 = new LayerNode{Layer{"Custom Layer 2"}};
     layerNode2->setPersistentId(12u);
-    map.addChild(layerNode2);
+    worldNode.addChild(layerNode2);
 
-    auto builder = BrushBuilder{map.mapFormat(), worldBounds};
+    auto builder = BrushBuilder{worldNode.mapFormat(), worldBounds};
     auto* brushNode = new BrushNode{builder.createCube(64.0, "none") | kdl::value()};
     innerGroupNode->addChild(brushNode);
 
     auto str = std::stringstream{};
-    auto writer = NodeWriter{map, str};
+    auto writer = NodeWriter{worldNode, str};
     writer.writeMap(taskManager);
 
     const auto actual = str.str();
@@ -805,28 +806,28 @@ TEST_CASE("NodeWriter")
   {
     const auto worldBounds = vm::bbox3d{8192.0};
 
-    auto map = WorldNode{{}, {}, MapFormat::Standard};
-    auto builder = BrushBuilder{map.mapFormat(), worldBounds};
+    auto worldNode = WorldNode{{}, {}, MapFormat::Standard};
+    auto builder = BrushBuilder{worldNode.mapFormat(), worldBounds};
 
     // default layer (omit from export)
-    auto defaultLayer = map.defaultLayer()->layer();
+    auto defaultLayer = worldNode.defaultLayer()->layer();
     defaultLayer.setOmitFromExport(true);
-    map.defaultLayer()->setLayer(std::move(defaultLayer));
+    worldNode.defaultLayer()->setLayer(std::move(defaultLayer));
 
     auto* defaultLayerPointEntityNode =
       new EntityNode{Entity{{{"classname", "defaultLayerPointEntity"}}}};
 
     auto* defaultLayerBrushNode =
       new BrushNode{builder.createCube(64.0, "defaultMaterial") | kdl::value()};
-    map.defaultLayer()->addChild(defaultLayerPointEntityNode);
-    map.defaultLayer()->addChild(defaultLayerBrushNode);
+    worldNode.defaultLayer()->addChild(defaultLayerPointEntityNode);
+    worldNode.defaultLayer()->addChild(defaultLayerBrushNode);
 
     // layer1 (omit from export)
     auto layer1 = Layer{"Custom Layer 1"};
     layer1.setOmitFromExport(true);
 
     auto* layerNode1 = new LayerNode{std::move(layer1)};
-    map.addChild(layerNode1);
+    worldNode.addChild(layerNode1);
 
     auto* layer1PointEntityNode =
       new EntityNode{Entity{{{"classname", "layer1PointEntity"}}}};
@@ -838,7 +839,7 @@ TEST_CASE("NodeWriter")
 
     // layer2
     auto* layerNode2 = new LayerNode{Layer{"Custom Layer 2"}};
-    map.addChild(layerNode2);
+    worldNode.addChild(layerNode2);
 
     auto* layer2PointEntityNode =
       new EntityNode{Entity{{{"classname", "layer2PointEntity"}}}};
@@ -849,7 +850,7 @@ TEST_CASE("NodeWriter")
     layerNode2->addChild(layer2BrushNode);
 
     auto str = std::stringstream{};
-    auto writer = NodeWriter{map, str};
+    auto writer = NodeWriter{worldNode, str};
     writer.setExporting(true);
     writer.writeMap(taskManager);
 
@@ -887,22 +888,22 @@ TEST_CASE("NodeWriter")
 
   SECTION("writeMapWithInheritedLock")
   {
-    auto map = WorldNode{{}, {}, MapFormat::Standard};
+    auto worldNode = WorldNode{{}, {}, MapFormat::Standard};
 
     auto* layerNode = new LayerNode{Layer{"Custom Layer"}};
-    map.addChild(layerNode);
+    worldNode.addChild(layerNode);
 
     // WorldNode's lock state is not persisted.
     // TB uses it e.g. for locking everything when opening a group.
     // So this should result in both the default layer and custom layer being written
     // unlocked.
 
-    map.setLockState(LockState::Locked);
-    map.defaultLayer()->setLockState(LockState::Inherited);
+    worldNode.setLockState(LockState::Locked);
+    worldNode.defaultLayer()->setLockState(LockState::Inherited);
     layerNode->setLockState(LockState::Inherited);
 
     auto str = std::stringstream{};
-    auto writer = NodeWriter{map, str};
+    auto writer = NodeWriter{worldNode, str};
     writer.writeMap(taskManager);
 
     const auto actual = str.str();
@@ -926,9 +927,9 @@ TEST_CASE("NodeWriter")
   {
     const auto worldBounds = vm::bbox3d{8192.0};
 
-    auto map = WorldNode{{}, {}, MapFormat::Standard};
+    auto worldNode = WorldNode{{}, {}, MapFormat::Standard};
 
-    auto builder = BrushBuilder{map.mapFormat(), worldBounds};
+    auto builder = BrushBuilder{worldNode.mapFormat(), worldBounds};
 
     auto* worldBrushNode = new BrushNode{builder.createCube(64.0, "some") | kdl::value()};
     auto* outerGroupNode = new GroupNode{Group{"Outer Group"}};
@@ -940,11 +941,11 @@ TEST_CASE("NodeWriter")
 
     innerGroupNode->addChild(innerBrushNode);
     outerGroupNode->addChild(innerGroupNode);
-    map.defaultLayer()->addChild(worldBrushNode);
-    map.defaultLayer()->addChild(outerGroupNode);
+    worldNode.defaultLayer()->addChild(worldBrushNode);
+    worldNode.defaultLayer()->addChild(outerGroupNode);
 
     auto str = std::stringstream{};
-    auto writer = NodeWriter{map, str};
+    auto writer = NodeWriter{worldNode, str};
     writer.writeNodes({innerGroupNode, worldBrushNode}, taskManager);
 
     const auto actual = str.str();
@@ -1138,12 +1139,12 @@ TEST_CASE("NodeWriter")
   {
     const auto worldBounds = vm::bbox3d{8192.0};
 
-    auto map = WorldNode{{}, {}, MapFormat::Standard};
-    auto builder = BrushBuilder{map.mapFormat(), worldBounds};
+    auto worldNode = WorldNode{{}, {}, MapFormat::Standard};
+    auto builder = BrushBuilder{worldNode.mapFormat(), worldBounds};
     auto* brushNode = new BrushNode{builder.createCube(64.0, "none") | kdl::value()};
 
     auto str = std::stringstream{};
-    auto writer = NodeWriter{map, str};
+    auto writer = NodeWriter{worldNode, str};
     writer.writeBrushFaces(brushNode->brush().faces(), taskManager);
 
     const auto actual = str.str();
@@ -1163,10 +1164,11 @@ TEST_CASE("NodeWriter")
 
   SECTION("writePropertiesWithQuotationMarks")
   {
-    WorldNode map({}, {{"message", "\"holy damn\", he said"}}, MapFormat::Standard);
+    const auto worldNode =
+      WorldNode{{}, {{"message", "\"holy damn\", he said"}}, MapFormat::Standard};
 
     auto str = std::stringstream{};
-    auto writer = NodeWriter{map, str};
+    auto writer = NodeWriter{worldNode, str};
     writer.writeMap(taskManager);
 
     const auto actual = str.str();
@@ -1183,11 +1185,11 @@ TEST_CASE("NodeWriter")
 
   SECTION("writePropertiesWithEscapedQuotationMarks")
   {
-    auto map =
+    auto worldNode =
       WorldNode{{}, {{"message", R"(\"holy damn\", he said)"}}, MapFormat::Standard};
 
     auto str = std::stringstream{};
-    auto writer = NodeWriter{map, str};
+    auto writer = NodeWriter{worldNode, str};
     writer.writeMap(taskManager);
 
     const auto actual = str.str();
@@ -1205,10 +1207,11 @@ TEST_CASE("NodeWriter")
   // https://github.com/TrenchBroom/TrenchBroom/issues/1739
   SECTION("writePropertiesWithNewlineEscapeSequence")
   {
-    auto map = WorldNode{{}, {{"message", "holy damn\\nhe said"}}, MapFormat::Standard};
+    auto worldNode =
+      WorldNode{{}, {{"message", "holy damn\\nhe said"}}, MapFormat::Standard};
 
     auto str = std::stringstream{};
-    auto writer = NodeWriter{map, str};
+    auto writer = NodeWriter{worldNode, str};
     writer.writeMap(taskManager);
 
     const auto actual = str.str();
@@ -1226,7 +1229,7 @@ TEST_CASE("NodeWriter")
   // https://github.com/TrenchBroom/TrenchBroom/issues/2556
   SECTION("writePropertiesWithTrailingBackslash")
   {
-    auto map = WorldNode{
+    auto worldNode = WorldNode{
       {},
       {
         {R"(message\)", R"(holy damn\)"},
@@ -1236,7 +1239,7 @@ TEST_CASE("NodeWriter")
       MapFormat::Standard};
 
     auto str = std::stringstream{};
-    auto writer = NodeWriter{map, str};
+    auto writer = NodeWriter{worldNode, str};
     writer.writeMap(taskManager);
 
     const auto actual = str.str();
