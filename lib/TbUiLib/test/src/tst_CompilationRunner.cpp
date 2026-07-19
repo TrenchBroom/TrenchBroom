@@ -29,7 +29,9 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 #include "gl/PerspectiveCamera.h"
 #include "mdl/CompilationProfile.h"
 #include "mdl/CompilationTask.h"
+#include "mdl/Entity.h"
 #include "mdl/EntityNode.h"
+#include "mdl/EntityProperties.h"
 #include "mdl/GameEngineProfile.h"
 #include "mdl/Map.h"
 #include "mdl/MapFixture.h"
@@ -415,7 +417,14 @@ TEST_CASE("CompilationExportMapTaskRunner")
 {
   auto fixture = mdl::MapFixture{};
   auto& map = fixture.create();
-  auto camera = gl::PerspectiveCamera{};
+  auto camera = gl::PerspectiveCamera{
+    90.0f,
+    1.0f,
+    65536.0f,
+    gl::Camera::Viewport{0, 0, 1024, 768},
+    vm::vec3f{1, 2, 3},
+    vm::vec3f{0, 1, 0},
+    vm::vec3f{0, 0, 1}};
 
   auto testEnvironment = fs::TestEnvironment{};
 
@@ -453,6 +462,34 @@ TEST_CASE("CompilationExportMapTaskRunner")
     REQUIRE_NOTHROW(runner.execute());
 
     CHECK(testEnvironment.fileExists(expectedFilePath));
+  }
+
+  SECTION("addEntity")
+  {
+    auto task = mdl::CompilationExportMap{
+      K(enabled),
+      !K(stripTbProperties),
+      std::nullopt,
+      mdl::Entity{{{mdl::EntityPropertyKeys::Classname, "info_player_start"}}},
+      "exported.map",
+    };
+
+    auto runner = CompilationExportMapTaskRunner{context, task};
+    REQUIRE_NOTHROW(runner.execute());
+
+    REQUIRE(testEnvironment.fileExists("exported.map"));
+    REQUIRE(vm::to_degrees(camera.yaw()) == 90.0f);
+    CHECK(testEnvironment.loadFile("exported.map") == R"(// entity 0
+{
+"classname" "worldspawn"
+}
+// entity 1
+{
+"classname" "info_player_start"
+"origin" "1 2 3"
+"angle" "90"
+}
+)");
   }
 
   SECTION("variable interpolation error")

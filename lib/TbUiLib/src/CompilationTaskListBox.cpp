@@ -161,6 +161,13 @@ Variables are allowed.)");
   m_stripEntityPattern->setPlaceholderText("enter GLOB pattern");
   formLayout->addRow("Strip Entities", m_stripEntityPattern);
 
+  m_dropEntity = new QLineEdit{};
+  m_dropEntity->setToolTip(tr(
+    "Set the classname of an entity that will be added to the map. The entities' origin "
+    "and angles will be set to the camera position and view direction, respectively."));
+  m_dropEntity->setPlaceholderText("enter classname");
+  formLayout->addRow("Add Entity", m_dropEntity);
+
   m_stripTbProperties = new QCheckBox{"Strip TrenchBroom specific entity properties"};
   m_stripTbProperties->setToolTip(
     tr("Set this checkbox to strip any entity properties starting with _tb_ from the "
@@ -177,6 +184,11 @@ Variables are allowed.)");
     &QLineEdit::textChanged,
     this,
     &CompilationExportMapTaskEditor::stripEntityPatternChanged);
+  connect(
+    m_dropEntity,
+    &QLineEdit::textChanged,
+    this,
+    &CompilationExportMapTaskEditor::dropEntityChanged);
   connect(
     m_stripTbProperties,
     &QCheckBox::checkStateChanged,
@@ -206,6 +218,13 @@ void CompilationExportMapTaskEditor::updateItem()
   {
     m_stripEntityPattern->setText(stripEntityPattern);
   }
+
+  const auto dropEntity =
+    QString::fromStdString(task().entityToAdd ? task().entityToAdd->classname() : "");
+  if (m_dropEntity->text() != dropEntity)
+  {
+    m_dropEntity->setText(dropEntity);
+  }
 }
 
 mdl::CompilationExportMap& CompilationExportMapTaskEditor::task()
@@ -218,6 +237,20 @@ mdl::CompilationExportMap& CompilationExportMapTaskEditor::task()
 void CompilationExportMapTaskEditor::targetSpecChanged(const QString& text)
 {
   task().targetSpec = text.toStdString();
+}
+
+void CompilationExportMapTaskEditor::dropEntityChanged(const QString& text)
+{
+  if (text.isEmpty())
+  {
+    task().entityToAdd = std::nullopt;
+  }
+  else
+  {
+    task().entityToAdd = mdl::Entity{{
+      {mdl::EntityPropertyKeys::Classname, text.toStdString()},
+    }};
+  }
 }
 
 void CompilationExportMapTaskEditor::stripEntityPatternChanged(const QString& text)

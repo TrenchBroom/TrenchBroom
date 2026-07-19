@@ -29,6 +29,7 @@
 #include "fs/PathInfo.h"
 #include "fs/PathMatcher.h"
 #include "fs/TraversalMode.h"
+#include "gl/PerspectiveCamera.h"
 #include "mdl/CompilationProfile.h"
 #include "mdl/CompilationTask.h"
 #include "mdl/ExportOptions.h"
@@ -49,7 +50,10 @@
 #include "kd/result_fold.h"
 #include "kd/string_utils.h"
 
+#include "vm/vec_io.h" // IWYU pragma: keep
+
 #include <fmt/format.h>
+#include <fmt/ostream.h>
 #include <fmt/std.h>
 
 #include <algorithm>
@@ -131,6 +135,19 @@ void CompilationExportMapTaskRunner::doExecute()
         const auto targetPath = makeAbsolute(kdl::parse_path(interpolated), workDir);
         m_context << "#### Exporting map file '" << pathAsQString(targetPath) << "'\n";
 
+        auto entityToAdd = m_task.entityToAdd | kdl::optional_transform([&](auto entity) {
+                             const auto position = m_context.camera().position();
+                             const auto yaw = vm::to_degrees(m_context.camera().yaw());
+
+                             entity.addOrUpdateProperty(
+                               mdl::EntityPropertyKeys::Origin,
+                               fmt::format("{}", fmt::streamed(position)));
+                             entity.addOrUpdateProperty(
+                               mdl::EntityPropertyKeys::Angle, fmt::format("{}", yaw));
+
+                             return entity;
+                           });
+
         if (!m_context.test())
         {
           return fs::Disk::createDirectory(targetPath.parent_path())
@@ -139,7 +156,7 @@ void CompilationExportMapTaskRunner::doExecute()
                        targetPath,
                        m_task.stripTbProperties,
                        m_task.stripEntityPattern,
-                       m_task.entityToAdd,
+                       std::move(entityToAdd),
                      };
                      return m_context.map().exportAs(options);
                    });
