@@ -116,6 +116,38 @@ std::optional<EdgeInfo> getEdgeInfo(
   return {{leftFaceHandle, rightFaceHandle, leftDot, rightDot, segment, dist}};
 }
 
+std::vector<mdl::BrushFaceHandle> collectCoplanarFaces(
+  const std::vector<mdl::Node*>& nodes, const mdl::BrushFaceHandle& faceHandle)
+{
+  auto result = std::vector<mdl::BrushFaceHandle>{};
+
+  const auto& referenceFace = faceHandle.face();
+  for (auto* node : nodes)
+  {
+    node->accept(kdl::overload(
+      [](mdl::WorldNode&) {},
+      [](mdl::LayerNode&) {},
+      [](mdl::GroupNode&) {},
+      [](mdl::EntityNode&) {},
+      [&](mdl::BrushNode& brushNode) {
+        const auto& brush = brushNode.brush();
+        for (size_t i = 0; i < brush.faceCount(); ++i)
+        {
+          const auto& face = brush.face(i);
+          if (!face.coplanarWith(referenceFace.boundary()))
+          {
+            continue;
+          }
+
+          result.emplace_back(&brushNode, i);
+        }
+      },
+      [](mdl::PatchNode&) {}));
+  }
+
+  return result;
+}
+
 std::optional<EdgeInfo> findClosestHorizonEdge(
   const std::vector<mdl::Node*>& nodes, const vm::ray3d& pickRay)
 {
@@ -136,6 +168,23 @@ std::optional<EdgeInfo> findClosestHorizonEdge(
       [](mdl::PatchNode&) {}));
   }
   return result;
+}
+
+std::vector<ExtrudeDragHandle> getDragHandles(
+  const std::vector<mdl::Node*>& nodes, const mdl::Hit& hit)
+{
+  if (!hit.isMatch())
+  {
+    return {};
+  }
+
+  contract_assert(hit.hasType(ExtrudeTool::ExtrudeHitType));
+  const auto& data = hit.target<const ExtrudeHitData&>();
+
+  return collectCoplanarFaces(nodes, data.face)
+         | std::views::transform(
+           [](const auto& faceHandle) { return ExtrudeDragHandle{faceHandle}; })
+         | kdl::ranges::to<std::vector>();
 }
 
 /**
@@ -323,55 +372,6 @@ std::vector<vm::polygon3d> getPolygons(const std::vector<ExtrudeDragHandle>& dra
            return dragHandle.brushAtDragStart.face(dragHandle.faceHandle.faceIndex())
              .polygon();
          })
-         | kdl::ranges::to<std::vector>();
-}
-
-std::vector<mdl::BrushFaceHandle> collectCoplanarFaces(
-  const std::vector<mdl::Node*>& nodes, const mdl::BrushFaceHandle& faceHandle)
-{
-  auto result = std::vector<mdl::BrushFaceHandle>{};
-
-  const auto& referenceFace = faceHandle.face();
-  for (auto* node : nodes)
-  {
-    node->accept(kdl::overload(
-      [](mdl::WorldNode&) {},
-      [](mdl::LayerNode&) {},
-      [](mdl::GroupNode&) {},
-      [](mdl::EntityNode&) {},
-      [&](mdl::BrushNode& brushNode) {
-        const auto& brush = brushNode.brush();
-        for (size_t i = 0; i < brush.faceCount(); ++i)
-        {
-          const auto& face = brush.face(i);
-          if (!face.coplanarWith(referenceFace.boundary()))
-          {
-            continue;
-          }
-
-          result.emplace_back(&brushNode, i);
-        }
-      },
-      [](mdl::PatchNode&) {}));
-  }
-
-  return result;
-}
-
-std::vector<ExtrudeDragHandle> getDragHandles(
-  const std::vector<mdl::Node*>& nodes, const mdl::Hit& hit)
-{
-  if (!hit.isMatch())
-  {
-    return {};
-  }
-
-  contract_assert(hit.hasType(ExtrudeTool::ExtrudeHitType));
-  const auto& data = hit.target<const ExtrudeHitData&>();
-
-  return collectCoplanarFaces(nodes, data.face)
-         | std::views::transform(
-           [](const auto& faceHandle) { return ExtrudeDragHandle{faceHandle}; })
          | kdl::ranges::to<std::vector>();
 }
 
