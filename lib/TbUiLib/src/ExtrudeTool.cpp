@@ -191,6 +191,32 @@ std::optional<EdgeInfo> findClosestHorizonEdge(
   return result;
 }
 
+/**
+ * Returns true if the horizon edge's cylindrical handle (with the same radius as the
+ * vertex handles) is grabbed and should take priority over the given direct brush face
+ * hit. The edge's own adjacent face never steals the handle; a different, occluding face
+ * only wins if it is nearer along the ray than the edge.
+ */
+bool preferEdgeHandle(
+  const gl::Camera& camera,
+  const vm::ray3d& pickRay,
+  const EdgeInfo& edgeInfo,
+  const mdl::Hit& faceHit)
+{
+  const auto edgeDistance = camera.pickLineSegmentHandle(
+    pickRay, edgeInfo.segment, pref(Preferences::HandleRadius));
+  if (!edgeDistance)
+  {
+    return false;
+  }
+
+  const auto faceHandle = hitToFaceHandle(faceHit);
+  const auto hitIsAdjacentFace =
+    faceHandle
+    && (*faceHandle == edgeInfo.leftFaceHandle || *faceHandle == edgeInfo.rightFaceHandle);
+  return hitIsAdjacentFace || *edgeDistance <= faceHit.distance();
+}
+
 std::vector<ExtrudeDragHandle> getDragHandles(
   const std::vector<mdl::Node*>& nodes, const mdl::Hit& hit)
 {
@@ -447,7 +473,7 @@ const mdl::Grid& ExtrudeTool::grid() const
 
 mdl::Hit ExtrudeTool::pick2D(
   const vm::ray3d& pickRay,
-  const gl::Camera& /* camera */,
+  const gl::Camera& camera,
   const mdl::PickResult& pickResult) const
 {
   using namespace mdl::HitFilters;
@@ -481,24 +507,29 @@ mdl::Hit ExtrudeTool::pick2D(
   };
 
   const auto& hit = pickResult.first(type(mdl::BrushNode::BrushHitType) && selected());
+  const auto edgeInfo =
+    findClosestHorizonEdge(m_document.map().selection().nodes, pickRay);
+
   if (hit.isMatch())
   {
+    // The cursor is over a brush face. Only engage if a horizon edge handle is grabbed.
+    if (edgeInfo && preferEdgeHandle(camera, pickRay, *edgeInfo, hit))
+    {
+      return makeEdgeHit(*edgeInfo);
+    }
     return mdl::Hit::NoHit;
   }
 
-  const auto edgeInfo =
-    findClosestHorizonEdge(m_document.map().selection().nodes, pickRay);
   if (!edgeInfo)
   {
     return mdl::Hit::NoHit;
   }
-
   return makeEdgeHit(*edgeInfo);
 }
 
 mdl::Hit ExtrudeTool::pick3D(
   const vm::ray3d& pickRay,
-  const gl::Camera& /* camera */,
+  const gl::Camera& camera,
   const mdl::PickResult& pickResult) const
 {
   using namespace mdl::HitFilters;
@@ -525,8 +556,17 @@ mdl::Hit ExtrudeTool::pick3D(
   };
 
   const auto& hit = pickResult.first(type(mdl::BrushNode::BrushHitType) && selected());
-  if (const auto faceHandle = hitToFaceHandle(hit))
+  const auto faceHandle = hitToFaceHandle(hit);
+  const auto edgeInfo =
+    findClosestHorizonEdge(m_document.map().selection().nodes, pickRay);
+
+  if (faceHandle)
   {
+    // The cursor is over a brush face. Prefer it unless a horizon edge handle is grabbed.
+    if (edgeInfo && preferEdgeHandle(camera, pickRay, *edgeInfo, hit))
+    {
+      return makeEdgeHit(*edgeInfo);
+    }
     return {
       ExtrudeHitType,
       hit.distance(),
@@ -537,13 +577,10 @@ mdl::Hit ExtrudeTool::pick3D(
         hit.hitPoint()}};
   }
 
-  const auto edgeInfo =
-    findClosestHorizonEdge(m_document.map().selection().nodes, pickRay);
   if (!edgeInfo)
   {
     return mdl::Hit::NoHit;
   }
-
   return makeEdgeHit(*edgeInfo);
 }
 

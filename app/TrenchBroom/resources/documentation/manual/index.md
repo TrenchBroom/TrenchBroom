@@ -729,7 +729,7 @@ When starting a drag with #key(Ctrl) you can also drag inward to split the origi
 
 ![Splitting a brush inward in the 3D viewport](images/ExtrudeTool3DSplitInwardMode.gif)
 
-You can also extrude several brushes at the same time by moving their faces using the extrude tool, but only if these faces line up perfectly. As the following animation illustrates, it's not enough that the faces are parallel - they have to be identical. Note however that their normals can be opposing, so you can also resize the faces where two brushes touch. In that case, splitting is disabled, however.
+You can also extrude several brushes at the same time by moving their faces using the extrude tool, but only if these faces line up perfectly. As the following animation illustrates, it's not enough that the faces are parallel - they have to be identical. Note however that their normals can be opposing, so you can also resize the faces where two brushes touch. If the two faces have the exact same vertices, you can pick the shared face(s) for extrusion by hovering over a shared edge. Splitting is disabled when extruding opposing faces to avoid creating overlapping brushes.
 
 ![Extruding multiple brushes](images/ExtrudeTool3DMultipleBrushes.gif)
 
