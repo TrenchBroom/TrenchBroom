@@ -28,6 +28,11 @@
 
 namespace tb
 {
+namespace gl
+{
+class PerspectiveCamera;
+}
+
 namespace mdl
 {
 class Map;
@@ -40,6 +45,7 @@ class CompilationContext
 {
 private:
   const mdl::Map& m_map;
+  const gl::PerspectiveCamera& m_camera;
   std::unique_ptr<el::VariableStore> m_variables;
 
   TextOutputAdapter m_output;
@@ -48,11 +54,13 @@ private:
 public:
   CompilationContext(
     const mdl::Map& map,
+    const gl::PerspectiveCamera& camera,
     const el::VariableStore& variables,
     TextOutputAdapter output,
     bool test);
 
   const mdl::Map& map() const;
+  const gl::PerspectiveCamera& camera() const;
   bool test() const;
 
   Result<std::string> interpolate(const std::string& input) const;

@@ -47,15 +47,21 @@ bool CompilationRun::running() const
 }
 
 Result<void> CompilationRun::run(
-  const mdl::CompilationProfile& profile, const mdl::Map& map, QTextEdit* currentOutput)
+  const mdl::CompilationProfile& profile,
+  const mdl::Map& map,
+  const gl::PerspectiveCamera& camera,
+  QTextEdit* currentOutput)
 {
-  return run(profile, map, currentOutput, false);
+  return run(profile, map, camera, currentOutput, false);
 }
 
 Result<void> CompilationRun::test(
-  const mdl::CompilationProfile& profile, const mdl::Map& map, QTextEdit* currentOutput)
+  const mdl::CompilationProfile& profile,
+  const mdl::Map& map,
+  const gl::PerspectiveCamera& camera,
+  QTextEdit* currentOutput)
 {
-  return run(profile, map, currentOutput, true);
+  return run(profile, map, camera, currentOutput, true);
 }
 
 void CompilationRun::terminate()
@@ -74,6 +80,7 @@ bool CompilationRun::doIsRunning() const
 Result<void> CompilationRun::run(
   const mdl::CompilationProfile& profile,
   const mdl::Map& map,
+  const gl::PerspectiveCamera& camera,
   QTextEdit* currentOutput,
   const bool test)
 {
@@ -85,8 +92,8 @@ Result<void> CompilationRun::run(
 
   return buildWorkDir(profile, map) | kdl::transform([&](const auto& workDir) {
            auto variables = CompilationVariables{map, workDir};
-           auto compilationContext =
-             CompilationContext{map, variables, TextOutputAdapter{currentOutput}, test};
+           auto compilationContext = CompilationContext{
+             map, camera, variables, TextOutputAdapter{currentOutput}, test};
            m_currentRun =
              new CompilationRunner{std::move(compilationContext), profile, this};
            connect(

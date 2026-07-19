@@ -31,6 +31,11 @@ namespace tb
 {
 class VariableTable;
 
+namespace gl
+{
+class PerspectiveCamera;
+}
+
 namespace mdl
 {
 class Map;
@@ -55,10 +60,12 @@ public:
   Result<void> run(
     const mdl::CompilationProfile& profile,
     const mdl::Map& map,
+    const gl::PerspectiveCamera& camera,
     QTextEdit* currentOutput);
   Result<void> test(
     const mdl::CompilationProfile& profile,
     const mdl::Map& map,
+    const gl::PerspectiveCamera& camera,
     QTextEdit* currentOutput);
   void terminate();
 
@@ -67,6 +74,7 @@ private:
   Result<void> run(
     const mdl::CompilationProfile& profile,
     const mdl::Map& map,
+    const gl::PerspectiveCamera& camera,
     QTextEdit* currentOutput,
     bool test);
 

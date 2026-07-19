@@ -29,6 +29,11 @@ class QTextEdit;
 
 namespace tb
 {
+namespace gl
+{
+class PerspectiveCamera;
+}
+
 namespace mdl
 {
 struct CompilationProfile;
@@ -46,6 +51,7 @@ class CompilationDialog : public QDialog
 private:
   AppController& m_appController;
   MapDocument& m_document;
+  const gl::PerspectiveCamera& m_camera;
 
   CompilationProfileManager* m_profileManager = nullptr;
   QPushButton* m_launchButton = nullptr;
@@ -59,7 +65,10 @@ private:
 
 public:
   explicit CompilationDialog(
-    AppController& appController, MapDocument& document, QWidget* parent = nullptr);
+    AppController& appController,
+    MapDocument& document,
+    const gl::PerspectiveCamera& camera,
+    QWidget* parent = nullptr);
 
   bool selectProfile(const mdl::CompilationProfile& profile);
   void selectFirstProfile();

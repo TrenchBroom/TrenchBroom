@@ -28,10 +28,12 @@ namespace tb::ui
 
 CompilationContext::CompilationContext(
   const mdl::Map& map,
+  const gl::PerspectiveCamera& camera,
   const el::VariableStore& variables,
   TextOutputAdapter output,
   bool test)
   : m_map{map}
+  , m_camera{camera}
   , m_variables{variables.clone()}
   , m_output{std::move(output)}
   , m_test{test}
@@ -41,6 +43,11 @@ CompilationContext::CompilationContext(
 const mdl::Map& CompilationContext::map() const
 {
   return m_map;
+}
+
+const gl::PerspectiveCamera& CompilationContext::camera() const
+{
+  return m_camera;
 }
 
 bool CompilationContext::test() const
