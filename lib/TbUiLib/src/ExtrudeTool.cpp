@@ -22,6 +22,7 @@
 #include "Logger.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
+#include "gl/Camera.h"
 #include "mdl/BrushFace.h"
 #include "mdl/BrushGeometry.h"
 #include "mdl/BrushNode.h"
@@ -445,7 +446,9 @@ const mdl::Grid& ExtrudeTool::grid() const
 }
 
 mdl::Hit ExtrudeTool::pick2D(
-  const vm::ray3d& pickRay, const mdl::PickResult& pickResult) const
+  const vm::ray3d& pickRay,
+  const gl::Camera& /* camera */,
+  const mdl::PickResult& pickResult) const
 {
   using namespace mdl::HitFilters;
 
@@ -486,7 +489,9 @@ mdl::Hit ExtrudeTool::pick2D(
 }
 
 mdl::Hit ExtrudeTool::pick3D(
-  const vm::ray3d& pickRay, const mdl::PickResult& pickResult) const
+  const vm::ray3d& pickRay,
+  const gl::Camera& /* camera */,
+  const mdl::PickResult& pickResult) const
 {
   using namespace mdl::HitFilters;
 

@@ -23,6 +23,11 @@
 
 namespace tb
 {
+namespace gl
+{
+class Camera;
+}
+
 namespace render
 {
 class RenderBatch;
@@ -69,7 +74,9 @@ private:
 private:
   virtual bool doHandleInput(const InputState& inputState) const = 0;
   virtual mdl::Hit doPick(
-    const vm::ray3d& pickRay, const mdl::PickResult& pickResult) = 0;
+    const vm::ray3d& pickRay,
+    const gl::Camera& camera,
+    const mdl::PickResult& pickResult) = 0;
 };
 
 class ExtrudeToolController2D : public ExtrudeToolController
@@ -78,7 +85,10 @@ public:
   explicit ExtrudeToolController2D(ExtrudeTool& tool);
 
 private:
-  mdl::Hit doPick(const vm::ray3d& pickRay, const mdl::PickResult& pickResult) override;
+  mdl::Hit doPick(
+    const vm::ray3d& pickRay,
+    const gl::Camera& camera,
+    const mdl::PickResult& pickResult) override;
   bool doHandleInput(const InputState& inputState) const override;
 };
 
@@ -88,7 +98,10 @@ public:
   explicit ExtrudeToolController3D(ExtrudeTool& tool);
 
 private:
-  mdl::Hit doPick(const vm::ray3d& pickRay, const mdl::PickResult& pickResult) override;
+  mdl::Hit doPick(
+    const vm::ray3d& pickRay,
+    const gl::Camera& camera,
+    const mdl::PickResult& pickResult) override;
   bool doHandleInput(const InputState& inputState) const override;
 };
 

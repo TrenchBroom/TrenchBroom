@@ -72,7 +72,8 @@ void ExtrudeToolController::pick(
 {
   if (handleInput(inputState))
   {
-    if (const auto hit = doPick(inputState.pickRay(), pickResult); hit.isMatch())
+    if (const auto hit = doPick(inputState.pickRay(), inputState.camera(), pickResult);
+        hit.isMatch())
     {
       pickResult.addHit(hit);
     }
@@ -469,9 +470,9 @@ ExtrudeToolController2D::ExtrudeToolController2D(ExtrudeTool& tool)
 }
 
 mdl::Hit ExtrudeToolController2D::doPick(
-  const vm::ray3d& pickRay, const mdl::PickResult& pickResult)
+  const vm::ray3d& pickRay, const gl::Camera& camera, const mdl::PickResult& pickResult)
 {
-  return m_tool.pick2D(pickRay, pickResult);
+  return m_tool.pick2D(pickRay, camera, pickResult);
 }
 
 bool ExtrudeToolController2D::doHandleInput(const InputState& inputState) const
@@ -488,9 +489,9 @@ ExtrudeToolController3D::ExtrudeToolController3D(ExtrudeTool& tool)
 }
 
 mdl::Hit ExtrudeToolController3D::doPick(
-  const vm::ray3d& pickRay, const mdl::PickResult& pickResult)
+  const vm::ray3d& pickRay, const gl::Camera& camera, const mdl::PickResult& pickResult)
 {
-  return m_tool.pick3D(pickRay, pickResult);
+  return m_tool.pick3D(pickRay, camera, pickResult);
 }
 
 bool ExtrudeToolController3D::doHandleInput(const InputState& inputState) const

@@ -19,6 +19,9 @@
  */
 
 #include "Matchers.h"
+#include "gl/Camera.h"
+#include "gl/OrthographicCamera.h"
+#include "gl/PerspectiveCamera.h"
 #include "mdl/Brush.h"
 #include "mdl/BrushBuilder.h"
 #include "mdl/BrushFace.h"
@@ -67,12 +70,43 @@ vm::vec3d n(const vm::vec3d& v)
   return vm::normalize(v);
 }
 
+vm::vec3f upFor(const vm::vec3f& direction)
+{
+  return vm::abs(direction.z()) < 0.9f ? vm::vec3f{0, 0, 1} : vm::vec3f{0, 1, 0};
+}
+
+/**
+ * Build a camera positioned at the pick ray's origin looking along its direction, so
+ * that the handle radius scaling used by the edge picking is realistic.
+ */
+gl::PerspectiveCamera perspectiveCameraFor(const vm::ray3d& pickRay)
+{
+  const auto viewport = gl::Camera::Viewport{0, 0, 1920, 1080};
+  const auto direction = vm::vec3f{vm::normalize(pickRay.direction)};
+  return gl::PerspectiveCamera{
+    90.0f,
+    1.0f,
+    8000.0f,
+    viewport,
+    vm::vec3f{pickRay.origin},
+    direction,
+    upFor(direction)};
+}
+
+gl::OrthographicCamera orthographicCameraFor(const vm::ray3d& pickRay)
+{
+  const auto viewport = gl::Camera::Viewport{0, 0, 1920, 1080};
+  const auto direction = vm::vec3f{vm::normalize(pickRay.direction)};
+  return gl::OrthographicCamera{
+    1.0f, 8000.0f, viewport, vm::vec3f{pickRay.origin}, direction, upFor(direction)};
+}
+
 mdl::PickResult performPick(mdl::Map& map, ExtrudeTool& tool, const vm::ray3d& pickRay)
 {
   auto pickResult = mdl::PickResult::byDistance();
   pick(map, pickRay, pickResult);
 
-  const auto hit = tool.pick3D(pickRay, pickResult);
+  const auto hit = tool.pick3D(pickRay, perspectiveCameraFor(pickRay), pickResult);
   CHECK(hit.type() == ExtrudeTool::ExtrudeHitType);
   CHECK_FALSE(vm::is_nan(hit.hitPoint()));
 
@@ -117,7 +151,7 @@ TEST_CASE("ExtrudeTool")
 
       REQUIRE(pickResult.all().size() == 1);
 
-      const auto hit = tool.pick2D(pickRay, pickResult);
+      const auto hit = tool.pick2D(pickRay, orthographicCameraFor(pickRay), pickResult);
       CHECK_FALSE(hit.isMatch());
     }
 
@@ -138,7 +172,8 @@ TEST_CASE("ExtrudeTool")
 
       CAPTURE(brushBounds, origin, direction);
 
-      const auto hit = tool.pick2D(vm::ray3d{origin, vm::normalize(direction)}, {});
+      const auto pickRay = vm::ray3d{origin, vm::normalize(direction)};
+      const auto hit = tool.pick2D(pickRay, orthographicCameraFor(pickRay), {});
 
       CHECK(hit.isMatch());
       CHECK(hit.type() == ExtrudeTool::ExtrudeHitType);
@@ -179,7 +214,7 @@ TEST_CASE("ExtrudeTool")
 
       REQUIRE(pickResult.all().size() == 1);
 
-      const auto hit = tool.pick3D(pickRay, pickResult);
+      const auto hit = tool.pick3D(pickRay, perspectiveCameraFor(pickRay), pickResult);
 
       CHECK(hit.isMatch());
       CHECK(hit.type() == ExtrudeTool::ExtrudeHitType);
@@ -211,7 +246,8 @@ TEST_CASE("ExtrudeTool")
 
       CAPTURE(brushBounds, origin, direction);
 
-      const auto hit = tool.pick3D(vm::ray3d{origin, vm::normalize(direction)}, {});
+      const auto pickRay = vm::ray3d{origin, vm::normalize(direction)};
+      const auto hit = tool.pick3D(pickRay, perspectiveCameraFor(pickRay), {});
 
       CHECK(hit.isMatch());
       CHECK(hit.type() == ExtrudeTool::ExtrudeHitType);
