@@ -39,6 +39,7 @@
 #include "ui/MapDocument.h"
 
 #include "kd/contracts.h"
+#include "kd/k.h"
 #include "kd/map_utils.h"
 #include "kd/overload.h"
 #include "kd/ranges/to.h"
@@ -116,12 +117,17 @@ std::optional<EdgeInfo> getEdgeInfo(
   return {{leftFaceHandle, rightFaceHandle, leftDot, rightDot, segment, dist}};
 }
 
-std::vector<mdl::BrushFaceHandle> collectCoplanarFaces(
-  const std::vector<mdl::Node*>& nodes, const mdl::BrushFaceHandle& faceHandle)
+std::vector<mdl::BrushFaceHandle> collectCoincidentFaces(
+  const std::vector<mdl::Node*>& nodes,
+  const mdl::BrushFaceHandle& faceHandle,
+  const bool normalSign)
 {
   auto result = std::vector<mdl::BrushFaceHandle>{};
 
   const auto& referenceFace = faceHandle.face();
+  const auto referencePlane =
+    normalSign ? referenceFace.boundary() : referenceFace.boundary().flip();
+
   for (auto* node : nodes)
   {
     node->accept(kdl::overload(
@@ -134,7 +140,7 @@ std::vector<mdl::BrushFaceHandle> collectCoplanarFaces(
         for (size_t i = 0; i < brush.faceCount(); ++i)
         {
           const auto& face = brush.face(i);
-          if (!face.coplanarWith(referenceFace.boundary()))
+          if (!face.coplanarWith(referencePlane))
           {
             continue;
           }
@@ -146,6 +152,12 @@ std::vector<mdl::BrushFaceHandle> collectCoplanarFaces(
   }
 
   return result;
+}
+
+std::vector<mdl::BrushFaceHandle> collectCoplanarFaces(
+  const std::vector<mdl::Node*>& nodes, const mdl::BrushFaceHandle& faceHandle)
+{
+  return collectCoincidentFaces(nodes, faceHandle, K(normalSign));
 }
 
 std::optional<EdgeInfo> findClosestHorizonEdge(
