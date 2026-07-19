@@ -26,7 +26,14 @@
 
 class QWidget;
 
-namespace tb::ui
+namespace tb
+{
+namespace gl
+{
+class PerspectiveCamera;
+}
+
+namespace ui
 {
 class MultiPaneMapView : public MapViewContainer
 {
@@ -76,4 +83,5 @@ private: // subclassing interface
   virtual void restoreViews() = 0;
 };
 
-} // namespace tb::ui
+} // namespace ui
+} // namespace tb

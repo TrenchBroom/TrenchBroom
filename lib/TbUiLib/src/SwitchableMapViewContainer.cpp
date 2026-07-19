@@ -168,6 +168,11 @@ void SwitchableMapViewContainer::moveCameraToPreviousTracePoint()
   }
 }
 
+const gl::PerspectiveCamera& SwitchableMapViewContainer::perspectiveCamera() const
+{
+  return m_mapView->perspectiveCamera();
+}
+
 bool SwitchableMapViewContainer::canMaximizeCurrentView() const
 {
   return m_mapView->canMaximizeCurrentView();

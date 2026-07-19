@@ -183,6 +183,25 @@ void CyclingMapView::refreshViews()
   }
 }
 
+const gl::PerspectiveCamera& CyclingMapView::perspectiveCamera() const
+{
+  const auto* mapView3D = [&]() -> const MapView3D* {
+    for (const auto* mapView : m_mapViews)
+    {
+      if (const auto* candidate = dynamic_cast<const MapView3D*>(mapView))
+      {
+        return candidate;
+      }
+    }
+
+    return nullptr;
+  }();
+
+  contract_assert(mapView3D != nullptr);
+
+  return mapView3D->perspectiveCamera();
+}
+
 bool CyclingMapView::canMaximizeCurrentView() const
 {
   return false;

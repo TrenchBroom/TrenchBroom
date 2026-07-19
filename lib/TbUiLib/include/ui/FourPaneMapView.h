@@ -60,7 +60,10 @@ private:
 private: // event handlers
   void onSplitterMoved(int pos, int index);
 
-private: // implement MultiPaneMapView subclassing interface
+public: // implement MultiPaneMapView subclassing interface
+  const gl::PerspectiveCamera& perspectiveCamera() const override;
+
+private:
   void maximizeView(MapView* view) override;
   void restoreViews() override;
 };

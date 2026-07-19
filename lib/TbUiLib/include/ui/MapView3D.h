@@ -52,6 +52,8 @@ public:
   MapView3D(AppController& appController, MapDocument& document, MapViewToolBox& toolBox);
   ~MapView3D() override;
 
+  const gl::PerspectiveCamera& perspectiveCamera() const;
+
 private:
   void initializeCamera();
   void initializeToolChain(MapViewToolBox& toolBox);

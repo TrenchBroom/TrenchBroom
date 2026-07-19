@@ -98,6 +98,11 @@ void ThreePaneMapView::createGui(AppController& appController, MapViewToolBox& t
   restoreWidgetState(m_vSplitter);
 }
 
+const gl::PerspectiveCamera& ThreePaneMapView::perspectiveCamera() const
+{
+  return m_mapView3D->perspectiveCamera();
+}
+
 void ThreePaneMapView::maximizeView(MapView* view)
 {
   contract_pre(view == m_mapView3D || view == m_mapViewXY || view == m_mapViewZZ);

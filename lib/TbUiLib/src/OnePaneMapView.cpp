@@ -49,6 +49,11 @@ void OnePaneMapView::createGui(AppController& appController, MapViewToolBox& too
   setLayout(layout);
 }
 
+const gl::PerspectiveCamera& OnePaneMapView::perspectiveCamera() const
+{
+  return m_mapView->perspectiveCamera();
+}
+
 void OnePaneMapView::maximizeView(MapView*)
 {
   // nothing to do

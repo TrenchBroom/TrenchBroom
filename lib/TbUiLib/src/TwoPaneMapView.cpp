@@ -80,6 +80,11 @@ void TwoPaneMapView::createGui(AppController& appController, MapViewToolBox& too
   restoreWidgetState(m_splitter);
 }
 
+const gl::PerspectiveCamera& TwoPaneMapView::perspectiveCamera() const
+{
+  return m_mapView3D->perspectiveCamera();
+}
+
 void TwoPaneMapView::maximizeView(MapView* view)
 {
   contract_pre(view == m_mapView2D || view == m_mapView3D);
