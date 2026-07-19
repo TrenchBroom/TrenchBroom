@@ -22,6 +22,7 @@
 #include "mdl/ImageLoader.h"
 
 #include <FreeImage.h>
+
 #include <filesystem>
 #include <vector>
 

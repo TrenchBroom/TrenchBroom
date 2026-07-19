@@ -39,13 +39,13 @@
 #include "vm/vec_io.h"
 
 #include <fmt/format.h>
+#include <tinyxml2.h>
 
 #include <cstdlib>
 #include <functional>
 #include <optional>
 #include <sstream>
 #include <string>
-#include <tinyxml2.h>
 
 namespace tb::mdl
 {
