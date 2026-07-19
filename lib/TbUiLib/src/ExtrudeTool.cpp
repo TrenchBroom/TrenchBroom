@@ -42,6 +42,7 @@
 #include "kd/k.h"
 #include "kd/map_utils.h"
 #include "kd/overload.h"
+#include "kd/ranges/concat_view.h"
 #include "kd/ranges/to.h"
 #include "kd/reflection_impl.h"
 #include "kd/result.h"
@@ -160,6 +161,13 @@ std::vector<mdl::BrushFaceHandle> collectCoplanarFaces(
   return collectCoincidentFaces(nodes, faceHandle, K(normalSign));
 }
 
+
+std::vector<mdl::BrushFaceHandle> collectOpposingFaces(
+  const std::vector<mdl::Node*>& nodes, const mdl::BrushFaceHandle& faceHandle)
+{
+  return collectCoincidentFaces(nodes, faceHandle, !K(normalSign));
+}
+
 std::optional<EdgeInfo> findClosestHorizonEdge(
   const std::vector<mdl::Node*>& nodes, const vm::ray3d& pickRay)
 {
@@ -193,7 +201,8 @@ std::vector<ExtrudeDragHandle> getDragHandles(
   contract_assert(hit.hasType(ExtrudeTool::ExtrudeHitType));
   const auto& data = hit.target<const ExtrudeHitData&>();
 
-  return collectCoplanarFaces(nodes, data.face)
+  return kdl::views::concat(
+           collectCoplanarFaces(nodes, data.face), collectOpposingFaces(nodes, data.face))
          | std::views::transform(
            [](const auto& faceHandle) { return ExtrudeDragHandle{faceHandle}; })
          | kdl::ranges::to<std::vector>();

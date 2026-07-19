@@ -265,6 +265,48 @@ TEST_CASE("ExtrudeTool")
       RangeEquals(std::vector<vm::vec3d>{{0, 0, 1}, {0, 0, 1}}));
   }
 
+  SECTION("Pick opposing coplanar faces of two brushes")
+  {
+    auto& document = fixture.create();
+    auto& map = document.map();
+
+    auto tool = ExtrudeTool{document};
+
+    auto builder = mdl::BrushBuilder{map.worldNode().mapFormat(), map.worldBounds()};
+
+    // brushNode2 sits on top of brushNode1: brushNode1's top face (+Z) and brushNode2's
+    // bottom face (-Z) are coincident at z = 16 but face in opposite directions.
+    // brushNode2 is offset along +X so that the western half of brushNode1's top face
+    // remains exposed and can be picked directly.
+    auto* brushNode1 = new mdl::BrushNode{
+      builder.createCuboid(vm::bbox3d{{-16, -16, -16}, {16, 16, 16}}, "material")
+      | kdl::value()};
+    auto* brushNode2 = new mdl::BrushNode{
+      builder.createCuboid(vm::bbox3d{{0, -16, 16}, {32, 16, 48}}, "material")
+      | kdl::value()};
+
+    addNodes(map, {{map.editorContext().currentLayer(), {brushNode1, brushNode2}}});
+    selectNodes(map, {brushNode1, brushNode2});
+
+    // shoot straight down at the exposed part of the first brush's top face
+    const auto pickRay = vm::ray3d{{-8, 0, 32}, {0, 0, -1}};
+
+    const auto pickResult = performPick(map, tool, pickRay);
+
+    // both coincident faces are chosen as drag handles, one per brush
+    CHECK_THAT(
+      tool.proposedDragHandles()
+        | std::views::transform([](const auto& h) { return h.faceHandle.node(); }),
+      UnorderedRangeEquals(std::vector<mdl::BrushNode*>{brushNode1, brushNode2}));
+
+    // the picked coplanar face faces +Z, the opposing face faces -Z
+    CHECK_THAT(
+      tool.proposedDragHandles() | std::views::transform([](const auto& h) {
+        return h.faceAtDragStart().normal();
+      }),
+      UnorderedRangeEquals(std::vector<vm::vec3d>{{0, 0, 1}, {0, 0, -1}}));
+  }
+
   SECTION("findDragFaces")
   {
     // https://github.com/TrenchBroom/TrenchBroom/issues/3726
