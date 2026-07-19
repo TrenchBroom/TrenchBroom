@@ -227,6 +227,44 @@ TEST_CASE("ExtrudeTool")
     }
   }
 
+  SECTION("Pick coplanar faces of two brushes")
+  {
+    auto& document = fixture.create();
+    auto& map = document.map();
+
+    auto tool = ExtrudeTool{document};
+
+    auto builder = mdl::BrushBuilder{map.worldNode().mapFormat(), map.worldBounds()};
+
+    // two brushes side by side along the X axis, sharing a coplanar top face at z = 16
+    auto* brushNode1 = new mdl::BrushNode{
+      builder.createCuboid(vm::bbox3d{{-16, -16, -16}, {16, 16, 16}}, "material")
+      | kdl::value()};
+    auto* brushNode2 = new mdl::BrushNode{
+      builder.createCuboid(vm::bbox3d{{16, -16, -16}, {48, 16, 16}}, "material")
+      | kdl::value()};
+
+    addNodes(map, {{map.editorContext().currentLayer(), {brushNode1, brushNode2}}});
+    selectNodes(map, {brushNode1, brushNode2});
+
+    // shoot straight down at the top face of the first brush
+    const auto pickRay = vm::ray3d{{0, 0, 32}, {0, 0, -1}};
+
+    const auto pickResult = performPick(map, tool, pickRay);
+
+    // both coplanar top faces are chosen as drag handles, one per brush
+    CHECK_THAT(
+      tool.proposedDragHandles()
+        | std::views::transform([](const auto& h) { return h.faceHandle.node(); }),
+      UnorderedRangeEquals(std::vector<mdl::BrushNode*>{brushNode1, brushNode2}));
+
+    CHECK_THAT(
+      tool.proposedDragHandles() | std::views::transform([](const auto& h) {
+        return h.faceAtDragStart().normal();
+      }),
+      RangeEquals(std::vector<vm::vec3d>{{0, 0, 1}, {0, 0, 1}}));
+  }
+
   SECTION("findDragFaces")
   {
     // https://github.com/TrenchBroom/TrenchBroom/issues/3726
