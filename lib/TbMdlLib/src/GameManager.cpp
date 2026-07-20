@@ -33,6 +33,7 @@
 #include "kd/const_overload.h"
 #include "kd/path_utils.h"
 #include "kd/result_fold.h"
+#include "kd/vector_utils.h"
 
 #include <algorithm>
 #include <iostream>
@@ -181,6 +182,10 @@ Result<std::vector<GameInfo>> loadGameInfos(
                })
                | kdl::collect();
 
+             kdl::vec_append(
+               warnings, std::move(errors) | std::views::transform([](auto&& e) {
+                           return std::move(e.msg);
+                         }));
              return std::move(gameInfos);
            });
 }

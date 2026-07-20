@@ -185,6 +185,37 @@ TEST_CASE("GameManager")
         | kdl::transform_error([](const auto& e) { FAIL(e); });
     }
 
+    SECTION("collects game config parse errors into warnings")
+    {
+      auto env = fs::TestEnvironment{};
+
+      env.createDirectory(gamesPath);
+      env.createDirectory(userPath);
+
+      writeGameConfig(env, "Quake", "Quake");
+
+      // These configs will fail to parse and should be reported as warnings
+      env.createDirectory(gamesPath / "Quake 2");
+      env.createFile(gamesPath / "Quake 2" / "GameConfig.cfg", "{asdf}");
+
+      env.createDirectory(gamesPath / "Quake 3");
+      env.createFile(gamesPath / "Quake 3" / "GameConfig.cfg", "{asdf}");
+
+      const auto gameConfigSearchDirs = std::vector{env.dir() / gamesPath};
+      const auto userGameDir = env.dir() / userPath;
+
+      initializeGameManager(gameConfigSearchDirs, userGameDir)
+        | kdl::transform([&](const auto& gameManager, const auto& warnings) {
+            REQUIRE(gameManager.gameInfos().size() == 1);
+
+            // Both failed game configs must be collected into the warnings
+            CHECK(warnings.size() == 2);
+            CHECK(std::ranges::none_of(
+              warnings, [](const auto& warning) { return warning.empty(); }));
+          })
+        | kdl::transform_error([](const auto& e) { FAIL(e); });
+    }
+
     SECTION("skips compilation and engine configs with parse errors")
     {
       auto env = fs::TestEnvironment{};
