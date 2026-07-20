@@ -92,6 +92,10 @@ if(WIN32)
     # Create the windows resource file
     configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/TrenchBroom.rc.in" "${CMAKE_CURRENT_BINARY_DIR}/TrenchBroom.rc" @ONLY)
 
+    # Copy the application manifest next to the generated .rc so the resource compiler
+    # (rc.exe / windres) can resolve the RT_MANIFEST reference by bare filename.
+    configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/TrenchBroom.manifest" "${CMAKE_CURRENT_BINARY_DIR}/TrenchBroom.manifest" COPYONLY)
+
     if(COMPILER_IS_MSVC)
         set(APP_SOURCE ${APP_SOURCE} "${CMAKE_CURRENT_BINARY_DIR}/TrenchBroom.rc")
     elseif(MINGW)
@@ -110,6 +114,12 @@ get_build_platform(APP_PLATFORM_NAME)
 # Create the executable target and link with libraries
 add_executable(TrenchBroom WIN32 MACOSX_BUNDLE)
 target_sources(TrenchBroom PRIVATE ${APP_SOURCE} ${INDEX_OUTPUT_PATH} ${DOC_MANUAL_TARGET_FILES_ABSOLUTE} ${DOC_MANUAL_SHORTCUTS_JS_TARGET_ABSOLUTE} ${DOC_MANUAL_TARGET_IMAGE_FILES_ABSOLUTE})
+
+if(WIN32 AND COMPILER_IS_MSVC)
+    # We embed our own application manifest via TrenchBroom.rc; tell the linker not to
+    # generate and embed a second one (which would conflict with the RT_MANIFEST resource).
+    target_link_options(TrenchBroom PRIVATE "/MANIFEST:NO")
+endif()
 
 if(APPLE)
     target_sources(TrenchBroom PRIVATE "$<$<CONFIG:Debug>:${MACOSX_GAME_TESTING_SOURCE_FILES}>")
