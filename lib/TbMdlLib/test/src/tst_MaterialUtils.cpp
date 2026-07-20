@@ -71,9 +71,10 @@ TEST_CASE("findMaterialFile")
   const auto extensions = std::vector<std::filesystem::path>{".png", ".jpg"};
 
   auto diskFS = fs::DiskFileSystem{env.dir()};
-  CHECK(
-    findMaterialFile(diskFS, "asdf/test.png", extensions)
-    == Result<std::filesystem::path>{std::filesystem::path{"asdf/test.png"}});
+  // The parent directory does not exist, so there is nothing to search.
+  CHECK(findMaterialFile(diskFS, "asdf/test.png", extensions).is_error());
+  // The directory exists, but it contains no file with a matching base name.
+  CHECK(findMaterialFile(diskFS, "textures/missing.png", extensions).is_error());
   CHECK(
     findMaterialFile(diskFS, "textures/test.png", extensions)
     == Result<std::filesystem::path>{std::filesystem::path{"textures/test.png"}});

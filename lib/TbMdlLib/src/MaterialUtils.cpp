@@ -35,6 +35,9 @@
 #include "kd/set_temp.h"
 #include "kd/string_compare.h"
 
+#include <fmt/format.h>
+#include <fmt/std.h>
+
 namespace tb::mdl
 {
 
@@ -62,9 +65,13 @@ Result<std::filesystem::path> findMaterialFile(
     return materialPath;
   }
 
+  const auto makeNotFoundError = [&]() {
+    return Error{fmt::format("Could not find material file '{}'", materialPath)};
+  };
+
   if (fs.pathInfo(materialPath.parent_path()) != fs::PathInfo::Directory)
   {
-    return materialPath;
+    return makeNotFoundError();
   }
 
   const auto matcher = kdl::logical_and(
@@ -73,8 +80,12 @@ Result<std::filesystem::path> findMaterialFile(
     extensionMatcher);
 
   return fs.find(materialPath.parent_path(), fs::TraversalMode::Flat, matcher)
-         | kdl::transform([&](const auto& candidates) {
-             return !candidates.empty() ? candidates.front() : materialPath;
+         | kdl::and_then([&](const auto& candidates) -> Result<std::filesystem::path> {
+             if (candidates.empty())
+             {
+               return makeNotFoundError();
+             }
+             return candidates.front();
            });
 }
 
