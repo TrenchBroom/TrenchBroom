@@ -38,6 +38,7 @@
 #include "ui/InputState.h"
 
 #include "kd/contracts.h"
+#include "kd/ranges/adjacent_transform_view.h"
 #include "kd/ranges/to.h"
 
 #include "vm/distance.h" // IWYU pragma: keep
@@ -71,7 +72,8 @@ void ExtrudeToolController::pick(
 {
   if (handleInput(inputState))
   {
-    if (const auto hit = doPick(inputState.pickRay(), pickResult); hit.isMatch())
+    if (const auto hit = doPick(inputState.pickRay(), inputState.camera(), pickResult);
+        hit.isMatch())
     {
       pickResult.addHit(hit);
     }
@@ -282,14 +284,28 @@ struct ExtrudeDragDelegate : public HandleDragTrackerDelegate
 auto createExtrudeDragTracker(
   ExtrudeTool& tool, const InputState& inputState, const mdl::Hit& hit, const bool split)
 {
+  const auto toNormal = [](const auto& proposedDragHandle) {
+    return proposedDragHandle.faceHandle.face().boundary().normal;
+  };
+
+  const auto equalNormals = [](const auto& lhs, const auto& rhs) {
+    // normals are either identical or opposing
+    return vm::dot(lhs, rhs) > 0.0;
+  };
+
   const auto initialHandlePosition = hit.target<ExtrudeHitData>().initialHandlePosition;
+
+  const auto proposedDragHandles = tool.proposedDragHandles();
+  const auto pairwiseEqual = proposedDragHandles | std::views::transform(toNormal)
+                             | kdl::views::pairwise_transform(equalNormals);
+  const auto canSplit = split && std::ranges::all_of(pairwiseEqual, std::identity{});
 
   return createHandleDragTracker(
     ExtrudeDragDelegate{
       tool,
       {tool.proposedDragHandles(),
        ExtrudeTool::getDragFaces(tool.proposedDragHandles()),
-       split}},
+       canSplit}},
     inputState,
     initialHandlePosition,
     hit.hitPoint());
@@ -454,9 +470,9 @@ ExtrudeToolController2D::ExtrudeToolController2D(ExtrudeTool& tool)
 }
 
 mdl::Hit ExtrudeToolController2D::doPick(
-  const vm::ray3d& pickRay, const mdl::PickResult& pickResult)
+  const vm::ray3d& pickRay, const gl::Camera& camera, const mdl::PickResult& pickResult)
 {
-  return m_tool.pick2D(pickRay, pickResult);
+  return m_tool.pick2D(pickRay, camera, pickResult);
 }
 
 bool ExtrudeToolController2D::doHandleInput(const InputState& inputState) const
@@ -473,9 +489,9 @@ ExtrudeToolController3D::ExtrudeToolController3D(ExtrudeTool& tool)
 }
 
 mdl::Hit ExtrudeToolController3D::doPick(
-  const vm::ray3d& pickRay, const mdl::PickResult& pickResult)
+  const vm::ray3d& pickRay, const gl::Camera& camera, const mdl::PickResult& pickResult)
 {
-  return m_tool.pick3D(pickRay, pickResult);
+  return m_tool.pick3D(pickRay, camera, pickResult);
 }
 
 bool ExtrudeToolController3D::doHandleInput(const InputState& inputState) const

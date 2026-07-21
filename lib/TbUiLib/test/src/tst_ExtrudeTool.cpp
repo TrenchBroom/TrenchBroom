@@ -19,6 +19,9 @@
  */
 
 #include "Matchers.h"
+#include "gl/Camera.h"
+#include "gl/OrthographicCamera.h"
+#include "gl/PerspectiveCamera.h"
 #include "mdl/Brush.h"
 #include "mdl/BrushBuilder.h"
 #include "mdl/BrushFace.h"
@@ -26,7 +29,6 @@
 #include "mdl/BrushNode.h"
 #include "mdl/EditorContext.h"
 #include "mdl/EntityNode.h"
-#include "mdl/GameInfo.h"
 #include "mdl/LayerNode.h"
 #include "mdl/Map.h"
 #include "mdl/Map_Nodes.h"
@@ -68,12 +70,43 @@ vm::vec3d n(const vm::vec3d& v)
   return vm::normalize(v);
 }
 
+vm::vec3f upFor(const vm::vec3f& direction)
+{
+  return vm::abs(direction.z()) < 0.9f ? vm::vec3f{0, 0, 1} : vm::vec3f{0, 1, 0};
+}
+
+/**
+ * Build a camera positioned at the pick ray's origin looking along its direction, so
+ * that the handle radius scaling used by the edge picking is realistic.
+ */
+gl::PerspectiveCamera perspectiveCameraFor(const vm::ray3d& pickRay)
+{
+  const auto viewport = gl::Camera::Viewport{0, 0, 1920, 1080};
+  const auto direction = vm::vec3f{vm::normalize(pickRay.direction)};
+  return gl::PerspectiveCamera{
+    90.0f,
+    1.0f,
+    8000.0f,
+    viewport,
+    vm::vec3f{pickRay.origin},
+    direction,
+    upFor(direction)};
+}
+
+gl::OrthographicCamera orthographicCameraFor(const vm::ray3d& pickRay)
+{
+  const auto viewport = gl::Camera::Viewport{0, 0, 1920, 1080};
+  const auto direction = vm::vec3f{vm::normalize(pickRay.direction)};
+  return gl::OrthographicCamera{
+    1.0f, 8000.0f, viewport, vm::vec3f{pickRay.origin}, direction, upFor(direction)};
+}
+
 mdl::PickResult performPick(mdl::Map& map, ExtrudeTool& tool, const vm::ray3d& pickRay)
 {
   auto pickResult = mdl::PickResult::byDistance();
   pick(map, pickRay, pickResult);
 
-  const auto hit = tool.pick3D(pickRay, pickResult);
+  const auto hit = tool.pick3D(pickRay, perspectiveCameraFor(pickRay), pickResult);
   CHECK(hit.type() == ExtrudeTool::ExtrudeHitType);
   CHECK_FALSE(vm::is_nan(hit.hitPoint()));
 
@@ -118,7 +151,7 @@ TEST_CASE("ExtrudeTool")
 
       REQUIRE(pickResult.all().size() == 1);
 
-      const auto hit = tool.pick2D(pickRay, pickResult);
+      const auto hit = tool.pick2D(pickRay, orthographicCameraFor(pickRay), pickResult);
       CHECK_FALSE(hit.isMatch());
     }
 
@@ -139,7 +172,8 @@ TEST_CASE("ExtrudeTool")
 
       CAPTURE(brushBounds, origin, direction);
 
-      const auto hit = tool.pick2D(vm::ray3d{origin, vm::normalize(direction)}, {});
+      const auto pickRay = vm::ray3d{origin, vm::normalize(direction)};
+      const auto hit = tool.pick2D(pickRay, orthographicCameraFor(pickRay), {});
 
       CHECK(hit.isMatch());
       CHECK(hit.type() == ExtrudeTool::ExtrudeHitType);
@@ -180,7 +214,7 @@ TEST_CASE("ExtrudeTool")
 
       REQUIRE(pickResult.all().size() == 1);
 
-      const auto hit = tool.pick3D(pickRay, pickResult);
+      const auto hit = tool.pick3D(pickRay, perspectiveCameraFor(pickRay), pickResult);
 
       CHECK(hit.isMatch());
       CHECK(hit.type() == ExtrudeTool::ExtrudeHitType);
@@ -212,7 +246,8 @@ TEST_CASE("ExtrudeTool")
 
       CAPTURE(brushBounds, origin, direction);
 
-      const auto hit = tool.pick3D(vm::ray3d{origin, vm::normalize(direction)}, {});
+      const auto pickRay = vm::ray3d{origin, vm::normalize(direction)};
+      const auto hit = tool.pick3D(pickRay, perspectiveCameraFor(pickRay), {});
 
       CHECK(hit.isMatch());
       CHECK(hit.type() == ExtrudeTool::ExtrudeHitType);
@@ -226,6 +261,221 @@ TEST_CASE("ExtrudeTool")
           expectedDragReference,
           expectedHandlePosition});
     }
+  }
+
+  SECTION("Pick coplanar faces of two brushes")
+  {
+    auto& document = fixture.create();
+    auto& map = document.map();
+
+    auto tool = ExtrudeTool{document};
+
+    auto builder = mdl::BrushBuilder{map.worldNode().mapFormat(), map.worldBounds()};
+
+    // two brushes side by side along the X axis, sharing a coplanar top face at z = 16
+    auto* brushNode1 = new mdl::BrushNode{
+      builder.createCuboid(vm::bbox3d{{-16, -16, -16}, {16, 16, 16}}, "material")
+      | kdl::value()};
+    auto* brushNode2 = new mdl::BrushNode{
+      builder.createCuboid(vm::bbox3d{{16, -16, -16}, {48, 16, 16}}, "material")
+      | kdl::value()};
+
+    addNodes(map, {{map.editorContext().currentLayer(), {brushNode1, brushNode2}}});
+    selectNodes(map, {brushNode1, brushNode2});
+
+    // shoot straight down at the top face of the first brush
+    const auto pickRay = vm::ray3d{{0, 0, 32}, {0, 0, -1}};
+
+    const auto pickResult = performPick(map, tool, pickRay);
+
+    // both coplanar top faces are chosen as drag handles, one per brush
+    CHECK_THAT(
+      tool.proposedDragHandles()
+        | std::views::transform([](const auto& h) { return h.faceHandle.node(); }),
+      UnorderedRangeEquals(std::vector<mdl::BrushNode*>{brushNode1, brushNode2}));
+
+    CHECK_THAT(
+      tool.proposedDragHandles() | std::views::transform([](const auto& h) {
+        return h.faceAtDragStart().normal();
+      }),
+      RangeEquals(std::vector<vm::vec3d>{{0, 0, 1}, {0, 0, 1}}));
+  }
+
+  SECTION("Pick opposing coplanar faces of two brushes")
+  {
+    auto& document = fixture.create();
+    auto& map = document.map();
+
+    auto tool = ExtrudeTool{document};
+
+    auto builder = mdl::BrushBuilder{map.worldNode().mapFormat(), map.worldBounds()};
+
+    // brushNode2 sits on top of brushNode1: brushNode1's top face (+Z) and brushNode2's
+    // bottom face (-Z) are coincident at z = 16 but face in opposite directions.
+    // brushNode2 is offset along +X so that the western half of brushNode1's top face
+    // remains exposed and can be picked directly.
+    auto* brushNode1 = new mdl::BrushNode{
+      builder.createCuboid(vm::bbox3d{{-16, -16, -16}, {16, 16, 16}}, "material")
+      | kdl::value()};
+    auto* brushNode2 = new mdl::BrushNode{
+      builder.createCuboid(vm::bbox3d{{0, -16, 16}, {32, 16, 48}}, "material")
+      | kdl::value()};
+
+    addNodes(map, {{map.editorContext().currentLayer(), {brushNode1, brushNode2}}});
+    selectNodes(map, {brushNode1, brushNode2});
+
+    // shoot straight down at the exposed part of the first brush's top face
+    const auto pickRay = vm::ray3d{{-8, 0, 32}, {0, 0, -1}};
+
+    const auto pickResult = performPick(map, tool, pickRay);
+
+    // both coincident faces are chosen as drag handles, one per brush
+    CHECK_THAT(
+      tool.proposedDragHandles()
+        | std::views::transform([](const auto& h) { return h.faceHandle.node(); }),
+      UnorderedRangeEquals(std::vector<mdl::BrushNode*>{brushNode1, brushNode2}));
+
+    // the picked coplanar face faces +Z, the opposing face faces -Z
+    CHECK_THAT(
+      tool.proposedDragHandles() | std::views::transform([](const auto& h) {
+        return h.faceAtDragStart().normal();
+      }),
+      UnorderedRangeEquals(std::vector<vm::vec3d>{{0, 0, 1}, {0, 0, -1}}));
+  }
+
+  SECTION("Pick a horizon edge handle directly")
+  {
+    using namespace mdl::HitFilters;
+
+    auto& document = fixture.create();
+    auto& map = document.map();
+
+    auto tool = ExtrudeTool{document};
+
+    auto builder = mdl::BrushBuilder{map.worldNode().mapFormat(), map.worldBounds()};
+
+    // Two brushes meeting at the plane y = 16 with identical vertices: frontBrush's +Y
+    // face and backBrush's -Y face are coincident but face in opposite directions. This
+    // shared seam is hidden between the brushes and cannot be picked as a face.
+    auto* frontBrush = new mdl::BrushNode{
+      builder.createCuboid(vm::bbox3d{{-16, -16, -16}, {16, 16, 16}}, "material")
+      | kdl::value()};
+    auto* backBrush = new mdl::BrushNode{
+      builder.createCuboid(vm::bbox3d{{-16, 16, -16}, {16, 48, 16}}, "material")
+      | kdl::value()};
+
+    addNodes(map, {{map.editorContext().currentLayer(), {frontBrush, backBrush}}});
+    selectNodes(map, {frontBrush, backBrush});
+
+    SECTION("edge handle wins over the adjacent face it shares")
+    {
+      // Look at the seam from the -Y side and slightly above. The ray hits frontBrush's
+      // top face just short of the seam, but passes within the handle radius of the
+      // seam's top edge (a horizon edge: top face visible, +Y seam face hidden). The
+      // adjacent top face is nearer than the edge, yet the edge handle still wins.
+      const auto pickRay = vm::ray3d{{0, -556, 586}, vm::normalize(vm::vec3d{0, 1, -1})};
+
+      const auto pickResult = performPick(map, tool, pickRay);
+
+      // the hidden +Y seam face of frontBrush is chosen for extrusion
+      const auto extrudeHit = pickResult.first(type(ExtrudeTool::ExtrudeHitType));
+      CHECK(
+        extrudeHit.target<ExtrudeHitData>().face
+        == mdl::BrushFaceHandle{
+          frontBrush, *frontBrush->brush().findFace(vm::vec3d{0, 1, 0})});
+
+      // both coincident seam faces become drag handles, one per brush
+      CHECK_THAT(
+        tool.proposedDragHandles()
+          | std::views::transform([](const auto& h) { return h.faceHandle.node(); }),
+        UnorderedRangeEquals(std::vector<mdl::BrushNode*>{frontBrush, backBrush}));
+      CHECK_THAT(
+        tool.proposedDragHandles() | std::views::transform([](const auto& h) {
+          return h.faceAtDragStart().normal();
+        }),
+        UnorderedRangeEquals(std::vector<vm::vec3d>{{0, 1, 0}, {0, -1, 0}}));
+    }
+
+    SECTION("an occluding face in front of the edge wins")
+    {
+      // A third brush sits in front of the seam, closer to the camera, so the ray hits
+      // its face before reaching the seam edge. It is not adjacent to the edge and is
+      // nearer, so it wins over the edge handle.
+      auto* occluderBrush = new mdl::BrushNode{
+        builder.createCuboid(vm::bbox3d{{-16, -100, 114}, {16, -68, 146}}, "material")
+        | kdl::value()};
+      addNodes(map, {{map.editorContext().currentLayer(), {occluderBrush}}});
+      selectNodes(map, {occluderBrush});
+
+      const auto pickRay = vm::ray3d{{0, -556, 586}, vm::normalize(vm::vec3d{0, 1, -1})};
+
+      const auto pickResult = performPick(map, tool, pickRay);
+
+      const auto extrudeHit = pickResult.first(type(ExtrudeTool::ExtrudeHitType));
+      CHECK(
+        extrudeHit.target<ExtrudeHitData>().face
+        == mdl::BrushFaceHandle{
+          occluderBrush, *occluderBrush->brush().findFace(vm::vec3d{0, -1, 0})});
+    }
+
+    SECTION("a face interior away from any edge is picked normally")
+    {
+      // Straight down onto the middle of frontBrush's top face, far from any edge.
+      const auto pickRay = vm::ray3d{{0, 0, 32}, {0, 0, -1}};
+
+      const auto pickResult = performPick(map, tool, pickRay);
+
+      const auto extrudeHit = pickResult.first(type(ExtrudeTool::ExtrudeHitType));
+      CHECK(
+        extrudeHit.target<ExtrudeHitData>().face
+        == mdl::BrushFaceHandle{
+          frontBrush, *frontBrush->brush().findFace(vm::vec3d{0, 0, 1})});
+    }
+  }
+
+  SECTION("Pick a horizon edge handle directly in 2D")
+  {
+    auto& document = fixture.create();
+    auto& map = document.map();
+
+    auto tool = ExtrudeTool{document};
+
+    auto builder = mdl::BrushBuilder{map.worldNode().mapFormat(), map.worldBounds()};
+
+    // Two brushes meeting at the plane x = 16: leftBrush's +X face and rightBrush's -X
+    // face are coincident but face in opposite directions.
+    auto* leftBrush = new mdl::BrushNode{
+      builder.createCuboid(vm::bbox3d{{-16, -16, -16}, {16, 16, 16}}, "material")
+      | kdl::value()};
+    auto* rightBrush = new mdl::BrushNode{
+      builder.createCuboid(vm::bbox3d{{16, -16, -16}, {48, 16, 16}}, "material")
+      | kdl::value()};
+
+    addNodes(map, {{map.editorContext().currentLayer(), {leftBrush, rightBrush}}});
+    selectNodes(map, {leftBrush, rightBrush});
+
+    // Top view (looking -Z). The ray hits leftBrush's top face just short of the seam at
+    // x = 16, but passes within the handle radius of the seam's top edge.
+    const auto pickRay = vm::ray3d{{12, 0, 32}, {0, 0, -1}};
+
+    auto pickResult = mdl::PickResult::byDistance();
+    pick(map, pickRay, pickResult);
+
+    const auto hit = tool.pick2D(pickRay, orthographicCameraFor(pickRay), pickResult);
+    REQUIRE(hit.isMatch());
+    pickResult.addHit(hit);
+    tool.updateProposedDragHandles(pickResult);
+
+    // both coincident seam faces become drag handles, one per brush
+    CHECK_THAT(
+      tool.proposedDragHandles()
+        | std::views::transform([](const auto& h) { return h.faceHandle.node(); }),
+      UnorderedRangeEquals(std::vector<mdl::BrushNode*>{leftBrush, rightBrush}));
+    CHECK_THAT(
+      tool.proposedDragHandles() | std::views::transform([](const auto& h) {
+        return h.faceAtDragStart().normal();
+      }),
+      UnorderedRangeEquals(std::vector<vm::vec3d>{{1, 0, 0}, {-1, 0, 0}}));
   }
 
   SECTION("findDragFaces")
