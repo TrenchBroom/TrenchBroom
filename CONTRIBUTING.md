@@ -53,8 +53,6 @@ You can submit bug reports at the [TrenchBroom issue tracker]. Be sure to includ
     the code from the before state to the goal state, with each step being correct and
     testable.
   - Don't merge the master branch into your PR. Rebase your branch onto master instead.
-- AI generated code is okay if it was thoroughly reviewed by you before submitting it. AI
-  slop is unacceptable.
 - Add unit tests wherever possible, even if tests are missing. Add tests for existing code
   for bonus points.
 - Please respond timely to review comments, even if you did not receive feedback in a
@@ -64,3 +62,19 @@ You can submit bug reports at the [TrenchBroom issue tracker]. Be sure to includ
   keep the history nice and clean instead of putting one larger cleanup commit on top.
 
 [TrenchBroom issue tracker]: https://github.com/TrenchBroom/TrenchBroom/issues/
+
+## AI-Assisted Contributions
+
+The use of AI-assisted development tools is permitted. Contributors remain solely
+responsible for all submitted code, including code generated or modified with AI
+assistance.
+
+By submitting a contribution, you assert that:
+- you have reviewed and understood the contribution,
+- you are capable of explaining how it works,
+- your contribution complies with TrenchBroom's license requirements,
+- your contribution does not knowingly incorporate incompatible third-party code,
+- you accept responsibility for defects, security issues, and licensing problems in the
+  submitted code.
+
+Please do not submit code that you do not understand.
