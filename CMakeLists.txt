@@ -67,6 +67,13 @@ else()
   message(FATAL_ERROR "Unsupported compiler detected.")
 endif()
 
+# Templates for embedding a Windows manifest that sets the process active code page to
+# UTF-8 (see cmake/Utils.cmake's CONFIGURE_UTF8_MANIFEST/EMBED_UTF8_MANIFEST functions).
+if(WIN32)
+  set(TB_UTF8_MANIFEST_TEMPLATE "${CMAKE_SOURCE_DIR}/cmake/Utf8CodePage.manifest.in")
+  set(TB_UTF8_RC_TEMPLATE "${CMAKE_SOURCE_DIR}/cmake/Utf8CodePage.rc.in")
+endif()
+
 include(cmake/Utils.cmake)
 include(cmake/CompilerConfig.cmake)
 include(cmake/PrecompileHeaders.cmake)

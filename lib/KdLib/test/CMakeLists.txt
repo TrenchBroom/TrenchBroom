@@ -1,4 +1,5 @@
 add_executable(KdLibTest)
+EMBED_UTF8_MANIFEST(KdLibTest)
 target_sources(KdLibTest PRIVATE
   "${CMAKE_CURRENT_SOURCE_DIR}/src/ranges/range_test_utils.h"
   "${CMAKE_CURRENT_SOURCE_DIR}/src/ranges/tst_adjacent_transform_view.cpp"

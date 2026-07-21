@@ -1,4 +1,5 @@
 add_executable(TbBaseLibTest)
+EMBED_UTF8_MANIFEST(TbBaseLibTest)
 
 target_sources(TbBaseLibTest PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Color.cpp

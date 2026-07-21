@@ -1,4 +1,5 @@
 add_executable(TbUiLibTest)
+EMBED_UTF8_MANIFEST(TbUiLibTest)
 
 target_sources(TbUiLibTest
   PRIVATE

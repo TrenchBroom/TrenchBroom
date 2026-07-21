@@ -7,8 +7,9 @@ add_executable(DumpShortcuts
   ${DOC_MANUAL_SHORTCUTS_JS_TARGET_ABSOLUTE}
   ${DOC_MANUAL_TARGET_IMAGE_FILES_ABSOLUTE}
 )
+EMBED_UTF8_MANIFEST(DumpShortcuts)
 
-target_link_libraries(DumpShortcuts 
+target_link_libraries(DumpShortcuts
   PRIVATE 
     CompilerConfig
     KdLib

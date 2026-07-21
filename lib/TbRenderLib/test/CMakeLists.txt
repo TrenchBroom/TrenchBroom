@@ -1,4 +1,5 @@
 add_executable(TbRenderLibTest)
+EMBED_UTF8_MANIFEST(TbRenderLibTest)
 
 target_sources(TbRenderLibTest PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_AllocationTracker.cpp
