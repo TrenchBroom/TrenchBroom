@@ -151,6 +151,32 @@ TEST_CASE("loadAssimpModel")
     CHECK(modelData.value().surface(0).skinCount() == 1);
     CHECK(vm::approx(modelData.value().bounds(0)) == vm::bbox3f{{0, 0, 0}, {0, 1, 1}});
   }
+
+  SECTION("diffuse texture with wrong extension")
+  {
+    // Regression test for https://github.com/TrenchBroom/TrenchBroom/issues/4725: the
+    // model refers to "texture.tga", but the actual file on the file system is a 5x5
+    // "texture.png". The texture must still be found by matching the base name.
+    const auto basePath =
+      getFixtureRoot() / "test/mdl/LoadAssimpModel/wrongTextureExtension";
+    auto fs = fs::DiskFileSystem{basePath};
+
+    auto modelData = loadAssimpModel("model.obj", fs, logger);
+    REQUIRE(modelData);
+
+    REQUIRE(modelData.value().surfaceCount() == 1);
+    REQUIRE(modelData.value().surface(0).skinCount() == 1);
+
+    const auto* texture = modelData.value().surface(0).skin(0)->texture();
+    REQUIRE(texture != nullptr);
+
+    const auto& buffers = texture->buffersIfLoaded();
+    REQUIRE(!buffers.empty());
+
+    // A 5x5 RGBA texture has 5 * 5 * 4 bytes. This confirms that "texture.png" was
+    // found and loaded instead of the 32x32 default fallback texture.
+    CHECK(buffers.front().size() == 5 * 5 * 4);
+  }
 }
 
 } // namespace tb::mdl

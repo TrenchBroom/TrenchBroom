@@ -110,13 +110,13 @@ Result<EntityModelData> loadEntityModelData(
            {
              return loadFmModel(modelName, reader, fs, logger);
            }
-           if (canLoadImageSpriteModel(path))
-           {
-             return loadImageSpriteModel(modelName, reader, fs, logger);
-           }
            if (canLoadAssimpModel(path))
            {
              return loadAssimpModel(path, fs, logger);
+           }
+           if (canLoadImageSpriteModel(path))
+           {
+             return loadImageSpriteModel(modelName, reader, fs, logger);
            }
            return Error{fmt::format("Unknown model format: {}", path)};
          })
