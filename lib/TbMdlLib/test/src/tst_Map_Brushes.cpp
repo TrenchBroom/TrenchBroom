@@ -959,7 +959,8 @@ TEST_CASE("Map_Brushes")
         expectedFace.attributes().offset(), expectedFace.attributes().scale())
       * invariantVertex};
 
-    evaluate(fit(expectedFace, UvAxis::u, UvPolicy::next), expectedFace);
+    evaluate(
+      fit(expectedFace, UvAxis::u, UvPolicy::next, UvFitMode::fitToFace), expectedFace);
 
     const auto newUvCoords = vm::vec2f{
       expectedFace.toUVCoordSystemMatrix(
@@ -978,7 +979,7 @@ TEST_CASE("Map_Brushes")
     const auto expectedUAxis = expectedFace.uAxis();
     const auto expectedVAxis = expectedFace.vAxis();
 
-    fitUV(map, UvFitDirection::Horizontal, UvPolicy::next);
+    fitUV(map, UvFitDirection::Horizontal, UvPolicy::next, UvFitMode::fitToFace);
 
     const auto& fittedFace = getFace(*brushNode, *faceIndex);
     CHECK_THAT(
