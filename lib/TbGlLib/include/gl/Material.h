@@ -107,6 +107,13 @@ private:
   MaterialBlendFunc m_blendFunc = {
     MaterialBlendFunc::Enable::UseDefault, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA};
 
+  // Quake 3 editor transparency (qer_trans); 1.0 means fully opaque. Move to materials.
+  float m_transparency = 1.0f;
+
+  // Quake 3 qer_nocarve; brushes using this material are excluded from CSG subtraction.
+  // Move to materials.
+  bool m_noCarve = false;
+
   kdl_reflect_decl(
     Material,
     m_name,
@@ -117,7 +124,9 @@ private:
     m_usageCount,
     m_surfaceParms,
     m_culling,
-    m_blendFunc);
+    m_blendFunc,
+    m_transparency,
+    m_noCarve);
 
 public:
   Material(std::string name, std::shared_ptr<TextureResource> textureResource);
@@ -160,6 +169,20 @@ public:
 
   void setBlendFunc(GLenum srcFactor, GLenum destFactor);
   void disableBlend();
+
+  /**
+   * Editor transparency from a Quake 3 shader's `qer_trans` directive. 1.0 is fully
+   * opaque.
+   */
+  float transparency() const;
+  void setTransparency(float transparency);
+
+  /**
+   * Whether brushes using this material are excluded from CSG subtraction in the editor,
+   * set by a Quake 3 shader's `qer_nocarve` directive.
+   */
+  bool noCarve() const;
+  void setNoCarve(bool noCarve);
 
   size_t usageCount() const;
   void incUsageCount() const;

@@ -109,7 +109,9 @@ textures/liquids/lavahell2 //path and name of new texture
         {{
           "textures/eerie/lavahell.tga", // map
           {"", ""}                       // blendFunc
-        }} // stages
+        }},   // stages
+        1.0f, // transparency
+        true  // noCarve
       }}));
   }
 
@@ -160,7 +162,40 @@ textures/liquids/lavahell2 //path and name of new texture
         {{
           "textures/eerie/lavahell.tga", // map
           {"", ""}                       // blendFunc
-        }} // stages
+        }},   // stages
+        1.0f, // transparency
+        true  // noCarve
+      }}));
+  }
+
+  SECTION("Parse qer_trans and qer_nocarve")
+  {
+    const auto data = R"(
+textures/ct_infinity/blackfog
+{
+    qer_editorimage textures/ct_infinity/black.tga
+    surfaceparm fog
+    surfaceparm nonsolid
+    surfaceparm trans
+    surfaceparm nolightmap
+    qer_trans 0.5
+    qer_nocarve
+    fogparms ( 0 0 0 ) 1024
+}
+)";
+    auto parser = Quake3ShaderParser{data};
+
+    CHECK_THAT(
+      parser.parse(status).value(),
+      UnorderedEquals(std::vector<mdl::Quake3Shader>{{
+        "textures/ct_infinity/blackfog",            // shaderPath
+        "textures/ct_infinity/black.tga",           // editorImage
+        "",                                         // lightImage
+        mdl::Quake3Shader::Culling::Front,          // culling
+        {"fog", "nonsolid", "trans", "nolightmap"}, // surfaceParms
+        {},                                         // stages
+        0.5f,                                       // transparency
+        true                                        // noCarve
       }}));
   }
 
@@ -434,7 +469,9 @@ textures/liquids/lavahell2 //path and name of new texture
           {{
             "textures/eerie/lavahell.tga", // map
             {"", ""}                       // blendFunc
-          }} // stages
+          }},   // stages
+          0.4f, // transparency
+          true  // noCarve
         }}));
   }
 
@@ -584,6 +621,74 @@ waterBubble
             {BF::SrcAlphaSaturate, BF::OneMinusSrcColor} // blendFunc
           },
         } // stages
+      }}));
+  }
+
+  SECTION("Parse quoted shader name with spaces")
+  {
+    // The Q3 engine (COM_ParseExt) accepts quoted shader names, which may contain
+    // spaces. Without quote handling the embedded space splits the name into two
+    // tokens and the whole file is skipped.
+    const auto data = R"(
+"team_icon/the fallen_red"
+{
+    cull none
+    {
+        map team_icon/thefallen_red.tga
+        blendFunc Add
+    }
+}
+)";
+    auto parser = Quake3ShaderParser{data};
+
+    CHECK_THAT(
+      parser.parse(status).value(),
+      UnorderedEquals(std::vector<mdl::Quake3Shader>{{
+        "team_icon/the fallen_red",       // shaderPath
+        "",                               // editorImage
+        "",                               // lightImage
+        mdl::Quake3Shader::Culling::None, // culling
+        {},                               // surfaceParms
+        {{
+          "team_icon/thefallen_red.tga", // map
+          {"GL_ONE", "GL_ONE"}           // blendFunc (Add shorthand)
+        }} // stages
+      }}));
+  }
+
+  SECTION("Parse blendFunc with comment glued to shorthand")
+  {
+    // A // comment glued directly to a token (no preceding space) must still be
+    // recognized as a comment, so "blend//GL_ONE GL_ZERO" reads as the `blend`
+    // shorthand. If the comment were swallowed, srcFactor would be "BLEND//GL_ONE",
+    // validation would fail, and blendFunc would be reset to {"", ""}.
+    using BF = mdl::Quake3ShaderStage::BlendFunc;
+
+    const auto data = R"(
+ui/assets/hud/flag
+{
+    nopicmip
+    {
+        map ui/assets/hud/flag.tga
+        blendfunc blend//GL_ONE GL_ZERO
+        rgbgen wave sin .25 .25 0 1
+    }
+}
+)";
+    auto parser = Quake3ShaderParser{data};
+
+    CHECK_THAT(
+      parser.parse(status).value(),
+      UnorderedEquals(std::vector<mdl::Quake3Shader>{{
+        "ui/assets/hud/flag",              // shaderPath
+        "",                                // editorImage
+        "",                                // lightImage
+        mdl::Quake3Shader::Culling::Front, // culling
+        {},                                // surfaceParms
+        {{
+          "ui/assets/hud/flag.tga",            // map
+          {BF::SrcAlpha, BF::OneMinusSrcAlpha} // blendFunc (blend shorthand)
+        }} // stages
       }}));
   }
 }

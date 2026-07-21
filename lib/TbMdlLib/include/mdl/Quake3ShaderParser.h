@@ -54,6 +54,7 @@ public:
 
 private:
   Token emitToken() override;
+  const char* readStringToken();
 };
 
 class Quake3ShaderParser : public Parser<Quake3ShaderToken::Type>
