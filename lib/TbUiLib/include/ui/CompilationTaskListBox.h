@@ -66,11 +66,10 @@ protected:
     mdl::CompilationTask& task,
     QWidget* parent);
 
-protected:
   void setupCompleter(MultiCompletionLineEdit* lineEdit);
   void addMainLayout(QLayout* layout);
 
-protected:
+public:
   void updateItem() override;
 
 private:
@@ -82,6 +81,8 @@ class CompilationExportMapTaskEditor : public CompilationTaskEditorBase
   Q_OBJECT
 private:
   MultiCompletionLineEdit* m_targetEditor = nullptr;
+  QLineEdit* m_stripEntityPattern = nullptr;
+  QLineEdit* m_dropEntity = nullptr;
   QCheckBox* m_stripTbProperties = nullptr;
 
 public:
@@ -91,11 +92,14 @@ public:
     mdl::CompilationTask& task,
     QWidget* parent = nullptr);
 
-private:
   void updateItem() override;
+
+private:
   mdl::CompilationExportMap& task();
 private slots:
   void targetSpecChanged(const QString& text);
+  void stripEntityPatternChanged(const QString& text);
+  void dropEntityChanged(const QString& text);
   void stripTbPropertiesChanged(int state);
 };
 
@@ -113,8 +117,9 @@ public:
     mdl::CompilationTask& task,
     QWidget* parent = nullptr);
 
-private:
   void updateItem() override;
+
+private:
   mdl::CompilationCopyFiles& task();
 private slots:
   void sourceSpecChanged(const QString& text);
@@ -135,8 +140,9 @@ public:
     mdl::CompilationTask& task,
     QWidget* parent = nullptr);
 
-private:
   void updateItem() override;
+
+private:
   mdl::CompilationRenameFile& task();
 private slots:
   void sourceSpecChanged(const QString& text);
@@ -156,8 +162,9 @@ public:
     mdl::CompilationTask& task,
     QWidget* parent = nullptr);
 
-private:
   void updateItem() override;
+
+private:
   mdl::CompilationDeleteFiles& task();
 private slots:
   void targetSpecChanged(const QString& text);
@@ -178,8 +185,9 @@ public:
     mdl::CompilationTask& task,
     QWidget* parent = nullptr);
 
-private:
   void updateItem() override;
+
+private:
   mdl::CompilationRunTool& task();
 private slots:
   void browseTool();
@@ -202,8 +210,9 @@ public:
     mdl::CompilationTask& task,
     QWidget* parent = nullptr);
 
-private:
   void updateItem() override;
+
+private:
   mdl::CompilationLaunchEngine& task();
 private slots:
   void engineProfileChanged(int index);

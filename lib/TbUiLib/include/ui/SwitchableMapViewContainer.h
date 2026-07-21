@@ -25,7 +25,14 @@
 #include "NotifierConnection.h"
 #include "ui/MapView.h"
 
-namespace tb::ui
+namespace tb
+{
+namespace gl
+{
+class PerspectiveCamera;
+}
+
+namespace ui
 {
 class AppController;
 class ClipTool;
@@ -76,6 +83,8 @@ public:
   void moveCameraToNextTracePoint();
   void moveCameraToPreviousTracePoint();
 
+  const gl::PerspectiveCamera& perspectiveCamera() const;
+
   bool canMaximizeCurrentView() const;
   bool currentViewMaximized() const;
   void toggleMaximizeCurrentView();
@@ -103,4 +112,5 @@ public: // implement MapView interface
   deleteCopyAndMove(SwitchableMapViewContainer);
 };
 
-} // namespace tb::ui
+} // namespace ui
+} // namespace tb

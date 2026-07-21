@@ -21,6 +21,7 @@
 
 #include "mdl/BrushFace.h"
 #include "mdl/BrushNode.h"
+#include "mdl/EntityNode.h"
 #include "mdl/EntityProperties.h"
 #include "mdl/GroupNode.h"
 #include "mdl/LayerNode.h"
@@ -41,6 +42,24 @@
 
 namespace tb::mdl
 {
+namespace
+{
+
+bool shouldStripEntity(
+  const std::vector<EntityProperty>& properties,
+  const std::optional<std::string>& classnamePattern)
+{
+  if (!classnamePattern)
+  {
+    return false;
+  }
+
+  const auto iClassname = findEntityProperty(properties, EntityPropertyKeys::Classname);
+  return iClassname != properties.end()
+         && kdl::ci::str_matches_glob(iClassname->value(), *classnamePattern);
+}
+
+} // namespace
 
 NodeSerializer::~NodeSerializer() = default;
 
@@ -74,6 +93,26 @@ void NodeSerializer::setStripTbProperties(const bool stripTbProperties)
   m_stripTbProperties = stripTbProperties;
 }
 
+const std::optional<std::string>& NodeSerializer::stripEntityPattern() const
+{
+  return m_stripEntityPattern;
+}
+
+void NodeSerializer::setStripEntityPattern(std::optional<std::string> stripEntityPattern)
+{
+  m_stripEntityPattern = std::move(stripEntityPattern);
+}
+
+const std::optional<Entity>& NodeSerializer::entityToAdd() const
+{
+  return m_entityToAdd;
+}
+
+void NodeSerializer::setEntityToAdd(std::optional<Entity> entityToAdd)
+{
+  m_entityToAdd = std::move(entityToAdd);
+}
+
 void NodeSerializer::beginFile(
   const std::vector<const Node*>& rootNodes, kdl::task_manager& taskManager)
 {
@@ -84,6 +123,11 @@ void NodeSerializer::beginFile(
 
 void NodeSerializer::endFile()
 {
+  if (m_entityToAdd)
+  {
+    auto entityNode = EntityNode{*m_entityToAdd};
+    entity(entityNode, entityNode.entity().properties(), {}, entityNode);
+  }
   doEndFile();
 }
 
@@ -169,17 +213,20 @@ void NodeSerializer::entity(
   const std::vector<EntityProperty>& extraProperties,
   const Node& brushParent)
 {
-  beginEntity(node, properties, extraProperties);
+  if (!shouldStripEntity(properties, m_stripEntityPattern))
+  {
+    beginEntity(node, properties, extraProperties);
 
-  brushParent.visitChildren(kdl::overload(
-    [](const WorldNode&) {},
-    [](const LayerNode&) {},
-    [](const GroupNode&) {},
-    [](const EntityNode&) {},
-    [&](const BrushNode& brushNode) { brush(brushNode); },
-    [&](const PatchNode& patchNode) { patch(patchNode); }));
+    brushParent.visitChildren(kdl::overload(
+      [](const WorldNode&) {},
+      [](const LayerNode&) {},
+      [](const GroupNode&) {},
+      [](const EntityNode&) {},
+      [&](const BrushNode& brushNode) { brush(brushNode); },
+      [&](const PatchNode& patchNode) { patch(patchNode); }));
 
-  endEntity(node);
+    endEntity(node);
+  }
 }
 
 void NodeSerializer::entity(
@@ -188,9 +235,12 @@ void NodeSerializer::entity(
   const std::vector<EntityProperty>& extraProperties,
   const std::vector<BrushNode*>& entityBrushes)
 {
-  beginEntity(node, properties, extraProperties);
-  brushes(entityBrushes);
-  endEntity(node);
+  if (!shouldStripEntity(properties, m_stripEntityPattern))
+  {
+    beginEntity(node, properties, extraProperties);
+    brushes(entityBrushes);
+    endEntity(node);
+  }
 }
 
 void NodeSerializer::beginEntity(

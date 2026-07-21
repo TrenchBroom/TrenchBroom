@@ -1092,8 +1092,12 @@ bool MapWindow::exportDocumentAsMap()
     return false;
   }
 
-  const auto options =
-    mdl::MapExportOptions{pathFromQString(newFileName), !K(stripTbProperties)};
+  const auto options = mdl::MapExportOptions{
+    pathFromQString(newFileName),
+    !K(stripTbProperties),
+    std::nullopt,
+    std::nullopt,
+  };
   return exportDocument(options);
 }
 
@@ -2081,7 +2085,10 @@ void MapWindow::showCompileDialog()
 {
   if (!m_compilationDialog)
   {
-    m_compilationDialog = new CompilationDialog{m_appController, *m_document, this};
+    const auto& camera = m_mapView->perspectiveCamera();
+
+    m_compilationDialog =
+      new CompilationDialog{m_appController, *m_document, camera, this};
     connect(
       m_compilationDialog,
       &CompilationDialog::compilationProfileStarted,

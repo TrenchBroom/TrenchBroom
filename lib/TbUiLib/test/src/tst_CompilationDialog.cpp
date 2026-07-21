@@ -21,6 +21,7 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 #include <QPushButton>
 #include <QtTest/QSignalSpy>
 
+#include "gl/PerspectiveCamera.h"
 #include "mdl/CompilationProfile.h"
 #include "mdl/CompilationTask.h"
 #include "mdl/Map.h"
@@ -65,8 +66,9 @@ TEST_CASE("CompilationDialog")
     auto documentFixture = MapDocumentFixture{};
     auto& document =
       documentFixture.create(fixtureConfigWithCompilationProfiles(profiles));
+    auto camera = gl::PerspectiveCamera{};
 
-    auto dialog = CompilationDialog{appController, document};
+    auto dialog = CompilationDialog{appController, document, camera};
 
     auto* profileManager = dialog.findChild<CompilationProfileManager*>();
     REQUIRE(profileManager != nullptr);
@@ -100,8 +102,9 @@ TEST_CASE("CompilationDialog")
       {"profile 2", "${MAP_DIR_PATH}", {}},
       {"profile 3", "${MAP_DIR_PATH}", {}},
     }));
+    auto camera = gl::PerspectiveCamera{};
 
-    auto dialog = CompilationDialog{appController, document};
+    auto dialog = CompilationDialog{appController, document, camera};
 
     auto* profileManager = dialog.findChild<CompilationProfileManager*>();
     REQUIRE(profileManager != nullptr);
@@ -121,8 +124,9 @@ TEST_CASE("CompilationDialog")
     {
       auto documentFixture = MapDocumentFixture{};
       auto& document = documentFixture.create();
+      auto camera = gl::PerspectiveCamera{};
 
-      auto dialog = CompilationDialog{appController, document};
+      auto dialog = CompilationDialog{appController, document, camera};
       auto spy = QSignalSpy{&dialog, &CompilationDialog::compilationProfileStarted};
 
       dialog.runSelectedProfile();
@@ -141,8 +145,9 @@ TEST_CASE("CompilationDialog")
           {mdl::CompilationRunTool{true, "/does/not/exist", "", true}},
         },
       }));
+      auto camera = gl::PerspectiveCamera{};
 
-      auto dialog = CompilationDialog{appController, document};
+      auto dialog = CompilationDialog{appController, document, camera};
       auto spy = QSignalSpy{&dialog, &CompilationDialog::compilationProfileStarted};
 
       dialog.runSelectedProfile();

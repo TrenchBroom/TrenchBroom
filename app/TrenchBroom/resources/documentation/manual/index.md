@@ -1702,6 +1702,12 @@ Layers marked "Omit From Export" will not be present in the exported map.
 Target
 :    The path of the exported file. Variables are allowed. Relative paths are implicitly relative to the working directory.
 
+Strip Entities
+:    Set a GLOB pattern to strip any entities with a matching classname. Example: 'info_player_*' to strip all info_player_start and all info_player_deatchmatch entities.
+
+Add Entity
+:    Set the classname of an entity that will be added to the exported map. Example: 'info_player_start'. This entity will have its 'origin' property set to the position of the 3D camera, and its 'angle' property set to the yaw angle of the camera. Useful when testing maps.
+
 Strip TB specific entity properties
 :    Strip any entity properties starting with _tb_ from the exported map file. Some compilers cannot handle these properties.
 

@@ -142,7 +142,7 @@ CompilationExportMapTaskEditor::CompilationExportMapTaskEditor(
     LayoutConstants::WideVMargin,
     LayoutConstants::WideHMargin,
     LayoutConstants::WideVMargin);
-  formLayout->setVerticalSpacing(LayoutConstants::NarrowVMargin);
+  formLayout->setVerticalSpacing(LayoutConstants::MediumVMargin);
   formLayout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
   addMainLayout(formLayout);
 
@@ -152,6 +152,21 @@ CompilationExportMapTaskEditor::CompilationExportMapTaskEditor(
 Variables are allowed.)");
   setupCompleter(m_targetEditor);
   formLayout->addRow("File Path", m_targetEditor);
+
+  m_stripEntityPattern = new QLineEdit{};
+  m_stripEntityPattern->setToolTip(
+    tr("Set a GLOB pattern to strip any entities with a matching classname. Example: "
+       "'info_player_*' to strip all info_player_start and all info_player_deatchmatch "
+       "entities."));
+  m_stripEntityPattern->setPlaceholderText("enter GLOB pattern");
+  formLayout->addRow("Strip Entities", m_stripEntityPattern);
+
+  m_dropEntity = new QLineEdit{};
+  m_dropEntity->setToolTip(tr(
+    "Set the classname of an entity that will be added to the map. The entities' origin "
+    "and angles will be set to the camera position and view direction, respectively."));
+  m_dropEntity->setPlaceholderText("enter classname");
+  formLayout->addRow("Add Entity", m_dropEntity);
 
   m_stripTbProperties = new QCheckBox{"Strip TrenchBroom specific entity properties"};
   m_stripTbProperties->setToolTip(
@@ -164,6 +179,16 @@ Variables are allowed.)");
     &QLineEdit::textChanged,
     this,
     &CompilationExportMapTaskEditor::targetSpecChanged);
+  connect(
+    m_stripEntityPattern,
+    &QLineEdit::textChanged,
+    this,
+    &CompilationExportMapTaskEditor::stripEntityPatternChanged);
+  connect(
+    m_dropEntity,
+    &QLineEdit::textChanged,
+    this,
+    &CompilationExportMapTaskEditor::dropEntityChanged);
   connect(
     m_stripTbProperties,
     &QCheckBox::checkStateChanged,
@@ -186,6 +211,20 @@ void CompilationExportMapTaskEditor::updateItem()
     m_stripTbProperties->setCheckState(
       task().stripTbProperties ? Qt::CheckState::Checked : Qt::CheckState::Unchecked);
   }
+
+  const auto stripEntityPattern =
+    QString::fromStdString(task().stripEntityPattern.value_or(""));
+  if (m_stripEntityPattern->text() != stripEntityPattern)
+  {
+    m_stripEntityPattern->setText(stripEntityPattern);
+  }
+
+  const auto dropEntity =
+    QString::fromStdString(task().entityToAdd ? task().entityToAdd->classname() : "");
+  if (m_dropEntity->text() != dropEntity)
+  {
+    m_dropEntity->setText(dropEntity);
+  }
 }
 
 mdl::CompilationExportMap& CompilationExportMapTaskEditor::task()
@@ -198,6 +237,32 @@ mdl::CompilationExportMap& CompilationExportMapTaskEditor::task()
 void CompilationExportMapTaskEditor::targetSpecChanged(const QString& text)
 {
   task().targetSpec = text.toStdString();
+}
+
+void CompilationExportMapTaskEditor::dropEntityChanged(const QString& text)
+{
+  if (text.isEmpty())
+  {
+    task().entityToAdd = std::nullopt;
+  }
+  else
+  {
+    task().entityToAdd = mdl::Entity{{
+      {mdl::EntityPropertyKeys::Classname, text.toStdString()},
+    }};
+  }
+}
+
+void CompilationExportMapTaskEditor::stripEntityPatternChanged(const QString& text)
+{
+  if (text.isEmpty())
+  {
+    task().stripEntityPattern = std::nullopt;
+  }
+  else
+  {
+    task().stripEntityPattern = text.toStdString();
+  }
 }
 
 void CompilationExportMapTaskEditor::stripTbPropertiesChanged(const int state)
@@ -221,7 +286,7 @@ CompilationCopyFilesTaskEditor::CompilationCopyFilesTaskEditor(
     LayoutConstants::WideVMargin,
     LayoutConstants::WideHMargin,
     LayoutConstants::WideVMargin);
-  formLayout->setVerticalSpacing(LayoutConstants::NarrowVMargin);
+  formLayout->setVerticalSpacing(LayoutConstants::MediumVMargin);
   formLayout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
   addMainLayout(formLayout);
 
@@ -305,7 +370,7 @@ CompilationRenameFileTaskEditor::CompilationRenameFileTaskEditor(
     LayoutConstants::WideVMargin,
     LayoutConstants::WideHMargin,
     LayoutConstants::WideVMargin);
-  formLayout->setVerticalSpacing(LayoutConstants::NarrowVMargin);
+  formLayout->setVerticalSpacing(LayoutConstants::MediumVMargin);
   formLayout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
   addMainLayout(formLayout);
 
@@ -390,7 +455,7 @@ CompilationDeleteFilesTaskEditor::CompilationDeleteFilesTaskEditor(
     LayoutConstants::WideVMargin,
     LayoutConstants::WideHMargin,
     LayoutConstants::WideVMargin);
-  formLayout->setVerticalSpacing(LayoutConstants::NarrowVMargin);
+  formLayout->setVerticalSpacing(LayoutConstants::MediumVMargin);
   formLayout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
   addMainLayout(formLayout);
 
@@ -450,7 +515,7 @@ CompilationRunToolTaskEditor::CompilationRunToolTaskEditor(
     LayoutConstants::WideVMargin,
     LayoutConstants::WideHMargin,
     LayoutConstants::WideVMargin);
-  formLayout->setVerticalSpacing(LayoutConstants::NarrowVMargin);
+  formLayout->setVerticalSpacing(LayoutConstants::MediumVMargin);
   formLayout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
   addMainLayout(formLayout);
 
@@ -588,7 +653,7 @@ CompilationLaunchEngineTaskEditor::CompilationLaunchEngineTaskEditor(
     LayoutConstants::WideVMargin,
     LayoutConstants::WideHMargin,
     LayoutConstants::WideVMargin);
-  formLayout->setVerticalSpacing(LayoutConstants::NarrowVMargin);
+  formLayout->setVerticalSpacing(LayoutConstants::MediumVMargin);
   formLayout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
   addMainLayout(formLayout);
 

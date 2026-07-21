@@ -26,9 +26,12 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 #include "CmdTool.h"
 #include "el/VariableStore.h"
 #include "fs/TestEnvironment.h"
+#include "gl/PerspectiveCamera.h"
 #include "mdl/CompilationProfile.h"
 #include "mdl/CompilationTask.h"
+#include "mdl/Entity.h"
 #include "mdl/EntityNode.h"
+#include "mdl/EntityProperties.h"
 #include "mdl/GameEngineProfile.h"
 #include "mdl/Map.h"
 #include "mdl/MapFixture.h"
@@ -119,6 +122,7 @@ TEST_CASE("CompilationRunToolTaskRunner")
 {
   auto fixture = mdl::MapFixture{};
   auto& map = fixture.create();
+  auto camera = gl::PerspectiveCamera{};
 
   SECTION("runMissingTool")
   {
@@ -126,7 +130,7 @@ TEST_CASE("CompilationRunToolTaskRunner")
     auto output = QTextEdit{};
     auto outputAdapter = TextOutputAdapter{&output};
 
-    auto context = CompilationContext{map, variables, outputAdapter, false};
+    auto context = CompilationContext{map, camera, variables, outputAdapter, false};
 
     auto task = mdl::CompilationRunTool{K(enabled), "", "", false};
     auto runner = CompilationRunToolTaskRunner{context, task};
@@ -156,7 +160,7 @@ TEST_CASE("CompilationRunToolTaskRunner")
     auto output = QTextEdit{};
     auto outputAdapter = TextOutputAdapter{&output};
 
-    auto context = CompilationContext{map, variables, outputAdapter, false};
+    auto context = CompilationContext{map, camera, variables, outputAdapter, false};
 
     const auto treatNonZeroResultCodeAsError = GENERATE(true, false);
     auto task = mdl::CompilationRunTool{
@@ -177,7 +181,7 @@ TEST_CASE("CompilationRunToolTaskRunner")
     auto output = QTextEdit{};
     auto outputAdapter = TextOutputAdapter{&output};
 
-    auto context = CompilationContext{map, variables, outputAdapter, false};
+    auto context = CompilationContext{map, camera, variables, outputAdapter, false};
 
     const auto treatNonZeroResultCodeAsError = GENERATE(true, false);
     auto task = mdl::CompilationRunTool{
@@ -198,7 +202,7 @@ TEST_CASE("CompilationRunToolTaskRunner")
     auto output = QTextEdit{};
     auto outputAdapter = TextOutputAdapter{&output};
 
-    auto context = CompilationContext{map, variables, outputAdapter, false};
+    auto context = CompilationContext{map, camera, variables, outputAdapter, false};
 
     const auto treatNonZeroResultCodeAsError = GENERATE(true, false);
     auto task = mdl::CompilationRunTool{
@@ -219,7 +223,7 @@ TEST_CASE("CompilationRunToolTaskRunner")
     auto output = QTextEdit{};
     auto outputAdapter = TextOutputAdapter{&output};
 
-    auto context = CompilationContext{map, variables, outputAdapter, false};
+    auto context = CompilationContext{map, camera, variables, outputAdapter, false};
 
     auto task = mdl::CompilationRunTool{
       true, CMD_TOOL_PATH, R"(--printArgs 1 2 str "escaped str")", false};
@@ -246,7 +250,7 @@ escaped str)"));
     auto output = QTextEdit{};
     auto outputAdapter = TextOutputAdapter{&output};
 
-    auto context = CompilationContext{map, variables, outputAdapter, false};
+    auto context = CompilationContext{map, camera, variables, outputAdapter, false};
 
     const auto treatNonZeroResultCodeAsError = GENERATE(true, false);
     auto task = mdl::CompilationRunTool{
@@ -270,7 +274,7 @@ escaped str)"));
     auto output = QTextEdit{};
     auto outputAdapter = TextOutputAdapter{&output};
 
-    auto context = CompilationContext{map, variables, outputAdapter, false};
+    auto context = CompilationContext{map, camera, variables, outputAdapter, false};
 
     const auto treatNonZeroResultCodeAsError = GENERATE(true, false);
     auto task = mdl::CompilationRunTool{
@@ -311,6 +315,7 @@ TEST_CASE("CompilationLaunchEngineTaskRunner")
 
   auto fixture = mdl::MapFixture{};
   auto& map = fixture.create(fixtureConfig);
+  auto camera = gl::PerspectiveCamera{};
 
   SECTION("launchEngine")
   {
@@ -318,7 +323,7 @@ TEST_CASE("CompilationLaunchEngineTaskRunner")
     auto output = QTextEdit{};
     auto outputAdapter = TextOutputAdapter{&output};
 
-    auto context = CompilationContext{map, variables, outputAdapter, false};
+    auto context = CompilationContext{map, camera, variables, outputAdapter, false};
 
     auto task = mdl::CompilationLaunchEngine{
       K(enabled), "quakespasm-id", !K(treatLaunchFailureAsError)};
@@ -341,7 +346,7 @@ TEST_CASE("CompilationLaunchEngineTaskRunner")
     auto output = QTextEdit{};
     auto outputAdapter = TextOutputAdapter{&output};
 
-    auto context = CompilationContext{map, variables, outputAdapter, false};
+    auto context = CompilationContext{map, camera, variables, outputAdapter, false};
 
     const auto engineProfileId = GENERATE(""s, "deleted-profile-id"s);
     const auto treatLaunchFailureAsError = GENERATE(true, false);
@@ -366,7 +371,7 @@ TEST_CASE("CompilationLaunchEngineTaskRunner")
     auto output = QTextEdit{};
     auto outputAdapter = TextOutputAdapter{&output};
 
-    auto context = CompilationContext{map, variables, outputAdapter, false};
+    auto context = CompilationContext{map, camera, variables, outputAdapter, false};
 
     const auto treatLaunchFailureAsError = GENERATE(true, false);
     CAPTURE(treatLaunchFailureAsError);
@@ -390,7 +395,7 @@ TEST_CASE("CompilationLaunchEngineTaskRunner")
     auto output = QTextEdit{};
     auto outputAdapter = TextOutputAdapter{&output};
 
-    auto context = CompilationContext{map, variables, outputAdapter, true};
+    auto context = CompilationContext{map, camera, variables, outputAdapter, true};
 
     auto task = mdl::CompilationLaunchEngine{
       K(enabled), "missing-engine-id", K(treatLaunchFailureAsError)};
@@ -412,6 +417,14 @@ TEST_CASE("CompilationExportMapTaskRunner")
 {
   auto fixture = mdl::MapFixture{};
   auto& map = fixture.create();
+  auto camera = gl::PerspectiveCamera{
+    90.0f,
+    1.0f,
+    65536.0f,
+    gl::Camera::Viewport{0, 0, 1024, 768},
+    vm::vec3f{1, 2, 3},
+    vm::vec3f{0, 1, 0},
+    vm::vec3f{0, 0, 1}};
 
   auto testEnvironment = fs::TestEnvironment{};
 
@@ -420,7 +433,7 @@ TEST_CASE("CompilationExportMapTaskRunner")
   auto output = QTextEdit{};
   auto outputAdapter = TextOutputAdapter{&output};
 
-  auto context = CompilationContext{map, variables, outputAdapter, false};
+  auto context = CompilationContext{map, camera, variables, outputAdapter, false};
 
   SECTION("exportMap")
   {
@@ -437,12 +450,46 @@ TEST_CASE("CompilationExportMapTaskRunner")
     auto node = new mdl::EntityNode{mdl::Entity{}};
     addNodes(map, {{parentForNodes(map), {node}}});
 
-    auto task = mdl::CompilationExportMap{K(enabled), !K(stripTbProperties), exportSpec};
+    auto task = mdl::CompilationExportMap{
+      K(enabled),
+      !K(stripTbProperties),
+      std::nullopt,
+      std::nullopt,
+      exportSpec,
+    };
 
     auto runner = CompilationExportMapTaskRunner{context, task};
     REQUIRE_NOTHROW(runner.execute());
 
     CHECK(testEnvironment.fileExists(expectedFilePath));
+  }
+
+  SECTION("addEntity")
+  {
+    auto task = mdl::CompilationExportMap{
+      K(enabled),
+      !K(stripTbProperties),
+      std::nullopt,
+      mdl::Entity{{{mdl::EntityPropertyKeys::Classname, "info_player_start"}}},
+      "exported.map",
+    };
+
+    auto runner = CompilationExportMapTaskRunner{context, task};
+    REQUIRE_NOTHROW(runner.execute());
+
+    REQUIRE(testEnvironment.fileExists("exported.map"));
+    REQUIRE(vm::to_degrees(camera.yaw()) == 90.0f);
+    CHECK(testEnvironment.loadFile("exported.map") == R"(// entity 0
+{
+"classname" "worldspawn"
+}
+// entity 1
+{
+"classname" "info_player_start"
+"origin" "1 2 3"
+"angle" "90"
+}
+)");
   }
 
   SECTION("variable interpolation error")
@@ -451,7 +498,12 @@ TEST_CASE("CompilationExportMapTaskRunner")
     addNodes(map, {{parentForNodes(map), {node}}});
 
     auto task = mdl::CompilationExportMap{
-      K(enabled), !K(stripTbProperties), "${WORK_DIR_PATH/exported.map"};
+      K(enabled),
+      !K(stripTbProperties),
+      std::nullopt,
+      std::nullopt,
+      "${WORK_DIR_PATH/exported.map",
+    };
 
     auto runner = CompilationExportMapTaskRunner{context, task};
     REQUIRE_NOTHROW(runner.execute());
@@ -464,6 +516,7 @@ TEST_CASE("CompilationCopyFilesTaskRunner")
 {
   auto fixture = mdl::MapFixture{};
   auto& map = fixture.create();
+  auto camera = gl::PerspectiveCamera{};
 
   auto testEnvironment = fs::TestEnvironment{};
 
@@ -472,7 +525,7 @@ TEST_CASE("CompilationCopyFilesTaskRunner")
   auto output = QTextEdit{};
   auto outputAdapter = TextOutputAdapter{&output};
 
-  auto context = CompilationContext{map, variables, outputAdapter, false};
+  auto context = CompilationContext{map, camera, variables, outputAdapter, false};
 
   SECTION("createTargetDirectories")
   {
@@ -516,6 +569,7 @@ TEST_CASE("CompilationRenameFileTaskRunner")
 {
   auto fixture = mdl::MapFixture{};
   auto& map = fixture.create();
+  auto camera = gl::PerspectiveCamera{};
 
   auto testEnvironment = fs::TestEnvironment{};
 
@@ -524,7 +578,7 @@ TEST_CASE("CompilationRenameFileTaskRunner")
   auto output = QTextEdit{};
   auto outputAdapter = TextOutputAdapter{&output};
 
-  auto context = CompilationContext{map, variables, outputAdapter, false};
+  auto context = CompilationContext{map, camera, variables, outputAdapter, false};
 
   SECTION("renameFile")
   {
@@ -577,6 +631,7 @@ TEST_CASE("CompilationDeleteFilesTaskRunner")
 {
   auto fixture = mdl::MapFixture{};
   auto& map = fixture.create();
+  auto camera = gl::PerspectiveCamera{};
 
   auto testEnvironment = fs::TestEnvironment{};
 
@@ -585,7 +640,7 @@ TEST_CASE("CompilationDeleteFilesTaskRunner")
   auto output = QTextEdit{};
   auto outputAdapter = TextOutputAdapter{&output};
 
-  auto context = CompilationContext{map, variables, outputAdapter, false};
+  auto context = CompilationContext{map, camera, variables, outputAdapter, false};
 
   SECTION("deleteTargetPattern")
   {
@@ -642,13 +697,14 @@ TEST_CASE("CompilationRunner")
   auto fixture = mdl::MapFixture{};
   auto& map = fixture.load(
     "test/ui/CompilationRunner/valveFormatMapWithoutFormatTag.map", fixtureConfig);
+  auto camera = gl::PerspectiveCamera{};
 
   const auto testWorkDir = std::string{"/some/path"};
   auto variables = CompilationVariables{map, testWorkDir};
   auto output = QTextEdit{};
   auto outputAdapter = TextOutputAdapter{&output};
 
-  auto context = CompilationContext{map, variables, outputAdapter, false};
+  auto context = CompilationContext{map, camera, variables, outputAdapter, false};
 
   auto testEnvironment = fs::TestEnvironment{};
 
@@ -669,7 +725,8 @@ TEST_CASE("CompilationRunner")
       }};
 
     auto runner = CompilationRunner{
-      CompilationContext{map, variables, outputAdapter, false}, compilationProfile};
+      CompilationContext{map, camera, variables, outputAdapter, false},
+      compilationProfile};
 
     auto compilationStartedSpy = QSignalSpy{&runner, SIGNAL(compilationStarted())};
     auto compilationEndedSpy = QSignalSpy{&runner, SIGNAL(compilationEnded())};
@@ -696,7 +753,8 @@ TEST_CASE("CompilationRunner")
       }};
 
     auto runner = CompilationRunner{
-      CompilationContext{map, variables, outputAdapter, false}, compilationProfile};
+      CompilationContext{map, camera, variables, outputAdapter, false},
+      compilationProfile};
 
     auto compilationStartedSpy = QSignalSpy{&runner, SIGNAL(compilationStarted())};
     auto compilationEndedSpy = QSignalSpy{&runner, SIGNAL(compilationEnded())};
@@ -724,7 +782,8 @@ TEST_CASE("CompilationRunner")
       }};
 
     auto runner = CompilationRunner{
-      CompilationContext{map, variables, outputAdapter, false}, compilationProfile};
+      CompilationContext{map, camera, variables, outputAdapter, false},
+      compilationProfile};
 
     auto compilationStartedSpy = QSignalSpy{&runner, SIGNAL(compilationStarted())};
     auto compilationEndedSpy = QSignalSpy{&runner, SIGNAL(compilationEnded())};

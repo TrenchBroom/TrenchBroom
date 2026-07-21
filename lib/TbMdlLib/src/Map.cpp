@@ -901,6 +901,8 @@ Result<void> Map::exportAs(const ExportOptions& options) const
           auto writer = NodeWriter{*m_worldNode, stream};
           writer.setExporting(true);
           writer.setStripTbProperties(mapOptions.stripTbProperties);
+          writer.setStripEntityPattern(mapOptions.stripEntityPattern);
+          writer.setEntityToAdd(mapOptions.entityToAdd);
           writer.writeMap(m_taskManager);
         });
       }),

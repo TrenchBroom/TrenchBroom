@@ -28,6 +28,18 @@ namespace tb::mdl
 namespace
 {
 
+el::Value toValue(const Entity& entity)
+{
+  return el::Value{
+    entity.properties() | std::views::transform([](const auto& entityProperty) {
+      return el::Value{el::MapType{
+        {"key", el::Value{entityProperty.key()}},
+        {"value", el::Value{entityProperty.value()}},
+      }};
+    })
+    | kdl::ranges::to<el::ArrayType>()};
+}
+
 el::Value toValue(const CompilationTask& task)
 {
   return el::Value{std::visit(
@@ -37,6 +49,14 @@ el::Value toValue(const CompilationTask& task)
         map["type"] = el::Value{"export"};
         map["enabled"] = el::Value{exportMap.enabled};
         map["stripTbProperties"] = el::Value{exportMap.stripTbProperties};
+        if (const auto& stripEntityPattern = exportMap.stripEntityPattern)
+        {
+          map["stripEntityPattern"] = el::Value{*stripEntityPattern};
+        }
+        if (const auto& entityToAdd = exportMap.entityToAdd)
+        {
+          map["entityToAdd"] = toValue(*entityToAdd);
+        }
         map["target"] = el::Value{exportMap.targetSpec};
         return map;
       },

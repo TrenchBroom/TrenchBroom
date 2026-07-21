@@ -127,6 +127,11 @@ void FourPaneMapView::onSplitterMoved(
   other->setSizes(moved->sizes());
 }
 
+const gl::PerspectiveCamera& FourPaneMapView::perspectiveCamera() const
+{
+  return m_mapView3D->perspectiveCamera();
+}
+
 void FourPaneMapView::maximizeView(MapView* view)
 {
   contract_pre(

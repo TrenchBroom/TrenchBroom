@@ -26,6 +26,7 @@
 #include "vm/mat_ext.h"
 #include "vm/vec.h"
 
+#include <cmath>
 #include <limits>
 
 namespace tb::gl
@@ -45,6 +46,18 @@ PerspectiveCamera::PerspectiveCamera(
   , m_fov{fov}
 {
   contract_pre(m_fov > 0.0f);
+}
+
+float PerspectiveCamera::pitch() const
+{
+  const auto& d = direction();
+  return std::atan2(d.z(), vm::length(vm::vec2f{d.x(), d.y()}));
+}
+
+float PerspectiveCamera::yaw() const
+{
+  const auto& d = direction();
+  return std::atan2(d.y(), d.x());
 }
 
 float PerspectiveCamera::fov() const

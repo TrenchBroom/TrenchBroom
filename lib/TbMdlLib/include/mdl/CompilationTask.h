@@ -19,9 +19,12 @@
 
 #pragma once
 
+#include "mdl/Entity.h"
+
 #include "kd/reflection_decl.h"
 
 #include <iosfwd>
+#include <optional>
 #include <string>
 #include <variant>
 
@@ -31,9 +34,17 @@ struct CompilationExportMap
 {
   bool enabled;
   bool stripTbProperties;
+  std::optional<std::string> stripEntityPattern;
+  std::optional<Entity> entityToAdd;
   std::string targetSpec;
 
-  kdl_reflect_decl(CompilationExportMap, enabled, stripTbProperties, targetSpec);
+  kdl_reflect_decl(
+    CompilationExportMap,
+    enabled,
+    stripTbProperties,
+    stripEntityPattern,
+    entityToAdd,
+    targetSpec);
 };
 
 struct CompilationCopyFiles

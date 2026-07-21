@@ -19,7 +19,12 @@
 
 #include "gl/PerspectiveCamera.h"
 
+#include "vm/scalar.h"
+#include "vm/vec.h"
+
+#include <catch2/catch_approx.hpp>
 #include <catch2/catch_test_macros.hpp>
+#include <catch2/generators/catch_generators.hpp>
 
 namespace tb::gl
 {
@@ -71,6 +76,44 @@ TEST_CASE("PerspectiveCamera")
     CHECK_FALSE(vm::is_nan(c.direction()));
     CHECK_FALSE(vm::is_nan(c.right()));
     CHECK_FALSE(vm::is_nan(c.up()));
+  }
+
+  SECTION("yaw")
+  {
+    const auto [direction, up, expectedYaw] =
+      GENERATE(table<vm::vec3f, vm::vec3f, float>({
+        {vm::vec3f{1, 0, 0}, vm::vec3f{0, 0, 1}, 0.0f},
+        {vm::vec3f{0, 1, 0}, vm::vec3f{0, 0, 1}, 90.0f},
+        {vm::vec3f{-1, 0, 0}, vm::vec3f{0, 0, 1}, 180.0f},
+        {vm::vec3f{0, -1, 0}, vm::vec3f{0, 0, 1}, -90.0f},
+        {vm::normalize(vm::vec3f{1, 1, 0}), vm::vec3f{0, 0, 1}, 45.0f},
+        // yaw ignores the pitch component of the direction
+        {vm::normalize(vm::vec3f{0, 1, 1}), vm::vec3f{0, 0, 1}, 90.0f},
+      }));
+
+    CAPTURE(direction, up);
+
+    camera.setDirection(direction, up);
+    CHECK(vm::to_degrees(camera.yaw()) == Catch::Approx{expectedYaw});
+  }
+
+  SECTION("pitch")
+  {
+    const auto [direction, up, expectedPitch] =
+      GENERATE(table<vm::vec3f, vm::vec3f, float>({
+        {vm::vec3f{1, 0, 0}, vm::vec3f{0, 0, 1}, 0.0f},
+        {vm::normalize(vm::vec3f{1, 0, 1}), vm::vec3f{0, 0, 1}, 45.0f},
+        {vm::normalize(vm::vec3f{1, 0, -1}), vm::vec3f{0, 0, 1}, -45.0f},
+        {vm::vec3f{0, 0, 1}, vm::vec3f{1, 0, 0}, 90.0f},
+        {vm::vec3f{0, 0, -1}, vm::vec3f{1, 0, 0}, -90.0f},
+        // pitch ignores the yaw component of the direction
+        {vm::normalize(vm::vec3f{0, 1, 1}), vm::vec3f{0, 0, 1}, 45.0f},
+      }));
+
+    CAPTURE(direction, up);
+
+    camera.setDirection(direction, up);
+    CHECK(vm::to_degrees(camera.pitch()) == Catch::Approx{expectedPitch});
   }
 }
 

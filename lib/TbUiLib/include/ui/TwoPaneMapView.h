@@ -52,7 +52,10 @@ public:
 private:
   void createGui(AppController& appController, MapViewToolBox& toolBox);
 
-private: // implement MultiPaneMapView subclassing interface
+public: // implement MultiPaneMapView subclassing interface
+  const gl::PerspectiveCamera& perspectiveCamera() const override;
+
+private:
   void maximizeView(MapView* view) override;
   void restoreViews() override;
 };

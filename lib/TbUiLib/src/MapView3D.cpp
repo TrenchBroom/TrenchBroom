@@ -94,6 +94,11 @@ MapView3D::MapView3D(
 
 MapView3D::~MapView3D() = default;
 
+const gl::PerspectiveCamera& MapView3D::perspectiveCamera() const
+{
+  return *m_camera;
+}
+
 void MapView3D::initializeCamera()
 {
   m_camera->moveTo(vm::vec3f{-80.0f, -128.0f, 96.0f});

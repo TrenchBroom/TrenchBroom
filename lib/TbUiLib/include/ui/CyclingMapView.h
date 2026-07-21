@@ -83,6 +83,8 @@ public: // implement MapView interface
   void refreshViews() override;
 
 public: // implement MapViewContainer interface
+  const gl::PerspectiveCamera& perspectiveCamera() const override;
+
   bool canMaximizeCurrentView() const override;
   bool currentViewMaximized() const override;
   void toggleMaximizeCurrentView() override;

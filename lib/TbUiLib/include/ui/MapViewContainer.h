@@ -23,7 +23,14 @@
 
 #include "ui/MapView.h"
 
-namespace tb::ui
+namespace tb
+{
+namespace gl
+{
+class PerspectiveCamera;
+}
+
+namespace ui
 {
 class MapViewActivationTracker;
 class MapViewBase;
@@ -36,6 +43,8 @@ public:
   ~MapViewContainer() override;
 
 public:
+  virtual const gl::PerspectiveCamera& perspectiveCamera() const = 0;
+
   virtual bool canMaximizeCurrentView() const = 0;
   virtual bool currentViewMaximized() const = 0;
   virtual void toggleMaximizeCurrentView() = 0;
@@ -55,4 +64,6 @@ public: // implement MapView interface
 public:
   virtual void cycleChildMapView(MapView* after) = 0;
 };
-} // namespace tb::ui
+
+} // namespace ui
+} // namespace tb
