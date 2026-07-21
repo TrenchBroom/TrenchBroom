@@ -1,4 +1,5 @@
 add_executable(TbFsLibTest)
+EMBED_UTF8_MANIFEST(TbFsLibTest)
 
 target_sources(TbFsLibTest PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_CachedFileTree.cpp

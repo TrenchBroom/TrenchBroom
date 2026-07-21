@@ -89,12 +89,11 @@ endif()
 
 # Set up resource compilation for Windows
 if(WIN32)
+    # Generate the UTF-8 code page manifest referenced by TrenchBroom.rc.in below.
+    CONFIGURE_UTF8_MANIFEST(TrenchBroom TB_UTF8_MANIFEST_PATH)
+
     # Create the windows resource file
     configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/TrenchBroom.rc.in" "${CMAKE_CURRENT_BINARY_DIR}/TrenchBroom.rc" @ONLY)
-
-    # Copy the application manifest next to the generated .rc so the resource compiler
-    # (rc.exe / windres) can resolve the RT_MANIFEST reference by bare filename.
-    configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/TrenchBroom.manifest" "${CMAKE_CURRENT_BINARY_DIR}/TrenchBroom.manifest" COPYONLY)
 
     if(COMPILER_IS_MSVC)
         set(APP_SOURCE ${APP_SOURCE} "${CMAKE_CURRENT_BINARY_DIR}/TrenchBroom.rc")

@@ -1,4 +1,5 @@
 add_executable(VmLibTest)
+EMBED_UTF8_MANIFEST(VmLibTest)
 target_sources(VmLibTest PRIVATE
         "${CMAKE_CURRENT_SOURCE_DIR}/src/tst_bbox.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/tst_bezier_surface.cpp"

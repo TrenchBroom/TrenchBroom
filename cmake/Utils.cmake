@@ -87,3 +87,40 @@ macro(GET_BUILD_PLATFORM PLATFORM_NAME)
         set(${PLATFORM_NAME} "Unknown")
     endif()
 endmacro(GET_BUILD_PLATFORM)
+
+# Generates a Windows manifest (from cmake/Utf8CodePage.manifest.in) that sets the
+# process active code page to UTF-8, with its assemblyIdentity named after TARGET.
+# Sets OUT_MANIFEST_PATH to the generated file's path. No-op (OUT_MANIFEST_PATH unset)
+# if not building for Windows.
+function(CONFIGURE_UTF8_MANIFEST TARGET OUT_MANIFEST_PATH)
+    if(NOT WIN32)
+        return()
+    endif()
+
+    set(TB_UTF8_MANIFEST_TARGET ${TARGET})
+    set(manifest_out "${CMAKE_CURRENT_BINARY_DIR}/${TARGET}_Utf8CodePage.manifest")
+    configure_file("${TB_UTF8_MANIFEST_TEMPLATE}" "${manifest_out}" @ONLY)
+    set(${OUT_MANIFEST_PATH} "${manifest_out}" PARENT_SCOPE)
+endfunction(CONFIGURE_UTF8_MANIFEST)
+
+# Embeds a Windows manifest into TARGET that sets the process active code page to
+# UTF-8, so std::filesystem::path narrow conversions and other "A"-suffixed Win32/CRT
+# file APIs handle non-ASCII paths losslessly instead of throwing or mangling them.
+# No-op on non-Windows platforms. TARGET must not already embed its own manifest.
+function(EMBED_UTF8_MANIFEST TARGET)
+    if(NOT WIN32)
+        return()
+    endif()
+
+    CONFIGURE_UTF8_MANIFEST(${TARGET} TB_UTF8_MANIFEST_PATH)
+
+    set(rc_out "${CMAKE_CURRENT_BINARY_DIR}/${TARGET}_Utf8CodePage.rc")
+    configure_file("${TB_UTF8_RC_TEMPLATE}" "${rc_out}" @ONLY)
+    target_sources(${TARGET} PRIVATE "${rc_out}")
+
+    if(COMPILER_IS_MSVC)
+        # Prevent the linker from also generating its own default manifest, which
+        # would conflict with the RT_MANIFEST resource embedded above.
+        target_link_options(${TARGET} PRIVATE "/MANIFEST:NO")
+    endif()
+endfunction(EMBED_UTF8_MANIFEST)

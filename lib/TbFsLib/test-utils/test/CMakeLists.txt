@@ -1,4 +1,5 @@
 add_executable(TbFsTestUtilsLibTest)
+EMBED_UTF8_MANIFEST(TbFsTestUtilsLibTest)
 
 target_sources(TbFsTestUtilsLibTest PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_TestFileSystem.cpp

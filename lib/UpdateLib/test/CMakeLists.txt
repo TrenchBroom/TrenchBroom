@@ -1,4 +1,5 @@
 add_executable(UpdateLibTest)
+EMBED_UTF8_MANIFEST(UpdateLibTest)
 target_sources(UpdateLibTest PRIVATE
   "${CMAKE_CURRENT_SOURCE_DIR}/src/TestHttpClient.cpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/src/TestHttpClient.h"

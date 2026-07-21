@@ -1,0 +1,4 @@
+// Embed the UTF-8 code page manifest (see Utf8CodePage.manifest.in / the
+// CONFIGURE_UTF8_MANIFEST cmake function). 1 = CREATEPROCESS_MANIFEST_RESOURCE_ID,
+// 24 = RT_MANIFEST.
+1                       24                      "@TB_UTF8_MANIFEST_PATH@"

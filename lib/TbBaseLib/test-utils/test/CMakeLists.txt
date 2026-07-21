@@ -1,4 +1,5 @@
 add_executable(TbBaseTestUtilsLibTest)
+EMBED_UTF8_MANIFEST(TbBaseTestUtilsLibTest)
 
 target_sources(TbBaseTestUtilsLibTest PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Matchers.cpp
