@@ -100,11 +100,16 @@ auto fold_results(C&& c)
 }
 
 /**
- * Folds the given range of results into a single result with a vector of success values
- * or an error. If given void results, the result is a void result again. The returned
- * result has the same error types as the results in the given range.
+ * Collects the values and errors of the given range of results into separate vectors.
  *
- * If any of the given results contains an error, that error is returned.
+ * The return type depends on the result type in the given range:
+ * - For results with a void value type, returns a vector of the collected errors.
+ * - For results without any error types, returns a vector of the collected values.
+ * - Otherwise, returns a tuple of a vector of the collected values and a vector of the
+ *   collected errors.
+ *
+ * If the result type has exactly one error type, the error is unpacked from the error
+ * variant, so the error vector holds that type directly rather than a variant.
  */
 template <typename I, typename S>
 auto collect_results(I cur, S end)
@@ -114,17 +119,34 @@ auto collect_results(I cur, S end)
   using in_error_type = typename in_result_type::error_variant;
 
   using out_value_vector_type = std::vector<in_value_type>;
-  using out_error_vector_type = std::vector<in_error_type>;
+
+  using out_error_type = typename std::conditional_t<
+    in_result_type::error_count == 1,
+    std::variant_alternative<0, in_error_type>,
+    std::type_identity<in_error_type>>::type;
+  using out_error_vector_type = std::vector<out_error_type>;
 
   if constexpr (std::is_same_v<in_value_type, void>)
   {
+    constexpr auto getError = [](auto&& e) {
+      static_assert(in_result_type::error_count > 0);
+      if constexpr (in_result_type::error_count == 1)
+      {
+        return std::get<0>(std::forward<decltype(e)>(e));
+      }
+      else
+      {
+        return std::forward<decltype(e)>(e);
+      }
+    };
+
     auto errors = out_error_vector_type{};
 
     while (cur != end)
     {
       if ((*cur).is_error())
       {
-        errors.push_back(std::move(*cur).error());
+        errors.push_back(getError(std::move(*cur).error()));
       }
       ++cur;
     }

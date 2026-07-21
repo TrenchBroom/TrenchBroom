@@ -3166,6 +3166,74 @@ TEST_CASE("result")
           CHECK(collection == out{{1, 2, 3}, {Error2{}, Error1{}}});
         }
       }
+
+      SECTION("result<void, Error1>")
+      {
+        // With a single error type, the error is unpacked from the variant.
+        using res = result<void, Error1>;
+        using out = std::vector<Error1>;
+        static_assert(std::is_same_v<decltype(std::vector<res>{} | collect()), out>);
+
+        SECTION("empty range")
+        {
+          const auto collection = std::vector<res>{} | collect();
+          CHECK(collection == out{});
+        }
+
+        SECTION("only success values")
+        {
+          const auto collection = std::vector<res>{{}, {}, {}} | collect();
+          CHECK(collection == out{});
+        }
+
+        SECTION("only errors")
+        {
+          const auto collection =
+            std::vector<res>{Error1{}, Error1{}, Error1{}} | collect();
+          CHECK(collection == out{Error1{}, Error1{}, Error1{}});
+        }
+
+        SECTION("mixed results")
+        {
+          const auto collection =
+            std::vector<res>{{}, Error1{}, {}, Error1{}, {}} | collect();
+          CHECK(collection == out{Error1{}, Error1{}});
+        }
+      }
+
+      SECTION("result<int, Error1>")
+      {
+        // With a single error type, the error is unpacked from the variant.
+        using res = result<int, Error1>;
+        using out = std::tuple<std::vector<int>, std::vector<Error1>>;
+        static_assert(std::is_same_v<decltype(std::vector<res>{} | collect()), out>);
+
+        SECTION("empty range")
+        {
+          const auto collection = std::vector<res>{} | collect();
+          CHECK(collection == out{{}, {}});
+        }
+
+        SECTION("only success values")
+        {
+          const auto collection = std::vector<res>{{1}, {2}, {3}} | collect();
+          CHECK(collection == out{{1, 2, 3}, {}});
+        }
+
+        SECTION("only errors")
+        {
+          const auto collection =
+            std::vector<res>{Error1{}, Error1{}, Error1{}} | collect();
+          CHECK(collection == out{{}, {Error1{}, Error1{}, Error1{}}});
+        }
+
+        SECTION("mixed results")
+        {
+          const auto collection =
+            std::vector<res>{{1}, Error1{}, {2}, Error1{}, {3}} | collect();
+          CHECK(collection == out{{1, 2, 3}, {Error1{}, Error1{}}});
+        }
+      }
     }
 
     SECTION("values")
