@@ -1,0 +1,47 @@
+#version 120
+
+/*
+ Copyright (C) 2026 Kristian Duske
+
+ This file is part of TrenchBroom.
+
+ TrenchBroom is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+
+ TrenchBroom is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+/*
+ * Helpers shared by all grid shaders (3D faces, patches, 2D grid and UV view), so the
+ * grids stay consistent.
+ */
+
+/**
+ * Soft (antialiased) coverage of a grid line, weighted by whether it is a major or minor
+ * line. Returns the line's opacity before the overall grid alpha is applied.
+ *
+ * @param coord      the coordinate in grid-cell units (integer values fall on grid lines)
+ * @param stripeSize 1 minus the relative line width; larger values mean thinner lines
+ * @param isMajor    1.0 for a major grid line, 0.0 for a minor one
+ */
+float gridLine(float coord, float stripeSize, float isMajor)
+{
+  // antialiasing half-width, in grid-cell units
+  float edge = 2.0 * fwidth(coord);
+  // triangle wave: 1.0 on a grid line, 0.0 exactly between two adjacent lines
+  float triangle = abs(2.0 * fract(coord) - 1.0);
+  float stripe = smoothstep(stripeSize - edge, stripeSize + edge, triangle);
+
+  // Relative opacity of minor and major lines, so all grids match in strength.
+  float minorOpacity = 0.425;
+  float majorOpacity = 0.775;
+  return stripe * mix(minorOpacity, majorOpacity, isMajor);
+}
