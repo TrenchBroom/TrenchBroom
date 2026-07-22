@@ -35,29 +35,37 @@ varying vec4 modelCoordinates;
 varying vec3 modelNormal;
 varying vec4 faceColor;
 
-// Returns a measure for the closeness of the given coord from the next grid line, where 1
-// means the coord is on a grid line and 0 means the coord is exactly between two adjacent
-// grid lines.
-float closeness(float coord, float gridSize)
+// Soft (antialiased) coverage of a grid line, weighted by whether it is a major or minor
+// line. Returns the line's opacity before the overall grid alpha is applied.
+//
+//   coord      the coordinate in grid-cell units (integer values fall on grid lines)
+//   stripeSize 1 minus the relative line width; larger values mean thinner lines
+//   isMajor    1.0 for a major grid line, 0.0 for a minor one
+float gridLine(float coord, float stripeSize, float isMajor)
 {
-  return abs(2.0 * fract(coord / gridSize) - 1.0);
+  // antialiasing half-width, in grid-cell units
+  float edge = 2.0 * fwidth(coord);
+  // triangle wave: 1.0 on a grid line, 0.0 exactly between two adjacent lines
+  float triangle = abs(2.0 * fract(coord) - 1.0);
+  float stripe = smoothstep(stripeSize - edge, stripeSize + edge, triangle);
+
+  // Relative opacity of minor and major lines, so all grids match in strength.
+  float minorOpacity = 0.425;
+  float majorOpacity = 0.775;
+  return stripe * mix(minorOpacity, majorOpacity, isMajor);
 }
 
 float getSoftStripes(float coord, float gridDivider, float gridSize, float stripeSize)
 {
-  // size of the minor and major grids
+  // minor grid line spacing; the coordinate expressed in minor-grid-cell units
   float minorGridSize = gridSize / gridDivider;
-  float majorGridSize = gridSize;
+  float minorCoord = coord / minorGridSize;
 
-  // How close is the coord to the next major and minor grid lines?
-  float minorCloseness = closeness(coord, minorGridSize);
-  float majorCloseness = closeness(coord, majorGridSize);
+  // a major line falls on every `gridDivider`-th minor line
+  float majorCloseness = abs(2.0 * fract(coord / gridSize) - 1.0);
   float isMajor = step(1.0 - 1.0 / gridDivider, majorCloseness);
 
-  float outIntensity = isMajor * 0.9 + 0.65; // tweak intensities here
-
-  float edge = 2.0 * fwidth(coord) / minorGridSize;
-  return smoothstep(stripeSize - edge, stripeSize + edge, minorCloseness) * outIntensity;
+  return gridLine(minorCoord, stripeSize, isMajor);
 }
 
 void gridLinesSoft(vec2 inCoords)

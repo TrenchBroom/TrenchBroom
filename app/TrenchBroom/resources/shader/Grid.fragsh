@@ -19,22 +19,36 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-float getSoftStripes(float value, float gridSize, float stripeSize)
+// Soft (antialiased) coverage of a grid line, weighted by whether it is a major or minor
+// line. Returns the line's opacity before the overall grid alpha is applied.
+//
+//   coord      the coordinate in grid-cell units (integer values fall on grid lines)
+//   stripeSize 1 minus the relative line width; larger values mean thinner lines
+//   isMajor    1.0 for a major grid line, 0.0 for a minor one
+float gridLine(float coord, float stripeSize, float isMajor)
 {
-  float mainVal = value * gridSize;
-  float filterWidth = fwidth(value);
-  float edge = filterWidth * gridSize * 2.0;
+  // antialiasing half-width, in grid-cell units
+  float edge = 2.0 * fwidth(coord);
+  // triangle wave: 1.0 on a grid line, 0.0 exactly between two adjacent lines
+  float triangle = abs(2.0 * fract(coord) - 1.0);
+  float stripe = smoothstep(stripeSize - edge, stripeSize + edge, triangle);
+
+  // Relative opacity of minor and major lines, so all grids match in strength.
+  float minorOpacity = 0.425;
+  float majorOpacity = 0.775;
+  return stripe * mix(minorOpacity, majorOpacity, isMajor);
+}
+
+float getSoftStripes(float value, float gridRatio, float stripeSize)
+{
+  float coord = value * gridRatio; // coordinate in grid-cell units
 
   // major line shading, currently set to place a major line every 64 units
-  float mValue = 1.0 / (64.0 * gridSize);
-  float triMajor = abs(2.0 * fract(mainVal * mValue) - 1.0);
+  float mValue = 1.0 / (64.0 * gridRatio);
+  float triMajor = abs(2.0 * fract(coord * mValue) - 1.0);
   float isMajor = step(1.0 - mValue, triMajor);
 
-  float outIntensity = isMajor * 0.7 + 0.85; // tweak intensities here
-  float sSize = stripeSize;
-
-  float triangle = abs(2.0 * fract(mainVal) - 1.0);
-  return smoothstep(sSize - edge, sSize + edge, triangle) * outIntensity;
+  return gridLine(coord, stripeSize, isMajor);
 }
 
 /**
@@ -65,7 +79,7 @@ float gridLinesSoft(
 
   theGrid = mix(theGrid, nextGrid, gridBlend);
 
-  return theGrid * 0.5;
+  return theGrid;
 }
 
 /**
