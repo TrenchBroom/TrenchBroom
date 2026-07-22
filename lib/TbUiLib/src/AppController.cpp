@@ -61,10 +61,14 @@
 #include "update/Updater.h"
 
 #include "kd/const_overload.h"
+#include "kd/ranges/join_with_view.h"
+#include "kd/ranges/to.h"
 #include "kd/task_manager.h"
 #include "kd/vector_utils.h"
 
 #include <fmt/format.h>
+#include <fmt/ostream.h>
+#include <fmt/std.h>
 
 #include <chrono>
 
@@ -86,20 +90,29 @@ auto createEnvironmentConfig()
 
 auto createGameManager()
 {
+  using namespace std::string_literals;
+
   return mdl::initializeGameManager(
            ui::SystemPaths::findResourceDirectories("games"),
            ui::SystemPaths::userGamesDirectory())
          | kdl::transform([](auto gameManager, const auto& warnings) {
              if (!warnings.empty())
              {
-               const auto msg = fmt::format(
-                 R"(Some game configurations could not be loaded. The following errors occurred:
+               const auto body =
+                 warnings | std::views::transform([](const auto& pair) {
+                   const auto& [path, warning] = pair;
+                   return fmt::format("<b>{}</b><br>{}", path.string(), warning);
+                 })
+                 | kdl::views::join_with("<br><br>"s) | kdl::ranges::to<std::string>();
 
-{})",
-                 kdl::str_join(warnings, "\n\n"));
+               auto messageBox = QMessageBox{};
+               messageBox.setIcon(QMessageBox::Warning);
+               messageBox.setStandardButtons(QMessageBox::Ok);
+               messageBox.setWindowTitle("TrenchBroom");
+               messageBox.setText("Some game configurations could not be loaded.");
+               messageBox.setInformativeText(QString::fromStdString(body));
 
-               QMessageBox::critical(
-                 nullptr, "TrenchBroom", QString::fromStdString(msg), QMessageBox::Ok);
+               messageBox.exec();
              }
 
              return std::make_unique<mdl::GameManager>(std::move(gameManager));

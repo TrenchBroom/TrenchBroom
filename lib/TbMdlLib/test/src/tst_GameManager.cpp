@@ -195,11 +195,13 @@ TEST_CASE("GameManager")
       writeGameConfig(env, "Quake", "Quake");
 
       // These configs will fail to parse and should be reported as warnings
+      const auto quake2Path = std::filesystem::path{"Quake 2/GameConfig.cfg"};
       env.createDirectory(gamesPath / "Quake 2");
-      env.createFile(gamesPath / "Quake 2" / "GameConfig.cfg", "{asdf}");
+      env.createFile(gamesPath / quake2Path, "{asdf}");
 
+      const auto quake3Path = std::filesystem::path{"Quake 3/GameConfig.cfg"};
       env.createDirectory(gamesPath / "Quake 3");
-      env.createFile(gamesPath / "Quake 3" / "GameConfig.cfg", "{asdf}");
+      env.createFile(gamesPath / quake3Path, "{asdf}");
 
       const auto gameConfigSearchDirs = std::vector{env.dir() / gamesPath};
       const auto userGameDir = env.dir() / userPath;
@@ -209,9 +211,13 @@ TEST_CASE("GameManager")
             REQUIRE(gameManager.gameInfos().size() == 1);
 
             // Both failed game configs must be collected into the warnings
-            CHECK(warnings.size() == 2);
-            CHECK(std::ranges::none_of(
-              warnings, [](const auto& warning) { return warning.empty(); }));
+            const auto expectedWarnings = std::map<std::filesystem::path, std::string>{{
+              {quake2Path,
+               "At line 1, column 6: Expected ':', but got '}' (raw data: '}')"},
+              {quake3Path,
+               "At line 1, column 6: Expected ':', but got '}' (raw data: '}')"},
+            }};
+            CHECK(warnings == expectedWarnings);
           })
         | kdl::transform_error([](const auto& e) { FAIL(e); });
     }

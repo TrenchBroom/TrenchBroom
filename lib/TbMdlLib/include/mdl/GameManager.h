@@ -23,6 +23,7 @@
 #include "mdl/CompilationConfig.h"
 #include "mdl/GameInfo.h"
 
+#include <map>
 #include <memory>
 #include <string_view>
 #include <vector>
@@ -70,7 +71,8 @@ public:
 };
 
 
-Result<kdl::multi_value<GameManager, std::vector<std::string>>> initializeGameManager(
+Result<kdl::multi_value<GameManager, std::map<std::filesystem::path, std::string>>>
+initializeGameManager(
   const std::vector<std::filesystem::path>& gameConfigSearchDirs,
   const std::filesystem::path& userGameDir);
 
