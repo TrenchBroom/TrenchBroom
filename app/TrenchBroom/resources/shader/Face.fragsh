@@ -30,7 +30,6 @@ uniform bool GrayScale;
 uniform bool RenderGrid;
 uniform float GridSize;
 uniform float GridAlpha;
-uniform vec3 GridColor;
 uniform bool ShadeFaces;
 uniform bool ShowFog;
 
@@ -42,6 +41,7 @@ varying vec3 viewVector;
 float grid(
   vec3 coords, vec3 normal, float gridSize, float minGridSize, float lineWidthFactor);
 vec3 applySoftMapBoundsTint(vec3 inputFragColor, vec3 worldCoords);
+vec3 adaptiveGridColor(vec3 background);
 
 void main()
 {
@@ -121,7 +121,17 @@ void main()
     float minGridSize = 2.0 * maxWorldSpaceChange;
 
     float gridValue = grid(coords, modelNormal.xyz, GridSize, minGridSize, 1.0);
-    gl_FragColor.rgb = mix(gl_FragColor.rgb, GridColor, gridValue * GridAlpha);
+
+    // Base the light/dark choice on a coarse mip of the texture rather than the
+    // per-fragment color, so the line commits to one shade across noisy detail instead of
+    // speckling. The line is still composited onto the actual shaded fragment color.
+    vec3 decisionColor =
+      ApplyMaterial
+        ? clamp(Brightness * texture2D(Material, gl_TexCoord[0].st, 4.0).rgb, 0.0, 1.0)
+        : gl_FragColor.rgb;
+
+    vec3 lineColor = adaptiveGridColor(decisionColor);
+    gl_FragColor.rgb = mix(gl_FragColor.rgb, lineColor, gridValue * GridAlpha);
   }
 
   gl_FragColor.rgb = applySoftMapBoundsTint(gl_FragColor.rgb, modelCoordinates.xyz);

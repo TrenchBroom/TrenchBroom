@@ -129,7 +129,7 @@ private:
     shader.set("Brightness", pref(Preferences::Brightness));
     shader.set("RenderGrid", true);
     shader.set("GridSizes", texture->sizef());
-    shader.set("GridColor", RgbaF{gl::gridColorForMaterial(material), 0.6f});
+    shader.set("GridAlpha", pref(Preferences::GridAlpha));
     shader.set("DpiScale", renderContext.dpiScale());
     shader.set("GridScales", scale);
     shader.set("GridMatrix", vm::mat4x4f{toTex});

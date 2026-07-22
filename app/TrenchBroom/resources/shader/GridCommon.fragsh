@@ -45,3 +45,22 @@ float gridLine(float coord, float stripeSize, float isMajor)
   float majorOpacity = 0.775;
   return stripe * mix(minorOpacity, majorOpacity, isMajor);
 }
+
+/**
+ * Computes an adaptive grid line color that maximizes contrast against the surface the
+ * line is drawn onto: a light line on dark surfaces, a dark line on bright ones.
+ *
+ * @param background the already-shaded color of the fragment under the grid line
+ */
+vec3 adaptiveGridColor(vec3 background)
+{
+  // perceived brightness of the surface under the line
+  float luma = dot(background, vec3(0.299, 0.587, 0.114));
+
+  // Pick the luminance extreme farther from the surface, guaranteeing strong contrast on
+  // any surface. Unlike a smooth blend between the two, the line never converges to
+  // mid-gray, where it would vanish on mid-tone textures at any alpha.
+  float darkLine = 0.1;
+  float lightLine = 0.9;
+  return vec3(luma < 0.5 ? lightLine : darkLine);
+}

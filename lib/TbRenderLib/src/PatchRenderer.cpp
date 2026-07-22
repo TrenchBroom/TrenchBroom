@@ -345,7 +345,6 @@ struct RenderFunc : public gl::MaterialRenderFunc
 
   void before(gl::Gl& gl, const gl::Material* material) override
   {
-    shader.set("GridColor", gridColorForMaterial(material));
     if (const auto* texture = getTexture(material))
     {
       material->activate(gl, minFilter, magFilter);
