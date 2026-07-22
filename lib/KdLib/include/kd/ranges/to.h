@@ -58,27 +58,41 @@ constexpr bool container_appendable = requires(C& c, Reference&& ref) {
     || requires { c.insert(c.end(), std::forward<Reference>(ref)); });
 };
 
+// Append a single element to the given container c. The if constexpr guards live in this
+// plain function template rather than inline in the generic lambda returned by
+// container_appender below: as a lambda they are checked eagerly when the enclosing
+// container_appender<C> is instantiated (before Reference is known), which trips up clang
+// and MSVC in opposite ways -- clang hard-errors on the ill-formed member access (e.g.
+// std::string::emplace_back) and MSVC mis-evaluates the requires guards. Here the guards
+// are only checked when the function is actually called, with C and Reference both fully
+// substituted.
+template <typename C, typename Reference>
+constexpr void container_append(C& c, Reference&& ref)
+{
+  if constexpr (requires { c.emplace_back(std::forward<Reference>(ref)); })
+  {
+    c.emplace_back(std::forward<Reference>(ref));
+  }
+  else if constexpr (requires { c.push_back(std::forward<Reference>(ref)); })
+  {
+    c.push_back(std::forward<Reference>(ref));
+  }
+  else if constexpr (requires { c.emplace(c.end(), std::forward<Reference>(ref)); })
+  {
+    c.emplace(c.end(), std::forward<Reference>(ref));
+  }
+  else
+  {
+    c.insert(c.end(), std::forward<Reference>(ref));
+  }
+}
+
 // Create a function that appends an element to the given container c.
 template <typename C>
 constexpr auto container_appender(C& c)
 {
-  return [&]<typename Reference>(Reference&& ref) {
-    if constexpr (requires { c.emplace_back(std::declval<Reference>()); })
-    {
-      c.emplace_back(std::forward<Reference>(ref));
-    }
-    else if constexpr (requires { c.push_back(std::declval<Reference>()); })
-    {
-      c.push_back(std::forward<Reference>(ref));
-    }
-    else if constexpr (requires { c.emplace(c.end(), std::declval<Reference>()); })
-    {
-      c.emplace(c.end(), std::forward<Reference>(ref));
-    }
-    else
-    {
-      c.insert(c.end(), std::forward<Reference>(ref));
-    }
+  return [&c]<typename Reference>(Reference&& ref) {
+    container_append(c, std::forward<Reference>(ref));
   };
 }
 

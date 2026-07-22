@@ -22,6 +22,7 @@
 
 #include <list>
 #include <map>
+#include <ranges>
 #include <set>
 #include <string>
 #include <unordered_map>
@@ -72,6 +73,17 @@ TEST_CASE("to")
       ranges::to<std::unordered_map>(
         std::vector<std::pair<int, std::string>>{{1, "1"}, {2, "2"}, {3, "3"}, {3, "4"}})
       == std::unordered_map<int, std::string>{{1, "1"}, {2, "2"}, {3, "3"}});
+  }
+
+  SECTION("into a container that only supports push_back")
+  {
+    CHECK(
+      (std::string{"h e l l o"}
+       | std::views::filter([](const char c) { return c != ' '; })
+       | ranges::to<std::string>())
+      == std::string{"hello"});
+
+    CHECK(ranges::to<std::string>(std::vector{'a', 'b', 'c'}) == std::string{"abc"});
   }
 
   SECTION("nested ranges")
