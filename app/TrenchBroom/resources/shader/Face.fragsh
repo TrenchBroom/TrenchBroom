@@ -121,7 +121,13 @@ void main()
     // render for this fragment
     float minGridSize = 2.0 * maxWorldSpaceChange;
 
-    float gridValue = grid(coords, modelNormal.xyz, GridSize, minGridSize, 1.0);
+    // Scale the line width by the world size of a screen pixel so the lines keep a
+    // constant apparent width regardless of distance, instead of getting thicker up
+    // close. This mirrors the 2D grid, which scales by 1/CameraZoom (see Grid2D.fragsh).
+    float lineWidthFactor = 2.0 * maxWorldSpaceChange;
+
+    float gridValue =
+      grid(coords, modelNormal.xyz, GridSize, minGridSize, lineWidthFactor);
 
     // Base the light/dark choice on a coarse mip of the texture rather than the
     // per-fragment color, so the line commits to one shade across noisy detail instead of
