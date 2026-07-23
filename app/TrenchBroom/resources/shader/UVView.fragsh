@@ -38,6 +38,7 @@ varying vec4 faceColor;
 // Shared with the other grid shaders (see GridCommon.fragsh).
 float gridLine(float coord, float stripeSize, float isMajor);
 vec3 adaptiveGridColor(vec3 background);
+float texturedGridAlpha(float alpha);
 
 float getSoftStripes(float coord, float gridDivider, float gridSize, float stripeSize)
 {
@@ -76,7 +77,8 @@ void gridLinesSoft(vec2 inCoords)
       : gl_FragColor.rgb;
 
   vec3 lineColor = adaptiveGridColor(decisionColor);
-  gl_FragColor.rgb = mix(gl_FragColor.rgb, lineColor, lineAlpha * GridAlpha);
+  gl_FragColor.rgb =
+    mix(gl_FragColor.rgb, lineColor, lineAlpha * texturedGridAlpha(GridAlpha));
 }
 
 void main()

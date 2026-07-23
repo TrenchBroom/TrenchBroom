@@ -42,6 +42,7 @@ float grid(
   vec3 coords, vec3 normal, float gridSize, float minGridSize, float lineWidthFactor);
 vec3 applySoftMapBoundsTint(vec3 inputFragColor, vec3 worldCoords);
 vec3 adaptiveGridColor(vec3 background);
+float texturedGridAlpha(float alpha);
 
 void main()
 {
@@ -131,7 +132,8 @@ void main()
         : gl_FragColor.rgb;
 
     vec3 lineColor = adaptiveGridColor(decisionColor);
-    gl_FragColor.rgb = mix(gl_FragColor.rgb, lineColor, gridValue * GridAlpha);
+    gl_FragColor.rgb =
+      mix(gl_FragColor.rgb, lineColor, gridValue * texturedGridAlpha(GridAlpha));
   }
 
   gl_FragColor.rgb = applySoftMapBoundsTint(gl_FragColor.rgb, modelCoordinates.xyz);

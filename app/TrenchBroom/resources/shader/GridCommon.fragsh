@@ -64,3 +64,15 @@ vec3 adaptiveGridColor(vec3 background)
   float lightLine = 0.9;
   return vec3(luma < 0.5 ? lightLine : darkLine);
 }
+
+/**
+ * Remaps the grid alpha for grids drawn on textured surfaces (3D faces, patches, UV
+ * view). These need more presence than the 2D grid, which sits on the plain viewport
+ * background, so the same GridAlpha slider ramps them up faster. The concave curve stays
+ * in [0..1], so it never pushes the line past full opacity. The 2D grid uses the raw
+ * alpha instead.
+ */
+float texturedGridAlpha(float alpha)
+{
+  return pow(alpha, 0.7);
+}
