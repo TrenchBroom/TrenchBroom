@@ -41,8 +41,8 @@ float gridLine(float coord, float stripeSize, float isMajor)
   float stripe = smoothstep(stripeSize - edge, stripeSize + edge, triangle);
 
   // Relative opacity of minor and major lines, so all grids match in strength.
-  float minorOpacity = 0.425;
-  float majorOpacity = 0.775;
+  float minorOpacity = 0.6;
+  float majorOpacity = 0.9;
   return stripe * mix(minorOpacity, majorOpacity, isMajor);
 }
 
