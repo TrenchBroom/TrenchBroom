@@ -38,11 +38,19 @@ float gridLine(float coord, float stripeSize, float isMajor)
   float edge = 2.0 * fwidth(coord);
   // triangle wave: 1.0 on a grid line, 0.0 exactly between two adjacent lines
   float triangle = abs(2.0 * fract(coord) - 1.0);
-  float stripe = smoothstep(stripeSize - edge, stripeSize + edge, triangle);
+
+  // Draw major lines thicker than minor ones. stripeSize is 1 minus the relative line
+  // width, so scaling up the width (1 - stripeSize) and converting back makes the major
+  // line proportionally wider at every distance.
+  float majorWidthScale = 1.5;
+  float majorStripeSize = 1.0 - majorWidthScale * (1.0 - stripeSize);
+  float effectiveStripeSize = mix(stripeSize, majorStripeSize, isMajor);
+  float stripe =
+    smoothstep(effectiveStripeSize - edge, effectiveStripeSize + edge, triangle);
 
   // Relative opacity of minor and major lines, so all grids match in strength.
-  float minorOpacity = 0.6;
-  float majorOpacity = 0.9;
+  float minorOpacity = 0.65;
+  float majorOpacity = 1.0;
   return stripe * mix(minorOpacity, majorOpacity, isMajor);
 }
 

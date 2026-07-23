@@ -121,13 +121,28 @@ void main()
     // render for this fragment
     float minGridSize = 2.0 * maxWorldSpaceChange;
 
-    // Scale the line width by the world size of a screen pixel so the lines keep a
-    // constant apparent width regardless of distance, instead of getting thicker up
-    // close. This mirrors the 2D grid, which scales by 1/CameraZoom (see Grid2D.fragsh).
-    float lineWidthFactor = 2.0 * maxWorldSpaceChange;
+    // The line width is the smaller of two factors:
+    //  - a screen-relative width (4.0 * maxWorldSpaceChange, the world size of a screen
+    //    pixel) that keeps a constant apparent width up close, so lines don't get thicker
+    //    as the camera approaches (mirrors the 2D grid's 1/CameraZoom, see
+    //    Grid2D.fragsh);
+    //  - a fixed world-space width (1.0) that shrinks in screen space with distance, so
+    //    far-away lines thin out to sub-pixel instead of cluttering the view.
+    // Taking the min caps the width at the constant-apparent value while restoring the
+    // distance-based thinning: lines never get thicker than the close-up width.
+    float lineWidthFactor = min(4.0 * maxWorldSpaceChange, 1.0);
 
     float gridValue =
       grid(coords, modelNormal.xyz, GridSize, minGridSize, lineWidthFactor);
+
+    // Fade the grid out with distance so distant lines don't pile up into visual noise.
+    // Ramp the opacity down over the fragment's distance from the camera, in world units.
+    // Lowering fadeEnd (or fadeStart) makes the lines fade out quicker with distance.
+    float cameraDistance = length(viewVector);
+    float fadeStart = 512.0; // full opacity closer than this
+    float fadeEnd = 1024.0;  // fully faded beyond this
+    float distanceFade = 1.0 - smoothstep(fadeStart, fadeEnd, cameraDistance);
+    gridValue *= distanceFade;
 
     // Base the light/dark choice on a coarse mip of the texture rather than the
     // per-fragment color, so the line commits to one shade across noisy detail instead of
