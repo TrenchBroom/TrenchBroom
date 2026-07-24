@@ -5,6 +5,7 @@ on:
 permissions:
   packages: write
   contents: write
+  actions: read
 
 jobs:
   windows:
@@ -68,6 +69,52 @@ jobs:
           os: windows-2022
           build-type: ${{ env.TB_BUILD_TYPE }}
           arch: ${{ env.TB_ARCH }}
+
+      - name: Determine signing eligibility
+        shell: pwsh
+        env:
+          SIGNPATH_API_TOKEN: ${{ secrets.SIGNPATH_API_TOKEN }}
+        run: |
+          # Only sign master/tag builds (not PRs) and only when the SignPath
+          # secret is configured, e.g. on forks or before setup is complete.
+          $isMasterOrTag = ($env:GITHUB_REF -eq 'refs/heads/master') -or ($env:GITHUB_REF -like 'refs/tags/*')
+          $hasToken = -not [string]::IsNullOrEmpty($env:SIGNPATH_API_TOKEN)
+          $shouldSign = $isMasterOrTag -and $hasToken
+          "TB_SIGN_WINDOWS=$($shouldSign.ToString().ToLower())" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+
+      - name: Upload unsigned artifact for signing
+        id: upload-unsigned-artifact
+        if: ${{ env.TB_SIGN_WINDOWS == 'true' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-2022-unsigned
+          path: cmakebuild/*.zip
+          retention-days: 1
+
+      - name: Submit SignPath signing request
+        if: ${{ env.TB_SIGN_WINDOWS == 'true' }}
+        uses: signpath/github-action-submit-signing-request@v2
+        with:
+          api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
+          organization-id: 'e1e71649-9b4d-4512-9772-e91002a78897'
+          project-slug: 'TrenchBroom'
+          # TODO: switch to a 'release-signing' policy/production certificate
+          # once SignPath has issued one; for now everything uses the test cert.
+          signing-policy-slug: 'test-signing'
+          github-artifact-id: ${{ steps.upload-unsigned-artifact.outputs.artifact-id }}
+          wait-for-completion: true
+          output-artifact-directory: cmakebuild/signed
+
+      - name: Replace archive with signed version
+        if: ${{ env.TB_SIGN_WINDOWS == 'true' }}
+        shell: pwsh
+        run: |
+          Get-ChildItem cmakebuild\*.zip | Remove-Item -Force
+          Get-ChildItem cmakebuild\*.zip.md5 -ErrorAction SilentlyContinue | Remove-Item -Force
+          Move-Item cmakebuild\signed\*.zip cmakebuild\
+          Push-Location cmakebuild
+          cmd /c generate_checksum.bat
+          Pop-Location
 
       - name: Upload artifacts
         uses: ./.github/actions/upload-artifacts

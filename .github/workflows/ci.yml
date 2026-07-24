@@ -10,6 +10,7 @@ on:
 permissions:
   packages: write
   contents: write
+  actions: read
 
 jobs:
   linux:
