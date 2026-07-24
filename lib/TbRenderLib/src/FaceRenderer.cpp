@@ -196,7 +196,6 @@ void FaceRenderer::render(RenderContext& context)
         const auto enableMasked = texture && texture->mask() == gl::TextureMask::On;
 
         // set any per-material uniforms
-        shader.set("GridColor", gridColorForMaterial(material));
         shader.set("EnableMasked", enableMasked);
 
         func.before(gl, material);

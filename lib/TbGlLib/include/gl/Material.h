@@ -19,7 +19,6 @@
 
 #pragma once
 
-#include "Color.h"
 #include "gl/GlUtils.h"
 #include "gl/TextureResource.h"
 
@@ -171,7 +170,5 @@ public:
 
 const Texture* getTexture(const Material* material);
 Texture* getTexture(Material* material);
-
-RgbF gridColorForMaterial(const gl::Material* material);
 
 } // namespace tb::gl

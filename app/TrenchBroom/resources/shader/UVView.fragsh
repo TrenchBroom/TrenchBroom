@@ -24,7 +24,7 @@ uniform bool ApplyMaterial;
 uniform sampler2D Material;
 uniform bool RenderGrid;
 uniform vec2 GridSizes;
-uniform vec4 GridColor;
+uniform float GridAlpha;
 uniform vec2 GridScales;
 uniform mat4 GridMatrix;
 uniform vec2 GridDivider;
@@ -35,29 +35,22 @@ varying vec4 modelCoordinates;
 varying vec3 modelNormal;
 varying vec4 faceColor;
 
-// Returns a measure for the closeness of the given coord from the next grid line, where 1
-// means the coord is on a grid line and 0 means the coord is exactly between two adjacent
-// grid lines.
-float closeness(float coord, float gridSize)
-{
-  return abs(2.0 * fract(coord / gridSize) - 1.0);
-}
+// Shared with the other grid shaders (see GridCommon.fragsh).
+float gridLine(float coord, float stripeSize, float isMajor);
+vec3 adaptiveGridColor(vec3 background);
+float texturedGridAlpha(float alpha);
 
 float getSoftStripes(float coord, float gridDivider, float gridSize, float stripeSize)
 {
-  // size of the minor and major grids
+  // minor grid line spacing; the coordinate expressed in minor-grid-cell units
   float minorGridSize = gridSize / gridDivider;
-  float majorGridSize = gridSize;
+  float minorCoord = coord / minorGridSize;
 
-  // How close is the coord to the next major and minor grid lines?
-  float minorCloseness = closeness(coord, minorGridSize);
-  float majorCloseness = closeness(coord, majorGridSize);
+  // a major line falls on every `gridDivider`-th minor line
+  float majorCloseness = abs(2.0 * fract(coord / gridSize) - 1.0);
   float isMajor = step(1.0 - 1.0 / gridDivider, majorCloseness);
 
-  float outIntensity = isMajor * 0.9 + 0.65; // tweak intensities here
-
-  float edge = 2.0 * fwidth(coord) / minorGridSize;
-  return smoothstep(stripeSize - edge, stripeSize + edge, minorCloseness) * outIntensity;
+  return gridLine(minorCoord, stripeSize, isMajor);
 }
 
 void gridLinesSoft(vec2 inCoords)
@@ -74,22 +67,18 @@ void gridLinesSoft(vec2 inCoords)
   float lineAlpha = max(
     getSoftStripes(inCoords.x, GridDivider.x, GridSizes.x, stripeSizes.x),
     getSoftStripes(inCoords.y, GridDivider.y, GridSizes.y, stripeSizes.y));
-  lineAlpha = clamp(lineAlpha, 0.0, 1.0);
 
-  // Pick the grid shade using local fragment brightness.
-  // This keeps lines readable on dark details inside otherwise bright textures.
-  float localLum = dot(gl_FragColor.rgb, vec3(0.2126, 0.7152, 0.0722));
-  float darkGridLum = 0.15;
-  float lightGridLum = 0.85;
+  // Base the light/dark choice on a coarse mip of the texture rather than the
+  // per-fragment color, so the line commits to one shade across noisy detail instead of
+  // speckling.
+  vec3 decisionColor =
+    ApplyMaterial
+      ? clamp(Brightness * texture2D(Material, gl_TexCoord[0].st, 4.0).rgb, 0.0, 1.0)
+      : gl_FragColor.rgb;
 
-  float darkContrast = abs(localLum - darkGridLum);
-  float lightContrast = abs(localLum - lightGridLum);
-  float chooseLightGrid = step(darkContrast, lightContrast);
-  float gridLum = mix(darkGridLum, lightGridLum, chooseLightGrid);
-  vec3 adaptiveGridColor = vec3(gridLum);
-
+  vec3 lineColor = adaptiveGridColor(decisionColor);
   gl_FragColor.rgb =
-    mix(gl_FragColor.rgb, adaptiveGridColor, lineAlpha * GridColor.a * 0.85);
+    mix(gl_FragColor.rgb, lineColor, lineAlpha * texturedGridAlpha(GridAlpha));
 }
 
 void main()

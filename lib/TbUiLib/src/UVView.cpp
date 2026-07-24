@@ -129,7 +129,7 @@ private:
     shader.set("Brightness", pref(Preferences::Brightness));
     shader.set("RenderGrid", true);
     shader.set("GridSizes", texture->sizef());
-    shader.set("GridColor", RgbaF{gl::gridColorForMaterial(material), 0.6f});
+    shader.set("GridAlpha", pref(Preferences::GridAlpha));
     shader.set("DpiScale", renderContext.dpiScale());
     shader.set("GridScales", scale);
     shader.set("GridMatrix", vm::mat4x4f{toTex});
@@ -149,6 +149,23 @@ private:
     }
   }
 };
+
+// Chooses a light overlay color on dark textures and a dark one on bright textures, so UV
+// view overlays stay visible on any texture (mirrors the adaptive grid). The UV view
+// shows a single face, so a per-texture decision from its average color is stable.
+RgbaF adaptiveOverlayColor(const gl::Texture* texture, const float alpha)
+{
+  auto luma = 0.0f;
+  if (texture)
+  {
+    const auto avg = texture->averageColor().to<RgbF>();
+    luma = pref(Preferences::Brightness)
+           * (0.299f * avg.get<ColorChannel::r>() + 0.587f * avg.get<ColorChannel::g>()
+              + 0.114f * avg.get<ColorChannel::b>());
+  }
+  const auto shade = luma < 0.5f ? 0.9f : 0.1f;
+  return RgbaF{shade, shade, shade, alpha};
+}
 
 } // namespace
 
@@ -322,7 +339,8 @@ void UVView::renderFace(render::RenderContext&, render::RenderBatch& renderBatch
   auto edgeRenderer = render::DirectEdgeRenderer{
     gl::VertexArray::move(std::move(edgeVertices)), gl::PrimType::LineLoop};
 
-  const auto edgeColor = RgbaF{1.0f, 1.0f, 1.0f, 1.0f};
+  const auto edgeColor =
+    adaptiveOverlayColor(getTexture(m_helper.face()->material()), 1.0f);
   edgeRenderer.renderOnTop(renderBatch, edgeColor, 2.5f);
 }
 

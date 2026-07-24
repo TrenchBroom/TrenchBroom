@@ -19,22 +19,19 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-float getSoftStripes(float value, float gridSize, float stripeSize)
+// Soft line coverage shared with the other grid shaders (see GridCommon.fragsh).
+float gridLine(float coord, float stripeSize, float isMajor);
+
+float getSoftStripes(float value, float gridRatio, float stripeSize)
 {
-  float mainVal = value * gridSize;
-  float filterWidth = fwidth(value);
-  float edge = filterWidth * gridSize * 2.0;
+  float coord = value * gridRatio; // coordinate in grid-cell units
 
   // major line shading, currently set to place a major line every 64 units
-  float mValue = 1.0 / (64.0 * gridSize);
-  float triMajor = abs(2.0 * fract(mainVal * mValue) - 1.0);
+  float mValue = 1.0 / (64.0 * gridRatio);
+  float triMajor = abs(2.0 * fract(coord * mValue) - 1.0);
   float isMajor = step(1.0 - mValue, triMajor);
 
-  float outIntensity = isMajor * 0.7 + 0.85; // tweak intensities here
-  float sSize = stripeSize;
-
-  float triangle = abs(2.0 * fract(mainVal) - 1.0);
-  return smoothstep(sSize - edge, sSize + edge, triangle) * outIntensity;
+  return gridLine(coord, stripeSize, isMajor);
 }
 
 /**
@@ -65,7 +62,7 @@ float gridLinesSoft(
 
   theGrid = mix(theGrid, nextGrid, gridBlend);
 
-  return theGrid * 0.5;
+  return theGrid;
 }
 
 /**
