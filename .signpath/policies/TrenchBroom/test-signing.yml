@@ -1,0 +1,16 @@
+# SignPath trusted build system policy.
+#
+# Path convention required by SignPath: .signpath/policies/<project-slug>/<signing-policy-slug>.yml
+# Must live on the repository's default branch.
+#
+# IMPORTANT: rename the "trenchbroom" directory and "test-signing" file above
+# to match the exact project-slug and signing-policy-slug shown in your
+# SignPath dashboard (Project > Settings) if they differ.
+#
+# This mirrors TrenchBroom's current Windows CI, which only ever builds on
+# GitHub-hosted windows-2022 runners (see .github/workflows/ci-windows.yml).
+github-policies:
+  runners:
+    require_github_hosted: true
+  build:
+    disallow_reruns: true
