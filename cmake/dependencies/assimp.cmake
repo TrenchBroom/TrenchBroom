@@ -20,6 +20,12 @@ set(ASSIMP_BUILD_ASSIMP_TOOLS OFF)
 set(ASSIMP_BUILD_SAMPLES OFF)
 set(ASSIMP_INSTALL OFF)
 set(ASSIMP_WARNINGS_AS_ERRORS OFF)
+# assimp otherwise appends "/Zi" to CMAKE_CXX_FLAGS_RELEASE for MSVC to build
+# its own PDBs, which conflicts with the debug-info format this project
+# applies to all fetched dependencies (see CMAKE_MSVC_DEBUG_INFORMATION_FORMAT
+# above), producing a harmless but noisy "cl : Command line warning D9025".
+# We don't install anything from assimp, so we don't need its PDBs either.
+set(ASSIMP_INSTALL_PDB OFF)
 # Some of assimp's bundled contrib libraries declare a cmake_minimum_required
 # below 3.10, which triggers a deprecation warning under CMake 4.
 set(CMAKE_POLICY_VERSION_MINIMUM 3.10)
