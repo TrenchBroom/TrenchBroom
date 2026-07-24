@@ -195,8 +195,20 @@ if(APPLE)
                         "$<TARGET_BUNDLE_DIR:TrenchBroom>"
                 VERBATIM)
         else()
+            # macdeployqt copies the Qt frameworks into the bundle after the executable
+            # was linked, which invalidates the linker's ad-hoc signature (the bundle ends
+            # up with no CodeResources seal). Gatekeeper then rejects the app as "damaged".
+            # Re-sign the whole bundle ad-hoc so it has a valid seal. The app still isn't
+            # notarized, so users must clear quarantine, but it is no longer reported as
+            # damaged.
             add_custom_command(TARGET TrenchBroom POST_BUILD
-                COMMAND "${TB_MACDEPLOYQT_PATH}" "$<TARGET_BUNDLE_DIR:TrenchBroom>")
+                COMMAND "${TB_MACDEPLOYQT_PATH}" "$<TARGET_BUNDLE_DIR:TrenchBroom>"
+                COMMAND "codesign"
+                        "--force"
+                        "--deep"
+                        "--sign" "-"
+                        "$<TARGET_BUNDLE_DIR:TrenchBroom>"
+                VERBATIM)
         endif()
     endif()
 endif()
