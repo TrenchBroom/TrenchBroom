@@ -29,7 +29,7 @@
 #include <QPushButton>
 #include <QTextEdit>
 
-#include "Logger.h"
+#include "base/Logger.h"
 #include "mdl/CompilationProfile.h"
 #include "mdl/GameInfo.h"
 #include "mdl/GameManager.h"

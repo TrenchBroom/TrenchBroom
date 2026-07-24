@@ -19,8 +19,8 @@
 
 #pragma once
 
-#include "FileLocation.h"
-#include "Result.h"
+#include "base/FileLocation.h"
+#include "base/Result.h"
 #include "mdl/BezierPatch.h"
 #include "mdl/Brush.h"
 #include "mdl/BrushFace.h"

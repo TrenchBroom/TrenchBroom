@@ -22,8 +22,8 @@
 #include <QKeySequence>
 #include <QString>
 
-#include "Macros.h"
-#include "Preference.h"
+#include "base/Macros.h"
+#include "base/Preference.h"
 #include "ui/ActionContext.h"
 
 #include <filesystem>

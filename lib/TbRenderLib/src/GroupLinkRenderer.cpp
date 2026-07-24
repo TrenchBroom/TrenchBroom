@@ -19,14 +19,14 @@
 
 #include "render/GroupLinkRenderer.h"
 
-#include "PreferenceManager.h"
-#include "Preferences.h"
+#include "base/PreferenceManager.h"
 #include "mdl/EditorContext.h"
 #include "mdl/GroupNode.h"
 #include "mdl/LinkedGroupUtils.h"
 #include "mdl/Map.h"
 #include "mdl/Map_Groups.h"
 #include "mdl/ModelUtils.h"
+#include "prefs/Preferences.h"
 
 namespace tb::render
 {

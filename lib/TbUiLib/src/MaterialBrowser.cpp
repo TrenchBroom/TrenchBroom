@@ -26,12 +26,12 @@
 #include <QVBoxLayout>
 #include <QtGlobal>
 
-#include "PreferenceManager.h"
-#include "Preferences.h"
+#include "base/PreferenceManager.h"
 #include "gl/Material.h"
 #include "gl/MaterialManager.h"
 #include "mdl/GameInfo.h"
 #include "mdl/Map.h"
+#include "prefs/Preferences.h"
 #include "ui/MapDocument.h"
 #include "ui/MaterialBrowserView.h"
 #include "ui/SearchBox.h"

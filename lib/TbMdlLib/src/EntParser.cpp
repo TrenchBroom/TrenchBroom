@@ -19,10 +19,10 @@
 
 #include "mdl/EntParser.h"
 
-#include "Color.h"
-#include "FileLocation.h"
-#include "ParserException.h"
-#include "ParserStatus.h"
+#include "base/Color.h"
+#include "base/FileLocation.h"
+#include "base/ParserException.h"
+#include "base/ParserStatus.h"
 #include "el/Exceptions.h"
 #include "el/Expression.h"
 #include "el/ParseExpression.h"
@@ -39,13 +39,13 @@
 #include "vm/vec_io.h"
 
 #include <fmt/format.h>
+#include <tinyxml2.h>
 
 #include <cstdlib>
 #include <functional>
 #include <optional>
 #include <sstream>
 #include <string>
-#include <tinyxml2.h>
 
 namespace tb::mdl
 {

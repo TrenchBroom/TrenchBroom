@@ -19,13 +19,13 @@
 
 #include "render/PointHandleRenderer.h"
 
-#include "PreferenceManager.h"
-#include "Preferences.h"
+#include "base/PreferenceManager.h"
 #include "gl/ActiveShader.h"
 #include "gl/Camera.h"
 #include "gl/GlInterface.h"
 #include "gl/Shaders.h"
 #include "gl/VboManager.h"
+#include "prefs/Preferences.h"
 #include "render/RenderContext.h"
 
 #include "vm/mat_ext.h"

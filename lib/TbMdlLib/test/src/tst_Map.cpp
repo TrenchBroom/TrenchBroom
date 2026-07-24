@@ -17,9 +17,9 @@
  along with TrenchBroom. If not, see <http:www.gnu.org/licenses/>.
  */
 
-#include "Logger.h"
 #include "TestEnvironment.h"
 #include "TestLogger.h"
+#include "base/Logger.h"
 #include "fs/TestEnvironment.h"
 #include "gl/ResourceManager.h"
 #include "mdl/Brush.h"

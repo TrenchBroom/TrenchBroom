@@ -209,15 +209,6 @@ if(WIN32)
             COMMAND ${CMAKE_COMMAND} -E copy "${TB_RESOURCE_DIR}/win32/icons/DocIcon.ico"    "${CMAKE_CURRENT_BINARY_DIR}"
             COMMAND ${CMAKE_COMMAND} -E copy "${TB_RESOURCE_DIR}/win32/icons/WindowIcon.ico" "${CMAKE_CURRENT_BINARY_DIR}")
 
-    # Copy DLLs to app directory
-    add_custom_command(TARGET TrenchBroom POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:assimp::assimp>" "$<TARGET_FILE_DIR:TrenchBroom>"
-            COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:freeimage::FreeImage>" "$<TARGET_FILE_DIR:TrenchBroom>"
-            COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:freetype>" "$<TARGET_FILE_DIR:TrenchBroom>"
-            COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:tinyxml2::tinyxml2>" "$<TARGET_FILE_DIR:TrenchBroom>"
-            COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:miniz::miniz>" "$<TARGET_FILE_DIR:TrenchBroom>"
-    )
-
     # Run windeployqt which copies the Qt dlls into the deployable folder, along with necessary runtime dlls by the compiler
     # Only copy translations on release builds, as deploying them takes significantly longer
     if(NOT TB_SKIP_WINDEPLOYQT)
@@ -486,5 +477,14 @@ elseif(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     set(CPACK_EXTERNAL_ENABLE_STAGING True)
     set(CPACK_GENERATOR "External")
 endif()
+
+# FetchContent'd dependencies (cpptrace, tinyxml2, ...) register their own
+# install components (headers, pkgconfig, *_development, Unspecified) for
+# their dev artifacts, none of which belong in a packaged TrenchBroom build.
+# On Linux, having more than one component present also makes CPack stage
+# each into its own <component>/usr/... subdirectory instead of merging them
+# into usr/ directly, which broke linuxdeploy's executable lookup. Restrict
+# packaging to just the component we actually ship, on every platform.
+set(CPACK_COMPONENTS_ALL "TrenchBroom")
 
 include(CPack)

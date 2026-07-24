@@ -11,13 +11,6 @@ pandoc --version
 # Qt install prefix
 brew --prefix qt@6
 
-# Note: When this variable is changed, vcpkg will need to recompile all dependencies.
-# However, vcpkg will not detect the change and will happily keep using any cached
-# binaries (see the lukka/run-vcpkg workflow step for details). This will cause a mismatch
-# between the deployment target under which the binaries were compiled and the new
-# deployment target used here. Therefore, when this variable is changed, the vcpkg binary
-# cache must be invalidated. The easiest way to do that is to update vcpkg to the latest
-# version because the vcpkg commit ID is part of the cache key for the binary cache.
 export MACOSX_DEPLOYMENT_TARGET=13.0
 
 # Build TB

@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Result.h"
+#include "base/Result.h"
 #include "fs/File.h"
 #include "fs/FileSystem.h"
 #include "fs/FileSystemMetadata.h"

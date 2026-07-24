@@ -19,8 +19,8 @@
 
 #pragma once
 
-#include "ParserException.h"
-#include "ParserStatus.h"
+#include "base/ParserException.h"
+#include "base/ParserStatus.h"
 #include "el/ELParser.h"
 #include "mdl/LegacyModelDefinitionParser.h"
 #include "mdl/ModelDefinition.h"

@@ -19,8 +19,7 @@
 
 #include "ui/UVView.h"
 
-#include "PreferenceManager.h"
-#include "Preferences.h"
+#include "base/PreferenceManager.h"
 #include "gl/ActiveShader.h"
 #include "gl/Camera.h"
 #include "gl/GlInterface.h"
@@ -35,6 +34,7 @@
 #include "mdl/BrushFaceHandle.h"
 #include "mdl/Grid.h"
 #include "mdl/Map.h"
+#include "prefs/Preferences.h"
 #include "render/EdgeRenderer.h"
 #include "render/FaceRenderer.h"
 #include "render/RenderBatch.h"

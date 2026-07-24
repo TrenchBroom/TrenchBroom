@@ -19,8 +19,7 @@
 
 #include "ui/AssembleBrushToolController3D.h"
 
-#include "PreferenceManager.h"
-#include "Preferences.h"
+#include "base/PreferenceManager.h"
 #include "mdl/BrushFace.h"
 #include "mdl/BrushFaceHandle.h"
 #include "mdl/BrushNode.h"
@@ -31,6 +30,7 @@
 #include "mdl/PickResult.h"
 #include "mdl/Polyhedron.h"
 #include "mdl/Polyhedron3.h"
+#include "prefs/Preferences.h"
 #include "render/RenderService.h"
 #include "ui/AssembleBrushTool.h"
 #include "ui/HandleDragTracker.h"

@@ -19,7 +19,7 @@
 
 #include "mdl/LinkedGroupUtils.h"
 
-#include "Uuid.h"
+#include "base/Uuid.h"
 #include "mdl/ModelUtils.h"
 #include "mdl/Node.h"
 #include "mdl/NodeContents.h"

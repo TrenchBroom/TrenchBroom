@@ -20,14 +20,16 @@
 #include "TestEnvironment.h"
 
 #ifdef _WIN32
-#include <array>
 #include <windows.h>
+
+#include <array>
 #elif defined(__APPLE__)
 #include <mach-o/dyld.h>
 #else
-#include <array>
 #include <limits.h>
 #include <unistd.h>
+
+#include <array>
 #endif
 
 namespace tb

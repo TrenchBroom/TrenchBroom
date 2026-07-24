@@ -22,7 +22,7 @@
 #include <QObject>
 #include <QtSystemDetection>
 
-#include "Result.h"
+#include "base/Result.h"
 
 #include <filesystem>
 #include <memory>

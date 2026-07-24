@@ -19,7 +19,7 @@
 
 #include "mdl/LoadMipTexture.h"
 
-#include "Color.h"
+#include "base/Color.h"
 #include "fs/Reader.h"
 #include "fs/ReaderException.h"
 #include "gl/Texture.h"

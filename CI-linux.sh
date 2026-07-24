@@ -40,7 +40,7 @@ chmod u+x ./linuxdeploy-plugin-qt-x86_64.AppImage
 ./linuxdeploy-plugin-qt-x86_64.AppImage --plugin-version
 
 cmake .. \
-  -DCMAKE_PREFIX_PATH="cmake/packages;$QT_ROOT_DIR" \
+  -DCMAKE_PREFIX_PATH="$QT_ROOT_DIR" \
   -DCMAKE_BUILD_TYPE=Release \
   -DCMAKE_CXX_FLAGS="-Werror" \
   -DCMAKE_EXE_LINKER_FLAGS="-Wl,--fatal-warnings" \

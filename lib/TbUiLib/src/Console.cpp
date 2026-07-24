@@ -28,7 +28,7 @@
 #include <QTimer>
 #include <QVBoxLayout>
 
-#include "Macros.h"
+#include "base/Macros.h"
 #include "ui/FileLogger.h"
 #include "ui/FixedWidthFont.h"
 #include "ui/QThreadUtils.h"

@@ -19,7 +19,7 @@
 
 #include "ui/WadUtils.h"
 
-#include "PreferenceManager.h"
+#include "base/PreferenceManager.h"
 #include "mdl/Entity.h"
 #include "mdl/GameConfig.h"
 #include "mdl/GameInfo.h"

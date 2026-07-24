@@ -21,8 +21,8 @@
 
 #include <QApplication>
 
-#include "PreferenceManager.h"
 #include "TestPreferenceStore.h"
+#include "base/PreferenceManager.h"
 
 #include "kd/contracts.h"
 #include "kd/k.h"

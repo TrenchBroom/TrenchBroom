@@ -22,8 +22,8 @@
 #include <QElapsedTimer>
 #include <QOpenGLWidget>
 
-#include "Color.h"
-#include "NotifierConnection.h"
+#include "base/Color.h"
+#include "base/NotifierConnection.h"
 #include "ui/InputEvent.h"
 
 #include <string>

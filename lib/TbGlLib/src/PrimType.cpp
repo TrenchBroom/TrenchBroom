@@ -19,7 +19,7 @@
 
 #include "gl/PrimType.h"
 
-#include "Macros.h"
+#include "base/Macros.h"
 #include "gl/GlUtils.h"
 
 namespace tb::gl

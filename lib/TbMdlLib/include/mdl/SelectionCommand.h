@@ -19,8 +19,8 @@
 
 #pragma once
 
-#include "Macros.h"
-#include "Result.h"
+#include "base/Macros.h"
+#include "base/Result.h"
 #include "mdl/SelectionChange.h"
 #include "mdl/UndoableCommand.h"
 

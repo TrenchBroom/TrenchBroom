@@ -32,7 +32,7 @@
 #include <QSaveFile>
 #include <QTimer>
 
-#include "Macros.h"
+#include "base/Macros.h"
 #include "ui/KeyboardShortcutUtils.h"
 #include "ui/QPathUtils.h"
 

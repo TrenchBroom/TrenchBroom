@@ -19,7 +19,7 @@
 
 #include "gl/FreeTypeFontFactory.h"
 
-#include "Macros.h"
+#include "base/Macros.h"
 #include "fs/DiskIO.h"
 #include "fs/Reader.h"
 #include "gl/FontDescriptor.h"

@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "Result.h"
+#include "base/Result.h"
 #include "mdl/BrushFaceHandle.h"
 #include "mdl/BrushNode.h"
 #include "mdl/EntityNode.h" // IWYU pragma: keep

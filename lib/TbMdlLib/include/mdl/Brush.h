@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "Result.h"
+#include "base/Result.h"
 #include "mdl/BrushGeometry.h"
 
 #include "kd/reflection_decl.h"

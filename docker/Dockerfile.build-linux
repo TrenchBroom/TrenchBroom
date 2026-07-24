@@ -20,10 +20,7 @@ RUN apt-get update && apt-get install -y software-properties-common && \
       p7zip-full \
       ninja-build \
       libglew-dev \
-      libfreeimage-dev \
-      libfreetype6-dev \
-      libtinyxml2-dev \
-      libassimp-dev \
+      zlib1g-dev \
       libfuse2 \
       libgtk-3-0 \
       libx11-xcb1 \
@@ -46,6 +43,7 @@ RUN apt-get update && apt-get install -y software-properties-common && \
       libxkbcommon-dev \
       libxkbcommon-x11-0 \
       ccache \
+      file \
       wget \
       curl \
       git \
@@ -53,7 +51,6 @@ RUN apt-get update && apt-get install -y software-properties-common && \
       zip \
       unzip \
       gnupg \
-      mono-complete \
       rsync \
       && mkdir -p /etc/apt/keyrings \
       && wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc \
@@ -70,5 +67,4 @@ ENV CXX=g++-13
 # Create a non-root user matching the GitHub Actions runner uid so tests
 # are not executed as root (which bypasses filesystem permission checks).
 RUN useradd -m -u 1001 -s /bin/bash runner
-RUN mkdir -p /home/runner/.config/NuGet && chown -R runner:runner /home/runner/.config
 USER runner

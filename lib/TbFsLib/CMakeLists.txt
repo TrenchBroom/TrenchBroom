@@ -26,7 +26,7 @@ target_link_libraries(TbFsLib
   PRIVATE
     CompilerConfig
     PrecompileStdHeaders
-    miniz::miniz
+    miniz
   PUBLIC
     KdLib
     TbBaseLib

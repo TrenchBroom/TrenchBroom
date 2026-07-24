@@ -19,9 +19,8 @@
 
 #include "ui/MapDocument.h"
 
-#include "LoggingHub.h"
-#include "PreferenceManager.h"
-#include "Preferences.h"
+#include "base/LoggingHub.h"
+#include "base/PreferenceManager.h"
 #include "fs/DiskIO.h"
 #include "gl/MaterialManager.h"
 #include "gl/ResourceManager.h"
@@ -43,6 +42,7 @@
 #include "mdl/Transaction.h"
 #include "mdl/UpdateLinkedGroupsHelper.h"
 #include "mdl/WorldReader.h"
+#include "prefs/Preferences.h"
 #include "render/MapRenderer.h"
 #include "ui/ActionManager.h"
 

@@ -19,9 +19,9 @@
 
 #pragma once
 
-#include "Notifier.h"
-#include "NotifierConnection.h"
-#include "Result.h"
+#include "base/Notifier.h"
+#include "base/NotifierConnection.h"
+#include "base/Result.h"
 #include "gl/ResourceId.h"
 #include "mdl/BrushFaceHandle.h"
 #include "mdl/ExportOptions.h"

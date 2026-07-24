@@ -24,7 +24,7 @@
 #include <QLabel>
 #include <QRadioButton>
 
-#include "Macros.h"
+#include "base/Macros.h"
 #include "ui/BorderLine.h"
 #include "ui/DialogButtonLayout.h"
 #include "ui/DialogHeader.h"

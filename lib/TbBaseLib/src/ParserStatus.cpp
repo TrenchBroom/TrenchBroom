@@ -17,11 +17,11 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ParserStatus.h"
+#include "base/ParserStatus.h"
 
-#include "FileLocation.h"
-#include "Logger.h"
-#include "ParserException.h"
+#include "base/FileLocation.h"
+#include "base/Logger.h"
+#include "base/ParserException.h"
 
 #include "kd/contracts.h"
 

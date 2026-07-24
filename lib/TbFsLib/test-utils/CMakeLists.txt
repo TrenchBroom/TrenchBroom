@@ -15,6 +15,7 @@ target_link_libraries(TbFsTestUtilsLib
     CompilerConfig
     PrecompileStdHeaders
   PUBLIC
+    Catch2::Catch2
     fmt::fmt-header-only
     TbFsLib
     VmLib

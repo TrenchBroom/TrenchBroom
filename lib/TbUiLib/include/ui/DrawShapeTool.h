@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "NotifierConnection.h"
+#include "base/NotifierConnection.h"
 #include "ui/CreateBrushesToolBase.h"
 #include "ui/DrawShapeToolExtension.h"
 

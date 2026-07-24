@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "NotifierConnection.h"
+#include "base/NotifierConnection.h"
 #include "el/Expression.h"
 #include "gl/FontDescriptor.h"
 #include "gl/VertexType.h"

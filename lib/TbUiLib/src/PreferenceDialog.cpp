@@ -30,7 +30,7 @@
 #include <QToolButton>
 #include <QtSystemDetection>
 
-#include "PreferenceManager.h"
+#include "base/PreferenceManager.h"
 #include "ui/ImageUtils.h"
 #include "ui/QStyleUtils.h"
 #include "ui/UpdatePreferencePane.h"

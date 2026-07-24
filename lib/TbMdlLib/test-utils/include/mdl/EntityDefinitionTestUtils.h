@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "Color.h"
+#include "base/Color.h"
 #include "mdl/ModelSpecification.h"
 
 #include "kd/string_utils.h"

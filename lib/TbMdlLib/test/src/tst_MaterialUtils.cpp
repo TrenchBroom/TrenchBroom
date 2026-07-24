@@ -17,9 +17,9 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Logger.h"
 #include "Matchers.h"
 #include "TestEnvironment.h"
+#include "base/Logger.h"
 #include "fs/DiskFileSystem.h"
 #include "fs/TestEnvironment.h"
 #include "mdl/CatchConfig.h"

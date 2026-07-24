@@ -19,8 +19,7 @@
 
 #include "ui/MapView3D.h"
 
-#include "PreferenceManager.h"
-#include "Preferences.h"
+#include "base/PreferenceManager.h"
 #include "gl/PerspectiveCamera.h"
 #include "mdl/BezierPatch.h"
 #include "mdl/BrushFace.h"
@@ -36,6 +35,7 @@
 #include "mdl/PickResult.h"
 #include "mdl/PointTrace.h"
 #include "mdl/WorldNode.h"
+#include "prefs/Preferences.h"
 #include "render/BoundsGuideRenderer.h"
 #include "render/Compass3D.h"
 #include "render/MapRenderer.h"

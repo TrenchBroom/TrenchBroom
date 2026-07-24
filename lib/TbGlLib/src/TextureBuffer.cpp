@@ -22,6 +22,7 @@
 #include "kd/contracts.h"
 
 #include <FreeImage.h>
+
 #include <algorithm>
 #include <iostream>
 

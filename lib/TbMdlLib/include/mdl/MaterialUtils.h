@@ -19,8 +19,8 @@
 
 #pragma once
 
-#include "Logger.h"
-#include "Result.h"
+#include "base/Logger.h"
+#include "base/Result.h"
 #include "gl/Material.h"
 #include "gl/Texture.h"
 

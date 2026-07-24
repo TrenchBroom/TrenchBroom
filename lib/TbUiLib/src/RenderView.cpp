@@ -26,8 +26,7 @@
 #include <QTimer>
 #include <QWidget>
 
-#include "PreferenceManager.h"
-#include "Preferences.h"
+#include "base/PreferenceManager.h"
 #include "gl/ActiveShader.h"
 #include "gl/GlManager.h"
 #include "gl/PrimType.h"
@@ -37,6 +36,7 @@
 #include "gl/VboManager.h"
 #include "gl/VertexArray.h"
 #include "gl/VertexType.h"
+#include "prefs/Preferences.h"
 #include "render/Transformation.h"
 #include "ui/AppController.h"
 #include "ui/GlFunctions.h"

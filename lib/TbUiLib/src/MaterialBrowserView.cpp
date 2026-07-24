@@ -24,8 +24,7 @@
 #include <QMenu>
 #include <QTextStream>
 
-#include "PreferenceManager.h"
-#include "Preferences.h"
+#include "base/PreferenceManager.h"
 #include "gl/ActiveShader.h"
 #include "gl/FontManager.h"
 #include "gl/Material.h"
@@ -41,6 +40,7 @@
 #include "mdl/Map.h"
 #include "mdl/Map_Assets.h"
 #include "mdl/Map_Selection.h"
+#include "prefs/Preferences.h"
 #include "render/Transformation.h"
 #include "ui/MapDocument.h"
 

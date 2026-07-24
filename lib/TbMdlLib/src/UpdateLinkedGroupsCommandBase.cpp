@@ -19,7 +19,7 @@
 
 #include "mdl/UpdateLinkedGroupsCommandBase.h"
 
-#include "Logger.h"
+#include "base/Logger.h"
 #include "mdl/Map.h"
 #include "mdl/UpdateLinkedGroupsCommand.h"
 

@@ -109,7 +109,7 @@ IncludeCategories:
     Priority:        3
   - Regex:           '^<.+/.*'
     Priority:        7
-  - Regex:           '^<ctre\.hpp>'
+  - Regex:           '^<.+\..+>'
     Priority:        7
   - Regex:           '^<.*'
     Priority:        8

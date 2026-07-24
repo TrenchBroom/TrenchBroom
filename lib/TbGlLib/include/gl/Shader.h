@@ -19,8 +19,8 @@
 
 #pragma once
 
-#include "Macros.h"
-#include "Result.h"
+#include "base/Macros.h"
+#include "base/Result.h"
 #include "gl/GlUtils.h"
 
 #include <filesystem>

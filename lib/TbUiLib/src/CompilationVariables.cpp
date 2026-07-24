@@ -19,7 +19,7 @@
 
 #include "ui/CompilationVariables.h"
 
-#include "PreferenceManager.h"
+#include "base/PreferenceManager.h"
 #include "mdl/GameInfo.h" // IWYU pragma: keep
 #include "mdl/GameInfo.h"
 #include "mdl/Map.h"

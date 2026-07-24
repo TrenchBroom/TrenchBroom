@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "NotifierConnection.h"
+#include "base/NotifierConnection.h"
 #include "gl/FontDescriptor.h"
 #include "ui/CellView.h"
 

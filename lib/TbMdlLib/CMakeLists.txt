@@ -210,9 +210,9 @@ target_link_libraries(TbMdlLib
   PRIVATE
     CompilerConfig
     PrecompileStdHeaders
-    assimp::assimp
-    freeimage::FreeImage
-    miniz::miniz
+    assimp
+    FreeImage
+    miniz
     tinyxml2::tinyxml2
   PUBLIC
     fmt::fmt-header-only

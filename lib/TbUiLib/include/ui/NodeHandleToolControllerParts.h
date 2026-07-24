@@ -19,10 +19,10 @@
 
 #pragma once
 
-#include "PreferenceManager.h"
-#include "Preferences.h"
+#include "base/PreferenceManager.h"
 #include "gl/Camera.h"
 #include "mdl/HitType.h"
+#include "prefs/Preferences.h"
 #include "render/RenderContext.h"
 #include "ui/HandleDragTracker.h"
 #include "ui/Lasso.h"

@@ -28,7 +28,7 @@
 #include <QProcess>
 #include <QPushButton>
 
-#include "Logger.h"
+#include "base/Logger.h"
 #include "mdl/GameConfig.h"
 #include "mdl/GameEngineProfile.h"
 #include "mdl/GameInfo.h"

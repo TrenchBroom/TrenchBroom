@@ -18,6 +18,7 @@ target_link_libraries(TbMdlTestUtilsLib
     CompilerConfig 
     PrecompileStdHeaders
   PUBLIC
+    Catch2::Catch2
     fmt::fmt-header-only
     TbBaseTestUtilsLib
     TbGlTestUtilsLib

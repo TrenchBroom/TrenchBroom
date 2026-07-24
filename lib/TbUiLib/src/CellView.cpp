@@ -25,8 +25,7 @@
 #include <QScrollBar>
 #include <QToolTip>
 
-#include "PreferenceManager.h"
-#include "Preferences.h"
+#include "base/PreferenceManager.h"
 #include "gl/ActiveShader.h"
 #include "gl/FontDescriptor.h"
 #include "gl/FontManager.h"
@@ -36,6 +35,7 @@
 #include "gl/TextureFont.h"
 #include "gl/VertexArray.h"
 #include "gl/VertexType.h"
+#include "prefs/Preferences.h"
 #include "render/Transformation.h"
 #include "ui/CellLayout.h"
 #include "ui/RenderView.h"

@@ -19,7 +19,7 @@
 
 #include "gl/MaterialManager.h"
 
-#include "Logger.h"
+#include "base/Logger.h"
 #include "gl/Material.h"
 #include "gl/MaterialCollection.h"
 

@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "PreferenceManager.h"
 #include "TestLogger.h"
+#include "base/PreferenceManager.h"
 #include "gl/IndexRangeMapBuilder.h"
 #include "gl/Material.h"
 #include "gl/MaterialIndexRangeRenderer.h"

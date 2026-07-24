@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "FileLocation.h"
+#include "base/FileLocation.h"
 
 #include "kd/reflection_impl.h"
 

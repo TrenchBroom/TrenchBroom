@@ -25,9 +25,9 @@
 #include <QProcess>
 #include <QtSystemDetection>
 
-#include "Macros.h" // IWYU pragma: keep
-#include "PreferenceManager.h"
-#include "Preferences.h"
+#include "base/Macros.h" // IWYU pragma: keep
+#include "base/PreferenceManager.h"
+#include "prefs/Preferences.h"
 #include "ui/GetVersion.h"
 #include "ui/QPathUtils.h"
 #include "ui/SystemPaths.h"

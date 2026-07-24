@@ -19,12 +19,12 @@
 
 #include "render/RenderService.h"
 
-#include "PreferenceManager.h"
-#include "Preferences.h"
+#include "base/PreferenceManager.h"
 #include "gl/AttrString.h"
 #include "gl/Camera.h"
 #include "gl/FontDescriptor.h"
 #include "mdl/BasicShapes.h"
+#include "prefs/Preferences.h"
 #include "render/PointHandleRenderer.h"
 #include "render/PrimitiveRenderer.h"
 #include "render/RenderBatch.h"

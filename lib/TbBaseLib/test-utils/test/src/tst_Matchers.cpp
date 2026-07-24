@@ -18,7 +18,7 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "Matchers.h"
-#include "Result.h"
+#include "base/Result.h"
 
 #include "vm/vec.h"
 #include "vm/vec_io.h" // IWYU pragma: keep

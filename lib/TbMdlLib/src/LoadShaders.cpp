@@ -19,9 +19,9 @@
 
 #include "mdl/LoadShaders.h"
 
-#include "Error.h" // IWYU pragma: keep
-#include "Logger.h"
-#include "SimpleParserStatus.h"
+#include "base/Error.h" // IWYU pragma: keep
+#include "base/Logger.h"
+#include "base/SimpleParserStatus.h"
 #include "fs/FileSystem.h"
 #include "fs/PathInfo.h"
 #include "fs/TraversalMode.h"

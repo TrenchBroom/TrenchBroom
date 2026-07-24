@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "PreferenceStore.h"
+#include "base/PreferenceStore.h"
 
 namespace tb
 {

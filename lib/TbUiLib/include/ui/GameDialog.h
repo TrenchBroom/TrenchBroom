@@ -21,7 +21,7 @@
 
 #include <QDialog>
 
-#include "NotifierConnection.h"
+#include "base/NotifierConnection.h"
 
 #include <filesystem>
 #include <optional>

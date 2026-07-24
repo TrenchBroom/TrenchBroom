@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "Result.h"
+#include "base/Result.h"
 #include "gl/TextureResource.h"
 #include "mdl/Palette.h"
 #include "mdl/Quake3Shader.h"

@@ -19,7 +19,7 @@
 
 #include "mdl/Palette.h"
 
-#include "Macros.h"
+#include "base/Macros.h"
 #include "fs/File.h"
 #include "fs/Reader.h"
 #include "fs/ReaderException.h"

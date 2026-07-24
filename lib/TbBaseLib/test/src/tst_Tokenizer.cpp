@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Token.h"
-#include "Tokenizer.h"
+#include "base/Token.h"
+#include "base/Tokenizer.h"
 
 #include "kd/contracts.h"
 

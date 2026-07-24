@@ -19,7 +19,7 @@
 
 #include "mdl/LoadSpriteModel.h"
 
-#include "Macros.h"
+#include "base/Macros.h"
 #include "fs/ReaderException.h"
 #include "gl/IndexRangeMap.h"
 #include "gl/IndexRangeMapBuilder.h"

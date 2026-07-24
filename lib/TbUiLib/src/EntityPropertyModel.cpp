@@ -27,7 +27,7 @@
 #include <QString>
 #include <QTimer>
 
-#include "Macros.h"
+#include "base/Macros.h"
 #include "mdl/Entity.h"
 #include "mdl/EntityDefinition.h"
 #include "mdl/EntityDefinitionManager.h"

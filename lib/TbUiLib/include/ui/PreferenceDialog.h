@@ -21,7 +21,7 @@
 
 #include <QDialog>
 
-#include "NotifierConnection.h"
+#include "base/NotifierConnection.h"
 
 class QDialogButtonBox;
 class QStackedWidget;

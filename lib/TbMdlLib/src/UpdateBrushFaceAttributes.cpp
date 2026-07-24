@@ -19,7 +19,7 @@
 
 #include "mdl/UpdateBrushFaceAttributes.h"
 
-#include "Macros.h"
+#include "base/Macros.h"
 #include "mdl/BrushFace.h"
 #include "mdl/BrushFaceHandle.h"
 #include "mdl/BrushNode.h"

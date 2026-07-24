@@ -9,8 +9,4 @@ runs:
         {
           echo "CCACHE_DIR=$GITHUB_WORKSPACE/.ccache"
           echo "CCACHE_CACHE_KEY_PREFIX=ccache-v1"
-          echo "USERNAME=TrenchBroom"
-          echo "VCPKG_EXE=$GITHUB_WORKSPACE/vcpkg/vcpkg"
-          echo "FEED_URL=https://nuget.pkg.github.com/TrenchBroom/index.json"
-          echo "VCPKG_BINARY_SOURCES=clear;nuget,https://nuget.pkg.github.com/TrenchBroom/index.json,readwrite"
         } >> "$GITHUB_ENV"

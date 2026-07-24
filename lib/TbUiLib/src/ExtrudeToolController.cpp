@@ -19,8 +19,7 @@
 
 #include "ui/ExtrudeToolController.h"
 
-#include "PreferenceManager.h"
-#include "Preferences.h"
+#include "base/PreferenceManager.h"
 #include "gl/Camera.h"
 #include "gl/PrimType.h"
 #include "gl/VertexArray.h"
@@ -30,6 +29,7 @@
 #include "mdl/Grid.h"
 #include "mdl/PickResult.h"
 #include "mdl/Polyhedron.h"
+#include "prefs/Preferences.h"
 #include "render/EdgeRenderer.h"
 #include "render/RenderContext.h"
 #include "ui/ExtrudeTool.h"

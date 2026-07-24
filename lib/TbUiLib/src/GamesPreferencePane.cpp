@@ -32,7 +32,7 @@
 #include <QToolButton>
 #include <QWidget>
 
-#include "PreferenceManager.h"
+#include "base/PreferenceManager.h"
 #include "fs/DiskIO.h"
 #include "mdl/GameConfig.h"
 #include "mdl/GameManager.h"

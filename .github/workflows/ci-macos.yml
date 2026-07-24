@@ -22,14 +22,12 @@ jobs:
 
     env:
       TB_PULL_REQUEST_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
-      MONO_GAC_PREFIX: "$HOMEBREW_PREFIX"
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          submodules: recursive
 
       - name: Setup common prerequisites
         uses: ./.github/actions/setup-common
@@ -39,10 +37,6 @@ jobs:
 
       - name: Switch to Xcode 26
         run: sudo xcode-select -s /Applications/Xcode_26.0.app/Contents/Developer
-
-      - name: Bootstrap vcpkg
-        shell: bash
-        run: ${{ github.workspace }}/vcpkg/bootstrap-vcpkg.sh
 
       - name: Set up signing environment
         run: |
@@ -72,7 +66,7 @@ jobs:
           fi
 
       - name: Install dependencies
-        run: brew install p7zip pandoc ninja autoconf automake mono ccache
+        run: brew install p7zip pandoc ninja autoconf automake ccache
 
       - name: Import signing certificates
         if: ${{ env.TB_SIGN_MAC_BUNDLE == 'true' }}
@@ -93,20 +87,6 @@ jobs:
           mkdir -p "$CCACHE_DIR"
           ccache --set-config=max_size=1G
           ccache --zero-stats
-
-      - name: Add NuGet sources
-        shell: bash
-        run: |
-          mono `${{ env.VCPKG_EXE }} fetch nuget | tail -n 1` \
-            sources add \
-            -Source "${{ env.FEED_URL }}" \
-            -StorePasswordInClearText \
-            -Name GitHubPackages \
-            -UserName "${{ env.USERNAME }}" \
-            -Password "${{ secrets.GITHUB_TOKEN }}"
-          mono `${{ env.VCPKG_EXE }} fetch nuget | tail -n 1` \
-            setapikey "${{ secrets.GITHUB_TOKEN }}" \
-            -Source "${{ env.FEED_URL }}"
 
       - name: Build
         run: ./CI-macos.sh

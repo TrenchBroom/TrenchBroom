@@ -21,7 +21,7 @@
 
 #include <QCursor>
 
-#include "Macros.h"
+#include "base/Macros.h"
 #include "gl/Camera.h"
 
 #include "kd/contracts.h"

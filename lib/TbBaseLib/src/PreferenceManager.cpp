@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "PreferenceManager.h"
+#include "base/PreferenceManager.h"
 
 #include "kd/contracts.h"
 

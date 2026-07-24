@@ -80,7 +80,6 @@ Assimp (Asset importer library)<br />
 Catch 2 (C++ testing framework)<br />
 StackWalker (C++ stack trace analyzer)<br />
 CMake (Cross platform build manager)<br />
-Vcpkg (C/C++ dependency manager)<br />
 Pandoc (Universal document converter)<br />
 Source Sans Pro (Font)<br />
 Font Awesome 5 Free (Icons)<br />)");

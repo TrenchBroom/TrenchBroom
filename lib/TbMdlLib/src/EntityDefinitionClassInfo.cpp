@@ -19,7 +19,7 @@
 
 #include "mdl/EntityDefinitionClassInfo.h"
 
-#include "Macros.h"
+#include "base/Macros.h"
 #include "mdl/PropertyDefinition.h"
 
 #include "kd/reflection_impl.h"

@@ -21,7 +21,7 @@
 
 #include <QKeySequence>
 
-#include "Preference.h"
+#include "base/Preference.h"
 #include "ui/ActionContext.h"
 
 #include <compare>

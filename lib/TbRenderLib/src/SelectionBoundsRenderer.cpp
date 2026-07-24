@@ -19,9 +19,9 @@
 
 #include "render/SelectionBoundsRenderer.h"
 
-#include "PreferenceManager.h"
-#include "Preferences.h"
+#include "base/PreferenceManager.h"
 #include "gl/Camera.h"
+#include "prefs/Preferences.h"
 #include "render/RenderContext.h"
 #include "render/RenderService.h"
 #include "render/TextAnchor.h"

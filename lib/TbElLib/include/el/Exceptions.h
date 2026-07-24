@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "FileLocation.h"
+#include "base/FileLocation.h"
 
 #include <optional>
 #include <stdexcept>

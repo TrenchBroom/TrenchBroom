@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "Result.h"
+#include "base/Result.h"
 #include "gl/ResourceId.h"
 #include "mdl/EntityModel.h"
 #include "mdl/ModelSpecification.h"

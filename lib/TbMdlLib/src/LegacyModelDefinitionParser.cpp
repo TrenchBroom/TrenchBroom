@@ -19,8 +19,8 @@
 
 #include "mdl/LegacyModelDefinitionParser.h"
 
-#include "ParserException.h"
-#include "ParserStatus.h"
+#include "base/ParserException.h"
+#include "base/ParserStatus.h"
 #include "el/Expression.h"
 #include "el/Value.h"
 #include "mdl/ModelDefinition.h"

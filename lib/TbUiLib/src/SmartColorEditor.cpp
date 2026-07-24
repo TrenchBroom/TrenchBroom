@@ -26,7 +26,7 @@
 #include <QRadioButton>
 #include <QScrollArea>
 
-#include "Color.h"
+#include "base/Color.h"
 #include "mdl/ColorRange.h"
 #include "mdl/EntityColorPropertyValue.h" // IWYU pragma: keep
 #include "mdl/EntityDefinition.h"         // IWYU pragma: keep

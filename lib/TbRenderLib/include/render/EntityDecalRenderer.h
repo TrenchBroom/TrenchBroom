@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "Color.h"
+#include "base/Color.h"
 #include "gl/VertexType.h"
 #include "render/AllocationTracker.h"
 #include "render/EdgeRenderer.h"

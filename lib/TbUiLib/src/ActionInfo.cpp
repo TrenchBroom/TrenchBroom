@@ -21,7 +21,7 @@
 
 #include <QKeySequence>
 
-#include "PreferenceManager.h"
+#include "base/PreferenceManager.h"
 #include "ui/ActionContext.h"
 
 #include "kd/ranges/enumerate_view.h"

@@ -19,8 +19,8 @@
 
 #pragma once
 
-#include "Macros.h"
-#include "Notifier.h"
+#include "base/Macros.h"
+#include "base/Notifier.h"
 
 #include "kd/contracts.h"
 

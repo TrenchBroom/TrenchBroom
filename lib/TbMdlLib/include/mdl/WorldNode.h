@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "Macros.h"
+#include "base/Macros.h"
 #include "mdl/EntityNodeBase.h"
 #include "mdl/EntityProperties.h"
 #include "mdl/IdType.h"

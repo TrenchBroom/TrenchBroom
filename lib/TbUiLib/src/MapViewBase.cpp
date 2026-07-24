@@ -28,9 +28,8 @@
 #include <QString>
 #include <QtGlobal>
 
-#include "Logger.h"
-#include "PreferenceManager.h"
-#include "Preferences.h"
+#include "base/Logger.h"
+#include "base/PreferenceManager.h"
 #include "gl/Camera.h"
 #include "gl/FontDescriptor.h"
 #include "gl/FontManager.h"
@@ -67,6 +66,7 @@
 #include "mdl/Transaction.h"
 #include "mdl/UpdateBrushFaceAttributes.h"
 #include "mdl/WorldNode.h"
+#include "prefs/Preferences.h"
 #include "render/Compass.h"
 #include "render/MapRenderer.h"
 #include "render/PrimitiveRenderer.h"

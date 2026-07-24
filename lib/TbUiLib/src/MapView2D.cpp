@@ -19,7 +19,7 @@
 
 #include "ui/MapView2D.h"
 
-#include "Macros.h"
+#include "base/Macros.h"
 #include "gl/OrthographicCamera.h"
 #include "mdl/BrushFace.h"
 #include "mdl/BrushNode.h"

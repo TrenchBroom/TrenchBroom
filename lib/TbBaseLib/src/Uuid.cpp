@@ -17,9 +17,9 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Uuid.h"
+#include "base/Uuid.h"
 
-#include "stduuid/uuid.h"
+#include <uuid.h>
 
 #include <algorithm>
 #include <array>

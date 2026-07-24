@@ -21,7 +21,7 @@
 
 #include <QWidget>
 
-#include "Color.h"
+#include "base/Color.h"
 #include "render/MapRenderer.h"
 
 #include <cmath>

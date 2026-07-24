@@ -20,7 +20,7 @@
 
 #include "mdl/LoadFmModel.h"
 
-#include "Logger.h"
+#include "base/Logger.h"
 #include "fs/ReaderException.h"
 #include "gl/IndexRangeMapBuilder.h"
 #include "mdl/LoadSkin.h"

@@ -19,8 +19,8 @@
 
 #pragma once
 
-#include "Color.h"
-#include "Result.h"
+#include "base/Color.h"
+#include "base/Result.h"
 #include "mdl/AssetReference.h"
 #include "mdl/BrushFaceAttributes.h"
 #include "mdl/BrushGeometry.h"

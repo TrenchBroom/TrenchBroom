@@ -19,7 +19,7 @@
 
 #include "mdl/ParseGameConfig.h"
 
-#include "ParserException.h"
+#include "base/ParserException.h"
 #include "el/EvaluationContext.h"
 #include "el/ParseExpression.h"
 #include "el/Value.h"

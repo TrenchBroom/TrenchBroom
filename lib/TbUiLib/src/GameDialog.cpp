@@ -25,7 +25,7 @@
 #include <QLabel>
 #include <QPushButton>
 
-#include "PreferenceManager.h"
+#include "base/PreferenceManager.h"
 #include "mdl/GameManager.h"
 #include "mdl/MapFormat.h"
 #include "ui/AppController.h"

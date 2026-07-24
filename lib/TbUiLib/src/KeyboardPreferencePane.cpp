@@ -28,8 +28,8 @@
 #include <QTableView>
 #include <QTimer>
 
-#include "PreferenceManager.h"
-#include "Preferences.h"
+#include "base/PreferenceManager.h"
+#include "prefs/Preferences.h"
 #include "ui/ActionManager.h"
 #include "ui/AppController.h"
 #include "ui/KeyboardShortcutItemDelegate.h"

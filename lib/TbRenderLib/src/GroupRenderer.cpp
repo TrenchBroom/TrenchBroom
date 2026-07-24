@@ -19,12 +19,12 @@
 
 #include "render/GroupRenderer.h"
 
-#include "PreferenceManager.h"
-#include "Preferences.h"
+#include "base/PreferenceManager.h"
 #include "gl/PrimType.h"
 #include "gl/VertexType.h"
 #include "mdl/EditorContext.h"
 #include "mdl/GroupNode.h"
+#include "prefs/Preferences.h"
 #include "render/RenderBatch.h"
 #include "render/RenderContext.h"
 #include "render/RenderService.h"

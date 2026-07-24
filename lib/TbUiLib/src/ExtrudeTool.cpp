@@ -19,9 +19,8 @@
 
 #include "ui/ExtrudeTool.h"
 
-#include "Logger.h"
-#include "PreferenceManager.h"
-#include "Preferences.h"
+#include "base/Logger.h"
+#include "base/PreferenceManager.h"
 #include "gl/Camera.h"
 #include "mdl/BrushFace.h"
 #include "mdl/BrushGeometry.h"
@@ -37,6 +36,7 @@
 #include "mdl/PickResult.h"
 #include "mdl/Polyhedron.h"
 #include "mdl/TransactionScope.h"
+#include "prefs/Preferences.h"
 #include "ui/MapDocument.h"
 
 #include "kd/contracts.h"

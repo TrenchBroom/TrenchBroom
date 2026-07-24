@@ -21,8 +21,8 @@
 
 #include <QObject>
 
-#include "Notifier.h"
-#include "NotifierConnection.h"
+#include "base/Notifier.h"
+#include "base/NotifierConnection.h"
 
 #include <memory>
 #include <string>

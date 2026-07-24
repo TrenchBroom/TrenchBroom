@@ -24,7 +24,7 @@
 #include <QJsonParseError>
 #include <QJsonValue>
 
-#include "Result.h"
+#include "base/Result.h"
 
 #include "kd/reflection_decl.h"
 

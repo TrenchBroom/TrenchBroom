@@ -19,7 +19,7 @@
 
 #include "fs/Reader.h"
 
-#include "Error.h" // IWYU pragma: keep
+#include "base/Error.h" // IWYU pragma: keep
 #include "fs/File.h"
 #include "fs/ReaderException.h"
 

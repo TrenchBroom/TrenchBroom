@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "NotifierConnection.h"
+#include "base/NotifierConnection.h"
 #include "gl/OrthographicCamera.h"
 #include "mdl/HitType.h"
 #include "mdl/PickResult.h"

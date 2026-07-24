@@ -19,8 +19,7 @@
 
 #include "ui/UVOriginTool.h"
 
-#include "PreferenceManager.h"
-#include "Preferences.h"
+#include "base/PreferenceManager.h"
 #include "gl/ActiveShader.h"
 #include "gl/OrthographicCamera.h"
 #include "gl/PrimType.h"
@@ -31,6 +30,7 @@
 #include "mdl/HitFilter.h"
 #include "mdl/PickResult.h"
 #include "mdl/Polyhedron.h"
+#include "prefs/Preferences.h"
 #include "render/Circle.h"
 #include "render/EdgeRenderer.h"
 #include "render/RenderBatch.h"

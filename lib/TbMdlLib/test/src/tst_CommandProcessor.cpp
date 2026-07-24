@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Macros.h"
-#include "NotifierConnection.h"
+#include "base/Macros.h"
+#include "base/NotifierConnection.h"
 #include "mdl/CatchConfig.h"
 #include "mdl/CommandProcessor.h"
 #include "mdl/Map.h"

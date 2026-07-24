@@ -19,7 +19,7 @@
 
 #include "mdl/Object.h"
 
-#include "Uuid.h"
+#include "base/Uuid.h"
 #include "mdl/GroupNode.h"
 
 namespace tb::mdl

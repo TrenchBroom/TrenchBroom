@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "Macros.h"
+#include "base/Macros.h"
 #include "mdl/Brush.h"
 #include "mdl/BrushGeometry.h"
 #include "mdl/HitType.h"

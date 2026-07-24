@@ -19,9 +19,8 @@
 
 #include "render/EntityModelRenderer.h"
 
-#include "Logger.h"
-#include "PreferenceManager.h"
-#include "Preferences.h"
+#include "base/Logger.h"
+#include "base/PreferenceManager.h"
 #include "gl/ActiveShader.h"
 #include "gl/Camera.h"
 #include "gl/GlInterface.h"
@@ -34,6 +33,7 @@
 #include "mdl/EntityModel.h"
 #include "mdl/EntityModelManager.h"
 #include "mdl/EntityNode.h"
+#include "prefs/Preferences.h"
 #include "render/RenderBatch.h"
 #include "render/RenderContext.h"
 #include "render/Transformation.h"

@@ -19,8 +19,8 @@
 
 #pragma once
 
-#include "Color.h"
-#include "FileLocation.h"
+#include "base/Color.h"
+#include "base/FileLocation.h"
 #include "mdl/DecalDefinition.h"
 #include "mdl/ModelDefinition.h"
 #include "mdl/PropertyDefinition.h"

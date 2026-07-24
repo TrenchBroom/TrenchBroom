@@ -23,8 +23,7 @@
 #include <QString>
 #include <QtSystemDetection>
 
-#include "PreferenceManager.h"
-#include "Preferences.h"
+#include "base/PreferenceManager.h"
 #include "mdl/EntityDefinition.h"
 #include "mdl/EntityProperties.h"
 #include "mdl/Grid.h" // IWYU pragma: keep
@@ -33,6 +32,7 @@
 #include "mdl/Map_Groups.h"    // IWYU pragma: keep
 #include "mdl/Map_Selection.h" // IWYU pragma: keep
 #include "mdl/Tag.h"
+#include "prefs/Preferences.h"
 #include "ui/ActionExecutionContext.h"
 #include "ui/AppController.h" // IWYU pragma: keep
 #include "ui/Inspector.h"

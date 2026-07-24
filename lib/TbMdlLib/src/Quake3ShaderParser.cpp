@@ -19,8 +19,8 @@
 
 #include "mdl/Quake3ShaderParser.h"
 
-#include "Macros.h"
-#include "ParserStatus.h"
+#include "base/Macros.h"
+#include "base/ParserStatus.h"
 #include "mdl/Quake3Shader.h"
 
 #include "kd/path_utils.h"
