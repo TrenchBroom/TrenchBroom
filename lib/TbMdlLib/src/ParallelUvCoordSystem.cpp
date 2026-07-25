@@ -19,7 +19,6 @@
 
 #include "mdl/ParallelUvCoordSystem.h"
 
-#include "mdl/BrushFace.h"
 #include "mdl/ParaxialUvCoordSystem.h"
 
 #include "kd/contracts.h"
@@ -103,18 +102,18 @@ void ParallelUvCoordSystemSnapshot::doRestore(
  * @param point0 a point defining the face plane
  * @param point1 a point defining the face plane
  * @param point2 a point defining the face plane
- * @param attribs face attributes
+ * @param uvAttributes face attributes
  */
 ParallelUvCoordSystem::ParallelUvCoordSystem(
   const vm::vec3d& point0,
   const vm::vec3d& point1,
   const vm::vec3d& point2,
-  const BrushFaceAttributes& attribs)
+  const UvAttributes& uvAttributes)
 {
   const auto normal = vm::normalize(vm::cross(point2 - point0, point1 - point0));
   std::tie(m_uAxis, m_vAxis) = computeInitialAxes(normal);
   std::tie(m_uAxis, m_vAxis) =
-    applyRotation(uAxis(), vAxis(), normal, double(attribs.uvAttributes().rotation));
+    applyRotation(uAxis(), vAxis(), normal, double(uvAttributes.rotation));
 }
 
 ParallelUvCoordSystem::ParallelUvCoordSystem(
@@ -124,16 +123,17 @@ ParallelUvCoordSystem::ParallelUvCoordSystem(
 {
 }
 
-std::tuple<std::unique_ptr<UvCoordSystem>, BrushFaceAttributes> ParallelUvCoordSystem::
+std::tuple<std::unique_ptr<UvCoordSystem>, UvAttributes> ParallelUvCoordSystem::
   fromParaxial(
     const vm::vec3d& point0,
     const vm::vec3d& point1,
     const vm::vec3d& point2,
-    const BrushFaceAttributes& attribs)
+    const UvAttributes& uvAttributes)
 {
-  const auto tempParaxial = ParaxialUvCoordSystem{point0, point1, point2, attribs};
+  const auto tempParaxial = ParaxialUvCoordSystem{point0, point1, point2, uvAttributes};
   return {
-    ParallelUvCoordSystem{tempParaxial.uAxis(), tempParaxial.vAxis()}.clone(), attribs};
+    ParallelUvCoordSystem{tempParaxial.uAxis(), tempParaxial.vAxis()}.clone(),
+    uvAttributes};
 }
 
 std::unique_ptr<UvCoordSystem> ParallelUvCoordSystem::clone() const
@@ -170,7 +170,7 @@ void ParallelUvCoordSystem::resetCache(
   const vm::vec3d& /* point0 */,
   const vm::vec3d& /* point1 */,
   const vm::vec3d& /* point2 */,
-  const BrushFaceAttributes& /* attribs */)
+  const UvAttributes& /* uvAttributes */)
 {
   // no-op
 }
@@ -212,13 +212,12 @@ void ParallelUvCoordSystem::transform(
   const vm::plane3d& oldBoundary,
   const vm::plane3d& newBoundary,
   const vm::mat4x4d& transformation,
-  BrushFaceAttributes& attribs,
+  UvAttributes& uvAttributes,
   const vm::vec2f& textureSize,
   const bool lockAlignment,
   const vm::vec3d& oldInvariant)
 {
-  if (
-    attribs.uvAttributes().scale.x() == 0.0f || attribs.uvAttributes().scale.y() == 0.0f)
+  if (uvAttributes.scale.x() == 0.0f || uvAttributes.scale.y() == 0.0f)
   {
     return;
   }
@@ -226,7 +225,7 @@ void ParallelUvCoordSystem::transform(
   // when texture lock is off, just project the current texturing
   if (!lockAlignment)
   {
-    updateNormalWithProjection(newBoundary.normal, attribs);
+    updateNormalWithProjection(newBoundary.normal, uvAttributes);
     return;
   }
 
@@ -235,16 +234,14 @@ void ParallelUvCoordSystem::transform(
   // determine the rotation by which the UV coordinate system will be rotated about
   // its normal
   const auto angleDelta = computeRotationAngle(oldBoundary, effectiveTransformation);
-  auto uvAttribs = attribs.uvAttributes();
   const auto newAngle =
-    vm::correct(vm::normalize_degrees(uvAttribs.rotation + angleDelta), 4);
+    vm::correct(vm::normalize_degrees(uvAttributes.rotation + angleDelta), 4);
   contract_assert(!vm::is_nan(newAngle));
-  uvAttribs.rotation = newAngle;
-  attribs.setUvAttributes(uvAttribs);
+  uvAttributes.rotation = newAngle;
 
   // calculate the current UV coordinates of the face's center
   const auto oldInvariantUvCoords =
-    computeUvCoords(oldInvariant, uvAttribs.scale) + uvAttribs.offset;
+    computeUvCoords(oldInvariant, uvAttributes.scale) + uvAttributes.offset;
   contract_assert(!vm::is_nan(oldInvariantUvCoords));
 
   // compute the new UV axes
@@ -277,7 +274,7 @@ void ParallelUvCoordSystem::transform(
   // determine the new texture coordinates of the transformed center of the face, sans
   // offsets
   const auto newInvariant = effectiveTransformation * oldInvariant;
-  const auto newInvariantUvCoords = computeUvCoords(newInvariant, uvAttribs.scale);
+  const auto newInvariantUvCoords = computeUvCoords(newInvariant, uvAttributes.scale);
 
   // since the center should be invariant, the offsets are determined by the difference of
   // the current and the original texture coordinates of the center
@@ -285,8 +282,7 @@ void ParallelUvCoordSystem::transform(
     vm::correct(modOffset(oldInvariantUvCoords - newInvariantUvCoords, textureSize), 4);
   contract_assert(!vm::is_nan(newOffset));
 
-  uvAttribs.offset = newOffset;
-  attribs.setUvAttributes(uvAttribs);
+  uvAttributes.offset = newOffset;
 }
 
 void ParallelUvCoordSystem::shear(const vm::vec3d& /* normal */, const vm::vec2f& f)
@@ -322,25 +318,25 @@ float ParallelUvCoordSystem::measureAngle(
   return currentAngle + vm::to_degrees(angleInRadians);
 }
 
-std::tuple<std::unique_ptr<UvCoordSystem>, BrushFaceAttributes> ParallelUvCoordSystem::
+std::tuple<std::unique_ptr<UvCoordSystem>, UvAttributes> ParallelUvCoordSystem::
   toParallel(
     const vm::vec3d&,
     const vm::vec3d&,
     const vm::vec3d&,
-    const BrushFaceAttributes& attribs) const
+    const UvAttributes& uvAttributes) const
 {
-  return {clone(), attribs};
+  return {clone(), uvAttributes};
 }
 
-std::tuple<std::unique_ptr<UvCoordSystem>, BrushFaceAttributes> ParallelUvCoordSystem::
+std::tuple<std::unique_ptr<UvCoordSystem>, UvAttributes> ParallelUvCoordSystem::
   toParaxial(
     const vm::vec3d& point0,
     const vm::vec3d& point1,
     const vm::vec3d& point2,
-    const BrushFaceAttributes& attribs) const
+    const UvAttributes& uvAttributes) const
 {
   return ParaxialUvCoordSystem::fromParallel(
-    point0, point1, point2, attribs, uAxis(), vAxis());
+    point0, point1, point2, uvAttributes, uAxis(), vAxis());
 }
 
 bool ParallelUvCoordSystem::isRotationInverted(const vm::vec3d& /* normal */) const
@@ -349,7 +345,7 @@ bool ParallelUvCoordSystem::isRotationInverted(const vm::vec3d& /* normal */) co
 }
 
 void ParallelUvCoordSystem::updateNormalWithProjection(
-  const vm::vec3d& newNormal, const BrushFaceAttributes& /* attribs */)
+  const vm::vec3d& newNormal, const UvAttributes& /* uvAttributes */)
 {
   // Goal: (m_uAxis, m_vAxis) define the UV projection that was used for a face with
   // oldNormal. We want to update (m_uAxis, m_vAxis) to be usable on a face with
@@ -414,7 +410,7 @@ void ParallelUvCoordSystem::updateNormalWithProjection(
 void ParallelUvCoordSystem::updateNormalWithRotation(
   const vm::vec3d& oldNormal,
   const vm::vec3d& newNormal,
-  const BrushFaceAttributes& /* attribs */)
+  const UvAttributes& /* uvAttributes */)
 {
   const auto cross = vm::cross(oldNormal, newNormal);
   if (cross == vm::vec3d{0, 0, 0})

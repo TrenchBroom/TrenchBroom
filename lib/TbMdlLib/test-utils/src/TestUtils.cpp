@@ -173,7 +173,8 @@ BrushFace createParaxial(
            point2,
            materialName,
            attributes,
-           std::make_unique<ParaxialUvCoordSystem>(point0, point1, point2, attributes))
+           std::make_unique<ParaxialUvCoordSystem>(
+             point0, point1, point2, attributes.uvAttributes()))
          | kdl::value();
 }
 

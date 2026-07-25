@@ -472,14 +472,15 @@ TEST_CASE("BrushFace")
     const auto p2 = vm::vec3d{0, -1, 4};
 
     const auto attribs = BrushFaceAttributes{};
-    auto face = BrushFace::create(
-                  p0,
-                  p1,
-                  p2,
-                  "",
-                  attribs,
-                  std::make_unique<ParaxialUvCoordSystem>(p0, p1, p2, attribs))
-                | kdl::value();
+    auto face =
+      BrushFace::create(
+        p0,
+        p1,
+        p2,
+        "",
+        attribs,
+        std::make_unique<ParaxialUvCoordSystem>(p0, p1, p2, attribs.uvAttributes()))
+      | kdl::value();
     CHECK(face.points()[0] == vm::approx{p0});
     CHECK(face.points()[1] == vm::approx{p1});
     CHECK(face.points()[2] == vm::approx{p2});
@@ -500,7 +501,7 @@ TEST_CASE("BrushFace")
       p2,
       "",
       attribs,
-      std::make_unique<ParaxialUvCoordSystem>(p0, p1, p2, attribs)));
+      std::make_unique<ParaxialUvCoordSystem>(p0, p1, p2, attribs.uvAttributes())));
   }
 
   SECTION("materialUsageCount")
@@ -519,14 +520,15 @@ TEST_CASE("BrushFace")
     auto attribs = BrushFaceAttributes{};
     {
       // test constructor
-      auto face = BrushFace::create(
-                    p0,
-                    p1,
-                    p2,
-                    "",
-                    attribs,
-                    std::make_unique<ParaxialUvCoordSystem>(p0, p1, p2, attribs))
-                  | kdl::value();
+      auto face =
+        BrushFace::create(
+          p0,
+          p1,
+          p2,
+          "",
+          attribs,
+          std::make_unique<ParaxialUvCoordSystem>(p0, p1, p2, attribs.uvAttributes()))
+        | kdl::value();
       CHECK(material.usageCount() == 0u);
 
       // test setMaterial

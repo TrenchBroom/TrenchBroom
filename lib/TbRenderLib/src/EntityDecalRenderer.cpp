@@ -76,7 +76,7 @@ std::vector<Vertex> createDecalBrushFace(
   const auto textureSize = texture->sizef();
 
   // copy the face properties, used to calculate the decal size and UV coords
-  auto attrs = face.attributes();
+  auto uvAttrs = face.attributes().uvAttributes();
   auto uvCoordSystem = face.uvCoordSystem().clone();
 
   // create the geometry for the decal
@@ -85,7 +85,7 @@ std::vector<Vertex> createDecalBrushFace(
   const auto center = plane.project_point(origin);
 
   // re-project the vertices in case the UV axes are not on the face plane
-  const auto& uvScale = attrs.uvAttributes().scale;
+  const auto& uvScale = uvAttrs.scale;
   const auto xShift =
     uvCoordSystem->uAxis() * double(uvScale.x() * textureSize.x() / 2.0f);
   const auto yShift =
@@ -120,9 +120,7 @@ std::vector<Vertex> createDecalBrushFace(
   const auto xOffs = -vm::dot(vtx, uvCoordSystem->uAxis()) / uvScale.x();
   const auto yOffs = -vm::dot(vtx, uvCoordSystem->vAxis()) / uvScale.y();
 
-  auto uvAttributes = attrs.uvAttributes();
-  uvAttributes.offset = vm::vec2f{float(xOffs), float(yOffs)};
-  attrs.setUvAttributes(uvAttributes);
+  uvAttrs.offset = vm::vec2f{float(xOffs), float(yOffs)};
 
   // clip the decal geometry against every other plane in the brush
   for (const auto& f : brushNode.brush().faces())
@@ -144,7 +142,7 @@ std::vector<Vertex> createDecalBrushFace(
   // convert the geometry into a list of vertices
   const auto norm = vm::vec3f{plane.normal};
   return verts | std::views::transform([&](const auto& v) {
-           const auto uv = uvCoordSystem->uvCoords(v, attrs, textureSize);
+           const auto uv = uvCoordSystem->uvCoords(v, uvAttrs, textureSize);
            return Vertex{vm::vec3f{v}, norm, uv};
          })
          | kdl::ranges::to<std::vector>();

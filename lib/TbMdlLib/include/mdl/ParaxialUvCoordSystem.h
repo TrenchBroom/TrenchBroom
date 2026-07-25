@@ -41,15 +41,15 @@ public:
     const vm::vec3d& point0,
     const vm::vec3d& point1,
     const vm::vec3d& point2,
-    const BrushFaceAttributes& attribs);
-  ParaxialUvCoordSystem(const vm::vec3d& normal, const BrushFaceAttributes& attribs);
+    const UvAttributes& uvAttributes);
+  ParaxialUvCoordSystem(const vm::vec3d& normal, const UvAttributes& uvAttributes);
   ParaxialUvCoordSystem(size_t index, const vm::vec3d& uAxis, const vm::vec3d& vAxis);
 
-  static std::tuple<std::unique_ptr<UvCoordSystem>, BrushFaceAttributes> fromParallel(
+  static std::tuple<std::unique_ptr<UvCoordSystem>, UvAttributes> fromParallel(
     const vm::vec3d& point0,
     const vm::vec3d& point1,
     const vm::vec3d& point2,
-    const BrushFaceAttributes& attribs,
+    const UvAttributes& uvAttributes,
     const vm::vec3d& uAxis,
     const vm::vec3d& vAxis);
 
@@ -68,7 +68,7 @@ public:
     const vm::vec3d& point0,
     const vm::vec3d& point1,
     const vm::vec3d& point2,
-    const BrushFaceAttributes& attribs) override;
+    const UvAttributes& uvAttributes) override;
   void reset(const vm::vec3d& normal) override;
   void resetToParaxial(const vm::vec3d& normal, float angle) override;
   void resetToParallel(const vm::vec3d& normal, float angle) override;
@@ -78,7 +78,7 @@ public:
     const vm::plane3d& oldBoundary,
     const vm::plane3d& newBoundary,
     const vm::mat4x4d& transformation,
-    BrushFaceAttributes& attribs,
+    UvAttributes& uvAttributes,
     const vm::vec2f& textureSize,
     bool lockTexture,
     const vm::vec3d& invariant) override;
@@ -88,26 +88,26 @@ public:
   float measureAngle(
     float currentAngle, const vm::vec2f& center, const vm::vec2f& point) const override;
 
-  std::tuple<std::unique_ptr<UvCoordSystem>, BrushFaceAttributes> toParallel(
+  std::tuple<std::unique_ptr<UvCoordSystem>, UvAttributes> toParallel(
     const vm::vec3d& point0,
     const vm::vec3d& point1,
     const vm::vec3d& point2,
-    const BrushFaceAttributes& attribs) const override;
-  std::tuple<std::unique_ptr<UvCoordSystem>, BrushFaceAttributes> toParaxial(
+    const UvAttributes& uvAttributes) const override;
+  std::tuple<std::unique_ptr<UvCoordSystem>, UvAttributes> toParaxial(
     const vm::vec3d& point0,
     const vm::vec3d& point1,
     const vm::vec3d& point2,
-    const BrushFaceAttributes& attribs) const override;
+    const UvAttributes& uvAttributes) const override;
 
 private:
   bool isRotationInverted(const vm::vec3d& normal) const override;
 
   void updateNormalWithProjection(
-    const vm::vec3d& newNormal, const BrushFaceAttributes& attribs) override;
+    const vm::vec3d& newNormal, const UvAttributes& uvAttributes) override;
   void updateNormalWithRotation(
     const vm::vec3d& oldNormal,
     const vm::vec3d& newNormal,
-    const BrushFaceAttributes& attribs) override;
+    const UvAttributes& uvAttributes) override;
 
   deleteCopyAndMove(ParaxialUvCoordSystem);
 };

@@ -17,10 +17,10 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "mdl/BrushFaceAttributes.h"
 #include "mdl/CatchConfig.h"
 #include "mdl/ParallelUvCoordSystem.h"
 #include "mdl/ParaxialUvCoordSystem.h"
+#include "mdl/UvAttributes.h"
 
 #include <catch2/catch_test_macros.hpp>
 
@@ -35,9 +35,9 @@ namespace tb::mdl
 
 TEST_CASE("UvCoordSystemTest.testSnapshotTypeSafety")
 {
-  BrushFaceAttributes attribs;
+  UvAttributes uvAttributes;
 
-  ParaxialUvCoordSystem paraxial(vm::vec3d{0, 0, 1}, attribs);
+  ParaxialUvCoordSystem paraxial(vm::vec3d{0, 0, 1}, uvAttributes);
   CHECK(paraxial.takeSnapshot() == nullptr);
 
   ParallelUvCoordSystem parallel(vm::vec3d{0, 1, 0}, vm::vec3d{1, 0, 0});

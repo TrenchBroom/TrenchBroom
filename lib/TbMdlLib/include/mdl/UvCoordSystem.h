@@ -20,7 +20,7 @@
 #pragma once
 
 #include "base/Macros.h"
-#include "mdl/BrushFaceAttributes.h"
+#include "mdl/UvAttributes.h"
 
 #include "vm/mat.h"
 #include "vm/plane.h"
@@ -77,14 +77,14 @@ public:
     const vm::vec3d& point0,
     const vm::vec3d& point1,
     const vm::vec3d& point2,
-    const BrushFaceAttributes& attribs) = 0;
+    const UvAttributes& uvAttributes) = 0;
   virtual void reset(const vm::vec3d& normal) = 0;
   virtual void resetToParaxial(const vm::vec3d& normal, float angle) = 0;
   virtual void resetToParallel(const vm::vec3d& normal, float angle) = 0;
 
   vm::vec2f uvCoords(
     const vm::vec3d& point,
-    const BrushFaceAttributes& attribs,
+    const UvAttributes& uvAttributes,
     const vm::vec2f& textureSize) const;
 
   virtual void setRotation(const vm::vec3d& normal, float oldAngle, float newAngle) = 0;
@@ -92,14 +92,14 @@ public:
     const vm::plane3d& oldBoundary,
     const vm::plane3d& newBoundary,
     const vm::mat4x4d& transformation,
-    BrushFaceAttributes& attribs,
+    UvAttributes& uvAttributes,
     const vm::vec2f& textureSize,
     bool lockTexture,
     const vm::vec3d& invariant) = 0;
   void setNormal(
     const vm::vec3d& oldNormal,
     const vm::vec3d& newNormal,
-    const BrushFaceAttributes& attribs,
+    const UvAttributes& uvAttributes,
     WrapStyle style);
 
   void translate(
@@ -107,8 +107,8 @@ public:
     const vm::vec3d& up,
     const vm::vec3d& right,
     const vm::vec2f& offset,
-    BrushFaceAttributes& attribs) const;
-  void rotate(const vm::vec3d& normal, float angle, BrushFaceAttributes& attribs) const;
+    UvAttributes& uvAttributes) const;
+  void rotate(const vm::vec3d& normal, float angle, UvAttributes& uvAttributes) const;
   virtual void shear(const vm::vec3d& normal, const vm::vec2f& factors) = 0;
 
   vm::mat4x4d toMatrix(const vm::vec2f& offset, const vm::vec2f& scale) const;
@@ -117,16 +117,16 @@ public:
   virtual float measureAngle(
     float currentAngle, const vm::vec2f& center, const vm::vec2f& point) const = 0;
 
-  virtual std::tuple<std::unique_ptr<UvCoordSystem>, BrushFaceAttributes> toParallel(
+  virtual std::tuple<std::unique_ptr<UvCoordSystem>, UvAttributes> toParallel(
     const vm::vec3d& point0,
     const vm::vec3d& point1,
     const vm::vec3d& point2,
-    const BrushFaceAttributes& attribs) const = 0;
-  virtual std::tuple<std::unique_ptr<UvCoordSystem>, BrushFaceAttributes> toParaxial(
+    const UvAttributes& uvAttributes) const = 0;
+  virtual std::tuple<std::unique_ptr<UvCoordSystem>, UvAttributes> toParaxial(
     const vm::vec3d& point0,
     const vm::vec3d& point1,
     const vm::vec3d& point2,
-    const BrushFaceAttributes& attribs) const = 0;
+    const UvAttributes& uvAttributes) const = 0;
 
 private:
   friend class UvCoordSystemSnapshot;
@@ -134,11 +134,11 @@ private:
   virtual bool isRotationInverted(const vm::vec3d& normal) const = 0;
 
   virtual void updateNormalWithProjection(
-    const vm::vec3d& newNormal, const BrushFaceAttributes& attribs) = 0;
+    const vm::vec3d& newNormal, const UvAttributes& uvAttributes) = 0;
   virtual void updateNormalWithRotation(
     const vm::vec3d& oldNormal,
     const vm::vec3d& newNormal,
-    const BrushFaceAttributes& attribs) = 0;
+    const UvAttributes& uvAttributes) = 0;
 
 protected:
   vm::vec2f computeUvCoords(const vm::vec3d& point, const vm::vec2f& scale) const;
