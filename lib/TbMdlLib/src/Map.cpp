@@ -46,7 +46,7 @@
 #include "mdl/GameInfo.h"
 #include "mdl/Grid.h"
 #include "mdl/GroupNode.h"
-#include "mdl/InvalidUVScaleValidator.h"
+#include "mdl/InvalidUvScaleValidator.h"
 #include "mdl/Issue.h"
 #include "mdl/LayerNode.h"
 #include "mdl/LinkSourceValidator.h"
@@ -1134,7 +1134,7 @@ void Map::registerValidators()
   m_worldNode->registerValidator(
     std::make_unique<PropertyValueWithDoubleQuotationMarksValidator>());
   m_worldNode->registerValidator(std::make_unique<WorldNodePathSeparatorValidator>());
-  m_worldNode->registerValidator(std::make_unique<InvalidUVScaleValidator>());
+  m_worldNode->registerValidator(std::make_unique<InvalidUvScaleValidator>());
 }
 
 void Map::setIssueHidden(const Issue& issue, const bool hidden)

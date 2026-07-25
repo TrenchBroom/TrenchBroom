@@ -142,11 +142,11 @@ public:
     const vm::bbox3d& bounds, const ShapeParameters& parameters) const override;
 };
 
-class DrawShapeToolUVSphereShapeExtensionPage
+class DrawShapeToolUvSphereShapeExtensionPage
   : public DrawShapeToolCircularShapeExtensionPage
 {
 public:
-  explicit DrawShapeToolUVSphereShapeExtensionPage(
+  explicit DrawShapeToolUvSphereShapeExtensionPage(
     MapDocument& document, ShapeParameters& parameters, QWidget* parent = nullptr);
 
 private:
@@ -155,10 +155,10 @@ private:
   Q_OBJECT
 };
 
-class DrawShapeToolUVSphereExtension : public DrawShapeToolExtension
+class DrawShapeToolUvSphereExtension : public DrawShapeToolExtension
 {
 public:
-  explicit DrawShapeToolUVSphereExtension(MapDocument& document);
+  explicit DrawShapeToolUvSphereExtension(MapDocument& document);
 
   const std::string& name() const override;
   const std::filesystem::path& iconPath() const override;

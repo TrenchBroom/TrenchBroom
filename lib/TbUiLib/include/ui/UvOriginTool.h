@@ -23,14 +23,12 @@
 #include "ui/Tool.h"
 #include "ui/ToolController.h"
 
-#include <memory>
-
 namespace tb
 {
 namespace mdl
 {
 class PickResult;
-} // namespace mdl
+}
 
 namespace render
 {
@@ -41,20 +39,22 @@ class RenderContext;
 namespace ui
 {
 class GestureTracker;
-class MapDocument;
-class UVViewHelper;
+class UvViewHelper;
 
-class UVRotateTool : public ToolController, public Tool
+class UvOriginTool : public ToolController, public Tool
 {
 public:
-  static const mdl::HitType::Type AngleHandleHitType;
+  static const mdl::HitType::Type XHandleHitType;
+  static const mdl::HitType::Type YHandleHitType;
+
+  static const double MaxPickDistance;
+  static const float OriginHandleRadius;
 
 private:
-  MapDocument& m_document;
-  UVViewHelper& m_helper;
+  UvViewHelper& m_helper;
 
 public:
-  UVRotateTool(MapDocument& document, UVViewHelper& helper);
+  explicit UvOriginTool(UvViewHelper& helper);
 
 private:
   Tool& tool() override;

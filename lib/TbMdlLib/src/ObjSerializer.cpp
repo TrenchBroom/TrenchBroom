@@ -164,7 +164,7 @@ static void writeVertices(std::ostream& str, const std::vector<vm::vec3d>& verti
   }
 }
 
-static void writeUVCoords(std::ostream& str, const std::vector<vm::vec2f>& uvCoords)
+static void writeUvCoords(std::ostream& str, const std::vector<vm::vec2f>& uvCoords)
 {
   str << "# texture coordinates\n";
   for (const auto& elem : uvCoords)
@@ -203,7 +203,7 @@ static void writeObjFile(
   str << "mtllib " << mtlFilename << "\n";
   writeVertices(str, vertices);
   str << "\n";
-  writeUVCoords(str, uvCoords);
+  writeUvCoords(str, uvCoords);
   str << "\n";
   writeNormals(str, normals);
   str << "\n";

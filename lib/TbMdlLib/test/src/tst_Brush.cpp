@@ -283,7 +283,7 @@ void assertSnapToInteger(const std::string& data, kdl::task_manager& taskManager
 }
 
 template <MapFormat F>
-class UVLockTest
+class UvLockTest
 {
   MapFormat param = F;
 };
@@ -2226,18 +2226,18 @@ TEST_CASE("Brush")
 
       // move top face by x=+8
       auto changed = brush;
-      auto changedWithUVLock = brush;
+      auto changedWithUvLock = brush;
 
       REQUIRE(changed.transformFaces(worldBounds, {polygonToMove}, transform, false));
       REQUIRE(
-        changedWithUVLock.transformFaces(worldBounds, {polygonToMove}, transform, true));
+        changedWithUvLock.transformFaces(worldBounds, {polygonToMove}, transform, true));
 
       // The move should be equivalent to shearing by this matrix
       const auto M = vm::shear_bbox_matrix(brush.bounds(), vm::vec3d{0, 0, 1}, delta);
 
       for (auto& oldFace : brush.faces())
       {
-        const auto oldUVCoords =
+        const auto oldUvCoords =
           oldFace.vertexPositions()
           | std::views::transform([&](auto x) { return oldFace.uvCoords(x); })
           | kdl::ranges::to<std::vector>();
@@ -2257,7 +2257,7 @@ TEST_CASE("Brush")
           REQUIRE(newFaceIndex);
 
           const auto& newFace = changed.face(*newFaceIndex);
-          const auto newUVCoords =
+          const auto newUvCoords =
             shearedVertexPositions
             | std::views::transform([&](auto x) { return newFace.uvCoords(x); })
             | kdl::ranges::to<std::vector>();
@@ -2266,30 +2266,30 @@ TEST_CASE("Brush")
             normal == vm::vec3d{0, 0, 1} || normal == vm::vec3d{0, 1, 0}
             || normal == vm::vec3d{0, -1, 0})
           {
-            CHECK_FALSE(uvListsEqual(oldUVCoords, newUVCoords));
+            CHECK_FALSE(uvListsEqual(oldUvCoords, newUvCoords));
             // TODO: actually check the UV's
           }
           else
           {
-            CHECK(uvListsEqual(oldUVCoords, newUVCoords));
+            CHECK(uvListsEqual(oldUvCoords, newUvCoords));
           }
         }
 
         // UV's should all be the same when using alignment lock (with Valve format).
         // Standard format can only do UV lock on the top face, which is not sheared.
         {
-          const auto newFaceWithUVLockIndex = changedWithUVLock.findFace(shearedPolygon);
-          REQUIRE(newFaceWithUVLockIndex);
+          const auto newFaceWithUvLockIndex = changedWithUvLock.findFace(shearedPolygon);
+          REQUIRE(newFaceWithUvLockIndex);
 
-          const auto& newFaceWithUVLock = changedWithUVLock.face(*newFaceWithUVLockIndex);
-          const auto newUVCoordsWithUVLock =
+          const auto& newFaceWithUvLock = changedWithUvLock.face(*newFaceWithUvLockIndex);
+          const auto newUvCoordsWithUvLock =
             shearedVertexPositions
-            | std::views::transform([&](auto x) { return newFaceWithUVLock.uvCoords(x); })
+            | std::views::transform([&](auto x) { return newFaceWithUvLock.uvCoords(x); })
             | kdl::ranges::to<std::vector>();
 
           if (normal == vm::vec3d{0, 0, 1} || (format == MapFormat::Valve))
           {
-            CHECK(uvListsEqual(oldUVCoords, newUVCoordsWithUVLock));
+            CHECK(uvListsEqual(oldUvCoords, newUvCoordsWithUvLock));
           }
         }
       }

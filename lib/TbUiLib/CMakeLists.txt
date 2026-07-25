@@ -216,15 +216,15 @@ target_sources(TbUiLib
     ${CMAKE_CURRENT_SOURCE_DIR}/src/ToolChain.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/ToolController.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/TwoPaneMapView.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/UVCameraTool.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/UVEditor.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/UVOffsetTool.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/UVOriginTool.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/UVRotateTool.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/UVScaleTool.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/UVShearTool.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/UVView.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/UVViewHelper.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/UvCameraTool.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/UvEditor.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/UvOffsetTool.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/UvOriginTool.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/UvRotateTool.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/UvScaleTool.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/UvShearTool.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/UvView.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/UvViewHelper.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/UpdateConfig.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/UpdatePreferencePane.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/UpdateVersion.cpp
@@ -462,15 +462,15 @@ target_sources(TbUiLib
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/ToolChain.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/ToolController.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/TwoPaneMapView.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/UVCameraTool.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/UVEditor.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/UVOffsetTool.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/UVOriginTool.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/UVRotateTool.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/UVScaleTool.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/UVShearTool.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/UVView.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/UVViewHelper.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/UvCameraTool.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/UvEditor.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/UvOffsetTool.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/UvOriginTool.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/UvRotateTool.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/UvScaleTool.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/UvShearTool.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/UvView.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/UvViewHelper.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/UpdateConfig.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/UpdatePreferencePane.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/UpdateVersion.h

@@ -19,8 +19,8 @@
 
 #include "mdl/BrushFaceAttributes.h"
 #include "mdl/CatchConfig.h"
-#include "mdl/ParallelUVCoordSystem.h"
-#include "mdl/ParaxialUVCoordSystem.h"
+#include "mdl/ParallelUvCoordSystem.h"
+#include "mdl/ParaxialUvCoordSystem.h"
 
 #include <catch2/catch_test_macros.hpp>
 
@@ -33,14 +33,14 @@ namespace tb::mdl
 #pragma clang diagnostic ignored "-Wcovered-switch-default"
 #endif
 
-TEST_CASE("UVCoordSystemTest.testSnapshotTypeSafety")
+TEST_CASE("UvCoordSystemTest.testSnapshotTypeSafety")
 {
   BrushFaceAttributes attribs("");
 
-  ParaxialUVCoordSystem paraxial(vm::vec3d{0, 0, 1}, attribs);
+  ParaxialUvCoordSystem paraxial(vm::vec3d{0, 0, 1}, attribs);
   CHECK(paraxial.takeSnapshot() == nullptr);
 
-  ParallelUVCoordSystem parallel(vm::vec3d{0, 1, 0}, vm::vec3d{1, 0, 0});
+  ParallelUvCoordSystem parallel(vm::vec3d{0, 1, 0}, vm::vec3d{1, 0, 0});
   auto parallelSnapshot = parallel.takeSnapshot();
   CHECK(parallelSnapshot != nullptr);
 

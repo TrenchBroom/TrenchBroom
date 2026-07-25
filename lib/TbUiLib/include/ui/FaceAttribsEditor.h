@@ -45,7 +45,7 @@ class FlagsPopupEditor;
 class MapDocument;
 class SignalDelayer;
 class SpinControl;
-class UVEditor;
+class UvEditor;
 
 class FaceAttribsEditor : public QWidget
 {
@@ -54,7 +54,7 @@ class FaceAttribsEditor : public QWidget
 private:
   MapDocument& m_document;
 
-  UVEditor* m_uvEditor = nullptr;
+  UvEditor* m_uvEditor = nullptr;
 
   QAbstractButton* m_alignButton = nullptr;
   QAbstractButton* m_justifyUpButton = nullptr;

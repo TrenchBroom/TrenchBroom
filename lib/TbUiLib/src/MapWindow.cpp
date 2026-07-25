@@ -1882,9 +1882,9 @@ void MapWindow::toggleAlignmentLock()
   togglePref(Preferences::AlignmentLock);
 }
 
-void MapWindow::toggleUVLock()
+void MapWindow::toggleUvLock()
 {
-  togglePref(Preferences::UVLock);
+  togglePref(Preferences::UvLock);
 }
 
 void MapWindow::toggleShowGrid()

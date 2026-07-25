@@ -19,33 +19,58 @@
 
 #pragma once
 
+#include "mdl/HitType.h"
 #include "ui/Tool.h"
 #include "ui/ToolController.h"
 
 #include <memory>
 
-namespace tb::ui
+namespace tb
+{
+namespace mdl
+{
+class PickResult;
+} // namespace mdl
+
+namespace render
+{
+class RenderBatch;
+class RenderContext;
+} // namespace render
+
+namespace ui
 {
 class GestureTracker;
 class MapDocument;
-class UVViewHelper;
+class UvViewHelper;
 
-class UVOffsetTool : public ToolController, public Tool
+class UvRotateTool : public ToolController, public Tool
 {
+public:
+  static const mdl::HitType::Type AngleHandleHitType;
+
 private:
   MapDocument& m_document;
-  const UVViewHelper& m_helper;
+  UvViewHelper& m_helper;
 
 public:
-  UVOffsetTool(MapDocument& document, const UVViewHelper& helper);
+  UvRotateTool(MapDocument& document, UvViewHelper& helper);
 
 private:
   Tool& tool() override;
   const Tool& tool() const override;
 
+  void pick(const InputState& inputState, mdl::PickResult& pickResult) override;
+
   std::unique_ptr<GestureTracker> acceptMouseDrag(const InputState& inputState) override;
+
+  void render(
+    const InputState& inputState,
+    render::RenderContext& renderContext,
+    render::RenderBatch& renderBatch) override;
 
   bool cancel() override;
 };
 
-} // namespace tb::ui
+} // namespace ui
+} // namespace tb

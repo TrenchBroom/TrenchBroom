@@ -150,10 +150,10 @@ inline const ShaderConfig TriangleShader = ShaderConfig{
   {"Triangle.fragsh"},
 };
 
-inline const ShaderConfig UVViewShader = ShaderConfig{
+inline const ShaderConfig UvViewShader = ShaderConfig{
   "UV View",
-  {"UVView.vertsh"},
-  {"GridCommon.fragsh", "UVView.fragsh"},
+  {"UvView.vertsh"},
+  {"GridCommon.fragsh", "UvView.fragsh"},
 };
 
 } // namespace tb::gl::Shaders

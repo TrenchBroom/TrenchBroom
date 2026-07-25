@@ -452,7 +452,7 @@ Result<std::vector<mdl::Brush>> DrawShapeToolIcoSphereExtension::createBrushes(
     .transform([](auto brush) { return std::vector{std::move(brush)}; });
 }
 
-DrawShapeToolUVSphereShapeExtensionPage::DrawShapeToolUVSphereShapeExtensionPage(
+DrawShapeToolUvSphereShapeExtensionPage::DrawShapeToolUvSphereShapeExtensionPage(
   MapDocument& document, ShapeParameters& parameters, QWidget* parent)
   : DrawShapeToolCircularShapeExtensionPage{parameters, parent}
   , m_parameters{parameters}
@@ -486,30 +486,30 @@ DrawShapeToolUVSphereShapeExtensionPage::DrawShapeToolUVSphereShapeExtensionPage
   });
 }
 
-DrawShapeToolUVSphereExtension::DrawShapeToolUVSphereExtension(MapDocument& document)
+DrawShapeToolUvSphereExtension::DrawShapeToolUvSphereExtension(MapDocument& document)
   : DrawShapeToolExtension{document}
 {
 }
 
-const std::string& DrawShapeToolUVSphereExtension::name() const
+const std::string& DrawShapeToolUvSphereExtension::name() const
 {
   static const auto name = std::string{"Spheroid (UV)"};
   return name;
 }
 
-const std::filesystem::path& DrawShapeToolUVSphereExtension::iconPath() const
+const std::filesystem::path& DrawShapeToolUvSphereExtension::iconPath() const
 {
   static const auto path = std::filesystem::path{"ShapeTool_UVSphere.svg"};
   return path;
 }
 
-DrawShapeToolExtensionPage* DrawShapeToolUVSphereExtension::createToolPage(
+DrawShapeToolExtensionPage* DrawShapeToolUvSphereExtension::createToolPage(
   ShapeParameters& parameters, QWidget* parent)
 {
-  return new DrawShapeToolUVSphereShapeExtensionPage{m_document, parameters, parent};
+  return new DrawShapeToolUvSphereShapeExtensionPage{m_document, parameters, parent};
 }
 
-Result<std::vector<mdl::Brush>> DrawShapeToolUVSphereExtension::createBrushes(
+Result<std::vector<mdl::Brush>> DrawShapeToolUvSphereExtension::createBrushes(
   const vm::bbox3d& bounds, const ShapeParameters& parameters) const
 {
   auto& map = m_document.map();
@@ -519,7 +519,7 @@ Result<std::vector<mdl::Brush>> DrawShapeToolUVSphereExtension::createBrushes(
     map.worldBounds(),
     map.gameInfo().gameConfig.faceAttribsConfig.defaults};
   return builder
-    .createUVSphere(
+    .createUvSphere(
       bounds,
       parameters.circleShape(),
       parameters.numRings(),
@@ -707,7 +707,7 @@ std::vector<std::unique_ptr<DrawShapeToolExtension>> createDrawShapeToolExtensio
   result.push_back(std::make_unique<DrawShapeToolArchExtension>(document));
   result.push_back(std::make_unique<DrawShapeToolCylinderExtension>(document));
   result.push_back(std::make_unique<DrawShapeToolConeExtension>(document));
-  result.push_back(std::make_unique<DrawShapeToolUVSphereExtension>(document));
+  result.push_back(std::make_unique<DrawShapeToolUvSphereExtension>(document));
   result.push_back(std::make_unique<DrawShapeToolIcoSphereExtension>(document));
   return result;
 }

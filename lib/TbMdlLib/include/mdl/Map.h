@@ -83,7 +83,7 @@ class RepeatStack;
 class SmartTag;
 class TagManager;
 class UndoableCommand;
-class UVCoordSystemSnapshot;
+class UvCoordSystemSnapshot;
 class WorldNode;
 
 enum class VisualEffect;

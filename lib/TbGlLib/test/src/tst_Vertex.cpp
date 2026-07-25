@@ -43,7 +43,7 @@ TEST_CASE("Vertex")
 {
   SECTION("memory layout for a single vertex")
   {
-    using Vertex = VertexTypes::P3UV2C4::Vertex;
+    using Vertex = VertexTypes::P3Uv2C4::Vertex;
 
     const auto pos = vm::vec3f{1.0f, 2.0f, 3.0f};
     const auto uv = vm::vec2f{4.0f, 5.0f};
@@ -58,7 +58,7 @@ TEST_CASE("Vertex")
 
   SECTION("memory layout for a list of vertices")
   {
-    using Vertex = VertexTypes::P3UV2C4::Vertex;
+    using Vertex = VertexTypes::P3Uv2C4::Vertex;
 
     auto expected = std::vector<TestVertex>();
     auto actual = std::vector<Vertex>();

@@ -109,8 +109,8 @@ auto scaleFactorToFit(
   const auto distances =
     brushFace.vertices()
     | std::views::transform(
-      [toUV = brushFace.toUVCoordSystemMatrix(vm::vec2f{0, 0}, vm::vec2f{1, 1})](
-        const auto* vertex) { return vm::vec2f{toUV * vertex->position()}; })
+      [toUv = brushFace.toUvCoordSystemMatrix(vm::vec2f{0, 0}, vm::vec2f{1, 1})](
+        const auto* vertex) { return vm::vec2f{toUv * vertex->position()}; })
     | std::views::transform([&](const auto& v) { return vm::dot(v, axis); })
     | kdl::ranges::to<std::vector>();
 
@@ -143,8 +143,8 @@ void evaluate(const std::optional<AxisOp>& axisOp, BrushFace& brushFace)
   {
     std::visit(
       kdl::overload(
-        [&](const ResetAxis&) { brushFace.resetUVAxes(); },
-        [&](const ToParaxial&) { brushFace.resetUVAxesToParaxial(); },
+        [&](const ResetAxis&) { brushFace.resetUvAxes(); },
+        [&](const ToParaxial&) { brushFace.resetUvAxesToParaxial(); },
         [](const ToParallel&) {}),
       *axisOp);
   }
@@ -198,10 +198,10 @@ std::tuple<vm::vec2d, bool> findEdgeToAlignTo(
   const auto edgeVecs =
     brushFace.geometry()->boundary()
     | std::views::transform(
-      [toUV = brushFace.toUVCoordSystemMatrix(
+      [toUv = brushFace.toUvCoordSystemMatrix(
          brushFace.attributes().offset(), vm::vec2f{1, 1})](const auto* halfEdge) {
-        const auto start = vm::vec2d{toUV * halfEdge->origin()->position()};
-        const auto end = vm::vec2d{toUV * halfEdge->next()->origin()->position()};
+        const auto start = vm::vec2d{toUv * halfEdge->origin()->position()};
+        const auto end = vm::vec2d{toUv * halfEdge->next()->origin()->position()};
         return vm::normalize(end - start);
       })
     | kdl::ranges::to<std::vector>();
@@ -257,11 +257,11 @@ auto makeVertexToUvAxisTransform(
   const auto axis = toAxis(uvAxis);
   const auto dirFactor = toFactor(uvSign);
 
-  const auto toUV =
-    brushFace.toUVCoordSystemMatrix(vm::vec2f{0, 0}, brushFace.attributes().scale());
+  const auto toUv =
+    brushFace.toUvCoordSystemMatrix(vm::vec2f{0, 0}, brushFace.attributes().scale());
 
   return [=](const auto& vertex) {
-    const auto uvCoords = vm::vec2f{toUV * vertex->position()};
+    const auto uvCoords = vm::vec2f{toUv * vertex->position()};
     return vm::dot(uvCoords, dirFactor * axis);
   };
 }
@@ -492,7 +492,7 @@ UpdateBrushFaceAttributes align(const BrushFace& brushFace, const UvPolicy uvPol
   const auto [edgeToAlignTo, isExactMatch] = findEdgeToAlignTo(brushFace, uvPolicy);
 
   const auto angleInDegrees =
-    brushFace.measureUVAngle(vm::vec2f{0, 0}, vm::vec2f{edgeToAlignTo});
+    brushFace.measureUvAngle(vm::vec2f{0, 0}, vm::vec2f{edgeToAlignTo});
 
   return {
     .rotation = SetValue{normalizeAngle(angleInDegrees)},

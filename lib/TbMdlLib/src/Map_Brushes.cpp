@@ -30,8 +30,8 @@
 #include "mdl/Map_Nodes.h"
 #include "mdl/Map_Selection.h"
 #include "mdl/Transaction.h"
-#include "mdl/UVUtils.h"
 #include "mdl/UpdateBrushFaceAttributes.h"
+#include "mdl/UvUtils.h"
 #include "mdl/WorldNode.h"
 
 namespace tb::mdl
@@ -142,14 +142,14 @@ void compensateOffset(
   if (vertex)
   {
     const auto previousUvCoords = vm::vec2f{
-      brushFace.toUVCoordSystemMatrix(
+      brushFace.toUvCoordSystemMatrix(
         brushFace.attributes().offset(), brushFace.attributes().scale())
       * *vertex};
 
     f();
 
     const auto newUvCoords = vm::vec2f{
-      brushFace.toUVCoordSystemMatrix(
+      brushFace.toUvCoordSystemMatrix(
         brushFace.attributes().offset(), brushFace.attributes().scale())
       * *vertex};
     const auto delta = previousUvCoords - newUvCoords;
@@ -209,22 +209,22 @@ bool setBrushFaceAttributes(Map& map, const UpdateBrushFaceAttributes& update)
     });
 }
 
-bool copyUV(
+bool copyUv(
   Map& map,
-  const UVCoordSystemSnapshot& coordSystemSnapshot,
+  const UvCoordSystemSnapshot& coordSystemSnapshot,
   const BrushFaceAttributes& attribs,
   const vm::plane3d& sourceFacePlane,
   const WrapStyle wrapStyle)
 {
   return applyAndSwap(
     map, "Copy UV Alignment", map.selection().allBrushFaces(), [&](auto& face) {
-      face.copyUVCoordSystemFromFace(
+      face.copyUvCoordSystemFromFace(
         coordSystemSnapshot, attribs, sourceFacePlane, wrapStyle);
       return true;
     });
 }
 
-bool translateUV(
+bool translateUv(
   Map& map,
   const vm::vec3f& cameraUp,
   const vm::vec3f& cameraRight,
@@ -232,28 +232,28 @@ bool translateUV(
 {
   return applyAndSwap(
     map, "Translate UV", map.selection().allBrushFaces(), [&](auto& face) {
-      face.translateUV(vm::vec3d{cameraUp}, vm::vec3d{cameraRight}, delta);
+      face.translateUv(vm::vec3d{cameraUp}, vm::vec3d{cameraRight}, delta);
       return true;
     });
 }
 
-bool rotateUV(Map& map, const float angle)
+bool rotateUv(Map& map, const float angle)
 {
   return applyAndSwap(map, "Rotate UV", map.selection().allBrushFaces(), [&](auto& face) {
-    face.rotateUV(angle);
+    face.rotateUv(angle);
     return true;
   });
 }
 
-bool shearUV(Map& map, const vm::vec2f& factors)
+bool shearUv(Map& map, const vm::vec2f& factors)
 {
   return applyAndSwap(map, "Shear UV", map.selection().allBrushFaces(), [&](auto& face) {
-    face.shearUV(factors);
+    face.shearUv(factors);
     return true;
   });
 }
 
-bool flipUV(
+bool flipUv(
   Map& map,
   const vm::vec3f& cameraUp,
   const vm::vec3f& cameraRight,
@@ -267,13 +267,13 @@ bool flipUV(
     isHFlip ? "Flip UV Horizontally" : "Flip UV Vertically",
     map.selection().allBrushFaces(),
     [&](auto& face) {
-      face.flipUV(
+      face.flipUv(
         vm::vec3d{cameraUp}, vm::vec3d{cameraRight}, cameraRelativeFlipDirection);
       return true;
     });
 }
 
-void alignUV(Map& map, const UvPolicy uvPolicy)
+void alignUv(Map& map, const UvPolicy uvPolicy)
 {
   applyAndSwap(
     map, "Align Texture", map.selection().allBrushFaces(), [&](auto& brushFace) {
@@ -282,7 +282,7 @@ void alignUV(Map& map, const UvPolicy uvPolicy)
     });
 }
 
-void justifyUV(
+void justifyUv(
   Map& map, const UvJustifyDirection uvJustifyDirection, const UvPolicy uvPolicy)
 {
   applyAndSwap(
@@ -295,7 +295,7 @@ void justifyUV(
     });
 }
 
-void fitUV(
+void fitUv(
   Map& map,
   const UvFitDirection uvFitDirection,
   const UvPolicy uvPolicy,
@@ -312,7 +312,7 @@ void fitUV(
   });
 }
 
-void autoFitUV(Map& map)
+void autoFitUv(Map& map)
 {
   applyAndSwap(
     map, "Auto Fit Texture", map.selection().allBrushFaces(), [&](auto& brushFace) {

@@ -18,7 +18,7 @@
  */
 
 #include "mdl/CatchConfig.h"
-#include "mdl/UVUtils.h"
+#include "mdl/UvUtils.h"
 
 #include "vm/approx.h"
 

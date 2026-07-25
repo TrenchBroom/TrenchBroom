@@ -81,7 +81,7 @@ class EntityBrowserView : public CellView
 private:
   using EntityRenderer = gl::MaterialRenderer;
 
-  using TextVertex = gl::VertexTypes::P2UV2C4::Vertex;
+  using TextVertex = gl::VertexTypes::P2Uv2C4::Vertex;
   using StringMap = std::map<gl::FontDescriptor, std::vector<TextVertex>>;
 
   static constexpr auto CameraPosition = vm::vec3f{256.0f, 0.0f, 0.0f};

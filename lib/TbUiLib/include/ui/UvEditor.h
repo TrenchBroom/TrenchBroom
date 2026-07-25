@@ -30,29 +30,29 @@ namespace tb::ui
 {
 class AppController;
 class MapDocument;
-class UVView;
+class UvView;
 
-class UVEditor : public QWidget
+class UvEditor : public QWidget
 {
   Q_OBJECT
 private:
   MapDocument& m_document;
 
-  UVView* m_uvView = nullptr;
+  UvView* m_uvView = nullptr;
   QSpinBox* m_xSubDivisionEditor = nullptr;
   QSpinBox* m_ySubDivisionEditor = nullptr;
 
-  QAbstractButton* m_resetUVButton = nullptr;
-  QAbstractButton* m_resetUVToWorldButton = nullptr;
+  QAbstractButton* m_resetUvButton = nullptr;
+  QAbstractButton* m_resetUvToWorldButton = nullptr;
   QAbstractButton* m_flipUAxisButton = nullptr;
   QAbstractButton* m_flipVAxisButton = nullptr;
-  QAbstractButton* m_rotateUVCCWButton = nullptr;
-  QAbstractButton* m_rotateUVCWButton = nullptr;
+  QAbstractButton* m_rotateUvCCWButton = nullptr;
+  QAbstractButton* m_rotateUvCWButton = nullptr;
 
   NotifierConnection m_notifierConnection;
 
 public:
-  explicit UVEditor(
+  explicit UvEditor(
     AppController& appController, MapDocument& document, QWidget* parent = nullptr);
 
   bool cancelMouseDrag();
@@ -65,12 +65,12 @@ private:
 
   void connectObservers();
 
-  void resetUVClicked();
-  void resetUVToWorldClicked();
-  void flipUVHClicked();
-  void flipUVVClicked();
-  void rotateUVCCWClicked();
-  void rotateUVCWClicked();
+  void resetUvClicked();
+  void resetUvToWorldClicked();
+  void flipUvHClicked();
+  void flipUvVClicked();
+  void rotateUvCCWClicked();
+  void rotateUvCWClicked();
   void subDivisionChanged();
 };
 

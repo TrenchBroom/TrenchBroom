@@ -744,7 +744,7 @@ auto makeZRatiosPerRing(const size_t precision)
   return zRatios;
 }
 
-auto makeScalableUVSphere(const vm::bbox3d& boundsXY, const size_t precision)
+auto makeScalableUvSphere(const vm::bbox3d& boundsXY, const size_t precision)
 {
   const auto zRatios = makeZRatiosPerRing(precision);
   const auto getZ = [&](const size_t i) {
@@ -785,7 +785,7 @@ auto makeRing(
          | kdl::ranges::to<std::vector>();
 }
 
-auto makeAlignedUVSphere(
+auto makeAlignedUvSphere(
   const vm::bbox3d& boundsXY, const CircleShape& circleShape, const size_t numRings)
 {
   const auto angleDelta = vm::Cd::pi() / (double(numRings) + 1.0);
@@ -812,7 +812,7 @@ auto makeAlignedUVSphere(
 
 } // namespace
 
-Result<Brush> BrushBuilder::createUVSphere(
+Result<Brush> BrushBuilder::createUvSphere(
   const vm::bbox3d& bounds,
   const CircleShape& circleShape,
   const size_t numRings,
@@ -826,10 +826,10 @@ Result<Brush> BrushBuilder::createUVSphere(
   const auto sphere = std::visit(
     kdl::overload(
       [&](const ScalableCircle& scalable) {
-        return makeScalableUVSphere(boundsXY, scalable.precision);
+        return makeScalableUvSphere(boundsXY, scalable.precision);
       },
       [&](const auto& edgeOrVertexAligned) {
-        return makeAlignedUVSphere(boundsXY, edgeOrVertexAligned, numRings);
+        return makeAlignedUvSphere(boundsXY, edgeOrVertexAligned, numRings);
       }),
     circleShape);
 

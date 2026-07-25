@@ -31,23 +31,23 @@
 
 namespace tb::mdl
 {
-class ParallelUVCoordSystem;
-class ParaxialUVCoordSystem;
-class UVCoordSystem;
+class ParallelUvCoordSystem;
+class ParaxialUvCoordSystem;
+class UvCoordSystem;
 
-class UVCoordSystemSnapshot
+class UvCoordSystemSnapshot
 {
 public:
-  virtual ~UVCoordSystemSnapshot();
-  void restore(UVCoordSystem& coordSystem) const;
-  virtual std::unique_ptr<UVCoordSystemSnapshot> clone() const = 0;
+  virtual ~UvCoordSystemSnapshot();
+  void restore(UvCoordSystem& coordSystem) const;
+  virtual std::unique_ptr<UvCoordSystemSnapshot> clone() const = 0;
 
 private:
-  virtual void doRestore(ParallelUVCoordSystem& coordSystem) const = 0;
-  virtual void doRestore(ParaxialUVCoordSystem& coordSystem) const = 0;
+  virtual void doRestore(ParallelUvCoordSystem& coordSystem) const = 0;
+  virtual void doRestore(ParaxialUvCoordSystem& coordSystem) const = 0;
 
-  friend class ParallelUVCoordSystem;
-  friend class ParaxialUVCoordSystem;
+  friend class ParallelUvCoordSystem;
+  friend class ParaxialUvCoordSystem;
 };
 
 enum class WrapStyle
@@ -56,18 +56,18 @@ enum class WrapStyle
   Rotation
 };
 
-class UVCoordSystem
+class UvCoordSystem
 {
 public:
-  UVCoordSystem();
-  virtual ~UVCoordSystem();
+  UvCoordSystem();
+  virtual ~UvCoordSystem();
 
-  friend bool operator==(const UVCoordSystem& lhs, const UVCoordSystem& rhs);
-  friend bool operator!=(const UVCoordSystem& lhs, const UVCoordSystem& rhs);
+  friend bool operator==(const UvCoordSystem& lhs, const UvCoordSystem& rhs);
+  friend bool operator!=(const UvCoordSystem& lhs, const UvCoordSystem& rhs);
 
-  virtual std::unique_ptr<UVCoordSystem> clone() const = 0;
-  virtual std::unique_ptr<UVCoordSystemSnapshot> takeSnapshot() const = 0;
-  virtual void restoreSnapshot(const UVCoordSystemSnapshot& snapshot) = 0;
+  virtual std::unique_ptr<UvCoordSystem> clone() const = 0;
+  virtual std::unique_ptr<UvCoordSystemSnapshot> takeSnapshot() const = 0;
+  virtual void restoreSnapshot(const UvCoordSystemSnapshot& snapshot) = 0;
 
   virtual vm::vec3d uAxis() const = 0;
   virtual vm::vec3d vAxis() const = 0;
@@ -117,19 +117,19 @@ public:
   virtual float measureAngle(
     float currentAngle, const vm::vec2f& center, const vm::vec2f& point) const = 0;
 
-  virtual std::tuple<std::unique_ptr<UVCoordSystem>, BrushFaceAttributes> toParallel(
+  virtual std::tuple<std::unique_ptr<UvCoordSystem>, BrushFaceAttributes> toParallel(
     const vm::vec3d& point0,
     const vm::vec3d& point1,
     const vm::vec3d& point2,
     const BrushFaceAttributes& attribs) const = 0;
-  virtual std::tuple<std::unique_ptr<UVCoordSystem>, BrushFaceAttributes> toParaxial(
+  virtual std::tuple<std::unique_ptr<UvCoordSystem>, BrushFaceAttributes> toParaxial(
     const vm::vec3d& point0,
     const vm::vec3d& point1,
     const vm::vec3d& point2,
     const BrushFaceAttributes& attribs) const = 0;
 
 private:
-  friend class UVCoordSystemSnapshot;
+  friend class UvCoordSystemSnapshot;
 
   virtual bool isRotationInverted(const vm::vec3d& normal) const = 0;
 
@@ -141,7 +141,7 @@ private:
     const BrushFaceAttributes& attribs) = 0;
 
 protected:
-  vm::vec2f computeUVCoords(const vm::vec3d& point, const vm::vec2f& scale) const;
+  vm::vec2f computeUvCoords(const vm::vec3d& point, const vm::vec2f& scale) const;
 
   template <typename T>
   static T safeScale(const T value)
@@ -157,7 +157,7 @@ protected:
     return axis / safeScale(T1(factor));
   }
 
-  deleteCopyAndMove(UVCoordSystem);
+  deleteCopyAndMove(UvCoordSystem);
 };
 
 } // namespace tb::mdl

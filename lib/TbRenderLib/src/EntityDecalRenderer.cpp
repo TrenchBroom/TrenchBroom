@@ -29,7 +29,7 @@
 #include "mdl/EntityNode.h"
 #include "mdl/Map.h"
 #include "mdl/ModelUtils.h"
-#include "mdl/UVCoordSystem.h"
+#include "mdl/UvCoordSystem.h"
 #include "mdl/WorldNode.h"
 #include "render/BrushRendererArrays.h"
 

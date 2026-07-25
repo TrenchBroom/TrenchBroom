@@ -49,8 +49,8 @@ class Material;
 
 namespace mdl
 {
-class UVCoordSystem;
-class UVCoordSystemSnapshot;
+class UvCoordSystem;
+class UvCoordSystemSnapshot;
 enum class WrapStyle;
 enum class MapFormat;
 
@@ -93,7 +93,7 @@ private:
   BrushFaceAttributes m_attributes;
 
   AssetReference<gl::Material> m_materialReference;
-  std::unique_ptr<UVCoordSystem> m_uvCoordSystem;
+  std::unique_ptr<UvCoordSystem> m_uvCoordSystem;
   BrushFaceGeometry* m_geometry = nullptr;
 
   mutable size_t m_lineNumber = 0;
@@ -123,7 +123,7 @@ public:
    * face-aligned UV projection, whereas createFromStandard() creates an axis-aligned
    * UV projection.
    *
-   * The returned face has a UVCoordSystem matching the given format.
+   * The returned face has a UvCoordSystem matching the given format.
    */
   static Result<BrushFace> create(
     const vm::vec3d& point0,
@@ -138,7 +138,7 @@ public:
    *
    * Used when loading/pasting a Standard format map.
    *
-   * The returned face has a UVCoordSystem matching the given format.
+   * The returned face has a UvCoordSystem matching the given format.
    */
   static Result<BrushFace> createFromStandard(
     const vm::vec3d& point0,
@@ -153,7 +153,7 @@ public:
    *
    * Used when loading/pasting a Valve format map.
    *
-   * The returned face has a UVCoordSystem matching the given format.
+   * The returned face has a UvCoordSystem matching the given format.
    */
   static Result<BrushFace> createFromValve(
     const vm::vec3d& point1,
@@ -169,20 +169,20 @@ public:
     const vm::vec3d& point1,
     const vm::vec3d& point2,
     const BrushFaceAttributes& attributes,
-    std::unique_ptr<UVCoordSystem> uvCoordSystem);
+    std::unique_ptr<UvCoordSystem> uvCoordSystem);
 
   BrushFace(
     const BrushFace::Points& points,
     const vm::plane3d& boundary,
     BrushFaceAttributes attributes,
-    std::unique_ptr<UVCoordSystem> uvCoordSystem);
+    std::unique_ptr<UvCoordSystem> uvCoordSystem);
 
   static void sortFaces(std::vector<BrushFace>& faces);
 
-  std::unique_ptr<UVCoordSystemSnapshot> takeUVCoordSystemSnapshot() const;
-  void restoreUVCoordSystemSnapshot(const UVCoordSystemSnapshot& coordSystemSnapshot);
-  void copyUVCoordSystemFromFace(
-    const UVCoordSystemSnapshot& coordSystemSnapshot,
+  std::unique_ptr<UvCoordSystemSnapshot> takeUvCoordSystemSnapshot() const;
+  void restoreUvCoordSystemSnapshot(const UvCoordSystemSnapshot& coordSystemSnapshot);
+  void copyUvCoordSystemFromFace(
+    const UvCoordSystemSnapshot& coordSystemSnapshot,
     const BrushFaceAttributes& attributes,
     const vm::plane3d& sourceFacePlane,
     WrapStyle wrapStyle);
@@ -206,8 +206,8 @@ public:
   float resolvedSurfaceValue() const;
   std::optional<Color> resolvedColor() const;
 
-  void resetUVCoordSystemCache();
-  const UVCoordSystem& uvCoordSystem() const;
+  void resetUvCoordSystemCache();
+  const UvCoordSystem& uvCoordSystem() const;
 
   const gl::Material* material() const;
   vm::vec2f textureSize() const;
@@ -217,16 +217,16 @@ public:
 
   vm::vec3d uAxis() const;
   vm::vec3d vAxis() const;
-  void resetUVAxes();
-  void resetUVAxesToParaxial();
+  void resetUvAxes();
+  void resetUvAxesToParaxial();
 
   void convertToParaxial();
   void convertToParallel();
 
-  void translateUV(const vm::vec3d& up, const vm::vec3d& right, const vm::vec2f& offset);
-  void rotateUV(float angle);
-  void shearUV(const vm::vec2f& factors);
-  void flipUV(
+  void translateUv(const vm::vec3d& up, const vm::vec3d& right, const vm::vec2f& offset);
+  void rotateUv(float angle);
+  void shearUv(const vm::vec2f& factors);
+  void flipUv(
     const vm::vec3d& cameraUp,
     const vm::vec3d& cameraRight,
     vm::direction cameraRelativeFlipDirection);
@@ -237,11 +237,11 @@ public:
   Result<void> updatePointsFromVertices();
 
   vm::mat4x4d projectToBoundaryMatrix() const;
-  vm::mat4x4d toUVCoordSystemMatrix(
+  vm::mat4x4d toUvCoordSystemMatrix(
     const vm::vec2f& offset, const vm::vec2f& scale) const;
-  vm::mat4x4d fromUVCoordSystemMatrix(
+  vm::mat4x4d fromUvCoordSystemMatrix(
     const vm::vec2f& offset, const vm::vec2f& scale) const;
-  float measureUVAngle(const vm::vec2f& center, const vm::vec2f& point) const;
+  float measureUvAngle(const vm::vec2f& center, const vm::vec2f& point) const;
 
   size_t vertexCount() const;
 

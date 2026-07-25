@@ -206,7 +206,7 @@ inline auto TextureMagFilter = Preference<int>{"render/Texture mode mag filter",
 inline auto EnableMSAA = Preference<bool>{"render/Enable multisampling", true};
 
 inline auto AlignmentLock = Preference<bool>{"Editor/Texture lock", true};
-inline auto UVLock = Preference<bool>{"Editor/UV lock", false};
+inline auto UvLock = Preference<bool>{"Editor/UV lock", false};
 
 inline auto RendererFontPath = Preference<std::filesystem::path>{
   "render/Font name", "fonts/SourceSansPro-Regular.otf"};

@@ -52,7 +52,7 @@ class RenderContext;
 namespace ui
 {
 
-class UVViewHelper
+class UvViewHelper
 {
 private:
   gl::OrthographicCamera& m_camera;
@@ -68,7 +68,7 @@ private:
   vm::vec3d m_origin;
 
 public:
-  explicit UVViewHelper(gl::OrthographicCamera& camera);
+  explicit UvViewHelper(gl::OrthographicCamera& camera);
 
   bool valid() const;
   const mdl::BrushFace* face() const;
@@ -82,18 +82,18 @@ public:
 
   const vm::vec3d origin() const;
   const vm::vec2f originInFaceCoords() const;
-  const vm::vec2f originInUVCoords() const;
+  const vm::vec2f originInUvCoords() const;
   void setOriginInFaceCoords(const vm::vec2f& originInFaceCoords);
 
   const gl::OrthographicCamera& camera() const;
 
-  void pickUVGrid(
+  void pickUvGrid(
     const vm::ray3d& ray,
     const mdl::HitType::Type hitTypes[2],
     mdl::PickResult& pickResult) const;
 
   vm::vec2f snapDelta(const vm::vec2f& delta, const vm::vec2f& distance) const;
-  vm::vec2f computeDistanceFromUVGrid(const vm::vec3d& position) const;
+  vm::vec2f computeDistanceFromUvGrid(const vm::vec3d& position) const;
 
   void computeOriginHandleVertices(
     vm::vec3d& x1, vm::vec3d& x2, vm::vec3d& y1, vm::vec3d& y2) const;

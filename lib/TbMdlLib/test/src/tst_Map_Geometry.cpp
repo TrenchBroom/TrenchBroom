@@ -37,7 +37,7 @@
 #include "mdl/Map_Selection.h"
 #include "mdl/Matchers.h"
 #include "mdl/NodeHandles.h"
-#include "mdl/ParallelUVCoordSystem.h"
+#include "mdl/ParallelUvCoordSystem.h"
 #include "mdl/TestFactory.h"
 #include "mdl/TestUtils.h"
 #include "mdl/WorldNode.h"
@@ -251,7 +251,7 @@ TEST_CASE("Map_Geometry")
 
         THEN("The brushes in both linked groups have alignment lock forced on")
         {
-          auto getUVCoords =
+          auto getUvCoords =
             [](auto* brushNode, const vm::vec3d& normal) -> std::vector<vm::vec2f> {
             const BrushFace& face =
               brushNode->brush().face(*brushNode->brush().findFace(normal));
@@ -262,8 +262,8 @@ TEST_CASE("Map_Geometry")
 
           // Brushes in linked groups should have alignment lock forced on
           CHECK(uvListsEqual(
-            getUVCoords(brushNode1, vm::vec3d{0, 0, 1}),
-            getUVCoords(linkedBrushNode, vm::vec3d{0, 0, 1})));
+            getUvCoords(brushNode1, vm::vec3d{0, 0, 1}),
+            getUvCoords(linkedBrushNode, vm::vec3d{0, 0, 1})));
         }
       }
     }
@@ -1175,18 +1175,18 @@ TEST_CASE("Map_Geometry")
       auto* entityNode = new EntityNode{Entity{}};
       addNodes(map, {{parentForNodes(map), {entityNode}}});
 
-      auto texAlignment = ParallelUVCoordSystem{{1, 0, 0}, {0, 1, 0}};
+      auto texAlignment = ParallelUvCoordSystem{{1, 0, 0}, {0, 1, 0}};
       auto texAlignmentSnapshot = texAlignment.takeSnapshot();
 
       auto brush1 = builder.createCuboid(vm::bbox3d{{0, 0, 0}, {32, 64, 64}}, "material")
                     | kdl::value();
       brush1.face(*brush1.findFace(vm::vec3d{0, 0, 1}))
-        .restoreUVCoordSystemSnapshot(*texAlignmentSnapshot);
+        .restoreUvCoordSystemSnapshot(*texAlignmentSnapshot);
 
       auto brush2 = builder.createCuboid(vm::bbox3d{{32, 0, 0}, {64, 64, 64}}, "material")
                     | kdl::value();
       brush2.face(*brush2.findFace(vm::vec3d{0, 0, 1}))
-        .restoreUVCoordSystemSnapshot(*texAlignmentSnapshot);
+        .restoreUvCoordSystemSnapshot(*texAlignmentSnapshot);
 
       auto* brushNode1 = new BrushNode{std::move(brush1)};
       auto* brushNode2 = new BrushNode{std::move(brush2)};
@@ -1291,7 +1291,7 @@ TEST_CASE("Map_Geometry")
       auto* entityNode = new EntityNode{Entity{}};
       addNodes(map, {{parentForNodes(map), {entityNode}}});
 
-      auto texAlignment = ParallelUVCoordSystem{vm::vec3d{1, 0, 0}, vm::vec3d{0, 1, 0}};
+      auto texAlignment = ParallelUvCoordSystem{vm::vec3d{1, 0, 0}, vm::vec3d{0, 1, 0}};
       auto texAlignmentSnapshot = texAlignment.takeSnapshot();
 
       auto brush1 = builder.createCuboid(
@@ -1301,7 +1301,7 @@ TEST_CASE("Map_Geometry")
                       vm::bbox3d{vm::vec3d{0, 0, 0}, vm::vec3d{64, 64, 32}}, "material")
                     | kdl::value();
       brush2.face(*brush2.findFace(vm::vec3d{0, 0, 1}))
-        .restoreUVCoordSystemSnapshot(*texAlignmentSnapshot);
+        .restoreUvCoordSystemSnapshot(*texAlignmentSnapshot);
 
       auto* brushNode1 = new BrushNode{std::move(brush1)};
       auto* brushNode2 = new BrushNode{std::move(brush2)};

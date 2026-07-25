@@ -19,40 +19,40 @@
 
 #pragma once
 
-#include "mdl/HitType.h"
 #include "ui/Tool.h"
 #include "ui/ToolController.h"
 
 #include <memory>
 
-namespace tb::ui
+namespace tb
+{
+namespace gl
+{
+class OrthographicCamera;
+}
+
+namespace ui
 {
 class GestureTracker;
-class MapDocument;
-class UVViewHelper;
 
-class UVShearTool : public ToolController, public Tool
+class UvCameraTool : public ToolController, public Tool
 {
 private:
-  static const mdl::HitType::Type XHandleHitType;
-  static const mdl::HitType::Type YHandleHitType;
-
-private:
-  MapDocument& m_document;
-  UVViewHelper& m_helper;
+  gl::OrthographicCamera& m_camera;
 
 public:
-  UVShearTool(MapDocument& document, UVViewHelper& helper);
+  explicit UvCameraTool(gl::OrthographicCamera& camera);
 
 private:
   Tool& tool() override;
   const Tool& tool() const override;
 
-  void pick(const InputState& inputState, mdl::PickResult& pickResult) override;
+  void mouseScroll(const InputState& inputState) override;
 
   std::unique_ptr<GestureTracker> acceptMouseDrag(const InputState& inputState) override;
 
   bool cancel() override;
 };
 
-} // namespace tb::ui
+} // namespace ui
+} // namespace tb

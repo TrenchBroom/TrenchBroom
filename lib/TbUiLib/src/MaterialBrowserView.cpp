@@ -388,7 +388,7 @@ const Color& MaterialBrowserView::materialColor(const gl::Material& material) co
 void MaterialBrowserView::renderMaterials(
   gl::Gl& gl, Layout& layout, const float y, const float height)
 {
-  using Vertex = gl::VertexTypes::P2UV2::Vertex;
+  using Vertex = gl::VertexTypes::P2Uv2::Vertex;
 
   auto shader = gl::ActiveShader{gl, shaderManager(), gl::Shaders::MaterialBrowserShader};
   shader.set("ApplyTinting", false);

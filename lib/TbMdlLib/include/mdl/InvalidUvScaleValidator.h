@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2026 Kristian Duske
+ Copyright (C) 2010 Kristian Duske
 
  This file is part of TrenchBroom.
 
@@ -17,17 +17,23 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "mdl/UVUtils.h"
+#pragma once
+
+#include "mdl/Validator.h"
+
+#include <vector>
 
 namespace tb::mdl
 {
 
-std::tuple<vm::vec3d, vm::vec3d> computeCameraAxesForFaceNormal(const vm::vec3d& normal)
+class InvalidUvScaleValidator : public Validator
 {
-  const auto right = vm::abs(vm::dot(vm::vec3d{0, 0, 1}, normal)) < double(1)
-                       ? vm::normalize(vm::cross(vm::vec3d{0, 0, 1}, normal))
-                       : vm::vec3d{1, 0, 0};
-  return {vm::normalize(vm::cross(normal, right)), right};
-}
+public:
+  InvalidUvScaleValidator();
+
+private:
+  void doValidate(
+    BrushNode& brushNode, std::vector<std::unique_ptr<Issue>>& issues) const override;
+};
 
 } // namespace tb::mdl

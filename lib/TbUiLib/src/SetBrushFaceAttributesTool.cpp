@@ -33,8 +33,8 @@
 #include "mdl/ModelUtils.h"
 #include "mdl/Transaction.h"
 #include "mdl/TransactionScope.h"
-#include "mdl/UVCoordSystem.h"
 #include "mdl/UpdateBrushFaceAttributes.h"
+#include "mdl/UvCoordSystem.h"
 #include "ui/GestureTracker.h"
 #include "ui/InputState.h"
 #include "ui/MapDocument.h"
@@ -280,9 +280,9 @@ void transferFaceAttributes(
     setBrushFaceAttributes(
       map, mdl::copyAllExceptContentFlags(sourceFaceHandle.face().attributes()));
 
-    if (auto snapshot = sourceFaceHandle.face().takeUVCoordSystemSnapshot())
+    if (auto snapshot = sourceFaceHandle.face().takeUvCoordSystemSnapshot())
     {
-      copyUV(
+      copyUv(
         map,
         *snapshot,
         sourceFaceHandle.face().attributes(),

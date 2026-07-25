@@ -26,7 +26,7 @@
 #include "ui/RenderView.h"
 #include "ui/ToolBox.h"
 #include "ui/ToolBoxConnector.h"
-#include "ui/UVViewHelper.h"
+#include "ui/UvViewHelper.h"
 
 class QWidget;
 
@@ -43,19 +43,19 @@ namespace ui
 {
 class AppController;
 class MapDocument;
-class UVRotateTool;
-class UVOriginTool;
-class UVScaleTool;
-class UVShearTool;
-class UVOffsetTool;
-class UVCameraTool;
+class UvRotateTool;
+class UvOriginTool;
+class UvScaleTool;
+class UvShearTool;
+class UvOffsetTool;
+class UvCameraTool;
 
 /**
  A view which allows the user to manipulate the UV projection interactively with the
  mouse. The user can change UV offsets, scaling factors and rotation. If supported by the
  map format, the user can manipulate the UV axes as well.
  */
-class UVView : public RenderView, public ToolBoxConnector
+class UvView : public RenderView, public ToolBoxConnector
 {
   Q_OBJECT
 public:
@@ -65,14 +65,14 @@ private:
   MapDocument& m_document;
 
   gl::OrthographicCamera m_camera;
-  UVViewHelper m_helper;
+  UvViewHelper m_helper;
 
   ToolBox m_toolBox;
 
   NotifierConnection m_notifierConnection;
 
 public:
-  UVView(AppController& appController, MapDocument& document);
+  UvView(AppController& appController, MapDocument& document);
 
   void setSubDivisions(const vm::vec2i& subDivisions);
 
@@ -96,7 +96,7 @@ private:
     render::RenderContext& renderContext, render::RenderBatch& renderBatch);
 
   void renderFace(render::RenderContext& renderContext, render::RenderBatch& renderBatch);
-  void renderUVAxes(
+  void renderUvAxes(
     render::RenderContext& renderContext, render::RenderBatch& renderBatch);
   void renderToolBox(
     render::RenderContext& renderContext, render::RenderBatch& renderBatch);

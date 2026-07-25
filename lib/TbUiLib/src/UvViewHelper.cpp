@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ui/UVViewHelper.h"
+#include "ui/UvViewHelper.h"
 
 #include "gl/Material.h"
 #include "gl/OrthographicCamera.h"
@@ -25,7 +25,7 @@
 #include "mdl/BrushFace.h"
 #include "mdl/PickResult.h"
 #include "mdl/Polyhedron.h"
-#include "mdl/UVUtils.h"
+#include "mdl/UvUtils.h"
 
 #include "kd/contracts.h"
 
@@ -37,27 +37,27 @@
 namespace tb::ui
 {
 
-UVViewHelper::UVViewHelper(gl::OrthographicCamera& camera)
+UvViewHelper::UvViewHelper(gl::OrthographicCamera& camera)
   : m_camera{camera}
 {
 }
 
-bool UVViewHelper::valid() const
+bool UvViewHelper::valid() const
 {
   return m_faceHandle.has_value();
 }
 
-const mdl::BrushFace* UVViewHelper::face() const
+const mdl::BrushFace* UvViewHelper::face() const
 {
   return valid() ? &m_faceHandle->face() : nullptr;
 }
 
-const gl::Material* UVViewHelper::material() const
+const gl::Material* UvViewHelper::material() const
 {
   return valid() ? face()->material() : nullptr;
 }
 
-void UVViewHelper::setFaceHandle(std::optional<mdl::BrushFaceHandle> faceHandle)
+void UvViewHelper::setFaceHandle(std::optional<mdl::BrushFaceHandle> faceHandle)
 {
   if (faceHandle != m_faceHandle)
   {
@@ -70,7 +70,7 @@ void UVViewHelper::setFaceHandle(std::optional<mdl::BrushFaceHandle> faceHandle)
   }
 }
 
-void UVViewHelper::cameraViewportChanged()
+void UvViewHelper::cameraViewportChanged()
 {
   // If the user selects a face before the texturing view was shown for the first time,
   // the size of the view might still have been off, resulting in invalid zoom factors.
@@ -82,12 +82,12 @@ void UVViewHelper::cameraViewportChanged()
   }
 }
 
-const vm::vec2i& UVViewHelper::subDivisions() const
+const vm::vec2i& UvViewHelper::subDivisions() const
 {
   return m_subDivisions;
 }
 
-vm::vec2d UVViewHelper::stripeSize() const
+vm::vec2d UvViewHelper::stripeSize() const
 {
   contract_pre(valid());
 
@@ -99,45 +99,45 @@ vm::vec2d UVViewHelper::stripeSize() const
   return vm::vec2d{0, 0};
 }
 
-void UVViewHelper::setSubDivisions(const vm::vec2i& subDivisions)
+void UvViewHelper::setSubDivisions(const vm::vec2i& subDivisions)
 {
   m_subDivisions = subDivisions;
 }
 
-const vm::vec3d UVViewHelper::origin() const
+const vm::vec3d UvViewHelper::origin() const
 {
   contract_pre(valid());
 
   return m_origin;
 }
 
-const vm::vec2f UVViewHelper::originInFaceCoords() const
+const vm::vec2f UvViewHelper::originInFaceCoords() const
 {
-  const auto toFace = face()->toUVCoordSystemMatrix(vm::vec2f{0, 0}, vm::vec2f{1, 1});
+  const auto toFace = face()->toUvCoordSystemMatrix(vm::vec2f{0, 0}, vm::vec2f{1, 1});
   return vm::vec2f{toFace * origin()};
 }
 
-const vm::vec2f UVViewHelper::originInUVCoords() const
+const vm::vec2f UvViewHelper::originInUvCoords() const
 {
   contract_pre(valid());
 
-  const auto toFace = face()->toUVCoordSystemMatrix(
+  const auto toFace = face()->toUvCoordSystemMatrix(
     face()->attributes().offset(), face()->attributes().scale());
   return vm::vec2f{toFace * origin()};
 }
 
-void UVViewHelper::setOriginInFaceCoords(const vm::vec2f& originInFaceCoords)
+void UvViewHelper::setOriginInFaceCoords(const vm::vec2f& originInFaceCoords)
 {
-  const auto fromFace = face()->fromUVCoordSystemMatrix(vm::vec2f{0, 0}, vm::vec2f{1, 1});
+  const auto fromFace = face()->fromUvCoordSystemMatrix(vm::vec2f{0, 0}, vm::vec2f{1, 1});
   m_origin = fromFace * vm::vec3d{originInFaceCoords};
 }
 
-const gl::OrthographicCamera& UVViewHelper::camera() const
+const gl::OrthographicCamera& UvViewHelper::camera() const
 {
   return m_camera;
 }
 
-void UVViewHelper::pickUVGrid(
+void UvViewHelper::pickUvGrid(
   const vm::ray3d& ray,
   const mdl::HitType::Type hitTypes[2],
   mdl::PickResult& pickResult) const
@@ -150,31 +150,31 @@ void UVViewHelper::pickUVGrid(
     if (const auto distance = vm::intersect_ray_plane(ray, boundary))
     {
       const auto hitPointInWorldCoords = vm::point_at_distance(ray, *distance);
-      const auto hitPointInUVCoords = vm::vec2f{
-        face()->toUVCoordSystemMatrix(
+      const auto hitPointInUvCoords = vm::vec2f{
+        face()->toUvCoordSystemMatrix(
           face()->attributes().offset(), face()->attributes().scale())
         * hitPointInWorldCoords};
-      const auto hitPointInViewCoords = uvToViewCoords(hitPointInUVCoords);
+      const auto hitPointInViewCoords = uvToViewCoords(hitPointInUvCoords);
 
       // X and Y distance in texels to the closest grid intersection.
       // (i.e. so the X component is the distance to the closest vertical gridline, and
       // the Y the distance to the closest horizontal gridline.)
-      const auto distanceFromGridUVCoords =
-        computeDistanceFromUVGrid(vm::vec3d{hitPointInUVCoords, 0});
-      const vm::vec2f closestPointsOnGridInUVCoords[2] = {
+      const auto distanceFromGridUvCoords =
+        computeDistanceFromUvGrid(vm::vec3d{hitPointInUvCoords, 0});
+      const vm::vec2f closestPointsOnGridInUvCoords[2] = {
         // closest point on a vertical gridline
-        hitPointInUVCoords + vm::vec2f{distanceFromGridUVCoords.x(), 0},
+        hitPointInUvCoords + vm::vec2f{distanceFromGridUvCoords.x(), 0},
         // closest point on a horizontal gridline
-        hitPointInUVCoords + vm::vec2f{0, distanceFromGridUVCoords.y()},
+        hitPointInUvCoords + vm::vec2f{0, distanceFromGridUvCoords.y()},
 
       };
 
       // FIXME: should be measured in points so the grid isn't harder to hit with high-DPI
       const float distToClosestGridInViewCoords[2] = {
         vm::distance(
-          hitPointInViewCoords, uvToViewCoords(closestPointsOnGridInUVCoords[0])),
+          hitPointInViewCoords, uvToViewCoords(closestPointsOnGridInUvCoords[0])),
         vm::distance(
-          hitPointInViewCoords, uvToViewCoords(closestPointsOnGridInUVCoords[1]))};
+          hitPointInViewCoords, uvToViewCoords(closestPointsOnGridInUvCoords[1]))};
 
       // FIXME: factor out and share with other tools
       constexpr auto maxDistance = 5.0f;
@@ -185,8 +185,8 @@ void UVViewHelper::pickUVGrid(
 
         if (error <= maxDistance)
         {
-          const auto stripeSize = UVViewHelper::stripeSize();
-          const auto index = int(vm::round(hitPointInUVCoords[i] / stripeSize[i]));
+          const auto stripeSize = UvViewHelper::stripeSize();
+          const auto index = int(vm::round(hitPointInUvCoords[i] / stripeSize[i]));
           pickResult.addHit(
             {hitTypes[i], *distance, hitPointInWorldCoords, index, error});
         }
@@ -195,7 +195,7 @@ void UVViewHelper::pickUVGrid(
   }
 }
 
-vm::vec2f UVViewHelper::snapDelta(const vm::vec2f& delta, const vm::vec2f& distance) const
+vm::vec2f UvViewHelper::snapDelta(const vm::vec2f& delta, const vm::vec2f& distance) const
 {
   const auto zoom = camera().zoom();
 
@@ -208,7 +208,7 @@ vm::vec2f UVViewHelper::snapDelta(const vm::vec2f& delta, const vm::vec2f& dista
   return result;
 }
 
-vm::vec2f UVViewHelper::computeDistanceFromUVGrid(const vm::vec3d& position) const
+vm::vec2f UvViewHelper::computeDistanceFromUvGrid(const vm::vec3d& position) const
 {
   const auto stripe = stripeSize();
   contract_assert(stripe.x() != 0.0 && stripe.y() != 0.0);
@@ -217,29 +217,29 @@ vm::vec2f UVViewHelper::computeDistanceFromUVGrid(const vm::vec3d& position) con
   return vm::vec2f{closest - position.xy()};
 }
 
-void UVViewHelper::computeOriginHandleVertices(
+void UvViewHelper::computeOriginHandleVertices(
   vm::vec3d& x1, vm::vec3d& x2, vm::vec3d& y1, vm::vec3d& y2) const
 {
   contract_pre(valid());
 
-  const auto toTex = face()->toUVCoordSystemMatrix(vm::vec2f{0, 0}, vm::vec2f{1, 1});
-  const auto toWorld = face()->fromUVCoordSystemMatrix(vm::vec2f{0, 0}, vm::vec2f{1, 1});
+  const auto toTex = face()->toUvCoordSystemMatrix(vm::vec2f{0, 0}, vm::vec2f{1, 1});
+  const auto toWorld = face()->fromUvCoordSystemMatrix(vm::vec2f{0, 0}, vm::vec2f{1, 1});
   computeLineVertices(vm::vec2d{originInFaceCoords()}, x1, x2, y1, y2, toTex, toWorld);
 }
 
-void UVViewHelper::computeScaleHandleVertices(
+void UvViewHelper::computeScaleHandleVertices(
   const vm::vec2d& pos, vm::vec3d& x1, vm::vec3d& x2, vm::vec3d& y1, vm::vec3d& y2) const
 {
   contract_pre(valid());
 
-  const auto toTex = face()->toUVCoordSystemMatrix(
+  const auto toTex = face()->toUvCoordSystemMatrix(
     face()->attributes().offset(), face()->attributes().scale());
-  const auto toWorld = face()->fromUVCoordSystemMatrix(
+  const auto toWorld = face()->fromUvCoordSystemMatrix(
     face()->attributes().offset(), face()->attributes().scale());
   computeLineVertices(pos, x1, x2, y1, y2, toTex, toWorld);
 }
 
-void UVViewHelper::computeLineVertices(
+void UvViewHelper::computeLineVertices(
   const vm::vec2d& pos,
   vm::vec3d& x1,
   vm::vec3d& x2,
@@ -260,20 +260,20 @@ void UVViewHelper::computeLineVertices(
   y2 = toWorld * vm::vec3d{max.x(), pos.y(), 0.0};
 }
 
-vm::vec2f UVViewHelper::uvToViewCoords(const vm::vec2f& pos) const
+vm::vec2f UvViewHelper::uvToViewCoords(const vm::vec2f& pos) const
 {
   const auto posInWorldCoords =
-    face()->fromUVCoordSystemMatrix(
+    face()->fromUvCoordSystemMatrix(
       face()->attributes().offset(), face()->attributes().scale())
     * vm::vec3d{pos, 0.0};
   return m_camera.project(vm::vec3f(posInWorldCoords)).xy();
 }
 
-void UVViewHelper::resetOrigin()
+void UvViewHelper::resetOrigin()
 {
   contract_pre(valid());
 
-  const auto toTex = face()->toUVCoordSystemMatrix(vm::vec2f{0, 0}, vm::vec2f{1, 1});
+  const auto toTex = face()->toUvCoordSystemMatrix(vm::vec2f{0, 0}, vm::vec2f{1, 1});
   const auto texVertices = toTex * face()->vertexPositions();
 
   const auto toCam = vm::mat4x4d{m_camera.viewMatrix()};
@@ -298,7 +298,7 @@ void UVViewHelper::resetOrigin()
   setOriginInFaceCoords(vm::vec2f{originFace});
 }
 
-void UVViewHelper::resetCamera()
+void UvViewHelper::resetCamera()
 {
   contract_pre(valid());
 
@@ -313,7 +313,7 @@ void UVViewHelper::resetCamera()
   resetZoom();
 }
 
-void UVViewHelper::resetZoom()
+void UvViewHelper::resetZoom()
 {
   static constexpr auto MinMargin = 2.0f;
   static constexpr auto MaxMargin = 40.0f;
@@ -347,7 +347,7 @@ void UVViewHelper::resetZoom()
   }
 }
 
-vm::bbox3d UVViewHelper::computeFaceBoundsInCameraCoords() const
+vm::bbox3d UvViewHelper::computeFaceBoundsInCameraCoords() const
 {
   contract_pre(valid());
 

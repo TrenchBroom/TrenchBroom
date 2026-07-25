@@ -122,7 +122,7 @@ public:
     vm::axis::type axis,
     const std::string& textureName) const;
 
-  Result<Brush> createUVSphere(
+  Result<Brush> createUvSphere(
     const vm::bbox3d& bounds,
     const CircleShape& circleShape,
     size_t numRings,

@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ui/UVEditor.h"
+#include "ui/UvEditor.h"
 
 #include <QHBoxLayout>
 #include <QLabel>
@@ -33,13 +33,13 @@
 #include "ui/BitmapButton.h"
 #include "ui/MapDocument.h"
 #include "ui/QStyleUtils.h"
-#include "ui/UVView.h"
+#include "ui/UvView.h"
 #include "ui/ViewConstants.h"
 
 namespace tb::ui
 {
 
-UVEditor::UVEditor(AppController& appController, MapDocument& document, QWidget* parent)
+UvEditor::UvEditor(AppController& appController, MapDocument& document, QWidget* parent)
   : QWidget{parent}
   , m_document{document}
 {
@@ -47,49 +47,49 @@ UVEditor::UVEditor(AppController& appController, MapDocument& document, QWidget*
   connectObservers();
 }
 
-bool UVEditor::cancelMouseDrag()
+bool UvEditor::cancelMouseDrag()
 {
   return m_uvView->cancelDrag();
 }
 
-void UVEditor::updateButtons()
+void UvEditor::updateButtons()
 {
   const bool enabled = !m_document.map().selection().allBrushFaces().empty();
 
-  m_resetUVButton->setEnabled(enabled);
-  m_resetUVToWorldButton->setEnabled(enabled);
+  m_resetUvButton->setEnabled(enabled);
+  m_resetUvToWorldButton->setEnabled(enabled);
   m_flipUAxisButton->setEnabled(enabled);
   m_flipVAxisButton->setEnabled(enabled);
-  m_rotateUVCCWButton->setEnabled(enabled);
-  m_rotateUVCWButton->setEnabled(enabled);
+  m_rotateUvCCWButton->setEnabled(enabled);
+  m_rotateUvCWButton->setEnabled(enabled);
 }
 
-void UVEditor::createGui(AppController& appController)
+void UvEditor::createGui(AppController& appController)
 {
-  m_uvView = new UVView{appController, m_document};
+  m_uvView = new UvView{appController, m_document};
 
-  m_resetUVButton = createBitmapButton("ResetUV.svg", tr("Reset UV alignment"), this);
-  m_resetUVToWorldButton = createBitmapButton(
+  m_resetUvButton = createBitmapButton("ResetUV.svg", tr("Reset UV alignment"), this);
+  m_resetUvToWorldButton = createBitmapButton(
     "ResetUVToWorld.svg", tr("Reset UV alignment to world aligned"), this);
   m_flipUAxisButton = createBitmapButton("FlipUAxis.svg", tr("Flip U axis"), this);
   m_flipVAxisButton = createBitmapButton("FlipVAxis.svg", tr("Flip V axis"), this);
-  m_rotateUVCCWButton =
+  m_rotateUvCCWButton =
     createBitmapButton("RotateUVCCW.svg", tr("Rotate UV 90° counter-clockwise"), this);
-  m_rotateUVCWButton =
+  m_rotateUvCWButton =
     createBitmapButton("RotateUVCW.svg", tr("Rotate UV 90° clockwise"), this);
 
-  connect(m_resetUVButton, &QAbstractButton::clicked, this, &UVEditor::resetUVClicked);
+  connect(m_resetUvButton, &QAbstractButton::clicked, this, &UvEditor::resetUvClicked);
   connect(
-    m_resetUVToWorldButton,
+    m_resetUvToWorldButton,
     &QAbstractButton::clicked,
     this,
-    &UVEditor::resetUVToWorldClicked);
-  connect(m_flipUAxisButton, &QAbstractButton::clicked, this, &UVEditor::flipUVHClicked);
-  connect(m_flipVAxisButton, &QAbstractButton::clicked, this, &UVEditor::flipUVVClicked);
+    &UvEditor::resetUvToWorldClicked);
+  connect(m_flipUAxisButton, &QAbstractButton::clicked, this, &UvEditor::flipUvHClicked);
+  connect(m_flipVAxisButton, &QAbstractButton::clicked, this, &UvEditor::flipUvVClicked);
   connect(
-    m_rotateUVCCWButton, &QAbstractButton::clicked, this, &UVEditor::rotateUVCCWClicked);
+    m_rotateUvCCWButton, &QAbstractButton::clicked, this, &UvEditor::rotateUvCCWClicked);
   connect(
-    m_rotateUVCWButton, &QAbstractButton::clicked, this, &UVEditor::rotateUVCWClicked);
+    m_rotateUvCWButton, &QAbstractButton::clicked, this, &UvEditor::rotateUvCWClicked);
 
   auto* gridLabel = new QLabel{"Grid "};
   setEmphasizedStyle(gridLabel);
@@ -105,23 +105,23 @@ void UVEditor::createGui(AppController& appController)
     m_xSubDivisionEditor,
     QOverload<int>::of(&QSpinBox::valueChanged),
     this,
-    &UVEditor::subDivisionChanged);
+    &UvEditor::subDivisionChanged);
   connect(
     m_ySubDivisionEditor,
     QOverload<int>::of(&QSpinBox::valueChanged),
     this,
-    &UVEditor::subDivisionChanged);
+    &UvEditor::subDivisionChanged);
 
   auto* bottomLayout = new QHBoxLayout{};
   bottomLayout->setContentsMargins(
     LayoutConstants::NarrowHMargin, 0, LayoutConstants::NarrowHMargin, 0);
   bottomLayout->setSpacing(LayoutConstants::NarrowHMargin);
-  bottomLayout->addWidget(m_resetUVButton);
-  bottomLayout->addWidget(m_resetUVToWorldButton);
+  bottomLayout->addWidget(m_resetUvButton);
+  bottomLayout->addWidget(m_resetUvToWorldButton);
   bottomLayout->addWidget(m_flipUAxisButton);
   bottomLayout->addWidget(m_flipVAxisButton);
-  bottomLayout->addWidget(m_rotateUVCCWButton);
-  bottomLayout->addWidget(m_rotateUVCWButton);
+  bottomLayout->addWidget(m_rotateUvCCWButton);
+  bottomLayout->addWidget(m_rotateUvCWButton);
   bottomLayout->addStretch();
   bottomLayout->addWidget(gridLabel);
   bottomLayout->addWidget(new QLabel{"X:"});
@@ -141,7 +141,7 @@ void UVEditor::createGui(AppController& appController)
   updateButtons();
 }
 
-void UVEditor::connectObservers()
+void UvEditor::connectObservers()
 {
   m_notifierConnection +=
     m_document.documentWasLoadedNotifier.connect([&]() { updateButtons(); });
@@ -151,41 +151,41 @@ void UVEditor::connectObservers()
     m_document.selectionDidChangeNotifier.connect([&](const auto&) { updateButtons(); });
 }
 
-void UVEditor::resetUVClicked()
+void UvEditor::resetUvClicked()
 {
   auto& map = m_document.map();
   setBrushFaceAttributes(
     map, mdl::resetAll(map.gameInfo().gameConfig.faceAttribsConfig.defaults));
 }
 
-void UVEditor::resetUVToWorldClicked()
+void UvEditor::resetUvToWorldClicked()
 {
   auto& map = m_document.map();
   setBrushFaceAttributes(
     map, mdl::resetAllToParaxial(map.gameInfo().gameConfig.faceAttribsConfig.defaults));
 }
 
-void UVEditor::flipUVHClicked()
+void UvEditor::flipUvHClicked()
 {
   setBrushFaceAttributes(m_document.map(), {.xScale = mdl::MultiplyValue{-1.0f}});
 }
 
-void UVEditor::flipUVVClicked()
+void UvEditor::flipUvVClicked()
 {
   setBrushFaceAttributes(m_document.map(), {.yScale = mdl::MultiplyValue{-1.0f}});
 }
 
-void UVEditor::rotateUVCCWClicked()
+void UvEditor::rotateUvCCWClicked()
 {
   setBrushFaceAttributes(m_document.map(), {.rotation = mdl::AddValue{90.0f}});
 }
 
-void UVEditor::rotateUVCWClicked()
+void UvEditor::rotateUvCWClicked()
 {
   setBrushFaceAttributes(m_document.map(), {.rotation = mdl::AddValue{-90.0f}});
 }
 
-void UVEditor::subDivisionChanged()
+void UvEditor::subDivisionChanged()
 {
   const auto x = m_xSubDivisionEditor->value();
   const auto y = m_ySubDivisionEditor->value();

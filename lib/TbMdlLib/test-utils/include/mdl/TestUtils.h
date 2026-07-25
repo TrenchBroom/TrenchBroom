@@ -35,7 +35,7 @@ namespace tb
 bool uvCoordsEqual(const vm::vec2f& tc1, const vm::vec2f& tc2);
 bool pointExactlyIntegral(const vm::vec3d& point);
 bool uvListsEqual(
-  const std::vector<vm::vec2f>& uvs, const std::vector<vm::vec2f>& transformedVertUVs);
+  const std::vector<vm::vec2f>& uvs, const std::vector<vm::vec2f>& transformedVertUvs);
 
 std::unique_ptr<kdl::task_manager> createTestTaskManager();
 
@@ -115,8 +115,8 @@ const mdl::BrushFace* findFaceByPoints(
   const vm::vec3d& point0,
   const vm::vec3d& point1,
   const vm::vec3d& point2);
-void checkFaceUVCoordSystem(const mdl::BrushFace& face, bool expectParallel);
-void checkBrushUVCoordSystem(const mdl::BrushNode* brushNode, bool expectParallel);
+void checkFaceUvCoordSystem(const mdl::BrushFace& face, bool expectParallel);
+void checkBrushUvCoordSystem(const mdl::BrushNode* brushNode, bool expectParallel);
 
 void setLinkId(Node& node, std::string linkId);
 

@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ui/UVCameraTool.h"
+#include "ui/UvCameraTool.h"
 
 #include "gl/OrthographicCamera.h"
 #include "ui/GestureTracker.h"
@@ -30,13 +30,13 @@ namespace tb::ui
 namespace
 {
 
-class UVCameraToolDragTracker : public GestureTracker
+class UvCameraToolDragTracker : public GestureTracker
 {
 private:
   gl::Camera& m_camera;
 
 public:
-  explicit UVCameraToolDragTracker(gl::Camera& camera)
+  explicit UvCameraToolDragTracker(gl::Camera& camera)
     : m_camera{camera}
   {
   }
@@ -60,24 +60,24 @@ public:
 
 } // namespace
 
-UVCameraTool::UVCameraTool(gl::OrthographicCamera& camera)
+UvCameraTool::UvCameraTool(gl::OrthographicCamera& camera)
   : ToolController{}
   , Tool{true}
   , m_camera{camera}
 {
 }
 
-Tool& UVCameraTool::tool()
+Tool& UvCameraTool::tool()
 {
   return *this;
 }
 
-const Tool& UVCameraTool::tool() const
+const Tool& UvCameraTool::tool() const
 {
   return *this;
 }
 
-void UVCameraTool::mouseScroll(const InputState& inputState)
+void UvCameraTool::mouseScroll(const InputState& inputState)
 {
   const auto oldWorldPos =
     m_camera.unproject(float(inputState.mouseX()), float(inputState.mouseY()), 0.0f);
@@ -107,7 +107,7 @@ void UVCameraTool::mouseScroll(const InputState& inputState)
   m_camera.moveBy(delta);
 }
 
-std::unique_ptr<GestureTracker> UVCameraTool::acceptMouseDrag(
+std::unique_ptr<GestureTracker> UvCameraTool::acceptMouseDrag(
   const InputState& inputState)
 {
   if (
@@ -117,10 +117,10 @@ std::unique_ptr<GestureTracker> UVCameraTool::acceptMouseDrag(
     return nullptr;
   }
 
-  return std::make_unique<UVCameraToolDragTracker>(m_camera);
+  return std::make_unique<UvCameraToolDragTracker>(m_camera);
 }
 
-bool UVCameraTool::cancel()
+bool UvCameraTool::cancel()
 {
   return false;
 }

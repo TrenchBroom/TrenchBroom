@@ -91,7 +91,7 @@ TEST_CASE("Map_Commands")
         CHECK(material->usageCount() == 6u);
       }
 
-      SECTION("translateUV")
+      SECTION("translateUv")
       {
         auto topFaceIndex = brushNode->brush().findFace(vm::vec3d{0, 0, 1});
         REQUIRE(topFaceIndex.has_value());

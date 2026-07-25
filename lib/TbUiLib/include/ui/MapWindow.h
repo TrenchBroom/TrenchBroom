@@ -317,7 +317,7 @@ public:
   void replaceMaterial();
 
   void toggleAlignmentLock();
-  void toggleUVLock();
+  void toggleUvLock();
 
   void toggleShowGrid();
   void toggleSnapToGrid();

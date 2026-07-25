@@ -28,8 +28,8 @@
 #include "mdl/EntityNode.h"
 #include "mdl/GroupNode.h"
 #include "mdl/Map.h"
-#include "mdl/ParallelUVCoordSystem.h"
-#include "mdl/ParaxialUVCoordSystem.h"
+#include "mdl/ParallelUvCoordSystem.h"
+#include "mdl/ParaxialUvCoordSystem.h"
 #include "mdl/PatchNode.h"
 #include "mdl/WorldNode.h"
 
@@ -80,9 +80,9 @@ bool pointExactlyIntegral(const vm::vec3d& point)
  * Assumes the UV's have been divided by the texture size.
  */
 bool uvListsEqual(
-  const std::vector<vm::vec2f>& uvs, const std::vector<vm::vec2f>& transformedVertUVs)
+  const std::vector<vm::vec2f>& uvs, const std::vector<vm::vec2f>& transformedVertUvs)
 {
-  if (uvs.size() != transformedVertUVs.size())
+  if (uvs.size() != transformedVertUvs.size())
   {
     return false;
   }
@@ -90,7 +90,7 @@ bool uvListsEqual(
   {
     return false;
   }
-  if (!uvCoordsEqual(uvs[0], transformedVertUVs[0]))
+  if (!uvCoordsEqual(uvs[0], transformedVertUvs[0]))
   {
     return false;
   }
@@ -98,10 +98,10 @@ bool uvListsEqual(
   for (size_t i = 1; i < uvs.size(); ++i)
   {
     // note, just checking:
-    //   uvCoordsEqual(uvs[i], transformedVertUVs[i]);
+    //   uvCoordsEqual(uvs[i], transformedVertUvs[i]);
     // would be too lenient.
     const vm::vec2f expected = uvs[i] - uvs[0];
-    const vm::vec2f actual = transformedVertUVs[i] - transformedVertUVs[0];
+    const vm::vec2f actual = transformedVertUvs[i] - transformedVertUvs[0];
     if (!vm::is_equal(expected, actual, vm::Cf::almost_zero()))
     {
       return false;
@@ -110,7 +110,7 @@ bool uvListsEqual(
   return true;
 }
 
-TEST_CASE("TestUtilsTest.testUVCoordsEqual")
+TEST_CASE("TestUtilsTest.testUvCoordsEqual")
 {
   CHECK(uvCoordsEqual(vm::vec2f(0.0, 0.0), vm::vec2f(0.0, 0.0)));
   CHECK(uvCoordsEqual(vm::vec2f(0.0, 0.0), vm::vec2f(1.0, 0.0)));
@@ -172,7 +172,7 @@ BrushFace createParaxial(
            point1,
            point2,
            attributes,
-           std::make_unique<ParaxialUVCoordSystem>(point0, point1, point2, attributes))
+           std::make_unique<ParaxialUvCoordSystem>(point0, point1, point2, attributes))
          | kdl::value();
 }
 
@@ -333,24 +333,24 @@ const mdl::BrushFace* findFaceByPoints(
   return nullptr;
 }
 
-void checkFaceUVCoordSystem(const mdl::BrushFace& face, const bool expectParallel)
+void checkFaceUvCoordSystem(const mdl::BrushFace& face, const bool expectParallel)
 {
-  auto snapshot = face.takeUVCoordSystemSnapshot();
-  auto* check = dynamic_cast<mdl::ParallelUVCoordSystemSnapshot*>(snapshot.get());
+  auto snapshot = face.takeUvCoordSystemSnapshot();
+  auto* check = dynamic_cast<mdl::ParallelUvCoordSystemSnapshot*>(snapshot.get());
   const bool isParallel = (check != nullptr);
   CHECK(isParallel == expectParallel);
 }
 
-void checkBrushUVCoordSystem(const mdl::BrushNode* brushNode, const bool expectParallel)
+void checkBrushUvCoordSystem(const mdl::BrushNode* brushNode, const bool expectParallel)
 {
   const auto& faces = brushNode->brush().faces();
   CHECK(faces.size() == 6u);
-  checkFaceUVCoordSystem(faces[0], expectParallel);
-  checkFaceUVCoordSystem(faces[1], expectParallel);
-  checkFaceUVCoordSystem(faces[2], expectParallel);
-  checkFaceUVCoordSystem(faces[3], expectParallel);
-  checkFaceUVCoordSystem(faces[4], expectParallel);
-  checkFaceUVCoordSystem(faces[5], expectParallel);
+  checkFaceUvCoordSystem(faces[0], expectParallel);
+  checkFaceUvCoordSystem(faces[1], expectParallel);
+  checkFaceUvCoordSystem(faces[2], expectParallel);
+  checkFaceUvCoordSystem(faces[3], expectParallel);
+  checkFaceUvCoordSystem(faces[4], expectParallel);
+  checkFaceUvCoordSystem(faces[5], expectParallel);
 }
 
 void setLinkId(Node& node, std::string linkId)

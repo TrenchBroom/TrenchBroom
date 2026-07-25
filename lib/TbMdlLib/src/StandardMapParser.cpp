@@ -521,7 +521,7 @@ void StandardMapParser::parseQuake2ValveFace(ParserStatus& status)
   const auto [p1, p2, p3] = parseFacePoints(status);
   const auto materialName = parseMaterialName(status);
 
-  const auto [uAxis, uOffset, vAxis, vOffset] = parseValveUVAxes(status);
+  const auto [uAxis, uOffset, vAxis, vOffset] = parseValveUvAxes(status);
 
   auto attribs = BrushFaceAttributes{materialName};
   attribs.setXOffset(uOffset);
@@ -616,7 +616,7 @@ void StandardMapParser::parseValveFace(ParserStatus& status)
   const auto [p1, p2, p3] = parseFacePoints(status);
   const auto materialName = parseMaterialName(status);
 
-  const auto [uAxis, uOffset, vAxis, vOffset] = parseValveUVAxes(status);
+  const auto [uAxis, uOffset, vAxis, vOffset] = parseValveUvAxes(status);
 
   auto attribs = BrushFaceAttributes{materialName};
   attribs.setXOffset(uOffset);
@@ -637,7 +637,7 @@ void StandardMapParser::parsePrimitiveFace(ParserStatus& status)
 
   m_tokenizer.nextToken(QuakeMapToken::OParenthesis);
 
-  /* const auto [uAxis, vAxis] = */ parsePrimitiveUVAxes(status);
+  /* const auto [uAxis, vAxis] = */ parsePrimitiveUvAxes(status);
   m_tokenizer.nextToken(QuakeMapToken::CParenthesis);
 
   const auto materialName = parseMaterialName(status);
@@ -753,7 +753,7 @@ std::string StandardMapParser::parseMaterialName(ParserStatus& /* status */)
   return wasQuoted ? kdl::str_unescape(materialName, "\"\\") : std::string{materialName};
 }
 
-std::tuple<vm::vec3d, float, vm::vec3d, float> StandardMapParser::parseValveUVAxes(
+std::tuple<vm::vec3d, float, vm::vec3d, float> StandardMapParser::parseValveUvAxes(
   ParserStatus& /* status */)
 {
   const auto firstAxis =
@@ -769,7 +769,7 @@ std::tuple<vm::vec3d, float, vm::vec3d, float> StandardMapParser::parseValveUVAx
   return {uAxis, uOffset, vAxis, vOffset};
 }
 
-std::tuple<vm::vec3d, vm::vec3d> StandardMapParser::parsePrimitiveUVAxes(
+std::tuple<vm::vec3d, vm::vec3d> StandardMapParser::parsePrimitiveUvAxes(
   ParserStatus& /* status */)
 {
   const auto uAxis =

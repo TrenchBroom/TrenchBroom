@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "mdl/InvalidUVScaleValidator.h"
+#include "mdl/InvalidUvScaleValidator.h"
 
 #include "mdl/BrushFace.h"
 #include "mdl/BrushFaceAttributes.h"
@@ -41,7 +41,7 @@ namespace
 
 const auto Type = freeIssueType();
 
-IssueQuickFix makeResetUVScaleQuickFix()
+IssueQuickFix makeResetUvScaleQuickFix()
 {
   return {"Reset UV Scale", [](Map& map, const std::vector<const Issue*>& issues) {
             const auto pushSelection = PushSelection{map};
@@ -70,13 +70,13 @@ IssueQuickFix makeResetUVScaleQuickFix()
 }
 } // namespace
 
-InvalidUVScaleValidator::InvalidUVScaleValidator()
+InvalidUvScaleValidator::InvalidUvScaleValidator()
   : Validator{Type, "Invalid UV scale"}
 {
-  addQuickFix(makeResetUVScaleQuickFix());
+  addQuickFix(makeResetUvScaleQuickFix());
 }
 
-void InvalidUVScaleValidator::doValidate(
+void InvalidUvScaleValidator::doValidate(
   BrushNode& brushNode, std::vector<std::unique_ptr<Issue>>& issues) const
 {
   const auto& brush = brushNode.brush();

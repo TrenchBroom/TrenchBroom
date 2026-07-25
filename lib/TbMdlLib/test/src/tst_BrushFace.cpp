@@ -28,8 +28,8 @@
 #include "mdl/CatchConfig.h"
 #include "mdl/MapFormat.h"
 #include "mdl/NodeReader.h"
-#include "mdl/ParallelUVCoordSystem.h"
-#include "mdl/ParaxialUVCoordSystem.h"
+#include "mdl/ParallelUvCoordSystem.h"
+#include "mdl/ParaxialUvCoordSystem.h"
 #include "mdl/Polyhedron.h"
 #include "mdl/TestUtils.h"
 
@@ -54,22 +54,22 @@ namespace tb::mdl
 namespace
 {
 
-void getFaceVertsAndUVCoords(
+void getFaceVertsAndUvCoords(
   const BrushFace& face,
   std::vector<vm::vec3d>* vertPositions,
-  std::vector<vm::vec2f>* vertUVCoords)
+  std::vector<vm::vec2f>* vertUvCoords)
 {
   for (const auto* vertex : face.vertices())
   {
     vertPositions->push_back(vertex->position());
-    if (vertUVCoords)
+    if (vertUvCoords)
     {
-      vertUVCoords->push_back(face.uvCoords(vm::vec3d{vertex->position()}));
+      vertUvCoords->push_back(face.uvCoords(vm::vec3d{vertex->position()}));
     }
   }
 }
 
-void resetFaceUVAlignment(BrushFace& face)
+void resetFaceUvAlignment(BrushFace& face)
 {
   auto attributes = face.attributes();
   attributes.setXOffset(0.0);
@@ -79,15 +79,15 @@ void resetFaceUVAlignment(BrushFace& face)
   attributes.setYScale(1.0);
 
   face.setAttributes(attributes);
-  face.resetUVAxes();
+  face.resetUvAxes();
 }
 
 /**
  * Assumes the UV's have been divided by the texture size.
  */
-void checkUVListsEqual(
+void checkUvListsEqual(
   const std::vector<vm::vec2f>& uvs,
-  const std::vector<vm::vec2f>& transformedVertUVs,
+  const std::vector<vm::vec2f>& transformedVertUvs,
   const BrushFace& face)
 {
   // We require a material, so that face.textureSize() returns a correct value and not
@@ -95,7 +95,7 @@ void checkUVListsEqual(
   // Otherwise, the UV comparisons below could spuriously pass.
   REQUIRE(face.material() != nullptr);
 
-  CHECK(uvListsEqual(uvs, transformedVertUVs));
+  CHECK(uvListsEqual(uvs, transformedVertUvs));
 }
 
 /**
@@ -110,21 +110,21 @@ void checkAlignmentLockOffWithTransform(
 
   // reset alignment, transform the face (alignment lock off)
   auto face = origFace;
-  resetFaceUVAlignment(face);
+  resetFaceUvAlignment(face);
   REQUIRE(face.transform(transform, false));
-  face.resetUVCoordSystemCache();
+  face.resetUvCoordSystemCache();
 
   // reset alignment, transform the face (alignment lock off), then reset the alignment
   // again
   auto resetFace = origFace;
-  resetFaceUVAlignment(resetFace);
+  resetFaceUvAlignment(resetFace);
   REQUIRE(resetFace.transform(transform, false));
-  resetFaceUVAlignment(resetFace);
+  resetFaceUvAlignment(resetFace);
 
   // UVs of the verts of `face` and `resetFace` should be the same now
 
   auto verts = std::vector<vm::vec3d>{};
-  getFaceVertsAndUVCoords(origFace, &verts, nullptr);
+  getFaceVertsAndUvCoords(origFace, &verts, nullptr);
 
   // transform the verts
   auto transformedVerts = std::vector<vm::vec3d>{};
@@ -134,42 +134,42 @@ void checkAlignmentLockOffWithTransform(
   }
 
   // get UV of each transformed vert using `face` and `resetFace`
-  auto face_UVs = std::vector<vm::vec2f>{};
-  auto resetFace_UVs = std::vector<vm::vec2f>{};
+  auto face_Uvs = std::vector<vm::vec2f>{};
+  auto resetFace_Uvs = std::vector<vm::vec2f>{};
   for (size_t i = 0; i < verts.size(); i++)
   {
-    face_UVs.push_back(face.uvCoords(transformedVerts[i]));
-    resetFace_UVs.push_back(resetFace.uvCoords(transformedVerts[i]));
+    face_Uvs.push_back(face.uvCoords(transformedVerts[i]));
+    resetFace_Uvs.push_back(resetFace.uvCoords(transformedVerts[i]));
   }
 
-  checkUVListsEqual(face_UVs, resetFace_UVs, face);
+  checkUvListsEqual(face_Uvs, resetFace_Uvs, face);
 }
 
-void checkFaceUVsEqual(const BrushFace& face, const BrushFace& other)
+void checkFaceUvsEqual(const BrushFace& face, const BrushFace& other)
 {
   auto verts = std::vector<vm::vec3d>{};
-  auto faceUVs = std::vector<vm::vec2f>{};
-  auto otherFaceUVs = std::vector<vm::vec2f>{};
+  auto faceUvs = std::vector<vm::vec2f>{};
+  auto otherFaceUvs = std::vector<vm::vec2f>{};
 
   for (const auto* vertex : face.vertices())
   {
     verts.push_back(vertex->position());
 
     const auto position = vm::vec3d{vertex->position()};
-    faceUVs.push_back(face.uvCoords(position));
-    otherFaceUVs.push_back(other.uvCoords(position));
+    faceUvs.push_back(face.uvCoords(position));
+    otherFaceUvs.push_back(other.uvCoords(position));
   }
 
-  checkUVListsEqual(faceUVs, otherFaceUVs, face);
+  checkUvListsEqual(faceUvs, otherFaceUvs, face);
 }
 
-void checkBrushUVsEqual(const Brush& brush, const Brush& other)
+void checkBrushUvsEqual(const Brush& brush, const Brush& other)
 {
   contract_pre(brush.faceCount() == other.faceCount());
 
   for (size_t i = 0; i < brush.faceCount(); ++i)
   {
-    checkFaceUVsEqual(brush.face(i), other.face(i));
+    checkFaceUvsEqual(brush.face(i), other.face(i));
   }
 }
 
@@ -185,13 +185,13 @@ void checkAlignmentLockOnWithTransform(
 {
   auto verts = std::vector<vm::vec3d>{};
   auto uvs = std::vector<vm::vec2f>{};
-  getFaceVertsAndUVCoords(origFace, &verts, &uvs);
+  getFaceVertsAndUvCoords(origFace, &verts, &uvs);
   CHECK(verts.size() >= 3u);
 
   // transform the face
   auto face = origFace;
   REQUIRE(face.transform(transform, true));
-  face.resetUVCoordSystemCache();
+  face.resetUvCoordSystemCache();
 
   // transform the verts
   auto transformedVerts = std::vector<vm::vec3d>{};
@@ -201,13 +201,13 @@ void checkAlignmentLockOnWithTransform(
   }
 
   // ask the transformed face for the UVs at the transformed verts
-  auto transformedVertUVs = std::vector<vm::vec2f>{};
+  auto transformedVertUvs = std::vector<vm::vec2f>{};
   for (size_t i = 0; i < verts.size(); i++)
   {
-    transformedVertUVs.push_back(face.uvCoords(transformedVerts[i]));
+    transformedVertUvs.push_back(face.uvCoords(transformedVerts[i]));
   }
 
-  checkUVListsEqual(uvs, transformedVertUVs, face);
+  checkUvListsEqual(uvs, transformedVertUvs, face);
 }
 
 /**
@@ -373,7 +373,7 @@ void doWithAlignmentLockTestTransforms(const bool doParallelTests, L&& lambda)
   doWithSingleAxisRotations(45, lambda);
 
   // rotation on multiple axes simultaneously is only expected to work on
-  // ParallelUVCoordSystem
+  // ParallelUvCoordSystem
   if (doParallelTests)
   {
     doMultiAxisRotations(30.0, lambda);
@@ -409,20 +409,20 @@ void checkAlignmentLockOffWithVerticalFlip(const Brush& cube)
   // transform the face (alignment lock off)
   auto face = origFace;
   REQUIRE(face.transform(transform, false));
-  face.resetUVCoordSystemCache();
+  face.resetUvCoordSystemCache();
 
   // UVs of the verts of `face` and `origFace` should be the same now
 
   // get UV of each vert using `face` and `resetFace`
-  auto face_UVs = std::vector<vm::vec2f>{};
-  auto origFace_UVs = std::vector<vm::vec2f>{};
+  auto face_Uvs = std::vector<vm::vec2f>{};
+  auto origFace_Uvs = std::vector<vm::vec2f>{};
   for (const auto vert : origFace.vertices())
   {
-    face_UVs.push_back(face.uvCoords(vert->position()));
-    origFace_UVs.push_back(origFace.uvCoords(vert->position()));
+    face_Uvs.push_back(face.uvCoords(vert->position()));
+    origFace_Uvs.push_back(origFace.uvCoords(vert->position()));
   }
 
-  checkUVListsEqual(face_UVs, origFace_UVs, face);
+  checkUvListsEqual(face_Uvs, origFace_Uvs, face);
 }
 
 void checkAlignmentLockOffWithScale(const Brush& cube)
@@ -441,7 +441,7 @@ void checkAlignmentLockOffWithScale(const Brush& cube)
   // transform the face (alignment lock off)
   auto face = origFace;
   REQUIRE(face.transform(transform, false));
-  face.resetUVCoordSystemCache();
+  face.resetUvCoordSystemCache();
 
   // get UV at mins; should be equal
   const auto left_origTC = origFace.uvCoords(mins);
@@ -478,7 +478,7 @@ TEST_CASE("BrushFace")
     const auto attribs = BrushFaceAttributes{""};
     auto face =
       BrushFace::create(
-        p0, p1, p2, attribs, std::make_unique<ParaxialUVCoordSystem>(p0, p1, p2, attribs))
+        p0, p1, p2, attribs, std::make_unique<ParaxialUvCoordSystem>(p0, p1, p2, attribs))
       | kdl::value();
     CHECK(face.points()[0] == vm::approx{p0});
     CHECK(face.points()[1] == vm::approx{p1});
@@ -495,7 +495,7 @@ TEST_CASE("BrushFace")
 
     const auto attribs = BrushFaceAttributes{""};
     CHECK_FALSE(BrushFace::create(
-      p0, p1, p2, attribs, std::make_unique<ParaxialUVCoordSystem>(p0, p1, p2, attribs)));
+      p0, p1, p2, attribs, std::make_unique<ParaxialUvCoordSystem>(p0, p1, p2, attribs)));
   }
 
   SECTION("materialUsageCount")
@@ -519,7 +519,7 @@ TEST_CASE("BrushFace")
                     p1,
                     p2,
                     attribs,
-                    std::make_unique<ParaxialUVCoordSystem>(p0, p1, p2, attribs))
+                    std::make_unique<ParaxialUvCoordSystem>(p0, p1, p2, attribs))
                   | kdl::value();
       CHECK(material.usageCount() == 0u);
 
@@ -707,7 +707,7 @@ TEST_CASE("BrushFace")
 
     // Rotate by 45 degrees CCW
     CHECK(negXFace->attributes().rotation() == vm::approx{0.0f});
-    negXFace->rotateUV(45.0);
+    negXFace->rotateUv(45.0);
     CHECK(negXFace->attributes().rotation() == vm::approx{45.0f});
 
     CHECK(negXFace->uAxis() == vm::approx{newXAxis});
@@ -717,7 +717,7 @@ TEST_CASE("BrushFace")
   }
 
   // https://github.com/TrenchBroom/TrenchBroom/issues/1995
-  SECTION("testCopyUVCoordSystem")
+  SECTION("testCopyUvCoordSystem")
   {
     const auto data = R"(
 {
@@ -769,10 +769,10 @@ TEST_CASE("BrushFace")
     CHECK(negYFace->uAxis() == vm::vec3d{1, 0, 0});
     CHECK(negYFace->vAxis() == vm::vec3d{0, 0, -1});
 
-    auto snapshot = negYFace->takeUVCoordSystemSnapshot();
+    auto snapshot = negYFace->takeUvCoordSystemSnapshot();
 
     // copy texturing from the negYFace to posXFace using the rotation method
-    posXFace->copyUVCoordSystemFromFace(
+    posXFace->copyUvCoordSystemFromFace(
       *snapshot, negYFace->attributes(), negYFace->boundary(), WrapStyle::Rotation);
     CHECK(
       posXFace->uAxis()
@@ -784,7 +784,7 @@ TEST_CASE("BrushFace")
         vm::vec3d{-0.0037296037296037088, -0.24242424242424243, -0.97016317016317011}});
 
     // copy texturing from the negYFace to posXFace using the projection method
-    posXFace->copyUVCoordSystemFromFace(
+    posXFace->copyUvCoordSystemFromFace(
       *snapshot, negYFace->attributes(), negYFace->boundary(), WrapStyle::Projection);
     CHECK(posXFace->uAxis() == vm::approx{vm::vec3d{0, -1, 0}});
     CHECK(posXFace->vAxis() == vm::approx{vm::vec3d{0, 0, -1}});
@@ -861,18 +861,18 @@ TEST_CASE("BrushFace")
     auto testTransform = [&](const auto& transform) {
       auto standardCube = startingCube;
       REQUIRE(standardCube.transform(worldBounds, transform, true));
-      CHECK(dynamic_cast<const ParaxialUVCoordSystem*>(
+      CHECK(dynamic_cast<const ParaxialUvCoordSystem*>(
         &standardCube.face(0).uvCoordSystem()));
 
       const auto valveCube = standardCube.convertToParallel();
       CHECK(
-        dynamic_cast<const ParallelUVCoordSystem*>(&valveCube.face(0).uvCoordSystem()));
-      checkBrushUVsEqual(standardCube, valveCube);
+        dynamic_cast<const ParallelUvCoordSystem*>(&valveCube.face(0).uvCoordSystem()));
+      checkBrushUvsEqual(standardCube, valveCube);
 
       const auto standardCubeRoundTrip = valveCube.convertToParaxial();
-      CHECK(dynamic_cast<const ParaxialUVCoordSystem*>(
+      CHECK(dynamic_cast<const ParaxialUvCoordSystem*>(
         &standardCubeRoundTrip.face(0).uvCoordSystem()));
-      checkBrushUVsEqual(standardCube, standardCubeRoundTrip);
+      checkBrushUvsEqual(standardCube, standardCubeRoundTrip);
     };
 
     // NOTE: intentionally include the shear/multi-axis rotations which won't work
@@ -882,7 +882,7 @@ TEST_CASE("BrushFace")
     doWithAlignmentLockTestTransforms(true, testTransform);
   }
 
-  SECTION("flipUV")
+  SECTION("flipUv")
   {
     const auto data = R"(
 // entity 0
@@ -923,13 +923,13 @@ TEST_CASE("BrushFace")
 
       SECTION("Left flip")
       {
-        face.flipUV(cameraUp, cameraRight, vm::direction::left);
+        face.flipUv(cameraUp, cameraRight, vm::direction::left);
         CHECK(face.attributes().scale() == vm::vec2f{-1, 1});
       }
 
       SECTION("Up flip")
       {
-        face.flipUV(cameraUp, cameraRight, vm::direction::up);
+        face.flipUv(cameraUp, cameraRight, vm::direction::up);
         CHECK(face.attributes().scale() == vm::vec2f{1, -1});
       }
     }
@@ -941,13 +941,13 @@ TEST_CASE("BrushFace")
 
       SECTION("left arrow (does vertical flip)")
       {
-        face.flipUV(cameraUp, cameraRight, vm::direction::left);
+        face.flipUv(cameraUp, cameraRight, vm::direction::left);
         CHECK(face.attributes().scale() == vm::vec2f{1, -1});
       }
 
       SECTION("up arrow (does horizontal flip)")
       {
-        face.flipUV(cameraUp, cameraRight, vm::direction::up);
+        face.flipUv(cameraUp, cameraRight, vm::direction::up);
         CHECK(face.attributes().scale() == vm::vec2f{-1, 1});
       }
     }

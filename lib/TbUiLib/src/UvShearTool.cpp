@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ui/UVShearTool.h"
+#include "ui/UvShearTool.h"
 
 #include "gl/OrthographicCamera.h"
 #include "mdl/BrushFace.h"
@@ -31,7 +31,7 @@
 #include "ui/GestureTracker.h"
 #include "ui/InputState.h"
 #include "ui/MapDocument.h"
-#include "ui/UVViewHelper.h"
+#include "ui/UvViewHelper.h"
 
 #include "kd/contracts.h"
 #include "kd/optional_utils.h"
@@ -48,7 +48,7 @@ namespace
 {
 
 std::optional<vm::vec2f> getHit(
-  const UVViewHelper& helper,
+  const UvViewHelper& helper,
   const vm::vec3d& uAxis,
   const vm::vec3d& vAxis,
   const vm::ray3d& pickRay)
@@ -66,16 +66,16 @@ std::optional<vm::vec2f> getHit(
 /**
  * Return the face's edge vectors in UV coordinates.
  */
-std::vector<vm::vec2f> getEdgeVectorsUV(const UVViewHelper& helper)
+std::vector<vm::vec2f> getEdgeVectorsUv(const UvViewHelper& helper)
 {
   if (const auto* face = helper.face())
   {
-    const auto toUV =
-      helper.face()->toUVCoordSystemMatrix(vm::vec2f{0, 0}, vm::vec2f{0, 0});
+    const auto toUv =
+      helper.face()->toUvCoordSystemMatrix(vm::vec2f{0, 0}, vm::vec2f{0, 0});
     return face->edges() | std::views::transform([&](const auto* edge) {
              const auto& segment3d = edge->segment();
-             return vm::vec2f{toUV * segment3d.end()}
-                    - vm::vec2f{toUV * segment3d.start()};
+             return vm::vec2f{toUv * segment3d.end()}
+                    - vm::vec2f{toUv * segment3d.start()};
            })
            | kdl::ranges::to<std::vector>();
   }
@@ -96,9 +96,9 @@ float snapShearFactors(
   const float factor,
   const float orthogonalOffset,
   const vm::axis::type axis,
-  const UVViewHelper& helper)
+  const UvViewHelper& helper)
 {
-  const auto edgeVectors = getEdgeVectorsUV(helper);
+  const auto edgeVectors = getEdgeVectorsUv(helper);
   const auto snappedFactors = getSnappedShearFactors(edgeVectors, axis);
 
   const auto absDiff = [&](const auto& x) { return vm::abs(x - factor); };
@@ -112,7 +112,7 @@ float snapShearFactors(
 }
 
 vm::vec2f snapShearFactors(
-  const vm::vec2f& factors, const vm::vec2f& offset, const UVViewHelper& helper)
+  const vm::vec2f& factors, const vm::vec2f& offset, const UvViewHelper& helper)
 {
   return vm::vec2f{
     snapShearFactors(factors.x(), offset.x(), vm::axis::x, helper),
@@ -128,20 +128,20 @@ vm::vec2f selectShearFactors(const vm::vec2f& factors, const vm::vec2b& selector
   };
 }
 
-class UVShearDragTracker : public GestureTracker
+class UvShearDragTracker : public GestureTracker
 {
 private:
   mdl::Map& m_map;
-  const UVViewHelper& m_helper;
+  const UvViewHelper& m_helper;
   vm::vec2b m_selector;
   vm::vec3d m_uAxis;
   vm::vec3d m_vAxis;
   vm::vec2f m_initialHit;
 
 public:
-  UVShearDragTracker(
+  UvShearDragTracker(
     mdl::Map& map,
-    const UVViewHelper& helper,
+    const UvViewHelper& helper,
     const vm::vec2b& selector,
     const vm::vec3d& uAxis,
     const vm::vec3d& vAxis,
@@ -182,19 +182,19 @@ public:
     if (!vm::is_zero(snappedFactors, vm::Cf::almost_zero()))
     {
       const auto origin = m_helper.origin();
-      const auto oldOriginUV = vm::vec2f{
-        m_helper.face()->toUVCoordSystemMatrix(
+      const auto oldOriginUv = vm::vec2f{
+        m_helper.face()->toUvCoordSystemMatrix(
           vm::vec2f{0, 0}, m_helper.face()->attributes().scale())
         * origin};
 
-      shearUV(m_map, snappedFactors);
+      shearUv(m_map, snappedFactors);
 
-      const auto newOriginUV = vm::vec2f{
-        m_helper.face()->toUVCoordSystemMatrix(
+      const auto newOriginUv = vm::vec2f{
+        m_helper.face()->toUvCoordSystemMatrix(
           vm::vec2f{0, 0}, m_helper.face()->attributes().scale())
         * origin};
       const auto newOffset =
-        m_helper.face()->attributes().offset() + oldOriginUV - newOriginUV;
+        m_helper.face()->attributes().offset() + oldOriginUv - newOriginUv;
 
       setBrushFaceAttributes(
         m_map,
@@ -214,10 +214,10 @@ public:
 
 } // namespace
 
-const mdl::HitType::Type UVShearTool::XHandleHitType = mdl::HitType::freeType();
-const mdl::HitType::Type UVShearTool::YHandleHitType = mdl::HitType::freeType();
+const mdl::HitType::Type UvShearTool::XHandleHitType = mdl::HitType::freeType();
+const mdl::HitType::Type UvShearTool::YHandleHitType = mdl::HitType::freeType();
 
-UVShearTool::UVShearTool(MapDocument& document, UVViewHelper& helper)
+UvShearTool::UvShearTool(MapDocument& document, UvViewHelper& helper)
   : ToolController{}
   , Tool{true}
   , m_document{document}
@@ -225,26 +225,26 @@ UVShearTool::UVShearTool(MapDocument& document, UVViewHelper& helper)
 {
 }
 
-Tool& UVShearTool::tool()
+Tool& UvShearTool::tool()
 {
   return *this;
 }
 
-const Tool& UVShearTool::tool() const
+const Tool& UvShearTool::tool() const
 {
   return *this;
 }
 
-void UVShearTool::pick(const InputState& inputState, mdl::PickResult& pickResult)
+void UvShearTool::pick(const InputState& inputState, mdl::PickResult& pickResult)
 {
   static const mdl::HitType::Type HitTypes[] = {XHandleHitType, YHandleHitType};
   if (m_helper.valid())
   {
-    m_helper.pickUVGrid(inputState.pickRay(), HitTypes, pickResult);
+    m_helper.pickUvGrid(inputState.pickRay(), HitTypes, pickResult);
   }
 }
 
-std::unique_ptr<GestureTracker> UVShearTool::acceptMouseDrag(const InputState& inputState)
+std::unique_ptr<GestureTracker> UvShearTool::acceptMouseDrag(const InputState& inputState)
 {
   using namespace mdl::HitFilters;
 
@@ -288,11 +288,11 @@ std::unique_ptr<GestureTracker> UVShearTool::acceptMouseDrag(const InputState& i
     return nullptr;
   }
 
-  return std::make_unique<UVShearDragTracker>(
+  return std::make_unique<UvShearDragTracker>(
     m_document.map(), m_helper, selector, xAxis, yAxis, *initialHit);
 }
 
-bool UVShearTool::cancel()
+bool UvShearTool::cancel()
 {
   return false;
 }

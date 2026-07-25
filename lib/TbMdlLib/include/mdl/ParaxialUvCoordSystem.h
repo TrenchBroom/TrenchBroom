@@ -20,59 +20,45 @@
 #pragma once
 
 #include "base/Macros.h"
-#include "mdl/UVCoordSystem.h"
+#include "mdl/UvCoordSystem.h"
 
-#include "vm/mat.h"
 #include "vm/vec.h"
 
 #include <memory>
-#include <tuple>
 
 namespace tb::mdl
 {
 
-class ParallelUVCoordSystemSnapshot : public UVCoordSystemSnapshot
+class ParaxialUvCoordSystem : public UvCoordSystem
 {
 private:
+  size_t m_index = 0;
   vm::vec3d m_uAxis;
   vm::vec3d m_vAxis;
 
 public:
-  ParallelUVCoordSystemSnapshot(const vm::vec3d& uAxis, const vm::vec3d& vAxis);
-  explicit ParallelUVCoordSystemSnapshot(const ParallelUVCoordSystem* coordSystem);
-
-  std::unique_ptr<UVCoordSystemSnapshot> clone() const override;
-
-private:
-  void doRestore(ParallelUVCoordSystem& coordSystem) const override;
-  void doRestore(ParaxialUVCoordSystem& coordSystem) const override;
-};
-
-class ParallelUVCoordSystem : public UVCoordSystem
-{
-private:
-  vm::vec3d m_uAxis;
-  vm::vec3d m_vAxis;
-
-  friend class ParallelUVCoordSystemSnapshot;
-
-public:
-  ParallelUVCoordSystem(
+  ParaxialUvCoordSystem(
     const vm::vec3d& point0,
     const vm::vec3d& point1,
     const vm::vec3d& point2,
     const BrushFaceAttributes& attribs);
-  ParallelUVCoordSystem(const vm::vec3d& uAxis, const vm::vec3d& vAxis);
+  ParaxialUvCoordSystem(const vm::vec3d& normal, const BrushFaceAttributes& attribs);
+  ParaxialUvCoordSystem(size_t index, const vm::vec3d& uAxis, const vm::vec3d& vAxis);
 
-  static std::tuple<std::unique_ptr<UVCoordSystem>, BrushFaceAttributes> fromParaxial(
+  static std::tuple<std::unique_ptr<UvCoordSystem>, BrushFaceAttributes> fromParallel(
     const vm::vec3d& point0,
     const vm::vec3d& point1,
     const vm::vec3d& point2,
-    const BrushFaceAttributes& attribs);
+    const BrushFaceAttributes& attribs,
+    const vm::vec3d& uAxis,
+    const vm::vec3d& vAxis);
 
-  std::unique_ptr<UVCoordSystem> clone() const override;
-  std::unique_ptr<UVCoordSystemSnapshot> takeSnapshot() const override;
-  void restoreSnapshot(const UVCoordSystemSnapshot& snapshot) override;
+  static size_t planeNormalIndex(const vm::vec3d& normal);
+  static std::tuple<vm::vec3d, vm::vec3d, vm::vec3d> axes(size_t index);
+
+  std::unique_ptr<UvCoordSystem> clone() const override;
+  std::unique_ptr<UvCoordSystemSnapshot> takeSnapshot() const override;
+  void restoreSnapshot(const UvCoordSystemSnapshot& snapshot) override;
 
   vm::vec3d uAxis() const override;
   vm::vec3d vAxis() const override;
@@ -83,13 +69,11 @@ public:
     const vm::vec3d& point1,
     const vm::vec3d& point2,
     const BrushFaceAttributes& attribs) override;
-
   void reset(const vm::vec3d& normal) override;
   void resetToParaxial(const vm::vec3d& normal, float angle) override;
   void resetToParallel(const vm::vec3d& normal, float angle) override;
 
   void setRotation(const vm::vec3d& normal, float oldAngle, float newAngle) override;
-
   void transform(
     const vm::plane3d& oldBoundary,
     const vm::plane3d& newBoundary,
@@ -104,12 +88,12 @@ public:
   float measureAngle(
     float currentAngle, const vm::vec2f& center, const vm::vec2f& point) const override;
 
-  std::tuple<std::unique_ptr<UVCoordSystem>, BrushFaceAttributes> toParallel(
+  std::tuple<std::unique_ptr<UvCoordSystem>, BrushFaceAttributes> toParallel(
     const vm::vec3d& point0,
     const vm::vec3d& point1,
     const vm::vec3d& point2,
     const BrushFaceAttributes& attribs) const override;
-  std::tuple<std::unique_ptr<UVCoordSystem>, BrushFaceAttributes> toParaxial(
+  std::tuple<std::unique_ptr<UvCoordSystem>, BrushFaceAttributes> toParaxial(
     const vm::vec3d& point0,
     const vm::vec3d& point1,
     const vm::vec3d& point2,
@@ -125,10 +109,7 @@ private:
     const vm::vec3d& newNormal,
     const BrushFaceAttributes& attribs) override;
 
-  float computeRotationAngle(
-    const vm::plane3d& oldBoundary, const vm::mat4x4d& transformation) const;
-
-  deleteCopyAndMove(ParallelUVCoordSystem);
+  deleteCopyAndMove(ParaxialUvCoordSystem);
 };
 
 } // namespace tb::mdl

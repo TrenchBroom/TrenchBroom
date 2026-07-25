@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ui/UVRotateTool.h"
+#include "ui/UvRotateTool.h"
 
 #include "base/PreferenceManager.h"
 #include "gl/ActiveShader.h"
@@ -42,7 +42,7 @@
 #include "ui/GestureTracker.h"
 #include "ui/InputState.h"
 #include "ui/MapDocument.h"
-#include "ui/UVViewHelper.h"
+#include "ui/UvViewHelper.h"
 
 #include "kd/contracts.h"
 #include "kd/optional_utils.h"
@@ -63,13 +63,13 @@ constexpr auto CenterHandleRadius = 2.5;
 constexpr auto RotateHandleRadius = 32.0;
 constexpr auto RotateHandleWidth = 5.0;
 
-float measureAngle(const UVViewHelper& helper, const vm::vec2f& point)
+float measureAngle(const UvViewHelper& helper, const vm::vec2f& point)
 {
   const auto origin = helper.originInFaceCoords();
-  return vm::mod(helper.face()->measureUVAngle(origin, point), 360.0f);
+  return vm::mod(helper.face()->measureUvAngle(origin, point), 360.0f);
 }
 
-float snapAngle(const UVViewHelper& helper, const float angle, const float distToOrigin)
+float snapAngle(const UvViewHelper& helper, const float angle, const float distToOrigin)
 {
   const float angles[] = {
     vm::mod(angle + 0.0f, 360.0f),
@@ -80,13 +80,13 @@ float snapAngle(const UVViewHelper& helper, const float angle, const float distT
   auto minDelta = std::numeric_limits<float>::max();
 
   const auto toFace =
-    helper.face()->toUVCoordSystemMatrix(vm::vec2f{0, 0}, vm::vec2f{1, 1});
+    helper.face()->toUvCoordSystemMatrix(vm::vec2f{0, 0}, vm::vec2f{1, 1});
   for (const auto* edge : helper.face()->edges())
   {
     const auto startInFaceCoords = vm::vec2f{toFace * edge->firstVertex()->position()};
     const auto endInFaceCoords = vm::vec2f{toFace * edge->secondVertex()->position()};
     const auto edgeAngle =
-      vm::mod(helper.face()->measureUVAngle(startInFaceCoords, endInFaceCoords), 360.0f);
+      vm::mod(helper.face()->measureUvAngle(startInFaceCoords, endInFaceCoords), 360.0f);
 
     for (size_t i = 0; i < 4; ++i)
     {
@@ -108,7 +108,7 @@ float snapAngle(const UVViewHelper& helper, const float angle, const float distT
 }
 
 render::Circle makeCircle(
-  const UVViewHelper& helper, const float radius, const size_t segments, const bool fill)
+  const UvViewHelper& helper, const float radius, const size_t segments, const bool fill)
 {
   const auto zoom = helper.camera().zoom();
   return render::Circle{radius / zoom, segments, fill};
@@ -117,14 +117,14 @@ render::Circle makeCircle(
 class Render : public render::DirectRenderable
 {
 private:
-  const UVViewHelper& m_helper;
+  const UvViewHelper& m_helper;
   bool m_highlight;
   render::Circle m_center;
   render::Circle m_outer;
 
 public:
   Render(
-    const UVViewHelper& helper,
+    const UvViewHelper& helper,
     const float centerRadius,
     const float outerRadius,
     const bool highlight)
@@ -146,7 +146,7 @@ public:
     auto& gl = renderContext.gl();
 
     const auto fromFace =
-      m_helper.face()->fromUVCoordSystemMatrix(vm::vec2f{0, 0}, vm::vec2f{1, 1});
+      m_helper.face()->fromUvCoordSystemMatrix(vm::vec2f{0, 0}, vm::vec2f{1, 1});
 
     const auto& boundary = m_helper.face()->boundary();
     const auto toPlane = vm::plane_projection_matrix(boundary.distance, boundary.normal);
@@ -181,15 +181,15 @@ public:
   }
 };
 
-class UVRotateDragTracker : public GestureTracker
+class UvRotateDragTracker : public GestureTracker
 {
 private:
   mdl::Map& m_map;
-  const UVViewHelper& m_helper;
+  const UvViewHelper& m_helper;
   float m_initialAngle;
 
 public:
-  UVRotateDragTracker(mdl::Map& map, const UVViewHelper& helper, const float initialAngle)
+  UvRotateDragTracker(mdl::Map& map, const UvViewHelper& helper, const float initialAngle)
     : m_map{map}
     , m_helper{helper}
     , m_initialAngle{initialAngle}
@@ -208,9 +208,9 @@ public:
     const auto distToOrigin = vm::length(curPoint - m_helper.origin());
 
     const auto toFaceOld =
-      m_helper.face()->toUVCoordSystemMatrix(vm::vec2f{0, 0}, vm::vec2f{1, 1});
+      m_helper.face()->toUvCoordSystemMatrix(vm::vec2f{0, 0}, vm::vec2f{1, 1});
     const auto toWorld =
-      m_helper.face()->fromUVCoordSystemMatrix(vm::vec2f{0, 0}, vm::vec2f{1, 1});
+      m_helper.face()->fromUvCoordSystemMatrix(vm::vec2f{0, 0}, vm::vec2f{1, 1});
 
     const auto curPointInFaceCoords = vm::vec2f{toFaceOld * curPoint};
     const auto curAngle = measureAngle(m_helper, curPointInFaceCoords);
@@ -230,7 +230,7 @@ public:
 
     // Correct the offsets.
     const auto toFaceNew =
-      m_helper.face()->toUVCoordSystemMatrix(vm::vec2f{0, 0}, vm::vec2f{1, 1});
+      m_helper.face()->toUvCoordSystemMatrix(vm::vec2f{0, 0}, vm::vec2f{1, 1});
     const auto newCenterInFaceCoords = vm::vec2f{toFaceNew * oldCenterInWorldCoords};
 
     const auto delta = (oldCenterInFaceCoords - newCenterInFaceCoords)
@@ -261,15 +261,15 @@ public:
 };
 
 std::optional<vm::vec2f> hitPointInFaceCoords(
-  const UVViewHelper& helper, const InputState& inputState)
+  const UvViewHelper& helper, const InputState& inputState)
 {
   using namespace mdl::HitFilters;
 
   const auto toFace =
-    helper.face()->toUVCoordSystemMatrix(vm::vec2f{0, 0}, vm::vec2f{1, 1});
+    helper.face()->toUvCoordSystemMatrix(vm::vec2f{0, 0}, vm::vec2f{1, 1});
 
   const auto& angleHandleHit =
-    inputState.pickResult().first(type(UVRotateTool::AngleHandleHitType));
+    inputState.pickResult().first(type(UvRotateTool::AngleHandleHitType));
   if (angleHandleHit.isMatch())
   {
     return vm::vec2f{toFace * angleHandleHit.hitPoint()};
@@ -291,7 +291,7 @@ std::optional<vm::vec2f> hitPointInFaceCoords(
 }
 
 std::optional<float> computeInitialAngle(
-  const UVViewHelper& helper, const InputState& inputState)
+  const UvViewHelper& helper, const InputState& inputState)
 {
   return hitPointInFaceCoords(helper, inputState)
          | kdl::optional_transform([&](const auto& point) {
@@ -301,9 +301,9 @@ std::optional<float> computeInitialAngle(
 
 } // namespace
 
-const mdl::HitType::Type UVRotateTool::AngleHandleHitType = mdl::HitType::freeType();
+const mdl::HitType::Type UvRotateTool::AngleHandleHitType = mdl::HitType::freeType();
 
-UVRotateTool::UVRotateTool(MapDocument& document, UVViewHelper& helper)
+UvRotateTool::UvRotateTool(MapDocument& document, UvViewHelper& helper)
   : ToolController{}
   , Tool{true}
   , m_document{document}
@@ -311,17 +311,17 @@ UVRotateTool::UVRotateTool(MapDocument& document, UVViewHelper& helper)
 {
 }
 
-Tool& UVRotateTool::tool()
+Tool& UvRotateTool::tool()
 {
   return *this;
 }
 
-const Tool& UVRotateTool::tool() const
+const Tool& UvRotateTool::tool() const
 {
   return *this;
 }
 
-void UVRotateTool::pick(const InputState& inputState, mdl::PickResult& pickResult)
+void UvRotateTool::pick(const InputState& inputState, mdl::PickResult& pickResult)
 {
   if (!m_helper.valid())
   {
@@ -336,7 +336,7 @@ void UVRotateTool::pick(const InputState& inputState, mdl::PickResult& pickResul
     const auto hitPoint = vm::point_at_distance(pickRay, *distanceToFace);
 
     const auto fromFace =
-      m_helper.face()->fromUVCoordSystemMatrix(vm::vec2f{0, 0}, vm::vec2f{1, 1});
+      m_helper.face()->fromUvCoordSystemMatrix(vm::vec2f{0, 0}, vm::vec2f{1, 1});
     const auto toPlane = vm::plane_projection_matrix(boundary.distance, boundary.normal);
 
     const auto originOnPlane =
@@ -354,7 +354,7 @@ void UVRotateTool::pick(const InputState& inputState, mdl::PickResult& pickResul
   }
 }
 
-std::unique_ptr<GestureTracker> UVRotateTool::acceptMouseDrag(
+std::unique_ptr<GestureTracker> UvRotateTool::acceptMouseDrag(
   const InputState& inputState)
 {
   contract_pre(m_helper.valid());
@@ -378,10 +378,10 @@ std::unique_ptr<GestureTracker> UVRotateTool::acceptMouseDrag(
     return nullptr;
   }
 
-  return std::make_unique<UVRotateDragTracker>(m_document.map(), m_helper, *initialAngle);
+  return std::make_unique<UvRotateDragTracker>(m_document.map(), m_helper, *initialAngle);
 }
 
-void UVRotateTool::render(
+void UvRotateTool::render(
   const InputState& inputState, render::RenderContext&, render::RenderBatch& renderBatch)
 {
   using namespace mdl::HitFilters;
@@ -400,7 +400,7 @@ void UVRotateTool::render(
     m_helper, float(CenterHandleRadius), float(RotateHandleRadius), highlight});
 }
 
-bool UVRotateTool::cancel()
+bool UvRotateTool::cancel()
 {
   return false;
 }

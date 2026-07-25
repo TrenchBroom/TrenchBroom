@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "mdl/UVCoordSystem.h"
+#include "mdl/UvCoordSystem.h"
 
 #include "mdl/BrushFace.h"
 
@@ -27,36 +27,36 @@
 namespace tb::mdl
 {
 
-UVCoordSystemSnapshot::~UVCoordSystemSnapshot() = default;
+UvCoordSystemSnapshot::~UvCoordSystemSnapshot() = default;
 
-void UVCoordSystemSnapshot::restore(UVCoordSystem& coordSystem) const
+void UvCoordSystemSnapshot::restore(UvCoordSystem& coordSystem) const
 {
   coordSystem.restoreSnapshot(*this);
 }
 
-UVCoordSystem::UVCoordSystem() = default;
+UvCoordSystem::UvCoordSystem() = default;
 
-UVCoordSystem::~UVCoordSystem() = default;
+UvCoordSystem::~UvCoordSystem() = default;
 
-vm::vec2f UVCoordSystem::uvCoords(
+vm::vec2f UvCoordSystem::uvCoords(
   const vm::vec3d& point,
   const BrushFaceAttributes& attribs,
   const vm::vec2f& textureSize) const
 {
-  return (computeUVCoords(point, attribs.scale()) + attribs.offset()) / textureSize;
+  return (computeUvCoords(point, attribs.scale()) + attribs.offset()) / textureSize;
 }
 
-bool operator==(const UVCoordSystem& lhs, const UVCoordSystem& rhs)
+bool operator==(const UvCoordSystem& lhs, const UvCoordSystem& rhs)
 {
   return lhs.uAxis() == rhs.uAxis() && lhs.vAxis() == rhs.vAxis();
 }
 
-bool operator!=(const UVCoordSystem& lhs, const UVCoordSystem& rhs)
+bool operator!=(const UvCoordSystem& lhs, const UvCoordSystem& rhs)
 {
   return !(lhs == rhs);
 }
 
-void UVCoordSystem::setNormal(
+void UvCoordSystem::setNormal(
   const vm::vec3d& oldNormal,
   const vm::vec3d& newNormal,
   const BrushFaceAttributes& attribs,
@@ -76,7 +76,7 @@ void UVCoordSystem::setNormal(
   }
 }
 
-void UVCoordSystem::translate(
+void UvCoordSystem::translate(
   const vm::vec3d& normal,
   const vm::vec3d& up,
   const vm::vec3d& right,
@@ -165,14 +165,14 @@ void UVCoordSystem::translate(
   attribs.setOffset(attribs.offset() + actualOffset);
 }
 
-void UVCoordSystem::rotate(
+void UvCoordSystem::rotate(
   const vm::vec3d& normal, const float angle, BrushFaceAttributes& attribs) const
 {
   const auto actualAngle = isRotationInverted(normal) ? -angle : angle;
   attribs.setRotation(attribs.rotation() + actualAngle);
 }
 
-vm::mat4x4d UVCoordSystem::toMatrix(const vm::vec2f& o, const vm::vec2f& s) const
+vm::mat4x4d UvCoordSystem::toMatrix(const vm::vec2f& o, const vm::vec2f& s) const
 {
   const vm::vec3d u = safeScaleAxis(uAxis(), s.x());
   const vm::vec3d v = safeScaleAxis(vAxis(), s.y());
@@ -197,13 +197,13 @@ vm::mat4x4d UVCoordSystem::toMatrix(const vm::vec2f& o, const vm::vec2f& s) cons
     1.0};
 }
 
-vm::mat4x4d UVCoordSystem::fromMatrix(
+vm::mat4x4d UvCoordSystem::fromMatrix(
   const vm::vec2f& offset, const vm::vec2f& scale) const
 {
   return *invert(toMatrix(offset, scale));
 }
 
-vm::vec2f UVCoordSystem::computeUVCoords(
+vm::vec2f UvCoordSystem::computeUvCoords(
   const vm::vec3d& point, const vm::vec2f& scale) const
 {
   return vm::vec2f{

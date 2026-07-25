@@ -25,37 +25,24 @@
 
 #include <memory>
 
-namespace tb
-{
-namespace mdl
-{
-class PickResult;
-} // namespace mdl
-
-namespace render
-{
-class RenderBatch;
-class RenderContext;
-} // namespace render
-
-namespace ui
+namespace tb::ui
 {
 class GestureTracker;
 class MapDocument;
-class UVViewHelper;
+class UvViewHelper;
 
-class UVScaleTool : public ToolController, public Tool
+class UvShearTool : public ToolController, public Tool
 {
-public:
+private:
   static const mdl::HitType::Type XHandleHitType;
   static const mdl::HitType::Type YHandleHitType;
 
 private:
   MapDocument& m_document;
-  UVViewHelper& m_helper;
+  UvViewHelper& m_helper;
 
 public:
-  UVScaleTool(MapDocument& document, UVViewHelper& helper);
+  UvShearTool(MapDocument& document, UvViewHelper& helper);
 
 private:
   Tool& tool() override;
@@ -65,13 +52,7 @@ private:
 
   std::unique_ptr<GestureTracker> acceptMouseDrag(const InputState& inputState) override;
 
-  void render(
-    const InputState& inputState,
-    render::RenderContext& renderContext,
-    render::RenderBatch& renderBatch) override;
-
   bool cancel() override;
 };
 
-} // namespace ui
-} // namespace tb
+} // namespace tb::ui

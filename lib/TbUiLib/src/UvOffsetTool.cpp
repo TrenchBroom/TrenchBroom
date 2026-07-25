@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ui/UVOffsetTool.h"
+#include "ui/UvOffsetTool.h"
 
 #include "mdl/BrushFace.h"
 #include "mdl/Map.h"
@@ -27,7 +27,7 @@
 #include "ui/GestureTracker.h"
 #include "ui/InputState.h"
 #include "ui/MapDocument.h"
-#include "ui/UVView.h"
+#include "ui/UvView.h"
 
 #include "kd/contracts.h"
 #include "kd/range_fold.h"
@@ -42,29 +42,29 @@ namespace tb::ui
 namespace
 {
 
-vm::vec2f computeHitPoint(const UVViewHelper& helper, const vm::ray3d& ray)
+vm::vec2f computeHitPoint(const UvViewHelper& helper, const vm::ray3d& ray)
 {
   const auto& boundary = helper.face()->boundary();
 
   const auto distance = *vm::intersect_ray_plane(ray, boundary);
   const auto hitPoint = vm::point_at_distance(ray, distance);
-  const auto transform = helper.face()->toUVCoordSystemMatrix(
+  const auto transform = helper.face()->toUvCoordSystemMatrix(
     vm::vec2f{0, 0}, helper.face()->attributes().scale());
   return vm::vec2f{transform * hitPoint};
 }
 
-vm::vec2f snapDelta(const UVViewHelper& helper, const vm::vec2f& delta)
+vm::vec2f snapDelta(const UvViewHelper& helper, const vm::vec2f& delta)
 {
   contract_pre(helper.valid());
 
   if (helper.material())
   {
-    const auto transform = helper.face()->toUVCoordSystemMatrix(
+    const auto transform = helper.face()->toUvCoordSystemMatrix(
       helper.face()->attributes().offset() - delta, helper.face()->attributes().scale());
 
     const auto distance = kdl::fold_left_first(
       helper.face()->vertices() | std::views::transform([&](const auto& vertex) {
-        return helper.computeDistanceFromUVGrid(transform * vertex->position());
+        return helper.computeDistanceFromUvGrid(transform * vertex->position());
       }),
       [&](const auto lhs, const auto rhs) { return vm::abs_min(lhs, rhs); });
 
@@ -74,16 +74,16 @@ vm::vec2f snapDelta(const UVViewHelper& helper, const vm::vec2f& delta)
   return vm::round(delta);
 }
 
-class UVOffsetDragTracker : public GestureTracker
+class UvOffsetDragTracker : public GestureTracker
 {
 private:
   mdl::Map& m_map;
-  const UVViewHelper& m_helper;
+  const UvViewHelper& m_helper;
   vm::vec2f m_lastPoint;
 
 public:
-  UVOffsetDragTracker(
-    mdl::Map& map, const UVViewHelper& helper, const InputState& inputState)
+  UvOffsetDragTracker(
+    mdl::Map& map, const UvViewHelper& helper, const InputState& inputState)
     : m_map{map}
     , m_helper{helper}
     , m_lastPoint{computeHitPoint(m_helper, inputState.pickRay())}
@@ -127,7 +127,7 @@ public:
 
 } // namespace
 
-UVOffsetTool::UVOffsetTool(MapDocument& document, const UVViewHelper& helper)
+UvOffsetTool::UvOffsetTool(MapDocument& document, const UvViewHelper& helper)
   : ToolController{}
   , Tool{true}
   , m_document{document}
@@ -135,17 +135,17 @@ UVOffsetTool::UVOffsetTool(MapDocument& document, const UVViewHelper& helper)
 {
 }
 
-Tool& UVOffsetTool::tool()
+Tool& UvOffsetTool::tool()
 {
   return *this;
 }
 
-const Tool& UVOffsetTool::tool() const
+const Tool& UvOffsetTool::tool() const
 {
   return *this;
 }
 
-std::unique_ptr<GestureTracker> UVOffsetTool::acceptMouseDrag(
+std::unique_ptr<GestureTracker> UvOffsetTool::acceptMouseDrag(
   const InputState& inputState)
 {
   contract_pre(m_helper.valid());
@@ -157,10 +157,10 @@ std::unique_ptr<GestureTracker> UVOffsetTool::acceptMouseDrag(
     return nullptr;
   }
 
-  return std::make_unique<UVOffsetDragTracker>(m_document.map(), m_helper, inputState);
+  return std::make_unique<UvOffsetDragTracker>(m_document.map(), m_helper, inputState);
 }
 
-bool UVOffsetTool::cancel()
+bool UvOffsetTool::cancel()
 {
   return false;
 }

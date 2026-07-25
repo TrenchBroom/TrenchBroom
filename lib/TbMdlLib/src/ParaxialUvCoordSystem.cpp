@@ -17,10 +17,10 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "mdl/ParaxialUVCoordSystem.h"
+#include "mdl/ParaxialUvCoordSystem.h"
 
 #include "mdl/BrushFace.h"
-#include "mdl/ParallelUVCoordSystem.h"
+#include "mdl/ParallelUvCoordSystem.h"
 
 #include "kd/contracts.h"
 
@@ -93,8 +93,8 @@ vm::vec2f projectToAxisPlane(const vm::vec3f& snappedNormal, const vm::vec3f& po
 std::tuple<vm::vec3f, vm::vec3f, vm::vec3f> uvAxesFromFacePlane(
   const vm::plane3d& facePlane)
 {
-  const auto index = ParaxialUVCoordSystem::planeNormalIndex(facePlane.normal);
-  const auto [uAxis, vAxis, pAxis] = ParaxialUVCoordSystem::axes(index);
+  const auto index = ParaxialUvCoordSystem::planeNormalIndex(facePlane.normal);
+  const auto [uAxis, vAxis, pAxis] = ParaxialUvCoordSystem::axes(index);
 
   return {
     vm::vec3f{uAxis},
@@ -135,7 +135,7 @@ float mat2x2_extract_rotation_degrees(const vm::mat2x2f& m)
   return vm::to_degrees(rotation);
 }
 
-vm::vec2f getUVCoordsAtPoint(
+vm::vec2f getUvCoordsAtPoint(
   const ParaxialAttribs& attribs, const vm::plane3d& facePlane, const vm::vec3d& point)
 {
   auto tempAttribs = BrushFaceAttributes{""};
@@ -143,7 +143,7 @@ vm::vec2f getUVCoordsAtPoint(
   tempAttribs.setScale(attribs.scale);
   tempAttribs.setOffset(attribs.offset);
 
-  auto temp = ParaxialUVCoordSystem{facePlane.normal, tempAttribs};
+  auto temp = ParaxialUvCoordSystem{facePlane.normal, tempAttribs};
   return temp.uvCoords(point, tempAttribs, vm::vec2f{1.0f, 1.0f});
 }
 
@@ -307,17 +307,17 @@ std::optional<ParaxialAttribsNoOffset> extractParaxialAttribs(
 
 std::optional<ParaxialAttribs> uvCoordMatrixToParaxial(
   const vm::plane3d& faceplane,
-  const vm::mat4x4f& worldToUVSpace,
+  const vm::mat4x4f& worldToUvSpace,
   const std::array<vm::vec3f, 3>& facePoints)
 {
   // First get the un-rotated, un-scaled unit UV vecs (based on the face plane).
   const auto [unrotU, unrotV, snappedNormal] = uvAxesFromFacePlane(faceplane);
 
   // Grab the UVs of the 3 reference points
-  vm::vec2f facepointsUVs[3];
+  vm::vec2f facepointsUvs[3];
   for (size_t i = 0; i < 3; ++i)
   {
-    facepointsUVs[i] = vm::vec2f{worldToUVSpace * vm::vec4f{facePoints[i], 1.0f}};
+    facepointsUvs[i] = vm::vec2f{worldToUvSpace * vm::vec4f{facePoints[i], 1.0f}};
   }
 
   // Project the 3 reference points onto the axis plane. They are now 2d points.
@@ -331,31 +331,31 @@ std::optional<ParaxialAttribs> uvCoordMatrixToParaxial(
   const auto p0p1 = facepointsProjected[1] - facepointsProjected[0];
   const auto p0p2 = facepointsProjected[2] - facepointsProjected[0];
 
-  const auto p0p1UV = facepointsUVs[1] - facepointsUVs[0];
-  const auto p0p2UV = facepointsUVs[2] - facepointsUVs[0];
+  const auto p0p1Uv = facepointsUvs[1] - facepointsUvs[0];
+  const auto p0p2Uv = facepointsUvs[2] - facepointsUvs[0];
 
   /*
-  Find a 2x2 transformation matrix that maps p0p1 to p0p1UV, and p0p2 to p0p2UV
+  Find a 2x2 transformation matrix that maps p0p1 to p0p1Uv, and p0p2 to p0p2Uv
 
-      [ a b ] [ p0p1.x ] = [ p0p1UV.x ]
-      [ c d ] [ p0p1.y ]   [ p0p1UV.y ]
+      [ a b ] [ p0p1.x ] = [ p0p1Uv.x ]
+      [ c d ] [ p0p1.y ]   [ p0p1Uv.y ]
 
-      [ a b ] [ p0p2.x ] = [ p0p1UV.x ]
-      [ c d ] [ p0p2.y ]   [ p0p2UV.y ]
+      [ a b ] [ p0p2.x ] = [ p0p1Uv.x ]
+      [ c d ] [ p0p2.y ]   [ p0p2Uv.y ]
 
   writing as a system of equations:
 
-      a * p0p1.x + b * p0p1.y = p0p1UV.x
-      c * p0p1.x + d * p0p1.y = p0p1UV.y
-      a * p0p2.x + b * p0p2.y = p0p2UV.x
-      c * p0p2.x + d * p0p2.y = p0p2UV.y
+      a * p0p1.x + b * p0p1.y = p0p1Uv.x
+      c * p0p1.x + d * p0p1.y = p0p1Uv.y
+      a * p0p2.x + b * p0p2.y = p0p2Uv.x
+      c * p0p2.x + d * p0p2.y = p0p2Uv.y
 
   back to a matrix equation, with the unknowns in a column vector:
 
-     [ p0p1UV.x ]   [ p0p1.x p0p1.y 0       0      ] [ a ]
-     [ p0p1UV.y ] = [ 0       0     p0p1.x p0p1.y  ] [ b ]
-     [ p0p2UV.x ]   [ p0p2.x p0p2.y 0       0      ] [ c ]
-     [ p0p2UV.y ]   [ 0       0     p0p2.x p0p2.y  ] [ d ]
+     [ p0p1Uv.x ]   [ p0p1.x p0p1.y 0       0      ] [ a ]
+     [ p0p1Uv.y ] = [ 0       0     p0p1.x p0p1.y  ] [ b ]
+     [ p0p2Uv.x ]   [ p0p2.x p0p2.y 0       0      ] [ c ]
+     [ p0p2Uv.y ]   [ 0       0     p0p2.x p0p2.y  ] [ d ]
 
    */
   const auto M = vm::mat4x4f{
@@ -382,10 +382,10 @@ std::optional<ParaxialAttribs> uvCoordMatrixToParaxial(
     return std::nullopt;
   }
 
-  const auto abcd = *Minv * vm::vec4f{p0p1UV[0], p0p1UV[1], p0p2UV[0], p0p2UV[1]};
-  const auto uvPlaneToUV = vm::mat2x2f{abcd[0], abcd[1], abcd[2], abcd[3]};
+  const auto abcd = *Minv * vm::vec4f{p0p1Uv[0], p0p1Uv[1], p0p2Uv[0], p0p2Uv[1]};
+  const auto uvPlaneToUv = vm::mat2x2f{abcd[0], abcd[1], abcd[2], abcd[3]};
 
-  const auto result = extractParaxialAttribs(uvPlaneToUV, faceplane, false);
+  const auto result = extractParaxialAttribs(uvPlaneToUv, faceplane, false);
   if (!result)
   {
     return std::nullopt;
@@ -397,10 +397,10 @@ std::optional<ParaxialAttribs> uvCoordMatrixToParaxial(
   // paraxial format), this test point should be somewhere on the face, because the
   // texture may only be aligned properly around this point.
   const auto testPoint = facePoints[0];
-  const auto testActualUV = getUVCoordsAtPoint(
+  const auto testActualUv = getUvCoordsAtPoint(
     appendOffset(*result, vm::vec2f{0, 0}), faceplane, vm::vec3d{testPoint});
-  const auto testDesiredUV = vm::vec2f{worldToUVSpace * vm::vec4f{testPoint, 1.0f}};
-  return appendOffset(*result, testDesiredUV - testActualUV);
+  const auto testDesiredUv = vm::vec2f{worldToUvSpace * vm::vec4f{testPoint, 1.0f}};
+  return appendOffset(*result, testDesiredUv - testActualUv);
 }
 
 /**
@@ -442,7 +442,7 @@ vm::mat4x4f valveTo4x4Matrix(
 }
 } // namespace
 
-ParaxialUVCoordSystem::ParaxialUVCoordSystem(
+ParaxialUvCoordSystem::ParaxialUvCoordSystem(
   const vm::vec3d& point0,
   const vm::vec3d& point1,
   const vm::vec3d& point2,
@@ -451,13 +451,13 @@ ParaxialUVCoordSystem::ParaxialUVCoordSystem(
   resetCache(point0, point1, point2, attribs);
 }
 
-ParaxialUVCoordSystem::ParaxialUVCoordSystem(
+ParaxialUvCoordSystem::ParaxialUvCoordSystem(
   const vm::vec3d& normal, const BrushFaceAttributes& attribs)
 {
   setRotation(normal, 0.0f, attribs.rotation());
 }
 
-ParaxialUVCoordSystem::ParaxialUVCoordSystem(
+ParaxialUvCoordSystem::ParaxialUvCoordSystem(
   const size_t index, const vm::vec3d& uAxis, const vm::vec3d& vAxis)
   : m_index{index}
   , m_uAxis{uAxis}
@@ -465,7 +465,7 @@ ParaxialUVCoordSystem::ParaxialUVCoordSystem(
 {
 }
 
-std::tuple<std::unique_ptr<UVCoordSystem>, BrushFaceAttributes> ParaxialUVCoordSystem::
+std::tuple<std::unique_ptr<UvCoordSystem>, BrushFaceAttributes> ParaxialUvCoordSystem::
   fromParallel(
     const vm::vec3d& point0,
     const vm::vec3d& point1,
@@ -500,12 +500,12 @@ std::tuple<std::unique_ptr<UVCoordSystem>, BrushFaceAttributes> ParaxialUVCoordS
   }
 
   return {
-    std::make_unique<ParaxialUVCoordSystem>(point0, point1, point2, newAttribs),
+    std::make_unique<ParaxialUvCoordSystem>(point0, point1, point2, newAttribs),
     newAttribs,
   };
 }
 
-size_t ParaxialUVCoordSystem::planeNormalIndex(const vm::vec3d& normal)
+size_t ParaxialUvCoordSystem::planeNormalIndex(const vm::vec3d& normal)
 {
   size_t bestIndex = 0;
   auto bestDot = double(0);
@@ -521,7 +521,7 @@ size_t ParaxialUVCoordSystem::planeNormalIndex(const vm::vec3d& normal)
   return bestIndex;
 }
 
-std::tuple<vm::vec3d, vm::vec3d, vm::vec3d> ParaxialUVCoordSystem::axes(
+std::tuple<vm::vec3d, vm::vec3d, vm::vec3d> ParaxialUvCoordSystem::axes(
   const size_t index)
 {
   return {
@@ -531,37 +531,37 @@ std::tuple<vm::vec3d, vm::vec3d, vm::vec3d> ParaxialUVCoordSystem::axes(
   };
 }
 
-std::unique_ptr<UVCoordSystem> ParaxialUVCoordSystem::clone() const
+std::unique_ptr<UvCoordSystem> ParaxialUvCoordSystem::clone() const
 {
-  return std::make_unique<ParaxialUVCoordSystem>(m_index, m_uAxis, m_vAxis);
+  return std::make_unique<ParaxialUvCoordSystem>(m_index, m_uAxis, m_vAxis);
 }
 
-std::unique_ptr<UVCoordSystemSnapshot> ParaxialUVCoordSystem::takeSnapshot() const
+std::unique_ptr<UvCoordSystemSnapshot> ParaxialUvCoordSystem::takeSnapshot() const
 {
   return nullptr;
 }
 
-void ParaxialUVCoordSystem::restoreSnapshot(const UVCoordSystemSnapshot& /* snapshot */)
+void ParaxialUvCoordSystem::restoreSnapshot(const UvCoordSystemSnapshot& /* snapshot */)
 {
   contract_assert(false);
 }
 
-vm::vec3d ParaxialUVCoordSystem::uAxis() const
+vm::vec3d ParaxialUvCoordSystem::uAxis() const
 {
   return m_uAxis;
 }
 
-vm::vec3d ParaxialUVCoordSystem::vAxis() const
+vm::vec3d ParaxialUvCoordSystem::vAxis() const
 {
   return m_vAxis;
 }
 
-vm::vec3d ParaxialUVCoordSystem::normal() const
+vm::vec3d ParaxialUvCoordSystem::normal() const
 {
   return BaseAxes[m_index * 3 + 0];
 }
 
-void ParaxialUVCoordSystem::resetCache(
+void ParaxialUvCoordSystem::resetCache(
   const vm::vec3d& point0,
   const vm::vec3d& point1,
   const vm::vec3d& point2,
@@ -573,19 +573,19 @@ void ParaxialUVCoordSystem::resetCache(
   }
 }
 
-void ParaxialUVCoordSystem::reset(const vm::vec3d& /* normal */) {}
+void ParaxialUvCoordSystem::reset(const vm::vec3d& /* normal */) {}
 
-void ParaxialUVCoordSystem::resetToParaxial(
+void ParaxialUvCoordSystem::resetToParaxial(
   const vm::vec3d& /* normal */, const float /* angle */)
 {
 }
 
-void ParaxialUVCoordSystem::resetToParallel(
+void ParaxialUvCoordSystem::resetToParallel(
   const vm::vec3d& /* normal */, const float /* angle */)
 {
 }
 
-void ParaxialUVCoordSystem::setRotation(
+void ParaxialUvCoordSystem::setRotation(
   const vm::vec3d& normal, const float /* oldAngle */, const float newAngle)
 {
   m_index = planeNormalIndex(normal);
@@ -594,7 +594,7 @@ void ParaxialUVCoordSystem::setRotation(
     rotateAxes(m_uAxis, m_vAxis, vm::to_radians(double(newAngle)), m_index);
 }
 
-void ParaxialUVCoordSystem::transform(
+void ParaxialUvCoordSystem::transform(
   const vm::plane3d& oldBoundary,
   const vm::plane3d& newBoundary,
   const vm::mat4x4d& transformation,
@@ -621,8 +621,8 @@ void ParaxialUVCoordSystem::transform(
   }
 
   // calculate the current UV coordinates of the origin
-  const auto oldInvariantUVCoords =
-    computeUVCoords(oldInvariant, attribs.scale()) + attribs.offset();
+  const auto oldInvariantUvCoords =
+    computeUvCoords(oldInvariant, attribs.scale()) + attribs.offset();
 
   // project the UV axes onto the boundary plane along the normal axis
   const auto scale = vm::vec2d{attribs.scale()};
@@ -642,13 +642,13 @@ void ParaxialUVCoordSystem::transform(
 
     // obtain the new texture plane norm and the new base texture axes
     const auto newIndex = planeNormalIndex(newBoundaryNormal);
-    const auto [newBaseUAxis, newBaseVAxis, newUVNormal] = axes(newIndex);
+    const auto [newBaseUAxis, newBaseVAxis, newUvNormal] = axes(newIndex);
 
-    const auto newUVPlane = vm::plane3d{0.0, newUVNormal};
+    const auto newUvPlane = vm::plane3d{0.0, newUvNormal};
 
     // project the transformed texture axes onto the new texture projection plane
-    const auto projectedTransformedUAxis = newUVPlane.project_point(transformedUAxis);
-    const auto projectedTransformedVAxis = newUVPlane.project_point(transformedVAxis);
+    const auto projectedTransformedUAxis = newUvPlane.project_point(transformedUAxis);
+    const auto projectedTransformedVAxis = newUvPlane.project_point(transformedVAxis);
     contract_assert(
       !vm::is_nan(projectedTransformedUAxis) && !vm::is_nan(projectedTransformedVAxis));
 
@@ -663,13 +663,13 @@ void ParaxialUVCoordSystem::transform(
     contract_assert(!vm::is_nan(cosV));
 
     auto radU = std::acos(cosU);
-    if (vm::dot(vm::cross(newBaseUAxis, normalizedUAxis), newUVNormal) < 0.0)
+    if (vm::dot(vm::cross(newBaseUAxis, normalizedUAxis), newUvNormal) < 0.0)
     {
       radU *= -1.0f;
     }
 
     auto radV = std::acos(cosV);
-    if (vm::dot(vm::cross(newBaseVAxis, normalizedVAxis), newUVNormal) < 0.0)
+    if (vm::dot(vm::cross(newBaseVAxis, normalizedVAxis), newUvNormal) < 0.0)
     {
       radV *= -1.0f;
     }
@@ -713,12 +713,12 @@ void ParaxialUVCoordSystem::transform(
 
     // determine the new texture coordinates of the transformed center of the face, sans
     // offsets
-    const auto newInvariantUVCoords = computeUVCoords(newInvariant, newScale);
+    const auto newInvariantUvCoords = computeUvCoords(newInvariant, newScale);
 
     // since the center should be invariant, the offsets are determined by the difference
     // of the current and the original texture coordiknates of the center
     const auto newOffset = vm::correct(
-      attribs.modOffset(oldInvariantUVCoords - newInvariantUVCoords, textureSize), 4);
+      attribs.modOffset(oldInvariantUvCoords - newInvariantUvCoords, textureSize), 4);
 
     contract_assert(!vm::is_nan(newOffset));
     contract_assert(!vm::is_nan(newScale));
@@ -732,13 +732,13 @@ void ParaxialUVCoordSystem::transform(
   }
 }
 
-void ParaxialUVCoordSystem::shear(
+void ParaxialUvCoordSystem::shear(
   const vm::vec3d& /* normal */, const vm::vec2f& /* factors */)
 {
   // not supported
 }
 
-float ParaxialUVCoordSystem::measureAngle(
+float ParaxialUvCoordSystem::measureAngle(
   const float currentAngle, const vm::vec2f& center, const vm::vec2f& point) const
 {
   const auto rot = vm::quatf{vm::vec3f{0, 0, 1}, -vm::to_radians(currentAngle)};
@@ -750,17 +750,17 @@ float ParaxialUVCoordSystem::measureAngle(
   return vm::to_degrees(angleInRadians);
 }
 
-std::tuple<std::unique_ptr<UVCoordSystem>, BrushFaceAttributes> ParaxialUVCoordSystem::
+std::tuple<std::unique_ptr<UvCoordSystem>, BrushFaceAttributes> ParaxialUvCoordSystem::
   toParallel(
     const vm::vec3d& point0,
     const vm::vec3d& point1,
     const vm::vec3d& point2,
     const BrushFaceAttributes& attribs) const
 {
-  return ParallelUVCoordSystem::fromParaxial(point0, point1, point2, attribs);
+  return ParallelUvCoordSystem::fromParaxial(point0, point1, point2, attribs);
 }
 
-std::tuple<std::unique_ptr<UVCoordSystem>, BrushFaceAttributes> ParaxialUVCoordSystem::
+std::tuple<std::unique_ptr<UvCoordSystem>, BrushFaceAttributes> ParaxialUvCoordSystem::
   toParaxial(
     const vm::vec3d&,
     const vm::vec3d&,
@@ -771,19 +771,19 @@ std::tuple<std::unique_ptr<UVCoordSystem>, BrushFaceAttributes> ParaxialUVCoordS
   return {clone(), attribs};
 }
 
-bool ParaxialUVCoordSystem::isRotationInverted(const vm::vec3d& normal) const
+bool ParaxialUvCoordSystem::isRotationInverted(const vm::vec3d& normal) const
 {
   const auto index = planeNormalIndex(normal);
   return index % 2 == 0;
 }
 
-void ParaxialUVCoordSystem::updateNormalWithProjection(
+void ParaxialUvCoordSystem::updateNormalWithProjection(
   const vm::vec3d& newNormal, const BrushFaceAttributes& attribs)
 {
   setRotation(newNormal, attribs.rotation(), attribs.rotation());
 }
 
-void ParaxialUVCoordSystem::updateNormalWithRotation(
+void ParaxialUvCoordSystem::updateNormalWithRotation(
   const vm::vec3d& /* oldNormal */,
   const vm::vec3d& newNormal,
   const BrushFaceAttributes& attribs)

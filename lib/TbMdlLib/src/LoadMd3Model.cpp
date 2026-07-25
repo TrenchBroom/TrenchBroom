@@ -45,7 +45,7 @@ constexpr size_t SurfaceNameLength = 64;
 constexpr size_t TriangleLength = 3 * sizeof(int32_t);
 constexpr size_t ShaderNameLength = 64;
 constexpr size_t ShaderLength = ShaderNameLength + sizeof(int32_t);
-constexpr size_t UVLength = 2 * sizeof(float);
+constexpr size_t UvLength = 2 * sizeof(float);
 constexpr size_t VertexLength = 4 * sizeof(int16_t);
 constexpr float VertexScale = 1.0f / 64.0f;
 } // namespace Md3Layout
@@ -151,7 +151,7 @@ auto parseVertexPositions(fs::Reader reader, const size_t vertexCount)
   return positions;
 }
 
-auto parseUV(fs::Reader reader, const size_t vertexCount)
+auto parseUv(fs::Reader reader, const size_t vertexCount)
 {
   auto uv = std::vector<vm::vec2f>{};
   uv.reserve(vertexCount);
@@ -266,8 +266,8 @@ Result<void> parseFrameSurfaces(
 
       const auto vertexPositions = parseVertexPositions(
         reader.subReaderFromBegin(frameVertexOffset, frameVertexLength), vertexCount);
-      const auto uvCoords = parseUV(
-        reader.subReaderFromBegin(uvCoordOffset, vertexCount * Md3Layout::UVLength),
+      const auto uvCoords = parseUv(
+        reader.subReaderFromBegin(uvCoordOffset, vertexCount * Md3Layout::UvLength),
         vertexCount);
       const auto vertices = buildVertices(vertexPositions, uvCoords);
 

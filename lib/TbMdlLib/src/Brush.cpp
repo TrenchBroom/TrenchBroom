@@ -24,7 +24,7 @@
 #include "mdl/MapFormat.h"
 #include "mdl/Polyhedron.h"
 #include "mdl/Polyhedron_Matcher.h"
-#include "mdl/UVCoordSystem.h"
+#include "mdl/UvCoordSystem.h"
 
 #include "kd/contracts.h"
 #include "kd/range_utils.h"
@@ -338,9 +338,9 @@ void Brush::cloneFaceAttributesFrom(const Brush& brush)
       const auto& source = brush.face(*sourceIndex);
       destination.setAttributes(source.attributes());
 
-      if (auto snapshot = source.takeUVCoordSystemSnapshot())
+      if (auto snapshot = source.takeUvCoordSystemSnapshot())
       {
-        destination.copyUVCoordSystemFromFace(
+        destination.copyUvCoordSystemFromFace(
           *snapshot, source.attributes(), source.boundary(), WrapStyle::Projection);
       }
     }
@@ -364,9 +364,9 @@ void Brush::cloneFaceAttributesFrom(const std::vector<const Brush*>& brushes)
     {
       face.setAttributes(bestMatch->attributes());
 
-      if (auto snapshot = bestMatch->takeUVCoordSystemSnapshot())
+      if (auto snapshot = bestMatch->takeUvCoordSystemSnapshot())
       {
-        face.copyUVCoordSystemFromFace(
+        face.copyUvCoordSystemFromFace(
           *snapshot, bestMatch->attributes(), face.boundary(), WrapStyle::Projection);
       }
     }
@@ -383,9 +383,9 @@ void Brush::cloneInvertedFaceAttributesFrom(const Brush& brush)
       // Todo: invert the face attributes?
       destination.setAttributes(source.attributes());
 
-      if (auto snapshot = source.takeUVCoordSystemSnapshot())
+      if (auto snapshot = source.takeUvCoordSystemSnapshot())
       {
-        destination.copyUVCoordSystemFromFace(
+        destination.copyUvCoordSystemFromFace(
           *snapshot, source.attributes(), destination.boundary(), WrapStyle::Projection);
       }
     }
@@ -994,7 +994,7 @@ Result<void> Brush::doTransformVertices(
   return updateFacesFromGeometry(worldBounds, matcher, newGeometry, uvLock);
 }
 
-std::optional<vm::mat4x4d> Brush::findTransformForUVLock(
+std::optional<vm::mat4x4d> Brush::findTransformForUvLock(
   const PolyhedronMatcher<BrushGeometry>& matcher,
   BrushFaceGeometry* left,
   BrushFaceGeometry* right)
@@ -1061,14 +1061,14 @@ std::optional<vm::mat4x4d> Brush::findTransformForUVLock(
   return M;
 }
 
-void Brush::applyUVLock(
+void Brush::applyUvLock(
   const PolyhedronMatcher<BrushGeometry>& matcher,
   const BrushFace& leftFace,
   BrushFace& rightFace)
 {
   if (
     const auto M =
-      findTransformForUVLock(matcher, leftFace.geometry(), rightFace.geometry()))
+      findTransformForUvLock(matcher, leftFace.geometry(), rightFace.geometry()))
   {
 
     // We want to re-set the alignment of `rightFace` using the alignment from M *
@@ -1080,16 +1080,16 @@ void Brush::applyUVLock(
     auto leftClone = BrushFace{leftFace};
     leftClone.transform(*M, true) | kdl::transform([&]() {
       auto snapshot =
-        std::unique_ptr<UVCoordSystemSnapshot>{leftClone.takeUVCoordSystemSnapshot()};
+        std::unique_ptr<UvCoordSystemSnapshot>{leftClone.takeUvCoordSystemSnapshot()};
       rightFace.setAttributes(leftClone.attributes());
       if (snapshot)
       {
         // Note, the wrap style doesn't matter because the source and destination faces
         // should have the same plane
-        rightFace.copyUVCoordSystemFromFace(
+        rightFace.copyUvCoordSystemFromFace(
           *snapshot, leftClone.attributes(), leftClone.boundary(), WrapStyle::Rotation);
       }
-      rightFace.resetUVCoordSystemCache();
+      rightFace.resetUvCoordSystemCache();
     }) | kdl::transform_error([](auto) {
       // do nothing
     });
@@ -1116,7 +1116,7 @@ Result<void> Brush::updateFacesFromGeometry(
       rightFace.updatePointsFromVertices() | kdl::transform([&]() {
         if (uvLock)
         {
-          applyUVLock(matcher, leftFace, rightFace);
+          applyUvLock(matcher, leftFace, rightFace);
         }
       }) | kdl::transform_error([&](auto e) {
         if (!error)

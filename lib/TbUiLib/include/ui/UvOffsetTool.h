@@ -24,35 +24,28 @@
 
 #include <memory>
 
-namespace tb
-{
-namespace gl
-{
-class OrthographicCamera;
-}
-
-namespace ui
+namespace tb::ui
 {
 class GestureTracker;
+class MapDocument;
+class UvViewHelper;
 
-class UVCameraTool : public ToolController, public Tool
+class UvOffsetTool : public ToolController, public Tool
 {
 private:
-  gl::OrthographicCamera& m_camera;
+  MapDocument& m_document;
+  const UvViewHelper& m_helper;
 
 public:
-  explicit UVCameraTool(gl::OrthographicCamera& camera);
+  UvOffsetTool(MapDocument& document, const UvViewHelper& helper);
 
 private:
   Tool& tool() override;
   const Tool& tool() const override;
-
-  void mouseScroll(const InputState& inputState) override;
 
   std::unique_ptr<GestureTracker> acceptMouseDrag(const InputState& inputState) override;
 
   bool cancel() override;
 };
 
-} // namespace ui
-} // namespace tb
+} // namespace tb::ui

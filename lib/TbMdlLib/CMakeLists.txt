@@ -69,7 +69,7 @@ target_sources(TbMdlLib
     ${CMAKE_CURRENT_SOURCE_DIR}/src/HitType.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/ImageLoader.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/ImageLoaderImpl.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/InvalidUVScaleValidator.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/InvalidUvScaleValidator.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Issue.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/IssueQuickFix.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/IssueType.cpp
@@ -147,8 +147,8 @@ target_sources(TbMdlLib
     ${CMAKE_CURRENT_SOURCE_DIR}/src/ObjSerializer.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Octree.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Palette.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/ParallelUVCoordSystem.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/ParaxialUVCoordSystem.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/ParallelUvCoordSystem.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/ParaxialUvCoordSystem.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/ParseCompilationConfig.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/ParseGameConfig.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/ParseGameEngineConfig.cpp
@@ -190,8 +190,8 @@ target_sources(TbMdlLib
     ${CMAKE_CURRENT_SOURCE_DIR}/src/UpdateLinkedGroupsCommand.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/UpdateLinkedGroupsCommandBase.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/UpdateLinkedGroupsHelper.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/UVCoordSystem.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/UVUtils.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/UvCoordSystem.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/UvUtils.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Validator.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/ValidatorRegistry.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/VisualEffect.cpp

@@ -45,8 +45,8 @@
 #include "ui/QStyleUtils.h"
 #include "ui/SignalDelayer.h"
 #include "ui/SpinControl.h"
-#include "ui/UVEditor.h"
-#include "ui/UVViewHelper.h"
+#include "ui/UvEditor.h"
+#include "ui/UvViewHelper.h"
 #include "ui/ViewConstants.h"
 #include "ui/ViewUtils.h"
 
@@ -117,7 +117,7 @@ void FaceAttribsEditor::alignClicked()
                         ? mdl::UvPolicy::prev
                         : mdl::UvPolicy::next;
 
-  alignUV(m_document.map(), policy);
+  alignUv(m_document.map(), policy);
 }
 
 void FaceAttribsEditor::justifyClicked(const mdl::UvJustifyDirection uvJustifyDirection)
@@ -126,7 +126,7 @@ void FaceAttribsEditor::justifyClicked(const mdl::UvJustifyDirection uvJustifyDi
                           ? mdl::UvPolicy::prev
                           : mdl::UvPolicy::next;
 
-  justifyUV(m_document.map(), uvJustifyDirection, uvPolicy);
+  justifyUv(m_document.map(), uvJustifyDirection, uvPolicy);
 }
 
 void FaceAttribsEditor::fitClicked(const mdl::UvFitDirection uvFitDirection)
@@ -139,12 +139,12 @@ void FaceAttribsEditor::fitClicked(const mdl::UvFitDirection uvFitDirection)
                            ? mdl::UvFitMode::trimSheet
                            : mdl::UvFitMode::fitToFace;
 
-  fitUV(m_document.map(), uvFitDirection, uvPolicy, uvFitMode);
+  fitUv(m_document.map(), uvFitDirection, uvPolicy, uvFitMode);
 }
 
 void FaceAttribsEditor::autoFitClicked()
 {
-  autoFitUV(m_document.map());
+  autoFitUv(m_document.map());
 }
 
 void FaceAttribsEditor::xOffsetChanged(const double value)
@@ -361,7 +361,7 @@ static QWidget* createUnsetButtonLayout(QWidget* expandWidget, QWidget* button)
 
 void FaceAttribsEditor::createGui(AppController& appController)
 {
-  m_uvEditor = new UVEditor{appController, m_document};
+  m_uvEditor = new UvEditor{appController, m_document};
 
   auto* buttonsWidget = createButtonsWidget();
   auto* faceAttribsWidget = createAttribsWidget();

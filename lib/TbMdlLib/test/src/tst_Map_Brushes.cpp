@@ -32,8 +32,8 @@
 #include "mdl/Matchers.h"
 #include "mdl/TestFactory.h"
 #include "mdl/TestUtils.h"
-#include "mdl/UVCoordSystem.h"
 #include "mdl/UpdateBrushFaceAttributes.h"
+#include "mdl/UvCoordSystem.h"
 
 #include "vm/approx.h"
 
@@ -403,7 +403,7 @@ TEST_CASE("Map_Brushes")
     }
   }
 
-  SECTION("copyUV")
+  SECTION("copyUv")
   {
     auto& map = fixture.create(QuakeFixtureConfig);
 
@@ -446,12 +446,12 @@ TEST_CASE("Map_Brushes")
     const auto originalTargetVAxis = getFace(*brushNode, *targetFaceIndex).vAxis();
 
     const auto& sourceFace = getFace(*brushNode, *sourceFaceIndex);
-    const auto sourceSnapshot = sourceFace.takeUVCoordSystemSnapshot();
+    const auto sourceSnapshot = sourceFace.takeUvCoordSystemSnapshot();
     const auto sourceAttributes = sourceFace.attributes();
     const auto sourcePlane = sourceFace.boundary();
 
     CHECK(
-      copyUV(map, *sourceSnapshot, sourceAttributes, sourcePlane, WrapStyle::Projection));
+      copyUv(map, *sourceSnapshot, sourceAttributes, sourcePlane, WrapStyle::Projection));
 
     auto expectedAttributes = originalTargetFaceAttributes;
     expectedAttributes.setXOffset(0.36245f);
@@ -483,7 +483,7 @@ TEST_CASE("Map_Brushes")
     }
   }
 
-  SECTION("translateUV")
+  SECTION("translateUv")
   {
     auto& map = fixture.create(QuakeFixtureConfig);
 
@@ -519,12 +519,12 @@ TEST_CASE("Map_Brushes")
 
     auto expectedBrush = brushNode->brush();
     expectedBrush.face(*faceIndex)
-      .translateUV(vm::vec3d{cameraUp}, vm::vec3d{cameraRight}, delta);
+      .translateUv(vm::vec3d{cameraUp}, vm::vec3d{cameraRight}, delta);
     const auto expectedAttributes = expectedBrush.face(*faceIndex).attributes();
     const auto expectedUAxis = expectedBrush.face(*faceIndex).uAxis();
     const auto expectedVAxis = expectedBrush.face(*faceIndex).vAxis();
 
-    REQUIRE(translateUV(map, cameraUp, cameraRight, delta));
+    REQUIRE(translateUv(map, cameraUp, cameraRight, delta));
 
     const auto& movedFace = getFace(*brushNode, *faceIndex);
     CHECK_THAT(movedFace.attributes(), MatchesBrushFaceAttributes(expectedAttributes));
@@ -560,7 +560,7 @@ TEST_CASE("Map_Brushes")
     }
   }
 
-  SECTION("rotateUV")
+  SECTION("rotateUv")
   {
     auto& map = fixture.create(QuakeFixtureConfig);
 
@@ -586,12 +586,12 @@ TEST_CASE("Map_Brushes")
       getFace(*brushNode, *otherFaceIndex).attributes();
 
     auto expectedBrush = brushNode->brush();
-    expectedBrush.face(*faceIndex).rotateUV(15.0f);
+    expectedBrush.face(*faceIndex).rotateUv(15.0f);
     const auto expectedAttributes = expectedBrush.face(*faceIndex).attributes();
     const auto expectedUAxis = expectedBrush.face(*faceIndex).uAxis();
     const auto expectedVAxis = expectedBrush.face(*faceIndex).vAxis();
 
-    REQUIRE(rotateUV(map, 15.0f));
+    REQUIRE(rotateUv(map, 15.0f));
 
     const auto& rotatedFace = getFace(*brushNode, *faceIndex);
     CHECK_THAT(rotatedFace.attributes(), MatchesBrushFaceAttributes(expectedAttributes));
@@ -627,7 +627,7 @@ TEST_CASE("Map_Brushes")
     }
   }
 
-  SECTION("shearUV")
+  SECTION("shearUv")
   {
     auto& map = fixture.create(QuakeFixtureConfig);
 
@@ -653,12 +653,12 @@ TEST_CASE("Map_Brushes")
       getFace(*brushNode, *otherFaceIndex).attributes();
 
     auto expectedBrush = brushNode->brush();
-    expectedBrush.face(*faceIndex).shearUV(factors);
+    expectedBrush.face(*faceIndex).shearUv(factors);
     const auto expectedAttributes = expectedBrush.face(*faceIndex).attributes();
     const auto expectedUAxis = expectedBrush.face(*faceIndex).uAxis();
     const auto expectedVAxis = expectedBrush.face(*faceIndex).vAxis();
 
-    REQUIRE(shearUV(map, factors));
+    REQUIRE(shearUv(map, factors));
 
     const auto& shearedFace = getFace(*brushNode, *faceIndex);
     CHECK_THAT(shearedFace.attributes(), MatchesBrushFaceAttributes(expectedAttributes));
@@ -694,7 +694,7 @@ TEST_CASE("Map_Brushes")
     }
   }
 
-  SECTION("flipUV")
+  SECTION("flipUv")
   {
     auto& map = fixture.create(QuakeFixtureConfig);
 
@@ -730,12 +730,12 @@ TEST_CASE("Map_Brushes")
 
     auto expectedBrush = brushNode->brush();
     expectedBrush.face(*faceIndex)
-      .flipUV(vm::vec3d{cameraUp}, vm::vec3d{cameraRight}, flipDirection);
+      .flipUv(vm::vec3d{cameraUp}, vm::vec3d{cameraRight}, flipDirection);
     const auto expectedAttributes = expectedBrush.face(*faceIndex).attributes();
     const auto expectedUAxis = expectedBrush.face(*faceIndex).uAxis();
     const auto expectedVAxis = expectedBrush.face(*faceIndex).vAxis();
 
-    REQUIRE(flipUV(map, cameraUp, cameraRight, flipDirection));
+    REQUIRE(flipUv(map, cameraUp, cameraRight, flipDirection));
 
     const auto& flippedFace = getFace(*brushNode, *faceIndex);
     CHECK_THAT(flippedFace.attributes(), MatchesBrushFaceAttributes(expectedAttributes));
@@ -771,7 +771,7 @@ TEST_CASE("Map_Brushes")
     }
   }
 
-  SECTION("alignUV")
+  SECTION("alignUv")
   {
     auto& map = fixture.create(QuakeFixtureConfig);
 
@@ -804,7 +804,7 @@ TEST_CASE("Map_Brushes")
     const auto expectedUAxis = expectedBrush.face(*faceIndex).uAxis();
     const auto expectedVAxis = expectedBrush.face(*faceIndex).vAxis();
 
-    alignUV(map, UvPolicy::next);
+    alignUv(map, UvPolicy::next);
 
     const auto& alignedFace = getFace(*brushNode, *faceIndex);
     CHECK_THAT(
@@ -842,7 +842,7 @@ TEST_CASE("Map_Brushes")
     }
   }
 
-  SECTION("justifyUV")
+  SECTION("justifyUv")
   {
     auto& map = fixture.create(QuakeFixtureConfig);
 
@@ -880,7 +880,7 @@ TEST_CASE("Map_Brushes")
     const auto expectedUAxis = expectedBrush.face(*faceIndex).uAxis();
     const auto expectedVAxis = expectedBrush.face(*faceIndex).vAxis();
 
-    justifyUV(map, UvJustifyDirection::Left, UvPolicy::best);
+    justifyUv(map, UvJustifyDirection::Left, UvPolicy::best);
 
     const auto& justifiedFace = getFace(*brushNode, *faceIndex);
     CHECK_THAT(
@@ -919,7 +919,7 @@ TEST_CASE("Map_Brushes")
     }
   }
 
-  SECTION("fitUV")
+  SECTION("fitUv")
   {
     auto& map = fixture.create(QuakeFixtureConfig);
 
@@ -955,7 +955,7 @@ TEST_CASE("Map_Brushes")
 
     const auto invariantVertex = anchorVertex(expectedFace, UvAxis::u, UvSign::minus);
     const auto previousUvCoords = vm::vec2f{
-      expectedFace.toUVCoordSystemMatrix(
+      expectedFace.toUvCoordSystemMatrix(
         expectedFace.attributes().offset(), expectedFace.attributes().scale())
       * invariantVertex};
 
@@ -963,7 +963,7 @@ TEST_CASE("Map_Brushes")
       fit(expectedFace, UvAxis::u, UvPolicy::next, UvFitMode::fitToFace), expectedFace);
 
     const auto newUvCoords = vm::vec2f{
-      expectedFace.toUVCoordSystemMatrix(
+      expectedFace.toUvCoordSystemMatrix(
         expectedFace.attributes().offset(), expectedFace.attributes().scale())
       * invariantVertex};
     const auto delta = previousUvCoords - newUvCoords;
@@ -979,7 +979,7 @@ TEST_CASE("Map_Brushes")
     const auto expectedUAxis = expectedFace.uAxis();
     const auto expectedVAxis = expectedFace.vAxis();
 
-    fitUV(map, UvFitDirection::Horizontal, UvPolicy::next, UvFitMode::fitToFace);
+    fitUv(map, UvFitDirection::Horizontal, UvPolicy::next, UvFitMode::fitToFace);
 
     const auto& fittedFace = getFace(*brushNode, *faceIndex);
     CHECK_THAT(
@@ -1017,7 +1017,7 @@ TEST_CASE("Map_Brushes")
     }
   }
 
-  SECTION("autoFitUV")
+  SECTION("autoFitUv")
   {
     auto& map = fixture.create(QuakeFixtureConfig);
 
@@ -1069,7 +1069,7 @@ TEST_CASE("Map_Brushes")
 
       deselectAll(map);
       selectBrushFaces(map, {{brushNode, iFront}, {brushNode, iRight}});
-      autoFitUV(map);
+      autoFitUv(map);
 
       // front face is now aligned
       CHECK(getFace(*brushNode, iFront).uAxis() == vm::approx{vm::vec3d{1, 0, 0}});
@@ -1130,7 +1130,7 @@ TEST_CASE("Map_Brushes")
       REQUIRE(getFace(*brushNode, iRight).uAxis() == vm::approx{vm::vec3d{0, 1, 0}});
       REQUIRE(getFace(*brushNode, iRight).vAxis() == vm::approx{vm::vec3d{0, 0, -1}});
 
-      autoFitUV(map);
+      autoFitUv(map);
 
       CHECK(getFace(*brushNode, iFront).uAxis() == vm::approx{vm::vec3d{1, 0, 0}});
       CHECK(getFace(*brushNode, iFront).vAxis() == vm::approx{vm::vec3d{0, 0, -1}});
@@ -1181,7 +1181,7 @@ TEST_CASE("Map_Brushes")
 
       deselectAll(map);
       selectBrushFaces(map, {{brushNode, iFront}, {brushNode, iRight}});
-      autoFitUV(map);
+      autoFitUv(map);
 
       const auto modifiedFrontAttributes = getFace(*brushNode, iFront).attributes();
       const auto modifiedRightAttributes = getFace(*brushNode, iRight).attributes();
