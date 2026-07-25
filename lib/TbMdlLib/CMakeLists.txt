@@ -190,6 +190,7 @@ target_sources(TbMdlLib
     ${CMAKE_CURRENT_SOURCE_DIR}/src/UpdateLinkedGroupsCommand.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/UpdateLinkedGroupsCommandBase.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/UpdateLinkedGroupsHelper.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/UvAttributes.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/UvCoordSystem.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/UvUtils.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Validator.cpp

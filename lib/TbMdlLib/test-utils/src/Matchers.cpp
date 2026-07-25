@@ -196,9 +196,9 @@ BrushFaceAttributesMatcher::BrushFaceAttributesMatcher(BrushFaceAttributes expec
 
 bool BrushFaceAttributesMatcher::match(const BrushFaceAttributes& in) const
 {
-  return in.offset() == vm::approx{m_expected.offset()}
-         && in.scale() == vm::approx{m_expected.scale()}
-         && in.rotation() == vm::approx{m_expected.rotation()}
+  return in.uvAttributes().offset == vm::approx{m_expected.uvAttributes().offset}
+         && in.uvAttributes().scale == vm::approx{m_expected.uvAttributes().scale}
+         && in.uvAttributes().rotation == vm::approx{m_expected.uvAttributes().rotation}
          && in.surfaceContents() == m_expected.surfaceContents()
          && in.surfaceFlags() == m_expected.surfaceFlags()
          && in.surfaceValue() == m_expected.surfaceValue()

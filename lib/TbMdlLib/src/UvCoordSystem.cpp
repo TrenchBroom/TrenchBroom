@@ -43,7 +43,9 @@ vm::vec2f UvCoordSystem::uvCoords(
   const BrushFaceAttributes& attribs,
   const vm::vec2f& textureSize) const
 {
-  return (computeUvCoords(point, attribs.scale()) + attribs.offset()) / textureSize;
+  return (computeUvCoords(point, attribs.uvAttributes().scale)
+          + attribs.uvAttributes().offset)
+         / textureSize;
 }
 
 bool operator==(const UvCoordSystem& lhs, const UvCoordSystem& rhs)
@@ -152,24 +154,30 @@ void UvCoordSystem::translate(
     actualOffset[vIndex] = +offset.y();
   }
 
+  auto uvAttribs = attribs.uvAttributes();
+
   // Flip offset direction when texture scale is negative
-  if (attribs.scale().x() < 0.0f)
+  if (uvAttribs.scale.x() < 0.0f)
   {
     actualOffset[0] *= -1.0f;
   }
-  if (attribs.scale().y() < 0.0f)
+  if (uvAttribs.scale.y() < 0.0f)
   {
     actualOffset[1] *= -1.0f;
   }
 
-  attribs.setOffset(attribs.offset() + actualOffset);
+  uvAttribs.offset = uvAttribs.offset + actualOffset;
+  attribs.setUvAttributes(uvAttribs);
 }
 
 void UvCoordSystem::rotate(
   const vm::vec3d& normal, const float angle, BrushFaceAttributes& attribs) const
 {
   const auto actualAngle = isRotationInverted(normal) ? -angle : angle;
-  attribs.setRotation(attribs.rotation() + actualAngle);
+
+  auto uvAttribs = attribs.uvAttributes();
+  uvAttribs.rotation = uvAttribs.rotation + actualAngle;
+  attribs.setUvAttributes(uvAttribs);
 }
 
 vm::mat4x4d UvCoordSystem::toMatrix(const vm::vec2f& o, const vm::vec2f& s) const

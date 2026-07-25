@@ -112,11 +112,13 @@ vm::vec2f snapDelta(const UvViewHelper& helper, const vm::vec2f& delta)
   const auto w2fTransform =
     helper.face()->toUvCoordSystemMatrix(vm::vec2f{0, 0}, vm::vec2f{1, 1});
   const auto w2tTransform = helper.face()->toUvCoordSystemMatrix(
-    helper.face()->attributes().offset(), helper.face()->attributes().scale());
+    helper.face()->attributes().uvAttributes().offset,
+    helper.face()->attributes().uvAttributes().scale);
   const auto f2wTransform =
     helper.face()->fromUvCoordSystemMatrix(vm::vec2f{0, 0}, vm::vec2f{1, 1});
   const auto t2wTransform = helper.face()->fromUvCoordSystemMatrix(
-    helper.face()->attributes().offset(), helper.face()->attributes().scale());
+    helper.face()->attributes().uvAttributes().offset,
+    helper.face()->attributes().uvAttributes().scale);
   const auto f2tTransform = w2tTransform * f2wTransform;
   const auto t2fTransform = w2fTransform * t2wTransform;
 

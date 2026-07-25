@@ -98,9 +98,11 @@ TEST_CASE("BrushBuilder")
   SECTION("createCubeDefaults")
   {
     auto defaultAttribs = BrushFaceAttributes{};
-    defaultAttribs.setOffset({0.5f, 0.5f});
-    defaultAttribs.setScale({0.5f, 0.5f});
-    defaultAttribs.setRotation(45.0f);
+    defaultAttribs.setUvAttributes({
+      .offset = {0.5f, 0.5f},
+      .scale = {0.5f, 0.5f},
+      .rotation = 45.0f,
+    });
     defaultAttribs.setSurfaceContents(1);
     defaultAttribs.setSurfaceFlags(2);
     defaultAttribs.setSurfaceValue(0.1f);
@@ -126,9 +128,11 @@ TEST_CASE("BrushBuilder")
   SECTION("createBrushDefaults")
   {
     auto defaultAttribs = BrushFaceAttributes{};
-    defaultAttribs.setOffset({0.5f, 0.5f});
-    defaultAttribs.setScale({0.5f, 0.5f});
-    defaultAttribs.setRotation(45.0f);
+    defaultAttribs.setUvAttributes({
+      .offset = {0.5f, 0.5f},
+      .scale = {0.5f, 0.5f},
+      .rotation = 45.0f,
+    });
     defaultAttribs.setSurfaceContents(1);
     defaultAttribs.setSurfaceFlags(2);
     defaultAttribs.setSurfaceValue(0.1f);

@@ -28,6 +28,7 @@
 #include "mdl/Tag.h"
 #include "mdl/TagAttribute.h"
 #include "mdl/TagMatcher.h"
+#include "mdl/UvAttributes.h"
 
 #include "kd/ranges/to.h"
 
@@ -301,27 +302,31 @@ BrushFaceAttributes parseFaceAttribsDefaults(
     return defaults;
   }
 
+  auto uvAttributes = UvAttributes{};
+
   if (const auto offsetValue = value.atOrDefault(context, "offset");
       offsetValue != el::Value::Null && offsetValue.length() == 2)
   {
-    defaults.setOffset(vm::vec2f{
+    uvAttributes.offset = vm::vec2f{
       float(offsetValue.at(context, 0).numberValue(context)),
-      float(offsetValue.at(context, 1).numberValue(context))});
+      float(offsetValue.at(context, 1).numberValue(context))};
   }
 
   if (const auto scaleValue = value.atOrDefault(context, "scale");
       scaleValue != el::Value::Null && scaleValue.length() == 2)
   {
-    defaults.setScale(vm::vec2f{
+    uvAttributes.scale = vm::vec2f{
       float(scaleValue.at(context, 0).numberValue(context)),
-      float(scaleValue.at(context, 1).numberValue(context))});
+      float(scaleValue.at(context, 1).numberValue(context))};
   }
 
   if (const auto rotationValue = value.atOrDefault(context, "rotation");
       rotationValue != el::Value::Null)
   {
-    defaults.setRotation(float(rotationValue.numberValue(context)));
+    uvAttributes.rotation = float(rotationValue.numberValue(context));
   }
+
+  defaults.setUvAttributes(uvAttributes);
 
   if (const auto surfaceContentsValue = value.atOrDefault(context, "surfaceContents");
       surfaceContentsValue != el::Value::Null)

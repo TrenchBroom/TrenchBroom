@@ -85,10 +85,11 @@ std::vector<Vertex> createDecalBrushFace(
   const auto center = plane.project_point(origin);
 
   // re-project the vertices in case the UV axes are not on the face plane
+  const auto& uvScale = attrs.uvAttributes().scale;
   const auto xShift =
-    uvCoordSystem->uAxis() * double(attrs.xScale() * textureSize.x() / 2.0f);
+    uvCoordSystem->uAxis() * double(uvScale.x() * textureSize.x() / 2.0f);
   const auto yShift =
-    uvCoordSystem->vAxis() * double(attrs.yScale() * textureSize.y() / 2.0f);
+    uvCoordSystem->vAxis() * double(uvScale.y() * textureSize.y() / 2.0f);
 
   // we want to shift every vertex by just a little bit to avoid z-fighting
   const auto offset = plane.normal * 0.1;
@@ -116,10 +117,12 @@ std::vector<Vertex> createDecalBrushFace(
 
   // calculate the UV offset based on the first vertex location
   const auto vtx = verts[0];
-  const auto xOffs = -vm::dot(vtx, uvCoordSystem->uAxis()) / attrs.xScale();
-  const auto yOffs = -vm::dot(vtx, uvCoordSystem->vAxis()) / attrs.yScale();
-  attrs.setXOffset(float(xOffs));
-  attrs.setYOffset(float(yOffs));
+  const auto xOffs = -vm::dot(vtx, uvCoordSystem->uAxis()) / uvScale.x();
+  const auto yOffs = -vm::dot(vtx, uvCoordSystem->vAxis()) / uvScale.y();
+
+  auto uvAttributes = attrs.uvAttributes();
+  uvAttributes.offset = vm::vec2f{float(xOffs), float(yOffs)};
+  attrs.setUvAttributes(uvAttributes);
 
   // clip the decal geometry against every other plane in the brush
   for (const auto& f : brushNode.brush().faces())

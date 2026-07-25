@@ -715,9 +715,11 @@ TEST_CASE("GameConfigParser")
 )%";
 
     mdl::BrushFaceAttributes expectedBrushFaceAttributes;
-    expectedBrushFaceAttributes.setOffset(vm::vec2f(0.0f, 0.0f));
-    expectedBrushFaceAttributes.setScale(vm::vec2f(0.5f, 0.5f));
-    expectedBrushFaceAttributes.setRotation(0.0f);
+    expectedBrushFaceAttributes.setUvAttributes({
+      .offset = {0.0f, 0.0f},
+      .scale = {0.5f, 0.5f},
+      .rotation = 0.0f,
+    });
     expectedBrushFaceAttributes.setSurfaceContents(1 << 0);
     expectedBrushFaceAttributes.setSurfaceFlags(1 << 1);
     expectedBrushFaceAttributes.setSurfaceValue(0.0f);

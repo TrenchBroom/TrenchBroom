@@ -72,11 +72,7 @@ void getFaceVertsAndUvCoords(
 void resetFaceUvAlignment(BrushFace& face)
 {
   auto attributes = face.attributes();
-  attributes.setXOffset(0.0);
-  attributes.setYOffset(0.0);
-  attributes.setRotation(0.0);
-  attributes.setXScale(1.0);
-  attributes.setYScale(1.0);
+  attributes.setUvAttributes({});
 
   face.setAttributes(attributes);
   face.resetUvAxes();
@@ -618,7 +614,7 @@ TEST_CASE("BrushFace")
     const auto newYAxis = vm::vec3d{rot45 * face.vAxis()};
 
     auto attributes = face.attributes();
-    attributes.setRotation(-45.0f);
+    attributes.setUvAttributes({.rotation = -45.0f});
     face.setAttributes(attributes);
 
     CHECK(face.uAxis() == vm::approx{newXAxis});
@@ -716,9 +712,9 @@ TEST_CASE("BrushFace")
     const auto newYAxis = vm::vec3d{rot45 * negXFace->vAxis()};
 
     // Rotate by 45 degrees CCW
-    CHECK(negXFace->attributes().rotation() == vm::approx{0.0f});
+    CHECK(negXFace->attributes().uvAttributes().rotation == vm::approx{0.0f});
     negXFace->rotateUv(45.0);
-    CHECK(negXFace->attributes().rotation() == vm::approx{45.0f});
+    CHECK(negXFace->attributes().uvAttributes().rotation == vm::approx{45.0f});
 
     CHECK(negXFace->uAxis() == vm::approx{newXAxis});
     CHECK(negXFace->vAxis() == vm::approx{newYAxis});
@@ -923,7 +919,7 @@ TEST_CASE("BrushFace")
 
     auto brush = brushNode->brush();
     auto& face = brush.face(*brush.findFace(vm::vec3d{0, 0, 1}));
-    CHECK(face.attributes().scale() == vm::vec2f{1, 1});
+    CHECK(face.attributes().uvAttributes().scale == vm::vec2f{1, 1});
 
     SECTION("Default camera angle")
     {
@@ -933,13 +929,13 @@ TEST_CASE("BrushFace")
       SECTION("Left flip")
       {
         face.flipUv(cameraUp, cameraRight, vm::direction::left);
-        CHECK(face.attributes().scale() == vm::vec2f{-1, 1});
+        CHECK(face.attributes().uvAttributes().scale == vm::vec2f{-1, 1});
       }
 
       SECTION("Up flip")
       {
         face.flipUv(cameraUp, cameraRight, vm::direction::up);
-        CHECK(face.attributes().scale() == vm::vec2f{1, -1});
+        CHECK(face.attributes().uvAttributes().scale == vm::vec2f{1, -1});
       }
     }
 
@@ -951,13 +947,13 @@ TEST_CASE("BrushFace")
       SECTION("left arrow (does vertical flip)")
       {
         face.flipUv(cameraUp, cameraRight, vm::direction::left);
-        CHECK(face.attributes().scale() == vm::vec2f{1, -1});
+        CHECK(face.attributes().uvAttributes().scale == vm::vec2f{1, -1});
       }
 
       SECTION("up arrow (does horizontal flip)")
       {
         face.flipUv(cameraUp, cameraRight, vm::direction::up);
-        CHECK(face.attributes().scale() == vm::vec2f{-1, 1});
+        CHECK(face.attributes().uvAttributes().scale == vm::vec2f{-1, 1});
       }
     }
   }

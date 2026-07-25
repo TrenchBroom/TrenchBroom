@@ -143,14 +143,16 @@ void compensateOffset(
   {
     const auto previousUvCoords = vm::vec2f{
       brushFace.toUvCoordSystemMatrix(
-        brushFace.attributes().offset(), brushFace.attributes().scale())
+        brushFace.attributes().uvAttributes().offset,
+        brushFace.attributes().uvAttributes().scale)
       * *vertex};
 
     f();
 
     const auto newUvCoords = vm::vec2f{
       brushFace.toUvCoordSystemMatrix(
-        brushFace.attributes().offset(), brushFace.attributes().scale())
+        brushFace.attributes().uvAttributes().offset,
+        brushFace.attributes().uvAttributes().scale)
       * *vertex};
     const auto delta = previousUvCoords - newUvCoords;
 

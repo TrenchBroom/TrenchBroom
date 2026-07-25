@@ -98,16 +98,18 @@ protected:
     const auto& materialName =
       face.materialName().empty() ? BrushFace::NoMaterialName : face.materialName();
 
+    const auto& uvAttributes = face.attributes().uvAttributes();
+
     fmt::format_to(
       std::ostreambuf_iterator<char>{stream},
       " {} {} {} {} {} {}",
       shouldQuoteMaterialName(materialName) ? quoteMaterialName(materialName)
                                             : materialName,
-      face.attributes().xOffset(),
-      face.attributes().yOffset(),
-      face.attributes().rotation(),
-      face.attributes().xScale(),
-      face.attributes().yScale());
+      uvAttributes.offset.x(),
+      uvAttributes.offset.y(),
+      uvAttributes.rotation,
+      uvAttributes.scale.x(),
+      uvAttributes.scale.y());
   }
 
   void writeValveMaterialInfo(std::ostream& stream, const BrushFace& face) const
@@ -116,6 +118,7 @@ protected:
       face.materialName().empty() ? BrushFace::NoMaterialName : face.materialName();
     const auto uAxis = face.uAxis();
     const auto vAxis = face.vAxis();
+    const auto& uvAttributes = face.attributes().uvAttributes();
 
     fmt::format_to(
       std::ostreambuf_iterator<char>{stream},
@@ -126,16 +129,16 @@ protected:
       uAxis.x(),
       uAxis.y(),
       uAxis.z(),
-      face.attributes().xOffset(),
+      uvAttributes.offset.x(),
 
       vAxis.x(),
       vAxis.y(),
       vAxis.z(),
-      face.attributes().yOffset(),
+      uvAttributes.offset.y(),
 
-      face.attributes().rotation(),
-      face.attributes().xScale(),
-      face.attributes().yScale());
+      uvAttributes.rotation,
+      uvAttributes.scale.x(),
+      uvAttributes.scale.y());
   }
 };
 

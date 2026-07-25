@@ -793,11 +793,12 @@ void FaceAttribsEditor::updateControls()
 
     const auto& firstFace = faceHandles[0].face();
     const auto& materialName = firstFace.materialName();
-    const auto xOffset = firstFace.attributes().xOffset();
-    const auto yOffset = firstFace.attributes().yOffset();
-    const auto rotation = firstFace.attributes().rotation();
-    const auto xScale = firstFace.attributes().xScale();
-    const auto yScale = firstFace.attributes().yScale();
+    const auto& firstUvAttributes = firstFace.attributes().uvAttributes();
+    const auto xOffset = firstUvAttributes.offset.x();
+    const auto yOffset = firstUvAttributes.offset.y();
+    const auto rotation = firstUvAttributes.rotation;
+    const auto xScale = firstUvAttributes.scale.x();
+    const auto yScale = firstUvAttributes.scale.y();
     auto setSurfaceFlags = firstFace.resolvedSurfaceFlags();
     auto setSurfaceContents = firstFace.resolvedSurfaceContents();
     auto mixedSurfaceFlags = 0;
@@ -813,11 +814,12 @@ void FaceAttribsEditor::updateControls()
     {
       const auto& face = faceHandles[i].face();
       materialMulti |= (materialName != face.materialName());
-      xOffsetMulti |= (xOffset != face.attributes().xOffset());
-      yOffsetMulti |= (yOffset != face.attributes().yOffset());
-      rotationMulti |= (rotation != face.attributes().rotation());
-      xScaleMulti |= (xScale != face.attributes().xScale());
-      yScaleMulti |= (yScale != face.attributes().yScale());
+      const auto& uvAttributes = face.attributes().uvAttributes();
+      xOffsetMulti |= (xOffset != uvAttributes.offset.x());
+      yOffsetMulti |= (yOffset != uvAttributes.offset.y());
+      rotationMulti |= (rotation != uvAttributes.rotation);
+      xScaleMulti |= (xScale != uvAttributes.scale.x());
+      yScaleMulti |= (yScale != uvAttributes.scale.y());
       surfaceValueMulti |= (surfaceValue != face.resolvedSurfaceValue());
       colorValueMulti |= (colorValue != face.attributes().color());
       hasSurfaceValue |= face.attributes().surfaceValue().has_value();

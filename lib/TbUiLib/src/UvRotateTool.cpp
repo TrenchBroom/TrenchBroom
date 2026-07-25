@@ -234,9 +234,9 @@ public:
     const auto newCenterInFaceCoords = vm::vec2f{toFaceNew * oldCenterInWorldCoords};
 
     const auto delta = (oldCenterInFaceCoords - newCenterInFaceCoords)
-                       / m_helper.face()->attributes().scale();
+                       / m_helper.face()->attributes().uvAttributes().scale;
     const auto newOffset =
-      vm::correct(m_helper.face()->attributes().offset() + delta, 4, 0.0f);
+      vm::correct(m_helper.face()->attributes().uvAttributes().offset + delta, 4, 0.0f);
 
     setBrushFaceAttributes(
       m_map,
@@ -295,7 +295,8 @@ std::optional<float> computeInitialAngle(
 {
   return hitPointInFaceCoords(helper, inputState)
          | kdl::optional_transform([&](const auto& point) {
-             return measureAngle(helper, point) - helper.face()->attributes().rotation();
+             return measureAngle(helper, point)
+                    - helper.face()->attributes().uvAttributes().rotation;
            });
 }
 

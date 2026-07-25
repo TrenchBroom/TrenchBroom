@@ -359,8 +359,7 @@ TEST_CASE("Brush")
     auto& topFace = brush.face(*topFaceIndex);
 
     auto attributes = topFace.attributes();
-    attributes.setXOffset(64.0f);
-    attributes.setYOffset(-48.0f);
+    attributes.setUvAttributes({.offset = {64.0f, -48.0f}});
     topFace.setAttributes(attributes);
 
     auto newBrush = brush;

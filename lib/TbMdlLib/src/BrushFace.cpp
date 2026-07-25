@@ -299,7 +299,10 @@ void BrushFace::copyUvCoordSystemFromFace(
     const auto currentCoords =
       m_uvCoordSystem->uvCoords(refPoint, m_attributes, vm::vec2f::one());
     const auto offsetChange = desriedCoords - currentCoords;
-    m_attributes.setOffset(correct(modOffset(m_attributes.offset() + offsetChange), 4));
+
+    auto uvAttributes = m_attributes.uvAttributes();
+    uvAttributes.offset = correct(modOffset(uvAttributes.offset + offsetChange), 4);
+    m_attributes.setUvAttributes(uvAttributes);
   }
 }
 
@@ -435,20 +438,17 @@ const BrushFaceAttributes& BrushFace::attributes() const
 
 void BrushFace::setAttributes(const BrushFaceAttributes& attributes)
 {
-  const auto oldRotation = m_attributes.rotation();
+  const auto oldRotation = m_attributes.uvAttributes().rotation;
   m_attributes = attributes;
-  m_uvCoordSystem->setRotation(m_boundary.normal, oldRotation, m_attributes.rotation());
+  m_uvCoordSystem->setRotation(
+    m_boundary.normal, oldRotation, m_attributes.uvAttributes().rotation);
 }
 
 bool BrushFace::setAttributes(const BrushFace& other)
 {
   auto result = false;
   result |= setMaterialName(other.materialName());
-  result |= m_attributes.setXOffset(other.attributes().xOffset());
-  result |= m_attributes.setYOffset(other.attributes().yOffset());
-  result |= m_attributes.setRotation(other.attributes().rotation());
-  result |= m_attributes.setXScale(other.attributes().xScale());
-  result |= m_attributes.setYScale(other.attributes().yScale());
+  result |= m_attributes.setUvAttributes(other.attributes().uvAttributes());
   result |= m_attributes.setSurfaceContents(other.attributes().surfaceContents());
   result |= m_attributes.setSurfaceFlags(other.attributes().surfaceFlags());
   result |= m_attributes.setSurfaceValue(other.attributes().surfaceValue());
@@ -543,7 +543,7 @@ vm::vec2f BrushFace::textureSize() const
 
 vm::vec2f BrushFace::modOffset(const vm::vec2f& offset) const
 {
-  return m_attributes.modOffset(offset, textureSize());
+  return mdl::modOffset(offset, textureSize());
 }
 
 bool BrushFace::setMaterial(gl::Material* material)
@@ -603,9 +603,10 @@ void BrushFace::translateUv(
 
 void BrushFace::rotateUv(const float angle)
 {
-  const auto oldRotation = m_attributes.rotation();
+  const auto oldRotation = m_attributes.uvAttributes().rotation;
   m_uvCoordSystem->rotate(m_boundary.normal, angle, m_attributes);
-  m_uvCoordSystem->setRotation(m_boundary.normal, oldRotation, m_attributes.rotation());
+  m_uvCoordSystem->setRotation(
+    m_boundary.normal, oldRotation, m_attributes.uvAttributes().rotation);
 }
 
 void BrushFace::shearUv(const vm::vec2f& factors)
@@ -646,14 +647,16 @@ void BrushFace::flipUv(
     flipUAxis = !flipUAxis;
   }
 
+  auto uvAttributes = m_attributes.uvAttributes();
   if (flipUAxis)
   {
-    m_attributes.setXScale(-m_attributes.xScale());
+    uvAttributes.scale[0] = -uvAttributes.scale.x();
   }
   else
   {
-    m_attributes.setYScale(-m_attributes.yScale());
+    uvAttributes.scale[1] = -uvAttributes.scale.y();
   }
+  m_attributes.setUvAttributes(uvAttributes);
 }
 
 Result<void> BrushFace::transform(const vm::mat4x4d& transform, const bool lockAlignment)
@@ -727,8 +730,11 @@ Result<void> BrushFace::updatePointsFromVertices()
                const auto currentCoords =
                  m_uvCoordSystem->uvCoords(refPoint, m_attributes, vm::vec2f{1, 1});
                const auto offsetChange = desriedCoords - currentCoords;
-               m_attributes.setOffset(
-                 correct(modOffset(m_attributes.offset() + offsetChange), 4));
+
+               auto uvAttributes = m_attributes.uvAttributes();
+               uvAttributes.offset =
+                 correct(modOffset(uvAttributes.offset + offsetChange), 4);
+               m_attributes.setUvAttributes(uvAttributes);
              }
            });
 }
@@ -757,7 +763,8 @@ vm::mat4x4d BrushFace::fromUvCoordSystemMatrix(
 
 float BrushFace::measureUvAngle(const vm::vec2f& center, const vm::vec2f& point) const
 {
-  return m_uvCoordSystem->measureAngle(m_attributes.rotation(), center, point);
+  return m_uvCoordSystem->measureAngle(
+    m_attributes.uvAttributes().rotation, center, point);
 }
 
 size_t BrushFace::vertexCount() const

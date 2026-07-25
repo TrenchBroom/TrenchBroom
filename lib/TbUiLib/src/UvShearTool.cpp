@@ -184,17 +184,17 @@ public:
       const auto origin = m_helper.origin();
       const auto oldOriginUv = vm::vec2f{
         m_helper.face()->toUvCoordSystemMatrix(
-          vm::vec2f{0, 0}, m_helper.face()->attributes().scale())
+          vm::vec2f{0, 0}, m_helper.face()->attributes().uvAttributes().scale)
         * origin};
 
       shearUv(m_map, snappedFactors);
 
       const auto newOriginUv = vm::vec2f{
         m_helper.face()->toUvCoordSystemMatrix(
-          vm::vec2f{0, 0}, m_helper.face()->attributes().scale())
+          vm::vec2f{0, 0}, m_helper.face()->attributes().uvAttributes().scale)
         * origin};
       const auto newOffset =
-        m_helper.face()->attributes().offset() + oldOriginUv - newOriginUv;
+        m_helper.face()->attributes().uvAttributes().offset + oldOriginUv - newOriginUv;
 
       setBrushFaceAttributes(
         m_map,

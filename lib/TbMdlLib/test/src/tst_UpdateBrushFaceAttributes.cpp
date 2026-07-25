@@ -69,9 +69,11 @@ TEST_CASE("UpdateBrushFaceAttributes")
   SECTION("copyAll")
   {
     auto attributes = BrushFaceAttributes{};
-    attributes.setOffset({1, 2});
-    attributes.setRotation(45.0f);
-    attributes.setScale({2, 3});
+    attributes.setUvAttributes({
+      .offset = {1, 2},
+      .scale = {2, 3},
+      .rotation = 45.0f,
+    });
 
     SECTION("with surface attributes and color unset")
     {
@@ -116,9 +118,11 @@ TEST_CASE("UpdateBrushFaceAttributes")
   SECTION("copyAllExceptContentFlags")
   {
     auto attributes = BrushFaceAttributes{};
-    attributes.setOffset({1, 2});
-    attributes.setRotation(45.0f);
-    attributes.setScale({2, 3});
+    attributes.setUvAttributes({
+      .offset = {1, 2},
+      .scale = {2, 3},
+      .rotation = 45.0f,
+    });
     attributes.setSurfaceFlags(2);
     attributes.setSurfaceContents(3);
     attributes.setSurfaceValue(11.0f);
@@ -142,9 +146,11 @@ TEST_CASE("UpdateBrushFaceAttributes")
   SECTION("resetAll")
   {
     auto defaultAttributes = BrushFaceAttributes{};
-    defaultAttributes.setOffset({1, 2});
-    defaultAttributes.setRotation(45.0f);
-    defaultAttributes.setScale({2, 3});
+    defaultAttributes.setUvAttributes({
+      .offset = {1, 2},
+      .scale = {2, 3},
+      .rotation = 45.0f,
+    });
     defaultAttributes.setSurfaceFlags(2);
     defaultAttributes.setSurfaceContents(3);
     defaultAttributes.setSurfaceValue(11.0f);
@@ -165,9 +171,11 @@ TEST_CASE("UpdateBrushFaceAttributes")
   SECTION("resetAllToParaxial")
   {
     auto defaultAttributes = BrushFaceAttributes{};
-    defaultAttributes.setOffset({1, 2});
-    defaultAttributes.setRotation(45.0f);
-    defaultAttributes.setScale({2, 3});
+    defaultAttributes.setUvAttributes({
+      .offset = {1, 2},
+      .scale = {2, 3},
+      .rotation = 45.0f,
+    });
     defaultAttributes.setSurfaceFlags(2);
     defaultAttributes.setSurfaceContents(3);
     defaultAttributes.setSurfaceValue(11.0f);
@@ -1094,13 +1102,13 @@ TEST_CASE("UpdateBrushFaceAttributes")
 
       {
         auto attributes = brushFace.attributes();
-        attributes.setXOffset(originalValue);
+        attributes.setUvAttributes({.offset = {originalValue, 0.0f}});
         brushFace.setAttributes(attributes);
       }
 
       evaluate(update, brushFace);
 
-      CHECK(brushFace.attributes().xOffset() == expectedValue);
+      CHECK(brushFace.attributes().uvAttributes().offset.x() == expectedValue);
     }
 
     SECTION("FlagOp")
@@ -1148,9 +1156,11 @@ TEST_CASE("UpdateBrushFaceAttributes")
       };
 
       auto expectedAttributes = BrushFaceAttributes{};
-      expectedAttributes.setOffset({2, 3});
-      expectedAttributes.setRotation(45.0f);
-      expectedAttributes.setScale({4, 5});
+      expectedAttributes.setUvAttributes({
+        .offset = {2, 3},
+        .scale = {4, 5},
+        .rotation = 45.0f,
+      });
       expectedAttributes.setSurfaceFlags(0xFF);
       expectedAttributes.setSurfaceContents(0xFF);
       expectedAttributes.setSurfaceValue(6.0f);

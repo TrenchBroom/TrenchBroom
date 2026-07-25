@@ -114,7 +114,7 @@ ParallelUvCoordSystem::ParallelUvCoordSystem(
   const auto normal = vm::normalize(vm::cross(point2 - point0, point1 - point0));
   std::tie(m_uAxis, m_vAxis) = computeInitialAxes(normal);
   std::tie(m_uAxis, m_vAxis) =
-    applyRotation(uAxis(), vAxis(), normal, double(attribs.rotation()));
+    applyRotation(uAxis(), vAxis(), normal, double(attribs.uvAttributes().rotation));
 }
 
 ParallelUvCoordSystem::ParallelUvCoordSystem(
@@ -217,7 +217,8 @@ void ParallelUvCoordSystem::transform(
   const bool lockAlignment,
   const vm::vec3d& oldInvariant)
 {
-  if (attribs.xScale() == 0.0f || attribs.yScale() == 0.0f)
+  if (
+    attribs.uvAttributes().scale.x() == 0.0f || attribs.uvAttributes().scale.y() == 0.0f)
   {
     return;
   }
@@ -234,14 +235,16 @@ void ParallelUvCoordSystem::transform(
   // determine the rotation by which the UV coordinate system will be rotated about
   // its normal
   const auto angleDelta = computeRotationAngle(oldBoundary, effectiveTransformation);
+  auto uvAttribs = attribs.uvAttributes();
   const auto newAngle =
-    vm::correct(vm::normalize_degrees(attribs.rotation() + angleDelta), 4);
+    vm::correct(vm::normalize_degrees(uvAttribs.rotation + angleDelta), 4);
   contract_assert(!vm::is_nan(newAngle));
-  attribs.setRotation(newAngle);
+  uvAttribs.rotation = newAngle;
+  attribs.setUvAttributes(uvAttribs);
 
   // calculate the current UV coordinates of the face's center
   const auto oldInvariantUvCoords =
-    computeUvCoords(oldInvariant, attribs.scale()) + attribs.offset();
+    computeUvCoords(oldInvariant, uvAttribs.scale) + uvAttribs.offset;
   contract_assert(!vm::is_nan(oldInvariantUvCoords));
 
   // compute the new UV axes
@@ -274,14 +277,16 @@ void ParallelUvCoordSystem::transform(
   // determine the new texture coordinates of the transformed center of the face, sans
   // offsets
   const auto newInvariant = effectiveTransformation * oldInvariant;
-  const auto newInvariantUvCoords = computeUvCoords(newInvariant, attribs.scale());
+  const auto newInvariantUvCoords = computeUvCoords(newInvariant, uvAttribs.scale);
 
   // since the center should be invariant, the offsets are determined by the difference of
   // the current and the original texture coordinates of the center
-  const auto newOffset = vm::correct(
-    attribs.modOffset(oldInvariantUvCoords - newInvariantUvCoords, textureSize), 4);
+  const auto newOffset =
+    vm::correct(modOffset(oldInvariantUvCoords - newInvariantUvCoords, textureSize), 4);
   contract_assert(!vm::is_nan(newOffset));
-  attribs.setOffset(newOffset);
+
+  uvAttribs.offset = newOffset;
+  attribs.setUvAttributes(uvAttribs);
 }
 
 void ParallelUvCoordSystem::shear(const vm::vec3d& /* normal */, const vm::vec2f& f)

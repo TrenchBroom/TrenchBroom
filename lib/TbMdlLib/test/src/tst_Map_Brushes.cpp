@@ -130,11 +130,11 @@ TEST_CASE("Map_Brushes")
         const auto& firstFace = getFace(*brushNode, firstFaceIndex);
         const auto& firstAttrs = firstFace.attributes();
         CHECK(firstFace.materialName() == "first");
-        CHECK(firstAttrs.xOffset() == 32.0f);
-        CHECK(firstAttrs.yOffset() == 64.0f);
-        CHECK(firstAttrs.rotation() == 90.0f);
-        CHECK(firstAttrs.xScale() == 2.0f);
-        CHECK(firstAttrs.yScale() == 4.0f);
+        CHECK(firstAttrs.uvAttributes().offset.x() == 32.0f);
+        CHECK(firstAttrs.uvAttributes().offset.y() == 64.0f);
+        CHECK(firstAttrs.uvAttributes().rotation == 90.0f);
+        CHECK(firstAttrs.uvAttributes().scale.x() == 2.0f);
+        CHECK(firstAttrs.uvAttributes().scale.y() == 4.0f);
         CHECK(firstAttrs.surfaceFlags() == 63u);
         CHECK(firstAttrs.surfaceContents() == 12u);
         CHECK(firstAttrs.surfaceValue() == 3.14f);
@@ -163,11 +163,11 @@ TEST_CASE("Map_Brushes")
         const auto& secondFace = getFace(*brushNode, secondFaceIndex);
         const auto& secondAttrs = secondFace.attributes();
         CHECK(secondFace.materialName() == "second");
-        CHECK(secondAttrs.xOffset() == 16.0f);
-        CHECK(secondAttrs.yOffset() == 48.0f);
-        CHECK(secondAttrs.rotation() == 45.0f);
-        CHECK(secondAttrs.xScale() == 1.0f);
-        CHECK(secondAttrs.yScale() == 1.0f);
+        CHECK(secondAttrs.uvAttributes().offset.x() == 16.0f);
+        CHECK(secondAttrs.uvAttributes().offset.y() == 48.0f);
+        CHECK(secondAttrs.uvAttributes().rotation == 45.0f);
+        CHECK(secondAttrs.uvAttributes().scale.x() == 1.0f);
+        CHECK(secondAttrs.uvAttributes().scale.y() == 1.0f);
         CHECK(secondAttrs.surfaceFlags() == 18u);
         CHECK(secondAttrs.surfaceContents() == 2048u);
         CHECK(secondAttrs.surfaceValue() == 1.0f);
@@ -212,11 +212,18 @@ TEST_CASE("Map_Brushes")
         const auto& firstAttrs = firstFace.attributes();
         const auto& newThirdAttrs = newThirdFace.attributes();
         CHECK(newThirdFace.materialName() == firstFace.materialName());
-        CHECK(newThirdAttrs.xOffset() == firstAttrs.xOffset());
-        CHECK(newThirdAttrs.yOffset() == firstAttrs.yOffset());
-        CHECK(newThirdAttrs.rotation() == firstAttrs.rotation());
-        CHECK(newThirdAttrs.xScale() == firstAttrs.xScale());
-        CHECK(newThirdAttrs.yScale() == firstAttrs.yScale());
+        CHECK(
+          newThirdAttrs.uvAttributes().offset.x()
+          == firstAttrs.uvAttributes().offset.x());
+        CHECK(
+          newThirdAttrs.uvAttributes().offset.y()
+          == firstAttrs.uvAttributes().offset.y());
+        CHECK(
+          newThirdAttrs.uvAttributes().rotation == firstAttrs.uvAttributes().rotation);
+        CHECK(
+          newThirdAttrs.uvAttributes().scale.x() == firstAttrs.uvAttributes().scale.x());
+        CHECK(
+          newThirdAttrs.uvAttributes().scale.y() == firstAttrs.uvAttributes().scale.y());
         CHECK(newThirdAttrs.surfaceFlags() == firstAttrs.surfaceFlags());
         CHECK(newThirdAttrs.surfaceContents() == thirdFaceContentsFlags);
         CHECK(newThirdAttrs.surfaceValue() == firstAttrs.surfaceValue());
@@ -333,8 +340,7 @@ TEST_CASE("Map_Brushes")
     SECTION("Reset attributes to defaults")
     {
       auto defaultFaceAttrs = BrushFaceAttributes{};
-      defaultFaceAttrs.setXScale(0.5f);
-      defaultFaceAttrs.setYScale(2.0f);
+      defaultFaceAttrs.setUvAttributes({.scale = {0.5f, 2.0f}});
 
       auto fixtureConfig = MapFixtureConfig{};
       fixtureConfig.gameInfo.gameConfig.faceAttribsConfig.defaults = defaultFaceAttrs;
@@ -356,19 +362,22 @@ TEST_CASE("Map_Brushes")
         setBrushFaceAttributes(map, {.rotation = AddValue{2.0f}});
       }
 
-      REQUIRE(getFace(*brushNode, faceIndex).attributes().rotation() == 10.0f);
+      REQUIRE(
+        getFace(*brushNode, faceIndex).attributes().uvAttributes().rotation == 10.0f);
 
       setBrushFaceAttributes(map, resetAll(defaultFaceAttrs));
 
-      CHECK(getFace(*brushNode, faceIndex).attributes().xOffset() == 0.0f);
-      CHECK(getFace(*brushNode, faceIndex).attributes().yOffset() == 0.0f);
-      CHECK(getFace(*brushNode, faceIndex).attributes().rotation() == 0.0f);
       CHECK(
-        getFace(*brushNode, faceIndex).attributes().xScale()
-        == defaultFaceAttrs.xScale());
+        getFace(*brushNode, faceIndex).attributes().uvAttributes().offset.x() == 0.0f);
       CHECK(
-        getFace(*brushNode, faceIndex).attributes().yScale()
-        == defaultFaceAttrs.yScale());
+        getFace(*brushNode, faceIndex).attributes().uvAttributes().offset.y() == 0.0f);
+      CHECK(getFace(*brushNode, faceIndex).attributes().uvAttributes().rotation == 0.0f);
+      CHECK(
+        getFace(*brushNode, faceIndex).attributes().uvAttributes().scale.x()
+        == defaultFaceAttrs.uvAttributes().scale.x());
+      CHECK(
+        getFace(*brushNode, faceIndex).attributes().uvAttributes().scale.y()
+        == defaultFaceAttrs.uvAttributes().scale.y());
 
       CHECK(getFace(*brushNode, faceIndex).uAxis() == initialX);
       CHECK(getFace(*brushNode, faceIndex).vAxis() == initialY);
@@ -461,8 +470,9 @@ TEST_CASE("Map_Brushes")
       copyUv(map, *sourceSnapshot, sourceAttributes, sourcePlane, WrapStyle::Projection));
 
     auto expectedAttributes = originalTargetFaceAttributes;
-    expectedAttributes.setXOffset(0.36245f);
-    expectedAttributes.setYOffset(0.501574f);
+    auto expectedUvAttributes = expectedAttributes.uvAttributes();
+    expectedUvAttributes.offset = {0.36245f, 0.501574f};
+    expectedAttributes.setUvAttributes(expectedUvAttributes);
 
     const auto& targetFace = getFace(*brushNode, *targetFaceIndex);
     CHECK_THAT(targetFace.attributes(), MatchesBrushFaceAttributes(expectedAttributes));
@@ -963,7 +973,8 @@ TEST_CASE("Map_Brushes")
     const auto invariantVertex = anchorVertex(expectedFace, UvAxis::u, UvSign::minus);
     const auto previousUvCoords = vm::vec2f{
       expectedFace.toUvCoordSystemMatrix(
-        expectedFace.attributes().offset(), expectedFace.attributes().scale())
+        expectedFace.attributes().uvAttributes().offset,
+        expectedFace.attributes().uvAttributes().scale)
       * invariantVertex};
 
     evaluate(
@@ -971,7 +982,8 @@ TEST_CASE("Map_Brushes")
 
     const auto newUvCoords = vm::vec2f{
       expectedFace.toUvCoordSystemMatrix(
-        expectedFace.attributes().offset(), expectedFace.attributes().scale())
+        expectedFace.attributes().uvAttributes().offset,
+        expectedFace.attributes().uvAttributes().scale)
       * invariantVertex};
     const auto delta = previousUvCoords - newUvCoords;
 
