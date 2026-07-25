@@ -474,7 +474,7 @@ void BrushFace::setSurfaceAttributes(const SurfaceAttributes& surfaceAttributes)
   m_surfaceAttributes = surfaceAttributes;
 }
 
-bool BrushFace::setAttributes(const BrushFace& other)
+bool BrushFace::copyAttributes(const BrushFace& other)
 {
   auto result = setMaterialName(other.materialName());
   if (other.m_uvAttributes != m_uvAttributes)

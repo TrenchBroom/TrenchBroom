@@ -889,7 +889,7 @@ void ClipTool::setFaceAttributes(
     ++faceIt;
   }
 
-  toSet.setAttributes(*bestMatch);
+  toSet.copyAttributes(*bestMatch);
 }
 
 void ClipTool::clearRenderers()
