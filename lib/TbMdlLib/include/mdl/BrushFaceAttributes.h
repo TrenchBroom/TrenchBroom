@@ -39,9 +39,6 @@ public:
   const UvAttributes& uvAttributes() const;
   const SurfaceAttributes& surfaceAttributes() const;
 
-  bool hasSurfaceAttributes() const;
-  bool hasColor() const;
-
   bool valid() const;
 
   bool setUvAttributes(const UvAttributes& uvAttributes);

@@ -36,6 +36,8 @@ struct SurfaceAttributes
 
   std::optional<Color> color = std::nullopt;
 
+  bool empty() const;
+
   kdl_reflect_decl(SurfaceAttributes, contents, flags, value, color);
 };
 

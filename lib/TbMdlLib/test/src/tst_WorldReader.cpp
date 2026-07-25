@@ -473,7 +473,7 @@ TEST_CASE("WorldReader")
 
       auto& face = brush->brush().face(*faceIndex);
 
-      CHECK(face.attributes().hasSurfaceAttributes());
+      CHECK(!face.attributes().surfaceAttributes().empty());
       CHECK(face.attributes().surfaceAttributes().contents == 8);
       CHECK(face.attributes().surfaceAttributes().flags == 9);
       CHECK(face.attributes().surfaceAttributes().value == 700.0f);
@@ -486,7 +486,7 @@ TEST_CASE("WorldReader")
 
       auto& face = brush->brush().face(*faceIndex);
 
-      CHECK(!face.attributes().hasSurfaceAttributes());
+      CHECK(face.attributes().surfaceAttributes().empty());
       CHECK(!face.attributes().surfaceAttributes().contents);
       CHECK(!face.attributes().surfaceAttributes().flags);
       CHECK(!face.attributes().surfaceAttributes().value);
@@ -499,7 +499,7 @@ TEST_CASE("WorldReader")
 
       auto& face = brush->brush().face(*faceIndex);
 
-      CHECK(face.attributes().hasSurfaceAttributes());
+      CHECK(!face.attributes().surfaceAttributes().empty());
       CHECK(face.attributes().surfaceAttributes().contents == 0);
       CHECK(face.attributes().surfaceAttributes().flags == 0);
       CHECK(face.attributes().surfaceAttributes().value == 0.0f);
@@ -612,7 +612,7 @@ TEST_CASE("WorldReader")
     CHECK(
       brush.face(*b_rc_v16w_index).attributes().surfaceAttributes().color
       == Color{RgbB{8, 9, 10}});
-    CHECK_FALSE(brush.face(*c_mf_v3cww_index).attributes().hasColor());
+    CHECK_FALSE(brush.face(*c_mf_v3cww_index).attributes().surfaceAttributes().color);
   }
 
   SECTION("Invalid Daikatana surface color")
@@ -648,7 +648,7 @@ TEST_CASE("WorldReader")
     const auto c_mf_v3cw_index = brush.findFace("rtz/c_mf_v3cw");
     REQUIRE(c_mf_v3cw_index);
 
-    CHECK(!brush.face(*c_mf_v3cw_index).attributes().hasColor());
+    CHECK(!brush.face(*c_mf_v3cw_index).attributes().surfaceAttributes().color);
   }
 
   SECTION("Daikatana map header")

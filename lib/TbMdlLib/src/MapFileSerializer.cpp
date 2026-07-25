@@ -156,7 +156,7 @@ private:
     writeFacePoints(stream, face);
     writeMaterialInfo(stream, face);
 
-    if (face.attributes().hasSurfaceAttributes())
+    if (!face.attributes().surfaceAttributes().empty())
     {
       writeSurfaceAttributes(stream, face);
     }
@@ -190,7 +190,7 @@ private:
     writeFacePoints(stream, face);
     writeValveMaterialInfo(stream, face);
 
-    if (face.attributes().hasSurfaceAttributes())
+    if (!face.attributes().surfaceAttributes().empty())
     {
       writeSurfaceAttributes(stream, face);
     }
@@ -213,11 +213,11 @@ private:
     writeFacePoints(stream, face);
     writeMaterialInfo(stream, face);
 
-    if (face.attributes().hasSurfaceAttributes() || face.attributes().hasColor())
+    if (!face.attributes().surfaceAttributes().empty())
     {
       writeSurfaceAttributes(stream, face);
     }
-    if (face.attributes().hasColor())
+    if (face.attributes().surfaceAttributes().color)
     {
       writeSurfaceColor(stream, face);
     }

@@ -36,17 +36,6 @@ const SurfaceAttributes& BrushFaceAttributes::surfaceAttributes() const
   return m_surfaceAttributes;
 }
 
-bool BrushFaceAttributes::hasSurfaceAttributes() const
-{
-  return m_surfaceAttributes.contents || m_surfaceAttributes.flags
-         || m_surfaceAttributes.value;
-}
-
-bool BrushFaceAttributes::hasColor() const
-{
-  return m_surfaceAttributes.color.has_value();
-}
-
 bool BrushFaceAttributes::valid() const
 {
   return m_uvAttributes.valid();

@@ -284,7 +284,7 @@ TEST_CASE("Map_Brushes")
       auto* lavabrush =
         dynamic_cast<BrushNode*>(map.editorContext().currentLayer()->children().at(0));
       REQUIRE(lavabrush);
-      CHECK(!getFace(*lavabrush, 0).attributes().hasSurfaceAttributes());
+      CHECK(getFace(*lavabrush, 0).attributes().surfaceAttributes().empty());
       CHECK(
         getFace(*lavabrush, 0).resolvedSurfaceContents()
         == LavaFlag); // comes from the .wal texture
@@ -292,7 +292,7 @@ TEST_CASE("Map_Brushes")
       auto* waterbrush =
         dynamic_cast<BrushNode*>(map.editorContext().currentLayer()->children().at(1));
       REQUIRE(waterbrush);
-      CHECK(!getFace(*waterbrush, 0).attributes().hasSurfaceAttributes());
+      CHECK(getFace(*waterbrush, 0).attributes().surfaceAttributes().empty());
       CHECK(
         getFace(*waterbrush, 0).resolvedSurfaceContents()
         == WaterFlag); // comes from the .wal texture
@@ -310,7 +310,7 @@ TEST_CASE("Map_Brushes")
           // Note: the contents flag wasn't transferred, but because lavabrushes's
           // content flag was "Inherit", it stays "Inherit" and now inherits the water
           // contents
-          CHECK(!getFace(*lavabrush, 0).attributes().hasSurfaceAttributes());
+          CHECK(getFace(*lavabrush, 0).attributes().surfaceAttributes().empty());
           CHECK(getFace(*lavabrush, 0).resolvedSurfaceContents() == WaterFlag);
           CHECK(getFace(*lavabrush, 0).materialName() == "watertest");
         }
@@ -324,7 +324,7 @@ TEST_CASE("Map_Brushes")
 
         CHECK(setBrushFaceAttributes(map, {.surfaceContents = SetFlagBits{WaterFlag}}));
 
-        CHECK(getFace(*lavabrush, 0).attributes().hasSurfaceAttributes());
+        CHECK(!getFace(*lavabrush, 0).attributes().surfaceAttributes().empty());
         CHECK(getFace(*lavabrush, 0).resolvedSurfaceContents() == (WaterFlag | LavaFlag));
       }
     }
@@ -337,12 +337,12 @@ TEST_CASE("Map_Brushes")
       addNodes(map, {{parentForNodes(map), {brushNode}}});
 
       selectNodes(map, {brushNode});
-      CHECK(!getFace(*brushNode, 0).attributes().hasSurfaceAttributes());
+      CHECK(getFace(*brushNode, 0).attributes().surfaceAttributes().empty());
 
       setBrushFaceAttributes(map, {.materialName = "something_else"});
 
       CHECK(getFace(*brushNode, 0).materialName() == "something_else");
-      CHECK(!getFace(*brushNode, 0).attributes().hasSurfaceAttributes());
+      CHECK(getFace(*brushNode, 0).attributes().surfaceAttributes().empty());
     }
 
     SECTION("Reset attributes to defaults")

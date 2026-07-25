@@ -809,7 +809,7 @@ void FaceAttribsEditor::updateControls()
     auto hasSurfaceValue = firstSurfaceAttributes.value.has_value();
     auto hasSurfaceFlags = firstSurfaceAttributes.flags.has_value();
     auto hasSurfaceContents = firstSurfaceAttributes.contents.has_value();
-    auto hasColorValue = firstFace.attributes().hasColor();
+    auto hasColorValue = firstSurfaceAttributes.color.has_value();
 
     for (size_t i = 1; i < faceHandles.size(); i++)
     {
@@ -827,7 +827,7 @@ void FaceAttribsEditor::updateControls()
       hasSurfaceValue |= surfaceAttributes.value.has_value();
       hasSurfaceFlags |= surfaceAttributes.flags.has_value();
       hasSurfaceContents |= surfaceAttributes.contents.has_value();
-      hasColorValue |= face.attributes().hasColor();
+      hasColorValue |= surfaceAttributes.color.has_value();
 
       combineFlags(
         sizeof(int) * 8, face.resolvedSurfaceFlags(), setSurfaceFlags, mixedSurfaceFlags);

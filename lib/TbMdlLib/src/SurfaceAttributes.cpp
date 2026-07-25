@@ -26,4 +26,9 @@ namespace tb::mdl
 
 kdl_reflect_impl(SurfaceAttributes);
 
+bool SurfaceAttributes::empty() const
+{
+  return !contents && !flags && !value && !color;
+}
+
 } // namespace tb::mdl
