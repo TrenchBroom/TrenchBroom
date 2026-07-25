@@ -200,13 +200,9 @@ private:
 
 class DaikatanaFileSerializer : public Quake2FileSerializer
 {
-private:
-  std::string SurfaceColorFormat;
-
 public:
   explicit DaikatanaFileSerializer(std::ostream& stream)
     : Quake2FileSerializer{stream}
-    , SurfaceColorFormat(" %d %d %d")
   {
   }
 
