@@ -199,10 +199,7 @@ bool BrushFaceAttributesMatcher::match(const BrushFaceAttributes& in) const
   return in.uvAttributes().offset == vm::approx{m_expected.uvAttributes().offset}
          && in.uvAttributes().scale == vm::approx{m_expected.uvAttributes().scale}
          && in.uvAttributes().rotation == vm::approx{m_expected.uvAttributes().rotation}
-         && in.surfaceContents() == m_expected.surfaceContents()
-         && in.surfaceFlags() == m_expected.surfaceFlags()
-         && in.surfaceValue() == m_expected.surfaceValue()
-         && in.color() == m_expected.color();
+         && in.surfaceAttributes() == m_expected.surfaceAttributes();
 }
 
 std::string BrushFaceAttributesMatcher::describe() const

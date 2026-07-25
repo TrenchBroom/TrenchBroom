@@ -449,9 +449,7 @@ bool BrushFace::setAttributes(const BrushFace& other)
   auto result = false;
   result |= setMaterialName(other.materialName());
   result |= m_attributes.setUvAttributes(other.attributes().uvAttributes());
-  result |= m_attributes.setSurfaceContents(other.attributes().surfaceContents());
-  result |= m_attributes.setSurfaceFlags(other.attributes().surfaceFlags());
-  result |= m_attributes.setSurfaceValue(other.attributes().surfaceValue());
+  result |= m_attributes.setSurfaceAttributes(other.attributes().surfaceAttributes());
   return result;
 }
 
@@ -486,10 +484,11 @@ SurfaceData resolveSurfaceData(
   const BrushFaceAttributes& attributes, const gl::Material* material)
 {
   const auto defaultSurfaceData = getDefaultSurfaceData(material);
+  const auto& surfaceAttributes = attributes.surfaceAttributes();
   return {
-    attributes.surfaceContents().value_or(defaultSurfaceData.surfaceContents),
-    attributes.surfaceFlags().value_or(defaultSurfaceData.surfaceFlags),
-    attributes.surfaceValue().value_or(defaultSurfaceData.surfaceValue)};
+    surfaceAttributes.contents.value_or(defaultSurfaceData.surfaceContents),
+    surfaceAttributes.flags.value_or(defaultSurfaceData.surfaceFlags),
+    surfaceAttributes.value.value_or(defaultSurfaceData.surfaceValue)};
 }
 
 } // namespace
@@ -511,7 +510,7 @@ float BrushFace::resolvedSurfaceValue() const
 
 std::optional<Color> BrushFace::resolvedColor() const
 {
-  return m_attributes.color();
+  return m_attributes.surfaceAttributes().color;
 }
 
 void BrushFace::resetUvCoordSystemCache()

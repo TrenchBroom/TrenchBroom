@@ -31,34 +31,20 @@ const UvAttributes& BrushFaceAttributes::uvAttributes() const
   return m_uvAttributes;
 }
 
+const SurfaceAttributes& BrushFaceAttributes::surfaceAttributes() const
+{
+  return m_surfaceAttributes;
+}
+
 bool BrushFaceAttributes::hasSurfaceAttributes() const
 {
-  return m_surfaceContents || m_surfaceFlags || m_surfaceValue;
-}
-
-const std::optional<int>& BrushFaceAttributes::surfaceContents() const
-{
-  return m_surfaceContents;
-}
-
-const std::optional<int>& BrushFaceAttributes::surfaceFlags() const
-{
-  return m_surfaceFlags;
-}
-
-const std::optional<float>& BrushFaceAttributes::surfaceValue() const
-{
-  return m_surfaceValue;
+  return m_surfaceAttributes.contents || m_surfaceAttributes.flags
+         || m_surfaceAttributes.value;
 }
 
 bool BrushFaceAttributes::hasColor() const
 {
-  return m_color.has_value();
-}
-
-const std::optional<Color>& BrushFaceAttributes::color() const
-{
-  return m_color;
+  return m_surfaceAttributes.color.has_value();
 }
 
 bool BrushFaceAttributes::valid() const
@@ -76,41 +62,11 @@ bool BrushFaceAttributes::setUvAttributes(const UvAttributes& uvAttributes)
   return false;
 }
 
-bool BrushFaceAttributes::setSurfaceContents(const std::optional<int>& surfaceContents)
+bool BrushFaceAttributes::setSurfaceAttributes(const SurfaceAttributes& surfaceAttributes)
 {
-  if (surfaceContents != m_surfaceContents)
+  if (surfaceAttributes != m_surfaceAttributes)
   {
-    m_surfaceContents = surfaceContents;
-    return true;
-  }
-  return false;
-}
-
-bool BrushFaceAttributes::setSurfaceFlags(const std::optional<int>& surfaceFlags)
-{
-  if (surfaceFlags != m_surfaceFlags)
-  {
-    m_surfaceFlags = surfaceFlags;
-    return true;
-  }
-  return false;
-}
-
-bool BrushFaceAttributes::setSurfaceValue(const std::optional<float>& surfaceValue)
-{
-  if (surfaceValue != m_surfaceValue)
-  {
-    m_surfaceValue = surfaceValue;
-    return true;
-  }
-  return false;
-}
-
-bool BrushFaceAttributes::setColor(const std::optional<Color>& color)
-{
-  if (color != m_color)
-  {
-    m_color = color;
+    m_surfaceAttributes = surfaceAttributes;
     return true;
   }
   return false;

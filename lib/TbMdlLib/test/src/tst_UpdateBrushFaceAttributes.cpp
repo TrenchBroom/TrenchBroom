@@ -93,10 +93,12 @@ TEST_CASE("UpdateBrushFaceAttributes")
 
     SECTION("with surface attributes and color set")
     {
-      attributes.setSurfaceFlags(2);
-      attributes.setSurfaceContents(3);
-      attributes.setSurfaceValue(11.0f);
-      attributes.setColor(RgbaB{1, 2, 3, 4});
+      attributes.setSurfaceAttributes({
+        .contents = 3,
+        .flags = 2,
+        .value = 11.0f,
+        .color = RgbaB{1, 2, 3, 4},
+      });
 
       CHECK(
         copyAll(createBrushFace("some_material", attributes))
@@ -123,10 +125,12 @@ TEST_CASE("UpdateBrushFaceAttributes")
       .scale = {2, 3},
       .rotation = 45.0f,
     });
-    attributes.setSurfaceFlags(2);
-    attributes.setSurfaceContents(3);
-    attributes.setSurfaceValue(11.0f);
-    attributes.setColor(RgbaB{1, 2, 3, 4});
+    attributes.setSurfaceAttributes({
+      .contents = 3,
+      .flags = 2,
+      .value = 11.0f,
+      .color = RgbaB{1, 2, 3, 4},
+    });
 
     CHECK(
       copyAllExceptContentFlags(createBrushFace("some_material", attributes))
@@ -151,10 +155,12 @@ TEST_CASE("UpdateBrushFaceAttributes")
       .scale = {2, 3},
       .rotation = 45.0f,
     });
-    defaultAttributes.setSurfaceFlags(2);
-    defaultAttributes.setSurfaceContents(3);
-    defaultAttributes.setSurfaceValue(11.0f);
-    defaultAttributes.setColor(RgbaB{1, 2, 3, 4});
+    defaultAttributes.setSurfaceAttributes({
+      .contents = 3,
+      .flags = 2,
+      .value = 11.0f,
+      .color = RgbaB{1, 2, 3, 4},
+    });
 
     CHECK(
       resetAll(defaultAttributes)
@@ -176,10 +182,12 @@ TEST_CASE("UpdateBrushFaceAttributes")
       .scale = {2, 3},
       .rotation = 45.0f,
     });
-    defaultAttributes.setSurfaceFlags(2);
-    defaultAttributes.setSurfaceContents(3);
-    defaultAttributes.setSurfaceValue(11.0f);
-    defaultAttributes.setColor(RgbaB{1, 2, 3, 4});
+    defaultAttributes.setSurfaceAttributes({
+      .contents = 3,
+      .flags = 2,
+      .value = 11.0f,
+      .color = RgbaB{1, 2, 3, 4},
+    });
 
     CHECK(
       resetAllToParaxial(defaultAttributes)
@@ -1131,13 +1139,13 @@ TEST_CASE("UpdateBrushFaceAttributes")
 
       {
         auto attributes = brushFace.attributes();
-        attributes.setSurfaceFlags(originalFlags);
+        attributes.setSurfaceAttributes({.flags = originalFlags});
         brushFace.setAttributes(attributes);
       }
 
       evaluate(update, brushFace);
 
-      CHECK(brushFace.attributes().surfaceFlags() == expectedFlags);
+      CHECK(brushFace.attributes().surfaceAttributes().flags == expectedFlags);
     }
 
     SECTION("Full evaluation")
@@ -1161,10 +1169,12 @@ TEST_CASE("UpdateBrushFaceAttributes")
         .scale = {4, 5},
         .rotation = 45.0f,
       });
-      expectedAttributes.setSurfaceFlags(0xFF);
-      expectedAttributes.setSurfaceContents(0xFF);
-      expectedAttributes.setSurfaceValue(6.0f);
-      expectedAttributes.setColor(RgbaB{1, 2, 3, 4});
+      expectedAttributes.setSurfaceAttributes({
+        .contents = 0xFF,
+        .flags = 0xFF,
+        .value = 6.0f,
+        .color = RgbaB{1, 2, 3, 4},
+      });
 
       evaluate(update, brushFace);
 

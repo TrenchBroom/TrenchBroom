@@ -23,6 +23,7 @@
 #include "mdl/BrushFace.h"
 #include "mdl/BrushFaceHandle.h"
 #include "mdl/BrushNode.h"
+#include "mdl/SurfaceAttributes.h"
 #include "mdl/UvAttributes.h"
 
 #include "kd/contracts.h"
@@ -304,7 +305,8 @@ kdl_reflect_impl(UpdateBrushFaceAttributes);
 UpdateBrushFaceAttributes copyAll(const BrushFace& brushFace)
 {
   auto result = copyAllExceptContentFlags(brushFace);
-  result.surfaceContents = replaceFlagsIfSet(brushFace.attributes().surfaceContents());
+  result.surfaceContents =
+    replaceFlagsIfSet(brushFace.attributes().surfaceAttributes().contents);
   return result;
 }
 
@@ -312,6 +314,7 @@ UpdateBrushFaceAttributes copyAllExceptContentFlags(const BrushFace& brushFace)
 {
   const auto& attributes = brushFace.attributes();
   const auto& uvAttributes = attributes.uvAttributes();
+  const auto& surfaceAttributes = attributes.surfaceAttributes();
   return UpdateBrushFaceAttributes{
     .materialName = brushFace.materialName(),
     .xOffset = SetValue{uvAttributes.offset.x()},
@@ -319,9 +322,9 @@ UpdateBrushFaceAttributes copyAllExceptContentFlags(const BrushFace& brushFace)
     .rotation = SetValue{uvAttributes.rotation},
     .xScale = SetValue{uvAttributes.scale.x()},
     .yScale = SetValue{uvAttributes.scale.y()},
-    .surfaceFlags = replaceFlagsIfSet(attributes.surfaceFlags()),
-    .surfaceValue = setValueIfSet(attributes.surfaceValue()),
-    .color = attributes.color(),
+    .surfaceFlags = replaceFlagsIfSet(surfaceAttributes.flags),
+    .surfaceValue = setValueIfSet(surfaceAttributes.value),
+    .color = surfaceAttributes.color,
   };
 }
 
@@ -618,28 +621,32 @@ void evaluate(const UpdateBrushFaceAttributes& update, BrushFace& brushFace)
     .rotation = vm::normalize_degrees(*evaluate(update.rotation, uvAttributes.rotation)),
   });
 
+  auto surfaceAttributes = attributes.surfaceAttributes();
+
   if (update.surfaceFlags)
   {
-    attributes.setSurfaceFlags(
-      evaluate(update.surfaceFlags, brushFace.resolvedSurfaceFlags()));
+    surfaceAttributes.flags =
+      evaluate(update.surfaceFlags, brushFace.resolvedSurfaceFlags());
   }
 
   if (update.surfaceContents)
   {
-    attributes.setSurfaceContents(
-      evaluate(update.surfaceContents, brushFace.resolvedSurfaceContents()));
+    surfaceAttributes.contents =
+      evaluate(update.surfaceContents, brushFace.resolvedSurfaceContents());
   }
 
   if (update.surfaceValue)
   {
-    attributes.setSurfaceValue(
-      evaluate(update.surfaceValue, brushFace.resolvedSurfaceValue()));
+    surfaceAttributes.value =
+      evaluate(update.surfaceValue, brushFace.resolvedSurfaceValue());
   }
 
   if (update.color)
   {
-    attributes.setColor(*update.color);
+    surfaceAttributes.color = *update.color;
   }
+
+  attributes.setSurfaceAttributes(surfaceAttributes);
 
   brushFace.setAttributes(attributes);
   evaluate(update.axis, brushFace);

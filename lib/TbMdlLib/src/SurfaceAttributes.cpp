@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010 Kristian Duske
+ Copyright (C) 2026 Kristian Duske
 
  This file is part of TrenchBroom.
 
@@ -17,35 +17,13 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#pragma once
-
 #include "mdl/SurfaceAttributes.h"
-#include "mdl/UvAttributes.h"
 
-#include "kd/reflection_decl.h"
+#include "kd/reflection_impl.h"
 
 namespace tb::mdl
 {
 
-class BrushFaceAttributes
-{
-private:
-  UvAttributes m_uvAttributes;
-  SurfaceAttributes m_surfaceAttributes;
-
-public:
-  kdl_reflect_decl(BrushFaceAttributes, m_uvAttributes, m_surfaceAttributes);
-
-  const UvAttributes& uvAttributes() const;
-  const SurfaceAttributes& surfaceAttributes() const;
-
-  bool hasSurfaceAttributes() const;
-  bool hasColor() const;
-
-  bool valid() const;
-
-  bool setUvAttributes(const UvAttributes& uvAttributes);
-  bool setSurfaceAttributes(const SurfaceAttributes& surfaceAttributes);
-};
+kdl_reflect_impl(SurfaceAttributes);
 
 } // namespace tb::mdl

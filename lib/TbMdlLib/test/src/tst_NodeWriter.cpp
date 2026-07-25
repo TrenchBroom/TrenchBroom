@@ -281,7 +281,7 @@ TEST_CASE("NodeWriter")
     for (auto& face : brush1.faces())
     {
       auto attributes = face.attributes();
-      attributes.setColor(RgbF{1.0f, 0.5f, 0.25f});
+      attributes.setSurfaceAttributes({.color = RgbF{1.0f, 0.5f, 0.25f}});
       face.setAttributes(attributes);
     }
     auto* brushNode1 = new BrushNode{std::move(brush1)};
@@ -339,9 +339,7 @@ TEST_CASE("NodeWriter")
       auto& face = brush1.face(*index);
       face.setMaterialName("e1u1/brwater");
       auto attribs = face.attributes();
-      attribs.setSurfaceContents(0);
-      attribs.setSurfaceFlags(0);
-      attribs.setSurfaceValue(0.0f);
+      attribs.setSurfaceAttributes({.contents = 0, .flags = 0, .value = 0.0f});
       face.setAttributes(attribs);
     }
     // set -Z face to e1u1/brlava with contents 8, flags 9, value 700
@@ -352,9 +350,7 @@ TEST_CASE("NodeWriter")
       auto& face = brush1.face(*index);
       face.setMaterialName("e1u1/brlava");
       auto attribs = face.attributes();
-      attribs.setSurfaceContents(8);
-      attribs.setSurfaceFlags(9);
-      attribs.setSurfaceValue(700.0f);
+      attribs.setSurfaceAttributes({.contents = 8, .flags = 9, .value = 700.0f});
       face.setAttributes(attribs);
     }
     // other faces are e1u1/alarm0 with unset contents/flags/value

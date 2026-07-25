@@ -720,10 +720,12 @@ TEST_CASE("GameConfigParser")
       .scale = {0.5f, 0.5f},
       .rotation = 0.0f,
     });
-    expectedBrushFaceAttributes.setSurfaceContents(1 << 0);
-    expectedBrushFaceAttributes.setSurfaceFlags(1 << 1);
-    expectedBrushFaceAttributes.setSurfaceValue(0.0f);
-    expectedBrushFaceAttributes.setColor(RgbB(0, 128, 255));
+    expectedBrushFaceAttributes.setSurfaceAttributes({
+      .contents = 1 << 0,
+      .flags = 1 << 1,
+      .value = 0.0f,
+      .color = RgbB(0, 128, 255),
+    });
 
     CHECK(
       parseGameConfig(config)

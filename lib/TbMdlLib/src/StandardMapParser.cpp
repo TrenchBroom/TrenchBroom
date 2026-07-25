@@ -26,6 +26,7 @@
 #include "mdl/EntityProperties.h"
 
 #include "kd/contracts.h"
+#include "kd/k.h"
 
 #include "vm/vec.h"
 
@@ -499,9 +500,7 @@ void StandardMapParser::parseQuake2Face(ParserStatus& status)
   if (!m_tokenizer.peekToken().hasType(
         QuakeMapToken::OParenthesis | QuakeMapToken::CBrace | QuakeMapToken::Eof))
   {
-    attribs.setSurfaceContents(parseInteger());
-    attribs.setSurfaceFlags(parseInteger());
-    attribs.setSurfaceValue(parseFloat());
+    attribs.setSurfaceAttributes(parseSurfaceAttributes(status, !K(parseColor)));
   }
 
   onStandardBrushFace(
@@ -524,9 +523,7 @@ void StandardMapParser::parseQuake2ValveFace(ParserStatus& status)
   if (!m_tokenizer.peekToken().hasType(
         QuakeMapToken::OParenthesis | QuakeMapToken::CBrace | QuakeMapToken::Eof))
   {
-    attribs.setSurfaceContents(parseInteger());
-    attribs.setSurfaceFlags(parseInteger());
-    attribs.setSurfaceValue(parseFloat());
+    attribs.setSurfaceAttributes(parseSurfaceAttributes(status, !K(parseColor)));
   }
 
   onValveBrushFace(
@@ -576,26 +573,7 @@ void StandardMapParser::parseDaikatanaFace(ParserStatus& status)
   // Daikatana extra info is optional
   if (m_tokenizer.peekToken().hasType(QuakeMapToken::Integer))
   {
-    attribs.setSurfaceContents(parseInteger());
-    attribs.setSurfaceFlags(parseInteger());
-    attribs.setSurfaceValue(parseFloat());
-
-    // Daikatana color triple is optional
-    if (const auto firstColorToken = m_tokenizer.peekToken();
-        firstColorToken.hasType(QuakeMapToken::Integer))
-    {
-      // red, green, blue
-      const auto r = parseInteger();
-      const auto g = parseInteger();
-      const auto b = parseInteger();
-      RgbB::fromValues(std::tuple{r, g, b})
-        | kdl::transform([&](const auto& color) { attribs.setColor(color); })
-        | kdl::transform_error([&](const auto& e) {
-            status.warn(
-              firstColorToken.location(),
-              fmt::format("Skipping invalid surface color: {}", e.msg));
-          });
-    }
+    attribs.setSurfaceAttributes(parseSurfaceAttributes(status, K(parseColor)));
   }
 
   onStandardBrushFace(
@@ -647,9 +625,7 @@ void StandardMapParser::parsePrimitiveFace(ParserStatus& status)
   if (!m_tokenizer.peekToken().hasType(
         QuakeMapToken::OParenthesis | QuakeMapToken::CBrace | QuakeMapToken::Eof))
   {
-    attribs.setSurfaceContents(parseInteger());
-    attribs.setSurfaceFlags(parseInteger());
-    attribs.setSurfaceValue(parseFloat());
+    attribs.setSurfaceAttributes(parseSurfaceAttributes(status, !K(parseColor)));
   }
 
   // TODO 2427: create a brush face
@@ -777,6 +753,22 @@ std::tuple<vm::vec3d, vm::vec3d> StandardMapParser::parsePrimitiveUvAxes(
   return {uAxis, vAxis};
 }
 
+SurfaceAttributes StandardMapParser::parseSurfaceAttributes(
+  ParserStatus& status, const bool parseColor)
+{
+  const auto contents = parseInteger();
+  const auto flags = parseInteger();
+  const auto value = parseFloat();
+  const auto color = parseColor ? this->parseColor(status) : std::nullopt;
+
+  return {
+    .contents = contents,
+    .flags = flags,
+    .value = value,
+    .color = color,
+  };
+}
+
 UvAttributes StandardMapParser::parseUvAttributes()
 {
   const auto uOffset = parseFloat();
@@ -795,6 +787,30 @@ UvAttributes StandardMapParser::parseUvAttributes(const vm::vec2f& offset)
     .scale = {uScale, vScale},
     .rotation = rotation,
   };
+}
+
+std::optional<RgbB> StandardMapParser::parseColor(ParserStatus& status)
+{
+  if (const auto firstColorToken = m_tokenizer.peekToken();
+      firstColorToken.hasType(QuakeMapToken::Integer))
+  {
+    // red, green, blue
+    const auto r = parseInteger();
+    const auto g = parseInteger();
+    const auto b = parseInteger();
+
+    return RgbB::fromValues(std::tuple{r, g, b})
+           | kdl::transform([&](const auto& color) { return std::optional{color}; })
+           | kdl::transform_error([&](const auto& e) {
+               status.warn(
+                 firstColorToken.location(),
+                 fmt::format("Skipping invalid surface color: {}", e.msg));
+               return std::optional<RgbB>{};
+             })
+           | kdl::value();
+  }
+
+  return std::nullopt;
 }
 
 float StandardMapParser::parseFloat()

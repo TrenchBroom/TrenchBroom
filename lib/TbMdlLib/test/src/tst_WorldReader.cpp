@@ -474,9 +474,9 @@ TEST_CASE("WorldReader")
       auto& face = brush->brush().face(*faceIndex);
 
       CHECK(face.attributes().hasSurfaceAttributes());
-      CHECK(face.attributes().surfaceContents() == 8);
-      CHECK(face.attributes().surfaceFlags() == 9);
-      CHECK(face.attributes().surfaceValue() == 700.0f);
+      CHECK(face.attributes().surfaceAttributes().contents == 8);
+      CHECK(face.attributes().surfaceAttributes().flags == 9);
+      CHECK(face.attributes().surfaceAttributes().value == 700.0f);
     }
 
     SECTION("surface attributes for face attribsOmitted")
@@ -487,9 +487,9 @@ TEST_CASE("WorldReader")
       auto& face = brush->brush().face(*faceIndex);
 
       CHECK(!face.attributes().hasSurfaceAttributes());
-      CHECK(!face.attributes().surfaceContents());
-      CHECK(!face.attributes().surfaceFlags());
-      CHECK(!face.attributes().surfaceValue());
+      CHECK(!face.attributes().surfaceAttributes().contents);
+      CHECK(!face.attributes().surfaceAttributes().flags);
+      CHECK(!face.attributes().surfaceAttributes().value);
     }
 
     SECTION("surface attributes for face attribsExplicitlyZero")
@@ -500,9 +500,9 @@ TEST_CASE("WorldReader")
       auto& face = brush->brush().face(*faceIndex);
 
       CHECK(face.attributes().hasSurfaceAttributes());
-      CHECK(face.attributes().surfaceContents() == 0);
-      CHECK(face.attributes().surfaceFlags() == 0);
-      CHECK(face.attributes().surfaceValue() == 0.0f);
+      CHECK(face.attributes().surfaceAttributes().contents == 0);
+      CHECK(face.attributes().surfaceAttributes().flags == 0);
+      CHECK(face.attributes().surfaceAttributes().value == 0.0f);
     }
   }
 
@@ -603,11 +603,15 @@ TEST_CASE("WorldReader")
     REQUIRE(b_rc_v16w_index);
     REQUIRE(c_mf_v3cww_index);
 
-    CHECK(brush.face(*c_mf_v3cw_index).attributes().color() == Color{RgbB{5, 6, 7}});
-    CHECK(brush.face(*b_rc_v16w_index).attributes().surfaceContents() == 1);
-    CHECK(brush.face(*b_rc_v16w_index).attributes().surfaceFlags() == 2);
-    CHECK(brush.face(*b_rc_v16w_index).attributes().surfaceValue() == 3.0);
-    CHECK(brush.face(*b_rc_v16w_index).attributes().color() == Color{RgbB{8, 9, 10}});
+    CHECK(
+      brush.face(*c_mf_v3cw_index).attributes().surfaceAttributes().color
+      == Color{RgbB{5, 6, 7}});
+    CHECK(brush.face(*b_rc_v16w_index).attributes().surfaceAttributes().contents == 1);
+    CHECK(brush.face(*b_rc_v16w_index).attributes().surfaceAttributes().flags == 2);
+    CHECK(brush.face(*b_rc_v16w_index).attributes().surfaceAttributes().value == 3.0);
+    CHECK(
+      brush.face(*b_rc_v16w_index).attributes().surfaceAttributes().color
+      == Color{RgbB{8, 9, 10}});
     CHECK_FALSE(brush.face(*c_mf_v3cww_index).attributes().hasColor());
   }
 

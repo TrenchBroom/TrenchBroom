@@ -794,6 +794,7 @@ void FaceAttribsEditor::updateControls()
     const auto& firstFace = faceHandles[0].face();
     const auto& materialName = firstFace.materialName();
     const auto& firstUvAttributes = firstFace.attributes().uvAttributes();
+    const auto& firstSurfaceAttributes = firstFace.attributes().surfaceAttributes();
     const auto xOffset = firstUvAttributes.offset.x();
     const auto yOffset = firstUvAttributes.offset.y();
     const auto rotation = firstUvAttributes.rotation;
@@ -804,10 +805,10 @@ void FaceAttribsEditor::updateControls()
     auto mixedSurfaceFlags = 0;
     auto mixedSurfaceContents = 0;
     const auto surfaceValue = firstFace.resolvedSurfaceValue();
-    const auto colorValue = firstFace.attributes().color();
-    auto hasSurfaceValue = firstFace.attributes().surfaceValue().has_value();
-    auto hasSurfaceFlags = firstFace.attributes().surfaceFlags().has_value();
-    auto hasSurfaceContents = firstFace.attributes().surfaceContents().has_value();
+    const auto colorValue = firstSurfaceAttributes.color;
+    auto hasSurfaceValue = firstSurfaceAttributes.value.has_value();
+    auto hasSurfaceFlags = firstSurfaceAttributes.flags.has_value();
+    auto hasSurfaceContents = firstSurfaceAttributes.contents.has_value();
     auto hasColorValue = firstFace.attributes().hasColor();
 
     for (size_t i = 1; i < faceHandles.size(); i++)
@@ -815,16 +816,17 @@ void FaceAttribsEditor::updateControls()
       const auto& face = faceHandles[i].face();
       materialMulti |= (materialName != face.materialName());
       const auto& uvAttributes = face.attributes().uvAttributes();
+      const auto& surfaceAttributes = face.attributes().surfaceAttributes();
       xOffsetMulti |= (xOffset != uvAttributes.offset.x());
       yOffsetMulti |= (yOffset != uvAttributes.offset.y());
       rotationMulti |= (rotation != uvAttributes.rotation);
       xScaleMulti |= (xScale != uvAttributes.scale.x());
       yScaleMulti |= (yScale != uvAttributes.scale.y());
       surfaceValueMulti |= (surfaceValue != face.resolvedSurfaceValue());
-      colorValueMulti |= (colorValue != face.attributes().color());
-      hasSurfaceValue |= face.attributes().surfaceValue().has_value();
-      hasSurfaceFlags |= face.attributes().surfaceFlags().has_value();
-      hasSurfaceContents |= face.attributes().surfaceContents().has_value();
+      colorValueMulti |= (colorValue != surfaceAttributes.color);
+      hasSurfaceValue |= surfaceAttributes.value.has_value();
+      hasSurfaceFlags |= surfaceAttributes.flags.has_value();
+      hasSurfaceContents |= surfaceAttributes.contents.has_value();
       hasColorValue |= face.attributes().hasColor();
 
       combineFlags(

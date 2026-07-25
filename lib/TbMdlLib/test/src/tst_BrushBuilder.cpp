@@ -103,10 +103,12 @@ TEST_CASE("BrushBuilder")
       .scale = {0.5f, 0.5f},
       .rotation = 45.0f,
     });
-    defaultAttribs.setSurfaceContents(1);
-    defaultAttribs.setSurfaceFlags(2);
-    defaultAttribs.setSurfaceValue(0.1f);
-    defaultAttribs.setColor(RgbB{255, 255, 255});
+    defaultAttribs.setSurfaceAttributes({
+      .contents = 1,
+      .flags = 2,
+      .value = 0.1f,
+      .color = RgbB{255, 255, 255},
+    });
 
     auto builder = BrushBuilder{MapFormat::Standard, worldBounds, defaultAttribs};
 
@@ -133,10 +135,12 @@ TEST_CASE("BrushBuilder")
       .scale = {0.5f, 0.5f},
       .rotation = 45.0f,
     });
-    defaultAttribs.setSurfaceContents(1);
-    defaultAttribs.setSurfaceFlags(2);
-    defaultAttribs.setSurfaceValue(0.1f);
-    defaultAttribs.setColor(RgbB{255, 255, 255});
+    defaultAttribs.setSurfaceAttributes({
+      .contents = 1,
+      .flags = 2,
+      .value = 0.1f,
+      .color = RgbB{255, 255, 255},
+    });
 
     auto builder = BrushBuilder{MapFormat::Standard, worldBounds, defaultAttribs};
 

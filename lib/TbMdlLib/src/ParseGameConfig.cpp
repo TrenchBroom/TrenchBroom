@@ -25,6 +25,7 @@
 #include "el/Value.h"
 #include "mdl/GameConfig.h"
 #include "mdl/SoftMapBounds.h"
+#include "mdl/SurfaceAttributes.h"
 #include "mdl/Tag.h"
 #include "mdl/TagAttribute.h"
 #include "mdl/TagMatcher.h"
@@ -328,6 +329,8 @@ BrushFaceAttributes parseFaceAttribsDefaults(
 
   defaults.setUvAttributes(uvAttributes);
 
+  auto surfaceAttributes = SurfaceAttributes{};
+
   if (const auto surfaceContentsValue = value.atOrDefault(context, "surfaceContents");
       surfaceContentsValue != el::Value::Null)
   {
@@ -337,7 +340,7 @@ BrushFaceAttributes parseFaceAttribsDefaults(
       const auto& name = surfaceContentValue.stringValue(context);
       defaultSurfaceContents = defaultSurfaceContents | contentFlags.flagValue(name);
     }
-    defaults.setSurfaceContents(defaultSurfaceContents);
+    surfaceAttributes.contents = defaultSurfaceContents;
   }
 
   if (const auto surfaceFlagsValue = value.atOrDefault(context, "surfaceFlags");
@@ -349,13 +352,13 @@ BrushFaceAttributes parseFaceAttribsDefaults(
       const auto& name = surfaceFlagValue.stringValue(context);
       defaultSurfaceFlags = defaultSurfaceFlags | surfaceFlags.flagValue(name);
     }
-    defaults.setSurfaceFlags(defaultSurfaceFlags);
+    surfaceAttributes.flags = defaultSurfaceFlags;
   }
 
   if (const auto surfaceValue = value.atOrDefault(context, "surfaceValue");
       surfaceValue != el::Value::Null)
   {
-    defaults.setSurfaceValue(float(surfaceValue.numberValue(context)));
+    surfaceAttributes.value = float(surfaceValue.numberValue(context));
   }
 
   if (const auto colorValue = value.atOrDefault(context, "color");
@@ -366,8 +369,10 @@ BrushFaceAttributes parseFaceAttribsDefaults(
                            throw ParserException{*context.location(value), e.msg};
                          })
                        | kdl::value();
-    defaults.setColor(color);
+    surfaceAttributes.color = color;
   }
+
+  defaults.setSurfaceAttributes(surfaceAttributes);
 
   return defaults;
 }

@@ -466,7 +466,7 @@ TEST_CASE("Map_TagManagement")
           for (auto& face : b.faces())
           {
             auto attributes = face.attributes();
-            attributes.setSurfaceContents(1);
+            attributes.setSurfaceAttributes({.contents = 1});
             face.setAttributes(attributes);
           }
         })};
@@ -475,7 +475,7 @@ TEST_CASE("Map_TagManagement")
           for (auto& face : b.faces())
           {
             auto attributes = face.attributes();
-            attributes.setSurfaceContents(2);
+            attributes.setSurfaceAttributes({.contents = 2});
             face.setAttributes(attributes);
           }
         })};
@@ -516,7 +516,7 @@ TEST_CASE("Map_TagManagement")
         for (auto& face : b.faces())
         {
           auto attributes = face.attributes();
-          attributes.setSurfaceContents(1);
+          attributes.setSurfaceAttributes({.contents = 1});
           face.setAttributes(attributes);
         }
       });
@@ -547,7 +547,7 @@ TEST_CASE("Map_TagManagement")
           for (auto& face : b.faces())
           {
             auto attributes = face.attributes();
-            attributes.setSurfaceFlags(1);
+            attributes.setSurfaceAttributes({.flags = 1});
             face.setAttributes(attributes);
           }
         })};
@@ -556,7 +556,7 @@ TEST_CASE("Map_TagManagement")
           for (auto& face : b.faces())
           {
             auto attributes = face.attributes();
-            attributes.setSurfaceFlags(2);
+            attributes.setSurfaceAttributes({.flags = 2});
             face.setAttributes(attributes);
           }
         })};
@@ -597,7 +597,7 @@ TEST_CASE("Map_TagManagement")
         for (auto& face : b.faces())
         {
           auto attributes = face.attributes();
-          attributes.setSurfaceFlags(1);
+          attributes.setSurfaceAttributes({.flags = 1});
           face.setAttributes(attributes);
         }
       });

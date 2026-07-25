@@ -178,6 +178,7 @@ target_sources(TbMdlLib
     ${CMAKE_CURRENT_SOURCE_DIR}/src/SoftMapBounds.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/SoftMapBoundsValidator.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/StandardMapParser.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/SurfaceAttributes.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/SwapNodeContentsCommand.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Tag.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/TagAttribute.cpp

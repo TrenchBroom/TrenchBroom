@@ -135,10 +135,11 @@ TEST_CASE("Map_Brushes")
         CHECK(firstAttrs.uvAttributes().rotation == 90.0f);
         CHECK(firstAttrs.uvAttributes().scale.x() == 2.0f);
         CHECK(firstAttrs.uvAttributes().scale.y() == 4.0f);
-        CHECK(firstAttrs.surfaceFlags() == 63u);
-        CHECK(firstAttrs.surfaceContents() == 12u);
-        CHECK(firstAttrs.surfaceValue() == 3.14f);
-        CHECK(firstAttrs.color() == Color{RgbaF{1.0f, 1.0f, 1.0f, 1.0f}});
+        CHECK(firstAttrs.surfaceAttributes().flags == 63u);
+        CHECK(firstAttrs.surfaceAttributes().contents == 12u);
+        CHECK(firstAttrs.surfaceAttributes().value == 3.14f);
+        CHECK(
+          firstAttrs.surfaceAttributes().color == Color{RgbaF{1.0f, 1.0f, 1.0f, 1.0f}});
       }
 
       deselectAll(map);
@@ -168,10 +169,11 @@ TEST_CASE("Map_Brushes")
         CHECK(secondAttrs.uvAttributes().rotation == 45.0f);
         CHECK(secondAttrs.uvAttributes().scale.x() == 1.0f);
         CHECK(secondAttrs.uvAttributes().scale.y() == 1.0f);
-        CHECK(secondAttrs.surfaceFlags() == 18u);
-        CHECK(secondAttrs.surfaceContents() == 2048u);
-        CHECK(secondAttrs.surfaceValue() == 1.0f);
-        CHECK(secondAttrs.color() == Color{RgbaF{0.5f, 0.5f, 0.5f, 0.5f}});
+        CHECK(secondAttrs.surfaceAttributes().flags == 18u);
+        CHECK(secondAttrs.surfaceAttributes().contents == 2048u);
+        CHECK(secondAttrs.surfaceAttributes().value == 1.0f);
+        CHECK(
+          secondAttrs.surfaceAttributes().color == Color{RgbaF{0.5f, 0.5f, 0.5f, 0.5f}});
       }
 
       deselectAll(map);
@@ -187,7 +189,7 @@ TEST_CASE("Map_Brushes")
         == getFace(*brushNode, secondFaceIndex).attributes());
 
       auto thirdFaceContentsFlags =
-        getFace(*brushNode, thirdFaceIndex).attributes().surfaceContents();
+        getFace(*brushNode, thirdFaceIndex).attributes().surfaceAttributes().contents;
 
       deselectAll(map);
       selectBrushFaces(map, {{brushNode, secondFaceIndex}});
@@ -224,10 +226,16 @@ TEST_CASE("Map_Brushes")
           newThirdAttrs.uvAttributes().scale.x() == firstAttrs.uvAttributes().scale.x());
         CHECK(
           newThirdAttrs.uvAttributes().scale.y() == firstAttrs.uvAttributes().scale.y());
-        CHECK(newThirdAttrs.surfaceFlags() == firstAttrs.surfaceFlags());
-        CHECK(newThirdAttrs.surfaceContents() == thirdFaceContentsFlags);
-        CHECK(newThirdAttrs.surfaceValue() == firstAttrs.surfaceValue());
-        CHECK(newThirdAttrs.color() == firstAttrs.color());
+        CHECK(
+          newThirdAttrs.surfaceAttributes().flags
+          == firstAttrs.surfaceAttributes().flags);
+        CHECK(newThirdAttrs.surfaceAttributes().contents == thirdFaceContentsFlags);
+        CHECK(
+          newThirdAttrs.surfaceAttributes().value
+          == firstAttrs.surfaceAttributes().value);
+        CHECK(
+          newThirdAttrs.surfaceAttributes().color
+          == firstAttrs.surfaceAttributes().color);
       }
     }
 

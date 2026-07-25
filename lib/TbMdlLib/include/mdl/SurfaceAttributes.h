@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010 Kristian Duske
+ Copyright (C) 2026 Kristian Duske
 
  This file is part of TrenchBroom.
 
@@ -19,33 +19,24 @@
 
 #pragma once
 
-#include "mdl/SurfaceAttributes.h"
-#include "mdl/UvAttributes.h"
+#include "base/Color.h"
 
 #include "kd/reflection_decl.h"
+
+#include <optional>
 
 namespace tb::mdl
 {
 
-class BrushFaceAttributes
+struct SurfaceAttributes
 {
-private:
-  UvAttributes m_uvAttributes;
-  SurfaceAttributes m_surfaceAttributes;
+  std::optional<int> contents = std::nullopt;
+  std::optional<int> flags = std::nullopt;
+  std::optional<float> value = std::nullopt;
 
-public:
-  kdl_reflect_decl(BrushFaceAttributes, m_uvAttributes, m_surfaceAttributes);
+  std::optional<Color> color = std::nullopt;
 
-  const UvAttributes& uvAttributes() const;
-  const SurfaceAttributes& surfaceAttributes() const;
-
-  bool hasSurfaceAttributes() const;
-  bool hasColor() const;
-
-  bool valid() const;
-
-  bool setUvAttributes(const UvAttributes& uvAttributes);
-  bool setSurfaceAttributes(const SurfaceAttributes& surfaceAttributes);
+  kdl_reflect_decl(SurfaceAttributes, contents, flags, value, color);
 };
 
 } // namespace tb::mdl
