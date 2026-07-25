@@ -187,6 +187,7 @@ target_sources(TbMdlLib
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Transaction.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/UndoableCommand.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/UpdateBrushFaceAttributes.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/UvAlignment.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/UpdateLinkedGroupsCommand.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/UpdateLinkedGroupsCommandBase.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/UpdateLinkedGroupsHelper.cpp

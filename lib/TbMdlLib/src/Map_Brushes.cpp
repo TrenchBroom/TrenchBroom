@@ -31,6 +31,7 @@
 #include "mdl/Map_Selection.h"
 #include "mdl/Transaction.h"
 #include "mdl/UpdateBrushFaceAttributes.h"
+#include "mdl/UvAlignment.h"
 #include "mdl/UvUtils.h"
 #include "mdl/WorldNode.h"
 

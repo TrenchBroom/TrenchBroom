@@ -97,6 +97,7 @@ target_sources(TbMdlLibTest PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Tagging.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Transaction.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_UpdateBrushFaceAttributes.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_UvAlignment.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_UpdateLinkedGroupsCommand.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_UpdateLinkedGroupsHelper.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_UvCoordSystem.cpp

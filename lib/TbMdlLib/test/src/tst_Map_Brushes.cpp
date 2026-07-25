@@ -33,6 +33,7 @@
 #include "mdl/TestFactory.h"
 #include "mdl/TestUtils.h"
 #include "mdl/UpdateBrushFaceAttributes.h"
+#include "mdl/UvAlignment.h"
 #include "mdl/UvCoordSystem.h"
 
 #include "vm/approx.h"
