@@ -86,7 +86,6 @@ private:
     const BrushEdge* operator()(const BrushHalfEdge* halfEdge) const;
   };
 
-public:
 private:
   BrushFace::Points m_points;
   vm::plane3d m_boundary;
