@@ -918,10 +918,11 @@ ActionContext::Type MapViewBase::actionContext() const
     : m_toolBox.scaleToolActive()        ? ActionContext::ScaleTool
     : m_toolBox.shearToolActive()        ? ActionContext::ShearTool
                                          : ActionContext::NoTool;
-  const auto selectionContext = map.selection().hasNodes() ? ActionContext::NodeSelection
-                                : map.selection().hasBrushFaces()
-                                  ? ActionContext::FaceSelection
-                                  : ActionContext::NoSelection;
+  const auto selectionContext =
+    m_toolBox.selectionOwnedByTool()  ? ActionContext::SelectionOwnedByTool
+    : map.selection().hasNodes()      ? ActionContext::NodeSelection
+    : map.selection().hasBrushFaces() ? ActionContext::FaceSelection
+                                      : ActionContext::NoSelection;
   return viewContext | toolContext | selectionContext;
 }
 

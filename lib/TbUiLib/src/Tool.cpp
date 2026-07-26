@@ -87,6 +87,11 @@ void Tool::showPage()
   m_book->setCurrentIndex(m_pageIndex);
 }
 
+bool Tool::ownsSelection() const
+{
+  return false;
+}
+
 bool Tool::doActivate()
 {
   return true;

@@ -193,6 +193,11 @@ SweepTool::SweepTool(MapDocument& document)
 
 SweepTool::~SweepTool() = default;
 
+bool SweepTool::ownsSelection() const
+{
+  return true;
+}
+
 bool SweepTool::doActivate()
 {
   auto& map = m_document.map();

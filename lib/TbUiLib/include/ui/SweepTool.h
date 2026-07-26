@@ -89,6 +89,8 @@ public:
   explicit SweepTool(MapDocument& document);
   ~SweepTool() override;
 
+  bool ownsSelection() const override;
+
   bool doActivate() override;
   bool doDeactivate() override;
 

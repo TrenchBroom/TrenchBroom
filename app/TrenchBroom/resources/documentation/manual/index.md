@@ -786,7 +786,7 @@ When the sweep tool is active, a ghost outline shows where the destination cap w
 - Dragging one of the rings rotates it about the corresponding axis.
 - Dragging the green handle scales it uniformly, flaring or tapering the sweep.
 
-The generated brushes are shown as a preview in the viewports while you place the destination cap. The controls above the editing views determine how the gap is filled:
+The generated brushes are shown as a preview in the viewports while you place the destination cap. Shortcuts that act on the selection, including UV editing, are unavailable until the tool is deactivated. The controls above the editing views determine how the gap is filled:
 
 - **Segments** is the number of brushes created between the selected faces and the destination cap.
 - **Path** selects how the brushes are laid out: Arc revolves the faces around an axis derived from the rotation, Straight lofts them along a line, and S-bend routes them through an S-curve. The destination cap ends up in the same place in each mode.
