@@ -22,32 +22,30 @@
 #include "base/Macros.h"
 #include "mdl/UvAttributes.h"
 
+#include "kd/reflection_decl.h"
+
 #include "vm/mat.h"
 #include "vm/plane.h"
 #include "vm/vec.h"
 
 #include <memory>
+#include <optional>
 #include <tuple>
 
 namespace tb::mdl
 {
-class ParallelUvCoordSystem;
-class ParaxialUvCoordSystem;
-class UvCoordSystem;
 
-class UvCoordSystemSnapshot
+/**
+ * The UV axes of a UV coordinate system, used to transfer the UV alignment of one face to
+ * another. Only UV coordinate systems whose axes are independent of the face plane can be
+ * snapshotted and restored.
+ */
+struct UvCoordSystemSnapshot
 {
-public:
-  virtual ~UvCoordSystemSnapshot();
-  void restore(UvCoordSystem& coordSystem) const;
-  virtual std::unique_ptr<UvCoordSystemSnapshot> clone() const = 0;
+  vm::vec3d uAxis;
+  vm::vec3d vAxis;
 
-private:
-  virtual void doRestore(ParallelUvCoordSystem& coordSystem) const = 0;
-  virtual void doRestore(ParaxialUvCoordSystem& coordSystem) const = 0;
-
-  friend class ParallelUvCoordSystem;
-  friend class ParaxialUvCoordSystem;
+  kdl_reflect_decl(UvCoordSystemSnapshot, uAxis, vAxis);
 };
 
 enum class WrapStyle
@@ -66,7 +64,12 @@ public:
   friend bool operator!=(const UvCoordSystem& lhs, const UvCoordSystem& rhs);
 
   virtual std::unique_ptr<UvCoordSystem> clone() const = 0;
-  virtual std::unique_ptr<UvCoordSystemSnapshot> takeSnapshot() const = 0;
+
+  /**
+   * Returns nullopt if this UV coordinate system's axes are derived from the face plane
+   * and therefore cannot be transferred to a face with a different plane.
+   */
+  virtual std::optional<UvCoordSystemSnapshot> takeSnapshot() const = 0;
   virtual void restoreSnapshot(const UvCoordSystemSnapshot& snapshot) = 0;
 
   virtual vm::vec3d uAxis() const = 0;
@@ -129,8 +132,6 @@ public:
     const UvAttributes& uvAttributes) const = 0;
 
 private:
-  friend class UvCoordSystemSnapshot;
-
   virtual bool isRotationInverted(const vm::vec3d& normal) const = 0;
 
   virtual void updateNormalWithProjection(

@@ -532,9 +532,10 @@ std::unique_ptr<UvCoordSystem> ParaxialUvCoordSystem::clone() const
   return std::make_unique<ParaxialUvCoordSystem>(m_index, m_uAxis, m_vAxis);
 }
 
-std::unique_ptr<UvCoordSystemSnapshot> ParaxialUvCoordSystem::takeSnapshot() const
+std::optional<UvCoordSystemSnapshot> ParaxialUvCoordSystem::takeSnapshot() const
 {
-  return nullptr;
+  // the UV axes are derived from the face plane, so there is nothing to transfer
+  return std::nullopt;
 }
 
 void ParaxialUvCoordSystem::restoreSnapshot(const UvCoordSystemSnapshot& /* snapshot */)

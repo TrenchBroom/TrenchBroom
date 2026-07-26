@@ -282,7 +282,7 @@ void BrushFace::sortFaces(std::vector<BrushFace>& faces)
   });
 }
 
-std::unique_ptr<UvCoordSystemSnapshot> BrushFace::takeUvCoordSystemSnapshot() const
+std::optional<UvCoordSystemSnapshot> BrushFace::takeUvCoordSystemSnapshot() const
 {
   return m_uvCoordSystem->takeSnapshot();
 }
@@ -290,7 +290,7 @@ std::unique_ptr<UvCoordSystemSnapshot> BrushFace::takeUvCoordSystemSnapshot() co
 void BrushFace::restoreUvCoordSystemSnapshot(
   const UvCoordSystemSnapshot& coordSystemSnapshot)
 {
-  coordSystemSnapshot.restore(*m_uvCoordSystem);
+  m_uvCoordSystem->restoreSnapshot(coordSystemSnapshot);
 }
 
 void BrushFace::copyUvCoordSystemFromFace(
@@ -305,7 +305,7 @@ void BrushFace::copyUvCoordSystemFromFace(
     vm::intersect_plane_plane(sourceFacePlane, m_boundary).value_or(vm::line3d{});
   const auto refPoint = vm::project_point(seam, center());
 
-  coordSystemSnapshot.restore(*m_uvCoordSystem);
+  m_uvCoordSystem->restoreSnapshot(coordSystemSnapshot);
 
   // Get the UV coords at the refPoint using the source face's attributes and tex coord
   // system

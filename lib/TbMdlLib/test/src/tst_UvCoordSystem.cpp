@@ -21,37 +21,43 @@
 #include "mdl/ParallelUvCoordSystem.h"
 #include "mdl/ParaxialUvCoordSystem.h"
 #include "mdl/UvAttributes.h"
+#include "mdl/UvCoordSystem.h"
+
+#include "vm/vec_io.h" // IWYU pragma: keep
+
+#include <optional>
 
 #include <catch2/catch_test_macros.hpp>
 
 namespace tb::mdl
 {
 
-// Disable a clang warning when using ASSERT_DEATH
-#ifdef __clang__
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wcovered-switch-default"
-#endif
-
-TEST_CASE("UvCoordSystemTest.testSnapshotTypeSafety")
+TEST_CASE("UvCoordSystem")
 {
-  UvAttributes uvAttributes;
+  SECTION("takeSnapshot")
+  {
+    SECTION("paraxial UV axes cannot be snapshotted")
+    {
+      const auto paraxial = ParaxialUvCoordSystem{vm::vec3d{0, 0, 1}, UvAttributes{}};
+      CHECK(paraxial.takeSnapshot() == std::nullopt);
+    }
 
-  ParaxialUvCoordSystem paraxial(vm::vec3d{0, 0, 1}, uvAttributes);
-  CHECK(paraxial.takeSnapshot() == nullptr);
+    SECTION("parallel UV axes can be snapshotted and restored")
+    {
+      auto parallel = ParallelUvCoordSystem{vm::vec3d{0, 1, 0}, vm::vec3d{1, 0, 0}};
+      const auto snapshot = parallel.takeSnapshot();
+      REQUIRE(
+        snapshot
+        == std::optional{UvCoordSystemSnapshot{vm::vec3d{0, 1, 0}, vm::vec3d{1, 0, 0}}});
 
-  ParallelUvCoordSystem parallel(vm::vec3d{0, 1, 0}, vm::vec3d{1, 0, 0});
-  auto parallelSnapshot = parallel.takeSnapshot();
-  CHECK(parallelSnapshot != nullptr);
+      parallel.reset(vm::vec3d{0, 0, 1});
+      REQUIRE(parallel.takeSnapshot() != snapshot);
 
-#if 0 // not supported with Catch2
-            ASSERT_DEATH(parallelSnapshot->restore(paraxial), "");
-#endif
-  parallelSnapshot->restore(parallel);
+      parallel.restoreSnapshot(*snapshot);
+      CHECK(parallel.uAxis() == vm::vec3d{0, 1, 0});
+      CHECK(parallel.vAxis() == vm::vec3d{1, 0, 0});
+    }
+  }
 }
-
-#ifdef __clang__
-#pragma clang diagnostic pop
-#endif
 
 } // namespace tb::mdl

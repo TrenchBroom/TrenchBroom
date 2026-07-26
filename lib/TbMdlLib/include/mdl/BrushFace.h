@@ -26,6 +26,7 @@
 #include "mdl/SurfaceAttributes.h"
 #include "mdl/Tag.h"
 #include "mdl/UvAttributes.h"
+#include "mdl/UvCoordSystem.h"
 
 #include "kd/reflection_decl.h"
 
@@ -52,8 +53,6 @@ class Material;
 namespace mdl
 {
 class UvCoordSystem;
-class UvCoordSystemSnapshot;
-enum class WrapStyle;
 enum class MapFormat;
 
 class BrushFace : public Taggable
@@ -202,7 +201,7 @@ public:
 
   static void sortFaces(std::vector<BrushFace>& faces);
 
-  std::unique_ptr<UvCoordSystemSnapshot> takeUvCoordSystemSnapshot() const;
+  std::optional<UvCoordSystemSnapshot> takeUvCoordSystemSnapshot() const;
   void restoreUvCoordSystemSnapshot(const UvCoordSystemSnapshot& coordSystemSnapshot);
   void copyUvCoordSystemFromFace(
     const UvCoordSystemSnapshot& coordSystemSnapshot,

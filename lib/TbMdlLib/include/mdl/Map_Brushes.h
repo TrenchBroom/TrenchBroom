@@ -29,7 +29,7 @@ namespace tb::mdl
 {
 struct UvAttributes;
 class Map;
-class UvCoordSystemSnapshot;
+struct UvCoordSystemSnapshot;
 
 enum class UvAxis;
 enum class UvSign;

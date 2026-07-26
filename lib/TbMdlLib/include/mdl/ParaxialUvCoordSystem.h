@@ -25,6 +25,7 @@
 #include "vm/vec.h"
 
 #include <memory>
+#include <optional>
 
 namespace tb::mdl
 {
@@ -57,7 +58,7 @@ public:
   static std::tuple<vm::vec3d, vm::vec3d, vm::vec3d> axes(size_t index);
 
   std::unique_ptr<UvCoordSystem> clone() const override;
-  std::unique_ptr<UvCoordSystemSnapshot> takeSnapshot() const override;
+  std::optional<UvCoordSystemSnapshot> takeSnapshot() const override;
   void restoreSnapshot(const UvCoordSystemSnapshot& snapshot) override;
 
   vm::vec3d uAxis() const override;

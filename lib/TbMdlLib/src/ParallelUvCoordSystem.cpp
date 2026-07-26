@@ -65,37 +65,6 @@ std::tuple<vm::vec3d, vm::vec3d> applyRotation(
 
 } // namespace
 
-ParallelUvCoordSystemSnapshot::ParallelUvCoordSystemSnapshot(
-  const vm::vec3d& uAxis, const vm::vec3d& vAxis)
-  : m_uAxis{uAxis}
-  , m_vAxis{vAxis}
-{
-}
-
-ParallelUvCoordSystemSnapshot::ParallelUvCoordSystemSnapshot(
-  const ParallelUvCoordSystem* coordSystem)
-  : m_uAxis{coordSystem->uAxis()}
-  , m_vAxis{coordSystem->vAxis()}
-{
-}
-
-std::unique_ptr<UvCoordSystemSnapshot> ParallelUvCoordSystemSnapshot::clone() const
-{
-  return std::make_unique<ParallelUvCoordSystemSnapshot>(m_uAxis, m_vAxis);
-}
-
-void ParallelUvCoordSystemSnapshot::doRestore(ParallelUvCoordSystem& coordSystem) const
-{
-  coordSystem.m_uAxis = m_uAxis;
-  coordSystem.m_vAxis = m_vAxis;
-}
-
-void ParallelUvCoordSystemSnapshot::doRestore(
-  ParaxialUvCoordSystem& /* coordSystem */) const
-{
-  contract_assert(false);
-}
-
 /**
  * Constructs a parallel tex coord system where the texture is projected form the face
  * plane
@@ -142,14 +111,15 @@ std::unique_ptr<UvCoordSystem> ParallelUvCoordSystem::clone() const
   return std::make_unique<ParallelUvCoordSystem>(uAxis(), vAxis());
 }
 
-std::unique_ptr<UvCoordSystemSnapshot> ParallelUvCoordSystem::takeSnapshot() const
+std::optional<UvCoordSystemSnapshot> ParallelUvCoordSystem::takeSnapshot() const
 {
-  return std::make_unique<ParallelUvCoordSystemSnapshot>(this);
+  return UvCoordSystemSnapshot{m_uAxis, m_vAxis};
 }
 
 void ParallelUvCoordSystem::restoreSnapshot(const UvCoordSystemSnapshot& snapshot)
 {
-  snapshot.doRestore(*this);
+  m_uAxis = snapshot.uAxis;
+  m_vAxis = snapshot.vAxis;
 }
 
 vm::vec3d ParallelUvCoordSystem::uAxis() const

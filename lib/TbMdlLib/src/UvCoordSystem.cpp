@@ -21,18 +21,16 @@
 
 #include "mdl/UvUtils.h"
 
+#include "kd/reflection_impl.h"
+
 #include "vm/mat.h"
 #include "vm/mat_ext.h"
+#include "vm/vec_io.h" // IWYU pragma: keep
 
 namespace tb::mdl
 {
 
-UvCoordSystemSnapshot::~UvCoordSystemSnapshot() = default;
-
-void UvCoordSystemSnapshot::restore(UvCoordSystem& coordSystem) const
-{
-  coordSystem.restoreSnapshot(*this);
-}
+kdl_reflect_impl(UvCoordSystemSnapshot);
 
 UvCoordSystem::UvCoordSystem() = default;
 

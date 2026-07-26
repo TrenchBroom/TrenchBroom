@@ -26,35 +26,17 @@
 #include "vm/vec.h"
 
 #include <memory>
+#include <optional>
 #include <tuple>
 
 namespace tb::mdl
 {
-
-class ParallelUvCoordSystemSnapshot : public UvCoordSystemSnapshot
-{
-private:
-  vm::vec3d m_uAxis;
-  vm::vec3d m_vAxis;
-
-public:
-  ParallelUvCoordSystemSnapshot(const vm::vec3d& uAxis, const vm::vec3d& vAxis);
-  explicit ParallelUvCoordSystemSnapshot(const ParallelUvCoordSystem* coordSystem);
-
-  std::unique_ptr<UvCoordSystemSnapshot> clone() const override;
-
-private:
-  void doRestore(ParallelUvCoordSystem& coordSystem) const override;
-  void doRestore(ParaxialUvCoordSystem& coordSystem) const override;
-};
 
 class ParallelUvCoordSystem : public UvCoordSystem
 {
 private:
   vm::vec3d m_uAxis;
   vm::vec3d m_vAxis;
-
-  friend class ParallelUvCoordSystemSnapshot;
 
 public:
   ParallelUvCoordSystem(
@@ -71,7 +53,7 @@ public:
     const UvAttributes& uvAttributes);
 
   std::unique_ptr<UvCoordSystem> clone() const override;
-  std::unique_ptr<UvCoordSystemSnapshot> takeSnapshot() const override;
+  std::optional<UvCoordSystemSnapshot> takeSnapshot() const override;
   void restoreSnapshot(const UvCoordSystemSnapshot& snapshot) override;
 
   vm::vec3d uAxis() const override;

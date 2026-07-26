@@ -1087,8 +1087,7 @@ void Brush::applyUvLock(
     // `rightFace`.
     auto leftClone = BrushFace{leftFace};
     leftClone.transform(*M, true) | kdl::transform([&]() {
-      auto snapshot =
-        std::unique_ptr<UvCoordSystemSnapshot>{leftClone.takeUvCoordSystemSnapshot()};
+      const auto snapshot = leftClone.takeUvCoordSystemSnapshot();
       rightFace.setUvAttributes(leftClone.uvAttributes());
       rightFace.setSurfaceAttributes(leftClone.surfaceAttributes());
       if (snapshot)

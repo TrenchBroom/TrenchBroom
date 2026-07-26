@@ -337,9 +337,9 @@ const mdl::BrushFace* findFaceByPoints(
 
 void checkFaceUvCoordSystem(const mdl::BrushFace& face, const bool expectParallel)
 {
-  auto snapshot = face.takeUvCoordSystemSnapshot();
-  auto* check = dynamic_cast<mdl::ParallelUvCoordSystemSnapshot*>(snapshot.get());
-  const bool isParallel = (check != nullptr);
+  const auto* parallel =
+    dynamic_cast<const mdl::ParallelUvCoordSystem*>(&face.uvCoordSystem());
+  const bool isParallel = (parallel != nullptr);
   CHECK(isParallel == expectParallel);
 }
 
