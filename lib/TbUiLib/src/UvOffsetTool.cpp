@@ -49,7 +49,7 @@ vm::vec2f computeHitPoint(const UvViewHelper& helper, const vm::ray3d& ray)
   const auto distance = *vm::intersect_ray_plane(ray, boundary);
   const auto hitPoint = vm::point_at_distance(ray, distance);
   const auto transform = helper.face()->toUvCoordSystemMatrix(
-    vm::vec2f{0, 0}, helper.face()->attributes().uvAttributes().scale);
+    vm::vec2f{0, 0}, helper.face()->uvAttributes().scale);
   return vm::vec2f{transform * hitPoint};
 }
 
@@ -60,8 +60,7 @@ vm::vec2f snapDelta(const UvViewHelper& helper, const vm::vec2f& delta)
   if (helper.material())
   {
     const auto transform = helper.face()->toUvCoordSystemMatrix(
-      helper.face()->attributes().uvAttributes().offset - delta,
-      helper.face()->attributes().uvAttributes().scale);
+      helper.face()->uvAttributes().offset - delta, helper.face()->uvAttributes().scale);
 
     const auto distance = kdl::fold_left_first(
       helper.face()->vertices() | std::views::transform([&](const auto& vertex) {
@@ -103,9 +102,9 @@ public:
                            : delta;
 
     const auto corrected =
-      vm::correct(m_helper.face()->attributes().uvAttributes().offset - snapped, 4, 0.0f);
+      vm::correct(m_helper.face()->uvAttributes().offset - snapped, 4, 0.0f);
 
-    if (corrected == m_helper.face()->attributes().uvAttributes().offset)
+    if (corrected == m_helper.face()->uvAttributes().offset)
     {
       return true;
     }

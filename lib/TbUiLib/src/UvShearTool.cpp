@@ -184,17 +184,17 @@ public:
       const auto origin = m_helper.origin();
       const auto oldOriginUv = vm::vec2f{
         m_helper.face()->toUvCoordSystemMatrix(
-          vm::vec2f{0, 0}, m_helper.face()->attributes().uvAttributes().scale)
+          vm::vec2f{0, 0}, m_helper.face()->uvAttributes().scale)
         * origin};
 
       shearUv(m_map, snappedFactors);
 
       const auto newOriginUv = vm::vec2f{
         m_helper.face()->toUvCoordSystemMatrix(
-          vm::vec2f{0, 0}, m_helper.face()->attributes().uvAttributes().scale)
+          vm::vec2f{0, 0}, m_helper.face()->uvAttributes().scale)
         * origin};
       const auto newOffset =
-        m_helper.face()->attributes().uvAttributes().offset + oldOriginUv - newOriginUv;
+        m_helper.face()->uvAttributes().offset + oldOriginUv - newOriginUv;
 
       setBrushFaceAttributes(
         m_map,
@@ -258,7 +258,7 @@ std::unique_ptr<GestureTracker> UvShearTool::acceptMouseDrag(const InputState& i
     return nullptr;
   }
 
-  if (!m_helper.face()->attributes().valid())
+  if (!m_helper.face()->uvAttributes().valid())
   {
     return nullptr;
   }

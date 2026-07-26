@@ -203,13 +203,10 @@ BrushFaceAttributesMatcher::BrushFaceAttributesMatcher(
 bool BrushFaceAttributesMatcher::match(const BrushFace& in) const
 {
   return in.materialName() == m_expectedMaterialName
-         && in.attributes().uvAttributes().offset
-              == vm::approx{m_expectedUvAttributes.offset}
-         && in.attributes().uvAttributes().scale
-              == vm::approx{m_expectedUvAttributes.scale}
-         && in.attributes().uvAttributes().rotation
-              == vm::approx{m_expectedUvAttributes.rotation}
-         && in.attributes().surfaceAttributes() == m_expectedSurfaceAttributes;
+         && in.uvAttributes().offset == vm::approx{m_expectedUvAttributes.offset}
+         && in.uvAttributes().scale == vm::approx{m_expectedUvAttributes.scale}
+         && in.uvAttributes().rotation == vm::approx{m_expectedUvAttributes.rotation}
+         && in.surfaceAttributes() == m_expectedSurfaceAttributes;
 }
 
 std::string BrushFaceAttributesMatcher::describe() const
@@ -235,9 +232,7 @@ BrushFaceAttributesMatcher MatchesBrushFaceAttributes(
 BrushFaceAttributesMatcher MatchesBrushFaceAttributes(const BrushFace& expected)
 {
   return BrushFaceAttributesMatcher{
-    expected.materialName(),
-    expected.attributes().uvAttributes(),
-    expected.attributes().surfaceAttributes()};
+    expected.materialName(), expected.uvAttributes(), expected.surfaceAttributes()};
 }
 
 UpdateBrushFaceAttributesMatcher::UpdateBrushFaceAttributesMatcher(

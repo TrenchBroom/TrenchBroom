@@ -283,7 +283,7 @@ void transferFaceAttributes(
       copyUv(
         map,
         *snapshot,
-        sourceFaceHandle.face().attributes().uvAttributes(),
+        sourceFaceHandle.face().uvAttributes(),
         sourceFaceHandle.face().boundary(),
         style);
     }

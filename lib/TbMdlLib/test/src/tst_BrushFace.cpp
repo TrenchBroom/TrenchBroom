@@ -72,10 +72,7 @@ void getFaceVertsAndUvCoords(
 
 void resetFaceUvAlignment(BrushFace& face)
 {
-  auto attributes = face.attributes();
-  attributes.setUvAttributes({});
-
-  face.setAttributes(attributes);
+  face.setUvAttributes({});
   face.resetUvAxes();
 }
 
@@ -472,15 +469,15 @@ TEST_CASE("BrushFace")
     const auto p1 = vm::vec3d{1, 0, 4};
     const auto p2 = vm::vec3d{0, -1, 4};
 
-    const auto attribs = UvAttributes{};
+    const auto uvAttributes = UvAttributes{};
     auto face = BrushFace::create(
                   p0,
                   p1,
                   p2,
                   "",
-                  attribs,
+                  uvAttributes,
                   SurfaceAttributes{},
-                  std::make_unique<ParaxialUvCoordSystem>(p0, p1, p2, attribs))
+                  std::make_unique<ParaxialUvCoordSystem>(p0, p1, p2, uvAttributes))
                 | kdl::value();
     CHECK(face.points()[0] == vm::approx{p0});
     CHECK(face.points()[1] == vm::approx{p1});
@@ -495,15 +492,15 @@ TEST_CASE("BrushFace")
     const auto p1 = vm::vec3d{1, 0, 4};
     const auto p2 = vm::vec3d{2, 0, 4};
 
-    const auto attribs = UvAttributes{};
+    const auto uvAttributes = UvAttributes{};
     CHECK_FALSE(BrushFace::create(
       p0,
       p1,
       p2,
       "",
-      attribs,
+      uvAttributes,
       SurfaceAttributes{},
-      std::make_unique<ParaxialUvCoordSystem>(p0, p1, p2, attribs)));
+      std::make_unique<ParaxialUvCoordSystem>(p0, p1, p2, uvAttributes)));
   }
 
   SECTION("materialUsageCount")
@@ -519,7 +516,7 @@ TEST_CASE("BrushFace")
     CHECK(material.usageCount() == 0u);
     CHECK(material2.usageCount() == 0u);
 
-    auto attribs = UvAttributes{};
+    auto uvAttributes = UvAttributes{};
     {
       // test constructor
       auto face = BrushFace::create(
@@ -527,9 +524,9 @@ TEST_CASE("BrushFace")
                     p1,
                     p2,
                     "",
-                    attribs,
+                    uvAttributes,
                     SurfaceAttributes{},
-                    std::make_unique<ParaxialUvCoordSystem>(p0, p1, p2, attribs))
+                    std::make_unique<ParaxialUvCoordSystem>(p0, p1, p2, uvAttributes))
                   | kdl::value();
       CHECK(material.usageCount() == 0u);
 
@@ -617,9 +614,7 @@ TEST_CASE("BrushFace")
     const auto newXAxis = vm::vec3d{rot45 * face.uAxis()};
     const auto newYAxis = vm::vec3d{rot45 * face.vAxis()};
 
-    auto attributes = face.attributes();
-    attributes.setUvAttributes({.rotation = -45.0f});
-    face.setAttributes(attributes);
+    face.setUvAttributes({.rotation = -45.0f});
 
     CHECK(face.uAxis() == vm::approx{newXAxis});
     CHECK(face.vAxis() == vm::approx{newYAxis});
@@ -716,9 +711,9 @@ TEST_CASE("BrushFace")
     const auto newYAxis = vm::vec3d{rot45 * negXFace->vAxis()};
 
     // Rotate by 45 degrees CCW
-    CHECK(negXFace->attributes().uvAttributes().rotation == vm::approx{0.0f});
+    CHECK(negXFace->uvAttributes().rotation == vm::approx{0.0f});
     negXFace->rotateUv(45.0);
-    CHECK(negXFace->attributes().uvAttributes().rotation == vm::approx{45.0f});
+    CHECK(negXFace->uvAttributes().rotation == vm::approx{45.0f});
 
     CHECK(negXFace->uAxis() == vm::approx{newXAxis});
     CHECK(negXFace->vAxis() == vm::approx{newYAxis});
@@ -783,10 +778,7 @@ TEST_CASE("BrushFace")
 
     // copy texturing from the negYFace to posXFace using the rotation method
     posXFace->copyUvCoordSystemFromFace(
-      *snapshot,
-      negYFace->attributes().uvAttributes(),
-      negYFace->boundary(),
-      WrapStyle::Rotation);
+      *snapshot, negYFace->uvAttributes(), negYFace->boundary(), WrapStyle::Rotation);
     CHECK(
       posXFace->uAxis()
       == vm::approx{
@@ -798,10 +790,7 @@ TEST_CASE("BrushFace")
 
     // copy texturing from the negYFace to posXFace using the projection method
     posXFace->copyUvCoordSystemFromFace(
-      *snapshot,
-      negYFace->attributes().uvAttributes(),
-      negYFace->boundary(),
-      WrapStyle::Projection);
+      *snapshot, negYFace->uvAttributes(), negYFace->boundary(), WrapStyle::Projection);
     CHECK(posXFace->uAxis() == vm::approx{vm::vec3d{0, -1, 0}});
     CHECK(posXFace->vAxis() == vm::approx{vm::vec3d{0, 0, -1}});
 
@@ -929,7 +918,7 @@ TEST_CASE("BrushFace")
 
     auto brush = brushNode->brush();
     auto& face = brush.face(*brush.findFace(vm::vec3d{0, 0, 1}));
-    CHECK(face.attributes().uvAttributes().scale == vm::vec2f{1, 1});
+    CHECK(face.uvAttributes().scale == vm::vec2f{1, 1});
 
     SECTION("Default camera angle")
     {
@@ -939,13 +928,13 @@ TEST_CASE("BrushFace")
       SECTION("Left flip")
       {
         face.flipUv(cameraUp, cameraRight, vm::direction::left);
-        CHECK(face.attributes().uvAttributes().scale == vm::vec2f{-1, 1});
+        CHECK(face.uvAttributes().scale == vm::vec2f{-1, 1});
       }
 
       SECTION("Up flip")
       {
         face.flipUv(cameraUp, cameraRight, vm::direction::up);
-        CHECK(face.attributes().uvAttributes().scale == vm::vec2f{1, -1});
+        CHECK(face.uvAttributes().scale == vm::vec2f{1, -1});
       }
     }
 
@@ -957,13 +946,13 @@ TEST_CASE("BrushFace")
       SECTION("left arrow (does vertical flip)")
       {
         face.flipUv(cameraUp, cameraRight, vm::direction::left);
-        CHECK(face.attributes().uvAttributes().scale == vm::vec2f{1, -1});
+        CHECK(face.uvAttributes().scale == vm::vec2f{1, -1});
       }
 
       SECTION("up arrow (does horizontal flip)")
       {
         face.flipUv(cameraUp, cameraRight, vm::direction::up);
-        CHECK(face.attributes().uvAttributes().scale == vm::vec2f{-1, 1});
+        CHECK(face.uvAttributes().scale == vm::vec2f{-1, 1});
       }
     }
   }

@@ -122,8 +122,7 @@ const vm::vec2f UvViewHelper::originInUvCoords() const
   contract_pre(valid());
 
   const auto toFace = face()->toUvCoordSystemMatrix(
-    face()->attributes().uvAttributes().offset,
-    face()->attributes().uvAttributes().scale);
+    face()->uvAttributes().offset, face()->uvAttributes().scale);
   return vm::vec2f{toFace * origin()};
 }
 
@@ -153,8 +152,7 @@ void UvViewHelper::pickUvGrid(
       const auto hitPointInWorldCoords = vm::point_at_distance(ray, *distance);
       const auto hitPointInUvCoords = vm::vec2f{
         face()->toUvCoordSystemMatrix(
-          face()->attributes().uvAttributes().offset,
-          face()->attributes().uvAttributes().scale)
+          face()->uvAttributes().offset, face()->uvAttributes().scale)
         * hitPointInWorldCoords};
       const auto hitPointInViewCoords = uvToViewCoords(hitPointInUvCoords);
 
@@ -235,11 +233,9 @@ void UvViewHelper::computeScaleHandleVertices(
   contract_pre(valid());
 
   const auto toTex = face()->toUvCoordSystemMatrix(
-    face()->attributes().uvAttributes().offset,
-    face()->attributes().uvAttributes().scale);
+    face()->uvAttributes().offset, face()->uvAttributes().scale);
   const auto toWorld = face()->fromUvCoordSystemMatrix(
-    face()->attributes().uvAttributes().offset,
-    face()->attributes().uvAttributes().scale);
+    face()->uvAttributes().offset, face()->uvAttributes().scale);
   computeLineVertices(pos, x1, x2, y1, y2, toTex, toWorld);
 }
 
@@ -266,10 +262,10 @@ void UvViewHelper::computeLineVertices(
 
 vm::vec2f UvViewHelper::uvToViewCoords(const vm::vec2f& pos) const
 {
-  const auto posInWorldCoords = face()->fromUvCoordSystemMatrix(
-                                  face()->attributes().uvAttributes().offset,
-                                  face()->attributes().uvAttributes().scale)
-                                * vm::vec3d{pos, 0.0};
+  const auto posInWorldCoords =
+    face()->fromUvCoordSystemMatrix(
+      face()->uvAttributes().offset, face()->uvAttributes().scale)
+    * vm::vec3d{pos, 0.0};
   return m_camera.project(vm::vec3f(posInWorldCoords)).xy();
 }
 

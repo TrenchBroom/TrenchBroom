@@ -280,9 +280,7 @@ TEST_CASE("NodeWriter")
     auto brush1 = builder.createCube(64.0, "none") | kdl::value();
     for (auto& face : brush1.faces())
     {
-      auto attributes = face.attributes();
-      attributes.setSurfaceAttributes({.color = RgbF{1.0f, 0.5f, 0.25f}});
-      face.setAttributes(attributes);
+      face.setSurfaceAttributes({.color = RgbF{1.0f, 0.5f, 0.25f}});
     }
     auto* brushNode1 = new BrushNode{std::move(brush1)};
     worldNode.defaultLayer()->addChild(brushNode1);
@@ -338,9 +336,7 @@ TEST_CASE("NodeWriter")
 
       auto& face = brush1.face(*index);
       face.setMaterialName("e1u1/brwater");
-      auto attribs = face.attributes();
-      attribs.setSurfaceAttributes({.contents = 0, .flags = 0, .value = 0.0f});
-      face.setAttributes(attribs);
+      face.setSurfaceAttributes({.contents = 0, .flags = 0, .value = 0.0f});
     }
     // set -Z face to e1u1/brlava with contents 8, flags 9, value 700
     {
@@ -349,9 +345,7 @@ TEST_CASE("NodeWriter")
 
       auto& face = brush1.face(*index);
       face.setMaterialName("e1u1/brlava");
-      auto attribs = face.attributes();
-      attribs.setSurfaceAttributes({.contents = 8, .flags = 9, .value = 700.0f});
-      face.setAttributes(attribs);
+      face.setSurfaceAttributes({.contents = 8, .flags = 9, .value = 700.0f});
     }
     // other faces are e1u1/alarm0 with unset contents/flags/value
 

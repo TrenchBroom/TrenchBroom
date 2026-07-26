@@ -22,7 +22,6 @@
 #include "gl/TextureResource.h"
 #include "mdl/BrushBuilder.h"
 #include "mdl/BrushFace.h"
-#include "mdl/BrushFaceAttributes.h"
 #include "mdl/CatchConfig.h"
 #include "mdl/MapFormat.h"
 #include "mdl/Matchers.h"
@@ -38,15 +37,18 @@ namespace tb::mdl
 namespace
 {
 
-BrushFace createBrushFace(std::string materialName, const BrushFaceAttributes& attributes)
+BrushFace createBrushFace(
+  std::string materialName,
+  const UvAttributes& uvAttributes,
+  const SurfaceAttributes& surfaceAttributes = {})
 {
   return BrushFace::create(
            {0, 0, 0},
            {0, 1, 0},
            {1, 0, 0},
            std::move(materialName),
-           attributes.uvAttributes(),
-           attributes.surfaceAttributes(),
+           uvAttributes,
+           surfaceAttributes,
            MapFormat::Quake2)
          | kdl::value();
 }
@@ -69,17 +71,17 @@ TEST_CASE("UpdateBrushFaceAttributes")
 
   SECTION("copyAll")
   {
-    auto attributes = BrushFaceAttributes{};
-    attributes.setUvAttributes({
+    const auto uvAttributes = UvAttributes{
       .offset = {1, 2},
       .scale = {2, 3},
       .rotation = 45.0f,
-    });
+    };
+    auto surfaceAttributes = SurfaceAttributes{};
 
     SECTION("with surface attributes and color unset")
     {
       CHECK(
-        copyAll(createBrushFace("some_material", attributes))
+        copyAll(createBrushFace("some_material", uvAttributes, surfaceAttributes))
         == UpdateBrushFaceAttributes{
           .materialName = "some_material",
           .xOffset = SetValue{1.0f},
@@ -94,15 +96,15 @@ TEST_CASE("UpdateBrushFaceAttributes")
 
     SECTION("with surface attributes and color set")
     {
-      attributes.setSurfaceAttributes({
+      surfaceAttributes = SurfaceAttributes{
         .contents = 3,
         .flags = 2,
         .value = 11.0f,
         .color = RgbaB{1, 2, 3, 4},
-      });
+      };
 
       CHECK(
-        copyAll(createBrushFace("some_material", attributes))
+        copyAll(createBrushFace("some_material", uvAttributes, surfaceAttributes))
         == UpdateBrushFaceAttributes{
           .materialName = "some_material",
           .xOffset = SetValue{1.0f},
@@ -120,21 +122,21 @@ TEST_CASE("UpdateBrushFaceAttributes")
 
   SECTION("copyAllExceptContentFlags")
   {
-    auto attributes = BrushFaceAttributes{};
-    attributes.setUvAttributes({
+    const auto uvAttributes = UvAttributes{
       .offset = {1, 2},
       .scale = {2, 3},
       .rotation = 45.0f,
-    });
-    attributes.setSurfaceAttributes({
+    };
+    const auto surfaceAttributes = SurfaceAttributes{
       .contents = 3,
       .flags = 2,
       .value = 11.0f,
       .color = RgbaB{1, 2, 3, 4},
-    });
+    };
 
     CHECK(
-      copyAllExceptContentFlags(createBrushFace("some_material", attributes))
+      copyAllExceptContentFlags(
+        createBrushFace("some_material", uvAttributes, surfaceAttributes))
       == UpdateBrushFaceAttributes{
         .materialName = "some_material",
         .xOffset = SetValue{1.0f},
@@ -1079,7 +1081,7 @@ TEST_CASE("UpdateBrushFaceAttributes")
 
   SECTION("evaluate")
   {
-    auto brushFace = createBrushFace("some_material", BrushFaceAttributes{});
+    auto brushFace = createBrushFace("some_material", UvAttributes{});
 
     SECTION("ValueOp")
     {
@@ -1096,14 +1098,12 @@ TEST_CASE("UpdateBrushFaceAttributes")
       const auto update = UpdateBrushFaceAttributes{.xOffset = valueOp};
 
       {
-        auto attributes = brushFace.attributes();
-        attributes.setUvAttributes({.offset = {originalValue, 0.0f}});
-        brushFace.setAttributes(attributes);
+        brushFace.setUvAttributes({.offset = {originalValue, 0.0f}});
       }
 
       evaluate(update, brushFace);
 
-      CHECK(brushFace.attributes().uvAttributes().offset.x() == expectedValue);
+      CHECK(brushFace.uvAttributes().offset.x() == expectedValue);
     }
 
     SECTION("FlagOp")
@@ -1125,14 +1125,12 @@ TEST_CASE("UpdateBrushFaceAttributes")
       const auto update = UpdateBrushFaceAttributes{.surfaceFlags = flagOp};
 
       {
-        auto attributes = brushFace.attributes();
-        attributes.setSurfaceAttributes({.flags = originalFlags});
-        brushFace.setAttributes(attributes);
+        brushFace.setSurfaceAttributes({.flags = originalFlags});
       }
 
       evaluate(update, brushFace);
 
-      CHECK(brushFace.attributes().surfaceAttributes().flags == expectedFlags);
+      CHECK(brushFace.surfaceAttributes().flags == expectedFlags);
     }
 
     SECTION("Full evaluation")
@@ -1150,23 +1148,23 @@ TEST_CASE("UpdateBrushFaceAttributes")
         .color = RgbaB{1, 2, 3, 4},
       };
 
-      auto expectedAttributes = BrushFaceAttributes{};
-      expectedAttributes.setUvAttributes({
+      const auto expectedUvAttributes = UvAttributes{
         .offset = {2, 3},
         .scale = {4, 5},
         .rotation = 45.0f,
-      });
-      expectedAttributes.setSurfaceAttributes({
+      };
+      const auto expectedSurfaceAttributes = SurfaceAttributes{
         .contents = 0xFF,
         .flags = 0xFF,
         .value = 6.0f,
         .color = RgbaB{1, 2, 3, 4},
-      });
+      };
 
       evaluate(update, brushFace);
 
       CHECK(brushFace.materialName() == "other_material");
-      CHECK(brushFace.attributes() == expectedAttributes);
+      CHECK(brushFace.uvAttributes() == expectedUvAttributes);
+      CHECK(brushFace.surfaceAttributes() == expectedSurfaceAttributes);
     }
 
     SECTION("No evaluation")
@@ -1185,12 +1183,14 @@ TEST_CASE("UpdateBrushFaceAttributes")
       };
 
       const auto expectedMaterialName = brushFace.materialName();
-      const auto expectedAttributes = brushFace.attributes();
+      const auto expectedUvAttributes = brushFace.uvAttributes();
+      const auto expectedSurfaceAttributes = brushFace.surfaceAttributes();
 
       evaluate(update, brushFace);
 
       CHECK(brushFace.materialName() == expectedMaterialName);
-      CHECK(brushFace.attributes() == expectedAttributes);
+      CHECK(brushFace.uvAttributes() == expectedUvAttributes);
+      CHECK(brushFace.surfaceAttributes() == expectedSurfaceAttributes);
     }
   }
 }

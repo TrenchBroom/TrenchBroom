@@ -92,8 +92,7 @@ vm::vec2f getScaledTranslatedHandlePos(const UvViewHelper& helper, const vm::vec
 vm::vec2f getHandlePos(const UvViewHelper& helper, const vm::vec2i handle)
 {
   const auto toWorld = helper.face()->fromUvCoordSystemMatrix(
-    helper.face()->attributes().uvAttributes().offset,
-    helper.face()->attributes().uvAttributes().scale);
+    helper.face()->uvAttributes().offset, helper.face()->uvAttributes().scale);
   const auto toTex =
     helper.face()->toUvCoordSystemMatrix(vm::vec2f{0, 0}, vm::vec2f{1, 1});
 
@@ -217,7 +216,7 @@ public:
     const auto newHandleDistFaceCoords = newHandlePosSnapped - originHandlePosFaceCoords;
     const auto curHandleDistUvCoords = curHandlePosUvCoords - originHandlePosUvCoords;
 
-    auto newScale = m_helper.face()->attributes().uvAttributes().scale;
+    auto newScale = m_helper.face()->uvAttributes().scale;
     for (size_t i = 0; i < 2; ++i)
     {
       if (m_selector[i])
@@ -310,7 +309,7 @@ std::unique_ptr<GestureTracker> UvScaleTool::acceptMouseDrag(const InputState& i
     return nullptr;
   }
 
-  if (!m_helper.face()->attributes().valid())
+  if (!m_helper.face()->uvAttributes().valid())
   {
     return nullptr;
   }
@@ -338,7 +337,7 @@ void UvScaleTool::render(
 
   if (
     inputState.anyToolDragging() || !m_helper.valid()
-    || !m_helper.face()->attributes().valid())
+    || !m_helper.face()->uvAttributes().valid())
   {
     return;
   }

@@ -128,18 +128,17 @@ TEST_CASE("Map_Brushes")
 
       {
         const auto& firstFace = getFace(*brushNode, firstFaceIndex);
-        const auto& firstAttrs = firstFace.attributes();
         CHECK(firstFace.materialName() == "first");
-        CHECK(firstAttrs.uvAttributes().offset.x() == 32.0f);
-        CHECK(firstAttrs.uvAttributes().offset.y() == 64.0f);
-        CHECK(firstAttrs.uvAttributes().rotation == 90.0f);
-        CHECK(firstAttrs.uvAttributes().scale.x() == 2.0f);
-        CHECK(firstAttrs.uvAttributes().scale.y() == 4.0f);
-        CHECK(firstAttrs.surfaceAttributes().flags == 63u);
-        CHECK(firstAttrs.surfaceAttributes().contents == 12u);
-        CHECK(firstAttrs.surfaceAttributes().value == 3.14f);
+        CHECK(firstFace.uvAttributes().offset.x() == 32.0f);
+        CHECK(firstFace.uvAttributes().offset.y() == 64.0f);
+        CHECK(firstFace.uvAttributes().rotation == 90.0f);
+        CHECK(firstFace.uvAttributes().scale.x() == 2.0f);
+        CHECK(firstFace.uvAttributes().scale.y() == 4.0f);
+        CHECK(firstFace.surfaceAttributes().flags == 63u);
+        CHECK(firstFace.surfaceAttributes().contents == 12u);
+        CHECK(firstFace.surfaceAttributes().value == 3.14f);
         CHECK(
-          firstAttrs.surfaceAttributes().color == Color{RgbaF{1.0f, 1.0f, 1.0f, 1.0f}});
+          firstFace.surfaceAttributes().color == Color{RgbaF{1.0f, 1.0f, 1.0f, 1.0f}});
       }
 
       deselectAll(map);
@@ -162,18 +161,17 @@ TEST_CASE("Map_Brushes")
 
       {
         const auto& secondFace = getFace(*brushNode, secondFaceIndex);
-        const auto& secondAttrs = secondFace.attributes();
         CHECK(secondFace.materialName() == "second");
-        CHECK(secondAttrs.uvAttributes().offset.x() == 16.0f);
-        CHECK(secondAttrs.uvAttributes().offset.y() == 48.0f);
-        CHECK(secondAttrs.uvAttributes().rotation == 45.0f);
-        CHECK(secondAttrs.uvAttributes().scale.x() == 1.0f);
-        CHECK(secondAttrs.uvAttributes().scale.y() == 1.0f);
-        CHECK(secondAttrs.surfaceAttributes().flags == 18u);
-        CHECK(secondAttrs.surfaceAttributes().contents == 2048u);
-        CHECK(secondAttrs.surfaceAttributes().value == 1.0f);
+        CHECK(secondFace.uvAttributes().offset.x() == 16.0f);
+        CHECK(secondFace.uvAttributes().offset.y() == 48.0f);
+        CHECK(secondFace.uvAttributes().rotation == 45.0f);
+        CHECK(secondFace.uvAttributes().scale.x() == 1.0f);
+        CHECK(secondFace.uvAttributes().scale.y() == 1.0f);
+        CHECK(secondFace.surfaceAttributes().flags == 18u);
+        CHECK(secondFace.surfaceAttributes().contents == 2048u);
+        CHECK(secondFace.surfaceAttributes().value == 1.0f);
         CHECK(
-          secondAttrs.surfaceAttributes().color == Color{RgbaF{0.5f, 0.5f, 0.5f, 0.5f}});
+          secondFace.surfaceAttributes().color == Color{RgbaF{0.5f, 0.5f, 0.5f, 0.5f}});
       }
 
       deselectAll(map);
@@ -189,7 +187,7 @@ TEST_CASE("Map_Brushes")
         MatchesBrushFaceAttributes(getFace(*brushNode, secondFaceIndex)));
 
       auto thirdFaceContentsFlags =
-        getFace(*brushNode, thirdFaceIndex).attributes().surfaceAttributes().contents;
+        getFace(*brushNode, thirdFaceIndex).surfaceAttributes().contents;
 
       deselectAll(map);
       selectBrushFaces(map, {{brushNode, secondFaceIndex}});
@@ -211,31 +209,23 @@ TEST_CASE("Map_Brushes")
       {
         const auto& firstFace = getFace(*brushNode, firstFaceIndex);
         const auto& newThirdFace = getFace(*brushNode, thirdFaceIndex);
-        const auto& firstAttrs = firstFace.attributes();
-        const auto& newThirdAttrs = newThirdFace.attributes();
         CHECK(newThirdFace.materialName() == firstFace.materialName());
         CHECK(
-          newThirdAttrs.uvAttributes().offset.x()
-          == firstAttrs.uvAttributes().offset.x());
+          newThirdFace.uvAttributes().offset.x() == firstFace.uvAttributes().offset.x());
         CHECK(
-          newThirdAttrs.uvAttributes().offset.y()
-          == firstAttrs.uvAttributes().offset.y());
+          newThirdFace.uvAttributes().offset.y() == firstFace.uvAttributes().offset.y());
+        CHECK(newThirdFace.uvAttributes().rotation == firstFace.uvAttributes().rotation);
         CHECK(
-          newThirdAttrs.uvAttributes().rotation == firstAttrs.uvAttributes().rotation);
+          newThirdFace.uvAttributes().scale.x() == firstFace.uvAttributes().scale.x());
         CHECK(
-          newThirdAttrs.uvAttributes().scale.x() == firstAttrs.uvAttributes().scale.x());
+          newThirdFace.uvAttributes().scale.y() == firstFace.uvAttributes().scale.y());
         CHECK(
-          newThirdAttrs.uvAttributes().scale.y() == firstAttrs.uvAttributes().scale.y());
+          newThirdFace.surfaceAttributes().flags == firstFace.surfaceAttributes().flags);
+        CHECK(newThirdFace.surfaceAttributes().contents == thirdFaceContentsFlags);
         CHECK(
-          newThirdAttrs.surfaceAttributes().flags
-          == firstAttrs.surfaceAttributes().flags);
-        CHECK(newThirdAttrs.surfaceAttributes().contents == thirdFaceContentsFlags);
+          newThirdFace.surfaceAttributes().value == firstFace.surfaceAttributes().value);
         CHECK(
-          newThirdAttrs.surfaceAttributes().value
-          == firstAttrs.surfaceAttributes().value);
-        CHECK(
-          newThirdAttrs.surfaceAttributes().color
-          == firstAttrs.surfaceAttributes().color);
+          newThirdFace.surfaceAttributes().color == firstFace.surfaceAttributes().color);
       }
     }
 
@@ -284,7 +274,7 @@ TEST_CASE("Map_Brushes")
       auto* lavabrush =
         dynamic_cast<BrushNode*>(map.editorContext().currentLayer()->children().at(0));
       REQUIRE(lavabrush);
-      CHECK(getFace(*lavabrush, 0).attributes().surfaceAttributes().empty());
+      CHECK(getFace(*lavabrush, 0).surfaceAttributes().empty());
       CHECK(
         getFace(*lavabrush, 0).resolvedSurfaceContents()
         == LavaFlag); // comes from the .wal texture
@@ -292,7 +282,7 @@ TEST_CASE("Map_Brushes")
       auto* waterbrush =
         dynamic_cast<BrushNode*>(map.editorContext().currentLayer()->children().at(1));
       REQUIRE(waterbrush);
-      CHECK(getFace(*waterbrush, 0).attributes().surfaceAttributes().empty());
+      CHECK(getFace(*waterbrush, 0).surfaceAttributes().empty());
       CHECK(
         getFace(*waterbrush, 0).resolvedSurfaceContents()
         == WaterFlag); // comes from the .wal texture
@@ -310,7 +300,7 @@ TEST_CASE("Map_Brushes")
           // Note: the contents flag wasn't transferred, but because lavabrushes's
           // content flag was "Inherit", it stays "Inherit" and now inherits the water
           // contents
-          CHECK(getFace(*lavabrush, 0).attributes().surfaceAttributes().empty());
+          CHECK(getFace(*lavabrush, 0).surfaceAttributes().empty());
           CHECK(getFace(*lavabrush, 0).resolvedSurfaceContents() == WaterFlag);
           CHECK(getFace(*lavabrush, 0).materialName() == "watertest");
         }
@@ -324,7 +314,7 @@ TEST_CASE("Map_Brushes")
 
         CHECK(setBrushFaceAttributes(map, {.surfaceContents = SetFlagBits{WaterFlag}}));
 
-        CHECK(!getFace(*lavabrush, 0).attributes().surfaceAttributes().empty());
+        CHECK(!getFace(*lavabrush, 0).surfaceAttributes().empty());
         CHECK(getFace(*lavabrush, 0).resolvedSurfaceContents() == (WaterFlag | LavaFlag));
       }
     }
@@ -337,12 +327,12 @@ TEST_CASE("Map_Brushes")
       addNodes(map, {{parentForNodes(map), {brushNode}}});
 
       selectNodes(map, {brushNode});
-      CHECK(getFace(*brushNode, 0).attributes().surfaceAttributes().empty());
+      CHECK(getFace(*brushNode, 0).surfaceAttributes().empty());
 
       setBrushFaceAttributes(map, {.materialName = "something_else"});
 
       CHECK(getFace(*brushNode, 0).materialName() == "something_else");
-      CHECK(getFace(*brushNode, 0).attributes().surfaceAttributes().empty());
+      CHECK(getFace(*brushNode, 0).surfaceAttributes().empty());
     }
 
     SECTION("Reset attributes to defaults")
@@ -370,21 +360,18 @@ TEST_CASE("Map_Brushes")
         setBrushFaceAttributes(map, {.rotation = AddValue{2.0f}});
       }
 
-      REQUIRE(
-        getFace(*brushNode, faceIndex).attributes().uvAttributes().rotation == 10.0f);
+      REQUIRE(getFace(*brushNode, faceIndex).uvAttributes().rotation == 10.0f);
 
       setBrushFaceAttributes(map, resetAll(defaultUvAttrs));
 
+      CHECK(getFace(*brushNode, faceIndex).uvAttributes().offset.x() == 0.0f);
+      CHECK(getFace(*brushNode, faceIndex).uvAttributes().offset.y() == 0.0f);
+      CHECK(getFace(*brushNode, faceIndex).uvAttributes().rotation == 0.0f);
       CHECK(
-        getFace(*brushNode, faceIndex).attributes().uvAttributes().offset.x() == 0.0f);
-      CHECK(
-        getFace(*brushNode, faceIndex).attributes().uvAttributes().offset.y() == 0.0f);
-      CHECK(getFace(*brushNode, faceIndex).attributes().uvAttributes().rotation == 0.0f);
-      CHECK(
-        getFace(*brushNode, faceIndex).attributes().uvAttributes().scale.x()
+        getFace(*brushNode, faceIndex).uvAttributes().scale.x()
         == defaultUvAttrs.scale.x());
       CHECK(
-        getFace(*brushNode, faceIndex).attributes().uvAttributes().scale.y()
+        getFace(*brushNode, faceIndex).uvAttributes().scale.y()
         == defaultUvAttrs.scale.y());
 
       CHECK(getFace(*brushNode, faceIndex).uAxis() == initialX);
@@ -470,16 +457,15 @@ TEST_CASE("Map_Brushes")
 
     const auto& sourceFace = getFace(*brushNode, *sourceFaceIndex);
     const auto sourceSnapshot = sourceFace.takeUvCoordSystemSnapshot();
-    const auto sourceUvAttributes = sourceFace.attributes().uvAttributes();
+    const auto sourceUvAttributes = sourceFace.uvAttributes();
     const auto sourcePlane = sourceFace.boundary();
 
     CHECK(copyUv(
       map, *sourceSnapshot, sourceUvAttributes, sourcePlane, WrapStyle::Projection));
 
-    auto expectedUvAttributes = originalTargetFace.attributes().uvAttributes();
+    auto expectedUvAttributes = originalTargetFace.uvAttributes();
     expectedUvAttributes.offset = {0.36245f, 0.501574f};
-    const auto& expectedSurfaceAttributes =
-      originalTargetFace.attributes().surfaceAttributes();
+    const auto& expectedSurfaceAttributes = originalTargetFace.surfaceAttributes();
 
     const auto& targetFace = getFace(*brushNode, *targetFaceIndex);
     CHECK_THAT(
@@ -971,8 +957,7 @@ TEST_CASE("Map_Brushes")
     const auto invariantVertex = anchorVertex(expectedFace, UvAxis::u, UvSign::minus);
     const auto previousUvCoords = vm::vec2f{
       expectedFace.toUvCoordSystemMatrix(
-        expectedFace.attributes().uvAttributes().offset,
-        expectedFace.attributes().uvAttributes().scale)
+        expectedFace.uvAttributes().offset, expectedFace.uvAttributes().scale)
       * invariantVertex};
 
     evaluate(
@@ -980,8 +965,7 @@ TEST_CASE("Map_Brushes")
 
     const auto newUvCoords = vm::vec2f{
       expectedFace.toUvCoordSystemMatrix(
-        expectedFace.attributes().uvAttributes().offset,
-        expectedFace.attributes().uvAttributes().scale)
+        expectedFace.uvAttributes().offset, expectedFace.uvAttributes().scale)
       * invariantVertex};
     const auto delta = previousUvCoords - newUvCoords;
 
@@ -991,6 +975,7 @@ TEST_CASE("Map_Brushes")
         .yOffset = AddValue{delta.y()},
       },
       expectedFace);
+
     const auto expectedUAxis = expectedFace.uAxis();
     const auto expectedVAxis = expectedFace.vAxis();
 
@@ -1187,28 +1172,32 @@ TEST_CASE("Map_Brushes")
           .yScale = SetValue{32.0f},
         }));
 
-      const auto originalFrontAttributes = getFace(*brushNode, iFront).attributes();
-      const auto originalRightAttributes = getFace(*brushNode, iRight).attributes();
+      const auto originalFrontFace = getFace(*brushNode, iFront);
+      const auto originalRightFace = getFace(*brushNode, iRight);
 
       deselectAll(map);
       selectBrushFaces(map, {{brushNode, iFront}, {brushNode, iRight}});
       autoFitUv(map);
 
-      const auto modifiedFrontAttributes = getFace(*brushNode, iFront).attributes();
-      const auto modifiedRightAttributes = getFace(*brushNode, iRight).attributes();
+      const auto modifiedFrontFace = getFace(*brushNode, iFront);
+      const auto modifiedRightFace = getFace(*brushNode, iRight);
 
-      REQUIRE(modifiedFrontAttributes != originalFrontAttributes);
-      REQUIRE(modifiedRightAttributes != originalRightAttributes);
+      REQUIRE_THAT(modifiedFrontFace, !MatchesBrushFaceAttributes(originalFrontFace));
+      REQUIRE_THAT(modifiedRightFace, !MatchesBrushFaceAttributes(originalRightFace));
 
       map.undoCommand();
 
-      REQUIRE(getFace(*brushNode, iFront).attributes() == originalFrontAttributes);
-      REQUIRE(getFace(*brushNode, iRight).attributes() == originalRightAttributes);
+      REQUIRE_THAT(
+        getFace(*brushNode, iFront), MatchesBrushFaceAttributes(originalFrontFace));
+      REQUIRE_THAT(
+        getFace(*brushNode, iRight), MatchesBrushFaceAttributes(originalRightFace));
 
       map.redoCommand();
 
-      REQUIRE(getFace(*brushNode, iFront).attributes() == modifiedFrontAttributes);
-      REQUIRE(getFace(*brushNode, iRight).attributes() == modifiedRightAttributes);
+      REQUIRE_THAT(
+        getFace(*brushNode, iFront), MatchesBrushFaceAttributes(modifiedFrontFace));
+      REQUIRE_THAT(
+        getFace(*brushNode, iRight), MatchesBrushFaceAttributes(modifiedRightFace));
     }
   }
 }

@@ -465,18 +465,14 @@ TEST_CASE("Map_TagManagement")
         std::unique_ptr<BrushNode>{createBrushNode(map, "asdf", [](auto& b) {
           for (auto& face : b.faces())
           {
-            auto attributes = face.attributes();
-            attributes.setSurfaceAttributes({.contents = 1});
-            face.setAttributes(attributes);
+            face.setSurfaceAttributes({.contents = 1});
           }
         })};
       auto nonMatchingBrushNode =
         std::unique_ptr<BrushNode>{createBrushNode(map, "asdf", [](auto& b) {
           for (auto& face : b.faces())
           {
-            auto attributes = face.attributes();
-            attributes.setSurfaceAttributes({.contents = 2});
-            face.setAttributes(attributes);
+            face.setSurfaceAttributes({.contents = 2});
           }
         })};
 
@@ -515,9 +511,7 @@ TEST_CASE("Map_TagManagement")
       auto* matchingBrushNode = createBrushNode(map, "asdf", [](auto& b) {
         for (auto& face : b.faces())
         {
-          auto attributes = face.attributes();
-          attributes.setSurfaceAttributes({.contents = 1});
-          face.setAttributes(attributes);
+          face.setSurfaceAttributes({.contents = 1});
         }
       });
 
@@ -546,18 +540,14 @@ TEST_CASE("Map_TagManagement")
         std::unique_ptr<BrushNode>{createBrushNode(map, "asdf", [](auto& b) {
           for (auto& face : b.faces())
           {
-            auto attributes = face.attributes();
-            attributes.setSurfaceAttributes({.flags = 1});
-            face.setAttributes(attributes);
+            face.setSurfaceAttributes({.flags = 1});
           }
         })};
       auto nonMatchingBrushNode =
         std::unique_ptr<BrushNode>{createBrushNode(map, "asdf", [](auto& b) {
           for (auto& face : b.faces())
           {
-            auto attributes = face.attributes();
-            attributes.setSurfaceAttributes({.flags = 2});
-            face.setAttributes(attributes);
+            face.setSurfaceAttributes({.flags = 2});
           }
         })};
 
@@ -596,9 +586,7 @@ TEST_CASE("Map_TagManagement")
       auto* matchingBrushNode = createBrushNode(map, "asdf", [](auto& b) {
         for (auto& face : b.faces())
         {
-          auto attributes = face.attributes();
-          attributes.setSurfaceAttributes({.flags = 1});
-          face.setAttributes(attributes);
+          face.setSurfaceAttributes({.flags = 1});
         }
       });
 

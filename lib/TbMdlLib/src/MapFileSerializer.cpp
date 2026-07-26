@@ -98,7 +98,7 @@ protected:
     const auto& materialName =
       face.materialName().empty() ? BrushFace::NoMaterialName : face.materialName();
 
-    const auto& uvAttributes = face.attributes().uvAttributes();
+    const auto& uvAttributes = face.uvAttributes();
 
     fmt::format_to(
       std::ostreambuf_iterator<char>{stream},
@@ -118,7 +118,7 @@ protected:
       face.materialName().empty() ? BrushFace::NoMaterialName : face.materialName();
     const auto uAxis = face.uAxis();
     const auto vAxis = face.vAxis();
-    const auto& uvAttributes = face.attributes().uvAttributes();
+    const auto& uvAttributes = face.uvAttributes();
 
     fmt::format_to(
       std::ostreambuf_iterator<char>{stream},
@@ -156,7 +156,7 @@ private:
     writeFacePoints(stream, face);
     writeMaterialInfo(stream, face);
 
-    if (!face.attributes().surfaceAttributes().empty())
+    if (!face.surfaceAttributes().empty())
     {
       writeSurfaceAttributes(stream, face);
     }
@@ -190,7 +190,7 @@ private:
     writeFacePoints(stream, face);
     writeValveMaterialInfo(stream, face);
 
-    if (!face.attributes().surfaceAttributes().empty())
+    if (!face.surfaceAttributes().empty())
     {
       writeSurfaceAttributes(stream, face);
     }
@@ -213,11 +213,11 @@ private:
     writeFacePoints(stream, face);
     writeMaterialInfo(stream, face);
 
-    if (!face.attributes().surfaceAttributes().empty())
+    if (!face.surfaceAttributes().empty())
     {
       writeSurfaceAttributes(stream, face);
     }
-    if (face.attributes().surfaceAttributes().color)
+    if (face.surfaceAttributes().color)
     {
       writeSurfaceColor(stream, face);
     }

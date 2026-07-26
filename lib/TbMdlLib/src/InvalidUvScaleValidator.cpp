@@ -82,7 +82,7 @@ void InvalidUvScaleValidator::doValidate(
   for (size_t i = 0u; i < brush.faceCount(); ++i)
   {
     const auto& face = brush.face(i);
-    if (!face.attributes().valid())
+    if (!face.uvAttributes().valid())
     {
       issues.push_back(std::make_unique<BrushFaceIssue>(
         Type, brushNode, i, "Face has invalid UV scale."));

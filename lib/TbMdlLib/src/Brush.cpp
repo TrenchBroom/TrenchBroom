@@ -336,15 +336,13 @@ void Brush::cloneFaceAttributesFrom(const Brush& brush)
     {
       const auto& source = brush.face(*sourceIndex);
       destination.setMaterialName(source.materialName());
-      destination.setAttributes(source.attributes());
+      destination.setUvAttributes(source.uvAttributes());
+      destination.setSurfaceAttributes(source.surfaceAttributes());
 
       if (auto snapshot = source.takeUvCoordSystemSnapshot())
       {
         destination.copyUvCoordSystemFromFace(
-          *snapshot,
-          source.attributes().uvAttributes(),
-          source.boundary(),
-          WrapStyle::Projection);
+          *snapshot, source.uvAttributes(), source.boundary(), WrapStyle::Projection);
       }
     }
   }
@@ -366,15 +364,13 @@ void Brush::cloneFaceAttributesFrom(const std::vector<const Brush*>& brushes)
     if (const auto* bestMatch = findBestMatchingFace(face, candidates))
     {
       face.setMaterialName(bestMatch->materialName());
-      face.setAttributes(bestMatch->attributes());
+      face.setUvAttributes(bestMatch->uvAttributes());
+      face.setSurfaceAttributes(bestMatch->surfaceAttributes());
 
       if (auto snapshot = bestMatch->takeUvCoordSystemSnapshot())
       {
         face.copyUvCoordSystemFromFace(
-          *snapshot,
-          bestMatch->attributes().uvAttributes(),
-          face.boundary(),
-          WrapStyle::Projection);
+          *snapshot, bestMatch->uvAttributes(), face.boundary(), WrapStyle::Projection);
       }
     }
   }
@@ -389,13 +385,14 @@ void Brush::cloneInvertedFaceAttributesFrom(const Brush& brush)
       const auto& source = brush.face(*sourceIndex);
       // Todo: invert the face attributes?
       destination.setMaterialName(source.materialName());
-      destination.setAttributes(source.attributes());
+      destination.setUvAttributes(source.uvAttributes());
+      destination.setSurfaceAttributes(source.surfaceAttributes());
 
       if (auto snapshot = source.takeUvCoordSystemSnapshot())
       {
         destination.copyUvCoordSystemFromFace(
           *snapshot,
-          source.attributes().uvAttributes(),
+          source.uvAttributes(),
           destination.boundary(),
           WrapStyle::Projection);
       }
@@ -1092,16 +1089,14 @@ void Brush::applyUvLock(
     leftClone.transform(*M, true) | kdl::transform([&]() {
       auto snapshot =
         std::unique_ptr<UvCoordSystemSnapshot>{leftClone.takeUvCoordSystemSnapshot()};
-      rightFace.setAttributes(leftClone.attributes());
+      rightFace.setUvAttributes(leftClone.uvAttributes());
+      rightFace.setSurfaceAttributes(leftClone.surfaceAttributes());
       if (snapshot)
       {
         // Note, the wrap style doesn't matter because the source and destination faces
         // should have the same plane
         rightFace.copyUvCoordSystemFromFace(
-          *snapshot,
-          leftClone.attributes().uvAttributes(),
-          leftClone.boundary(),
-          WrapStyle::Rotation);
+          *snapshot, leftClone.uvAttributes(), leftClone.boundary(), WrapStyle::Rotation);
       }
       rightFace.resetUvCoordSystemCache();
     }) | kdl::transform_error([](auto) {

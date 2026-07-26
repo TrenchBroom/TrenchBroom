@@ -250,11 +250,11 @@ TEST_CASE("WorldReader")
       vm::vec3d{64.0, 0.0, -16.0});
     CHECK(face1 != nullptr);
     CHECK(face1->materialName() == "tex1");
-    CHECK(face1->attributes().uvAttributes().offset.x() == 1.0);
-    CHECK(face1->attributes().uvAttributes().offset.y() == 2.0);
-    CHECK(face1->attributes().uvAttributes().rotation == 3.0);
-    CHECK(face1->attributes().uvAttributes().scale.x() == 4.0);
-    CHECK(face1->attributes().uvAttributes().scale.y() == 5.0);
+    CHECK(face1->uvAttributes().offset.x() == 1.0);
+    CHECK(face1->uvAttributes().offset.y() == 2.0);
+    CHECK(face1->uvAttributes().rotation == 3.0);
+    CHECK(face1->uvAttributes().scale.x() == 4.0);
+    CHECK(face1->uvAttributes().scale.y() == 5.0);
 
     CHECK(
       findFaceByPoints(
@@ -329,11 +329,11 @@ TEST_CASE("WorldReader")
       vm::vec3d{0.0, 0.0, 0.0},
       vm::vec3d{64.0, 0.0, -16.0});
     CHECK(face != nullptr);
-    CHECK(face->attributes().uvAttributes().offset.x() == 22.0f);
-    CHECK(face->attributes().uvAttributes().offset.x() == 22.0f);
-    CHECK(face->attributes().uvAttributes().rotation == 56.2f);
-    CHECK(face->attributes().uvAttributes().scale.x() == 1.03433f);
-    CHECK(face->attributes().uvAttributes().scale.y() == -0.55f);
+    CHECK(face->uvAttributes().offset.x() == 22.0f);
+    CHECK(face->uvAttributes().offset.x() == 22.0f);
+    CHECK(face->uvAttributes().rotation == 56.2f);
+    CHECK(face->uvAttributes().scale.x() == 1.03433f);
+    CHECK(face->uvAttributes().scale.y() == -0.55f);
   }
 
   SECTION("Curly brace in material name")
@@ -473,10 +473,10 @@ TEST_CASE("WorldReader")
 
       auto& face = brush->brush().face(*faceIndex);
 
-      CHECK(!face.attributes().surfaceAttributes().empty());
-      CHECK(face.attributes().surfaceAttributes().contents == 8);
-      CHECK(face.attributes().surfaceAttributes().flags == 9);
-      CHECK(face.attributes().surfaceAttributes().value == 700.0f);
+      CHECK(!face.surfaceAttributes().empty());
+      CHECK(face.surfaceAttributes().contents == 8);
+      CHECK(face.surfaceAttributes().flags == 9);
+      CHECK(face.surfaceAttributes().value == 700.0f);
     }
 
     SECTION("surface attributes for face attribsOmitted")
@@ -486,10 +486,10 @@ TEST_CASE("WorldReader")
 
       auto& face = brush->brush().face(*faceIndex);
 
-      CHECK(face.attributes().surfaceAttributes().empty());
-      CHECK(!face.attributes().surfaceAttributes().contents);
-      CHECK(!face.attributes().surfaceAttributes().flags);
-      CHECK(!face.attributes().surfaceAttributes().value);
+      CHECK(face.surfaceAttributes().empty());
+      CHECK(!face.surfaceAttributes().contents);
+      CHECK(!face.surfaceAttributes().flags);
+      CHECK(!face.surfaceAttributes().value);
     }
 
     SECTION("surface attributes for face attribsExplicitlyZero")
@@ -499,10 +499,10 @@ TEST_CASE("WorldReader")
 
       auto& face = brush->brush().face(*faceIndex);
 
-      CHECK(!face.attributes().surfaceAttributes().empty());
-      CHECK(face.attributes().surfaceAttributes().contents == 0);
-      CHECK(face.attributes().surfaceAttributes().flags == 0);
-      CHECK(face.attributes().surfaceAttributes().value == 0.0f);
+      CHECK(!face.surfaceAttributes().empty());
+      CHECK(face.surfaceAttributes().contents == 0);
+      CHECK(face.surfaceAttributes().flags == 0);
+      CHECK(face.surfaceAttributes().value == 0.0f);
     }
   }
 
@@ -603,16 +603,13 @@ TEST_CASE("WorldReader")
     REQUIRE(b_rc_v16w_index);
     REQUIRE(c_mf_v3cww_index);
 
+    CHECK(brush.face(*c_mf_v3cw_index).surfaceAttributes().color == Color{RgbB{5, 6, 7}});
+    CHECK(brush.face(*b_rc_v16w_index).surfaceAttributes().contents == 1);
+    CHECK(brush.face(*b_rc_v16w_index).surfaceAttributes().flags == 2);
+    CHECK(brush.face(*b_rc_v16w_index).surfaceAttributes().value == 3.0);
     CHECK(
-      brush.face(*c_mf_v3cw_index).attributes().surfaceAttributes().color
-      == Color{RgbB{5, 6, 7}});
-    CHECK(brush.face(*b_rc_v16w_index).attributes().surfaceAttributes().contents == 1);
-    CHECK(brush.face(*b_rc_v16w_index).attributes().surfaceAttributes().flags == 2);
-    CHECK(brush.face(*b_rc_v16w_index).attributes().surfaceAttributes().value == 3.0);
-    CHECK(
-      brush.face(*b_rc_v16w_index).attributes().surfaceAttributes().color
-      == Color{RgbB{8, 9, 10}});
-    CHECK_FALSE(brush.face(*c_mf_v3cww_index).attributes().surfaceAttributes().color);
+      brush.face(*b_rc_v16w_index).surfaceAttributes().color == Color{RgbB{8, 9, 10}});
+    CHECK_FALSE(brush.face(*c_mf_v3cww_index).surfaceAttributes().color);
   }
 
   SECTION("Invalid Daikatana surface color")
@@ -648,7 +645,7 @@ TEST_CASE("WorldReader")
     const auto c_mf_v3cw_index = brush.findFace("rtz/c_mf_v3cw");
     REQUIRE(c_mf_v3cw_index);
 
-    CHECK(!brush.face(*c_mf_v3cw_index).attributes().surfaceAttributes().color);
+    CHECK(!brush.face(*c_mf_v3cw_index).surfaceAttributes().color);
   }
 
   SECTION("Daikatana map header")

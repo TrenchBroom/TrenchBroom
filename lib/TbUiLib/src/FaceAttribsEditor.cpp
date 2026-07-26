@@ -793,8 +793,8 @@ void FaceAttribsEditor::updateControls()
 
     const auto& firstFace = faceHandles[0].face();
     const auto& materialName = firstFace.materialName();
-    const auto& firstUvAttributes = firstFace.attributes().uvAttributes();
-    const auto& firstSurfaceAttributes = firstFace.attributes().surfaceAttributes();
+    const auto& firstUvAttributes = firstFace.uvAttributes();
+    const auto& firstSurfaceAttributes = firstFace.surfaceAttributes();
     const auto xOffset = firstUvAttributes.offset.x();
     const auto yOffset = firstUvAttributes.offset.y();
     const auto rotation = firstUvAttributes.rotation;
@@ -815,8 +815,8 @@ void FaceAttribsEditor::updateControls()
     {
       const auto& face = faceHandles[i].face();
       materialMulti |= (materialName != face.materialName());
-      const auto& uvAttributes = face.attributes().uvAttributes();
-      const auto& surfaceAttributes = face.attributes().surfaceAttributes();
+      const auto& uvAttributes = face.uvAttributes();
+      const auto& surfaceAttributes = face.surfaceAttributes();
       xOffsetMulti |= (xOffset != uvAttributes.offset.x());
       yOffsetMulti |= (yOffset != uvAttributes.offset.y());
       rotationMulti |= (rotation != uvAttributes.rotation);

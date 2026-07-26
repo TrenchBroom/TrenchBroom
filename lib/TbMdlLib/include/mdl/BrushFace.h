@@ -22,7 +22,6 @@
 #include "base/Color.h"
 #include "base/Result.h"
 #include "mdl/AssetReference.h"
-#include "mdl/BrushFaceAttributes.h"
 #include "mdl/BrushGeometry.h"
 #include "mdl/SurfaceAttributes.h"
 #include "mdl/Tag.h"
@@ -96,7 +95,8 @@ private:
   vm::plane3d m_boundary;
 
   std::string m_materialName;
-  BrushFaceAttributes m_attributes;
+  UvAttributes m_uvAttributes;
+  SurfaceAttributes m_surfaceAttributes;
 
   AssetReference<gl::Material> m_materialReference;
   std::unique_ptr<UvCoordSystem> m_uvCoordSystem;
@@ -119,7 +119,13 @@ public:
   ~BrushFace() override;
 
   kdl_reflect_decl(
-    BrushFace, m_points, m_boundary, m_materialName, m_attributes, m_materialReference);
+    BrushFace,
+    m_points,
+    m_boundary,
+    m_materialName,
+    m_uvAttributes,
+    m_surfaceAttributes,
+    m_materialReference);
 
   /**
    * Creates a face using TB's default UV projection for the given map format and the
@@ -217,8 +223,12 @@ public:
   const std::string& materialName() const;
   bool setMaterialName(std::string materialName);
 
-  const BrushFaceAttributes& attributes() const;
-  void setAttributes(const BrushFaceAttributes& attributes);
+  const UvAttributes& uvAttributes() const;
+  void setUvAttributes(const UvAttributes& uvAttributes);
+
+  const SurfaceAttributes& surfaceAttributes() const;
+  void setSurfaceAttributes(const SurfaceAttributes& surfaceAttributes);
+
   bool setAttributes(const BrushFace& other);
 
   int resolvedSurfaceContents() const;
