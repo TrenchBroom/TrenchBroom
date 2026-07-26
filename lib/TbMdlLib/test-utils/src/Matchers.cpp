@@ -21,6 +21,7 @@
 
 #include "mdl/BezierPatch.h"
 #include "mdl/Brush.h"
+#include "mdl/BrushFace.h"
 #include "mdl/BrushNode.h"
 #include "mdl/Entity.h"
 #include "mdl/EntityNode.h"
@@ -189,27 +190,54 @@ NodeMatcher MatchesNode(const Node& expected)
   return NodeMatcher{expected};
 }
 
-BrushFaceAttributesMatcher::BrushFaceAttributesMatcher(BrushFaceAttributes expected)
-  : m_expected{std::move(expected)}
+BrushFaceAttributesMatcher::BrushFaceAttributesMatcher(
+  std::string expectedMaterialName,
+  UvAttributes expectedUvAttributes,
+  SurfaceAttributes expectedSurfaceAttributes)
+  : m_expectedMaterialName{std::move(expectedMaterialName)}
+  , m_expectedUvAttributes{std::move(expectedUvAttributes)}
+  , m_expectedSurfaceAttributes{std::move(expectedSurfaceAttributes)}
 {
 }
 
-bool BrushFaceAttributesMatcher::match(const BrushFaceAttributes& in) const
+bool BrushFaceAttributesMatcher::match(const BrushFace& in) const
 {
-  return in.uvAttributes().offset == vm::approx{m_expected.uvAttributes().offset}
-         && in.uvAttributes().scale == vm::approx{m_expected.uvAttributes().scale}
-         && in.uvAttributes().rotation == vm::approx{m_expected.uvAttributes().rotation}
-         && in.surfaceAttributes() == m_expected.surfaceAttributes();
+  return in.materialName() == m_expectedMaterialName
+         && in.attributes().uvAttributes().offset
+              == vm::approx{m_expectedUvAttributes.offset}
+         && in.attributes().uvAttributes().scale
+              == vm::approx{m_expectedUvAttributes.scale}
+         && in.attributes().uvAttributes().rotation
+              == vm::approx{m_expectedUvAttributes.rotation}
+         && in.attributes().surfaceAttributes() == m_expectedSurfaceAttributes;
 }
 
 std::string BrushFaceAttributesMatcher::describe() const
 {
-  return fmt::format("{}", fmt::streamed(m_expected));
+  return fmt::format(
+    "{}, {} and {}",
+    m_expectedMaterialName,
+    fmt::streamed(m_expectedUvAttributes),
+    fmt::streamed(m_expectedSurfaceAttributes));
 }
 
-BrushFaceAttributesMatcher MatchesBrushFaceAttributes(BrushFaceAttributes expected)
+BrushFaceAttributesMatcher MatchesBrushFaceAttributes(
+  std::string expectedMaterialName,
+  UvAttributes expectedUvAttributes,
+  SurfaceAttributes expectedSurfaceAttributes)
 {
-  return BrushFaceAttributesMatcher{std::move(expected)};
+  return BrushFaceAttributesMatcher{
+    std::move(expectedMaterialName),
+    std::move(expectedUvAttributes),
+    std::move(expectedSurfaceAttributes)};
+}
+
+BrushFaceAttributesMatcher MatchesBrushFaceAttributes(const BrushFace& expected)
+{
+  return BrushFaceAttributesMatcher{
+    expected.materialName(),
+    expected.attributes().uvAttributes(),
+    expected.attributes().surfaceAttributes()};
 }
 
 UpdateBrushFaceAttributesMatcher::UpdateBrushFaceAttributesMatcher(
