@@ -460,7 +460,8 @@ TEST_CASE("GameConfigParser")
              "Brushes with this flag allow a player to move up and down a vertical "
              "surface",
              1 << 29}}},
-          mdl::BrushFaceAttributes{}},
+          mdl::UvAttributes{},
+          mdl::SurfaceAttributes{}},
         {
           mdl::SmartTag{
             "Trigger",
@@ -714,18 +715,17 @@ TEST_CASE("GameConfigParser")
 }
 )%";
 
-    mdl::BrushFaceAttributes expectedBrushFaceAttributes;
-    expectedBrushFaceAttributes.setUvAttributes({
+    const auto expectedUvAttributes = mdl::UvAttributes{
       .offset = {0.0f, 0.0f},
       .scale = {0.5f, 0.5f},
       .rotation = 0.0f,
-    });
-    expectedBrushFaceAttributes.setSurfaceAttributes({
+    };
+    const auto expectedSurfaceAttributes = mdl::SurfaceAttributes{
       .contents = 1 << 0,
       .flags = 1 << 1,
       .value = 0.0f,
       .color = RgbB(0, 128, 255),
-    });
+    };
 
     CHECK(
       parseGameConfig(config)
@@ -802,7 +802,8 @@ TEST_CASE("GameConfigParser")
              "Brushes with this flag allow a player to move up and down a vertical "
              "surface",
              1 << 29}}},
-          expectedBrushFaceAttributes},
+          expectedUvAttributes,
+          expectedSurfaceAttributes},
         {
           mdl::SmartTag{
             "Trigger",

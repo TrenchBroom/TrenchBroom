@@ -347,11 +347,11 @@ TEST_CASE("Map_Brushes")
 
     SECTION("Reset attributes to defaults")
     {
-      auto defaultFaceAttrs = BrushFaceAttributes{};
-      defaultFaceAttrs.setUvAttributes({.scale = {0.5f, 2.0f}});
+      const auto defaultUvAttrs = UvAttributes{.scale = {0.5f, 2.0f}};
 
       auto fixtureConfig = MapFixtureConfig{};
-      fixtureConfig.gameInfo.gameConfig.faceAttribsConfig.defaults = defaultFaceAttrs;
+      fixtureConfig.gameInfo.gameConfig.faceAttribsConfig.defaultUvAttributes =
+        defaultUvAttrs;
 
       auto& map = fixture.create(fixtureConfig);
 
@@ -373,7 +373,7 @@ TEST_CASE("Map_Brushes")
       REQUIRE(
         getFace(*brushNode, faceIndex).attributes().uvAttributes().rotation == 10.0f);
 
-      setBrushFaceAttributes(map, resetAll(defaultFaceAttrs.uvAttributes()));
+      setBrushFaceAttributes(map, resetAll(defaultUvAttrs));
 
       CHECK(
         getFace(*brushNode, faceIndex).attributes().uvAttributes().offset.x() == 0.0f);
@@ -382,10 +382,10 @@ TEST_CASE("Map_Brushes")
       CHECK(getFace(*brushNode, faceIndex).attributes().uvAttributes().rotation == 0.0f);
       CHECK(
         getFace(*brushNode, faceIndex).attributes().uvAttributes().scale.x()
-        == defaultFaceAttrs.uvAttributes().scale.x());
+        == defaultUvAttrs.scale.x());
       CHECK(
         getFace(*brushNode, faceIndex).attributes().uvAttributes().scale.y()
-        == defaultFaceAttrs.uvAttributes().scale.y());
+        == defaultUvAttrs.scale.y());
 
       CHECK(getFace(*brushNode, faceIndex).uAxis() == initialX);
       CHECK(getFace(*brushNode, faceIndex).vAxis() == initialY);

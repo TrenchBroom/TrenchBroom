@@ -291,19 +291,18 @@ std::vector<SmartTag> parseTags(
   return result;
 }
 
-BrushFaceAttributes parseFaceAttribsDefaults(
+std::tuple<UvAttributes, SurfaceAttributes> parseFaceAttribsDefaults(
   const el::EvaluationContext& context,
   const el::Value& value,
   const FlagsConfig& surfaceFlags,
   const FlagsConfig& contentFlags)
 {
-  auto defaults = BrushFaceAttributes{};
+  auto uvAttributes = UvAttributes{};
+  auto surfaceAttributes = SurfaceAttributes{};
   if (value == el::Value::Null)
   {
-    return defaults;
+    return {uvAttributes, surfaceAttributes};
   }
-
-  auto uvAttributes = UvAttributes{};
 
   if (const auto offsetValue = value.atOrDefault(context, "offset");
       offsetValue != el::Value::Null && offsetValue.length() == 2)
@@ -326,10 +325,6 @@ BrushFaceAttributes parseFaceAttribsDefaults(
   {
     uvAttributes.rotation = float(rotationValue.numberValue(context));
   }
-
-  defaults.setUvAttributes(uvAttributes);
-
-  auto surfaceAttributes = SurfaceAttributes{};
 
   if (const auto surfaceContentsValue = value.atOrDefault(context, "surfaceContents");
       surfaceContentsValue != el::Value::Null)
@@ -372,9 +367,7 @@ BrushFaceAttributes parseFaceAttribsDefaults(
     surfaceAttributes.color = color;
   }
 
-  defaults.setSurfaceAttributes(surfaceAttributes);
-
-  return defaults;
+  return {uvAttributes, surfaceAttributes};
 }
 
 void parseFlag(
@@ -415,18 +408,20 @@ FaceAttribsConfig parseFaceAttribsConfig(
       {},
       {},
       {},
+      {},
     };
   }
 
   auto surfaceFlags = parseFlagsConfig(context, value.at(context, "surfaceflags"));
   auto contentFlags = parseFlagsConfig(context, value.at(context, "contentflags"));
-  auto defaults = parseFaceAttribsDefaults(
+  auto [defaultUvAttributes, defaultSurfaceAttributes] = parseFaceAttribsDefaults(
     context, value.atOrDefault(context, "defaults"), surfaceFlags, contentFlags);
 
   return FaceAttribsConfig{
     std::move(surfaceFlags),
     std::move(contentFlags),
-    std::move(defaults),
+    std::move(defaultUvAttributes),
+    std::move(defaultSurfaceAttributes),
   };
 }
 

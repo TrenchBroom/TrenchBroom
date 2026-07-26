@@ -24,7 +24,6 @@
 #include "gl/MaterialManager.h"
 #include "mdl/BrushBuilder.h"
 #include "mdl/BrushFace.h" // IWYU pragma: keep
-#include "mdl/BrushFaceAttributes.h"
 #include "mdl/BrushNode.h"
 #include "mdl/GameConfig.h"
 #include "mdl/GameInfo.h"
@@ -334,7 +333,8 @@ std::map<mdl::Node*, std::vector<std::unique_ptr<mdl::BrushNode>>> generateSweep
   const auto builder = mdl::BrushBuilder{
     map.worldNode().mapFormat(),
     map.worldBounds(),
-    map.gameInfo().gameConfig.faceAttribsConfig.defaults};
+    map.gameInfo().gameConfig.faceAttribsConfig.defaultUvAttributes,
+    map.gameInfo().gameConfig.faceAttribsConfig.defaultSurfaceAttributes};
 
   const auto materialName = map.currentMaterialName();
   auto* material = map.materialManager().material(materialName);

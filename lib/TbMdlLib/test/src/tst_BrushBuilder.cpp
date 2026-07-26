@@ -98,20 +98,24 @@ TEST_CASE("BrushBuilder")
 
   SECTION("createCubeDefaults")
   {
-    auto defaultAttribs = BrushFaceAttributes{};
-    defaultAttribs.setUvAttributes({
+    const auto defaultUvAttribs = UvAttributes{
       .offset = {0.5f, 0.5f},
       .scale = {0.5f, 0.5f},
       .rotation = 45.0f,
-    });
-    defaultAttribs.setSurfaceAttributes({
+    };
+    const auto defaultSurfaceAttribs = SurfaceAttributes{
       .contents = 1,
       .flags = 2,
       .value = 0.1f,
       .color = RgbB{255, 255, 255},
-    });
+    };
 
-    auto builder = BrushBuilder{MapFormat::Standard, worldBounds, defaultAttribs};
+    auto defaultAttribs = BrushFaceAttributes{};
+    defaultAttribs.setUvAttributes(defaultUvAttribs);
+    defaultAttribs.setSurfaceAttributes(defaultSurfaceAttribs);
+
+    auto builder = BrushBuilder{
+      MapFormat::Standard, worldBounds, defaultUvAttribs, defaultSurfaceAttribs};
 
     builder.createCube(128.0, "someName") | kdl::transform([&](const auto& cube) {
       CHECK(cube.fullySpecified());
@@ -130,20 +134,24 @@ TEST_CASE("BrushBuilder")
 
   SECTION("createBrushDefaults")
   {
-    auto defaultAttribs = BrushFaceAttributes{};
-    defaultAttribs.setUvAttributes({
+    const auto defaultUvAttribs = UvAttributes{
       .offset = {0.5f, 0.5f},
       .scale = {0.5f, 0.5f},
       .rotation = 45.0f,
-    });
-    defaultAttribs.setSurfaceAttributes({
+    };
+    const auto defaultSurfaceAttribs = SurfaceAttributes{
       .contents = 1,
       .flags = 2,
       .value = 0.1f,
       .color = RgbB{255, 255, 255},
-    });
+    };
 
-    auto builder = BrushBuilder{MapFormat::Standard, worldBounds, defaultAttribs};
+    auto defaultAttribs = BrushFaceAttributes{};
+    defaultAttribs.setUvAttributes(defaultUvAttribs);
+    defaultAttribs.setSurfaceAttributes(defaultSurfaceAttribs);
+
+    auto builder = BrushBuilder{
+      MapFormat::Standard, worldBounds, defaultUvAttribs, defaultSurfaceAttribs};
 
     builder.createBrush(
       Polyhedron3{

@@ -48,17 +48,20 @@ namespace tb::mdl
 BrushBuilder::BrushBuilder(const MapFormat mapFormat, const vm::bbox3d& worldBounds)
   : m_mapFormat{mapFormat}
   , m_worldBounds{worldBounds}
-  , m_defaultAttribs{}
+  , m_defaultUvAttributes{}
+  , m_defaultSurfaceAttributes{}
 {
 }
 
 BrushBuilder::BrushBuilder(
   const MapFormat mapFormat,
   const vm::bbox3d& worldBounds,
-  BrushFaceAttributes defaultAttribs)
+  UvAttributes defaultUvAttributes,
+  SurfaceAttributes defaultSurfaceAttributes)
   : m_mapFormat{mapFormat}
   , m_worldBounds{worldBounds}
-  , m_defaultAttribs{std::move(defaultAttribs)}
+  , m_defaultUvAttributes{std::move(defaultUvAttributes)}
+  , m_defaultSurfaceAttributes{std::move(defaultSurfaceAttributes)}
 {
 }
 
@@ -154,48 +157,48 @@ Result<Brush> BrushBuilder::createCuboid(
              bounds.min + vm::vec3d{0, 1, 0},
              bounds.min + vm::vec3d{0, 0, 1},
              leftMaterial,
-             m_defaultAttribs.uvAttributes(),
-             m_defaultAttribs.surfaceAttributes(),
+             m_defaultUvAttributes,
+             m_defaultSurfaceAttributes,
              m_mapFormat), // left
            BrushFace::create(
              bounds.max,
              bounds.max + vm::vec3d{0, 0, 1},
              bounds.max + vm::vec3d{0, 1, 0},
              rightMaterial,
-             m_defaultAttribs.uvAttributes(),
-             m_defaultAttribs.surfaceAttributes(),
+             m_defaultUvAttributes,
+             m_defaultSurfaceAttributes,
              m_mapFormat), // right
            BrushFace::create(
              bounds.min,
              bounds.min + vm::vec3d{0, 0, 1},
              bounds.min + vm::vec3d{1, 0, 0},
              frontMaterial,
-             m_defaultAttribs.uvAttributes(),
-             m_defaultAttribs.surfaceAttributes(),
+             m_defaultUvAttributes,
+             m_defaultSurfaceAttributes,
              m_mapFormat), // front
            BrushFace::create(
              bounds.max,
              bounds.max + vm::vec3d{1, 0, 0},
              bounds.max + vm::vec3d{0, 0, 1},
              backMaterial,
-             m_defaultAttribs.uvAttributes(),
-             m_defaultAttribs.surfaceAttributes(),
+             m_defaultUvAttributes,
+             m_defaultSurfaceAttributes,
              m_mapFormat), // back
            BrushFace::create(
              bounds.max,
              bounds.max + vm::vec3d{0, 1, 0},
              bounds.max + vm::vec3d{1, 0, 0},
              topMaterial,
-             m_defaultAttribs.uvAttributes(),
-             m_defaultAttribs.surfaceAttributes(),
+             m_defaultUvAttributes,
+             m_defaultSurfaceAttributes,
              m_mapFormat), // top
            BrushFace::create(
              bounds.min,
              bounds.min + vm::vec3d{1, 0, 0},
              bounds.min + vm::vec3d{0, 1, 0},
              bottomMaterial,
-             m_defaultAttribs.uvAttributes(),
-             m_defaultAttribs.surfaceAttributes(),
+             m_defaultUvAttributes,
+             m_defaultSurfaceAttributes,
              m_mapFormat), // bottom
          }
          | kdl::fold | kdl::and_then([&](auto faces) {
@@ -864,8 +867,8 @@ Result<Brush> BrushBuilder::createIcoSphere(
                p2,
                p3,
                textureName,
-               m_defaultAttribs.uvAttributes(),
-               m_defaultAttribs.surfaceAttributes(),
+               m_defaultUvAttributes,
+               m_defaultSurfaceAttributes,
                m_mapFormat);
            })
          | kdl::fold | kdl::and_then([&](auto f) {
@@ -912,8 +915,8 @@ Result<Brush> BrushBuilder::createBrush(
              p3,
              p2,
              materialName,
-             m_defaultAttribs.uvAttributes(),
-             m_defaultAttribs.surfaceAttributes(),
+             m_defaultUvAttributes,
+             m_defaultSurfaceAttributes,
              m_mapFormat);
          })
          | kdl::fold | kdl::and_then([&](auto faces) {

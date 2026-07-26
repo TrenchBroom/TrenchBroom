@@ -63,7 +63,8 @@ TEST_CASE("SelectionTool")
     auto builder = mdl::BrushBuilder{
       worldNode.mapFormat(),
       map.worldBounds(),
-      map.gameInfo().gameConfig.faceAttribsConfig.defaults};
+      map.gameInfo().gameConfig.faceAttribsConfig.defaultUvAttributes,
+      map.gameInfo().gameConfig.faceAttribsConfig.defaultSurfaceAttributes};
 
     auto tool = SelectionTool{document};
 
@@ -525,7 +526,8 @@ TEST_CASE("SelectionTool")
     auto builder = mdl::BrushBuilder{
       worldNode.mapFormat(),
       map.worldBounds(),
-      map.gameInfo().gameConfig.faceAttribsConfig.defaults};
+      map.gameInfo().gameConfig.faceAttribsConfig.defaultUvAttributes,
+      map.gameInfo().gameConfig.faceAttribsConfig.defaultSurfaceAttributes};
 
     auto tool = SelectionTool{document};
 

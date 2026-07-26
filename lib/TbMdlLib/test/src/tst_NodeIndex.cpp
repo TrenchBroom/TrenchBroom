@@ -134,8 +134,8 @@ TEST_CASE("NodeIndex")
 
     SECTION("BrushNode")
     {
-      const auto builder =
-        BrushBuilder{MapFormat::Valve, vm::bbox3d{8192.0}, BrushFaceAttributes{}};
+      const auto builder = BrushBuilder{
+        MapFormat::Valve, vm::bbox3d{8192.0}, UvAttributes{}, SurfaceAttributes{}};
 
       auto brush = builder.createCube(32.0, "default_material").value();
       brush.face(0).setMaterialName("material_0");
