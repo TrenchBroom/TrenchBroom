@@ -30,7 +30,6 @@
 #include "vm/vec.h"
 
 #include <optional>
-#include <tuple>
 #include <variant>
 
 namespace tb::mdl
@@ -87,66 +86,68 @@ public:
   std::optional<UvCoordSystemSnapshot> takeSnapshot() const;
   void restoreSnapshot(const UvCoordSystemSnapshot& snapshot);
 
+  UvAttributes uvAttributes() const;
+
+  /**
+   * Sets the given UV attributes and updates the UV axes to match their rotation.
+   */
+  void setUvAttributes(const vm::vec3d& normal, const UvAttributes& uvAttributes);
+
+  /**
+   * Sets the given UV attributes without updating the UV axes.
+   */
+  void copyUvAttributes(const UvAttributes& uvAttributes);
+
   vm::vec3d uAxis() const;
   vm::vec3d vAxis() const;
   vm::vec3d normal() const;
 
   void resetCache(
-    const vm::vec3d& point0,
-    const vm::vec3d& point1,
-    const vm::vec3d& point2,
-    const UvAttributes& uvAttributes);
+    const vm::vec3d& point0, const vm::vec3d& point1, const vm::vec3d& point2);
   void reset(const vm::vec3d& normal);
   void resetToParaxial(const vm::vec3d& normal, float angle);
   void resetToParallel(const vm::vec3d& normal, float angle);
 
+  vm::vec2f uvCoords(const vm::vec3d& point, const vm::vec2f& textureSize) const;
+
+  /**
+   * Computes the UV coords of the given point using the given UV attributes instead of
+   * this UV coordinate system's own attributes.
+   */
   vm::vec2f uvCoords(
     const vm::vec3d& point,
     const UvAttributes& uvAttributes,
     const vm::vec2f& textureSize) const;
 
-  void setRotation(const vm::vec3d& normal, float oldAngle, float newAngle);
   void transform(
     const vm::plane3d& oldBoundary,
     const vm::plane3d& newBoundary,
     const vm::mat4x4d& transformation,
-    UvAttributes& uvAttributes,
     const vm::vec2f& textureSize,
     bool lockTexture,
     const vm::vec3d& invariant);
-  void setNormal(
-    const vm::vec3d& oldNormal,
-    const vm::vec3d& newNormal,
-    const UvAttributes& uvAttributes,
-    WrapStyle style);
+  void setNormal(const vm::vec3d& oldNormal, const vm::vec3d& newNormal, WrapStyle style);
 
   void translate(
     const vm::vec3d& normal,
     const vm::vec3d& up,
     const vm::vec3d& right,
-    const vm::vec2f& offset,
-    UvAttributes& uvAttributes) const;
-  void rotate(const vm::vec3d& normal, float angle, UvAttributes& uvAttributes) const;
+    const vm::vec2f& offset);
+  void rotate(const vm::vec3d& normal, float angle);
   void shear(const vm::vec3d& normal, const vm::vec2f& factors);
 
   vm::mat4x4d toMatrix(const vm::vec2f& offset, const vm::vec2f& scale) const;
   vm::mat4x4d fromMatrix(const vm::vec2f& offset, const vm::vec2f& scale) const;
 
-  float measureAngle(
-    float currentAngle, const vm::vec2f& center, const vm::vec2f& point) const;
+  float measureAngle(const vm::vec2f& center, const vm::vec2f& point) const;
 
-  std::tuple<UvCoordSystem, UvAttributes> toParallel(
-    const vm::vec3d& point0,
-    const vm::vec3d& point1,
-    const vm::vec3d& point2,
-    const UvAttributes& uvAttributes) const;
-  std::tuple<UvCoordSystem, UvAttributes> toParaxial(
-    const vm::vec3d& point0,
-    const vm::vec3d& point1,
-    const vm::vec3d& point2,
-    const UvAttributes& uvAttributes) const;
+  UvCoordSystem toParallel(
+    const vm::vec3d& point0, const vm::vec3d& point1, const vm::vec3d& point2) const;
+  UvCoordSystem toParaxial(
+    const vm::vec3d& point0, const vm::vec3d& point1, const vm::vec3d& point2) const;
 
 private:
+  void setRotation(const vm::vec3d& normal, float oldAngle, float newAngle);
   bool isRotationInverted(const vm::vec3d& normal) const;
 };
 

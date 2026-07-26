@@ -39,8 +39,9 @@ class ParallelUvCoordSystem
 private:
   vm::vec3d m_uAxis;
   vm::vec3d m_vAxis;
+  UvAttributes m_uvAttributes;
 
-  kdl_reflect_decl(ParallelUvCoordSystem, m_uAxis, m_vAxis);
+  kdl_reflect_decl(ParallelUvCoordSystem, m_uAxis, m_vAxis, m_uvAttributes);
 
 public:
   ParallelUvCoordSystem(
@@ -48,7 +49,8 @@ public:
     const vm::vec3d& point1,
     const vm::vec3d& point2,
     const UvAttributes& uvAttributes);
-  ParallelUvCoordSystem(const vm::vec3d& uAxis, const vm::vec3d& vAxis);
+  ParallelUvCoordSystem(
+    const vm::vec3d& uAxis, const vm::vec3d& vAxis, const UvAttributes& uvAttributes);
 
   static ParallelUvCoordSystem fromParaxial(
     const vm::vec3d& point0,
@@ -56,16 +58,16 @@ public:
     const vm::vec3d& point2,
     const UvAttributes& uvAttributes);
 
+  const UvAttributes& uvAttributes() const;
+  void copyUvAttributes(const UvAttributes& uvAttributes);
+
   vm::vec3d uAxis() const;
   vm::vec3d vAxis() const;
   vm::vec3d normal() const;
   void setAxes(const vm::vec3d& uAxis, const vm::vec3d& vAxis);
 
   void resetCache(
-    const vm::vec3d& point0,
-    const vm::vec3d& point1,
-    const vm::vec3d& point2,
-    const UvAttributes& uvAttributes);
+    const vm::vec3d& point0, const vm::vec3d& point1, const vm::vec3d& point2);
 
   void reset(const vm::vec3d& normal);
   void resetToParaxial(const vm::vec3d& normal, float angle);
@@ -77,24 +79,18 @@ public:
     const vm::plane3d& oldBoundary,
     const vm::plane3d& newBoundary,
     const vm::mat4x4d& transformation,
-    UvAttributes& uvAttributes,
     const vm::vec2f& textureSize,
     bool lockTexture,
     const vm::vec3d& invariant);
 
   void shear(const vm::vec3d& normal, const vm::vec2f& factors);
 
-  float measureAngle(
-    float currentAngle, const vm::vec2f& center, const vm::vec2f& point) const;
+  float measureAngle(const vm::vec2f& center, const vm::vec2f& point) const;
 
   bool isRotationInverted(const vm::vec3d& normal) const;
 
-  void updateNormalWithProjection(
-    const vm::vec3d& newNormal, const UvAttributes& uvAttributes);
-  void updateNormalWithRotation(
-    const vm::vec3d& oldNormal,
-    const vm::vec3d& newNormal,
-    const UvAttributes& uvAttributes);
+  void updateNormalWithProjection(const vm::vec3d& newNormal);
+  void updateNormalWithRotation(const vm::vec3d& oldNormal, const vm::vec3d& newNormal);
 
 private:
   float computeRotationAngle(

@@ -42,8 +42,9 @@ private:
   size_t m_index = 0;
   vm::vec3d m_uAxis;
   vm::vec3d m_vAxis;
+  UvAttributes m_uvAttributes;
 
-  kdl_reflect_decl(ParaxialUvCoordSystem, m_index, m_uAxis, m_vAxis);
+  kdl_reflect_decl(ParaxialUvCoordSystem, m_index, m_uAxis, m_vAxis, m_uvAttributes);
 
 public:
   ParaxialUvCoordSystem(
@@ -52,9 +53,8 @@ public:
     const vm::vec3d& point2,
     const UvAttributes& uvAttributes);
   ParaxialUvCoordSystem(const vm::vec3d& normal, const UvAttributes& uvAttributes);
-  ParaxialUvCoordSystem(size_t index, const vm::vec3d& uAxis, const vm::vec3d& vAxis);
 
-  static std::tuple<ParaxialUvCoordSystem, UvAttributes> fromParallel(
+  static ParaxialUvCoordSystem fromParallel(
     const vm::vec3d& point0,
     const vm::vec3d& point1,
     const vm::vec3d& point2,
@@ -65,15 +65,15 @@ public:
   static size_t planeNormalIndex(const vm::vec3d& normal);
   static std::tuple<vm::vec3d, vm::vec3d, vm::vec3d> axes(size_t index);
 
+  const UvAttributes& uvAttributes() const;
+  void copyUvAttributes(const UvAttributes& uvAttributes);
+
   vm::vec3d uAxis() const;
   vm::vec3d vAxis() const;
   vm::vec3d normal() const;
 
   void resetCache(
-    const vm::vec3d& point0,
-    const vm::vec3d& point1,
-    const vm::vec3d& point2,
-    const UvAttributes& uvAttributes);
+    const vm::vec3d& point0, const vm::vec3d& point1, const vm::vec3d& point2);
   void reset(const vm::vec3d& normal);
   void resetToParaxial(const vm::vec3d& normal, float angle);
   void resetToParallel(const vm::vec3d& normal, float angle);
@@ -83,24 +83,18 @@ public:
     const vm::plane3d& oldBoundary,
     const vm::plane3d& newBoundary,
     const vm::mat4x4d& transformation,
-    UvAttributes& uvAttributes,
     const vm::vec2f& textureSize,
     bool lockTexture,
     const vm::vec3d& invariant);
 
   void shear(const vm::vec3d& normal, const vm::vec2f& factors);
 
-  float measureAngle(
-    float currentAngle, const vm::vec2f& center, const vm::vec2f& point) const;
+  float measureAngle(const vm::vec2f& center, const vm::vec2f& point) const;
 
   bool isRotationInverted(const vm::vec3d& normal) const;
 
-  void updateNormalWithProjection(
-    const vm::vec3d& newNormal, const UvAttributes& uvAttributes);
-  void updateNormalWithRotation(
-    const vm::vec3d& oldNormal,
-    const vm::vec3d& newNormal,
-    const UvAttributes& uvAttributes);
+  void updateNormalWithProjection(const vm::vec3d& newNormal);
+  void updateNormalWithRotation(const vm::vec3d& oldNormal, const vm::vec3d& newNormal);
 };
 
 } // namespace tb::mdl

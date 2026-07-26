@@ -469,15 +469,13 @@ TEST_CASE("BrushFace")
     const auto p1 = vm::vec3d{1, 0, 4};
     const auto p2 = vm::vec3d{0, -1, 4};
 
-    const auto uvAttributes = UvAttributes{};
     auto face = BrushFace::create(
                   p0,
                   p1,
                   p2,
                   "",
-                  uvAttributes,
                   SurfaceAttributes{},
-                  UvCoordSystem{ParaxialUvCoordSystem{p0, p1, p2, uvAttributes}})
+                  UvCoordSystem{ParaxialUvCoordSystem{p0, p1, p2, UvAttributes{}}})
                 | kdl::value();
     CHECK(face.points()[0] == vm::approx{p0});
     CHECK(face.points()[1] == vm::approx{p1});
@@ -492,15 +490,13 @@ TEST_CASE("BrushFace")
     const auto p1 = vm::vec3d{1, 0, 4};
     const auto p2 = vm::vec3d{2, 0, 4};
 
-    const auto uvAttributes = UvAttributes{};
     CHECK_FALSE(BrushFace::create(
       p0,
       p1,
       p2,
       "",
-      uvAttributes,
       SurfaceAttributes{},
-      UvCoordSystem{ParaxialUvCoordSystem{p0, p1, p2, uvAttributes}}));
+      UvCoordSystem{ParaxialUvCoordSystem{p0, p1, p2, UvAttributes{}}}));
   }
 
   SECTION("materialUsageCount")
@@ -516,7 +512,6 @@ TEST_CASE("BrushFace")
     CHECK(material.usageCount() == 0u);
     CHECK(material2.usageCount() == 0u);
 
-    auto uvAttributes = UvAttributes{};
     {
       // test constructor
       auto face = BrushFace::create(
@@ -524,9 +519,8 @@ TEST_CASE("BrushFace")
                     p1,
                     p2,
                     "",
-                    uvAttributes,
                     SurfaceAttributes{},
-                    UvCoordSystem{ParaxialUvCoordSystem{p0, p1, p2, uvAttributes}})
+                    UvCoordSystem{ParaxialUvCoordSystem{p0, p1, p2, UvAttributes{}}})
                   | kdl::value();
       CHECK(material.usageCount() == 0u);
 

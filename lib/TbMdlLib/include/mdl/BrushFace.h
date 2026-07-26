@@ -92,7 +92,6 @@ private:
   vm::plane3d m_boundary;
 
   std::string m_materialName;
-  UvAttributes m_uvAttributes;
   SurfaceAttributes m_surfaceAttributes;
 
   AssetReference<gl::Material> m_materialReference;
@@ -120,7 +119,6 @@ public:
     m_points,
     m_boundary,
     m_materialName,
-    m_uvAttributes,
     m_surfaceAttributes,
     m_materialReference,
     m_uvCoordSystem);
@@ -181,12 +179,15 @@ public:
     const vm::vec3d& vAxis,
     MapFormat mapFormat);
 
+  /**
+   * Creates a face with the given UV coordinate system, which carries the face's UV
+   * attributes.
+   */
   static Result<BrushFace> create(
     const vm::vec3d& point0,
     const vm::vec3d& point1,
     const vm::vec3d& point2,
     std::string materialName,
-    const UvAttributes& uvAttributes,
     const SurfaceAttributes& surfaceAttributes,
     UvCoordSystem uvCoordSystem);
 
@@ -194,7 +195,6 @@ public:
     const BrushFace::Points& points,
     const vm::plane3d& boundary,
     std::string materialName,
-    const UvAttributes& uvAttributes,
     const SurfaceAttributes& surfaceAttributes,
     UvCoordSystem uvCoordSystem);
 
@@ -221,7 +221,7 @@ public:
   const std::string& materialName() const;
   bool setMaterialName(std::string materialName);
 
-  const UvAttributes& uvAttributes() const;
+  UvAttributes uvAttributes() const;
   void setUvAttributes(const UvAttributes& uvAttributes);
 
   const SurfaceAttributes& surfaceAttributes() const;

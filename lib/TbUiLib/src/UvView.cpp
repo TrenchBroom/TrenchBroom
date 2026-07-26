@@ -112,9 +112,9 @@ private:
   {
     auto& gl = renderContext.gl();
 
-    const auto& offset = m_helper.face()->uvAttributes().offset;
-    const auto& scale = m_helper.face()->uvAttributes().scale;
-    const auto toTex = m_helper.face()->toUvCoordSystemMatrix(offset, scale);
+    const auto uvAttributes = m_helper.face()->uvAttributes();
+    const auto toTex =
+      m_helper.face()->toUvCoordSystemMatrix(uvAttributes.offset, uvAttributes.scale);
 
     const auto* material = m_helper.face()->material();
     contract_assert(material != nullptr);
@@ -131,7 +131,7 @@ private:
     shader.set("GridSizes", texture->sizef());
     shader.set("GridAlpha", pref(Preferences::GridAlpha));
     shader.set("DpiScale", renderContext.dpiScale());
-    shader.set("GridScales", scale);
+    shader.set("GridScales", uvAttributes.scale);
     shader.set("GridMatrix", vm::mat4x4f{toTex});
     shader.set("GridDivider", vm::vec2f{m_helper.subDivisions()});
     shader.set("CameraZoom", m_helper.camera().zoom());
