@@ -37,9 +37,9 @@
 #include "mdl/Map_Selection.h"
 #include "mdl/Matchers.h"
 #include "mdl/NodeHandles.h"
-#include "mdl/ParallelUvCoordSystem.h"
 #include "mdl/TestFactory.h"
 #include "mdl/TestUtils.h"
+#include "mdl/UvCoordSystem.h"
 #include "mdl/WorldNode.h"
 
 #include "kd/ranges/to.h"
@@ -1175,18 +1175,18 @@ TEST_CASE("Map_Geometry")
       auto* entityNode = new EntityNode{Entity{}};
       addNodes(map, {{parentForNodes(map), {entityNode}}});
 
-      auto texAlignment = ParallelUvCoordSystem{{1, 0, 0}, {0, 1, 0}};
-      auto texAlignmentSnapshot = texAlignment.takeSnapshot();
+      const auto texAlignmentSnapshot =
+        UvCoordSystemSnapshot{vm::vec3d{1, 0, 0}, vm::vec3d{0, 1, 0}};
 
       auto brush1 = builder.createCuboid(vm::bbox3d{{0, 0, 0}, {32, 64, 64}}, "material")
                     | kdl::value();
       brush1.face(*brush1.findFace(vm::vec3d{0, 0, 1}))
-        .restoreUvCoordSystemSnapshot(*texAlignmentSnapshot);
+        .restoreUvCoordSystemSnapshot(texAlignmentSnapshot);
 
       auto brush2 = builder.createCuboid(vm::bbox3d{{32, 0, 0}, {64, 64, 64}}, "material")
                     | kdl::value();
       brush2.face(*brush2.findFace(vm::vec3d{0, 0, 1}))
-        .restoreUvCoordSystemSnapshot(*texAlignmentSnapshot);
+        .restoreUvCoordSystemSnapshot(texAlignmentSnapshot);
 
       auto* brushNode1 = new BrushNode{std::move(brush1)};
       auto* brushNode2 = new BrushNode{std::move(brush2)};
@@ -1291,8 +1291,8 @@ TEST_CASE("Map_Geometry")
       auto* entityNode = new EntityNode{Entity{}};
       addNodes(map, {{parentForNodes(map), {entityNode}}});
 
-      auto texAlignment = ParallelUvCoordSystem{vm::vec3d{1, 0, 0}, vm::vec3d{0, 1, 0}};
-      auto texAlignmentSnapshot = texAlignment.takeSnapshot();
+      const auto texAlignmentSnapshot =
+        UvCoordSystemSnapshot{vm::vec3d{1, 0, 0}, vm::vec3d{0, 1, 0}};
 
       auto brush1 = builder.createCuboid(
                       vm::bbox3d{vm::vec3d{0, 0, 0}, vm::vec3d{64, 64, 64}}, "material")
@@ -1301,7 +1301,7 @@ TEST_CASE("Map_Geometry")
                       vm::bbox3d{vm::vec3d{0, 0, 0}, vm::vec3d{64, 64, 32}}, "material")
                     | kdl::value();
       brush2.face(*brush2.findFace(vm::vec3d{0, 0, 1}))
-        .restoreUvCoordSystemSnapshot(*texAlignmentSnapshot);
+        .restoreUvCoordSystemSnapshot(texAlignmentSnapshot);
 
       auto* brushNode1 = new BrushNode{std::move(brush1)};
       auto* brushNode2 = new BrushNode{std::move(brush2)};

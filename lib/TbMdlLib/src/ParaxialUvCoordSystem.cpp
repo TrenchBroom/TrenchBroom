@@ -19,14 +19,15 @@
 
 #include "mdl/ParaxialUvCoordSystem.h"
 
-#include "mdl/ParallelUvCoordSystem.h"
 #include "mdl/UvUtils.h"
 
 #include "kd/contracts.h"
+#include "kd/reflection_impl.h"
 
 #include "vm/plane.h"
 #include "vm/quat.h"
 #include "vm/vec.h"
+#include "vm/vec_io.h" // IWYU pragma: keep
 
 #include <array>
 #include <cmath>
@@ -146,8 +147,9 @@ vm::vec2f getUvCoordsAtPoint(
     .rotation = paraxialAttribs.rotation,
   };
 
-  auto temp = ParaxialUvCoordSystem{facePlane.normal, uvAttributes};
-  return temp.uvCoords(point, uvAttributes, vm::vec2f{1.0f, 1.0f});
+  const auto temp = ParaxialUvCoordSystem{facePlane.normal, uvAttributes};
+  return computeUvCoords(point, temp.uAxis(), temp.vAxis(), uvAttributes.scale)
+         + uvAttributes.offset;
 }
 
 ParaxialAttribs appendOffset(
@@ -445,6 +447,8 @@ vm::mat4x4f valveTo4x4Matrix(
 }
 } // namespace
 
+kdl_reflect_impl(ParaxialUvCoordSystem);
+
 ParaxialUvCoordSystem::ParaxialUvCoordSystem(
   const vm::vec3d& point0,
   const vm::vec3d& point1,
@@ -468,14 +472,13 @@ ParaxialUvCoordSystem::ParaxialUvCoordSystem(
 {
 }
 
-std::tuple<std::unique_ptr<UvCoordSystem>, UvAttributes> ParaxialUvCoordSystem::
-  fromParallel(
-    const vm::vec3d& point0,
-    const vm::vec3d& point1,
-    const vm::vec3d& point2,
-    const UvAttributes& uvAttributes,
-    const vm::vec3d& uAxis,
-    const vm::vec3d& vAxis)
+std::tuple<ParaxialUvCoordSystem, UvAttributes> ParaxialUvCoordSystem::fromParallel(
+  const vm::vec3d& point0,
+  const vm::vec3d& point1,
+  const vm::vec3d& point2,
+  const UvAttributes& uvAttributes,
+  const vm::vec3d& uAxis,
+  const vm::vec3d& vAxis)
 {
   const auto facePlane = vm::from_points(point0, point1, point2);
   const auto worldToTexSpace = valveTo4x4Matrix(*facePlane, uvAttributes, uAxis, vAxis);
@@ -496,7 +499,7 @@ std::tuple<std::unique_ptr<UvCoordSystem>, UvAttributes> ParaxialUvCoordSystem::
                                            : UvAttributes{};
 
   return {
-    std::make_unique<ParaxialUvCoordSystem>(point0, point1, point2, newUvAttributes),
+    ParaxialUvCoordSystem{point0, point1, point2, newUvAttributes},
     newUvAttributes,
   };
 }
@@ -525,22 +528,6 @@ std::tuple<vm::vec3d, vm::vec3d, vm::vec3d> ParaxialUvCoordSystem::axes(
     BaseAxes[index * 3 + 2],
     BaseAxes[(index / 2) * 6],
   };
-}
-
-std::unique_ptr<UvCoordSystem> ParaxialUvCoordSystem::clone() const
-{
-  return std::make_unique<ParaxialUvCoordSystem>(m_index, m_uAxis, m_vAxis);
-}
-
-std::optional<UvCoordSystemSnapshot> ParaxialUvCoordSystem::takeSnapshot() const
-{
-  // the UV axes are derived from the face plane, so there is nothing to transfer
-  return std::nullopt;
-}
-
-void ParaxialUvCoordSystem::restoreSnapshot(const UvCoordSystemSnapshot& /* snapshot */)
-{
-  contract_assert(false);
 }
 
 vm::vec3d ParaxialUvCoordSystem::uAxis() const
@@ -749,27 +736,6 @@ float ParaxialUvCoordSystem::measureAngle(
     vm::Cf::two_pi()
     - vm::measure_angle(vm::normalize(vec), vm::vec3f{1, 0, 0}, vm::vec3f{0, 0, 1});
   return vm::to_degrees(angleInRadians);
-}
-
-std::tuple<std::unique_ptr<UvCoordSystem>, UvAttributes> ParaxialUvCoordSystem::
-  toParallel(
-    const vm::vec3d& point0,
-    const vm::vec3d& point1,
-    const vm::vec3d& point2,
-    const UvAttributes& uvAttributes) const
-{
-  return ParallelUvCoordSystem::fromParaxial(point0, point1, point2, uvAttributes);
-}
-
-std::tuple<std::unique_ptr<UvCoordSystem>, UvAttributes> ParaxialUvCoordSystem::
-  toParaxial(
-    const vm::vec3d&,
-    const vm::vec3d&,
-    const vm::vec3d&,
-    const UvAttributes& uvAttributes) const
-{
-  // Already in the requested format
-  return {clone(), uvAttributes};
 }
 
 bool ParaxialUvCoordSystem::isRotationInverted(const vm::vec3d& normal) const

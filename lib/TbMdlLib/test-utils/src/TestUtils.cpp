@@ -174,7 +174,7 @@ BrushFace createParaxial(
            materialName,
            uvAttributes,
            SurfaceAttributes{},
-           std::make_unique<ParaxialUvCoordSystem>(point0, point1, point2, uvAttributes))
+           UvCoordSystem{ParaxialUvCoordSystem{point0, point1, point2, uvAttributes}})
          | kdl::value();
 }
 
@@ -337,10 +337,7 @@ const mdl::BrushFace* findFaceByPoints(
 
 void checkFaceUvCoordSystem(const mdl::BrushFace& face, const bool expectParallel)
 {
-  const auto* parallel =
-    dynamic_cast<const mdl::ParallelUvCoordSystem*>(&face.uvCoordSystem());
-  const bool isParallel = (parallel != nullptr);
-  CHECK(isParallel == expectParallel);
+  CHECK(face.uvCoordSystem().is<mdl::ParallelUvCoordSystem>() == expectParallel);
 }
 
 void checkBrushUvCoordSystem(const mdl::BrushNode* brushNode, const bool expectParallel)

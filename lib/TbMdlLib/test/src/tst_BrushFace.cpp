@@ -477,7 +477,7 @@ TEST_CASE("BrushFace")
                   "",
                   uvAttributes,
                   SurfaceAttributes{},
-                  std::make_unique<ParaxialUvCoordSystem>(p0, p1, p2, uvAttributes))
+                  UvCoordSystem{ParaxialUvCoordSystem{p0, p1, p2, uvAttributes}})
                 | kdl::value();
     CHECK(face.points()[0] == vm::approx{p0});
     CHECK(face.points()[1] == vm::approx{p1});
@@ -500,7 +500,7 @@ TEST_CASE("BrushFace")
       "",
       uvAttributes,
       SurfaceAttributes{},
-      std::make_unique<ParaxialUvCoordSystem>(p0, p1, p2, uvAttributes)));
+      UvCoordSystem{ParaxialUvCoordSystem{p0, p1, p2, uvAttributes}}));
   }
 
   SECTION("materialUsageCount")
@@ -526,7 +526,7 @@ TEST_CASE("BrushFace")
                     "",
                     uvAttributes,
                     SurfaceAttributes{},
-                    std::make_unique<ParaxialUvCoordSystem>(p0, p1, p2, uvAttributes))
+                    UvCoordSystem{ParaxialUvCoordSystem{p0, p1, p2, uvAttributes}})
                   | kdl::value();
       CHECK(material.usageCount() == 0u);
 
@@ -865,17 +865,14 @@ TEST_CASE("BrushFace")
     auto testTransform = [&](const auto& transform) {
       auto standardCube = startingCube;
       REQUIRE(standardCube.transform(worldBounds, transform, true));
-      CHECK(dynamic_cast<const ParaxialUvCoordSystem*>(
-        &standardCube.face(0).uvCoordSystem()));
+      CHECK(standardCube.face(0).uvCoordSystem().is<ParaxialUvCoordSystem>());
 
       const auto valveCube = standardCube.convertToParallel();
-      CHECK(
-        dynamic_cast<const ParallelUvCoordSystem*>(&valveCube.face(0).uvCoordSystem()));
+      CHECK(valveCube.face(0).uvCoordSystem().is<ParallelUvCoordSystem>());
       checkBrushUvsEqual(standardCube, valveCube);
 
       const auto standardCubeRoundTrip = valveCube.convertToParaxial();
-      CHECK(dynamic_cast<const ParaxialUvCoordSystem*>(
-        &standardCubeRoundTrip.face(0).uvCoordSystem()));
+      CHECK(standardCubeRoundTrip.face(0).uvCoordSystem().is<ParaxialUvCoordSystem>());
       checkBrushUvsEqual(standardCube, standardCubeRoundTrip);
     };
 

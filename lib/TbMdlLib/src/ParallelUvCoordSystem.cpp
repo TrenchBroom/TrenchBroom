@@ -23,13 +23,16 @@
 #include "mdl/UvUtils.h"
 
 #include "kd/contracts.h"
+#include "kd/reflection_impl.h"
 
 #include "vm/mat.h"
 #include "vm/mat_ext.h"
 #include "vm/vec.h"
+#include "vm/vec_io.h" // IWYU pragma: keep
 
 #include <algorithm>
 #include <cstddef>
+#include <tuple>
 
 namespace tb::mdl
 {
@@ -65,6 +68,8 @@ std::tuple<vm::vec3d, vm::vec3d> applyRotation(
 
 } // namespace
 
+kdl_reflect_impl(ParallelUvCoordSystem);
+
 /**
  * Constructs a parallel tex coord system where the texture is projected form the face
  * plane
@@ -93,33 +98,14 @@ ParallelUvCoordSystem::ParallelUvCoordSystem(
 {
 }
 
-std::tuple<std::unique_ptr<UvCoordSystem>, UvAttributes> ParallelUvCoordSystem::
-  fromParaxial(
-    const vm::vec3d& point0,
-    const vm::vec3d& point1,
-    const vm::vec3d& point2,
-    const UvAttributes& uvAttributes)
+ParallelUvCoordSystem ParallelUvCoordSystem::fromParaxial(
+  const vm::vec3d& point0,
+  const vm::vec3d& point1,
+  const vm::vec3d& point2,
+  const UvAttributes& uvAttributes)
 {
   const auto tempParaxial = ParaxialUvCoordSystem{point0, point1, point2, uvAttributes};
-  return {
-    ParallelUvCoordSystem{tempParaxial.uAxis(), tempParaxial.vAxis()}.clone(),
-    uvAttributes};
-}
-
-std::unique_ptr<UvCoordSystem> ParallelUvCoordSystem::clone() const
-{
-  return std::make_unique<ParallelUvCoordSystem>(uAxis(), vAxis());
-}
-
-std::optional<UvCoordSystemSnapshot> ParallelUvCoordSystem::takeSnapshot() const
-{
-  return UvCoordSystemSnapshot{m_uAxis, m_vAxis};
-}
-
-void ParallelUvCoordSystem::restoreSnapshot(const UvCoordSystemSnapshot& snapshot)
-{
-  m_uAxis = snapshot.uAxis;
-  m_vAxis = snapshot.vAxis;
+  return ParallelUvCoordSystem{tempParaxial.uAxis(), tempParaxial.vAxis()};
 }
 
 vm::vec3d ParallelUvCoordSystem::uAxis() const
@@ -135,6 +121,12 @@ vm::vec3d ParallelUvCoordSystem::vAxis() const
 vm::vec3d ParallelUvCoordSystem::normal() const
 {
   return vm::normalize(vm::cross(uAxis(), vAxis()));
+}
+
+void ParallelUvCoordSystem::setAxes(const vm::vec3d& uAxis, const vm::vec3d& vAxis)
+{
+  m_uAxis = uAxis;
+  m_vAxis = vAxis;
 }
 
 void ParallelUvCoordSystem::resetCache(
@@ -290,27 +282,6 @@ float ParallelUvCoordSystem::measureAngle(
   const auto angleInRadians =
     vm::measure_angle(vm::normalize(vec), vm::vec3f{1, 0, 0}, vm::vec3f{0, 0, 1});
   return currentAngle + vm::to_degrees(angleInRadians);
-}
-
-std::tuple<std::unique_ptr<UvCoordSystem>, UvAttributes> ParallelUvCoordSystem::
-  toParallel(
-    const vm::vec3d&,
-    const vm::vec3d&,
-    const vm::vec3d&,
-    const UvAttributes& uvAttributes) const
-{
-  return {clone(), uvAttributes};
-}
-
-std::tuple<std::unique_ptr<UvCoordSystem>, UvAttributes> ParallelUvCoordSystem::
-  toParaxial(
-    const vm::vec3d& point0,
-    const vm::vec3d& point1,
-    const vm::vec3d& point2,
-    const UvAttributes& uvAttributes) const
-{
-  return ParaxialUvCoordSystem::fromParallel(
-    point0, point1, point2, uvAttributes, uAxis(), vAxis());
 }
 
 bool ParallelUvCoordSystem::isRotationInverted(const vm::vec3d& /* normal */) const

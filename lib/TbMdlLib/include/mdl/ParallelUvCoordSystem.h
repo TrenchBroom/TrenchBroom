@@ -19,24 +19,28 @@
 
 #pragma once
 
-#include "base/Macros.h"
-#include "mdl/UvCoordSystem.h"
+#include "mdl/UvAttributes.h"
+
+#include "kd/reflection_decl.h"
 
 #include "vm/mat.h"
+#include "vm/plane.h"
 #include "vm/vec.h"
-
-#include <memory>
-#include <optional>
-#include <tuple>
 
 namespace tb::mdl
 {
 
-class ParallelUvCoordSystem : public UvCoordSystem
+/**
+ * A UV coordinate system whose axes are independent of the face plane. Clients should use
+ * UvCoordSystem instead of using this class directly.
+ */
+class ParallelUvCoordSystem
 {
 private:
   vm::vec3d m_uAxis;
   vm::vec3d m_vAxis;
+
+  kdl_reflect_decl(ParallelUvCoordSystem, m_uAxis, m_vAxis);
 
 public:
   ParallelUvCoordSystem(
@@ -46,31 +50,28 @@ public:
     const UvAttributes& uvAttributes);
   ParallelUvCoordSystem(const vm::vec3d& uAxis, const vm::vec3d& vAxis);
 
-  static std::tuple<std::unique_ptr<UvCoordSystem>, UvAttributes> fromParaxial(
+  static ParallelUvCoordSystem fromParaxial(
     const vm::vec3d& point0,
     const vm::vec3d& point1,
     const vm::vec3d& point2,
     const UvAttributes& uvAttributes);
 
-  std::unique_ptr<UvCoordSystem> clone() const override;
-  std::optional<UvCoordSystemSnapshot> takeSnapshot() const override;
-  void restoreSnapshot(const UvCoordSystemSnapshot& snapshot) override;
-
-  vm::vec3d uAxis() const override;
-  vm::vec3d vAxis() const override;
-  vm::vec3d normal() const override;
+  vm::vec3d uAxis() const;
+  vm::vec3d vAxis() const;
+  vm::vec3d normal() const;
+  void setAxes(const vm::vec3d& uAxis, const vm::vec3d& vAxis);
 
   void resetCache(
     const vm::vec3d& point0,
     const vm::vec3d& point1,
     const vm::vec3d& point2,
-    const UvAttributes& uvAttributes) override;
+    const UvAttributes& uvAttributes);
 
-  void reset(const vm::vec3d& normal) override;
-  void resetToParaxial(const vm::vec3d& normal, float angle) override;
-  void resetToParallel(const vm::vec3d& normal, float angle) override;
+  void reset(const vm::vec3d& normal);
+  void resetToParaxial(const vm::vec3d& normal, float angle);
+  void resetToParallel(const vm::vec3d& normal, float angle);
 
-  void setRotation(const vm::vec3d& normal, float oldAngle, float newAngle) override;
+  void setRotation(const vm::vec3d& normal, float oldAngle, float newAngle);
 
   void transform(
     const vm::plane3d& oldBoundary,
@@ -79,38 +80,25 @@ public:
     UvAttributes& uvAttributes,
     const vm::vec2f& textureSize,
     bool lockTexture,
-    const vm::vec3d& invariant) override;
+    const vm::vec3d& invariant);
 
-  void shear(const vm::vec3d& normal, const vm::vec2f& factors) override;
+  void shear(const vm::vec3d& normal, const vm::vec2f& factors);
 
   float measureAngle(
-    float currentAngle, const vm::vec2f& center, const vm::vec2f& point) const override;
+    float currentAngle, const vm::vec2f& center, const vm::vec2f& point) const;
 
-  std::tuple<std::unique_ptr<UvCoordSystem>, UvAttributes> toParallel(
-    const vm::vec3d& point0,
-    const vm::vec3d& point1,
-    const vm::vec3d& point2,
-    const UvAttributes& uvAttributes) const override;
-  std::tuple<std::unique_ptr<UvCoordSystem>, UvAttributes> toParaxial(
-    const vm::vec3d& point0,
-    const vm::vec3d& point1,
-    const vm::vec3d& point2,
-    const UvAttributes& uvAttributes) const override;
-
-private:
-  bool isRotationInverted(const vm::vec3d& normal) const override;
+  bool isRotationInverted(const vm::vec3d& normal) const;
 
   void updateNormalWithProjection(
-    const vm::vec3d& newNormal, const UvAttributes& uvAttributes) override;
+    const vm::vec3d& newNormal, const UvAttributes& uvAttributes);
   void updateNormalWithRotation(
     const vm::vec3d& oldNormal,
     const vm::vec3d& newNormal,
-    const UvAttributes& uvAttributes) override;
+    const UvAttributes& uvAttributes);
 
+private:
   float computeRotationAngle(
     const vm::plane3d& oldBoundary, const vm::mat4x4d& transformation) const;
-
-  deleteCopyAndMove(ParallelUvCoordSystem);
 };
 
 } // namespace tb::mdl

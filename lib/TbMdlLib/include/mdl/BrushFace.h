@@ -37,7 +37,6 @@
 #include "vm/vec.h"
 
 #include <array>
-#include <memory>
 #include <optional>
 #include <ranges>
 #include <string>
@@ -52,7 +51,6 @@ class Material;
 
 namespace mdl
 {
-class UvCoordSystem;
 enum class MapFormat;
 
 class BrushFace : public Taggable
@@ -98,7 +96,7 @@ private:
   SurfaceAttributes m_surfaceAttributes;
 
   AssetReference<gl::Material> m_materialReference;
-  std::unique_ptr<UvCoordSystem> m_uvCoordSystem;
+  UvCoordSystem m_uvCoordSystem;
   BrushFaceGeometry* m_geometry = nullptr;
 
   mutable size_t m_lineNumber = 0;
@@ -189,7 +187,7 @@ public:
     std::string materialName,
     const UvAttributes& uvAttributes,
     const SurfaceAttributes& surfaceAttributes,
-    std::unique_ptr<UvCoordSystem> uvCoordSystem);
+    UvCoordSystem uvCoordSystem);
 
   BrushFace(
     const BrushFace::Points& points,
@@ -197,7 +195,7 @@ public:
     std::string materialName,
     const UvAttributes& uvAttributes,
     const SurfaceAttributes& surfaceAttributes,
-    std::unique_ptr<UvCoordSystem> uvCoordSystem);
+    UvCoordSystem uvCoordSystem);
 
   static void sortFaces(std::vector<BrushFace>& faces);
 

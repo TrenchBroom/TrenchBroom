@@ -19,7 +19,8 @@
 
 #pragma once
 
-#include "base/Macros.h"
+#include "mdl/ParallelUvCoordSystem.h"
+#include "mdl/ParaxialUvCoordSystem.h"
 #include "mdl/UvAttributes.h"
 
 #include "kd/reflection_decl.h"
@@ -28,9 +29,9 @@
 #include "vm/plane.h"
 #include "vm/vec.h"
 
-#include <memory>
 #include <optional>
 #include <tuple>
+#include <variant>
 
 namespace tb::mdl
 {
@@ -54,51 +55,65 @@ enum class WrapStyle
   Rotation
 };
 
+/**
+ * The UV coordinate system of a brush face, which maps points on the face to UV coords.
+ *
+ * Which kind of UV coordinate system a face uses depends on the map format.
+ */
 class UvCoordSystem
 {
+private:
+  std::variant<ParaxialUvCoordSystem, ParallelUvCoordSystem> m_system;
+
+  kdl_reflect_decl(UvCoordSystem, m_system);
+
 public:
-  UvCoordSystem();
-  virtual ~UvCoordSystem();
+  explicit UvCoordSystem(ParaxialUvCoordSystem system);
+  explicit UvCoordSystem(ParallelUvCoordSystem system);
 
-  friend bool operator==(const UvCoordSystem& lhs, const UvCoordSystem& rhs);
-  friend bool operator!=(const UvCoordSystem& lhs, const UvCoordSystem& rhs);
-
-  virtual std::unique_ptr<UvCoordSystem> clone() const = 0;
+  /**
+   * Indicates whether this is a UV coordinate system of the given type.
+   */
+  template <typename T>
+  bool is() const
+  {
+    return std::holds_alternative<T>(m_system);
+  }
 
   /**
    * Returns nullopt if this UV coordinate system's axes are derived from the face plane
    * and therefore cannot be transferred to a face with a different plane.
    */
-  virtual std::optional<UvCoordSystemSnapshot> takeSnapshot() const = 0;
-  virtual void restoreSnapshot(const UvCoordSystemSnapshot& snapshot) = 0;
+  std::optional<UvCoordSystemSnapshot> takeSnapshot() const;
+  void restoreSnapshot(const UvCoordSystemSnapshot& snapshot);
 
-  virtual vm::vec3d uAxis() const = 0;
-  virtual vm::vec3d vAxis() const = 0;
-  virtual vm::vec3d normal() const = 0;
+  vm::vec3d uAxis() const;
+  vm::vec3d vAxis() const;
+  vm::vec3d normal() const;
 
-  virtual void resetCache(
+  void resetCache(
     const vm::vec3d& point0,
     const vm::vec3d& point1,
     const vm::vec3d& point2,
-    const UvAttributes& uvAttributes) = 0;
-  virtual void reset(const vm::vec3d& normal) = 0;
-  virtual void resetToParaxial(const vm::vec3d& normal, float angle) = 0;
-  virtual void resetToParallel(const vm::vec3d& normal, float angle) = 0;
+    const UvAttributes& uvAttributes);
+  void reset(const vm::vec3d& normal);
+  void resetToParaxial(const vm::vec3d& normal, float angle);
+  void resetToParallel(const vm::vec3d& normal, float angle);
 
   vm::vec2f uvCoords(
     const vm::vec3d& point,
     const UvAttributes& uvAttributes,
     const vm::vec2f& textureSize) const;
 
-  virtual void setRotation(const vm::vec3d& normal, float oldAngle, float newAngle) = 0;
-  virtual void transform(
+  void setRotation(const vm::vec3d& normal, float oldAngle, float newAngle);
+  void transform(
     const vm::plane3d& oldBoundary,
     const vm::plane3d& newBoundary,
     const vm::mat4x4d& transformation,
     UvAttributes& uvAttributes,
     const vm::vec2f& textureSize,
     bool lockTexture,
-    const vm::vec3d& invariant) = 0;
+    const vm::vec3d& invariant);
   void setNormal(
     const vm::vec3d& oldNormal,
     const vm::vec3d& newNormal,
@@ -112,37 +127,27 @@ public:
     const vm::vec2f& offset,
     UvAttributes& uvAttributes) const;
   void rotate(const vm::vec3d& normal, float angle, UvAttributes& uvAttributes) const;
-  virtual void shear(const vm::vec3d& normal, const vm::vec2f& factors) = 0;
+  void shear(const vm::vec3d& normal, const vm::vec2f& factors);
 
   vm::mat4x4d toMatrix(const vm::vec2f& offset, const vm::vec2f& scale) const;
   vm::mat4x4d fromMatrix(const vm::vec2f& offset, const vm::vec2f& scale) const;
 
-  virtual float measureAngle(
-    float currentAngle, const vm::vec2f& center, const vm::vec2f& point) const = 0;
+  float measureAngle(
+    float currentAngle, const vm::vec2f& center, const vm::vec2f& point) const;
 
-  virtual std::tuple<std::unique_ptr<UvCoordSystem>, UvAttributes> toParallel(
+  std::tuple<UvCoordSystem, UvAttributes> toParallel(
     const vm::vec3d& point0,
     const vm::vec3d& point1,
     const vm::vec3d& point2,
-    const UvAttributes& uvAttributes) const = 0;
-  virtual std::tuple<std::unique_ptr<UvCoordSystem>, UvAttributes> toParaxial(
+    const UvAttributes& uvAttributes) const;
+  std::tuple<UvCoordSystem, UvAttributes> toParaxial(
     const vm::vec3d& point0,
     const vm::vec3d& point1,
     const vm::vec3d& point2,
-    const UvAttributes& uvAttributes) const = 0;
+    const UvAttributes& uvAttributes) const;
 
 private:
-  virtual bool isRotationInverted(const vm::vec3d& normal) const = 0;
-
-  virtual void updateNormalWithProjection(
-    const vm::vec3d& newNormal, const UvAttributes& uvAttributes) = 0;
-  virtual void updateNormalWithRotation(
-    const vm::vec3d& oldNormal,
-    const vm::vec3d& newNormal,
-    const UvAttributes& uvAttributes) = 0;
-
-protected:
-  deleteCopyAndMove(UvCoordSystem);
+  bool isRotationInverted(const vm::vec3d& normal) const;
 };
 
 } // namespace tb::mdl

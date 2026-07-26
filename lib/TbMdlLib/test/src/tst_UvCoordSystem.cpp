@@ -38,13 +38,15 @@ TEST_CASE("UvCoordSystem")
   {
     SECTION("paraxial UV axes cannot be snapshotted")
     {
-      const auto paraxial = ParaxialUvCoordSystem{vm::vec3d{0, 0, 1}, UvAttributes{}};
+      const auto paraxial =
+        UvCoordSystem{ParaxialUvCoordSystem{vm::vec3d{0, 0, 1}, UvAttributes{}}};
       CHECK(paraxial.takeSnapshot() == std::nullopt);
     }
 
     SECTION("parallel UV axes can be snapshotted and restored")
     {
-      auto parallel = ParallelUvCoordSystem{vm::vec3d{0, 1, 0}, vm::vec3d{1, 0, 0}};
+      auto parallel =
+        UvCoordSystem{ParallelUvCoordSystem{vm::vec3d{0, 1, 0}, vm::vec3d{1, 0, 0}}};
       const auto snapshot = parallel.takeSnapshot();
       REQUIRE(
         snapshot

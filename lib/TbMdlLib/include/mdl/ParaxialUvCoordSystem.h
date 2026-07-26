@@ -19,23 +19,31 @@
 
 #pragma once
 
-#include "base/Macros.h"
-#include "mdl/UvCoordSystem.h"
+#include "mdl/UvAttributes.h"
 
+#include "kd/reflection_decl.h"
+
+#include "vm/mat.h"
+#include "vm/plane.h"
 #include "vm/vec.h"
 
-#include <memory>
-#include <optional>
+#include <tuple>
 
 namespace tb::mdl
 {
 
-class ParaxialUvCoordSystem : public UvCoordSystem
+/**
+ * A UV coordinate system whose axes are snapped to the axis plane which best matches the
+ * face plane. Clients should use UvCoordSystem instead of using this class directly.
+ */
+class ParaxialUvCoordSystem
 {
 private:
   size_t m_index = 0;
   vm::vec3d m_uAxis;
   vm::vec3d m_vAxis;
+
+  kdl_reflect_decl(ParaxialUvCoordSystem, m_index, m_uAxis, m_vAxis);
 
 public:
   ParaxialUvCoordSystem(
@@ -46,7 +54,7 @@ public:
   ParaxialUvCoordSystem(const vm::vec3d& normal, const UvAttributes& uvAttributes);
   ParaxialUvCoordSystem(size_t index, const vm::vec3d& uAxis, const vm::vec3d& vAxis);
 
-  static std::tuple<std::unique_ptr<UvCoordSystem>, UvAttributes> fromParallel(
+  static std::tuple<ParaxialUvCoordSystem, UvAttributes> fromParallel(
     const vm::vec3d& point0,
     const vm::vec3d& point1,
     const vm::vec3d& point2,
@@ -57,24 +65,20 @@ public:
   static size_t planeNormalIndex(const vm::vec3d& normal);
   static std::tuple<vm::vec3d, vm::vec3d, vm::vec3d> axes(size_t index);
 
-  std::unique_ptr<UvCoordSystem> clone() const override;
-  std::optional<UvCoordSystemSnapshot> takeSnapshot() const override;
-  void restoreSnapshot(const UvCoordSystemSnapshot& snapshot) override;
-
-  vm::vec3d uAxis() const override;
-  vm::vec3d vAxis() const override;
-  vm::vec3d normal() const override;
+  vm::vec3d uAxis() const;
+  vm::vec3d vAxis() const;
+  vm::vec3d normal() const;
 
   void resetCache(
     const vm::vec3d& point0,
     const vm::vec3d& point1,
     const vm::vec3d& point2,
-    const UvAttributes& uvAttributes) override;
-  void reset(const vm::vec3d& normal) override;
-  void resetToParaxial(const vm::vec3d& normal, float angle) override;
-  void resetToParallel(const vm::vec3d& normal, float angle) override;
+    const UvAttributes& uvAttributes);
+  void reset(const vm::vec3d& normal);
+  void resetToParaxial(const vm::vec3d& normal, float angle);
+  void resetToParallel(const vm::vec3d& normal, float angle);
 
-  void setRotation(const vm::vec3d& normal, float oldAngle, float newAngle) override;
+  void setRotation(const vm::vec3d& normal, float oldAngle, float newAngle);
   void transform(
     const vm::plane3d& oldBoundary,
     const vm::plane3d& newBoundary,
@@ -82,35 +86,21 @@ public:
     UvAttributes& uvAttributes,
     const vm::vec2f& textureSize,
     bool lockTexture,
-    const vm::vec3d& invariant) override;
+    const vm::vec3d& invariant);
 
-  void shear(const vm::vec3d& normal, const vm::vec2f& factors) override;
+  void shear(const vm::vec3d& normal, const vm::vec2f& factors);
 
   float measureAngle(
-    float currentAngle, const vm::vec2f& center, const vm::vec2f& point) const override;
+    float currentAngle, const vm::vec2f& center, const vm::vec2f& point) const;
 
-  std::tuple<std::unique_ptr<UvCoordSystem>, UvAttributes> toParallel(
-    const vm::vec3d& point0,
-    const vm::vec3d& point1,
-    const vm::vec3d& point2,
-    const UvAttributes& uvAttributes) const override;
-  std::tuple<std::unique_ptr<UvCoordSystem>, UvAttributes> toParaxial(
-    const vm::vec3d& point0,
-    const vm::vec3d& point1,
-    const vm::vec3d& point2,
-    const UvAttributes& uvAttributes) const override;
-
-private:
-  bool isRotationInverted(const vm::vec3d& normal) const override;
+  bool isRotationInverted(const vm::vec3d& normal) const;
 
   void updateNormalWithProjection(
-    const vm::vec3d& newNormal, const UvAttributes& uvAttributes) override;
+    const vm::vec3d& newNormal, const UvAttributes& uvAttributes);
   void updateNormalWithRotation(
     const vm::vec3d& oldNormal,
     const vm::vec3d& newNormal,
-    const UvAttributes& uvAttributes) override;
-
-  deleteCopyAndMove(ParaxialUvCoordSystem);
+    const UvAttributes& uvAttributes);
 };
 
 } // namespace tb::mdl

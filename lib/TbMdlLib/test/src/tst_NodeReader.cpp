@@ -74,9 +74,7 @@ TEST_CASE("NodeReader")
     REQUIRE(brushNode != nullptr);
 
     auto brush = brushNode->brush();
-    CHECK(
-      dynamic_cast<const ParaxialUvCoordSystem*>(&brush.face(0).uvCoordSystem())
-      != nullptr);
+    CHECK(brush.face(0).uvCoordSystem().is<ParaxialUvCoordSystem>());
   }
 
   SECTION("convertValveToStandardMapFormatInGroups")
@@ -111,9 +109,7 @@ TEST_CASE("NodeReader")
     REQUIRE(brushNode != nullptr);
 
     const auto brush = brushNode->brush();
-    CHECK(
-      dynamic_cast<const ParaxialUvCoordSystem*>(&brush.face(0).uvCoordSystem())
-      != nullptr);
+    CHECK(brush.face(0).uvCoordSystem().is<ParaxialUvCoordSystem>());
   }
 
   SECTION("readScientificNotation")

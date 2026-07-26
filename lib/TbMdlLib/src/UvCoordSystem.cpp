@@ -21,20 +21,98 @@
 
 #include "mdl/UvUtils.h"
 
+#include "kd/contracts.h"
+#include "kd/overload.h"
 #include "kd/reflection_impl.h"
 
 #include "vm/mat.h"
 #include "vm/mat_ext.h"
 #include "vm/vec_io.h" // IWYU pragma: keep
 
+#include <utility>
+
 namespace tb::mdl
 {
 
 kdl_reflect_impl(UvCoordSystemSnapshot);
 
-UvCoordSystem::UvCoordSystem() = default;
+kdl_reflect_impl(UvCoordSystem);
 
-UvCoordSystem::~UvCoordSystem() = default;
+UvCoordSystem::UvCoordSystem(ParaxialUvCoordSystem system)
+  : m_system{std::move(system)}
+{
+}
+
+UvCoordSystem::UvCoordSystem(ParallelUvCoordSystem system)
+  : m_system{std::move(system)}
+{
+}
+
+std::optional<UvCoordSystemSnapshot> UvCoordSystem::takeSnapshot() const
+{
+  return std::visit(
+    kdl::overload(
+      [](const ParaxialUvCoordSystem&) -> std::optional<UvCoordSystemSnapshot> {
+        // the UV axes are derived from the face plane, so there is nothing to transfer
+        return std::nullopt;
+      },
+      [](const ParallelUvCoordSystem& system) -> std::optional<UvCoordSystemSnapshot> {
+        return UvCoordSystemSnapshot{system.uAxis(), system.vAxis()};
+      }),
+    m_system);
+}
+
+void UvCoordSystem::restoreSnapshot(const UvCoordSystemSnapshot& snapshot)
+{
+  std::visit(
+    kdl::overload(
+      [](ParaxialUvCoordSystem&) { contract_assert(false); },
+      [&](ParallelUvCoordSystem& system) {
+        system.setAxes(snapshot.uAxis, snapshot.vAxis);
+      }),
+    m_system);
+}
+
+vm::vec3d UvCoordSystem::uAxis() const
+{
+  return std::visit([](const auto& system) { return system.uAxis(); }, m_system);
+}
+
+vm::vec3d UvCoordSystem::vAxis() const
+{
+  return std::visit([](const auto& system) { return system.vAxis(); }, m_system);
+}
+
+vm::vec3d UvCoordSystem::normal() const
+{
+  return std::visit([](const auto& system) { return system.normal(); }, m_system);
+}
+
+void UvCoordSystem::resetCache(
+  const vm::vec3d& point0,
+  const vm::vec3d& point1,
+  const vm::vec3d& point2,
+  const UvAttributes& uvAttributes)
+{
+  std::visit(
+    [&](auto& system) { system.resetCache(point0, point1, point2, uvAttributes); },
+    m_system);
+}
+
+void UvCoordSystem::reset(const vm::vec3d& normal)
+{
+  std::visit([&](auto& system) { system.reset(normal); }, m_system);
+}
+
+void UvCoordSystem::resetToParaxial(const vm::vec3d& normal, const float angle)
+{
+  std::visit([&](auto& system) { system.resetToParaxial(normal, angle); }, m_system);
+}
+
+void UvCoordSystem::resetToParallel(const vm::vec3d& normal, const float angle)
+{
+  std::visit([&](auto& system) { system.resetToParallel(normal, angle); }, m_system);
+}
 
 vm::vec2f UvCoordSystem::uvCoords(
   const vm::vec3d& point,
@@ -46,14 +124,34 @@ vm::vec2f UvCoordSystem::uvCoords(
          / textureSize;
 }
 
-bool operator==(const UvCoordSystem& lhs, const UvCoordSystem& rhs)
+void UvCoordSystem::setRotation(
+  const vm::vec3d& normal, const float oldAngle, const float newAngle)
 {
-  return lhs.uAxis() == rhs.uAxis() && lhs.vAxis() == rhs.vAxis();
+  std::visit(
+    [&](auto& system) { system.setRotation(normal, oldAngle, newAngle); }, m_system);
 }
 
-bool operator!=(const UvCoordSystem& lhs, const UvCoordSystem& rhs)
+void UvCoordSystem::transform(
+  const vm::plane3d& oldBoundary,
+  const vm::plane3d& newBoundary,
+  const vm::mat4x4d& transformation,
+  UvAttributes& uvAttributes,
+  const vm::vec2f& textureSize,
+  const bool lockTexture,
+  const vm::vec3d& invariant)
 {
-  return !(lhs == rhs);
+  std::visit(
+    [&](auto& system) {
+      system.transform(
+        oldBoundary,
+        newBoundary,
+        transformation,
+        uvAttributes,
+        textureSize,
+        lockTexture,
+        invariant);
+    },
+    m_system);
 }
 
 void UvCoordSystem::setNormal(
@@ -64,15 +162,19 @@ void UvCoordSystem::setNormal(
 {
   if (oldNormal != newNormal)
   {
-    switch (style)
-    {
-    case WrapStyle::Rotation:
-      updateNormalWithRotation(oldNormal, newNormal, uvAttributes);
-      break;
-    case WrapStyle::Projection:
-      updateNormalWithProjection(newNormal, uvAttributes);
-      break;
-    }
+    std::visit(
+      [&](auto& system) {
+        switch (style)
+        {
+        case WrapStyle::Rotation:
+          system.updateNormalWithRotation(oldNormal, newNormal, uvAttributes);
+          break;
+        case WrapStyle::Projection:
+          system.updateNormalWithProjection(newNormal, uvAttributes);
+          break;
+        }
+      },
+      m_system);
   }
 }
 
@@ -173,6 +275,11 @@ void UvCoordSystem::rotate(
   uvAttributes.rotation = uvAttributes.rotation + actualAngle;
 }
 
+void UvCoordSystem::shear(const vm::vec3d& normal, const vm::vec2f& factors)
+{
+  std::visit([&](auto& system) { system.shear(normal, factors); }, m_system);
+}
+
 vm::mat4x4d UvCoordSystem::toMatrix(const vm::vec2f& offset, const vm::vec2f& scale) const
 {
   return computeWorldToUvMatrix(uAxis(), vAxis(), normal(), offset, scale);
@@ -182,6 +289,64 @@ vm::mat4x4d UvCoordSystem::fromMatrix(
   const vm::vec2f& offset, const vm::vec2f& scale) const
 {
   return computeUvToWorldMatrix(uAxis(), vAxis(), normal(), offset, scale);
+}
+
+float UvCoordSystem::measureAngle(
+  const float currentAngle, const vm::vec2f& center, const vm::vec2f& point) const
+{
+  return std::visit(
+    [&](const auto& system) { return system.measureAngle(currentAngle, center, point); },
+    m_system);
+}
+
+std::tuple<UvCoordSystem, UvAttributes> UvCoordSystem::toParallel(
+  const vm::vec3d& point0,
+  const vm::vec3d& point1,
+  const vm::vec3d& point2,
+  const UvAttributes& uvAttributes) const
+{
+  return std::visit(
+    kdl::overload(
+      [&](const ParaxialUvCoordSystem&) -> std::tuple<UvCoordSystem, UvAttributes> {
+        return {
+          UvCoordSystem{
+            ParallelUvCoordSystem::fromParaxial(point0, point1, point2, uvAttributes)},
+          uvAttributes};
+      },
+      [&](
+        const ParallelUvCoordSystem& system) -> std::tuple<UvCoordSystem, UvAttributes> {
+        // Already in the requested format
+        return {UvCoordSystem{system}, uvAttributes};
+      }),
+    m_system);
+}
+
+std::tuple<UvCoordSystem, UvAttributes> UvCoordSystem::toParaxial(
+  const vm::vec3d& point0,
+  const vm::vec3d& point1,
+  const vm::vec3d& point2,
+  const UvAttributes& uvAttributes) const
+{
+  return std::visit(
+    kdl::overload(
+      [&](
+        const ParaxialUvCoordSystem& system) -> std::tuple<UvCoordSystem, UvAttributes> {
+        // Already in the requested format
+        return {UvCoordSystem{system}, uvAttributes};
+      },
+      [&](
+        const ParallelUvCoordSystem& system) -> std::tuple<UvCoordSystem, UvAttributes> {
+        auto [paraxial, newUvAttributes] = ParaxialUvCoordSystem::fromParallel(
+          point0, point1, point2, uvAttributes, system.uAxis(), system.vAxis());
+        return {UvCoordSystem{std::move(paraxial)}, newUvAttributes};
+      }),
+    m_system);
+}
+
+bool UvCoordSystem::isRotationInverted(const vm::vec3d& normal) const
+{
+  return std::visit(
+    [&](const auto& system) { return system.isRotationInverted(normal); }, m_system);
 }
 
 } // namespace tb::mdl
