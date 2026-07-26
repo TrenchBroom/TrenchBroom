@@ -50,7 +50,8 @@ auto makeFace(const std::tuple<vm::vec3d, vm::vec3d, vm::vec3d>& face)
            std::get<1>(face),
            std::get<2>(face),
            "someName",
-           BrushFaceAttributes{},
+           UvAttributes{},
+           SurfaceAttributes{},
            MapFormat::Standard)
          | kdl::value();
 };

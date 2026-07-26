@@ -154,42 +154,48 @@ Result<Brush> BrushBuilder::createCuboid(
              bounds.min + vm::vec3d{0, 1, 0},
              bounds.min + vm::vec3d{0, 0, 1},
              leftMaterial,
-             m_defaultAttribs,
+             m_defaultAttribs.uvAttributes(),
+             m_defaultAttribs.surfaceAttributes(),
              m_mapFormat), // left
            BrushFace::create(
              bounds.max,
              bounds.max + vm::vec3d{0, 0, 1},
              bounds.max + vm::vec3d{0, 1, 0},
              rightMaterial,
-             m_defaultAttribs,
+             m_defaultAttribs.uvAttributes(),
+             m_defaultAttribs.surfaceAttributes(),
              m_mapFormat), // right
            BrushFace::create(
              bounds.min,
              bounds.min + vm::vec3d{0, 0, 1},
              bounds.min + vm::vec3d{1, 0, 0},
              frontMaterial,
-             m_defaultAttribs,
+             m_defaultAttribs.uvAttributes(),
+             m_defaultAttribs.surfaceAttributes(),
              m_mapFormat), // front
            BrushFace::create(
              bounds.max,
              bounds.max + vm::vec3d{1, 0, 0},
              bounds.max + vm::vec3d{0, 0, 1},
              backMaterial,
-             m_defaultAttribs,
+             m_defaultAttribs.uvAttributes(),
+             m_defaultAttribs.surfaceAttributes(),
              m_mapFormat), // back
            BrushFace::create(
              bounds.max,
              bounds.max + vm::vec3d{0, 1, 0},
              bounds.max + vm::vec3d{1, 0, 0},
              topMaterial,
-             m_defaultAttribs,
+             m_defaultAttribs.uvAttributes(),
+             m_defaultAttribs.surfaceAttributes(),
              m_mapFormat), // top
            BrushFace::create(
              bounds.min,
              bounds.min + vm::vec3d{1, 0, 0},
              bounds.min + vm::vec3d{0, 1, 0},
              bottomMaterial,
-             m_defaultAttribs,
+             m_defaultAttribs.uvAttributes(),
+             m_defaultAttribs.surfaceAttributes(),
              m_mapFormat), // bottom
          }
          | kdl::fold | kdl::and_then([&](auto faces) {
@@ -854,7 +860,13 @@ Result<Brush> BrushBuilder::createIcoSphere(
              const auto& p2 = sphereVertices[face[1]];
              const auto& p3 = sphereVertices[face[2]];
              return BrushFace::create(
-               p1, p2, p3, textureName, m_defaultAttribs, m_mapFormat);
+               p1,
+               p2,
+               p3,
+               textureName,
+               m_defaultAttribs.uvAttributes(),
+               m_defaultAttribs.surfaceAttributes(),
+               m_mapFormat);
            })
          | kdl::fold | kdl::and_then([&](auto f) {
              return Brush::create(m_worldBounds, std::move(f));
@@ -896,7 +908,13 @@ Result<Brush> BrushBuilder::createBrush(
            const auto& p3 = edge3->origin()->position();
 
            return BrushFace::create(
-             p1, p3, p2, materialName, m_defaultAttribs, m_mapFormat);
+             p1,
+             p3,
+             p2,
+             materialName,
+             m_defaultAttribs.uvAttributes(),
+             m_defaultAttribs.surfaceAttributes(),
+             m_mapFormat);
          })
          | kdl::fold | kdl::and_then([&](auto faces) {
              return Brush::create(m_worldBounds, std::move(faces));

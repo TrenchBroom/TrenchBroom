@@ -479,11 +479,19 @@ void StandardMapParser::parseQuakeFace(ParserStatus& status)
   const auto [p1, p2, p3] = parseFacePoints(status);
   auto materialName = parseMaterialName(status);
 
-  auto attribs = BrushFaceAttributes{};
-  attribs.setUvAttributes(parseUvAttributes());
+  const auto uvAttributes = parseUvAttributes();
+  auto surfaceAttributes = SurfaceAttributes{};
 
   onStandardBrushFace(
-    location, m_targetMapFormat, p1, p2, p3, std::move(materialName), attribs, status);
+    location,
+    m_targetMapFormat,
+    p1,
+    p2,
+    p3,
+    std::move(materialName),
+    uvAttributes,
+    surfaceAttributes,
+    status);
 }
 
 void StandardMapParser::parseQuake2Face(ParserStatus& status)
@@ -493,18 +501,26 @@ void StandardMapParser::parseQuake2Face(ParserStatus& status)
   const auto [p1, p2, p3] = parseFacePoints(status);
   auto materialName = parseMaterialName(status);
 
-  auto attribs = BrushFaceAttributes{};
-  attribs.setUvAttributes(parseUvAttributes());
+  const auto uvAttributes = parseUvAttributes();
+  auto surfaceAttributes = SurfaceAttributes{};
 
   // Quake 2 extra info is optional
   if (!m_tokenizer.peekToken().hasType(
         QuakeMapToken::OParenthesis | QuakeMapToken::CBrace | QuakeMapToken::Eof))
   {
-    attribs.setSurfaceAttributes(parseSurfaceAttributes(status, !K(parseColor)));
+    surfaceAttributes = parseSurfaceAttributes(status, !K(parseColor));
   }
 
   onStandardBrushFace(
-    location, m_targetMapFormat, p1, p2, p3, std::move(materialName), attribs, status);
+    location,
+    m_targetMapFormat,
+    p1,
+    p2,
+    p3,
+    std::move(materialName),
+    uvAttributes,
+    surfaceAttributes,
+    status);
 }
 
 void StandardMapParser::parseQuake2ValveFace(ParserStatus& status)
@@ -516,14 +532,14 @@ void StandardMapParser::parseQuake2ValveFace(ParserStatus& status)
 
   const auto [uAxis, uOffset, vAxis, vOffset] = parseValveUvAxes(status);
 
-  auto attribs = BrushFaceAttributes{};
-  attribs.setUvAttributes(parseUvAttributes({uOffset, vOffset}));
+  const auto uvAttributes = parseUvAttributes({uOffset, vOffset});
+  auto surfaceAttributes = SurfaceAttributes{};
 
   // Quake 2 extra info is optional
   if (!m_tokenizer.peekToken().hasType(
         QuakeMapToken::OParenthesis | QuakeMapToken::CBrace | QuakeMapToken::Eof))
   {
-    attribs.setSurfaceAttributes(parseSurfaceAttributes(status, !K(parseColor)));
+    surfaceAttributes = parseSurfaceAttributes(status, !K(parseColor));
   }
 
   onValveBrushFace(
@@ -533,7 +549,8 @@ void StandardMapParser::parseQuake2ValveFace(ParserStatus& status)
     p2,
     p3,
     std::move(materialName),
-    attribs,
+    uvAttributes,
+    surfaceAttributes,
     uAxis,
     vAxis,
     status);
@@ -546,8 +563,8 @@ void StandardMapParser::parseHexen2Face(ParserStatus& status)
   const auto [p1, p2, p3] = parseFacePoints(status);
   auto materialName = parseMaterialName(status);
 
-  auto attribs = BrushFaceAttributes{};
-  attribs.setUvAttributes(parseUvAttributes());
+  const auto uvAttributes = parseUvAttributes();
+  auto surfaceAttributes = SurfaceAttributes{};
 
   // Hexen 2 extra info is optional
   if (!m_tokenizer.peekToken().hasType(
@@ -557,7 +574,15 @@ void StandardMapParser::parseHexen2Face(ParserStatus& status)
   }
 
   onStandardBrushFace(
-    location, m_targetMapFormat, p1, p2, p3, std::move(materialName), attribs, status);
+    location,
+    m_targetMapFormat,
+    p1,
+    p2,
+    p3,
+    std::move(materialName),
+    uvAttributes,
+    surfaceAttributes,
+    status);
 }
 
 void StandardMapParser::parseDaikatanaFace(ParserStatus& status)
@@ -567,17 +592,25 @@ void StandardMapParser::parseDaikatanaFace(ParserStatus& status)
   const auto [p1, p2, p3] = parseFacePoints(status);
   auto materialName = parseMaterialName(status);
 
-  auto attribs = BrushFaceAttributes{};
-  attribs.setUvAttributes(parseUvAttributes());
+  const auto uvAttributes = parseUvAttributes();
+  auto surfaceAttributes = SurfaceAttributes{};
 
   // Daikatana extra info is optional
   if (m_tokenizer.peekToken().hasType(QuakeMapToken::Integer))
   {
-    attribs.setSurfaceAttributes(parseSurfaceAttributes(status, K(parseColor)));
+    surfaceAttributes = parseSurfaceAttributes(status, K(parseColor));
   }
 
   onStandardBrushFace(
-    location, m_targetMapFormat, p1, p2, p3, std::move(materialName), attribs, status);
+    location,
+    m_targetMapFormat,
+    p1,
+    p2,
+    p3,
+    std::move(materialName),
+    uvAttributes,
+    surfaceAttributes,
+    status);
 }
 
 void StandardMapParser::parseValveFace(ParserStatus& status)
@@ -589,8 +622,8 @@ void StandardMapParser::parseValveFace(ParserStatus& status)
 
   const auto [uAxis, uOffset, vAxis, vOffset] = parseValveUvAxes(status);
 
-  auto attribs = BrushFaceAttributes{};
-  attribs.setUvAttributes(parseUvAttributes({uOffset, vOffset}));
+  const auto uvAttributes = parseUvAttributes({uOffset, vOffset});
+  auto surfaceAttributes = SurfaceAttributes{};
 
   onValveBrushFace(
     location,
@@ -599,7 +632,8 @@ void StandardMapParser::parseValveFace(ParserStatus& status)
     p2,
     p3,
     std::move(materialName),
-    attribs,
+    uvAttributes,
+    surfaceAttributes,
     uAxis,
     vAxis,
     status);
@@ -619,17 +653,18 @@ void StandardMapParser::parsePrimitiveFace(ParserStatus& status)
   /* const auto materialName = */ parseMaterialName(status);
 
   // TODO 2427: what to set for offset, rotation, scale?!
-  auto attribs = BrushFaceAttributes{};
+  auto surfaceAttributes = SurfaceAttributes{};
 
   // Quake 2 extra info is optional
   if (!m_tokenizer.peekToken().hasType(
         QuakeMapToken::OParenthesis | QuakeMapToken::CBrace | QuakeMapToken::Eof))
   {
-    attribs.setSurfaceAttributes(parseSurfaceAttributes(status, !K(parseColor)));
+    surfaceAttributes = parseSurfaceAttributes(status, !K(parseColor));
   }
 
   // TODO 2427: create a brush face
-  // brushFace(line, p1, p2, p3, attribs, uAxis, vAxis, status);
+  // brushFace(line, p1, p2, p3, uvAttributes, surfaceAttributes, uAxis, vAxis,
+  // status);
 }
 
 void StandardMapParser::parsePatch(

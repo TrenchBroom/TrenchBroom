@@ -24,7 +24,9 @@
 #include "mdl/AssetReference.h"
 #include "mdl/BrushFaceAttributes.h"
 #include "mdl/BrushGeometry.h"
+#include "mdl/SurfaceAttributes.h"
 #include "mdl/Tag.h"
+#include "mdl/UvAttributes.h"
 
 #include "kd/reflection_decl.h"
 
@@ -135,7 +137,8 @@ public:
     const vm::vec3d& point1,
     const vm::vec3d& point2,
     std::string materialName,
-    const BrushFaceAttributes& attributes,
+    const UvAttributes& uvAttributes,
+    const SurfaceAttributes& surfaceAttributes,
     MapFormat mapFormat);
 
   /**
@@ -151,7 +154,8 @@ public:
     const vm::vec3d& point1,
     const vm::vec3d& point2,
     std::string materialName,
-    const BrushFaceAttributes& attributes,
+    const UvAttributes& uvAttributes,
+    const SurfaceAttributes& surfaceAttributes,
     MapFormat mapFormat);
 
   /**
@@ -167,7 +171,8 @@ public:
     const vm::vec3d& point2,
     const vm::vec3d& point3,
     std::string materialName,
-    const BrushFaceAttributes& attributes,
+    const UvAttributes& uvAttributes,
+    const SurfaceAttributes& surfaceAttributes,
     const vm::vec3d& uAxis,
     const vm::vec3d& vAxis,
     MapFormat mapFormat);
@@ -177,14 +182,16 @@ public:
     const vm::vec3d& point1,
     const vm::vec3d& point2,
     std::string materialName,
-    const BrushFaceAttributes& attributes,
+    const UvAttributes& uvAttributes,
+    const SurfaceAttributes& surfaceAttributes,
     std::unique_ptr<UvCoordSystem> uvCoordSystem);
 
   BrushFace(
     const BrushFace::Points& points,
     const vm::plane3d& boundary,
     std::string materialName,
-    BrushFaceAttributes attributes,
+    const UvAttributes& uvAttributes,
+    const SurfaceAttributes& surfaceAttributes,
     std::unique_ptr<UvCoordSystem> uvCoordSystem);
 
   static void sortFaces(std::vector<BrushFace>& faces);

@@ -166,15 +166,15 @@ BrushFace createParaxial(
   const vm::vec3d& point2,
   const std::string& materialName)
 {
-  const auto attributes = BrushFaceAttributes{};
+  const auto uvAttributes = UvAttributes{};
   return BrushFace::create(
            point0,
            point1,
            point2,
            materialName,
-           attributes,
-           std::make_unique<ParaxialUvCoordSystem>(
-             point0, point1, point2, attributes.uvAttributes()))
+           uvAttributes,
+           SurfaceAttributes{},
+           std::make_unique<ParaxialUvCoordSystem>(point0, point1, point2, uvAttributes))
          | kdl::value();
 }
 

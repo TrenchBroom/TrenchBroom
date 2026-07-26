@@ -36,7 +36,8 @@ struct FileLocation;
 namespace mdl
 {
 class EntityProperty;
-class BrushFaceAttributes;
+struct SurfaceAttributes;
+struct UvAttributes;
 
 class MapParser
 {
@@ -58,7 +59,8 @@ protected: // subclassing interface for users of the parser
     const vm::vec3d& point2,
     const vm::vec3d& point3,
     std::string materialName,
-    const BrushFaceAttributes& attribs,
+    const UvAttributes& uvAttributes,
+    const SurfaceAttributes& surfaceAttributes,
     ParserStatus& status) = 0;
   virtual void onValveBrushFace(
     const FileLocation& location,
@@ -67,7 +69,8 @@ protected: // subclassing interface for users of the parser
     const vm::vec3d& point2,
     const vm::vec3d& point3,
     std::string materialName,
-    const BrushFaceAttributes& attribs,
+    const UvAttributes& uvAttributes,
+    const SurfaceAttributes& surfaceAttributes,
     const vm::vec3d& uAxis,
     const vm::vec3d& vAxis,
     ParserStatus& status) = 0;

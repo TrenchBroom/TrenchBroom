@@ -45,7 +45,8 @@ BrushFace createBrushFace(std::string materialName, const BrushFaceAttributes& a
            {0, 1, 0},
            {1, 0, 0},
            std::move(materialName),
-           attributes,
+           attributes.uvAttributes(),
+           attributes.surfaceAttributes(),
            MapFormat::Quake2)
          | kdl::value();
 }

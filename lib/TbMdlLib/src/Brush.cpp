@@ -1260,7 +1260,13 @@ Result<Brush> Brush::createBrush(
            const auto& p2 = h2->origin()->position();
 
            return BrushFace::create(
-             p0, p1, p2, defaultMaterialName, BrushFaceAttributes{}, mapFormat);
+             p0,
+             p1,
+             p2,
+             defaultMaterialName,
+             UvAttributes{},
+             SurfaceAttributes{},
+             mapFormat);
          })
          | kdl::fold | kdl::and_then([&](std::vector<BrushFace>&& faces) {
              return Brush::create(worldBounds, std::move(faces));
