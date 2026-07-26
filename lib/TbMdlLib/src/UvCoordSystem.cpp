@@ -19,6 +19,8 @@
 
 #include "mdl/UvCoordSystem.h"
 
+#include "mdl/UvUtils.h"
+
 #include "vm/mat.h"
 #include "vm/mat_ext.h"
 
@@ -41,7 +43,9 @@ vm::vec2f UvCoordSystem::uvCoords(
   const UvAttributes& uvAttributes,
   const vm::vec2f& textureSize) const
 {
-  return (computeUvCoords(point, uvAttributes.scale) + uvAttributes.offset) / textureSize;
+  return (computeUvCoords(point, uAxis(), vAxis(), uvAttributes.scale)
+          + uvAttributes.offset)
+         / textureSize;
 }
 
 bool operator==(const UvCoordSystem& lhs, const UvCoordSystem& rhs)
@@ -171,43 +175,15 @@ void UvCoordSystem::rotate(
   uvAttributes.rotation = uvAttributes.rotation + actualAngle;
 }
 
-vm::mat4x4d UvCoordSystem::toMatrix(const vm::vec2f& o, const vm::vec2f& s) const
+vm::mat4x4d UvCoordSystem::toMatrix(const vm::vec2f& offset, const vm::vec2f& scale) const
 {
-  const vm::vec3d u = safeScaleAxis(uAxis(), s.x());
-  const vm::vec3d v = safeScaleAxis(vAxis(), s.y());
-  const vm::vec3d n = normal();
-
-  return vm::mat4x4d{
-    u[0],
-    u[1],
-    u[2],
-    o[0],
-    v[0],
-    v[1],
-    v[2],
-    o[1],
-    n[0],
-    n[1],
-    n[2],
-    0.0,
-    0.0,
-    0.0,
-    0.0,
-    1.0};
+  return computeWorldToUvMatrix(uAxis(), vAxis(), normal(), offset, scale);
 }
 
 vm::mat4x4d UvCoordSystem::fromMatrix(
   const vm::vec2f& offset, const vm::vec2f& scale) const
 {
-  return *invert(toMatrix(offset, scale));
-}
-
-vm::vec2f UvCoordSystem::computeUvCoords(
-  const vm::vec3d& point, const vm::vec2f& scale) const
-{
-  return vm::vec2f{
-    float(vm::dot(point, safeScaleAxis(uAxis(), scale.x()))),
-    float(vm::dot(point, safeScaleAxis(vAxis(), scale.y())))};
+  return computeUvToWorldMatrix(uAxis(), vAxis(), normal(), offset, scale);
 }
 
 } // namespace tb::mdl

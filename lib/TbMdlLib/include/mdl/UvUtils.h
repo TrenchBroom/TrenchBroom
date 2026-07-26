@@ -19,6 +19,9 @@
 
 #pragma once
 
+#include "vm/constants.h"
+#include "vm/mat.h"
+#include "vm/scalar.h"
 #include "vm/vec.h"
 
 #include <tuple>
@@ -30,5 +33,56 @@ namespace tb::mdl
  * Return the up and right axes for a camera that looks at the given face.
  */
 std::tuple<vm::vec3d, vm::vec3d> computeCameraAxesForFaceNormal(const vm::vec3d& normal);
+
+/**
+ * Returns the given scaling factor, or 1 if it is 0.
+ */
+template <typename T>
+T safeScale(const T value)
+{
+  return vm::is_equal(value, T(0.0), vm::constants<T>::almost_zero())
+           ? static_cast<T>(1.0)
+           : value;
+}
+
+/**
+ * Scales the given axis by the inverse of the given factor, treating a factor of 0 as 1.
+ */
+template <typename T1, typename T2>
+vm::vec<T1, 3> safeScaleAxis(const vm::vec<T1, 3>& axis, const T2 factor)
+{
+  return axis / safeScale(T1(factor));
+}
+
+/**
+ * Returns the UV coords of the given point in a UV coordinate system with the given axes
+ * and scaling factors, disregarding any offset.
+ */
+vm::vec2f computeUvCoords(
+  const vm::vec3d& point,
+  const vm::vec3d& uAxis,
+  const vm::vec3d& vAxis,
+  const vm::vec2f& scale);
+
+/**
+ * Returns a matrix which transforms a point from world space into the UV coordinate
+ * system with the given axes, offset and scaling factors.
+ */
+vm::mat4x4d computeWorldToUvMatrix(
+  const vm::vec3d& uAxis,
+  const vm::vec3d& vAxis,
+  const vm::vec3d& normal,
+  const vm::vec2f& offset,
+  const vm::vec2f& scale);
+
+/**
+ * Returns the inverse of computeWorldToUvMatrix.
+ */
+vm::mat4x4d computeUvToWorldMatrix(
+  const vm::vec3d& uAxis,
+  const vm::vec3d& vAxis,
+  const vm::vec3d& normal,
+  const vm::vec2f& offset,
+  const vm::vec2f& scale);
 
 } // namespace tb::mdl

@@ -20,6 +20,7 @@
 #include "mdl/ParallelUvCoordSystem.h"
 
 #include "mdl/ParaxialUvCoordSystem.h"
+#include "mdl/UvUtils.h"
 
 #include "kd/contracts.h"
 
@@ -241,11 +242,13 @@ void ParallelUvCoordSystem::transform(
 
   // calculate the current UV coordinates of the face's center
   const auto oldInvariantUvCoords =
-    computeUvCoords(oldInvariant, uvAttributes.scale) + uvAttributes.offset;
+    computeUvCoords(oldInvariant, m_uAxis, m_vAxis, uvAttributes.scale)
+    + uvAttributes.offset;
   contract_assert(!vm::is_nan(oldInvariantUvCoords));
 
   // compute the new UV axes
-  const auto worldToTexSpace = toMatrix(vm::vec2f{0, 0}, vm::vec2f{1, 1});
+  const auto worldToTexSpace =
+    computeWorldToUvMatrix(m_uAxis, m_vAxis, normal(), vm::vec2f{0, 0}, vm::vec2f{1, 1});
 
   // The formula for UV is:
   //
@@ -274,7 +277,8 @@ void ParallelUvCoordSystem::transform(
   // determine the new texture coordinates of the transformed center of the face, sans
   // offsets
   const auto newInvariant = effectiveTransformation * oldInvariant;
-  const auto newInvariantUvCoords = computeUvCoords(newInvariant, uvAttributes.scale);
+  const auto newInvariantUvCoords =
+    computeUvCoords(newInvariant, m_uAxis, m_vAxis, uvAttributes.scale);
 
   // since the center should be invariant, the offsets are determined by the difference of
   // the current and the original texture coordinates of the center

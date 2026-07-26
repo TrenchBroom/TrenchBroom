@@ -20,6 +20,7 @@
 #include "mdl/ParaxialUvCoordSystem.h"
 
 #include "mdl/ParallelUvCoordSystem.h"
+#include "mdl/UvUtils.h"
 
 #include "kd/contracts.h"
 
@@ -617,7 +618,8 @@ void ParaxialUvCoordSystem::transform(
 
   // calculate the current UV coordinates of the origin
   const auto oldInvariantUvCoords =
-    computeUvCoords(oldInvariant, uvAttributes.scale) + uvAttributes.offset;
+    computeUvCoords(oldInvariant, m_uAxis, m_vAxis, uvAttributes.scale)
+    + uvAttributes.offset;
 
   // project the UV axes onto the boundary plane along the normal axis
   const auto scale = vm::vec2d{uvAttributes.scale};
@@ -708,7 +710,8 @@ void ParaxialUvCoordSystem::transform(
 
     // determine the new texture coordinates of the transformed center of the face, sans
     // offsets
-    const auto newInvariantUvCoords = computeUvCoords(newInvariant, newScale);
+    const auto newInvariantUvCoords =
+      computeUvCoords(newInvariant, m_uAxis, m_vAxis, newScale);
 
     // since the center should be invariant, the offsets are determined by the difference
     // of the current and the original texture coordiknates of the center
