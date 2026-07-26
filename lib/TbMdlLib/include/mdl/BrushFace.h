@@ -92,10 +92,10 @@ private:
   vm::plane3d m_boundary;
 
   std::string m_materialName;
+  UvCoordSystem m_uvCoordSystem;
   SurfaceAttributes m_surfaceAttributes;
 
   AssetReference<gl::Material> m_materialReference;
-  UvCoordSystem m_uvCoordSystem;
   BrushFaceGeometry* m_geometry = nullptr;
 
   mutable size_t m_lineNumber = 0;
@@ -188,15 +188,15 @@ public:
     const vm::vec3d& point1,
     const vm::vec3d& point2,
     std::string materialName,
-    const SurfaceAttributes& surfaceAttributes,
-    UvCoordSystem uvCoordSystem);
+    UvCoordSystem uvCoordSystem,
+    const SurfaceAttributes& surfaceAttributes);
 
   BrushFace(
     const BrushFace::Points& points,
     const vm::plane3d& boundary,
     std::string materialName,
-    const SurfaceAttributes& surfaceAttributes,
-    UvCoordSystem uvCoordSystem);
+    UvCoordSystem uvCoordSystem,
+    const SurfaceAttributes& surfaceAttributes);
 
   static void sortFaces(std::vector<BrushFace>& faces);
 

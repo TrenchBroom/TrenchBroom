@@ -45,7 +45,6 @@
 #include "vm/vec.h"
 #include "vm/vec_io.h" // IWYU pragma: keep
 
-#include <memory>
 #include <vector>
 
 #include <catch2/catch_test_macros.hpp>
@@ -474,8 +473,8 @@ TEST_CASE("BrushFace")
                   p1,
                   p2,
                   "",
-                  SurfaceAttributes{},
-                  UvCoordSystem{ParaxialUvCoordSystem{p0, p1, p2, UvAttributes{}}})
+                  UvCoordSystem{ParaxialUvCoordSystem{p0, p1, p2, UvAttributes{}}},
+                  SurfaceAttributes{})
                 | kdl::value();
     CHECK(face.points()[0] == vm::approx{p0});
     CHECK(face.points()[1] == vm::approx{p1});
@@ -495,8 +494,8 @@ TEST_CASE("BrushFace")
       p1,
       p2,
       "",
-      SurfaceAttributes{},
-      UvCoordSystem{ParaxialUvCoordSystem{p0, p1, p2, UvAttributes{}}}));
+      UvCoordSystem{ParaxialUvCoordSystem{p0, p1, p2, UvAttributes{}}},
+      SurfaceAttributes{}));
   }
 
   SECTION("materialUsageCount")
@@ -519,8 +518,8 @@ TEST_CASE("BrushFace")
                     p1,
                     p2,
                     "",
-                    SurfaceAttributes{},
-                    UvCoordSystem{ParaxialUvCoordSystem{p0, p1, p2, UvAttributes{}}})
+                    UvCoordSystem{ParaxialUvCoordSystem{p0, p1, p2, UvAttributes{}}},
+                    SurfaceAttributes{})
                   | kdl::value();
       CHECK(material.usageCount() == 0u);
 

@@ -67,9 +67,9 @@ BrushFace::BrushFace(const BrushFace& other)
   , m_points{other.m_points}
   , m_boundary{other.m_boundary}
   , m_materialName{other.m_materialName}
+  , m_uvCoordSystem{other.m_uvCoordSystem}
   , m_surfaceAttributes{other.m_surfaceAttributes}
   , m_materialReference{other.m_materialReference}
-  , m_uvCoordSystem{other.m_uvCoordSystem}
   , m_lineNumber{other.m_lineNumber}
   , m_lineCount{other.m_lineCount}
   , m_selected{other.m_selected}
@@ -83,9 +83,9 @@ BrushFace::BrushFace(BrushFace&& other) noexcept
   , m_points{std::move(other.m_points)}
   , m_boundary{std::move(other.m_boundary)}
   , m_materialName{std::move(other.m_materialName)}
+  , m_uvCoordSystem{std::move(other.m_uvCoordSystem)}
   , m_surfaceAttributes{std::move(other.m_surfaceAttributes)}
   , m_materialReference{std::move(other.m_materialReference)}
-  , m_uvCoordSystem{std::move(other.m_uvCoordSystem)}
   , m_geometry{other.m_geometry}
   , m_lineNumber{other.m_lineNumber}
   , m_lineCount{other.m_lineCount}
@@ -141,8 +141,8 @@ Result<BrushFace> BrushFace::create(
     point1,
     point2,
     std::move(materialName),
-    surfaceAttributes,
-    std::move(uvCoordSystem));
+    std::move(uvCoordSystem),
+    surfaceAttributes);
 }
 
 Result<BrushFace> BrushFace::createFromStandard(
@@ -168,8 +168,8 @@ Result<BrushFace> BrushFace::createFromStandard(
     point1,
     point2,
     std::move(materialName),
-    surfaceAttributes,
-    std::move(uvCoordSystem));
+    std::move(uvCoordSystem),
+    surfaceAttributes);
 }
 
 Result<BrushFace> BrushFace::createFromValve(
@@ -193,8 +193,8 @@ Result<BrushFace> BrushFace::createFromValve(
       point2,
       point3,
       std::move(materialName),
-      surfaceAttributes,
-      UvCoordSystem{ParallelUvCoordSystem{uAxis, vAxis, uvAttributes}});
+      UvCoordSystem{ParallelUvCoordSystem{uAxis, vAxis, uvAttributes}},
+      surfaceAttributes);
   }
 
   // Convert parallel to paraxial
@@ -203,9 +203,9 @@ Result<BrushFace> BrushFace::createFromValve(
     point2,
     point3,
     std::move(materialName),
-    surfaceAttributes,
     UvCoordSystem{ParaxialUvCoordSystem::fromParallel(
-      point1, point2, point3, uvAttributes, uAxis, vAxis)});
+      point1, point2, point3, uvAttributes, uAxis, vAxis)},
+    surfaceAttributes);
 }
 
 Result<BrushFace> BrushFace::create(
@@ -213,8 +213,8 @@ Result<BrushFace> BrushFace::create(
   const vm::vec3d& point1,
   const vm::vec3d& point2,
   std::string materialName,
-  const SurfaceAttributes& surfaceAttributes,
-  UvCoordSystem uvCoordSystem)
+  UvCoordSystem uvCoordSystem,
+  const SurfaceAttributes& surfaceAttributes)
 {
   auto points = Points{{vm::correct(point0), vm::correct(point1), vm::correct(point2)}};
   if (const auto plane = vm::from_points(points[0], points[1], points[2]))
@@ -223,8 +223,8 @@ Result<BrushFace> BrushFace::create(
       points,
       *plane,
       std::move(materialName),
-      surfaceAttributes,
-      std::move(uvCoordSystem)};
+      std::move(uvCoordSystem),
+      surfaceAttributes};
   }
   return Error{"Brush has invalid face"};
 }
@@ -233,13 +233,13 @@ BrushFace::BrushFace(
   const BrushFace::Points& points,
   const vm::plane3d& boundary,
   std::string materialName,
-  const SurfaceAttributes& surfaceAttributes,
-  UvCoordSystem uvCoordSystem)
+  UvCoordSystem uvCoordSystem,
+  const SurfaceAttributes& surfaceAttributes)
   : m_points{points}
   , m_boundary{boundary}
   , m_materialName{std::move(materialName)}
-  , m_surfaceAttributes{surfaceAttributes}
   , m_uvCoordSystem{std::move(uvCoordSystem)}
+  , m_surfaceAttributes{surfaceAttributes}
 {
 }
 
