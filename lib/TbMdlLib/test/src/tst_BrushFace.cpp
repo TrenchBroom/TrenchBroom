@@ -842,7 +842,6 @@ TEST_CASE("BrushFace")
     const auto worldBounds = vm::bbox3d{4096.0};
 
     auto standardBuilder = BrushBuilder{MapFormat::Standard, worldBounds};
-    auto valveBuilder = BrushBuilder{MapFormat::Valve, worldBounds};
 
     auto material =
       gl::Material{"testMaterial", gl::createTextureResource(gl::Texture{64, 64})};
