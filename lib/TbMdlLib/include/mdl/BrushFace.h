@@ -122,7 +122,8 @@ public:
     m_materialName,
     m_uvAttributes,
     m_surfaceAttributes,
-    m_materialReference);
+    m_materialReference,
+    m_uvCoordSystem);
 
   /**
    * Creates a face using TB's default UV projection for the given map format and the
