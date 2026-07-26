@@ -166,11 +166,12 @@ BrushFace createParaxial(
   const vm::vec3d& point2,
   const std::string& materialName)
 {
-  const BrushFaceAttributes attributes(materialName);
+  const auto attributes = BrushFaceAttributes{};
   return BrushFace::create(
            point0,
            point1,
            point2,
+           materialName,
            attributes,
            std::make_unique<ParaxialUvCoordSystem>(point0, point1, point2, attributes))
          | kdl::value();
@@ -240,7 +241,7 @@ void assertMaterial(
   REQUIRE(faceIndex);
 
   const BrushFace& face = brush.face(*faceIndex);
-  CHECK(face.attributes().materialName() == expected);
+  CHECK(face.materialName() == expected);
 }
 
 void assertMaterial(
@@ -277,7 +278,7 @@ void assertMaterial(
   REQUIRE(faceIndex);
 
   const BrushFace& face = brush.face(*faceIndex);
-  CHECK(face.attributes().materialName() == expected);
+  CHECK(face.materialName() == expected);
 }
 
 void transformNode(

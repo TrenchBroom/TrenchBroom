@@ -244,7 +244,7 @@ bool pasteBrushFaces(Map& map, const std::vector<BrushFace>& faces)
 {
   contract_pre(!faces.empty());
 
-  const auto update = copyAllExceptContentFlags(faces.back().attributes());
+  const auto update = copyAllExceptContentFlags(faces.back());
   return setBrushFaceAttributes(map, update);
 }
 

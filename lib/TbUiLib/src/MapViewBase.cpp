@@ -1333,14 +1333,13 @@ void MapViewBase::showPopupMenuLater()
     const auto* material = faceHandle->face().material();
     menu.addAction(
       tr("Reveal %1 in Material Browser")
-        .arg(QString::fromStdString(faceHandle->face().attributes().materialName())),
+        .arg(QString::fromStdString(faceHandle->face().materialName())),
       mapWindow,
       [=] { mapWindow->revealMaterial(material); });
 
     menu.addAction(tr("Copy Material Name"), mapWindow, [=] {
       auto* clipboard = QApplication::clipboard();
-      clipboard->setText(
-        QString::fromStdString(faceHandle->face().attributes().materialName()));
+      clipboard->setText(QString::fromStdString(faceHandle->face().materialName()));
     });
 
     menu.addSeparator();

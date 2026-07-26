@@ -35,7 +35,7 @@ namespace tb::mdl
 
 TEST_CASE("UvCoordSystemTest.testSnapshotTypeSafety")
 {
-  BrushFaceAttributes attribs("");
+  BrushFaceAttributes attribs;
 
   ParaxialUvCoordSystem paraxial(vm::vec3d{0, 0, 1}, attribs);
   CHECK(paraxial.takeSnapshot() == nullptr);

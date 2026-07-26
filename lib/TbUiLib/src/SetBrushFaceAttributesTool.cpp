@@ -272,13 +272,11 @@ void transferFaceAttributes(
 
   if (copyMaterialOnlyModifiersDown(inputState))
   {
-    setBrushFaceAttributes(
-      map, {.materialName = sourceFaceHandle.face().attributes().materialName()});
+    setBrushFaceAttributes(map, {.materialName = sourceFaceHandle.face().materialName()});
   }
   else
   {
-    setBrushFaceAttributes(
-      map, mdl::copyAllExceptContentFlags(sourceFaceHandle.face().attributes()));
+    setBrushFaceAttributes(map, mdl::copyAllExceptContentFlags(sourceFaceHandle.face()));
 
     if (auto snapshot = sourceFaceHandle.face().takeUvCoordSystemSnapshot())
     {

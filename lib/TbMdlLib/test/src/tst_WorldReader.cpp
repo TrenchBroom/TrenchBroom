@@ -22,7 +22,6 @@
 #include "fs/DiskIO.h"
 #include "mdl/BezierPatch.h"
 #include "mdl/BrushFace.h"
-#include "mdl/BrushFaceAttributes.h"
 #include "mdl/BrushNode.h"
 #include "mdl/CatchConfig.h"
 #include "mdl/Entity.h"
@@ -250,7 +249,7 @@ TEST_CASE("WorldReader")
       vm::vec3d{0.0, 0.0, 0.0},
       vm::vec3d{64.0, 0.0, -16.0});
     CHECK(face1 != nullptr);
-    CHECK(face1->attributes().materialName() == "tex1");
+    CHECK(face1->materialName() == "tex1");
     CHECK(face1->attributes().xOffset() == 1.0);
     CHECK(face1->attributes().yOffset() == 2.0);
     CHECK(face1->attributes().rotation() == 3.0);
@@ -1472,7 +1471,7 @@ common/caulk
     CHECK(brushNode->logicalBounds() == vm::bbox3d{{-512, -512, -64}, {512, 512, 0}});
     for (const auto& face : brushNode->brush().faces())
     {
-      CHECK("general/sand1" == face.attributes().materialName());
+      CHECK("general/sand1" == face.materialName());
     }
   }
 
@@ -1512,8 +1511,8 @@ common/caulk
 
     for (const auto& face : brush->brush().faces())
     {
-      CHECK(!face.attributes().materialName().empty());
-      CHECK(face.attributes().materialName() == mdl::BrushFaceAttributes::NoMaterialName);
+      CHECK(!face.materialName().empty());
+      CHECK(face.materialName() == mdl::BrushFace::NoMaterialName);
     }
   }
 
@@ -1570,7 +1569,7 @@ common/caulk
       dynamic_cast<mdl::BrushNode*>(defaultLayerNode->children().front());
     REQUIRE(brushNode != nullptr);
 
-    CHECK(brushNode->brush().face(0).attributes().materialName() == expectedName);
+    CHECK(brushNode->brush().face(0).materialName() == expectedName);
   }
 
   SECTION("Linked groups")

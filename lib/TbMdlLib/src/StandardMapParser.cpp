@@ -476,16 +476,17 @@ void StandardMapParser::parseQuakeFace(ParserStatus& status)
   const auto location = m_tokenizer.location();
 
   const auto [p1, p2, p3] = parseFacePoints(status);
-  const auto materialName = parseMaterialName(status);
+  auto materialName = parseMaterialName(status);
 
-  auto attribs = BrushFaceAttributes{materialName};
+  auto attribs = BrushFaceAttributes{};
   attribs.setXOffset(parseFloat());
   attribs.setYOffset(parseFloat());
   attribs.setRotation(parseFloat());
   attribs.setXScale(parseFloat());
   attribs.setYScale(parseFloat());
 
-  onStandardBrushFace(location, m_targetMapFormat, p1, p2, p3, attribs, status);
+  onStandardBrushFace(
+    location, m_targetMapFormat, p1, p2, p3, std::move(materialName), attribs, status);
 }
 
 void StandardMapParser::parseQuake2Face(ParserStatus& status)
@@ -493,9 +494,9 @@ void StandardMapParser::parseQuake2Face(ParserStatus& status)
   const auto location = m_tokenizer.location();
 
   const auto [p1, p2, p3] = parseFacePoints(status);
-  const auto materialName = parseMaterialName(status);
+  auto materialName = parseMaterialName(status);
 
-  auto attribs = BrushFaceAttributes{materialName};
+  auto attribs = BrushFaceAttributes{};
   attribs.setXOffset(parseFloat());
   attribs.setYOffset(parseFloat());
   attribs.setRotation(parseFloat());
@@ -511,7 +512,8 @@ void StandardMapParser::parseQuake2Face(ParserStatus& status)
     attribs.setSurfaceValue(parseFloat());
   }
 
-  onStandardBrushFace(location, m_targetMapFormat, p1, p2, p3, attribs, status);
+  onStandardBrushFace(
+    location, m_targetMapFormat, p1, p2, p3, std::move(materialName), attribs, status);
 }
 
 void StandardMapParser::parseQuake2ValveFace(ParserStatus& status)
@@ -519,11 +521,11 @@ void StandardMapParser::parseQuake2ValveFace(ParserStatus& status)
   const auto location = m_tokenizer.location();
 
   const auto [p1, p2, p3] = parseFacePoints(status);
-  const auto materialName = parseMaterialName(status);
+  auto materialName = parseMaterialName(status);
 
   const auto [uAxis, uOffset, vAxis, vOffset] = parseValveUvAxes(status);
 
-  auto attribs = BrushFaceAttributes{materialName};
+  auto attribs = BrushFaceAttributes{};
   attribs.setXOffset(uOffset);
   attribs.setYOffset(vOffset);
   attribs.setRotation(parseFloat());
@@ -540,7 +542,16 @@ void StandardMapParser::parseQuake2ValveFace(ParserStatus& status)
   }
 
   onValveBrushFace(
-    location, m_targetMapFormat, p1, p2, p3, attribs, uAxis, vAxis, status);
+    location,
+    m_targetMapFormat,
+    p1,
+    p2,
+    p3,
+    std::move(materialName),
+    attribs,
+    uAxis,
+    vAxis,
+    status);
 }
 
 void StandardMapParser::parseHexen2Face(ParserStatus& status)
@@ -548,9 +559,9 @@ void StandardMapParser::parseHexen2Face(ParserStatus& status)
   const auto location = m_tokenizer.location();
 
   const auto [p1, p2, p3] = parseFacePoints(status);
-  const auto materialName = parseMaterialName(status);
+  auto materialName = parseMaterialName(status);
 
-  auto attribs = BrushFaceAttributes{materialName};
+  auto attribs = BrushFaceAttributes{};
   attribs.setXOffset(parseFloat());
   attribs.setYOffset(parseFloat());
   attribs.setRotation(parseFloat());
@@ -564,7 +575,8 @@ void StandardMapParser::parseHexen2Face(ParserStatus& status)
     m_tokenizer.nextToken(); // noone seems to know what the extra value does in Hexen 2
   }
 
-  onStandardBrushFace(location, m_targetMapFormat, p1, p2, p3, attribs, status);
+  onStandardBrushFace(
+    location, m_targetMapFormat, p1, p2, p3, std::move(materialName), attribs, status);
 }
 
 void StandardMapParser::parseDaikatanaFace(ParserStatus& status)
@@ -572,9 +584,9 @@ void StandardMapParser::parseDaikatanaFace(ParserStatus& status)
   const auto location = m_tokenizer.location();
 
   const auto [p1, p2, p3] = parseFacePoints(status);
-  const auto materialName = parseMaterialName(status);
+  auto materialName = parseMaterialName(status);
 
-  auto attribs = BrushFaceAttributes{materialName};
+  auto attribs = BrushFaceAttributes{};
   attribs.setXOffset(parseFloat());
   attribs.setYOffset(parseFloat());
   attribs.setRotation(parseFloat());
@@ -606,7 +618,8 @@ void StandardMapParser::parseDaikatanaFace(ParserStatus& status)
     }
   }
 
-  onStandardBrushFace(location, m_targetMapFormat, p1, p2, p3, attribs, status);
+  onStandardBrushFace(
+    location, m_targetMapFormat, p1, p2, p3, std::move(materialName), attribs, status);
 }
 
 void StandardMapParser::parseValveFace(ParserStatus& status)
@@ -614,11 +627,11 @@ void StandardMapParser::parseValveFace(ParserStatus& status)
   const auto location = m_tokenizer.location();
 
   const auto [p1, p2, p3] = parseFacePoints(status);
-  const auto materialName = parseMaterialName(status);
+  auto materialName = parseMaterialName(status);
 
   const auto [uAxis, uOffset, vAxis, vOffset] = parseValveUvAxes(status);
 
-  auto attribs = BrushFaceAttributes{materialName};
+  auto attribs = BrushFaceAttributes{};
   attribs.setXOffset(uOffset);
   attribs.setYOffset(vOffset);
   attribs.setRotation(parseFloat());
@@ -626,7 +639,16 @@ void StandardMapParser::parseValveFace(ParserStatus& status)
   attribs.setYScale(parseFloat());
 
   onValveBrushFace(
-    location, m_targetMapFormat, p1, p2, p3, attribs, uAxis, vAxis, status);
+    location,
+    m_targetMapFormat,
+    p1,
+    p2,
+    p3,
+    std::move(materialName),
+    attribs,
+    uAxis,
+    vAxis,
+    status);
 }
 
 void StandardMapParser::parsePrimitiveFace(ParserStatus& status)
@@ -640,10 +662,10 @@ void StandardMapParser::parsePrimitiveFace(ParserStatus& status)
   /* const auto [uAxis, vAxis] = */ parsePrimitiveUvAxes(status);
   m_tokenizer.nextToken(QuakeMapToken::CParenthesis);
 
-  const auto materialName = parseMaterialName(status);
+  /* const auto materialName = */ parseMaterialName(status);
 
   // TODO 2427: what to set for offset, rotation, scale?!
-  auto attribs = BrushFaceAttributes{materialName};
+  auto attribs = BrushFaceAttributes{};
 
   // Quake 2 extra info is optional
   if (!m_tokenizer.peekToken().hasType(

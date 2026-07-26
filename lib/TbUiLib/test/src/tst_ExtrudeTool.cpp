@@ -531,7 +531,7 @@ TEST_CASE("ExtrudeTool")
 
     CHECK_THAT(
       tool.proposedDragHandles() | std::views::transform([](const auto& h) {
-        return h.faceAtDragStart().attributes().materialName();
+        return h.faceAtDragStart().materialName();
       }),
       UnorderedRangeEquals(expectedDragFaceMaterialNames));
   }

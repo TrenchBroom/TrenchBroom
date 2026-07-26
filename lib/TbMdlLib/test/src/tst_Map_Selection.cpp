@@ -832,9 +832,7 @@ TEST_CASE("Map_Selection")
       auto brushM13 = brushNodeM13->brush();
       for (auto& brushFace : (brushM13.faces() | std::views::take(3)))
       {
-        auto attributes = brushFace.attributes();
-        attributes.setMaterialName("material1");
-        brushFace.setAttributes(attributes);
+        brushFace.setMaterialName("material1");
       }
       brushNodeM13->setBrush(std::move(brushM13));
     }
@@ -869,7 +867,7 @@ TEST_CASE("Map_Selection")
           toHandles(entityBrushNodeM1),
           toHandles(groupedBrushNodeM1),
           toHandles(brushNodeM13) | std::views::filter([](const auto& handle) {
-            return handle.face().attributes().materialName() == "material1";
+            return handle.face().materialName() == "material1";
           }) | kdl::ranges::to<std::vector>())
         | kdl::ranges::to<std::vector>();
 
@@ -886,7 +884,7 @@ TEST_CASE("Map_Selection")
           toHandles(entityBrushNodeM1),
           toHandles(groupedBrushNodeM1),
           toHandles(brushNodeM13) | std::views::filter([](const auto& handle) {
-            return handle.face().attributes().materialName() == "material1";
+            return handle.face().materialName() == "material1";
           }) | kdl::ranges::to<std::vector>())
         | kdl::ranges::to<std::vector>();
 

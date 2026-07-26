@@ -138,7 +138,7 @@ float mat2x2_extract_rotation_degrees(const vm::mat2x2f& m)
 vm::vec2f getUvCoordsAtPoint(
   const ParaxialAttribs& attribs, const vm::plane3d& facePlane, const vm::vec3d& point)
 {
-  auto tempAttribs = BrushFaceAttributes{""};
+  auto tempAttribs = BrushFaceAttributes{};
   tempAttribs.setRotation(attribs.rotation);
   tempAttribs.setScale(attribs.scale);
   tempAttribs.setOffset(attribs.offset);

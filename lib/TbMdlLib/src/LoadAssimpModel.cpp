@@ -30,7 +30,7 @@
 #include "gl/IndexRangeMap.h"
 #include "gl/IndexRangeMapBuilder.h"
 #include "gl/Texture.h"
-#include "mdl/BrushFaceAttributes.h"
+#include "mdl/BrushFace.h"
 #include "mdl/LoadFreeImageTexture.h"
 #include "mdl/MaterialUtils.h"
 
@@ -221,7 +221,7 @@ std::optional<std::filesystem::path> parseAssimpTexturePath(
 
 std::optional<gl::Texture> loadFallbackTexture(const fs::FileSystem& fs)
 {
-  static const auto NoTextureName = BrushFaceAttributes::NoMaterialName;
+  static const auto NoTextureName = BrushFace::NoMaterialName;
 
   static const auto texturePaths = std::vector<std::filesystem::path>{
     "textures" / kdl::path_add_extension(NoTextureName, ".png"),

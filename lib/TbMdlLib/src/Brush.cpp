@@ -245,9 +245,8 @@ const vm::bbox3d& Brush::bounds() const
 
 std::optional<size_t> Brush::findFace(const std::string& materialName) const
 {
-  return kdl::index_of(m_faces, [&](const auto& face) {
-    return face.attributes().materialName() == materialName;
-  });
+  return kdl::index_of(
+    m_faces, [&](const auto& face) { return face.materialName() == materialName; });
 }
 
 std::optional<size_t> Brush::findFace(const vm::vec3d& normal) const
@@ -336,6 +335,7 @@ void Brush::cloneFaceAttributesFrom(const Brush& brush)
     if (const auto sourceIndex = brush.findFace(destination.boundary()))
     {
       const auto& source = brush.face(*sourceIndex);
+      destination.setMaterialName(source.materialName());
       destination.setAttributes(source.attributes());
 
       if (auto snapshot = source.takeUvCoordSystemSnapshot())
@@ -362,6 +362,7 @@ void Brush::cloneFaceAttributesFrom(const std::vector<const Brush*>& brushes)
   {
     if (const auto* bestMatch = findBestMatchingFace(face, candidates))
     {
+      face.setMaterialName(bestMatch->materialName());
       face.setAttributes(bestMatch->attributes());
 
       if (auto snapshot = bestMatch->takeUvCoordSystemSnapshot())
@@ -381,6 +382,7 @@ void Brush::cloneInvertedFaceAttributesFrom(const Brush& brush)
     {
       const auto& source = brush.face(*sourceIndex);
       // Todo: invert the face attributes?
+      destination.setMaterialName(source.materialName());
       destination.setAttributes(source.attributes());
 
       if (auto snapshot = source.takeUvCoordSystemSnapshot())
@@ -1246,7 +1248,7 @@ Result<Brush> Brush::createBrush(
            const auto& p2 = h2->origin()->position();
 
            return BrushFace::create(
-             p0, p1, p2, BrushFaceAttributes(defaultMaterialName), mapFormat);
+             p0, p1, p2, defaultMaterialName, BrushFaceAttributes{}, mapFormat);
          })
          | kdl::fold | kdl::and_then([&](std::vector<BrushFace>&& faces) {
              return Brush::create(worldBounds, std::move(faces));

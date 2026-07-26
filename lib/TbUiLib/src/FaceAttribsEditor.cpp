@@ -792,7 +792,7 @@ void FaceAttribsEditor::updateControls()
     auto colorValueMulti = false;
 
     const auto& firstFace = faceHandles[0].face();
-    const auto& materialName = firstFace.attributes().materialName();
+    const auto& materialName = firstFace.materialName();
     const auto xOffset = firstFace.attributes().xOffset();
     const auto yOffset = firstFace.attributes().yOffset();
     const auto rotation = firstFace.attributes().rotation();
@@ -812,7 +812,7 @@ void FaceAttribsEditor::updateControls()
     for (size_t i = 1; i < faceHandles.size(); i++)
     {
       const auto& face = faceHandles[i].face();
-      materialMulti |= (materialName != face.attributes().materialName());
+      materialMulti |= (materialName != face.materialName());
       xOffsetMulti |= (xOffset != face.attributes().xOffset());
       yOffsetMulti |= (yOffset != face.attributes().yOffset());
       rotationMulti |= (rotation != face.attributes().rotation());
@@ -862,7 +862,7 @@ void FaceAttribsEditor::updateControls()
     }
     else
     {
-      if (materialName == mdl::BrushFaceAttributes::NoMaterialName)
+      if (materialName == mdl::BrushFace::NoMaterialName)
       {
         m_materialName->setText("none");
         m_materialName->setEnabled(false);

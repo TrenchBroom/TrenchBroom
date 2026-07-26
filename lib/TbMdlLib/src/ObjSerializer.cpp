@@ -269,7 +269,7 @@ void ObjSerializer::doBrushFace(const BrushFace& face)
 
   m_currentBrush->faces.push_back(BrushFaceInfo{
     std::move(indexedVertices),
-    face.attributes().materialName(),
+    face.materialName(),
     face.material(),
   });
 }

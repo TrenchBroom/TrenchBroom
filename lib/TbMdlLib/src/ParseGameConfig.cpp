@@ -295,16 +295,10 @@ BrushFaceAttributes parseFaceAttribsDefaults(
   const FlagsConfig& surfaceFlags,
   const FlagsConfig& contentFlags)
 {
-  auto defaults = BrushFaceAttributes{BrushFaceAttributes::NoMaterialName};
+  auto defaults = BrushFaceAttributes{};
   if (value == el::Value::Null)
   {
     return defaults;
-  }
-
-  if (const auto materialNameValue = value.atOrDefault(context, "materialName");
-      materialNameValue != el::Value::Null)
-  {
-    defaults = BrushFaceAttributes{materialNameValue.stringValue(context)};
   }
 
   if (const auto offsetValue = value.atOrDefault(context, "offset");
@@ -410,7 +404,7 @@ FaceAttribsConfig parseFaceAttribsConfig(
     return FaceAttribsConfig{
       {},
       {},
-      BrushFaceAttributes{BrushFaceAttributes::NoMaterialName},
+      {},
     };
   }
 

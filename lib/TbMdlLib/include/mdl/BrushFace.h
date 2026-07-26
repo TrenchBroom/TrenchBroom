@@ -38,6 +38,7 @@
 #include <memory>
 #include <optional>
 #include <ranges>
+#include <string>
 #include <vector>
 
 namespace tb
@@ -57,6 +58,8 @@ enum class MapFormat;
 class BrushFace : public Taggable
 {
 public:
+  static const std::string NoMaterialName;
+
   /*
    * The order of points, when looking from outside the face:
    *
@@ -89,6 +92,8 @@ private:
 private:
   BrushFace::Points m_points;
   vm::plane3d m_boundary;
+
+  std::string m_materialName;
   BrushFaceAttributes m_attributes;
 
   AssetReference<gl::Material> m_materialReference;
@@ -111,7 +116,8 @@ public:
 
   ~BrushFace() override;
 
-  kdl_reflect_decl(BrushFace, m_points, m_boundary, m_attributes, m_materialReference);
+  kdl_reflect_decl(
+    BrushFace, m_points, m_boundary, m_materialName, m_attributes, m_materialReference);
 
   /**
    * Creates a face using TB's default UV projection for the given map format and the
@@ -128,6 +134,7 @@ public:
     const vm::vec3d& point0,
     const vm::vec3d& point1,
     const vm::vec3d& point2,
+    std::string materialName,
     const BrushFaceAttributes& attributes,
     MapFormat mapFormat);
 
@@ -143,6 +150,7 @@ public:
     const vm::vec3d& point0,
     const vm::vec3d& point1,
     const vm::vec3d& point2,
+    std::string materialName,
     const BrushFaceAttributes& attributes,
     MapFormat mapFormat);
 
@@ -158,6 +166,7 @@ public:
     const vm::vec3d& point1,
     const vm::vec3d& point2,
     const vm::vec3d& point3,
+    std::string materialName,
     const BrushFaceAttributes& attributes,
     const vm::vec3d& uAxis,
     const vm::vec3d& vAxis,
@@ -167,12 +176,14 @@ public:
     const vm::vec3d& point0,
     const vm::vec3d& point1,
     const vm::vec3d& point2,
+    std::string materialName,
     const BrushFaceAttributes& attributes,
     std::unique_ptr<UvCoordSystem> uvCoordSystem);
 
   BrushFace(
     const BrushFace::Points& points,
     const vm::plane3d& boundary,
+    std::string materialName,
     BrushFaceAttributes attributes,
     std::unique_ptr<UvCoordSystem> uvCoordSystem);
 
@@ -195,6 +206,9 @@ public:
   double projectedArea(vm::axis::type axis) const;
   double area() const;
   bool coplanarWith(const vm::plane3d& plane) const;
+
+  const std::string& materialName() const;
+  bool setMaterialName(std::string materialName);
 
   const BrushFaceAttributes& attributes() const;
   void setAttributes(const BrushFaceAttributes& attributes);

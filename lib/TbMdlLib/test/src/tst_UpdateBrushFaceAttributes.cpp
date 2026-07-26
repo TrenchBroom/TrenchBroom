@@ -35,6 +35,22 @@
 
 namespace tb::mdl
 {
+namespace
+{
+
+BrushFace createBrushFace(std::string materialName, const BrushFaceAttributes& attributes)
+{
+  return BrushFace::create(
+           {0, 0, 0},
+           {0, 1, 0},
+           {1, 0, 0},
+           std::move(materialName),
+           attributes,
+           MapFormat::Quake2)
+         | kdl::value();
+}
+
+} // namespace
 
 TEST_CASE("UpdateBrushFaceAttributes")
 {
@@ -52,7 +68,7 @@ TEST_CASE("UpdateBrushFaceAttributes")
 
   SECTION("copyAll")
   {
-    auto attributes = BrushFaceAttributes{"some_material"};
+    auto attributes = BrushFaceAttributes{};
     attributes.setOffset({1, 2});
     attributes.setRotation(45.0f);
     attributes.setScale({2, 3});
@@ -60,7 +76,7 @@ TEST_CASE("UpdateBrushFaceAttributes")
     SECTION("with surface attributes and color unset")
     {
       CHECK(
-        copyAll(attributes)
+        copyAll(createBrushFace("some_material", attributes))
         == UpdateBrushFaceAttributes{
           .materialName = "some_material",
           .xOffset = SetValue{1.0f},
@@ -81,7 +97,7 @@ TEST_CASE("UpdateBrushFaceAttributes")
       attributes.setColor(RgbaB{1, 2, 3, 4});
 
       CHECK(
-        copyAll(attributes)
+        copyAll(createBrushFace("some_material", attributes))
         == UpdateBrushFaceAttributes{
           .materialName = "some_material",
           .xOffset = SetValue{1.0f},
@@ -99,7 +115,7 @@ TEST_CASE("UpdateBrushFaceAttributes")
 
   SECTION("copyAllExceptContentFlags")
   {
-    auto attributes = BrushFaceAttributes{"some_material"};
+    auto attributes = BrushFaceAttributes{};
     attributes.setOffset({1, 2});
     attributes.setRotation(45.0f);
     attributes.setScale({2, 3});
@@ -109,7 +125,7 @@ TEST_CASE("UpdateBrushFaceAttributes")
     attributes.setColor(RgbaB{1, 2, 3, 4});
 
     CHECK(
-      copyAllExceptContentFlags(attributes)
+      copyAllExceptContentFlags(createBrushFace("some_material", attributes))
       == UpdateBrushFaceAttributes{
         .materialName = "some_material",
         .xOffset = SetValue{1.0f},
@@ -125,7 +141,7 @@ TEST_CASE("UpdateBrushFaceAttributes")
 
   SECTION("resetAll")
   {
-    auto defaultAttributes = BrushFaceAttributes{"some_material"};
+    auto defaultAttributes = BrushFaceAttributes{};
     defaultAttributes.setOffset({1, 2});
     defaultAttributes.setRotation(45.0f);
     defaultAttributes.setScale({2, 3});
@@ -148,7 +164,7 @@ TEST_CASE("UpdateBrushFaceAttributes")
 
   SECTION("resetAllToParaxial")
   {
-    auto defaultAttributes = BrushFaceAttributes{"some_material"};
+    auto defaultAttributes = BrushFaceAttributes{};
     defaultAttributes.setOffset({1, 2});
     defaultAttributes.setRotation(45.0f);
     defaultAttributes.setScale({2, 3});
@@ -1060,13 +1076,7 @@ TEST_CASE("UpdateBrushFaceAttributes")
 
   SECTION("evaluate")
   {
-    auto brushFace = BrushFace::create(
-                       {0, 0, 0},
-                       {0, 1, 0},
-                       {1, 0, 0},
-                       BrushFaceAttributes{"some_material"},
-                       MapFormat::Quake2)
-                       .value();
+    auto brushFace = createBrushFace("some_material", BrushFaceAttributes{});
 
     SECTION("ValueOp")
     {
@@ -1137,7 +1147,7 @@ TEST_CASE("UpdateBrushFaceAttributes")
         .color = RgbaB{1, 2, 3, 4},
       };
 
-      auto expectedAttributes = BrushFaceAttributes{"other_material"};
+      auto expectedAttributes = BrushFaceAttributes{};
       expectedAttributes.setOffset({2, 3});
       expectedAttributes.setRotation(45.0f);
       expectedAttributes.setScale({4, 5});
@@ -1148,6 +1158,7 @@ TEST_CASE("UpdateBrushFaceAttributes")
 
       evaluate(update, brushFace);
 
+      CHECK(brushFace.materialName() == "other_material");
       CHECK(brushFace.attributes() == expectedAttributes);
     }
 
@@ -1166,10 +1177,12 @@ TEST_CASE("UpdateBrushFaceAttributes")
         .color = std::nullopt,
       };
 
+      const auto expectedMaterialName = brushFace.materialName();
       const auto expectedAttributes = brushFace.attributes();
 
       evaluate(update, brushFace);
 
+      CHECK(brushFace.materialName() == expectedMaterialName);
       CHECK(brushFace.attributes() == expectedAttributes);
     }
   }

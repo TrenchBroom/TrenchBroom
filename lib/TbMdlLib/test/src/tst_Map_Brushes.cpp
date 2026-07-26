@@ -127,8 +127,9 @@ TEST_CASE("Map_Brushes")
         });
 
       {
-        const auto& firstAttrs = getFace(*brushNode, firstFaceIndex).attributes();
-        CHECK(firstAttrs.materialName() == "first");
+        const auto& firstFace = getFace(*brushNode, firstFaceIndex);
+        const auto& firstAttrs = firstFace.attributes();
+        CHECK(firstFace.materialName() == "first");
         CHECK(firstAttrs.xOffset() == 32.0f);
         CHECK(firstAttrs.yOffset() == 64.0f);
         CHECK(firstAttrs.rotation() == 90.0f);
@@ -159,8 +160,9 @@ TEST_CASE("Map_Brushes")
         });
 
       {
-        const auto& secondAttrs = getFace(*brushNode, secondFaceIndex).attributes();
-        CHECK(secondAttrs.materialName() == "second");
+        const auto& secondFace = getFace(*brushNode, secondFaceIndex);
+        const auto& secondAttrs = secondFace.attributes();
+        CHECK(secondFace.materialName() == "second");
         CHECK(secondAttrs.xOffset() == 16.0f);
         CHECK(secondAttrs.yOffset() == 48.0f);
         CHECK(secondAttrs.rotation() == 45.0f);
@@ -175,9 +177,11 @@ TEST_CASE("Map_Brushes")
       deselectAll(map);
       selectBrushFaces(map, {{brushNode, thirdFaceIndex}});
 
-      setBrushFaceAttributes(
-        map, copyAll(getFace(*brushNode, secondFaceIndex).attributes()));
+      setBrushFaceAttributes(map, copyAll(getFace(*brushNode, secondFaceIndex)));
 
+      CHECK(
+        getFace(*brushNode, thirdFaceIndex).materialName()
+        == getFace(*brushNode, secondFaceIndex).materialName());
       CHECK(
         getFace(*brushNode, thirdFaceIndex).attributes()
         == getFace(*brushNode, secondFaceIndex).attributes());
@@ -188,9 +192,11 @@ TEST_CASE("Map_Brushes")
       deselectAll(map);
       selectBrushFaces(map, {{brushNode, secondFaceIndex}});
 
-      setBrushFaceAttributes(
-        map, copyAll(getFace(*brushNode, firstFaceIndex).attributes()));
+      setBrushFaceAttributes(map, copyAll(getFace(*brushNode, firstFaceIndex)));
 
+      CHECK(
+        getFace(*brushNode, secondFaceIndex).materialName()
+        == getFace(*brushNode, firstFaceIndex).materialName());
       CHECK(
         getFace(*brushNode, secondFaceIndex).attributes()
         == getFace(*brushNode, firstFaceIndex).attributes());
@@ -198,12 +204,14 @@ TEST_CASE("Map_Brushes")
       deselectAll(map);
       selectBrushFaces(map, {{brushNode, thirdFaceIndex}});
       setBrushFaceAttributes(
-        map, copyAllExceptContentFlags(getFace(*brushNode, firstFaceIndex).attributes()));
+        map, copyAllExceptContentFlags(getFace(*brushNode, firstFaceIndex)));
 
       {
-        const auto& firstAttrs = getFace(*brushNode, firstFaceIndex).attributes();
-        const auto& newThirdAttrs = getFace(*brushNode, thirdFaceIndex).attributes();
-        CHECK(newThirdAttrs.materialName() == firstAttrs.materialName());
+        const auto& firstFace = getFace(*brushNode, firstFaceIndex);
+        const auto& newThirdFace = getFace(*brushNode, thirdFaceIndex);
+        const auto& firstAttrs = firstFace.attributes();
+        const auto& newThirdAttrs = newThirdFace.attributes();
+        CHECK(newThirdFace.materialName() == firstFace.materialName());
         CHECK(newThirdAttrs.xOffset() == firstAttrs.xOffset());
         CHECK(newThirdAttrs.yOffset() == firstAttrs.yOffset());
         CHECK(newThirdAttrs.rotation() == firstAttrs.rotation());
@@ -225,7 +233,7 @@ TEST_CASE("Map_Brushes")
 
       for (const auto& face : brushNode->brush().faces())
       {
-        REQUIRE(face.attributes().materialName() == "original");
+        REQUIRE(face.materialName() == "original");
       }
 
       selectNodes(map, {brushNode});
@@ -233,19 +241,19 @@ TEST_CASE("Map_Brushes")
       setBrushFaceAttributes(map, {.materialName = "material"});
       for (const auto& face : brushNode->brush().faces())
       {
-        REQUIRE(face.attributes().materialName() == "material");
+        REQUIRE(face.materialName() == "material");
       }
 
       map.undoCommand();
       for (const auto& face : brushNode->brush().faces())
       {
-        CHECK(face.attributes().materialName() == "original");
+        CHECK(face.materialName() == "original");
       }
 
       map.redoCommand();
       for (const auto& face : brushNode->brush().faces())
       {
-        CHECK(face.attributes().materialName() == "material");
+        CHECK(face.materialName() == "material");
       }
     }
 
@@ -280,7 +288,7 @@ TEST_CASE("Map_Brushes")
         selectNodes(map, {lavabrush});
 
         CHECK(setBrushFaceAttributes(
-          map, copyAllExceptContentFlags(getFace(*waterbrush, 0).attributes())));
+          map, copyAllExceptContentFlags(getFace(*waterbrush, 0))));
 
         SECTION("Check lavabrush is now inheriting the water content flags")
         {
@@ -289,7 +297,7 @@ TEST_CASE("Map_Brushes")
           // contents
           CHECK(!getFace(*lavabrush, 0).attributes().hasSurfaceAttributes());
           CHECK(getFace(*lavabrush, 0).resolvedSurfaceContents() == WaterFlag);
-          CHECK(getFace(*lavabrush, 0).attributes().materialName() == "watertest");
+          CHECK(getFace(*lavabrush, 0).materialName() == "watertest");
         }
       }
 
@@ -318,13 +326,13 @@ TEST_CASE("Map_Brushes")
 
       setBrushFaceAttributes(map, {.materialName = "something_else"});
 
-      CHECK(getFace(*brushNode, 0).attributes().materialName() == "something_else");
+      CHECK(getFace(*brushNode, 0).materialName() == "something_else");
       CHECK(!getFace(*brushNode, 0).attributes().hasSurfaceAttributes());
     }
 
     SECTION("Reset attributes to defaults")
     {
-      auto defaultFaceAttrs = BrushFaceAttributes{BrushFaceAttributes::NoMaterialName};
+      auto defaultFaceAttrs = BrushFaceAttributes{};
       defaultFaceAttrs.setXScale(0.5f);
       defaultFaceAttrs.setYScale(2.0f);
 
@@ -396,8 +404,7 @@ TEST_CASE("Map_Brushes")
           auto* brush = dynamic_cast<BrushNode*>(g->children().at(0));
           REQUIRE(brush != nullptr);
 
-          auto attrs = getFace(*brush, 0).attributes();
-          CHECK(attrs.materialName() == "abc");
+          CHECK(getFace(*brush, 0).materialName() == "abc");
         }
       }
     }

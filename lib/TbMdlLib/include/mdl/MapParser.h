@@ -57,6 +57,7 @@ protected: // subclassing interface for users of the parser
     const vm::vec3d& point1,
     const vm::vec3d& point2,
     const vm::vec3d& point3,
+    std::string materialName,
     const BrushFaceAttributes& attribs,
     ParserStatus& status) = 0;
   virtual void onValveBrushFace(
@@ -65,6 +66,7 @@ protected: // subclassing interface for users of the parser
     const vm::vec3d& point1,
     const vm::vec3d& point2,
     const vm::vec3d& point3,
+    std::string materialName,
     const BrushFaceAttributes& attribs,
     const vm::vec3d& uAxis,
     const vm::vec3d& vAxis,

@@ -49,7 +49,8 @@ auto makeFace(const std::tuple<vm::vec3d, vm::vec3d, vm::vec3d>& face)
            std::get<0>(face),
            std::get<1>(face),
            std::get<2>(face),
-           BrushFaceAttributes{"someName"},
+           "someName",
+           BrushFaceAttributes{},
            MapFormat::Standard)
          | kdl::value();
 };
@@ -88,16 +89,15 @@ TEST_CASE("BrushBuilder")
       CHECK(cube.bounds() == vm::bbox3d{-64.0, +64.0});
 
       CHECK_THAT(
-        cube.faces() | std::views::transform([](const auto& face) {
-          return face.attributes().materialName();
-        }),
+        cube.faces()
+          | std::views::transform([](const auto& face) { return face.materialName(); }),
         RangeEquals(std::vector<std::string>{6u, "someName"}));
     }) | kdl::transform_error([](const auto& e) { FAIL(e); });
   }
 
   SECTION("createCubeDefaults")
   {
-    auto defaultAttribs = BrushFaceAttributes{"defaultMaterial"};
+    auto defaultAttribs = BrushFaceAttributes{};
     defaultAttribs.setOffset({0.5f, 0.5f});
     defaultAttribs.setScale({0.5f, 0.5f});
     defaultAttribs.setRotation(45.0f);
@@ -114,14 +114,18 @@ TEST_CASE("BrushBuilder")
 
       CHECK_THAT(
         cube.faces()
+          | std::views::transform([](const auto& face) { return face.materialName(); }),
+        RangeEquals(std::vector<std::string>{6u, "someName"}));
+      CHECK_THAT(
+        cube.faces()
           | std::views::transform([](const auto& face) { return face.attributes(); }),
-        RangeEquals(std::vector{6u, BrushFaceAttributes{"someName", defaultAttribs}}));
+        RangeEquals(std::vector{6u, defaultAttribs}));
     }) | kdl::transform_error([](const auto& e) { FAIL(e); });
   }
 
   SECTION("createBrushDefaults")
   {
-    auto defaultAttribs = BrushFaceAttributes{"defaultMaterial"};
+    auto defaultAttribs = BrushFaceAttributes{};
     defaultAttribs.setOffset({0.5f, 0.5f});
     defaultAttribs.setScale({0.5f, 0.5f});
     defaultAttribs.setRotation(45.0f);
@@ -149,10 +153,14 @@ TEST_CASE("BrushBuilder")
           CHECK(brush.bounds() == vm::bbox3d{-64.0, +64.0});
 
           CHECK_THAT(
+            brush.faces() | std::views::transform([](const auto& face) {
+              return face.materialName();
+            }),
+            RangeEquals(std::vector<std::string>{6u, "someName"}));
+          CHECK_THAT(
             brush.faces()
               | std::views::transform([](const auto& face) { return face.attributes(); }),
-            RangeEquals(
-              std::vector{6u, BrushFaceAttributes{"someName", defaultAttribs}}));
+            RangeEquals(std::vector{6u, defaultAttribs}));
         })
       | kdl::transform_error([](const auto& e) { FAIL(e); });
   }

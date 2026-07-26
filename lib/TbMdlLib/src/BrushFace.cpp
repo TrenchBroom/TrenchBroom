@@ -47,6 +47,9 @@
 
 namespace tb::mdl
 {
+
+const std::string BrushFace::NoMaterialName = "__TB_empty";
+
 const BrushVertex* BrushFace::TransformHalfEdgeToVertex::operator()(
   const BrushHalfEdge* halfEdge) const
 {
@@ -63,6 +66,7 @@ BrushFace::BrushFace(const BrushFace& other)
   : Taggable{other}
   , m_points{other.m_points}
   , m_boundary{other.m_boundary}
+  , m_materialName{other.m_materialName}
   , m_attributes{other.m_attributes}
   , m_materialReference{other.m_materialReference}
   , m_uvCoordSystem{other.m_uvCoordSystem ? other.m_uvCoordSystem->clone() : nullptr}
@@ -78,6 +82,7 @@ BrushFace::BrushFace(BrushFace&& other) noexcept
   // NOLINTBEGIN(bugprone-use-after-move)
   , m_points{std::move(other.m_points)}
   , m_boundary{std::move(other.m_boundary)}
+  , m_materialName{std::move(other.m_materialName)}
   , m_attributes{std::move(other.m_attributes)}
   , m_materialReference{std::move(other.m_materialReference)}
   , m_uvCoordSystem{std::move(other.m_uvCoordSystem)}
@@ -102,6 +107,7 @@ void swap(BrushFace& lhs, BrushFace& rhs) noexcept
   swap(static_cast<Taggable&>(lhs), static_cast<Taggable&>(rhs));
   swap(lhs.m_points, rhs.m_points);
   swap(lhs.m_boundary, rhs.m_boundary);
+  swap(lhs.m_materialName, rhs.m_materialName);
   swap(lhs.m_attributes, rhs.m_attributes);
   swap(lhs.m_materialReference, rhs.m_materialReference);
   swap(lhs.m_uvCoordSystem, rhs.m_uvCoordSystem);
@@ -120,6 +126,7 @@ Result<BrushFace> BrushFace::create(
   const vm::vec3d& point0,
   const vm::vec3d& point1,
   const vm::vec3d& point2,
+  std::string materialName,
   const BrushFaceAttributes& attributes,
   const MapFormat mapFormat)
 {
@@ -127,6 +134,7 @@ Result<BrushFace> BrushFace::create(
                                                 point0,
                                                 point1,
                                                 point2,
+                                                std::move(materialName),
                                                 attributes,
                                                 std::make_unique<ParallelUvCoordSystem>(
                                                   point0, point1, point2, attributes))
@@ -134,6 +142,7 @@ Result<BrushFace> BrushFace::create(
                                                 point0,
                                                 point1,
                                                 point2,
+                                                std::move(materialName),
                                                 attributes,
                                                 std::make_unique<ParaxialUvCoordSystem>(
                                                   point0, point1, point2, attributes));
@@ -143,13 +152,14 @@ Result<BrushFace> BrushFace::createFromStandard(
   const vm::vec3d& point0,
   const vm::vec3d& point1,
   const vm::vec3d& point2,
+  std::string materialName,
   const BrushFaceAttributes& inputAttribs,
   const MapFormat mapFormat)
 {
   contract_pre(mapFormat != MapFormat::Unknown);
 
   auto uvCoordSystem = std::unique_ptr<UvCoordSystem>{};
-  auto attribs = BrushFaceAttributes{""};
+  auto attribs = BrushFaceAttributes{};
 
   if (isParallelUvCoordSystem(mapFormat))
   {
@@ -165,13 +175,15 @@ Result<BrushFace> BrushFace::createFromStandard(
     attribs = inputAttribs;
   }
 
-  return BrushFace::create(point0, point1, point2, attribs, std::move(uvCoordSystem));
+  return BrushFace::create(
+    point0, point1, point2, std::move(materialName), attribs, std::move(uvCoordSystem));
 }
 
 Result<BrushFace> BrushFace::createFromValve(
   const vm::vec3d& point1,
   const vm::vec3d& point2,
   const vm::vec3d& point3,
+  std::string materialName,
   const BrushFaceAttributes& inputAttribs,
   const vm::vec3d& uAxis,
   const vm::vec3d& vAxis,
@@ -180,7 +192,7 @@ Result<BrushFace> BrushFace::createFromValve(
   contract_pre(mapFormat != MapFormat::Unknown);
 
   auto uvCoordSystem = std::unique_ptr<UvCoordSystem>{};
-  auto attribs = BrushFaceAttributes{""};
+  auto attribs = BrushFaceAttributes{};
 
   if (isParallelUvCoordSystem(mapFormat))
   {
@@ -195,20 +207,23 @@ Result<BrushFace> BrushFace::createFromValve(
       point1, point2, point3, inputAttribs, uAxis, vAxis);
   }
 
-  return BrushFace::create(point1, point2, point3, attribs, std::move(uvCoordSystem));
+  return BrushFace::create(
+    point1, point2, point3, std::move(materialName), attribs, std::move(uvCoordSystem));
 }
 
 Result<BrushFace> BrushFace::create(
   const vm::vec3d& point0,
   const vm::vec3d& point1,
   const vm::vec3d& point2,
+  std::string materialName,
   const BrushFaceAttributes& attributes,
   std::unique_ptr<UvCoordSystem> uvCoordSystem)
 {
   auto points = Points{{vm::correct(point0), vm::correct(point1), vm::correct(point2)}};
   if (const auto plane = vm::from_points(points[0], points[1], points[2]))
   {
-    return BrushFace{points, *plane, attributes, std::move(uvCoordSystem)};
+    return BrushFace{
+      points, *plane, std::move(materialName), attributes, std::move(uvCoordSystem)};
   }
   return Error{"Brush has invalid face"};
 }
@@ -216,10 +231,12 @@ Result<BrushFace> BrushFace::create(
 BrushFace::BrushFace(
   const BrushFace::Points& points,
   const vm::plane3d& boundary,
+  std::string materialName,
   BrushFaceAttributes attributes,
   std::unique_ptr<UvCoordSystem> uvCoordSystem)
   : m_points{points}
   , m_boundary{boundary}
+  , m_materialName{std::move(materialName)}
   , m_attributes{std::move(attributes)}
   , m_uvCoordSystem{std::move(uvCoordSystem)}
 {
@@ -396,6 +413,21 @@ bool BrushFace::coplanarWith(const vm::plane3d& plane) const
   return true;
 }
 
+const std::string& BrushFace::materialName() const
+{
+  return m_materialName;
+}
+
+bool BrushFace::setMaterialName(std::string materialName)
+{
+  if (materialName != m_materialName)
+  {
+    m_materialName = std::move(materialName);
+    return true;
+  }
+  return false;
+}
+
 const BrushFaceAttributes& BrushFace::attributes() const
 {
   return m_attributes;
@@ -411,7 +443,7 @@ void BrushFace::setAttributes(const BrushFaceAttributes& attributes)
 bool BrushFace::setAttributes(const BrushFace& other)
 {
   auto result = false;
-  result |= m_attributes.setMaterialName(other.attributes().materialName());
+  result |= setMaterialName(other.materialName());
   result |= m_attributes.setXOffset(other.attributes().xOffset());
   result |= m_attributes.setYOffset(other.attributes().yOffset());
   result |= m_attributes.setRotation(other.attributes().rotation());

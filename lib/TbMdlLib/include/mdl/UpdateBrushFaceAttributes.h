@@ -131,9 +131,8 @@ struct UpdateBrushFaceAttributes
     axis);
 };
 
-UpdateBrushFaceAttributes copyAll(const BrushFaceAttributes& attributes);
-UpdateBrushFaceAttributes copyAllExceptContentFlags(
-  const BrushFaceAttributes& attributes);
+UpdateBrushFaceAttributes copyAll(const BrushFace& brushFace);
+UpdateBrushFaceAttributes copyAllExceptContentFlags(const BrushFace& brushFace);
 
 UpdateBrushFaceAttributes resetAll(const BrushFaceAttributes& defaultFaceAttributes);
 UpdateBrushFaceAttributes resetAllToParaxial(

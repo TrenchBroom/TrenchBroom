@@ -26,20 +26,13 @@
 #include "vm/vec.h"
 
 #include <optional>
-#include <string>
-#include <string_view>
 
 namespace tb::mdl
 {
 
 class BrushFaceAttributes
 {
-public:
-  static const std::string NoMaterialName;
-
 private:
-  std::string m_materialName;
-
   vm::vec2f m_offset = vm::vec2f{0, 0};
   vm::vec2f m_scale = vm::vec2f{1, 1};
   float m_rotation = 0.0f;
@@ -51,12 +44,8 @@ private:
   std::optional<Color> m_color;
 
 public:
-  explicit BrushFaceAttributes(std::string_view materialName);
-  BrushFaceAttributes(std::string_view materialName, const BrushFaceAttributes& other);
-
   kdl_reflect_decl(
     BrushFaceAttributes,
-    m_materialName,
     m_offset,
     m_scale,
     m_rotation,
@@ -64,8 +53,6 @@ public:
     m_surfaceFlags,
     m_surfaceValue,
     m_color);
-
-  const std::string& materialName() const;
 
   const vm::vec2f& offset() const;
   float xOffset() const;
@@ -88,7 +75,6 @@ public:
 
   bool valid() const;
 
-  bool setMaterialName(const std::string& materialName);
   bool setOffset(const vm::vec2f& offset);
   bool setXOffset(float xOffset);
   bool setYOffset(float yOffset);

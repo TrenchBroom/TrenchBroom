@@ -157,6 +157,7 @@ protected: // implement MapParser interface
     const vm::vec3d& point1,
     const vm::vec3d& point2,
     const vm::vec3d& point3,
+    std::string materialName,
     const BrushFaceAttributes& attribs,
     ParserStatus& status) override;
   void onValveBrushFace(
@@ -165,6 +166,7 @@ protected: // implement MapParser interface
     const vm::vec3d& point1,
     const vm::vec3d& point2,
     const vm::vec3d& point3,
+    std::string materialName,
     const BrushFaceAttributes& attribs,
     const vm::vec3d& uAxis,
     const vm::vec3d& vAxis,

@@ -20,7 +20,6 @@
 #include "Matchers.h"
 #include "mdl/BrushBuilder.h"
 #include "mdl/BrushFace.h"
-#include "mdl/BrushFaceAttributes.h"
 #include "mdl/BrushNode.h"
 #include "mdl/CatchConfig.h"
 #include "mdl/Entity.h"
@@ -338,8 +337,8 @@ TEST_CASE("NodeWriter")
       REQUIRE(index);
 
       auto& face = brush1.face(*index);
+      face.setMaterialName("e1u1/brwater");
       auto attribs = face.attributes();
-      attribs.setMaterialName("e1u1/brwater");
       attribs.setSurfaceContents(0);
       attribs.setSurfaceFlags(0);
       attribs.setSurfaceValue(0.0f);
@@ -351,8 +350,8 @@ TEST_CASE("NodeWriter")
       REQUIRE(index);
 
       auto& face = brush1.face(*index);
+      face.setMaterialName("e1u1/brlava");
       auto attribs = face.attributes();
-      attribs.setMaterialName("e1u1/brlava");
       attribs.setSurfaceContents(8);
       attribs.setSurfaceFlags(9);
       attribs.setSurfaceValue(700.0f);

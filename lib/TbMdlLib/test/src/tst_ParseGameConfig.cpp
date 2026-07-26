@@ -460,7 +460,7 @@ TEST_CASE("GameConfigParser")
              "Brushes with this flag allow a player to move up and down a vertical "
              "surface",
              1 << 29}}},
-          mdl::BrushFaceAttributes{mdl::BrushFaceAttributes::NoMaterialName}},
+          mdl::BrushFaceAttributes{}},
         {
           mdl::SmartTag{
             "Trigger",
@@ -564,7 +564,7 @@ TEST_CASE("GameConfigParser")
     },
     "faceattribs": {
         "defaults": {
-            "materialName": "defaultMaterial",
+            "materialName": "defaultMaterial", // ignored for backward compatibility
             "offset": [0, 0],
             "scale": [0.5, 0.5],
             "rotation": 0,
@@ -714,7 +714,7 @@ TEST_CASE("GameConfigParser")
 }
 )%";
 
-    mdl::BrushFaceAttributes expectedBrushFaceAttributes("defaultMaterial");
+    mdl::BrushFaceAttributes expectedBrushFaceAttributes;
     expectedBrushFaceAttributes.setOffset(vm::vec2f(0.0f, 0.0f));
     expectedBrushFaceAttributes.setScale(vm::vec2f(0.5f, 0.5f));
     expectedBrushFaceAttributes.setRotation(0.0f);

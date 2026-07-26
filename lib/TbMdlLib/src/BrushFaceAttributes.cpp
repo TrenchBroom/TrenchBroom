@@ -23,37 +23,10 @@
 
 #include "vm/vec_io.h" // IWYU pragma: keep
 
-#include <string>
-
 namespace tb::mdl
 {
 
-const std::string BrushFaceAttributes::NoMaterialName = "__TB_empty";
-
-BrushFaceAttributes::BrushFaceAttributes(std::string_view materialName)
-  : m_materialName{materialName}
-{
-}
-
-BrushFaceAttributes::BrushFaceAttributes(
-  std::string_view materialName, const BrushFaceAttributes& other)
-  : m_materialName{materialName}
-  , m_offset{other.m_offset}
-  , m_scale{other.m_scale}
-  , m_rotation{other.m_rotation}
-  , m_surfaceContents{other.m_surfaceContents}
-  , m_surfaceFlags{other.m_surfaceFlags}
-  , m_surfaceValue{other.m_surfaceValue}
-  , m_color{other.m_color}
-{
-}
-
 kdl_reflect_impl(BrushFaceAttributes);
-
-const std::string& BrushFaceAttributes::materialName() const
-{
-  return m_materialName;
-}
 
 const vm::vec2f& BrushFaceAttributes::offset() const
 {
@@ -130,16 +103,6 @@ bool BrushFaceAttributes::valid() const
 {
   return !vm::is_zero(m_scale.x(), vm::Cf::almost_zero())
          && !vm::is_zero(m_scale.y(), vm::Cf::almost_zero());
-}
-
-bool BrushFaceAttributes::setMaterialName(const std::string& materialName)
-{
-  if (materialName != m_materialName)
-  {
-    m_materialName = materialName;
-    return true;
-  }
-  return false;
 }
 
 bool BrushFaceAttributes::setOffset(const vm::vec2f& offset)

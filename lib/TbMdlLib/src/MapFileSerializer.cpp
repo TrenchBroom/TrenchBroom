@@ -95,9 +95,8 @@ protected:
 
   void writeMaterialInfo(std::ostream& stream, const BrushFace& face) const
   {
-    const auto& materialName = face.attributes().materialName().empty()
-                                 ? BrushFaceAttributes::NoMaterialName
-                                 : face.attributes().materialName();
+    const auto& materialName =
+      face.materialName().empty() ? BrushFace::NoMaterialName : face.materialName();
 
     fmt::format_to(
       std::ostreambuf_iterator<char>{stream},
@@ -113,9 +112,8 @@ protected:
 
   void writeValveMaterialInfo(std::ostream& stream, const BrushFace& face) const
   {
-    const auto& materialName = face.attributes().materialName().empty()
-                                 ? BrushFaceAttributes::NoMaterialName
-                                 : face.attributes().materialName();
+    const auto& materialName =
+      face.materialName().empty() ? BrushFace::NoMaterialName : face.materialName();
     const auto uAxis = face.uAxis();
     const auto vAxis = face.vAxis();
 

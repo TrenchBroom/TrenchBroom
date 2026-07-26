@@ -324,9 +324,8 @@ TEST_CASE("Map_Assets")
 
     REQUIRE(faces.size() == 4);
     REQUIRE_THAT(
-      faces | std::views::transform([](const auto* face) {
-        return face->attributes().materialName();
-      }),
+      faces
+        | std::views::transform([](const auto* face) { return face->materialName(); }),
       RangeEquals(std::vector<std::string>{
         "b_pv_v1a1", "e1m1/b_pv_v1a2", "e1m1/f1/b_rc_v4", "lavatest"}));
 

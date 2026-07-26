@@ -300,17 +300,18 @@ std::ostream& operator<<(std::ostream& lhs, const FlagOp& rhs)
 
 kdl_reflect_impl(UpdateBrushFaceAttributes);
 
-UpdateBrushFaceAttributes copyAll(const BrushFaceAttributes& attributes)
+UpdateBrushFaceAttributes copyAll(const BrushFace& brushFace)
 {
-  auto result = copyAllExceptContentFlags(attributes);
-  result.surfaceContents = replaceFlagsIfSet(attributes.surfaceContents());
+  auto result = copyAllExceptContentFlags(brushFace);
+  result.surfaceContents = replaceFlagsIfSet(brushFace.attributes().surfaceContents());
   return result;
 }
 
-UpdateBrushFaceAttributes copyAllExceptContentFlags(const BrushFaceAttributes& attributes)
+UpdateBrushFaceAttributes copyAllExceptContentFlags(const BrushFace& brushFace)
 {
+  const auto& attributes = brushFace.attributes();
   return UpdateBrushFaceAttributes{
-    .materialName = attributes.materialName(),
+    .materialName = brushFace.materialName(),
     .xOffset = SetValue{attributes.xOffset()},
     .yOffset = SetValue{attributes.yOffset()},
     .rotation = SetValue{attributes.rotation()},
@@ -597,7 +598,11 @@ void evaluate(const UpdateBrushFaceAttributes& update, BrushFace& brushFace)
 {
   auto attributes = brushFace.attributes();
 
-  attributes.setMaterialName(update.materialName.value_or(attributes.materialName()));
+  if (update.materialName)
+  {
+    brushFace.setMaterialName(*update.materialName);
+  }
+
   attributes.setXOffset(*evaluate(update.xOffset, attributes.xOffset()));
   attributes.setYOffset(*evaluate(update.yOffset, attributes.yOffset()));
   attributes.setRotation(

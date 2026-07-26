@@ -181,9 +181,8 @@ void FaceInspector::materialSelected(const gl::Material* material)
         faces,
         [&](const auto& faceHandle) { return faceHandle.face().material() == material; });
 
-      const auto materialNameToSet = !allFacesHaveMaterial
-                                       ? material->name()
-                                       : mdl::BrushFaceAttributes::NoMaterialName;
+      const auto materialNameToSet =
+        !allFacesHaveMaterial ? material->name() : mdl::BrushFace::NoMaterialName;
 
       map.setCurrentMaterialName(materialNameToSet);
       setBrushFaceAttributes(map, {.materialName = materialNameToSet});
@@ -191,9 +190,8 @@ void FaceInspector::materialSelected(const gl::Material* material)
     else
     {
       map.setCurrentMaterialName(
-        map.currentMaterialName() != material->name()
-          ? material->name()
-          : mdl::BrushFaceAttributes::NoMaterialName);
+        map.currentMaterialName() != material->name() ? material->name()
+                                                      : mdl::BrushFace::NoMaterialName);
     }
   }
 }
