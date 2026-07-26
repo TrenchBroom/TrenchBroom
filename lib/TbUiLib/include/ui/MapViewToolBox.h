@@ -144,6 +144,7 @@ public: // tools
   bool canToggleSweepTool() const;
   void toggleSweepTool();
   bool sweepToolActive() const;
+  void moveSweepCenter(const vm::vec3d& delta);
   void performSweep();
 
   bool canToggleScaleTool() const;

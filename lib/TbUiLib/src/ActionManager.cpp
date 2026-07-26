@@ -194,14 +194,14 @@ void ActionManager::createViewActions()
   });
 
   /* ========== Translation ========== */
-  // applies to objects, vertices, handles (e.g. rotation center)
+  // applies to objects, vertices, handles (e.g. rotation center, sweep handle)
   // these preference paths are structured like "action in 2D view; action in 3D view"
   addAction(Action{
     std::filesystem::path{"Controls/Map view/Move objects up; Move objects forward"},
     QObject::tr("Move Forward"),
     ActionContext::AnyView | ActionContext::NodeSelection
-      | ActionContext::AnyNodeHandleTool | ActionContext::RotateTool
-      | ActionContext::NoTool,
+      | ActionContext::SelectionOwnedByTool | ActionContext::AnyNodeHandleTool
+      | ActionContext::RotateTool | ActionContext::SweepTool | ActionContext::NoTool,
     QKeySequence{Qt::Key_Up},
     [](auto& context) { context.mapView().move(vm::direction::forward); },
     [](const auto& context) { return context.hasDocument(); },
@@ -210,8 +210,8 @@ void ActionManager::createViewActions()
     std::filesystem::path{"Controls/Map view/Move objects down; Move objects backward"},
     QObject::tr("Move Backward"),
     ActionContext::AnyView | ActionContext::NodeSelection
-      | ActionContext::AnyNodeHandleTool | ActionContext::RotateTool
-      | ActionContext::NoTool,
+      | ActionContext::SelectionOwnedByTool | ActionContext::AnyNodeHandleTool
+      | ActionContext::RotateTool | ActionContext::SweepTool | ActionContext::NoTool,
     QKeySequence{Qt::Key_Down},
     [](auto& context) { context.mapView().move(vm::direction::backward); },
     [](const auto& context) { return context.hasDocument(); },
@@ -220,8 +220,8 @@ void ActionManager::createViewActions()
     std::filesystem::path{"Controls/Map view/Move objects left"},
     QObject::tr("Move Left"),
     ActionContext::AnyView | ActionContext::NodeSelection
-      | ActionContext::AnyNodeHandleTool | ActionContext::RotateTool
-      | ActionContext::NoTool,
+      | ActionContext::SelectionOwnedByTool | ActionContext::AnyNodeHandleTool
+      | ActionContext::RotateTool | ActionContext::SweepTool | ActionContext::NoTool,
     QKeySequence{Qt::Key_Left},
     [](auto& context) { context.mapView().move(vm::direction::left); },
     [](const auto& context) { return context.hasDocument(); },
@@ -230,8 +230,8 @@ void ActionManager::createViewActions()
     std::filesystem::path{"Controls/Map view/Move objects right"},
     QObject::tr("Move Right"),
     ActionContext::AnyView | ActionContext::NodeSelection
-      | ActionContext::AnyNodeHandleTool | ActionContext::RotateTool
-      | ActionContext::NoTool,
+      | ActionContext::SelectionOwnedByTool | ActionContext::AnyNodeHandleTool
+      | ActionContext::RotateTool | ActionContext::SweepTool | ActionContext::NoTool,
     QKeySequence{Qt::Key_Right},
     [](auto& context) { context.mapView().move(vm::direction::right); },
     [](const auto& context) { return context.hasDocument(); },
@@ -240,8 +240,8 @@ void ActionManager::createViewActions()
     std::filesystem::path{"Controls/Map view/Move objects backward; Move objects up"},
     QObject::tr("Move Up"),
     ActionContext::AnyView | ActionContext::NodeSelection
-      | ActionContext::AnyNodeHandleTool | ActionContext::RotateTool
-      | ActionContext::NoTool,
+      | ActionContext::SelectionOwnedByTool | ActionContext::AnyNodeHandleTool
+      | ActionContext::RotateTool | ActionContext::SweepTool | ActionContext::NoTool,
     QKeySequence{Qt::Key_PageUp},
     [](auto& context) { context.mapView().move(vm::direction::up); },
     [](const auto& context) { return context.hasDocument(); },
@@ -250,8 +250,8 @@ void ActionManager::createViewActions()
     std::filesystem::path{"Controls/Map view/Move objects forward; Move objects down"},
     QObject::tr("Move Down"),
     ActionContext::AnyView | ActionContext::NodeSelection
-      | ActionContext::AnyNodeHandleTool | ActionContext::RotateTool
-      | ActionContext::NoTool,
+      | ActionContext::SelectionOwnedByTool | ActionContext::AnyNodeHandleTool
+      | ActionContext::RotateTool | ActionContext::SweepTool | ActionContext::NoTool,
     QKeySequence{Qt::Key_PageDown},
     [](auto& context) { context.mapView().move(vm::direction::down); },
     [](const auto& context) { return context.hasDocument(); },

@@ -312,6 +312,14 @@ bool MapViewToolBox::sweepToolActive() const
   return m_sweepTool->active();
 }
 
+void MapViewToolBox::moveSweepCenter(const vm::vec3d& delta)
+{
+  contract_pre(sweepToolActive());
+
+  const auto center = m_sweepTool->destinationCenter();
+  m_sweepTool->setDestinationCenter(center + delta);
+}
+
 void MapViewToolBox::performSweep()
 {
   contract_pre(sweepToolActive());

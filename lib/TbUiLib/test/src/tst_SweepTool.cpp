@@ -139,6 +139,27 @@ TEST_CASE("SweepTool")
       CHECK(tool.destinationCenter() == vm::vec3d{80, 0, 0});
     }
 
+    SECTION("setDestinationCenter round-trips exactly and leaves rotation and scale")
+    {
+      tool.setTransform(SweepTransform{
+        vm::vec3d{64, 0, 0},
+        vm::quatd{vm::vec3d{0, 0, 1}, vm::Cd::half_pi()},
+        vm::vec3d{2, 2, 2}});
+
+      const auto center = tool.destinationCenter();
+      const auto delta = vm::vec3d{16, -32, 8};
+
+      tool.setDestinationCenter(center + delta);
+      CHECK(tool.destinationCenter() == center + delta);
+      CHECK(
+        tool.transform().rotation == vm::quatd{vm::vec3d{0, 0, 1}, vm::Cd::half_pi()});
+      CHECK(tool.transform().scale == vm::vec3d{2, 2, 2});
+
+      // nudging repeatedly must not accumulate error
+      tool.setDestinationCenter(tool.destinationCenter() + delta);
+      CHECK(tool.destinationCenter() == center + 2.0 * delta);
+    }
+
     SECTION("cancel resets the transform")
     {
       tool.setDestinationCenter(vm::vec3d{80, 0, 0});
