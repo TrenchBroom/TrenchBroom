@@ -149,21 +149,14 @@ TEST_CASE("UpdateBrushFaceAttributes")
 
   SECTION("resetAll")
   {
-    auto defaultAttributes = BrushFaceAttributes{};
-    defaultAttributes.setUvAttributes({
+    const auto defaultUvAttributes = UvAttributes{
       .offset = {1, 2},
       .scale = {2, 3},
       .rotation = 45.0f,
-    });
-    defaultAttributes.setSurfaceAttributes({
-      .contents = 3,
-      .flags = 2,
-      .value = 11.0f,
-      .color = RgbaB{1, 2, 3, 4},
-    });
+    };
 
     CHECK(
-      resetAll(defaultAttributes)
+      resetAll(defaultUvAttributes)
       == UpdateBrushFaceAttributes{
         .xOffset = SetValue{0.0f},
         .yOffset = SetValue{0.0f},
@@ -176,21 +169,14 @@ TEST_CASE("UpdateBrushFaceAttributes")
 
   SECTION("resetAllToParaxial")
   {
-    auto defaultAttributes = BrushFaceAttributes{};
-    defaultAttributes.setUvAttributes({
+    const auto defaultUvAttributes = UvAttributes{
       .offset = {1, 2},
       .scale = {2, 3},
       .rotation = 45.0f,
-    });
-    defaultAttributes.setSurfaceAttributes({
-      .contents = 3,
-      .flags = 2,
-      .value = 11.0f,
-      .color = RgbaB{1, 2, 3, 4},
-    });
+    };
 
     CHECK(
-      resetAllToParaxial(defaultAttributes)
+      resetAllToParaxial(defaultUvAttributes)
       == UpdateBrushFaceAttributes{
         .xOffset = SetValue{0.0f},
         .yOffset = SetValue{0.0f},

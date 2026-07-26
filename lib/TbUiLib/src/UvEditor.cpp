@@ -155,14 +155,17 @@ void UvEditor::resetUvClicked()
 {
   auto& map = m_document.map();
   setBrushFaceAttributes(
-    map, mdl::resetAll(map.gameInfo().gameConfig.faceAttribsConfig.defaults));
+    map,
+    mdl::resetAll(map.gameInfo().gameConfig.faceAttribsConfig.defaults.uvAttributes()));
 }
 
 void UvEditor::resetUvToWorldClicked()
 {
   auto& map = m_document.map();
   setBrushFaceAttributes(
-    map, mdl::resetAllToParaxial(map.gameInfo().gameConfig.faceAttribsConfig.defaults));
+    map,
+    mdl::resetAllToParaxial(
+      map.gameInfo().gameConfig.faceAttribsConfig.defaults.uvAttributes()));
 }
 
 void UvEditor::flipUvHClicked()

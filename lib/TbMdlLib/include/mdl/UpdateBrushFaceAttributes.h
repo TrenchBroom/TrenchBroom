@@ -31,7 +31,7 @@ namespace tb::mdl
 {
 
 class BrushFace;
-class BrushFaceAttributes;
+struct UvAttributes;
 
 struct ResetAxis
 {
@@ -134,9 +134,8 @@ struct UpdateBrushFaceAttributes
 UpdateBrushFaceAttributes copyAll(const BrushFace& brushFace);
 UpdateBrushFaceAttributes copyAllExceptContentFlags(const BrushFace& brushFace);
 
-UpdateBrushFaceAttributes resetAll(const BrushFaceAttributes& defaultFaceAttributes);
-UpdateBrushFaceAttributes resetAllToParaxial(
-  const BrushFaceAttributes& defaultFaceAttributes);
+UpdateBrushFaceAttributes resetAll(const UvAttributes& defaultUvAttributes);
+UpdateBrushFaceAttributes resetAllToParaxial(const UvAttributes& defaultUvAttributes);
 
 enum class UvPolicy
 {

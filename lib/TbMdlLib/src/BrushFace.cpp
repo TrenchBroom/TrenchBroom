@@ -275,7 +275,7 @@ void BrushFace::restoreUvCoordSystemSnapshot(
 
 void BrushFace::copyUvCoordSystemFromFace(
   const UvCoordSystemSnapshot& coordSystemSnapshot,
-  const BrushFaceAttributes& attributes,
+  const UvAttributes& uvAttributes,
   const vm::plane3d& sourceFacePlane,
   const WrapStyle wrapStyle)
 {
@@ -290,7 +290,7 @@ void BrushFace::copyUvCoordSystemFromFace(
   // Get the UV coords at the refPoint using the source face's attributes and tex coord
   // system
   const auto desriedCoords =
-    m_uvCoordSystem->uvCoords(refPoint, attributes.uvAttributes(), vm::vec2f{1, 1});
+    m_uvCoordSystem->uvCoords(refPoint, uvAttributes, vm::vec2f{1, 1});
 
   m_uvCoordSystem->setNormal(
     sourceFacePlane.normal, m_boundary.normal, m_attributes.uvAttributes(), wrapStyle);
@@ -303,9 +303,9 @@ void BrushFace::copyUvCoordSystemFromFace(
       m_uvCoordSystem->uvCoords(refPoint, m_attributes.uvAttributes(), vm::vec2f::one());
     const auto offsetChange = desriedCoords - currentCoords;
 
-    auto uvAttributes = m_attributes.uvAttributes();
-    uvAttributes.offset = correct(modOffset(uvAttributes.offset + offsetChange), 4);
-    m_attributes.setUvAttributes(uvAttributes);
+    auto newUvAttributes = m_attributes.uvAttributes();
+    newUvAttributes.offset = correct(modOffset(newUvAttributes.offset + offsetChange), 4);
+    m_attributes.setUvAttributes(newUvAttributes);
   }
 }
 

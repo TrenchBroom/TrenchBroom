@@ -20,7 +20,6 @@
 #include "mdl/InvalidUvScaleValidator.h"
 
 #include "mdl/BrushFace.h"
-#include "mdl/BrushFaceAttributes.h"
 #include "mdl/BrushFaceHandle.h"
 #include "mdl/BrushNode.h"
 #include "mdl/Issue.h"

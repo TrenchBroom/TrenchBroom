@@ -63,7 +63,6 @@ enum class PasteType;
 enum class TransactionScope;
 enum class WrapStyle;
 
-class BrushFaceAttributes;
 class Command;
 class CommandProcessor;
 class EditorContext;

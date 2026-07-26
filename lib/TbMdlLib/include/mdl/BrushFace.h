@@ -193,7 +193,7 @@ public:
   void restoreUvCoordSystemSnapshot(const UvCoordSystemSnapshot& coordSystemSnapshot);
   void copyUvCoordSystemFromFace(
     const UvCoordSystemSnapshot& coordSystemSnapshot,
-    const BrushFaceAttributes& attributes,
+    const UvAttributes& uvAttributes,
     const vm::plane3d& sourceFacePlane,
     WrapStyle wrapStyle);
 

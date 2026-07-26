@@ -341,7 +341,10 @@ void Brush::cloneFaceAttributesFrom(const Brush& brush)
       if (auto snapshot = source.takeUvCoordSystemSnapshot())
       {
         destination.copyUvCoordSystemFromFace(
-          *snapshot, source.attributes(), source.boundary(), WrapStyle::Projection);
+          *snapshot,
+          source.attributes().uvAttributes(),
+          source.boundary(),
+          WrapStyle::Projection);
       }
     }
   }
@@ -368,7 +371,10 @@ void Brush::cloneFaceAttributesFrom(const std::vector<const Brush*>& brushes)
       if (auto snapshot = bestMatch->takeUvCoordSystemSnapshot())
       {
         face.copyUvCoordSystemFromFace(
-          *snapshot, bestMatch->attributes(), face.boundary(), WrapStyle::Projection);
+          *snapshot,
+          bestMatch->attributes().uvAttributes(),
+          face.boundary(),
+          WrapStyle::Projection);
       }
     }
   }
@@ -388,7 +394,10 @@ void Brush::cloneInvertedFaceAttributesFrom(const Brush& brush)
       if (auto snapshot = source.takeUvCoordSystemSnapshot())
       {
         destination.copyUvCoordSystemFromFace(
-          *snapshot, source.attributes(), destination.boundary(), WrapStyle::Projection);
+          *snapshot,
+          source.attributes().uvAttributes(),
+          destination.boundary(),
+          WrapStyle::Projection);
       }
     }
   }
@@ -1089,7 +1098,10 @@ void Brush::applyUvLock(
         // Note, the wrap style doesn't matter because the source and destination faces
         // should have the same plane
         rightFace.copyUvCoordSystemFromFace(
-          *snapshot, leftClone.attributes(), leftClone.boundary(), WrapStyle::Rotation);
+          *snapshot,
+          leftClone.attributes().uvAttributes(),
+          leftClone.boundary(),
+          WrapStyle::Rotation);
       }
       rightFace.resetUvCoordSystemCache();
     }) | kdl::transform_error([](auto) {

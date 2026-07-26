@@ -571,14 +571,17 @@ void MapViewBase::resetUv()
 {
   auto& map = m_document.map();
   setBrushFaceAttributes(
-    map, mdl::resetAll(map.gameInfo().gameConfig.faceAttribsConfig.defaults));
+    map,
+    mdl::resetAll(map.gameInfo().gameConfig.faceAttribsConfig.defaults.uvAttributes()));
 }
 
 void MapViewBase::resetUvToWorld()
 {
   auto& map = m_document.map();
   setBrushFaceAttributes(
-    map, mdl::resetAllToParaxial(map.gameInfo().gameConfig.faceAttribsConfig.defaults));
+    map,
+    mdl::resetAllToParaxial(
+      map.gameInfo().gameConfig.faceAttribsConfig.defaults.uvAttributes()));
 }
 
 void MapViewBase::assembleBrush()

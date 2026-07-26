@@ -214,14 +214,14 @@ bool setBrushFaceAttributes(Map& map, const UpdateBrushFaceAttributes& update)
 bool copyUv(
   Map& map,
   const UvCoordSystemSnapshot& coordSystemSnapshot,
-  const BrushFaceAttributes& attribs,
+  const UvAttributes& uvAttributes,
   const vm::plane3d& sourceFacePlane,
   const WrapStyle wrapStyle)
 {
   return applyAndSwap(
     map, "Copy UV Alignment", map.selection().allBrushFaces(), [&](auto& face) {
       face.copyUvCoordSystemFromFace(
-        coordSystemSnapshot, attribs, sourceFacePlane, wrapStyle);
+        coordSystemSnapshot, uvAttributes, sourceFacePlane, wrapStyle);
       return true;
     });
 }

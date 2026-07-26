@@ -328,27 +328,26 @@ UpdateBrushFaceAttributes copyAllExceptContentFlags(const BrushFace& brushFace)
   };
 }
 
-UpdateBrushFaceAttributes resetAll(const BrushFaceAttributes& defaultFaceAttributes)
+UpdateBrushFaceAttributes resetAll(const UvAttributes& defaultUvAttributes)
 {
   return UpdateBrushFaceAttributes{
     .xOffset = SetValue{0.0f},
     .yOffset = SetValue{0.0f},
     .rotation = SetValue{0.0f},
-    .xScale = SetValue{defaultFaceAttributes.uvAttributes().scale.x()},
-    .yScale = SetValue{defaultFaceAttributes.uvAttributes().scale.y()},
+    .xScale = SetValue{defaultUvAttributes.scale.x()},
+    .yScale = SetValue{defaultUvAttributes.scale.y()},
     .axis = ResetAxis{},
   };
 }
 
-UpdateBrushFaceAttributes resetAllToParaxial(
-  const BrushFaceAttributes& defaultFaceAttributes)
+UpdateBrushFaceAttributes resetAllToParaxial(const UvAttributes& defaultUvAttributes)
 {
   return UpdateBrushFaceAttributes{
     .xOffset = SetValue{0.0f},
     .yOffset = SetValue{0.0f},
     .rotation = SetValue{0.0f},
-    .xScale = SetValue{defaultFaceAttributes.uvAttributes().scale.x()},
-    .yScale = SetValue{defaultFaceAttributes.uvAttributes().scale.y()},
+    .xScale = SetValue{defaultUvAttributes.scale.x()},
+    .yScale = SetValue{defaultUvAttributes.scale.y()},
     .axis = ToParaxial{},
   };
 }

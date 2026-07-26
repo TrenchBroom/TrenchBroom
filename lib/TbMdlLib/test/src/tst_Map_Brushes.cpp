@@ -373,7 +373,7 @@ TEST_CASE("Map_Brushes")
       REQUIRE(
         getFace(*brushNode, faceIndex).attributes().uvAttributes().rotation == 10.0f);
 
-      setBrushFaceAttributes(map, resetAll(defaultFaceAttrs));
+      setBrushFaceAttributes(map, resetAll(defaultFaceAttrs.uvAttributes()));
 
       CHECK(
         getFace(*brushNode, faceIndex).attributes().uvAttributes().offset.x() == 0.0f);
@@ -471,11 +471,11 @@ TEST_CASE("Map_Brushes")
 
     const auto& sourceFace = getFace(*brushNode, *sourceFaceIndex);
     const auto sourceSnapshot = sourceFace.takeUvCoordSystemSnapshot();
-    const auto sourceAttributes = sourceFace.attributes();
+    const auto sourceUvAttributes = sourceFace.attributes().uvAttributes();
     const auto sourcePlane = sourceFace.boundary();
 
-    CHECK(
-      copyUv(map, *sourceSnapshot, sourceAttributes, sourcePlane, WrapStyle::Projection));
+    CHECK(copyUv(
+      map, *sourceSnapshot, sourceUvAttributes, sourcePlane, WrapStyle::Projection));
 
     auto expectedAttributes = originalTargetFaceAttributes;
     auto expectedUvAttributes = expectedAttributes.uvAttributes();

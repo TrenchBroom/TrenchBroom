@@ -781,7 +781,10 @@ TEST_CASE("BrushFace")
 
     // copy texturing from the negYFace to posXFace using the rotation method
     posXFace->copyUvCoordSystemFromFace(
-      *snapshot, negYFace->attributes(), negYFace->boundary(), WrapStyle::Rotation);
+      *snapshot,
+      negYFace->attributes().uvAttributes(),
+      negYFace->boundary(),
+      WrapStyle::Rotation);
     CHECK(
       posXFace->uAxis()
       == vm::approx{
@@ -793,7 +796,10 @@ TEST_CASE("BrushFace")
 
     // copy texturing from the negYFace to posXFace using the projection method
     posXFace->copyUvCoordSystemFromFace(
-      *snapshot, negYFace->attributes(), negYFace->boundary(), WrapStyle::Projection);
+      *snapshot,
+      negYFace->attributes().uvAttributes(),
+      negYFace->boundary(),
+      WrapStyle::Projection);
     CHECK(posXFace->uAxis() == vm::approx{vm::vec3d{0, -1, 0}});
     CHECK(posXFace->vAxis() == vm::approx{vm::vec3d{0, 0, -1}});
 

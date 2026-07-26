@@ -27,7 +27,7 @@
 
 namespace tb::mdl
 {
-class BrushFaceAttributes;
+struct UvAttributes;
 class Map;
 class UvCoordSystemSnapshot;
 
@@ -61,7 +61,7 @@ bool setBrushFaceAttributes(Map& map, const UpdateBrushFaceAttributes& update);
 bool copyUv(
   Map& map,
   const UvCoordSystemSnapshot& coordSystemSnapshot,
-  const BrushFaceAttributes& attribs,
+  const UvAttributes& uvAttributes,
   const vm::plane3d& sourceFacePlane,
   WrapStyle wrapStyle);
 
