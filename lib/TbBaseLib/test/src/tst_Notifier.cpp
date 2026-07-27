@@ -24,6 +24,7 @@
 #include <vector>
 
 #include <catch2/catch_test_macros.hpp>
+#include <catch2/generators/catch_generators.hpp>
 
 namespace tb
 {
@@ -391,6 +392,24 @@ TEST_CASE("NotifyAfter")
     CHECK(copyCount == 0);
     CHECK(moveCount <= 3);
   }
+
+  SECTION("notifies when it is destroyed, and only if notify is true")
+  {
+    const auto notify = GENERATE(true, false);
+    CAPTURE(notify);
+
+    auto calls = 0;
+    const auto connection = n.connect([&](const Param&) { ++calls; });
+
+    {
+      const auto p = Param{copyCount, moveCount};
+      const auto after = NotifyAfter{notify, n, p};
+
+      CHECK(calls == 0);
+    }
+
+    CHECK(calls == (notify ? 1 : 0));
+  }
 }
 
 TEST_CASE("NotifyBeforeAndAfter")
@@ -422,6 +441,84 @@ TEST_CASE("NotifyBeforeAndAfter")
     }
     CHECK(copyCount == 0);
     CHECK(moveCount <= 3);
+  }
+}
+
+TEST_CASE("Notifier")
+{
+  auto obs = Observed{};
+
+  SECTION("connecting an observer while notifying")
+  {
+    SECTION("defers the observer until the next notification")
+    {
+      auto lateCalls = 0;
+      auto lateConnection = NotifierConnection{};
+      auto connected = false;
+
+      const auto connection = obs.noArgNotifier.connect([&]() {
+        if (!std::exchange(connected, true))
+        {
+          lateConnection = obs.noArgNotifier.connect([&]() { ++lateCalls; });
+        }
+      });
+
+      // the observer was added while notifying, so it is not called yet
+      obs.notify0();
+      CHECK(lateCalls == 0);
+
+      obs.notify0();
+      CHECK(lateCalls == 1);
+
+      obs.notify0();
+      CHECK(lateCalls == 2);
+    }
+
+    SECTION(
+      "does not call the observer at all if it is disconnected again while "
+      "notifying")
+    {
+      auto lateCalls = 0;
+      auto connected = false;
+
+      const auto connection = obs.noArgNotifier.connect([&]() {
+        if (!std::exchange(connected, true))
+        {
+          // this connection is disconnected at the end of the scope, before the
+          // observer is ever transferred out of the pending list
+          const auto lateConnection = obs.noArgNotifier.connect([&]() { ++lateCalls; });
+        }
+      });
+
+      obs.notify0();
+      obs.notify0();
+      CHECK(lateCalls == 0);
+    }
+  }
+
+  SECTION("disconnecting an observer while notifying")
+  {
+    SECTION("does not call the disconnected observer again")
+    {
+      auto calls1 = 0;
+      auto calls2 = 0;
+      auto connection2 = NotifierConnection{};
+
+      const auto connection1 = obs.noArgNotifier.connect([&]() {
+        ++calls1;
+        connection2.disconnect();
+      });
+      connection2 = obs.noArgNotifier.connect([&]() { ++calls2; });
+
+      // the second observer is disconnected before it is reached
+      obs.notify0();
+      CHECK(calls1 == 1);
+      CHECK(calls2 == 0);
+
+      obs.notify0();
+      CHECK(calls1 == 2);
+      CHECK(calls2 == 0);
+    }
   }
 }
 
