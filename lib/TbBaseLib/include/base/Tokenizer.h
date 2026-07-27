@@ -29,10 +29,10 @@
 
 #include <fmt/format.h>
 
+#include <map>
 #include <string>
 #include <string_view>
 #include <tuple>
-#include <unordered_map>
 
 namespace tb
 {
@@ -213,7 +213,9 @@ class Tokenizer : public TokenizerBase
 {
 public:
   using Token = TokenTemplate<TokenType>;
-  using TokenNameMap = std::unordered_map<TokenType, std::string>;
+  // ordered so that tokenName joins the names of matching token types in a deterministic
+  // order, which keeps error messages stable
+  using TokenNameMap = std::map<TokenType, std::string>;
 
 private:
   class SaveAndRestoreState

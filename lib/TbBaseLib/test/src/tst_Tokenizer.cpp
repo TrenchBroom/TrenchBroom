@@ -357,12 +357,20 @@ TEST_CASE("Tokenizer")
       CHECK(tokenizer.tokenName(SimpleToken::Eof) == "end of file");
     }
 
-    SECTION("joins the names of all matching token types")
+    SECTION("joins the names of all matching token types in token type order")
     {
-      // the token names are stored in an unordered_map, so the order in which the names
-      // are joined is unspecified
-      const auto name = tokenizer.tokenName(SimpleToken::Integer | SimpleToken::Decimal);
-      CHECK((name == "integer or decimal" || name == "decimal or integer"));
+      CHECK(
+        tokenizer.tokenName(SimpleToken::Integer | SimpleToken::Decimal)
+        == "integer or decimal");
+      CHECK(
+        tokenizer.tokenName(SimpleToken::Decimal | SimpleToken::Integer)
+        == "integer or decimal");
+      CHECK(
+        tokenizer.tokenName(
+          SimpleToken::Integer | SimpleToken::Decimal | SimpleToken::String)
+        == "integer, decimal, or string");
+      CHECK(
+        tokenizer.tokenName(SimpleToken::CBrace | SimpleToken::OBrace) == "'{' or '}'");
     }
   }
 
