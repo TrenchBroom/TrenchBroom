@@ -38,12 +38,11 @@ constexpr Type ScaleTool = 1u << 6u;
 constexpr Type ShearTool = 1u << 7u;
 constexpr Type AnyVertexTool = 1u << 8u;
 constexpr Type ControlPointTool = 1u << 9u;
+constexpr Type SweepTool = 1u << 10u;
 constexpr Type AnyNodeHandleTool = AnyVertexTool | ControlPointTool;
-constexpr Type NoSelection = 1u << 10u;
-constexpr Type NodeSelection = 1u << 11u;
-constexpr Type FaceSelection = 1u << 12u;
-// placed after the selection block so the existing bits keep their values
-constexpr Type SweepTool = 1u << 13u;
+constexpr Type NoSelection = 1u << 11u;
+constexpr Type NodeSelection = 1u << 12u;
+constexpr Type FaceSelection = 1u << 13u;
 constexpr Type AnyTool = AnyNodeHandleTool | AssembleBrushTool | ClipTool | RotateTool
                          | ScaleTool | ShearTool | SweepTool;
 constexpr Type AnyOrNoTool = AnyTool | NoTool;
