@@ -36,8 +36,16 @@ NotifierConnection::NotifierConnection(
 
 NotifierConnection::NotifierConnection(NotifierConnection&&) noexcept = default;
 
-NotifierConnection& NotifierConnection::operator=(NotifierConnection&&) noexcept =
-  default;
+NotifierConnection& NotifierConnection::operator=(NotifierConnection&& other) noexcept
+{
+  if (this != &other)
+  {
+    // disconnect the connections held so far, they would leak otherwise
+    disconnect();
+    m_connections = std::move(other.m_connections);
+  }
+  return *this;
+}
 
 NotifierConnection::~NotifierConnection()
 {

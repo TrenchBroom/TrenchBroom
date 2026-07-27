@@ -20,6 +20,7 @@
 #include "base/Notifier.h"
 
 #include <tuple>
+#include <utility>
 #include <vector>
 
 #include <catch2/catch_test_macros.hpp>
@@ -421,6 +422,110 @@ TEST_CASE("NotifyBeforeAndAfter")
     }
     CHECK(copyCount == 0);
     CHECK(moveCount <= 3);
+  }
+}
+
+TEST_CASE("NotifierConnection")
+{
+  auto o1 = Observer{};
+  auto o2 = Observer{};
+
+  auto obs = Observed{};
+
+  SECTION("move constructor")
+  {
+    auto con1 = obs.noArgNotifier.connect(&o1, &Observer::notify0);
+
+    {
+      auto con2 = NotifierConnection{std::move(con1)};
+
+      obs.notify0();
+      CHECK(o1.notify0Calls == 1);
+    }
+
+    // con2 took over the connection and disconnected it when it was destroyed
+    obs.notify0();
+    CHECK(o1.notify0Calls == 1);
+  }
+
+  SECTION("move assignment")
+  {
+    SECTION("takes over the connections of the moved from instance")
+    {
+      auto con1 = obs.noArgNotifier.connect(&o1, &Observer::notify0);
+
+      {
+        auto con2 = NotifierConnection{};
+        con2 = std::move(con1);
+
+        obs.notify0();
+        CHECK(o1.notify0Calls == 1);
+      }
+
+      obs.notify0();
+      CHECK(o1.notify0Calls == 1);
+    }
+
+    SECTION("disconnects the connections it held before")
+    {
+      auto con = obs.noArgNotifier.connect(&o1, &Observer::notify0);
+      con = obs.noArgNotifier.connect(&o2, &Observer::notify0);
+
+      obs.notify0();
+      CHECK(o1.notify0Calls == 0);
+      CHECK(o2.notify0Calls == 1);
+    }
+
+    SECTION("keeps its connections when moved onto itself")
+    {
+      auto con = obs.noArgNotifier.connect(&o1, &Observer::notify0);
+
+      // assign via a reference to avoid a self move warning
+      auto& conRef = con;
+      con = std::move(conRef);
+
+      obs.notify0();
+      CHECK(o1.notify0Calls == 1);
+    }
+  }
+
+  SECTION("disconnect")
+  {
+    SECTION("disconnects all connections")
+    {
+      auto con = NotifierConnection{};
+      con += obs.noArgNotifier.connect(&o1, &Observer::notify0);
+      con += obs.noArgNotifier.connect(&o2, &Observer::notify0);
+
+      con.disconnect();
+
+      obs.notify0();
+      CHECK(o1.notify0Calls == 0);
+      CHECK(o2.notify0Calls == 0);
+    }
+
+    SECTION("can be called more than once")
+    {
+      auto con = obs.noArgNotifier.connect(&o1, &Observer::notify0);
+
+      con.disconnect();
+      CHECK_NOTHROW(con.disconnect());
+
+      obs.notify0();
+      CHECK(o1.notify0Calls == 0);
+    }
+
+    SECTION("does nothing if the notifier was destroyed already")
+    {
+      auto con = NotifierConnection{};
+
+      {
+        auto shortLivedObs = Observed{};
+        con = shortLivedObs.noArgNotifier.connect(&o1, &Observer::notify0);
+      }
+
+      CHECK_NOTHROW(con.disconnect());
+    }
   }
 }
 
