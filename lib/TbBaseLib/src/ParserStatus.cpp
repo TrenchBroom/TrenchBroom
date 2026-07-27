@@ -95,7 +95,7 @@ void ParserStatus::error(const std::string& str)
 void ParserStatus::errorAndThrow(const std::string& str)
 {
   error(str);
-  throw ParserException(buildMessage(str));
+  throw ParserException(buildMessage(std::nullopt, str));
 }
 
 void ParserStatus::log(
@@ -104,31 +104,20 @@ void ParserStatus::log(
   doLog(level, buildMessage(location, str));
 }
 
-std::string ParserStatus::buildMessage(
-  const FileLocation& location, const std::string& str) const
-{
-  auto msg = std::stringstream{};
-  if (!m_prefix.empty())
-  {
-    msg << m_prefix << ": ";
-  }
-  msg << str << " (at " << location << ")";
-  return msg.str();
-}
-
 void ParserStatus::log(const LogLevel level, const std::string& str)
 {
-  doLog(level, buildMessage(str));
+  doLog(level, buildMessage(std::nullopt, str));
 }
 
-std::string ParserStatus::buildMessage(const std::string& str) const
+std::string ParserStatus::buildMessage(
+  const std::optional<FileLocation>& location, const std::string& str) const
 {
   auto msg = std::stringstream{};
   if (!m_prefix.empty())
   {
     msg << m_prefix << ": ";
   }
-  msg << str << " (unknown location)";
+  msg << prependLocation(location, str);
   return msg.str();
 }
 
