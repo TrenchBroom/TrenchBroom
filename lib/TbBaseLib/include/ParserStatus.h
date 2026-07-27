@@ -19,11 +19,13 @@
 
 #pragma once
 
+#include "FileLocation.h"
+
+#include <optional>
 #include <string>
 
 namespace tb
 {
-struct FileLocation;
 class Logger;
 enum class LogLevel;
 
@@ -56,10 +58,10 @@ public:
 
 private:
   void log(LogLevel level, const FileLocation& location, const std::string& str);
-  std::string buildMessage(const FileLocation& location, const std::string& str) const;
-
   void log(LogLevel level, const std::string& str);
-  std::string buildMessage(const std::string& str) const;
+
+  std::string buildMessage(
+    const std::optional<FileLocation>& location, const std::string& str) const;
 
 private:
   virtual void doProgress(double progress) = 0;
