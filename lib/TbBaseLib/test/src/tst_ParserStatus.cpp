@@ -19,6 +19,7 @@
 
 #include "base/FileLocation.h"
 #include "base/Logger.h"
+#include "base/ParserException.h"
 #include "base/ParserStatus.h"
 
 #include <optional>
@@ -27,16 +28,47 @@
 
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/generators/catch_generators.hpp>
+#include <catch2/matchers/catch_matchers.hpp>
+#include <catch2/matchers/catch_matchers_exception.hpp>
 
 namespace tb
 {
 namespace
 {
 
+class TestLogger : public Logger
+{
+public:
+  std::vector<std::string> messages;
+
+private:
+  void doLog(LogLevel, const std::string_view message) override
+  {
+    messages.emplace_back(message);
+  }
+};
+
+/**
+ * A status that does not override doLog, so that messages are passed on to the logger.
+ */
+class LoggingStatus : public ParserStatus
+{
+public:
+  LoggingStatus(Logger& logger, std::string prefix)
+    : ParserStatus{logger, std::move(prefix)}
+  {
+  }
+
+private:
+  void doProgress(double) override {}
+};
+
 class TestStatus : public ParserStatus
 {
 public:
   std::vector<std::string> messages;
+  std::vector<LogLevel> levels;
+  std::vector<double> progressValues;
 
   TestStatus(Logger& logger, std::string prefix)
     : ParserStatus{logger, std::move(prefix)}
@@ -44,9 +76,13 @@ public:
   }
 
 private:
-  void doProgress(double) override {}
+  void doProgress(double progress) override { progressValues.push_back(progress); }
 
-  void doLog(LogLevel, const std::string& str) override { messages.push_back(str); }
+  void doLog(LogLevel level, const std::string& str) override
+  {
+    levels.push_back(level);
+    messages.push_back(str);
+  }
 };
 
 } // namespace
@@ -54,6 +90,62 @@ private:
 TEST_CASE("ParserStatus")
 {
   auto logger = NullLogger{};
+
+  SECTION("progress")
+  {
+    auto status = TestStatus{logger, "Map"};
+
+    status.progress(0.0);
+    status.progress(0.5);
+    status.progress(1.0);
+
+    CHECK(status.progressValues == std::vector{0.0, 0.5, 1.0});
+  }
+
+  SECTION("debug")
+  {
+    auto status = TestStatus{logger, "Map"};
+
+    status.debug(FileLocation{1, 2}, "with location");
+    status.debug("without location");
+
+    CHECK(status.levels == std::vector{LogLevel::Debug, LogLevel::Debug});
+    CHECK(
+      status.messages
+      == std::vector<std::string>{
+        "Map: At line 1, column 2: with location",
+        "Map: At unknown location: without location"});
+  }
+
+  SECTION("info")
+  {
+    auto status = TestStatus{logger, "Map"};
+
+    status.info(FileLocation{1, 2}, "with location");
+    status.info("without location");
+
+    CHECK(status.levels == std::vector{LogLevel::Info, LogLevel::Info});
+    CHECK(
+      status.messages
+      == std::vector<std::string>{
+        "Map: At line 1, column 2: with location",
+        "Map: At unknown location: without location"});
+  }
+
+  SECTION("warn")
+  {
+    auto status = TestStatus{logger, "Map"};
+
+    status.warn(FileLocation{1, 2}, "with location");
+    status.warn("without location");
+
+    CHECK(status.levels == std::vector{LogLevel::Warn, LogLevel::Warn});
+    CHECK(
+      status.messages
+      == std::vector<std::string>{
+        "Map: At line 1, column 2: with location",
+        "Map: At unknown location: without location"});
+  }
 
   SECTION("error")
   {
@@ -80,7 +172,44 @@ TEST_CASE("ParserStatus")
       status.error("Brush is incomplete");
     }
 
+    CHECK(status.levels == std::vector{LogLevel::Error});
     CHECK(status.messages == std::vector<std::string>{expectedMessage});
+  }
+
+  SECTION("errorAndThrow")
+  {
+    auto status = TestStatus{logger, "Map"};
+
+    CHECK_THROWS_MATCHES(
+      status.errorAndThrow(FileLocation{1, 2}, "with location"),
+      ParserException,
+      Catch::Matchers::Message("Map: At line 1, column 2: with location"));
+
+    CHECK_THROWS_MATCHES(
+      status.errorAndThrow("without location"),
+      ParserException,
+      Catch::Matchers::Message("Map: At unknown location: without location"));
+
+    // the message is logged as an error before it is thrown
+    CHECK(status.levels == std::vector{LogLevel::Error, LogLevel::Error});
+    CHECK(
+      status.messages
+      == std::vector<std::string>{
+        "Map: At line 1, column 2: with location",
+        "Map: At unknown location: without location"});
+  }
+
+  SECTION("doLog")
+  {
+    // the default implementation passes the message on to the logger
+    auto testLogger = TestLogger{};
+    auto status = LoggingStatus{testLogger, "Map"};
+
+    status.warn(FileLocation{1, 2}, "with location");
+
+    CHECK(
+      testLogger.messages
+      == std::vector<std::string>{"Map: At line 1, column 2: with location"});
   }
 }
 
