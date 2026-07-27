@@ -3827,6 +3827,36 @@ TEST_CASE("Brush (Regression)", "[regression]")
     kdl::col_delete_all(nodes.value());
   }
 
+  SECTION("healEdgesCrash4")
+  {
+    // see https://github.com/TrenchBroom/TrenchBroom/issues/5372
+    // healing an edge merged the faces adjacent to that edge, which deleted the edge
+    // while its second vertex remained, and the edge was accessed afterwards
+
+    const auto brushString = R"({
+      ( -0 -4752 -0 ) ( -1 -4752 0 ) ( 0 -4752 1 ) piper2a [ 1 0 0 0 ] [ 0 0 -1 0 ] 0 1 1
+      ( 393.81019457802176 -295.3576459335163 -229.72262429678813 ) ( 393.3873091004789 -295.3576459335163 -230.44757079565898 ) ( 394.3539044521749 -294.6326994346455 -229.72262429678813 ) piper2a [ -0.0644459377730147 -0.07654223792508766 0.9949814103378897 -193.58203125 ] [ -0.12293709482113215 0.9919945649946531 0.02886613479510403 176.248046875 ] 0 0.24725684926095576 0.17618229734509733
+      ( -0 3024.923216917552 2016.6154057140375 ) ( 0 3025.4779171133414 2015.7833553905512 ) ( 0.8320503234863281 3024.923216917552 2016.6154057140375 ) piper2a [ 0 0 1 -301.3515625 ] [ 1 0 0 -431.072265625 ] 0 0.24750100521555515 0.17132799719751568
+      ( -2177.181741060238 1451.45456167082 2177.181741060238 ) ( -2177.821343184929 1451.45456167082 2176.542138935547 ) ( -2176.755339623909 1452.0941637955111 2177.181741060238 ) piper2a [ -0.5547002141188272 -0.8320502824087781 0 0 ] [ -0.5321811442517671 0.35478744603253237 -0.7687061192943587 0 ] 0 1 1
+      ( -1212.96345557936 707.5620489976573 909.72259168452 ) ( -1213.5071654535132 707.5620489976573 908.9976451856492 ) ( -1212.5405701018171 708.2869954965281 909.72259168452 ) piper2a [ -0.5038710431869312 -0.8637788905951069 0 0 ] [ -0.4696451164587119 0.2739596641388905 -0.8392732373973266 0 ] 0 1 1
+      ( -0 -9172.577439594781 9170.337780338887 ) ( -0.70719313621521 -9172.577439594781 9170.337780338887 ) ( -0 -9171.870419133222 9171.044973475102 ) piper2a [ 1 -0 0 0 ] [ 0 -0.7070204385905267 -0.7071931132408313 0 ] 0 1 1
+    })";
+
+    // the brush only fails to build at these world bounds
+    const auto largeWorldBounds = vm::bbox3d{32768.0};
+
+    auto status = TestParserStatus{};
+
+    // the brush is not closed, so it is skipped
+    CHECK(
+      NodeReader::read(
+        brushString, MapFormat::Valve, largeWorldBounds, {}, status, taskManager)
+      == Result<std::vector<Node*>>{std::vector<Node*>{}});
+    CHECK(
+      status.messages(LogLevel::Error)
+      == std::vector<std::string>{"At line 1, column 1: Brush is incomplete"});
+  }
+
   SECTION("findInitialEdgeFail")
   {
     // see https://github.com/TrenchBroom/TrenchBroom/issues/3898
