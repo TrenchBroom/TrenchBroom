@@ -811,16 +811,18 @@ typename Polyhedron<T, FP, VP>::Edge* Polyhedron<T, FP, VP>::removeEdge(Edge* ed
 
     Let e be the edge to remove. If f1 is a triangle, we merge f1 into n1. Then, if
     f2 is a triangle, we merge that into n2.
-    This can have two outcomes:
+    This can have three outcomes:
 
     - v2 becomes redundant and is removed to repair the topological error. In that case,
       e is also removed and we are done.
+    - e is removed while v2 remains, because repairing a topological error at another
+      vertex merged the faces adjacent to e. We are done in that case, too.
     - v2 remains, and we need to remove e manually. To do that, we transfer all edges
       from v2 to v1, so e becomes a loop, and we can safely remove it after.
 
     Note that n1 and n2 can be identical. If that is the case, then v2 is immediately
-    removed. We also need to be aware that removing v2 may remove e, so we cannot access
-    e again.
+    removed. We also need to be aware that merging faces may remove e or v2, so we must
+    check whether they still exist before accessing them again.
   */
 
   auto* validEdge = edge->next();
@@ -836,6 +838,10 @@ typename Polyhedron<T, FP, VP>::Edge* Polyhedron<T, FP, VP>::removeEdge(Edge* ed
     return std::ranges::find(m_vertices, v2) == m_vertices.end();
   };
 
+  const auto edgeWasRemoved = [&]() {
+    return std::ranges::find(m_edges, edge) == m_edges.end();
+  };
+
   // merge f1 into n1:
   if (
     edge->firstFace()->vertexCount() == 3u
@@ -845,7 +851,7 @@ typename Polyhedron<T, FP, VP>::Edge* Polyhedron<T, FP, VP>::removeEdge(Edge* ed
   }
 
   // merge f2 into n2 if necessary:
-  if (!v2WasRemoved())
+  if (!edgeWasRemoved() && !v2WasRemoved())
   {
     if (
       edge->secondFace()->vertexCount() == 3u
@@ -854,7 +860,7 @@ typename Polyhedron<T, FP, VP>::Edge* Polyhedron<T, FP, VP>::removeEdge(Edge* ed
       return nullptr;
     }
 
-    if (!v2WasRemoved())
+    if (!edgeWasRemoved() && !v2WasRemoved())
     {
       // Transfer all edges from v2 to v1.
       // This results in e being a loop and v2 to be orphaned.

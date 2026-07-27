@@ -116,6 +116,31 @@ TEST_CASE("NodeReader")
       != nullptr);
   }
 
+  SECTION("reportsBrushErrorsWithLocation")
+  {
+    // the brush is missing its top face, so it isn't closed
+    const auto data = R"(
+{
+"classname" "worldspawn"
+{
+( -64 -64 -16 ) ( -64 -63 -16 ) ( -64 -64 -15 ) __TB_empty 0 0 0 1 1
+( -64 -64 -16 ) ( -64 -64 -15 ) ( -63 -64 -16 ) __TB_empty 0 0 0 1 1
+( -64 -64 -16 ) ( -63 -64 -16 ) ( -64 -63 -16 ) __TB_empty 0 0 0 1 1
+( 64 64 16 ) ( 64 65 16 ) ( 65 64 16 ) __TB_empty 0 0 0 1 1
+( 64 64 16 ) ( 65 64 16 ) ( 64 64 17 ) __TB_empty 0 0 0 1 1
+}
+}
+)";
+
+    auto nodes =
+      NodeReader::read(data, MapFormat::Standard, worldBounds, {}, status, taskManager);
+    REQUIRE(nodes);
+
+    CHECK(
+      status.messages(LogLevel::Error)
+      == std::vector<std::string>{"At line 4, column 1: Brush is incomplete"});
+  }
+
   SECTION("readScientificNotation")
   {
     // https://github.com/TrenchBroom/TrenchBroom/issues/4270
