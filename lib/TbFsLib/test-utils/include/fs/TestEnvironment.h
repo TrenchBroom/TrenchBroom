@@ -48,6 +48,7 @@ public:
   void createTestEnvironment(const SetupFunction& setup);
   void createDirectory(const std::filesystem::path& path);
   void createFile(const std::filesystem::path& path, std::string_view contents);
+  void createFileAtomically(const std::filesystem::path& path, std::string_view contents);
   void createSymLink(
     const std::filesystem::path& target, const std::filesystem::path& link);
 
