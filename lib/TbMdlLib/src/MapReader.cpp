@@ -602,8 +602,7 @@ CreateNodeResult createBrushNode(
              };
            })
          | kdl::or_else([&](auto e) {
-             return CreateNodeResult{
-               NodeError{brushInfo.startLocation, kdl::str_to_string(e)}};
+             return CreateNodeResult{NodeError{brushInfo.startLocation, e.msg}};
            });
 }
 
