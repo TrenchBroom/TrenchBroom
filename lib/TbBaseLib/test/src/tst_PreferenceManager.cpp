@@ -158,6 +158,21 @@ struct MockPreferenceStore : public PreferenceStore
   std::unordered_map<std::filesystem::path, Value> values;
 };
 
+/**
+ * Creates the global PreferenceManager instance and destroys it again when it goes out
+ * of scope, so that no instance leaks into other test cases.
+ */
+struct PreferenceManagerInstance
+{
+  template <typename... Args>
+  explicit PreferenceManagerInstance(Args&&... args)
+  {
+    PreferenceManager::createInstance(std::forward<Args>(args)...);
+  }
+
+  ~PreferenceManagerInstance() { PreferenceManager::destroyInstance(); }
+};
+
 } // namespace
 
 TEST_CASE("PreferenceManager")
@@ -416,6 +431,104 @@ TEST_CASE("PreferenceManager")
       CHECK(preferenceManager.get(stringPref) == "qwer");
       CHECK(preferenceManager.getPendingValue(stringPref) == "qwer");
     }
+  }
+
+  SECTION("shouldSaveInstantly")
+  {
+#ifdef __APPLE__
+    CHECK(PreferenceManager::shouldSaveInstantly());
+#else
+    CHECK_FALSE(PreferenceManager::shouldSaveInstantly());
+#endif
+  }
+
+  SECTION("saveInstantly")
+  {
+    const auto saveInstantly = GENERATE(true, false);
+    CAPTURE(saveInstantly);
+
+    const auto preferenceManager =
+      PreferenceManager{std::move(preferenceStoreOwner), saveInstantly};
+
+    CHECK(preferenceManager.saveInstantly() == saveInstantly);
+  }
+}
+
+TEST_CASE("PreferenceManager instance")
+{
+  auto preferenceStoreOwner = std::make_unique<MockPreferenceStore>();
+  auto& preferenceStore = *preferenceStoreOwner;
+
+  SECTION("createInstance / instance")
+  {
+    const auto instance =
+      PreferenceManagerInstance{std::move(preferenceStoreOwner), K(saveInstantly)};
+
+    auto boolPref = Preference<bool>{"some/path", false};
+    preferenceStore.values.emplace("some/path", true);
+
+    CHECK(PreferenceManager::instance().saveInstantly());
+    CHECK(PreferenceManager::instance().get(boolPref));
+
+    // the same instance is returned every time
+    CHECK(&PreferenceManager::instance() == &PreferenceManager::instance());
+  }
+
+  SECTION("destroyInstance")
+  {
+    SECTION("a new instance can be created after the previous one was destroyed")
+    {
+      PreferenceManager::createInstance(
+        std::move(preferenceStoreOwner), K(saveInstantly));
+      PreferenceManager::destroyInstance();
+
+      const auto instance = PreferenceManagerInstance{
+        std::make_unique<MockPreferenceStore>(), !K(saveInstantly)};
+
+      CHECK_FALSE(PreferenceManager::instance().saveInstantly());
+    }
+  }
+}
+
+TEST_CASE("togglePref")
+{
+  auto preferenceStoreOwner = std::make_unique<MockPreferenceStore>();
+  auto& preferenceStore = *preferenceStoreOwner;
+
+  const auto saveInstantly = GENERATE(true, false);
+  CAPTURE(saveInstantly);
+
+  const auto instance =
+    PreferenceManagerInstance{std::move(preferenceStoreOwner), saveInstantly};
+
+  auto boolPref = Preference<bool>{"some/path", false};
+
+  SECTION("toggles the preference and saves it")
+  {
+    togglePref(boolPref);
+
+    CHECK(PreferenceManager::instance().get(boolPref));
+    CHECK(
+      preferenceStore.values
+      == std::unordered_map<std::filesystem::path, Value>{
+        {"some/path", true},
+      });
+
+    togglePref(boolPref);
+
+    CHECK_FALSE(PreferenceManager::instance().get(boolPref));
+    CHECK(
+      preferenceStore.values
+      == std::unordered_map<std::filesystem::path, Value>{
+        {"some/path", false},
+      });
+  }
+
+  SECTION("leaves no unsaved changes behind")
+  {
+    togglePref(boolPref);
+
+    CHECK_FALSE(PreferenceManager::instance().hasUnsavedChanges());
   }
 }
 
