@@ -178,19 +178,27 @@ TEST_CASE("QPreferenceStore")
     CHECK(!env.fileExists(preferenceFilename));
   }
 
-  // The following tests are unreliable on Windows
-#if !defined(Q_OS_WIN)
+  // Qt's coarse timers may fire up to 5% early, so lower bounds on the save delay must
+  // be checked with some tolerance
+  const auto notBefore = [](const auto saveTime, const auto saveDelay) {
+    return std::chrono::steady_clock::now() >= saveTime + (saveDelay * 9) / 10;
+  };
+
   SECTION("preferences are saved after a delay")
   {
-    auto preferenceStore = QPreferenceStore{pathAsQString(preferenceFilePath), 100ms};
+    constexpr auto saveDelay = 100ms;
+    auto preferenceStore = QPreferenceStore{pathAsQString(preferenceFilePath), saveDelay};
 
     preferenceStore.save("some/path", "asdf"s);
-    const auto startTime = std::chrono::steady_clock::now();
+    const auto saveTime = std::chrono::steady_clock::now();
 
     REQUIRE(!env.fileExists(preferenceFilename));
 
+    // the timeout is generous because a loaded machine can delay the timer arbitrarily
     REQUIRE(checkAndWaitUntil(
-      startTime + 500ms, [&]() { return env.fileExists(preferenceFilename); }));
+      saveTime + 10s, [&]() { return env.fileExists(preferenceFilename); }));
+    CHECK(notBefore(saveTime, saveDelay));
+
     CHECK(env.loadFile(preferenceFilename) == R"({
     "some/path": "asdf"
 }
@@ -199,21 +207,26 @@ TEST_CASE("QPreferenceStore")
 
   SECTION("preferences save delay extends when new values are set")
   {
-    auto preferenceStore = QPreferenceStore{pathAsQString(preferenceFilePath), 500ms};
+    constexpr auto saveDelay = 1000ms;
+    auto preferenceStore = QPreferenceStore{pathAsQString(preferenceFilePath), saveDelay};
 
     preferenceStore.save("some/path", "asdf"s);
-    const auto startTime = std::chrono::steady_clock::now();
+    const auto firstSaveTime = std::chrono::steady_clock::now();
 
-    REQUIRE(!checkAndWaitUntil(
-      startTime + 300ms, [&]() { return env.fileExists(preferenceFilename); }));
+    REQUIRE(!checkAndWaitUntil(firstSaveTime + saveDelay / 4, [&]() {
+      return env.fileExists(preferenceFilename);
+    }));
 
     preferenceStore.save("some/path", "fdsa"s);
+    const auto secondSaveTime = std::chrono::steady_clock::now();
 
-    REQUIRE(!checkAndWaitUntil(
-      startTime + 600ms, [&]() { return env.fileExists(preferenceFilename); }));
+    // the test is only meaningful if the second save extended a pending save delay
+    REQUIRE(secondSaveTime < firstSaveTime + saveDelay);
 
+    // the file is written eventually, but not before the extended delay has elapsed
     REQUIRE(checkAndWaitUntil(
-      startTime + 1000ms, [&]() { return env.fileExists(preferenceFilename); }));
+      secondSaveTime + 10s, [&]() { return env.fileExists(preferenceFilename); }));
+    CHECK(notBefore(secondSaveTime, saveDelay));
 
     CHECK(env.loadFile(preferenceFilename) == R"({
     "some/path": "fdsa"
@@ -236,12 +249,15 @@ TEST_CASE("QPreferenceStore")
     REQUIRE(preferenceStore.load("some/path", value));
     REQUIRE(value == "asdf");
 
-    env.createFile(preferenceFilename, R"({
+    // the file must be replaced atomically and with a distinct modification time,
+    // otherwise the file system watcher may not report the change (see
+    // TestEnvironment::createFileAtomically)
+    env.createFileAtomically(preferenceFilename, R"({
   "some/path": "fdsa"
 }
 )");
 
-    CHECK(checkAndWaitUntil(std::chrono::steady_clock::now() + 1000ms, [&]() {
+    CHECK(checkAndWaitUntil(std::chrono::steady_clock::now() + 10s, [&]() {
       return !preferencesWereReloaded.notifications.empty();
     }));
 
@@ -252,7 +268,6 @@ TEST_CASE("QPreferenceStore")
     CHECK(preferenceStore.load("some/path", value));
     CHECK(value == "fdsa");
   }
-#endif
 }
 
 TEST_CASE("Preference lock file")
