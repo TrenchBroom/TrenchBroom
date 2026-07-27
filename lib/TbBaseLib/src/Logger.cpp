@@ -19,6 +19,8 @@
 
 #include "base/Logger.h"
 
+#include "kd/string_format.h"
+
 namespace tb
 {
 
@@ -30,7 +32,10 @@ Logger::stream::stream(Logger& logger, const LogLevel logLevel)
 
 Logger::stream::~stream()
 {
-  m_logger.log(m_logLevel, m_buf.str());
+  if (const auto str = m_buf.str(); !kdl::str_is_blank(str))
+  {
+    m_logger.log(m_logLevel, str);
+  }
 }
 
 Logger::~Logger() {}

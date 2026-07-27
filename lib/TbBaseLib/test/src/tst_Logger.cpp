@@ -71,11 +71,25 @@ TEST_CASE("Logger")
       CHECK(logger.messages == std::vector<LoggedMessage>{{LogLevel::Info, "asdf1 2.5"}});
     }
 
-    SECTION("logs an empty message if nothing was streamed into it")
+    SECTION("logs nothing if nothing was streamed into it")
     {
       logger.info();
 
-      CHECK(logger.messages == std::vector<LoggedMessage>{{LogLevel::Info, ""}});
+      CHECK(logger.messages == std::vector<LoggedMessage>{});
+    }
+
+    SECTION("logs nothing if only empty strings were logged")
+    {
+      logger.info() << "" << "";
+
+      CHECK(logger.messages == std::vector<LoggedMessage>{});
+    }
+
+    SECTION("logs nothing if only blank strings were logged")
+    {
+      logger.info() << " " << "\t";
+
+      CHECK(logger.messages == std::vector<LoggedMessage>{});
     }
   }
 
