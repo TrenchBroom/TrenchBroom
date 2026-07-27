@@ -24,6 +24,7 @@
 #include <fmt/format.h>
 
 #include <algorithm>
+#include <chrono>
 #include <fstream>
 #include <string>
 
@@ -89,6 +90,36 @@ void TestEnvironment::createFile(
 {
   auto stream = std::ofstream{m_dir / path, std::ios::out};
   stream << contents;
+}
+
+void TestEnvironment::createFileAtomically(
+  const std::filesystem::path& path, const std::string_view contents)
+{
+  const auto filePath = m_dir / path;
+  const auto replacesExistingFile = std::filesystem::exists(filePath);
+  const auto previousModificationTime = replacesExistingFile
+                                          ? std::filesystem::last_write_time(filePath)
+                                          : std::filesystem::file_time_type{};
+
+  auto tempFilename = path;
+  tempFilename += ".tmp";
+  const auto tempPath = m_dir / tempFilename;
+
+  createFile(tempFilename, contents);
+
+  if (replacesExistingFile)
+  {
+    // Give the new file a modification time that differs from that of the file it
+    // replaces. File systems stamp writes with a coarse clock (~15ms on Windows), so two
+    // writes in quick succession can be indistinguishable to a file system watcher
+    // otherwise. This must happen before the file is moved into place so that the
+    // watcher observes the new contents and the new modification time as one change.
+    std::filesystem::last_write_time(
+      tempPath, previousModificationTime + std::chrono::seconds{1});
+  }
+
+  // the temporary file is in the same directory, so this replaces the file atomically
+  std::filesystem::rename(tempPath, filePath);
 }
 
 void TestEnvironment::createSymLink(
