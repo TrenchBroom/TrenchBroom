@@ -33,8 +33,8 @@
 #include "mdl/ModelUtils.h"
 #include "mdl/Transaction.h"
 #include "mdl/TransactionScope.h"
-#include "mdl/UVCoordSystem.h"
 #include "mdl/UpdateBrushFaceAttributes.h"
+#include "mdl/UvCoordSystem.h"
 #include "ui/GestureTracker.h"
 #include "ui/InputState.h"
 #include "ui/MapDocument.h"
@@ -272,20 +272,18 @@ void transferFaceAttributes(
 
   if (copyMaterialOnlyModifiersDown(inputState))
   {
-    setBrushFaceAttributes(
-      map, {.materialName = sourceFaceHandle.face().attributes().materialName()});
+    setBrushFaceAttributes(map, {.materialName = sourceFaceHandle.face().materialName()});
   }
   else
   {
-    setBrushFaceAttributes(
-      map, mdl::copyAllExceptContentFlags(sourceFaceHandle.face().attributes()));
+    setBrushFaceAttributes(map, mdl::copyAllExceptContentFlags(sourceFaceHandle.face()));
 
-    if (auto snapshot = sourceFaceHandle.face().takeUVCoordSystemSnapshot())
+    if (auto snapshot = sourceFaceHandle.face().takeUvCoordSystemSnapshot())
     {
-      copyUV(
+      copyUv(
         map,
         *snapshot,
-        sourceFaceHandle.face().attributes(),
+        sourceFaceHandle.face().uvAttributes(),
         sourceFaceHandle.face().boundary(),
         style);
     }

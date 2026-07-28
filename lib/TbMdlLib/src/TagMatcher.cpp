@@ -171,9 +171,8 @@ std::unique_ptr<TagMatcher> MaterialNameTagMatcher::clone() const
 
 bool MaterialNameTagMatcher::matches(const Taggable& taggable) const
 {
-  auto visitor = BrushFaceMatchVisitor{[&](const auto& face) {
-    return matchesMaterialName(face.attributes().materialName());
-  }};
+  auto visitor = BrushFaceMatchVisitor{
+    [&](const auto& face) { return matchesMaterialName(face.materialName()); }};
 
   taggable.accept(visitor);
   return visitor.matches();

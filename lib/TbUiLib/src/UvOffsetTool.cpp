@@ -1,0 +1,168 @@
+/*
+ Copyright (C) 2010 Kristian Duske
+
+ This file is part of TrenchBroom.
+
+ TrenchBroom is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+
+ TrenchBroom is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#include "ui/UvOffsetTool.h"
+
+#include "mdl/BrushFace.h"
+#include "mdl/Map.h"
+#include "mdl/Map_Brushes.h"
+#include "mdl/TransactionScope.h"
+#include "mdl/UpdateBrushFaceAttributes.h"
+#include "ui/GestureTracker.h"
+#include "ui/InputState.h"
+#include "ui/MapDocument.h"
+#include "ui/UvView.h"
+
+#include "kd/contracts.h"
+#include "kd/range_fold.h"
+
+#include "vm/intersection.h"
+#include "vm/vec.h"
+
+#include <ranges>
+
+namespace tb::ui
+{
+namespace
+{
+
+vm::vec2f computeHitPoint(const UvViewHelper& helper, const vm::ray3d& ray)
+{
+  const auto& boundary = helper.face()->boundary();
+
+  const auto distance = *vm::intersect_ray_plane(ray, boundary);
+  const auto hitPoint = vm::point_at_distance(ray, distance);
+  const auto transform = helper.face()->toUvCoordSystemMatrix(
+    vm::vec2f{0, 0}, helper.face()->uvAttributes().scale);
+  return vm::vec2f{transform * hitPoint};
+}
+
+vm::vec2f snapDelta(const UvViewHelper& helper, const vm::vec2f& delta)
+{
+  contract_pre(helper.valid());
+
+  if (helper.material())
+  {
+    const auto transform = helper.face()->toUvCoordSystemMatrix(
+      helper.face()->uvAttributes().offset - delta, helper.face()->uvAttributes().scale);
+
+    const auto distance = kdl::fold_left_first(
+      helper.face()->vertices() | std::views::transform([&](const auto& vertex) {
+        return helper.computeDistanceFromUvGrid(transform * vertex->position());
+      }),
+      [&](const auto lhs, const auto rhs) { return vm::abs_min(lhs, rhs); });
+
+    return helper.snapDelta(delta, -distance);
+  }
+
+  return vm::round(delta);
+}
+
+class UvOffsetDragTracker : public GestureTracker
+{
+private:
+  mdl::Map& m_map;
+  const UvViewHelper& m_helper;
+  vm::vec2f m_lastPoint;
+
+public:
+  UvOffsetDragTracker(
+    mdl::Map& map, const UvViewHelper& helper, const InputState& inputState)
+    : m_map{map}
+    , m_helper{helper}
+    , m_lastPoint{computeHitPoint(m_helper, inputState.pickRay())}
+  {
+    m_map.startTransaction("Move UV", mdl::TransactionScope::LongRunning);
+  }
+
+  bool update(const InputState& inputState) override
+  {
+    contract_pre(m_helper.valid());
+
+    const auto curPoint = computeHitPoint(m_helper, inputState.pickRay());
+    const auto delta = curPoint - m_lastPoint;
+    const auto snapped = !inputState.modifierKeysDown(ModifierKeys::CtrlCmd)
+                           ? snapDelta(m_helper, delta)
+                           : delta;
+
+    const auto corrected =
+      vm::correct(m_helper.face()->uvAttributes().offset - snapped, 4, 0.0f);
+
+    if (corrected == m_helper.face()->uvAttributes().offset)
+    {
+      return true;
+    }
+
+    setBrushFaceAttributes(
+      m_map,
+      {
+        .xOffset = mdl::SetValue{corrected.x()},
+        .yOffset = mdl::SetValue{corrected.y()},
+      });
+
+    m_lastPoint = m_lastPoint + snapped;
+    return true;
+  }
+
+  void end(const InputState&) override { m_map.commitTransaction(); }
+
+  void cancel() override { m_map.cancelTransaction(); }
+};
+
+} // namespace
+
+UvOffsetTool::UvOffsetTool(MapDocument& document, const UvViewHelper& helper)
+  : ToolController{}
+  , Tool{true}
+  , m_document{document}
+  , m_helper{helper}
+{
+}
+
+Tool& UvOffsetTool::tool()
+{
+  return *this;
+}
+
+const Tool& UvOffsetTool::tool() const
+{
+  return *this;
+}
+
+std::unique_ptr<GestureTracker> UvOffsetTool::acceptMouseDrag(
+  const InputState& inputState)
+{
+  contract_pre(m_helper.valid());
+
+  if (
+    !inputState.modifierKeysPressed(ModifierKeys::None)
+    || !inputState.mouseButtonsPressed(MouseButtons::Left))
+  {
+    return nullptr;
+  }
+
+  return std::make_unique<UvOffsetDragTracker>(m_document.map(), m_helper, inputState);
+}
+
+bool UvOffsetTool::cancel()
+{
+  return false;
+}
+
+} // namespace tb::ui

@@ -24,6 +24,8 @@
 #include "base/Tokenizer.h"
 #include "mdl/MapFormat.h"
 #include "mdl/MapParser.h"
+#include "mdl/SurfaceAttributes.h"
+#include "mdl/UvAttributes.h"
 
 #include "kd/vector_set_forward.h"
 
@@ -141,8 +143,11 @@ private:
 
   std::tuple<vm::vec3d, vm::vec3d, vm::vec3d> parseFacePoints(ParserStatus& status);
   std::string parseMaterialName(ParserStatus& status);
-  std::tuple<vm::vec3d, float, vm::vec3d, float> parseValveUVAxes(ParserStatus& status);
-  std::tuple<vm::vec3d, vm::vec3d> parsePrimitiveUVAxes(ParserStatus& status);
+  std::tuple<vm::vec3d, float, vm::vec3d, float> parseValveUvAxes(ParserStatus& status);
+  std::tuple<vm::vec3d, vm::vec3d> parsePrimitiveUvAxes(ParserStatus& status);
+  SurfaceAttributes parseSurfaceAttributes(ParserStatus& status, bool parseColor);
+  UvAttributes parseUvAttributes();
+  UvAttributes parseUvAttributes(const vm::vec2f& offset);
 
   template <size_t S = 3, typename T = double>
   vm::vec<T, S> parseFloatVector(const QuakeMapToken::Type o, const QuakeMapToken::Type c)
@@ -157,6 +162,7 @@ private:
     return vec;
   }
 
+  std::optional<RgbB> parseColor(ParserStatus& status);
   float parseFloat();
   int parseInteger();
 };

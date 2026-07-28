@@ -643,7 +643,8 @@ bool csgConvexMerge(Map& map)
   const auto builder = BrushBuilder{
     map.worldNode().mapFormat(),
     map.worldBounds(),
-    map.gameInfo().gameConfig.faceAttribsConfig.defaults};
+    map.gameInfo().gameConfig.faceAttribsConfig.defaultUvAttributes,
+    map.gameInfo().gameConfig.faceAttribsConfig.defaultSurfaceAttributes};
   return builder.createBrush(polyhedron, map.currentMaterialName())
          | kdl::transform([&](auto b) {
              b.cloneFaceAttributesFrom(

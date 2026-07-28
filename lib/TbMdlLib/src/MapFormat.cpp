@@ -162,7 +162,7 @@ std::vector<MapFormat> compatibleFormats(const MapFormat format)
   }
 }
 
-bool isParallelUVCoordSystem(const MapFormat format)
+bool isParallelUvCoordSystem(const MapFormat format)
 {
   switch (format)
   {

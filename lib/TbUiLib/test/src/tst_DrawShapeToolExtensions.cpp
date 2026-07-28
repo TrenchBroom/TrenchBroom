@@ -252,11 +252,11 @@ TEST_CASE("DrawShapeToolIcoSphereExtension")
   }
 }
 
-TEST_CASE("DrawShapeToolUVSphereExtension")
+TEST_CASE("DrawShapeToolUvSphereExtension")
 {
   auto fixture = MapDocumentFixture{};
   auto& document = fixture.create();
-  auto extension = DrawShapeToolUVSphereExtension{document};
+  auto extension = DrawShapeToolUvSphereExtension{document};
   auto parameters = ShapeParameters{};
 
   SECTION("Create uvsphere with default ring count")

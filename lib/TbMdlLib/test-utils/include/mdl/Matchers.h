@@ -20,9 +20,10 @@
 #pragma once
 
 #include "StringMakers.h"
-#include "mdl/BrushFaceAttributes.h"
 #include "mdl/CatchConfig.h"
+#include "mdl/SurfaceAttributes.h"
 #include "mdl/UpdateBrushFaceAttributes.h"
+#include "mdl/UvAttributes.h"
 
 #include <cassert>
 
@@ -33,6 +34,7 @@
 namespace tb::mdl
 {
 class Brush;
+class BrushFace;
 class Node;
 
 class BrushVertexMatcher : public Catch::Matchers::MatcherBase<Brush>
@@ -64,21 +66,34 @@ public:
 
 NodeMatcher MatchesNode(const Node& expected);
 
-class BrushFaceAttributesMatcher
-  : public Catch::Matchers::MatcherBase<BrushFaceAttributes>
+class BrushFaceAttributesMatcher : public Catch::Matchers::MatcherBase<BrushFace>
 {
 private:
-  BrushFaceAttributes m_expected;
+  std::string m_expectedMaterialName;
+  UvAttributes m_expectedUvAttributes;
+  SurfaceAttributes m_expectedSurfaceAttributes;
 
 public:
-  explicit BrushFaceAttributesMatcher(BrushFaceAttributes expected);
+  BrushFaceAttributesMatcher(
+    std::string expectedMaterialName,
+    UvAttributes expectedUvAttributes,
+    SurfaceAttributes expectedSurfaceAttributes);
 
-  bool match(const BrushFaceAttributes& in) const override;
+  bool match(const BrushFace& in) const override;
 
   std::string describe() const override;
 };
 
-BrushFaceAttributesMatcher MatchesBrushFaceAttributes(BrushFaceAttributes expected);
+BrushFaceAttributesMatcher MatchesBrushFaceAttributes(
+  std::string expectedMaterialName,
+  UvAttributes expectedUvAttributes,
+  SurfaceAttributes expectedSurfaceAttributes);
+
+/**
+ * Matches the material name and the UV and surface attributes of the given face. They are
+ * copied, so the matcher is unaffected by later changes to the face.
+ */
+BrushFaceAttributesMatcher MatchesBrushFaceAttributes(const BrushFace& expected);
 
 class UpdateBrushFaceAttributesMatcher
   : public Catch::Matchers::MatcherBase<UpdateBrushFaceAttributes>

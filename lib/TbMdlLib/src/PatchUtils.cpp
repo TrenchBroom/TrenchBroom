@@ -21,7 +21,6 @@
 
 #include "mdl/BezierPatch.h"
 #include "mdl/BrushFace.h"
-#include "mdl/BrushFaceAttributes.h"
 
 #include "kd/contracts.h"
 
@@ -76,10 +75,7 @@ BezierPatch makePatch(
   }
 
   return BezierPatch{
-    pointRowCount,
-    pointColumnCount,
-    std::move(controlPoints),
-    face.attributes().materialName()};
+    pointRowCount, pointColumnCount, std::move(controlPoints), face.materialName()};
 }
 
 double measureAngle(

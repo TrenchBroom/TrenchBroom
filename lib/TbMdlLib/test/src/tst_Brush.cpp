@@ -283,7 +283,7 @@ void assertSnapToInteger(const std::string& data, kdl::task_manager& taskManager
 }
 
 template <MapFormat F>
-class UVLockTest
+class UvLockTest
 {
   MapFormat param = F;
 };
@@ -358,10 +358,7 @@ TEST_CASE("Brush")
 
     auto& topFace = brush.face(*topFaceIndex);
 
-    auto attributes = topFace.attributes();
-    attributes.setXOffset(64.0f);
-    attributes.setYOffset(-48.0f);
-    topFace.setAttributes(attributes);
+    topFace.setUvAttributes({.offset = {64.0f, -48.0f}});
 
     auto newBrush = brush;
     newBrush.cloneFaceAttributesFrom(brush);
@@ -1492,8 +1489,7 @@ TEST_CASE("Brush")
 
       auto builder = BrushBuilder{MapFormat::Standard, worldBounds};
       auto brush =
-        builder.createBrush(vertexPositions, BrushFaceAttributes::NoMaterialName)
-        | kdl::value();
+        builder.createBrush(vertexPositions, BrushFace::NoMaterialName) | kdl::value();
 
       assertMovingVertexDeletes(
         brush, peakPosition, vm::vec3d{0, 0, -65}); // Move inside the remaining cuboid
@@ -1524,8 +1520,7 @@ TEST_CASE("Brush")
 
       auto builder = BrushBuilder{MapFormat::Standard, worldBounds};
       auto brush =
-        builder.createBrush(vertexPositions, BrushFaceAttributes::NoMaterialName)
-        | kdl::value();
+        builder.createBrush(vertexPositions, BrushFace::NoMaterialName) | kdl::value();
 
       assertCanMoveVertex(brush, peakPosition, vm::vec3d{0, 0, -127});
       assertCanNotMoveVertex(
@@ -1798,8 +1793,7 @@ TEST_CASE("Brush")
       const auto edge = vm::segment3d{{-128, 0, -128}, {-128, 0, +128}};
 
       auto builder = BrushBuilder{MapFormat::Standard, worldBounds};
-      auto brush =
-        builder.createCube(128, BrushFaceAttributes::NoMaterialName) | kdl::value();
+      auto brush = builder.createCube(128, BrushFace::NoMaterialName) | kdl::value();
       CHECK(brush.addVertex(worldBounds, edge.start()));
       CHECK(brush.addVertex(worldBounds, edge.end()));
 
@@ -1825,8 +1819,7 @@ TEST_CASE("Brush")
       const auto movingEdges = std::vector<vm::segment3d>{edge1, edge2};
 
       auto builder = BrushBuilder{MapFormat::Standard, worldBounds};
-      auto brush =
-        builder.createCube(128, BrushFaceAttributes::NoMaterialName) | kdl::value();
+      auto brush = builder.createCube(128, BrushFace::NoMaterialName) | kdl::value();
       CHECK(brush.addVertex(worldBounds, edge1.start()));
       CHECK(brush.addVertex(worldBounds, edge1.end()));
       CHECK(brush.addVertex(worldBounds, edge2.start()));
@@ -1898,7 +1891,7 @@ TEST_CASE("Brush")
 
       auto builder = BrushBuilder{MapFormat::Standard, worldBounds};
       auto brush =
-        builder.createCuboid(vm::vec3d{128, 128, 32}, BrushFaceAttributes::NoMaterialName)
+        builder.createCuboid(vm::vec3d{128, 128, 32}, BrushFace::NoMaterialName)
         | kdl::value();
 
       const auto face = vm::polygon3d{
@@ -1927,8 +1920,7 @@ TEST_CASE("Brush")
 
       auto builder = BrushBuilder{MapFormat::Standard, worldBounds};
       auto brush =
-        builder.createBrush(vertexPositions, BrushFaceAttributes::NoMaterialName)
-        | kdl::value();
+        builder.createBrush(vertexPositions, BrushFace::NoMaterialName) | kdl::value();
 
       assertCanNotMoveTopFaceBeyond127UnitsDown(brush);
     }
@@ -1948,8 +1940,7 @@ TEST_CASE("Brush")
 
       auto builder = BrushBuilder{MapFormat::Standard, worldBounds};
       auto brush =
-        builder.createBrush(vertexPositions, BrushFaceAttributes::NoMaterialName)
-        | kdl::value();
+        builder.createBrush(vertexPositions, BrushFace::NoMaterialName) | kdl::value();
 
       assertCanNotMoveTopFaceBeyond127UnitsDown(brush);
     }
@@ -1959,8 +1950,7 @@ TEST_CASE("Brush")
       const auto worldBounds = vm::bbox3d{4096.0};
 
       auto builder = BrushBuilder{MapFormat::Standard, worldBounds};
-      auto brush =
-        builder.createCube(128.0, BrushFaceAttributes::NoMaterialName) | kdl::value();
+      auto brush = builder.createCube(128.0, BrushFace::NoMaterialName) | kdl::value();
 
       assertCanNotMoveTopFaceBeyond127UnitsDown(brush);
     }
@@ -1984,8 +1974,7 @@ TEST_CASE("Brush")
 
       auto builder = BrushBuilder{MapFormat::Standard, worldBounds};
       auto brush =
-        builder.createBrush(vertexPositions, BrushFaceAttributes::NoMaterialName)
-        | kdl::value();
+        builder.createBrush(vertexPositions, BrushFace::NoMaterialName) | kdl::value();
       CHECK(brush.bounds() == vm::bbox3d{{-64, -64, -64}, {64, 64, 64}});
 
       assertCanNotMoveTopFaceBeyond127UnitsDown(brush);
@@ -2019,8 +2008,7 @@ TEST_CASE("Brush")
 
       auto builder = BrushBuilder{MapFormat::Standard, worldBounds};
       auto brush =
-        builder.createBrush(vertexPositions, BrushFaceAttributes::NoMaterialName)
-        | kdl::value();
+        builder.createBrush(vertexPositions, BrushFace::NoMaterialName) | kdl::value();
 
       const auto topFaceIndex = brush.findFace(topFaceNormal);
       assertCanMoveFace(brush, topFaceIndex, vm::vec3d{0, 0, -127});
@@ -2066,8 +2054,7 @@ TEST_CASE("Brush")
 
       auto builder = BrushBuilder{MapFormat::Standard, worldBounds};
       auto brush =
-        builder.createBrush(vertexPositions, BrushFaceAttributes::NoMaterialName)
-        | kdl::value();
+        builder.createBrush(vertexPositions, BrushFace::NoMaterialName) | kdl::value();
 
       // Try to move the top face down along the Z axis
       assertCanNotMoveTopFaceBeyond127UnitsDown(brush);
@@ -2130,8 +2117,7 @@ TEST_CASE("Brush")
 
       auto builder = BrushBuilder{MapFormat::Standard, worldBounds};
       auto brush =
-        builder.createBrush(vertexPositions, BrushFaceAttributes::NoMaterialName)
-        | kdl::value();
+        builder.createBrush(vertexPositions, BrushFace::NoMaterialName) | kdl::value();
 
       CHECK(brush.hasFace(vm::polygon3d{leftPolygon}));
       CHECK(brush.hasFace(vm::polygon3d{bottomPolygon}));
@@ -2152,8 +2138,7 @@ TEST_CASE("Brush")
       const auto edge = vm::segment3d{{-128, 0, -256}, {-128, 0, 0}};
 
       auto builder = BrushBuilder{MapFormat::Standard, worldBounds};
-      auto brush =
-        builder.createCube(128, BrushFaceAttributes::NoMaterialName) | kdl::value();
+      auto brush = builder.createCube(128, BrushFace::NoMaterialName) | kdl::value();
       CHECK(brush.addVertex(worldBounds, edge.start()));
       CHECK(brush.addVertex(worldBounds, edge.end()));
 
@@ -2226,18 +2211,18 @@ TEST_CASE("Brush")
 
       // move top face by x=+8
       auto changed = brush;
-      auto changedWithUVLock = brush;
+      auto changedWithUvLock = brush;
 
       REQUIRE(changed.transformFaces(worldBounds, {polygonToMove}, transform, false));
       REQUIRE(
-        changedWithUVLock.transformFaces(worldBounds, {polygonToMove}, transform, true));
+        changedWithUvLock.transformFaces(worldBounds, {polygonToMove}, transform, true));
 
       // The move should be equivalent to shearing by this matrix
       const auto M = vm::shear_bbox_matrix(brush.bounds(), vm::vec3d{0, 0, 1}, delta);
 
       for (auto& oldFace : brush.faces())
       {
-        const auto oldUVCoords =
+        const auto oldUvCoords =
           oldFace.vertexPositions()
           | std::views::transform([&](auto x) { return oldFace.uvCoords(x); })
           | kdl::ranges::to<std::vector>();
@@ -2257,7 +2242,7 @@ TEST_CASE("Brush")
           REQUIRE(newFaceIndex);
 
           const auto& newFace = changed.face(*newFaceIndex);
-          const auto newUVCoords =
+          const auto newUvCoords =
             shearedVertexPositions
             | std::views::transform([&](auto x) { return newFace.uvCoords(x); })
             | kdl::ranges::to<std::vector>();
@@ -2266,30 +2251,30 @@ TEST_CASE("Brush")
             normal == vm::vec3d{0, 0, 1} || normal == vm::vec3d{0, 1, 0}
             || normal == vm::vec3d{0, -1, 0})
           {
-            CHECK_FALSE(uvListsEqual(oldUVCoords, newUVCoords));
+            CHECK_FALSE(uvListsEqual(oldUvCoords, newUvCoords));
             // TODO: actually check the UV's
           }
           else
           {
-            CHECK(uvListsEqual(oldUVCoords, newUVCoords));
+            CHECK(uvListsEqual(oldUvCoords, newUvCoords));
           }
         }
 
         // UV's should all be the same when using alignment lock (with Valve format).
         // Standard format can only do UV lock on the top face, which is not sheared.
         {
-          const auto newFaceWithUVLockIndex = changedWithUVLock.findFace(shearedPolygon);
-          REQUIRE(newFaceWithUVLockIndex);
+          const auto newFaceWithUvLockIndex = changedWithUvLock.findFace(shearedPolygon);
+          REQUIRE(newFaceWithUvLockIndex);
 
-          const auto& newFaceWithUVLock = changedWithUVLock.face(*newFaceWithUVLockIndex);
-          const auto newUVCoordsWithUVLock =
+          const auto& newFaceWithUvLock = changedWithUvLock.face(*newFaceWithUvLockIndex);
+          const auto newUvCoordsWithUvLock =
             shearedVertexPositions
-            | std::views::transform([&](auto x) { return newFaceWithUVLock.uvCoords(x); })
+            | std::views::transform([&](auto x) { return newFaceWithUvLock.uvCoords(x); })
             | kdl::ranges::to<std::vector>();
 
           if (normal == vm::vec3d{0, 0, 1} || (format == MapFormat::Valve))
           {
-            CHECK(uvListsEqual(oldUVCoords, newUVCoordsWithUVLock));
+            CHECK(uvListsEqual(oldUvCoords, newUvCoordsWithUvLock));
           }
         }
       }
@@ -2354,22 +2339,22 @@ TEST_CASE("Brush")
 
       // left brush materials
       CHECK(
-        left->face(*left->findFace(vm::vec3d{1, 0, 0})).attributes().materialName()
+        left->face(*left->findFace(vm::vec3d{1, 0, 0})).materialName()
         == subtrahendMaterial);
       CHECK(
-        left->face(*left->findFace(vm::vec3d{-1, 0, 0})).attributes().materialName()
+        left->face(*left->findFace(vm::vec3d{-1, 0, 0})).materialName()
         == minuendMaterial);
       CHECK(
-        left->face(*left->findFace(vm::vec3d{0, 1, 0})).attributes().materialName()
+        left->face(*left->findFace(vm::vec3d{0, 1, 0})).materialName()
         == minuendMaterial);
       CHECK(
-        left->face(*left->findFace(vm::vec3d{0, -1, 0})).attributes().materialName()
+        left->face(*left->findFace(vm::vec3d{0, -1, 0})).materialName()
         == minuendMaterial);
       CHECK(
-        left->face(*left->findFace(vm::vec3d{0, 0, 1})).attributes().materialName()
+        left->face(*left->findFace(vm::vec3d{0, 0, 1})).materialName()
         == minuendMaterial);
       CHECK(
-        left->face(*left->findFace(vm::vec3d{0, 0, -1})).attributes().materialName()
+        left->face(*left->findFace(vm::vec3d{0, 0, -1})).materialName()
         == minuendMaterial);
 
       // top brush faces
@@ -2383,22 +2368,19 @@ TEST_CASE("Brush")
 
       // top brush materials
       CHECK(
-        top->face(*top->findFace(vm::vec3d{1, 0, 0})).attributes().materialName()
+        top->face(*top->findFace(vm::vec3d{1, 0, 0})).materialName()
         == subtrahendMaterial);
       CHECK(
-        top->face(*top->findFace(vm::vec3d{-1, 0, 0})).attributes().materialName()
+        top->face(*top->findFace(vm::vec3d{-1, 0, 0})).materialName()
         == subtrahendMaterial);
       CHECK(
-        top->face(*top->findFace(vm::vec3d{0, 1, 0})).attributes().materialName()
-        == minuendMaterial);
+        top->face(*top->findFace(vm::vec3d{0, 1, 0})).materialName() == minuendMaterial);
       CHECK(
-        top->face(*top->findFace(vm::vec3d{0, -1, 0})).attributes().materialName()
-        == minuendMaterial);
+        top->face(*top->findFace(vm::vec3d{0, -1, 0})).materialName() == minuendMaterial);
       CHECK(
-        top->face(*top->findFace(vm::vec3d{0, 0, 1})).attributes().materialName()
-        == minuendMaterial);
+        top->face(*top->findFace(vm::vec3d{0, 0, 1})).materialName() == minuendMaterial);
       CHECK(
-        top->face(*top->findFace(vm::vec3d{0, 0, -1})).attributes().materialName()
+        top->face(*top->findFace(vm::vec3d{0, 0, -1})).materialName()
         == subtrahendMaterial);
 
       // right brush faces
@@ -2412,22 +2394,22 @@ TEST_CASE("Brush")
 
       // right brush materials
       CHECK(
-        right->face(*right->findFace(vm::vec3d{1, 0, 0})).attributes().materialName()
+        right->face(*right->findFace(vm::vec3d{1, 0, 0})).materialName()
         == minuendMaterial);
       CHECK(
-        right->face(*right->findFace(vm::vec3d{-1, 0, 0})).attributes().materialName()
+        right->face(*right->findFace(vm::vec3d{-1, 0, 0})).materialName()
         == subtrahendMaterial);
       CHECK(
-        right->face(*right->findFace(vm::vec3d{0, 1, 0})).attributes().materialName()
+        right->face(*right->findFace(vm::vec3d{0, 1, 0})).materialName()
         == minuendMaterial);
       CHECK(
-        right->face(*right->findFace(vm::vec3d{0, -1, 0})).attributes().materialName()
+        right->face(*right->findFace(vm::vec3d{0, -1, 0})).materialName()
         == minuendMaterial);
       CHECK(
-        right->face(*right->findFace(vm::vec3d{0, 0, 1})).attributes().materialName()
+        right->face(*right->findFace(vm::vec3d{0, 0, 1})).materialName()
         == minuendMaterial);
       CHECK(
-        right->face(*right->findFace(vm::vec3d{0, 0, -1})).attributes().materialName()
+        right->face(*right->findFace(vm::vec3d{0, 0, -1})).materialName()
         == minuendMaterial);
     }
 

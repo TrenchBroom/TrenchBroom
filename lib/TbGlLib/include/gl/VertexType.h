@@ -192,15 +192,15 @@ using P2 = VertexType<VertexAttributeTypes::P2>;
 using P3 = VertexType<VertexAttributeTypes::P3>;
 using P2C4 = VertexType<VertexAttributeTypes::P2, VertexAttributeTypes::C4>;
 using P3C4 = VertexType<VertexAttributeTypes::P3, VertexAttributeTypes::C4>;
-using P2UV2 = VertexType<VertexAttributeTypes::P2, VertexAttributeTypes::UV02>;
-using P3UV2 = VertexType<VertexAttributeTypes::P3, VertexAttributeTypes::UV02>;
-using P2UV2C4 = VertexType<
+using P2Uv2 = VertexType<VertexAttributeTypes::P2, VertexAttributeTypes::Uv02>;
+using P3Uv2 = VertexType<VertexAttributeTypes::P3, VertexAttributeTypes::Uv02>;
+using P2Uv2C4 = VertexType<
   VertexAttributeTypes::P2,
-  VertexAttributeTypes::UV02,
+  VertexAttributeTypes::Uv02,
   VertexAttributeTypes::C4>;
-using P3UV2C4 = VertexType<
+using P3Uv2C4 = VertexType<
   VertexAttributeTypes::P3,
-  VertexAttributeTypes::UV02,
+  VertexAttributeTypes::Uv02,
   VertexAttributeTypes::C4>;
 using P3N = VertexType<VertexAttributeTypes::P3, VertexAttributeTypes::N>;
 using P3NC4 =
@@ -208,7 +208,7 @@ using P3NC4 =
 using P3NT2 = VertexType<
   VertexAttributeTypes::P3,
   VertexAttributeTypes::N,
-  VertexAttributeTypes::UV02>;
+  VertexAttributeTypes::Uv02>;
 } // namespace VertexTypes
 
 } // namespace tb::gl

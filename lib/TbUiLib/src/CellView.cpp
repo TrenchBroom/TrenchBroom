@@ -449,7 +449,7 @@ namespace
 auto collectStringVertices(
   CellLayout& layout, const float y, const float height, gl::FontManager& fontManager)
 {
-  using TextVertex = gl::VertexTypes::P2UV2C4::Vertex;
+  using TextVertex = gl::VertexTypes::P2Uv2C4::Vertex;
 
   auto defaultFont = gl::FontDescriptor{
     pref(Preferences::RendererFontPath), size_t(pref(Preferences::BrowserFontSize))};

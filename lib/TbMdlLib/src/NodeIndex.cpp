@@ -62,7 +62,7 @@ void withBrushNode(BrushNode& brushNode, const F& f)
 {
   for (const auto& face : brushNode.brush().faces())
   {
-    f(face.attributes().materialName());
+    f(face.materialName());
   }
 }
 

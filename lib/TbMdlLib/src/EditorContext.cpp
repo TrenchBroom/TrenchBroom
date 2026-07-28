@@ -179,7 +179,7 @@ bool EditorContext::uvLock() const
   return m_uvLock;
 }
 
-void EditorContext::setUVLock(const bool uvLock)
+void EditorContext::setUvLock(const bool uvLock)
 {
   m_uvLock = uvLock;
 }

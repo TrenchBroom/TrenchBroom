@@ -37,6 +37,7 @@
 #include "mdl/MapFormat.h"
 #include "mdl/Map_Brushes.h"
 #include "mdl/UpdateBrushFaceAttributes.h"
+#include "mdl/UvAlignment.h"
 #include "mdl/WorldNode.h"
 #include "ui/BitmapButton.h"
 #include "ui/BorderLine.h"
@@ -45,8 +46,8 @@
 #include "ui/QStyleUtils.h"
 #include "ui/SignalDelayer.h"
 #include "ui/SpinControl.h"
-#include "ui/UVEditor.h"
-#include "ui/UVViewHelper.h"
+#include "ui/UvEditor.h"
+#include "ui/UvViewHelper.h"
 #include "ui/ViewConstants.h"
 #include "ui/ViewUtils.h"
 
@@ -117,7 +118,7 @@ void FaceAttribsEditor::alignClicked()
                         ? mdl::UvPolicy::prev
                         : mdl::UvPolicy::next;
 
-  alignUV(m_document.map(), policy);
+  alignUv(m_document.map(), policy);
 }
 
 void FaceAttribsEditor::justifyClicked(const mdl::UvJustifyDirection uvJustifyDirection)
@@ -126,7 +127,7 @@ void FaceAttribsEditor::justifyClicked(const mdl::UvJustifyDirection uvJustifyDi
                           ? mdl::UvPolicy::prev
                           : mdl::UvPolicy::next;
 
-  justifyUV(m_document.map(), uvJustifyDirection, uvPolicy);
+  justifyUv(m_document.map(), uvJustifyDirection, uvPolicy);
 }
 
 void FaceAttribsEditor::fitClicked(const mdl::UvFitDirection uvFitDirection)
@@ -139,12 +140,12 @@ void FaceAttribsEditor::fitClicked(const mdl::UvFitDirection uvFitDirection)
                            ? mdl::UvFitMode::trimSheet
                            : mdl::UvFitMode::fitToFace;
 
-  fitUV(m_document.map(), uvFitDirection, uvPolicy, uvFitMode);
+  fitUv(m_document.map(), uvFitDirection, uvPolicy, uvFitMode);
 }
 
 void FaceAttribsEditor::autoFitClicked()
 {
-  autoFitUV(m_document.map());
+  autoFitUv(m_document.map());
 }
 
 void FaceAttribsEditor::xOffsetChanged(const double value)
@@ -361,7 +362,7 @@ static QWidget* createUnsetButtonLayout(QWidget* expandWidget, QWidget* button)
 
 void FaceAttribsEditor::createGui(AppController& appController)
 {
-  m_uvEditor = new UVEditor{appController, m_document};
+  m_uvEditor = new UvEditor{appController, m_document};
 
   auto* buttonsWidget = createButtonsWidget();
   auto* faceAttribsWidget = createAttribsWidget();
@@ -792,38 +793,42 @@ void FaceAttribsEditor::updateControls()
     auto colorValueMulti = false;
 
     const auto& firstFace = faceHandles[0].face();
-    const auto& materialName = firstFace.attributes().materialName();
-    const auto xOffset = firstFace.attributes().xOffset();
-    const auto yOffset = firstFace.attributes().yOffset();
-    const auto rotation = firstFace.attributes().rotation();
-    const auto xScale = firstFace.attributes().xScale();
-    const auto yScale = firstFace.attributes().yScale();
+    const auto& materialName = firstFace.materialName();
+    const auto& firstUvAttributes = firstFace.uvAttributes();
+    const auto& firstSurfaceAttributes = firstFace.surfaceAttributes();
+    const auto xOffset = firstUvAttributes.offset.x();
+    const auto yOffset = firstUvAttributes.offset.y();
+    const auto rotation = firstUvAttributes.rotation;
+    const auto xScale = firstUvAttributes.scale.x();
+    const auto yScale = firstUvAttributes.scale.y();
     auto setSurfaceFlags = firstFace.resolvedSurfaceFlags();
     auto setSurfaceContents = firstFace.resolvedSurfaceContents();
     auto mixedSurfaceFlags = 0;
     auto mixedSurfaceContents = 0;
     const auto surfaceValue = firstFace.resolvedSurfaceValue();
-    const auto colorValue = firstFace.attributes().color();
-    auto hasSurfaceValue = firstFace.attributes().surfaceValue().has_value();
-    auto hasSurfaceFlags = firstFace.attributes().surfaceFlags().has_value();
-    auto hasSurfaceContents = firstFace.attributes().surfaceContents().has_value();
-    auto hasColorValue = firstFace.attributes().hasColor();
+    const auto colorValue = firstSurfaceAttributes.color;
+    auto hasSurfaceValue = firstSurfaceAttributes.value.has_value();
+    auto hasSurfaceFlags = firstSurfaceAttributes.flags.has_value();
+    auto hasSurfaceContents = firstSurfaceAttributes.contents.has_value();
+    auto hasColorValue = firstSurfaceAttributes.color.has_value();
 
     for (size_t i = 1; i < faceHandles.size(); i++)
     {
       const auto& face = faceHandles[i].face();
-      materialMulti |= (materialName != face.attributes().materialName());
-      xOffsetMulti |= (xOffset != face.attributes().xOffset());
-      yOffsetMulti |= (yOffset != face.attributes().yOffset());
-      rotationMulti |= (rotation != face.attributes().rotation());
-      xScaleMulti |= (xScale != face.attributes().xScale());
-      yScaleMulti |= (yScale != face.attributes().yScale());
+      materialMulti |= (materialName != face.materialName());
+      const auto& uvAttributes = face.uvAttributes();
+      const auto& surfaceAttributes = face.surfaceAttributes();
+      xOffsetMulti |= (xOffset != uvAttributes.offset.x());
+      yOffsetMulti |= (yOffset != uvAttributes.offset.y());
+      rotationMulti |= (rotation != uvAttributes.rotation);
+      xScaleMulti |= (xScale != uvAttributes.scale.x());
+      yScaleMulti |= (yScale != uvAttributes.scale.y());
       surfaceValueMulti |= (surfaceValue != face.resolvedSurfaceValue());
-      colorValueMulti |= (colorValue != face.attributes().color());
-      hasSurfaceValue |= face.attributes().surfaceValue().has_value();
-      hasSurfaceFlags |= face.attributes().surfaceFlags().has_value();
-      hasSurfaceContents |= face.attributes().surfaceContents().has_value();
-      hasColorValue |= face.attributes().hasColor();
+      colorValueMulti |= (colorValue != surfaceAttributes.color);
+      hasSurfaceValue |= surfaceAttributes.value.has_value();
+      hasSurfaceFlags |= surfaceAttributes.flags.has_value();
+      hasSurfaceContents |= surfaceAttributes.contents.has_value();
+      hasColorValue |= surfaceAttributes.color.has_value();
 
       combineFlags(
         sizeof(int) * 8, face.resolvedSurfaceFlags(), setSurfaceFlags, mixedSurfaceFlags);
@@ -862,7 +867,7 @@ void FaceAttribsEditor::updateControls()
     }
     else
     {
-      if (materialName == mdl::BrushFaceAttributes::NoMaterialName)
+      if (materialName == mdl::BrushFace::NoMaterialName)
       {
         m_materialName->setText("none");
         m_materialName->setEnabled(false);

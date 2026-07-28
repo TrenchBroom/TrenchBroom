@@ -95,29 +95,30 @@ protected:
 
   void writeMaterialInfo(std::ostream& stream, const BrushFace& face) const
   {
-    const auto& materialName = face.attributes().materialName().empty()
-                                 ? BrushFaceAttributes::NoMaterialName
-                                 : face.attributes().materialName();
+    const auto& materialName =
+      face.materialName().empty() ? BrushFace::NoMaterialName : face.materialName();
+
+    const auto& uvAttributes = face.uvAttributes();
 
     fmt::format_to(
       std::ostreambuf_iterator<char>{stream},
       " {} {} {} {} {} {}",
       shouldQuoteMaterialName(materialName) ? quoteMaterialName(materialName)
                                             : materialName,
-      face.attributes().xOffset(),
-      face.attributes().yOffset(),
-      face.attributes().rotation(),
-      face.attributes().xScale(),
-      face.attributes().yScale());
+      uvAttributes.offset.x(),
+      uvAttributes.offset.y(),
+      uvAttributes.rotation,
+      uvAttributes.scale.x(),
+      uvAttributes.scale.y());
   }
 
   void writeValveMaterialInfo(std::ostream& stream, const BrushFace& face) const
   {
-    const auto& materialName = face.attributes().materialName().empty()
-                                 ? BrushFaceAttributes::NoMaterialName
-                                 : face.attributes().materialName();
+    const auto& materialName =
+      face.materialName().empty() ? BrushFace::NoMaterialName : face.materialName();
     const auto uAxis = face.uAxis();
     const auto vAxis = face.vAxis();
+    const auto& uvAttributes = face.uvAttributes();
 
     fmt::format_to(
       std::ostreambuf_iterator<char>{stream},
@@ -128,16 +129,16 @@ protected:
       uAxis.x(),
       uAxis.y(),
       uAxis.z(),
-      face.attributes().xOffset(),
+      uvAttributes.offset.x(),
 
       vAxis.x(),
       vAxis.y(),
       vAxis.z(),
-      face.attributes().yOffset(),
+      uvAttributes.offset.y(),
 
-      face.attributes().rotation(),
-      face.attributes().xScale(),
-      face.attributes().yScale());
+      uvAttributes.rotation,
+      uvAttributes.scale.x(),
+      uvAttributes.scale.y());
   }
 };
 
@@ -155,7 +156,7 @@ private:
     writeFacePoints(stream, face);
     writeMaterialInfo(stream, face);
 
-    if (face.attributes().hasSurfaceAttributes())
+    if (!face.surfaceAttributes().empty())
     {
       writeSurfaceAttributes(stream, face);
     }
@@ -189,7 +190,7 @@ private:
     writeFacePoints(stream, face);
     writeValveMaterialInfo(stream, face);
 
-    if (face.attributes().hasSurfaceAttributes())
+    if (!face.surfaceAttributes().empty())
     {
       writeSurfaceAttributes(stream, face);
     }
@@ -200,13 +201,9 @@ private:
 
 class DaikatanaFileSerializer : public Quake2FileSerializer
 {
-private:
-  std::string SurfaceColorFormat;
-
 public:
   explicit DaikatanaFileSerializer(std::ostream& stream)
     : Quake2FileSerializer{stream}
-    , SurfaceColorFormat(" %d %d %d")
   {
   }
 
@@ -216,11 +213,11 @@ private:
     writeFacePoints(stream, face);
     writeMaterialInfo(stream, face);
 
-    if (face.attributes().hasSurfaceAttributes() || face.attributes().hasColor())
+    if (!face.surfaceAttributes().empty())
     {
       writeSurfaceAttributes(stream, face);
     }
-    if (face.attributes().hasColor())
+    if (face.surfaceAttributes().color)
     {
       writeSurfaceColor(stream, face);
     }

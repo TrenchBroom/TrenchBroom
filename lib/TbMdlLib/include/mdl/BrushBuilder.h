@@ -19,10 +19,11 @@
 
 #pragma once
 
-#include "BrushFaceAttributes.h"
 #include "base/Result.h"
 #include "mdl/CircleShape.h"
 #include "mdl/Polyhedron3.h"
+#include "mdl/SurfaceAttributes.h"
+#include "mdl/UvAttributes.h"
 
 #include "vm/bbox.h"
 #include "vm/util.h"
@@ -41,14 +42,16 @@ class BrushBuilder
 private:
   MapFormat m_mapFormat;
   const vm::bbox3d m_worldBounds;
-  const BrushFaceAttributes m_defaultAttribs;
+  const UvAttributes m_defaultUvAttributes;
+  const SurfaceAttributes m_defaultSurfaceAttributes;
 
 public:
   BrushBuilder(MapFormat mapFormat, const vm::bbox3d& worldBounds);
   BrushBuilder(
     MapFormat mapFormat,
     const vm::bbox3d& worldBounds,
-    BrushFaceAttributes defaultAttribs);
+    UvAttributes defaultUvAttributes,
+    SurfaceAttributes defaultSurfaceAttributes);
 
   Result<Brush> createCube(double size, const std::string& materialName) const;
   Result<Brush> createCube(
@@ -122,7 +125,7 @@ public:
     vm::axis::type axis,
     const std::string& textureName) const;
 
-  Result<Brush> createUVSphere(
+  Result<Brush> createUvSphere(
     const vm::bbox3d& bounds,
     const CircleShape& circleShape,
     size_t numRings,

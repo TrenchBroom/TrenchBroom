@@ -200,7 +200,7 @@ public:
  * @tparam S the number of components
  */
 template <GLenum D, size_t S>
-class GLVertexAttributeUVCoord0
+class GLVertexAttributeUvCoord0
 {
 public:
   using ComponentType = typename GLType<D>::Type;
@@ -230,8 +230,8 @@ public:
   }
 
   // Non-instantiable
-  GLVertexAttributeUVCoord0() = delete;
-  deleteCopyAndMove(GLVertexAttributeUVCoord0);
+  GLVertexAttributeUvCoord0() = delete;
+  deleteCopyAndMove(GLVertexAttributeUvCoord0);
 };
 
 namespace VertexAttributeTypes
@@ -239,7 +239,7 @@ namespace VertexAttributeTypes
 using P2 = GLVertexAttributePosition<GL_FLOAT, 2>;
 using P3 = GLVertexAttributePosition<GL_FLOAT, 3>;
 using N = GLVertexAttributeNormal<GL_FLOAT, 3>;
-using UV02 = GLVertexAttributeUVCoord0<GL_FLOAT, 2>;
+using Uv02 = GLVertexAttributeUvCoord0<GL_FLOAT, 2>;
 using C4 = GLVertexAttributeColor<GL_FLOAT, 4>;
 } // namespace VertexAttributeTypes
 

@@ -478,29 +478,29 @@ bool MapViewBase::canFlip() const
   return !m_toolBox.anyModalToolActive() && map.selection().hasNodes();
 }
 
-void MapViewBase::moveUV(const vm::direction direction, const UVActionMode mode)
+void MapViewBase::moveUv(const vm::direction direction, const UvActionMode mode)
 {
   auto& map = m_document.map();
   if (map.selection().hasBrushFaces())
   {
-    const auto offset = moveUVOffset(direction, mode);
-    translateUV(map, camera().up(), camera().right(), offset);
+    const auto offset = moveUvOffset(direction, mode);
+    translateUv(map, camera().up(), camera().right(), offset);
   }
 }
 
-vm::vec2f MapViewBase::moveUVOffset(
-  const vm::direction direction, const UVActionMode mode) const
+vm::vec2f MapViewBase::moveUvOffset(
+  const vm::direction direction, const UvActionMode mode) const
 {
   switch (direction)
   {
   case vm::direction::up:
-    return vm::vec2f{0.0f, moveUVDistance(mode)};
+    return vm::vec2f{0.0f, moveUvDistance(mode)};
   case vm::direction::down:
-    return vm::vec2f{0.0f, -moveUVDistance(mode)};
+    return vm::vec2f{0.0f, -moveUvDistance(mode)};
   case vm::direction::left:
-    return vm::vec2f{-moveUVDistance(mode), 0.0f};
+    return vm::vec2f{-moveUvDistance(mode), 0.0f};
   case vm::direction::right:
-    return vm::vec2f{moveUVDistance(mode), 0.0f};
+    return vm::vec2f{moveUvDistance(mode), 0.0f};
   case vm::direction::forward:
   case vm::direction::backward:
     return vm::vec2f{};
@@ -508,7 +508,7 @@ vm::vec2f MapViewBase::moveUVOffset(
   }
 }
 
-float MapViewBase::moveUVDistance(const UVActionMode mode) const
+float MapViewBase::moveUvDistance(const UvActionMode mode) const
 {
   const auto& map = m_document.map();
   const auto& grid = map.grid();
@@ -516,27 +516,27 @@ float MapViewBase::moveUVDistance(const UVActionMode mode) const
 
   switch (mode)
   {
-  case UVActionMode::Fine:
+  case UvActionMode::Fine:
     return 1.0f;
-  case UVActionMode::Coarse:
+  case UvActionMode::Coarse:
     return 2.0f * gridSize;
-  case UVActionMode::Normal:
+  case UvActionMode::Normal:
     return gridSize;
     switchDefault();
   }
 }
 
-void MapViewBase::rotateUV(const bool clockwise, const UVActionMode mode)
+void MapViewBase::rotateUv(const bool clockwise, const UvActionMode mode)
 {
   auto& map = m_document.map();
   if (map.selection().hasBrushFaces())
   {
-    const auto angle = rotateUVAngle(clockwise, mode);
-    mdl::rotateUV(map, angle);
+    const auto angle = rotateUvAngle(clockwise, mode);
+    mdl::rotateUv(map, angle);
   }
 }
 
-float MapViewBase::rotateUVAngle(const bool clockwise, const UVActionMode mode) const
+float MapViewBase::rotateUvAngle(const bool clockwise, const UvActionMode mode) const
 {
   const auto& map = m_document.map();
   const auto& grid = map.grid();
@@ -545,40 +545,42 @@ float MapViewBase::rotateUVAngle(const bool clockwise, const UVActionMode mode) 
 
   switch (mode)
   {
-  case UVActionMode::Fine:
+  case UvActionMode::Fine:
     angle = 1.0f;
     break;
-  case UVActionMode::Coarse:
+  case UvActionMode::Coarse:
     angle = 90.0f;
     break;
-  case UVActionMode::Normal:
+  case UvActionMode::Normal:
     angle = gridAngle;
     break;
   }
   return clockwise ? angle : -angle;
 }
 
-void MapViewBase::flipUV(const vm::direction direction)
+void MapViewBase::flipUv(const vm::direction direction)
 {
   auto& map = m_document.map();
   if (map.selection().hasBrushFaces())
   {
-    mdl::flipUV(map, camera().up(), camera().right(), direction);
+    mdl::flipUv(map, camera().up(), camera().right(), direction);
   }
 }
 
-void MapViewBase::resetUV()
+void MapViewBase::resetUv()
 {
   auto& map = m_document.map();
   setBrushFaceAttributes(
-    map, mdl::resetAll(map.gameInfo().gameConfig.faceAttribsConfig.defaults));
+    map, mdl::resetAll(map.gameInfo().gameConfig.faceAttribsConfig.defaultUvAttributes));
 }
 
-void MapViewBase::resetUVToWorld()
+void MapViewBase::resetUvToWorld()
 {
   auto& map = m_document.map();
   setBrushFaceAttributes(
-    map, mdl::resetAllToParaxial(map.gameInfo().gameConfig.faceAttribsConfig.defaults));
+    map,
+    mdl::resetAllToParaxial(
+      map.gameInfo().gameConfig.faceAttribsConfig.defaultUvAttributes));
 }
 
 void MapViewBase::assembleBrush()
@@ -1333,14 +1335,13 @@ void MapViewBase::showPopupMenuLater()
     const auto* material = faceHandle->face().material();
     menu.addAction(
       tr("Reveal %1 in Material Browser")
-        .arg(QString::fromStdString(faceHandle->face().attributes().materialName())),
+        .arg(QString::fromStdString(faceHandle->face().materialName())),
       mapWindow,
       [=] { mapWindow->revealMaterial(material); });
 
     menu.addAction(tr("Copy Material Name"), mapWindow, [=] {
       auto* clipboard = QApplication::clipboard();
-      clipboard->setText(
-        QString::fromStdString(faceHandle->face().attributes().materialName()));
+      clipboard->setText(QString::fromStdString(faceHandle->face().materialName()));
     });
 
     menu.addSeparator();

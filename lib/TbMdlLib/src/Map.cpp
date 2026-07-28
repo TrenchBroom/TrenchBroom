@@ -46,7 +46,7 @@
 #include "mdl/GameInfo.h"
 #include "mdl/Grid.h"
 #include "mdl/GroupNode.h"
-#include "mdl/InvalidUVScaleValidator.h"
+#include "mdl/InvalidUvScaleValidator.h"
 #include "mdl/Issue.h"
 #include "mdl/LayerNode.h"
 #include "mdl/LinkSourceValidator.h"
@@ -244,8 +244,11 @@ Result<std::unique_ptr<WorldNode>> createWorldNode(
   if (!config.forceEmptyNewMap)
   {
     const auto builder = BrushBuilder{
-      worldNode->mapFormat(), worldBounds, config.faceAttribsConfig.defaults};
-    builder.createCuboid({128.0, 128.0, 32.0}, BrushFaceAttributes::NoMaterialName)
+      worldNode->mapFormat(),
+      worldBounds,
+      config.faceAttribsConfig.defaultUvAttributes,
+      config.faceAttribsConfig.defaultSurfaceAttributes};
+    builder.createCuboid({128.0, 128.0, 32.0}, BrushFace::NoMaterialName)
       | kdl::transform(
         [&](auto b) { worldNode->defaultLayer()->addChild(new BrushNode{std::move(b)}); })
       | kdl::transform_error(
@@ -355,7 +358,7 @@ auto makeSetMaterialsVisitor(gl::MaterialManager& manager)
       for (size_t i = 0u; i < brush.faceCount(); ++i)
       {
         const auto& face = brush.face(i);
-        auto* material = manager.material(face.attributes().materialName());
+        auto* material = manager.material(face.materialName());
         brushNode.setFaceMaterial(i, material);
       }
     },
@@ -566,7 +569,7 @@ Map::Map(
   , m_worldBounds{worldBounds}
   , m_nodeIndex{std::make_unique<NodeIndex>()}
   , m_entityLinkManager{std::make_unique<EntityLinkManager>(*m_nodeIndex)}
-  , m_currentMaterialName{BrushFaceAttributes::NoMaterialName}
+  , m_currentMaterialName{BrushFace::NoMaterialName}
   , m_repeatStack{std::make_unique<RepeatStack>()}
   , m_commandProcessor{std::make_unique<CommandProcessor>(*this)}
   , m_path{std::move(path)}
@@ -1134,7 +1137,7 @@ void Map::registerValidators()
   m_worldNode->registerValidator(
     std::make_unique<PropertyValueWithDoubleQuotationMarksValidator>());
   m_worldNode->registerValidator(std::make_unique<WorldNodePathSeparatorValidator>());
-  m_worldNode->registerValidator(std::make_unique<InvalidUVScaleValidator>());
+  m_worldNode->registerValidator(std::make_unique<InvalidUvScaleValidator>());
 }
 
 void Map::setIssueHidden(const Issue& issue, const bool hidden)
@@ -1274,7 +1277,7 @@ void Map::setMaterials(const std::vector<BrushFaceHandle>& faceHandles)
   {
     BrushNode* node = faceHandle.node();
     const BrushFace& face = faceHandle.face();
-    auto* material = m_materialManager->material(face.attributes().materialName());
+    auto* material = m_materialManager->material(face.materialName());
     node->setFaceMaterial(faceHandle.faceIndex(), material);
   }
   materialUsageCountsDidChangeNotifier();

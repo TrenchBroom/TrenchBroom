@@ -137,7 +137,7 @@ void selectTouchingNodes(Map& map, const vm::axis::type cameraAxis, const bool d
       tallVertices.push_back(maxPlane.project_point(vertex->position()));
     }
 
-    return brushBuilder.createBrush(tallVertices, BrushFaceAttributes::NoMaterialName)
+    return brushBuilder.createBrush(tallVertices, BrushFace::NoMaterialName)
            | kdl::transform(
              [](auto brush) { return std::make_unique<BrushNode>(std::move(brush)); });
   }) | kdl::fold
@@ -262,8 +262,7 @@ void selectBrushesWithMaterial(Map& map, const std::string_view materialName)
     | std::views::filter([&](const auto& node) {
         return std::ranges::any_of(
           collectSelectableBrushFaces({node}, map.editorContext()), [&](const auto& h) {
-            return kdl::ci::str_is_equal(
-              h.face().attributes().materialName(), materialName);
+            return kdl::ci::str_is_equal(h.face().materialName(), materialName);
           });
       })
     | kdl::ranges::to<std::vector>();
@@ -372,7 +371,7 @@ void selectBrushFaces(Map& map, const std::vector<BrushFaceHandle>& handles)
   map.executeAndStore(SelectionCommand::select(handles));
   if (!handles.empty())
   {
-    map.setCurrentMaterialName(handles.back().face().attributes().materialName());
+    map.setCurrentMaterialName(handles.back().face().materialName());
   }
 }
 
@@ -381,7 +380,7 @@ void selectBrushFacesWithMaterial(Map& map, const std::string_view materialName)
   const auto faces =
     collectSelectableBrushFaces(std::vector<Node*>{&map.worldNode()}, map.editorContext())
     | std::views::filter([&](const auto& h) {
-        return kdl::ci::str_is_equal(h.face().attributes().materialName(), materialName);
+        return kdl::ci::str_is_equal(h.face().materialName(), materialName);
       })
     | kdl::ranges::to<std::vector>();
 

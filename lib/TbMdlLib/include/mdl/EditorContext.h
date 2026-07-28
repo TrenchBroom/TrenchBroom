@@ -96,7 +96,7 @@ public:
   void setAlignmentLock(bool alignmentLock);
 
   bool uvLock() const;
-  void setUVLock(bool uvLock);
+  void setUvLock(bool uvLock);
 
 public:
   bool visible(const Node& node) const;

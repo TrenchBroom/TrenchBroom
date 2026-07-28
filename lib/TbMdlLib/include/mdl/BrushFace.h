@@ -22,9 +22,11 @@
 #include "base/Color.h"
 #include "base/Result.h"
 #include "mdl/AssetReference.h"
-#include "mdl/BrushFaceAttributes.h"
 #include "mdl/BrushGeometry.h"
+#include "mdl/SurfaceAttributes.h"
 #include "mdl/Tag.h"
+#include "mdl/UvAttributes.h"
+#include "mdl/UvCoordSystem.h"
 
 #include "kd/reflection_decl.h"
 
@@ -35,9 +37,9 @@
 #include "vm/vec.h"
 
 #include <array>
-#include <memory>
 #include <optional>
 #include <ranges>
+#include <string>
 #include <vector>
 
 namespace tb
@@ -49,14 +51,13 @@ class Material;
 
 namespace mdl
 {
-class UVCoordSystem;
-class UVCoordSystemSnapshot;
-enum class WrapStyle;
 enum class MapFormat;
 
 class BrushFace : public Taggable
 {
 public:
+  static const std::string NoMaterialName;
+
   /*
    * The order of points, when looking from outside the face:
    *
@@ -86,14 +87,15 @@ private:
     const BrushEdge* operator()(const BrushHalfEdge* halfEdge) const;
   };
 
-public:
 private:
   BrushFace::Points m_points;
   vm::plane3d m_boundary;
-  BrushFaceAttributes m_attributes;
+
+  std::string m_materialName;
+  UvCoordSystem m_uvCoordSystem;
+  SurfaceAttributes m_surfaceAttributes;
 
   AssetReference<gl::Material> m_materialReference;
-  std::unique_ptr<UVCoordSystem> m_uvCoordSystem;
   BrushFaceGeometry* m_geometry = nullptr;
 
   mutable size_t m_lineNumber = 0;
@@ -112,7 +114,14 @@ public:
 
   ~BrushFace() override;
 
-  kdl_reflect_decl(BrushFace, m_points, m_boundary, m_attributes, m_materialReference);
+  kdl_reflect_decl(
+    BrushFace,
+    m_points,
+    m_boundary,
+    m_materialName,
+    m_surfaceAttributes,
+    m_materialReference,
+    m_uvCoordSystem);
 
   /**
    * Creates a face using TB's default UV projection for the given map format and the
@@ -123,13 +132,15 @@ public:
    * face-aligned UV projection, whereas createFromStandard() creates an axis-aligned
    * UV projection.
    *
-   * The returned face has a UVCoordSystem matching the given format.
+   * The returned face has a UvCoordSystem matching the given format.
    */
   static Result<BrushFace> create(
     const vm::vec3d& point0,
     const vm::vec3d& point1,
     const vm::vec3d& point2,
-    const BrushFaceAttributes& attributes,
+    std::string materialName,
+    const UvAttributes& uvAttributes,
+    const SurfaceAttributes& surfaceAttributes,
     MapFormat mapFormat);
 
   /**
@@ -138,13 +149,15 @@ public:
    *
    * Used when loading/pasting a Standard format map.
    *
-   * The returned face has a UVCoordSystem matching the given format.
+   * The returned face has a UvCoordSystem matching the given format.
    */
   static Result<BrushFace> createFromStandard(
     const vm::vec3d& point0,
     const vm::vec3d& point1,
     const vm::vec3d& point2,
-    const BrushFaceAttributes& attributes,
+    std::string materialName,
+    const UvAttributes& uvAttributes,
+    const SurfaceAttributes& surfaceAttributes,
     MapFormat mapFormat);
 
   /**
@@ -153,37 +166,45 @@ public:
    *
    * Used when loading/pasting a Valve format map.
    *
-   * The returned face has a UVCoordSystem matching the given format.
+   * The returned face has a UvCoordSystem matching the given format.
    */
   static Result<BrushFace> createFromValve(
     const vm::vec3d& point1,
     const vm::vec3d& point2,
     const vm::vec3d& point3,
-    const BrushFaceAttributes& attributes,
+    std::string materialName,
+    const UvAttributes& uvAttributes,
+    const SurfaceAttributes& surfaceAttributes,
     const vm::vec3d& uAxis,
     const vm::vec3d& vAxis,
     MapFormat mapFormat);
 
+  /**
+   * Creates a face with the given UV coordinate system, which carries the face's UV
+   * attributes.
+   */
   static Result<BrushFace> create(
     const vm::vec3d& point0,
     const vm::vec3d& point1,
     const vm::vec3d& point2,
-    const BrushFaceAttributes& attributes,
-    std::unique_ptr<UVCoordSystem> uvCoordSystem);
+    std::string materialName,
+    UvCoordSystem uvCoordSystem,
+    const SurfaceAttributes& surfaceAttributes);
 
   BrushFace(
     const BrushFace::Points& points,
     const vm::plane3d& boundary,
-    BrushFaceAttributes attributes,
-    std::unique_ptr<UVCoordSystem> uvCoordSystem);
+    std::string materialName,
+    UvCoordSystem uvCoordSystem,
+    const SurfaceAttributes& surfaceAttributes);
 
   static void sortFaces(std::vector<BrushFace>& faces);
 
-  std::unique_ptr<UVCoordSystemSnapshot> takeUVCoordSystemSnapshot() const;
-  void restoreUVCoordSystemSnapshot(const UVCoordSystemSnapshot& coordSystemSnapshot);
-  void copyUVCoordSystemFromFace(
-    const UVCoordSystemSnapshot& coordSystemSnapshot,
-    const BrushFaceAttributes& attributes,
+  std::optional<UvCoordSystemSnapshot> takeUvCoordSystemSnapshot() const;
+  void restoreUvCoordSystemSnapshot(const UvCoordSystemSnapshot& coordSystemSnapshot);
+  void copyUvCoordSystemFromFace(
+    const UvCoordSystemSnapshot& coordSystemSnapshot,
+    const UvAttributes& uvAttributes,
     const vm::plane3d& sourceFacePlane,
     WrapStyle wrapStyle);
 
@@ -197,17 +218,31 @@ public:
   double area() const;
   bool coplanarWith(const vm::plane3d& plane) const;
 
-  const BrushFaceAttributes& attributes() const;
-  void setAttributes(const BrushFaceAttributes& attributes);
-  bool setAttributes(const BrushFace& other);
+  const std::string& materialName() const;
+  bool setMaterialName(std::string materialName);
+
+  UvAttributes uvAttributes() const;
+  void setUvAttributes(const UvAttributes& uvAttributes);
+
+  const SurfaceAttributes& surfaceAttributes() const;
+  void setSurfaceAttributes(const SurfaceAttributes& surfaceAttributes);
+
+  /**
+   * Copies the material name and the UV and surface attributes from the given face.
+   * Unlike setUvAttributes, this does not update the rotation of the UV coordinate
+   * system.
+   *
+   * @return true if any attribute changed
+   */
+  bool copyAttributes(const BrushFace& other);
 
   int resolvedSurfaceContents() const;
   int resolvedSurfaceFlags() const;
   float resolvedSurfaceValue() const;
   std::optional<Color> resolvedColor() const;
 
-  void resetUVCoordSystemCache();
-  const UVCoordSystem& uvCoordSystem() const;
+  void resetUvCoordSystemCache();
+  const UvCoordSystem& uvCoordSystem() const;
 
   const gl::Material* material() const;
   vm::vec2f textureSize() const;
@@ -217,16 +252,16 @@ public:
 
   vm::vec3d uAxis() const;
   vm::vec3d vAxis() const;
-  void resetUVAxes();
-  void resetUVAxesToParaxial();
+  void resetUvAxes();
+  void resetUvAxesToParaxial();
 
   void convertToParaxial();
   void convertToParallel();
 
-  void translateUV(const vm::vec3d& up, const vm::vec3d& right, const vm::vec2f& offset);
-  void rotateUV(float angle);
-  void shearUV(const vm::vec2f& factors);
-  void flipUV(
+  void translateUv(const vm::vec3d& up, const vm::vec3d& right, const vm::vec2f& offset);
+  void rotateUv(float angle);
+  void shearUv(const vm::vec2f& factors);
+  void flipUv(
     const vm::vec3d& cameraUp,
     const vm::vec3d& cameraRight,
     vm::direction cameraRelativeFlipDirection);
@@ -237,11 +272,11 @@ public:
   Result<void> updatePointsFromVertices();
 
   vm::mat4x4d projectToBoundaryMatrix() const;
-  vm::mat4x4d toUVCoordSystemMatrix(
+  vm::mat4x4d toUvCoordSystemMatrix(
     const vm::vec2f& offset, const vm::vec2f& scale) const;
-  vm::mat4x4d fromUVCoordSystemMatrix(
+  vm::mat4x4d fromUvCoordSystemMatrix(
     const vm::vec2f& offset, const vm::vec2f& scale) const;
-  float measureUVAngle(const vm::vec2f& center, const vm::vec2f& point) const;
+  float measureUvAngle(const vm::vec2f& center, const vm::vec2f& point) const;
 
   size_t vertexCount() const;
 

@@ -25,9 +25,11 @@
 #include "el/Value.h"
 #include "mdl/GameConfig.h"
 #include "mdl/SoftMapBounds.h"
+#include "mdl/SurfaceAttributes.h"
 #include "mdl/Tag.h"
 #include "mdl/TagAttribute.h"
 #include "mdl/TagMatcher.h"
+#include "mdl/UvAttributes.h"
 
 #include "kd/ranges/to.h"
 
@@ -289,44 +291,39 @@ std::vector<SmartTag> parseTags(
   return result;
 }
 
-BrushFaceAttributes parseFaceAttribsDefaults(
+std::tuple<UvAttributes, SurfaceAttributes> parseFaceAttribsDefaults(
   const el::EvaluationContext& context,
   const el::Value& value,
   const FlagsConfig& surfaceFlags,
   const FlagsConfig& contentFlags)
 {
-  auto defaults = BrushFaceAttributes{BrushFaceAttributes::NoMaterialName};
+  auto uvAttributes = UvAttributes{};
+  auto surfaceAttributes = SurfaceAttributes{};
   if (value == el::Value::Null)
   {
-    return defaults;
-  }
-
-  if (const auto materialNameValue = value.atOrDefault(context, "materialName");
-      materialNameValue != el::Value::Null)
-  {
-    defaults = BrushFaceAttributes{materialNameValue.stringValue(context)};
+    return {uvAttributes, surfaceAttributes};
   }
 
   if (const auto offsetValue = value.atOrDefault(context, "offset");
       offsetValue != el::Value::Null && offsetValue.length() == 2)
   {
-    defaults.setOffset(vm::vec2f{
+    uvAttributes.offset = vm::vec2f{
       float(offsetValue.at(context, 0).numberValue(context)),
-      float(offsetValue.at(context, 1).numberValue(context))});
+      float(offsetValue.at(context, 1).numberValue(context))};
   }
 
   if (const auto scaleValue = value.atOrDefault(context, "scale");
       scaleValue != el::Value::Null && scaleValue.length() == 2)
   {
-    defaults.setScale(vm::vec2f{
+    uvAttributes.scale = vm::vec2f{
       float(scaleValue.at(context, 0).numberValue(context)),
-      float(scaleValue.at(context, 1).numberValue(context))});
+      float(scaleValue.at(context, 1).numberValue(context))};
   }
 
   if (const auto rotationValue = value.atOrDefault(context, "rotation");
       rotationValue != el::Value::Null)
   {
-    defaults.setRotation(float(rotationValue.numberValue(context)));
+    uvAttributes.rotation = float(rotationValue.numberValue(context));
   }
 
   if (const auto surfaceContentsValue = value.atOrDefault(context, "surfaceContents");
@@ -338,7 +335,7 @@ BrushFaceAttributes parseFaceAttribsDefaults(
       const auto& name = surfaceContentValue.stringValue(context);
       defaultSurfaceContents = defaultSurfaceContents | contentFlags.flagValue(name);
     }
-    defaults.setSurfaceContents(defaultSurfaceContents);
+    surfaceAttributes.contents = defaultSurfaceContents;
   }
 
   if (const auto surfaceFlagsValue = value.atOrDefault(context, "surfaceFlags");
@@ -350,13 +347,13 @@ BrushFaceAttributes parseFaceAttribsDefaults(
       const auto& name = surfaceFlagValue.stringValue(context);
       defaultSurfaceFlags = defaultSurfaceFlags | surfaceFlags.flagValue(name);
     }
-    defaults.setSurfaceFlags(defaultSurfaceFlags);
+    surfaceAttributes.flags = defaultSurfaceFlags;
   }
 
   if (const auto surfaceValue = value.atOrDefault(context, "surfaceValue");
       surfaceValue != el::Value::Null)
   {
-    defaults.setSurfaceValue(float(surfaceValue.numberValue(context)));
+    surfaceAttributes.value = float(surfaceValue.numberValue(context));
   }
 
   if (const auto colorValue = value.atOrDefault(context, "color");
@@ -367,10 +364,10 @@ BrushFaceAttributes parseFaceAttribsDefaults(
                            throw ParserException{*context.location(value), e.msg};
                          })
                        | kdl::value();
-    defaults.setColor(color);
+    surfaceAttributes.color = color;
   }
 
-  return defaults;
+  return {uvAttributes, surfaceAttributes};
 }
 
 void parseFlag(
@@ -410,19 +407,21 @@ FaceAttribsConfig parseFaceAttribsConfig(
     return FaceAttribsConfig{
       {},
       {},
-      BrushFaceAttributes{BrushFaceAttributes::NoMaterialName},
+      {},
+      {},
     };
   }
 
   auto surfaceFlags = parseFlagsConfig(context, value.at(context, "surfaceflags"));
   auto contentFlags = parseFlagsConfig(context, value.at(context, "contentflags"));
-  auto defaults = parseFaceAttribsDefaults(
+  auto [defaultUvAttributes, defaultSurfaceAttributes] = parseFaceAttribsDefaults(
     context, value.atOrDefault(context, "defaults"), surfaceFlags, contentFlags);
 
   return FaceAttribsConfig{
     std::move(surfaceFlags),
     std::move(contentFlags),
-    std::move(defaults),
+    std::move(defaultUvAttributes),
+    std::move(defaultSurfaceAttributes),
   };
 }
 

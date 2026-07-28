@@ -117,13 +117,9 @@ f  8/4/6  5/3/6  6/2/6  7/1/6
 
 TEST_CASE("ObjSerializer.writePatch")
 {
-  const auto worldBounds = vm::bbox3d{8192.0};
-
   auto taskManager = kdl::task_manager{};
-
   auto map = mdl::WorldNode{{}, {}, mdl::MapFormat::Quake3};
 
-  auto builder = mdl::BrushBuilder{map.mapFormat(), worldBounds};
   auto* patchNode = new mdl::PatchNode{mdl::BezierPatch{
     3,
     3,

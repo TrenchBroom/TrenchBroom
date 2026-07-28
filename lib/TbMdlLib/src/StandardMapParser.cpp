@@ -26,6 +26,7 @@
 #include "mdl/EntityProperties.h"
 
 #include "kd/contracts.h"
+#include "kd/k.h"
 
 #include "vm/vec.h"
 
@@ -476,16 +477,21 @@ void StandardMapParser::parseQuakeFace(ParserStatus& status)
   const auto location = m_tokenizer.location();
 
   const auto [p1, p2, p3] = parseFacePoints(status);
-  const auto materialName = parseMaterialName(status);
+  auto materialName = parseMaterialName(status);
 
-  auto attribs = BrushFaceAttributes{materialName};
-  attribs.setXOffset(parseFloat());
-  attribs.setYOffset(parseFloat());
-  attribs.setRotation(parseFloat());
-  attribs.setXScale(parseFloat());
-  attribs.setYScale(parseFloat());
+  const auto uvAttributes = parseUvAttributes();
+  auto surfaceAttributes = SurfaceAttributes{};
 
-  onStandardBrushFace(location, m_targetMapFormat, p1, p2, p3, attribs, status);
+  onStandardBrushFace(
+    location,
+    m_targetMapFormat,
+    p1,
+    p2,
+    p3,
+    std::move(materialName),
+    uvAttributes,
+    surfaceAttributes,
+    status);
 }
 
 void StandardMapParser::parseQuake2Face(ParserStatus& status)
@@ -493,25 +499,28 @@ void StandardMapParser::parseQuake2Face(ParserStatus& status)
   const auto location = m_tokenizer.location();
 
   const auto [p1, p2, p3] = parseFacePoints(status);
-  const auto materialName = parseMaterialName(status);
+  auto materialName = parseMaterialName(status);
 
-  auto attribs = BrushFaceAttributes{materialName};
-  attribs.setXOffset(parseFloat());
-  attribs.setYOffset(parseFloat());
-  attribs.setRotation(parseFloat());
-  attribs.setXScale(parseFloat());
-  attribs.setYScale(parseFloat());
+  const auto uvAttributes = parseUvAttributes();
+  auto surfaceAttributes = SurfaceAttributes{};
 
   // Quake 2 extra info is optional
   if (!m_tokenizer.peekToken().hasType(
         QuakeMapToken::OParenthesis | QuakeMapToken::CBrace | QuakeMapToken::Eof))
   {
-    attribs.setSurfaceContents(parseInteger());
-    attribs.setSurfaceFlags(parseInteger());
-    attribs.setSurfaceValue(parseFloat());
+    surfaceAttributes = parseSurfaceAttributes(status, !K(parseColor));
   }
 
-  onStandardBrushFace(location, m_targetMapFormat, p1, p2, p3, attribs, status);
+  onStandardBrushFace(
+    location,
+    m_targetMapFormat,
+    p1,
+    p2,
+    p3,
+    std::move(materialName),
+    uvAttributes,
+    surfaceAttributes,
+    status);
 }
 
 void StandardMapParser::parseQuake2ValveFace(ParserStatus& status)
@@ -519,28 +528,32 @@ void StandardMapParser::parseQuake2ValveFace(ParserStatus& status)
   const auto location = m_tokenizer.location();
 
   const auto [p1, p2, p3] = parseFacePoints(status);
-  const auto materialName = parseMaterialName(status);
+  auto materialName = parseMaterialName(status);
 
-  const auto [uAxis, uOffset, vAxis, vOffset] = parseValveUVAxes(status);
+  const auto [uAxis, uOffset, vAxis, vOffset] = parseValveUvAxes(status);
 
-  auto attribs = BrushFaceAttributes{materialName};
-  attribs.setXOffset(uOffset);
-  attribs.setYOffset(vOffset);
-  attribs.setRotation(parseFloat());
-  attribs.setXScale(parseFloat());
-  attribs.setYScale(parseFloat());
+  const auto uvAttributes = parseUvAttributes({uOffset, vOffset});
+  auto surfaceAttributes = SurfaceAttributes{};
 
   // Quake 2 extra info is optional
   if (!m_tokenizer.peekToken().hasType(
         QuakeMapToken::OParenthesis | QuakeMapToken::CBrace | QuakeMapToken::Eof))
   {
-    attribs.setSurfaceContents(parseInteger());
-    attribs.setSurfaceFlags(parseInteger());
-    attribs.setSurfaceValue(parseFloat());
+    surfaceAttributes = parseSurfaceAttributes(status, !K(parseColor));
   }
 
   onValveBrushFace(
-    location, m_targetMapFormat, p1, p2, p3, attribs, uAxis, vAxis, status);
+    location,
+    m_targetMapFormat,
+    p1,
+    p2,
+    p3,
+    std::move(materialName),
+    uvAttributes,
+    surfaceAttributes,
+    uAxis,
+    vAxis,
+    status);
 }
 
 void StandardMapParser::parseHexen2Face(ParserStatus& status)
@@ -548,14 +561,10 @@ void StandardMapParser::parseHexen2Face(ParserStatus& status)
   const auto location = m_tokenizer.location();
 
   const auto [p1, p2, p3] = parseFacePoints(status);
-  const auto materialName = parseMaterialName(status);
+  auto materialName = parseMaterialName(status);
 
-  auto attribs = BrushFaceAttributes{materialName};
-  attribs.setXOffset(parseFloat());
-  attribs.setYOffset(parseFloat());
-  attribs.setRotation(parseFloat());
-  attribs.setXScale(parseFloat());
-  attribs.setYScale(parseFloat());
+  const auto uvAttributes = parseUvAttributes();
+  auto surfaceAttributes = SurfaceAttributes{};
 
   // Hexen 2 extra info is optional
   if (!m_tokenizer.peekToken().hasType(
@@ -564,7 +573,16 @@ void StandardMapParser::parseHexen2Face(ParserStatus& status)
     m_tokenizer.nextToken(); // noone seems to know what the extra value does in Hexen 2
   }
 
-  onStandardBrushFace(location, m_targetMapFormat, p1, p2, p3, attribs, status);
+  onStandardBrushFace(
+    location,
+    m_targetMapFormat,
+    p1,
+    p2,
+    p3,
+    std::move(materialName),
+    uvAttributes,
+    surfaceAttributes,
+    status);
 }
 
 void StandardMapParser::parseDaikatanaFace(ParserStatus& status)
@@ -572,41 +590,27 @@ void StandardMapParser::parseDaikatanaFace(ParserStatus& status)
   const auto location = m_tokenizer.location();
 
   const auto [p1, p2, p3] = parseFacePoints(status);
-  const auto materialName = parseMaterialName(status);
+  auto materialName = parseMaterialName(status);
 
-  auto attribs = BrushFaceAttributes{materialName};
-  attribs.setXOffset(parseFloat());
-  attribs.setYOffset(parseFloat());
-  attribs.setRotation(parseFloat());
-  attribs.setXScale(parseFloat());
-  attribs.setYScale(parseFloat());
+  const auto uvAttributes = parseUvAttributes();
+  auto surfaceAttributes = SurfaceAttributes{};
 
   // Daikatana extra info is optional
   if (m_tokenizer.peekToken().hasType(QuakeMapToken::Integer))
   {
-    attribs.setSurfaceContents(parseInteger());
-    attribs.setSurfaceFlags(parseInteger());
-    attribs.setSurfaceValue(parseFloat());
-
-    // Daikatana color triple is optional
-    if (const auto firstColorToken = m_tokenizer.peekToken();
-        firstColorToken.hasType(QuakeMapToken::Integer))
-    {
-      // red, green, blue
-      const auto r = parseInteger();
-      const auto g = parseInteger();
-      const auto b = parseInteger();
-      RgbB::fromValues(std::tuple{r, g, b})
-        | kdl::transform([&](const auto& color) { attribs.setColor(color); })
-        | kdl::transform_error([&](const auto& e) {
-            status.warn(
-              firstColorToken.location(),
-              fmt::format("Skipping invalid surface color: {}", e.msg));
-          });
-    }
+    surfaceAttributes = parseSurfaceAttributes(status, K(parseColor));
   }
 
-  onStandardBrushFace(location, m_targetMapFormat, p1, p2, p3, attribs, status);
+  onStandardBrushFace(
+    location,
+    m_targetMapFormat,
+    p1,
+    p2,
+    p3,
+    std::move(materialName),
+    uvAttributes,
+    surfaceAttributes,
+    status);
 }
 
 void StandardMapParser::parseValveFace(ParserStatus& status)
@@ -614,19 +618,25 @@ void StandardMapParser::parseValveFace(ParserStatus& status)
   const auto location = m_tokenizer.location();
 
   const auto [p1, p2, p3] = parseFacePoints(status);
-  const auto materialName = parseMaterialName(status);
+  auto materialName = parseMaterialName(status);
 
-  const auto [uAxis, uOffset, vAxis, vOffset] = parseValveUVAxes(status);
+  const auto [uAxis, uOffset, vAxis, vOffset] = parseValveUvAxes(status);
 
-  auto attribs = BrushFaceAttributes{materialName};
-  attribs.setXOffset(uOffset);
-  attribs.setYOffset(vOffset);
-  attribs.setRotation(parseFloat());
-  attribs.setXScale(parseFloat());
-  attribs.setYScale(parseFloat());
+  const auto uvAttributes = parseUvAttributes({uOffset, vOffset});
+  auto surfaceAttributes = SurfaceAttributes{};
 
   onValveBrushFace(
-    location, m_targetMapFormat, p1, p2, p3, attribs, uAxis, vAxis, status);
+    location,
+    m_targetMapFormat,
+    p1,
+    p2,
+    p3,
+    std::move(materialName),
+    uvAttributes,
+    surfaceAttributes,
+    uAxis,
+    vAxis,
+    status);
 }
 
 void StandardMapParser::parsePrimitiveFace(ParserStatus& status)
@@ -637,25 +647,24 @@ void StandardMapParser::parsePrimitiveFace(ParserStatus& status)
 
   m_tokenizer.nextToken(QuakeMapToken::OParenthesis);
 
-  /* const auto [uAxis, vAxis] = */ parsePrimitiveUVAxes(status);
+  /* const auto [uAxis, vAxis] = */ parsePrimitiveUvAxes(status);
   m_tokenizer.nextToken(QuakeMapToken::CParenthesis);
 
-  const auto materialName = parseMaterialName(status);
+  /* const auto materialName = */ parseMaterialName(status);
 
   // TODO 2427: what to set for offset, rotation, scale?!
-  auto attribs = BrushFaceAttributes{materialName};
+  auto surfaceAttributes = SurfaceAttributes{};
 
   // Quake 2 extra info is optional
   if (!m_tokenizer.peekToken().hasType(
         QuakeMapToken::OParenthesis | QuakeMapToken::CBrace | QuakeMapToken::Eof))
   {
-    attribs.setSurfaceContents(parseInteger());
-    attribs.setSurfaceFlags(parseInteger());
-    attribs.setSurfaceValue(parseFloat());
+    surfaceAttributes = parseSurfaceAttributes(status, !K(parseColor));
   }
 
   // TODO 2427: create a brush face
-  // brushFace(line, p1, p2, p3, attribs, uAxis, vAxis, status);
+  // brushFace(line, p1, p2, p3, uvAttributes, surfaceAttributes, uAxis, vAxis,
+  // status);
 }
 
 void StandardMapParser::parsePatch(
@@ -753,7 +762,7 @@ std::string StandardMapParser::parseMaterialName(ParserStatus& /* status */)
   return wasQuoted ? kdl::str_unescape(materialName, "\"\\") : std::string{materialName};
 }
 
-std::tuple<vm::vec3d, float, vm::vec3d, float> StandardMapParser::parseValveUVAxes(
+std::tuple<vm::vec3d, float, vm::vec3d, float> StandardMapParser::parseValveUvAxes(
   ParserStatus& /* status */)
 {
   const auto firstAxis =
@@ -769,7 +778,7 @@ std::tuple<vm::vec3d, float, vm::vec3d, float> StandardMapParser::parseValveUVAx
   return {uAxis, uOffset, vAxis, vOffset};
 }
 
-std::tuple<vm::vec3d, vm::vec3d> StandardMapParser::parsePrimitiveUVAxes(
+std::tuple<vm::vec3d, vm::vec3d> StandardMapParser::parsePrimitiveUvAxes(
   ParserStatus& /* status */)
 {
   const auto uAxis =
@@ -777,6 +786,66 @@ std::tuple<vm::vec3d, vm::vec3d> StandardMapParser::parsePrimitiveUVAxes(
   const auto vAxis =
     correct(parseFloatVector(QuakeMapToken::OParenthesis, QuakeMapToken::CParenthesis));
   return {uAxis, vAxis};
+}
+
+SurfaceAttributes StandardMapParser::parseSurfaceAttributes(
+  ParserStatus& status, const bool parseColor)
+{
+  const auto contents = parseInteger();
+  const auto flags = parseInteger();
+  const auto value = parseFloat();
+  const auto color = parseColor ? this->parseColor(status) : std::nullopt;
+
+  return {
+    .contents = contents,
+    .flags = flags,
+    .value = value,
+    .color = color,
+  };
+}
+
+UvAttributes StandardMapParser::parseUvAttributes()
+{
+  const auto uOffset = parseFloat();
+  const auto vOffset = parseFloat();
+  return parseUvAttributes({uOffset, vOffset});
+}
+
+UvAttributes StandardMapParser::parseUvAttributes(const vm::vec2f& offset)
+{
+  const auto rotation = parseFloat();
+  const auto uScale = parseFloat();
+  const auto vScale = parseFloat();
+
+  return {
+    .offset = offset,
+    .scale = {uScale, vScale},
+    .rotation = rotation,
+  };
+}
+
+std::optional<RgbB> StandardMapParser::parseColor(ParserStatus& status)
+{
+  if (const auto firstColorToken = m_tokenizer.peekToken();
+      firstColorToken.hasType(QuakeMapToken::Integer))
+  {
+    // red, green, blue
+    const auto r = parseInteger();
+    const auto g = parseInteger();
+    const auto b = parseInteger();
+
+    return RgbB::fromValues(std::tuple{r, g, b})
+           | kdl::transform([&](const auto& color) { return std::optional{color}; })
+           | kdl::transform_error([&](const auto& e) {
+               status.warn(
+                 firstColorToken.location(),
+                 fmt::format("Skipping invalid surface color: {}", e.msg));
+               return std::optional<RgbB>{};
+             })
+           | kdl::value();
+  }
+
+  return std::nullopt;
 }
 
 float StandardMapParser::parseFloat()

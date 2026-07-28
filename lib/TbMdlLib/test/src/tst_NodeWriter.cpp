@@ -20,7 +20,6 @@
 #include "Matchers.h"
 #include "mdl/BrushBuilder.h"
 #include "mdl/BrushFace.h"
-#include "mdl/BrushFaceAttributes.h"
 #include "mdl/BrushNode.h"
 #include "mdl/CatchConfig.h"
 #include "mdl/Entity.h"
@@ -281,9 +280,7 @@ TEST_CASE("NodeWriter")
     auto brush1 = builder.createCube(64.0, "none") | kdl::value();
     for (auto& face : brush1.faces())
     {
-      auto attributes = face.attributes();
-      attributes.setColor(RgbF{1.0f, 0.5f, 0.25f});
-      face.setAttributes(attributes);
+      face.setSurfaceAttributes({.color = RgbF{1.0f, 0.5f, 0.25f}});
     }
     auto* brushNode1 = new BrushNode{std::move(brush1)};
     worldNode.defaultLayer()->addChild(brushNode1);
@@ -338,12 +335,8 @@ TEST_CASE("NodeWriter")
       REQUIRE(index);
 
       auto& face = brush1.face(*index);
-      auto attribs = face.attributes();
-      attribs.setMaterialName("e1u1/brwater");
-      attribs.setSurfaceContents(0);
-      attribs.setSurfaceFlags(0);
-      attribs.setSurfaceValue(0.0f);
-      face.setAttributes(attribs);
+      face.setMaterialName("e1u1/brwater");
+      face.setSurfaceAttributes({.contents = 0, .flags = 0, .value = 0.0f});
     }
     // set -Z face to e1u1/brlava with contents 8, flags 9, value 700
     {
@@ -351,12 +344,8 @@ TEST_CASE("NodeWriter")
       REQUIRE(index);
 
       auto& face = brush1.face(*index);
-      auto attribs = face.attributes();
-      attribs.setMaterialName("e1u1/brlava");
-      attribs.setSurfaceContents(8);
-      attribs.setSurfaceFlags(9);
-      attribs.setSurfaceValue(700.0f);
-      face.setAttributes(attribs);
+      face.setMaterialName("e1u1/brlava");
+      face.setSurfaceAttributes({.contents = 8, .flags = 9, .value = 700.0f});
     }
     // other faces are e1u1/alarm0 with unset contents/flags/value
 

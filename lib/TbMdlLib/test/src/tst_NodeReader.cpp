@@ -22,7 +22,7 @@
 #include "mdl/CatchConfig.h"
 #include "mdl/GroupNode.h"
 #include "mdl/NodeReader.h"
-#include "mdl/ParaxialUVCoordSystem.h"
+#include "mdl/ParaxialUvCoordSystem.h"
 
 #include "kd/task_manager.h"
 
@@ -74,9 +74,7 @@ TEST_CASE("NodeReader")
     REQUIRE(brushNode != nullptr);
 
     auto brush = brushNode->brush();
-    CHECK(
-      dynamic_cast<const ParaxialUVCoordSystem*>(&brush.face(0).uvCoordSystem())
-      != nullptr);
+    CHECK(brush.face(0).uvCoordSystem().is<ParaxialUvCoordSystem>());
   }
 
   SECTION("convertValveToStandardMapFormatInGroups")
@@ -111,9 +109,7 @@ TEST_CASE("NodeReader")
     REQUIRE(brushNode != nullptr);
 
     const auto brush = brushNode->brush();
-    CHECK(
-      dynamic_cast<const ParaxialUVCoordSystem*>(&brush.face(0).uvCoordSystem())
-      != nullptr);
+    CHECK(brush.face(0).uvCoordSystem().is<ParaxialUvCoordSystem>());
   }
 
   SECTION("reportsBrushErrorsWithLocation")

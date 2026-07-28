@@ -386,7 +386,7 @@ void ActionManager::createViewActions()
     ActionContext::View3D | ActionContext::FaceSelection | ActionContext::AnyOrNoTool,
     QKeySequence{Qt::Key_Up},
     [](auto& context) {
-      context.mapView().moveUV(vm::direction::up, MapViewBase::UVActionMode::Normal);
+      context.mapView().moveUv(vm::direction::up, MapViewBase::UvActionMode::Normal);
     },
     [](const auto& context) { return context.hasDocument(); },
   });
@@ -396,7 +396,7 @@ void ActionManager::createViewActions()
     ActionContext::View3D | ActionContext::FaceSelection | ActionContext::AnyOrNoTool,
     QKeySequence{Qt::SHIFT | Qt::Key_Up},
     [](auto& context) {
-      context.mapView().moveUV(vm::direction::up, MapViewBase::UVActionMode::Coarse);
+      context.mapView().moveUv(vm::direction::up, MapViewBase::UvActionMode::Coarse);
     },
     [](const auto& context) { return context.hasDocument(); },
   });
@@ -406,7 +406,7 @@ void ActionManager::createViewActions()
     ActionContext::View3D | ActionContext::FaceSelection | ActionContext::AnyOrNoTool,
     QKeySequence{Qt::CTRL | Qt::Key_Up},
     [](auto& context) {
-      context.mapView().moveUV(vm::direction::up, MapViewBase::UVActionMode::Fine);
+      context.mapView().moveUv(vm::direction::up, MapViewBase::UvActionMode::Fine);
     },
     [](const auto& context) { return context.hasDocument(); },
   });
@@ -416,7 +416,7 @@ void ActionManager::createViewActions()
     ActionContext::View3D | ActionContext::FaceSelection | ActionContext::AnyOrNoTool,
     QKeySequence{Qt::Key_Down},
     [](auto& context) {
-      context.mapView().moveUV(vm::direction::down, MapViewBase::UVActionMode::Normal);
+      context.mapView().moveUv(vm::direction::down, MapViewBase::UvActionMode::Normal);
     },
     [](const auto& context) { return context.hasDocument(); },
   });
@@ -426,7 +426,7 @@ void ActionManager::createViewActions()
     ActionContext::View3D | ActionContext::FaceSelection | ActionContext::AnyOrNoTool,
     QKeySequence{Qt::SHIFT | Qt::Key_Down},
     [](auto& context) {
-      context.mapView().moveUV(vm::direction::down, MapViewBase::UVActionMode::Coarse);
+      context.mapView().moveUv(vm::direction::down, MapViewBase::UvActionMode::Coarse);
     },
     [](const auto& context) { return context.hasDocument(); },
   });
@@ -436,7 +436,7 @@ void ActionManager::createViewActions()
     ActionContext::View3D | ActionContext::FaceSelection | ActionContext::AnyOrNoTool,
     QKeySequence{Qt::CTRL | Qt::Key_Down},
     [](auto& context) {
-      context.mapView().moveUV(vm::direction::down, MapViewBase::UVActionMode::Fine);
+      context.mapView().moveUv(vm::direction::down, MapViewBase::UvActionMode::Fine);
     },
     [](const auto& context) { return context.hasDocument(); },
   });
@@ -446,7 +446,7 @@ void ActionManager::createViewActions()
     ActionContext::View3D | ActionContext::FaceSelection | ActionContext::AnyOrNoTool,
     QKeySequence{Qt::Key_Left},
     [](auto& context) {
-      context.mapView().moveUV(vm::direction::left, MapViewBase::UVActionMode::Normal);
+      context.mapView().moveUv(vm::direction::left, MapViewBase::UvActionMode::Normal);
     },
     [](const auto& context) { return context.hasDocument(); },
   });
@@ -456,7 +456,7 @@ void ActionManager::createViewActions()
     ActionContext::View3D | ActionContext::FaceSelection | ActionContext::AnyOrNoTool,
     QKeySequence{Qt::SHIFT | Qt::Key_Left},
     [](auto& context) {
-      context.mapView().moveUV(vm::direction::left, MapViewBase::UVActionMode::Coarse);
+      context.mapView().moveUv(vm::direction::left, MapViewBase::UvActionMode::Coarse);
     },
     [](const auto& context) { return context.hasDocument(); },
   });
@@ -466,7 +466,7 @@ void ActionManager::createViewActions()
     ActionContext::View3D | ActionContext::FaceSelection | ActionContext::AnyOrNoTool,
     QKeySequence{Qt::CTRL | Qt::Key_Left},
     [](auto& context) {
-      context.mapView().moveUV(vm::direction::left, MapViewBase::UVActionMode::Fine);
+      context.mapView().moveUv(vm::direction::left, MapViewBase::UvActionMode::Fine);
     },
     [](const auto& context) { return context.hasDocument(); },
   });
@@ -476,7 +476,7 @@ void ActionManager::createViewActions()
     ActionContext::View3D | ActionContext::FaceSelection | ActionContext::AnyOrNoTool,
     QKeySequence{Qt::Key_Right},
     [](auto& context) {
-      context.mapView().moveUV(vm::direction::right, MapViewBase::UVActionMode::Normal);
+      context.mapView().moveUv(vm::direction::right, MapViewBase::UvActionMode::Normal);
     },
     [](const auto& context) { return context.hasDocument(); },
   });
@@ -486,7 +486,7 @@ void ActionManager::createViewActions()
     ActionContext::View3D | ActionContext::FaceSelection | ActionContext::AnyOrNoTool,
     QKeySequence{Qt::SHIFT | Qt::Key_Right},
     [](auto& context) {
-      context.mapView().moveUV(vm::direction::right, MapViewBase::UVActionMode::Coarse);
+      context.mapView().moveUv(vm::direction::right, MapViewBase::UvActionMode::Coarse);
     },
     [](const auto& context) { return context.hasDocument(); },
   });
@@ -496,7 +496,7 @@ void ActionManager::createViewActions()
     ActionContext::View3D | ActionContext::FaceSelection | ActionContext::AnyOrNoTool,
     QKeySequence{Qt::CTRL | Qt::Key_Right},
     [](auto& context) {
-      context.mapView().moveUV(vm::direction::right, MapViewBase::UVActionMode::Fine);
+      context.mapView().moveUv(vm::direction::right, MapViewBase::UvActionMode::Fine);
     },
     [](const auto& context) { return context.hasDocument(); },
   });
@@ -506,7 +506,7 @@ void ActionManager::createViewActions()
     ActionContext::View3D | ActionContext::FaceSelection | ActionContext::AnyOrNoTool,
     QKeySequence{Qt::Key_PageUp},
     [](auto& context) {
-      context.mapView().rotateUV(true, MapViewBase::UVActionMode::Normal);
+      context.mapView().rotateUv(true, MapViewBase::UvActionMode::Normal);
     },
     [](const auto& context) { return context.hasDocument(); },
   });
@@ -516,7 +516,7 @@ void ActionManager::createViewActions()
     ActionContext::View3D | ActionContext::FaceSelection | ActionContext::AnyOrNoTool,
     QKeySequence{Qt::SHIFT | Qt::Key_PageUp},
     [](auto& context) {
-      context.mapView().rotateUV(true, MapViewBase::UVActionMode::Coarse);
+      context.mapView().rotateUv(true, MapViewBase::UvActionMode::Coarse);
     },
     [](const auto& context) { return context.hasDocument(); },
   });
@@ -526,7 +526,7 @@ void ActionManager::createViewActions()
     ActionContext::View3D | ActionContext::FaceSelection | ActionContext::AnyOrNoTool,
     QKeySequence{Qt::CTRL | Qt::Key_PageUp},
     [](auto& context) {
-      context.mapView().rotateUV(true, MapViewBase::UVActionMode::Fine);
+      context.mapView().rotateUv(true, MapViewBase::UvActionMode::Fine);
     },
     [](const auto& context) { return context.hasDocument(); },
   });
@@ -536,7 +536,7 @@ void ActionManager::createViewActions()
     ActionContext::View3D | ActionContext::FaceSelection | ActionContext::AnyOrNoTool,
     QKeySequence{Qt::Key_PageDown},
     [](auto& context) {
-      context.mapView().rotateUV(false, MapViewBase::UVActionMode::Normal);
+      context.mapView().rotateUv(false, MapViewBase::UvActionMode::Normal);
     },
     [](const auto& context) { return context.hasDocument(); },
   });
@@ -546,7 +546,7 @@ void ActionManager::createViewActions()
     ActionContext::View3D | ActionContext::FaceSelection | ActionContext::AnyOrNoTool,
     QKeySequence{Qt::SHIFT | Qt::Key_PageDown},
     [](auto& context) {
-      context.mapView().rotateUV(false, MapViewBase::UVActionMode::Coarse);
+      context.mapView().rotateUv(false, MapViewBase::UvActionMode::Coarse);
     },
     [](const auto& context) { return context.hasDocument(); },
   });
@@ -556,7 +556,7 @@ void ActionManager::createViewActions()
     ActionContext::View3D | ActionContext::FaceSelection | ActionContext::AnyOrNoTool,
     QKeySequence{Qt::CTRL | Qt::Key_PageDown},
     [](auto& context) {
-      context.mapView().rotateUV(false, MapViewBase::UVActionMode::Fine);
+      context.mapView().rotateUv(false, MapViewBase::UvActionMode::Fine);
     },
     [](const auto& context) { return context.hasDocument(); },
   });
@@ -573,7 +573,7 @@ void ActionManager::createViewActions()
     QObject::tr("Flip textures horizontally"),
     ActionContext::View3D | ActionContext::FaceSelection | ActionContext::AnyOrNoTool,
     QKeySequence{Qt::CTRL | Qt::Key_F},
-    [](auto& context) { context.mapView().flipUV(vm::direction::right); },
+    [](auto& context) { context.mapView().flipUv(vm::direction::right); },
     [](const auto& context) { return context.hasDocument(); },
   });
   addAction(Action{
@@ -581,7 +581,7 @@ void ActionManager::createViewActions()
     QObject::tr("Flip textures vertically"),
     ActionContext::View3D | ActionContext::FaceSelection | ActionContext::AnyOrNoTool,
     QKeySequence{Qt::CTRL | Qt::ALT | Qt::Key_F},
-    [](auto& context) { context.mapView().flipUV(vm::direction::up); },
+    [](auto& context) { context.mapView().flipUv(vm::direction::up); },
     [](const auto& context) { return context.hasDocument(); },
   });
   addAction(Action{
@@ -589,7 +589,7 @@ void ActionManager::createViewActions()
     QObject::tr("Reset texture alignment"),
     ActionContext::AnyView | ActionContext::AnySelection | ActionContext::AnyOrNoTool,
     QKeySequence{Qt::SHIFT | Qt::Key_R},
-    [](auto& context) { context.mapView().resetUV(); },
+    [](auto& context) { context.mapView().resetUv(); },
     [](const auto& context) { return context.hasDocument(); },
   });
   addAction(Action{
@@ -597,7 +597,7 @@ void ActionManager::createViewActions()
     QObject::tr("Reset texture alignment to world aligned"),
     ActionContext::AnyView | ActionContext::AnySelection | ActionContext::AnyOrNoTool,
     QKeySequence{Qt::SHIFT | Qt::ALT | Qt::Key_R},
-    [](auto& context) { context.mapView().resetUVToWorld(); },
+    [](auto& context) { context.mapView().resetUvToWorld(); },
     [](const auto& context) { return context.hasDocument(); },
   });
 
@@ -1206,9 +1206,9 @@ void ActionManager::createEditMenu()
     QObject::tr("UV Lock"),
     ActionContext::Any,
     QKeySequence{Qt::Key_U},
-    [](auto& context) { context.mapWindow().toggleUVLock(); },
+    [](auto& context) { context.mapWindow().toggleUvLock(); },
     [](const auto& context) { return context.hasDocument(); },
-    [](const auto&) { return pref(Preferences::UVLock); },
+    [](const auto&) { return pref(Preferences::UvLock); },
     std::filesystem::path{"UVLock.svg"},
   }));
   texturesMenu.addSeparator();

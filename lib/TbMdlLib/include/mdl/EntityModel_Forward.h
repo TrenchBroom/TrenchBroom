@@ -28,5 +28,5 @@ class EntityModelData;
 class EntityModelLoadedFrame;
 class EntityModelSurface;
 
-using EntityModelVertex = gl::VertexTypes::P3UV2::Vertex;
+using EntityModelVertex = gl::VertexTypes::P3Uv2::Vertex;
 } // namespace tb::mdl

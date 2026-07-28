@@ -63,7 +63,6 @@ enum class PasteType;
 enum class TransactionScope;
 enum class WrapStyle;
 
-class BrushFaceAttributes;
 class Command;
 class CommandProcessor;
 class EditorContext;
@@ -83,7 +82,6 @@ class RepeatStack;
 class SmartTag;
 class TagManager;
 class UndoableCommand;
-class UVCoordSystemSnapshot;
 class WorldNode;
 
 enum class VisualEffect;
