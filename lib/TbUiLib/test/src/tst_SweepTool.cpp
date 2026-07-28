@@ -21,14 +21,18 @@
 #include "mdl/BrushNode.h"
 #include "mdl/Entity.h"
 #include "mdl/EntityNode.h"
+#include "mdl/Grid.h"
 #include "mdl/GroupNode.h"
 #include "mdl/Map.h"
 #include "mdl/Map_Nodes.h"
 #include "mdl/Map_Selection.h"
 #include "mdl/TestFactory.h"
 #include "ui/CatchConfig.h"
+#include "ui/HandleDragTracker.h"
+#include "ui/InputState.h"
 #include "ui/MapDocument.h"
 #include "ui/MapDocumentFixture.h"
+#include "ui/MoveHandleDragTracker.h"
 #include "ui/SweepTool.h"
 
 #include "vm/approx.h"
@@ -129,6 +133,23 @@ TEST_CASE("SweepTool")
       tool.dragScaleHandleTo(tool.destinationCenter() - arm);
       CHECK(
         tool.transform().scale == vm::approx{vm::vec3d::fill(SweepTool::MinScaleFactor)});
+    }
+
+    SECTION("scale handle drags snap the destination cap onto the grid")
+    {
+      map.grid().setSize(2); // 2^2, so this sets it to grid 4
+
+      const auto center = tool.destinationCenter();
+      const auto arm = tool.scaleHandlePosition() - center;
+
+      const auto snapper = tool.makeDragHandleSnapper(SnapMode::Relative);
+
+      // off-arm positions are projected onto the arm before snapping
+      const auto proposed = center + arm * 1.3 + vm::vec3d{5, 0, 0};
+      const auto snapped = snapper(InputState{}, DragState{}, proposed);
+
+      REQUIRE(snapped.has_value());
+      CHECK(*snapped == vm::approx{center + arm * 1.25});
     }
 
     SECTION("setDestinationCenter translates towards the given position")

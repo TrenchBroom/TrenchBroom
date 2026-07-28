@@ -36,6 +36,7 @@
 #include "render/RenderBatch.h"
 #include "render/RenderContext.h"
 #include "render/RenderService.h"
+#include "ui/HandleDragTracker.h"
 #include "ui/MapDocument.h"
 #include "ui/SweepToolPage.h"
 
@@ -44,6 +45,7 @@
 #include "kd/vector_utils.h"
 
 #include "vm/bbox.h"
+#include "vm/line.h"
 #include "vm/mat.h"
 #include "vm/polygon_io.h" // IWYU pragma: keep
 #include "vm/quat.h"
@@ -521,6 +523,20 @@ vm::vec3d SweepTool::handlePosition() const
 void SweepTool::setHandlePosition(const vm::vec3d& position)
 {
   dragScaleHandleTo(position);
+}
+
+DragHandleSnapper SweepTool::makeDragHandleSnapper(const SnapMode snapMode) const
+{
+  const auto center = destinationCenter();
+  const auto arm = scaleHandlePosition() - center;
+  const auto armLength = vm::length(arm);
+  if (armLength < vm::Cd::almost_zero())
+  {
+    return PointHandleDelegate::makeDragHandleSnapper(snapMode);
+  }
+
+  // snap along the arm, otherwise off-arm drags land the cap between grid lines
+  return makeAbsoluteLineHandleSnapper(grid(), vm::line3d{center, arm / armLength});
 }
 
 void SweepTool::renderHighlight(

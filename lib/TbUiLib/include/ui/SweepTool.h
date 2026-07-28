@@ -140,6 +140,7 @@ public:
   // PointHandleDelegate (scale handle)
   vm::vec3d handlePosition() const override;
   void setHandlePosition(const vm::vec3d& position) override;
+  DragHandleSnapper makeDragHandleSnapper(SnapMode snapMode) const override;
   void renderHighlight(
     render::RenderContext& renderContext,
     render::RenderBatch& renderBatch) const override;

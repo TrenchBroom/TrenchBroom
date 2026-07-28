@@ -47,6 +47,12 @@ void RotateHandleDelegate::handleClicked(RotateHandle::HitArea) {}
 
 PointHandleDelegate::~PointHandleDelegate() = default;
 
+DragHandleSnapper PointHandleDelegate::makeDragHandleSnapper(
+  const SnapMode snapMode) const
+{
+  return makeDragHandleSnapperFromSnapMode(grid(), snapMode);
+}
+
 namespace
 {
 
@@ -345,7 +351,7 @@ public:
   DragHandleSnapper makeDragHandleSnapper(
     const InputState&, const SnapMode snapMode) const override
   {
-    return makeDragHandleSnapperFromSnapMode(m_delegate.grid(), snapMode);
+    return m_delegate.makeDragHandleSnapper(snapMode);
   }
 };
 
