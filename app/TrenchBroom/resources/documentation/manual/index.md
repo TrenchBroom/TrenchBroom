@@ -787,6 +787,7 @@ When the sweep tool is active, a ghost outline shows where the destination cap w
 - Dragging the green handle scales it uniformly, flaring or tapering the sweep.
 - Pressing #action(Controls/Map view/Move objects up; Move objects forward) and the other movement shortcuts moves the destination cap by one grid step.
 - Pressing #action(Controls/Map view/Roll objects clockwise) and the other rotation shortcuts rotates the destination cap by one angle snap step.
+- Pressing #action(Controls/Map view/Increase sweep scale) or #action(Controls/Map view/Decrease sweep scale) moves the scale handle out or in by one grid step, growing or shrinking the destination cap.
 
 The generated brushes are shown as a preview in the viewports while you place the destination cap. Shortcuts that act on the selection, including UV editing, are unavailable until the tool is deactivated. The controls above the editing views determine how the gap is filled:
 

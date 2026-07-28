@@ -192,6 +192,24 @@ void ActionManager::createViewActions()
       return context.hasDocument() && context.mapWindow().toolBox().sweepToolActive();
     },
   });
+  addAction(Action{
+    std::filesystem::path{"Controls/Map view/Decrease sweep scale"},
+    QObject::tr("Decrease Sweep Scale"),
+    ActionContext::AnyView | ActionContext::SelectionOwnedByTool
+      | ActionContext::SweepTool,
+    QKeySequence{Qt::Key_BracketLeft},
+    [](auto& context) { context.mapView().decreaseSweepScale(); },
+    [](const auto& context) { return context.hasDocument(); },
+  });
+  addAction(Action{
+    std::filesystem::path{"Controls/Map view/Increase sweep scale"},
+    QObject::tr("Increase Sweep Scale"),
+    ActionContext::AnyView | ActionContext::SelectionOwnedByTool
+      | ActionContext::SweepTool,
+    QKeySequence{Qt::Key_BracketRight},
+    [](auto& context) { context.mapView().increaseSweepScale(); },
+    [](const auto& context) { return context.hasDocument(); },
+  });
 
   /* ========== Translation ========== */
   // applies to objects, vertices, handles (e.g. rotation center, sweep handle)

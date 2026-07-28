@@ -146,6 +146,7 @@ public: // tools
   bool sweepToolActive() const;
   void moveSweepCenter(const vm::vec3d& delta);
   void rotateSweepCap(const vm::vec3d& axis, double angle);
+  void scaleSweepCap(double distance);
   void performSweep();
 
   bool canToggleScaleTool() const;

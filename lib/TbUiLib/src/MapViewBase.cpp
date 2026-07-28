@@ -471,6 +471,22 @@ vm::vec3d MapViewBase::rotationAxis(
   return clockwise ? -axis : axis;
 }
 
+void MapViewBase::increaseSweepScale()
+{
+  const auto& map = m_document.map();
+  const auto& grid = map.grid();
+  m_toolBox.scaleSweepCap(double(grid.actualSize()));
+  update();
+}
+
+void MapViewBase::decreaseSweepScale()
+{
+  const auto& map = m_document.map();
+  const auto& grid = map.grid();
+  m_toolBox.scaleSweepCap(-double(grid.actualSize()));
+  update();
+}
+
 void MapViewBase::flip(const vm::direction direction)
 {
   if (canFlip())

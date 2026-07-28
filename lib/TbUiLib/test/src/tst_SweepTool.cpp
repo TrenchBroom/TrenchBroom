@@ -137,6 +137,28 @@ TEST_CASE("SweepTool")
       CHECK(tool.transform().scale == vm::vec3d{2, 2, 2});
     }
 
+    SECTION("moveScaleHandle steps the cap by whole grid steps like a snapped drag")
+    {
+      tool.setTransform(SweepTransform{
+        vm::vec3d{64, 0, 0},
+        vm::quatd{vm::vec3d{0, 0, 1}, vm::Cd::half_pi()},
+        vm::vec3d{2, 2, 2}});
+
+      // the arm's largest component is 16 at scale 1, so 16 units are one whole factor
+      tool.moveScaleHandle(16.0);
+      CHECK(tool.transform().scale == vm::approx{vm::vec3d{3, 3, 3}});
+
+      tool.moveScaleHandle(-16.0);
+      CHECK(tool.transform().scale == vm::approx{vm::vec3d{2, 2, 2}});
+      CHECK(tool.transform().translation == vm::vec3d{64, 0, 0});
+      CHECK(
+        tool.transform().rotation == vm::quatd{vm::vec3d{0, 0, 1}, vm::Cd::half_pi()});
+
+      // stepping far past the center clamps instead of inverting the profile
+      tool.moveScaleHandle(-4096.0);
+      CHECK(tool.transform().scale == vm::vec3d::fill(SweepTool::MinScaleFactor));
+    }
+
     SECTION("dragScaleHandleTo reads a uniform scale off the handle arm")
     {
       tool.setDestinationCenter(vm::vec3d{80, 0, 0});

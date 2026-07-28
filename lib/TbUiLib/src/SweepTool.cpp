@@ -439,6 +439,23 @@ void SweepTool::dragScaleHandleTo(const vm::vec3d& position)
   updateBrushes();
 }
 
+void SweepTool::moveScaleHandle(const double distance)
+{
+  const auto center = destinationCenter();
+  const auto arm = scaleHandlePosition() - center;
+  const auto armLength = vm::length(arm);
+  if (armLength < vm::Cd::almost_zero())
+  {
+    return;
+  }
+
+  // move the arm's largest component by the given distance, like a snapped drag
+  const auto direction = arm / armLength;
+  const auto step = distance / vm::abs(vm::get_abs_max_component(direction));
+  const auto target = center + direction * (armLength + step);
+  dragScaleHandleTo(grid().snap(target, vm::line3d{center, direction}));
+}
+
 mdl::Hit SweepTool::pickScaleHandle(
   const vm::ray3d& pickRay, const gl::Camera& camera) const
 {

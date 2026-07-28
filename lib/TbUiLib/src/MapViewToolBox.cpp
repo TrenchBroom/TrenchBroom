@@ -327,6 +327,13 @@ void MapViewToolBox::rotateSweepCap(const vm::vec3d& axis, const double angle)
   m_sweepTool->rotateDestinationCap(axis, angle);
 }
 
+void MapViewToolBox::scaleSweepCap(const double distance)
+{
+  contract_pre(sweepToolActive());
+
+  m_sweepTool->moveScaleHandle(distance);
+}
+
 void MapViewToolBox::performSweep()
 {
   contract_pre(sweepToolActive());

@@ -123,6 +123,7 @@ public:
   bool hasScaleHandle() const;
   vm::vec3d scaleHandlePosition() const;
   void dragScaleHandleTo(const vm::vec3d& position);
+  void moveScaleHandle(double distance);
   mdl::Hit pickScaleHandle(const vm::ray3d& pickRay, const gl::Camera& camera) const;
   void renderScaleHandle(
     render::RenderContext& renderContext, render::RenderBatch& renderBatch) const;
