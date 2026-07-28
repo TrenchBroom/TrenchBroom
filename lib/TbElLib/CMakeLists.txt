@@ -2,12 +2,12 @@ add_library(TbElLib STATIC)
 
 target_sources(TbElLib
   PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/ELParser.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/EvaluationContext.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Exceptions.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Expression.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Interpolate.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/ParseExpression.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/Parser.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Types.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Value.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/VariableStore.cpp

@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "el/ELParser.h"
+#include "el/Parser.h"
 #include "el/TestUtils.h"
 
 #include <string>
@@ -31,12 +31,12 @@ namespace
 
 auto parse(const std::string& str)
 {
-  return ELParser{ParseMode::Strict, str}.parse();
+  return Parser{ParseMode::Strict, str}.parse();
 }
 
 } // namespace
 
-TEST_CASE("ELParser")
+TEST_CASE("Parser")
 {
   SECTION("emptyExpression")
   {
@@ -390,7 +390,7 @@ asdf)")
   {
     // in lenient mode, parsing stops at the first token that cannot continue the
     // expression, and the state says where the caller should resume
-    auto parser = ELParser{ParseMode::Lenient, "1 + 2 ) rest"};
+    auto parser = Parser{ParseMode::Lenient, "1 + 2 ) rest"};
     REQUIRE(parser.parse() == add(lit(1), lit(2)));
 
     // the state points just past the last consumed token, not past the whitespace

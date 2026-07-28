@@ -602,7 +602,7 @@ void Value::appendToStream(
     kdl::overload(
       [&](const BooleanType& b) { str << (b ? "true" : "false"); },
       [&](const StringType& s) {
-        // Unescaping happens in ELParser::parseLiteral
+        // Unescaping happens in Parser::parseLiteral
         str << "\"" << kdl::str_escape(s, "\\\"") << "\"";
       },
       [&](const NumberType& n) {

@@ -19,14 +19,14 @@
 
 #include "el/ParseExpression.h"
 
-#include "el/ELParser.h"
+#include "el/Parser.h"
 
 namespace tb::el
 {
 
 Result<ExpressionNode> parseExpression(const ParseMode mode, const std::string_view str)
 {
-  return ELParser{mode, str}.parse();
+  return Parser{mode, str}.parse();
 }
 
 } // namespace tb::el

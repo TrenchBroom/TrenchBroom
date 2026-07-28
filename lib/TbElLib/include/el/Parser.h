@@ -31,7 +31,7 @@
 
 namespace tb::el
 {
-namespace ELToken
+namespace ElToken
 {
 using Type = uint64_t;
 constexpr auto Name = Type{1} << 1;
@@ -79,30 +79,30 @@ constexpr auto CompoundTerm =
   Addition | Subtraction | Multiplication | Division | Modulus | LogicalAnd | LogicalOr
   | Less | LessOrEqual | Equal | NotEqual | GreaterOrEqual | Greater | Case | BitwiseAnd
   | BitwiseXOr | BitwiseOr | BitwiseShiftLeft | BitwiseShiftRight;
-} // namespace ELToken
+} // namespace ElToken
 
-class ELTokenizer : public Tokenizer<ELToken::Type>
+class Tokenizer : public tb::Tokenizer<ElToken::Type>
 {
 private:
   const std::string& NumberDelim() const;
   const std::string& IntegerDelim() const;
 
 public:
-  ELTokenizer(std::string_view str, size_t line, size_t column);
+  Tokenizer(std::string_view str, size_t line, size_t column);
 
 private:
   Token emitToken() override;
 };
 
-class ELParser : public Parser<ELToken::Type>
+class Parser : public tb::Parser<ElToken::Type>
 {
 protected:
   ParseMode m_mode;
-  ELTokenizer m_tokenizer;
-  using Token = ELTokenizer::Token;
+  Tokenizer m_tokenizer;
+  using Token = Tokenizer::Token;
 
 public:
-  ELParser(ParseMode mode, std::string_view str, size_t line = 1, size_t column = 1);
+  Parser(ParseMode mode, std::string_view str, size_t line = 1, size_t column = 1);
   TokenizerState tokenizerState() const;
 
   Result<ExpressionNode> parse();
