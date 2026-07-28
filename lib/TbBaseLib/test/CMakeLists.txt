@@ -9,6 +9,7 @@ target_sources(TbBaseLibTest PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_FileLocation.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Logger.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_LoggerCache.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_LoggingHub.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Notifier.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_ParserException.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_ParserStatus.cpp
