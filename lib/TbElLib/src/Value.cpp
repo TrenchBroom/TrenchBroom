@@ -153,7 +153,7 @@ const BooleanType& Value::booleanValue(const EvaluationContext& context) const
       },
       [&](const auto&) -> const BooleanType& {
         throw DereferenceError{
-          context.location(*this), describe(), type(), ValueType::String};
+          context.location(*this), describe(), type(), ValueType::Boolean};
       }),
     *m_value);
 }
@@ -169,7 +169,7 @@ const StringType& Value::stringValue(const EvaluationContext& context) const
       },
       [&](const auto&) -> const StringType& {
         throw DereferenceError{
-          context.location(*this), describe(), type(), ValueType::Boolean};
+          context.location(*this), describe(), type(), ValueType::String};
       }),
     *m_value);
 }
@@ -185,7 +185,7 @@ const NumberType& Value::numberValue(const EvaluationContext& context) const
       },
       [&](const auto&) -> const NumberType& {
         throw DereferenceError{
-          context.location(*this), describe(), type(), ValueType::Boolean};
+          context.location(*this), describe(), type(), ValueType::Number};
       }),
     *m_value);
 }
@@ -206,7 +206,7 @@ const ArrayType& Value::arrayValue(const EvaluationContext& context) const
       },
       [&](const auto&) -> const ArrayType& {
         throw DereferenceError{
-          context.location(*this), describe(), type(), ValueType::Boolean};
+          context.location(*this), describe(), type(), ValueType::Array};
       }),
     *m_value);
 }
@@ -222,7 +222,7 @@ const MapType& Value::mapValue(const EvaluationContext& context) const
       },
       [&](const auto&) -> const MapType& {
         throw DereferenceError{
-          context.location(*this), describe(), type(), ValueType::Boolean};
+          context.location(*this), describe(), type(), ValueType::Map};
       }),
     *m_value);
 }
@@ -234,7 +234,7 @@ const RangeType& Value::rangeValue(const EvaluationContext& context) const
       [&](const RangeType& r) -> const RangeType& { return r; },
       [&](const auto&) -> const RangeType& {
         throw DereferenceError{
-          context.location(*this), describe(), type(), ValueType::Boolean};
+          context.location(*this), describe(), type(), ValueType::Range};
       }),
     *m_value);
 }
@@ -602,7 +602,7 @@ void Value::appendToStream(
     kdl::overload(
       [&](const BooleanType& b) { str << (b ? "true" : "false"); },
       [&](const StringType& s) {
-        // Unescaping happens in ELParser::parseLiteral
+        // Unescaping happens in Parser::parseLiteral
         str << "\"" << kdl::str_escape(s, "\\\"") << "\"";
       },
       [&](const NumberType& n) {

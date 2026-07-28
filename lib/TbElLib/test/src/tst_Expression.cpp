@@ -54,6 +54,15 @@ auto evaluate(const std::string& expression, const MapType& variables = {})
     VariableTable{variables});
 }
 
+auto tryEvaluate(const std::string& expression, const MapType& variables = {})
+{
+  return withEvaluationContext(
+    [&](auto& context) {
+      return parseExpression(ParseMode::Strict, expression).value().tryEvaluate(context);
+    },
+    VariableTable{variables});
+}
+
 std::vector<std::string> preorderVisit(const std::string& str)
 {
   auto result = std::vector<std::string>{};
@@ -466,16 +475,63 @@ TEST_CASE("Expression")
     {"false && true",   Value{false}},
     {"true && false",   Value{false}},
     {"true && true",    Value{true}},
+    {"null && true",    Value{false}},
+    {"true && null",    Value{false}},
+    {"null && null",    Value{false}},
 
     // Logical disjunction
     {"false || false",  Value{false}},
     {"false || true",   Value{true}},
     {"true || false",   Value{true}},
     {"true || true",    Value{true}},
+    {"null || true",    Value{true}},
+    {"false || null",   Value{false}},
+    {"null || null",    Value{false}},
+
+    // Undefined propagates through the logical operators
+    {"undefined && true",  Value::Undefined},
+    {"true && undefined",  Value::Undefined},
+    {"undefined || true",  Value::Undefined},
+    {"false || undefined", Value::Undefined},
+
+    // A right operand that is neither boolean nor null is an error
+    {"true && 1",       Error{R"(At line 1, column 6: Cannot evaluate expression 'true && 1': Invalid operand types Boolean and Number)"}},
+    {"true && 'a'",     Error{R"(At line 1, column 6: Cannot evaluate expression 'true && "a"': Invalid operand types Boolean and String)"}},
+    {"false || []",     Error{R"(At line 1, column 7: Cannot evaluate expression 'false || []': Invalid operand types Boolean and Array)"}},
+
+    // A left operand that is neither boolean nor null is an error too, and the error
+    // names the type of the right operand rather than a placeholder
+    {"1 && true",       Error{R"(At line 1, column 3: Cannot evaluate expression '1 && true': Invalid operand types Number and Boolean)"}},
+    {"'a' || false",    Error{R"(At line 1, column 5: Cannot evaluate expression '"a" || false': Invalid operand types String and Boolean)"}},
+    {"[1] && true",     Error{R"(At line 1, column 5: Cannot evaluate expression '[1] && true': Invalid operand types Array and Boolean)"}},
+    {"{} || false",     Error{R"(At line 1, column 4: Cannot evaluate expression '{} || false': Invalid operand types Map and Boolean)"}},
+    {"1 && 'a'",        Error{R"(At line 1, column 3: Cannot evaluate expression '1 && "a"': Invalid operand types Number and String)"}},
+
+    // Undefined on either side wins, whatever the other side is
+    {"1 && undefined",  Value::Undefined},
+    {"'a' || undefined",Value::Undefined},
 
     // Logical short circuit evaluation
     {"false && x[-1]",  Value{false}},
     {"true || x[-1]",   Value{true}},
+
+    // Undefined propagates through the unary and algebraic operators
+    {"+undefined",      Value::Undefined},
+    {"-undefined",      Value::Undefined},
+    {"!undefined",      Value::Undefined},
+    {"~undefined",      Value::Undefined},
+    {"1 + undefined",   Value::Undefined},
+    {"undefined + 1",   Value::Undefined},
+    {"1 - undefined",   Value::Undefined},
+    {"1 * undefined",   Value::Undefined},
+    {"1 / undefined",   Value::Undefined},
+    {"1 % undefined",   Value::Undefined},
+    {"1 & undefined",   Value::Undefined},
+    {"undefined & 1",   Value::Undefined},
+    {"1 ^ undefined",   Value::Undefined},
+    {"1 | undefined",   Value::Undefined},
+    {"1 << undefined",  Value::Undefined},
+    {"1 >> undefined",  Value::Undefined},
 
     // Bitwise negation
     {"~23423",          Value{~23423}},
@@ -969,6 +1025,22 @@ TEST_CASE("Expression")
     {"{k1:1} == {k1:1, k2:2}", Value{false}},
     {"{k1:1} == {k1:2, k2:2}", Value{false}},
 
+    {"undefined == undefined", Value{true}},
+    {"undefined == null",      Value{false}},
+    {"null == undefined",      Value{false}},
+    {"undefined == false",     Value{false}},
+    {"undefined == 0",         Value{false}},
+    {"undefined == ''",        Value{false}},
+    {"undefined == []",        Value{false}},
+    {"undefined == {}",        Value{false}},
+
+    // Undefined sorts below everything else, null included
+    {"undefined < null",       Value{true}},
+    {"undefined < 0",          Value{true}},
+    {"0 > undefined",          Value{true}},
+    {"[] > undefined",         Value{true}},
+    {"{} > undefined",         Value{true}},
+
     // Case
     {"true -> 'asdf'",  Value{"asdf"}},
     {"false -> 'asdf'", Value::Undefined},
@@ -981,6 +1053,30 @@ TEST_CASE("Expression")
     CHECK(evaluate(expression) == expectedResult);
   }
 
+  SECTION("Comparison with ranges")
+  {
+    // The grammar only accepts a range inside a subscript, so a range value can
+    // only reach a comparison by way of a variable.
+    const auto variables = MapType{{"r", Value{RangeType{BoundedRange{1, 3}}}}};
+
+    CHECK(evaluate("r == null", variables) == Value{false});
+    CHECK(evaluate("r > null", variables) == Value{true});
+    CHECK(evaluate("r == undefined", variables) == Value{false});
+    CHECK(evaluate("r > undefined", variables) == Value{true});
+    CHECK(evaluate("null == r", variables) == Value{false});
+    CHECK(evaluate("undefined == r", variables) == Value{false});
+
+    // a range is not comparable to anything else, not even another range
+    CHECK(
+      evaluate("r == r", variables)
+      == Error{"At line 1, column 3: Cannot evaluate expression 'r == r': Invalid "
+               "operand types Range and Range"});
+    CHECK(
+      evaluate("r == 0", variables)
+      == Error{"At line 1, column 3: Cannot evaluate expression 'r == 0': Invalid "
+               "operand types Range and Number"});
+  }
+
   SECTION("Subscript")
   {
     using T = std::tuple<std::string, Result<Value>>;
@@ -988,6 +1084,15 @@ TEST_CASE("Expression")
     // clang-format off
     const auto
     [expression,                         expectedResult] = GENERATE(values<T>({
+    // Single index
+    {"'asdf'[0]",                        Value{"a"}},
+    {"'asdf'[1]",                        Value{"s"}},
+    {"'asdf'[3]",                        Value{"f"}},
+    {"'asdf'[-1]",                       Value{"f"}},
+    {"'asdf'[-4]",                       Value{"a"}},
+    {"'asdf'[true]",                     Value{"s"}},
+    {"'asdf'[false]",                    Value{"a"}},
+
     // Positive indices
     {"'asdf'[0, 1]",                     Value{"as"}},
     {"'asdf'[0, 1, 2]",                  Value{"asd"}},
@@ -1029,15 +1134,53 @@ TEST_CASE("Expression")
     // Chained
     {"[1, 2, [4, 5]][2][1]",             Value{5}},
 
+    // For Arrays
+    {"[1, 2, 3][0]",                     Value{1}},
+    {"[1, 2, 3][-1]",                    Value{3}},
+    {"[1, 2, 3][0, 2]",                  Value{ArrayType{Value{1}, Value{3}}}},
+    {"[1, 2, 3][2, 1, 0]",               Value{ArrayType{Value{3}, Value{2}, Value{1}}}},
+    {"[1, 2, 3][0, -1]",                 Value{ArrayType{Value{1}, Value{3}}}},
+    {"[1, 2, 3][0..1]",                  Value{ArrayType{Value{1}, Value{2}}}},
+    {"[1, 2, 3][2..0]",                  Value{ArrayType{Value{3}, Value{2}, Value{1}}}},
+    {"[1, 2, 3][1..]",                   Value{ArrayType{Value{2}, Value{3}}}},
+    {"[1, 2, 3][..1]",                   Value{ArrayType{Value{3}, Value{2}}}},
+    {"[1, 2, 3][0, 1..2]",               Value{ArrayType{Value{1}, Value{2}, Value{3}}}},
+
     // For Maps
     {"{a: 1, b: 2, c: 3}['a']",          Value{1}},
     {"{a: 1, b: 2, c: 3}['b']",          Value{2}},
     {"{a: 1, b: 2, c: 3}['c']",          Value{3}},
+    {"{a: 1, b: 2, c: 3}['a', 'c']",     Value{MapType{{"a", Value{1}}, {"c", Value{3}}}}},
+    {"{a: 1, b: 2, c: 3}['c', 'a']",     Value{MapType{{"a", Value{1}}, {"c", Value{3}}}}},
+    {"{a: 1, b: 2, c: 3}['a', 'a']",     Value{MapType{{"a", Value{1}}}}},
+
+    // Missing keys are dropped rather than reported
+    {"{a: 1, b: 2, c: 3}['a', 'd']",     Value{MapType{{"a", Value{1}}}}},
+    {"{a: 1, b: 2, c: 3}['d', 'e']",     Value{MapType{}}},
 
     // Out of bounds
     {"'asdf'[5]",                        Value{""}},
+    {"'asdf'[-5]",                       Value{""}},
+    {"'asdf'[4, 5]",                     Value{""}},
+    {"[1, 2, 3][-4]",                    Error{"At line 1, column 10: Cannot evaluate expression '[1, 2, 3][-4]': 3 is out of bounds for '[1, 2, 3]'"}},
     {"[0, 1, 2, 3][5]",                  Error{"At line 1, column 13: Cannot evaluate expression '[0, 1, 2, 3][5]': 4 is out of bounds for '[0, 1, 2, 3]'"}},
+    {"[1, 2, 3][0, 5]",                  Error{"At line 1, column 10: Cannot evaluate expression '[1, 2, 3][[0, 5]]': 3 is out of bounds for '[1, 2, 3]'"}},
+    {"[1, 2, 3][0..5]",                  Error{"At line 1, column 10: Cannot evaluate expression '[1, 2, 3][0..5]': 3 is out of bounds for '[1, 2, 3]'"}},
     {"{a: 1, b: 2, c: 3}['d']",          Value::Undefined},
+
+    // An undefined range bound makes the whole range undefined, which cannot index
+    {"'asdf'[undefined..1]",             Error{R"(At line 1, column 7: Cannot evaluate expression '"asdf"[undefined..1]': 'undefined' is not a compatible index for '"asdf"')"}},
+    {"'asdf'[1..undefined]",             Error{R"(At line 1, column 7: Cannot evaluate expression '"asdf"[1..undefined]': 'undefined' is not a compatible index for '"asdf"')"}},
+
+    // A map can only be indexed by strings
+    {"{a: 1}['a', 1]",                   Error{"At line 1, column 13: Cannot convert value '1' of type 'Number' to type 'String'"}},
+
+    // Incompatible index types
+    {"1[0]",                             Error{"At line 1, column 2: Cannot evaluate expression '1[0]': '0' is not a compatible index for '1'"}},
+    {"true[0]",                          Error{"At line 1, column 5: Cannot evaluate expression 'true[0]': '0' is not a compatible index for 'true'"}},
+    {"null[0]",                          Error{"At line 1, column 5: Cannot evaluate expression 'null[0]': '0' is not a compatible index for 'null'"}},
+    {"'asdf'['a']",                      Error{R"(At line 1, column 7: Cannot evaluate expression '"asdf"["a"]': '"a"' is not a compatible index for '"asdf"')"}},
+    {"{a: 1}[0]",                        Error{R"(At line 1, column 7: Cannot evaluate expression '{ "a": 1 }[0]': '0' is not a compatible index for '{ "a": 1 }')"}},
 
     }));
     // clang-format on
@@ -1150,12 +1293,18 @@ TEST_CASE("Expression")
     {"1 + a",              {},                  Value::Undefined},
     {"[a, 1, 2]",          {},                  Value{ArrayType{Value::Undefined, Value{1.0}, Value{2.0}}}},
     {"{a: 1, b: x, c: 3}", {},                  Value{MapType{{"a", Value{1.0}}, {"b", Value::Undefined}, {"c", Value{3.0}},}}},
+
+    // Unlike evaluate, tryEvaluate swallows evaluation errors and yields undefined
+    {"1 + 'a'",            {},                  Value::Undefined},
+    {"[1 + 'a', 2]",       {},                  Value{ArrayType{Value::Undefined, Value{2.0}}}},
+    {"{a: 1 + 'a'}",       {},                  Value{MapType{{"a", Value::Undefined}}}},
+    {"1[0]",               {},                  Value::Undefined},
     }));
     // clang-format on
 
     CAPTURE(expression);
 
-    CHECK(evaluate(expression, variables) == expectedValue);
+    CHECK(tryEvaluate(expression, variables) == expectedValue);
   }
 
   SECTION("optimize")
@@ -1179,6 +1328,31 @@ TEST_CASE("Expression")
                                     cs(eq(var("x"), lit(1)), lit(2)),
                                     lit(1),
                                 })},
+
+    // A short circuited operand is never evaluated, and the expression still folds
+    {"false && x",              lit(false)},
+    {"true || x",               lit(true)},
+    {"true && x",               logAnd(lit(true), var("x"))},
+    {"false || x",              logOr(lit(false), var("x"))},
+
+    // Unary expressions
+    {"-1",                      lit(-1)},
+    {"!true",                   lit(false)},
+    {"-x",                      minus(var("x"))},
+
+    // Subscript expressions
+    {"'asdf'[1]",               lit("s")},
+    {"'asdf'[1..2]",            lit("sd")},
+    {"[1, 2, 3][1]",            lit(2)},
+    {"{a:1, b:2}['a']",         lit(1)},
+    {"x[1]",                    scr(var("x"), lit(1))},
+    {"'asdf'[x]",               scr(lit("asdf"), var("x"))},
+
+    // A map with a non constant element cannot be folded
+    {"{a:1, b:x}",              map({{"a", lit(1)}, {"b", var("x")}})},
+
+    // An empty switch folds to undefined
+    {"{{}}",                    lit(Value::Undefined)},
     }));
     // clang-format on
 
@@ -1190,6 +1364,109 @@ TEST_CASE("Expression")
       CHECK(
         parseExpression(ParseMode::Strict, expression_).value().optimize(context)
         == expectedExpression_);
+    }).ignore();
+  }
+
+  SECTION("asString")
+  {
+    using T = std::tuple<std::string, std::string>;
+
+    // clang-format off
+    const auto
+    [expression,         expectedString] = GENERATE(values<T>({
+    // Unary operators
+    {"+1",               "+1"},
+    {"-1",               "-1"},
+    {"!true",            "!true"},
+    {"~1",               "~1"},
+    {"(1)",              "( 1 )"},
+    {"'asdf'[1..]",      R"("asdf"[1..])"},
+    {"'asdf'[..1]",      R"("asdf"[..1])"},
+
+    // Binary operators
+    {"1 + 2",            "1 + 2"},
+    {"1 - 2",            "1 - 2"},
+    {"1 * 2",            "1 * 2"},
+    {"1 / 2",            "1 / 2"},
+    {"1 % 2",            "1 % 2"},
+    {"true && false",    "true && false"},
+    {"true || false",    "true || false"},
+    {"1 & 2",            "1 & 2"},
+    {"1 ^ 2",            "1 ^ 2"},
+    {"1 | 2",            "1 | 2"},
+    {"1 << 2",           "1 << 2"},
+    {"1 >> 2",           "1 >> 2"},
+    {"1 < 2",            "1 < 2"},
+    {"1 <= 2",           "1 <= 2"},
+    {"1 > 2",            "1 > 2"},
+    {"1 >= 2",           "1 >= 2"},
+    {"1 == 2",           "1 == 2"},
+    {"1 != 2",           "1 != 2"},
+    {"'asdf'[1..2]",     R"("asdf"[1..2])"},
+    {"true -> 1",        "true -> 1"},
+
+    // Other expressions
+    {"x",                "x"},
+    {"[1, 2]",           "[1, 2]"},
+    {"{a: 1}",           R"({ "a": 1 })"},
+    {"{{ x -> 1, 2 }}",  "{{ x -> 1, 2 }}"},
+    }));
+    // clang-format on
+
+    CAPTURE(expression);
+
+    CHECK(
+      parseExpression(ParseMode::Strict, expression).value().asString()
+      == expectedString);
+  }
+
+  SECTION("operator!=")
+  {
+    CHECK(lit(1) != lit(2));
+    CHECK_FALSE(lit(1) != lit(1));
+
+    CHECK(LiteralExpression{Value{1}} != LiteralExpression{Value{2}});
+    CHECK(VariableExpression{"a"} != VariableExpression{"b"});
+    CHECK(ArrayExpression{{lit(1)}} != ArrayExpression{{lit(2)}});
+    CHECK(MapExpression{{{"a", lit(1)}}} != MapExpression{{{"b", lit(1)}}});
+    CHECK(
+      UnaryExpression{UnaryOperation::Minus, lit(1)}
+      != UnaryExpression{UnaryOperation::Plus, lit(1)});
+    CHECK(
+      BinaryExpression{BinaryOperation::Addition, lit(1), lit(2)}
+      != BinaryExpression{BinaryOperation::Subtraction, lit(1), lit(2)});
+    CHECK(
+      SubscriptExpression{lit("ab"), lit(0)} != SubscriptExpression{lit("ab"), lit(1)});
+    CHECK(SwitchExpression{{lit(1)}} != SwitchExpression{{lit(2)}});
+
+    // the operands are compared too, not just the operation
+    CHECK(
+      UnaryExpression{UnaryOperation::Minus, lit(1)}
+      != UnaryExpression{UnaryOperation::Minus, lit(2)});
+    CHECK(
+      BinaryExpression{BinaryOperation::Addition, lit(1), lit(2)}
+      != BinaryExpression{BinaryOperation::Addition, lit(3), lit(2)});
+    CHECK(
+      BinaryExpression{BinaryOperation::Addition, lit(1), lit(2)}
+      != BinaryExpression{BinaryOperation::Addition, lit(1), lit(3)});
+    CHECK(
+      SubscriptExpression{lit("ab"), lit(0)} != SubscriptExpression{lit("cd"), lit(0)});
+  }
+
+  SECTION("optimize agrees with evaluate for every binary operator")
+  {
+    const auto expression = GENERATE(values<std::string>({
+      "1 + 2",         "3 - 1",         "2 * 3",   "6 / 2",        "7 % 3",
+      "true && false", "true || false", "12 & 10", "12 ^ 10",      "12 | 10",
+      "1 << 3",        "8 >> 2",        "1 < 2",   "1 <= 2",       "1 > 2",
+      "1 >= 2",        "1 == 2",        "1 != 2",  "'asdf'[1..2]", "true -> 1",
+    }));
+
+    CAPTURE(expression);
+
+    withEvaluationContext([&, expression_ = expression](auto& context) {
+      const auto expressionNode = parseExpression(ParseMode::Strict, expression_).value();
+      CHECK(expressionNode.optimize(context) == lit(expressionNode.evaluate(context)));
     }).ignore();
   }
 

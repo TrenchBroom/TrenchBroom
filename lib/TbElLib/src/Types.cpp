@@ -113,6 +113,10 @@ ValueType typeForName(const std::string& type)
   {
     return ValueType::Range;
   }
+  if (type == "Null")
+  {
+    return ValueType::Null;
+  }
   if (type == "Undefined")
   {
     return ValueType::Undefined;
