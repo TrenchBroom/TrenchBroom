@@ -435,7 +435,7 @@ Value evaluateLogicalAnd(
   const ExpressionNode& expressionNode)
 {
   const auto lhs = evaluateLhs();
-  auto rhs = std::make_optional<Value>();
+  auto rhs = std::optional<Value>{};
 
   if (lhs.hasType(ValueType::Undefined))
   {
@@ -481,7 +481,7 @@ Value evaluateLogicalOr(
   const ExpressionNode& expressionNode)
 {
   const auto lhs = evaluateLhs();
-  auto rhs = std::make_optional<Value>();
+  auto rhs = std::optional<Value>{};
 
   if (lhs.hasType(ValueType::Undefined))
   {
