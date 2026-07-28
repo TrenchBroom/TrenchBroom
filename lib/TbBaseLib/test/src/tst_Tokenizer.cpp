@@ -404,267 +404,270 @@ TEST_CASE("Tokenizer")
           "At line 1, column 1: Expected '{', but got integer (raw data: '123')"));
     }
   }
-}
 
-TEST_CASE("TokenizerTest.simpleLanguageEmptyString")
-{
-  auto tokenizer = SimpleTokenizer{""};
-  CHECK(tokenizer.nextToken().type() == SimpleToken::Eof);
-}
+  SECTION("Simple language")
+  {
+    SECTION("empty string")
+    {
+      auto tokenizer = SimpleTokenizer{""};
+      CHECK(tokenizer.nextToken().type() == SimpleToken::Eof);
+    }
 
-TEST_CASE("TokenizerTest.simpleLanguageBlankString")
-{
-  auto tokenizer = SimpleTokenizer{"\n  \t "};
-  CHECK(tokenizer.nextToken().type() == SimpleToken::Eof);
-}
+    SECTION("blank string")
+    {
+      auto tokenizer = SimpleTokenizer{"\n  \t "};
+      CHECK(tokenizer.nextToken().type() == SimpleToken::Eof);
+    }
 
-TEST_CASE("TokenizerTest.simpleLanguageEmptyBlock")
-{
-  auto tokenizer = SimpleTokenizer{R"({})"};
-  CHECK(tokenizer.nextToken().type() == SimpleToken::OBrace);
-  CHECK(tokenizer.nextToken().type() == SimpleToken::CBrace);
-  CHECK(tokenizer.nextToken().type() == SimpleToken::Eof);
-}
+    SECTION("empty block")
+    {
+      auto tokenizer = SimpleTokenizer{R"({})"};
+      CHECK(tokenizer.nextToken().type() == SimpleToken::OBrace);
+      CHECK(tokenizer.nextToken().type() == SimpleToken::CBrace);
+      CHECK(tokenizer.nextToken().type() == SimpleToken::Eof);
+    }
 
-TEST_CASE("TokenizerTest.simpleLanguagePushPeekPopToken")
-{
-  auto tokenizer = SimpleTokenizer{R"({
+    SECTION("push peek pop token")
+    {
+      auto tokenizer = SimpleTokenizer{R"({
 })"};
 
-  SimpleTokenizer::Token token;
-  CHECK((token = tokenizer.peekToken()).type() == SimpleToken::OBrace);
-  CHECK(token.line() == 1u);
-  CHECK((token = tokenizer.nextToken()).type() == SimpleToken::OBrace);
-  CHECK(token.line() == 1u);
-  CHECK(tokenizer.nextToken().type() == SimpleToken::CBrace);
-  CHECK(tokenizer.nextToken().type() == SimpleToken::Eof);
-}
+      SimpleTokenizer::Token token;
+      CHECK((token = tokenizer.peekToken()).type() == SimpleToken::OBrace);
+      CHECK(token.line() == 1u);
+      CHECK((token = tokenizer.nextToken()).type() == SimpleToken::OBrace);
+      CHECK(token.line() == 1u);
+      CHECK(tokenizer.nextToken().type() == SimpleToken::CBrace);
+      CHECK(tokenizer.nextToken().type() == SimpleToken::Eof);
+    }
 
-TEST_CASE("TokenizerTest.simpleLanguageEmptyBlockWithLeadingAndTrailingWhitespace")
-{
-  auto tokenizer = SimpleTokenizer{R"( 	{
+    SECTION("empty block with leading and trailing whitespace")
+    {
+      auto tokenizer = SimpleTokenizer{R"( 	{
  }  )"};
 
-  CHECK(tokenizer.nextToken().type() == SimpleToken::OBrace);
-  CHECK(tokenizer.nextToken().type() == SimpleToken::CBrace);
-  CHECK(tokenizer.nextToken().type() == SimpleToken::Eof);
-}
+      CHECK(tokenizer.nextToken().type() == SimpleToken::OBrace);
+      CHECK(tokenizer.nextToken().type() == SimpleToken::CBrace);
+      CHECK(tokenizer.nextToken().type() == SimpleToken::Eof);
+    }
 
-TEST_CASE("TokenizerTest.simpleLanguageBlockWithStringAttribute")
-{
-  auto tokenizer = SimpleTokenizer{R"({
+    SECTION("block with string attribute")
+    {
+      auto tokenizer = SimpleTokenizer{R"({
     attribute =value;
 }
 )"};
 
-  SimpleTokenizer::Token token;
-  CHECK((token = tokenizer.nextToken()).type() == SimpleToken::OBrace);
-  CHECK((token = tokenizer.nextToken()).type() == SimpleToken::String);
-  CHECK(token.data() == "attribute");
-  CHECK(token.line() == 2u);
-  CHECK(token.column() == 5u);
-  CHECK((token = tokenizer.nextToken()).type() == SimpleToken::Equals);
-  CHECK((token = tokenizer.nextToken()).type() == SimpleToken::String);
-  CHECK(token.data() == "value");
-  CHECK((token = tokenizer.nextToken()).type() == SimpleToken::Semicolon);
-  CHECK((token = tokenizer.nextToken()).type() == SimpleToken::CBrace);
-  CHECK(tokenizer.nextToken().type() == SimpleToken::Eof);
-}
+      SimpleTokenizer::Token token;
+      CHECK((token = tokenizer.nextToken()).type() == SimpleToken::OBrace);
+      CHECK((token = tokenizer.nextToken()).type() == SimpleToken::String);
+      CHECK(token.data() == "attribute");
+      CHECK(token.line() == 2u);
+      CHECK(token.column() == 5u);
+      CHECK((token = tokenizer.nextToken()).type() == SimpleToken::Equals);
+      CHECK((token = tokenizer.nextToken()).type() == SimpleToken::String);
+      CHECK(token.data() == "value");
+      CHECK((token = tokenizer.nextToken()).type() == SimpleToken::Semicolon);
+      CHECK((token = tokenizer.nextToken()).type() == SimpleToken::CBrace);
+      CHECK(tokenizer.nextToken().type() == SimpleToken::Eof);
+    }
 
-TEST_CASE("TokenizerTest.simpleLanguageBlockWithIntegerAttribute")
-{
-  auto tokenizer = SimpleTokenizer{R"({
+    SECTION("block with integer attribute")
+    {
+      auto tokenizer = SimpleTokenizer{R"({
     attribute =  12328;
 })"};
 
-  SimpleTokenizer::Token token;
-  CHECK((token = tokenizer.nextToken()).type() == SimpleToken::OBrace);
-  CHECK((token = tokenizer.nextToken()).type() == SimpleToken::String);
-  CHECK(token.data() == "attribute");
-  CHECK((token = tokenizer.nextToken()).type() == SimpleToken::Equals);
-  CHECK((token = tokenizer.nextToken()).type() == SimpleToken::Integer);
-  CHECK(token.toInteger<int>() == 12328);
-  CHECK((token = tokenizer.nextToken()).type() == SimpleToken::Semicolon);
-  CHECK((token = tokenizer.nextToken()).type() == SimpleToken::CBrace);
-  CHECK(tokenizer.nextToken().type() == SimpleToken::Eof);
-}
+      SimpleTokenizer::Token token;
+      CHECK((token = tokenizer.nextToken()).type() == SimpleToken::OBrace);
+      CHECK((token = tokenizer.nextToken()).type() == SimpleToken::String);
+      CHECK(token.data() == "attribute");
+      CHECK((token = tokenizer.nextToken()).type() == SimpleToken::Equals);
+      CHECK((token = tokenizer.nextToken()).type() == SimpleToken::Integer);
+      CHECK(token.toInteger<int>() == 12328);
+      CHECK((token = tokenizer.nextToken()).type() == SimpleToken::Semicolon);
+      CHECK((token = tokenizer.nextToken()).type() == SimpleToken::CBrace);
+      CHECK(tokenizer.nextToken().type() == SimpleToken::Eof);
+    }
 
-TEST_CASE("TokenizerTest.simpleLanguageBlockWithNegativeIntegerAttribute")
-{
-  auto tokenizer = SimpleTokenizer{R"({
+    SECTION("block with negative integer attribute")
+    {
+      auto tokenizer = SimpleTokenizer{R"({
     attribute =  -12328;
 })"};
 
-  SimpleTokenizer::Token token;
-  CHECK((token = tokenizer.nextToken()).type() == SimpleToken::OBrace);
-  CHECK((token = tokenizer.nextToken()).type() == SimpleToken::String);
-  CHECK(token.data() == "attribute");
-  CHECK((token = tokenizer.nextToken()).type() == SimpleToken::Equals);
-  CHECK((token = tokenizer.nextToken()).type() == SimpleToken::Integer);
-  CHECK(token.toInteger<int>() == -12328);
-  CHECK((token = tokenizer.nextToken()).type() == SimpleToken::Semicolon);
-  CHECK((token = tokenizer.nextToken()).type() == SimpleToken::CBrace);
-  CHECK(tokenizer.nextToken().type() == SimpleToken::Eof);
-}
+      SimpleTokenizer::Token token;
+      CHECK((token = tokenizer.nextToken()).type() == SimpleToken::OBrace);
+      CHECK((token = tokenizer.nextToken()).type() == SimpleToken::String);
+      CHECK(token.data() == "attribute");
+      CHECK((token = tokenizer.nextToken()).type() == SimpleToken::Equals);
+      CHECK((token = tokenizer.nextToken()).type() == SimpleToken::Integer);
+      CHECK(token.toInteger<int>() == -12328);
+      CHECK((token = tokenizer.nextToken()).type() == SimpleToken::Semicolon);
+      CHECK((token = tokenizer.nextToken()).type() == SimpleToken::CBrace);
+      CHECK(tokenizer.nextToken().type() == SimpleToken::Eof);
+    }
 
-TEST_CASE("TokenizerTest.simpleLanguageBlockWithDecimalAttribute")
-{
-  auto tokenizer = SimpleTokenizer{R"({
+    SECTION("block with decimal attribute")
+    {
+      auto tokenizer = SimpleTokenizer{R"({
     attribute =  12328.38283;
 })"};
 
-  SimpleTokenizer::Token token;
-  CHECK((token = tokenizer.nextToken()).type() == SimpleToken::OBrace);
-  CHECK((token = tokenizer.nextToken()).type() == SimpleToken::String);
-  CHECK(token.data() == "attribute");
-  CHECK((token = tokenizer.nextToken()).type() == SimpleToken::Equals);
-  CHECK((token = tokenizer.nextToken()).type() == SimpleToken::Decimal);
-  CHECK(token.toFloat<double>() == vm::approx(12328.38283));
-  CHECK((token = tokenizer.nextToken()).type() == SimpleToken::Semicolon);
-  CHECK((token = tokenizer.nextToken()).type() == SimpleToken::CBrace);
-  CHECK(tokenizer.nextToken().type() == SimpleToken::Eof);
-}
+      SimpleTokenizer::Token token;
+      CHECK((token = tokenizer.nextToken()).type() == SimpleToken::OBrace);
+      CHECK((token = tokenizer.nextToken()).type() == SimpleToken::String);
+      CHECK(token.data() == "attribute");
+      CHECK((token = tokenizer.nextToken()).type() == SimpleToken::Equals);
+      CHECK((token = tokenizer.nextToken()).type() == SimpleToken::Decimal);
+      CHECK(token.toFloat<double>() == vm::approx(12328.38283));
+      CHECK((token = tokenizer.nextToken()).type() == SimpleToken::Semicolon);
+      CHECK((token = tokenizer.nextToken()).type() == SimpleToken::CBrace);
+      CHECK(tokenizer.nextToken().type() == SimpleToken::Eof);
+    }
 
-TEST_CASE("TokenizerTest.simpleLanguageBlockWithDecimalAttributeStartingWithDot")
-{
-  auto tokenizer = SimpleTokenizer{R"({
+    SECTION("block with decimal attribute starting with dot")
+    {
+      auto tokenizer = SimpleTokenizer{R"({
     attribute =  .38283;
 })"};
-  SimpleTokenizer::Token token;
+      SimpleTokenizer::Token token;
 
-  CHECK((token = tokenizer.nextToken()).type() == SimpleToken::OBrace);
-  CHECK((token = tokenizer.nextToken()).type() == SimpleToken::String);
-  CHECK(token.data() == "attribute");
-  CHECK((token = tokenizer.nextToken()).type() == SimpleToken::Equals);
-  CHECK((token = tokenizer.nextToken()).type() == SimpleToken::Decimal);
-  CHECK(token.toFloat<double>() == vm::approx(0.38283));
-  CHECK((token = tokenizer.nextToken()).type() == SimpleToken::Semicolon);
-  CHECK((token = tokenizer.nextToken()).type() == SimpleToken::CBrace);
-  CHECK(tokenizer.nextToken().type() == SimpleToken::Eof);
-}
+      CHECK((token = tokenizer.nextToken()).type() == SimpleToken::OBrace);
+      CHECK((token = tokenizer.nextToken()).type() == SimpleToken::String);
+      CHECK(token.data() == "attribute");
+      CHECK((token = tokenizer.nextToken()).type() == SimpleToken::Equals);
+      CHECK((token = tokenizer.nextToken()).type() == SimpleToken::Decimal);
+      CHECK(token.toFloat<double>() == vm::approx(0.38283));
+      CHECK((token = tokenizer.nextToken()).type() == SimpleToken::Semicolon);
+      CHECK((token = tokenizer.nextToken()).type() == SimpleToken::CBrace);
+      CHECK(tokenizer.nextToken().type() == SimpleToken::Eof);
+    }
 
-TEST_CASE("TokenizerTest.simpleLanguageBlockWithNegativeDecimalAttribute")
-{
-  auto tokenizer = SimpleTokenizer{R"({
+    SECTION("block with negative decimal attribute")
+    {
+      auto tokenizer = SimpleTokenizer{R"({
     attribute =  -343.38283;
 })"};
 
-  SimpleTokenizer::Token token;
-  CHECK((token = tokenizer.nextToken()).type() == SimpleToken::OBrace);
-  CHECK((token = tokenizer.nextToken()).type() == SimpleToken::String);
-  CHECK(token.data() == "attribute");
-  CHECK((token = tokenizer.nextToken()).type() == SimpleToken::Equals);
-  CHECK((token = tokenizer.nextToken()).type() == SimpleToken::Decimal);
-  CHECK(token.toFloat<double>() == vm::approx(-343.38283));
-  CHECK((token = tokenizer.nextToken()).type() == SimpleToken::Semicolon);
-  CHECK((token = tokenizer.nextToken()).type() == SimpleToken::CBrace);
-  CHECK(tokenizer.nextToken().type() == SimpleToken::Eof);
-}
+      SimpleTokenizer::Token token;
+      CHECK((token = tokenizer.nextToken()).type() == SimpleToken::OBrace);
+      CHECK((token = tokenizer.nextToken()).type() == SimpleToken::String);
+      CHECK(token.data() == "attribute");
+      CHECK((token = tokenizer.nextToken()).type() == SimpleToken::Equals);
+      CHECK((token = tokenizer.nextToken()).type() == SimpleToken::Decimal);
+      CHECK(token.toFloat<double>() == vm::approx(-343.38283));
+      CHECK((token = tokenizer.nextToken()).type() == SimpleToken::Semicolon);
+      CHECK((token = tokenizer.nextToken()).type() == SimpleToken::CBrace);
+      CHECK(tokenizer.nextToken().type() == SimpleToken::Eof);
+    }
 
-TEST_CASE("TokenizerTest.simpleLanguageNumbers")
-{
-  // the numbers are not followed by a delimiter, so these also exercise reading a
-  // number that extends to the end of the input
-  // clang-format off
-  const auto
-  [str,       expectedType        ] = GENERATE(table<std::string_view, SimpleToken::Type>({
-  {"123",     SimpleToken::Integer},
-  {"+123",    SimpleToken::Integer},
-  {"-123",    SimpleToken::Integer},
-  {"1.5",     SimpleToken::Decimal},
-  {"+1.5",    SimpleToken::Decimal},
-  {"-1.5",    SimpleToken::Decimal},
-  {".5",      SimpleToken::Decimal},
-  {"1e10",    SimpleToken::Decimal},
-  {"1E10",    SimpleToken::Decimal},
-  {"1.5e3",   SimpleToken::Decimal},
-  {"1.5e+3",  SimpleToken::Decimal},
-  {"1.5e-3",  SimpleToken::Decimal},
-  {"1.5E-3",  SimpleToken::Decimal},
-  {"-1.5e-3", SimpleToken::Decimal},
-  {".5e2",    SimpleToken::Decimal},
-  }));
-  // clang-format on
+    SECTION("numbers")
+    {
+      // the numbers are not followed by a delimiter, so these also exercise reading a
+      // number that extends to the end of the input
+      // clang-format off
+      const auto
+      [str,       expectedType        ] = GENERATE(table<std::string_view, SimpleToken::Type>({
+      {"123",     SimpleToken::Integer},
+      {"+123",    SimpleToken::Integer},
+      {"-123",    SimpleToken::Integer},
+      {"1.5",     SimpleToken::Decimal},
+      {"+1.5",    SimpleToken::Decimal},
+      {"-1.5",    SimpleToken::Decimal},
+      {".5",      SimpleToken::Decimal},
+      {"1e10",    SimpleToken::Decimal},
+      {"1E10",    SimpleToken::Decimal},
+      {"1.5e3",   SimpleToken::Decimal},
+      {"1.5e+3",  SimpleToken::Decimal},
+      {"1.5e-3",  SimpleToken::Decimal},
+      {"1.5E-3",  SimpleToken::Decimal},
+      {"-1.5e-3", SimpleToken::Decimal},
+      {".5e2",    SimpleToken::Decimal},
+      }));
+      // clang-format on
 
-  CAPTURE(str);
+      CAPTURE(str);
 
-  auto tokenizer = SimpleTokenizer{str};
+      auto tokenizer = SimpleTokenizer{str};
 
-  auto token = tokenizer.nextToken();
-  CHECK(token.type() == expectedType);
-  CHECK(token.data() == str);
-  CHECK(tokenizer.nextToken().type() == SimpleToken::Eof);
-}
+      auto token = tokenizer.nextToken();
+      CHECK(token.type() == expectedType);
+      CHECK(token.data() == str);
+      CHECK(tokenizer.nextToken().type() == SimpleToken::Eof);
+    }
 
-TEST_CASE("TokenizerTest.simpleLanguageNumberValues")
-{
-  // clang-format off
-  const auto
-  [str,       expectedValue] = GENERATE(table<std::string_view, double>({
-  {"123",     123.0        },
-  {"+123",    123.0        },
-  {"-123",    -123.0       },
-  {"1.5",     1.5          },
-  {"+1.5",    1.5          },
-  {"-1.5",    -1.5         },
-  {".5",      0.5          },
-  {"+.5",     0.5          },
-  {"1e10",    1e10         },
-  {"1E10",    1e10         },
-  {"1.5e3",   1500.0       },
-  {"1.5e+3",  1500.0       },
-  {"1.5e-3",  0.0015       },
-  {"1.5E-3",  0.0015       },
-  {"-1.5e-3", -0.0015      },
-  {".5e2",    50.0         },
-  }));
-  // clang-format on
+    SECTION("number values")
+    {
+      // clang-format off
+      const auto
+      [str,       expectedValue] = GENERATE(table<std::string_view, double>({
+      {"123",     123.0        },
+      {"+123",    123.0        },
+      {"-123",    -123.0       },
+      {"1.5",     1.5          },
+      {"+1.5",    1.5          },
+      {"-1.5",    -1.5         },
+      {".5",      0.5          },
+      {"+.5",     0.5          },
+      {"1e10",    1e10         },
+      {"1E10",    1e10         },
+      {"1.5e3",   1500.0       },
+      {"1.5e+3",  1500.0       },
+      {"1.5e-3",  0.0015       },
+      {"1.5E-3",  0.0015       },
+      {"-1.5e-3", -0.0015      },
+      {".5e2",    50.0         },
+      }));
+      // clang-format on
 
-  CAPTURE(str);
+      CAPTURE(str);
 
-  auto tokenizer = SimpleTokenizer{str};
+      auto tokenizer = SimpleTokenizer{str};
 
-  CHECK(tokenizer.nextToken().toFloat<double>() == vm::approx(expectedValue));
-}
+      CHECK(tokenizer.nextToken().toFloat<double>() == vm::approx(expectedValue));
+    }
 
-TEST_CASE("TokenizerTest.simpleLanguageNumbersFollowedByDelimiter")
-{
-  auto tokenizer = SimpleTokenizer{"1.5e-3;"};
+    SECTION("numbers followed by delimiter")
+    {
+      auto tokenizer = SimpleTokenizer{"1.5e-3;"};
 
-  SimpleTokenizer::Token token;
-  CHECK((token = tokenizer.nextToken()).type() == SimpleToken::Decimal);
-  CHECK(token.data() == "1.5e-3");
-  CHECK(token.toFloat<double>() == vm::approx(0.0015));
-  CHECK(tokenizer.nextToken().type() == SimpleToken::Semicolon);
-  CHECK(tokenizer.nextToken().type() == SimpleToken::Eof);
-}
+      SimpleTokenizer::Token token;
+      CHECK((token = tokenizer.nextToken()).type() == SimpleToken::Decimal);
+      CHECK(token.data() == "1.5e-3");
+      CHECK(token.toFloat<double>() == vm::approx(0.0015));
+      CHECK(tokenizer.nextToken().type() == SimpleToken::Semicolon);
+      CHECK(tokenizer.nextToken().type() == SimpleToken::Eof);
+    }
 
-TEST_CASE("TokenizerTest.simpleLanguageMalformedNumbers")
-{
-  // a number that is not followed by a delimiter is not a number at all, and the
-  // tokenizer must roll back and read it as a string
-  // clang-format off
-  const auto
-  [str,      expectedType        ] = GENERATE(table<std::string_view, SimpleToken::Type>({
-  {"123a",   SimpleToken::String },
-  {"1.5a",   SimpleToken::String },
-  {"1.5e3a", SimpleToken::String },
-  {"1ea",    SimpleToken::String },
-  {"1e+a",   SimpleToken::String },
-  {"+a",     SimpleToken::String },
-  {"-a",     SimpleToken::String },
-  {".a",     SimpleToken::String },
-  }));
-  // clang-format on
+    SECTION("malformed numbers")
+    {
+      // a number that is not followed by a delimiter is not a number at all, and the
+      // tokenizer must roll back and read it as a string
+      // clang-format off
+      const auto
+      [str,      expectedType        ] = GENERATE(table<std::string_view, SimpleToken::Type>({
+      {"123a",   SimpleToken::String },
+      {"1.5a",   SimpleToken::String },
+      {"1.5e3a", SimpleToken::String },
+      {"1ea",    SimpleToken::String },
+      {"1e+a",   SimpleToken::String },
+      {"+a",     SimpleToken::String },
+      {"-a",     SimpleToken::String },
+      {".a",     SimpleToken::String },
+      }));
+      // clang-format on
 
-  CAPTURE(str);
+      CAPTURE(str);
 
-  auto tokenizer = SimpleTokenizer{str};
+      auto tokenizer = SimpleTokenizer{str};
 
-  auto token = tokenizer.nextToken();
-  CHECK(token.type() == expectedType);
-  CHECK(token.data() == str);
-  CHECK(tokenizer.nextToken().type() == SimpleToken::Eof);
+      auto token = tokenizer.nextToken();
+      CHECK(token.type() == expectedType);
+      CHECK(token.data() == str);
+      CHECK(tokenizer.nextToken().type() == SimpleToken::Eof);
+    }
+  }
 }
 
 } // namespace tb

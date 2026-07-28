@@ -452,12 +452,6 @@ TEST_CASE("PreferenceManager")
 
     CHECK(preferenceManager.saveInstantly() == saveInstantly);
   }
-}
-
-TEST_CASE("PreferenceManager instance")
-{
-  auto preferenceStoreOwner = std::make_unique<MockPreferenceStore>();
-  auto& preferenceStore = *preferenceStoreOwner;
 
   SECTION("createInstance / instance")
   {
