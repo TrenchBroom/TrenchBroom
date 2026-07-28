@@ -27,127 +27,130 @@
 namespace tb
 {
 
-TEST_CASE("detail::ComponentValue")
+TEST_CASE("detail")
 {
-  using T = ColorComponentType<ColorChannel::r, float, -1.0f, 1.0f, 0.0f>;
-  using V = detail::ComponentValue<T>;
+  SECTION("ComponentValue")
+  {
+    using T = ColorComponentType<ColorChannel::r, float, -1.0f, 1.0f, 0.0f>;
+    using V = detail::ComponentValue<T>;
 
-  STATIC_CHECK(std::is_same_v<V::Type, T>);
+    STATIC_CHECK(std::is_same_v<V::Type, T>);
 
-  STATIC_CHECK(V{}.value == 0.0f);
-  STATIC_CHECK(V{0.5f}.value == 0.5f);
-  STATIC_CHECK(V::fromNormalizedValue(0.5) == V{0.0f});
-  CHECK(V::parse("0.5") == V{0.5f});
-  CHECK(V::parse("") == std::nullopt);
-  STATIC_CHECK(V{-1.0f}.normalize() == 0.0f);
-  STATIC_CHECK(V{0.0f}.normalize() == 0.5f);
-  STATIC_CHECK(V{1.0f}.normalize() == 1.0f);
-}
+    STATIC_CHECK(V{}.value == 0.0f);
+    STATIC_CHECK(V{0.5f}.value == 0.5f);
+    STATIC_CHECK(V::fromNormalizedValue(0.5) == V{0.0f});
+    CHECK(V::parse("0.5") == V{0.5f});
+    CHECK(V::parse("") == std::nullopt);
+    STATIC_CHECK(V{-1.0f}.normalize() == 0.0f);
+    STATIC_CHECK(V{0.0f}.normalize() == 0.5f);
+    STATIC_CHECK(V{1.0f}.normalize() == 1.0f);
+  }
 
-TEST_CASE("detail::componentIndex")
-{
-  using R = ColorComponentType<ColorChannel::r, float, 0.0f, 1.0f, 0.0f>;
-  using G = ColorComponentType<ColorChannel::g, float, 0.0f, 1.0f, 0.0f>;
-  using B = ColorComponentType<ColorChannel::b, float, 0.0f, 1.0f, 0.0f>;
+  SECTION("componentIndex")
+  {
+    using R = ColorComponentType<ColorChannel::r, float, 0.0f, 1.0f, 0.0f>;
+    using G = ColorComponentType<ColorChannel::g, float, 0.0f, 1.0f, 0.0f>;
+    using B = ColorComponentType<ColorChannel::b, float, 0.0f, 1.0f, 0.0f>;
 
-  STATIC_CHECK(detail::componentIndex<ColorChannel::r, R, G, B>() == 0);
-  STATIC_CHECK(detail::componentIndex<ColorChannel::g, R, G, B>() == 1);
-  STATIC_CHECK(detail::componentIndex<ColorChannel::b, R, G, B>() == 2);
-}
+    STATIC_CHECK(detail::componentIndex<ColorChannel::r, R, G, B>() == 0);
+    STATIC_CHECK(detail::componentIndex<ColorChannel::g, R, G, B>() == 1);
+    STATIC_CHECK(detail::componentIndex<ColorChannel::b, R, G, B>() == 2);
+  }
 
-TEST_CASE("detail::normalizedValues")
-{
-  using F = ColorComponentType<ColorChannel::r, float, -1.0f, 1.0f, 0.0f>;
-  using B = ColorComponentType<ColorChannel::r, uint8_t, 0, 255>;
-  using VF = detail::ComponentValue<F>;
-  using VB = detail::ComponentValue<B>;
+  SECTION("normalizedValues")
+  {
+    using F = ColorComponentType<ColorChannel::r, float, -1.0f, 1.0f, 0.0f>;
+    using B = ColorComponentType<ColorChannel::r, uint8_t, 0, 255>;
+    using VF = detail::ComponentValue<F>;
+    using VB = detail::ComponentValue<B>;
 
-  STATIC_CHECK(detail::normalizedValues(std::tuple{}) == std::tuple{});
-  STATIC_CHECK(
-    detail::normalizedValues(std::tuple{VF{0.0f}, VB{0}}) == std::tuple{0.5, 0.0});
-  STATIC_CHECK(
-    detail::normalizedValues(std::tuple{VF{1.0f}, VB{0}}) == std::tuple{1.0, 0.0});
-}
+    STATIC_CHECK(detail::normalizedValues(std::tuple{}) == std::tuple{});
+    STATIC_CHECK(
+      detail::normalizedValues(std::tuple{VF{0.0f}, VB{0}}) == std::tuple{0.5, 0.0});
+    STATIC_CHECK(
+      detail::normalizedValues(std::tuple{VF{1.0f}, VB{0}}) == std::tuple{1.0, 0.0});
+  }
 
-TEST_CASE("detail::componentVector")
-{
-  using R = ColorComponentType<ColorChannel::r, float, 0.0f, 1.0f, 0.0f>;
-  using G = ColorComponentType<ColorChannel::g, float, 0.0f, 1.0f, 0.0f>;
-  using B = ColorComponentType<ColorChannel::b, float, 0.0f, 1.0f, 0.0f>;
+  SECTION("componentVector")
+  {
+    using R = ColorComponentType<ColorChannel::r, float, 0.0f, 1.0f, 0.0f>;
+    using G = ColorComponentType<ColorChannel::g, float, 0.0f, 1.0f, 0.0f>;
+    using B = ColorComponentType<ColorChannel::b, float, 0.0f, 1.0f, 0.0f>;
 
-  STATIC_CHECK(
-    componentVector(std::tuple{
-      detail::ComponentValue<R>{0.1f},
-      detail::ComponentValue<G>{0.2f},
-      detail::ComponentValue<B>{0.3f}})
-    == vm::vec3f{0.1f, 0.2f, 0.3f});
-}
+    STATIC_CHECK(
+      componentVector(std::tuple{
+        detail::ComponentValue<R>{0.1f},
+        detail::ComponentValue<G>{0.2f},
+        detail::ComponentValue<B>{0.3f}})
+      == vm::vec3f{0.1f, 0.2f, 0.3f});
+  }
 
-TEST_CASE("detail::fromValues")
-{
-  using F = ColorComponentType<ColorChannel::r, float, -1.0f, 1.0f, 0.0f>;
-  using B = ColorComponentType<ColorChannel::r, uint8_t, 0, 255>;
-  using VF = detail::ComponentValue<F>;
-  using VB = detail::ComponentValue<B>;
+  SECTION("fromValues")
+  {
+    using F = ColorComponentType<ColorChannel::r, float, -1.0f, 1.0f, 0.0f>;
+    using B = ColorComponentType<ColorChannel::r, uint8_t, 0, 255>;
+    using VF = detail::ComponentValue<F>;
+    using VB = detail::ComponentValue<B>;
 
-  STATIC_CHECK(detail::fromValues<>(std::tuple{}) == std::tuple{});
-  STATIC_CHECK(
-    detail::fromValues<F, B>(std::tuple{0.0, 0.0}) == std::tuple{VF{0.0f}, VB{0}});
-  STATIC_CHECK(
-    detail::fromValues<F, B>(std::tuple{0.5, 0.0}) == std::tuple{VF{0.5f}, VB{0}});
-  STATIC_CHECK(
-    detail::fromValues<F, B>(std::tuple{1.0, 1.0}) == std::tuple{VF{1.0f}, VB{1}});
-  STATIC_CHECK(detail::fromValues<F, B>(std::tuple{2.0, 1.0}) == std::nullopt);
-  STATIC_CHECK(detail::fromValues<F, B>(std::tuple{1.0, -1.0}) == std::nullopt);
-}
+    STATIC_CHECK(detail::fromValues<>(std::tuple{}) == std::tuple{});
+    STATIC_CHECK(
+      detail::fromValues<F, B>(std::tuple{0.0, 0.0}) == std::tuple{VF{0.0f}, VB{0}});
+    STATIC_CHECK(
+      detail::fromValues<F, B>(std::tuple{0.5, 0.0}) == std::tuple{VF{0.5f}, VB{0}});
+    STATIC_CHECK(
+      detail::fromValues<F, B>(std::tuple{1.0, 1.0}) == std::tuple{VF{1.0f}, VB{1}});
+    STATIC_CHECK(detail::fromValues<F, B>(std::tuple{2.0, 1.0}) == std::nullopt);
+    STATIC_CHECK(detail::fromValues<F, B>(std::tuple{1.0, -1.0}) == std::nullopt);
+  }
 
-TEST_CASE("detail::fromNormalizedValues")
-{
-  using F = ColorComponentType<ColorChannel::r, float, -1.0f, 1.0f, 0.0f>;
-  using B = ColorComponentType<ColorChannel::r, uint8_t, 0, 255>;
-  using VF = detail::ComponentValue<F>;
-  using VB = detail::ComponentValue<B>;
+  SECTION("fromNormalizedValues")
+  {
+    using F = ColorComponentType<ColorChannel::r, float, -1.0f, 1.0f, 0.0f>;
+    using B = ColorComponentType<ColorChannel::r, uint8_t, 0, 255>;
+    using VF = detail::ComponentValue<F>;
+    using VB = detail::ComponentValue<B>;
 
-  STATIC_CHECK(detail::fromNormalizedValues<>(std::tuple{}) == std::tuple{});
-  STATIC_CHECK(
-    detail::fromNormalizedValues<F, B>(std::tuple{0.0, 0.0})
-    == std::tuple{VF{-1.0f}, VB{0}});
-  STATIC_CHECK(
-    detail::fromNormalizedValues<F, B>(std::tuple{0.5, 0.0})
-    == std::tuple{VF{0.0f}, VB{0}});
-  STATIC_CHECK(
-    detail::fromNormalizedValues<F, B>(std::tuple{1.0, 1.0})
-    == std::tuple{VF{1.0f}, VB{255}});
-}
+    STATIC_CHECK(detail::fromNormalizedValues<>(std::tuple{}) == std::tuple{});
+    STATIC_CHECK(
+      detail::fromNormalizedValues<F, B>(std::tuple{0.0, 0.0})
+      == std::tuple{VF{-1.0f}, VB{0}});
+    STATIC_CHECK(
+      detail::fromNormalizedValues<F, B>(std::tuple{0.5, 0.0})
+      == std::tuple{VF{0.0f}, VB{0}});
+    STATIC_CHECK(
+      detail::fromNormalizedValues<F, B>(std::tuple{1.0, 1.0})
+      == std::tuple{VF{1.0f}, VB{255}});
+  }
 
-TEST_CASE("detail::defaultValues")
-{
-  using F = ColorComponentType<ColorChannel::r, float, -1.0f, 1.0f, 0.0f>;
-  using B = ColorComponentType<ColorChannel::r, uint8_t, 0, 255>;
-  using VF = detail::ComponentValue<F>;
-  using VB = detail::ComponentValue<B>;
+  SECTION("defaultValues")
+  {
+    using F = ColorComponentType<ColorChannel::r, float, -1.0f, 1.0f, 0.0f>;
+    using B = ColorComponentType<ColorChannel::r, uint8_t, 0, 255>;
+    using VF = detail::ComponentValue<F>;
+    using VB = detail::ComponentValue<B>;
 
-  STATIC_CHECK(detail::defaultValues<>() == std::tuple{});
-  STATIC_CHECK(detail::defaultValues<F, B>() == std::tuple{VF{}, VB{}});
-}
+    STATIC_CHECK(detail::defaultValues<>() == std::tuple{});
+    STATIC_CHECK(detail::defaultValues<F, B>() == std::tuple{VF{}, VB{}});
+  }
 
-TEST_CASE("detail::parseComponentValues")
-{
-  using F = ColorComponentType<ColorChannel::r, float, -1.0f, 1.0f, 0.0f>;
-  using B = ColorComponentType<ColorChannel::r, uint8_t, 0, 255>;
-  using VF = detail::ComponentValue<F>;
-  using VB = detail::ComponentValue<B>;
+  SECTION("parseComponentValues")
+  {
+    using F = ColorComponentType<ColorChannel::r, float, -1.0f, 1.0f, 0.0f>;
+    using B = ColorComponentType<ColorChannel::r, uint8_t, 0, 255>;
+    using VF = detail::ComponentValue<F>;
+    using VB = detail::ComponentValue<B>;
 
-  CHECK(
-    detail::parseComponentValues<F, B>(std::vector{"0.5", "25"})
-    == std::tuple{VF{0.5f}, VB{25}});
+    CHECK(
+      detail::parseComponentValues<F, B>(std::vector{"0.5", "25"})
+      == std::tuple{VF{0.5f}, VB{25}});
 
-  CHECK(
-    detail::parseComponentValues<F, B>(std::vector{"0.5", "25", "77"}) == std::nullopt);
+    CHECK(
+      detail::parseComponentValues<F, B>(std::vector{"0.5", "25", "77"}) == std::nullopt);
 
-  CHECK(detail::parseComponentValues<F, B>(std::vector{"0.5"}) == std::nullopt);
-  CHECK(detail::parseComponentValues<F, B>(std::vector{"asdf", "25"}) == std::nullopt);
-  CHECK(detail::parseComponentValues<F, B>(std::vector{"0.5", ""}) == std::nullopt);
+    CHECK(detail::parseComponentValues<F, B>(std::vector{"0.5"}) == std::nullopt);
+    CHECK(detail::parseComponentValues<F, B>(std::vector{"asdf", "25"}) == std::nullopt);
+    CHECK(detail::parseComponentValues<F, B>(std::vector{"0.5", ""}) == std::nullopt);
+  }
 }
 
 TEST_CASE("ColorT")

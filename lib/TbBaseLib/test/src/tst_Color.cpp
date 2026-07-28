@@ -26,34 +26,38 @@
 namespace tb
 {
 
-TEST_CASE("mixColors")
+TEST_CASE("Color")
 {
-  CHECK(
-    mixColors(RgbF{0.0f, 0.0f, 0.0f}, RgbF{1.0f, 1.0f, 1.0f}, 0.5f)
-    == RgbF{0.5f, 0.5f, 0.5f});
+  SECTION("mixColors")
+  {
+    CHECK(
+      mixColors(RgbF{0.0f, 0.0f, 0.0f}, RgbF{1.0f, 1.0f, 1.0f}, 0.5f)
+      == RgbF{0.5f, 0.5f, 0.5f});
 
-  CHECK(
-    mixColors(RgbaF{0.0f, 0.0f, 0.0f, 0.0f}, RgbaF{1.0f, 0.0f, 0.0f, 1.0f}, 0.25f)
-    == RgbaF{0.25f, 0.0f, 0.0f, 0.25f});
+    CHECK(
+      mixColors(RgbaF{0.0f, 0.0f, 0.0f, 0.0f}, RgbaF{1.0f, 0.0f, 0.0f, 1.0f}, 0.25f)
+      == RgbaF{0.25f, 0.0f, 0.0f, 0.25f});
 
-  CHECK(
-    mixColors(RgbF{0.2f, 0.3f, 0.4f}, RgbF{0.8f, 0.9f, 1.0f}, -0.5f)
-    == RgbF{0.2f, 0.3f, 0.4f});
-  CHECK(
-    mixColors(RgbF{0.2f, 0.3f, 0.4f}, RgbF{0.8f, 0.9f, 1.0f}, 1.5f)
-    == RgbF{0.8f, 0.9f, 1.0f});
+    CHECK(
+      mixColors(RgbF{0.2f, 0.3f, 0.4f}, RgbF{0.8f, 0.9f, 1.0f}, -0.5f)
+      == RgbF{0.2f, 0.3f, 0.4f});
+    CHECK(
+      mixColors(RgbF{0.2f, 0.3f, 0.4f}, RgbF{0.8f, 0.9f, 1.0f}, 1.5f)
+      == RgbF{0.8f, 0.9f, 1.0f});
 
-  CHECK(
-    mixColors(RgbaF{0.2f, 0.3f, 0.4f, 0.1f}, RgbaF{0.8f, 0.9f, 1.0f, 0.9f}, -0.5f)
-    == RgbaF{0.2f, 0.3f, 0.4f, 0.1f});
-  CHECK(
-    mixColors(RgbaF{0.2f, 0.3f, 0.4f, 0.1f}, RgbaF{0.8f, 0.9f, 1.0f, 0.9f}, 2.0f)
-    == RgbaF{0.8f, 0.9f, 1.0f, 0.9f});
-}
+    CHECK(
+      mixColors(RgbaF{0.2f, 0.3f, 0.4f, 0.1f}, RgbaF{0.8f, 0.9f, 1.0f, 0.9f}, -0.5f)
+      == RgbaF{0.2f, 0.3f, 0.4f, 0.1f});
+    CHECK(
+      mixColors(RgbaF{0.2f, 0.3f, 0.4f, 0.1f}, RgbaF{0.8f, 0.9f, 1.0f, 0.9f}, 2.0f)
+      == RgbaF{0.8f, 0.9f, 1.0f, 0.9f});
+  }
 
-TEST_CASE("blendColor")
-{
-  CHECK(blendColor(RgbaF{0.1f, 0.2f, 0.3f, 0.5f}, 0.6f) == RgbaF{0.1f, 0.2f, 0.3f, 0.3f});
+  SECTION("blendColor")
+  {
+    CHECK(
+      blendColor(RgbaF{0.1f, 0.2f, 0.3f, 0.5f}, 0.6f) == RgbaF{0.1f, 0.2f, 0.3f, 0.3f});
+  }
 }
 
 } // namespace tb

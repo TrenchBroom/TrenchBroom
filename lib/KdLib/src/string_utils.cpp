@@ -51,6 +51,20 @@ auto skip_whitespace(const std::string_view str)
   return first != std::string::npos ? str.substr(first) : std::string_view{};
 }
 
+/**
+ * Prepares the given string for std::from_chars, which does not accept a leading '+'
+ * sign, but which we do accept. The sign is only skipped if it actually signs a number so
+ * that malformed input such as "++1" or "+ 1" remains rejected.
+ */
+auto skip_whitespace_and_plus_sign(const std::string_view str)
+{
+  const auto trimmed = skip_whitespace(str);
+  const auto signsNumber =
+    trimmed.size() > 1 && trimmed[0] == '+'
+    && ((trimmed[1] >= '0' && trimmed[1] <= '9') || trimmed[1] == '.');
+  return signsNumber ? trimmed.substr(1) : trimmed;
+}
+
 } // namespace
 
 kdl_reflect_impl(delimited_string);
@@ -232,7 +246,7 @@ std::string str_replace_every(
 
 std::optional<int> str_to_int(std::string_view str)
 {
-  str = skip_whitespace(str);
+  str = skip_whitespace_and_plus_sign(str);
   int value;
   return std::from_chars(str.data(), str.data() + str.size(), value).ec == std::errc{}
            ? std::optional{value}
@@ -241,7 +255,7 @@ std::optional<int> str_to_int(std::string_view str)
 
 std::optional<long> str_to_long(std::string_view str)
 {
-  str = skip_whitespace(str);
+  str = skip_whitespace_and_plus_sign(str);
   long value;
   return std::from_chars(str.data(), str.data() + str.size(), value).ec == std::errc{}
            ? std::optional{value}
@@ -250,7 +264,7 @@ std::optional<long> str_to_long(std::string_view str)
 
 std::optional<long long> str_to_long_long(std::string_view str)
 {
-  str = skip_whitespace(str);
+  str = skip_whitespace_and_plus_sign(str);
   long long value;
   return std::from_chars(str.data(), str.data() + str.size(), value).ec == std::errc{}
            ? std::optional{value}
@@ -259,7 +273,7 @@ std::optional<long long> str_to_long_long(std::string_view str)
 
 std::optional<unsigned long> str_to_u_long(std::string_view str)
 {
-  str = skip_whitespace(str);
+  str = skip_whitespace_and_plus_sign(str);
   unsigned long value;
   return std::from_chars(str.data(), str.data() + str.size(), value).ec == std::errc{}
            ? std::optional{value}
@@ -268,7 +282,7 @@ std::optional<unsigned long> str_to_u_long(std::string_view str)
 
 std::optional<unsigned long long> str_to_u_long_long(std::string_view str)
 {
-  str = skip_whitespace(str);
+  str = skip_whitespace_and_plus_sign(str);
   unsigned long long value;
   return std::from_chars(str.data(), str.data() + str.size(), value).ec == std::errc{}
            ? std::optional{value}
@@ -277,7 +291,7 @@ std::optional<unsigned long long> str_to_u_long_long(std::string_view str)
 
 std::optional<std::size_t> str_to_size(std::string_view str)
 {
-  str = skip_whitespace(str);
+  str = skip_whitespace_and_plus_sign(str);
   size_t value;
   return std::from_chars(str.data(), str.data() + str.size(), value).ec == std::errc{}
            ? std::optional{value}
@@ -286,7 +300,7 @@ std::optional<std::size_t> str_to_size(std::string_view str)
 
 std::optional<float> str_to_float(std::string_view str)
 {
-  str = skip_whitespace(str);
+  str = skip_whitespace_and_plus_sign(str);
 
   float value;
 #if defined(__APPLE__)
@@ -303,7 +317,7 @@ std::optional<float> str_to_float(std::string_view str)
 
 std::optional<double> str_to_double(std::string_view str)
 {
-  str = skip_whitespace(str);
+  str = skip_whitespace_and_plus_sign(str);
 
   double value;
 #if defined(__APPLE__)

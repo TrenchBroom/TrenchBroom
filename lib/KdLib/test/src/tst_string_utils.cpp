@@ -207,6 +207,7 @@ TEST_CASE("string_utils")
     CHECK(str_to_int("1") == 1);
     CHECK(str_to_int("123231") == 123231);
     CHECK(str_to_int("-123231") == -123231);
+    CHECK(str_to_int("+123231") == 123231);
     CHECK(str_to_int("123231b") == 123231);
     CHECK(str_to_int("   123231   ") == 123231);
     CHECK(str_to_int("a123231") == std::nullopt);
@@ -222,6 +223,7 @@ TEST_CASE("string_utils")
     CHECK(str_to_long("-123231") == -123231l);
     CHECK(str_to_long("2147483647") == 2147483647l);
     CHECK(str_to_long("-2147483646") == -2147483646l);
+    CHECK(str_to_long("+123231") == 123231l);
     CHECK(str_to_long("123231b") == 123231l);
     CHECK(str_to_long("   123231   ") == 123231l);
     CHECK(str_to_long("a123231") == std::nullopt);
@@ -239,6 +241,7 @@ TEST_CASE("string_utils")
     CHECK(str_to_long_long("-2147483646") == -2147483646ll);
     CHECK(str_to_long_long("9223372036854775807") == 9'223'372'036'854'775'807ll);
     CHECK(str_to_long_long("-9223372036854775806") == -9'223'372'036'854'775'806ll);
+    CHECK(str_to_long_long("+123231") == 123231ll);
     CHECK(str_to_long_long("123231b") == 123231ll);
     CHECK(str_to_long_long("   123231   ") == 123231ll);
     CHECK(str_to_long_long("a123231") == std::nullopt);
@@ -253,6 +256,7 @@ TEST_CASE("string_utils")
     CHECK(str_to_u_long("1") == 1ul);
     CHECK(str_to_u_long("123231") == 123231ul);
     CHECK(str_to_u_long("2147483647") == 2147483647ul);
+    CHECK(str_to_u_long("+123231") == 123231ul);
     CHECK(str_to_u_long("123231b") == 123231ul);
     CHECK(str_to_u_long("   123231   ") == 123231ul);
     CHECK(str_to_u_long("a123231") == std::nullopt);
@@ -267,6 +271,7 @@ TEST_CASE("string_utils")
     CHECK(str_to_u_long_long("123231") == 123231ull);
     CHECK(str_to_u_long_long("2147483647") == 2147483647ull);
     CHECK(str_to_u_long_long("9223372036854775807") == 9'223'372'036'854'775'807ull);
+    CHECK(str_to_u_long_long("+123231") == 123231ull);
     CHECK(str_to_u_long_long("123231b") == 123231ull);
     CHECK(str_to_u_long_long("   123231   ") == 123231ull);
     CHECK(str_to_u_long_long("a123231") == std::nullopt);
@@ -280,6 +285,7 @@ TEST_CASE("string_utils")
     CHECK(str_to_size("1") == 1u);
     CHECK(str_to_size("123231") == 123231u);
     CHECK(str_to_size("2147483647") == 2147483647u);
+    CHECK(str_to_size("+123231") == 123231u);
     CHECK(str_to_size("123231b") == 123231u);
     CHECK(str_to_size("   123231   ") == 123231u);
     CHECK(str_to_size("a123231") == std::nullopt);
@@ -291,7 +297,12 @@ TEST_CASE("string_utils")
   {
     CHECK(str_to_float("0") == 0.0f);
     CHECK(str_to_float("1.0") == 1.0f);
+    CHECK(str_to_float("-1.0") == -1.0f);
+    CHECK(str_to_float("+1.0") == 1.0f);
     CHECK(str_to_float("  1.0     ") == 1.0f);
+    CHECK(str_to_float("  +1.0     ") == 1.0f);
+    CHECK(str_to_float("1.5e3") == 1500.0f);
+    CHECK(str_to_float("+1.5e-3") == 0.0015f);
     CHECK(str_to_float("a123231.0") == std::nullopt);
     CHECK(str_to_float(" ") == std::nullopt);
     CHECK(str_to_float("") == std::nullopt);
@@ -301,10 +312,21 @@ TEST_CASE("string_utils")
   {
     CHECK(str_to_double("0") == 0.0);
     CHECK(str_to_double("1.0") == 1.0);
+    CHECK(str_to_double("-1.0") == -1.0);
+    CHECK(str_to_double("+1.0") == 1.0);
+    CHECK(str_to_double("+.5") == 0.5);
     CHECK(str_to_double("  1.0     ") == 1.0);
+    CHECK(str_to_double("  +1.0     ") == 1.0);
+    CHECK(str_to_double("1.5e3") == 1500.0);
+    CHECK(str_to_double("+1.5e-3") == 0.0015);
     CHECK(str_to_double("a123231.0") == std::nullopt);
     CHECK(str_to_double(" ") == std::nullopt);
     CHECK(str_to_double("") == std::nullopt);
+    // only a single sign is accepted, and it must not be separated from the digits
+    CHECK(str_to_double("+") == std::nullopt);
+    CHECK(str_to_double("++1.0") == std::nullopt);
+    CHECK(str_to_double("+-1.0") == std::nullopt);
+    CHECK(str_to_double("+ 1.0") == std::nullopt);
   }
 
   SECTION("string_format_test.str_make_random")
