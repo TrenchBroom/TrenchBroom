@@ -289,6 +289,11 @@ asdf)")
       parse(R"([ 1.0, 2.0, "test" ][0..2,3])")
       == scr(
         arr({lit(1.0), lit(2.0), lit("test")}), arr({bRng(lit(0), lit(2)), lit(3)})));
+
+    SECTION("Empty subscript")
+    {
+      CHECK(parse(R"([ 1.0 ][])") == scr(arr({lit(1.0)}), arr({})));
+    }
   }
 
   SECTION("Switch")
@@ -299,6 +304,69 @@ asdf)")
     CHECK(
       parse("{{false -> 'fdsa', 'asdf'}}")
       == swt({cs(lit(false), lit("fdsa")), lit("asdf")}));
+  }
+
+  SECTION("Comments")
+  {
+    CHECK(parse("1 // comment") == lit(1));
+    CHECK(parse("1 // comment\n") == lit(1));
+    CHECK(parse("// comment\n1") == lit(1));
+    CHECK(parse("1 + // comment\n2") == add(lit(1), lit(2)));
+    CHECK(parse("// comment").is_error());
+
+    // a single slash is still division
+    CHECK(parse("4 / 2") == div(lit(4), lit(2)));
+  }
+
+  SECTION("Whitespace")
+  {
+    CHECK(parse("\t1") == lit(1));
+    CHECK(parse("\r1") == lit(1));
+    CHECK(parse("1\t+\r2") == add(lit(1), lit(2)));
+    CHECK(parse("\t\r\n ").is_error());
+  }
+
+  SECTION("Names")
+  {
+    CHECK(parse("_a") == var("_a"));
+    CHECK(parse("a_b") == var("a_b"));
+    CHECK(parse("a1") == var("a1"));
+    CHECK(parse("_1") == var("_1"));
+    CHECK(parse("a_1b") == var("a_1b"));
+  }
+
+  SECTION("Malformed input")
+  {
+    // a number cannot be followed by another decimal point
+    CHECK(parse("1.2.3").is_error());
+
+    CHECK(parse("$").is_error());
+
+    // a lone '=' is not an operator, and must not consume the character after it
+    CHECK(parse("1 = 2").is_error());
+    CHECK(parse("1 =2").is_error());
+    CHECK(parse("1 =+ 2").is_error());
+    CHECK(parse("1 =* 2").is_error());
+    CHECK(parse("=").is_error());
+
+    // but '==' still is, including when the right operand follows immediately
+    CHECK(parse("1 == 2") == eq(lit(1), lit(2)));
+    CHECK(parse("1 ==2") == eq(lit(1), lit(2)));
+    CHECK(parse("a==b") == eq(var("a"), var("b")));
+  }
+
+  SECTION("tokenizerState")
+  {
+    // in lenient mode, parsing stops at the first token that cannot continue the
+    // expression, and the state says where the caller should resume
+    auto parser = ELParser{ParseMode::Lenient, "1 + 2 ) rest"};
+    REQUIRE(parser.parse() == add(lit(1), lit(2)));
+
+    // the state points just past the last consumed token, not past the whitespace
+    const auto state = parser.tokenizerState();
+    CHECK(state.line == 1u);
+    CHECK(state.column == 6u);
+    CHECK(std::string{state.cur} == " ) rest");
   }
 
   SECTION("Groups")

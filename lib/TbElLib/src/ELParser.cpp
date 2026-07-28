@@ -262,7 +262,7 @@ ELTokenizer::Token ELTokenizer::emitToken()
         }
         break;
       case '=':
-        if (curChar() == '=')
+        if (lookAhead() == '=')
         {
           advance(2);
           return Token{ELToken::Equal, c, c + 2, offset(c), line, column};
