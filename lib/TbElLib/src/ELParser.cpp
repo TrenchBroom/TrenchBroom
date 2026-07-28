@@ -85,7 +85,7 @@ auto tokenNames()
 
 const std::string& ELTokenizer::NumberDelim() const
 {
-  static const auto Delim = Whitespace() + "(){}[],:+-*/%";
+  static const auto Delim = Whitespace() + "(){}[],:+-*/%<>=!&|^~";
   return Delim;
 }
 

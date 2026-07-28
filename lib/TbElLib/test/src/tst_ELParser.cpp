@@ -355,6 +355,37 @@ asdf)")
     CHECK(parse("a==b") == eq(var("a"), var("b")));
   }
 
+  SECTION("Numbers need not be separated from the following operator")
+  {
+    CHECK(parse("1+2") == add(lit(1), lit(2)));
+    CHECK(parse("1-2") == sub(lit(1), lit(2)));
+    CHECK(parse("1*2") == mul(lit(1), lit(2)));
+    CHECK(parse("1/2") == div(lit(1), lit(2)));
+    CHECK(parse("1%2") == mod(lit(1), lit(2)));
+    CHECK(parse("1==2") == eq(lit(1), lit(2)));
+    CHECK(parse("1!=2") == neq(lit(1), lit(2)));
+    CHECK(parse("1<2") == ls(lit(1), lit(2)));
+    CHECK(parse("1<=2") == lsEq(lit(1), lit(2)));
+    CHECK(parse("1>2") == gr(lit(1), lit(2)));
+    CHECK(parse("1>=2") == grEq(lit(1), lit(2)));
+    CHECK(parse("1&2") == bitAnd(lit(1), lit(2)));
+    CHECK(parse("1|2") == bitOr(lit(1), lit(2)));
+    CHECK(parse("1^2") == bitXOr(lit(1), lit(2)));
+    CHECK(parse("1<<2") == bitShL(lit(1), lit(2)));
+    CHECK(parse("1>>2") == bitShR(lit(1), lit(2)));
+    CHECK(parse("1&&2") == logAnd(lit(1), lit(2)));
+    CHECK(parse("1||2") == logOr(lit(1), lit(2)));
+    CHECK(parse("1->2") == cs(lit(1), lit(2)));
+
+    // decimals and exponents are read before the delimiter is checked
+    CHECK(parse("1.5<2") == ls(lit(1.5), lit(2)));
+    CHECK(parse("1e2<2") == ls(lit(100.0), lit(2)));
+    CHECK(parse("1e-2<2") == ls(lit(0.01), lit(2)));
+
+    // a range in a subscript still ends the integer before the dots
+    CHECK(parse("[1,2][0..1]") == scr(arr({lit(1), lit(2)}), bRng(lit(0), lit(1))));
+  }
+
   SECTION("tokenizerState")
   {
     // in lenient mode, parsing stops at the first token that cannot continue the
