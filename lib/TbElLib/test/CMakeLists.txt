@@ -7,6 +7,7 @@ target_sources(TbElLibTest PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Interpolate.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Types.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Value.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_VariableStore.cpp
 )
 
 add_compile_definitions(CATCH_CONFIG_ENABLE_ALL_STRINGMAKERS=1)
