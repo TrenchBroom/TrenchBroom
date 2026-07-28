@@ -71,9 +71,9 @@ private:
   {
     while (!eof())
     {
-      size_t startLine = line();
-      size_t startColumn = column();
-      const char* c = curPos();
+      const auto startLine = line();
+      const auto startColumn = column();
+      const auto* c = curPos();
       switch (*c)
       {
       case '{':
