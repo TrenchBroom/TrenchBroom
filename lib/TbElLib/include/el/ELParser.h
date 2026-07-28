@@ -27,7 +27,6 @@
 #include "base/Tokenizer.h"
 
 #include <cstdint>
-#include <iosfwd>
 #include <string>
 
 namespace tb::el
@@ -90,9 +89,6 @@ private:
 
 public:
   ELTokenizer(std::string_view str, size_t line, size_t column);
-
-public:
-  void appendUntil(const std::string& pattern, std::stringstream& str);
 
 private:
   Token emitToken() override;

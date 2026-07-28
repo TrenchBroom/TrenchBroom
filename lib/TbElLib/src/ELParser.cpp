@@ -31,7 +31,6 @@
 #include <fmt/format.h>
 
 #include <optional>
-#include <sstream>
 #include <string>
 
 namespace tb::el
@@ -100,17 +99,6 @@ ELTokenizer::ELTokenizer(
   const std::string_view str, const size_t line, const size_t column)
   : Tokenizer{tokenNames(), str, "\"", '\\', line, column}
 {
-}
-
-void ELTokenizer::appendUntil(const std::string& pattern, std::stringstream& str)
-{
-  const auto* begin = curPos();
-  const auto* end = discardUntilPattern(pattern);
-  str << std::string{begin, end};
-  if (!eof())
-  {
-    discard("${");
-  }
 }
 
 ELTokenizer::Token ELTokenizer::emitToken()
