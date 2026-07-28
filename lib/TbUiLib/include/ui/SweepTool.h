@@ -105,6 +105,8 @@ public:
   vm::vec3d destinationCenter() const;
   void setDestinationCenter(const vm::vec3d& position);
 
+  void rotateDestinationCap(const vm::vec3d& axis, double angle);
+
   void reset();
   bool cancel();
 

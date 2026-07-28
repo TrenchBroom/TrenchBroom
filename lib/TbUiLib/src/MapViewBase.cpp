@@ -430,7 +430,13 @@ void MapViewBase::duplicateAndMoveObjects(const vm::direction direction)
 void MapViewBase::rotate(const vm::rotation_axis axisSpec, const bool clockwise)
 {
   auto& map = m_document.map();
-  if (const auto& bounds = map.selectionBounds())
+  if (m_toolBox.sweepToolActive())
+  {
+    const auto axis = rotationAxis(axisSpec, clockwise);
+    m_toolBox.rotateSweepCap(axis, map.grid().angle());
+    update();
+  }
+  else if (const auto& bounds = map.selectionBounds())
   {
     const auto axis = rotationAxis(axisSpec, clockwise);
     const auto angle = m_toolBox.rotateToolActive() ? vm::abs(m_toolBox.rotateToolAngle())

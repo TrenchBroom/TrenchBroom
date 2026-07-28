@@ -320,6 +320,13 @@ void MapViewToolBox::moveSweepCenter(const vm::vec3d& delta)
   m_sweepTool->setDestinationCenter(center + delta);
 }
 
+void MapViewToolBox::rotateSweepCap(const vm::vec3d& axis, const double angle)
+{
+  contract_pre(sweepToolActive());
+
+  m_sweepTool->rotateDestinationCap(axis, angle);
+}
+
 void MapViewToolBox::performSweep()
 {
   contract_pre(sweepToolActive());

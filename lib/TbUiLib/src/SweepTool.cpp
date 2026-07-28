@@ -270,6 +270,13 @@ void SweepTool::setDestinationCenter(const vm::vec3d& position)
   setTransform(transform);
 }
 
+void SweepTool::rotateDestinationCap(const vm::vec3d& axis, const double angle)
+{
+  auto transform = m_transform;
+  transform.rotation = vm::quatd{vm::normalize(axis), angle} * transform.rotation;
+  setTransform(transform);
+}
+
 void SweepTool::reset()
 {
   setTransform(SweepTransform{});

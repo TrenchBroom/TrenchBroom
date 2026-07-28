@@ -121,6 +121,22 @@ TEST_CASE("SweepTool")
         tool.transform().rotation * vm::vec3d{1, 0, 0} == vm::approx{vm::vec3d{0, 1, 0}});
     }
 
+    SECTION("rotateDestinationCap composes onto the rotation like a ring drag")
+    {
+      tool.setTransform(SweepTransform{
+        vm::vec3d{64, 0, 0},
+        vm::quatd{vm::vec3d{0, 0, 1}, vm::Cd::half_pi()},
+        vm::vec3d{2, 2, 2}});
+
+      tool.rotateDestinationCap(vm::vec3d{1, 0, 0}, vm::Cd::half_pi());
+
+      // a quarter turn about z followed by a quarter turn about x maps {1,0,0} to {0,0,1}
+      CHECK(
+        tool.transform().rotation * vm::vec3d{1, 0, 0} == vm::approx{vm::vec3d{0, 0, 1}});
+      CHECK(tool.transform().translation == vm::vec3d{64, 0, 0});
+      CHECK(tool.transform().scale == vm::vec3d{2, 2, 2});
+    }
+
     SECTION("dragScaleHandleTo reads a uniform scale off the handle arm")
     {
       tool.setDestinationCenter(vm::vec3d{80, 0, 0});

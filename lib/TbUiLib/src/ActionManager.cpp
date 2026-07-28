@@ -323,12 +323,13 @@ void ActionManager::createViewActions()
   });
 
   /* ========== Rotation ========== */
-  // applies to objects, vertices, handles (e.g. rotation center)
+  // applies to objects, vertices, handles (e.g. rotation center), the sweep cap
   addAction(Action{
     std::filesystem::path{"Controls/Map view/Roll objects clockwise"},
     QObject::tr("Roll Clockwise"),
-    ActionContext::AnyView | ActionContext::NodeSelection | ActionContext::RotateTool
-      | ActionContext::NoTool,
+    ActionContext::AnyView | ActionContext::NodeSelection
+      | ActionContext::SelectionOwnedByTool | ActionContext::RotateTool
+      | ActionContext::SweepTool | ActionContext::NoTool,
     QKeySequence{Qt::ALT | Qt::Key_Up},
     [](auto& context) { context.mapView().rotate(vm::rotation_axis::roll, true); },
     [](const auto& context) { return context.hasDocument(); },
@@ -336,8 +337,9 @@ void ActionManager::createViewActions()
   addAction(Action{
     std::filesystem::path{"Controls/Map view/Roll objects counter-clockwise"},
     QObject::tr("Roll Counter-clockwise"),
-    ActionContext::AnyView | ActionContext::NodeSelection | ActionContext::RotateTool
-      | ActionContext::NoTool,
+    ActionContext::AnyView | ActionContext::NodeSelection
+      | ActionContext::SelectionOwnedByTool | ActionContext::RotateTool
+      | ActionContext::SweepTool | ActionContext::NoTool,
     QKeySequence{Qt::ALT | Qt::Key_Down},
     [](auto& context) { context.mapView().rotate(vm::rotation_axis::roll, false); },
     [](const auto& context) { return context.hasDocument(); },
@@ -345,8 +347,9 @@ void ActionManager::createViewActions()
   addAction(Action{
     std::filesystem::path{"Controls/Map view/Yaw objects clockwise"},
     QObject::tr("Yaw Clockwise"),
-    ActionContext::AnyView | ActionContext::NodeSelection | ActionContext::RotateTool
-      | ActionContext::NoTool,
+    ActionContext::AnyView | ActionContext::NodeSelection
+      | ActionContext::SelectionOwnedByTool | ActionContext::RotateTool
+      | ActionContext::SweepTool | ActionContext::NoTool,
     QKeySequence{Qt::ALT | Qt::Key_Left},
     [](auto& context) { context.mapView().rotate(vm::rotation_axis::yaw, true); },
     [](const auto& context) { return context.hasDocument(); },
@@ -354,8 +357,9 @@ void ActionManager::createViewActions()
   addAction(Action{
     std::filesystem::path{"Controls/Map view/Yaw objects counter-clockwise"},
     QObject::tr("Yaw Counter-clockwise"),
-    ActionContext::AnyView | ActionContext::NodeSelection | ActionContext::RotateTool
-      | ActionContext::NoTool,
+    ActionContext::AnyView | ActionContext::NodeSelection
+      | ActionContext::SelectionOwnedByTool | ActionContext::RotateTool
+      | ActionContext::SweepTool | ActionContext::NoTool,
     QKeySequence{Qt::ALT | Qt::Key_Right},
     [](auto& context) { context.mapView().rotate(vm::rotation_axis::yaw, false); },
     [](const auto& context) { return context.hasDocument(); },
@@ -363,8 +367,9 @@ void ActionManager::createViewActions()
   addAction(Action{
     std::filesystem::path{"Controls/Map view/Pitch objects clockwise"},
     QObject::tr("Pitch Clockwise"),
-    ActionContext::AnyView | ActionContext::NodeSelection | ActionContext::RotateTool
-      | ActionContext::NoTool,
+    ActionContext::AnyView | ActionContext::NodeSelection
+      | ActionContext::SelectionOwnedByTool | ActionContext::RotateTool
+      | ActionContext::SweepTool | ActionContext::NoTool,
     QKeySequence{Qt::ALT | Qt::Key_PageUp},
     [](auto& context) { context.mapView().rotate(vm::rotation_axis::pitch, true); },
     [](const auto& context) { return context.hasDocument(); },
@@ -372,8 +377,9 @@ void ActionManager::createViewActions()
   addAction(Action{
     std::filesystem::path{"Controls/Map view/Pitch objects counter-clockwise"},
     QObject::tr("Pitch Counter-clockwise"),
-    ActionContext::AnyView | ActionContext::NodeSelection | ActionContext::RotateTool
-      | ActionContext::NoTool,
+    ActionContext::AnyView | ActionContext::NodeSelection
+      | ActionContext::SelectionOwnedByTool | ActionContext::RotateTool
+      | ActionContext::SweepTool | ActionContext::NoTool,
     QKeySequence{Qt::ALT | Qt::Key_PageDown},
     [](auto& context) { context.mapView().rotate(vm::rotation_axis::pitch, false); },
     [](const auto& context) { return context.hasDocument(); },
