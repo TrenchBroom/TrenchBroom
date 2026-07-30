@@ -171,6 +171,40 @@ static void seekForward(Reader&& r)
   CHECK(r.position() == 2U);
 }
 
+TEST_CASE("BufferReaderTest.seekBackward")
+{
+  auto r = Reader::from(buff(), buff() + 10);
+
+  r.seekForward(5U);
+  CHECK(r.position() == 5U);
+
+  r.seekBackward(2U);
+  CHECK(r.position() == 3U);
+
+  r.seekBackward(3U);
+  CHECK(r.position() == 0U);
+
+  CHECK_THROWS_AS(r.seekBackward(1U), ReaderException);
+  CHECK(r.position() == 0U);
+}
+
+TEST_CASE("FileReaderTest.seekBackward")
+{
+  auto r = file()->reader();
+
+  r.seekForward(5U);
+  CHECK(r.position() == 5U);
+
+  r.seekBackward(2U);
+  CHECK(r.position() == 3U);
+
+  r.seekBackward(3U);
+  CHECK(r.position() == 0U);
+
+  CHECK_THROWS_AS(r.seekBackward(1U), ReaderException);
+  CHECK(r.position() == 0U);
+}
+
 TEST_CASE("ReaderTest.copyConstructor")
 {
   auto reader = Reader::from(buff(), buff() + 10);
@@ -229,6 +263,57 @@ TEST_CASE("FileReaderTest.subReader")
   subReader(file()->reader());
 }
 
+TEST_CASE("BufferReaderTest.subReaderFromBeginToEnd")
+{
+  auto r = Reader::from(buff(), buff() + 10);
+  auto s = r.subReaderFromBegin(5);
+
+  CHECK(s.size() == 5U);
+  CHECK(s.readString(5) == "fghij");
+}
+
+TEST_CASE("FileReaderTest.subReaderFromBeginToEnd")
+{
+  auto r = file()->reader();
+  auto s = r.subReaderFromBegin(5);
+
+  CHECK(s.size() == 5U);
+  CHECK(s.readString(5) == "fghij");
+}
+
+TEST_CASE("BufferReaderTest.subReaderFromCurrent")
+{
+  auto r = Reader::from(buff(), buff() + 10);
+  r.seekFromBegin(2U);
+
+  auto s = r.subReaderFromCurrent(1, 3);
+  CHECK(s.size() == 3U);
+  CHECK(s.readString(3) == "def");
+
+  auto s2 = r.subReaderFromCurrent(5);
+  CHECK(s2.size() == 5U);
+  CHECK(s2.readString(5) == "cdefg");
+}
+
+TEST_CASE("FileReaderTest.subReaderFromCurrent")
+{
+  auto r = file()->reader();
+  r.seekFromBegin(2U);
+
+  auto s = r.subReaderFromCurrent(1, 3);
+  CHECK(s.size() == 3U);
+  CHECK(s.readString(3) == "def");
+
+  auto s2 = r.subReaderFromCurrent(5);
+  CHECK(s2.size() == 5U);
+  CHECK(s2.readString(5) == "cdefg");
+}
+
+TEST_CASE("BufferReaderTest.invalidRange")
+{
+  CHECK_THROWS_AS(Reader::from(buff() + 1, buff()), ReaderException);
+}
+
 TEST_CASE("BufferedReaderTest.subReaderOutlivesParent")
 {
   // OwningBufferReaderSource (the source behind a BufferedReader obtained from a
@@ -241,5 +326,29 @@ TEST_CASE("BufferedReaderTest.subReaderOutlivesParent")
   }();
 
   CHECK(sub.readString(3) == "fgh");
+}
+
+TEST_CASE("BufferedReaderTest.buffer")
+{
+  auto buffered = file()->reader().buffer();
+
+  SECTION("begin, end and stringView expose the underlying memory region")
+  {
+    CHECK(buffered.end() == buffered.begin() + buffered.size());
+    CHECK(buffered.stringView() == "abcdefghij");
+  }
+
+  SECTION("buffering an already buffered reader returns itself")
+  {
+    auto buffered2 = buffered.buffer();
+    CHECK(buffered2.begin() == buffered.begin());
+    CHECK(buffered2.end() == buffered.end());
+  }
+
+  SECTION("buffering a sub-reader of a buffered reader still shares the same buffer")
+  {
+    auto sub = buffered.subReaderFromBegin(5, 3).buffer();
+    CHECK(sub.stringView() == "fgh");
+  }
 }
 } // namespace tb::fs
