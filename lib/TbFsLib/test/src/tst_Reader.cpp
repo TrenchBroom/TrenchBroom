@@ -228,4 +228,18 @@ TEST_CASE("FileReaderTest.subReader")
 {
   subReader(file()->reader());
 }
+
+TEST_CASE("BufferedReaderTest.subReaderOutlivesParent")
+{
+  // OwningBufferReaderSource (the source behind a BufferedReader obtained from a
+  // file-backed reader) must keep its buffer alive independently of the
+  // BufferedReader it was created from, since a sub-reader derived from it can
+  // outlive its parent.
+  auto sub = [] {
+    auto buffered = file()->reader().buffer();
+    return buffered.subReaderFromBegin(5, 3);
+  }();
+
+  CHECK(sub.readString(3) == "fgh");
+}
 } // namespace tb::fs

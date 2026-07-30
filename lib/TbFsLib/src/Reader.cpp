@@ -161,6 +161,15 @@ public:
   {
   }
 
+  std::shared_ptr<ReaderSource> subSource(
+    const size_t offset, const size_t length) const override
+  {
+    // unlike BufferReaderSource::subSource, this keeps m_buffer alive, so the
+    // resulting sub-reader remains valid independently of this reader's lifetime
+    return std::make_shared<OwningBufferReaderSource>(
+      m_buffer, begin() + offset, begin() + offset + length);
+  }
+
   std::shared_ptr<BufferReaderSource> buffer() const override
   {
     return std::make_shared<OwningBufferReaderSource>(m_buffer, begin(), end());
