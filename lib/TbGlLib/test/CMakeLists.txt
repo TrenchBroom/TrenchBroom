@@ -12,6 +12,7 @@ target_sources(TbGlLibTest PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_ResourceManager.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Texture.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_TextureBuffer.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_VboManager.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Vertex.cpp
 )
 
