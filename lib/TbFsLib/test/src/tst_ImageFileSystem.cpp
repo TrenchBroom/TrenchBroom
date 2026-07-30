@@ -21,6 +21,7 @@
 #include "TestEnvironment.h"
 #include "fs/DiskIO.h"
 #include "fs/DkPakFileSystem.h"
+#include "fs/FileSystemMetadata.h"
 #include "fs/IdPakFileSystem.h"
 #include "fs/PathInfo.h"
 #include "fs/TestUtils.h"
@@ -1024,6 +1025,60 @@ TEST_CASE("WadFileSystem")
     {
       REQUIRE(std::filesystem::remove(copyPath));
     }
+  }
+}
+
+TEST_CASE("ImageFileSystemBase")
+{
+  const auto fsTestPath = getFixtureRoot() / "test/fs/";
+
+  SECTION("makeAbsolute")
+  {
+    const auto fs = openFS<DkPakFileSystem>(fsTestPath / "Pak/dkpak.pak");
+    CHECK(fs->makeAbsolute("foo/bar") == "/foo/bar");
+  }
+
+  SECTION("addFile")
+  {
+    // DkPakFileSystem lowercases entry names before calling addFile, so
+    // dkpak_duplicate_name.pak's "dup.txt" and "DUP.TXT" entries both arrive as
+    // "dup.txt" and must resolve to the same cached entry, with the later one
+    // replacing the earlier one rather than being ignored or added alongside it
+    const auto fs = openFS<DkPakFileSystem>(fsTestPath / "Pak/dkpak_duplicate_name.pak");
+
+    const auto file = fs->openFile("dup.txt") | kdl::value();
+    auto reader = file->reader();
+    CHECK(reader.readString(reader.size()) == "second content");
+
+    CHECK_THAT(fs->find("", TraversalMode::Flat), MatchesPathsResult({"dup.txt"}));
+  }
+
+  SECTION("metadata")
+  {
+    const std::shared_ptr<FileSystem> fs =
+      openFS<DkPakFileSystem>(fsTestPath / "Pak/dkpak.pak");
+
+    const auto* imageFilePath =
+      fs->metadata("amnet.cfg", FileSystemMetadataKeys::ImageFilePath);
+    REQUIRE(imageFilePath != nullptr);
+    CHECK(
+      std::get<std::filesystem::path>(*imageFilePath) == fsTestPath / "Pak/dkpak.pak");
+
+    // an unknown path has no metadata, regardless of the key
+    CHECK(
+      fs->metadata("does_not_exist", FileSystemMetadataKeys::ImageFilePath) == nullptr);
+
+    // a known path has no metadata under an unknown key
+    CHECK(fs->metadata("amnet.cfg", "some_other_key") == nullptr);
+  }
+
+  SECTION("doOpenFile returns an error for a directory entry")
+  {
+    const std::shared_ptr<FileSystem> fs =
+      openFS<DkPakFileSystem>(fsTestPath / "Pak/dkpak.pak");
+
+    REQUIRE(fs->pathInfo("textures") == PathInfo::Directory);
+    CHECK(fs->openFile("textures").is_error());
   }
 }
 
