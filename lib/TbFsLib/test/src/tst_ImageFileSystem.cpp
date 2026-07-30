@@ -1080,6 +1080,31 @@ TEST_CASE("ImageFileSystemBase")
     REQUIRE(fs->pathInfo("textures") == PathInfo::Directory);
     CHECK(fs->openFile("textures").is_error());
   }
+
+  SECTION("a move-constructed-from instance remains usable")
+  {
+    auto a = openFS<DkPakFileSystem>(fsTestPath / "Pak/dkpak.pak");
+
+    const auto moved = DkPakFileSystem{std::move(*a)};
+    CHECK(static_cast<const FileSystem&>(moved).pathInfo("amnet.cfg") == PathInfo::File);
+
+    // *a was moved from; calling a locked method on it must not be undefined
+    // behavior, just report an empty filesystem
+    CHECK(static_cast<const FileSystem&>(*a).pathInfo("amnet.cfg") == PathInfo::Unknown);
+  }
+
+  SECTION("a move-assigned-from instance remains usable")
+  {
+    auto a = openFS<DkPakFileSystem>(fsTestPath / "Pak/dkpak.pak");
+    auto b = openFS<DkPakFileSystem>(fsTestPath / "Pak/dkpak_rle.pak");
+
+    *b = std::move(*a);
+    CHECK(static_cast<const FileSystem&>(*b).pathInfo("amnet.cfg") == PathInfo::File);
+
+    // *a was moved from; calling a locked method on it must not be undefined
+    // behavior, just report an empty filesystem
+    CHECK(static_cast<const FileSystem&>(*a).pathInfo("amnet.cfg") == PathInfo::Unknown);
+  }
 }
 
 } // namespace tb::fs
