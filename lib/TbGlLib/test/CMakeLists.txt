@@ -14,6 +14,7 @@ target_sources(TbGlLibTest PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_TextureBuffer.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_VboManager.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Vertex.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_VertexArray.cpp
 )
 
 add_compile_definitions(CATCH_CONFIG_ENABLE_ALL_STRINGMAKERS=1)
