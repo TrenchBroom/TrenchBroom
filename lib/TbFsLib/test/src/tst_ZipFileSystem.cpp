@@ -49,13 +49,10 @@ TEST_CASE("ZipFileSystem")
       CHECK(fs->openFile("data.txt").is_error());
     }
 
-    SECTION("adds an entry with an empty path for an entry with an empty filename")
+    SECTION("skips an entry with an empty filename")
     {
-      // Unlike WadFileSystem, doReadDirectory does not skip entries whose central
-      // directory filename length is 0. This pins the current, somewhat surprising
-      // behavior rather than an explicitly intended one.
       auto fs = openFS<ZipFileSystem>(fsTestPath / "empty_filename.zip");
-      CHECK_THAT(fs->find("", TraversalMode::Recursive), MatchesPathsResult({""}));
+      CHECK_THAT(fs->find("", TraversalMode::Recursive), MatchesPathsResult({}));
     }
   }
 }
