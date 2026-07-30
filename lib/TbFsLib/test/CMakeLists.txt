@@ -5,10 +5,15 @@ target_sources(TbFsLibTest PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_CachedFileTree.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_DiskFileSystem.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_DiskIO.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_DkPakFileSystem.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_File.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_FileSystem.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_ImageFileSystem.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_PathMatcher.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Reader.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_VirtualFileSystem.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_WadFileSystem.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_ZipFileSystem.cpp
 )
 
 add_compile_definitions(CATCH_CONFIG_ENABLE_ALL_STRINGMAKERS=1)

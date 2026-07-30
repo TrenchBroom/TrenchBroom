@@ -158,6 +158,16 @@ TEST_CASE("DiskIO")
         env.dir() / "linkedTest2.map",
       }));
 
+    // a matcher that filters some entries out, rather than the default matchAnyPath
+    CHECK_THAT(
+      fs::Disk::find(
+        env.dir(), fs::TraversalMode::Flat, fs::makeExtensionPathMatcher({".map"}))
+        | kdl::value(),
+      UnorderedEquals(std::vector<std::filesystem::path>{
+        env.dir() / "test2.map",
+        env.dir() / "linkedTest2.map",
+      }));
+
     CHECK_THAT(
       fs::Disk::find(env.dir(), fs::TraversalMode::Recursive) | kdl::value(),
       UnorderedEquals(std::vector<std::filesystem::path>{
@@ -200,6 +210,13 @@ TEST_CASE("DiskIO")
         env.dir() / "linkedDir/test2.map",
         env.dir() / "linkedTest2.map",
       }));
+
+#ifndef _WIN32
+    // These tests don't work on Windows due to differences in permissions
+    const auto setPermissions =
+      SetPermissions{env.dir() / "anotherDir", std::filesystem::perms::owner_read};
+    CHECK(fs::Disk::find(env.dir(), fs::TraversalMode::Recursive).is_error());
+#endif
   }
 
   SECTION("openFile")
@@ -680,6 +697,17 @@ TEST_CASE("DiskIO")
     CHECK(
       fs::Disk::resolvePath(rootPaths, "linkedDir/test2.map")
       == env.dir() / "linkedDir/test2.map");
+
+    // an absolute path that exists is returned as-is, without consulting rootPaths
+    CHECK(
+      fs::Disk::resolvePath(rootPaths, env.dir() / "test.txt") == env.dir() / "test.txt");
+
+    // a relative search path must be skipped rather than treated as a base to
+    // resolve against
+    const auto rootPathsWithRelative =
+      std::vector<std::filesystem::path>{"relative/search/path", env.dir()};
+    CHECK(
+      fs::Disk::resolvePath(rootPathsWithRelative, "test.txt") == env.dir() / "test.txt");
   }
 
   SECTION("makeUniqueFilename")
@@ -687,6 +715,13 @@ TEST_CASE("DiskIO")
     CHECK(fs::Disk::makeUniqueFilename("/does/not/exist").is_success());
     CHECK(
       fs::Disk::makeUniqueFilename(std::filesystem::temp_directory_path()).is_success());
+
+#ifndef _WIN32
+    // These tests don't work on Windows due to differences in permissions
+    const auto setPermissions =
+      SetPermissions{env.dir() / "anotherDir", std::filesystem::perms::owner_read};
+    CHECK(fs::Disk::makeUniqueFilename(env.dir() / "anotherDir").is_error());
+#endif
   }
 }
 

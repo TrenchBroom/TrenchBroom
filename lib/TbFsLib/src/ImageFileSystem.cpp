@@ -42,9 +42,24 @@ ImageFileSystemBase::ImageFileSystemBase()
 {
 }
 
-ImageFileSystemBase::ImageFileSystemBase(ImageFileSystemBase&&) noexcept = default;
-ImageFileSystemBase& ImageFileSystemBase::operator=(ImageFileSystemBase&&) noexcept =
-  default;
+ImageFileSystemBase::ImageFileSystemBase(ImageFileSystemBase&& other) noexcept
+  : m_root{std::move(other.m_root)}
+  , m_metadata{std::move(other.m_metadata)}
+  , m_mutex{std::move(other.m_mutex)}
+{
+  // leave other in the same usable state a default-constructed instance would be in,
+  // rather than with a null m_mutex that would make any locked method on it UB
+  other.m_mutex = std::make_unique<std::shared_mutex>();
+}
+
+ImageFileSystemBase& ImageFileSystemBase::operator=(ImageFileSystemBase&& other) noexcept
+{
+  m_root = std::move(other.m_root);
+  m_metadata = std::move(other.m_metadata);
+  m_mutex = std::move(other.m_mutex);
+  other.m_mutex = std::make_unique<std::shared_mutex>();
+  return *this;
+}
 
 ImageFileSystemBase::~ImageFileSystemBase() = default;
 

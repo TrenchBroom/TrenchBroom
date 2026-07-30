@@ -148,7 +148,14 @@ Result<std::vector<std::filesystem::path>> find(
       it.disable_recursion_pending();
     }
 
-    ++it;
+    // the error_code overload, not the throwing ++it, since a permission error (e.g.
+    // an unreadable subdirectory) can occur at any point during traversal, not just
+    // when the iterator is first constructed
+    it.increment(error);
+    if (error)
+    {
+      break;
+    }
   }
 
   if (error)

@@ -766,6 +766,15 @@ TEST_CASE("VirtualFileSystem")
         == Result<std::vector<std::filesystem::path>>{std::vector<std::filesystem::path>{
           "foo/bar",
         }});
+
+      // querying directly at "foo/bar/f" is a Directory overall (fs2's directory
+      // wins), but fs1's own contribution to that same path is a File - its
+      // findInMountedFileSystem call must skip it rather than trying to list the
+      // contents of a file
+      CHECK(
+        vfs.find("foo/bar/f", fs::TraversalMode::Flat)
+        == Result<std::vector<std::filesystem::path>>{
+          std::vector<std::filesystem::path>{}});
     }
 
     SECTION("openFile")
@@ -866,6 +875,168 @@ TEST_CASE("VirtualFileSystem concurrent mount/unmount vs. reads")
   // the mount()/unmount() pairs in the writer thread should have left the original
   // mount point as the only one remaining
   CHECK(vfs.pathInfo("dir") == fs::PathInfo::Directory);
+}
+
+TEST_CASE("VirtualFileSystem makeAbsolute for a path that resolves but does not exist")
+{
+  // DiskFileSystem::makeAbsolute succeeds for any path that doesn't escape the root,
+  // regardless of whether it actually exists, so this exercises the branch where
+  // makeAbsolute succeeds on a mount but pathInfo on that same mount is Unknown
+  auto env = TestEnvironment{};
+
+  auto vfs = VirtualFileSystem{};
+  vfs.mount("", std::make_unique<DiskFileSystem>(env.dir()));
+
+  CHECK(
+    vfs.makeAbsolute("does_not_exist.txt")
+    == Result<std::filesystem::path>{Error{fmt::format(
+      "Failed to make absolute path of {}",
+      std::filesystem::path{"does_not_exist.txt"})}});
+}
+
+TEST_CASE("VirtualFileSystem makeAbsolute when the mounted file system itself fails")
+{
+  // the suffix handed to the mounted file system can still start with ".." (the
+  // mount point match is purely a component-wise prefix check on the raw path), and
+  // DiskFileSystem::makeAbsolute rejects any path starting with "..", so this
+  // exercises the branch where makeAbsolute on the mount fails outright, not just
+  // where it succeeds for a path that doesn't exist
+  auto env = TestEnvironment{};
+
+  auto vfs = VirtualFileSystem{};
+  vfs.mount("sub", std::make_unique<DiskFileSystem>(env.dir()));
+
+  CHECK(
+    vfs.makeAbsolute("sub/../foo")
+    == Result<std::filesystem::path>{Error{fmt::format(
+      "Failed to make absolute path of {}", std::filesystem::path{"sub/../foo"})}});
+}
+
+TEST_CASE("VirtualFileSystem unmount and unmountAll")
+{
+  auto env = TestEnvironment{[](auto& e) { e.createDirectory("dir"); }};
+
+  auto vfs = VirtualFileSystem{};
+  const auto id1 = vfs.mount("mnt1", std::make_unique<DiskFileSystem>(env.dir()));
+  const auto id2 = vfs.mount("mnt2", std::make_unique<DiskFileSystem>(env.dir()));
+
+  CHECK(id1 != id2);
+  CHECK_FALSE(id1 == id2);
+
+  SECTION("unmount")
+  {
+    CHECK(vfs.pathInfo("mnt1/dir") == fs::PathInfo::Directory);
+
+    CHECK(vfs.unmount(id1));
+    CHECK(vfs.pathInfo("mnt1/dir") == fs::PathInfo::Unknown);
+    CHECK(vfs.pathInfo("mnt2/dir") == fs::PathInfo::Directory);
+
+    // id1 is no longer mounted, so unmounting it again must fail rather than
+    // removing some other mount point
+    CHECK_FALSE(vfs.unmount(id1));
+    CHECK(vfs.pathInfo("mnt2/dir") == fs::PathInfo::Directory);
+  }
+
+  SECTION("unmountAll")
+  {
+    vfs.unmountAll();
+    CHECK(vfs.pathInfo("mnt1/dir") == fs::PathInfo::Unknown);
+    CHECK(vfs.pathInfo("mnt2/dir") == fs::PathInfo::Unknown);
+  }
+}
+
+TEST_CASE("WritableVirtualFileSystem")
+{
+  auto env = TestEnvironment{[](auto& e) {
+    e.createDirectory("dir");
+    e.createFile("existing.txt", "hello");
+  }};
+
+  auto wvfs = WritableVirtualFileSystem{
+    VirtualFileSystem{}, std::make_unique<WritableDiskFileSystem>(env.dir())};
+
+  SECTION("makeAbsolute")
+  {
+    CHECK(
+      wvfs.makeAbsolute("existing.txt")
+      == Result<std::filesystem::path>{env.dir() / "existing.txt"});
+  }
+
+  SECTION("reload")
+  {
+    CHECK(wvfs.reload().is_success());
+  }
+
+  SECTION("pathInfo")
+  {
+    CHECK(wvfs.pathInfo("existing.txt") == fs::PathInfo::File);
+    CHECK(wvfs.pathInfo("dir") == fs::PathInfo::Directory);
+    CHECK(wvfs.pathInfo("does_not_exist") == fs::PathInfo::Unknown);
+  }
+
+  SECTION("metadata")
+  {
+    // DiskFileSystem never sets metadata, so this just confirms the call is
+    // forwarded without crashing
+    CHECK(wvfs.metadata("existing.txt", "some_key") == nullptr);
+  }
+
+  SECTION("find")
+  {
+    CHECK_THAT(
+      wvfs.find("", fs::TraversalMode::Flat),
+      MatchesPathsResult({"dir", "existing.txt"}));
+  }
+
+  SECTION("openFile")
+  {
+    const auto file = wvfs.openFile("existing.txt") | kdl::value();
+    auto reader = file->reader();
+    CHECK(reader.readString(reader.size()) == "hello");
+  }
+
+  SECTION("createFile")
+  {
+    REQUIRE(wvfs.createFile("new.txt", "new content").is_success());
+    CHECK(wvfs.pathInfo("new.txt") == fs::PathInfo::File);
+
+    const auto file = wvfs.openFile("new.txt") | kdl::value();
+    auto reader = file->reader();
+    CHECK(reader.readString(reader.size()) == "new content");
+  }
+
+  SECTION("createDirectory")
+  {
+    REQUIRE(wvfs.createDirectory("newDir") | kdl::value());
+    CHECK(wvfs.pathInfo("newDir") == fs::PathInfo::Directory);
+  }
+
+  SECTION("deleteFile")
+  {
+    REQUIRE(wvfs.deleteFile("existing.txt") | kdl::value());
+    CHECK(wvfs.pathInfo("existing.txt") == fs::PathInfo::Unknown);
+  }
+
+  SECTION("copyFile")
+  {
+    REQUIRE(wvfs.copyFile("existing.txt", "copy.txt").is_success());
+    CHECK(wvfs.pathInfo("existing.txt") == fs::PathInfo::File);
+    CHECK(wvfs.pathInfo("copy.txt") == fs::PathInfo::File);
+  }
+
+  SECTION("moveFile")
+  {
+    REQUIRE(wvfs.moveFile("existing.txt", "moved.txt").is_success());
+    CHECK(wvfs.pathInfo("existing.txt") == fs::PathInfo::Unknown);
+    CHECK(wvfs.pathInfo("moved.txt") == fs::PathInfo::File);
+  }
+
+  SECTION("renameDirectory")
+  {
+    REQUIRE(wvfs.renameDirectory("dir", "renamedDir").is_success());
+    CHECK(wvfs.pathInfo("dir") == fs::PathInfo::Unknown);
+    CHECK(wvfs.pathInfo("renamedDir") == fs::PathInfo::Directory);
+  }
 }
 
 } // namespace tb::fs
