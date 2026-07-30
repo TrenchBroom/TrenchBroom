@@ -13,6 +13,7 @@ target_sources(TbFsLibTest PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Reader.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_VirtualFileSystem.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_WadFileSystem.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_ZipFileSystem.cpp
 )
 
 add_compile_definitions(CATCH_CONFIG_ENABLE_ALL_STRINGMAKERS=1)
