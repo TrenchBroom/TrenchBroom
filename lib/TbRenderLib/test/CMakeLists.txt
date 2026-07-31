@@ -10,6 +10,7 @@ target_sources(TbRenderLibTest PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Circle.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_GridRenderer.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_PointGuideRenderer.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_RenderBatch.cpp
 )
 
 add_compile_definitions(CATCH_CONFIG_ENABLE_ALL_STRINGMAKERS=1)
