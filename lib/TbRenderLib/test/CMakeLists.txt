@@ -9,6 +9,7 @@ target_sources(TbRenderLibTest PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_BrushRendererArrays.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Circle.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_GridRenderer.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_LinkRenderer.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_PointGuideRenderer.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_RenderBatch.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_RenderContext.cpp
