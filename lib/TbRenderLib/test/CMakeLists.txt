@@ -14,6 +14,7 @@ target_sources(TbRenderLibTest PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_RenderContext.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_SpikeGuideRenderer.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_TextAnchor.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Transformation.cpp
 )
 
 add_compile_definitions(CATCH_CONFIG_ENABLE_ALL_STRINGMAKERS=1)
