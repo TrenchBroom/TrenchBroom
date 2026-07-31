@@ -23,8 +23,30 @@ namespace tb::gl
 {
 class ResourceManager;
 struct ProcessContext;
+class MockGl;
 
 void processResourcesSync(
   ResourceManager& resourceManager, const ProcessContext& processContext);
+
+/**
+ * Wires up the calls a Vbo needs in order to be constructed, bound, written to,
+ * unbound and freed, using sequential non-zero buffer ids. Real OpenGL never hands
+ * out id 0, and Vbo relies on that: bind, unbind and free all assert the id is
+ * non-zero. Individual slots can be overridden afterwards to verify specific calls.
+ */
+void installVboSupport(MockGl& gl);
+
+/**
+ * Wires up the calls Texture::upload needs, using sequential non-zero texture ids.
+ * Individual slots can be overridden afterwards to verify specific calls.
+ */
+void installTextureUploadSupport(MockGl& gl);
+
+/**
+ * Wires up the calls needed to successfully create a shader (id 2) and program
+ * (id 1) and link them, so that gl::loadShader and ShaderManager::loadProgram
+ * succeed. Individual slots can be overridden afterwards to verify specific calls.
+ */
+void installShaderCompileSupport(MockGl& gl);
 
 } // namespace tb::gl

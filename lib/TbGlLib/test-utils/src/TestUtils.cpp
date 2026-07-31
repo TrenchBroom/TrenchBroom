@@ -19,6 +19,7 @@
 
 #include "gl/TestUtils.h"
 
+#include "gl/MockGl.h"
 #include "gl/ResourceManager.h"
 
 namespace tb::gl
@@ -37,6 +38,54 @@ void processResourcesSync(
       },
       processContext);
   }
+}
+
+void installVboSupport(MockGl& gl)
+{
+  gl.onGenBuffers = [nextId = GLuint{1}](const GLsizei n, GLuint* buffers) mutable {
+    for (auto i = GLsizei{0}; i < n; ++i)
+    {
+      buffers[i] = nextId++;
+    }
+  };
+  gl.onDeleteBuffers = [](GLsizei, const GLuint*) {};
+  gl.onBindBuffer = [](GLenum, GLuint) {};
+  gl.onBufferData = [](GLenum, GLsizeiptr, const GLvoid*, GLenum) {};
+  gl.onBufferSubData = [](GLenum, GLintptr, GLsizeiptr, const void*) {};
+}
+
+void installTextureUploadSupport(MockGl& gl)
+{
+  gl.onGenTextures = [nextId = GLuint{1}](const GLsizei n, GLuint* textures) mutable {
+    for (auto i = GLsizei{0}; i < n; ++i)
+    {
+      textures[i] = nextId++;
+    }
+  };
+  gl.onDeleteTextures = [](GLsizei, const GLuint*) {};
+  gl.onBindTexture = [](GLenum, GLuint) {};
+  gl.onPixelStorei = [](GLenum, GLint) {};
+  gl.onTexParameteri = [](GLenum, GLenum, GLint) {};
+  gl.onTexImage2D =
+    [](GLenum, GLint, GLint, GLsizei, GLsizei, GLint, GLenum, GLenum, const GLvoid*) {};
+  gl.onCompressedTexImage2D =
+    [](GLenum, GLint, GLenum, GLsizei, GLsizei, GLint, GLsizei, const GLvoid*) {};
+}
+
+void installShaderCompileSupport(MockGl& gl)
+{
+  gl.onCreateProgram = []() { return GLuint{1}; };
+  gl.onCreateShader = [](GLenum) { return GLuint{2}; };
+  gl.onShaderSource = [](GLuint, GLsizei, const GLchar* const*, const GLint*) {};
+  gl.onCompileShader = [](GLuint) {};
+  gl.onGetShaderiv = [](GLuint, const GLenum pname, GLint* params) {
+    *params = (pname == GL_COMPILE_STATUS) ? 1 : 0;
+  };
+  gl.onAttachShader = [](GLuint, GLuint) {};
+  gl.onLinkProgram = [](GLuint) {};
+  gl.onGetProgramiv = [](GLuint, const GLenum pname, GLint* params) {
+    *params = (pname == GL_LINK_STATUS) ? 1 : 0;
+  };
 }
 
 } // namespace tb::gl
