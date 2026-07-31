@@ -61,32 +61,33 @@ TEST_CASE("DirtyRangeTracker")
       CHECK(!tracker.clean());
     }
 
-    SECTION("the first call after construction anchors the dirty range at 0")
+    SECTION("records exactly the given range on a clean tracker")
     {
-      // known bug, not fixed here since it's a production-code decision (see the
-      // coverage report): markDirty()'s union math treats m_dirtyPos == 0 &&
-      // m_dirtySize == 0 as the "clean" sentinel, which is indistinguishable from an
-      // actual dirty range starting at 0. So the first markDirty() call after
-      // construction unions [pos, pos+size) with a phantom [0, 0) range and always
-      // anchors the result at 0, even though only [10, 15) was actually written.
       auto tracker = DirtyRangeTracker{100};
       tracker.markDirty(10, 5);
-      CHECK(!tracker.clean());
-      CHECK(tracker.m_dirtyPos == 0u);
-      CHECK(tracker.m_dirtySize == 15u);
+      REQUIRE(tracker.m_dirtyRange.has_value());
+      CHECK(tracker.m_dirtyRange->pos == 10u);
+      CHECK(tracker.m_dirtyRange->size == 5u);
     }
 
-    SECTION("a later call only grows the dirty range's end")
+    SECTION("grows the dirty range to cover a later, disjoint range")
     {
-      // consequence of the anchor-at-0 bug above: once dirty, m_dirtyPos can never
-      // become anything but 0 again before the next clean reset, so in practice
-      // markDirty only ever extends m_dirtySize (the end of the range), never moves
-      // its start backward
       auto tracker = DirtyRangeTracker{100};
-      tracker.markDirty(10, 5); // anchors at 0, see above
-      tracker.markDirty(50, 5); // extends the end to cover [0, 55)
-      CHECK(tracker.m_dirtyPos == 0u);
-      CHECK(tracker.m_dirtySize == 55u);
+      tracker.markDirty(10, 5); // [10, 15)
+      tracker.markDirty(50, 5); // [50, 55)
+      REQUIRE(tracker.m_dirtyRange.has_value());
+      CHECK(tracker.m_dirtyRange->pos == 10u);
+      CHECK(tracker.m_dirtyRange->size == 45u); // union spans [10, 55)
+    }
+
+    SECTION("grows the dirty range to cover an earlier, disjoint range")
+    {
+      auto tracker = DirtyRangeTracker{100};
+      tracker.markDirty(50, 5); // [50, 55)
+      tracker.markDirty(10, 5); // [10, 15)
+      REQUIRE(tracker.m_dirtyRange.has_value());
+      CHECK(tracker.m_dirtyRange->pos == 10u);
+      CHECK(tracker.m_dirtyRange->size == 45u); // union spans [10, 55)
     }
 
     SECTION("out of bounds throws")
@@ -98,14 +99,14 @@ TEST_CASE("DirtyRangeTracker")
 
   SECTION("expand")
   {
-    SECTION("grows the capacity and makes the tracker unclean")
+    SECTION("marks the newly added range as dirty")
     {
-      // the sentinel bug above means the newly expanded range is not reliably
-      // reported as starting exactly at the old capacity; only assert what's safe
       auto tracker = DirtyRangeTracker{100};
       tracker.expand(150);
       CHECK(tracker.capacity() == 150u);
-      CHECK(!tracker.clean());
+      REQUIRE(tracker.m_dirtyRange.has_value());
+      CHECK(tracker.m_dirtyRange->pos == 100u);
+      CHECK(tracker.m_dirtyRange->size == 50u);
     }
 
     SECTION("to a capacity that is not greater throws")

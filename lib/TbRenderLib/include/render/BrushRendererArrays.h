@@ -29,6 +29,7 @@
 #include "kd/contracts.h"
 
 #include <memory>
+#include <optional>
 #include <vector>
 
 namespace tb
@@ -42,10 +43,15 @@ class ShaderProgram;
 namespace render
 {
 
+struct DirtyRange
+{
+  size_t pos;
+  size_t size;
+};
+
 struct DirtyRangeTracker
 {
-  size_t m_dirtyPos = 0;
-  size_t m_dirtySize = 0;
+  std::optional<DirtyRange> m_dirtyRange;
   size_t m_capacity = 0;
 
   /**
@@ -205,8 +211,8 @@ public:
 
     if (!m_dirtyRange.clean())
     {
-      const size_t pos = m_dirtyRange.m_dirtyPos;
-      const size_t size = m_dirtyRange.m_dirtySize;
+      const size_t pos = m_dirtyRange.m_dirtyRange->pos;
+      const size_t size = m_dirtyRange.m_dirtyRange->size;
 
       const size_t bytesFromStart = pos * sizeof(T);
       m_vbo->writeArray(gl, bytesFromStart, m_snapshot.data() + pos, size);
