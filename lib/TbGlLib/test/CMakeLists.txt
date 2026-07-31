@@ -2,6 +2,7 @@ add_executable(TbGlLibTest)
 EMBED_UTF8_MANIFEST(TbGlLibTest)
 
 target_sources(TbGlLibTest PRIVATE
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_ActiveShader.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Camera.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_IndexRangeMap.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Material.cpp
