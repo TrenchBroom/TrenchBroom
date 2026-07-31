@@ -90,6 +90,28 @@ TEST_CASE("DirtyRangeTracker")
       CHECK(tracker.m_dirtyRange->size == 45u); // union spans [10, 55)
     }
 
+    SECTION("with a zero-length range on a clean tracker stays clean")
+    {
+      auto tracker = DirtyRangeTracker{100};
+      tracker.markDirty(10, 0);
+      CHECK(tracker.clean());
+    }
+
+    SECTION("with a zero-length range does not widen an existing dirty range")
+    {
+      auto tracker = DirtyRangeTracker{100};
+      tracker.markDirty(10, 5); // [10, 15)
+      tracker.markDirty(50, 0); // touches nothing
+      REQUIRE(tracker.m_dirtyRange.has_value());
+      CHECK(tracker.m_dirtyRange->pos == 10u);
+      CHECK(tracker.m_dirtyRange->size == 5u);
+
+      tracker.markDirty(0, 0); // touches nothing, even though 0 < the current start
+      REQUIRE(tracker.m_dirtyRange.has_value());
+      CHECK(tracker.m_dirtyRange->pos == 10u);
+      CHECK(tracker.m_dirtyRange->size == 5u);
+    }
+
     SECTION("out of bounds throws")
     {
       auto tracker = DirtyRangeTracker{100};

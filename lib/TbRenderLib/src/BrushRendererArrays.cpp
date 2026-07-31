@@ -89,7 +89,10 @@ void DirtyRangeTracker::markDirty(const size_t pos, const size_t size)
     throw std::invalid_argument{"markDirty provided range out of bounds"};
   }
 
-  m_dirtyRange = mergeDirtyRanges(m_dirtyRange, DirtyRange{pos, size});
+  if (size > 0)
+  {
+    m_dirtyRange = mergeDirtyRanges(m_dirtyRange, DirtyRange{pos, size});
+  }
 }
 
 bool DirtyRangeTracker::clean() const
