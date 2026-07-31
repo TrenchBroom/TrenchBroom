@@ -286,8 +286,6 @@ void Material::deactivate(Gl& gl) const
     case MaterialCulling::Back:
       break;
     }
-
-    gl.bindTexture(GL_TEXTURE_2D, 0);
   }
 }
 

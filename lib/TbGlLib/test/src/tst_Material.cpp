@@ -124,12 +124,9 @@ TEST_CASE("Material")
       material.activate(gl, GL_LINEAR, GL_LINEAR);
       material.deactivate(gl);
 
-      // activate binds the texture once; deactivate unbinds it twice (once inside
-      // Texture::deactivate, and again in Material::deactivate itself)
-      REQUIRE(boundTextures.size() == 3u);
+      REQUIRE(boundTextures.size() == 2u);
       CHECK(boundTextures[0] != 0u);
       CHECK(boundTextures[1] == 0u);
-      CHECK(boundTextures[2] == 0u);
     }
 
     SECTION("apply culling")
