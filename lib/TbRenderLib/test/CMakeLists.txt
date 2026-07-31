@@ -2,7 +2,10 @@ add_executable(TbRenderLibTest)
 EMBED_UTF8_MANIFEST(TbRenderLibTest)
 
 target_sources(TbRenderLibTest PRIVATE
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/TestUtils.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/TestUtils.h
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_AllocationTracker.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_BoundsGuideRenderer.cpp
 )
 
 add_compile_definitions(CATCH_CONFIG_ENABLE_ALL_STRINGMAKERS=1)
@@ -12,6 +15,7 @@ target_link_libraries(TbRenderLibTest
     CompilerConfig
     PrecompileStdHeaders
     Catch2::Catch2WithMain
+    TbGlTestUtilsLib
     TbRenderLib
   )
 
