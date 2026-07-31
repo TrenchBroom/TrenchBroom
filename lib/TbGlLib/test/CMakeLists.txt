@@ -2,8 +2,9 @@ add_executable(TbGlLibTest)
 EMBED_UTF8_MANIFEST(TbGlLibTest)
 
 target_sources(TbGlLibTest PRIVATE
-${CMAKE_CURRENT_SOURCE_DIR}/src/tst_PerspectiveCamera.cpp
-${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Resource.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_MockGl.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_PerspectiveCamera.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Resource.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_ResourceManager.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Vertex.cpp
 )
