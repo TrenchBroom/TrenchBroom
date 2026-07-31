@@ -132,6 +132,8 @@ void getMarkedEdgeIndices(
   }
 }
 
+} // namespace
+
 size_t triIndicesCountForPolygon(const size_t vertexCount)
 {
   contract_pre(vertexCount >= 3);
@@ -152,8 +154,6 @@ void addTriIndicesForPolygon(
     *(dest++) = baseIndex + static_cast<GLuint>(i + 2);
   }
 }
-
-} // namespace
 
 // Filter
 
