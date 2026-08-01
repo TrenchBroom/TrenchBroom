@@ -84,5 +84,14 @@ private:
   deleteCopy(LinkRenderer);
 };
 
+/**
+ * Computes the arrowhead vertices for the given lines. Each line is a pair of
+ * consecutive vertices in `links` (so `links.size()` must be even). Depending on the
+ * line's length, one, two or three arrowheads are placed along it, evenly spaced closer
+ * to the line's start.
+ */
+std::vector<LinkRenderer::ArrowVertex> getArrows(
+  const std::vector<LinkRenderer::LineVertex>& links);
+
 } // namespace render
 } // namespace tb

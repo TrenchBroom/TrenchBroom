@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010 Kristian Duske
+ Copyright (C) 2026 Kristian Duske
 
  This file is part of TrenchBroom.
 
@@ -19,32 +19,22 @@
 
 #pragma once
 
-#include "gl/VertexArray.h"
+#include "base/Color.h"
+#include "gl/VertexType.h"
 
-namespace tb
+#include "vm/ray.h"
+
+#include <vector>
+
+namespace tb::render
 {
-namespace gl
-{
-class Gl;
-class VboManager;
-} // namespace gl
 
-namespace render
-{
-class RenderContext;
+using SpikeVertex = gl::VertexTypes::P3C4::Vertex;
 
-class Sphere
-{
-private:
-  gl::VertexArray m_array;
+/**
+ * Shared between tst_BoundsGuideRenderer.cpp and tst_SpikeGuideRenderer.cpp, both of
+ * which render the same faded-spike shape (via SpikeGuideRenderer).
+ */
+std::vector<SpikeVertex> expectedSpikeVertices(const vm::ray3d& ray, const Color& color);
 
-public:
-  Sphere(float radius, size_t iterations);
-
-  bool prepared() const;
-  void prepare(gl::Gl& gl, gl::VboManager& vboManager);
-  void render(RenderContext& renderContext);
-};
-
-} // namespace render
-} // namespace tb
+} // namespace tb::render

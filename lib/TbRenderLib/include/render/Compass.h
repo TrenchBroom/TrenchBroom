@@ -57,14 +57,15 @@ public:
 
   void render(RenderBatch& renderBatch);
 
+  // Exposed for testing.
+  vm::mat4x4f cameraRotationMatrix(const gl::Camera& camera) const;
+
 private:
   void prepare(gl::Gl& gl, gl::VboManager& vboManager) override;
   void render(RenderContext& renderContext) override;
 
   void makeArrows();
   void makeBackground();
-
-  vm::mat4x4f cameraRotationMatrix(const gl::Camera& camera) const;
 
 protected:
   void renderBackground(RenderContext& renderContext);

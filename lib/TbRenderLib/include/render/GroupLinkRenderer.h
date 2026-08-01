@@ -41,9 +41,10 @@ class GroupLinkRenderer : public LinkRenderer
 public:
   explicit GroupLinkRenderer(mdl::Map& map);
 
-private:
+  // Exposed for testing.
   std::vector<LinkRenderer::LineVertex> getLinks() override;
 
+private:
   deleteCopy(GroupLinkRenderer);
 };
 

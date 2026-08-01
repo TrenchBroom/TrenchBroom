@@ -31,6 +31,23 @@
 
 namespace tb::render
 {
+namespace
+{
+
+void addArrow(
+  std::vector<LinkRenderer::ArrowVertex>& arrows,
+  const vm::vec4f& color,
+  const vm::vec3f& arrowPosition,
+  const vm::vec3f& lineDir)
+{
+  arrows.emplace_back(vm::vec3f{0, 3, 0}, color, arrowPosition, lineDir);
+  arrows.emplace_back(vm::vec3f{9, 0, 0}, color, arrowPosition, lineDir);
+
+  arrows.emplace_back(vm::vec3f{9, 0, 0}, color, arrowPosition, lineDir);
+  arrows.emplace_back(vm::vec3f{0, -3, 0}, color, arrowPosition, lineDir);
+}
+
+} // namespace
 
 LinkRenderer::LinkRenderer() = default;
 
@@ -112,20 +129,18 @@ void LinkRenderer::renderArrows(RenderContext& renderContext)
   }
 }
 
-static void addArrow(
-  std::vector<LinkRenderer::ArrowVertex>& arrows,
-  const vm::vec4f& color,
-  const vm::vec3f& arrowPosition,
-  const vm::vec3f& lineDir)
+void LinkRenderer::validate()
 {
-  arrows.emplace_back(vm::vec3f{0, 3, 0}, color, arrowPosition, lineDir);
-  arrows.emplace_back(vm::vec3f{9, 0, 0}, color, arrowPosition, lineDir);
+  auto links = getLinks();
+  auto arrows = getArrows(links);
 
-  arrows.emplace_back(vm::vec3f{9, 0, 0}, color, arrowPosition, lineDir);
-  arrows.emplace_back(vm::vec3f{0, -3, 0}, color, arrowPosition, lineDir);
+  m_lines = gl::VertexArray::move(std::move(links));
+  m_arrows = gl::VertexArray::move(std::move(arrows));
+
+  m_valid = true;
 }
 
-static std::vector<LinkRenderer::ArrowVertex> getArrows(
+std::vector<LinkRenderer::ArrowVertex> getArrows(
   const std::vector<LinkRenderer::LineVertex>& links)
 {
   contract_pre((links.size() % 2) == 0);
@@ -167,17 +182,6 @@ static std::vector<LinkRenderer::ArrowVertex> getArrows(
     }
   }
   return arrows;
-}
-
-void LinkRenderer::validate()
-{
-  auto links = getLinks();
-  auto arrows = getArrows(links);
-
-  m_lines = gl::VertexArray::move(std::move(links));
-  m_arrows = gl::VertexArray::move(std::move(arrows));
-
-  m_valid = true;
 }
 
 } // namespace tb::render

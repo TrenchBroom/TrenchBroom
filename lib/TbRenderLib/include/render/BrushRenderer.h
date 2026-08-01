@@ -21,6 +21,7 @@
 
 #include "base/Color.h"
 #include "base/Macros.h"
+#include "gl/MiniGl.h"
 #include "mdl/BrushGeometry.h"
 #include "render/AllocationTracker.h"
 #include "render/EdgeRenderer.h"
@@ -48,6 +49,19 @@ class EditorContext;
 
 namespace render
 {
+
+/**
+ * The number of GLuint indices needed to render a fan-triangulated polygon with the
+ * given number of vertices.
+ */
+size_t triIndicesCountForPolygon(size_t vertexCount);
+
+/**
+ * Writes fan-triangulated indices for a polygon of the given vertex count into `dest`
+ * (which must have room for triIndicesCountForPolygon(vertexCount) elements), with
+ * vertex indices starting at `baseIndex`.
+ */
+void addTriIndicesForPolygon(GLuint* dest, GLuint baseIndex, size_t vertexCount);
 
 class BrushRenderer
 {
