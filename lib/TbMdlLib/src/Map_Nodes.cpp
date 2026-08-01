@@ -243,28 +243,31 @@ auto collectRemovableParents(const std::map<Node*, std::vector<Node*>>& nodes)
 
 } // namespace
 
-Node* parentForNodes(const Map& map, const std::vector<Node*>& nodes)
+Node& parentForNodes(const Map& map, const std::vector<Node*>& nodes)
 {
   if (nodes.empty())
   {
     // No reference nodes, so return either the current group (if open) or current layer
-    auto* result = static_cast<Node*>(map.editorContext().currentGroup());
-    if (!result)
+    if (auto* currentGroup = map.editorContext().currentGroup())
     {
-      result = map.editorContext().currentLayer();
+      return *currentGroup;
     }
-    return result;
+
+    auto* currentLayer = map.editorContext().currentLayer();
+    contract_post(currentLayer != nullptr);
+
+    return *currentLayer;
   }
 
   if (auto* parentGroup = findContainingGroup(nodes.at(0)))
   {
-    return parentGroup;
+    return *parentGroup;
   }
 
   auto* parentLayer = findContainingLayer(nodes.at(0));
   contract_post(parentLayer != nullptr);
 
-  return parentLayer;
+  return *parentLayer;
 }
 
 std::vector<Node*> addNodes(Map& map, const std::map<Node*, std::vector<Node*>>& nodes)
@@ -305,7 +308,7 @@ void duplicateSelectedNodes(Map& map)
 
   for (auto* original : map.selection().nodes)
   {
-    auto* suggestedParent = parentForNodes(map, {original});
+    auto& suggestedParent = parentForNodes(map, {original});
     auto* clone = original->cloneRecursively(map.worldBounds());
 
     if (shouldCloneParentWhenCloningNode(original))
@@ -324,7 +327,7 @@ void duplicateSelectedNodes(Map& map)
         // parent was not cloned yet
         newParent = originalParent->clone(map.worldBounds());
         newParentMap.emplace(originalParent, newParent);
-        nodesToAdd[suggestedParent].push_back(newParent);
+        nodesToAdd[&suggestedParent].push_back(newParent);
       }
 
       // hierarchy will look like (parent -> child): suggestedParent -> newParent -> clone
@@ -332,7 +335,7 @@ void duplicateSelectedNodes(Map& map)
     }
     else
     {
-      nodesToAdd[suggestedParent].push_back(clone);
+      nodesToAdd[&suggestedParent].push_back(clone);
     }
 
     nodesToSelect.push_back(clone);

@@ -206,7 +206,7 @@ TEST_CASE("Map_TagManagement")
     auto* entityNode = new EntityNode{Entity{{
       {"classname", "brush_entity"},
     }}};
-    addNodes(map, {{parentForNodes(map), {entityNode}}});
+    addNodes(map, {{&parentForNodes(map), {entityNode}}});
     REQUIRE(entityNode->entity().definition() == brushEntityDefinition);
 
     auto* brush = createBrushNode(map, "some_material");
@@ -223,7 +223,7 @@ TEST_CASE("Map_TagManagement")
       auto* entityNode = new EntityNode{Entity{{
         {"classname", "brush_entity"},
       }}};
-      addNodes(map, {{parentForNodes(map), {entityNode}}});
+      addNodes(map, {{&parentForNodes(map), {entityNode}}});
       REQUIRE(entityNode->entity().definition() == brushEntityDefinition);
 
       auto* brush = createBrushNode(map, "some_material");
@@ -238,7 +238,7 @@ TEST_CASE("Map_TagManagement")
     SECTION("Brush face tags")
     {
       auto* brushNodeWithTags = createBrushNode(map, "some_material");
-      addNodes(map, {{parentForNodes(map), {brushNodeWithTags}}});
+      addNodes(map, {{&parentForNodes(map), {brushNodeWithTags}}});
       removeNodes(map, {brushNodeWithTags});
 
       const auto& tag = map.smartTag("material");
@@ -254,12 +254,12 @@ TEST_CASE("Map_TagManagement")
     SECTION("Reparent from world to entity")
     {
       auto* brushNode = createBrushNode(map, "some_material");
-      addNodes(map, {{parentForNodes(map), {brushNode}}});
+      addNodes(map, {{&parentForNodes(map), {brushNode}}});
 
       auto* entityNode = new EntityNode{Entity{{
         {"classname", "brush_entity"},
       }}};
-      addNodes(map, {{parentForNodes(map), {entityNode}}});
+      addNodes(map, {{&parentForNodes(map), {entityNode}}});
       REQUIRE(entityNode->entity().definition() == brushEntityDefinition);
 
       const auto& tag = map.smartTag("entity");
@@ -277,7 +277,7 @@ TEST_CASE("Map_TagManagement")
       auto* otherEntityNode = new EntityNode{Entity{{
         {"classname", "other"},
       }}};
-      addNodes(map, {{parentForNodes(map), {lightEntityNode, otherEntityNode}}});
+      addNodes(map, {{&parentForNodes(map), {lightEntityNode, otherEntityNode}}});
       REQUIRE(lightEntityNode->entity().definition() == brushEntityDefinition);
 
       auto* brushNode = createBrushNode(map, "some_material");
@@ -296,7 +296,7 @@ TEST_CASE("Map_TagManagement")
     auto* lightEntityNode = new EntityNode{Entity{{
       {"classname", "asdf"},
     }}};
-    addNodes(map, {{parentForNodes(map), {lightEntityNode}}});
+    addNodes(map, {{&parentForNodes(map), {lightEntityNode}}});
 
     auto* brushNode = createBrushNode(map, "some_material");
     addNodes(map, {{lightEntityNode, {brushNode}}});
@@ -314,7 +314,7 @@ TEST_CASE("Map_TagManagement")
   SECTION("setBrushFaceAttributes updates tags")
   {
     auto* brushNode = createBrushNode(map, "asdf");
-    addNodes(map, {{parentForNodes(map), {brushNode}}});
+    addNodes(map, {{&parentForNodes(map), {brushNode}}});
 
     const auto& tag = map.smartTag("contentflags");
 
@@ -364,7 +364,7 @@ TEST_CASE("Map_TagManagement")
     SECTION("enable")
     {
       auto* nonMatchingBrushNode = createBrushNode(map, "asdf");
-      addNodes(map, {{parentForNodes(map), {nonMatchingBrushNode}}});
+      addNodes(map, {{&parentForNodes(map), {nonMatchingBrushNode}}});
 
       const auto& tag = map.smartTag("material");
       CHECK(tag.canEnable());
@@ -434,7 +434,7 @@ TEST_CASE("Map_TagManagement")
     SECTION("enable")
     {
       auto* nonMatchingBrushNode = createBrushNode(map, "asdf");
-      addNodes(map, {{parentForNodes(map), {nonMatchingBrushNode}}});
+      addNodes(map, {{&parentForNodes(map), {nonMatchingBrushNode}}});
 
       const auto& tag = map.smartTag("surfaceparm_single");
       CHECK(tag.canEnable());
@@ -490,7 +490,7 @@ TEST_CASE("Map_TagManagement")
     SECTION("enable")
     {
       auto* nonMatchingBrushNode = createBrushNode(map, "asdf");
-      addNodes(map, {{parentForNodes(map), {nonMatchingBrushNode}}});
+      addNodes(map, {{&parentForNodes(map), {nonMatchingBrushNode}}});
 
       const auto& tag = map.smartTag("contentflags");
       CHECK(tag.canEnable());
@@ -515,7 +515,7 @@ TEST_CASE("Map_TagManagement")
         }
       });
 
-      addNodes(map, {{parentForNodes(map), {matchingBrushNode}}});
+      addNodes(map, {{&parentForNodes(map), {matchingBrushNode}}});
 
       const auto& tag = map.smartTag("contentflags");
       CHECK(tag.canDisable());
@@ -565,7 +565,7 @@ TEST_CASE("Map_TagManagement")
     SECTION("enable")
     {
       auto* nonMatchingBrushNode = createBrushNode(map, "asdf");
-      addNodes(map, {{parentForNodes(map), {nonMatchingBrushNode}}});
+      addNodes(map, {{&parentForNodes(map), {nonMatchingBrushNode}}});
 
       const auto& tag = map.smartTag("surfaceflags");
       CHECK(tag.canEnable());
@@ -590,7 +590,7 @@ TEST_CASE("Map_TagManagement")
         }
       });
 
-      addNodes(map, {{parentForNodes(map), {matchingBrushNode}}});
+      addNodes(map, {{&parentForNodes(map), {matchingBrushNode}}});
 
       const auto& tag = map.smartTag("surfaceflags");
       CHECK(tag.canDisable());
@@ -630,7 +630,7 @@ TEST_CASE("Map_TagManagement")
     SECTION("enable")
     {
       auto* brushNode = createBrushNode(map, "asdf");
-      addNodes(map, {{parentForNodes(map), {brushNode}}});
+      addNodes(map, {{&parentForNodes(map), {brushNode}}});
 
       const auto& tag = map.smartTag("entity");
       CHECK_FALSE(tag.matches(*brushNode));
@@ -653,7 +653,7 @@ TEST_CASE("Map_TagManagement")
         {"some_attr", "some_value"},
       }}};
 
-      addNodes(map, {{parentForNodes(map), {oldEntity}}});
+      addNodes(map, {{&parentForNodes(map), {oldEntity}}});
       addNodes(map, {{oldEntity, {brushNode}}});
 
       const auto& tag = map.smartTag("entity");
@@ -679,7 +679,7 @@ TEST_CASE("Map_TagManagement")
         {"classname", "brush_entity"},
       }}};
 
-      addNodes(map, {{parentForNodes(map), {oldEntityNode}}});
+      addNodes(map, {{&parentForNodes(map), {oldEntityNode}}});
       addNodes(map, {{oldEntityNode, {brushNode}}});
       REQUIRE(oldEntityNode->entity().definition() == brushEntityDefinition);
 

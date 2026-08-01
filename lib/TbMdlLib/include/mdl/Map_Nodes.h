@@ -37,7 +37,7 @@ class Node;
  *
  * Otherwise, returns the current group if one is open, otherwise the current layer.
  */
-Node* parentForNodes(const Map& map, const std::vector<Node*>& nodes = {});
+Node& parentForNodes(const Map& map, const std::vector<Node*>& nodes = {});
 
 std::vector<Node*> addNodes(Map& map, const std::map<Node*, std::vector<Node*>>& nodes);
 

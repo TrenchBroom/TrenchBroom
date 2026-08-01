@@ -55,7 +55,7 @@ TEST_CASE("SweepTool")
   SECTION("applies")
   {
     auto* brushNode = createBrushNode(map);
-    addNodes(map, {{parentForNodes(map), {brushNode}}});
+    addNodes(map, {{&parentForNodes(map), {brushNode}}});
 
     CHECK(!tool.applies());
 
@@ -76,7 +76,7 @@ TEST_CASE("SweepTool")
   SECTION("with a selected face")
   {
     auto* brushNode = createBrushNode(map);
-    addNodes(map, {{parentForNodes(map), {brushNode}}});
+    addNodes(map, {{&parentForNodes(map), {brushNode}}});
 
     const auto faceIndex = *brushNode->brush().findFace(vm::vec3d{1, 0, 0});
     selectBrushFaces(map, {{brushNode, faceIndex}});
@@ -202,7 +202,7 @@ TEST_CASE("SweepTool")
   SECTION("removing the source face's parent while the tool is active")
   {
     auto* entityNode = new mdl::EntityNode{mdl::Entity{}};
-    addNodes(map, {{parentForNodes(map), {entityNode}}});
+    addNodes(map, {{&parentForNodes(map), {entityNode}}});
 
     auto* brushNode = createBrushNode(map);
     addNodes(map, {{entityNode, {brushNode}}});
@@ -217,7 +217,7 @@ TEST_CASE("SweepTool")
     removeNodes(map, {entityNode});
 
     // the generated brushes fall back to the map's default insertion parent
-    auto* defaultParent = parentForNodes(map);
+    auto* defaultParent = &parentForNodes(map);
     const auto childCountBefore = defaultParent->childCount();
 
     tool.commitSweep();
@@ -228,13 +228,13 @@ TEST_CASE("SweepTool")
     "sweeping faces with cancelling normals falls back to a straight path in S-Bend mode")
   {
     auto* entityNode = new mdl::EntityNode{mdl::Entity{}};
-    addNodes(map, {{parentForNodes(map), {entityNode}}});
+    addNodes(map, {{&parentForNodes(map), {entityNode}}});
 
     auto* brushNodeA = createBrushNode(map);
     addNodes(map, {{entityNode, {brushNodeA}}});
     const auto entityChildCountBefore = entityNode->childCount();
 
-    auto* defaultParent = parentForNodes(map);
+    auto* defaultParent = &parentForNodes(map);
     auto* brushNodeB = createBrushNode(map);
     addNodes(map, {{defaultParent, {brushNodeB}}});
     const auto defaultChildCountBefore = defaultParent->childCount();

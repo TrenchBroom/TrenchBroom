@@ -448,7 +448,7 @@ TEST_CASE("CompilationExportMapTaskRunner")
     CAPTURE(exportSpec);
 
     auto node = new mdl::EntityNode{mdl::Entity{}};
-    addNodes(map, {{parentForNodes(map), {node}}});
+    addNodes(map, {{&parentForNodes(map), {node}}});
 
     auto task = mdl::CompilationExportMap{
       K(enabled),
@@ -495,7 +495,7 @@ TEST_CASE("CompilationExportMapTaskRunner")
   SECTION("variable interpolation error")
   {
     auto node = new mdl::EntityNode{mdl::Entity{}};
-    addNodes(map, {{parentForNodes(map), {node}}});
+    addNodes(map, {{&parentForNodes(map), {node}}});
 
     auto task = mdl::CompilationExportMap{
       K(enabled),

@@ -65,7 +65,7 @@ void convertSelectionToPatches(
 
   auto transaction = Transaction{map, "Convert Selection to Patches"};
 
-  auto addedNodes = addNodes(map, {{parentForNodes(map), patchNodes}});
+  auto addedNodes = addNodes(map, {{&parentForNodes(map), patchNodes}});
   deselectAll(map);
   removeNodes(map, nodesToRemove);
   selectNodes(map, addedNodes);

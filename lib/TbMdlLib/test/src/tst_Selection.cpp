@@ -144,7 +144,7 @@ TEST_CASE("Selection")
 
   addNodes(
     map,
-    {{parentForNodes(map),
+    {{&parentForNodes(map),
       {outerGroupNode, entityNode, brushEntityNode, otherGroupNode}}});
 
   const auto selectItem = [&](const auto selectionItem) {

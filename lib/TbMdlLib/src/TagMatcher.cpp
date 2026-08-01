@@ -498,7 +498,7 @@ void EntityClassNameTagMatcher::disable(TagMatcherCallback&, Map& map) const
     return;
   }
   deselectAll(map);
-  reparentNodes(map, {{parentForNodes(map, selectedBrushes), detailBrushes}});
+  reparentNodes(map, {{&parentForNodes(map, selectedBrushes), detailBrushes}});
   selectNodes(
     map, std::vector<Node*>(std::begin(detailBrushes), std::end(detailBrushes)));
 }

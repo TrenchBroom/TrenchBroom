@@ -66,7 +66,7 @@ void CreateBrushesToolBase::createBrushes()
     auto transaction = mdl::Transaction{m_document.map(), "Create Brush"};
     deselectAll(m_document.map());
     auto addedNodes =
-      addNodes(m_document.map(), {{parentForNodes(m_document.map()), nodesToAdd}});
+      addNodes(m_document.map(), {{&parentForNodes(m_document.map()), nodesToAdd}});
     selectNodes(m_document.map(), addedNodes);
     transaction.commit();
 

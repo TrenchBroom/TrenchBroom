@@ -60,7 +60,7 @@ TEST_CASE("Map_Commands")
       setEntityProperty(map, EntityPropertyKeys::Wad, "test/mdl/Map/cr8_czg.wad");
 
       auto* brushNode = createBrushNode(map, "coffin1");
-      addNodes(map, {{parentForNodes(map), {brushNode}}});
+      addNodes(map, {{&parentForNodes(map), {brushNode}}});
 
       const auto* material = map.materialManager().material("coffin1");
       REQUIRE(material != nullptr);
@@ -124,7 +124,7 @@ TEST_CASE("Map_Commands")
     CHECK_FALSE(map.canRepeatCommands());
 
     auto* entityNode = new EntityNode{Entity{}};
-    addNodes(map, {{parentForNodes(map), {entityNode}}});
+    addNodes(map, {{&parentForNodes(map), {entityNode}}});
     CHECK_FALSE(map.canRepeatCommands());
 
     selectNodes(map, {entityNode});
@@ -145,7 +145,7 @@ TEST_CASE("Map_Commands")
     SECTION("Repeat translation")
     {
       auto* entityNode = new EntityNode{Entity{}};
-      addNodes(map, {{parentForNodes(map), {entityNode}}});
+      addNodes(map, {{&parentForNodes(map), {entityNode}}});
       selectNodes(map, {entityNode});
 
       REQUIRE_FALSE(map.canRepeatCommands());
@@ -164,7 +164,7 @@ TEST_CASE("Map_Commands")
 
       auto* entityNode = new EntityNode(std::move(entity));
 
-      addNodes(map, {{parentForNodes(map), {entityNode}}});
+      addNodes(map, {{&parentForNodes(map), {entityNode}}});
       selectNodes(map, {entityNode});
 
       REQUIRE_FALSE(map.canRepeatCommands());
@@ -188,7 +188,7 @@ TEST_CASE("Map_Commands")
     {
       auto* brushNode1 = createBrushNode(map);
 
-      addNodes(map, {{parentForNodes(map), {brushNode1}}});
+      addNodes(map, {{&parentForNodes(map), {brushNode1}}});
       selectNodes(map, {brushNode1});
 
       REQUIRE_FALSE(map.canRepeatCommands());
@@ -198,7 +198,7 @@ TEST_CASE("Map_Commands")
       CHECK(map.canRepeatCommands());
 
       auto* brushNode2 = createBrushNode(map);
-      addNodes(map, {{parentForNodes(map), {brushNode2}}});
+      addNodes(map, {{&parentForNodes(map), {brushNode2}}});
       selectNodes(map, {brushNode2});
 
       map.repeatCommands();
@@ -209,7 +209,7 @@ TEST_CASE("Map_Commands")
     {
       auto* brushNode1 = createBrushNode(map);
 
-      addNodes(map, {{parentForNodes(map), {brushNode1}}});
+      addNodes(map, {{&parentForNodes(map), {brushNode1}}});
       selectNodes(map, {brushNode1});
 
       REQUIRE_FALSE(map.canRepeatCommands());
@@ -217,7 +217,7 @@ TEST_CASE("Map_Commands")
       CHECK(map.canRepeatCommands());
 
       auto* brushNode2 = createBrushNode(map);
-      addNodes(map, {{parentForNodes(map), {brushNode2}}});
+      addNodes(map, {{&parentForNodes(map), {brushNode2}}});
       deselectAll(map);
       selectNodes(map, {brushNode2});
 
@@ -230,7 +230,7 @@ TEST_CASE("Map_Commands")
       auto* brushNode1 = createBrushNode(map);
       const auto originalBounds = brushNode1->logicalBounds();
 
-      addNodes(map, {{parentForNodes(map), {brushNode1}}});
+      addNodes(map, {{&parentForNodes(map), {brushNode1}}});
       selectNodes(map, {brushNode1});
 
       REQUIRE_FALSE(map.canRepeatCommands());
@@ -239,7 +239,7 @@ TEST_CASE("Map_Commands")
       CHECK(map.canRepeatCommands());
 
       auto* brushNode2 = createBrushNode(map);
-      addNodes(map, {{parentForNodes(map), {brushNode2}}});
+      addNodes(map, {{&parentForNodes(map), {brushNode2}}});
       deselectAll(map);
       selectNodes(map, {brushNode2});
 
@@ -252,7 +252,7 @@ TEST_CASE("Map_Commands")
       auto* brushNode1 = createBrushNode(map);
       const auto originalBounds = brushNode1->logicalBounds();
 
-      addNodes(map, {{parentForNodes(map), {brushNode1}}});
+      addNodes(map, {{&parentForNodes(map), {brushNode1}}});
       selectNodes(map, {brushNode1});
 
       REQUIRE_FALSE(map.canRepeatCommands());
@@ -261,7 +261,7 @@ TEST_CASE("Map_Commands")
       CHECK(map.canRepeatCommands());
 
       auto* brushNode2 = createBrushNode(map);
-      addNodes(map, {{parentForNodes(map), {brushNode2}}});
+      addNodes(map, {{&parentForNodes(map), {brushNode2}}});
       deselectAll(map);
       selectNodes(map, {brushNode2});
 
@@ -272,7 +272,7 @@ TEST_CASE("Map_Commands")
     SECTION("Duplicate and translate")
     {
       auto* entityNode1 = new EntityNode({});
-      addNodes(map, {{parentForNodes(map), {entityNode1}}});
+      addNodes(map, {{&parentForNodes(map), {entityNode1}}});
 
       selectNodes(map, {entityNode1});
       CHECK(entityNode1->entity().origin() == vm::vec3d(0, 0, 0));
@@ -334,7 +334,7 @@ TEST_CASE("Map_Commands")
     SECTION("Repeat applies to transactions")
     {
       auto* entityNode1 = new EntityNode({});
-      addNodes(map, {{parentForNodes(map), {entityNode1}}});
+      addNodes(map, {{&parentForNodes(map), {entityNode1}}});
 
       selectNodes(map, {entityNode1});
       CHECK(entityNode1->entity().origin() == vm::vec3d(0, 0, 0));
@@ -351,7 +351,7 @@ TEST_CASE("Map_Commands")
       // now repeat the transaction on a second entity
 
       auto* entityNode2 = new EntityNode({});
-      addNodes(map, {{parentForNodes(map), {entityNode2}}});
+      addNodes(map, {{&parentForNodes(map), {entityNode2}}});
 
       deselectAll(map);
       selectNodes(map, {entityNode2});
@@ -372,7 +372,7 @@ TEST_CASE("Map_Commands")
     SECTION("Undo")
     {
       auto* entityNode1 = new EntityNode({});
-      addNodes(map, {{parentForNodes(map), {entityNode1}}});
+      addNodes(map, {{&parentForNodes(map), {entityNode1}}});
 
       selectNodes(map, {entityNode1});
       CHECK(entityNode1->entity().origin() == vm::vec3d(0, 0, 0));

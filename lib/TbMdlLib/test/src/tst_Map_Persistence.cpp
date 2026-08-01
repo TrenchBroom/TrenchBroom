@@ -66,7 +66,7 @@ TEST_CASE("Map_Persistence")
     REQUIRE(map.path() == path);
 
     auto* entityNode = new EntityNode{Entity{{{"name", "entity2"}}}};
-    addNodes(map, {{parentForNodes(map), {entityNode}}});
+    addNodes(map, {{&parentForNodes(map), {entityNode}}});
 
     auto mapWasSaved = Observer<>{map.mapWasSavedNotifier};
     auto modificationStateDidChange = Observer<>{map.modificationStateDidChangeNotifier};
@@ -102,7 +102,7 @@ TEST_CASE("Map_Persistence")
     auto& map = fixture.create();
 
     auto* entityNode = new EntityNode{Entity{{{"key", "value"}}}};
-    addNodes(map, {{parentForNodes(map), {entityNode}}});
+    addNodes(map, {{&parentForNodes(map), {entityNode}}});
     REQUIRE(map.worldNode().defaultLayer()->children() == std::vector<Node*>{entityNode});
 
     auto mapWasSaved = Observer<>{map.mapWasSavedNotifier};
@@ -146,7 +146,7 @@ TEST_CASE("Map_Persistence")
       auto* brushNode = new BrushNode{
         builder.createCuboid(vm::bbox3d{{0, 0, 0}, {64, 64, 64}}, "material")
         | kdl::value()};
-      addNodes(map, {{parentForNodes(map), {brushNode}}});
+      addNodes(map, {{&parentForNodes(map), {brushNode}}});
 
       const auto objFilename = "test.obj";
       const auto mtlFilename = "test.mtl";
@@ -167,7 +167,7 @@ TEST_CASE("Map_Persistence")
       auto& map = fixture.create();
 
       auto* entityNode = new EntityNode{Entity{{{"key", "value"}}}};
-      addNodes(map, {{parentForNodes(map), {entityNode}}});
+      addNodes(map, {{&parentForNodes(map), {entityNode}}});
 
       const auto filename = "test.map";
       REQUIRE(map.exportAs(MapExportOptions{
@@ -249,7 +249,7 @@ TEST_CASE("Map_Persistence")
       auto& map = fixture.create(QuakeFixtureConfig);
 
       auto* entityNode = new mdl::EntityNode{mdl::Entity{{{"classname", "light"}}}};
-      addNodes(map, {{parentForNodes(map), {entityNode}}});
+      addNodes(map, {{&parentForNodes(map), {entityNode}}});
 
       REQUIRE(map.exportAs(MapExportOptions{
         env.dir() / newDocumentPath,
@@ -272,7 +272,7 @@ TEST_CASE("Map_Persistence")
       auto& map = fixture.create(QuakeFixtureConfig);
 
       auto* entityNode = new mdl::EntityNode{mdl::Entity{{{"classname", "light"}}}};
-      addNodes(map, {{parentForNodes(map), {entityNode}}});
+      addNodes(map, {{&parentForNodes(map), {entityNode}}});
 
       REQUIRE(map.exportAs(MapExportOptions{
         env.dir() / newDocumentPath,

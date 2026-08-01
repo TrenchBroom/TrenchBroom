@@ -109,7 +109,7 @@ EntityNode* createPointEntity(
 
   auto transaction = Transaction{map, "Create " + definition.name};
   deselectAll(map);
-  if (addNodes(map, {{parentForNodes(map), {entityNode}}}).empty())
+  if (addNodes(map, {{&parentForNodes(map), {entityNode}}}).empty())
   {
     transaction.cancel();
     return nullptr;
@@ -160,7 +160,7 @@ EntityNode* createBrushEntity(Map& map, const EntityDefinition& definition)
 
   auto transaction = Transaction{map, "Create " + definition.name};
   deselectAll(map);
-  if (addNodes(map, {{parentForNodes(map), {entityNode}}}).empty())
+  if (addNodes(map, {{&parentForNodes(map), {entityNode}}}).empty())
   {
     transaction.cancel();
     return nullptr;

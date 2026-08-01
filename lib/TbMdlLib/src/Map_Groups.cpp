@@ -289,7 +289,7 @@ GroupNode* groupSelectedNodes(Map& map, const std::string& name)
   auto transaction = Transaction{map, "Group Selected Objects"};
   deselectAll(map);
   if (
-    addNodes(map, {{parentForNodes(map, nodes), {group}}}).empty()
+    addNodes(map, {{&parentForNodes(map, nodes), {group}}}).empty()
     || !reparentNodes(map, {{group, nodes}}))
   {
     transaction.cancel();
@@ -413,10 +413,10 @@ GroupNode* createLinkedDuplicate(Map& map)
   auto* groupNode = map.selection().groups.front();
   auto* groupNodeClone =
     static_cast<GroupNode*>(groupNode->cloneRecursively(map.worldBounds()));
-  auto* suggestedParent = parentForNodes(map, {groupNode});
+  auto& suggestedParent = parentForNodes(map, {groupNode});
 
   auto transaction = Transaction{map, "Create Linked Duplicate"};
-  if (addNodes(map, {{suggestedParent, {groupNodeClone}}}).empty())
+  if (addNodes(map, {{&suggestedParent, {groupNodeClone}}}).empty())
   {
     transaction.cancel();
     return nullptr;

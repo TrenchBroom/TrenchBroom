@@ -56,7 +56,7 @@ TEST_CASE("RotateTool")
     auto* entityNode2 = new mdl::EntityNode{std::move(entity2)};
     auto* brushNode = createBrushNode(map);
 
-    addNodes(map, {{parentForNodes(map), {entityNode1, entityNode2, brushNode}}});
+    addNodes(map, {{&parentForNodes(map), {entityNode1, entityNode2, brushNode}}});
 
     SECTION("If nothing is selected")
     {

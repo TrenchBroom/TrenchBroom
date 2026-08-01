@@ -358,7 +358,7 @@ std::map<mdl::Node*, std::vector<std::unique_ptr<mdl::BrushNode>>> generateSweep
   for (const auto& sourceFace : source.faces)
   {
     // fall back to the default insertion parent if the captured parent has been deleted
-    auto* parent = sourceFace.parent ? sourceFace.parent : parentForNodes(map);
+    auto& parent = sourceFace.parent ? *sourceFace.parent : parentForNodes(map);
 
     const auto& sourceVertices = sourceFace.polygon.vertices();
     for (size_t r = 0; r < parameters.iterations; ++r)
@@ -372,7 +372,7 @@ std::map<mdl::Node*, std::vector<std::unique_ptr<mdl::BrushNode>>> generateSweep
 
         builder.createBrush(points, materialName) | kdl::transform([&](auto brush) {
           setMaterial(brush, material);
-          result[parent].push_back(std::make_unique<mdl::BrushNode>(std::move(brush)));
+          result[&parent].push_back(std::make_unique<mdl::BrushNode>(std::move(brush)));
         }) | kdl::transform_error([&](auto e) {
           // a degenerate segment cannot form a brush; skip it
           map.logger().debug() << "Sweep: could not create segment brush: " << e.msg;

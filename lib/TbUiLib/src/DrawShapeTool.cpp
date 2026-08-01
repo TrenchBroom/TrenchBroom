@@ -101,7 +101,7 @@ QWidget* DrawShapeTool::doCreatePage(QWidget* parent)
             const auto addedNodes = addNodes(
               map,
               {
-                {parentForNodes(map), brushNodes | std::views::transform([](auto& node) {
+                {&parentForNodes(map), brushNodes | std::views::transform([](auto& node) {
                                         return static_cast<mdl::Node*>(node.release());
                                       }) | kdl::ranges::to<std::vector>()},
               });

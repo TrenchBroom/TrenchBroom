@@ -127,7 +127,7 @@ TEST_CASE("Map_Layers")
 
       // Create an entity in layer1
       auto* entityNode1 = new EntityNode{Entity{}};
-      addNodes(map, {{parentForNodes(map), {entityNode1}}});
+      addNodes(map, {{&parentForNodes(map), {entityNode1}}});
 
       // Hide layer1. The entity now inherits its visibility state and is hidden
       hideLayers(map, {layerNode1});
@@ -138,7 +138,7 @@ TEST_CASE("Map_Layers")
       // Create another entity in layer1. It will be visible, while entity1 will still be
       // hidden.
       auto* entityNode2 = new EntityNode{Entity{}};
-      addNodes(map, {{parentForNodes(map), {entityNode2}}});
+      addNodes(map, {{&parentForNodes(map), {entityNode2}}});
 
       REQUIRE(entityNode2->parent() == layerNode1);
 
@@ -177,7 +177,7 @@ TEST_CASE("Map_Layers")
 
       // Create an entity in layer1
       auto* entityNode1 = new EntityNode{Entity{}};
-      addNodes(map, {{parentForNodes(map), {entityNode1}}});
+      addNodes(map, {{&parentForNodes(map), {entityNode1}}});
 
       lockNodes(map, {layerNode1});
 
@@ -187,7 +187,7 @@ TEST_CASE("Map_Layers")
       // Create another entity in layer1. It will be unlocked, while entity1 will still be
       // locked.
       auto* entityNode2 = new EntityNode{Entity{}};
-      addNodes(map, {{parentForNodes(map), {entityNode2}}});
+      addNodes(map, {{&parentForNodes(map), {entityNode2}}});
 
       REQUIRE(entityNode2->parent() == layerNode1);
 
@@ -306,7 +306,7 @@ TEST_CASE("Map_Layers")
         CreateNode{[](const auto&) { return createPatchNode(); }});
 
       auto* node = createNode(map);
-      addNodes(map, {{parentForNodes(map), {node}}});
+      addNodes(map, {{&parentForNodes(map), {node}}});
 
       REQUIRE(findContainingLayer(node) == defaultLayer);
 
@@ -349,7 +349,7 @@ TEST_CASE("Map_Layers")
       auto* childNode2 = createPatchNode();
 
       entityNode->addChildren({childNode1, childNode2});
-      addNodes(map, {{parentForNodes(map), {entityNode}}});
+      addNodes(map, {{&parentForNodes(map), {entityNode}}});
 
       REQUIRE(findContainingLayer(entityNode) == defaultLayer);
 

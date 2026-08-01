@@ -738,7 +738,7 @@ void MapViewBase::makeStructural()
 
   if (!toReparent.empty())
   {
-    reparentNodes(toReparent, parentForNodes(map, toReparent), false);
+    reparentNodes(toReparent, &parentForNodes(map, toReparent), false);
   }
 
   auto anyTagDisabled = false;

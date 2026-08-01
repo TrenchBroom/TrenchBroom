@@ -46,7 +46,7 @@ TEST_CASE("ScaleTool")
   auto* entityNode = new mdl::EntityNode{mdl::Entity{}};
   auto* brushNode = mdl::createBrushNode(map);
   auto* patchNode = mdl::createPatchNode("some_material");
-  mdl::addNodes(map, {{mdl::parentForNodes(map), {brushNode, entityNode, patchNode}}});
+  mdl::addNodes(map, {{&mdl::parentForNodes(map), {brushNode, entityNode, patchNode}}});
 
   auto nodes = std::vector<mdl::Node*>{entityNode, brushNode, patchNode};
   constexpr size_t iEntityNode = 0;

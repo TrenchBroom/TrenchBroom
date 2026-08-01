@@ -74,10 +74,10 @@ public:
             b.cloneFaceAttributesFrom(selectedBrushNode->brush());
           }
 
-          auto* newParent = parentForNodes(map, map.selection().nodes);
+          auto& newParent = parentForNodes(map, map.selection().nodes);
           auto transaction = mdl::Transaction{map, "CSG Convex Merge"};
           this->deselectAll();
-          if (addNodes(map, {{newParent, {new mdl::BrushNode{std::move(b)}}}}).empty())
+          if (addNodes(map, {{&newParent, {new mdl::BrushNode{std::move(b)}}}}).empty())
           {
             transaction.cancel();
             return;
