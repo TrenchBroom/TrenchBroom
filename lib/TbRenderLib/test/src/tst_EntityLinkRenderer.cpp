@@ -166,15 +166,7 @@ TEST_CASE("EntityLinkRenderer")
     mdl::selectNodes(map, {sourceNode});
     const auto links = renderer.getLinks();
 
-    // NOTE: found via this test, not fixed here since it's a production-code
-    // decision (reported separately). CollectTransitiveSelectedLinksVisitor::visit()
-    // explores both the outgoing and incoming links of every node it reaches, without
-    // tracking which edges were already emitted (only which nodes were already
-    // visited). So once traversal reaches the far end of an edge, it re-emits that
-    // same edge from the opposite direction: this single link comes back as 4
-    // vertices (two duplicate pairs) instead of 2. Asserting only that the link is
-    // present at all, not the exact (currently doubled) count.
-    REQUIRE(links.size() >= 2);
+    REQUIRE(links.size() == 2);
     CHECK(gl::getVertexComponent<0>(links[0]) == sourceAnchor);
     CHECK(gl::getVertexComponent<0>(links[1]) == targetAnchor);
   }

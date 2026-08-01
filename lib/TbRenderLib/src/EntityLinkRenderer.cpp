@@ -39,6 +39,7 @@
 
 #include <cassert>
 #include <ranges>
+#include <set>
 #include <unordered_set>
 
 namespace tb::render
@@ -114,12 +115,14 @@ struct CollectTransitiveSelectedLinksVisitor
   Color defaultColor;
   Color selectedColor;
 
-  std::unordered_set<const mdl::Node*> visited;
+  std::unordered_set<const mdl::Node*> visitedNodes;
+  std::set<std::pair<const mdl::EntityNodeBase*, const mdl::EntityNodeBase*>>
+    visitedEdges;
 
   void visit(
     const mdl::EntityNodeBase& node, std::vector<LinkRenderer::LineVertex>& linkVertices)
   {
-    if (visited.insert(&node).second && editorContext.visible(node))
+    if (visitedNodes.insert(&node).second && editorContext.visible(node))
     {
       addLinksFrom(node, entityLinkManager.linksFrom(node), linkVertices);
       addLinksTo(node, entityLinkManager.linksTo(node), linkVertices);
@@ -134,7 +137,9 @@ struct CollectTransitiveSelectedLinksVisitor
     for (const auto& linkEnd : getLinkEnds(entityLinks))
     {
       const auto& targetNode = *linkEnd.node;
-      if (editorContext.visible(targetNode))
+      if (
+        editorContext.visible(targetNode)
+        && visitedEdges.insert({&sourceNode, &targetNode}).second)
       {
         addLink(sourceNode, targetNode, defaultColor, selectedColor, linkVertices);
         visit(targetNode, linkVertices);
@@ -150,7 +155,9 @@ struct CollectTransitiveSelectedLinksVisitor
     for (const auto& linkEnd : getLinkEnds(entityLinks))
     {
       const auto& sourceNode = *linkEnd.node;
-      if (editorContext.visible(sourceNode))
+      if (
+        editorContext.visible(sourceNode)
+        && visitedEdges.insert({&sourceNode, &targetNode}).second)
       {
         addLink(sourceNode, targetNode, defaultColor, selectedColor, linkVertices);
         visit(sourceNode, linkVertices);
@@ -261,7 +268,7 @@ auto getTransitiveSelectedLinks(
   const mdl::Map& map, const Color& defaultColor, const Color& selectedColor)
 {
   auto visitor = CollectTransitiveSelectedLinksVisitor{
-    map.entityLinkManager(), map.editorContext(), defaultColor, selectedColor, {}};
+    map.entityLinkManager(), map.editorContext(), defaultColor, selectedColor, {}, {}};
   return collectSelectedLinks(map.selection(), visitor);
 }
 
