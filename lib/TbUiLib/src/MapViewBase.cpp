@@ -1328,6 +1328,31 @@ void MapViewBase::showPopupMenuLater()
   menu.addSeparator();
 
   using namespace mdl::HitFilters;
+
+  if (const auto* hitNode = mdl::hitToNode(pickResult().first(type(mdl::nodeHitType()))))
+  {
+    // brushes and patches report their containing entity, while a point entity is hit
+    // directly
+    const auto* entityNode = dynamic_cast<const mdl::EntityNodeBase*>(hitNode);
+    if (!entityNode)
+    {
+      entityNode = mdl::findContainingEntity(hitNode);
+    }
+
+    if (entityNode && entityNode != &map.worldNode())
+    {
+      const auto& classname = entityNode->entity().classname();
+      auto* selectEntitiesWithClassnameAction = menu.addAction(
+        tr("Select All %1").arg(QString::fromStdString(classname)),
+        this,
+        [&map, classname] { selectEntitiesWithClassname(map, classname); });
+      selectEntitiesWithClassnameAction->setEnabled(
+        canSelectEntitiesWithClassname(map, classname));
+
+      menu.addSeparator();
+    }
+  }
+
   const auto& hit = pickResult().first(type(mdl::BrushNode::BrushHitType));
   const auto faceHandle = mdl::hitToFaceHandle(hit);
   if (faceHandle)

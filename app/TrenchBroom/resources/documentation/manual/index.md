@@ -428,6 +428,9 @@ Select All in Layers
 Make Structural
 :   Moves brushes back into the world and clears any content flags. See [Brush Entities](#brush_entities).
 
+Select All CLASSNAME
+:   Select every entity in the map which has the same classname as the entity being hovered.
+
 Reveal MATERIALNAME in Material Browser
 :   Switches to the face inspector and scroll to the clicked material in the [Material Browser](#material_browser).
 
