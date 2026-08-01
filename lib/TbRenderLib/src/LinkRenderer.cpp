@@ -31,6 +31,67 @@
 
 namespace tb::render
 {
+namespace
+{
+
+void addArrow(
+  std::vector<LinkRenderer::ArrowVertex>& arrows,
+  const vm::vec4f& color,
+  const vm::vec3f& arrowPosition,
+  const vm::vec3f& lineDir)
+{
+  arrows.emplace_back(vm::vec3f{0, 3, 0}, color, arrowPosition, lineDir);
+  arrows.emplace_back(vm::vec3f{9, 0, 0}, color, arrowPosition, lineDir);
+
+  arrows.emplace_back(vm::vec3f{9, 0, 0}, color, arrowPosition, lineDir);
+  arrows.emplace_back(vm::vec3f{0, -3, 0}, color, arrowPosition, lineDir);
+}
+
+std::vector<LinkRenderer::ArrowVertex> getArrows(
+  const std::vector<LinkRenderer::LineVertex>& links)
+{
+  contract_pre((links.size() % 2) == 0);
+
+  auto arrows = std::vector<LinkRenderer::ArrowVertex>{};
+  for (size_t i = 0; i < links.size(); i += 2)
+  {
+    const auto& startVertex = links[i];
+    const auto& endVertex = links[i + 1];
+
+    const auto lineVec =
+      (getVertexComponent<0>(endVertex) - getVertexComponent<0>(startVertex));
+    const auto lineLength = length(lineVec);
+    const auto lineDir = lineVec / lineLength;
+    const auto color = getVertexComponent<1>(startVertex);
+
+    if (lineLength < 512)
+    {
+      const auto arrowPosition = getVertexComponent<0>(startVertex) + (lineVec * 0.6f);
+      addArrow(arrows, color, arrowPosition, lineDir);
+    }
+    else if (lineLength < 1024)
+    {
+      const auto arrowPosition1 = getVertexComponent<0>(startVertex) + (lineVec * 0.2f);
+      const auto arrowPosition2 = getVertexComponent<0>(startVertex) + (lineVec * 0.6f);
+
+      addArrow(arrows, color, arrowPosition1, lineDir);
+      addArrow(arrows, color, arrowPosition2, lineDir);
+    }
+    else
+    {
+      const auto arrowPosition1 = getVertexComponent<0>(startVertex) + (lineVec * 0.1f);
+      const auto arrowPosition2 = getVertexComponent<0>(startVertex) + (lineVec * 0.4f);
+      const auto arrowPosition3 = getVertexComponent<0>(startVertex) + (lineVec * 0.7f);
+
+      addArrow(arrows, color, arrowPosition1, lineDir);
+      addArrow(arrows, color, arrowPosition2, lineDir);
+      addArrow(arrows, color, arrowPosition3, lineDir);
+    }
+  }
+  return arrows;
+}
+
+} // namespace
 
 LinkRenderer::LinkRenderer() = default;
 
@@ -110,63 +171,6 @@ void LinkRenderer::renderArrows(RenderContext& renderContext)
     m_arrows.render(gl, gl::PrimType::Lines);
     m_arrows.cleanup(gl, shader.program());
   }
-}
-
-static void addArrow(
-  std::vector<LinkRenderer::ArrowVertex>& arrows,
-  const vm::vec4f& color,
-  const vm::vec3f& arrowPosition,
-  const vm::vec3f& lineDir)
-{
-  arrows.emplace_back(vm::vec3f{0, 3, 0}, color, arrowPosition, lineDir);
-  arrows.emplace_back(vm::vec3f{9, 0, 0}, color, arrowPosition, lineDir);
-
-  arrows.emplace_back(vm::vec3f{9, 0, 0}, color, arrowPosition, lineDir);
-  arrows.emplace_back(vm::vec3f{0, -3, 0}, color, arrowPosition, lineDir);
-}
-
-static std::vector<LinkRenderer::ArrowVertex> getArrows(
-  const std::vector<LinkRenderer::LineVertex>& links)
-{
-  contract_pre((links.size() % 2) == 0);
-
-  auto arrows = std::vector<LinkRenderer::ArrowVertex>{};
-  for (size_t i = 0; i < links.size(); i += 2)
-  {
-    const auto& startVertex = links[i];
-    const auto& endVertex = links[i + 1];
-
-    const auto lineVec =
-      (getVertexComponent<0>(endVertex) - getVertexComponent<0>(startVertex));
-    const auto lineLength = length(lineVec);
-    const auto lineDir = lineVec / lineLength;
-    const auto color = getVertexComponent<1>(startVertex);
-
-    if (lineLength < 512)
-    {
-      const auto arrowPosition = getVertexComponent<0>(startVertex) + (lineVec * 0.6f);
-      addArrow(arrows, color, arrowPosition, lineDir);
-    }
-    else if (lineLength < 1024)
-    {
-      const auto arrowPosition1 = getVertexComponent<0>(startVertex) + (lineVec * 0.2f);
-      const auto arrowPosition2 = getVertexComponent<0>(startVertex) + (lineVec * 0.6f);
-
-      addArrow(arrows, color, arrowPosition1, lineDir);
-      addArrow(arrows, color, arrowPosition2, lineDir);
-    }
-    else
-    {
-      const auto arrowPosition1 = getVertexComponent<0>(startVertex) + (lineVec * 0.1f);
-      const auto arrowPosition2 = getVertexComponent<0>(startVertex) + (lineVec * 0.4f);
-      const auto arrowPosition3 = getVertexComponent<0>(startVertex) + (lineVec * 0.7f);
-
-      addArrow(arrows, color, arrowPosition1, lineDir);
-      addArrow(arrows, color, arrowPosition2, lineDir);
-      addArrow(arrows, color, arrowPosition3, lineDir);
-    }
-  }
-  return arrows;
 }
 
 void LinkRenderer::validate()
