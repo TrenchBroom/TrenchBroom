@@ -41,6 +41,8 @@ void selectTouchingNodes(Map& map, vm::axis::type cameraAxis, bool del);
 void selectContainedNodes(Map& map, bool del);
 void selectNodesWithFilePosition(Map& map, const std::vector<size_t>& positions);
 void selectBrushesWithMaterial(Map& map, std::string_view materialName);
+void selectEntitiesWithClassname(Map& map, std::string_view classname);
+bool canSelectEntitiesWithClassname(const Map& map, std::string_view classname);
 void invertNodeSelection(Map& map);
 
 void selectAllInLayers(Map& map, const std::vector<LayerNode*>& layers);

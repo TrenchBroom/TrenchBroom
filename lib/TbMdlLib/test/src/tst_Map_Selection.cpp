@@ -32,6 +32,8 @@
 #include "mdl/Map_Entities.h"
 #include "mdl/Map_Geometry.h"
 #include "mdl/Map_Groups.h"
+#include "mdl/Map_NodeLocking.h"
+#include "mdl/Map_NodeVisibility.h"
 #include "mdl/Map_Nodes.h"
 #include "mdl/Map_Selection.h"
 #include "mdl/PatchNode.h"
@@ -614,6 +616,112 @@ TEST_CASE("Map_Selection")
       selectBrushesWithMaterial(map, "material1");
 
       CHECK(map.selection().nodes == std::vector<Node*>{groupedBrushNodeM1});
+    }
+  }
+
+  SECTION("selectEntitiesWithClassname")
+  {
+    auto* pointEntityNode = new EntityNode{Entity{{{"classname", "trigger_secret"}}}};
+    auto* otherPointEntityNode =
+      new EntityNode{Entity{{{"classname", "info_player_start"}}}};
+    auto* brushNode = createBrushNode(map);
+    auto* groupNode = new GroupNode{Group{"group"}};
+    auto* groupedEntityNode = new EntityNode{Entity{{{"classname", "trigger_secret"}}}};
+    auto* otherGroupedEntityNode =
+      new EntityNode{Entity{{{"classname", "info_player_start"}}}};
+    auto* brushEntityNode = new EntityNode{Entity{{{"classname", "trigger_secret"}}}};
+    auto* entityBrushNode = createBrushNode(map);
+
+    addNodes(
+      map,
+      {{parentForNodes(map),
+        {pointEntityNode, otherPointEntityNode, brushNode, groupNode, brushEntityNode}}});
+    addNodes(map, {{groupNode, {groupedEntityNode, otherGroupedEntityNode}}});
+    addNodes(map, {{brushEntityNode, {entityBrushNode}}});
+
+    SECTION("Case insensitivity")
+    {
+      const auto classname = GENERATE("trigger_secret", "TRIGGER_SECRET");
+      CAPTURE(classname);
+
+      selectEntitiesWithClassname(map, classname);
+
+      CHECK_THAT(
+        map.selection().nodes,
+        UnorderedEquals(
+          std::vector<Node*>{pointEntityNode, entityBrushNode, groupedEntityNode}));
+    }
+
+    SECTION("Entities in a closed group are selected individually")
+    {
+      selectEntitiesWithClassname(map, "trigger_secret");
+
+      CHECK_THAT(
+        map.selection().nodes,
+        UnorderedEquals(
+          std::vector<Node*>{pointEntityNode, entityBrushNode, groupedEntityNode}));
+
+      // Selecting the group instead would act on otherGroupedEntityNode too.
+      CHECK_THAT(
+        map.selection().allEntities(),
+        UnorderedEquals(std::vector<EntityNodeBase*>{
+          pointEntityNode, brushEntityNode, groupedEntityNode}));
+    }
+
+    SECTION("With open group")
+    {
+      openGroup(map, *groupNode);
+
+      selectEntitiesWithClassname(map, "trigger_secret");
+
+      CHECK(map.selection().nodes == std::vector<Node*>{groupedEntityNode});
+    }
+
+    SECTION("Worldspawn is not selected")
+    {
+      selectEntitiesWithClassname(map, "worldspawn");
+
+      CHECK(map.selection().nodes == std::vector<Node*>{});
+    }
+
+    SECTION("Hidden entities are not selected")
+    {
+      hideNodes(map, {pointEntityNode, brushEntityNode});
+
+      selectEntitiesWithClassname(map, "trigger_secret");
+
+      CHECK(map.selection().nodes == std::vector<Node*>{groupedEntityNode});
+    }
+
+    SECTION("Entities in a hidden group are not selected")
+    {
+      hideNodes(map, {groupNode});
+
+      selectEntitiesWithClassname(map, "trigger_secret");
+
+      CHECK_THAT(
+        map.selection().nodes,
+        UnorderedEquals(std::vector<Node*>{pointEntityNode, entityBrushNode}));
+    }
+
+    SECTION("Locked entities are not selected")
+    {
+      lockNodes(map, {pointEntityNode, brushEntityNode});
+
+      selectEntitiesWithClassname(map, "trigger_secret");
+
+      CHECK(map.selection().nodes == std::vector<Node*>{groupedEntityNode});
+    }
+
+    SECTION("Entities in a locked group are not selected")
+    {
+      lockNodes(map, {groupNode});
+
+      selectEntitiesWithClassname(map, "trigger_secret");
+
+      CHECK_THAT(
+        map.selection().nodes,
+        UnorderedEquals(std::vector<Node*>{pointEntityNode, entityBrushNode}));
     }
   }
 

@@ -32,6 +32,7 @@
 #include "mdl/Map_Nodes.h"
 #include "mdl/ModelUtils.h"
 #include "mdl/Node.h"
+#include "mdl/NodeQueries.h"
 #include "mdl/PatchNode.h"
 #include "mdl/SelectionCommand.h"
 #include "mdl/Transaction.h"
@@ -271,6 +272,31 @@ void selectBrushesWithMaterial(Map& map, const std::string_view materialName)
   deselectAll(map);
   selectNodes(map, brushes);
   transaction.commit();
+}
+
+void selectEntitiesWithClassname(Map& map, const std::string_view classname)
+{
+  const auto& editorContext = map.editorContext();
+  const auto* currentGroup = editorContext.currentGroup();
+
+  // Entities in closed groups are selected individually because selecting the containing
+  // group would act on every entity in it, not just the matching ones.
+  const auto nodes =
+    collectNodesAndDescendants({&map.worldNode()}, [&](const EntityNode& entityNode) {
+      return kdl::ci::str_is_equal(entityNode.entity().classname(), classname)
+             && (!currentGroup || entityNode.isDescendantOf(*currentGroup))
+             && editorContext.visible(entityNode) && editorContext.editable(entityNode);
+    });
+
+  auto transaction = Transaction{map, "Select Entities with Classname"};
+  deselectAll(map);
+  selectNodes(map, nodes);
+  transaction.commit();
+}
+
+bool canSelectEntitiesWithClassname(const Map& map, const std::string_view)
+{
+  return map.editorContext().canChangeSelection();
 }
 
 void invertNodeSelection(Map& map)
