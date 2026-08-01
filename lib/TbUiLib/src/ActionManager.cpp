@@ -607,7 +607,7 @@ void ActionManager::createViewActions()
     QObject::tr("Make Structural"),
     ActionContext::AnyView | ActionContext::NodeSelection | ActionContext::AnyOrNoTool,
     QKeySequence{Qt::ALT | Qt::Key_S},
-    [](auto& context) { context.mapView().makeStructural(); },
+    [](auto& context) { context.mapView().makeSelectionStructural(); },
     [](const auto& context) { return context.hasDocument(); },
   });
 

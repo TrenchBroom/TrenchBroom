@@ -269,7 +269,7 @@ public: // tags
   void disableTag(const mdl::SmartTag& tag);
 
 public: // make structural
-  void makeStructural();
+  void makeSelectionStructural();
 
 public: // entity definitions
   void toggleEntityDefinitionVisible(const mdl::EntityDefinition& definition);
@@ -372,7 +372,7 @@ private:
   QMenu* makeEntityGroupsMenu(mdl::EntityDefinitionType type);
 
   bool canMergeGroups() const;
-  bool canMakeStructural() const;
+  bool canMakeSelectionStructural() const;
 };
 
 } // namespace ui

@@ -719,7 +719,7 @@ void MapViewBase::disableTag(const mdl::SmartTag& tag)
   transaction.commit();
 }
 
-void MapViewBase::makeStructural()
+void MapViewBase::makeSelectionStructural()
 {
   auto& map = m_document.map();
   if (!map.selection().hasBrushes())
@@ -1304,8 +1304,8 @@ void MapViewBase::showPopupMenuLater()
   if (map.selection().hasOnlyBrushes())
   {
     auto* moveToWorldAction =
-      menu.addAction(tr("Make Structural"), this, &MapViewBase::makeStructural);
-    moveToWorldAction->setEnabled(canMakeStructural());
+      menu.addAction(tr("Make Structural"), this, &MapViewBase::makeSelectionStructural);
+    moveToWorldAction->setEnabled(canMakeSelectionStructural());
 
     const auto isEntity = newBrushParent->accept(kdl::overload(
       [](const mdl::WorldNode&) { return false; },
@@ -1700,7 +1700,7 @@ bool MapViewBase::canMergeGroups() const
   return mergeGroup;
 }
 
-bool MapViewBase::canMakeStructural() const
+bool MapViewBase::canMakeSelectionStructural() const
 {
   const auto& map = m_document.map();
   if (map.selection().hasOnlyBrushes())
