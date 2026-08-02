@@ -850,7 +850,26 @@ TEST_CASE("Map_Nodes")
       CHECK(canMakeStructural(map, {brushNode}));
     }
 
-    SECTION("Selection containing a patch is rejected")
+    SECTION("Structural patch")
+    {
+      auto* patchNode = createPatchNode();
+      addNodes(map, {{&parentForNodes(map), {patchNode}}});
+
+      CHECK(!canMakeStructural(map, {patchNode}));
+    }
+
+    SECTION("Non-structural patch owned by an entity")
+    {
+      auto* entityNode = new EntityNode{Entity{{{"classname", "brush_entity"}}}};
+      addNodes(map, {{&parentForNodes(map), {entityNode}}});
+
+      auto* patchNode = createPatchNode();
+      addNodes(map, {{entityNode, {patchNode}}});
+
+      CHECK(canMakeStructural(map, {patchNode}));
+    }
+
+    SECTION("Selection containing a non-entity node is rejected")
     {
       auto* entityNode = new EntityNode{Entity{{{"classname", "brush_entity"}}}};
       addNodes(map, {{&parentForNodes(map), {entityNode}}});
@@ -858,10 +877,21 @@ TEST_CASE("Map_Nodes")
       auto* brushNode = createBrushNode(map);
       addNodes(map, {{entityNode, {brushNode}}});
 
-      auto* patchNode = createPatchNode();
-      addNodes(map, {{&parentForNodes(map), {patchNode}}});
+      CHECK(!canMakeStructural(map, {brushNode, entityNode}));
+    }
 
-      CHECK(!canMakeStructural(map, {brushNode, patchNode}));
+    SECTION("Mixed brush and patch selection with a non-structural member")
+    {
+      auto* entityNode = new EntityNode{Entity{{{"classname", "brush_entity"}}}};
+      addNodes(map, {{&parentForNodes(map), {entityNode}}});
+
+      auto* brushNode = createBrushNode(map);
+      addNodes(map, {{&parentForNodes(map), {brushNode}}});
+
+      auto* patchNode = createPatchNode();
+      addNodes(map, {{entityNode, {patchNode}}});
+
+      CHECK(canMakeStructural(map, {brushNode, patchNode}));
     }
   }
 
@@ -924,8 +954,11 @@ TEST_CASE("Map_Nodes")
       CHECK(!brushNode->anyFaceHasAnyTag());
     }
 
-    SECTION("A patch in the input is ignored")
+    SECTION("Patch owned by an entity is reparented to the world")
     {
+      // Unlike brushes, patches can't carry the "entity" smart tag today -- its
+      // EntityClassNameTagMatcher only visits BrushNode -- so this only exercises the
+      // reparenting side of makeStructural, not tag clearing.
       auto* entityNode = new EntityNode{Entity{{{"classname", "brush_entity"}}}};
       addNodes(map, {{&parentForNodes(map), {entityNode}}});
 
@@ -933,7 +966,31 @@ TEST_CASE("Map_Nodes")
       addNodes(map, {{entityNode, {patchNode}}});
 
       auto callback = TestCallback{0};
-      CHECK(!makeStructural(map, {patchNode}, callback));
+      CHECK(makeStructural(map, {patchNode}, callback));
+      CHECK(patchNode->entity() == &map.worldNode());
+
+      map.undoCommand();
+      CHECK(patchNode->entity() == entityNode);
+    }
+
+    SECTION("Mixed brush and patch selection both become structural in one transaction")
+    {
+      auto* entityNode = new EntityNode{Entity{{{"classname", "brush_entity"}}}};
+      addNodes(map, {{&parentForNodes(map), {entityNode}}});
+
+      auto* brushNode = createBrushNode(map);
+      addNodes(map, {{entityNode, {brushNode}}});
+
+      auto* patchNode = createPatchNode();
+      addNodes(map, {{entityNode, {patchNode}}});
+
+      auto callback = TestCallback{0};
+      CHECK(makeStructural(map, {brushNode, patchNode}, callback));
+      CHECK(brushNode->entity() == &map.worldNode());
+      CHECK(patchNode->entity() == &map.worldNode());
+
+      map.undoCommand();
+      CHECK(brushNode->entity() == entityNode);
       CHECK(patchNode->entity() == entityNode);
     }
 
@@ -954,6 +1011,25 @@ TEST_CASE("Map_Nodes")
       CHECK(brushNode->entity() == &map.worldNode());
       CHECK(entityNode->parent() == nullptr);
       CHECK(map.selection().nodes == std::vector<Node*>{brushNode});
+    }
+
+    SECTION(
+      "Selected patch that is the sole child of its entity is reparented without "
+      "corrupting selection state")
+    {
+      auto* entityNode = new EntityNode{Entity{{{"classname", "brush_entity"}}}};
+      addNodes(map, {{&parentForNodes(map), {entityNode}}});
+
+      auto* patchNode = createPatchNode();
+      addNodes(map, {{entityNode, {patchNode}}});
+
+      selectNodes(map, {patchNode});
+
+      auto callback = TestCallback{0};
+      CHECK(makeStructural(map, {patchNode}, callback));
+      CHECK(patchNode->entity() == &map.worldNode());
+      CHECK(entityNode->parent() == nullptr);
+      CHECK(map.selection().nodes == std::vector<Node*>{patchNode});
     }
   }
 
@@ -994,7 +1070,7 @@ TEST_CASE("Map_Nodes")
       CHECK(!moveToEntity(map, {brushNode}, *entityNode));
     }
 
-    SECTION("A patch in the input is ignored")
+    SECTION("Moves a structural patch into an entity and selects it")
     {
       auto* entityNode = new EntityNode{Entity{{{"classname", "brush_entity"}}}};
       addNodes(map, {{&parentForNodes(map), {entityNode}}});
@@ -1002,8 +1078,47 @@ TEST_CASE("Map_Nodes")
       auto* patchNode = createPatchNode();
       addNodes(map, {{&parentForNodes(map), {patchNode}}});
 
-      CHECK(!moveToEntity(map, {patchNode}, *entityNode));
+      CHECK(moveToEntity(map, {patchNode}, *entityNode));
+      CHECK(patchNode->entity() == entityNode);
+      CHECK(map.selection().patches == std::vector<PatchNode*>{patchNode});
+
+      map.undoCommand();
       CHECK(patchNode->entity() == &map.worldNode());
+    }
+
+    SECTION("Moves a brush and a patch together; only the brush picks up the entity's tag")
+    {
+      // Unlike brushes, patches can't carry the "entity" smart tag today -- its
+      // EntityClassNameTagMatcher only visits BrushNode.
+      auto* entityNode = new EntityNode{Entity{{{"classname", "brush_entity"}}}};
+      addNodes(map, {{&parentForNodes(map), {entityNode}}});
+
+      auto* brushNode = createBrushNode(map);
+      addNodes(map, {{&parentForNodes(map), {brushNode}}});
+
+      auto* patchNode = createPatchNode();
+      addNodes(map, {{&parentForNodes(map), {patchNode}}});
+
+      const auto& entityTag = map.smartTag("entity");
+      REQUIRE(!brushNode->hasTag(entityTag));
+
+      CHECK(moveToEntity(map, {brushNode, patchNode}, *entityNode));
+      CHECK(brushNode->hasTag(entityTag));
+      CHECK(!patchNode->hasTag(entityTag));
+    }
+
+    SECTION("Non-geometry node in the input is ignored")
+    {
+      auto* entityNode = new EntityNode{Entity{{{"classname", "brush_entity"}}}};
+      addNodes(map, {{&parentForNodes(map), {entityNode}}});
+
+      auto* otherEntityNode = new EntityNode{Entity{}};
+      auto* brushNode = createBrushNode(map);
+      addNodes(map, {{&parentForNodes(map), {otherEntityNode, brushNode}}});
+
+      CHECK(moveToEntity(map, {otherEntityNode, brushNode}, *entityNode));
+      CHECK(brushNode->entity() == entityNode);
+      CHECK(otherEntityNode->parent() != entityNode);
     }
   }
 

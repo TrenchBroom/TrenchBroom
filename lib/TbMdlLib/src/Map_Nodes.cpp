@@ -254,7 +254,7 @@ bool isGeometryNode(const Node& node)
     [](const GroupNode&) { return false; },
     [](const EntityNode&) { return false; },
     [](const BrushNode&) { return true; },
-    [](const PatchNode&) { return false; })); // TODO: extend to patches
+    [](const PatchNode&) { return true; }));
 }
 
 bool isStructural(const Map& map, const Node& node)
@@ -268,7 +268,9 @@ bool isStructural(const Map& map, const Node& node)
       return brushNode.entity() == &map.worldNode() && !brushNode.hasAnyTag()
              && !brushNode.anyFaceHasAnyTag();
     },
-    [](const PatchNode&) { return false; })); // TODO: extend to patches
+    [&](const PatchNode& patchNode) {
+      return patchNode.entity() == &map.worldNode() && !patchNode.hasAnyTag();
+    }));
 }
 
 } // namespace

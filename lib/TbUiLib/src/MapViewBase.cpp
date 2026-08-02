@@ -1272,7 +1272,7 @@ void MapViewBase::showPopupMenuLater()
 
   menu.addSeparator();
 
-  if (map.selection().hasOnlyBrushes())
+  if (map.selection().hasOnlyGeometryNodes())
   {
     auto* moveToWorldAction =
       menu.addAction(tr("Make Structural"), this, &MapViewBase::makeSelectionStructural);
@@ -1289,8 +1289,7 @@ void MapViewBase::showPopupMenuLater()
     if (isEntity)
     {
       menu.addAction(
-        tr("Move Brushes to Entity %1")
-          .arg(QString::fromStdString(newNodeParent->name())),
+        tr("Move to Entity %1").arg(QString::fromStdString(newNodeParent->name())),
         this,
         &MapViewBase::moveSelectedNodesToEntity);
     }
@@ -1540,13 +1539,12 @@ mdl::Node* MapViewBase::findNewParentEntityForNodes(
   using namespace mdl::HitFilters;
 
   const auto& map = m_document.map();
-  const auto& hit = pickResult().first(type(mdl::BrushNode::BrushHitType));
-  if (const auto faceHandle = mdl::hitToFaceHandle(hit))
+  const auto& hit =
+    pickResult().first(type(mdl::BrushNode::BrushHitType | mdl::PatchNode::PatchHitType));
+  if (auto* hitNode = mdl::hitToNode(hit))
   {
-    auto* brush = faceHandle->node();
-    auto* newParent = brush->entity();
-
-    if (newParent && newParent != &map.worldNode() && canReparentNodes(nodes, newParent))
+    if (auto* newParent = mdl::findContainingEntity(hitNode);
+        newParent && newParent != &map.worldNode() && canReparentNodes(nodes, newParent))
     {
       return newParent;
     }
