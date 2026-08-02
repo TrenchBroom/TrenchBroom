@@ -380,7 +380,7 @@ TEST_CASE("Map_Nodes")
       auto* layer2 = new LayerNode{Layer{"Layer 2"}};
       addNodes(map, {{&map.worldNode(), {layer2}}});
 
-      CHECK_FALSE(reparentNodes(map, {{layer2, {layer1}}}));
+      CHECK(!reparentNodes(map, {{layer2, {layer1}}}));
     }
 
     SECTION("Reparent between layers")
@@ -407,7 +407,7 @@ TEST_CASE("Map_Nodes")
       auto* group = new GroupNode{Group{"Group"}};
       addNodes(map, {{&parentForNodes(map), {group}}});
 
-      CHECK_FALSE(reparentNodes(map, {{group, {group}}}));
+      CHECK(!reparentNodes(map, {{group, {group}}}));
     }
 
     SECTION("Cannot reparent a group to its descendants")
@@ -418,7 +418,7 @@ TEST_CASE("Map_Nodes")
       auto* inner = new GroupNode{Group{"Inner"}};
       addNodes(map, {{outer, {inner}}});
 
-      CHECK_FALSE(reparentNodes(map, {{inner, {outer}}}));
+      CHECK(!reparentNodes(map, {{inner, {outer}}}));
     }
 
     SECTION("Empty groups are removed after reparenting")
@@ -671,7 +671,7 @@ TEST_CASE("Map_Nodes")
 
       SECTION("Adding a linked group to its linked sibling does nothing")
       {
-        CHECK_FALSE(reparentNodes(map, {{groupNode, {linkedGroupNode}}}));
+        CHECK(!reparentNodes(map, {{groupNode, {linkedGroupNode}}}));
       }
 
       SECTION(
@@ -684,7 +684,7 @@ TEST_CASE("Map_Nodes")
         REQUIRE(outerGroupNode != nullptr);
 
         deselectAll(map);
-        CHECK_FALSE(reparentNodes(map, {{groupNode, {outerGroupNode}}}));
+        CHECK(!reparentNodes(map, {{groupNode, {outerGroupNode}}}));
       }
     }
 
@@ -750,7 +750,7 @@ TEST_CASE("Map_Nodes")
       auto* brushNode = createBrushNode(map);
       addNodes(map, {{&parentForNodes(map), {brushNode}}});
 
-      CHECK_FALSE(reparentNodes(map, {{groupNode, {brushNode}}}));
+      CHECK(!reparentNodes(map, {{groupNode, {brushNode}}}));
 
       CHECK(groupNode->childCount() == 0u);
       CHECK(linkedGroupNode->childCount() == 0u);
@@ -768,7 +768,7 @@ TEST_CASE("Map_Nodes")
       auto* linkedGroupNode = createLinkedDuplicate(map);
       deselectAll(map);
 
-      CHECK_FALSE(reparentNodes(map, {{linkedGroupNode, {brushNode}}}));
+      CHECK(!reparentNodes(map, {{linkedGroupNode, {brushNode}}}));
 
       CHECK(groupNode->childCount() == 1u);
       CHECK(linkedGroupNode->childCount() == 1u);
@@ -1105,7 +1105,7 @@ TEST_CASE("Map_Nodes")
       const auto originalBrushBounds = brushNode->physicalBounds();
 
       selectNodes(map, {brushNode});
-      CHECK_FALSE(translateSelection(map, vm::vec3d{0, 16, 0}));
+      CHECK(!translateSelection(map, vm::vec3d{0, 16, 0}));
 
       REQUIRE(brushNode->physicalBounds() == originalBrushBounds);
 

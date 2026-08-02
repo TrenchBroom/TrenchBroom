@@ -177,8 +177,8 @@ TEST_CASE("Map_TagManagement")
     CHECK(map.smartTag("entity").index() == 6u);
     CHECK(map.smartTag("entity").type() == 64u);
 
-    CHECK_FALSE(map.isRegisteredSmartTag(""));
-    CHECK_FALSE(map.isRegisteredSmartTag("asdf"));
+    CHECK(!map.isRegisteredSmartTag(""));
+    CHECK(!map.isRegisteredSmartTag("asdf"));
   }
 
   SECTION("registerSmartTags checks duplicate tags")
@@ -232,7 +232,7 @@ TEST_CASE("Map_TagManagement")
       removeNodes(map, {brush});
 
       const auto& tag = map.smartTag("entity");
-      CHECK_FALSE(brush->hasTag(tag));
+      CHECK(!brush->hasTag(tag));
     }
 
     SECTION("Brush face tags")
@@ -244,7 +244,7 @@ TEST_CASE("Map_TagManagement")
       const auto& tag = map.smartTag("material");
       for (const auto& face : brushNodeWithTags->brush().faces())
       {
-        CHECK_FALSE(face.hasTag(tag));
+        CHECK(!face.hasTag(tag));
       }
     }
   }
@@ -263,7 +263,7 @@ TEST_CASE("Map_TagManagement")
       REQUIRE(entityNode->entity().definition() == brushEntityDefinition);
 
       const auto& tag = map.smartTag("entity");
-      CHECK_FALSE(brushNode->hasTag(tag));
+      CHECK(!brushNode->hasTag(tag));
 
       reparentNodes(map, {{entityNode, {brushNode}}});
       CHECK(brushNode->hasTag(tag));
@@ -284,7 +284,7 @@ TEST_CASE("Map_TagManagement")
       addNodes(map, {{otherEntityNode, {brushNode}}});
 
       const auto& tag = map.smartTag("entity");
-      CHECK_FALSE(brushNode->hasTag(tag));
+      CHECK(!brushNode->hasTag(tag));
 
       reparentNodes(map, {{lightEntityNode, {brushNode}}});
       CHECK(brushNode->hasTag(tag));
@@ -302,7 +302,7 @@ TEST_CASE("Map_TagManagement")
     addNodes(map, {{lightEntityNode, {brushNode}}});
 
     const auto& tag = map.smartTag("entity");
-    CHECK_FALSE(brushNode->hasTag(tag));
+    CHECK(!brushNode->hasTag(tag));
 
     selectNodes(map, {lightEntityNode});
     setEntityProperty(map, "classname", "brush_entity");
@@ -319,7 +319,7 @@ TEST_CASE("Map_TagManagement")
     const auto& tag = map.smartTag("contentflags");
 
     const auto faceHandle = BrushFaceHandle{brushNode, 0u};
-    CHECK_FALSE(faceHandle.face().hasTag(tag));
+    CHECK(!faceHandle.face().hasTag(tag));
 
     selectBrushFaces(map, {faceHandle});
     setBrushFaceAttributes(map, {.surfaceContents = SetFlagBits{1}});
@@ -347,16 +347,16 @@ TEST_CASE("Map_TagManagement")
       for (const auto& face : nodeA->brush().faces())
       {
         CHECK(tag.matches(face));
-        CHECK_FALSE(patternTag.matches(face));
+        CHECK(!patternTag.matches(face));
       }
       for (const auto& face : nodeB->brush().faces())
       {
-        CHECK_FALSE(tag.matches(face));
+        CHECK(!tag.matches(face));
         CHECK(patternTag.matches(face));
       }
       for (const auto& face : nodeC->brush().faces())
       {
-        CHECK_FALSE(tag.matches(face));
+        CHECK(!tag.matches(face));
         CHECK(patternTag.matches(face));
       }
     }
@@ -370,7 +370,7 @@ TEST_CASE("Map_TagManagement")
       CHECK(tag.canEnable());
 
       const auto faceHandle = BrushFaceHandle{nonMatchingBrushNode, 0u};
-      CHECK_FALSE(tag.matches(faceHandle.face()));
+      CHECK(!tag.matches(faceHandle.face()));
 
       selectBrushFaces(map, {faceHandle});
 
@@ -383,7 +383,7 @@ TEST_CASE("Map_TagManagement")
     SECTION("disable")
     {
       const auto& tag = map.smartTag("material");
-      CHECK_FALSE(tag.canDisable());
+      CHECK(!tag.canDisable());
     }
   }
 
@@ -416,7 +416,7 @@ TEST_CASE("Map_TagManagement")
       const auto& multiTag = map.smartTag("surfaceparm_multi");
       for (const auto& face : nodeA->brush().faces())
       {
-        CHECK_FALSE(singleTag.matches(face));
+        CHECK(!singleTag.matches(face));
         CHECK(multiTag.matches(face));
       }
       for (const auto& face : nodeB->brush().faces())
@@ -426,8 +426,8 @@ TEST_CASE("Map_TagManagement")
       }
       for (const auto& face : nodeC->brush().faces())
       {
-        CHECK_FALSE(singleTag.matches(face));
-        CHECK_FALSE(multiTag.matches(face));
+        CHECK(!singleTag.matches(face));
+        CHECK(!multiTag.matches(face));
       }
     }
 
@@ -440,7 +440,7 @@ TEST_CASE("Map_TagManagement")
       CHECK(tag.canEnable());
 
       const auto faceHandle = BrushFaceHandle{nonMatchingBrushNode, 0u};
-      CHECK_FALSE(tag.matches(faceHandle.face()));
+      CHECK(!tag.matches(faceHandle.face()));
 
       selectBrushFaces(map, {faceHandle});
 
@@ -453,7 +453,7 @@ TEST_CASE("Map_TagManagement")
     SECTION("disable")
     {
       const auto& tag = map.smartTag("surfaceparm_single");
-      CHECK_FALSE(tag.canDisable());
+      CHECK(!tag.canDisable());
     }
   }
 
@@ -483,7 +483,7 @@ TEST_CASE("Map_TagManagement")
       }
       for (const auto& face : nonMatchingBrushNode->brush().faces())
       {
-        CHECK_FALSE(tag.matches(face));
+        CHECK(!tag.matches(face));
       }
     }
 
@@ -496,7 +496,7 @@ TEST_CASE("Map_TagManagement")
       CHECK(tag.canEnable());
 
       const auto faceHandle = BrushFaceHandle{nonMatchingBrushNode, 0u};
-      CHECK_FALSE(tag.matches(faceHandle.face()));
+      CHECK(!tag.matches(faceHandle.face()));
 
       selectBrushFaces(map, {faceHandle});
 
@@ -528,7 +528,7 @@ TEST_CASE("Map_TagManagement")
       auto callback = TestCallback{0};
       tag.disable(callback, map);
 
-      CHECK_FALSE(tag.matches(faceHandle.face()));
+      CHECK(!tag.matches(faceHandle.face()));
     }
   }
 
@@ -558,7 +558,7 @@ TEST_CASE("Map_TagManagement")
       }
       for (const auto& face : nonMatchingBrushNode->brush().faces())
       {
-        CHECK_FALSE(tag.matches(face));
+        CHECK(!tag.matches(face));
       }
     }
 
@@ -571,7 +571,7 @@ TEST_CASE("Map_TagManagement")
       CHECK(tag.canEnable());
 
       const auto faceHandle = BrushFaceHandle{nonMatchingBrushNode, 0u};
-      CHECK_FALSE(tag.matches(faceHandle.face()));
+      CHECK(!tag.matches(faceHandle.face()));
 
       selectBrushFaces(map, {faceHandle});
 
@@ -603,7 +603,7 @@ TEST_CASE("Map_TagManagement")
       auto callback = TestCallback{0};
       tag.disable(callback, map);
 
-      CHECK_FALSE(tag.matches(faceHandle.face()));
+      CHECK(!tag.matches(faceHandle.face()));
     }
   }
 
@@ -624,7 +624,7 @@ TEST_CASE("Map_TagManagement")
 
       const auto& tag = map.smartTag("entity");
       CHECK(tag.matches(*matchingBrushNode));
-      CHECK_FALSE(tag.matches(*nonMatchingBrushNode));
+      CHECK(!tag.matches(*nonMatchingBrushNode));
     }
 
     SECTION("enable")
@@ -633,7 +633,7 @@ TEST_CASE("Map_TagManagement")
       addNodes(map, {{&parentForNodes(map), {brushNode}}});
 
       const auto& tag = map.smartTag("entity");
-      CHECK_FALSE(tag.matches(*brushNode));
+      CHECK(!tag.matches(*brushNode));
 
       CHECK(tag.canEnable());
 
@@ -692,7 +692,7 @@ TEST_CASE("Map_TagManagement")
 
       auto callback = TestCallback{0};
       tag.disable(callback, map);
-      CHECK_FALSE(tag.matches(*brushNode));
+      CHECK(!tag.matches(*brushNode));
     }
   }
 }
