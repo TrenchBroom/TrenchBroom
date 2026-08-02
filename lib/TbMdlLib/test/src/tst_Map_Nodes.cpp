@@ -954,23 +954,25 @@ TEST_CASE("Map_Nodes")
       CHECK(!brushNode->anyFaceHasAnyTag());
     }
 
-    SECTION("Patch owned by an entity is reparented to the world")
+    SECTION("Patch owned by an entity is reparented and its entity tag is cleared")
     {
-      // Unlike brushes, patches can't carry the "entity" smart tag today -- its
-      // EntityClassNameTagMatcher only visits BrushNode -- so this only exercises the
-      // reparenting side of makeStructural, not tag clearing.
       auto* entityNode = new EntityNode{Entity{{{"classname", "brush_entity"}}}};
       addNodes(map, {{&parentForNodes(map), {entityNode}}});
 
       auto* patchNode = createPatchNode();
       addNodes(map, {{entityNode, {patchNode}}});
 
+      const auto& entityTag = map.smartTag("entity");
+      REQUIRE(patchNode->hasTag(entityTag));
+
       auto callback = TestCallback{0};
       CHECK(makeStructural(map, {patchNode}, callback));
       CHECK(patchNode->entity() == &map.worldNode());
+      CHECK(!patchNode->hasTag(entityTag));
 
       map.undoCommand();
       CHECK(patchNode->entity() == entityNode);
+      CHECK(patchNode->hasTag(entityTag));
     }
 
     SECTION("Mixed brush and patch selection both become structural in one transaction")
@@ -1086,10 +1088,8 @@ TEST_CASE("Map_Nodes")
       CHECK(patchNode->entity() == &map.worldNode());
     }
 
-    SECTION("Moves a brush and a patch together; only the brush picks up the entity's tag")
+    SECTION("Moves a brush and a patch together and both pick up the entity's tag")
     {
-      // Unlike brushes, patches can't carry the "entity" smart tag today -- its
-      // EntityClassNameTagMatcher only visits BrushNode.
       auto* entityNode = new EntityNode{Entity{{{"classname", "brush_entity"}}}};
       addNodes(map, {{&parentForNodes(map), {entityNode}}});
 
@@ -1101,10 +1101,11 @@ TEST_CASE("Map_Nodes")
 
       const auto& entityTag = map.smartTag("entity");
       REQUIRE(!brushNode->hasTag(entityTag));
+      REQUIRE(!patchNode->hasTag(entityTag));
 
       CHECK(moveToEntity(map, {brushNode, patchNode}, *entityNode));
       CHECK(brushNode->hasTag(entityTag));
-      CHECK(!patchNode->hasTag(entityTag));
+      CHECK(patchNode->hasTag(entityTag));
     }
 
     SECTION("Non-geometry node in the input is ignored")

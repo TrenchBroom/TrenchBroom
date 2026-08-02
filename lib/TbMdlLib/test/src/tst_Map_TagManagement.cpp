@@ -34,6 +34,7 @@
 #include "mdl/Map_Geometry.h"
 #include "mdl/Map_Nodes.h"
 #include "mdl/Map_Selection.h"
+#include "mdl/PatchNode.h"
 #include "mdl/TagMatcher.h"
 #include "mdl/TestFactory.h"
 #include "mdl/UpdateBrushFaceAttributes.h"
@@ -627,6 +628,24 @@ TEST_CASE("Map_TagManagement")
       CHECK(!tag.matches(*nonMatchingBrushNode));
     }
 
+    SECTION("matches (patch)")
+    {
+      auto* matchingPatchNode = createPatchNode();
+      auto* nonMatchingPatchNode = createPatchNode();
+
+      auto matchingEntity =
+        std::make_unique<EntityNode>(Entity{{{"classname", "brush_entity"}}});
+      matchingEntity->addChild(matchingPatchNode);
+
+      auto nonMatchingEntity =
+        std::make_unique<EntityNode>(Entity{{{"classname", "something"}}});
+      nonMatchingEntity->addChild(nonMatchingPatchNode);
+
+      const auto& tag = map.smartTag("entity");
+      CHECK(tag.matches(*matchingPatchNode));
+      CHECK(!tag.matches(*nonMatchingPatchNode));
+    }
+
     SECTION("enable")
     {
       auto* brushNode = createBrushNode(map, "asdf");
@@ -693,6 +712,30 @@ TEST_CASE("Map_TagManagement")
       auto callback = TestCallback{0};
       tag.disable(callback, map);
       CHECK(!tag.matches(*brushNode));
+    }
+
+    SECTION("disable (patch)")
+    {
+      auto* patchNode = createPatchNode();
+
+      auto* oldEntityNode = new EntityNode{Entity{{
+        {"classname", "brush_entity"},
+      }}};
+
+      addNodes(map, {{&parentForNodes(map), {oldEntityNode}}});
+      addNodes(map, {{oldEntityNode, {patchNode}}});
+      REQUIRE(oldEntityNode->entity().definition() == brushEntityDefinition);
+
+      const auto& tag = map.smartTag("entity");
+      CHECK(tag.matches(*patchNode));
+
+      CHECK(tag.canDisable());
+
+      selectNodes(map, {patchNode});
+
+      auto callback = TestCallback{0};
+      tag.disable(callback, map);
+      CHECK_FALSE(tag.matches(*patchNode));
     }
   }
 }

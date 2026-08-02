@@ -33,6 +33,7 @@
 #include "mdl/Map_Entities.h"
 #include "mdl/Map_Nodes.h"
 #include "mdl/Map_Selection.h"
+#include "mdl/PatchNode.h"
 #include "mdl/Selection.h"
 #include "mdl/UpdateBrushFaceAttributes.h"
 #include "mdl/WorldNode.h" // IWYU pragma: keep
@@ -84,20 +85,32 @@ public:
   }
 };
 
-class BrushMatchVisitor : public MatchVisitor
+/**
+ * Matches brush and patch nodes based on the entity that owns them (or the world node,
+ * if they aren't owned by an entity).
+ */
+class EntityOwnerMatchVisitor : public MatchVisitor
 {
 private:
-  std::function<bool(const BrushNode&)> m_matcher;
+  std::function<bool(const EntityNodeBase*)> m_matcher;
 
 public:
-  explicit BrushMatchVisitor(std::function<bool(const BrushNode&)> matcher)
+  explicit EntityOwnerMatchVisitor(std::function<bool(const EntityNodeBase*)> matcher)
     : m_matcher(std::move(matcher))
   {
   }
 
   void visit(const BrushNode& brush) override
   {
-    if (m_matcher(brush))
+    if (m_matcher(brush.entity()))
+    {
+      setMatches();
+    }
+  }
+
+  void visit(const PatchNode& patch) override
+  {
+    if (m_matcher(patch.entity()))
     {
       setMatches();
     }
@@ -414,16 +427,9 @@ std::unique_ptr<TagMatcher> EntityClassNameTagMatcher::clone() const
 
 bool EntityClassNameTagMatcher::matches(const Taggable& taggable) const
 {
-  BrushMatchVisitor visitor([this](const BrushNode& brush) {
-    if (const auto* entityNode = brush.entity())
-    {
-      return matchesClassname(entityNode->entity().classname());
-    }
-    else
-    {
-      return false;
-    }
-  });
+  auto visitor = EntityOwnerMatchVisitor{[this](const EntityNodeBase* entityNode) {
+    return entityNode && matchesClassname(entityNode->entity().classname());
+  }};
 
   taggable.accept(visitor);
   return visitor.matches();
