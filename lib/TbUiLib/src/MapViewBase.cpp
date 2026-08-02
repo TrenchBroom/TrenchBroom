@@ -722,47 +722,8 @@ void MapViewBase::disableTag(const mdl::SmartTag& tag)
 void MapViewBase::makeSelectionStructural()
 {
   auto& map = m_document.map();
-  if (!map.selection().hasBrushes())
-  {
-    return;
-  }
-
-  auto toReparent = std::vector<mdl::Node*>{};
-  const auto& selectedBrushes = map.selection().brushes;
-  std::ranges::copy_if(
-    selectedBrushes, std::back_inserter(toReparent), [&](const auto* brushNode) {
-      return brushNode->entity() != &map.worldNode();
-    });
-
-  auto transaction = mdl::Transaction{map, "Make Structural"};
-
-  if (!toReparent.empty())
-  {
-    reparentNodes(toReparent, &parentForNodes(map, toReparent), false);
-  }
-
-  auto anyTagDisabled = false;
   auto callback = EnableDisableTagCallback{};
-  for (auto* brush : map.selection().brushes)
-  {
-    for (const auto& tag : map.smartTags())
-    {
-      if (brush->hasTag(tag) || brush->anyFacesHaveAnyTagInMask(tag.type()))
-      {
-        anyTagDisabled = true;
-        tag.disable(callback, map);
-      }
-    }
-  }
-
-  if (!anyTagDisabled && toReparent.empty())
-  {
-    transaction.cancel();
-  }
-  else
-  {
-    transaction.commit();
-  }
+  mdl::makeStructural(map, map.selection().nodes, callback);
 }
 
 void MapViewBase::moveSelectedNodesToEntity()
@@ -772,13 +733,7 @@ void MapViewBase::moveSelectedNodesToEntity()
   auto* newParent = findNewParentEntityForNodes(nodes);
   contract_assert(newParent);
 
-  auto transaction =
-    mdl::Transaction{map, "Move " + kdl::str_plural(nodes.size(), "Brush", "Brushes")};
-  reparentNodes(nodes, newParent, false);
-
-  deselectAll(map);
-  selectNodes(map, nodes);
-  transaction.commit();
+  mdl::moveToEntity(map, nodes, *newParent);
 }
 
 void MapViewBase::toggleEntityDefinitionVisible(const mdl::EntityDefinition& definition)
@@ -1703,15 +1658,7 @@ bool MapViewBase::canMergeGroups() const
 bool MapViewBase::canMakeSelectionStructural() const
 {
   const auto& map = m_document.map();
-  if (map.selection().hasOnlyBrushes())
-  {
-    const auto& brushes = map.selection().brushes;
-    return std::ranges::any_of(brushes, [&](const auto* brush) {
-      return brush->hasAnyTag() || brush->entity() != &map.worldNode()
-             || brush->anyFaceHasAnyTag();
-    });
-  }
-  return false;
+  return mdl::canMakeStructural(map, map.selection().nodes);
 }
 
 } // namespace tb::ui

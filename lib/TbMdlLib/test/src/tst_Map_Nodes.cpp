@@ -19,6 +19,8 @@
 
 #include "Observer.h"
 #include "gl/MaterialManager.h"
+#include "mdl/Brush.h"
+#include "mdl/BrushFace.h"
 #include "mdl/BrushNode.h"
 #include "mdl/CatchConfig.h"
 #include "mdl/EditorContext.h"
@@ -39,6 +41,8 @@
 #include "mdl/Map_Selection.h"
 #include "mdl/Matchers.h"
 #include "mdl/PatchNode.h"
+#include "mdl/SurfaceAttributes.h"
+#include "mdl/TagMatcher.h"
 #include "mdl/TestFactory.h"
 #include "mdl/TestUtils.h"
 #include "mdl/VisualEffect.h"
@@ -52,16 +56,53 @@
 namespace tb::mdl
 {
 
+namespace
+{
+class TestCallback : public TagMatcherCallback
+{
+private:
+  size_t m_option;
+
+public:
+  explicit TestCallback(const size_t option)
+    : m_option{option}
+  {
+  }
+
+  size_t selectOption(const std::vector<std::string>&) override { return m_option; }
+};
+} // namespace
+
 TEST_CASE("Map_Nodes")
 {
+  auto fixtureConfig = MapFixtureConfig{};
+  fixtureConfig.gameInfo.gameConfig.smartTags = {
+    SmartTag{
+      "entity",
+      {},
+      std::make_unique<EntityClassNameTagMatcher>("brush_entity", ""),
+    },
+    SmartTag{
+      "material",
+      {},
+      std::make_unique<MaterialNameTagMatcher>("tagged_material"),
+    },
+    SmartTag{
+      "content",
+      {},
+      std::make_unique<ContentFlagsTagMatcher>(1),
+    },
+  };
+
   auto fixture = MapFixture{};
-  auto& map = fixture.create();
+  auto& map = fixture.create(fixtureConfig);
   map.entityDefinitionManager().setDefinitions({
     {"point_entity",
      Color{},
      "this is a point entity",
      {},
      PointEntityDefinition{vm::bbox3d{16.0}, {}, {}}},
+    {"brush_entity", Color{}, "this is a brush entity", {}},
   });
 
   const auto& pointEntityDefinition = map.entityDefinitionManager().definitions().front();
@@ -772,6 +813,197 @@ TEST_CASE("Map_Nodes")
 
       CHECK(groupNode->childCount() == 1u);
       CHECK(linkedGroupNode->childCount() == 1u);
+    }
+  }
+
+  SECTION("canMakeStructural")
+  {
+    SECTION("Empty selection")
+    {
+      CHECK(!canMakeStructural(map, {}));
+    }
+
+    SECTION("Structural brush")
+    {
+      auto* brushNode = createBrushNode(map);
+      addNodes(map, {{&parentForNodes(map), {brushNode}}});
+
+      CHECK(!canMakeStructural(map, {brushNode}));
+    }
+
+    SECTION("Non-structural brush owned by an entity")
+    {
+      auto* entityNode = new EntityNode{Entity{{{"classname", "brush_entity"}}}};
+      addNodes(map, {{&parentForNodes(map), {entityNode}}});
+
+      auto* brushNode = createBrushNode(map);
+      addNodes(map, {{entityNode, {brushNode}}});
+
+      CHECK(canMakeStructural(map, {brushNode}));
+    }
+
+    SECTION("Non-structural brush with a tagged face")
+    {
+      auto* brushNode = createBrushNode(map, "tagged_material");
+      addNodes(map, {{&parentForNodes(map), {brushNode}}});
+
+      CHECK(canMakeStructural(map, {brushNode}));
+    }
+
+    SECTION("Selection containing a patch is rejected")
+    {
+      auto* entityNode = new EntityNode{Entity{{{"classname", "brush_entity"}}}};
+      addNodes(map, {{&parentForNodes(map), {entityNode}}});
+
+      auto* brushNode = createBrushNode(map);
+      addNodes(map, {{entityNode, {brushNode}}});
+
+      auto* patchNode = createPatchNode();
+      addNodes(map, {{&parentForNodes(map), {patchNode}}});
+
+      CHECK(!canMakeStructural(map, {brushNode, patchNode}));
+    }
+  }
+
+  SECTION("makeStructural")
+  {
+    SECTION("Empty node list does nothing")
+    {
+      auto callback = TestCallback{0};
+      CHECK(!makeStructural(map, {}, callback));
+    }
+
+    SECTION("Already-structural untagged brush does nothing")
+    {
+      auto* brushNode = createBrushNode(map);
+      addNodes(map, {{&parentForNodes(map), {brushNode}}});
+
+      auto callback = TestCallback{0};
+      CHECK(!makeStructural(map, {brushNode}, callback));
+      CHECK(brushNode->entity() == &map.worldNode());
+    }
+
+    SECTION("Brush owned by an entity is reparented and its entity tag is cleared")
+    {
+      auto* entityNode = new EntityNode{Entity{{{"classname", "brush_entity"}}}};
+      addNodes(map, {{&parentForNodes(map), {entityNode}}});
+
+      auto* brushNode = createBrushNode(map);
+      addNodes(map, {{entityNode, {brushNode}}});
+
+      const auto& entityTag = map.smartTag("entity");
+      REQUIRE(brushNode->hasTag(entityTag));
+
+      auto callback = TestCallback{0};
+      CHECK(makeStructural(map, {brushNode}, callback));
+      CHECK(brushNode->entity() == &map.worldNode());
+      CHECK(!brushNode->hasTag(entityTag));
+
+      map.undoCommand();
+      CHECK(brushNode->entity() == entityNode);
+      CHECK(brushNode->hasTag(entityTag));
+    }
+
+    SECTION("Structural brush with a tagged face has the content flags tag disabled")
+    {
+      // Material name tags (like "material" above) have no disable logic -- there is
+      // no sensible default material to fall back to -- so use a flags-based tag,
+      // which does support being disabled, to test that face tags are cleared.
+      auto* brushNode = createBrushNode(map, "material", [](auto& brush) {
+        for (auto& face : brush.faces())
+        {
+          face.setSurfaceAttributes({.contents = 1});
+        }
+      });
+      addNodes(map, {{&parentForNodes(map), {brushNode}}});
+
+      REQUIRE(brushNode->anyFaceHasAnyTag());
+
+      auto callback = TestCallback{0};
+      CHECK(makeStructural(map, {brushNode}, callback));
+      CHECK(!brushNode->anyFaceHasAnyTag());
+    }
+
+    SECTION("A patch in the input is ignored")
+    {
+      auto* entityNode = new EntityNode{Entity{{{"classname", "brush_entity"}}}};
+      addNodes(map, {{&parentForNodes(map), {entityNode}}});
+
+      auto* patchNode = createPatchNode();
+      addNodes(map, {{entityNode, {patchNode}}});
+
+      auto callback = TestCallback{0};
+      CHECK(!makeStructural(map, {patchNode}, callback));
+      CHECK(patchNode->entity() == entityNode);
+    }
+
+    SECTION(
+      "Selected brush that is the sole child of its entity is reparented without "
+      "corrupting selection state")
+    {
+      auto* entityNode = new EntityNode{Entity{{{"classname", "brush_entity"}}}};
+      addNodes(map, {{&parentForNodes(map), {entityNode}}});
+
+      auto* brushNode = createBrushNode(map);
+      addNodes(map, {{entityNode, {brushNode}}});
+
+      selectNodes(map, {brushNode});
+
+      auto callback = TestCallback{0};
+      CHECK(makeStructural(map, {brushNode}, callback));
+      CHECK(brushNode->entity() == &map.worldNode());
+      CHECK(entityNode->parent() == nullptr);
+      CHECK(map.selection().nodes == std::vector<Node*>{brushNode});
+    }
+  }
+
+  SECTION("moveToEntity")
+  {
+    SECTION("Empty node list does nothing")
+    {
+      auto* entityNode = new EntityNode{Entity{{{"classname", "brush_entity"}}}};
+      addNodes(map, {{&parentForNodes(map), {entityNode}}});
+
+      CHECK(!moveToEntity(map, {}, *entityNode));
+    }
+
+    SECTION("Moves a structural brush into an entity and selects it")
+    {
+      auto* entityNode = new EntityNode{Entity{{{"classname", "brush_entity"}}}};
+      addNodes(map, {{&parentForNodes(map), {entityNode}}});
+
+      auto* brushNode = createBrushNode(map);
+      addNodes(map, {{&parentForNodes(map), {brushNode}}});
+
+      CHECK(moveToEntity(map, {brushNode}, *entityNode));
+      CHECK(brushNode->entity() == entityNode);
+      CHECK(map.selection().brushes == std::vector<BrushNode*>{brushNode});
+
+      map.undoCommand();
+      CHECK(brushNode->entity() == &map.worldNode());
+    }
+
+    SECTION("Brush already parented under the target entity is skipped")
+    {
+      auto* entityNode = new EntityNode{Entity{{{"classname", "brush_entity"}}}};
+      addNodes(map, {{&parentForNodes(map), {entityNode}}});
+
+      auto* brushNode = createBrushNode(map);
+      addNodes(map, {{entityNode, {brushNode}}});
+
+      CHECK(!moveToEntity(map, {brushNode}, *entityNode));
+    }
+
+    SECTION("A patch in the input is ignored")
+    {
+      auto* entityNode = new EntityNode{Entity{{{"classname", "brush_entity"}}}};
+      addNodes(map, {{&parentForNodes(map), {entityNode}}});
+
+      auto* patchNode = createPatchNode();
+      addNodes(map, {{&parentForNodes(map), {patchNode}}});
+
+      CHECK(!moveToEntity(map, {patchNode}, *entityNode));
+      CHECK(patchNode->entity() == &map.worldNode());
     }
   }
 
