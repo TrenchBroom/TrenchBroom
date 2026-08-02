@@ -236,6 +236,11 @@ bool Selection::hasOnlyPatches() const
   return hasNodes() && nodes.size() == patches.size();
 }
 
+bool Selection::hasOnlyGeometryNodes() const
+{
+  return hasNodes() && nodes.size() == brushes.size() + patches.size();
+}
+
 bool Selection::hasBrushFaces() const
 {
   return !brushFaces.empty();

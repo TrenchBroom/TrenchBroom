@@ -350,6 +350,25 @@ TEST_CASE("Selection")
     CHECK(map.selection().hasOnlyPatches() == expected);
   }
 
+  SECTION("hasOnlyGeometryNodes")
+  {
+    using T = std::tuple<std::vector<SelectionItem>, bool>;
+    const auto [selectionItems, expected] = GENERATE(values<T>({
+      {{SelectionItem::nothing}, false},
+      {{SelectionItem::brushNode}, true},
+      {{SelectionItem::patchNode}, true},
+      {{SelectionItem::brushNode, SelectionItem::patchNode}, true},
+      {{SelectionItem::entityNode, SelectionItem::brushNode}, false},
+      {{SelectionItem::entityNode}, false},
+      {{SelectionItem::brushFace}, false},
+    }));
+
+    CAPTURE(selectionItems);
+
+    selectItems(selectionItems);
+    CHECK(map.selection().hasOnlyGeometryNodes() == expected);
+  }
+
   SECTION("hasBrushFaces")
   {
     using T = std::tuple<std::vector<SelectionItem>, bool>;
