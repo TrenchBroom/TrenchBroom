@@ -765,6 +765,22 @@ void MapViewBase::makeSelectionStructural()
   }
 }
 
+void MapViewBase::moveSelectedNodesToEntity()
+{
+  auto& map = m_document.map();
+  const auto nodes = map.selection().nodes;
+  auto* newParent = findNewParentEntityForNodes(nodes);
+  contract_assert(newParent);
+
+  auto transaction =
+    mdl::Transaction{map, "Move " + kdl::str_plural(nodes.size(), "Brush", "Brushes")};
+  reparentNodes(nodes, newParent, false);
+
+  deselectAll(map);
+  selectNodes(map, nodes);
+  transaction.commit();
+}
+
 void MapViewBase::toggleEntityDefinitionVisible(const mdl::EntityDefinition& definition)
 {
   auto& map = m_document.map();
@@ -1185,7 +1201,7 @@ void MapViewBase::showPopupMenuLater()
 
   auto& map = m_document.map();
   const auto& nodes = map.selection().nodes;
-  auto* newBrushParent = findNewParentEntityForBrushes(nodes);
+  auto* newNodeParent = findNewParentEntityForNodes(nodes);
   auto* currentGroup = map.editorContext().currentGroup();
   auto* newGroup = findNewGroupForObjects(nodes);
   auto* mergeGroup = findGroupToMergeGroupsInto(map.selection());
@@ -1307,7 +1323,7 @@ void MapViewBase::showPopupMenuLater()
       menu.addAction(tr("Make Structural"), this, &MapViewBase::makeSelectionStructural);
     moveToWorldAction->setEnabled(canMakeSelectionStructural());
 
-    const auto isEntity = newBrushParent->accept(kdl::overload(
+    const auto isEntity = newNodeParent->accept(kdl::overload(
       [](const mdl::WorldNode&) { return false; },
       [](const mdl::LayerNode&) { return false; },
       [](const mdl::GroupNode&) { return false; },
@@ -1319,9 +1335,9 @@ void MapViewBase::showPopupMenuLater()
     {
       menu.addAction(
         tr("Move Brushes to Entity %1")
-          .arg(QString::fromStdString(newBrushParent->name())),
+          .arg(QString::fromStdString(newNodeParent->name())),
         this,
-        &MapViewBase::moveSelectedBrushesToEntity);
+        &MapViewBase::moveSelectedNodesToEntity);
     }
   }
 
@@ -1563,23 +1579,7 @@ bool MapViewBase::canReparentNode(const mdl::Node* node, const mdl::Node* newPar
          && newParent->canAddChild(*node);
 }
 
-void MapViewBase::moveSelectedBrushesToEntity()
-{
-  auto& map = m_document.map();
-  const auto nodes = map.selection().nodes;
-  auto* newParent = findNewParentEntityForBrushes(nodes);
-  contract_assert(newParent);
-
-  auto transaction =
-    mdl::Transaction{map, "Move " + kdl::str_plural(nodes.size(), "Brush", "Brushes")};
-  reparentNodes(nodes, newParent, false);
-
-  deselectAll(map);
-  selectNodes(map, nodes);
-  transaction.commit();
-}
-
-mdl::Node* MapViewBase::findNewParentEntityForBrushes(
+mdl::Node* MapViewBase::findNewParentEntityForNodes(
   const std::vector<mdl::Node*>& nodes) const
 {
   using namespace mdl::HitFilters;
