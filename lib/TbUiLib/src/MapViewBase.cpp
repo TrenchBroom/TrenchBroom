@@ -730,10 +730,9 @@ void MapViewBase::moveSelectedNodesToEntity()
 {
   auto& map = m_document.map();
   const auto nodes = map.selection().nodes;
-  auto* newParent = findNewParentEntityForNodes(nodes);
-  contract_assert(newParent);
+  auto& newParent = findNewParentEntityForNodes(nodes);
 
-  mdl::moveToEntity(map, nodes, *newParent);
+  mdl::moveToEntity(map, nodes, newParent);
 }
 
 void MapViewBase::toggleEntityDefinitionVisible(const mdl::EntityDefinition& definition)
@@ -1156,7 +1155,7 @@ void MapViewBase::showPopupMenuLater()
 
   auto& map = m_document.map();
   const auto& nodes = map.selection().nodes;
-  auto* newNodeParent = findNewParentEntityForNodes(nodes);
+  auto& newNodeParent = findNewParentEntityForNodes(nodes);
   auto* currentGroup = map.editorContext().currentGroup();
   auto* newGroup = findNewGroupForObjects(nodes);
   auto* mergeGroup = findGroupToMergeGroupsInto(map.selection());
@@ -1278,7 +1277,7 @@ void MapViewBase::showPopupMenuLater()
       menu.addAction(tr("Make Structural"), this, &MapViewBase::makeSelectionStructural);
     moveToWorldAction->setEnabled(canMakeSelectionStructural());
 
-    const auto isEntity = newNodeParent->accept(kdl::overload(
+    const auto isEntity = newNodeParent.accept(kdl::overload(
       [](const mdl::WorldNode&) { return false; },
       [](const mdl::LayerNode&) { return false; },
       [](const mdl::GroupNode&) { return false; },
@@ -1289,7 +1288,7 @@ void MapViewBase::showPopupMenuLater()
     if (isEntity)
     {
       menu.addAction(
-        tr("Move to Entity %1").arg(QString::fromStdString(newNodeParent->name())),
+        tr("Move to Entity %1").arg(QString::fromStdString(newNodeParent.name())),
         this,
         &MapViewBase::moveSelectedNodesToEntity);
     }
@@ -1533,7 +1532,7 @@ bool MapViewBase::canReparentNode(const mdl::Node* node, const mdl::Node* newPar
          && newParent->canAddChild(*node);
 }
 
-mdl::Node* MapViewBase::findNewParentEntityForNodes(
+mdl::Node& MapViewBase::findNewParentEntityForNodes(
   const std::vector<mdl::Node*>& nodes) const
 {
   using namespace mdl::HitFilters;
@@ -1546,26 +1545,11 @@ mdl::Node* MapViewBase::findNewParentEntityForNodes(
     if (auto* newParent = mdl::findContainingEntity(hitNode);
         newParent && newParent != &map.worldNode() && canReparentNodes(nodes, newParent))
     {
-      return newParent;
+      return *newParent;
     }
   }
 
-  if (!nodes.empty())
-  {
-    auto* lastNode = nodes.back();
-
-    if (auto* group = mdl::findContainingGroup(lastNode))
-    {
-      return group;
-    }
-
-    if (auto* layer = mdl::findContainingLayer(lastNode))
-    {
-      return layer;
-    }
-  }
-
-  return map.editorContext().currentLayer();
+  return mdl::parentForNodes(map, nodes);
 }
 
 bool MapViewBase::canReparentNodes(

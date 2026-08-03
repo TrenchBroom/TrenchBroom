@@ -236,7 +236,7 @@ public: // reparenting objects
    */
   bool canReparentNode(const mdl::Node* node, const mdl::Node* newParent) const;
 
-  mdl::Node* findNewParentEntityForNodes(const std::vector<mdl::Node*>& nodes) const;
+  mdl::Node& findNewParentEntityForNodes(const std::vector<mdl::Node*>& nodes) const;
 
   bool canReparentNodes(
     const std::vector<mdl::Node*>& nodes, const mdl::Node* newParent) const;
