@@ -18,6 +18,7 @@
  */
 
 #include "Matchers.h"
+#include "mdl/BezierPatch.h"
 #include "mdl/BrushBuilder.h"
 #include "mdl/BrushFace.h"
 #include "mdl/BrushNode.h"
@@ -29,6 +30,7 @@
 #include "mdl/LockState.h"
 #include "mdl/MapFormat.h"
 #include "mdl/NodeWriter.h"
+#include "mdl/PatchNode.h"
 #include "mdl/TestUtils.h"
 #include "mdl/VisibilityState.h"
 #include "mdl/WorldNode.h"
@@ -972,6 +974,124 @@ TEST_CASE("NodeWriter")
 )",
       *innerGroupNode->persistentId());
     CHECK(actual == expected);
+  }
+
+  SECTION("writeNodesWithWorldPatch")
+  {
+    // https://github.com/TrenchBroom/TrenchBroom/issues/5367
+
+    auto worldNode = WorldNode{{}, {}, MapFormat::Standard};
+
+    // clang-format off
+    auto* patchNode = new PatchNode{BezierPatch{3, 3, {
+      {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
+      {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
+      {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "some_material"}};
+    // clang-format on
+    worldNode.defaultLayer()->addChild(patchNode);
+
+    auto str = std::stringstream{};
+    auto writer = NodeWriter{worldNode, str};
+    writer.writeNodes({patchNode}, taskManager);
+
+    CHECK(str.str() == R"(// entity 0
+{
+"classname" "worldspawn"
+// brush 0
+{
+patchDef2
+{
+some_material
+( 3 3 0 0 0 )
+(
+( ( 0 0 0 0 0 ) ( 1 0 1 0 0 ) ( 2 0 0 0 0 ) )
+( ( 0 1 1 0 0 ) ( 1 1 2 0 0 ) ( 2 1 1 0 0 ) )
+( ( 0 2 0 0 0 ) ( 1 2 1 0 0 ) ( 2 2 0 0 0 ) )
+)
+}
+}
+}
+)");
+  }
+
+  SECTION("writeNodesWithEntityPatch")
+  {
+    // https://github.com/TrenchBroom/TrenchBroom/issues/5367
+
+    auto worldNode = WorldNode{{}, {}, MapFormat::Standard};
+
+    auto* entityNode = new EntityNode{Entity{{{"classname", "func_detail"}}}};
+    worldNode.defaultLayer()->addChild(entityNode);
+
+    // clang-format off
+    auto* patchNode = new PatchNode{BezierPatch{3, 3, {
+      {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
+      {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
+      {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "some_material"}};
+    // clang-format on
+    entityNode->addChild(patchNode);
+
+    auto str = std::stringstream{};
+    auto writer = NodeWriter{worldNode, str};
+    // only the patch is selected, not its parent entity
+    writer.writeNodes({patchNode}, taskManager);
+
+    CHECK(str.str() == R"(// entity 0
+{
+"classname" "func_detail"
+// brush 0
+{
+patchDef2
+{
+some_material
+( 3 3 0 0 0 )
+(
+( ( 0 0 0 0 0 ) ( 1 0 1 0 0 ) ( 2 0 0 0 0 ) )
+( ( 0 1 1 0 0 ) ( 1 1 2 0 0 ) ( 2 1 1 0 0 ) )
+( ( 0 2 0 0 0 ) ( 1 2 1 0 0 ) ( 2 2 0 0 0 ) )
+)
+}
+}
+}
+)");
+  }
+
+  SECTION("writeNodesPreservesChildOrderInEntity")
+  {
+    // https://github.com/TrenchBroom/TrenchBroom/issues/5367
+
+    auto worldNode = WorldNode{{}, {}, MapFormat::Standard};
+    auto builder = BrushBuilder{worldNode.mapFormat(), vm::bbox3d{8192.0}};
+
+    auto* entityNode = new EntityNode{Entity{{{"classname", "func_detail"}}}};
+    worldNode.defaultLayer()->addChild(entityNode);
+
+    // clang-format off
+    auto* patchNode = new PatchNode{BezierPatch{3, 3, {
+      {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
+      {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
+      {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "some_material"}};
+    // clang-format on
+    auto* brushNode = new BrushNode{builder.createCube(64.0, "some") | kdl::value()};
+
+    // the patch precedes the brush among the entity's children
+    entityNode->addChild(patchNode);
+    entityNode->addChild(brushNode);
+
+    auto str = std::stringstream{};
+    auto writer = NodeWriter{worldNode, str};
+    // select both, in the same relative order as the entity's children
+    writer.writeNodes({patchNode, brushNode}, taskManager);
+
+    const auto actual = str.str();
+    const auto patchPos = actual.find("patchDef2");
+    const auto brushPos = actual.find("( -32 -32 -32 )");
+    REQUIRE(patchPos != std::string::npos);
+    REQUIRE(brushPos != std::string::npos);
+
+    // the patch must still be written before the brush -- writing must not group all
+    // brushes before all patches regardless of their original relative order
+    CHECK(patchPos < brushPos);
   }
 
   SECTION("writeMapWithLinkedGroups")

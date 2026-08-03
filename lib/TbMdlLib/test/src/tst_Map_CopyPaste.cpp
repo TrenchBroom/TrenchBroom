@@ -100,6 +100,17 @@ TEST_CASE("Map_CopyPaste")
 }
 )");
     }
+
+    SECTION("patch is selected")
+    {
+      // https://github.com/TrenchBroom/TrenchBroom/issues/5367
+
+      auto* patchNode = createPatchNode();
+      addNodes(map, {{parentForNodes(map), {patchNode}}});
+      selectNodes(map, {patchNode});
+
+      CHECK(serializeSelectedNodes(map) != R"()");
+    }
   }
 
   SECTION("serializeSelectedBrushFaces")
@@ -344,6 +355,29 @@ common/caulk
       REQUIRE(paste(map, data) == PasteType::Node);
       REQUIRE(defaultLayerNode.childCount() == 1u);
       CHECK(dynamic_cast<PatchNode*>(defaultLayerNode.children().front()) != nullptr);
+    }
+
+    SECTION("Copy and paste a single patch")
+    {
+      // https://github.com/TrenchBroom/TrenchBroom/issues/5367
+
+      auto& map = fixture.create({.mapFormat = MapFormat::Quake3});
+
+      auto* patchNode = createPatchNode();
+      addNodes(map, {{parentForNodes(map), {patchNode}}});
+      selectNodes(map, {patchNode});
+
+      const auto copied = serializeSelectedNodes(map);
+      REQUIRE(copied != R"()");
+
+      const auto originalPatch = patchNode->patch();
+      deselectAll(map);
+      removeNodes(map, {patchNode});
+
+      CHECK(paste(map, copied) == PasteType::Node);
+      CHECK(map.selection().hasOnlyPatches());
+      REQUIRE(map.selection().patches.size() == 1u);
+      CHECK(map.selection().patches.front()->patch() == originalPatch);
     }
 
     SECTION("Paste and translate a group")
