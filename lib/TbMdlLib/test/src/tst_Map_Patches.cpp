@@ -17,6 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "mdl/BezierPatch.h"
 #include "mdl/BrushBuilder.h"
 #include "mdl/BrushFaceHandle.h"
 #include "mdl/BrushNode.h"
@@ -290,6 +291,39 @@ TEST_CASE("Map_Patches")
           }
         }
       }
+    }
+  }
+
+  SECTION("setPatchMaterial")
+  {
+    auto& map = fixture.create();
+
+    SECTION("Sets the material of a selected patch")
+    {
+      auto* patchNode = createPatchNode("some_material");
+      addNodes(map, {{&parentForNodes(map), {patchNode}}});
+      selectNodes(map, {patchNode});
+
+      CHECK(setPatchMaterial(map, "new_material"));
+      CHECK(patchNode->patch().materialName() == "new_material");
+
+      SECTION("Undo and redo")
+      {
+        map.undoCommand();
+        CHECK(patchNode->patch().materialName() == "some_material");
+
+        map.redoCommand();
+        CHECK(patchNode->patch().materialName() == "new_material");
+      }
+    }
+
+    SECTION("Does nothing when nothing is selected")
+    {
+      auto* patchNode = createPatchNode("some_material");
+      addNodes(map, {{&parentForNodes(map), {patchNode}}});
+
+      CHECK(setPatchMaterial(map, "new_material"));
+      CHECK(patchNode->patch().materialName() == "some_material");
     }
   }
 }
