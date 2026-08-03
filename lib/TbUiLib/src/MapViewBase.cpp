@@ -683,7 +683,7 @@ void MapViewBase::createBrushEntity(const mdl::EntityDefinition& definition)
 bool MapViewBase::canCreateBrushEntity()
 {
   const auto& map = m_document.map();
-  return map.selection().hasOnlyBrushes();
+  return map.selection().hasOnlyGeometryNodes();
 }
 
 void MapViewBase::toggleTagVisible(const mdl::SmartTag& tag)
