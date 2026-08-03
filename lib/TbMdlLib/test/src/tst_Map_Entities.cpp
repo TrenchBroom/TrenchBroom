@@ -33,6 +33,7 @@
 #include "mdl/Map_Groups.h"
 #include "mdl/Map_Nodes.h"
 #include "mdl/Map_Selection.h"
+#include "mdl/PatchNode.h"
 #include "mdl/TestFactory.h"
 #include "mdl/TestUtils.h"
 #include "mdl/Transaction.h"
@@ -244,6 +245,35 @@ TEST_CASE("Map_Entities")
       }
     }
 
+    SECTION("Patch entity is created and selected")
+    {
+      auto* patchNode = createPatchNode();
+      addNodes(map, {{&parentForNodes(map), {patchNode}}});
+
+      selectNodes(map, {patchNode});
+      auto* entityNode = createBrushEntity(map, *brushEntityDefinition);
+      CHECK(entityNode != nullptr);
+      CHECK(map.worldNode().defaultLayer()->children() == std::vector<Node*>{entityNode});
+      CHECK(entityNode->children() == std::vector<Node*>{patchNode});
+      CHECK(entityNode->entity().definition() == brushEntityDefinition);
+      CHECK(map.selection().nodes == std::vector<Node*>{patchNode});
+
+      SECTION("Undo and redo")
+      {
+        map.undoCommand();
+        CHECK(
+          map.worldNode().defaultLayer()->children() == std::vector<Node*>{patchNode});
+        CHECK(map.selection().nodes == std::vector<Node*>{patchNode});
+
+        map.redoCommand();
+        CHECK(
+          map.worldNode().defaultLayer()->children() == std::vector<Node*>{entityNode});
+        CHECK(entityNode->children() == std::vector<Node*>{patchNode});
+        CHECK(entityNode->entity().definition() == brushEntityDefinition);
+        CHECK(map.selection().nodes == std::vector<Node*>{patchNode});
+      }
+    }
+
     SECTION("Copies properties from existing brush entity")
     {
       auto* brushNode1 = createBrushNode(map, "some_material");
@@ -259,6 +289,26 @@ TEST_CASE("Map_Entities")
 
       deselectAll(map);
       selectNodes(map, {brushNode1, brushNode2});
+
+      auto* newEntityNode = createBrushEntity(map, *brushEntityDefinition);
+      CHECK(newEntityNode != nullptr);
+      CHECK(newEntityNode->entity().hasProperty("prop", "value"));
+    }
+
+    SECTION("Copies properties from mixed brush and patch entity")
+    {
+      auto* brushNode = createBrushNode(map, "some_material");
+      auto* patchNode = createPatchNode();
+      addNodes(map, {{&parentForNodes(map), {brushNode, patchNode}}});
+
+      selectNodes(map, {brushNode, patchNode});
+      auto* previousEntityNode = createBrushEntity(map, *brushEntityDefinition);
+
+      setEntityProperty(map, "prop", "value");
+      REQUIRE(previousEntityNode->entity().hasProperty("prop", "value"));
+
+      deselectAll(map);
+      selectNodes(map, {patchNode});
 
       auto* newEntityNode = createBrushEntity(map, *brushEntityDefinition);
       CHECK(newEntityNode != nullptr);
