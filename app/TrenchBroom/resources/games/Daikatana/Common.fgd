@@ -2,11 +2,11 @@
 // Daikatana game definition file (.fgd)
 // Common entities
 // for Trenchbroom
-// last update: 6 Oct, 2018
-// version: 1
 //
-// written by Dekonega / dekonega(at)windowslive.com
+// originally written by Dekonega <dekonega(at)windowslive.com>
 // email me with improvements and suggestions
+//
+// updated and expanded by MilkeyWilkey
 //
 
 
@@ -79,7 +79,7 @@
 	]
 ]
 
-@BaseClass = DecorationFlags
+@BaseClass = Deco
 [
 	spawnflags(Flags) =
 	[
@@ -93,6 +93,23 @@
 		128: "ROTATE" : 0
 		256: "DECO_TRANSLUCENT" : 0
 	]
+	damage(integer): "damage applied when exploding. Default is 25." : 25
+	health(float): "How much damage it will take until it breaks. Default 20. Requires gib type to be set" : "20"
+	scale(float): "Scale of deco. Default 1.0." : "1.0"
+	mass(float): "*optional* - including this overrides the mass value in decoinfo.txt" 
+	frame(integer): "allows you to specify the frame for the model."
+	animseq(integer): "0-4. number of animation sequences this deco has.  For decos with only one frame this should be zero" : 0
+	x_speed(integer): "speed to rotate along x axis in degrees per second. ROTATE spawnflag must be set"
+	y_speed(integer): "speed to rotate along y axis in degrees per second. ROTATE spawnflag must be set"
+	z_speed(integer): "speed to rotate along z axis in degrees per second. ROTATE spawnflag must be set"
+	alpha(float): "range 0.0-1.0. Only used if TRANSLUCENT is flagged"
+	spawnname(string): "classname of entity to throw out upon death"
+    movetype(string): "none, toss, bounce, float, overrides value in e1decoinfo.csv" : "none"
+	seq0(string) : "frames or frame sequences of animation  use '-' for a set of frames use '~' to loop the frames. example: 0~7 to loop frames 0 through 7" : "0"
+	seq1(string) : "frames or frame sequences of animation  use '-' for a set of frames use '~' to loop the frames. example: 0~7 to loop frames 0 through 7" : "0"
+	seq2(string) : "frames or frame sequences of animation  use '-' for a set of frames use '~' to loop the frames. example: 0~7 to loop frames 0 through 7" : "0"
+	seq3(string) : "frames or frame sequences of animation  use '-' for a set of frames use '~' to loop the frames. example: 0~7 to loop frames 0 through 7" : "0"
+	seq4(string) : "frames or frame sequences of animation  use '-' for a set of frames use '~' to loop the frames. example: 0~7 to loop frames 0 through 7" : "0"
 ]
 
 @BaseClass = PurifierShard
@@ -129,7 +146,7 @@
 
 @BaseClass base(Appearflags, Target, Sidekickflags) color(0 0.5 0.8) size(-16 -16 0, 16 16 32) = Ammo
 [
-	team(string) : "Team"
+
 ]
 
 @BaseClass color(0.5 0.5 0) size(-8 -8 -8, 8 8 8) = Animal
@@ -143,7 +160,7 @@
 
 @BaseClass base(Appearflags, Target, Sidekickflags) color(0 0.5 0.8) size(-20 -20 0, 20 20 32) = Weapons
 [
-	team(string) : "Team"
+
 ]
 
 @BaseClass base(Appearflags, Target, Targetname) = MonsterFlags
@@ -210,6 +227,7 @@
 	light(integer) : "Intensity of light" : 300
 	_cone(integer) : "Size of light (spotlight) default: 10"
     lightstyle(string) : "String to define lightstyle"
+	_color(color) : "RGB Light color"
 ]
 
 @PointClass base(Appearflags) color(0.9 0.9 0.9) size(-8 -8 -8, 8 8 8) = light_flare : "Light (Flare)"
@@ -220,7 +238,7 @@
 	]
 	
 	model(string) : "Sprite model name"
-	scale(float) : "Sprite model scale" : 1.0
+	scale(float) : "Sprite model scale" : "1.0"
 ]
 
 @PointClass base(Appearflags, LightStyleFX) color(0 1 0) size(-8 -8 -8, 8 8 8) = light_walltorch : "Light (Walltorch)"
@@ -331,13 +349,13 @@
 		1024 : "SCORCH" : 0
 	]
 
-	delay(float) : "time between strikes (default 2.0)" : 2.0
-	dmg(float) : "damage if a PLAYER gets hit (default 0.0) based on duration (default 0.5<meaning 5x dmg)" : 0.5
-	scale(float) : "set the scale of the lightning model (default 4.0)" : 4.0
-	chance(float) : "pct chance a player will be hit (default 0.10)" : 0.10
+	delay(float) : "time between strikes (default 2.0)" : "2.0"
+	dmg(float) : "damage if a PLAYER gets hit (default 0.0) based on duration (default 0.5<meaning 5x dmg)" : "0.5"
+	scale(float) : "set the scale of the lightning model (default 4.0)" : "4.0"
+	chance(float) : "pct chance a player will be hit (default 0.10)" : "0.10"
 	modulation(float) : "% of modulation to apply to lightning. Scalar value."
 	_color(color255) : "Color of lightning. (Use 'k')"
-	gndchance(float) : "if GROUND STRIKES is checked, chance for ground hit (default 0.20)" : 0.20
+	gndchance(float) : "if GROUND STRIKES is checked, chance for ground hit (default 0.20)" : "0.20"
 	duration(float) : "Period of time that lightning will exist during its strike.(scalar)"
 	sound(string) : "wave file to play when lightning strikes (random if > 1 defined)"
 	sound1(string) : "wave file to play when lightning strikes (random if > 1 defined)"
@@ -355,11 +373,11 @@
 		8 : "FREEZE_SPRAY" : 0		
 	]
 
-	delay(float) : "time between jets (default 6.0)" : 6.0
-	duration(float) : "length of time to spray (default 2.0)" : 2.0
+	delay(float) : "time between jets (default 6.0)" : "6.0"
+	duration(float) : "length of time to spray (default 2.0)" : "2.0"
 	vector(vector) : "direction/distance to jet steam"
-	damage(float) : "damage if a PLAYER gets hit (default 0.0)" : 0.0
-	scale(float) : "set the scale of the steam sprite (default 1.0)" : 1.0
+	damage(float) : "damage if a PLAYER gets hit (default 0.0)" : "0.0"
+	scale(float) : "set the scale of the steam sprite (default 1.0)" : "1.0"
 	sound(string) : "sound played while steam is jetting"
 ]
 
@@ -393,7 +411,7 @@
 	scale(float): "The size of the particles (!< 0.01f !>200.0f)"
 	delta_alpha(float): "The decay rate of the particle's life time"
 	alpha_level(float): "The initial state of the Alpha level"
-	gravity(float): "How much gravity to apply to particles." : 0
+	gravity(float): "How much gravity to apply to particles." : "0"
 	gravitydir(string): "Name of target that gravity will be applied towards." : "down"
 	stoptime(integer): "Time for the SFX Particle generator to spit out particles before it completely shuts down"
 	radius(integer): "Radius spread for spawning particles"
@@ -406,7 +424,12 @@
 //
 @BaseClass base(Appearflags, Target, Targetname) color(1 0 0) size(-16 -16 -24, 16 16 32) = HealthStations []
 
-@PointClass base(HealthStations) = misc_hosportal : "Hosportal"
+@PointClass base(HealthStations) 
+model({{
+style == "1" -> {"path" : "models/e1/hosportal2.dkm", "frame" : 1},
+style == "2" -> {"path" : "models/e1/hosportal3.dkm", "frame" : 1},
+{"path" : "models/e1/hosportal1.dkm", "frame" : 1}
+}}) = misc_hosportal : "Hosportal"
 [
 	spawnflags(flags) =
 	[
@@ -424,11 +447,14 @@
 	max_juice(integer): "max amount of health to restore before depleted (100)"
 ]
 
-@PointClass base(HealthStations) = misc_fountain : "Greek health fountain." []
+@PointClass base(HealthStations) size(-16 -16 -24, 16 16 8) model({"path" : "models/e2/d2_hlthfnt.dkm"}) = misc_fountain : "Greek health fountain." []
 
-@PointClass base(HealthStations) = misc_drugbox : "Crate of drugs. Restores health." []
+@PointClass base(HealthStations) size(-8 -8 -24, 8 8 8) model({"path" : "models/e4/a4_dbox.dkm"}) = misc_drugbox : "Crate of drugs. Restores health." 
+[
+	angle(float) : "angle" : "0"
+]
 
-@PointClass base(HealthStations) = misc_healthtree : "Healing fruit tree."
+@PointClass base(HealthStations) size(-8 -8 -24, 8 8 8) model({"path" : "models/e1/healthtree.dkm"}) = misc_healthtree : "Healing fruit tree."
 [
 	max_fruit(choices): "max # of fruits on tree (5)" : 5 =
 	[
@@ -448,8 +474,8 @@
 @PointClass base(Appearflags, Target) color(1 0.5 0) size(-8 -8 -8, 8 8 8) = misc_lavaball_toss : "Lavaball toss"
 [
 	// target(target_destination) : "can be triggered"
-	mintime(float) : "minimum time between tosses (default = 4.0 seconds)" : 4.0
-	maxtime(float) : "maximum time between tosses (default = 12.0 seconds)" : 12.0
+	mintime(float) : "minimum time between tosses (default = 4.0 seconds)" : "4.0"
+	maxtime(float) : "maximum time between tosses (default = 12.0 seconds)" : "12.0"
 	damage(integer) : "damage to do when an hitting something"
 	upmin(integer) : "minimum upward velocity (default = 200)" : 200
 	upmax(integer) : "maximum upward velocity (default = 800)" : 800
@@ -624,7 +650,7 @@
 	sound_use(string): "the sound to play when the button is used (defaults to none)"
 	sound_return(string): "the sound to play when the button returns (defaults to none)"
 	speed(integer): "rate of travel when button moves"
-	wait(float): "seconds to wait befor returning to useable (-1 = never return) (default 1.0)" : 1.0
+	wait(float): "seconds to wait befor returning to useable (-1 = never return) (default 1.0)" : "1.0"
 	angle(integer): "direction of travel"
 	lip(integer): "amount of button left sticking out after being pushed (default 4)" : 4
 	health(integer): "when > 0 the button must be killed in order to fire"
@@ -651,7 +677,7 @@
 	count(integer): "number of positions this button has"
 ]
 
-@PointClass base(Appearflags) color(0.5 0.3 0) size(-8 -8 -8, 8 8 8) = path_corner_train : "Tran path corner"
+@PointClass base(Appearflags, Target, Targetname) color(0.5 0.3 0) size(-8 -8 -8, 8 8 8) = path_corner_train : "Tran path corner"
 [
 	spawnflags(Flags) =
 	[
@@ -807,13 +833,13 @@
 
 	damage(integer): "radius explosion of that amount, at center of brush"
 	health(integer): "defaults to 100." : 100
-	delay(float): "defaults to 1.0 to randomize the emission of debris chunks. The higher the number the longer it will take some chunks to chunk out." : 1.0
+	delay(float): "defaults to 1.0 to randomize the emission of debris chunks. The higher the number the longer it will take some chunks to chunk out." : "1.0"
 	count(integer): "defaults to 10.  This determines how many chunks are emitted. 10 = maximum of 10 chunks but is random so could be 5-10, no less than 5." : 10
 	rndcount(integer): "defaults to 0. Random number of debris entities plus the count." : 0
-	scale(float): "This is the scale factor of the chunks. 1.0 is current Size." : 1.0
+	scale(float): "This is the scale factor of the chunks. 1.0 is current Size." : "1.0"
 	vectortarget(integer): "Sets the vector for the initial direction. It will be random in a 180 degree spread."
-	speed(float): "is a scaled value. 1.0 is normal speed." : 1.0
-	gravity(float): "Gravity to apply to debris. Default is 1.0.(normal)" : 1.0
+	speed(float): "is a scaled value. 1.0 is normal speed." : "1.0"
+	gravity(float): "Gravity to apply to debris. Default is 1.0.(normal)" : "1.0"
 	cinescript(string): "name of the cinematic script to run"
 	aiscript(string): "name of the AI script to run"
 	volume(float): "0.0 to 1.0"
@@ -940,8 +966,8 @@
 		8: "MIKIKO_REQUIRED" : 0
 	]
 
-	wait(float): "time to wait between retriggering (default = 2.0 seconds)" : 2.0
-	delay(float): "delay after triggering before script runs ** doesn't work with touch triggers ** (default = 0.0 seconds)" : 0.0
+	wait(float): "time to wait between retriggering (default = 2.0 seconds)" : "2.0"
+	delay(float): "delay after triggering before script runs ** doesn't work with touch triggers ** (default = 0.0 seconds)" : "0.0"
 	cinescript(string): "name of the cinematic script to run"
 	aiscript(string): "name of the AI script to run"
 	scriptname(string): "name of script to run"
@@ -999,7 +1025,7 @@
 
 	health(integer): "if set the trigger must be killed to activate"
 	delay(integer): "time to wait after activation before firing target"
-	wait(float): "time to wait between retriggering (default = 0.2 seconds)" : 0.2
+	wait(float): "time to wait between retriggering (default = 0.2 seconds)" : "0.2"
 ]
 
 @SolidClass base(Appearflags) color(0.5 0.5 0.5) = trigger_sidekick_teleport : "Teleport sidekick"
@@ -1087,7 +1113,7 @@
 	message(string): "text message to display when triggered"
 ]
 
-@SolidClass base(Appearflags, Targetname) color(0.5 0.5 0.5) = trigger_once : "triggers once, then removes itself"
+@SolidClass base(Appearflags, Target, Targetname) color(0.5 0.5 0.5) = trigger_once : "triggers once, then removes itself"
 [
 	spawnflags(Flags) =
 	[
@@ -1098,7 +1124,7 @@
 
 	health(integer): "if set the trigger must be killed to activate"
 	delay(integer): "time to wait after activation before firing target"
-	wait(float): "time to wait between retriggering (default = 0.2 seconds)" : 0.2
+	wait(float): "time to wait between retriggering (default = 0.2 seconds)" : "0.2"
 	sound(string): "name of sound to play upon firing"
 	killtarget(target_destination): "the targetname of the entity to remove when triggered"
 	message(string): "text message to display when triggered"
@@ -1309,45 +1335,588 @@
 	speed(integer): "speed of particles (default=5)" : 5
 	count(integer): "number of particles to create (default=10) (max=64)" : 10
 	length(integer): "length in seconds to spawn particles (default = 1 frame)" : 1
-	frametime(float): "length of time between particle spawns (default=0.10)" : 0.10 
+	frametime(float): "length of time between particle spawns (default=0.10)" : "0.10"
 	sound(string): "wave file to play when the particles are spawned"
 ]
 
-
 //
-// Decorations
+// Decorations (Episode 1)
 //
-@PointClass base(Appearflags, Target, Targetname) color(1 0 0) size(-8 -8 -32, 8 8 32) = deco_custom : "Custom decoration"
+@PointClass base(Appearflags, Deco) color(1 0 0) size(-8 -8 -32, 8 8 32) 
+	model({{ 
+			model == "anvil" -> {"path" : "models/e1/cin_anvil.dkm", "scale" : scale, "frame" : frame},
+			model == "barrel3" -> {"path" : "models/e1/d1_barrel3.dkm", "scale" : scale, "frame" : frame},
+			model == "barrel4" -> {"path" : "models/e1/d1_barrel4.dkm", "scale" : scale, "frame" : frame},
+			model == "bigpill" -> {"path" : "models/e1/cin_bigpill.dkm", "scale" : scale, "frame" : frame},
+			model == "bodybin" -> {"path" : "models/e1/d1_bbin.dkm", "scale" : scale, "frame" : frame},
+			model == "bodyparts" -> {"path" : "models/e1/d1_bparts.dkm", "scale" : scale, "frame" : frame},
+			model == "books1" -> {"path" : "models/e1/cin_books1.dkm", "scale" : scale, "frame" : frame},
+			model == "books2" -> {"path" : "models/e1/cin_books2.dkm", "scale" : scale, "frame" : frame},
+			model == "brain" -> {"path" : "models/e1/d1_brain.dkm", "scale" : scale, "frame" : frame},
+			model == "candybar" -> {"path" : "models/e1/candy_bar.dkm", "scale" : scale, "frame" : frame},
+			model == "car1" -> {"path" : "models/e1/cin_car1.dkm", "scale" : scale, "frame" : frame},
+			model == "chain1" -> {"path" : "models/e1/d1_chain1.dkm", "scale" : scale, "frame" : frame},
+			model == "chain2" -> {"path" : "models/e1/d1_chain2.dkm", "scale" : scale, "frame" : frame},
+			model == "coffin" -> {"path" : "models/e1/d1_coffin.dkm", "scale" : scale, "frame" : frame},
+			model == "coffin2" -> {"path" : "models/e1/d1_coffin2.dkm", "scale" : scale, "frame" : frame},
+			model == "compchair" -> {"path" : "models/e1/d1_cchair1.dkm", "scale" : scale, "frame" : frame},
+			model == "compdesk" -> {"path" : "models/e1/d1_cdesk1.dkm", "scale" : scale, "frame" : frame},
+			model == "comptubes" -> {"path" : "models/e1/d1_ctubes.dkm", "scale" : scale, "frame" : frame},
+			model == "cup" -> {"path" : "models/global/cup.dkm", "scale" : scale, "frame" : frame},
+			model == "d1_fly" -> {"path" : "models/e1/d1_fly.dkm", "scale" : scale, "frame" : frame},
+			model == "deadguy" -> {"path" : "models/e1/m_dead.dkm", "scale" : scale, "frame" : frame},
+			model == "deadninja" -> {"path" : "models/e1/cin_ninja.dkm", "scale" : scale, "frame" : frame},
+			model == "deadtoshiro" -> {"path" : "models/e1/cin_toshiro.dkm", "scale" : scale, "frame" : frame},
+			model == "deathtruck" -> {"path" : "models/e1/d1_deathtruck.dkm", "scale" : scale, "frame" : frame},
+			model == "dklogo" -> {"path" : "models/e1/d_dklogo.dkm", "scale" : scale, "frame" : frame},
+			model == "dojburn" -> {"path" : "models/e1/cin_dojburn.dkm", "scale" : scale, "frame" : frame},
+			model == "dojflag" -> {"path" : "models/e1/cin_dojflag.dkm", "scale" : scale, "frame" : frame},
+			model == "dojspa" -> {"path" : "models/e1/cin_dojspa.dkm", "scale" : scale, "frame" : frame},
+			model == "dojurne" -> {"path" : "models/e1/cin_dojurne.dkm", "scale" : scale, "frame" : frame},
+			model == "doorcomp" -> {"path" : "models/e1/e1_drcmp.dkm", "scale" : scale, "frame" : frame},
+			model == "dressr1" -> {"path" : "models/e1/d1_dressr1.dkm", "scale" : scale, "frame" : frame},
+			model == "dressr2" -> {"path" : "models/e1/d1_dressr2.dkm", "scale" : scale, "frame" : frame},
+			model == "gargdog" -> {"path" : "models/e1/cin_gargdog.dkm", "scale" : scale, "frame" : frame},
+			model == "gibpile" -> {"path" : "models/e1/d1_gibpile.dkm", "scale" : scale, "frame" : frame},
+			model == "hand2" -> {"path" : "models/e1/d1_hand2.dkm", "scale" : scale, "frame" : frame},
+			model == "head" -> {"path" : "models/e1/d1_head.dkm", "scale" : scale, "frame" : frame},
+			model == "hook1" -> {"path" : "models/e1/d1_hook1.dkm", "scale" : scale, "frame" : frame},
+			model == "htr1" -> {"path" : "models/e1/d1_htr1.dkm", "scale" : scale, "frame" : frame},
+			model == "htr2" -> {"path" : "models/e1/d1_htr2.dkm", "scale" : scale, "frame" : frame},
+			model == "htr3" -> {"path" : "models/e1/d1_htr3.dkm", "scale" : scale, "frame" : frame},
+			model == "htr4" -> {"path" : "models/e1/d1_htr4.dkm", "scale" : scale, "frame" : frame},
+			model == "katwall" -> {"path" : "models/e1/cin_katwall.dkm", "scale" : scale, "frame" : frame},
+			model == "lamp1" -> {"path" : "models/e1/d1_lamp1.dkm", "scale" : scale, "frame" : frame},
+			model == "lamp2" -> {"path" : "models/e1/d1_lamp2.dkm", "scale" : scale, "frame" : frame},
+			model == "lamp3" -> {"path" : "models/e1/d1_lamp3.dkm", "scale" : scale, "frame" : frame},
+			model == "light" -> {"path" : "models/global/light.dkm", "scale" : scale, "frame" : frame},
+			model == "mihopod" -> {"path" : "models/e1/cin_mihopod.dkm", "scale" : scale, "frame" : frame},
+			model == "mikikostasis" -> {"path" : "models/e1/d1_mkstasis.dkm", "scale" : scale, "frame" : frame},
+			model == "pb" -> {"path" : "models/e1/pb.dkm", "scale" : scale, "frame" : frame},
+			model == "pb2" -> {"path" : "models/e1/pb2.dkm", "scale" : scale, "frame" : frame},
+			model == "plock" -> {"path" : "models/e1/d1_plock.dkm", "scale" : scale, "frame" : frame},
+			model == "ragearm" -> {"path" : "models/e1/d1_ragearm.dkm", "scale" : scale, "frame" : frame},
+			model == "ragerack" -> {"path" : "models/e1/d1_ragerack.dkm", "scale" : scale, "frame" : frame},
+			model == "sign1" -> {"path" : "models/e1/d1_sign1.dkm", "scale" : scale, "frame" : frame},
+			model == "sign2" -> {"path" : "models/e1/d1_sign2.dkm", "scale" : scale, "frame" : frame},
+			model == "sign3" -> {"path" : "models/e1/d1_sign3.dkm", "scale" : scale, "frame" : frame},
+			model == "sign4" -> {"path" : "models/e1/d1_sign4.dkm", "scale" : scale, "frame" : frame},
+			model == "sludgeleg" -> {"path" : "models/e1/d1_sludgeleg.dkm", "scale" : scale, "frame" : frame},
+			model == "smapill" -> {"path" : "models/e1/cin_smapill.dkm", "scale" : scale, "frame" : frame},
+			model == "spewall" -> {"path" : "models/e1/cin_spewall.dkm", "scale" : scale, "frame" : frame},
+			model == "supertorture" -> {"path" : "models/e1/d1_supertorture.dkm", "scale" : scale, "frame" : frame},
+			model == "swgrs" -> {"path" : "models/e1/d1_wtrgrss.dkm", "scale" : scale, "frame" : frame},
+			model == "swp12" -> {"path" : "models/e1/d1_swp12.dkm", "scale" : scale, "frame" : frame},
+			model == "swp3" -> {"path" : "models/e1/d1_swp3.dkm", "scale" : scale, "frame" : frame},
+			model == "swp4" -> {"path" : "models/e1/d1_swp4.dkm", "scale" : scale, "frame" : frame},
+			model == "swp5" -> {"path" : "models/e1/d1_swp5.dkm", "scale" : scale, "frame" : frame},
+			model == "swp6" -> {"path" : "models/e1/d1_swp6.dkm", "scale" : scale, "frame" : frame},
+			model == "swp7" -> {"path" : "models/e1/d1_swp7.dkm", "scale" : scale, "frame" : frame},
+			model == "swp8" -> {"path" : "models/e1/d1_swp8.dkm", "scale" : scale, "frame" : frame},
+			model == "swp9" -> {"path" : "models/e1/d1_swp9.dkm", "scale" : scale, "frame" : frame},
+			model == "swt1" -> {"path" : "models/e1/d1_swt1.dkm", "scale" : scale, "frame" : frame},
+			model == "swt2" -> {"path" : "models/e1/d1_swt2.dkm", "scale" : scale, "frame" : frame},
+			model == "swt3" -> {"path" : "models/e1/d1_swt3.dkm", "scale" : scale, "frame" : frame},
+			model == "table2" -> {"path" : "models/e1/d1_table2.dkm", "scale" : scale, "frame" : frame},
+			model == "taxi" -> {"path" : "models/e1/cin_taxi.dkm", "scale" : scale, "frame" : frame},
+			model == "torso" -> {"path" : "models/e1/d1_torso.dkm", "scale" : scale, "frame" : frame},
+			model == "torture1" -> {"path" : "models/e1/m_torture1.dkm", "scale" : scale, "frame" : frame},
+			model == "torture2" -> {"path" : "models/e1/m_torture2.dkm", "scale" : scale, "frame" : frame},
+			model == "torturebase" -> {"path" : "models/e1/torturebase.dkm", "scale" : scale, "frame" : frame},
+			model == "torturetable" -> {"path" : "models/e1/d1_torturetable.dkm", "scale" : scale, "frame" : frame},
+			model == "tplt" -> {"path" : "models/e1/d1_tplt.dkm", "scale" : scale, "frame" : frame},
+			model == "trashcan" -> {"path" : "models/e1/cin_trashcan.dkm", "scale" : scale, "frame" : frame},
+			model == "truckseat" -> {"path" : "models/e1/d1_truckseat.dkm", "scale" : scale, "frame" : frame},
+			model == "truckwheel" -> {"path" : "models/e1/d1_truckwheel.dkm", "scale" : scale, "frame" : frame},
+			model == "vending" -> {"path" : "models/e1/vending_mach.dkm", "scale" : scale, "frame" : frame},
+			model == "Wilson" -> {"path" : "models/e1/d1_torturewilson.dkm", "scale" : scale, "frame" : frame}
+	}}) = deco_e1 : "Episode 1 decoration"
 [
-	spawnflags(Flags) =
+	model(choices): "choose model" : 0 =
 	[
-		1: "DECO_EXPLODE" : 0
-		2: "NO_EXPLODE_NO_BREAK" : 0
-		4: "DECO_PUSHABLE" : 0
-		8: "WOOD_DEBRIS" : 0
-		16: "METAL_DEBRIS" : 0
-		32: "GLASS_DEBRIS" : 0
-		64: "GIB_DEBRIS" : 0
-		128: "ROTATE" : 0
-		256: "DECO_TRANSLUCENT" : 0
+		"anvil" : "anvil"
+		"barrel3" : "barrel3"
+		"barrel4" : "barrel4"
+		"bigpill" : "bigpill"
+		"bodybin" : "bodybin"
+		"bodyparts" : "bodyparts"
+		"books1" : "books1"
+		"books2" : "books2"
+		"brain" : "brain"
+		"candybar" : "candybar"
+		"car1" : "car1"
+		"chain1" : "chain1"
+		"chain2" : "chain2"
+		"coffin" : "coffin"
+		"coffin2" : "coffin2"
+		"compchair" : "compchair"
+		"compdesk" : "compdesk"
+		"comptubes" : "comptubes"
+		"cup" : "cup"
+		"d1_fly" : "d1_fly"
+		"deadguy" : "deadguy"
+		"deadninja" : "deadninja"
+		"deadtoshiro" : "deadtoshiro"
+		"deathtruck" : "deathtruck"
+		"dklogo" : "dklogo"
+		"dojburn" : "dojburn"
+		"dojflag" : "dojflag"
+		"dojspa" : "dojspa"
+		"dojurne" : "dojurne"
+		"doorcomp" : "doorcomp"
+		"dressr1" : "dressr1"
+		"dressr2" : "dressr2"
+		"gargdog" : "gargdog"
+		"gibpile" : "gibpile"
+		"hand2" : "hand2"
+		"head" : "head"
+		"hook1" : "hook1"
+		"htr1" : "htr1"
+		"htr2" : "htr2"
+		"htr3" : "htr3"
+		"htr4" : "htr4"
+		"katwall" : "katwall"
+		"lamp1" : "lamp1"
+		"lamp2" : "lamp2"
+		"lamp3" : "lamp3"
+		"light" : "light"
+		"mihopod" : "mihopod"
+		"mikikostasis" : "mikikostasis"
+		"pb" : "pb"
+		"pb2" : "pb2"
+		"plock" : "plock"
+		"ragearm" : "ragearm"
+		"ragerack" : "ragerack"
+		"sign1" : "sign1"
+		"sign2" : "sign2"
+		"sign3" : "sign3"
+		"sign4" : "sign4"
+		"sludgeleg" : "sludgeleg"
+		"smapill" : "smapill"
+		"spewall" : "spewall "
+		"supertorture" : "supertorture"
+		"swgrs" : "swgrs"
+		"swp12" : "swp12"
+		"swp3" : "swp3"
+		"swp4" : "swp4"
+		"swp5" : "swp5"
+		"swp6" : "swp6"
+		"swp7" : "swp7"
+		"swp8" : "swp8"
+		"swp9" : "swp9"
+		"swt1" : "swt1"
+		"swt2" : "swt2"
+		"swt3" : "swt3"
+		"table2" : "table2"
+		"taxi" : "taxi"
+		"torso" : "torso"
+		"torture1" : "torture1"
+		"torture2" : "torture2"
+		"torturebase" : "torturebase"
+		"torturetable" : "torturetable"
+		"tplt" : "tplt"
+		"trashcan" : "trashcan"
+		"truckseat" : "truckseat"
+		"truckwheel" : "truckwheel"
+		"vending" : "vending"
+		"Wilson" : "Wilson"
 	]
-	
-	exploding(choices): "0 or 1" : 0 =
-	[
-		0: "False"
-		1: "True"
-	]
+]
 
-	damage(integer): "damage applied when exploding. Default is 15." : 15
-	scale(float): "Scale of deco. Default 1.0." : 1.0
+//
+// Decorations (Episode 2)
+//
+@PointClass base(Appearflags, Deco) color(1 0 0) size(-8 -8 -32, 8 8 32) 
+	model({{  
+			model == "aipes" -> {"path" : "models/e2/d2_aipes.dkm", "scale" : scale, "frame" : frame},
+			model == "aipesp" -> {"path" : "models/e2/d2_aipesp.dkm", "scale" : scale, "frame" : frame},
+			model == "athena" -> {"path" : "models/e2/d2_athena.dkm", "scale" : scale, "frame" : frame},
+			model == "athenap" -> {"path" : "models/e2/d2_athenap.dkm", "scale" : scale, "frame" : frame},
+			model == "bigA" -> {"path" : "models/e2/d2_bigA.dkm", "scale" : scale, "frame" : frame},
+			model == "bush4" -> {"path" : "models/e2/d2_bush4.dkm", "scale" : scale, "frame" : frame},
+			model == "bush4b" -> {"path" : "models/e2/d2_bush4b.dkm", "scale" : scale, "frame" : frame},
+			model == "candleb" -> {"path" : "models/e2/d2_candleb.dkm", "scale" : scale, "frame" : frame},
+			model == "candleg" -> {"path" : "models/e2/d2_candleg.dkm", "scale" : scale, "frame" : frame},
+			model == "candler" -> {"path" : "models/e2/d2_candler.dkm", "scale" : scale, "frame" : frame},
+			model == "candley" -> {"path" : "models/e2/d2_candley.dkm", "scale" : scale, "frame" : frame},
+			model == "carycol" -> {"path" : "models/e2/d2_carycol.dkm", "scale" : scale, "frame" : frame},
+			model == "centurion" -> {"path" : "models/e2/d2_centurion.dkm", "scale" : scale, "frame" : frame},
+			model == "chain1" -> {"path" : "models/e2/d2_chain1.dkm", "scale" : scale, "frame" : frame},
+			model == "chain2" -> {"path" : "models/e2/d2_chain2.dkm", "scale" : scale, "frame" : frame},
+			model == "chain3" -> {"path" : "models/e2/d2_chain3.dkm", "scale" : scale, "frame" : frame},
+			model == "columntest" -> {"path" : "models/e2/d2_columntest.dkm", "scale" : scale, "frame" : frame},
+			model == "ctflag_blue" -> {"path" : "models/e2/ctflag_blue.dkm", "scale" : scale, "frame" : frame},
+			model == "ctflag_red" -> {"path" : "models/e2/ctflag_red.dkm", "scale" : scale, "frame" : frame},
+			model == "d2_cart" -> {"path" : "models/e2/d2_cart.dkm", "scale" : scale, "frame" : frame},
+			model == "dovegirl" -> {"path" : "models/e2/d2_dovegirl.dkm", "scale" : scale, "frame" : frame},
+			model == "drape1" -> {"path" : "models/e2/d2_drape1.dkm", "scale" : scale, "frame" : frame},
+			model == "drape1b" -> {"path" : "models/e2/d2_drape1b.dkm", "scale" : scale, "frame" : frame},
+			model == "ferryman" -> {"path" : "models/e2/d2_ferryman.dkm", "scale" : scale, "frame" : frame},
+			model == "garland" -> {"path" : "models/e2/d2_garland.dkm", "scale" : scale, "frame" : frame},
+			model == "griffon" -> {"path" : "models/e2/d2_griffon.dkm", "scale" : scale, "frame" : frame},
+			model == "grkgrl" -> {"path" : "models/e2/d2_grkgrl.dkm", "scale" : scale, "frame" : frame},
+			model == "grkguy" -> {"path" : "models/e2/d2_grkguy.dkm", "scale" : scale, "frame" : frame},
+			model == "harpy" -> {"path" : "models/e2/d2_harpy.dkm", "scale" : scale, "frame" : frame},
+			model == "hedge1" -> {"path" : "models/e2/d2_hedge1.dkm", "scale" : scale, "frame" : frame},
+			model == "hhand" -> {"path" : "models/e2/d2_hhand.dkm", "scale" : scale, "frame" : frame},
+			model == "hhead" -> {"path" : "models/e2/d2_hhead.dkm", "scale" : scale, "frame" : frame},
+			model == "hleg" -> {"path" : "models/e2/d2_hleg.dkm", "scale" : scale, "frame" : frame},
+			model == "hook" -> {"path" : "models/e2/d2_hook.dkm", "scale" : scale, "frame" : frame},
+			model == "horn" -> {"path" : "models/e2/d2_horn.dkm", "scale" : scale, "frame" : frame},
+			model == "htorso" -> {"path" : "models/e2/d2_htorso.dkm", "scale" : scale, "frame" : frame},
+			model == "longtree" -> {"path" : "models/e2/d2_longtree.dkm", "scale" : scale, "frame" : frame},
+			model == "medusa" -> {"path" : "models/e2/d2_medusa.dkm", "scale" : scale, "frame" : frame},
+			model == "poseidon" -> {"path" : "models/e2/d2_poseidon.dkm", "scale" : scale, "frame" : frame},
+			model == "poseidonp" -> {"path" : "models/e2/d2_poseidonp.dkm", "scale" : scale, "frame" : frame},
+			model == "pv01" -> {"path" : "models/e2/d2_pv01.dkm", "scale" : scale, "frame" : frame},
+			model == "pv02" -> {"path" : "models/e2/d2_pv02.dkm", "scale" : scale, "frame" : frame},
+			model == "pv03" -> {"path" : "models/e2/d2_pv03.dkm", "scale" : scale, "frame" : frame},
+			model == "pv04" -> {"path" : "models/e2/d2_pv04.dkm", "scale" : scale, "frame" : frame},
+			model == "pv05" -> {"path" : "models/e2/d2_pv05.dkm", "scale" : scale, "frame" : frame},
+			model == "satyr" -> {"path" : "models/e2/d2_satyr.dkm", "scale" : scale, "frame" : frame},
+			model == "shield1" -> {"path" : "models/e2/d2_shield1.dkm", "scale" : scale, "frame" : frame},
+			model == "shield2" -> {"path" : "models/e2/d2_shield2.dkm", "scale" : scale, "frame" : frame},
+			model == "skiff" -> {"path" : "models/e2/cd_skift.dkm", "scale" : scale, "frame" : frame},
+			model == "skulls" -> {"path" : "models/e2/d2_skulls.dkm", "scale" : scale, "frame" : frame},
+			model == "snakefire" -> {"path" : "models/e2/d2_snakefire.dkm", "scale" : scale, "frame" : frame},
+			model == "snakegate" -> {"path" : "models/e2/d2_snakegate.dkm", "scale" : scale, "frame" : frame},
+			model == "spider" -> {"path" : "models/e2/d2_spider.dkm", "scale" : scale, "frame" : frame},
+			model == "spillar" -> {"path" : "models/e2/d2_spillar.dkm", "scale" : scale, "frame" : frame},
+			model == "superfly" -> {"path" : "models/e2/d2_superfly.dkm", "scale" : scale, "frame" : frame},
+			model == "thief" -> {"path" : "models/e2/d2_thief.dkm", "scale" : scale, "frame" : frame},
+			model == "torch1" -> {"path" : "models/e2/d2_torch1.dkm", "scale" : scale, "frame" : frame},
+			model == "torch1b" -> {"path" : "models/e2/d2_torch1b.dkm", "scale" : scale, "frame" : frame},
+			model == "torch2" -> {"path" : "models/e2/d2_torch2.dkm", "scale" : scale, "frame" : frame},
+			model == "torch3" -> {"path" : "models/e2/d2_torch3.dkm", "scale" : scale, "frame" : frame},
+			model == "tritray" -> {"path" : "models/e2/d2_tritray.dkm", "scale" : scale, "frame" : frame},
+			model == "vase01" -> {"path" : "models/e2/d2_vase01.dkm", "scale" : scale, "frame" : frame},
+			model == "vase02" -> {"path" : "models/e2/d2_vase02.dkm", "scale" : scale, "frame" : frame},
+			model == "vase03" -> {"path" : "models/e2/d2_vase03.dkm", "scale" : scale, "frame" : frame},
+			model == "vase04" -> {"path" : "models/e2/d2_vase04.dkm", "scale" : scale, "frame" : frame},
+			model == "vase05" -> {"path" : "models/e2/d2_vase05.dkm", "scale" : scale, "frame" : frame},
+			model == "vase06" -> {"path" : "models/e2/d2_vase06.dkm", "scale" : scale, "frame" : frame},
+			model == "vase07" -> {"path" : "models/e2/d2_vase07.dkm", "scale" : scale, "frame" : frame},
+			model == "vase08" -> {"path" : "models/e2/d2_vase08.dkm", "scale" : scale, "frame" : frame},
+			model == "vase09" -> {"path" : "models/e2/d2_vase09.dkm", "scale" : scale, "frame" : frame},
+			model == "vase10" -> {"path" : "models/e2/d2_vase10.dkm", "scale" : scale, "frame" : frame},
+			model == "vasegib1" -> {"path" : "models/e2/d2_vasegib1.dkm", "scale" : scale, "frame" : frame},
+			model == "vasegib2" -> {"path" : "models/e2/d2_vasegib2.dkm", "scale" : scale, "frame" : frame},
+			model == "vasegib3" -> {"path" : "models/e2/d2_vasegib3.dkm", "scale" : scale, "frame" : frame}
+	}})= deco_e2 : "Episode 2 decoration"
+[
+	model(choices): "choose model" : 0 =
+	[
+		"aipes" : "aipes"
+		"aipesp" : "aipesp"
+		"athena" : "athena"
+		"athenap" : "athenap"
+		"bigA" : "bigA"
+		"bush4" : "bush4"
+		"bush4b" : "bush4b"
+		"candleb" : "candleb"
+		"candleg" : "candleg"
+		"candler" : "candler"
+		"candley" : "candley"
+		"carycol" : "carycol"
+		"centurion" : "centurion"
+		"chain1" : "chain1"
+		"chain2" : "chain2"
+		"chain3" : "chain3"
+		"columntest" : "columntest"
+		"ctflag_blue" : "ctflag_blue"
+		"ctflag_red" : "ctflag_red"
+		"d2_cart" : "d2_cart"
+		"dovegirl" : "dovegirl"
+		"drape1" : "drape1"
+		"drape1b" : "drape1b"
+		"ferryman" : "ferryman"
+		"garland" : "garland"
+		"griffon" : "griffon"
+		"grkgrl" : "grkgrl"
+		"grkguy" : "grkguy"
+		"harpy" : "harpy"
+		"hedge1" : "hedge1"
+		"hhand" : "hhand"
+		"hhead" : "hhead"
+		"hleg" : "hleg"
+		"hook" : "hook"
+		"horn" : "horn"
+		"htorso" : "htorso"
+		"longtree" : "longtree"
+		"medusa" : "medusa"
+		"poseidon" : "poseidon"
+		"poseidonp" : "poseidonp"
+		"pv01" : "pv01"
+		"pv02" : "pv02"
+		"pv03" : "pv03"
+		"pv04" : "pv04"
+		"pv05" : "pv05"
+		"satyr" : "satyr"
+		"shield1" : "shield1"
+		"shield2" : "shield2"
+		"skiff" : "skiff"
+		"skulls" : "skulls"
+		"snakefire" : "snakefire"
+		"snakegate" : "snakegate"
+		"spider" : "spider"
+		"spillar" : "spillar"
+		"superfly" : "superfly"
+		"thief" : "thief"
+		"torch1" : "torch1"
+		"torch1b" : "torch1b"
+		"torch2" : "torch2"
+		"torch3" : "torch3"
+		"tritray" : "tritray"
+		"vase01" : "vase01"
+		"vase02" : "vase02"
+		"vase03" : "vase03"
+		"vase04" : "vase04"
+		"vase05" : "vase05"
+		"vase06" : "vase06"
+		"vase07" : "vase07"
+		"vase08" : "vase08"
+		"vase09" : "vase09"
+		"vase10" : "vase10"
+		"vasegib1" : "vasegib1"
+		"vasegib2" : "vasegib2"
+		"vasegib3" : "vasegib3"
+	]
+]
+//
+// Decorations (Episode 3)
+//
+@PointClass base(Appearflags, Deco) color(1 0 0) size(-8 -8 -32, 8 8 32) 
+	model({{ 
+			model == "alter" -> {"path" : "models/e3/d3_alter.dkm", "scale" : scale, "frame" : frame},
+			model == "axe" -> {"path" : "models/e3/d3_axe.dkm", "scale" : scale, "frame" : frame},
+			model == "barfloat" -> {"path" : "models/e3/d3_barfloat.dkm", "scale" : scale, "frame" : frame},
+			model == "barrel" -> {"path" : "models/e3/d3_barrel.dkm", "scale" : scale, "frame" : frame},
+			model == "bed1" -> {"path" : "models/e3/d3_bed1.dkm", "scale" : scale, "frame" : frame},
+			model == "bone" -> {"path" : "models/e3/d3_bone.dkm", "scale" : scale, "frame" : frame},
+			model == "brazier" -> {"path" : "models/e3/d3_brazier.dkm", "scale" : scale, "frame" : frame},
+			model == "bubcorp1" -> {"path" : "models/e3/d3_bubcorpse.dkm", "scale" : scale, "frame" : frame},
+			model == "bubcorp2" -> {"path" : "models/e3/d3_bubc2.dkm", "scale" : scale, "frame" : frame},
+			model == "bubcorp3" -> {"path" : "models/e3/d3_bubc3.dkm", "scale" : scale, "frame" : frame},
+			model == "bubskull" -> {"path" : "models/e3/d3_bubskull.dkm", "scale" : scale, "frame" : frame},
+			model == "bubspine" -> {"path" : "models/e3/d3_bubspine.dkm", "scale" : scale, "frame" : frame},
+			model == "candle" -> {"path" : "models/e3/d3_candle.dkm", "scale" : scale, "frame" : frame},
+			model == "cart" -> {"path" : "models/e3/d3_cart.dkm", "scale" : scale, "frame" : frame},
+			model == "chair2" -> {"path" : "models/e3/d3_chair2.dkm", "scale" : scale, "frame" : frame},
+			model == "corpse" -> {"path" : "models/e3/d3_corps.dkm", "scale" : scale, "frame" : frame},
+			model == "croc" -> {"path" : "models/e3/m_croco.dkm", "scale" : scale, "frame" : frame},
+			model == "cross" -> {"path" : "models/e3/e3_cross.dkm", "scale" : scale, "frame" : frame},
+			model == "crow" -> {"path" : "models/e3/d3_crow.dkm", "scale" : scale, "frame" : frame},
+			model == "crowscage" -> {"path" : "models/e3/d3_crowscage.dkm", "scale" : scale, "frame" : frame},
+			model == "deadtree" -> {"path" : "models/e3/d3_deadtree.dkm", "scale" : scale, "frame" : frame},
+			model == "deco1" -> {"path" : "models/e3/d3_dkdeco1.dkm", "scale" : scale, "frame" : frame},
+			model == "dragonstatue" -> {"path" : "models/e3/d3_dragonstatue.dkm", "scale" : scale, "frame" : frame},
+			model == "e3ctflag_blue" -> {"path" : "models/e3/e3ctflag_blue.dkm", "scale" : scale, "frame" : frame},
+			model == "e3ctflag_red" -> {"path" : "models/e3/e3ctflag_red.dkm", "scale" : scale, "frame" : frame},
+			model == "fireshelf" -> {"path" : "models/e3/d3_fireshelf.dkm", "scale" : scale, "frame" : frame},
+			model == "flag1" -> {"path" : "models/e3/d3_flag1.dkm", "scale" : scale, "frame" : frame},
+			model == "flag2" -> {"path" : "models/e3/d3_flag2.dkm", "scale" : scale, "frame" : frame},
+			model == "flag3" -> {"path" : "models/e3/d3_flag3.dkm", "scale" : scale, "frame" : frame},
+			model == "flamhold" -> {"path" : "models/e3/d3_flamehold.dkm", "scale" : scale, "frame" : frame},
+			model == "flask1" -> {"path" : "models/e3/d3_flask1.dkm", "scale" : scale, "frame" : frame},
+			model == "flask2" -> {"path" : "models/e3/d3_flask2.dkm", "scale" : scale, "frame" : frame},
+			model == "flask3" -> {"path" : "models/e3/d3_flask3.dkm", "scale" : scale, "frame" : frame},
+			model == "flask4" -> {"path" : "models/e3/d3_flask4.dkm", "scale" : scale, "frame" : frame},
+			model == "gar2" -> {"path" : "models/e3/d3_dkgar2.dkm", "scale" : scale, "frame" : frame},
+			model == "grain" -> {"path" : "models/e3/d3_grain.dkm", "scale" : scale, "frame" : frame},
+			model == "ice" -> {"path" : "models/e3/d3_ice.dkm", "scale" : scale, "frame" : frame},
+			model == "iceshard" -> {"path" : "models/e3/d3_iceshard.dkm", "scale" : scale, "frame" : frame},
+			model == "kegs" -> {"path" : "models/e3/d3_kegs.dkm", "scale" : scale, "frame" : frame},
+			model == "mug" -> {"path" : "models/e3/d3_mug.dkm", "scale" : scale, "frame" : frame},
+			model == "organ" -> {"path" : "models/e3/d3_organ.dkm", "scale" : scale, "frame" : frame},
+			model == "rat" -> {"path" : "models/e3/d3_rat.dkm", "scale" : scale, "frame" : frame},
+			model == "ribcage" -> {"path" : "models/e3/d3_ribcage.dkm", "scale" : scale, "frame" : frame},
+			model == "rod" -> {"path" : "models/e3/d3_rod.dkm", "scale" : scale, "frame" : frame},
+			model == "shield" -> {"path" : "models/e3/d3_shield.dkm", "scale" : scale, "frame" : frame},
+			model == "skull" -> {"path" : "models/e3/d3_skull.dkm", "scale" : scale, "frame" : frame},
+			model == "skullgate" -> {"path" : "models/e3/d3_skullgate.dkm", "scale" : scale, "frame" : frame},
+			model == "stool" -> {"path" : "models/e3/d3_stool.dkm", "scale" : scale, "frame" : frame},
+			model == "sword" -> {"path" : "models/e3/d3_sword.dkm", "scale" : scale, "frame" : frame},
+			model == "table" -> {"path" : "models/e3/d3_table.dkm", "scale" : scale, "frame" : frame},
+			model == "toga" -> {"path" : "models/e3/m_toga_dude.dkm", "scale" : scale, "frame" : frame},
+			model == "togag" -> {"path" : "models/e3/m_toga_girl.dkm", "scale" : scale, "frame" : frame},
+			model == "torch" -> {"path" : "models/e3/d3_torch.dkm", "scale" : scale, "frame" : frame},
+			model == "truck" -> {"path" : "models/e3/e1_truck.dkm", "scale" : scale, "frame" : frame},
+			model == "wingsk" -> {"path" : "models/e3/d3_wingsk.dkm", "scale" : scale, "frame" : frame},
+			model == "winlight1" -> {"path" : "models/e3/d3_winlight1.dkm", "scale" : scale, "frame" : frame},
+			model == "wynbook" -> {"path" : "models/e3/d3_wynbook.dkm", "scale" : scale, "frame" : frame},
+			model == "wynorb" -> {"path" : "models/e3/d3_wynor.dkm", "scale" : scale, "frame" : frame},
+			model == "wynstand" -> {"path" : "models/e3/d3_wynstand.dkm", "scale" : scale, "frame" : frame}
+		 }}) = deco_e3 : "Episode 3 decoration"
+[
+	model(choices): "choose model" : 0 =
+	[
+		"alter" : "alter"
+		"axe" : "axe"
+		"barfloat" : "barfloat"
+		"barrel" : "barrel"
+		"bed1" : "bed1"
+		"bone" : "bone"
+		"brazier" : "brazier"
+		"bubcorp1" : "bubcorp1"
+		"bubcorp2" : "bubcorp2"
+		"bubcorp3" : "bubcorp3"
+		"bubskull" : "bubskull"
+		"bubspine" : "bubspine"
+		"candle" : "candle"
+		"cart" : "cart"
+		"chair2" : "chair2"
+		"corpse" : "corpse"
+		"croc" : "croc"
+		"cross" : "cross"
+		"crow" : "crow"
+		"crowscage" : "crowscage"
+		"deadtree" : "deadtree"
+		"deco1" : "deco1"
+		"dragonstatue" : "dragonstatue"
+		"e3ctflag_blue" : "e3ctflag_blue"
+		"e3ctflag_red" : "e3ctflag_red"
+		"fireshelf" : "fireshelf"
+		"flag1" : "flag1"
+		"flag2" : "flag2"
+		"flag3" : "flag3"
+		"flamhold" : "flamhold"
+		"flask1" : "flask1"
+		"flask2" : "flask2"
+		"flask3" : "flask3"
+		"flask4" : "flask4"
+		"gar2" : "gar2"
+		"grain" : "grain"
+		"ice" : "ice"
+		"iceshard" : "iceshard"
+		"kegs" : "kegs"
+		"mug" : "mug"
+		"organ" : "organ"
+		"rat" : "rat"
+		"ribcage" : "ribcage"
+		"rod" : "rod"
+		"shield" : "shield"
+		"skull" : "skull"
+		"skullgate" : "skullgate"
+		"stool" : "stool"
+		"sword" : "sword"
+		"table" : "table"
+		"toga" : "toga"
+		"togag" : "togag"
+		"torch" : "torch"
+		"truck" : "truck"
+		"wingsk" : "wingsk"
+		"winlight1" : "winlight1"
+		"wynbook" : "wynbook"
+		"wynorb" : "wynorb"
+		"wynstand" : "wynstand"
+	]
+]
+
+//
+// Decorations (Episode 4)
+//
+@PointClass base(Appearflags, Deco) color(1 0 0) size(-8 -8 -32, 8 8 32)
+	model({{ 
+            model == "1stwheel" -> {"path" : "models/e4/d4_wheel.dkm", "scale" : scale, "frame" : frame},
+            model == "banner1" -> {"path" : "models/e4/d4_banner.dkm", "scale" : scale, "frame" : frame}, 
+            model == "barrel1" -> {"path" : "models/e4/d4_brl1.dkm", "scale" : scale, "frame" : frame},
+            model == "barrel2" -> {"path" : "models/e4/d4_brl2.dkm", "scale" : scale, "frame" : frame},
+            model == "barrel3" -> {"path" : "models/e4/d4_brl3.dkm", "scale" : scale, "frame" : frame},
+            model == "bonsai1" -> {"path" : "models/e4/d4_bon.dkm", "scale" : scale, "frame" : frame},
+            model == "bonsai2" -> {"path" : "models/e4/d4_bon2.dkm", "scale" : scale, "frame" : frame},
+            model == "bonsai3" -> {"path" : "models/e4/d4_bon3.dkm", "scale" : scale, "frame" : frame},
+            model == "bottle" -> {"path" : "models/e4/d4_bottle.dkm", "scale" : scale, "frame" : frame},
+            model == "bush1" -> {"path" : "models/e4/d4_bush1.dkm", "scale" : scale, "frame" : frame},
+			model == "daikatana" -> {"path" : "models/e4/d4_daikatana.dkm", "scale" : scale, "frame" : frame},
+            model == "d4_afish" -> {"path" : "models/e4/d4_afish.dkm", "scale" : scale, "frame" : frame}, 
+            model == "d4_bot1" -> {"path" : "models/e4/d4_bot1.dkm", "scale" : scale, "frame" : frame},
+            model == "d4_bot2" -> {"path" : "models/e4/d4_bot2.dkm", "scale" : scale, "frame" : frame},
+            model == "d4_bread" -> {"path" : "models/e4/d4_bread.dkm", "scale" : scale, "frame" : frame}, 
+            model == "d4_cof" -> {"path" : "models/e4/d4_cof.dkm", "scale" : scale, "frame" : frame},
+            model == "d4_cup" -> {"path" : "models/e4/d4_cup.dkm", "scale" : scale, "frame" : frame},
+            model == "d4_gull" -> {"path" : "models/e4/d4_gull.dkm", "scale" : scale, "frame" : frame},
+            model == "d4_rat" -> {"path" : "models/e4/d4_rat.dkm", "scale" : scale, "frame" : frame},
+            model == "demon" -> {"path" : "models/e4/d4_demon.dkm", "scale" : scale, "frame" : frame},
+            model == "goldencup" -> {"path" : "models/e4/d4_gcup.dkm", "scale" : scale, "frame" : frame}, 
+            model == "ironbox" -> {"path" : "models/e4/d4_iron.dkm", "scale" : scale, "frame" : frame},
+            model == "japplant1" -> {"path" : "models/e4/d4_jppl1.dkm", "scale" : scale, "frame" : frame},
+            model == "japplant2" -> {"path" : "models/e4/d4_jppl2.dkm", "scale" : scale, "frame" : frame},
+            model == "jappot1" -> {"path" : "models/e4/d4_jppt1.dkm", "scale" : scale, "frame" : frame},
+            model == "jappot2" -> {"path" : "models/e4/d4_jppt2.dkm", "scale" : scale, "frame" : frame},
+            model == "kendorack" -> {"path" : "models/e4/d4_kendo.dkm", "scale" : scale, "frame" : frame},
+            model == "lantern" -> {"path" : "models/e4/d4_lant.dkm", "scale" : scale, "frame" : frame},
+            model == "logs" -> {"path" : "models/e4/d4_log.dkm", "scale" : scale, "frame" : frame},
+            model == "pipeend" -> {"path" : "models/e4/d4_pipe1.dkm", "scale" : scale, "frame" : frame},
+            model == "pipend2" -> {"path" : "models/e4/d4_pipe2.dkm", "scale" : scale, "frame" : frame},
+            model == "pot1" -> {"path" : "models/e4/d4_pan1.dkm", "scale" : scale, "frame" : frame},
+			model == "pot3" -> {"path" : "models/e4/d4_pan2.dkm", "scale" : scale, "frame" : frame},
+			model == "shitzu" -> {"path" : "models/e4/d4_fu.dkm", "scale" : scale, "frame" : frame},
+            model == "pracswo" -> {"path" : "models/e4/d4_sword.dkm", "scale" : scale, "frame" : frame}, 
+            model == "rock1" -> {"path" : "models/e4/d4_rock1.dkm", "scale" : scale, "frame" : frame},
+            model == "samarmor" -> {"path" : "models/e4/d4_armor.dkm", "scale" : scale, "frame" : frame}, 
+            model == "sodacan" -> {"path" : "models/e4/d4_soda.dkm", "scale" : scale, "frame" : frame},
+            model == "Tosh" -> {"path" : "models/e4/Toshiro_ebihara_low.dkm", "scale" : scale, "frame" : frame},
+            model == "trashcan" -> {"path" : "models/e4/d4_trashcan.dkm", "scale" : scale, "frame" : frame},
+            model == "tray" -> {"path" : "models/e4/d4_tray.dkm", "scale" : scale, "frame" : frame},
+            model == "wires1" -> {"path" : "models/e4/d4_wires1.dkm", "scale" : scale, "frame" : frame}
+		 }})
+	 = deco_e4 : "Episode 4 decoration"
+[
+	model(choices): "choose model" : 0 =
+	[
+		"1stwheel" : "1stwheel"
+		"banner1" : "banner1"
+		"barrel1" : "barrel1"
+		"barrel2" : "barrel2"
+		"barrel3" : "barrel3"
+		"bonsai1" : "bonsai1"
+		"bonsai2" : "bonsai2"
+		"bonsai3" : "bonsai3"
+		"bottle" : "bottle"
+		"bush1" : "bush1"
+		"d4_afish" : "d4_afish"
+		"d4_bot1" : "d4_bot1"
+		"d4_bot2" : "d4_bot2"
+		"d4_bread" : "d4_bread"
+		"d4_cof" : "d4_cof"
+		"d4_cup" : "d4_cup"
+		"d4_gull" : "d4_gull"
+		"d4_rat" : "d4_rat"
+		"daikatana" : "daikatana"
+		"demon" : "demon"
+		"goldencup" : "goldencup"
+		"ironbox" : "ironbox"
+		"japplant1" : "japplant1"
+		"japplant2" : "japplant2"
+		"jappot1" : "jappot1"
+		"jappot2" : "jappot2"
+		"kendorack" : "kendorack"
+		"lantern" : "lantern"
+		"logs" : "logs"
+		"pipeend" : "pipeend"
+		"pipend2" : "pipend2"
+		"pot1" : "pot1"
+		"pot3" : "pot3"
+		"pracswo" : "pracswo"
+		"rock1" : "rock1"
+		"samarmor" : "samarmor"
+		"shitzu" : "shitzu"
+		"sodacan" : "sodacan"
+		"Tosh" : "Tosh"
+		"trashcan" : "trashcan"
+		"tray" : "tray"
+		"wires1" : "wires1"
+
+	]
+]
+//
+// Decorations (custom)
+//
+@PointClass base(Appearflags, Target, Targetname, Deco) color(1 0 0) size(-16 -16 -16, 16 16 16) model({"path" : model, scale : scale, "frame" : frame})= deco_custom : "Custom decoration"
+[
+	exploding(integer): "0 or 1. same as DECO_EXPLODE spawnflag" : 0
 	model(string): "filename of .dkm model, e.g. models/e1/a_c4.dkm"
-	mass(float): "default 1.0" : 1.0
-	frame(integer): "allows you to specify the starting frame for the model."
-	x_speed(integer): "speed to rotate along x axis in degrees per second"
-	y_speed(integer): "speed to rotate along y axis in degrees per second"
-	z_speed(integer): "speed to rotate along z axis in degrees per second"
-	alpha(float): "range 0.0-1.0. Only used if TRANSLUCENT is flagged"
-	spawnname(string): "classname of entity to throw out upon death"
+	mass(float): "The mass of the deco.  1.0 is the same as player mass.  2.0 is twice the player mass etc." : "1.0"
     movetype(string): "none, toss, bounce, float" : "none"
     solidtype(string): "bbox, not" : "bbox"
     gibtype(string): "wood, metal, glass, gibs, default is non-gibbable" : "non-gibbable"
@@ -1355,7 +1924,6 @@
 	mins(string): "bbox lower bounds, e.g. -8, -8, -32"
 	maxs(string): "bbox upper bounds, eg.g. 8, 8, 32"
 	animseq(integer): "allows you to specifies an animation sequence for the model this overrides the frame key.. valid sequences are 0-4  DEFAULT is 0": 0
-	seq0-seq4(string): "frames or frame sequences of animation use '-' for a set of frames use '~' to loop the frames"
 ]
 
 
@@ -1460,12 +2028,12 @@
 //
 // Animals
 //
-@PointClass base(Animal) model({ "path": "models/global/d4_gull.dkm" }) = e_seagull : "Seagull" []
+@PointClass base(Animal) model({ "path": "models/global/d4_gull.dkm", "scale" : "0.5 0.5 0.5" }) = e_seagull : "Seagull" []
 @PointClass base(Animal) model({ "path": "models/global/e_goldfish.dkm" }) = fish_goldfish : "Goldfish" []
 @PointClass base(Animal) model({ "path": "models/global/e_greyfish.dkm" }) = fish_grayfish : "Grayfish" []
 @PointClass base(Animal) model({ "path": "models/global/e_guppy.dkm" }) = fish_guppy1 : "Guppy 1" []
 @PointClass base(Animal) model({ "path": "models/global/e_guppy2.dkm" }) = fish_guppy2 : " Guppy 2" []
-@PointClass base(Animal) color(0.5 0.5 0) size(-40 -40 -40, 40 40 40) model({ "path": "models/global/dopefish.dkm" }) = fish_dopefish : "Dopefish" []
+@PointClass base(Animal) color(0.5 0.5 0) size(-40 -40 -40, 40 40 40) model({ "path": "models/global/dopefish.dkm", "scale" : "3 3 3" }) = fish_dopefish : "Dopefish" []
 
 
 //
@@ -1473,12 +2041,12 @@
 //
 @BaseClass base(Appearflags, Target, Sidekickflags) color(0 0.5 0.8) size(-16 -16 -24, 16 16 8) = HealthItems
 [
-	team(string) : "Team"
+
 ]
 
 @BaseClass base(Appearflags, Target) = ShieldItems
 [
-	team(string) : "Team"
+
 ]
 
 @PointClass base(HealthItems) model({ "path": "models/global/a_gsoul.dkm" }) = item_goldensoul : "Maxes health to twice vitality." []
@@ -1563,4 +2131,11 @@
 		7 : "purple" 
 		8 : "yellow"
 	]
+]
+@PointClass base(Targetname) color(0 0.5 0.8) size(-8 -8 -8, 8 8 8) = target_blaster
+[
+	angles(string) : "direction to fire"
+	damage(float) : "Default 15" : "15"
+	speed(float) :	"Default 1000" : "1000"
+	target(target_destination) : "name of ent to shoot at"
 ]

@@ -2,11 +2,11 @@
 // Daikatana game definition file (.fgd)
 // Episode 3 entities
 // for Trenchbroom
-// last update: 6 Oct, 2018
-// Version: 1
 //
-// written by Dekonega <dekonega(at)windowslive.com>
+// originally written by Dekonega <dekonega(at)windowslive.com>
 // email me with improvements and suggestions
+//
+// updated and expanded by MilkeyWilkey
 //
 
 @include "Common.fgd"
@@ -41,16 +41,16 @@
 // Monsters (Episode 3)
 //
 @PointClass base(Appearflags, MonsterFlags) color(1 0.5 0) size(-16 -16 -24, 16 16 36) model({ "path": "models/e3/m_wyndrax.dkm" }) = monster_wyndrax : "Wyndrax" []
-@PointClass base(Appearflags, MonsterFlags) color(1 0.5 0) size(-20 -20 -24, 20 20 40) model({ "path": "models/e3/m_stavros.dkm" }) = monster_stavros : "Stavros" []
-@PointClass base(Appearflags, MonsterFlags) color(1 0.5 0) size(-20 -20 -24, 20 20 36) model({ "path": "models/e3/m_nharre.dkm" }) = monster_nharre : "Nharre" []
+@PointClass base(Appearflags, MonsterFlags) color(1 0.5 0) size(-20 -20 -24, 20 20 40) model({ "path": "models/e3/m_stavros.dkm", "scale" : "1.625 1.625 1.625" }) = monster_stavros : "Stavros" []
+@PointClass base(Appearflags, MonsterFlags) color(1 0.5 0) size(-20 -20 -24, 20 20 36) model({ "path": "models/e3/m_nharre.dkm", "scale" : "1.2 1.2 1.2" }) = monster_nharre : "Nharre" []
 @PointClass base(Appearflags, MonsterFlags) color(1 0.5 0) size(-16 -16 -24, 16 16 32) model({ "path": "models/e3/m_knight2.dkm" }) = monster_knight2 : "Blue Knight" []
 @PointClass base(Appearflags, MonsterFlags) color(1 0.5 0) size(-16 -16 -24, 16 16 32) model({ "path": "models/e3/m_knight1.dkm" }) = monster_knight1 : "Red Knight" []
 @PointClass base(Appearflags, MonsterFlags) color(1 0.5 0) size(-20 -20 -24, 20 20 40) model({ "path": "models/e3/m_gharroth.dkm" }) = monster_garroth : "King Gharroth" []
 @PointClass base(Appearflags, MonsterFlags) color(1 0.5 0) size(-40 -40 -24, 40 40 96) model({ "path": "models/e3/m_dragon.dkm" }) = monster_dragon : "Dragon" []
 @PointClass base(Appearflags, MonsterFlags) color(1 0.5 0) size(-20 -20 -24, 20 20 16) model({ "path": "models/e3/m_dwarf.dkm" }) = monster_dwarf : "Dwarf" []
 @PointClass base(Appearflags, MonsterFlags) color(1 0.5 0) size(-16 -16 -24, 16 16 40) model({ "path": "models/e3/m_fletcher.dkm" }) = monster_fletcher : "Fletcher" []
-@PointClass base(Appearflags, MonsterFlags) color(1 0.5 0) size(-20 -20 -24, 20 20 32) model({ "path": "models/e3/m_lycanthir.dkm" }) = monster_lycanthir : "Lycanthir" []
-@PointClass base(Appearflags, MonsterFlags) color(1 0.5 0) size(-12 -12 -8, 12 12 8) model({ "path": "models/e3/m_doombat.dkm" }) = monster_doombat : "Doombat" []
+@PointClass base(Appearflags, MonsterFlags) color(1 0.5 0) size(-20 -20 -24, 20 20 32) model({ "path": "models/e3/m_lycanthir.dkm", "scale" : "1.2 1.2 1.2" }) = monster_lycanthir : "Lycanthir" []
+@PointClass base(Appearflags, MonsterFlags) color(1 0.5 0) size(-12 -12 -8, 12 12 8) model({ "path": "models/e3/m_doombat.dkm", "scale" : "0.65 0.65 0.65" }) = monster_doombat : "Doombat" []
 @PointClass base(Appearflags, MonsterFlags) color(1 0.5 0) size(-16 -16 -24, 16 16 56) model({ "path": "models/e3/m_priest.dkm" }) = monster_priest : "Priest" []
 @PointClass base(Appearflags, MonsterFlags) color(1 0.5 0) size(-16 -16 -24, 16 16 32) model({ "path": "models/e3/m_buboid.dkm" }) = monster_buboid : "Buboid" []
 @PointClass base(Appearflags, MonsterFlags) color(1 0.5 0) size(-12 -12 -8, 12 12 8) model({ "path": "models/e3/m_rotworm.dkm" }) = monster_rotworm : "Rotworm" []
@@ -66,24 +66,6 @@
 ]
 
 
-//
-// Decorations (Episode 3)
-//
-@PointClass base(Appearflags, DecorationFlags) color(1 0 0) size(-8 -8 -32, 8 8 32) = deco_e3 : "Episode 3 decoration"
-[
-	damage(integer): "damage applied when exploding. Default is 15." : 15
-	scale(float): "Scale of deco. Default 1.0." : 1.0
-	model(string): "choose model # -- see list."
-	mass(float): "*optional* - including this overrides the mass value in decoinfo.txt" 
-	frame(integer): "allows you to specify the starting frame for the model."
-	animseq(integer): "allows you to specify an animation sequence for the model"
-	x_speed(integer): "speed to rotate along x axis in degrees per second"
-	y_speed(integer): "speed to rotate along y axis in degrees per second"
-	z_speed(integer): "speed to rotate along z axis in degrees per second"
-	alpha(float): "range 0.0-1.0. Only used if TRANSLUCENT is flagged"
-	spawnname(string): "classname of entity to throw out upon death"
-    movetype(string): "none, toss, bounce, float, overrides value in e1decoinfo.csv" : "none"
-]
 
 
 //
