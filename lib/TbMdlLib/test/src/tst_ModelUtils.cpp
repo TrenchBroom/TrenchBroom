@@ -116,6 +116,47 @@ TEST_CASE("ModelUtils.findContainingGroup")
   CHECK(findContainingGroup(patchNode) == outerGroupNode);
 }
 
+TEST_CASE("ModelUtils.findContainingEntity")
+{
+  constexpr auto worldBounds = vm::bbox3d{8192.0};
+  constexpr auto mapFormat = MapFormat::Quake3;
+
+  auto worldNode = WorldNode{{}, {}, mapFormat};
+
+  auto* layerNode = new LayerNode{Layer{"layer"}};
+  auto* groupNode = new GroupNode{Group{"group"}};
+  auto* entityNode = new EntityNode{Entity{}};
+  auto* structuralBrushNode = new BrushNode{
+    BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material") | kdl::value()};
+  auto* entityBrushNode = new BrushNode{
+    BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material") | kdl::value()};
+
+  // clang-format off
+  auto* structuralPatchNode = new PatchNode{BezierPatch{3, 3, {
+    {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
+    {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
+    {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "material"}};
+  auto* entityPatchNode = new PatchNode{BezierPatch{3, 3, {
+    {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
+    {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
+    {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "material"}};
+  // clang-format on
+
+  entityNode->addChildren({entityBrushNode, entityPatchNode});
+  groupNode->addChildren({entityNode, structuralBrushNode, structuralPatchNode});
+  layerNode->addChild(groupNode);
+  worldNode.addChild(layerNode);
+
+  CHECK(findContainingEntity(&worldNode) == nullptr);
+  CHECK(findContainingEntity(layerNode) == nullptr);
+  CHECK(findContainingEntity(groupNode) == nullptr);
+  CHECK(findContainingEntity(entityNode) == nullptr);
+  CHECK(findContainingEntity(structuralBrushNode) == &worldNode);
+  CHECK(findContainingEntity(structuralPatchNode) == &worldNode);
+  CHECK(findContainingEntity(entityBrushNode) == entityNode);
+  CHECK(findContainingEntity(entityPatchNode) == entityNode);
+}
+
 TEST_CASE("ModelUtils.findOutermostClosedGroup")
 {
   constexpr auto worldBounds = vm::bbox3d{8192.0};
