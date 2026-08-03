@@ -36,6 +36,7 @@ class Node;
 class GroupNode;
 class BrushNode;
 class EntityNode;
+class EntityNodeBase;
 class LayerNode;
 class EditorContext;
 
@@ -51,6 +52,14 @@ std::vector<LayerNode*> collectContainingLayersUserSorted(
 
 GroupNode* findContainingGroup(Node* node);
 const GroupNode* findContainingGroup(const Node* node);
+
+/**
+ * Returns the entity that owns the given node, i.e. the closest ancestor entity or
+ * world node, treating layers and groups as pass-through. Only brush and patch nodes
+ * can be owned by an entity; returns nullptr for every other node type.
+ */
+EntityNodeBase* findContainingEntity(Node* node);
+const EntityNodeBase* findContainingEntity(const Node* node);
 
 /**
  * Searches the ancestor chain of `node` for the outermost closed group and returns
