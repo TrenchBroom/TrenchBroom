@@ -32,6 +32,7 @@
 #include "mdl/Map_Brushes.h"
 #include "mdl/Map_Entities.h"
 #include "mdl/Map_Nodes.h"
+#include "mdl/Map_Patches.h"
 #include "mdl/Map_Selection.h"
 #include "mdl/PatchNode.h"
 #include "mdl/Selection.h"
@@ -437,7 +438,7 @@ bool EntityClassNameTagMatcher::matches(const Taggable& taggable) const
 
 void EntityClassNameTagMatcher::enable(TagMatcherCallback& callback, Map& map) const
 {
-  if (!map.selection().hasOnlyBrushes())
+  if (!map.selection().hasOnlyGeometryNodes())
   {
     return;
   }
@@ -482,6 +483,7 @@ void EntityClassNameTagMatcher::enable(TagMatcherCallback& callback, Map& map) c
   if (!m_material.empty())
   {
     setBrushFaceAttributes(map, {.materialName = m_material});
+    setPatchMaterial(map, m_material);
   }
 }
 

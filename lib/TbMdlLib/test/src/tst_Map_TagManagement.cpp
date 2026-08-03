@@ -615,52 +615,56 @@ TEST_CASE("Map_TagManagement")
       auto* matchingBrushNode = createBrushNode(map, "asdf");
       auto* nonMatchingBrushNode = createBrushNode(map, "asdf");
 
-      auto matchingEntity =
-        std::make_unique<EntityNode>(Entity{{{"classname", "brush_entity"}}});
-      matchingEntity->addChild(matchingBrushNode);
-
-      auto nonMatchingEntity =
-        std::make_unique<EntityNode>(Entity{{{"classname", "something"}}});
-      nonMatchingEntity->addChild(nonMatchingBrushNode);
-
-      const auto& tag = map.smartTag("entity");
-      CHECK(tag.matches(*matchingBrushNode));
-      CHECK(!tag.matches(*nonMatchingBrushNode));
-    }
-
-    SECTION("matches (patch)")
-    {
       auto* matchingPatchNode = createPatchNode();
       auto* nonMatchingPatchNode = createPatchNode();
 
       auto matchingEntity =
         std::make_unique<EntityNode>(Entity{{{"classname", "brush_entity"}}});
-      matchingEntity->addChild(matchingPatchNode);
+      matchingEntity->addChildren({matchingBrushNode, matchingPatchNode});
 
       auto nonMatchingEntity =
         std::make_unique<EntityNode>(Entity{{{"classname", "something"}}});
-      nonMatchingEntity->addChild(nonMatchingPatchNode);
+      nonMatchingEntity->addChildren({nonMatchingBrushNode, nonMatchingPatchNode});
 
       const auto& tag = map.smartTag("entity");
+      CHECK(tag.matches(*matchingBrushNode));
       CHECK(tag.matches(*matchingPatchNode));
+      CHECK(!tag.matches(*nonMatchingBrushNode));
       CHECK(!tag.matches(*nonMatchingPatchNode));
     }
 
     SECTION("enable")
     {
+      auto* patchNode = createPatchNode();
       auto* brushNode = createBrushNode(map, "asdf");
-      addNodes(map, {{&parentForNodes(map), {brushNode}}});
+      addNodes(map, {{&parentForNodes(map), {brushNode, patchNode}}});
 
       const auto& tag = map.smartTag("entity");
       CHECK(!tag.matches(*brushNode));
+      CHECK(!tag.matches(*patchNode));
 
       CHECK(tag.canEnable());
 
-      selectNodes(map, {brushNode});
+      selectNodes(map, {brushNode, patchNode});
 
       auto callback = TestCallback{0};
       tag.enable(callback, map);
       CHECK(tag.matches(*brushNode));
+      CHECK(tag.matches(*patchNode));
+    }
+
+    SECTION("enable sets patch material")
+    {
+      auto* patchNode = createPatchNode("some_material");
+      addNodes(map, {{&parentForNodes(map), {patchNode}}});
+      selectNodes(map, {patchNode});
+
+      const auto matcherWithMaterial =
+        EntityClassNameTagMatcher{"brush_entity", "trigger_material"};
+
+      auto callback = TestCallback{0};
+      matcherWithMaterial.enable(callback, map);
+      CHECK(patchNode->patch().materialName() == "trigger_material");
     }
 
     SECTION("enable retains entity properties")
