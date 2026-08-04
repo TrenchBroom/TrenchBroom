@@ -23,16 +23,17 @@
 #include "ui/QPreferenceStoreUtils.h"
 
 #include <catch2/catch_test_macros.hpp>
+#include <catch2/generators/catch_generators.hpp>
 
 namespace tb::ui
 {
 namespace
 {
 
-const auto preferenceFile = pathAsQString(
-  getFixtureRoot() / "test" / "ui" / "QPreferenceStoreUtils" / "preferences.json");
+const auto preferenceRoot = getFixtureRoot() / "test" / "ui" / "QPreferenceStoreUtils";
+const auto preferenceFile = pathAsQString(preferenceRoot / "preferences.json");
 
-}
+} // namespace
 
 TEST_CASE("parsePreferencesFromJson")
 {
@@ -50,19 +51,28 @@ TEST_CASE("parsePreferencesFromJson")
 
 TEST_CASE("readPreferencesFromFile")
 {
-  CHECK(
-    readPreferencesFromFile(preferenceFile)
-    == PreferenceValues{
-      {"Prefs/Values/Integer value", QJsonValue{108}},
-      {"Prefs/Values/Float value", QJsonValue{0.425781}},
-      {"Prefs/Values/Bool value", QJsonValue{true}},
-      {"Prefs/Values/String value", QJsonValue{"this and that"}},
-      {"Prefs/Values/Color value", QJsonValue{"0.290196 0.643137 0.486275 1"}},
-      {"Prefs/Paths/Equal sign", QJsonValue{"/home/ericwa/foo=bar"}},
-      {"Prefs/Paths/With spaces", QJsonValue{"/home/ericwa/Quake 3 Arena"}},
-      {"Prefs/Key sequences/Single key", QJsonValue{"W"}},
-      {"Prefs/Key sequences/Multiple keys", QJsonValue{"Ctrl+Alt+W"}},
-    });
+  const auto [path, expectedResult] = GENERATE(table<QString, ReadPreferencesResult>({
+    {preferenceFile,
+     ReadPreferencesResult{PreferenceValues{
+       {"Prefs/Values/Integer value", QJsonValue{108}},
+       {"Prefs/Values/Float value", QJsonValue{0.425781}},
+       {"Prefs/Values/Bool value", QJsonValue{true}},
+       {"Prefs/Values/String value", QJsonValue{"this and that"}},
+       {"Prefs/Values/Color value", QJsonValue{"0.290196 0.643137 0.486275 1"}},
+       {"Prefs/Paths/Equal sign", QJsonValue{"/home/ericwa/foo=bar"}},
+       {"Prefs/Paths/With spaces", QJsonValue{"/home/ericwa/Quake 3 Arena"}},
+       {"Prefs/Key sequences/Single key", QJsonValue{"W"}},
+       {"Prefs/Key sequences/Multiple keys", QJsonValue{"Ctrl+Alt+W"}},
+     }}},
+    {pathAsQString(preferenceRoot / "does-not-exist.json"),
+     PreferenceErrors::NoFilePresent{}},
+    {pathAsQString(preferenceRoot / "does-not-exist" / "some-file.json"),
+     PreferenceErrors::LockFileError{}},
+  }));
+
+  CAPTURE(path);
+
+  CHECK(readPreferencesFromFile(path) == expectedResult);
 }
 
 TEST_CASE("writePreferencesToJson")
