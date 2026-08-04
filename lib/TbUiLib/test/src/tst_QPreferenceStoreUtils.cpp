@@ -67,7 +67,7 @@ TEST_CASE("readPreferencesFromFile")
     {pathAsQString(preferenceRoot / "does-not-exist.json"),
      PreferenceErrors::NoFilePresent{}},
     {pathAsQString(preferenceRoot / "does-not-exist" / "some-file.json"),
-     PreferenceErrors::LockFileError{}},
+     PreferenceErrors::NoFilePresent{}},
   }));
 
   CAPTURE(path);
