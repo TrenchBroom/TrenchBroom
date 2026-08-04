@@ -55,6 +55,7 @@
 #include "vm/polygon.h"
 #include "vm/vec_io.h" // IWYU pragma: keep
 
+#include <algorithm>
 #include <map>
 #include <ranges>
 #include <vector>
@@ -192,6 +193,36 @@ std::optional<EdgeInfo> findClosestHorizonEdge(
 }
 
 /**
+ * Returns every horizon edge of the given nodes (i.e. all candidates that could possibly
+ * compete for the edge handle at the current pick ray), unlike findClosestHorizonEdge,
+ * which only returns the single closest one.
+ */
+std::vector<EdgeInfo> findHorizonEdges(
+  const std::vector<mdl::Node*>& nodes, const vm::ray3d& pickRay)
+{
+  auto result = std::vector<EdgeInfo>{};
+  for (auto* node : nodes)
+  {
+    node->accept(kdl::overload(
+      [](mdl::WorldNode&) {},
+      [](mdl::LayerNode&) {},
+      [](mdl::GroupNode&) {},
+      [](mdl::EntityNode&) {},
+      [&](mdl::BrushNode& brushNode) {
+        for (const auto* edge : brushNode.brush().edges())
+        {
+          if (auto edgeInfo = getEdgeInfo(edge, brushNode, pickRay))
+          {
+            result.push_back(std::move(*edgeInfo));
+          }
+        }
+      },
+      [](mdl::PatchNode&) {}));
+  }
+  return result;
+}
+
+/**
  * Returns true if the horizon edge's cylindrical handle (with the same radius as the
  * vertex handles) is grabbed and should take priority over the given direct brush face
  * hit. The edge's own adjacent face never steals the handle; a different, occluding face
@@ -215,6 +246,24 @@ bool preferEdgeHandle(
     faceHandle
     && (*faceHandle == edgeInfo.leftFaceHandle || *faceHandle == edgeInfo.rightFaceHandle);
   return hitIsAdjacentFace || *edgeDistance <= faceHit.distance();
+}
+
+/**
+ * Returns the horizon edge, if any, that should override the given direct brush face hit.
+ * Of the given candidates, picks the closest one and defers to preferEdgeHandle to decide
+ * whether it should win.
+ */
+std::optional<EdgeInfo> selectOverridingEdge(
+  const gl::Camera& camera,
+  const vm::ray3d& pickRay,
+  const std::vector<EdgeInfo>& edgeInfos,
+  const mdl::Hit& faceHit)
+{
+  const auto closest = std::ranges::min_element(edgeInfos);
+  return closest != edgeInfos.end()
+             && preferEdgeHandle(camera, pickRay, *closest, faceHit)
+           ? std::optional{*closest}
+           : std::nullopt;
 }
 
 std::vector<ExtrudeDragHandle> getDragHandles(
@@ -507,19 +556,20 @@ mdl::Hit ExtrudeTool::pick2D(
   };
 
   const auto& hit = pickResult.first(type(mdl::BrushNode::BrushHitType) && selected());
-  const auto edgeInfo =
-    findClosestHorizonEdge(m_document.map().selection().nodes, pickRay);
 
   if (hit.isMatch())
   {
     // The cursor is over a brush face. Only engage if a horizon edge handle is grabbed.
-    if (edgeInfo && preferEdgeHandle(camera, pickRay, *edgeInfo, hit))
+    const auto edgeInfos = findHorizonEdges(m_document.map().selection().nodes, pickRay);
+    if (const auto edgeInfo = selectOverridingEdge(camera, pickRay, edgeInfos, hit))
     {
       return makeEdgeHit(*edgeInfo);
     }
     return mdl::Hit::NoHit;
   }
 
+  const auto edgeInfo =
+    findClosestHorizonEdge(m_document.map().selection().nodes, pickRay);
   if (!edgeInfo)
   {
     return mdl::Hit::NoHit;
@@ -557,13 +607,12 @@ mdl::Hit ExtrudeTool::pick3D(
 
   const auto& hit = pickResult.first(type(mdl::BrushNode::BrushHitType) && selected());
   const auto faceHandle = hitToFaceHandle(hit);
-  const auto edgeInfo =
-    findClosestHorizonEdge(m_document.map().selection().nodes, pickRay);
 
   if (faceHandle)
   {
     // The cursor is over a brush face. Prefer it unless a horizon edge handle is grabbed.
-    if (edgeInfo && preferEdgeHandle(camera, pickRay, *edgeInfo, hit))
+    const auto edgeInfos = findHorizonEdges(m_document.map().selection().nodes, pickRay);
+    if (const auto edgeInfo = selectOverridingEdge(camera, pickRay, edgeInfos, hit))
     {
       return makeEdgeHit(*edgeInfo);
     }
@@ -577,6 +626,8 @@ mdl::Hit ExtrudeTool::pick3D(
         hit.hitPoint()}};
   }
 
+  const auto edgeInfo =
+    findClosestHorizonEdge(m_document.map().selection().nodes, pickRay);
   if (!edgeInfo)
   {
     return mdl::Hit::NoHit;
