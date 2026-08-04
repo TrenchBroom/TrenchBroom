@@ -50,6 +50,7 @@
 #include "kd/result_fold.h"
 
 #include "vm/distance.h"
+#include "vm/intersection.h"
 #include "vm/line_io.h"  // IWYU pragma: keep
 #include "vm/plane_io.h" // IWYU pragma: keep
 #include "vm/polygon.h"
@@ -223,12 +224,11 @@ std::vector<EdgeInfo> findHorizonEdges(
 }
 
 /**
- * Returns true if the horizon edge's cylindrical handle (with the same radius as the
- * vertex handles) is grabbed and should take priority over the given direct brush face
+ * Returns true if the given edge should take priority over the given direct brush face
  * hit. The edge's own adjacent face never steals the handle; a different, occluding face
  * only wins if it is nearer along the ray than the edge.
  */
-bool preferEdgeHandle(
+bool edgeHandleWinsOverFace(
   const gl::Camera& camera,
   const vm::ray3d& pickRay,
   const EdgeInfo& edgeInfo,
@@ -236,10 +236,7 @@ bool preferEdgeHandle(
 {
   const auto edgeDistance = camera.pickLineSegmentHandle(
     pickRay, edgeInfo.segment, pref(Preferences::HandleRadius));
-  if (!edgeDistance)
-  {
-    return false;
-  }
+  contract_assert(edgeDistance);
 
   const auto faceHandle = hitToFaceHandle(faceHit);
   const auto hitIsAdjacentFace =
@@ -249,21 +246,71 @@ bool preferEdgeHandle(
 }
 
 /**
+ * Returns true if some edge of a brush other than excludeBrush is collinear with, and
+ * genuinely overlaps (shares more than a single point with), the given segment. Unlike a
+ * horizon edge, the partner edge does not itself need to pass the front/back-facing test:
+ * at a seam between two flush brushes, only the brush whose own face pair straddles the
+ * silhouette (one face visible, one hidden) produces a horizon edge there; the other
+ * brush's coincident edge typically has both of its adjacent faces on the same side of
+ * that test (their shared visibility ignores that the near brush occludes it), so it is
+ * never classified as a horizon edge itself. Its mere existence as a plain, overlapping
+ * edge belonging to a different brush is what proves the seam is real.
+ */
+bool hasOverlappingEdgeInOtherBrush(
+  const std::vector<mdl::Node*>& nodes,
+  const mdl::BrushNode* excludeBrush,
+  const vm::segment3d& segment)
+{
+  auto eligibleNodes =
+    nodes | std::views::filter([&](const auto* node) { return node != excludeBrush; });
+
+  return std::ranges::any_of(eligibleNodes, [&](const auto* node) {
+    return node->accept(kdl::overload(
+      [](const mdl::WorldNode&) { return false; },
+      [](const mdl::LayerNode&) { return false; },
+      [](const mdl::GroupNode&) { return false; },
+      [](const mdl::EntityNode&) { return false; },
+      [&](const mdl::BrushNode& brushNode) {
+        return std::ranges::any_of(brushNode.brush().edges(), [&](const auto* edge) {
+          return vm::segments_overlap(segment, edge->segment(), vm::Cd::almost_zero());
+        });
+      },
+      [](const mdl::PatchNode&) { return false; }));
+  });
+}
+
+/**
  * Returns the horizon edge, if any, that should override the given direct brush face hit.
- * Of the given candidates, picks the closest one and defers to preferEdgeHandle to decide
- * whether it should win.
+ * A single nearby horizon edge is never enough on its own -- it is only eligible if it is
+ * within the full handle radius *and* some other brush has a plain edge that is collinear
+ * with, and genuinely overlaps, it. This is the geometric signature of two separate
+ * brushes meeting flush at a seam, which is what makes the touching-face feature possible
+ * in the first place; a face's own distinct edges merely clustering near the cursor does
+ * not qualify, since they all belong to the same brush. Of the eligible edges, the
+ * closest one still has to win out over a closer, non-adjacent occluding face.
  */
 std::optional<EdgeInfo> selectOverridingEdge(
+  const std::vector<mdl::Node*>& nodes,
   const gl::Camera& camera,
   const vm::ray3d& pickRay,
   const std::vector<EdgeInfo>& edgeInfos,
   const mdl::Hit& faceHit)
 {
-  const auto closest = std::ranges::min_element(edgeInfos);
-  return closest != edgeInfos.end()
-             && preferEdgeHandle(camera, pickRay, *closest, faceHit)
-           ? std::optional{*closest}
-           : std::nullopt;
+  auto eligible = edgeInfos | std::views::filter([&](const auto& edgeInfo) {
+                    return camera.pickLineSegmentHandle(
+                             pickRay, edgeInfo.segment, pref(Preferences::HandleRadius))
+                           && hasOverlappingEdgeInOtherBrush(
+                             nodes, edgeInfo.leftFaceHandle.node(), edgeInfo.segment);
+                  });
+
+  if (eligible.empty())
+  {
+    return std::nullopt;
+  }
+
+  const auto& winner = *std::ranges::min_element(eligible);
+  return edgeHandleWinsOverFace(camera, pickRay, winner, faceHit) ? std::optional{winner}
+                                                                  : std::nullopt;
 }
 
 std::vector<ExtrudeDragHandle> getDragHandles(
@@ -560,8 +607,10 @@ mdl::Hit ExtrudeTool::pick2D(
   if (hit.isMatch())
   {
     // The cursor is over a brush face. Only engage if a horizon edge handle is grabbed.
-    const auto edgeInfos = findHorizonEdges(m_document.map().selection().nodes, pickRay);
-    if (const auto edgeInfo = selectOverridingEdge(camera, pickRay, edgeInfos, hit))
+    const auto& nodes = m_document.map().selection().nodes;
+    const auto edgeInfos = findHorizonEdges(nodes, pickRay);
+    if (
+      const auto edgeInfo = selectOverridingEdge(nodes, camera, pickRay, edgeInfos, hit))
     {
       return makeEdgeHit(*edgeInfo);
     }
@@ -611,8 +660,10 @@ mdl::Hit ExtrudeTool::pick3D(
   if (faceHandle)
   {
     // The cursor is over a brush face. Prefer it unless a horizon edge handle is grabbed.
-    const auto edgeInfos = findHorizonEdges(m_document.map().selection().nodes, pickRay);
-    if (const auto edgeInfo = selectOverridingEdge(camera, pickRay, edgeInfos, hit))
+    const auto& nodes = m_document.map().selection().nodes;
+    const auto edgeInfos = findHorizonEdges(nodes, pickRay);
+    if (
+      const auto edgeInfo = selectOverridingEdge(nodes, camera, pickRay, edgeInfos, hit))
     {
       return makeEdgeHit(*edgeInfo);
     }

@@ -478,6 +478,76 @@ TEST_CASE("ExtrudeTool")
       UnorderedRangeEquals(std::vector<vm::vec3d>{{1, 0, 0}, {-1, 0, 0}}));
   }
 
+  SECTION("A single brush's own edge does not override its adjacent face")
+  {
+    using namespace mdl::HitFilters;
+
+    auto& document = fixture.create();
+    auto& map = document.map();
+
+    auto tool = ExtrudeTool{document};
+
+    auto builder = mdl::BrushBuilder{map.worldNode().mapFormat(), map.worldBounds()};
+
+    // A single brush with no touching neighbor. Its own top/+Y edge is still a horizon
+    // edge for this ray (top face visible, +Y face back facing) and is within the handle
+    // radius of the seam's top edge -- the same ray used in "edge handle wins over the
+    // adjacent face it shares" above, which does have a touching backBrush. With no other
+    // brush to prove this is a genuine touching seam, the face must win instead of the
+    // edge.
+    auto* frontBrush = new mdl::BrushNode{
+      builder.createCuboid(vm::bbox3d{{-16, -16, -16}, {16, 16, 16}}, "material")
+      | kdl::value()};
+
+    addNodes(map, {{map.editorContext().currentLayer(), {frontBrush}}});
+    selectNodes(map, {frontBrush});
+
+    const auto pickRay = vm::ray3d{{0, -556, 586}, vm::normalize(vm::vec3d{0, 1, -1})};
+
+    const auto pickResult = performPick(map, tool, pickRay);
+
+    const auto extrudeHit = pickResult.first(type(ExtrudeTool::ExtrudeHitType));
+    CHECK(
+      extrudeHit.target<ExtrudeHitData>().face
+      == mdl::BrushFaceHandle{
+        frontBrush, *frontBrush->brush().findFace(vm::vec3d{0, 0, 1})});
+  }
+
+  SECTION("A non-collinear edge of a different touching brush does not override the face")
+  {
+    using namespace mdl::HitFilters;
+
+    auto& document = fixture.create();
+    auto& map = document.map();
+
+    auto tool = ExtrudeTool{document};
+
+    auto builder = mdl::BrushBuilder{map.worldNode().mapFormat(), map.worldBounds()};
+
+    auto* frontBrush = new mdl::BrushNode{
+      builder.createCuboid(vm::bbox3d{{-16, -16, -16}, {16, 16, 16}}, "material")
+      | kdl::value()};
+
+    // Touches frontBrush's +X face, at a right angle to the +Y seam edge under test, so
+    // its edges are not collinear with it and cannot prove that edge is a genuine seam.
+    auto* sideBrush = new mdl::BrushNode{
+      builder.createCuboid(vm::bbox3d{{16, -16, -16}, {48, 16, 16}}, "material")
+      | kdl::value()};
+
+    addNodes(map, {{map.editorContext().currentLayer(), {frontBrush, sideBrush}}});
+    selectNodes(map, {frontBrush, sideBrush});
+
+    const auto pickRay = vm::ray3d{{0, -556, 586}, vm::normalize(vm::vec3d{0, 1, -1})};
+
+    const auto pickResult = performPick(map, tool, pickRay);
+
+    const auto extrudeHit = pickResult.first(type(ExtrudeTool::ExtrudeHitType));
+    CHECK(
+      extrudeHit.target<ExtrudeHitData>().face
+      == mdl::BrushFaceHandle{
+        frontBrush, *frontBrush->brush().findFace(vm::vec3d{0, 0, 1})});
+  }
+
   SECTION("findDragFaces")
   {
     // https://github.com/TrenchBroom/TrenchBroom/issues/3726
