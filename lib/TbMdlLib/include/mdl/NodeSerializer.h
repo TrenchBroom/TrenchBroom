@@ -119,7 +119,7 @@ public:
     const Node& node,
     const std::vector<EntityProperty>& properties,
     const std::vector<EntityProperty>& parentProperties,
-    const std::vector<BrushNode*>& entityBrushes);
+    const std::vector<Node*>& children);
 
 private:
   void beginEntity(
@@ -132,9 +132,7 @@ private:
   void entityProperties(const std::vector<EntityProperty>& properties);
   void entityProperty(const EntityProperty& property);
 
-  void brushes(const std::vector<BrushNode*>& brushNodes);
   void brush(const BrushNode& brushNode);
-
   void patch(const PatchNode& patchNode);
 
 public:

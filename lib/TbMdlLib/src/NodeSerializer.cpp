@@ -233,12 +233,23 @@ void NodeSerializer::entity(
   const Node& node,
   const std::vector<EntityProperty>& properties,
   const std::vector<EntityProperty>& extraProperties,
-  const std::vector<BrushNode*>& entityBrushes)
+  const std::vector<Node*>& children)
 {
   if (!shouldStripEntity(properties, m_stripEntityPattern))
   {
     beginEntity(node, properties, extraProperties);
-    brushes(entityBrushes);
+
+    for (const auto* child : children)
+    {
+      child->accept(kdl::overload(
+        [](const WorldNode&) {},
+        [](const LayerNode&) {},
+        [](const GroupNode&) {},
+        [](const EntityNode&) {},
+        [&](const BrushNode& brushNode) { brush(brushNode); },
+        [&](const PatchNode& patchNode) { patch(patchNode); }));
+    }
+
     endEntity(node);
   }
 }
@@ -280,14 +291,6 @@ void NodeSerializer::entityProperty(const EntityProperty& property)
     || !kdl::cs::str_is_prefix(property.key(), EntityPropertyKeys::TbPrefix))
   {
     doEntityProperty(property);
-  }
-}
-
-void NodeSerializer::brushes(const std::vector<BrushNode*>& brushNodes)
-{
-  for (auto* brushNode : brushNodes)
-  {
-    brush(*brushNode);
   }
 }
 
