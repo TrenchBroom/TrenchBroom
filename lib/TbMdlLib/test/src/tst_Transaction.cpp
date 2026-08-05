@@ -46,7 +46,7 @@ TEST_CASE("Transaction")
   auto transaction = Transaction{map};
   CHECK(transaction.state() == Transaction::State::Running);
 
-  addNodes(map, {{parentForNodes(map), {entityNode}}});
+  addNodes(map, {{&parentForNodes(map), {entityNode}}});
   selectNodes(map, {entityNode});
   transformSelection(map, "translate", vm::translation_matrix(vm::vec3d{1, 0, 0}));
 

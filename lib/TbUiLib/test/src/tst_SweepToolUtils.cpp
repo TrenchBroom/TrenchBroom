@@ -223,7 +223,7 @@ TEST_CASE("generateSweepBrushes")
   auto& document = fixture.create();
   auto& map = document.map();
 
-  auto* defaultParent = parentForNodes(map);
+  auto& defaultParent = parentForNodes(map);
 
   const auto squareAt = [](const double x) {
     return vm::polygon3d{
@@ -235,7 +235,7 @@ TEST_CASE("generateSweepBrushes")
   };
 
   auto source = SweepSource{
-    {SweepFace{squareAt(0.0), defaultParent}},
+    {SweepFace{squareAt(0.0), &defaultParent}},
     vm::vec3d{0, 0, 0},
     vm::vec3d{1, 0, 0},
     vm::vec3d{0, 16, 16},
@@ -251,7 +251,7 @@ TEST_CASE("generateSweepBrushes")
     const auto result = generateSweepBrushes(map, source, transform, parameters);
     REQUIRE(result.size() == 1);
 
-    const auto& brushes = result.at(defaultParent);
+    const auto& brushes = result.at(&defaultParent);
     REQUIRE(brushes.size() == 4);
     CHECK(brushes[0]->logicalBounds() == vm::bbox3d{{0, -16, -16}, {16, 16, 16}});
     CHECK(brushes[3]->logicalBounds() == vm::bbox3d{{48, -16, -16}, {64, 16, 16}});
@@ -265,7 +265,7 @@ TEST_CASE("generateSweepBrushes")
 
     const auto result = generateSweepBrushes(map, source, transform, parameters);
 
-    const auto& brushes = result.at(defaultParent);
+    const auto& brushes = result.at(&defaultParent);
     REQUIRE(brushes.size() == 4);
     CHECK(brushes[3]->logicalBounds() == vm::bbox3d{{96, -16, -16}, {128, 16, 16}});
   }
@@ -273,7 +273,7 @@ TEST_CASE("generateSweepBrushes")
   SECTION("groups the brushes by the parent of their source face")
   {
     auto* entityNode = new mdl::EntityNode{mdl::Entity{}};
-    addNodes(map, {{defaultParent, {entityNode}}});
+    addNodes(map, {{&defaultParent, {entityNode}}});
 
     source.faces = {
       SweepFace{squareAt(0.0), entityNode},
@@ -286,12 +286,12 @@ TEST_CASE("generateSweepBrushes")
     REQUIRE(result.size() == 2);
     CHECK(result.at(entityNode).size() == 2);
     // a face without a parent falls back to the map's default insertion parent
-    CHECK(result.at(defaultParent).size() == 2);
+    CHECK(result.at(&defaultParent).size() == 2);
   }
 
   SECTION("integer alignment keeps the source station exact and rounds the rest")
   {
-    source.faces = {SweepFace{squareAt(0.25), defaultParent}};
+    source.faces = {SweepFace{squareAt(0.25), &defaultParent}};
     source.center = vm::vec3d{0.25, 0, 0};
     transform.translation = vm::vec3d{16, 0, 0};
     parameters.segments = 2;
@@ -300,7 +300,7 @@ TEST_CASE("generateSweepBrushes")
     // the stations sit at x = 0.25 (exact), round(8.25) = 8 and round(16.25) = 16
     const auto result = generateSweepBrushes(map, source, transform, parameters);
 
-    const auto& brushes = result.at(defaultParent);
+    const auto& brushes = result.at(&defaultParent);
     REQUIRE(brushes.size() == 2);
     CHECK(brushes[0]->logicalBounds() == vm::bbox3d{{0.25, -16, -16}, {8, 16, 16}});
     CHECK(brushes[1]->logicalBounds() == vm::bbox3d{{8, -16, -16}, {16, 16, 16}});
@@ -317,7 +317,7 @@ TEST_CASE("generateSweepBrushes")
 
     const auto result = generateSweepBrushes(map, source, transform, parameters);
 
-    const auto& brushes = result.at(defaultParent);
+    const auto& brushes = result.at(&defaultParent);
     REQUIRE(brushes.size() == 2);
     CHECK(brushes[0]->logicalBounds() == vm::bbox3d{{0, -16, -16}, {16, 16, 16}});
     CHECK(brushes[1]->logicalBounds() == vm::bbox3d{{16, -16, -16}, {31, 16, 16}});
@@ -332,7 +332,7 @@ TEST_CASE("generateSweepBrushes")
     // rounding collapses the second segment: the stations sit at x = 0, 1 and 1
     const auto result = generateSweepBrushes(map, source, transform, parameters);
 
-    const auto& brushes = result.at(defaultParent);
+    const auto& brushes = result.at(&defaultParent);
     REQUIRE(brushes.size() == 1);
     CHECK(brushes[0]->logicalBounds() == vm::bbox3d{{0, -16, -16}, {1, 16, 16}});
   }

@@ -36,6 +36,7 @@
 #include "mdl/WorldNode.h"
 
 #include "kd/contracts.h"
+#include "kd/overload.h"
 #include "kd/string_utils.h"
 
 namespace tb::mdl
@@ -109,7 +110,7 @@ EntityNode* createPointEntity(
 
   auto transaction = Transaction{map, "Create " + definition.name};
   deselectAll(map);
-  if (addNodes(map, {{parentForNodes(map), {entityNode}}}).empty())
+  if (addNodes(map, {{&parentForNodes(map), {entityNode}}}).empty())
   {
     transaction.cancel();
     return nullptr;
@@ -132,19 +133,21 @@ EntityNode* createPointEntity(
 EntityNode* createBrushEntity(Map& map, const EntityDefinition& definition)
 {
   contract_pre(getType(definition) == EntityDefinitionType::Brush);
+  contract_pre(map.selection().hasOnlyGeometryNodes());
 
-  const auto brushes = map.selection().brushes;
-  contract_assert(!brushes.empty());
+  const auto nodes = map.selection().nodes;
+  contract_assert(!nodes.empty());
 
-  // if all brushes belong to the same entity, and that entity is not worldspawn, copy
+  // if all nodes belong to the same entity, and that entity is not worldspawn, copy
   // its properties
+  const auto* containingEntity = findContainingEntity(nodes.front());
   auto entity =
-    (brushes.front()->entity() != &map.worldNode()
+    (containingEntity && containingEntity != &map.worldNode()
      && std::all_of(
-       std::next(brushes.begin()),
-       brushes.end(),
-       [&](const auto* brush) { return brush->entity() == brushes.front()->entity(); }))
-      ? brushes.front()->entity()->entity()
+       std::next(nodes.begin()),
+       nodes.end(),
+       [&](const auto* node) { return findContainingEntity(node) == containingEntity; }))
+      ? containingEntity->entity()
       : Entity{};
 
   entity.addOrUpdateProperty(EntityPropertyKeys::Classname, definition.name);
@@ -156,11 +159,9 @@ EntityNode* createBrushEntity(Map& map, const EntityDefinition& definition)
 
   auto* entityNode = new EntityNode{std::move(entity)};
 
-  const auto nodes = kdl::vec_static_cast<Node*>(brushes);
-
   auto transaction = Transaction{map, "Create " + definition.name};
   deselectAll(map);
-  if (addNodes(map, {{parentForNodes(map), {entityNode}}}).empty())
+  if (addNodes(map, {{&parentForNodes(map), {entityNode}}}).empty())
   {
     transaction.cancel();
     return nullptr;

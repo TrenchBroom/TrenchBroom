@@ -82,7 +82,7 @@ TEST_CASE("Map_EntityLinks")
       {Targetname, "some_value"},
     }}};
 
-    addNodes(map, {{parentForNodes(map), {sourceNode, targetNode}}});
+    addNodes(map, {{&parentForNodes(map), {sourceNode, targetNode}}});
     CHECK(map.entityLinkManager().hasLink(*sourceNode, *targetNode, Target));
   }
 
@@ -98,7 +98,7 @@ TEST_CASE("Map_EntityLinks")
       {Targetname, "some_value"},
     }}};
 
-    addNodes(map, {{parentForNodes(map), {sourceNode, targetNode}}});
+    addNodes(map, {{&parentForNodes(map), {sourceNode, targetNode}}});
     REQUIRE(map.entityLinkManager().hasLink(*sourceNode, *targetNode, Target));
 
     SECTION("Remove source node")
@@ -128,7 +128,7 @@ TEST_CASE("Map_EntityLinks")
         {Targetname, "some_value"},
       }}};
 
-      addNodes(map, {{parentForNodes(map), {sourceNode, targetNode}}});
+      addNodes(map, {{&parentForNodes(map), {sourceNode, targetNode}}});
       REQUIRE(map.entityLinkManager().hasLink(*sourceNode, *targetNode, Target));
 
       SECTION("Change source classname")
@@ -172,7 +172,7 @@ TEST_CASE("Map_EntityLinks")
         {Targetname, "some_value"},
       }}};
 
-      addNodes(map, {{parentForNodes(map), {sourceNode, targetNode}}});
+      addNodes(map, {{&parentForNodes(map), {sourceNode, targetNode}}});
       REQUIRE(!map.entityLinkManager().hasLink(*sourceNode, *targetNode, Target));
 
       SECTION("Change source classname, then target classname")
@@ -210,7 +210,7 @@ TEST_CASE("Map_EntityLinks")
       {Classname, targetClassname},
     }}};
 
-    addNodes(map, {{parentForNodes(map), {sourceNode, targetNode}}});
+    addNodes(map, {{&parentForNodes(map), {sourceNode, targetNode}}});
     REQUIRE(!map.entityLinkManager().hasLink(*sourceNode, *targetNode, Target));
 
     SECTION("First set target, then targetname")
@@ -250,7 +250,7 @@ TEST_CASE("Map_EntityLinks")
       {Targetname, "some_value"},
     }}};
 
-    addNodes(map, {{parentForNodes(map), {sourceNode, targetNode}}});
+    addNodes(map, {{&parentForNodes(map), {sourceNode, targetNode}}});
     REQUIRE(map.entityLinkManager().hasLink(*sourceNode, *targetNode, Target));
 
     SECTION("Unset target property")
@@ -283,7 +283,7 @@ TEST_CASE("Map_EntityLinks")
     auto* sourceGroupNode = new GroupNode{mdl::Group{"source"}};
     sourceGroupNode->addChild(sourceNode);
 
-    addNodes(map, {{parentForNodes(map), {sourceGroupNode, targetNode}}});
+    addNodes(map, {{&parentForNodes(map), {sourceGroupNode, targetNode}}});
 
     SECTION("Adding a grouped node adds links")
     {

@@ -111,7 +111,7 @@ TEST_CASE("EntityPropertyModel")
   mdl::addNodes(
     map,
     {
-      {mdl::parentForNodes(map),
+      {&mdl::parentForNodes(map),
        {
          entityNode1,
          entityNode2,
@@ -434,7 +434,7 @@ TEST_CASE("EntityPropertyModel")
       mdl::addNodes(
         map,
         {{
-          mdl::parentForNodes(map),
+          &mdl::parentForNodes(map),
           {literalKeyEntityNode, wildcardMatchedEntityNode},
         }});
 

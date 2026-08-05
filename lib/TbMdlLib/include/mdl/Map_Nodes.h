@@ -28,6 +28,7 @@ namespace tb::mdl
 class GroupNode;
 class Map;
 class Node;
+class TagMatcherCallback;
 
 /**
  * Suggests a parent to use for new nodes.
@@ -37,13 +38,44 @@ class Node;
  *
  * Otherwise, returns the current group if one is open, otherwise the current layer.
  */
-Node* parentForNodes(const Map& map, const std::vector<Node*>& nodes = {});
+Node& parentForNodes(const Map& map, const std::vector<Node*>& nodes = {});
 
 std::vector<Node*> addNodes(Map& map, const std::map<Node*, std::vector<Node*>>& nodes);
 
 void duplicateSelectedNodes(Map& map);
 
 bool reparentNodes(Map& map, const std::map<Node*, std::vector<Node*>>& nodesToAdd);
+
+/**
+ * Returns whether nodes is non-empty, consists solely of geometry nodes (brush or
+ * patch nodes), and at least one of them is not structural (see makeStructural).
+ */
+bool canMakeStructural(const Map& map, const std::vector<Node*>& nodes);
+
+/**
+ * Makes every geometry node (brush or patch node) in nodes structural: moves it out of
+ * any owning entity node (to the group/layer that would otherwise contain it, via
+ * parentForNodes), and disables every smart tag currently matching it (and, for
+ * brushes, matching any of its faces).
+ *
+ * Non-geometry nodes in nodes are ignored, not rejected.
+ *
+ * Returns false without committing a transaction if nodes contains no geometry nodes,
+ * or if none of them needed any change.
+ */
+bool makeStructural(
+  Map& map, const std::vector<Node*>& nodes, TagMatcherCallback& callback);
+
+/**
+ * Moves every geometry node (brush or patch node) in nodes to become a child of
+ * newParent. Nodes already parented under newParent are skipped. Non-geometry nodes in
+ * nodes are ignored.
+ *
+ * Deselects all nodes beforehand and selects the moved nodes on success.
+ *
+ * Returns false without committing a transaction if no node ended up being moved.
+ */
+bool moveToEntity(Map& map, const std::vector<Node*>& nodes, Node& newParent);
 
 void removeNodes(Map& map, const std::vector<Node*>& nodes);
 void removeSelectedNodes(Map& map);

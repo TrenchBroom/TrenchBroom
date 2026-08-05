@@ -75,6 +75,7 @@ public:
   bool hasOnlyBrushes() const;
   bool hasPatches() const;
   bool hasOnlyPatches() const;
+  bool hasOnlyGeometryNodes() const;
   bool hasBrushFaces() const;
   bool hasAnyBrushFaces() const;
 

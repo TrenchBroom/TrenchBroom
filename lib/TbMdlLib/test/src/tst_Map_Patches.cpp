@@ -17,6 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "mdl/BezierPatch.h"
 #include "mdl/BrushBuilder.h"
 #include "mdl/BrushFaceHandle.h"
 #include "mdl/BrushNode.h"
@@ -56,7 +57,7 @@ TEST_CASE("Map_Patches")
 
     const auto builder = BrushBuilder{map.worldNode().mapFormat(), map.worldBounds()};
     auto* brushNode = new BrushNode{builder.createCube(64.0, "material") | kdl::value()};
-    addNodes(map, {{parentForNodes(map), {brushNode}}});
+    addNodes(map, {{&parentForNodes(map), {brushNode}}});
 
     const auto firstFaceIndex = brushNode->brush().findFace(vm::vec3d{0, 0, 1});
     const auto secondFaceIndex = brushNode->brush().findFace(vm::vec3d{1, 0, 0});
@@ -93,7 +94,7 @@ TEST_CASE("Map_Patches")
     GIVEN("No patches are selected")
     {
       auto* patchNode = createPatchNode();
-      addNodes(map, {{parentForNodes(map), {patchNode}}});
+      addNodes(map, {{&parentForNodes(map), {patchNode}}});
 
       const auto originalControlPoints = patchNode->patch().controlPoints();
 
@@ -112,7 +113,7 @@ TEST_CASE("Map_Patches")
     {
       auto* patchNode1 = createPatchNode();
       auto* patchNode2 = createPatchNode();
-      addNodes(map, {{parentForNodes(map), {patchNode1, patchNode2}}});
+      addNodes(map, {{&parentForNodes(map), {patchNode1, patchNode2}}});
       selectNodes(map, {patchNode1});
 
       const auto patch2OriginalControlPoints = patchNode2->patch().controlPoints();
@@ -135,7 +136,7 @@ TEST_CASE("Map_Patches")
     {
       auto* patchNode1 = createPatchNode();
       auto* patchNode2 = createPatchNode();
-      addNodes(map, {{parentForNodes(map), {patchNode1, patchNode2}}});
+      addNodes(map, {{&parentForNodes(map), {patchNode1, patchNode2}}});
       selectNodes(map, {patchNode1, patchNode2});
 
       WHEN("The patches are resampled")
@@ -187,7 +188,7 @@ TEST_CASE("Map_Patches")
     {
       auto* patchNode1 = createPatchNode();
       auto* patchNode2 = createPatchNode();
-      addNodes(map, {{parentForNodes(map), {patchNode1, patchNode2}}});
+      addNodes(map, {{&parentForNodes(map), {patchNode1, patchNode2}}});
       selectNodes(map, {patchNode1, patchNode2});
 
       const auto patch1OriginalControlPoints = patchNode1->patch().controlPoints();
@@ -222,7 +223,7 @@ TEST_CASE("Map_Patches")
       }, "material"}};
       // clang-format on
 
-      addNodes(map, {{parentForNodes(map), {patchNode1, patchNode2}}});
+      addNodes(map, {{&parentForNodes(map), {patchNode1, patchNode2}}});
       selectNodes(map, {patchNode1, patchNode2});
 
       const auto patch2OriginalControlPoints = patchNode2->patch().controlPoints();
@@ -248,7 +249,7 @@ TEST_CASE("Map_Patches")
     {
       auto* patchNode1 = createPatchNode();
       auto* patchNode2 = createPatchNode();
-      addNodes(map, {{parentForNodes(map), {patchNode1, patchNode2}}});
+      addNodes(map, {{&parentForNodes(map), {patchNode1, patchNode2}}});
       selectNodes(map, {patchNode1, patchNode2});
 
       WHEN("Control points are transformed")
@@ -290,6 +291,39 @@ TEST_CASE("Map_Patches")
           }
         }
       }
+    }
+  }
+
+  SECTION("setPatchMaterial")
+  {
+    auto& map = fixture.create();
+
+    SECTION("Sets the material of a selected patch")
+    {
+      auto* patchNode = createPatchNode("some_material");
+      addNodes(map, {{&parentForNodes(map), {patchNode}}});
+      selectNodes(map, {patchNode});
+
+      CHECK(setPatchMaterial(map, "new_material"));
+      CHECK(patchNode->patch().materialName() == "new_material");
+
+      SECTION("Undo and redo")
+      {
+        map.undoCommand();
+        CHECK(patchNode->patch().materialName() == "some_material");
+
+        map.redoCommand();
+        CHECK(patchNode->patch().materialName() == "new_material");
+      }
+    }
+
+    SECTION("Does nothing when nothing is selected")
+    {
+      auto* patchNode = createPatchNode("some_material");
+      addNodes(map, {{&parentForNodes(map), {patchNode}}});
+
+      CHECK(setPatchMaterial(map, "new_material"));
+      CHECK(patchNode->patch().materialName() == "some_material");
     }
   }
 }

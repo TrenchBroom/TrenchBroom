@@ -75,7 +75,7 @@ TEST_CASE("SelectionTool")
       auto* entityNode = new mdl::EntityNode{mdl::Entity{{{"origin", "64 0 0"}}}};
       auto* groupNode = new mdl::GroupNode(mdl::Group{"some_group"});
 
-      addNodes(map, {{parentForNodes(map), {groupNode}}});
+      addNodes(map, {{&parentForNodes(map), {groupNode}}});
       addNodes(map, {{groupNode, {brushNode, entityNode}}});
 
       auto camera = gl::OrthographicCamera{};
@@ -144,7 +144,7 @@ TEST_CASE("SelectionTool")
 
       auto* entityNode = new mdl::EntityNode{mdl::Entity{{{"origin", "64 0 0"}}}};
 
-      addNodes(map, {{parentForNodes(map), {brushNode, entityNode}}});
+      addNodes(map, {{&parentForNodes(map), {brushNode, entityNode}}});
 
       auto camera = gl::OrthographicCamera{};
 
@@ -336,7 +336,7 @@ TEST_CASE("SelectionTool")
               | kdl::value();
 
             auto* coplanarBrushNode = new mdl::BrushNode{std::move(coplanarBrush)};
-            addNodes(map, {{parentForNodes(map), {coplanarBrushNode}}});
+            addNodes(map, {{&parentForNodes(map), {coplanarBrushNode}}});
 
             const auto coplanarTopFaceIndex =
               *coplanarBrushNode->brush().findFace("top_face");
@@ -557,7 +557,7 @@ TEST_CASE("SelectionTool")
       auto* hiddenBrushNode = new mdl::BrushNode{std::move(hiddenBrush)};
       const auto hiddenTopFaceIndex = *hiddenBrushNode->brush().findFace("top_face");
 
-      addNodes(map, {{parentForNodes(map), {visibleBrushNode, hiddenBrushNode}}});
+      addNodes(map, {{&parentForNodes(map), {visibleBrushNode, hiddenBrushNode}}});
 
       const auto hiddenTag = mdl::Tag{"hidden", {}};
       auto taggedBrush = hiddenBrushNode->brush();

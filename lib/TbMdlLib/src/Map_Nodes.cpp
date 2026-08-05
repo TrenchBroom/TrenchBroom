@@ -41,6 +41,7 @@
 #include "mdl/ReparentNodesCommand.h"
 #include "mdl/SetLinkIdsCommand.h"
 #include "mdl/SwapNodeContentsCommand.h"
+#include "mdl/Tag.h"
 #include "mdl/Transaction.h"
 #include "mdl/VisualEffect.h"
 #include "mdl/WorldNode.h"
@@ -49,6 +50,10 @@
 #include "kd/overload.h"
 #include "kd/ranges/concat_view.h"
 #include "kd/ranges/to.h"
+#include "kd/string_format.h"
+
+#include <algorithm>
+#include <ranges>
 
 namespace tb::mdl
 {
@@ -241,30 +246,60 @@ auto collectRemovableParents(const std::map<Node*, std::vector<Node*>>& nodes)
   return result;
 }
 
+bool isGeometryNode(const Node& node)
+{
+  return node.accept(kdl::overload(
+    [](const WorldNode&) { return false; },
+    [](const LayerNode&) { return false; },
+    [](const GroupNode&) { return false; },
+    [](const EntityNode&) { return false; },
+    [](const BrushNode&) { return true; },
+    [](const PatchNode&) { return true; }));
+}
+
+bool isStructural(const Map& map, const Node& node)
+{
+  return node.accept(kdl::overload(
+    [](const WorldNode&) { return false; },
+    [](const LayerNode&) { return false; },
+    [](const GroupNode&) { return false; },
+    [](const EntityNode&) { return false; },
+    [&](const BrushNode& brushNode) {
+      return brushNode.entity() == &map.worldNode() && !brushNode.hasAnyTag()
+             && !brushNode.anyFaceHasAnyTag();
+    },
+    [&](const PatchNode& patchNode) {
+      return patchNode.entity() == &map.worldNode() && !patchNode.hasAnyTag();
+    }));
+}
+
 } // namespace
 
-Node* parentForNodes(const Map& map, const std::vector<Node*>& nodes)
+Node& parentForNodes(const Map& map, const std::vector<Node*>& nodes)
 {
   if (nodes.empty())
   {
     // No reference nodes, so return either the current group (if open) or current layer
-    auto* result = static_cast<Node*>(map.editorContext().currentGroup());
-    if (!result)
+    if (auto* currentGroup = map.editorContext().currentGroup())
     {
-      result = map.editorContext().currentLayer();
+      return *currentGroup;
     }
-    return result;
+
+    auto* currentLayer = map.editorContext().currentLayer();
+    contract_post(currentLayer != nullptr);
+
+    return *currentLayer;
   }
 
   if (auto* parentGroup = findContainingGroup(nodes.at(0)))
   {
-    return parentGroup;
+    return *parentGroup;
   }
 
   auto* parentLayer = findContainingLayer(nodes.at(0));
   contract_post(parentLayer != nullptr);
 
-  return parentLayer;
+  return *parentLayer;
 }
 
 std::vector<Node*> addNodes(Map& map, const std::map<Node*, std::vector<Node*>>& nodes)
@@ -305,7 +340,7 @@ void duplicateSelectedNodes(Map& map)
 
   for (auto* original : map.selection().nodes)
   {
-    auto* suggestedParent = parentForNodes(map, {original});
+    auto& suggestedParent = parentForNodes(map, {original});
     auto* clone = original->cloneRecursively(map.worldBounds());
 
     if (shouldCloneParentWhenCloningNode(original))
@@ -324,7 +359,7 @@ void duplicateSelectedNodes(Map& map)
         // parent was not cloned yet
         newParent = originalParent->clone(map.worldBounds());
         newParentMap.emplace(originalParent, newParent);
-        nodesToAdd[suggestedParent].push_back(newParent);
+        nodesToAdd[&suggestedParent].push_back(newParent);
       }
 
       // hierarchy will look like (parent -> child): suggestedParent -> newParent -> clone
@@ -332,7 +367,7 @@ void duplicateSelectedNodes(Map& map)
     }
     else
     {
-      nodesToAdd[suggestedParent].push_back(clone);
+      nodesToAdd[&suggestedParent].push_back(clone);
     }
 
     nodesToSelect.push_back(clone);
@@ -428,6 +463,113 @@ bool reparentNodes(Map& map, const std::map<Node*, std::vector<Node*>>& nodesToA
     removableNodes = collectRemovableParents(removableNodes);
   }
 
+  return transaction.commit();
+}
+
+bool canMakeStructural(const Map& map, const std::vector<Node*>& nodes)
+{
+  return !nodes.empty() && std::ranges::all_of(nodes, [](const Node* node) {
+    return isGeometryNode(*node);
+  }) && std::ranges::any_of(nodes, [&](const Node* node) {
+    return !isStructural(map, *node);
+  });
+}
+
+bool makeStructural(
+  Map& map, const std::vector<Node*>& nodes, TagMatcherCallback& callback)
+{
+  const auto geometryNodes =
+    nodes | std::views::filter([](const Node* node) { return isGeometryNode(*node); })
+    | kdl::ranges::to<std::vector>();
+
+  if (geometryNodes.empty())
+  {
+    return false;
+  }
+
+  const auto toReparent = geometryNodes | std::views::filter([&](const Node* node) {
+                            return findContainingEntity(node) != &map.worldNode();
+                          })
+                          | kdl::ranges::to<std::vector>();
+
+  auto transaction = Transaction{map, "Make Structural"};
+
+  // Deselect before reparenting: reparenting toReparent's nodes out of their owning
+  // entities can delete those entities if they become empty, and deleting a node that
+  // is still selected desyncs the parent chain's child/descendant selection counts.
+  // (Reselecting geometryNodes below also ensures SmartTag::disable, which operates on
+  // the map's current selection rather than on a node passed explicitly, sees the right
+  // set for the tag checks that follow.)
+  deselectAll(map);
+
+  if (!toReparent.empty())
+  {
+    if (!reparentNodes(map, {{&parentForNodes(map, toReparent), toReparent}}))
+    {
+      transaction.cancel();
+      return false;
+    }
+  }
+
+  selectNodes(map, geometryNodes);
+
+  const auto hasTag = [&](const Node* node, const SmartTag& tag) {
+    return node->accept(kdl::overload(
+      [](const WorldNode&) { return false; },
+      [](const LayerNode&) { return false; },
+      [](const GroupNode&) { return false; },
+      [](const EntityNode&) { return false; },
+      [&](const BrushNode& brushNode) {
+        return brushNode.hasTag(tag) || brushNode.anyFacesHaveAnyTagInMask(tag.type());
+      },
+      [&](const PatchNode& patchNode) { return patchNode.hasTag(tag); }));
+  };
+
+  auto anyTagDisabled = false;
+  for (const auto& tag : map.smartTags())
+  {
+    if (std::ranges::any_of(
+          geometryNodes, [&](const Node* node) { return hasTag(node, tag); }))
+    {
+      anyTagDisabled = true;
+      tag.disable(callback, map);
+    }
+  }
+
+  if (!anyTagDisabled && toReparent.empty())
+  {
+    transaction.cancel();
+    return false;
+  }
+
+  return transaction.commit();
+}
+
+bool moveToEntity(Map& map, const std::vector<Node*>& nodes, Node& newParent)
+{
+  const auto nodesToMove =
+    nodes | std::views::filter([](const Node* node) { return isGeometryNode(*node); })
+    | std::views::filter([&](const Node* node) {
+        return &newParent != node && &newParent != node->parent();
+      })
+    | kdl::ranges::to<std::vector>();
+
+  if (nodesToMove.empty())
+  {
+    return false;
+  }
+
+  auto transaction =
+    Transaction{map, "Move " + kdl::str_plural(nodesToMove.size(), "Object", "Objects")};
+
+  deselectAll(map);
+  if (!reparentNodes(map, {{&newParent, nodesToMove}}))
+  {
+    transaction.cancel();
+    return false;
+  }
+
+  selectNodes(map, nodesToMove);
   return transaction.commit();
 }
 

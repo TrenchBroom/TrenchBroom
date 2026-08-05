@@ -140,7 +140,7 @@ TEST_CASE("UpdateLinkedGroupsHelper")
     auto* linkedNode =
       static_cast<GroupNode*>(groupNode->cloneRecursively(map.worldBounds()));
 
-    addNodes(map, {{parentForNodes(map), {groupNode, linkedNode}}});
+    addNodes(map, {{&parentForNodes(map), {groupNode, linkedNode}}});
 
     SECTION("Helper takes ownership of replaced child nodes")
     {
@@ -188,7 +188,7 @@ TEST_CASE("UpdateLinkedGroupsHelper")
         linkedBrushNode->physicalBounds()
         == brushNode->physicalBounds().translate(vm::vec3d(32.0, 0.0, 0.0)));
 
-      addNodes(map, {{parentForNodes(map), {groupNode, linkedGroupNode}}});
+      addNodes(map, {{&parentForNodes(map), {groupNode, linkedGroupNode}}});
 
       /*
       world
@@ -270,7 +270,7 @@ TEST_CASE("UpdateLinkedGroupsHelper")
       innerGroupNode->addChild(brushNode);
       outerGroupNode->addChild(innerGroupNode);
 
-      addNodes(map, {{parentForNodes(map), {outerGroupNode}}});
+      addNodes(map, {{&parentForNodes(map), {outerGroupNode}}});
 
       // create a linked group of the inner group node so that cloning the outer group
       // node will create a linked clone of the inner group node
@@ -290,7 +290,7 @@ TEST_CASE("UpdateLinkedGroupsHelper")
       REQUIRE(nestedLinkedInnerGroupNode->linkId() == innerGroupNode->linkId());
 
       addNodes(
-        map, {{parentForNodes(map), {linkedInnerGroupNode, linkedOuterGroupNode}}});
+        map, {{&parentForNodes(map), {linkedInnerGroupNode, linkedOuterGroupNode}}});
 
       /*
       world

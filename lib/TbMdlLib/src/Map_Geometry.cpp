@@ -658,25 +658,17 @@ bool csgConvexMerge(Map& map)
 
              // We could be merging brushes that have different parents; use the parent
              // of the first brush.
-             auto* parentNode = static_cast<Node*>(nullptr);
-             if (!map.selection().brushes.empty())
-             {
-               parentNode = map.selection().brushes.front()->parent();
-             }
-             else if (!map.selection().brushFaces.empty())
-             {
-               parentNode = map.selection().brushFaces.front().node()->parent();
-             }
-             else
-             {
-               parentNode = parentForNodes(map);
-             }
+             auto& parentNode = !map.selection().brushes.empty()
+                                  ? *map.selection().brushes.front()->parent()
+                                : !map.selection().brushFaces.empty()
+                                  ? *map.selection().brushFaces.front().node()->parent()
+                                  : parentForNodes(map);
 
              auto* brushNode = new BrushNode{std::move(b)};
 
              auto transaction = Transaction{map, "CSG Convex Merge"};
              deselectAll(map);
-             if (addNodes(map, {{parentNode, {brushNode}}}).empty())
+             if (addNodes(map, {{&parentNode, {brushNode}}}).empty())
              {
                transaction.cancel();
                return;
@@ -786,7 +778,7 @@ bool csgIntersect(Map& map)
   if (valid)
   {
     auto* intersectionNode = new BrushNode{std::move(intersection)};
-    if (addNodes(map, {{parentForNodes(map, toRemove), {intersectionNode}}}).empty())
+    if (addNodes(map, {{&parentForNodes(map, toRemove), {intersectionNode}}}).empty())
     {
       transaction.cancel();
       return false;

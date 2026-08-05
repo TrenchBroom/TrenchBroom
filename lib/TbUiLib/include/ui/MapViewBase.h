@@ -236,8 +236,7 @@ public: // reparenting objects
    */
   bool canReparentNode(const mdl::Node* node, const mdl::Node* newParent) const;
 
-  void moveSelectedBrushesToEntity();
-  mdl::Node* findNewParentEntityForBrushes(const std::vector<mdl::Node*>& nodes) const;
+  mdl::Node& findNewParentEntityForNodes(const std::vector<mdl::Node*>& nodes) const;
 
   bool canReparentNodes(
     const std::vector<mdl::Node*>& nodes, const mdl::Node* newParent) const;
@@ -268,8 +267,9 @@ public: // tags
   void enableTag(const mdl::SmartTag& tag);
   void disableTag(const mdl::SmartTag& tag);
 
-public: // make structural
-  void makeStructural();
+public: // make structural / move to entity
+  void makeSelectionStructural();
+  void moveSelectedNodesToEntity();
 
 public: // entity definitions
   void toggleEntityDefinitionVisible(const mdl::EntityDefinition& definition);
@@ -372,7 +372,7 @@ private:
   QMenu* makeEntityGroupsMenu(mdl::EntityDefinitionType type);
 
   bool canMergeGroups() const;
-  bool canMakeStructural() const;
+  bool canMakeSelectionStructural() const;
 };
 
 } // namespace ui

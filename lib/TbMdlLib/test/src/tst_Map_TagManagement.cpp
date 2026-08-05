@@ -34,6 +34,7 @@
 #include "mdl/Map_Geometry.h"
 #include "mdl/Map_Nodes.h"
 #include "mdl/Map_Selection.h"
+#include "mdl/PatchNode.h"
 #include "mdl/TagMatcher.h"
 #include "mdl/TestFactory.h"
 #include "mdl/UpdateBrushFaceAttributes.h"
@@ -177,8 +178,8 @@ TEST_CASE("Map_TagManagement")
     CHECK(map.smartTag("entity").index() == 6u);
     CHECK(map.smartTag("entity").type() == 64u);
 
-    CHECK_FALSE(map.isRegisteredSmartTag(""));
-    CHECK_FALSE(map.isRegisteredSmartTag("asdf"));
+    CHECK(!map.isRegisteredSmartTag(""));
+    CHECK(!map.isRegisteredSmartTag("asdf"));
   }
 
   SECTION("registerSmartTags checks duplicate tags")
@@ -206,7 +207,7 @@ TEST_CASE("Map_TagManagement")
     auto* entityNode = new EntityNode{Entity{{
       {"classname", "brush_entity"},
     }}};
-    addNodes(map, {{parentForNodes(map), {entityNode}}});
+    addNodes(map, {{&parentForNodes(map), {entityNode}}});
     REQUIRE(entityNode->entity().definition() == brushEntityDefinition);
 
     auto* brush = createBrushNode(map, "some_material");
@@ -223,7 +224,7 @@ TEST_CASE("Map_TagManagement")
       auto* entityNode = new EntityNode{Entity{{
         {"classname", "brush_entity"},
       }}};
-      addNodes(map, {{parentForNodes(map), {entityNode}}});
+      addNodes(map, {{&parentForNodes(map), {entityNode}}});
       REQUIRE(entityNode->entity().definition() == brushEntityDefinition);
 
       auto* brush = createBrushNode(map, "some_material");
@@ -232,19 +233,19 @@ TEST_CASE("Map_TagManagement")
       removeNodes(map, {brush});
 
       const auto& tag = map.smartTag("entity");
-      CHECK_FALSE(brush->hasTag(tag));
+      CHECK(!brush->hasTag(tag));
     }
 
     SECTION("Brush face tags")
     {
       auto* brushNodeWithTags = createBrushNode(map, "some_material");
-      addNodes(map, {{parentForNodes(map), {brushNodeWithTags}}});
+      addNodes(map, {{&parentForNodes(map), {brushNodeWithTags}}});
       removeNodes(map, {brushNodeWithTags});
 
       const auto& tag = map.smartTag("material");
       for (const auto& face : brushNodeWithTags->brush().faces())
       {
-        CHECK_FALSE(face.hasTag(tag));
+        CHECK(!face.hasTag(tag));
       }
     }
   }
@@ -254,16 +255,16 @@ TEST_CASE("Map_TagManagement")
     SECTION("Reparent from world to entity")
     {
       auto* brushNode = createBrushNode(map, "some_material");
-      addNodes(map, {{parentForNodes(map), {brushNode}}});
+      addNodes(map, {{&parentForNodes(map), {brushNode}}});
 
       auto* entityNode = new EntityNode{Entity{{
         {"classname", "brush_entity"},
       }}};
-      addNodes(map, {{parentForNodes(map), {entityNode}}});
+      addNodes(map, {{&parentForNodes(map), {entityNode}}});
       REQUIRE(entityNode->entity().definition() == brushEntityDefinition);
 
       const auto& tag = map.smartTag("entity");
-      CHECK_FALSE(brushNode->hasTag(tag));
+      CHECK(!brushNode->hasTag(tag));
 
       reparentNodes(map, {{entityNode, {brushNode}}});
       CHECK(brushNode->hasTag(tag));
@@ -277,14 +278,14 @@ TEST_CASE("Map_TagManagement")
       auto* otherEntityNode = new EntityNode{Entity{{
         {"classname", "other"},
       }}};
-      addNodes(map, {{parentForNodes(map), {lightEntityNode, otherEntityNode}}});
+      addNodes(map, {{&parentForNodes(map), {lightEntityNode, otherEntityNode}}});
       REQUIRE(lightEntityNode->entity().definition() == brushEntityDefinition);
 
       auto* brushNode = createBrushNode(map, "some_material");
       addNodes(map, {{otherEntityNode, {brushNode}}});
 
       const auto& tag = map.smartTag("entity");
-      CHECK_FALSE(brushNode->hasTag(tag));
+      CHECK(!brushNode->hasTag(tag));
 
       reparentNodes(map, {{lightEntityNode, {brushNode}}});
       CHECK(brushNode->hasTag(tag));
@@ -296,13 +297,13 @@ TEST_CASE("Map_TagManagement")
     auto* lightEntityNode = new EntityNode{Entity{{
       {"classname", "asdf"},
     }}};
-    addNodes(map, {{parentForNodes(map), {lightEntityNode}}});
+    addNodes(map, {{&parentForNodes(map), {lightEntityNode}}});
 
     auto* brushNode = createBrushNode(map, "some_material");
     addNodes(map, {{lightEntityNode, {brushNode}}});
 
     const auto& tag = map.smartTag("entity");
-    CHECK_FALSE(brushNode->hasTag(tag));
+    CHECK(!brushNode->hasTag(tag));
 
     selectNodes(map, {lightEntityNode});
     setEntityProperty(map, "classname", "brush_entity");
@@ -314,12 +315,12 @@ TEST_CASE("Map_TagManagement")
   SECTION("setBrushFaceAttributes updates tags")
   {
     auto* brushNode = createBrushNode(map, "asdf");
-    addNodes(map, {{parentForNodes(map), {brushNode}}});
+    addNodes(map, {{&parentForNodes(map), {brushNode}}});
 
     const auto& tag = map.smartTag("contentflags");
 
     const auto faceHandle = BrushFaceHandle{brushNode, 0u};
-    CHECK_FALSE(faceHandle.face().hasTag(tag));
+    CHECK(!faceHandle.face().hasTag(tag));
 
     selectBrushFaces(map, {faceHandle});
     setBrushFaceAttributes(map, {.surfaceContents = SetFlagBits{1}});
@@ -347,16 +348,16 @@ TEST_CASE("Map_TagManagement")
       for (const auto& face : nodeA->brush().faces())
       {
         CHECK(tag.matches(face));
-        CHECK_FALSE(patternTag.matches(face));
+        CHECK(!patternTag.matches(face));
       }
       for (const auto& face : nodeB->brush().faces())
       {
-        CHECK_FALSE(tag.matches(face));
+        CHECK(!tag.matches(face));
         CHECK(patternTag.matches(face));
       }
       for (const auto& face : nodeC->brush().faces())
       {
-        CHECK_FALSE(tag.matches(face));
+        CHECK(!tag.matches(face));
         CHECK(patternTag.matches(face));
       }
     }
@@ -364,13 +365,13 @@ TEST_CASE("Map_TagManagement")
     SECTION("enable")
     {
       auto* nonMatchingBrushNode = createBrushNode(map, "asdf");
-      addNodes(map, {{parentForNodes(map), {nonMatchingBrushNode}}});
+      addNodes(map, {{&parentForNodes(map), {nonMatchingBrushNode}}});
 
       const auto& tag = map.smartTag("material");
       CHECK(tag.canEnable());
 
       const auto faceHandle = BrushFaceHandle{nonMatchingBrushNode, 0u};
-      CHECK_FALSE(tag.matches(faceHandle.face()));
+      CHECK(!tag.matches(faceHandle.face()));
 
       selectBrushFaces(map, {faceHandle});
 
@@ -383,7 +384,7 @@ TEST_CASE("Map_TagManagement")
     SECTION("disable")
     {
       const auto& tag = map.smartTag("material");
-      CHECK_FALSE(tag.canDisable());
+      CHECK(!tag.canDisable());
     }
   }
 
@@ -416,7 +417,7 @@ TEST_CASE("Map_TagManagement")
       const auto& multiTag = map.smartTag("surfaceparm_multi");
       for (const auto& face : nodeA->brush().faces())
       {
-        CHECK_FALSE(singleTag.matches(face));
+        CHECK(!singleTag.matches(face));
         CHECK(multiTag.matches(face));
       }
       for (const auto& face : nodeB->brush().faces())
@@ -426,21 +427,21 @@ TEST_CASE("Map_TagManagement")
       }
       for (const auto& face : nodeC->brush().faces())
       {
-        CHECK_FALSE(singleTag.matches(face));
-        CHECK_FALSE(multiTag.matches(face));
+        CHECK(!singleTag.matches(face));
+        CHECK(!multiTag.matches(face));
       }
     }
 
     SECTION("enable")
     {
       auto* nonMatchingBrushNode = createBrushNode(map, "asdf");
-      addNodes(map, {{parentForNodes(map), {nonMatchingBrushNode}}});
+      addNodes(map, {{&parentForNodes(map), {nonMatchingBrushNode}}});
 
       const auto& tag = map.smartTag("surfaceparm_single");
       CHECK(tag.canEnable());
 
       const auto faceHandle = BrushFaceHandle{nonMatchingBrushNode, 0u};
-      CHECK_FALSE(tag.matches(faceHandle.face()));
+      CHECK(!tag.matches(faceHandle.face()));
 
       selectBrushFaces(map, {faceHandle});
 
@@ -453,7 +454,7 @@ TEST_CASE("Map_TagManagement")
     SECTION("disable")
     {
       const auto& tag = map.smartTag("surfaceparm_single");
-      CHECK_FALSE(tag.canDisable());
+      CHECK(!tag.canDisable());
     }
   }
 
@@ -483,20 +484,20 @@ TEST_CASE("Map_TagManagement")
       }
       for (const auto& face : nonMatchingBrushNode->brush().faces())
       {
-        CHECK_FALSE(tag.matches(face));
+        CHECK(!tag.matches(face));
       }
     }
 
     SECTION("enable")
     {
       auto* nonMatchingBrushNode = createBrushNode(map, "asdf");
-      addNodes(map, {{parentForNodes(map), {nonMatchingBrushNode}}});
+      addNodes(map, {{&parentForNodes(map), {nonMatchingBrushNode}}});
 
       const auto& tag = map.smartTag("contentflags");
       CHECK(tag.canEnable());
 
       const auto faceHandle = BrushFaceHandle{nonMatchingBrushNode, 0u};
-      CHECK_FALSE(tag.matches(faceHandle.face()));
+      CHECK(!tag.matches(faceHandle.face()));
 
       selectBrushFaces(map, {faceHandle});
 
@@ -515,7 +516,7 @@ TEST_CASE("Map_TagManagement")
         }
       });
 
-      addNodes(map, {{parentForNodes(map), {matchingBrushNode}}});
+      addNodes(map, {{&parentForNodes(map), {matchingBrushNode}}});
 
       const auto& tag = map.smartTag("contentflags");
       CHECK(tag.canDisable());
@@ -528,7 +529,7 @@ TEST_CASE("Map_TagManagement")
       auto callback = TestCallback{0};
       tag.disable(callback, map);
 
-      CHECK_FALSE(tag.matches(faceHandle.face()));
+      CHECK(!tag.matches(faceHandle.face()));
     }
   }
 
@@ -558,20 +559,20 @@ TEST_CASE("Map_TagManagement")
       }
       for (const auto& face : nonMatchingBrushNode->brush().faces())
       {
-        CHECK_FALSE(tag.matches(face));
+        CHECK(!tag.matches(face));
       }
     }
 
     SECTION("enable")
     {
       auto* nonMatchingBrushNode = createBrushNode(map, "asdf");
-      addNodes(map, {{parentForNodes(map), {nonMatchingBrushNode}}});
+      addNodes(map, {{&parentForNodes(map), {nonMatchingBrushNode}}});
 
       const auto& tag = map.smartTag("surfaceflags");
       CHECK(tag.canEnable());
 
       const auto faceHandle = BrushFaceHandle{nonMatchingBrushNode, 0u};
-      CHECK_FALSE(tag.matches(faceHandle.face()));
+      CHECK(!tag.matches(faceHandle.face()));
 
       selectBrushFaces(map, {faceHandle});
 
@@ -590,7 +591,7 @@ TEST_CASE("Map_TagManagement")
         }
       });
 
-      addNodes(map, {{parentForNodes(map), {matchingBrushNode}}});
+      addNodes(map, {{&parentForNodes(map), {matchingBrushNode}}});
 
       const auto& tag = map.smartTag("surfaceflags");
       CHECK(tag.canDisable());
@@ -603,7 +604,7 @@ TEST_CASE("Map_TagManagement")
       auto callback = TestCallback{0};
       tag.disable(callback, map);
 
-      CHECK_FALSE(tag.matches(faceHandle.face()));
+      CHECK(!tag.matches(faceHandle.face()));
     }
   }
 
@@ -614,34 +615,56 @@ TEST_CASE("Map_TagManagement")
       auto* matchingBrushNode = createBrushNode(map, "asdf");
       auto* nonMatchingBrushNode = createBrushNode(map, "asdf");
 
+      auto* matchingPatchNode = createPatchNode();
+      auto* nonMatchingPatchNode = createPatchNode();
+
       auto matchingEntity =
         std::make_unique<EntityNode>(Entity{{{"classname", "brush_entity"}}});
-      matchingEntity->addChild(matchingBrushNode);
+      matchingEntity->addChildren({matchingBrushNode, matchingPatchNode});
 
       auto nonMatchingEntity =
         std::make_unique<EntityNode>(Entity{{{"classname", "something"}}});
-      nonMatchingEntity->addChild(nonMatchingBrushNode);
+      nonMatchingEntity->addChildren({nonMatchingBrushNode, nonMatchingPatchNode});
 
       const auto& tag = map.smartTag("entity");
       CHECK(tag.matches(*matchingBrushNode));
-      CHECK_FALSE(tag.matches(*nonMatchingBrushNode));
+      CHECK(tag.matches(*matchingPatchNode));
+      CHECK(!tag.matches(*nonMatchingBrushNode));
+      CHECK(!tag.matches(*nonMatchingPatchNode));
     }
 
     SECTION("enable")
     {
+      auto* patchNode = createPatchNode();
       auto* brushNode = createBrushNode(map, "asdf");
-      addNodes(map, {{parentForNodes(map), {brushNode}}});
+      addNodes(map, {{&parentForNodes(map), {brushNode, patchNode}}});
 
       const auto& tag = map.smartTag("entity");
-      CHECK_FALSE(tag.matches(*brushNode));
+      CHECK(!tag.matches(*brushNode));
+      CHECK(!tag.matches(*patchNode));
 
       CHECK(tag.canEnable());
 
-      selectNodes(map, {brushNode});
+      selectNodes(map, {brushNode, patchNode});
 
       auto callback = TestCallback{0};
       tag.enable(callback, map);
       CHECK(tag.matches(*brushNode));
+      CHECK(tag.matches(*patchNode));
+    }
+
+    SECTION("enable sets patch material")
+    {
+      auto* patchNode = createPatchNode("some_material");
+      addNodes(map, {{&parentForNodes(map), {patchNode}}});
+      selectNodes(map, {patchNode});
+
+      const auto matcherWithMaterial =
+        EntityClassNameTagMatcher{"brush_entity", "trigger_material"};
+
+      auto callback = TestCallback{0};
+      matcherWithMaterial.enable(callback, map);
+      CHECK(patchNode->patch().materialName() == "trigger_material");
     }
 
     SECTION("enable retains entity properties")
@@ -653,7 +676,7 @@ TEST_CASE("Map_TagManagement")
         {"some_attr", "some_value"},
       }}};
 
-      addNodes(map, {{parentForNodes(map), {oldEntity}}});
+      addNodes(map, {{&parentForNodes(map), {oldEntity}}});
       addNodes(map, {{oldEntity, {brushNode}}});
 
       const auto& tag = map.smartTag("entity");
@@ -679,7 +702,7 @@ TEST_CASE("Map_TagManagement")
         {"classname", "brush_entity"},
       }}};
 
-      addNodes(map, {{parentForNodes(map), {oldEntityNode}}});
+      addNodes(map, {{&parentForNodes(map), {oldEntityNode}}});
       addNodes(map, {{oldEntityNode, {brushNode}}});
       REQUIRE(oldEntityNode->entity().definition() == brushEntityDefinition);
 
@@ -692,7 +715,31 @@ TEST_CASE("Map_TagManagement")
 
       auto callback = TestCallback{0};
       tag.disable(callback, map);
-      CHECK_FALSE(tag.matches(*brushNode));
+      CHECK(!tag.matches(*brushNode));
+    }
+
+    SECTION("disable (patch)")
+    {
+      auto* patchNode = createPatchNode();
+
+      auto* oldEntityNode = new EntityNode{Entity{{
+        {"classname", "brush_entity"},
+      }}};
+
+      addNodes(map, {{&parentForNodes(map), {oldEntityNode}}});
+      addNodes(map, {{oldEntityNode, {patchNode}}});
+      REQUIRE(oldEntityNode->entity().definition() == brushEntityDefinition);
+
+      const auto& tag = map.smartTag("entity");
+      CHECK(tag.matches(*patchNode));
+
+      CHECK(tag.canDisable());
+
+      selectNodes(map, {patchNode});
+
+      auto callback = TestCallback{0};
+      tag.disable(callback, map);
+      CHECK_FALSE(tag.matches(*patchNode));
     }
   }
 }

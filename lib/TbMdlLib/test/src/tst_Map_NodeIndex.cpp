@@ -66,7 +66,7 @@ TEST_CASE("Map_NodeIndex")
 
     groupNode->addChild(entityNode);
 
-    addNodes(map, {{parentForNodes(map), {groupNode}}});
+    addNodes(map, {{&parentForNodes(map), {groupNode}}});
 
     REQUIRE(map.findNodes("classname") == std::vector<Node*>{&map.worldNode()});
 
@@ -83,7 +83,7 @@ TEST_CASE("Map_NodeIndex")
       {"name1234", "wildcard_value"},
     }}};
 
-    addNodes(map, {{parentForNodes(map), {literalEntityNode, wildcardEntityNode}}});
+    addNodes(map, {{&parentForNodes(map), {literalEntityNode, wildcardEntityNode}}});
 
     CHECK_THAT(
       map.findNodes("name*"),
@@ -102,7 +102,7 @@ TEST_CASE("Map_NodeIndex")
 
     groupNode->addChild(entityNode);
 
-    addNodes(map, {{parentForNodes(map), {groupNode}}});
+    addNodes(map, {{&parentForNodes(map), {groupNode}}});
 
     REQUIRE(map.findNodes("classname") == std::vector<Node*>{&map.worldNode()});
     REQUIRE(map.findNodes("some_key") == std::vector<Node*>{entityNode});
@@ -142,7 +142,7 @@ TEST_CASE("Map_NodeIndex")
 
     groupNode->addChild(entityNode);
 
-    addNodes(map, {{parentForNodes(map), {groupNode}}});
+    addNodes(map, {{&parentForNodes(map), {groupNode}}});
     selectNodes(map, {entityNode});
 
     REQUIRE(map.findNodes("classname") == std::vector<Node*>{&map.worldNode()});
@@ -167,7 +167,7 @@ TEST_CASE("Map_NodeIndex")
 
     groupNode->addChild(entityNode);
 
-    addNodes(map, {{parentForNodes(map), {groupNode}}});
+    addNodes(map, {{&parentForNodes(map), {groupNode}}});
     selectNodes(map, {groupNode});
 
     auto* linkedGroupNode = createLinkedDuplicate(map);

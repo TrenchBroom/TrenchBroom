@@ -683,7 +683,7 @@ void MapViewBase::createBrushEntity(const mdl::EntityDefinition& definition)
 bool MapViewBase::canCreateBrushEntity()
 {
   const auto& map = m_document.map();
-  return map.selection().hasOnlyBrushes();
+  return map.selection().hasOnlyGeometryNodes();
 }
 
 void MapViewBase::toggleTagVisible(const mdl::SmartTag& tag)
@@ -719,50 +719,20 @@ void MapViewBase::disableTag(const mdl::SmartTag& tag)
   transaction.commit();
 }
 
-void MapViewBase::makeStructural()
+void MapViewBase::makeSelectionStructural()
 {
   auto& map = m_document.map();
-  if (!map.selection().hasBrushes())
-  {
-    return;
-  }
-
-  auto toReparent = std::vector<mdl::Node*>{};
-  const auto& selectedBrushes = map.selection().brushes;
-  std::ranges::copy_if(
-    selectedBrushes, std::back_inserter(toReparent), [&](const auto* brushNode) {
-      return brushNode->entity() != &map.worldNode();
-    });
-
-  auto transaction = mdl::Transaction{map, "Make Structural"};
-
-  if (!toReparent.empty())
-  {
-    reparentNodes(toReparent, parentForNodes(map, toReparent), false);
-  }
-
-  auto anyTagDisabled = false;
   auto callback = EnableDisableTagCallback{};
-  for (auto* brush : map.selection().brushes)
-  {
-    for (const auto& tag : map.smartTags())
-    {
-      if (brush->hasTag(tag) || brush->anyFacesHaveAnyTagInMask(tag.type()))
-      {
-        anyTagDisabled = true;
-        tag.disable(callback, map);
-      }
-    }
-  }
+  mdl::makeStructural(map, map.selection().nodes, callback);
+}
 
-  if (!anyTagDisabled && toReparent.empty())
-  {
-    transaction.cancel();
-  }
-  else
-  {
-    transaction.commit();
-  }
+void MapViewBase::moveSelectedNodesToEntity()
+{
+  auto& map = m_document.map();
+  const auto nodes = map.selection().nodes;
+  auto& newParent = findNewParentEntityForNodes(nodes);
+
+  mdl::moveToEntity(map, nodes, newParent);
 }
 
 void MapViewBase::toggleEntityDefinitionVisible(const mdl::EntityDefinition& definition)
@@ -1185,7 +1155,7 @@ void MapViewBase::showPopupMenuLater()
 
   auto& map = m_document.map();
   const auto& nodes = map.selection().nodes;
-  auto* newBrushParent = findNewParentEntityForBrushes(nodes);
+  auto& newNodeParent = findNewParentEntityForNodes(nodes);
   auto* currentGroup = map.editorContext().currentGroup();
   auto* newGroup = findNewGroupForObjects(nodes);
   auto* mergeGroup = findGroupToMergeGroupsInto(map.selection());
@@ -1301,13 +1271,13 @@ void MapViewBase::showPopupMenuLater()
 
   menu.addSeparator();
 
-  if (map.selection().hasOnlyBrushes())
+  if (map.selection().hasOnlyGeometryNodes())
   {
     auto* moveToWorldAction =
-      menu.addAction(tr("Make Structural"), this, &MapViewBase::makeStructural);
-    moveToWorldAction->setEnabled(canMakeStructural());
+      menu.addAction(tr("Make Structural"), this, &MapViewBase::makeSelectionStructural);
+    moveToWorldAction->setEnabled(canMakeSelectionStructural());
 
-    const auto isEntity = newBrushParent->accept(kdl::overload(
+    const auto isEntity = newNodeParent.accept(kdl::overload(
       [](const mdl::WorldNode&) { return false; },
       [](const mdl::LayerNode&) { return false; },
       [](const mdl::GroupNode&) { return false; },
@@ -1318,10 +1288,9 @@ void MapViewBase::showPopupMenuLater()
     if (isEntity)
     {
       menu.addAction(
-        tr("Move Brushes to Entity %1")
-          .arg(QString::fromStdString(newBrushParent->name())),
+        tr("Move to Entity %1").arg(QString::fromStdString(newNodeParent.name())),
         this,
-        &MapViewBase::moveSelectedBrushesToEntity);
+        &MapViewBase::moveSelectedNodesToEntity);
     }
   }
 
@@ -1563,56 +1532,24 @@ bool MapViewBase::canReparentNode(const mdl::Node* node, const mdl::Node* newPar
          && newParent->canAddChild(*node);
 }
 
-void MapViewBase::moveSelectedBrushesToEntity()
-{
-  auto& map = m_document.map();
-  const auto nodes = map.selection().nodes;
-  auto* newParent = findNewParentEntityForBrushes(nodes);
-  contract_assert(newParent);
-
-  auto transaction =
-    mdl::Transaction{map, "Move " + kdl::str_plural(nodes.size(), "Brush", "Brushes")};
-  reparentNodes(nodes, newParent, false);
-
-  deselectAll(map);
-  selectNodes(map, nodes);
-  transaction.commit();
-}
-
-mdl::Node* MapViewBase::findNewParentEntityForBrushes(
+mdl::Node& MapViewBase::findNewParentEntityForNodes(
   const std::vector<mdl::Node*>& nodes) const
 {
   using namespace mdl::HitFilters;
 
   const auto& map = m_document.map();
-  const auto& hit = pickResult().first(type(mdl::BrushNode::BrushHitType));
-  if (const auto faceHandle = mdl::hitToFaceHandle(hit))
+  const auto& hit =
+    pickResult().first(type(mdl::BrushNode::BrushHitType | mdl::PatchNode::PatchHitType));
+  if (auto* hitNode = mdl::hitToNode(hit))
   {
-    auto* brush = faceHandle->node();
-    auto* newParent = brush->entity();
-
-    if (newParent && newParent != &map.worldNode() && canReparentNodes(nodes, newParent))
+    if (auto* newParent = mdl::findContainingEntity(hitNode);
+        newParent && newParent != &map.worldNode() && canReparentNodes(nodes, newParent))
     {
-      return newParent;
+      return *newParent;
     }
   }
 
-  if (!nodes.empty())
-  {
-    auto* lastNode = nodes.back();
-
-    if (auto* group = mdl::findContainingGroup(lastNode))
-    {
-      return group;
-    }
-
-    if (auto* layer = mdl::findContainingLayer(lastNode))
-    {
-      return layer;
-    }
-  }
-
-  return map.editorContext().currentLayer();
+  return mdl::parentForNodes(map, nodes);
 }
 
 bool MapViewBase::canReparentNodes(
@@ -1700,18 +1637,10 @@ bool MapViewBase::canMergeGroups() const
   return mergeGroup;
 }
 
-bool MapViewBase::canMakeStructural() const
+bool MapViewBase::canMakeSelectionStructural() const
 {
   const auto& map = m_document.map();
-  if (map.selection().hasOnlyBrushes())
-  {
-    const auto& brushes = map.selection().brushes;
-    return std::ranges::any_of(brushes, [&](const auto* brush) {
-      return brush->hasAnyTag() || brush->entity() != &map.worldNode()
-             || brush->anyFaceHasAnyTag();
-    });
-  }
-  return false;
+  return mdl::canMakeStructural(map, map.selection().nodes);
 }
 
 } // namespace tb::ui

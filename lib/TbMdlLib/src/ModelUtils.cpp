@@ -105,6 +105,22 @@ const GroupNode* findContainingGroup(const Node* node)
   return findContainingGroup(const_cast<Node*>(node));
 }
 
+EntityNodeBase* findContainingEntity(Node* node)
+{
+  return node->accept(kdl::overload(
+    [](WorldNode&) -> EntityNodeBase* { return nullptr; },
+    [](LayerNode&) -> EntityNodeBase* { return nullptr; },
+    [](GroupNode&) -> EntityNodeBase* { return nullptr; },
+    [](EntityNode&) -> EntityNodeBase* { return nullptr; },
+    [](BrushNode& brushNode) { return brushNode.entity(); },
+    [](PatchNode& patchNode) { return patchNode.entity(); }));
+}
+
+const EntityNodeBase* findContainingEntity(const Node* node)
+{
+  return findContainingEntity(const_cast<Node*>(node));
+}
+
 GroupNode* findOutermostClosedGroup(Node* node)
 {
   return node

@@ -59,7 +59,7 @@ TEST_CASE("Map_CopyPaste")
     auto* brushNode = new BrushNode{builder.createCube(64.0, "some_material").value()};
     auto* entityNode = new EntityNode{Entity{{{"some_key", "some_value"}}}};
 
-    addNodes(map, {{parentForNodes(map), {brushNode, entityNode}}});
+    addNodes(map, {{&parentForNodes(map), {brushNode, entityNode}}});
 
     SECTION("nothing is selected")
     {
@@ -114,7 +114,7 @@ TEST_CASE("Map_CopyPaste")
 
     auto* brushNode = new BrushNode{builder.createCube(64.0, "some_material").value()};
 
-    addNodes(map, {{parentForNodes(map), {brushNode}}});
+    addNodes(map, {{&parentForNodes(map), {brushNode}}});
 
     SECTION("nothing is selected")
     {
@@ -357,7 +357,7 @@ common/caulk
 
       auto* brushNode1 =
         new BrushNode{builder.createCuboid(box, "material") | kdl::value()};
-      addNodes(map, {{parentForNodes(map), {brushNode1}}});
+      addNodes(map, {{&parentForNodes(map), {brushNode1}}});
       selectNodes(map, {brushNode1});
 
       const auto groupName = std::string{"testGroup"};
@@ -389,7 +389,7 @@ common/caulk
       auto& map = fixture.create();
       auto* brushNode = createBrushNode(map);
 
-      addNodes(map, {{parentForNodes(map), {brushNode}}});
+      addNodes(map, {{&parentForNodes(map), {brushNode}}});
       selectNodes(map, {brushNode});
 
       auto* groupNode = groupSelectedNodes(map, "test");
@@ -445,7 +445,7 @@ common/caulk
       auto& map = fixture.create();
 
       auto* entityNode = new EntityNode{Entity{}};
-      addNodes(map, {{parentForNodes(map), {entityNode}}});
+      addNodes(map, {{&parentForNodes(map), {entityNode}}});
 
       selectNodes(map, {entityNode});
       auto* groupNode = groupSelectedNodes(map, "test");
@@ -491,7 +491,7 @@ common/caulk
       auto& map = fixture.create();
 
       auto* brushNode = createBrushNode(map);
-      addNodes(map, {{parentForNodes(map), {brushNode}}});
+      addNodes(map, {{&parentForNodes(map), {brushNode}}});
       selectNodes(map, {brushNode});
 
       auto* groupNode = groupSelectedNodes(map, "test");

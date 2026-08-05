@@ -98,7 +98,7 @@ TEST_CASE("EntityLinkRenderer")
     {Origin, "64 0 0"},
   }}};
 
-  mdl::addNodes(map, {{mdl::parentForNodes(map), {sourceNode, targetNode}}});
+  mdl::addNodes(map, {{&mdl::parentForNodes(map), {sourceNode, targetNode}}});
   REQUIRE(map.entityLinkManager().hasLink(*sourceNode, *targetNode, Target));
 
   const auto defaultColor = Color{RgbaF{0, 1, 0, 1}};

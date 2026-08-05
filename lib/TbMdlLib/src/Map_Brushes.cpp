@@ -184,7 +184,7 @@ bool createBrush(Map& map, const std::vector<vm::vec3d>& points)
 
              auto transaction = Transaction{map, "Create Brush"};
              deselectAll(map);
-             if (addNodes(map, {{parentForNodes(map), {brushNode}}}).empty())
+             if (addNodes(map, {{&parentForNodes(map), {brushNode}}}).empty())
              {
                transaction.cancel();
                return Error{"Could not add brush to document"};

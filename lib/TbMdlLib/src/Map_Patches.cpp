@@ -20,11 +20,13 @@
 #include "mdl/Map_Patches.h"
 
 #include "mdl/ApplyAndSwap.h"
+#include "mdl/BezierPatch.h"
 #include "mdl/ControlPointCommand.h"
 #include "mdl/Map.h"
 #include "mdl/Map_Groups.h"
 #include "mdl/Map_Nodes.h"
 #include "mdl/Map_Selection.h"
+#include "mdl/ModelUtils.h"
 #include "mdl/PatchNode.h"
 #include "mdl/PatchUtils.h"
 #include "mdl/Selection.h"
@@ -65,7 +67,7 @@ void convertSelectionToPatches(
 
   auto transaction = Transaction{map, "Convert Selection to Patches"};
 
-  auto addedNodes = addNodes(map, {{parentForNodes(map), patchNodes}});
+  auto addedNodes = addNodes(map, {{&parentForNodes(map), patchNodes}});
   deselectAll(map);
   removeNodes(map, nodesToRemove);
   selectNodes(map, addedNodes);
@@ -169,6 +171,25 @@ bool transformControlPoints(
   setHasPendingChanges(changedLinkedGroups, true);
 
   return transaction.commit();
+}
+
+bool setPatchMaterial(Map& map, const std::string& materialName)
+{
+  const auto patchNodes = map.selection().patches;
+  return applyAndSwap(
+    map,
+    "Set Material",
+    patchNodes,
+    collectContainingGroups(kdl::vec_static_cast<Node*>(patchNodes)),
+    kdl::overload(
+      [](Layer&) { return true; },
+      [](Group&) { return true; },
+      [](Entity&) { return true; },
+      [](Brush&) { return true; },
+      [&](BezierPatch& patch) {
+        patch.setMaterialName(materialName);
+        return true;
+      }));
 }
 
 } // namespace tb::mdl

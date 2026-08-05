@@ -19,6 +19,8 @@
 
 #include "Observer.h"
 #include "gl/MaterialManager.h"
+#include "mdl/Brush.h"
+#include "mdl/BrushFace.h"
 #include "mdl/BrushNode.h"
 #include "mdl/CatchConfig.h"
 #include "mdl/EditorContext.h"
@@ -39,6 +41,8 @@
 #include "mdl/Map_Selection.h"
 #include "mdl/Matchers.h"
 #include "mdl/PatchNode.h"
+#include "mdl/SurfaceAttributes.h"
+#include "mdl/TagMatcher.h"
 #include "mdl/TestFactory.h"
 #include "mdl/TestUtils.h"
 #include "mdl/VisualEffect.h"
@@ -52,16 +56,53 @@
 namespace tb::mdl
 {
 
+namespace
+{
+class TestCallback : public TagMatcherCallback
+{
+private:
+  size_t m_option;
+
+public:
+  explicit TestCallback(const size_t option)
+    : m_option{option}
+  {
+  }
+
+  size_t selectOption(const std::vector<std::string>&) override { return m_option; }
+};
+} // namespace
+
 TEST_CASE("Map_Nodes")
 {
+  auto fixtureConfig = MapFixtureConfig{};
+  fixtureConfig.gameInfo.gameConfig.smartTags = {
+    SmartTag{
+      "entity",
+      {},
+      std::make_unique<EntityClassNameTagMatcher>("brush_entity", ""),
+    },
+    SmartTag{
+      "material",
+      {},
+      std::make_unique<MaterialNameTagMatcher>("tagged_material"),
+    },
+    SmartTag{
+      "content",
+      {},
+      std::make_unique<ContentFlagsTagMatcher>(1),
+    },
+  };
+
   auto fixture = MapFixture{};
-  auto& map = fixture.create();
+  auto& map = fixture.create(fixtureConfig);
   map.entityDefinitionManager().setDefinitions({
     {"point_entity",
      Color{},
      "this is a point entity",
      {},
      PointEntityDefinition{vm::bbox3d{16.0}, {}, {}}},
+    {"brush_entity", Color{}, "this is a brush entity", {}},
   });
 
   const auto& pointEntityDefinition = map.entityDefinitionManager().definitions().front();
@@ -80,19 +121,19 @@ TEST_CASE("Map_Nodes")
 
     SECTION("Returns default layer if no group is open")
     {
-      CHECK(parentForNodes(map) == map.worldNode().defaultLayer());
+      CHECK(&parentForNodes(map) == map.worldNode().defaultLayer());
     }
 
     SECTION("Returns currently opened group, if any")
     {
       openGroup(map, *groupNode);
-      CHECK(parentForNodes(map) == groupNode);
+      CHECK(&parentForNodes(map) == groupNode);
     }
 
     SECTION("Returns parent of first node in given vector")
     {
-      CHECK(parentForNodes(map, {groupedEntityNode}) == groupNode);
-      CHECK(parentForNodes(map, {groupNode}) == customLayerNode);
+      CHECK(&parentForNodes(map, {groupedEntityNode}) == groupNode);
+      CHECK(&parentForNodes(map, {groupNode}) == customLayerNode);
     }
   }
 
@@ -109,7 +150,7 @@ TEST_CASE("Map_Nodes")
 
       // Create an entity in layer1
       auto* entityNode1 = new EntityNode{Entity{}};
-      addNodes(map, {{parentForNodes(map), {entityNode1}}});
+      addNodes(map, {{&parentForNodes(map), {entityNode1}}});
 
       REQUIRE(entityNode1->parent() == layerNode1);
 
@@ -126,7 +167,7 @@ TEST_CASE("Map_Nodes")
       // Create another entity in layer1. It will be visible, while entity1 will still be
       // hidden.
       auto* entityNode2 = new EntityNode{Entity{}};
-      addNodes(map, {{parentForNodes(map), {entityNode2}}});
+      addNodes(map, {{&parentForNodes(map), {entityNode2}}});
 
       REQUIRE(entityNode2->parent() == layerNode1);
 
@@ -147,7 +188,7 @@ TEST_CASE("Map_Nodes")
 
       // Create an entity in layer1
       auto* entityNode1 = new EntityNode{Entity{}};
-      addNodes(map, {{parentForNodes(map), {entityNode1}}});
+      addNodes(map, {{&parentForNodes(map), {entityNode1}}});
 
       REQUIRE(entityNode1->parent() == layerNode1);
 
@@ -160,7 +201,7 @@ TEST_CASE("Map_Nodes")
       REQUIRE(entityNode1->locked());
 
       auto* entityNode2 = new EntityNode{Entity{}};
-      addNodes(map, {{parentForNodes(map), {entityNode2}}});
+      addNodes(map, {{&parentForNodes(map), {entityNode2}}});
 
       REQUIRE(entityNode2->parent() == layerNode1);
 
@@ -177,7 +218,7 @@ TEST_CASE("Map_Nodes")
         auto* groupNode = new GroupNode{Group{"test"}};
         auto* brushNode = createBrushNode(map);
         groupNode->addChild(brushNode);
-        addNodes(map, {{parentForNodes(map), {groupNode}}});
+        addNodes(map, {{&parentForNodes(map), {groupNode}}});
 
         selectNodes(map, {groupNode});
         auto* linkedGroupNode = createLinkedDuplicate(map);
@@ -228,7 +269,7 @@ TEST_CASE("Map_Nodes")
       SECTION("Linked nodes inherit the group's transformation when they are added")
       {
         auto* groupNode = new GroupNode{Group{"group"}};
-        addNodes(map, {{parentForNodes(map), {groupNode}}});
+        addNodes(map, {{&parentForNodes(map), {groupNode}}});
 
         selectNodes(map, {groupNode});
         auto* linkedGroupNode = createLinkedDuplicate(map);
@@ -269,7 +310,7 @@ TEST_CASE("Map_Nodes")
       SECTION("Child cannot be added because adding it to a linked group fails")
       {
         auto* groupNode = new GroupNode{Group{"group"}};
-        addNodes(map, {{parentForNodes(map), {groupNode}}});
+        addNodes(map, {{&parentForNodes(map), {groupNode}}});
 
         selectNodes(map, {groupNode});
         auto* linkedGroupNode = createLinkedDuplicate(map);
@@ -339,7 +380,7 @@ TEST_CASE("Map_Nodes")
       // Create entity1 and brush1 in the hidden layer1
       auto* entityNode1 = new EntityNode{Entity{}};
       auto* brushNode1 = createBrushNode(map);
-      addNodes(map, {{parentForNodes(map), {entityNode1, brushNode1}}});
+      addNodes(map, {{&parentForNodes(map), {entityNode1, brushNode1}}});
 
       REQUIRE(entityNode1->parent() == layerNode1);
       REQUIRE(brushNode1->parent() == layerNode1);
@@ -380,7 +421,7 @@ TEST_CASE("Map_Nodes")
       auto* layer2 = new LayerNode{Layer{"Layer 2"}};
       addNodes(map, {{&map.worldNode(), {layer2}}});
 
-      CHECK_FALSE(reparentNodes(map, {{layer2, {layer1}}}));
+      CHECK(!reparentNodes(map, {{layer2, {layer1}}}));
     }
 
     SECTION("Reparent between layers")
@@ -405,43 +446,43 @@ TEST_CASE("Map_Nodes")
     SECTION("Cannot reparent a group to itself")
     {
       auto* group = new GroupNode{Group{"Group"}};
-      addNodes(map, {{parentForNodes(map), {group}}});
+      addNodes(map, {{&parentForNodes(map), {group}}});
 
-      CHECK_FALSE(reparentNodes(map, {{group, {group}}}));
+      CHECK(!reparentNodes(map, {{group, {group}}}));
     }
 
     SECTION("Cannot reparent a group to its descendants")
     {
       auto* outer = new GroupNode{Group{"Outer"}};
-      addNodes(map, {{parentForNodes(map), {outer}}});
+      addNodes(map, {{&parentForNodes(map), {outer}}});
 
       auto* inner = new GroupNode{Group{"Inner"}};
       addNodes(map, {{outer, {inner}}});
 
-      CHECK_FALSE(reparentNodes(map, {{inner, {outer}}}));
+      CHECK(!reparentNodes(map, {{inner, {outer}}}));
     }
 
     SECTION("Empty groups are removed after reparenting")
     {
       auto* group = new GroupNode{Group{"Group"}};
-      addNodes(map, {{parentForNodes(map), {group}}});
+      addNodes(map, {{&parentForNodes(map), {group}}});
 
       auto* entity = new EntityNode{Entity{}};
       addNodes(map, {{group, {entity}}});
 
-      CHECK(reparentNodes(map, {{parentForNodes(map), {entity}}}));
-      CHECK(entity->parent() == parentForNodes(map));
+      CHECK(reparentNodes(map, {{&parentForNodes(map), {entity}}}));
+      CHECK(entity->parent() == &parentForNodes(map));
       CHECK(group->parent() == nullptr);
 
       map.undoCommand();
-      CHECK(group->parent() == parentForNodes(map));
+      CHECK(group->parent() == &parentForNodes(map));
       CHECK(entity->parent() == group);
     }
 
     SECTION("Empty groups are removed recursively after reparenting")
     {
       auto* outer = new GroupNode{Group{"Outer"}};
-      addNodes(map, {{parentForNodes(map), {outer}}});
+      addNodes(map, {{&parentForNodes(map), {outer}}});
 
       auto* inner = new GroupNode{Group{"Inner"}};
       addNodes(map, {{outer, {inner}}});
@@ -449,13 +490,13 @@ TEST_CASE("Map_Nodes")
       auto* entity = new EntityNode{Entity{}};
       addNodes(map, {{inner, {entity}}});
 
-      CHECK(reparentNodes(map, {{parentForNodes(map), {entity}}}));
-      CHECK(entity->parent() == parentForNodes(map));
+      CHECK(reparentNodes(map, {{&parentForNodes(map), {entity}}}));
+      CHECK(entity->parent() == &parentForNodes(map));
       CHECK(inner->parent() == nullptr);
       CHECK(outer->parent() == nullptr);
 
       map.undoCommand();
-      CHECK(outer->parent() == parentForNodes(map));
+      CHECK(outer->parent() == &parentForNodes(map));
       CHECK(inner->parent() == outer);
       CHECK(entity->parent() == inner);
     }
@@ -463,24 +504,24 @@ TEST_CASE("Map_Nodes")
     SECTION("Empty entities are removed after reparenting")
     {
       auto* entity = new EntityNode{Entity{}};
-      addNodes(map, {{parentForNodes(map), {entity}}});
+      addNodes(map, {{&parentForNodes(map), {entity}}});
 
       auto* brush = createBrushNode(map);
       addNodes(map, {{entity, {brush}}});
 
-      CHECK(reparentNodes(map, {{parentForNodes(map), {brush}}}));
-      CHECK(brush->parent() == parentForNodes(map));
+      CHECK(reparentNodes(map, {{&parentForNodes(map), {brush}}}));
+      CHECK(brush->parent() == &parentForNodes(map));
       CHECK(entity->parent() == nullptr);
 
       map.undoCommand();
-      CHECK(entity->parent() == parentForNodes(map));
+      CHECK(entity->parent() == &parentForNodes(map));
       CHECK(brush->parent() == entity);
     }
 
     SECTION("Empty groups and entities are removed after reparenting")
     {
       auto* group = new GroupNode{Group{"Group"}};
-      addNodes(map, {{parentForNodes(map), {group}}});
+      addNodes(map, {{&parentForNodes(map), {group}}});
 
       auto* entity = new EntityNode{Entity{}};
       addNodes(map, {{group, {entity}}});
@@ -488,13 +529,13 @@ TEST_CASE("Map_Nodes")
       auto* brush = createBrushNode(map);
       addNodes(map, {{entity, {brush}}});
 
-      CHECK(reparentNodes(map, {{parentForNodes(map), {brush}}}));
-      CHECK(brush->parent() == parentForNodes(map));
+      CHECK(reparentNodes(map, {{&parentForNodes(map), {brush}}}));
+      CHECK(brush->parent() == &parentForNodes(map));
       CHECK(group->parent() == nullptr);
       CHECK(entity->parent() == nullptr);
 
       map.undoCommand();
-      CHECK(group->parent() == parentForNodes(map));
+      CHECK(group->parent() == &parentForNodes(map));
       CHECK(entity->parent() == group);
       CHECK(brush->parent() == entity);
     }
@@ -504,7 +545,7 @@ TEST_CASE("Map_Nodes")
       auto* nestedBrushNode = createBrushNode(map);
       auto* nestedEntityNode = new EntityNode{Entity{}};
 
-      addNodes(map, {{parentForNodes(map), {nestedBrushNode, nestedEntityNode}}});
+      addNodes(map, {{&parentForNodes(map), {nestedBrushNode, nestedEntityNode}}});
       selectNodes(map, {nestedBrushNode, nestedEntityNode});
 
       auto* nestedGroupNode = groupSelectedNodes(map, "nested");
@@ -519,7 +560,7 @@ TEST_CASE("Map_Nodes")
       auto* entityBrushNode = createBrushNode(map);
       entityNode->addChild(entityBrushNode);
 
-      addNodes(map, {{parentForNodes(map), {brushNode, entityNode}}});
+      addNodes(map, {{&parentForNodes(map), {brushNode, entityNode}}});
 
       selectNodes(map, {brushNode, entityNode, nestedGroupNode});
       auto* groupNode = groupSelectedNodes(map, "group");
@@ -543,7 +584,7 @@ TEST_CASE("Map_Nodes")
 
       SECTION("Moving a brush entity to the world resets its link IDs")
       {
-        REQUIRE(reparentNodes(map, {{parentForNodes(map), {entityNode}}}));
+        REQUIRE(reparentNodes(map, {{&parentForNodes(map), {entityNode}}}));
 
         CHECK(entityNode->linkId() != originalEntityLinkId);
         CHECK(entityBrushNode->linkId() != originalEntityBrushLinkId);
@@ -592,7 +633,7 @@ TEST_CASE("Map_Nodes")
       auto* groupNode = new GroupNode{Group{"group"}};
       auto* brushNode = createBrushNode(map);
       groupNode->addChild(brushNode);
-      addNodes(map, {{parentForNodes(map), {groupNode}}});
+      addNodes(map, {{&parentForNodes(map), {groupNode}}});
 
       selectNodes(map, {groupNode});
       auto* linkedGroupNode = createLinkedDuplicate(map);
@@ -605,7 +646,7 @@ TEST_CASE("Map_Nodes")
       SECTION("Move node into group node")
       {
         auto* entityNode = new EntityNode{Entity{}};
-        addNodes(map, {{parentForNodes(map), {entityNode}}});
+        addNodes(map, {{&parentForNodes(map), {entityNode}}});
 
         REQUIRE(groupNode->childCount() == 1u);
         REQUIRE(linkedGroupNode->childCount() == 1u);
@@ -626,7 +667,7 @@ TEST_CASE("Map_Nodes")
 
         map.undoCommand();
 
-        CHECK(entityNode->parent() == parentForNodes(map));
+        CHECK(entityNode->parent() == &parentForNodes(map));
         CHECK(groupNode->childCount() == 1u);
         CHECK(linkedGroupNode->childCount() == 1u);
       }
@@ -639,9 +680,9 @@ TEST_CASE("Map_Nodes")
         REQUIRE(groupNode->childCount() == 2u);
         REQUIRE(linkedGroupNode->childCount() == 2u);
 
-        reparentNodes(map, {{parentForNodes(map), {entityNode}}});
+        reparentNodes(map, {{&parentForNodes(map), {entityNode}}});
 
-        CHECK(entityNode->parent() == parentForNodes(map));
+        CHECK(entityNode->parent() == &parentForNodes(map));
         CHECK(groupNode->childCount() == 1u);
         CHECK(linkedGroupNode->childCount() == 1u);
 
@@ -656,7 +697,7 @@ TEST_CASE("Map_Nodes")
     SECTION("Nested linked groups")
     {
       auto* brushNode = createBrushNode(map);
-      addNodes(map, {{parentForNodes(map), {brushNode}}});
+      addNodes(map, {{&parentForNodes(map), {brushNode}}});
       selectNodes(map, {brushNode});
 
       auto* groupNode = groupSelectedNodes(map, "test");
@@ -671,7 +712,7 @@ TEST_CASE("Map_Nodes")
 
       SECTION("Adding a linked group to its linked sibling does nothing")
       {
-        CHECK_FALSE(reparentNodes(map, {{groupNode, {linkedGroupNode}}}));
+        CHECK(!reparentNodes(map, {{groupNode, {linkedGroupNode}}}));
       }
 
       SECTION(
@@ -684,25 +725,25 @@ TEST_CASE("Map_Nodes")
         REQUIRE(outerGroupNode != nullptr);
 
         deselectAll(map);
-        CHECK_FALSE(reparentNodes(map, {{groupNode, {outerGroupNode}}}));
+        CHECK(!reparentNodes(map, {{groupNode, {outerGroupNode}}}));
       }
     }
 
     SECTION("Update linked groups after recursive deletion")
     {
       auto* outerGroupNode = new GroupNode{Group{"outer"}};
-      addNodes(map, {{parentForNodes(map), {outerGroupNode}}});
+      addNodes(map, {{&parentForNodes(map), {outerGroupNode}}});
 
       openGroup(map, *outerGroupNode);
 
       auto* outerEntityNode = new EntityNode{Entity{}};
       auto* innerGroupNode = new GroupNode{Group{"inner"}};
-      addNodes(map, {{parentForNodes(map), {outerEntityNode, innerGroupNode}}});
+      addNodes(map, {{&parentForNodes(map), {outerEntityNode, innerGroupNode}}});
 
       openGroup(map, *innerGroupNode);
 
       auto* innerEntityNode = new EntityNode{Entity{}};
-      addNodes(map, {{parentForNodes(map), {innerEntityNode}}});
+      addNodes(map, {{&parentForNodes(map), {innerEntityNode}}});
 
       closeGroup(map);
       closeGroup(map);
@@ -717,7 +758,7 @@ TEST_CASE("Map_Nodes")
 
       deselectAll(map);
 
-      reparentNodes(map, {{parentForNodes(map), {innerEntityNode}}});
+      reparentNodes(map, {{&parentForNodes(map), {innerEntityNode}}});
       CHECK(outerGroupNode->children() == std::vector<Node*>{outerEntityNode});
       CHECK_THAT(*linkedOuterGroupNode, MatchesNode(*outerGroupNode));
 
@@ -735,7 +776,7 @@ TEST_CASE("Map_Nodes")
     SECTION("Linked group update fails")
     {
       auto* groupNode = new GroupNode{Group{"group"}};
-      addNodes(map, {{parentForNodes(map), {groupNode}}});
+      addNodes(map, {{&parentForNodes(map), {groupNode}}});
 
       selectNodes(map, {groupNode});
       auto* linkedGroupNode = createLinkedDuplicate(map);
@@ -748,9 +789,9 @@ TEST_CASE("Map_Nodes")
       deselectAll(map);
 
       auto* brushNode = createBrushNode(map);
-      addNodes(map, {{parentForNodes(map), {brushNode}}});
+      addNodes(map, {{&parentForNodes(map), {brushNode}}});
 
-      CHECK_FALSE(reparentNodes(map, {{groupNode, {brushNode}}}));
+      CHECK(!reparentNodes(map, {{groupNode, {brushNode}}}));
 
       CHECK(groupNode->childCount() == 0u);
       CHECK(linkedGroupNode->childCount() == 0u);
@@ -762,16 +803,323 @@ TEST_CASE("Map_Nodes")
       auto* brushNode = createBrushNode(map);
       groupNode->addChild(brushNode);
 
-      addNodes(map, {{parentForNodes(map), {groupNode}}});
+      addNodes(map, {{&parentForNodes(map), {groupNode}}});
 
       selectNodes(map, {groupNode});
       auto* linkedGroupNode = createLinkedDuplicate(map);
       deselectAll(map);
 
-      CHECK_FALSE(reparentNodes(map, {{linkedGroupNode, {brushNode}}}));
+      CHECK(!reparentNodes(map, {{linkedGroupNode, {brushNode}}}));
 
       CHECK(groupNode->childCount() == 1u);
       CHECK(linkedGroupNode->childCount() == 1u);
+    }
+  }
+
+  SECTION("canMakeStructural")
+  {
+    SECTION("Empty selection")
+    {
+      CHECK(!canMakeStructural(map, {}));
+    }
+
+    SECTION("Structural brush")
+    {
+      auto* brushNode = createBrushNode(map);
+      addNodes(map, {{&parentForNodes(map), {brushNode}}});
+
+      CHECK(!canMakeStructural(map, {brushNode}));
+    }
+
+    SECTION("Non-structural brush owned by an entity")
+    {
+      auto* entityNode = new EntityNode{Entity{{{"classname", "brush_entity"}}}};
+      addNodes(map, {{&parentForNodes(map), {entityNode}}});
+
+      auto* brushNode = createBrushNode(map);
+      addNodes(map, {{entityNode, {brushNode}}});
+
+      CHECK(canMakeStructural(map, {brushNode}));
+    }
+
+    SECTION("Non-structural brush with a tagged face")
+    {
+      auto* brushNode = createBrushNode(map, "tagged_material");
+      addNodes(map, {{&parentForNodes(map), {brushNode}}});
+
+      CHECK(canMakeStructural(map, {brushNode}));
+    }
+
+    SECTION("Structural patch")
+    {
+      auto* patchNode = createPatchNode();
+      addNodes(map, {{&parentForNodes(map), {patchNode}}});
+
+      CHECK(!canMakeStructural(map, {patchNode}));
+    }
+
+    SECTION("Non-structural patch owned by an entity")
+    {
+      auto* entityNode = new EntityNode{Entity{{{"classname", "brush_entity"}}}};
+      addNodes(map, {{&parentForNodes(map), {entityNode}}});
+
+      auto* patchNode = createPatchNode();
+      addNodes(map, {{entityNode, {patchNode}}});
+
+      CHECK(canMakeStructural(map, {patchNode}));
+    }
+
+    SECTION("Selection containing a non-entity node is rejected")
+    {
+      auto* entityNode = new EntityNode{Entity{{{"classname", "brush_entity"}}}};
+      addNodes(map, {{&parentForNodes(map), {entityNode}}});
+
+      auto* brushNode = createBrushNode(map);
+      addNodes(map, {{entityNode, {brushNode}}});
+
+      CHECK(!canMakeStructural(map, {brushNode, entityNode}));
+    }
+
+    SECTION("Mixed brush and patch selection with a non-structural member")
+    {
+      auto* entityNode = new EntityNode{Entity{{{"classname", "brush_entity"}}}};
+      addNodes(map, {{&parentForNodes(map), {entityNode}}});
+
+      auto* brushNode = createBrushNode(map);
+      addNodes(map, {{&parentForNodes(map), {brushNode}}});
+
+      auto* patchNode = createPatchNode();
+      addNodes(map, {{entityNode, {patchNode}}});
+
+      CHECK(canMakeStructural(map, {brushNode, patchNode}));
+    }
+  }
+
+  SECTION("makeStructural")
+  {
+    SECTION("Empty node list does nothing")
+    {
+      auto callback = TestCallback{0};
+      CHECK(!makeStructural(map, {}, callback));
+    }
+
+    SECTION("Already-structural untagged brush does nothing")
+    {
+      auto* brushNode = createBrushNode(map);
+      addNodes(map, {{&parentForNodes(map), {brushNode}}});
+
+      auto callback = TestCallback{0};
+      CHECK(!makeStructural(map, {brushNode}, callback));
+      CHECK(brushNode->entity() == &map.worldNode());
+    }
+
+    SECTION("Brush owned by an entity is reparented and its entity tag is cleared")
+    {
+      auto* entityNode = new EntityNode{Entity{{{"classname", "brush_entity"}}}};
+      addNodes(map, {{&parentForNodes(map), {entityNode}}});
+
+      auto* brushNode = createBrushNode(map);
+      addNodes(map, {{entityNode, {brushNode}}});
+
+      const auto& entityTag = map.smartTag("entity");
+      REQUIRE(brushNode->hasTag(entityTag));
+
+      auto callback = TestCallback{0};
+      CHECK(makeStructural(map, {brushNode}, callback));
+      CHECK(brushNode->entity() == &map.worldNode());
+      CHECK(!brushNode->hasTag(entityTag));
+
+      map.undoCommand();
+      CHECK(brushNode->entity() == entityNode);
+      CHECK(brushNode->hasTag(entityTag));
+    }
+
+    SECTION("Structural brush with a tagged face has the content flags tag disabled")
+    {
+      // Material name tags (like "material" above) have no disable logic -- there is
+      // no sensible default material to fall back to -- so use a flags-based tag,
+      // which does support being disabled, to test that face tags are cleared.
+      auto* brushNode = createBrushNode(map, "material", [](auto& brush) {
+        for (auto& face : brush.faces())
+        {
+          face.setSurfaceAttributes({.contents = 1});
+        }
+      });
+      addNodes(map, {{&parentForNodes(map), {brushNode}}});
+
+      REQUIRE(brushNode->anyFaceHasAnyTag());
+
+      auto callback = TestCallback{0};
+      CHECK(makeStructural(map, {brushNode}, callback));
+      CHECK(!brushNode->anyFaceHasAnyTag());
+    }
+
+    SECTION("Patch owned by an entity is reparented and its entity tag is cleared")
+    {
+      auto* entityNode = new EntityNode{Entity{{{"classname", "brush_entity"}}}};
+      addNodes(map, {{&parentForNodes(map), {entityNode}}});
+
+      auto* patchNode = createPatchNode();
+      addNodes(map, {{entityNode, {patchNode}}});
+
+      const auto& entityTag = map.smartTag("entity");
+      REQUIRE(patchNode->hasTag(entityTag));
+
+      auto callback = TestCallback{0};
+      CHECK(makeStructural(map, {patchNode}, callback));
+      CHECK(patchNode->entity() == &map.worldNode());
+      CHECK(!patchNode->hasTag(entityTag));
+
+      map.undoCommand();
+      CHECK(patchNode->entity() == entityNode);
+      CHECK(patchNode->hasTag(entityTag));
+    }
+
+    SECTION("Mixed brush and patch selection both become structural in one transaction")
+    {
+      auto* entityNode = new EntityNode{Entity{{{"classname", "brush_entity"}}}};
+      addNodes(map, {{&parentForNodes(map), {entityNode}}});
+
+      auto* brushNode = createBrushNode(map);
+      addNodes(map, {{entityNode, {brushNode}}});
+
+      auto* patchNode = createPatchNode();
+      addNodes(map, {{entityNode, {patchNode}}});
+
+      auto callback = TestCallback{0};
+      CHECK(makeStructural(map, {brushNode, patchNode}, callback));
+      CHECK(brushNode->entity() == &map.worldNode());
+      CHECK(patchNode->entity() == &map.worldNode());
+
+      map.undoCommand();
+      CHECK(brushNode->entity() == entityNode);
+      CHECK(patchNode->entity() == entityNode);
+    }
+
+    SECTION(
+      "Selected brush that is the sole child of its entity is reparented without "
+      "corrupting selection state")
+    {
+      auto* entityNode = new EntityNode{Entity{{{"classname", "brush_entity"}}}};
+      addNodes(map, {{&parentForNodes(map), {entityNode}}});
+
+      auto* brushNode = createBrushNode(map);
+      addNodes(map, {{entityNode, {brushNode}}});
+
+      selectNodes(map, {brushNode});
+
+      auto callback = TestCallback{0};
+      CHECK(makeStructural(map, {brushNode}, callback));
+      CHECK(brushNode->entity() == &map.worldNode());
+      CHECK(entityNode->parent() == nullptr);
+      CHECK(map.selection().nodes == std::vector<Node*>{brushNode});
+    }
+
+    SECTION(
+      "Selected patch that is the sole child of its entity is reparented without "
+      "corrupting selection state")
+    {
+      auto* entityNode = new EntityNode{Entity{{{"classname", "brush_entity"}}}};
+      addNodes(map, {{&parentForNodes(map), {entityNode}}});
+
+      auto* patchNode = createPatchNode();
+      addNodes(map, {{entityNode, {patchNode}}});
+
+      selectNodes(map, {patchNode});
+
+      auto callback = TestCallback{0};
+      CHECK(makeStructural(map, {patchNode}, callback));
+      CHECK(patchNode->entity() == &map.worldNode());
+      CHECK(entityNode->parent() == nullptr);
+      CHECK(map.selection().nodes == std::vector<Node*>{patchNode});
+    }
+  }
+
+  SECTION("moveToEntity")
+  {
+    SECTION("Empty node list does nothing")
+    {
+      auto* entityNode = new EntityNode{Entity{{{"classname", "brush_entity"}}}};
+      addNodes(map, {{&parentForNodes(map), {entityNode}}});
+
+      CHECK(!moveToEntity(map, {}, *entityNode));
+    }
+
+    SECTION("Moves a structural brush into an entity and selects it")
+    {
+      auto* entityNode = new EntityNode{Entity{{{"classname", "brush_entity"}}}};
+      addNodes(map, {{&parentForNodes(map), {entityNode}}});
+
+      auto* brushNode = createBrushNode(map);
+      addNodes(map, {{&parentForNodes(map), {brushNode}}});
+
+      CHECK(moveToEntity(map, {brushNode}, *entityNode));
+      CHECK(brushNode->entity() == entityNode);
+      CHECK(map.selection().brushes == std::vector<BrushNode*>{brushNode});
+
+      map.undoCommand();
+      CHECK(brushNode->entity() == &map.worldNode());
+    }
+
+    SECTION("Brush already parented under the target entity is skipped")
+    {
+      auto* entityNode = new EntityNode{Entity{{{"classname", "brush_entity"}}}};
+      addNodes(map, {{&parentForNodes(map), {entityNode}}});
+
+      auto* brushNode = createBrushNode(map);
+      addNodes(map, {{entityNode, {brushNode}}});
+
+      CHECK(!moveToEntity(map, {brushNode}, *entityNode));
+    }
+
+    SECTION("Moves a structural patch into an entity and selects it")
+    {
+      auto* entityNode = new EntityNode{Entity{{{"classname", "brush_entity"}}}};
+      addNodes(map, {{&parentForNodes(map), {entityNode}}});
+
+      auto* patchNode = createPatchNode();
+      addNodes(map, {{&parentForNodes(map), {patchNode}}});
+
+      CHECK(moveToEntity(map, {patchNode}, *entityNode));
+      CHECK(patchNode->entity() == entityNode);
+      CHECK(map.selection().patches == std::vector<PatchNode*>{patchNode});
+
+      map.undoCommand();
+      CHECK(patchNode->entity() == &map.worldNode());
+    }
+
+    SECTION("Moves a brush and a patch together and both pick up the entity's tag")
+    {
+      auto* entityNode = new EntityNode{Entity{{{"classname", "brush_entity"}}}};
+      addNodes(map, {{&parentForNodes(map), {entityNode}}});
+
+      auto* brushNode = createBrushNode(map);
+      addNodes(map, {{&parentForNodes(map), {brushNode}}});
+
+      auto* patchNode = createPatchNode();
+      addNodes(map, {{&parentForNodes(map), {patchNode}}});
+
+      const auto& entityTag = map.smartTag("entity");
+      REQUIRE(!brushNode->hasTag(entityTag));
+      REQUIRE(!patchNode->hasTag(entityTag));
+
+      CHECK(moveToEntity(map, {brushNode, patchNode}, *entityNode));
+      CHECK(brushNode->hasTag(entityTag));
+      CHECK(patchNode->hasTag(entityTag));
+    }
+
+    SECTION("Non-geometry node in the input is ignored")
+    {
+      auto* entityNode = new EntityNode{Entity{{{"classname", "brush_entity"}}}};
+      addNodes(map, {{&parentForNodes(map), {entityNode}}});
+
+      auto* otherEntityNode = new EntityNode{Entity{}};
+      auto* brushNode = createBrushNode(map);
+      addNodes(map, {{&parentForNodes(map), {otherEntityNode, brushNode}}});
+
+      CHECK(moveToEntity(map, {otherEntityNode, brushNode}, *entityNode));
+      CHECK(brushNode->entity() == entityNode);
+      CHECK(otherEntityNode->parent() != entityNode);
     }
   }
 
@@ -792,12 +1140,12 @@ TEST_CASE("Map_Nodes")
     SECTION("Remove empty group")
     {
       auto* group = new GroupNode{Group{"group"}};
-      addNodes(map, {{parentForNodes(map), {group}}});
+      addNodes(map, {{&parentForNodes(map), {group}}});
 
       openGroup(map, *group);
 
       auto* brush = createBrushNode(map);
-      addNodes(map, {{parentForNodes(map), {brush}}});
+      addNodes(map, {{&parentForNodes(map), {brush}}});
 
       removeNodes(map, {brush});
       CHECK(map.editorContext().currentGroup() == nullptr);
@@ -813,17 +1161,17 @@ TEST_CASE("Map_Nodes")
     SECTION("Recursively remove empty groups")
     {
       auto* outer = new GroupNode{Group{"outer"}};
-      addNodes(map, {{parentForNodes(map), {outer}}});
+      addNodes(map, {{&parentForNodes(map), {outer}}});
 
       openGroup(map, *outer);
 
       auto* inner = new GroupNode{Group{"inner"}};
-      addNodes(map, {{parentForNodes(map), {inner}}});
+      addNodes(map, {{&parentForNodes(map), {inner}}});
 
       openGroup(map, *inner);
 
       auto* brush = createBrushNode(map);
-      addNodes(map, {{parentForNodes(map), {brush}}});
+      addNodes(map, {{&parentForNodes(map), {brush}}});
 
       removeNodes(map, {brush});
       CHECK(map.editorContext().currentGroup() == nullptr);
@@ -871,7 +1219,7 @@ TEST_CASE("Map_Nodes")
 
       auto* nodeToRemove = createNode(map);
       groupNode->addChildren({brushNode, nodeToRemove});
-      addNodes(map, {{parentForNodes(map), {groupNode}}});
+      addNodes(map, {{&parentForNodes(map), {groupNode}}});
 
       selectNodes(map, {groupNode});
       auto* linkedGroupNode = createLinkedDuplicate(map);
@@ -890,18 +1238,18 @@ TEST_CASE("Map_Nodes")
     SECTION("Update linked groups with recursion")
     {
       auto* outerGroupNode = new GroupNode{Group{"outer"}};
-      addNodes(map, {{parentForNodes(map), {outerGroupNode}}});
+      addNodes(map, {{&parentForNodes(map), {outerGroupNode}}});
 
       openGroup(map, *outerGroupNode);
 
       auto* outerEntityNode = new EntityNode{Entity{}};
       auto* innerGroupNode = new GroupNode{Group{"inner"}};
-      addNodes(map, {{parentForNodes(map), {outerEntityNode, innerGroupNode}}});
+      addNodes(map, {{&parentForNodes(map), {outerEntityNode, innerGroupNode}}});
 
       openGroup(map, *innerGroupNode);
 
       auto* innerEntityNode = new EntityNode{Entity{}};
-      addNodes(map, {{parentForNodes(map), {innerEntityNode}}});
+      addNodes(map, {{&parentForNodes(map), {innerEntityNode}}});
 
       closeGroup(map);
       closeGroup(map);
@@ -935,7 +1283,7 @@ TEST_CASE("Map_Nodes")
   SECTION("removeSelectedNodes")
   {
     auto* entityNode = new EntityNode{Entity{}};
-    addNodes(map, {{parentForNodes(map), {entityNode}}});
+    addNodes(map, {{&parentForNodes(map), {entityNode}}});
     selectNodes(map, {entityNode});
 
     removeSelectedNodes(map);
@@ -948,7 +1296,7 @@ TEST_CASE("Map_Nodes")
     SECTION("Update brushes")
     {
       auto* brushNode = createBrushNode(map);
-      addNodes(map, {{parentForNodes(map), {brushNode}}});
+      addNodes(map, {{&parentForNodes(map), {brushNode}}});
 
       const auto originalBrush = brushNode->brush();
       auto modifiedBrush = originalBrush;
@@ -968,7 +1316,7 @@ TEST_CASE("Map_Nodes")
     SECTION("Update patches")
     {
       auto* patchNode = createPatchNode();
-      addNodes(map, {{parentForNodes(map), {patchNode}}});
+      addNodes(map, {{&parentForNodes(map), {patchNode}}});
 
       const auto originalPatch = patchNode->patch();
       auto modifiedPatch = originalPatch;
@@ -994,7 +1342,7 @@ TEST_CASE("Map_Nodes")
       REQUIRE(material != nullptr);
 
       auto* brushNode = createBrushNode(map, MaterialName);
-      addNodes(map, {{parentForNodes(map), {brushNode}}});
+      addNodes(map, {{&parentForNodes(map), {brushNode}}});
 
       const auto& originalBrush = brushNode->brush();
       auto modifiedBrush = originalBrush;
@@ -1021,7 +1369,7 @@ TEST_CASE("Map_Nodes")
         {EntityPropertyKeys::Classname, Classname},
       }}};
 
-      addNodes(map, {{parentForNodes(map), {entityNode}}});
+      addNodes(map, {{&parentForNodes(map), {entityNode}}});
 
       const auto& originalEntity = entityNode->entity();
       auto modifiedEntity = originalEntity;
@@ -1044,7 +1392,7 @@ TEST_CASE("Map_Nodes")
       auto* groupNode = new GroupNode{Group{"group"}};
       auto* brushNode = createBrushNode(map);
       groupNode->addChild(brushNode);
-      addNodes(map, {{parentForNodes(map), {groupNode}}});
+      addNodes(map, {{&parentForNodes(map), {groupNode}}});
 
       selectNodes(map, {groupNode});
       auto* linkedGroupNode = createLinkedDuplicate(map);
@@ -1089,7 +1437,7 @@ TEST_CASE("Map_Nodes")
       auto* groupNode = new GroupNode{Group{"group"}};
       auto* brushNode = createBrushNode(map);
       groupNode->addChild(brushNode);
-      addNodes(map, {{parentForNodes(map), {groupNode}}});
+      addNodes(map, {{&parentForNodes(map), {groupNode}}});
 
       selectNodes(map, {groupNode});
       auto* linkedGroupNode = createLinkedDuplicate(map);
@@ -1105,7 +1453,7 @@ TEST_CASE("Map_Nodes")
       const auto originalBrushBounds = brushNode->physicalBounds();
 
       selectNodes(map, {brushNode});
-      CHECK_FALSE(translateSelection(map, vm::vec3d{0, 16, 0}));
+      CHECK(!translateSelection(map, vm::vec3d{0, 16, 0}));
 
       REQUIRE(brushNode->physicalBounds() == originalBrushBounds);
 

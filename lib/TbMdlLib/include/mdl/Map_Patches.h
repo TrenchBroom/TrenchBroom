@@ -23,6 +23,7 @@
 #include "vm/vec.h"
 
 #include <cstddef>
+#include <string>
 #include <vector>
 
 namespace tb::mdl
@@ -37,5 +38,7 @@ bool transformControlPoints(
   Map& map,
   const std::vector<vm::vec3d>& controlPointPositions,
   const vm::mat4x4d& transform);
+
+bool setPatchMaterial(Map& map, const std::string& materialName);
 
 } // namespace tb::mdl
