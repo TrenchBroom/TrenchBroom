@@ -100,6 +100,23 @@ public:
   }
 
   deleteCopyAndMove(NodeHandleCommand);
+
+protected:
+  bool doCollateWith(UndoableCommand& command) override
+  {
+    if (auto* other = dynamic_cast<NodeHandleCommand*>(&command))
+    {
+      if (SwapNodeContentsCommand::doCollateWith(command))
+      {
+        // The node contents are correctly collated by SwapNodeContentsCommand via
+        // swapping, but the recorded handle positions are not, so adopt the target
+        // positions of the command being collated away.
+        m_newHandles = other->m_newHandles;
+        return true;
+      }
+    }
+    return false;
+  }
 };
 
 } // namespace tb::mdl

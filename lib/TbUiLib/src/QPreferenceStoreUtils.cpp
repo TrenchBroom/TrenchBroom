@@ -34,6 +34,7 @@
 
 #include "kd/reflection_impl.h"
 
+#include <memory>
 #include <ostream>
 
 namespace tb::ui
@@ -41,9 +42,26 @@ namespace tb::ui
 namespace
 {
 
-QLockFile getLockFile(const QString& preferenceFilePath)
+Result<
+  std::unique_ptr<QLockFile>,
+  PreferenceErrors::FileAccessError,
+  PreferenceErrors::LockFileError>
+getLockFile(const QString& preferenceFilePath)
 {
-  return QLockFile{preferenceFilePath + ".lck"};
+  // Ensure that the containing folder exists
+  auto dir = QFileInfo{preferenceFilePath}.dir();
+  if (!QDir{}.mkpath(dir.path()))
+  {
+    return PreferenceErrors::FileAccessError{};
+  }
+
+  auto lockFile = std::make_unique<QLockFile>(preferenceFilePath + ".lck");
+  if (!lockFile->lock())
+  {
+    return PreferenceErrors::LockFileError{};
+  }
+
+  return lockFile;
 }
 
 } // namespace
@@ -101,29 +119,25 @@ QByteArray writePreferencesToJson(const PreferenceValues& preferenceValues)
 
 ReadPreferencesResult readPreferencesFromFile(const QString& path)
 {
-  auto lockFile = getLockFile(path);
-  if (!lockFile.lock())
-  {
-    return PreferenceErrors::LockFileError{};
-  }
+  return getLockFile(path) | kdl::and_then([&](auto lockFile) -> ReadPreferencesResult {
+           auto file = QFile{path};
+           if (!file.exists())
+           {
+             return PreferenceErrors::NoFilePresent{};
+           }
 
-  auto file = QFile{path};
-  if (!file.exists())
-  {
-    return PreferenceErrors::NoFilePresent{};
-  }
+           if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+           {
+             return PreferenceErrors::FileAccessError{};
+           }
 
-  if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
-  {
-    return PreferenceErrors::FileAccessError{};
-  }
+           const auto contents = file.readAll();
 
-  const auto contents = file.readAll();
+           file.close();
+           lockFile->unlock();
 
-  file.close();
-  lockFile.unlock();
-
-  return parsePreferencesFromJson(contents);
+           return parsePreferencesFromJson(contents);
+         });
 }
 
 
@@ -132,36 +146,26 @@ WritePreferencesResult writePreferencesToFile(
 {
   const auto json = writePreferencesToJson(preferenceValues);
 
-  const auto dirPath = QFileInfo{path}.path();
-  if (!QDir{}.mkpath(dirPath))
-  {
-    return PreferenceErrors::FileAccessError{};
-  }
+  return getLockFile(path) | kdl::and_then([&](auto) -> WritePreferencesResult {
+           auto saveFile = QSaveFile{path};
+           if (!saveFile.open(QIODevice::WriteOnly))
+           {
+             return PreferenceErrors::FileAccessError{};
+           }
 
-  auto lockFile = getLockFile(path);
-  if (!lockFile.lock())
-  {
-    return PreferenceErrors::LockFileError{};
-  }
+           const auto written = saveFile.write(json);
+           if (written != static_cast<qint64>(json.size()))
+           {
+             return PreferenceErrors::FileAccessError{};
+           }
 
-  auto saveFile = QSaveFile{path};
-  if (!saveFile.open(QIODevice::WriteOnly))
-  {
-    return PreferenceErrors::FileAccessError{};
-  }
+           if (!saveFile.commit())
+           {
+             return PreferenceErrors::FileAccessError{};
+           }
 
-  const auto written = saveFile.write(json);
-  if (written != static_cast<qint64>(json.size()))
-  {
-    return PreferenceErrors::FileAccessError{};
-  }
-
-  if (!saveFile.commit())
-  {
-    return PreferenceErrors::FileAccessError{};
-  }
-
-  return kdl::void_success;
+           return kdl::void_success;
+         });
 }
 
 } // namespace tb::ui
