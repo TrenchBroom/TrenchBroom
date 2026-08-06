@@ -402,7 +402,7 @@ DrawShapeToolIcoSphereShapeExtensionPage::DrawShapeToolIcoSphereShapeExtensionPa
 {
   auto* accuracyLabel = new QLabel{tr("Accuracy: ")};
   auto* accuracyBox = new QSpinBox{};
-  accuracyBox->setRange(0, 4);
+  accuracyBox->setRange(1, 4);
 
   connect(
     accuracyBox,
