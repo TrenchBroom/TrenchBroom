@@ -89,6 +89,8 @@ public:
   explicit SweepTool(MapDocument& document);
   ~SweepTool() override;
 
+  bool ownsSelection() const override;
+
   bool doActivate() override;
   bool doDeactivate() override;
 
@@ -102,6 +104,8 @@ public:
 
   vm::vec3d destinationCenter() const;
   void setDestinationCenter(const vm::vec3d& position);
+
+  void rotateDestinationCap(const vm::vec3d& axis, double angle);
 
   void reset();
   bool cancel();
@@ -119,6 +123,7 @@ public:
   bool hasScaleHandle() const;
   vm::vec3d scaleHandlePosition() const;
   void dragScaleHandleTo(const vm::vec3d& position);
+  void moveScaleHandle(double distance);
   mdl::Hit pickScaleHandle(const vm::ray3d& pickRay, const gl::Camera& camera) const;
   void renderScaleHandle(
     render::RenderContext& renderContext, render::RenderBatch& renderBatch) const;
@@ -138,6 +143,7 @@ public:
   // PointHandleDelegate (scale handle)
   vm::vec3d handlePosition() const override;
   void setHandlePosition(const vm::vec3d& position) override;
+  DragHandleSnapper makeDragHandleSnapper(SnapMode snapMode) const override;
   void renderHighlight(
     render::RenderContext& renderContext,
     render::RenderBatch& renderBatch) const override;

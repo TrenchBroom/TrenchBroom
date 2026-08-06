@@ -326,6 +326,11 @@ void ToolBox::disable()
   m_enabled = false;
 }
 
+bool ToolBox::selectionOwnedByTool() const
+{
+  return !m_modalToolStack.empty() && m_modalToolStack.back()->ownsSelection();
+}
+
 void ToolBox::setRenderOptions(
   ToolChain& chain, const InputState& inputState, render::RenderContext& renderContext)
 {

@@ -21,14 +21,18 @@
 #include "mdl/BrushNode.h"
 #include "mdl/Entity.h"
 #include "mdl/EntityNode.h"
+#include "mdl/Grid.h"
 #include "mdl/GroupNode.h"
 #include "mdl/Map.h"
 #include "mdl/Map_Nodes.h"
 #include "mdl/Map_Selection.h"
 #include "mdl/TestFactory.h"
 #include "ui/CatchConfig.h"
+#include "ui/HandleDragTracker.h"
+#include "ui/InputState.h"
 #include "ui/MapDocument.h"
 #include "ui/MapDocumentFixture.h"
+#include "ui/MoveHandleDragTracker.h"
 #include "ui/SweepTool.h"
 
 #include "vm/approx.h"
@@ -117,6 +121,44 @@ TEST_CASE("SweepTool")
         tool.transform().rotation * vm::vec3d{1, 0, 0} == vm::approx{vm::vec3d{0, 1, 0}});
     }
 
+    SECTION("rotateDestinationCap composes onto the rotation like a ring drag")
+    {
+      tool.setTransform(SweepTransform{
+        vm::vec3d{64, 0, 0},
+        vm::quatd{vm::vec3d{0, 0, 1}, vm::Cd::half_pi()},
+        vm::vec3d{2, 2, 2}});
+
+      tool.rotateDestinationCap(vm::vec3d{1, 0, 0}, vm::Cd::half_pi());
+
+      // a quarter turn about z followed by a quarter turn about x maps {1,0,0} to {0,0,1}
+      CHECK(
+        tool.transform().rotation * vm::vec3d{1, 0, 0} == vm::approx{vm::vec3d{0, 0, 1}});
+      CHECK(tool.transform().translation == vm::vec3d{64, 0, 0});
+      CHECK(tool.transform().scale == vm::vec3d{2, 2, 2});
+    }
+
+    SECTION("moveScaleHandle steps the cap by whole grid steps like a snapped drag")
+    {
+      tool.setTransform(SweepTransform{
+        vm::vec3d{64, 0, 0},
+        vm::quatd{vm::vec3d{0, 0, 1}, vm::Cd::half_pi()},
+        vm::vec3d{2, 2, 2}});
+
+      // the arm's largest component is 16 at scale 1, so 16 units are one whole factor
+      tool.moveScaleHandle(16.0);
+      CHECK(tool.transform().scale == vm::approx{vm::vec3d{3, 3, 3}});
+
+      tool.moveScaleHandle(-16.0);
+      CHECK(tool.transform().scale == vm::approx{vm::vec3d{2, 2, 2}});
+      CHECK(tool.transform().translation == vm::vec3d{64, 0, 0});
+      CHECK(
+        tool.transform().rotation == vm::quatd{vm::vec3d{0, 0, 1}, vm::Cd::half_pi()});
+
+      // stepping far past the center clamps instead of inverting the profile
+      tool.moveScaleHandle(-4096.0);
+      CHECK(tool.transform().scale == vm::vec3d::fill(SweepTool::MinScaleFactor));
+    }
+
     SECTION("dragScaleHandleTo reads a uniform scale off the handle arm")
     {
       tool.setDestinationCenter(vm::vec3d{80, 0, 0});
@@ -131,12 +173,50 @@ TEST_CASE("SweepTool")
         tool.transform().scale == vm::approx{vm::vec3d::fill(SweepTool::MinScaleFactor)});
     }
 
+    SECTION("scale handle drags snap the destination cap onto the grid")
+    {
+      map.grid().setSize(2); // 2^2, so this sets it to grid 4
+
+      const auto center = tool.destinationCenter();
+      const auto arm = tool.scaleHandlePosition() - center;
+
+      const auto snapper = tool.makeDragHandleSnapper(SnapMode::Relative);
+
+      // off-arm positions are projected onto the arm before snapping
+      const auto proposed = center + arm * 1.3 + vm::vec3d{5, 0, 0};
+      const auto snapped = snapper(InputState{}, DragState{}, proposed);
+
+      REQUIRE(snapped.has_value());
+      CHECK(*snapped == vm::approx{center + arm * 1.25});
+    }
+
     SECTION("setDestinationCenter translates towards the given position")
     {
       tool.setDestinationCenter(vm::vec3d{80, 0, 0});
 
       CHECK(tool.transform().translation == vm::vec3d{64, 0, 0});
       CHECK(tool.destinationCenter() == vm::vec3d{80, 0, 0});
+    }
+
+    SECTION("setDestinationCenter round-trips exactly and leaves rotation and scale")
+    {
+      tool.setTransform(SweepTransform{
+        vm::vec3d{64, 0, 0},
+        vm::quatd{vm::vec3d{0, 0, 1}, vm::Cd::half_pi()},
+        vm::vec3d{2, 2, 2}});
+
+      const auto center = tool.destinationCenter();
+      const auto delta = vm::vec3d{16, -32, 8};
+
+      tool.setDestinationCenter(center + delta);
+      CHECK(tool.destinationCenter() == center + delta);
+      CHECK(
+        tool.transform().rotation == vm::quatd{vm::vec3d{0, 0, 1}, vm::Cd::half_pi()});
+      CHECK(tool.transform().scale == vm::vec3d{2, 2, 2});
+
+      // nudging repeatedly must not accumulate error
+      tool.setDestinationCenter(tool.destinationCenter() + delta);
+      CHECK(tool.destinationCenter() == center + 2.0 * delta);
     }
 
     SECTION("cancel resets the transform")
