@@ -10,6 +10,7 @@ target_sources(TbMdlLibTest PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_BrushFace.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_BrushNode.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_CommandProcessor.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_CompareHits.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_CompilationConfig.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_DecalDefinition.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_DefParser.cpp
@@ -31,6 +32,7 @@ target_sources(TbMdlLibTest PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Grid.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Group.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_GroupNode.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Hit.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_HitFilter.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Issue.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Layer.cpp
