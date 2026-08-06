@@ -72,7 +72,7 @@ TEST_CASE("ControlPointTool")
   SECTION("pick")
   {
     auto* patchNode = mdl::createPatchNode();
-    mdl::addNodes(map, {{mdl::parentForNodes(map), {patchNode}}});
+    mdl::addNodes(map, {{&mdl::parentForNodes(map), {patchNode}}});
     mdl::selectNodes(map, {patchNode});
 
     auto tool = ControlPointTool{document};
@@ -126,7 +126,7 @@ TEST_CASE("ControlPointTool")
   SECTION("handlePositionAndHitPoint")
   {
     auto* patchNode = mdl::createPatchNode();
-    mdl::addNodes(map, {{mdl::parentForNodes(map), {patchNode}}});
+    mdl::addNodes(map, {{&mdl::parentForNodes(map), {patchNode}}});
     mdl::selectNodes(map, {patchNode});
 
     auto tool = ControlPointTool{document};
@@ -151,7 +151,7 @@ TEST_CASE("ControlPointTool")
   {
     auto* patchNode1 = mdl::createPatchNode();
     auto* patchNode2 = createOffsetPatchNode();
-    mdl::addNodes(map, {{mdl::parentForNodes(map), {patchNode1, patchNode2}}});
+    mdl::addNodes(map, {{&mdl::parentForNodes(map), {patchNode1, patchNode2}}});
     mdl::selectNodes(map, {patchNode1});
 
     auto tool = ControlPointTool{document};
@@ -173,7 +173,7 @@ TEST_CASE("ControlPointTool")
   {
     auto* patchNode1 = mdl::createPatchNode();
     auto* patchNode2 = createOffsetPatchNode();
-    mdl::addNodes(map, {{mdl::parentForNodes(map), {patchNode1, patchNode2}}});
+    mdl::addNodes(map, {{&mdl::parentForNodes(map), {patchNode1, patchNode2}}});
     mdl::selectNodes(map, {patchNode1, patchNode2});
 
     auto tool = ControlPointTool{document};
@@ -194,7 +194,7 @@ TEST_CASE("ControlPointTool")
   SECTION("move")
   {
     auto* patchNode = mdl::createPatchNode();
-    mdl::addNodes(map, {{mdl::parentForNodes(map), {patchNode}}});
+    mdl::addNodes(map, {{&mdl::parentForNodes(map), {patchNode}}});
     mdl::selectNodes(map, {patchNode});
 
     auto tool = ControlPointTool{document};

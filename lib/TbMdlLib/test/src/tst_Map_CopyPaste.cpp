@@ -106,7 +106,7 @@ TEST_CASE("Map_CopyPaste")
       // https://github.com/TrenchBroom/TrenchBroom/issues/5367
 
       auto* patchNode = createPatchNode();
-      addNodes(map, {{parentForNodes(map), {patchNode}}});
+      addNodes(map, {{&parentForNodes(map), {patchNode}}});
       selectNodes(map, {patchNode});
 
       CHECK(serializeSelectedNodes(map) != R"()");
@@ -364,7 +364,7 @@ common/caulk
       auto& map = fixture.create({.mapFormat = MapFormat::Quake3});
 
       auto* patchNode = createPatchNode();
-      addNodes(map, {{parentForNodes(map), {patchNode}}});
+      addNodes(map, {{&parentForNodes(map), {patchNode}}});
       selectNodes(map, {patchNode});
 
       const auto copied = serializeSelectedNodes(map);
