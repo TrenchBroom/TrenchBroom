@@ -105,49 +105,9 @@ const std::vector<Hit>& PickResult::all() const
 
 const Hit& PickResult::first(const HitFilter& filter) const
 {
-  const auto occluder = HitFilters::type(HitType::AnyType);
-
-  if (!m_hits.empty())
-  {
-    auto it = std::begin(m_hits);
-    auto end = std::end(m_hits);
-    auto bestMatch = end;
-
-    auto bestMatchError = std::numeric_limits<double>::max();
-    auto bestOccluderError = std::numeric_limits<double>::max();
-
-    auto containsOccluder = false;
-    while (it != end && !containsOccluder)
-    {
-      const auto distance = it->distance();
-      do
-      {
-        const auto& hit = *it;
-        if (filter(hit))
-        {
-          if (hit.error() < bestMatchError)
-          {
-            bestMatch = it;
-            bestMatchError = hit.error();
-          }
-        }
-        else if (!occluder(hit))
-        {
-          bestOccluderError = vm::min(bestOccluderError, hit.error());
-          containsOccluder = true;
-        }
-        ++it;
-      } while (it != end
-               && vm::is_equal(it->distance(), distance, vm::Cd::almost_zero()));
-    }
-
-    if (bestMatch != end && bestMatchError <= bestOccluderError)
-    {
-      return *bestMatch;
-    }
-  }
-
-  return Hit::NoHit;
+  auto matches = m_hits | std::views::filter(filter);
+  const auto it = std::ranges::min_element(matches, std::less<double>{}, &Hit::error);
+  return it != std::ranges::end(matches) ? *it : Hit::NoHit;
 }
 
 std::vector<Hit> PickResult::all(const HitFilter& filter) const

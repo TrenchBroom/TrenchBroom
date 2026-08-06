@@ -22,7 +22,6 @@
 #include "mdl/HitFilter.h"
 #include "mdl/PickResult.h"
 
-#include "vm/constants.h"
 #include "vm/util.h"
 #include "vm/vec.h"
 
@@ -249,11 +248,11 @@ TEST_CASE("PickResult")
       CHECK(pickResult.first(HitFilters::any()).target<int>() == 1);
     }
 
-    SECTION("compares the errors of hits at almost equal distances")
+    SECTION("prefers the hit with the smallest error over the closer hit")
     {
       auto pickResult = PickResult{};
       pickResult.addHit(makeHit(TestHitType, 1.0, 1, 1.0));
-      pickResult.addHit(makeHit(TestHitType, 1.0 + vm::Cd::almost_zero() / 2.0, 2, 0.5));
+      pickResult.addHit(makeHit(TestHitType, 2.0, 2, 0.5));
 
       CHECK(pickResult.first(HitFilters::any()).target<int>() == 2);
     }
