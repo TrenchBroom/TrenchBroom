@@ -148,6 +148,9 @@ public: // tool management
   void enable();
   void disable();
 
+public: // selection
+  bool selectionOwnedByTool() const;
+
 public: // rendering
   void setRenderOptions(
     ToolChain& chain, const InputState& inputState, render::RenderContext& renderContext);

@@ -56,6 +56,8 @@ public:
   void createPage(QStackedLayout* book);
   void showPage();
 
+  virtual bool ownsSelection() const;
+
 private:
   virtual bool doActivate();
   virtual bool doDeactivate();

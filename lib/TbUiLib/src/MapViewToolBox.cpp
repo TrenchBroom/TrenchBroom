@@ -312,6 +312,28 @@ bool MapViewToolBox::sweepToolActive() const
   return m_sweepTool->active();
 }
 
+void MapViewToolBox::moveSweepCenter(const vm::vec3d& delta)
+{
+  contract_pre(sweepToolActive());
+
+  const auto center = m_sweepTool->destinationCenter();
+  m_sweepTool->setDestinationCenter(center + delta);
+}
+
+void MapViewToolBox::rotateSweepCap(const vm::vec3d& axis, const double angle)
+{
+  contract_pre(sweepToolActive());
+
+  m_sweepTool->rotateDestinationCap(axis, angle);
+}
+
+void MapViewToolBox::scaleSweepCap(const double distance)
+{
+  contract_pre(sweepToolActive());
+
+  m_sweepTool->moveScaleHandle(distance);
+}
+
 void MapViewToolBox::performSweep()
 {
   contract_pre(sweepToolActive());

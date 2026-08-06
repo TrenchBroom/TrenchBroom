@@ -173,6 +173,7 @@ public: // move, rotate, flip actions
   void move(vm::direction direction);
   void moveNodeHandles(vm::direction direction);
   void moveRotationCenter(vm::direction direction);
+  void moveSweepCenter(vm::direction direction);
   void moveObjects(vm::direction direction);
   virtual vm::vec3d moveDirection(vm::direction direction) const = 0;
 
@@ -181,6 +182,9 @@ public: // move, rotate, flip actions
 
   void rotate(vm::rotation_axis axis, bool clockwise);
   vm::vec3d rotationAxis(vm::rotation_axis axis, bool clockwise) const;
+
+  void increaseSweepScale();
+  void decreaseSweepScale();
 
   void flip(vm::direction direction);
   bool canFlip() const;
