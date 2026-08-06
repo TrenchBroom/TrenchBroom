@@ -634,7 +634,7 @@ TEST_CASE("Map_Selection")
 
     addNodes(
       map,
-      {{parentForNodes(map),
+      {{&parentForNodes(map),
         {pointEntityNode, otherPointEntityNode, brushNode, groupNode, brushEntityNode}}});
     addNodes(map, {{groupNode, {groupedEntityNode, otherGroupedEntityNode}}});
     addNodes(map, {{brushEntityNode, {entityBrushNode}}});
