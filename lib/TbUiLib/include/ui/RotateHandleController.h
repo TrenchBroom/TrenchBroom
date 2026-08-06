@@ -20,6 +20,8 @@
 #pragma once
 
 #include "mdl/HitFilter.h"
+#include "ui/HandleDragTracker.h"
+#include "ui/MoveHandleDragTracker.h"
 #include "ui/RotateHandle.h"
 
 #include "vm/vec.h"
@@ -106,6 +108,8 @@ public:
 
   virtual vm::vec3d handlePosition() const = 0;
   virtual void setHandlePosition(const vm::vec3d& position) = 0;
+
+  virtual DragHandleSnapper makeDragHandleSnapper(SnapMode snapMode) const;
 
   virtual void renderHighlight(
     render::RenderContext& renderContext, render::RenderBatch& renderBatch) const = 0;

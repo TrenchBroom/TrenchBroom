@@ -365,6 +365,10 @@ void MapViewBase::move(const vm::direction direction)
   {
     moveNodeHandles(direction);
   }
+  else if ((actionContext() & ActionContext::SweepTool) != 0)
+  {
+    moveSweepCenter(direction);
+  }
   else if ((actionContext() & ActionContext::NodeSelection) != 0)
   {
     moveObjects(direction);
@@ -377,6 +381,15 @@ void MapViewBase::moveRotationCenter(const vm::direction direction)
   const auto& grid = map.grid();
   const auto delta = moveDirection(direction) * double(grid.actualSize());
   m_toolBox.moveRotationCenter(delta);
+  update();
+}
+
+void MapViewBase::moveSweepCenter(const vm::direction direction)
+{
+  const auto& map = m_document.map();
+  const auto& grid = map.grid();
+  const auto delta = moveDirection(direction) * double(grid.actualSize());
+  m_toolBox.moveSweepCenter(delta);
   update();
 }
 
@@ -417,7 +430,13 @@ void MapViewBase::duplicateAndMoveObjects(const vm::direction direction)
 void MapViewBase::rotate(const vm::rotation_axis axisSpec, const bool clockwise)
 {
   auto& map = m_document.map();
-  if (const auto& bounds = map.selectionBounds())
+  if (m_toolBox.sweepToolActive())
+  {
+    const auto axis = rotationAxis(axisSpec, clockwise);
+    m_toolBox.rotateSweepCap(axis, map.grid().angle());
+    update();
+  }
+  else if (const auto& bounds = map.selectionBounds())
   {
     const auto axis = rotationAxis(axisSpec, clockwise);
     const auto angle = m_toolBox.rotateToolActive() ? vm::abs(m_toolBox.rotateToolAngle())
@@ -450,6 +469,22 @@ vm::vec3d MapViewBase::rotationAxis(
   }
 
   return clockwise ? -axis : axis;
+}
+
+void MapViewBase::increaseSweepScale()
+{
+  const auto& map = m_document.map();
+  const auto& grid = map.grid();
+  m_toolBox.scaleSweepCap(double(grid.actualSize()));
+  update();
+}
+
+void MapViewBase::decreaseSweepScale()
+{
+  const auto& map = m_document.map();
+  const auto& grid = map.grid();
+  m_toolBox.scaleSweepCap(-double(grid.actualSize()));
+  update();
 }
 
 void MapViewBase::flip(const vm::direction direction)
@@ -888,10 +923,11 @@ ActionContext::Type MapViewBase::actionContext() const
     : m_toolBox.scaleToolActive()        ? ActionContext::ScaleTool
     : m_toolBox.shearToolActive()        ? ActionContext::ShearTool
                                          : ActionContext::NoTool;
-  const auto selectionContext = map.selection().hasNodes() ? ActionContext::NodeSelection
-                                : map.selection().hasBrushFaces()
-                                  ? ActionContext::FaceSelection
-                                  : ActionContext::NoSelection;
+  const auto selectionContext =
+    m_toolBox.selectionOwnedByTool()  ? ActionContext::SelectionOwnedByTool
+    : map.selection().hasNodes()      ? ActionContext::NodeSelection
+    : map.selection().hasBrushFaces() ? ActionContext::FaceSelection
+                                      : ActionContext::NoSelection;
   return viewContext | toolContext | selectionContext;
 }
 
