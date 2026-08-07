@@ -17,6 +17,7 @@
 - Tests use Catch2.
 - If VS Code test discovery is unavailable, run the built test executable directly from the build tree, for example build/lib/TbMdlLib/test/TbMdlLibTest.
 - Use --list-tests to discover available tests and Catch2 filters to run a focused subset.
+- Prefer `ctest --test-dir <build>/lib/<Name>/test -j` over invoking the test binary directly. `catch_discover_tests` registers every Catch2 test case as its own CTest test, so `-j` (no thread count — let ctest pick) runs them in parallel and is markedly faster than one sequential process. Build the test target first; ctest does not build.
 - Use Build.md for platform-specific setup and dependency details.
 
 ### Code coverage
