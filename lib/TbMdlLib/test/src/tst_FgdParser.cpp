@@ -262,6 +262,143 @@ TEST_CASE("FgdParser")
     CHECK(status.countStatus(LogLevel::Error) == 0u);
   }
 
+  SECTION("parseUnknownClassType")
+  {
+    const auto file = R"(
+    @WeirdClass = info_notnull : "Wildcard entity"
+    [
+    ])";
+
+    auto parser = FgdParser{file, RgbaF{1.0f, 1.0f, 1.0f, 1.0f}};
+    auto status = TestParserStatus{};
+
+    // the ParserException thrown while parsing the unknown class type is caught and
+    // converted to an Error by parseDefinitions
+    CHECK(parser.parseDefinitions(status).is_error());
+  }
+
+  SECTION("parseMainClass")
+  {
+    const auto file = R"(
+    @Main = []
+    @PointClass = info_notnull : "Wildcard entity"
+    [
+    ])";
+
+    auto parser = FgdParser{file, RgbaF{1.0f, 1.0f, 1.0f, 1.0f}};
+    auto status = TestParserStatus{};
+
+    CHECK(
+      parser.parseDefinitions(status)
+      == std::vector<mdl::EntityDefinition>{
+        {"info_notnull",
+         RgbaF{1.0f, 1.0f, 1.0f, 1.0f},
+         "Wildcard entity",
+         {},
+         mdl::PointEntityDefinition{{{-8, -8, -8}, {8, 8, 8}}, {}, {}}},
+      });
+    CHECK(status.countStatus(LogLevel::Warn) == 0u);
+    CHECK(status.countStatus(LogLevel::Error) == 0u);
+  }
+
+  SECTION("parseSolidClassWarnsAboutSize")
+  {
+    const auto file = R"(
+    @SolidClass size(-8 -8 -8, 8 8 8) = worldspawn : "World entity"
+    [
+    ])";
+
+    auto parser = FgdParser{file, RgbaF{1.0f, 1.0f, 1.0f, 1.0f}};
+    auto status = TestParserStatus{};
+
+    (void)parser.parseDefinitions(status);
+    CHECK(status.countStatus(LogLevel::Warn) == 1u);
+  }
+
+  SECTION("parseSolidClassWarnsAboutDecal")
+  {
+    const auto file = R"(
+    @SolidClass decal() = worldspawn : "World entity"
+    [
+    ])";
+
+    auto parser = FgdParser{file, RgbaF{1.0f, 1.0f, 1.0f, 1.0f}};
+    auto status = TestParserStatus{};
+
+    (void)parser.parseDefinitions(status);
+    CHECK(status.countStatus(LogLevel::Warn) == 1u);
+  }
+
+  SECTION("parseDuplicateBasePropertyWarns")
+  {
+    const auto file = R"(
+    @PointClass base(A) base(B) = info_notnull : "Wildcard entity"
+    [
+    ])";
+
+    auto parser = FgdParser{file, RgbaF{1.0f, 1.0f, 1.0f, 1.0f}};
+    auto status = TestParserStatus{};
+
+    (void)parser.parseDefinitions(status);
+    CHECK(status.countStatus(LogLevel::Warn) == 1u);
+  }
+
+  SECTION("parseDuplicateColorPropertyWarns")
+  {
+    const auto file = R"(
+    @PointClass color(0 255 0) color(255 0 0) = info_notnull : "Wildcard entity"
+    [
+    ])";
+
+    auto parser = FgdParser{file, RgbaF{1.0f, 1.0f, 1.0f, 1.0f}};
+    auto status = TestParserStatus{};
+
+    (void)parser.parseDefinitions(status);
+    CHECK(status.countStatus(LogLevel::Warn) == 1u);
+  }
+
+  SECTION("parseDuplicateSizePropertyWarns")
+  {
+    const auto file = R"(
+    @PointClass size(-8 -8 -8, 8 8 8) size(-16 -16 -16, 16 16 16) = info_notnull : "Wildcard entity"
+    [
+    ])";
+
+    auto parser = FgdParser{file, RgbaF{1.0f, 1.0f, 1.0f, 1.0f}};
+    auto status = TestParserStatus{};
+
+    (void)parser.parseDefinitions(status);
+    CHECK(status.countStatus(LogLevel::Warn) == 1u);
+  }
+
+  SECTION("parseDuplicateModelPropertyWarns")
+  {
+    const auto file = R"(
+    @PointClass sprite() sprite() = info_notnull : "Wildcard entity"
+    [
+    ])";
+
+    auto parser = FgdParser{file, RgbaF{1.0f, 1.0f, 1.0f, 1.0f}};
+    auto status = TestParserStatus{};
+
+    (void)parser.parseDefinitions(status);
+    CHECK(status.countStatus(LogLevel::Warn) == 1u);
+  }
+
+  SECTION("parseDuplicateDecalPropertyWarns")
+  {
+    const auto file = R"(
+    @PointClass decal() decal() = info_notnull : "Wildcard entity"
+    [
+    ])";
+
+    auto parser = FgdParser{file, RgbaF{1.0f, 1.0f, 1.0f, 1.0f}};
+    auto status = TestParserStatus{};
+
+    (void)parser.parseDefinitions(status);
+    CHECK(status.countStatus(LogLevel::Warn) == 1u);
+  }
+
   SECTION("parseBaseProperty")
   {
     const auto file = R"(
