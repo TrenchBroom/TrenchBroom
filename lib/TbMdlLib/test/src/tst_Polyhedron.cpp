@@ -23,6 +23,8 @@
 #include "mdl/Polyhedron_IO.h" // IWYU pragma: keep
 #include "mdl/Polyhedron_Instantiation.h"
 
+#include "vm/approx.h"
+#include "vm/ray.h"
 #include "vm/vec.h"
 #include "vm/vec_io.h"
 
@@ -2010,6 +2012,46 @@ TEST_CASE("Polyhedron")
           {+2, +2, 0},
         },
         cube));
+    }
+  }
+
+  SECTION("pickFace")
+  {
+    const auto p1 = vm::vec3d{-64, -64, -64};
+    const auto p2 = vm::vec3d{-64, -64, +64};
+    const auto p3 = vm::vec3d{-64, +64, -64};
+    const auto p4 = vm::vec3d{-64, +64, +64};
+    const auto p5 = vm::vec3d{+64, -64, -64};
+    const auto p6 = vm::vec3d{+64, -64, +64};
+    const auto p7 = vm::vec3d{+64, +64, -64};
+    const auto p8 = vm::vec3d{+64, +64, +64};
+
+    const auto cube = Polyhedron3d{p1, p2, p3, p4, p5, p6, p7, p8};
+
+    SECTION("With a ray that hits the top face")
+    {
+      const auto ray = vm::ray3d{{0, 0, 200}, {0, 0, -1}};
+
+      const auto hit = cube.pickFace(ray);
+      REQUIRE(hit.has_value());
+      CHECK(hit->distance == vm::approx{136.0});
+      CHECK(hit->face.plane().normal == vm::vec3d{0, 0, 1});
+    }
+
+    SECTION("With a ray that misses the cube")
+    {
+      const auto ray = vm::ray3d{{200, 200, 200}, {0, 0, -1}};
+
+      CHECK(cube.pickFace(ray) == std::nullopt);
+    }
+
+    SECTION("With a ray that starts inside the cube, facing away from every face")
+    {
+      // pickFace only considers the front side of each face, so a ray cast from the
+      // interior towards a face's back side does not hit it
+      const auto ray = vm::ray3d{{0, 0, 0}, {0, 0, 1}};
+
+      CHECK(cube.pickFace(ray) == std::nullopt);
     }
   }
 }
