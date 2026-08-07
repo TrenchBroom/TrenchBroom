@@ -63,8 +63,133 @@ TestEnvironment makeTestEnvironment()
 
 } // namespace
 
-TEST_CASE("DiskFileSystemTest")
+TEST_CASE("DiskFileSystem")
 {
+  SECTION("reload")
+  {
+    SECTION("reload picks up changes made directly to the backing directory")
+    {
+      auto env = makeTestEnvironment();
+      auto fs = DiskFileSystem{env.dir()};
+
+      CHECK(fs.pathInfo("newDir") == fs::PathInfo::Unknown);
+
+      // bypass DiskFileSystem and mutate the backing directory directly
+      env.createDirectory("newDir");
+      env.createFile("newDir/newFile.txt", "some content");
+
+      // the cache is stale until reload() is called
+      CHECK(fs.pathInfo("newDir") == fs::PathInfo::Unknown);
+      CHECK(fs.pathInfo("newDir/newFile.txt") == fs::PathInfo::Unknown);
+
+      CHECK(fs.reload() == Result<void>{});
+      CHECK(fs.pathInfo("newDir") == fs::PathInfo::Directory);
+      CHECK(fs.pathInfo("newDir/newFile.txt") == fs::PathInfo::File);
+    }
+
+    SECTION("constructing over a non-existent root does not error")
+    {
+      auto env = makeTestEnvironment();
+      const auto rootPath = env.dir() / "doesNotExistYet";
+
+      auto fs = DiskFileSystem{rootPath};
+      CHECK(fs.pathInfo(".") == fs::PathInfo::Unknown);
+      CHECK(fs.pathInfo("anything") == fs::PathInfo::Unknown);
+      CHECK(
+        fs.find(".", fs::TraversalMode::Flat)
+        == Result<std::vector<std::filesystem::path>>{Error{fmt::format(
+          "Path {} does not denote a directory", std::filesystem::path{"."})}});
+
+      // create the root directory (with some contents) after construction
+      env.createDirectory("doesNotExistYet");
+      env.createFile("doesNotExistYet/file.txt", "some content");
+
+      CHECK(fs.reload() == Result<void>{});
+      CHECK(fs.pathInfo(".") == fs::PathInfo::Directory);
+      CHECK(fs.pathInfo("file.txt") == fs::PathInfo::File);
+      CHECK_THAT(fs.find(".", fs::TraversalMode::Flat), MatchesPathsResult({"file.txt"}));
+    }
+
+    SECTION("find/pathInfo/openFile behave consistently through a symlinked directory")
+    {
+      auto env = makeTestEnvironment();
+      env.createDirectory("realDir");
+      env.createFile("realDir/realFile.txt", "some content");
+      env.createSymLink("realDir", "linkedDir");
+
+      auto fs = DiskFileSystem{env.dir()};
+
+      CHECK(fs.pathInfo("linkedDir") == fs::PathInfo::Directory);
+      CHECK(fs.pathInfo("linkedDir/realFile.txt") == fs::PathInfo::File);
+
+      CHECK_THAT(
+        fs.find("linkedDir", fs::TraversalMode::Flat),
+        MatchesPathsResult({
+          "linkedDir/realFile.txt",
+        }));
+
+      const auto file = fs.openFile("linkedDir/realFile.txt") | kdl::value();
+      CHECK(file->reader().readString(file->size()) == "some content");
+    }
+
+    SECTION("a broken symlink is neither a directory nor a file")
+    {
+      auto env = makeTestEnvironment();
+      env.createSymLink("doesNotExist", "brokenLink");
+
+      auto fs = DiskFileSystem{env.dir()};
+
+      CHECK(fs.pathInfo("brokenLink") == fs::PathInfo::Unknown);
+    }
+  }
+
+  SECTION("concurrent reload vs. reads")
+  {
+    using ThreadFunc = std::function<void()>;
+
+    // WritableDiskFileSystem's reload-after-write firing on a potentially-live
+    // DiskFileSystem instance while other threads read from it. Not a deterministic
+    // assertion of absence-of-race (that's what running this under -DTB_ENABLE_TSAN=ON
+    // is for) - this just exercises the pattern under contention, with a fixed
+    // iteration count so it terminates (a lock-ordering bug here would hang or crash
+    // rather than fail an assertion).
+    const auto env = makeTestEnvironment();
+
+    auto fs = DiskFileSystem{env.dir()};
+
+    constexpr auto numReaderThreads = 4;
+    constexpr auto numIterations = 500;
+
+    auto reloader = ThreadFunc{[&]() {
+      for (auto i = 0; i < numIterations; ++i)
+      {
+        std::ignore = fs.reload();
+      }
+    }};
+
+    auto reader = ThreadFunc{[&]() {
+      for (auto i = 0; i < numIterations; ++i)
+      {
+        static_cast<void>(fs.pathInfo("anotherDir"));
+        static_cast<void>(fs.find("anotherDir", fs::TraversalMode::Flat));
+        static_cast<void>(fs.openFile("test.txt"));
+      }
+    }};
+
+    auto threads =
+      kdl::views::concat(
+        std::views::single(reloader), kdl::views::repeat(reader, numReaderThreads))
+      | std::views::transform([](auto func) { return std::thread{std::move(func)}; })
+      | kdl::ranges::to<std::vector>();
+
+    for (auto& thread : threads)
+    {
+      thread.join();
+    }
+
+    CHECK(fs.pathInfo("anotherDir") == fs::PathInfo::Directory);
+  }
+
   const auto env = makeTestEnvironment();
 
   const auto fs = DiskFileSystem{env.dir()};
@@ -237,7 +362,7 @@ TEST_CASE("DiskFileSystemTest")
   }
 }
 
-TEST_CASE("WritableDiskFileSystemTest")
+TEST_CASE("WritableDiskFileSystem")
 {
   SECTION("createWritableDiskFileSystem")
   {
@@ -451,131 +576,6 @@ TEST_CASE("WritableDiskFileSystemTest")
     CHECK(fs.pathInfo("test2.map") == fs::PathInfo::File);
     CHECK(fs.pathInfo("dir1/test2.map") == fs::PathInfo::File);
   }
-}
-
-TEST_CASE("DiskFileSystem reload")
-{
-  SECTION("reload picks up changes made directly to the backing directory")
-  {
-    auto env = makeTestEnvironment();
-    auto fs = DiskFileSystem{env.dir()};
-
-    CHECK(fs.pathInfo("newDir") == fs::PathInfo::Unknown);
-
-    // bypass DiskFileSystem and mutate the backing directory directly
-    env.createDirectory("newDir");
-    env.createFile("newDir/newFile.txt", "some content");
-
-    // the cache is stale until reload() is called
-    CHECK(fs.pathInfo("newDir") == fs::PathInfo::Unknown);
-    CHECK(fs.pathInfo("newDir/newFile.txt") == fs::PathInfo::Unknown);
-
-    CHECK(fs.reload() == Result<void>{});
-    CHECK(fs.pathInfo("newDir") == fs::PathInfo::Directory);
-    CHECK(fs.pathInfo("newDir/newFile.txt") == fs::PathInfo::File);
-  }
-
-  SECTION("constructing over a non-existent root does not error")
-  {
-    auto env = makeTestEnvironment();
-    const auto rootPath = env.dir() / "doesNotExistYet";
-
-    auto fs = DiskFileSystem{rootPath};
-    CHECK(fs.pathInfo(".") == fs::PathInfo::Unknown);
-    CHECK(fs.pathInfo("anything") == fs::PathInfo::Unknown);
-    CHECK(
-      fs.find(".", fs::TraversalMode::Flat)
-      == Result<std::vector<std::filesystem::path>>{Error{
-        fmt::format("Path {} does not denote a directory", std::filesystem::path{"."})}});
-
-    // create the root directory (with some contents) after construction
-    env.createDirectory("doesNotExistYet");
-    env.createFile("doesNotExistYet/file.txt", "some content");
-
-    CHECK(fs.reload() == Result<void>{});
-    CHECK(fs.pathInfo(".") == fs::PathInfo::Directory);
-    CHECK(fs.pathInfo("file.txt") == fs::PathInfo::File);
-    CHECK_THAT(fs.find(".", fs::TraversalMode::Flat), MatchesPathsResult({"file.txt"}));
-  }
-
-  SECTION("find/pathInfo/openFile behave consistently through a symlinked directory")
-  {
-    auto env = makeTestEnvironment();
-    env.createDirectory("realDir");
-    env.createFile("realDir/realFile.txt", "some content");
-    env.createSymLink("realDir", "linkedDir");
-
-    auto fs = DiskFileSystem{env.dir()};
-
-    CHECK(fs.pathInfo("linkedDir") == fs::PathInfo::Directory);
-    CHECK(fs.pathInfo("linkedDir/realFile.txt") == fs::PathInfo::File);
-
-    CHECK_THAT(
-      fs.find("linkedDir", fs::TraversalMode::Flat),
-      MatchesPathsResult({
-        "linkedDir/realFile.txt",
-      }));
-
-    const auto file = fs.openFile("linkedDir/realFile.txt") | kdl::value();
-    CHECK(file->reader().readString(file->size()) == "some content");
-  }
-
-  SECTION("a broken symlink is neither a directory nor a file")
-  {
-    auto env = makeTestEnvironment();
-    env.createSymLink("doesNotExist", "brokenLink");
-
-    auto fs = DiskFileSystem{env.dir()};
-
-    CHECK(fs.pathInfo("brokenLink") == fs::PathInfo::Unknown);
-  }
-}
-
-TEST_CASE("DiskFileSystem concurrent reload vs. reads")
-{
-  using ThreadFunc = std::function<void()>;
-
-  // WritableDiskFileSystem's reload-after-write firing on a potentially-live
-  // DiskFileSystem instance while other threads read from it. Not a deterministic
-  // assertion of absence-of-race (that's what running this under -DTB_ENABLE_TSAN=ON is
-  // for) - this just exercises the pattern under contention, with a fixed iteration count
-  // so it terminates (a lock-ordering bug here would hang or crash rather than fail an
-  // assertion).
-  const auto env = makeTestEnvironment();
-
-  auto fs = DiskFileSystem{env.dir()};
-
-  constexpr auto numReaderThreads = 4;
-  constexpr auto numIterations = 500;
-
-  auto reloader = ThreadFunc{[&]() {
-    for (auto i = 0; i < numIterations; ++i)
-    {
-      std::ignore = fs.reload();
-    }
-  }};
-
-  auto reader = ThreadFunc{[&]() {
-    for (auto i = 0; i < numIterations; ++i)
-    {
-      static_cast<void>(fs.pathInfo("anotherDir"));
-      static_cast<void>(fs.find("anotherDir", fs::TraversalMode::Flat));
-      static_cast<void>(fs.openFile("test.txt"));
-    }
-  }};
-
-  auto threads =
-    kdl::views::concat(
-      std::views::single(reloader), kdl::views::repeat(reader, numReaderThreads))
-    | std::views::transform([](auto func) { return std::thread{std::move(func)}; })
-    | kdl::ranges::to<std::vector>();
-
-  for (auto& thread : threads)
-  {
-    thread.join();
-  }
-
-  CHECK(fs.pathInfo("anotherDir") == fs::PathInfo::Directory);
 }
 
 } // namespace tb::fs

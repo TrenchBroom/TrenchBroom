@@ -111,70 +111,74 @@ TEST_CASE("EntityLinkRenderer")
   const auto sourceAnchor = vm::vec3f{sourceNode->linkSourceAnchor()};
   const auto targetAnchor = vm::vec3f{targetNode->linkTargetAnchor()};
 
-  SECTION(
-    "EntityLinkModeAll returns the link with the default color when neither "
-    "endpoint is selected")
+  SECTION("getLinks")
   {
-    setPref(Preferences::EntityLinkMode, std::string{Preferences::EntityLinkModeAll});
+    SECTION(
+      "EntityLinkModeAll returns the link with the default color when neither "
+      "endpoint is selected")
+    {
+      setPref(Preferences::EntityLinkMode, std::string{Preferences::EntityLinkModeAll});
 
-    const auto links = renderer.getLinks();
-    REQUIRE(links.size() == 2);
-    CHECK(gl::getVertexComponent<0>(links[0]) == sourceAnchor);
-    CHECK(gl::getVertexComponent<1>(links[0]) == defaultColor.to<RgbaF>().toVec());
-    CHECK(gl::getVertexComponent<0>(links[1]) == targetAnchor);
-    CHECK(gl::getVertexComponent<1>(links[1]) == defaultColor.to<RgbaF>().toVec());
-  }
+      const auto links = renderer.getLinks();
+      REQUIRE(links.size() == 2);
+      CHECK(gl::getVertexComponent<0>(links[0]) == sourceAnchor);
+      CHECK(gl::getVertexComponent<1>(links[0]) == defaultColor.to<RgbaF>().toVec());
+      CHECK(gl::getVertexComponent<0>(links[1]) == targetAnchor);
+      CHECK(gl::getVertexComponent<1>(links[1]) == defaultColor.to<RgbaF>().toVec());
+    }
 
-  SECTION(
-    "both endpoints are colored with the selected color when either endpoint is "
-    "selected")
-  {
-    setPref(Preferences::EntityLinkMode, std::string{Preferences::EntityLinkModeAll});
-    mdl::selectNodes(map, {sourceNode});
+    SECTION(
+      "both endpoints are colored with the selected color when either endpoint is "
+      "selected")
+    {
+      setPref(Preferences::EntityLinkMode, std::string{Preferences::EntityLinkModeAll});
+      mdl::selectNodes(map, {sourceNode});
 
-    const auto links = renderer.getLinks();
-    REQUIRE(links.size() == 2);
-    CHECK(gl::getVertexComponent<1>(links[0]) == selectedColor.to<RgbaF>().toVec());
-    CHECK(gl::getVertexComponent<1>(links[1]) == selectedColor.to<RgbaF>().toVec());
-  }
+      const auto links = renderer.getLinks();
+      REQUIRE(links.size() == 2);
+      CHECK(gl::getVertexComponent<1>(links[0]) == selectedColor.to<RgbaF>().toVec());
+      CHECK(gl::getVertexComponent<1>(links[1]) == selectedColor.to<RgbaF>().toVec());
+    }
 
-  SECTION("EntityLinkModeAll excludes links to an invisible target")
-  {
-    setPref(Preferences::EntityLinkMode, std::string{Preferences::EntityLinkModeAll});
-    mdl::hideNodes(map, {targetNode});
+    SECTION("EntityLinkModeAll excludes links to an invisible target")
+    {
+      setPref(Preferences::EntityLinkMode, std::string{Preferences::EntityLinkModeAll});
+      mdl::hideNodes(map, {targetNode});
 
-    CHECK(renderer.getLinks().empty());
-  }
+      CHECK(renderer.getLinks().empty());
+    }
 
-  SECTION("EntityLinkModeDirect only includes links touching a selected entity")
-  {
-    setPref(Preferences::EntityLinkMode, std::string{Preferences::EntityLinkModeDirect});
+    SECTION("EntityLinkModeDirect only includes links touching a selected entity")
+    {
+      setPref(
+        Preferences::EntityLinkMode, std::string{Preferences::EntityLinkModeDirect});
 
-    CHECK(renderer.getLinks().empty());
+      CHECK(renderer.getLinks().empty());
 
-    mdl::selectNodes(map, {sourceNode});
-    CHECK(renderer.getLinks().size() == 2);
-  }
+      mdl::selectNodes(map, {sourceNode});
+      CHECK(renderer.getLinks().size() == 2);
+    }
 
-  SECTION("EntityLinkModeTransitive follows the chain from a selected entity")
-  {
-    setPref(
-      Preferences::EntityLinkMode, std::string{Preferences::EntityLinkModeTransitive});
+    SECTION("EntityLinkModeTransitive follows the chain from a selected entity")
+    {
+      setPref(
+        Preferences::EntityLinkMode, std::string{Preferences::EntityLinkModeTransitive});
 
-    CHECK(renderer.getLinks().empty());
+      CHECK(renderer.getLinks().empty());
 
-    mdl::selectNodes(map, {sourceNode});
-    const auto links = renderer.getLinks();
+      mdl::selectNodes(map, {sourceNode});
+      const auto links = renderer.getLinks();
 
-    REQUIRE(links.size() == 2);
-    CHECK(gl::getVertexComponent<0>(links[0]) == sourceAnchor);
-    CHECK(gl::getVertexComponent<0>(links[1]) == targetAnchor);
-  }
+      REQUIRE(links.size() == 2);
+      CHECK(gl::getVertexComponent<0>(links[0]) == sourceAnchor);
+      CHECK(gl::getVertexComponent<0>(links[1]) == targetAnchor);
+    }
 
-  SECTION("an unrecognized EntityLinkMode returns no links")
-  {
-    setPref(Preferences::EntityLinkMode, std::string{"nonsense"});
-    CHECK(renderer.getLinks().empty());
+    SECTION("an unrecognized EntityLinkMode returns no links")
+    {
+      setPref(Preferences::EntityLinkMode, std::string{"nonsense"});
+      CHECK(renderer.getLinks().empty());
+    }
   }
 }
 

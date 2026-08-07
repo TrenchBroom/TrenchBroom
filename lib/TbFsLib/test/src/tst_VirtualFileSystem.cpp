@@ -45,6 +45,163 @@ namespace tb::fs
 
 TEST_CASE("VirtualFileSystem")
 {
+  SECTION("reload")
+  {
+    // TestFileSystem has no mutable backing state to observe a reload against, so this
+    // uses real DiskFileSystem mounts to confirm reload() propagates to every mount
+    // point, not just the first one.
+    auto env1 = TestEnvironment{[](auto& e) { e.createDirectory("dir"); }};
+    auto env2 = TestEnvironment{[](auto& e) { e.createDirectory("dir"); }};
+
+    auto vfs = VirtualFileSystem{};
+    vfs.mount("fs1", std::make_unique<DiskFileSystem>(env1.dir()));
+    vfs.mount("fs2", std::make_unique<DiskFileSystem>(env2.dir()));
+
+    CHECK(vfs.pathInfo("fs1/newFile.txt") == fs::PathInfo::Unknown);
+    CHECK(vfs.pathInfo("fs2/newFile.txt") == fs::PathInfo::Unknown);
+
+    // bypass the mounted DiskFileSystems and mutate their backing directories directly
+    env1.createFile("newFile.txt", "content1");
+    env2.createFile("newFile.txt", "content2");
+
+    // the mounted DiskFileSystems' caches are stale until reload() is called
+    CHECK(vfs.pathInfo("fs1/newFile.txt") == fs::PathInfo::Unknown);
+    CHECK(vfs.pathInfo("fs2/newFile.txt") == fs::PathInfo::Unknown);
+
+    CHECK(vfs.reload() == Result<void>{});
+    CHECK(vfs.pathInfo("fs1/newFile.txt") == fs::PathInfo::File);
+    CHECK(vfs.pathInfo("fs2/newFile.txt") == fs::PathInfo::File);
+  }
+
+  SECTION("concurrent mount/unmount vs. reads")
+  {
+    using ThreadFunc = std::function<void()>;
+
+    // Reproduces the shape of the reachable race this test protects against:
+    // GameFileSystem::reloadWads() (mount()/unmount() from one thread) racing with
+    // background material/model loading (pathInfo()/find()/openFile() from other
+    // threads) on the same VirtualFileSystem. Not a deterministic assertion of
+    // absence-of-race (that's what running this under -DTB_ENABLE_TSAN=ON is for) -
+    // this just exercises the pattern under contention, with a fixed iteration count so
+    // it terminates (a lock-ordering bug here would hang or crash rather than fail an
+    // assertion).
+    auto env = TestEnvironment{[](auto& e) {
+      e.createDirectory("dir");
+      e.createFile("dir/file.txt", "some content");
+    }};
+
+    auto vfs = VirtualFileSystem{};
+    vfs.mount("", std::make_unique<DiskFileSystem>(env.dir()));
+
+    constexpr auto numReaderThreads = 4;
+    constexpr auto numIterations = 500;
+
+    auto writer = ThreadFunc{[&]() {
+      for (auto i = 0; i < numIterations; ++i)
+      {
+        auto fs = std::make_unique<DiskFileSystem>(env.dir());
+        const auto id = vfs.mount("mnt", std::move(fs));
+        vfs.unmount(id);
+      }
+    }};
+
+    auto reader = ThreadFunc{[&]() {
+      for (auto i = 0; i < numIterations; ++i)
+      {
+        static_cast<void>(vfs.pathInfo("dir"));
+        static_cast<void>(vfs.find("dir", fs::TraversalMode::Flat));
+        static_cast<void>(vfs.openFile("dir/file.txt"));
+      }
+    }};
+
+    auto threads =
+      kdl::views::concat(
+        std::views::single(writer), kdl::views::repeat(reader, numReaderThreads))
+      | std::views::transform([](auto func) { return std::thread{std::move(func)}; })
+      | kdl::ranges::to<std::vector>();
+
+    for (auto& thread : threads)
+    {
+      thread.join();
+    }
+
+    // the mount()/unmount() pairs in the writer thread should have left the original
+    // mount point as the only one remaining
+    CHECK(vfs.pathInfo("dir") == fs::PathInfo::Directory);
+  }
+
+  SECTION("makeAbsolute")
+  {
+    SECTION("for a path that resolves but does not exist")
+    {
+      // DiskFileSystem::makeAbsolute succeeds for any path that doesn't escape the
+      // root, regardless of whether it actually exists, so this exercises the branch
+      // where makeAbsolute succeeds on a mount but pathInfo on that same mount is
+      // Unknown
+      auto env = TestEnvironment{};
+
+      auto vfs = VirtualFileSystem{};
+      vfs.mount("", std::make_unique<DiskFileSystem>(env.dir()));
+
+      CHECK(
+        vfs.makeAbsolute("does_not_exist.txt")
+        == Result<std::filesystem::path>{Error{fmt::format(
+          "Failed to make absolute path of {}",
+          std::filesystem::path{"does_not_exist.txt"})}});
+    }
+
+    SECTION("when the mounted file system itself fails")
+    {
+      // the suffix handed to the mounted file system can still start with ".." (the
+      // mount point match is purely a component-wise prefix check on the raw path),
+      // and DiskFileSystem::makeAbsolute rejects any path starting with "..", so this
+      // exercises the branch where makeAbsolute on the mount fails outright, not just
+      // where it succeeds for a path that doesn't exist
+      auto env = TestEnvironment{};
+
+      auto vfs = VirtualFileSystem{};
+      vfs.mount("sub", std::make_unique<DiskFileSystem>(env.dir()));
+
+      CHECK(
+        vfs.makeAbsolute("sub/../foo")
+        == Result<std::filesystem::path>{Error{fmt::format(
+          "Failed to make absolute path of {}", std::filesystem::path{"sub/../foo"})}});
+    }
+  }
+
+  SECTION("unmount and unmountAll")
+  {
+    auto env = TestEnvironment{[](auto& e) { e.createDirectory("dir"); }};
+
+    auto vfs = VirtualFileSystem{};
+    const auto id1 = vfs.mount("mnt1", std::make_unique<DiskFileSystem>(env.dir()));
+    const auto id2 = vfs.mount("mnt2", std::make_unique<DiskFileSystem>(env.dir()));
+
+    CHECK(id1 != id2);
+    CHECK_FALSE(id1 == id2);
+
+    SECTION("unmount")
+    {
+      CHECK(vfs.pathInfo("mnt1/dir") == fs::PathInfo::Directory);
+
+      CHECK(vfs.unmount(id1));
+      CHECK(vfs.pathInfo("mnt1/dir") == fs::PathInfo::Unknown);
+      CHECK(vfs.pathInfo("mnt2/dir") == fs::PathInfo::Directory);
+
+      // id1 is no longer mounted, so unmounting it again must fail rather than
+      // removing some other mount point
+      CHECK_FALSE(vfs.unmount(id1));
+      CHECK(vfs.pathInfo("mnt2/dir") == fs::PathInfo::Directory);
+    }
+
+    SECTION("unmountAll")
+    {
+      vfs.unmountAll();
+      CHECK(vfs.pathInfo("mnt1/dir") == fs::PathInfo::Unknown);
+      CHECK(vfs.pathInfo("mnt2/dir") == fs::PathInfo::Unknown);
+    }
+  }
+
   auto vfs = VirtualFileSystem{};
 
   SECTION("if nothing is mounted")
@@ -790,158 +947,6 @@ TEST_CASE("VirtualFileSystem")
           Error{fmt::format("{} not found", std::filesystem::path{"foo/bar/f"})}});
       CHECK(vfs.openFile("foo/bar/g") == Result<std::shared_ptr<File>>{fs2_foo_bar_g});
     }
-  }
-}
-
-TEST_CASE("VirtualFileSystem reload")
-{
-  // TestFileSystem has no mutable backing state to observe a reload against, so this
-  // uses real DiskFileSystem mounts to confirm reload() propagates to every mount
-  // point, not just the first one.
-  auto env1 = TestEnvironment{[](auto& e) { e.createDirectory("dir"); }};
-  auto env2 = TestEnvironment{[](auto& e) { e.createDirectory("dir"); }};
-
-  auto vfs = VirtualFileSystem{};
-  vfs.mount("fs1", std::make_unique<DiskFileSystem>(env1.dir()));
-  vfs.mount("fs2", std::make_unique<DiskFileSystem>(env2.dir()));
-
-  CHECK(vfs.pathInfo("fs1/newFile.txt") == fs::PathInfo::Unknown);
-  CHECK(vfs.pathInfo("fs2/newFile.txt") == fs::PathInfo::Unknown);
-
-  // bypass the mounted DiskFileSystems and mutate their backing directories directly
-  env1.createFile("newFile.txt", "content1");
-  env2.createFile("newFile.txt", "content2");
-
-  // the mounted DiskFileSystems' caches are stale until reload() is called
-  CHECK(vfs.pathInfo("fs1/newFile.txt") == fs::PathInfo::Unknown);
-  CHECK(vfs.pathInfo("fs2/newFile.txt") == fs::PathInfo::Unknown);
-
-  CHECK(vfs.reload() == Result<void>{});
-  CHECK(vfs.pathInfo("fs1/newFile.txt") == fs::PathInfo::File);
-  CHECK(vfs.pathInfo("fs2/newFile.txt") == fs::PathInfo::File);
-}
-
-TEST_CASE("VirtualFileSystem concurrent mount/unmount vs. reads")
-{
-  using ThreadFunc = std::function<void()>;
-
-  // Reproduces the shape of the reachable race this test protects against:
-  // GameFileSystem::reloadWads() (mount()/unmount() from one thread) racing with
-  // background material/model loading (pathInfo()/find()/openFile() from other threads)
-  // on the same VirtualFileSystem. Not a deterministic assertion of absence-of-race
-  // (that's what running this under -DTB_ENABLE_TSAN=ON is for) - this just exercises the
-  // pattern under contention, with a fixed iteration count so it terminates (a
-  // lock-ordering bug here would hang or crash rather than fail an assertion).
-  auto env = TestEnvironment{[](auto& e) {
-    e.createDirectory("dir");
-    e.createFile("dir/file.txt", "some content");
-  }};
-
-  auto vfs = VirtualFileSystem{};
-  vfs.mount("", std::make_unique<DiskFileSystem>(env.dir()));
-
-  constexpr auto numReaderThreads = 4;
-  constexpr auto numIterations = 500;
-
-  auto writer = ThreadFunc{[&]() {
-    for (auto i = 0; i < numIterations; ++i)
-    {
-      auto fs = std::make_unique<DiskFileSystem>(env.dir());
-      const auto id = vfs.mount("mnt", std::move(fs));
-      vfs.unmount(id);
-    }
-  }};
-
-  auto reader = ThreadFunc{[&]() {
-    for (auto i = 0; i < numIterations; ++i)
-    {
-      static_cast<void>(vfs.pathInfo("dir"));
-      static_cast<void>(vfs.find("dir", fs::TraversalMode::Flat));
-      static_cast<void>(vfs.openFile("dir/file.txt"));
-    }
-  }};
-
-  auto threads =
-    kdl::views::concat(
-      std::views::single(writer), kdl::views::repeat(reader, numReaderThreads))
-    | std::views::transform([](auto func) { return std::thread{std::move(func)}; })
-    | kdl::ranges::to<std::vector>();
-
-  for (auto& thread : threads)
-  {
-    thread.join();
-  }
-
-  // the mount()/unmount() pairs in the writer thread should have left the original
-  // mount point as the only one remaining
-  CHECK(vfs.pathInfo("dir") == fs::PathInfo::Directory);
-}
-
-TEST_CASE("VirtualFileSystem makeAbsolute for a path that resolves but does not exist")
-{
-  // DiskFileSystem::makeAbsolute succeeds for any path that doesn't escape the root,
-  // regardless of whether it actually exists, so this exercises the branch where
-  // makeAbsolute succeeds on a mount but pathInfo on that same mount is Unknown
-  auto env = TestEnvironment{};
-
-  auto vfs = VirtualFileSystem{};
-  vfs.mount("", std::make_unique<DiskFileSystem>(env.dir()));
-
-  CHECK(
-    vfs.makeAbsolute("does_not_exist.txt")
-    == Result<std::filesystem::path>{Error{fmt::format(
-      "Failed to make absolute path of {}",
-      std::filesystem::path{"does_not_exist.txt"})}});
-}
-
-TEST_CASE("VirtualFileSystem makeAbsolute when the mounted file system itself fails")
-{
-  // the suffix handed to the mounted file system can still start with ".." (the
-  // mount point match is purely a component-wise prefix check on the raw path), and
-  // DiskFileSystem::makeAbsolute rejects any path starting with "..", so this
-  // exercises the branch where makeAbsolute on the mount fails outright, not just
-  // where it succeeds for a path that doesn't exist
-  auto env = TestEnvironment{};
-
-  auto vfs = VirtualFileSystem{};
-  vfs.mount("sub", std::make_unique<DiskFileSystem>(env.dir()));
-
-  CHECK(
-    vfs.makeAbsolute("sub/../foo")
-    == Result<std::filesystem::path>{Error{fmt::format(
-      "Failed to make absolute path of {}", std::filesystem::path{"sub/../foo"})}});
-}
-
-TEST_CASE("VirtualFileSystem unmount and unmountAll")
-{
-  auto env = TestEnvironment{[](auto& e) { e.createDirectory("dir"); }};
-
-  auto vfs = VirtualFileSystem{};
-  const auto id1 = vfs.mount("mnt1", std::make_unique<DiskFileSystem>(env.dir()));
-  const auto id2 = vfs.mount("mnt2", std::make_unique<DiskFileSystem>(env.dir()));
-
-  CHECK(id1 != id2);
-  CHECK_FALSE(id1 == id2);
-
-  SECTION("unmount")
-  {
-    CHECK(vfs.pathInfo("mnt1/dir") == fs::PathInfo::Directory);
-
-    CHECK(vfs.unmount(id1));
-    CHECK(vfs.pathInfo("mnt1/dir") == fs::PathInfo::Unknown);
-    CHECK(vfs.pathInfo("mnt2/dir") == fs::PathInfo::Directory);
-
-    // id1 is no longer mounted, so unmounting it again must fail rather than
-    // removing some other mount point
-    CHECK_FALSE(vfs.unmount(id1));
-    CHECK(vfs.pathInfo("mnt2/dir") == fs::PathInfo::Directory);
-  }
-
-  SECTION("unmountAll")
-  {
-    vfs.unmountAll();
-    CHECK(vfs.pathInfo("mnt1/dir") == fs::PathInfo::Unknown);
-    CHECK(vfs.pathInfo("mnt2/dir") == fs::PathInfo::Unknown);
   }
 }
 

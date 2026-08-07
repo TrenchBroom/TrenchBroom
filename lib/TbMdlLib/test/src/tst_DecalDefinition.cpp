@@ -39,58 +39,63 @@ DecalDefinition makeDecalDefinition(const std::string& expression)
 }
 } // namespace
 
-TEST_CASE("DecalDefinitionTest.append")
+TEST_CASE("DecalDefinition")
 {
-  auto d1 = makeDecalDefinition(R"("decal1")");
-  REQUIRE(d1.decalSpecification(el::NullVariableStore{}) == DecalSpecification{"decal1"});
+  SECTION("append")
+  {
+    auto d1 = makeDecalDefinition(R"("decal1")");
+    REQUIRE(
+      d1.decalSpecification(el::NullVariableStore{}) == DecalSpecification{"decal1"});
 
-  d1.append(makeDecalDefinition(R"("decal2")"));
-  CHECK(d1.decalSpecification(el::NullVariableStore{}) == DecalSpecification{"decal1"});
-}
+    d1.append(makeDecalDefinition(R"("decal2")"));
+    CHECK(d1.decalSpecification(el::NullVariableStore{}) == DecalSpecification{"decal1"});
+  }
 
-TEST_CASE("DecalDefinitionTest.decalSpecification")
-{
-  using T = std::tuple<std::string, std::map<std::string, el::Value>, DecalSpecification>;
+  SECTION("decalSpecification")
+  {
+    using T =
+      std::tuple<std::string, std::map<std::string, el::Value>, DecalSpecification>;
 
-  // clang-format off
-  const auto 
-  [expression,                                 variables, expectedDecalSpecification] = GENERATE(values<T>({
-  {R"("decal1")",                              {},        {"decal1"}},
-  {R"({ texture: "decal2" })",                 {},        {"decal2"}},
+    // clang-format off
+    const auto
+    [expression,                                 variables, expectedDecalSpecification] = GENERATE(values<T>({
+    {R"("decal1")",                              {},        {"decal1"}},
+    {R"({ texture: "decal2" })",                 {},        {"decal2"}},
 
-  {R"({ texture: texture })",                  {{"texture", el::Value{"decal3"}}},
-                                                          {"decal3"}},
-  
-  }));
-  // clang-format on
+    {R"({ texture: texture })",                  {{"texture", el::Value{"decal3"}}},
+                                                            {"decal3"}},
 
-  CAPTURE(expression, variables);
+    }));
+    // clang-format on
 
-  const auto decalDefinition = makeDecalDefinition(expression);
-  CHECK(
-    decalDefinition.decalSpecification(el::VariableTable{variables})
-    == expectedDecalSpecification);
-}
+    CAPTURE(expression, variables);
 
-TEST_CASE("DecalDefinitionTest.defaultDecalSpecification")
-{
-  using T = std::tuple<std::string, DecalSpecification>;
+    const auto decalDefinition = makeDecalDefinition(expression);
+    CHECK(
+      decalDefinition.decalSpecification(el::VariableTable{variables})
+      == expectedDecalSpecification);
+  }
 
-  // clang-format off
-  const auto 
-  [expression,                 expectedDecalSpecification] = GENERATE(values<T>({
-  {R"("decal1")",              {"decal1"}},
-  {R"({ texture: "decal2" })", {"decal2"}},
+  SECTION("defaultDecalSpecification")
+  {
+    using T = std::tuple<std::string, DecalSpecification>;
 
-  {R"({ texture: texture })",  {}},
-  
-  }));
-  // clang-format on
+    // clang-format off
+    const auto
+    [expression,                 expectedDecalSpecification] = GENERATE(values<T>({
+    {R"("decal1")",              {"decal1"}},
+    {R"({ texture: "decal2" })", {"decal2"}},
 
-  CAPTURE(expression);
+    {R"({ texture: texture })",  {}},
 
-  const auto decalDefinition = makeDecalDefinition(expression);
-  CHECK(decalDefinition.defaultDecalSpecification() == expectedDecalSpecification);
+    }));
+    // clang-format on
+
+    CAPTURE(expression);
+
+    const auto decalDefinition = makeDecalDefinition(expression);
+    CHECK(decalDefinition.defaultDecalSpecification() == expectedDecalSpecification);
+  }
 }
 
 } // namespace tb::mdl

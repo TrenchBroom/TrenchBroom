@@ -113,53 +113,40 @@ TEST_CASE("loadMd3Model")
         })
       | kdl::transform_error([](const auto& e) { FAIL(e); });
   }
-}
 
-TEST_CASE("loadMd3Model (Regression)", "[regression]")
-{
-  auto logger = NullLogger{};
-  auto taskManager = kdl::task_manager{};
-  auto fs = fs::VirtualFileSystem{};
-
-  const auto materialConfig = mdl::MaterialConfig{
-    {},
-    {".tga", ".png", ".jpg", ".jpeg"},
-    {},
-    {},
-    "scripts",
-    {},
-  };
-
-  SECTION("2659")
+  SECTION("Regression tests")
   {
-    fs.mount(
-      "",
-      std::make_unique<fs::DiskFileSystem>(
-        getFixtureRoot() / "test/mdl/LoadMd3Model/armor"));
+    SECTION("2659")
+    {
+      fs.mount(
+        "",
+        std::make_unique<fs::DiskFileSystem>(
+          getFixtureRoot() / "test/mdl/LoadMd3Model/armor"));
 
-    const auto shaders =
-      loadShaders(fs, materialConfig, taskManager, logger) | kdl::value();
+      const auto shaders =
+        loadShaders(fs, materialConfig, taskManager, logger) | kdl::value();
 
-    const auto createResource = [](auto resourceLoader) {
-      return gl::createResourceSync(std::move(resourceLoader));
-    };
+      const auto createResource = [](auto resourceLoader) {
+        return gl::createResourceSync(std::move(resourceLoader));
+      };
 
-    const auto loadMaterial = [&](const auto& materialPath) {
-      return mdl::loadMaterial(
-               fs, materialConfig, materialPath, createResource, shaders, std::nullopt)
-             | kdl::or_else(makeReadMaterialErrorHandler(fs, logger)) | kdl::value();
-    };
+      const auto loadMaterial = [&](const auto& materialPath) {
+        return mdl::loadMaterial(
+                 fs, materialConfig, materialPath, createResource, shaders, std::nullopt)
+               | kdl::or_else(makeReadMaterialErrorHandler(fs, logger)) | kdl::value();
+      };
 
-    const auto md3Path = "models/armor_red.md3";
-    const auto md3File = fs.openFile(md3Path) | kdl::value();
-    auto reader = md3File->reader().buffer();
+      const auto md3Path = "models/armor_red.md3";
+      const auto md3File = fs.openFile(md3Path) | kdl::value();
+      auto reader = md3File->reader().buffer();
 
-    loadMd3Model(reader, loadMaterial, logger)
-      | kdl::transform([](const auto& modelData) {
-          CHECK(modelData.frameCount() == 30u);
-          CHECK(modelData.surfaceCount() == 2u);
-        })
-      | kdl::transform_error([](const auto& e) { FAIL(e); });
+      loadMd3Model(reader, loadMaterial, logger)
+        | kdl::transform([](const auto& modelData) {
+            CHECK(modelData.frameCount() == 30u);
+            CHECK(modelData.surfaceCount() == 2u);
+          })
+        | kdl::transform_error([](const auto& e) { FAIL(e); });
+    }
   }
 }
 

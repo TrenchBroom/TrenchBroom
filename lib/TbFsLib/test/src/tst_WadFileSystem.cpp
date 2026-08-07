@@ -26,6 +26,9 @@
 
 #include "kd/result.h"
 
+#include <filesystem>
+#include <system_error>
+
 #include <catch2/catch_test_macros.hpp>
 
 namespace tb::fs
@@ -41,49 +44,73 @@ bool openWadFails(const std::filesystem::path& path)
 
 } // namespace
 
-// Named "WadFileSystem::doReadDirectory" rather than "WadFileSystem" because that
-// name is already used by a TEST_CASE in tst_ImageFileSystem.cpp.
-TEST_CASE("WadFileSystem::doReadDirectory")
+TEST_CASE("WadFileSystem")
 {
-  const auto fsTestPath = getFixtureRoot() / "test/fs/Wad/";
-
-  SECTION("returns an error if the file is smaller than the header size")
+  SECTION("doReadDirectory")
   {
-    CHECK(openWadFails(fsTestPath / "too_small.wad"));
+    const auto fsTestPath = getFixtureRoot() / "test/fs/Wad/";
+
+    SECTION("returns an error if the file is smaller than the header size")
+    {
+      CHECK(openWadFails(fsTestPath / "too_small.wad"));
+    }
+
+    SECTION("returns an error for an unrecognized magic")
+    {
+      CHECK(openWadFails(fsTestPath / "bad_magic.wad"));
+    }
+
+    SECTION("returns an error if the declared entry count exceeds the file size")
+    {
+      CHECK(openWadFails(fsTestPath / "entry_count_too_large.wad"));
+    }
+
+    SECTION("returns an error if the directory is out of bounds")
+    {
+      CHECK(openWadFails(fsTestPath / "directory_out_of_bounds.wad"));
+    }
+
+    SECTION("returns an error if an entry is out of bounds")
+    {
+      CHECK(openWadFails(fsTestPath / "entry_out_of_bounds.wad"));
+    }
+
+    SECTION("accepts the wad3 magic")
+    {
+      // cr8_czg.wad already covers the "wad2" magic; this covers "wad3"
+      // independently, since both are valid and the check short-circuits on the
+      // first match
+      CHECK_FALSE(openWadFails(fsTestPath / "wad3_empty.wad"));
+    }
+
+    SECTION("skips an entry with an empty name and continues with the next entry")
+    {
+      const auto fs = openFS<WadFileSystem>(fsTestPath / "skips_empty_entry_name.wad");
+      CHECK_THAT(fs->find("", TraversalMode::Flat), MatchesPathsResult({"real.D"}));
+    }
   }
 
-  SECTION("returns an error for an unrecognized magic")
+  SECTION("file can be replaced while wad file system exists")
   {
-    CHECK(openWadFails(fsTestPath / "bad_magic.wad"));
-  }
+    const auto wadPath = getFixtureRoot() / "test/fs/Wad/cr8_czg.wad";
+    const auto copyPath = getFixtureRoot() / "test/fs/Wad/cr8_czg_2.wad";
 
-  SECTION("returns an error if the declared entry count exceeds the file size")
-  {
-    CHECK(openWadFails(fsTestPath / "entry_count_too_large.wad"));
-  }
+    REQUIRE_FALSE(std::filesystem::is_regular_file(copyPath));
+    REQUIRE_NOTHROW(std::filesystem::copy(wadPath, copyPath));
+    REQUIRE(std::filesystem::is_regular_file(copyPath));
 
-  SECTION("returns an error if the directory is out of bounds")
-  {
-    CHECK(openWadFails(fsTestPath / "directory_out_of_bounds.wad"));
-  }
+    {
+      const auto fs = openFS<WadFileSystem>(copyPath);
 
-  SECTION("returns an error if an entry is out of bounds")
-  {
-    CHECK(openWadFails(fsTestPath / "entry_out_of_bounds.wad"));
-  }
+      auto errorCode = std::error_code{};
+      CHECK(std::filesystem::remove(copyPath, errorCode));
+      CHECK(errorCode == std::error_code{});
+    }
 
-  SECTION("accepts the wad3 magic")
-  {
-    // cr8_czg.wad already covers the "wad2" magic; this covers "wad3"
-    // independently, since both are valid and the check short-circuits on the
-    // first match
-    CHECK_FALSE(openWadFails(fsTestPath / "wad3_empty.wad"));
-  }
-
-  SECTION("skips an entry with an empty name and continues with the next entry")
-  {
-    const auto fs = openFS<WadFileSystem>(fsTestPath / "skips_empty_entry_name.wad");
-    CHECK_THAT(fs->find("", TraversalMode::Flat), MatchesPathsResult({"real.D"}));
+    if (std::filesystem::is_regular_file(copyPath))
+    {
+      REQUIRE(std::filesystem::remove(copyPath));
+    }
   }
 }
 

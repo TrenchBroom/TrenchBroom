@@ -36,45 +36,46 @@ TEST_CASE("Compass")
   // cameraRotationMatrix() on
   const auto compass = Compass2D{};
 
-  SECTION(
-    "cameraRotationMatrix builds a matrix from the camera's basis vectors and "
-    "inverts it")
+  SECTION("cameraRotationMatrix")
   {
-    const auto camera = gl::OrthographicCamera{
-      1.0f,
-      100.0f,
-      gl::Camera::Viewport{0, 0, 100, 100},
-      vm::vec3f{3, 4, 5},
-      vm::vec3f{0, 1, 0},
-      vm::vec3f{0, 0, 1}};
+    SECTION("builds a matrix from the camera's basis vectors and inverts it")
+    {
+      const auto camera = gl::OrthographicCamera{
+        1.0f,
+        100.0f,
+        gl::Camera::Viewport{0, 0, 100, 100},
+        vm::vec3f{3, 4, 5},
+        vm::vec3f{0, 1, 0},
+        vm::vec3f{0, 0, 1}};
 
-    auto expected = vm::mat4x4f{};
-    expected[0] = vm::vec4f{camera.right()};
-    expected[1] = vm::vec4f{camera.direction()};
-    expected[2] = vm::vec4f{camera.up()};
-    expected = *vm::invert(expected);
+      auto expected = vm::mat4x4f{};
+      expected[0] = vm::vec4f{camera.right()};
+      expected[1] = vm::vec4f{camera.direction()};
+      expected[2] = vm::vec4f{camera.up()};
+      expected = *vm::invert(expected);
 
-    CHECK(compass.cameraRotationMatrix(camera) == expected);
-  }
+      CHECK(compass.cameraRotationMatrix(camera) == expected);
+    }
 
-  SECTION(
-    "for an axis-aligned camera, the result is the transpose of the basis "
-    "matrix (its inverse, since the basis is orthonormal)")
-  {
-    const auto camera = gl::OrthographicCamera{
-      1.0f,
-      100.0f,
-      gl::Camera::Viewport{0, 0, 100, 100},
-      vm::vec3f{0, 0, 0},
-      vm::vec3f{0, 1, 0},
-      vm::vec3f{0, 0, 1}};
+    SECTION(
+      "for an axis-aligned camera, the result is the transpose of the basis "
+      "matrix (its inverse, since the basis is orthonormal)")
+    {
+      const auto camera = gl::OrthographicCamera{
+        1.0f,
+        100.0f,
+        gl::Camera::Viewport{0, 0, 100, 100},
+        vm::vec3f{0, 0, 0},
+        vm::vec3f{0, 1, 0},
+        vm::vec3f{0, 0, 1}};
 
-    auto basis = vm::mat4x4f{};
-    basis[0] = vm::vec4f{camera.right()};
-    basis[1] = vm::vec4f{camera.direction()};
-    basis[2] = vm::vec4f{camera.up()};
+      auto basis = vm::mat4x4f{};
+      basis[0] = vm::vec4f{camera.right()};
+      basis[1] = vm::vec4f{camera.direction()};
+      basis[2] = vm::vec4f{camera.up()};
 
-    CHECK(compass.cameraRotationMatrix(camera) == vm::transpose(basis));
+      CHECK(compass.cameraRotationMatrix(camera) == vm::transpose(basis));
+    }
   }
 }
 

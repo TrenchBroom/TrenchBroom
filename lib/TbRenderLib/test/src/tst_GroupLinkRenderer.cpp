@@ -84,56 +84,59 @@ TEST_CASE("GroupLinkRenderer")
   const auto anchorA = vm::vec3f{groupA->logicalBounds().center()};
   const auto anchorB = vm::vec3f{groupB->logicalBounds().center()};
 
-  SECTION("returns no links when nothing is selected and no group is open")
+  SECTION("getLinks")
   {
-    CHECK(renderer.getLinks().empty());
-  }
+    SECTION("returns no links when nothing is selected and no group is open")
+    {
+      CHECK(renderer.getLinks().empty());
+    }
 
-  SECTION(
-    "with exactly one linked group selected, returns a link to every other "
-    "group sharing its link id, excluding itself")
-  {
-    mdl::selectNodes(map, {groupA});
+    SECTION(
+      "with exactly one linked group selected, returns a link to every other "
+      "group sharing its link id, excluding itself")
+    {
+      mdl::selectNodes(map, {groupA});
 
-    const auto links = renderer.getLinks();
-    REQUIRE(links.size() == 2);
-    CHECK(gl::getVertexComponent<0>(links[0]) == anchorA);
-    CHECK(gl::getVertexComponent<1>(links[0]) == linkColor);
-    CHECK(gl::getVertexComponent<0>(links[1]) == anchorB);
-    CHECK(gl::getVertexComponent<1>(links[1]) == linkColor);
-  }
+      const auto links = renderer.getLinks();
+      REQUIRE(links.size() == 2);
+      CHECK(gl::getVertexComponent<0>(links[0]) == anchorA);
+      CHECK(gl::getVertexComponent<1>(links[0]) == linkColor);
+      CHECK(gl::getVertexComponent<0>(links[1]) == anchorB);
+      CHECK(gl::getVertexComponent<1>(links[1]) == linkColor);
+    }
 
-  SECTION("excludes linked groups that are not visible")
-  {
-    mdl::selectNodes(map, {groupA});
-    mdl::hideNodes(map, {groupB});
+    SECTION("excludes linked groups that are not visible")
+    {
+      mdl::selectNodes(map, {groupA});
+      mdl::hideNodes(map, {groupB});
 
-    CHECK(renderer.getLinks().empty());
-  }
+      CHECK(renderer.getLinks().empty());
+    }
 
-  SECTION(
-    "falls back to the currently open group when the selection is not exactly "
-    "one group")
-  {
-    mdl::openGroup(map, *groupA);
+    SECTION(
+      "falls back to the currently open group when the selection is not exactly "
+      "one group")
+    {
+      mdl::openGroup(map, *groupA);
 
-    const auto links = renderer.getLinks();
-    REQUIRE(links.size() == 2);
-    CHECK(gl::getVertexComponent<0>(links[0]) == anchorA);
-    CHECK(gl::getVertexComponent<0>(links[1]) == anchorB);
-  }
+      const auto links = renderer.getLinks();
+      REQUIRE(links.size() == 2);
+      CHECK(gl::getVertexComponent<0>(links[0]) == anchorA);
+      CHECK(gl::getVertexComponent<0>(links[1]) == anchorB);
+    }
 
-  SECTION(
-    "falls back to the currently open group when more than one group is "
-    "selected")
-  {
-    mdl::openGroup(map, *groupA);
-    mdl::selectNodes(map, {groupA, groupB});
+    SECTION(
+      "falls back to the currently open group when more than one group is "
+      "selected")
+    {
+      mdl::openGroup(map, *groupA);
+      mdl::selectNodes(map, {groupA, groupB});
 
-    const auto links = renderer.getLinks();
-    REQUIRE(links.size() == 2);
-    CHECK(gl::getVertexComponent<0>(links[0]) == anchorA);
-    CHECK(gl::getVertexComponent<0>(links[1]) == anchorB);
+      const auto links = renderer.getLinks();
+      REQUIRE(links.size() == 2);
+      CHECK(gl::getVertexComponent<0>(links[0]) == anchorA);
+      CHECK(gl::getVertexComponent<0>(links[1]) == anchorB);
+    }
   }
 }
 

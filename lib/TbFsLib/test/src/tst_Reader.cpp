@@ -60,21 +60,7 @@ void createEmpty(Reader&& r)
   CHECK_THROWS_AS(r.readChar<char>(), ReaderException);
 }
 
-} // namespace
-
-TEST_CASE("BufferReaderTest.createEmpty")
-{
-  createEmpty(Reader::from(buff(), buff()));
-}
-
-TEST_CASE("FileReaderTest.createEmpty")
-{
-  const auto emptyFile =
-    Disk::openFile(getFixtureRoot() / "test/fs/Reader/empty") | kdl::value();
-  createEmpty(emptyFile->reader());
-}
-
-static void createNonEmpty(Reader&& r)
+void createNonEmpty(Reader&& r)
 {
   CHECK(r.size() == 10U);
   CHECK(r.position() == 0U);
@@ -99,17 +85,7 @@ static void createNonEmpty(Reader&& r)
   CHECK_THROWS_AS(r.readChar<char>(), ReaderException);
 }
 
-TEST_CASE("BufferReaderTest.createNonEmpty")
-{
-  createNonEmpty(Reader::from(buff(), buff() + 10));
-}
-
-TEST_CASE("FileReaderTest.createNonEmpty")
-{
-  createNonEmpty(file()->reader());
-}
-
-static void seekFromBegin(Reader&& r)
+void seekFromBegin(Reader&& r)
 {
   r.seekFromBegin(0U);
   CHECK(r.position() == 0U);
@@ -124,17 +100,7 @@ static void seekFromBegin(Reader&& r)
   CHECK(r.position() == 2U);
 }
 
-TEST_CASE("BufferReaderTest.seekFromBegin")
-{
-  seekFromBegin(Reader::from(buff(), buff() + 10));
-}
-
-TEST_CASE("FileReaderTest.seekFromBegin")
-{
-  seekFromBegin(file()->reader());
-}
-
-static void seekFromEnd(Reader&& r)
+void seekFromEnd(Reader&& r)
 {
   r.seekFromEnd(0U);
   CHECK(r.position() == 10U);
@@ -149,17 +115,7 @@ static void seekFromEnd(Reader&& r)
   CHECK(r.position() == 0U);
 }
 
-TEST_CASE("BufferReaderTest.seekFromEnd")
-{
-  seekFromEnd(Reader::from(buff(), buff() + 10));
-}
-
-TEST_CASE("FileReaderTest.seekFromEnd")
-{
-  seekFromEnd(file()->reader());
-}
-
-static void seekForward(Reader&& r)
+void seekForward(Reader&& r)
 {
   r.seekForward(1U);
   CHECK(r.position() == 1U);
@@ -171,69 +127,7 @@ static void seekForward(Reader&& r)
   CHECK(r.position() == 2U);
 }
 
-TEST_CASE("BufferReaderTest.seekBackward")
-{
-  auto r = Reader::from(buff(), buff() + 10);
-
-  r.seekForward(5U);
-  CHECK(r.position() == 5U);
-
-  r.seekBackward(2U);
-  CHECK(r.position() == 3U);
-
-  r.seekBackward(3U);
-  CHECK(r.position() == 0U);
-
-  CHECK_THROWS_AS(r.seekBackward(1U), ReaderException);
-  CHECK(r.position() == 0U);
-}
-
-TEST_CASE("FileReaderTest.seekBackward")
-{
-  auto r = file()->reader();
-
-  r.seekForward(5U);
-  CHECK(r.position() == 5U);
-
-  r.seekBackward(2U);
-  CHECK(r.position() == 3U);
-
-  r.seekBackward(3U);
-  CHECK(r.position() == 0U);
-
-  CHECK_THROWS_AS(r.seekBackward(1U), ReaderException);
-  CHECK(r.position() == 0U);
-}
-
-TEST_CASE("ReaderTest.copyConstructor")
-{
-  auto reader = Reader::from(buff(), buff() + 10);
-  REQUIRE(reader.readString(4) == "abcd");
-  REQUIRE(reader.canRead(6));
-  REQUIRE_FALSE(reader.canRead(7));
-
-  auto copy = Reader{reader};
-  CHECK(reader.canRead(6) == copy.canRead(6));
-  CHECK(reader.canRead(7) == copy.canRead(7));
-
-  CHECK(reader.readString(2) == copy.readString(2));
-
-  reader.seekFromBegin(0);
-  copy.seekFromBegin(0);
-  CHECK(reader.readString(2) == copy.readString(2));
-}
-
-TEST_CASE("BufferReaderTest.seekForward")
-{
-  seekForward(Reader::from(buff(), buff() + 10));
-}
-
-TEST_CASE("FileReaderTest.seekForward")
-{
-  seekForward(file()->reader());
-}
-
-static void subReader(Reader&& r)
+void subReader(Reader&& r)
 {
   auto s = r.subReaderFromBegin(5, 3);
 
@@ -253,102 +147,242 @@ static void subReader(Reader&& r)
   CHECK(s.position() == 3U);
 }
 
-TEST_CASE("BufferReaderTest.subReader")
+} // namespace
+
+TEST_CASE("Reader")
 {
-  subReader(Reader::from(buff(), buff() + 10));
+  SECTION("createEmpty")
+  {
+    SECTION("buffer-backed")
+    {
+      createEmpty(Reader::from(buff(), buff()));
+    }
+
+    SECTION("file-backed")
+    {
+      const auto emptyFile =
+        Disk::openFile(getFixtureRoot() / "test/fs/Reader/empty") | kdl::value();
+      createEmpty(emptyFile->reader());
+    }
+  }
+
+  SECTION("createNonEmpty")
+  {
+    SECTION("buffer-backed")
+    {
+      createNonEmpty(Reader::from(buff(), buff() + 10));
+    }
+
+    SECTION("file-backed")
+    {
+      createNonEmpty(file()->reader());
+    }
+  }
+
+  SECTION("seekFromBegin")
+  {
+    SECTION("buffer-backed")
+    {
+      seekFromBegin(Reader::from(buff(), buff() + 10));
+    }
+
+    SECTION("file-backed")
+    {
+      seekFromBegin(file()->reader());
+    }
+  }
+
+  SECTION("seekFromEnd")
+  {
+    SECTION("buffer-backed")
+    {
+      seekFromEnd(Reader::from(buff(), buff() + 10));
+    }
+
+    SECTION("file-backed")
+    {
+      seekFromEnd(file()->reader());
+    }
+  }
+
+  SECTION("seekForward")
+  {
+    SECTION("buffer-backed")
+    {
+      seekForward(Reader::from(buff(), buff() + 10));
+    }
+
+    SECTION("file-backed")
+    {
+      seekForward(file()->reader());
+    }
+  }
+
+  SECTION("seekBackward")
+  {
+    SECTION("buffer-backed")
+    {
+      auto r = Reader::from(buff(), buff() + 10);
+
+      r.seekForward(5U);
+      CHECK(r.position() == 5U);
+
+      r.seekBackward(2U);
+      CHECK(r.position() == 3U);
+
+      r.seekBackward(3U);
+      CHECK(r.position() == 0U);
+
+      CHECK_THROWS_AS(r.seekBackward(1U), ReaderException);
+      CHECK(r.position() == 0U);
+    }
+
+    SECTION("file-backed")
+    {
+      auto r = file()->reader();
+
+      r.seekForward(5U);
+      CHECK(r.position() == 5U);
+
+      r.seekBackward(2U);
+      CHECK(r.position() == 3U);
+
+      r.seekBackward(3U);
+      CHECK(r.position() == 0U);
+
+      CHECK_THROWS_AS(r.seekBackward(1U), ReaderException);
+      CHECK(r.position() == 0U);
+    }
+  }
+
+  SECTION("copyConstructor")
+  {
+    auto reader = Reader::from(buff(), buff() + 10);
+    REQUIRE(reader.readString(4) == "abcd");
+    REQUIRE(reader.canRead(6));
+    REQUIRE_FALSE(reader.canRead(7));
+
+    auto copy = Reader{reader};
+    CHECK(reader.canRead(6) == copy.canRead(6));
+    CHECK(reader.canRead(7) == copy.canRead(7));
+
+    CHECK(reader.readString(2) == copy.readString(2));
+
+    reader.seekFromBegin(0);
+    copy.seekFromBegin(0);
+    CHECK(reader.readString(2) == copy.readString(2));
+  }
+
+  SECTION("subReader")
+  {
+    SECTION("buffer-backed")
+    {
+      subReader(Reader::from(buff(), buff() + 10));
+    }
+
+    SECTION("file-backed")
+    {
+      subReader(file()->reader());
+    }
+  }
+
+  SECTION("subReaderFromBeginToEnd")
+  {
+    SECTION("buffer-backed")
+    {
+      auto r = Reader::from(buff(), buff() + 10);
+      auto s = r.subReaderFromBegin(5);
+
+      CHECK(s.size() == 5U);
+      CHECK(s.readString(5) == "fghij");
+    }
+
+    SECTION("file-backed")
+    {
+      auto r = file()->reader();
+      auto s = r.subReaderFromBegin(5);
+
+      CHECK(s.size() == 5U);
+      CHECK(s.readString(5) == "fghij");
+    }
+  }
+
+  SECTION("subReaderFromCurrent")
+  {
+    SECTION("buffer-backed")
+    {
+      auto r = Reader::from(buff(), buff() + 10);
+      r.seekFromBegin(2U);
+
+      auto s = r.subReaderFromCurrent(1, 3);
+      CHECK(s.size() == 3U);
+      CHECK(s.readString(3) == "def");
+
+      auto s2 = r.subReaderFromCurrent(5);
+      CHECK(s2.size() == 5U);
+      CHECK(s2.readString(5) == "cdefg");
+    }
+
+    SECTION("file-backed")
+    {
+      auto r = file()->reader();
+      r.seekFromBegin(2U);
+
+      auto s = r.subReaderFromCurrent(1, 3);
+      CHECK(s.size() == 3U);
+      CHECK(s.readString(3) == "def");
+
+      auto s2 = r.subReaderFromCurrent(5);
+      CHECK(s2.size() == 5U);
+      CHECK(s2.readString(5) == "cdefg");
+    }
+  }
+
+  SECTION("invalidRange")
+  {
+    CHECK_THROWS_AS(Reader::from(buff() + 1, buff()), ReaderException);
+  }
 }
 
-TEST_CASE("FileReaderTest.subReader")
+TEST_CASE("BufferedReader")
 {
-  subReader(file()->reader());
-}
+  SECTION("subReaderOutlivesParent")
+  {
+    // OwningBufferReaderSource (the source behind a BufferedReader obtained from a
+    // file-backed reader) must keep its buffer alive independently of the
+    // BufferedReader it was created from, since a sub-reader derived from it can
+    // outlive its parent.
+    auto sub = [] {
+      auto buffered = file()->reader().buffer();
+      return buffered.subReaderFromBegin(5, 3);
+    }();
 
-TEST_CASE("BufferReaderTest.subReaderFromBeginToEnd")
-{
-  auto r = Reader::from(buff(), buff() + 10);
-  auto s = r.subReaderFromBegin(5);
+    CHECK(sub.readString(3) == "fgh");
+  }
 
-  CHECK(s.size() == 5U);
-  CHECK(s.readString(5) == "fghij");
-}
-
-TEST_CASE("FileReaderTest.subReaderFromBeginToEnd")
-{
-  auto r = file()->reader();
-  auto s = r.subReaderFromBegin(5);
-
-  CHECK(s.size() == 5U);
-  CHECK(s.readString(5) == "fghij");
-}
-
-TEST_CASE("BufferReaderTest.subReaderFromCurrent")
-{
-  auto r = Reader::from(buff(), buff() + 10);
-  r.seekFromBegin(2U);
-
-  auto s = r.subReaderFromCurrent(1, 3);
-  CHECK(s.size() == 3U);
-  CHECK(s.readString(3) == "def");
-
-  auto s2 = r.subReaderFromCurrent(5);
-  CHECK(s2.size() == 5U);
-  CHECK(s2.readString(5) == "cdefg");
-}
-
-TEST_CASE("FileReaderTest.subReaderFromCurrent")
-{
-  auto r = file()->reader();
-  r.seekFromBegin(2U);
-
-  auto s = r.subReaderFromCurrent(1, 3);
-  CHECK(s.size() == 3U);
-  CHECK(s.readString(3) == "def");
-
-  auto s2 = r.subReaderFromCurrent(5);
-  CHECK(s2.size() == 5U);
-  CHECK(s2.readString(5) == "cdefg");
-}
-
-TEST_CASE("BufferReaderTest.invalidRange")
-{
-  CHECK_THROWS_AS(Reader::from(buff() + 1, buff()), ReaderException);
-}
-
-TEST_CASE("BufferedReaderTest.subReaderOutlivesParent")
-{
-  // OwningBufferReaderSource (the source behind a BufferedReader obtained from a
-  // file-backed reader) must keep its buffer alive independently of the
-  // BufferedReader it was created from, since a sub-reader derived from it can
-  // outlive its parent.
-  auto sub = [] {
+  SECTION("buffer")
+  {
     auto buffered = file()->reader().buffer();
-    return buffered.subReaderFromBegin(5, 3);
-  }();
 
-  CHECK(sub.readString(3) == "fgh");
-}
+    SECTION("begin, end and stringView expose the underlying memory region")
+    {
+      CHECK(buffered.end() == buffered.begin() + buffered.size());
+      CHECK(buffered.stringView() == "abcdefghij");
+    }
 
-TEST_CASE("BufferedReaderTest.buffer")
-{
-  auto buffered = file()->reader().buffer();
+    SECTION("buffering an already buffered reader returns itself")
+    {
+      auto buffered2 = buffered.buffer();
+      CHECK(buffered2.begin() == buffered.begin());
+      CHECK(buffered2.end() == buffered.end());
+    }
 
-  SECTION("begin, end and stringView expose the underlying memory region")
-  {
-    CHECK(buffered.end() == buffered.begin() + buffered.size());
-    CHECK(buffered.stringView() == "abcdefghij");
-  }
-
-  SECTION("buffering an already buffered reader returns itself")
-  {
-    auto buffered2 = buffered.buffer();
-    CHECK(buffered2.begin() == buffered.begin());
-    CHECK(buffered2.end() == buffered.end());
-  }
-
-  SECTION("buffering a sub-reader of a buffered reader still shares the same buffer")
-  {
-    auto sub = buffered.subReaderFromBegin(5, 3).buffer();
-    CHECK(sub.stringView() == "fgh");
+    SECTION("buffering a sub-reader of a buffered reader still shares the same buffer")
+    {
+      auto sub = buffered.subReaderFromBegin(5, 3).buffer();
+      CHECK(sub.stringView() == "fgh");
+    }
   }
 }
+
 } // namespace tb::fs

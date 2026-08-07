@@ -39,86 +39,89 @@
 namespace tb::mdl
 {
 
-TEST_CASE("loadIdMipTexture")
+TEST_CASE("LoadMipTexture")
 {
-  using TexInfo = std::tuple<std::string, size_t, size_t>;
+  SECTION("loadIdMipTexture")
+  {
+    using TexInfo = std::tuple<std::string, size_t, size_t>;
 
-  // clang-format off
-  const auto [textureName, width, height] = GENERATE(values<TexInfo>({
-  { "cr8_czg_1",          64,  64 },
-  { "cr8_czg_2",          64,  64 },
-  { "cr8_czg_3",          64, 128 },
-  { "cr8_czg_4",          64, 128 },
-  { "cr8_czg_5",          64, 128 },
-  { "speedM_1",          128, 128 },
-  { "cap4can-o-jam",      64,  64 },
-  { "can-o-jam",          64,  64 },
-  { "eat_me",             64,  64 },
-  { "coffin1",           128, 128 },
-  { "coffin2",           128, 128 },
-  { "czg_fronthole",     128, 128 },
-  { "czg_backhole",      128, 128 },
-  { "u_get_this",         64,  64 },
-  { "for_sux-m-ass",      64,  64 },
-  { "dex_5",             128, 128 },
-  { "polished_turd",      64,  64 },
-  { "crackpipes",        128, 128 },
-  { "bongs2",            128, 128 },
-  { "blowjob_machine",   128, 128 },
-  { "lasthopeofhuman",   128, 128 },
-  }));
-  // clang-format on
+    // clang-format off
+    const auto [textureName, width, height] = GENERATE(values<TexInfo>({
+    { "cr8_czg_1",          64,  64 },
+    { "cr8_czg_2",          64,  64 },
+    { "cr8_czg_3",          64, 128 },
+    { "cr8_czg_4",          64, 128 },
+    { "cr8_czg_5",          64, 128 },
+    { "speedM_1",          128, 128 },
+    { "cap4can-o-jam",      64,  64 },
+    { "can-o-jam",          64,  64 },
+    { "eat_me",             64,  64 },
+    { "coffin1",           128, 128 },
+    { "coffin2",           128, 128 },
+    { "czg_fronthole",     128, 128 },
+    { "czg_backhole",      128, 128 },
+    { "u_get_this",         64,  64 },
+    { "for_sux-m-ass",      64,  64 },
+    { "dex_5",             128, 128 },
+    { "polished_turd",      64,  64 },
+    { "crackpipes",        128, 128 },
+    { "bongs2",            128, 128 },
+    { "blowjob_machine",   128, 128 },
+    { "lasthopeofhuman",   128, 128 },
+    }));
+    // clang-format on
 
-  const auto palettePath = getFixtureRoot() / "test/mdl/LoadMipTexture/palette.lmp";
-  const auto wadPath = getFixtureRoot() / "test/mdl/LoadMipTexture/cr8_czg.wad";
+    const auto palettePath = getFixtureRoot() / "test/mdl/LoadMipTexture/palette.lmp";
+    const auto wadPath = getFixtureRoot() / "test/mdl/LoadMipTexture/cr8_czg.wad";
 
-  fs::Disk::openFile(wadPath) | kdl::transform([&](auto wadFile) {
-    return fs::WadFileSystem{wadFile};
-  }) | kdl::and_then([&](auto wadFS) {
+    fs::Disk::openFile(wadPath) | kdl::transform([&](auto wadFile) {
+      return fs::WadFileSystem{wadFile};
+    }) | kdl::and_then([&](auto wadFS) {
+      REQUIRE(wadFS.reload());
+      return wadFS.openFile(textureName + ".D")
+             | kdl::join(
+               fs::Disk::openFile(palettePath) | kdl::and_then([&](auto paletteFile) {
+                 return mdl::loadPalette(*paletteFile, palettePath);
+               }))
+             | kdl::and_then([](auto textureFile, auto palette) {
+                 auto reader = textureFile->reader().buffer();
+                 return loadIdMipTexture(reader, palette, gl::TextureMask::Off);
+               })
+             | kdl::transform([&](auto texture) {
+                 CHECK(texture.width() == width);
+                 CHECK(texture.height() == height);
+               });
+    }) | kdl::transform_error([](const auto& e) { FAIL(e); });
+  }
+
+  SECTION("loadHlMipTexture")
+  {
+    using TexInfo = std::tuple<std::string, size_t, size_t>;
+
+    // clang-format off
+    const auto [textureName, width, height] = GENERATE(values<TexInfo>({
+    { "bongs2",            128, 128 },
+    { "blowjob_machine",   128, 128 },
+    }));
+    // clang-format on
+
+    auto fs = fs::DiskFileSystem{getFixtureRoot()};
+
+    auto logger = TestLogger{};
+
+    const auto wadPath = getFixtureRoot() / "test/mdl/LoadMipTexture/hl.wad";
+    auto wadFS = fs::WadFileSystem{fs::Disk::openFile(wadPath) | kdl::value()};
     REQUIRE(wadFS.reload());
-    return wadFS.openFile(textureName + ".D")
-           | kdl::join(
-             fs::Disk::openFile(palettePath) | kdl::and_then([&](auto paletteFile) {
-               return mdl::loadPalette(*paletteFile, palettePath);
-             }))
-           | kdl::and_then([](auto textureFile, auto palette) {
-               auto reader = textureFile->reader().buffer();
-               return loadIdMipTexture(reader, palette, gl::TextureMask::Off);
-             })
-           | kdl::transform([&](auto texture) {
-               CHECK(texture.width() == width);
-               CHECK(texture.height() == height);
-             });
-  }) | kdl::transform_error([](const auto& e) { FAIL(e); });
-}
 
-TEST_CASE("loadHlMipTexture")
-{
-  using TexInfo = std::tuple<std::string, size_t, size_t>;
+    const auto file = wadFS.openFile(textureName + ".C") | kdl::value();
+    auto reader = file->reader().buffer();
+    const auto texture = loadHlMipTexture(reader, gl::TextureMask::Off) | kdl::value();
 
-  // clang-format off
-  const auto [textureName, width, height] = GENERATE(values<TexInfo>({
-  { "bongs2",            128, 128 },
-  { "blowjob_machine",   128, 128 },
-  }));
-  // clang-format on
-
-  auto fs = fs::DiskFileSystem{getFixtureRoot()};
-
-  auto logger = TestLogger{};
-
-  const auto wadPath = getFixtureRoot() / "test/mdl/LoadMipTexture/hl.wad";
-  auto wadFS = fs::WadFileSystem{fs::Disk::openFile(wadPath) | kdl::value()};
-  REQUIRE(wadFS.reload());
-
-  const auto file = wadFS.openFile(textureName + ".C") | kdl::value();
-  auto reader = file->reader().buffer();
-  const auto texture = loadHlMipTexture(reader, gl::TextureMask::Off) | kdl::value();
-
-  CHECK(logger.countMessages(LogLevel::Error) == 0);
-  CHECK(logger.countMessages(LogLevel::Warn) == 0);
-  CHECK(texture.width() == width);
-  CHECK(texture.height() == height);
+    CHECK(logger.countMessages(LogLevel::Error) == 0);
+    CHECK(logger.countMessages(LogLevel::Warn) == 0);
+    CHECK(texture.width() == width);
+    CHECK(texture.height() == height);
+  }
 }
 
 } // namespace tb::mdl

@@ -50,775 +50,780 @@ namespace tb::mdl
 {
 using namespace Catch::Matchers;
 
-TEST_CASE("ModelUtils.findContainingLayer")
+TEST_CASE("ModelUtils")
 {
-  constexpr auto worldBounds = vm::bbox3d{8192.0};
-  constexpr auto mapFormat = MapFormat::Quake3;
-
-  auto worldNode = WorldNode{{}, {}, mapFormat};
-
-  auto* layerNode = new LayerNode{Layer{"layer"}};
-  auto* groupNode = new GroupNode{Group{"group"}};
-  auto* entityNode = new EntityNode{Entity{}};
-  auto* brushNode = new BrushNode{
-    BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material") | kdl::value()};
-
-  // clang-format off
-  auto* patchNode = new PatchNode{BezierPatch{3, 3, {
-    {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
-    {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
-    {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "material"}};
-  // clang-format on
-
-  groupNode->addChildren({entityNode, brushNode});
-  layerNode->addChildren({groupNode, patchNode});
-  worldNode.addChild(layerNode);
-
-  CHECK(findContainingLayer(&worldNode) == nullptr);
-  CHECK(findContainingLayer(layerNode) == layerNode);
-  CHECK(findContainingLayer(groupNode) == layerNode);
-  CHECK(findContainingLayer(entityNode) == layerNode);
-  CHECK(findContainingLayer(brushNode) == layerNode);
-  CHECK(findContainingLayer(patchNode) == layerNode);
-}
-
-TEST_CASE("ModelUtils.findContainingGroup")
-{
-  constexpr auto worldBounds = vm::bbox3d{8192.0};
-  constexpr auto mapFormat = MapFormat::Quake3;
-
-  auto worldNode = WorldNode{{}, {}, mapFormat};
-
-  auto* layerNode = new LayerNode{Layer{"layer"}};
-  auto* outerGroupNode = new GroupNode{Group{"outer"}};
-  auto* innerGroupNode = new GroupNode{Group{"inner"}};
-  auto* entityNode = new EntityNode{Entity{}};
-  auto* brushNode = new BrushNode{
-    BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material") | kdl::value()};
-
-  // clang-format off
-  auto* patchNode = new PatchNode{BezierPatch{3, 3, {
-    {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
-    {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
-    {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "material"}};
-  // clang-format on
-
-  innerGroupNode->addChildren({entityNode, brushNode});
-  outerGroupNode->addChildren({innerGroupNode, patchNode});
-  worldNode.defaultLayer()->addChild(outerGroupNode);
-
-  CHECK(findContainingGroup(&worldNode) == nullptr);
-  CHECK(findContainingGroup(layerNode) == nullptr);
-  CHECK(findContainingGroup(outerGroupNode) == nullptr);
-  CHECK(findContainingGroup(innerGroupNode) == outerGroupNode);
-  CHECK(findContainingGroup(entityNode) == innerGroupNode);
-  CHECK(findContainingGroup(brushNode) == innerGroupNode);
-  CHECK(findContainingGroup(patchNode) == outerGroupNode);
-}
-
-TEST_CASE("ModelUtils.findContainingEntity")
-{
-  constexpr auto worldBounds = vm::bbox3d{8192.0};
-  constexpr auto mapFormat = MapFormat::Quake3;
-
-  auto worldNode = WorldNode{{}, {}, mapFormat};
-
-  auto* layerNode = new LayerNode{Layer{"layer"}};
-  auto* groupNode = new GroupNode{Group{"group"}};
-  auto* entityNode = new EntityNode{Entity{}};
-  auto* structuralBrushNode = new BrushNode{
-    BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material") | kdl::value()};
-  auto* entityBrushNode = new BrushNode{
-    BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material") | kdl::value()};
-
-  // clang-format off
-  auto* structuralPatchNode = new PatchNode{BezierPatch{3, 3, {
-    {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
-    {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
-    {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "material"}};
-  auto* entityPatchNode = new PatchNode{BezierPatch{3, 3, {
-    {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
-    {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
-    {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "material"}};
-  // clang-format on
-
-  entityNode->addChildren({entityBrushNode, entityPatchNode});
-  groupNode->addChildren({entityNode, structuralBrushNode, structuralPatchNode});
-  layerNode->addChild(groupNode);
-  worldNode.addChild(layerNode);
-
-  CHECK(findContainingEntity(&worldNode) == nullptr);
-  CHECK(findContainingEntity(layerNode) == nullptr);
-  CHECK(findContainingEntity(groupNode) == nullptr);
-  CHECK(findContainingEntity(entityNode) == nullptr);
-  CHECK(findContainingEntity(structuralBrushNode) == &worldNode);
-  CHECK(findContainingEntity(structuralPatchNode) == &worldNode);
-  CHECK(findContainingEntity(entityBrushNode) == entityNode);
-  CHECK(findContainingEntity(entityPatchNode) == entityNode);
-}
-
-TEST_CASE("ModelUtils.findOutermostClosedGroup")
-{
-  constexpr auto worldBounds = vm::bbox3d{8192.0};
-  constexpr auto mapFormat = MapFormat::Quake3;
-
-  auto worldNode = WorldNode{{}, {}, mapFormat};
-
-  auto* layerNode = new LayerNode{Layer{"layer"}};
-  auto* outerGroupNode = new GroupNode{Group{"outer"}};
-  auto* innerGroupNode = new GroupNode{Group{"inner"}};
-  auto* entityNode = new EntityNode{Entity{}};
-  auto* brushNode = new BrushNode{
-    BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material") | kdl::value()};
-
-  // clang-format off
-  auto* patchNode = new PatchNode{BezierPatch{3, 3, {
-    {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
-    {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
-    {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "material"}};
-  // clang-format on
-
-  innerGroupNode->addChildren({entityNode, brushNode});
-  outerGroupNode->addChildren({innerGroupNode, patchNode});
-  worldNode.defaultLayer()->addChild(outerGroupNode);
-
-  SECTION("All groups closed")
+  SECTION("findContainingLayer")
   {
-    CHECK(findOutermostClosedGroup(&worldNode) == nullptr);
-    CHECK(findOutermostClosedGroup(layerNode) == nullptr);
-    CHECK(findOutermostClosedGroup(outerGroupNode) == nullptr);
-    CHECK(findOutermostClosedGroup(innerGroupNode) == outerGroupNode);
-    CHECK(findOutermostClosedGroup(entityNode) == outerGroupNode);
-    CHECK(findOutermostClosedGroup(brushNode) == outerGroupNode);
-    CHECK(findOutermostClosedGroup(patchNode) == outerGroupNode);
-  }
+    constexpr auto worldBounds = vm::bbox3d{8192.0};
+    constexpr auto mapFormat = MapFormat::Quake3;
 
-  SECTION("Outer group open")
-  {
-    outerGroupNode->open();
+    auto worldNode = WorldNode{{}, {}, mapFormat};
 
-    CHECK(findOutermostClosedGroup(&worldNode) == nullptr);
-    CHECK(findOutermostClosedGroup(layerNode) == nullptr);
-    CHECK(findOutermostClosedGroup(outerGroupNode) == nullptr);
-    CHECK(findOutermostClosedGroup(innerGroupNode) == nullptr);
-    CHECK(findOutermostClosedGroup(entityNode) == innerGroupNode);
-    CHECK(findOutermostClosedGroup(brushNode) == innerGroupNode);
-    CHECK(findOutermostClosedGroup(patchNode) == nullptr);
-  }
-
-  SECTION("Both groups open")
-  {
-    outerGroupNode->open();
-    innerGroupNode->open();
-
-    CHECK(findOutermostClosedGroup(&worldNode) == nullptr);
-    CHECK(findOutermostClosedGroup(layerNode) == nullptr);
-    CHECK(findOutermostClosedGroup(outerGroupNode) == nullptr);
-    CHECK(findOutermostClosedGroup(innerGroupNode) == nullptr);
-    CHECK(findOutermostClosedGroup(entityNode) == nullptr);
-    CHECK(findOutermostClosedGroup(brushNode) == nullptr);
-    CHECK(findOutermostClosedGroup(patchNode) == nullptr);
-  }
-}
-
-TEST_CASE("ModelUtils.collectTouchingNodes")
-{
-  constexpr auto worldBounds = vm::bbox3d{8192.0};
-  constexpr auto mapFormat = MapFormat::Quake3;
-
-  auto worldNode = WorldNode{{}, {}, mapFormat};
-
-  auto layerNode = LayerNode{Layer{"layer"}};
-  auto groupNode = GroupNode{Group{"outer"}};
-  auto entityNode = EntityNode{Entity{}};
-  auto brushNode = BrushNode{
-    BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material") | kdl::value()};
-  auto patchNode = PatchNode{BezierPatch{
-    3,
-    3,
-    {{0, 0, 0},
-     {1, 0, 1},
-     {2, 0, 0},
-     {0, 1, 1},
-     {1, 1, 2},
-     {2, 1, 1},
-     {0, 2, 0},
-     {1, 2, 1},
-     {2, 2, 0}},
-    "material"}};
-
-  groupNode.addChild(new EntityNode{Entity{}});
-
-  auto touchesAll = BrushNode{
-    BrushBuilder{mapFormat, worldBounds}.createCube(24.0, "material") | kdl::value()};
-  REQUIRE_FALSE(touchesAll.intersects(worldNode));
-  REQUIRE_FALSE(touchesAll.intersects(layerNode));
-  REQUIRE(touchesAll.intersects(groupNode));
-  REQUIRE(touchesAll.intersects(entityNode));
-  REQUIRE(touchesAll.intersects(brushNode));
-  REQUIRE(touchesAll.intersects(patchNode));
-
-  auto touchesNothing = BrushNode{touchesAll.brush()};
-  transformNode(
-    touchesNothing, vm::translation_matrix(vm::vec3d{128, 0, 0}), worldBounds);
-  REQUIRE_FALSE(touchesNothing.intersects(worldNode));
-  REQUIRE_FALSE(touchesNothing.intersects(layerNode));
-  REQUIRE_FALSE(touchesNothing.intersects(groupNode));
-  REQUIRE_FALSE(touchesNothing.intersects(entityNode));
-  REQUIRE_FALSE(touchesNothing.intersects(brushNode));
-  REQUIRE_FALSE(touchesNothing.intersects(patchNode));
-
-  auto touchesBrush = BrushNode{touchesAll.brush()};
-  transformNode(touchesBrush, vm::translation_matrix(vm::vec3d{24, 0, 0}), worldBounds);
-  REQUIRE_FALSE(touchesBrush.intersects(worldNode));
-  REQUIRE_FALSE(touchesBrush.intersects(layerNode));
-  REQUIRE_FALSE(touchesBrush.intersects(groupNode));
-  REQUIRE_FALSE(touchesBrush.intersects(entityNode));
-  REQUIRE(touchesBrush.intersects(brushNode));
-  REQUIRE_FALSE(touchesBrush.intersects(patchNode));
-
-  const auto allNodes = std::vector<Node*>{
-    &worldNode, &layerNode, &groupNode, &entityNode, &brushNode, &patchNode};
-
-  CHECK_THAT(
-    collectTouchingNodes(allNodes, {&touchesAll}),
-    Equals(std::vector<Node*>{&groupNode, &entityNode, &brushNode, &patchNode}));
-
-  CHECK_THAT(
-    collectTouchingNodes(allNodes, {&touchesNothing}), Equals(std::vector<Node*>{}));
-
-  CHECK_THAT(
-    collectTouchingNodes(allNodes, {&touchesBrush}),
-    Equals(std::vector<Node*>{&brushNode}));
-
-  CHECK_THAT(
-    collectTouchingNodes(allNodes, {&touchesBrush, &touchesAll}),
-    Equals(std::vector<Node*>{&groupNode, &entityNode, &brushNode, &patchNode}));
-}
-
-TEST_CASE("ModelUtils.collectContainedNodes")
-{
-  constexpr auto worldBounds = vm::bbox3d{8192.0};
-  constexpr auto mapFormat = MapFormat::Quake3;
-
-  auto worldNode = WorldNode{{}, {}, mapFormat};
-
-  auto layerNode = LayerNode{Layer{"layer"}};
-  auto groupNode = GroupNode{Group{"outer"}};
-  auto entityNode = EntityNode{Entity{}};
-  auto brushNode = BrushNode{
-    BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material") | kdl::value()};
-  auto patchNode = PatchNode{BezierPatch{
-    3,
-    3,
-    {{0, 0, 0},
-     {1, 0, 1},
-     {2, 0, 0},
-     {0, 1, 1},
-     {1, 1, 2},
-     {2, 1, 1},
-     {0, 2, 0},
-     {1, 2, 1},
-     {2, 2, 0}},
-    "material"}};
-
-  groupNode.addChild(new EntityNode{Entity{}});
-
-  auto containsAll = BrushNode{
-    BrushBuilder{mapFormat, worldBounds}.createCube(128.0, "material") | kdl::value()};
-  REQUIRE_FALSE(containsAll.contains(worldNode));
-  REQUIRE_FALSE(containsAll.contains(layerNode));
-  REQUIRE(containsAll.contains(groupNode));
-  REQUIRE(containsAll.contains(entityNode));
-  REQUIRE(containsAll.contains(brushNode));
-  REQUIRE(containsAll.contains(patchNode));
-
-  auto containsNothing = BrushNode{containsAll.brush()};
-  transformNode(
-    containsNothing, vm::translation_matrix(vm::vec3d{-64, 0, 0}), worldBounds);
-  REQUIRE_FALSE(containsNothing.contains(worldNode));
-  REQUIRE_FALSE(containsNothing.contains(layerNode));
-  REQUIRE_FALSE(containsNothing.contains(groupNode));
-  REQUIRE_FALSE(containsNothing.contains(entityNode));
-  REQUIRE_FALSE(containsNothing.contains(brushNode));
-  REQUIRE_FALSE(containsNothing.contains(patchNode));
-
-  auto containsPatch = BrushNode{
-    BrushBuilder{mapFormat, worldBounds}.createCube(8.0, "material") | kdl::value()};
-  REQUIRE_FALSE(containsPatch.contains(worldNode));
-  REQUIRE_FALSE(containsPatch.contains(layerNode));
-  REQUIRE_FALSE(containsPatch.contains(groupNode));
-  REQUIRE_FALSE(containsPatch.contains(entityNode));
-  REQUIRE_FALSE(containsPatch.contains(brushNode));
-  REQUIRE(containsPatch.contains(patchNode));
-
-  const auto allNodes = std::vector<Node*>{
-    &worldNode, &layerNode, &groupNode, &entityNode, &brushNode, &patchNode};
-
-  CHECK_THAT(
-    collectContainedNodes(allNodes, {&containsAll}),
-    Equals(std::vector<Node*>{&groupNode, &entityNode, &brushNode, &patchNode}));
-
-  CHECK_THAT(
-    collectContainedNodes(allNodes, {&containsNothing}), Equals(std::vector<Node*>{}));
-
-  CHECK_THAT(
-    collectContainedNodes(allNodes, {&containsPatch}),
-    Equals(std::vector<Node*>{&patchNode}));
-
-  CHECK_THAT(
-    collectContainedNodes(allNodes, {&containsPatch, &containsAll}),
-    Equals(std::vector<Node*>{&groupNode, &entityNode, &brushNode, &patchNode}));
-}
-
-TEST_CASE("ModelUtils.collectSelectedNodes")
-{
-  constexpr auto worldBounds = vm::bbox3d{8192.0};
-  constexpr auto mapFormat = MapFormat::Quake3;
-
-  auto worldNode = WorldNode{{}, {}, mapFormat};
-
-  auto* layerNode = new LayerNode{Layer{"layer"}};
-  auto* outerGroupNode = new GroupNode{Group{"outer"}};
-  auto* innerGroupNode = new GroupNode{Group{"inner"}};
-  auto* entityNode = new EntityNode{Entity{}};
-  auto* brushNode = new BrushNode{
-    BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material") | kdl::value()};
-
-  // clang-format off
-  auto* patchNode = new PatchNode{BezierPatch{3, 3, {
-    {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
-    {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
-    {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "material"}};
-  // clang-format on
-
-  innerGroupNode->addChildren({entityNode, brushNode});
-  outerGroupNode->addChildren({innerGroupNode, patchNode});
-  worldNode.defaultLayer()->addChild(outerGroupNode);
-  worldNode.addChild(layerNode);
-
-  /*
-  worldNode
-  + defaultLayer
-    + outerGroupNode
-      + innerGroupNode
-        + entityNode
-        + brushNode
-      + patchNode
-  + layerNode
-  */
-  CHECK_THAT(collectSelectedNodes({&worldNode}), UnorderedEquals(std::vector<Node*>{}));
-
-  brushNode->select();
-  patchNode->select();
-
-  CHECK_THAT(
-    collectSelectedNodes({&worldNode}),
-    UnorderedEquals(std::vector<Node*>{brushNode, patchNode}));
-
-  CHECK_THAT(
-    collectSelectedNodes({outerGroupNode}),
-    UnorderedEquals(std::vector<Node*>{brushNode, patchNode}));
-
-  CHECK_THAT(
-    collectSelectedNodes({innerGroupNode}),
-    UnorderedEquals(std::vector<Node*>{brushNode}));
-
-  CHECK_THAT(
-    collectSelectedNodes({innerGroupNode, patchNode}),
-    UnorderedEquals(std::vector<Node*>{brushNode, patchNode}));
-
-  CHECK_THAT(
-    collectSelectedNodes({outerGroupNode, innerGroupNode}),
-    UnorderedEquals(std::vector<Node*>{brushNode, patchNode}));
-
-  innerGroupNode->select();
-  CHECK_THAT(
-    collectSelectedNodes({outerGroupNode, innerGroupNode}),
-    UnorderedEquals(std::vector<Node*>{innerGroupNode, brushNode, patchNode}));
-}
-
-TEST_CASE("ModelUtils.collectSelectableNodes")
-{
-  constexpr auto worldBounds = vm::bbox3d{8192.0};
-  constexpr auto mapFormat = MapFormat::Quake3;
-
-  auto worldNode = WorldNode{{}, {}, mapFormat};
-
-  auto* layerNode = new LayerNode{Layer{"layer"}};
-  auto* outerGroupNode = new GroupNode{Group{"outer"}};
-  auto* innerGroupNode = new GroupNode{Group{"inner"}};
-  auto* entityNode = new EntityNode{Entity{}};
-  auto* brushNode = new BrushNode{
-    BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material") | kdl::value()};
-
-  // clang-format off
-  auto* patchNode = new PatchNode{BezierPatch{3, 3, {
-    {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
-    {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
-    {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "material"}};
-  // clang-format on
-
-  innerGroupNode->addChildren({entityNode, brushNode});
-  outerGroupNode->addChildren({innerGroupNode, patchNode});
-  worldNode.defaultLayer()->addChild(outerGroupNode);
-  worldNode.addChild(layerNode);
-
-  auto editorContext = EditorContext{};
-
-  CHECK_THAT(collectSelectableNodes({}, editorContext), Equals(std::vector<Node*>{}));
-
-  CHECK_THAT(
-    collectSelectableNodes({&worldNode}, editorContext),
-    Equals(std::vector<Node*>{outerGroupNode}));
-
-  editorContext.pushGroup(*outerGroupNode);
-  CHECK_THAT(
-    collectSelectableNodes({&worldNode}, editorContext),
-    Equals(std::vector<Node*>{innerGroupNode, patchNode}));
-
-  editorContext.pushGroup(*innerGroupNode);
-  CHECK_THAT(
-    collectSelectableNodes({&worldNode}, editorContext),
-    Equals(std::vector<Node*>{outerGroupNode}));
-
-  CHECK_THAT(
-    collectSelectableNodes({&worldNode, innerGroupNode}, editorContext),
-    Equals(std::vector<Node*>{outerGroupNode, entityNode, brushNode}));
-}
-
-TEST_CASE("ModelUtils.collectSelectedBrushFaces")
-{
-  constexpr auto worldBounds = vm::bbox3d{8192.0};
-  constexpr auto mapFormat = MapFormat::Quake3;
-
-  auto worldNode = WorldNode{{}, {}, mapFormat};
-
-  SECTION("Face selection")
-  {
+    auto* layerNode = new LayerNode{Layer{"layer"}};
+    auto* groupNode = new GroupNode{Group{"group"}};
+    auto* entityNode = new EntityNode{Entity{}};
     auto* brushNode = new BrushNode{
       BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material") | kdl::value()};
 
-    worldNode.defaultLayer()->addChild(brushNode);
-    brushNode->selectFace(0);
-    brushNode->selectFace(1);
+    // clang-format off
+    auto* patchNode = new PatchNode{BezierPatch{3, 3, {
+      {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
+      {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
+      {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "material"}};
+    // clang-format on
 
-    CHECK_THAT(
-      collectSelectedBrushFaces({&worldNode}),
-      UnorderedEquals(std::vector<BrushFaceHandle>{{brushNode, 0u}, {brushNode, 1u}}));
+    groupNode->addChildren({entityNode, brushNode});
+    layerNode->addChildren({groupNode, patchNode});
+    worldNode.addChild(layerNode);
+
+    CHECK(findContainingLayer(&worldNode) == nullptr);
+    CHECK(findContainingLayer(layerNode) == layerNode);
+    CHECK(findContainingLayer(groupNode) == layerNode);
+    CHECK(findContainingLayer(entityNode) == layerNode);
+    CHECK(findContainingLayer(brushNode) == layerNode);
+    CHECK(findContainingLayer(patchNode) == layerNode);
   }
 
-  SECTION("Node selection")
+  SECTION("findContainingGroup")
   {
-    auto* selectedBrushNode = new BrushNode{
+    constexpr auto worldBounds = vm::bbox3d{8192.0};
+    constexpr auto mapFormat = MapFormat::Quake3;
+
+    auto worldNode = WorldNode{{}, {}, mapFormat};
+
+    auto* layerNode = new LayerNode{Layer{"layer"}};
+    auto* outerGroupNode = new GroupNode{Group{"outer"}};
+    auto* innerGroupNode = new GroupNode{Group{"inner"}};
+    auto* entityNode = new EntityNode{Entity{}};
+    auto* brushNode = new BrushNode{
       BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material") | kdl::value()};
-    auto* unselectedBrushNode = new BrushNode{
+
+    // clang-format off
+    auto* patchNode = new PatchNode{BezierPatch{3, 3, {
+      {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
+      {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
+      {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "material"}};
+    // clang-format on
+
+    innerGroupNode->addChildren({entityNode, brushNode});
+    outerGroupNode->addChildren({innerGroupNode, patchNode});
+    worldNode.defaultLayer()->addChild(outerGroupNode);
+
+    CHECK(findContainingGroup(&worldNode) == nullptr);
+    CHECK(findContainingGroup(layerNode) == nullptr);
+    CHECK(findContainingGroup(outerGroupNode) == nullptr);
+    CHECK(findContainingGroup(innerGroupNode) == outerGroupNode);
+    CHECK(findContainingGroup(entityNode) == innerGroupNode);
+    CHECK(findContainingGroup(brushNode) == innerGroupNode);
+    CHECK(findContainingGroup(patchNode) == outerGroupNode);
+  }
+
+  SECTION("findContainingEntity")
+  {
+    constexpr auto worldBounds = vm::bbox3d{8192.0};
+    constexpr auto mapFormat = MapFormat::Quake3;
+
+    auto worldNode = WorldNode{{}, {}, mapFormat};
+
+    auto* layerNode = new LayerNode{Layer{"layer"}};
+    auto* groupNode = new GroupNode{Group{"group"}};
+    auto* entityNode = new EntityNode{Entity{}};
+    auto* structuralBrushNode = new BrushNode{
+      BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material") | kdl::value()};
+    auto* entityBrushNode = new BrushNode{
       BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material") | kdl::value()};
 
-    worldNode.defaultLayer()->addChild(selectedBrushNode);
-    worldNode.defaultLayer()->addChild(unselectedBrushNode);
-    selectedBrushNode->select();
+    // clang-format off
+    auto* structuralPatchNode = new PatchNode{BezierPatch{3, 3, {
+      {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
+      {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
+      {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "material"}};
+    auto* entityPatchNode = new PatchNode{BezierPatch{3, 3, {
+      {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
+      {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
+      {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "material"}};
+    // clang-format on
 
-    CHECK(collectSelectedBrushFaces({&worldNode}).empty());
+    entityNode->addChildren({entityBrushNode, entityPatchNode});
+    groupNode->addChildren({entityNode, structuralBrushNode, structuralPatchNode});
+    layerNode->addChild(groupNode);
+    worldNode.addChild(layerNode);
+
+    CHECK(findContainingEntity(&worldNode) == nullptr);
+    CHECK(findContainingEntity(layerNode) == nullptr);
+    CHECK(findContainingEntity(groupNode) == nullptr);
+    CHECK(findContainingEntity(entityNode) == nullptr);
+    CHECK(findContainingEntity(structuralBrushNode) == &worldNode);
+    CHECK(findContainingEntity(structuralPatchNode) == &worldNode);
+    CHECK(findContainingEntity(entityBrushNode) == entityNode);
+    CHECK(findContainingEntity(entityPatchNode) == entityNode);
   }
-}
 
-TEST_CASE("ModelUtils.collectSelectableBrushFaces")
-{
-  constexpr auto worldBounds = vm::bbox3d{8192.0};
-  constexpr auto mapFormat = MapFormat::Quake3;
-
-  auto worldNode = WorldNode{{}, {}, mapFormat};
-  auto* selectableBrushNode = new BrushNode{
-    BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material") | kdl::value()};
-  auto* unselectableBrushNode = new BrushNode{
-    BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material") | kdl::value()};
-
-  worldNode.defaultLayer()->addChild(selectableBrushNode);
-  worldNode.defaultLayer()->addChild(unselectableBrushNode);
-  unselectableBrushNode->setLockState(LockState::Locked);
-
-  auto editorContext = EditorContext{};
-
-  CHECK_THAT(
-    collectSelectableBrushFaces({&worldNode}, editorContext),
-    UnorderedEquals(toHandles(selectableBrushNode)));
-}
-
-TEST_CASE("ModelUtils.computeLogicalBounds")
-{
-  constexpr auto worldBounds = vm::bbox3d{8192.0};
-  constexpr auto mapFormat = MapFormat::Quake3;
-
-  auto worldNode = WorldNode{{}, {}, mapFormat};
-
-  auto* layerNode = new LayerNode{Layer{"layer"}};
-  auto* outerGroupNode = new GroupNode{Group{"outer"}};
-  auto* innerGroupNode = new GroupNode{Group{"inner"}};
-  auto* entityNode = new EntityNode{Entity{}};
-  auto* brushNode = new BrushNode{
-    BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material") | kdl::value()};
-
-  // clang-format off
-  auto* patchNode = new PatchNode{BezierPatch{3, 3, {
-    {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
-    {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
-    {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "material"}};
-  // clang-format on
-
-  innerGroupNode->addChildren({entityNode, brushNode});
-  outerGroupNode->addChildren({innerGroupNode, patchNode});
-  worldNode.defaultLayer()->addChild(outerGroupNode);
-  worldNode.addChild(layerNode);
-
-  transformNode(*brushNode, vm::translation_matrix(vm::vec3d{64, 0, 0}), worldBounds);
-
-  CHECK(computeLogicalBounds({&worldNode}) == vm::bbox3d{});
-  CHECK(computeLogicalBounds({layerNode}) == vm::bbox3d{});
-  CHECK(
-    computeLogicalBounds({entityNode})
-    == vm::bbox3d{vm::vec3d{-8, -8, -8}, vm::vec3d{8, 8, 8}});
-  CHECK(
-    computeLogicalBounds({brushNode})
-    == vm::bbox3d{vm::vec3d{32, -32, -32}, vm::vec3d{96, 32, 32}});
-  CHECK(
-    computeLogicalBounds({patchNode})
-    == vm::bbox3d{vm::vec3d{0, 0, 0}, vm::vec3d{2, 2, 2}});
-  CHECK(
-    computeLogicalBounds({entityNode, brushNode})
-    == vm::bbox3d{vm::vec3d{-8, -32, -32}, vm::vec3d{96, 32, 32}});
-}
-
-TEST_CASE("ModelUtils.computePhysicalBounds")
-{
-  constexpr auto worldBounds = vm::bbox3d{8192.0};
-  constexpr auto mapFormat = MapFormat::Quake3;
-
-  auto worldNode = WorldNode{{}, {}, mapFormat};
-
-  auto* layerNode = new LayerNode{Layer{"layer"}};
-  auto* outerGroupNode = new GroupNode{Group{"outer"}};
-  auto* innerGroupNode = new GroupNode{Group{"inner"}};
-  auto* entityNode = new EntityNode{Entity{}};
-  auto* brushNode = new BrushNode{
-    BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material") | kdl::value()};
-
-  // clang-format off
-  auto* patchNode = new PatchNode{BezierPatch{3, 3, {
-    {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
-    {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
-    {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "material"}};
-  // clang-format on
-
-  innerGroupNode->addChildren({entityNode, brushNode});
-  outerGroupNode->addChildren({innerGroupNode, patchNode});
-  worldNode.defaultLayer()->addChild(outerGroupNode);
-  worldNode.addChild(layerNode);
-
-  transformNode(*brushNode, vm::translation_matrix(vm::vec3d{64, 0, 0}), worldBounds);
-
-  CHECK(computePhysicalBounds({&worldNode}) == vm::bbox3d{});
-  CHECK(computePhysicalBounds({layerNode}) == vm::bbox3d{});
-  CHECK(
-    computePhysicalBounds({entityNode})
-    == vm::bbox3d{vm::vec3d{-8, -8, -8}, vm::vec3d{8, 8, 8}});
-  CHECK(
-    computePhysicalBounds({brushNode})
-    == vm::bbox3d{vm::vec3d{32, -32, -32}, vm::vec3d{96, 32, 32}});
-  CHECK(
-    computePhysicalBounds({patchNode})
-    == vm::bbox3d{vm::vec3d{0, 0, 0}, vm::vec3d{2, 2, 1}});
-  CHECK(
-    computePhysicalBounds({entityNode, brushNode})
-    == vm::bbox3d{vm::vec3d{-8, -32, -32}, vm::vec3d{96, 32, 32}});
-}
-
-TEST_CASE("ModelUtils.filterNodes")
-{
-  constexpr auto worldBounds = vm::bbox3d{8192.0};
-  constexpr auto mapFormat = MapFormat::Quake3;
-
-  auto worldNode = WorldNode{{}, {}, mapFormat};
-
-  auto layerNode = LayerNode{Layer{"layer"}};
-  auto groupNode = GroupNode{Group{"outer"}};
-  auto entityNode = EntityNode{Entity{}};
-  auto brushNode = BrushNode{
-    BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material") | kdl::value()};
-  auto patchNode = PatchNode{BezierPatch{
-    3,
-    3,
-    {{0, 0, 0},
-     {1, 0, 1},
-     {2, 0, 0},
-     {0, 1, 1},
-     {1, 1, 2},
-     {2, 1, 1},
-     {0, 2, 0},
-     {1, 2, 1},
-     {2, 2, 0}},
-    "material"}};
-
-  SECTION("Filter brush nodes")
+  SECTION("findOutermostClosedGroup")
   {
+    constexpr auto worldBounds = vm::bbox3d{8192.0};
+    constexpr auto mapFormat = MapFormat::Quake3;
+
+    auto worldNode = WorldNode{{}, {}, mapFormat};
+
+    auto* layerNode = new LayerNode{Layer{"layer"}};
+    auto* outerGroupNode = new GroupNode{Group{"outer"}};
+    auto* innerGroupNode = new GroupNode{Group{"inner"}};
+    auto* entityNode = new EntityNode{Entity{}};
+    auto* brushNode = new BrushNode{
+      BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material") | kdl::value()};
+
+    // clang-format off
+    auto* patchNode = new PatchNode{BezierPatch{3, 3, {
+      {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
+      {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
+      {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "material"}};
+    // clang-format on
+
+    innerGroupNode->addChildren({entityNode, brushNode});
+    outerGroupNode->addChildren({innerGroupNode, patchNode});
+    worldNode.defaultLayer()->addChild(outerGroupNode);
+
+    SECTION("All groups closed")
+    {
+      CHECK(findOutermostClosedGroup(&worldNode) == nullptr);
+      CHECK(findOutermostClosedGroup(layerNode) == nullptr);
+      CHECK(findOutermostClosedGroup(outerGroupNode) == nullptr);
+      CHECK(findOutermostClosedGroup(innerGroupNode) == outerGroupNode);
+      CHECK(findOutermostClosedGroup(entityNode) == outerGroupNode);
+      CHECK(findOutermostClosedGroup(brushNode) == outerGroupNode);
+      CHECK(findOutermostClosedGroup(patchNode) == outerGroupNode);
+    }
+
+    SECTION("Outer group open")
+    {
+      outerGroupNode->open();
+
+      CHECK(findOutermostClosedGroup(&worldNode) == nullptr);
+      CHECK(findOutermostClosedGroup(layerNode) == nullptr);
+      CHECK(findOutermostClosedGroup(outerGroupNode) == nullptr);
+      CHECK(findOutermostClosedGroup(innerGroupNode) == nullptr);
+      CHECK(findOutermostClosedGroup(entityNode) == innerGroupNode);
+      CHECK(findOutermostClosedGroup(brushNode) == innerGroupNode);
+      CHECK(findOutermostClosedGroup(patchNode) == nullptr);
+    }
+
+    SECTION("Both groups open")
+    {
+      outerGroupNode->open();
+      innerGroupNode->open();
+
+      CHECK(findOutermostClosedGroup(&worldNode) == nullptr);
+      CHECK(findOutermostClosedGroup(layerNode) == nullptr);
+      CHECK(findOutermostClosedGroup(outerGroupNode) == nullptr);
+      CHECK(findOutermostClosedGroup(innerGroupNode) == nullptr);
+      CHECK(findOutermostClosedGroup(entityNode) == nullptr);
+      CHECK(findOutermostClosedGroup(brushNode) == nullptr);
+      CHECK(findOutermostClosedGroup(patchNode) == nullptr);
+    }
+  }
+
+  SECTION("collectTouchingNodes")
+  {
+    constexpr auto worldBounds = vm::bbox3d{8192.0};
+    constexpr auto mapFormat = MapFormat::Quake3;
+
+    auto worldNode = WorldNode{{}, {}, mapFormat};
+
+    auto layerNode = LayerNode{Layer{"layer"}};
+    auto groupNode = GroupNode{Group{"outer"}};
+    auto entityNode = EntityNode{Entity{}};
+    auto brushNode = BrushNode{
+      BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material") | kdl::value()};
+    auto patchNode = PatchNode{BezierPatch{
+      3,
+      3,
+      {{0, 0, 0},
+       {1, 0, 1},
+       {2, 0, 0},
+       {0, 1, 1},
+       {1, 1, 2},
+       {2, 1, 1},
+       {0, 2, 0},
+       {1, 2, 1},
+       {2, 2, 0}},
+      "material"}};
+
+    groupNode.addChild(new EntityNode{Entity{}});
+
+    auto touchesAll = BrushNode{
+      BrushBuilder{mapFormat, worldBounds}.createCube(24.0, "material") | kdl::value()};
+    REQUIRE_FALSE(touchesAll.intersects(worldNode));
+    REQUIRE_FALSE(touchesAll.intersects(layerNode));
+    REQUIRE(touchesAll.intersects(groupNode));
+    REQUIRE(touchesAll.intersects(entityNode));
+    REQUIRE(touchesAll.intersects(brushNode));
+    REQUIRE(touchesAll.intersects(patchNode));
+
+    auto touchesNothing = BrushNode{touchesAll.brush()};
+    transformNode(
+      touchesNothing, vm::translation_matrix(vm::vec3d{128, 0, 0}), worldBounds);
+    REQUIRE_FALSE(touchesNothing.intersects(worldNode));
+    REQUIRE_FALSE(touchesNothing.intersects(layerNode));
+    REQUIRE_FALSE(touchesNothing.intersects(groupNode));
+    REQUIRE_FALSE(touchesNothing.intersects(entityNode));
+    REQUIRE_FALSE(touchesNothing.intersects(brushNode));
+    REQUIRE_FALSE(touchesNothing.intersects(patchNode));
+
+    auto touchesBrush = BrushNode{touchesAll.brush()};
+    transformNode(touchesBrush, vm::translation_matrix(vm::vec3d{24, 0, 0}), worldBounds);
+    REQUIRE_FALSE(touchesBrush.intersects(worldNode));
+    REQUIRE_FALSE(touchesBrush.intersects(layerNode));
+    REQUIRE_FALSE(touchesBrush.intersects(groupNode));
+    REQUIRE_FALSE(touchesBrush.intersects(entityNode));
+    REQUIRE(touchesBrush.intersects(brushNode));
+    REQUIRE_FALSE(touchesBrush.intersects(patchNode));
+
+    const auto allNodes = std::vector<Node*>{
+      &worldNode, &layerNode, &groupNode, &entityNode, &brushNode, &patchNode};
+
+    CHECK_THAT(
+      collectTouchingNodes(allNodes, {&touchesAll}),
+      Equals(std::vector<Node*>{&groupNode, &entityNode, &brushNode, &patchNode}));
+
+    CHECK_THAT(
+      collectTouchingNodes(allNodes, {&touchesNothing}), Equals(std::vector<Node*>{}));
+
+    CHECK_THAT(
+      collectTouchingNodes(allNodes, {&touchesBrush}),
+      Equals(std::vector<Node*>{&brushNode}));
+
+    CHECK_THAT(
+      collectTouchingNodes(allNodes, {&touchesBrush, &touchesAll}),
+      Equals(std::vector<Node*>{&groupNode, &entityNode, &brushNode, &patchNode}));
+  }
+
+  SECTION("collectContainedNodes")
+  {
+    constexpr auto worldBounds = vm::bbox3d{8192.0};
+    constexpr auto mapFormat = MapFormat::Quake3;
+
+    auto worldNode = WorldNode{{}, {}, mapFormat};
+
+    auto layerNode = LayerNode{Layer{"layer"}};
+    auto groupNode = GroupNode{Group{"outer"}};
+    auto entityNode = EntityNode{Entity{}};
+    auto brushNode = BrushNode{
+      BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material") | kdl::value()};
+    auto patchNode = PatchNode{BezierPatch{
+      3,
+      3,
+      {{0, 0, 0},
+       {1, 0, 1},
+       {2, 0, 0},
+       {0, 1, 1},
+       {1, 1, 2},
+       {2, 1, 1},
+       {0, 2, 0},
+       {1, 2, 1},
+       {2, 2, 0}},
+      "material"}};
+
+    groupNode.addChild(new EntityNode{Entity{}});
+
+    auto containsAll = BrushNode{
+      BrushBuilder{mapFormat, worldBounds}.createCube(128.0, "material") | kdl::value()};
+    REQUIRE_FALSE(containsAll.contains(worldNode));
+    REQUIRE_FALSE(containsAll.contains(layerNode));
+    REQUIRE(containsAll.contains(groupNode));
+    REQUIRE(containsAll.contains(entityNode));
+    REQUIRE(containsAll.contains(brushNode));
+    REQUIRE(containsAll.contains(patchNode));
+
+    auto containsNothing = BrushNode{containsAll.brush()};
+    transformNode(
+      containsNothing, vm::translation_matrix(vm::vec3d{-64, 0, 0}), worldBounds);
+    REQUIRE_FALSE(containsNothing.contains(worldNode));
+    REQUIRE_FALSE(containsNothing.contains(layerNode));
+    REQUIRE_FALSE(containsNothing.contains(groupNode));
+    REQUIRE_FALSE(containsNothing.contains(entityNode));
+    REQUIRE_FALSE(containsNothing.contains(brushNode));
+    REQUIRE_FALSE(containsNothing.contains(patchNode));
+
+    auto containsPatch = BrushNode{
+      BrushBuilder{mapFormat, worldBounds}.createCube(8.0, "material") | kdl::value()};
+    REQUIRE_FALSE(containsPatch.contains(worldNode));
+    REQUIRE_FALSE(containsPatch.contains(layerNode));
+    REQUIRE_FALSE(containsPatch.contains(groupNode));
+    REQUIRE_FALSE(containsPatch.contains(entityNode));
+    REQUIRE_FALSE(containsPatch.contains(brushNode));
+    REQUIRE(containsPatch.contains(patchNode));
+
+    const auto allNodes = std::vector<Node*>{
+      &worldNode, &layerNode, &groupNode, &entityNode, &brushNode, &patchNode};
+
+    CHECK_THAT(
+      collectContainedNodes(allNodes, {&containsAll}),
+      Equals(std::vector<Node*>{&groupNode, &entityNode, &brushNode, &patchNode}));
+
+    CHECK_THAT(
+      collectContainedNodes(allNodes, {&containsNothing}), Equals(std::vector<Node*>{}));
+
+    CHECK_THAT(
+      collectContainedNodes(allNodes, {&containsPatch}),
+      Equals(std::vector<Node*>{&patchNode}));
+
+    CHECK_THAT(
+      collectContainedNodes(allNodes, {&containsPatch, &containsAll}),
+      Equals(std::vector<Node*>{&groupNode, &entityNode, &brushNode, &patchNode}));
+  }
+
+  SECTION("collectSelectedNodes")
+  {
+    constexpr auto worldBounds = vm::bbox3d{8192.0};
+    constexpr auto mapFormat = MapFormat::Quake3;
+
+    auto worldNode = WorldNode{{}, {}, mapFormat};
+
+    auto* layerNode = new LayerNode{Layer{"layer"}};
+    auto* outerGroupNode = new GroupNode{Group{"outer"}};
+    auto* innerGroupNode = new GroupNode{Group{"inner"}};
+    auto* entityNode = new EntityNode{Entity{}};
+    auto* brushNode = new BrushNode{
+      BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material") | kdl::value()};
+
+    // clang-format off
+    auto* patchNode = new PatchNode{BezierPatch{3, 3, {
+      {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
+      {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
+      {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "material"}};
+    // clang-format on
+
+    innerGroupNode->addChildren({entityNode, brushNode});
+    outerGroupNode->addChildren({innerGroupNode, patchNode});
+    worldNode.defaultLayer()->addChild(outerGroupNode);
+    worldNode.addChild(layerNode);
+
+    /*
+    worldNode
+    + defaultLayer
+      + outerGroupNode
+        + innerGroupNode
+          + entityNode
+          + brushNode
+        + patchNode
+    + layerNode
+    */
+    CHECK_THAT(collectSelectedNodes({&worldNode}), UnorderedEquals(std::vector<Node*>{}));
+
+    brushNode->select();
+    patchNode->select();
+
+    CHECK_THAT(
+      collectSelectedNodes({&worldNode}),
+      UnorderedEquals(std::vector<Node*>{brushNode, patchNode}));
+
+    CHECK_THAT(
+      collectSelectedNodes({outerGroupNode}),
+      UnorderedEquals(std::vector<Node*>{brushNode, patchNode}));
+
+    CHECK_THAT(
+      collectSelectedNodes({innerGroupNode}),
+      UnorderedEquals(std::vector<Node*>{brushNode}));
+
+    CHECK_THAT(
+      collectSelectedNodes({innerGroupNode, patchNode}),
+      UnorderedEquals(std::vector<Node*>{brushNode, patchNode}));
+
+    CHECK_THAT(
+      collectSelectedNodes({outerGroupNode, innerGroupNode}),
+      UnorderedEquals(std::vector<Node*>{brushNode, patchNode}));
+
+    innerGroupNode->select();
+    CHECK_THAT(
+      collectSelectedNodes({outerGroupNode, innerGroupNode}),
+      UnorderedEquals(std::vector<Node*>{innerGroupNode, brushNode, patchNode}));
+  }
+
+  SECTION("collectSelectableNodes")
+  {
+    constexpr auto worldBounds = vm::bbox3d{8192.0};
+    constexpr auto mapFormat = MapFormat::Quake3;
+
+    auto worldNode = WorldNode{{}, {}, mapFormat};
+
+    auto* layerNode = new LayerNode{Layer{"layer"}};
+    auto* outerGroupNode = new GroupNode{Group{"outer"}};
+    auto* innerGroupNode = new GroupNode{Group{"inner"}};
+    auto* entityNode = new EntityNode{Entity{}};
+    auto* brushNode = new BrushNode{
+      BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material") | kdl::value()};
+
+    // clang-format off
+    auto* patchNode = new PatchNode{BezierPatch{3, 3, {
+      {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
+      {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
+      {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "material"}};
+    // clang-format on
+
+    innerGroupNode->addChildren({entityNode, brushNode});
+    outerGroupNode->addChildren({innerGroupNode, patchNode});
+    worldNode.defaultLayer()->addChild(outerGroupNode);
+    worldNode.addChild(layerNode);
+
+    auto editorContext = EditorContext{};
+
+    CHECK_THAT(collectSelectableNodes({}, editorContext), Equals(std::vector<Node*>{}));
+
+    CHECK_THAT(
+      collectSelectableNodes({&worldNode}, editorContext),
+      Equals(std::vector<Node*>{outerGroupNode}));
+
+    editorContext.pushGroup(*outerGroupNode);
+    CHECK_THAT(
+      collectSelectableNodes({&worldNode}, editorContext),
+      Equals(std::vector<Node*>{innerGroupNode, patchNode}));
+
+    editorContext.pushGroup(*innerGroupNode);
+    CHECK_THAT(
+      collectSelectableNodes({&worldNode}, editorContext),
+      Equals(std::vector<Node*>{outerGroupNode}));
+
+    CHECK_THAT(
+      collectSelectableNodes({&worldNode, innerGroupNode}, editorContext),
+      Equals(std::vector<Node*>{outerGroupNode, entityNode, brushNode}));
+  }
+
+  SECTION("collectSelectedBrushFaces")
+  {
+    constexpr auto worldBounds = vm::bbox3d{8192.0};
+    constexpr auto mapFormat = MapFormat::Quake3;
+
+    auto worldNode = WorldNode{{}, {}, mapFormat};
+
+    SECTION("Face selection")
+    {
+      auto* brushNode = new BrushNode{
+        BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material") | kdl::value()};
+
+      worldNode.defaultLayer()->addChild(brushNode);
+      brushNode->selectFace(0);
+      brushNode->selectFace(1);
+
+      CHECK_THAT(
+        collectSelectedBrushFaces({&worldNode}),
+        UnorderedEquals(std::vector<BrushFaceHandle>{{brushNode, 0u}, {brushNode, 1u}}));
+    }
+
+    SECTION("Node selection")
+    {
+      auto* selectedBrushNode = new BrushNode{
+        BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material") | kdl::value()};
+      auto* unselectedBrushNode = new BrushNode{
+        BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material") | kdl::value()};
+
+      worldNode.defaultLayer()->addChild(selectedBrushNode);
+      worldNode.defaultLayer()->addChild(unselectedBrushNode);
+      selectedBrushNode->select();
+
+      CHECK(collectSelectedBrushFaces({&worldNode}).empty());
+    }
+  }
+
+  SECTION("collectSelectableBrushFaces")
+  {
+    constexpr auto worldBounds = vm::bbox3d{8192.0};
+    constexpr auto mapFormat = MapFormat::Quake3;
+
+    auto worldNode = WorldNode{{}, {}, mapFormat};
+    auto* selectableBrushNode = new BrushNode{
+      BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material") | kdl::value()};
+    auto* unselectableBrushNode = new BrushNode{
+      BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material") | kdl::value()};
+
+    worldNode.defaultLayer()->addChild(selectableBrushNode);
+    worldNode.defaultLayer()->addChild(unselectableBrushNode);
+    unselectableBrushNode->setLockState(LockState::Locked);
+
+    auto editorContext = EditorContext{};
+
+    CHECK_THAT(
+      collectSelectableBrushFaces({&worldNode}, editorContext),
+      UnorderedEquals(toHandles(selectableBrushNode)));
+  }
+
+  SECTION("computeLogicalBounds")
+  {
+    constexpr auto worldBounds = vm::bbox3d{8192.0};
+    constexpr auto mapFormat = MapFormat::Quake3;
+
+    auto worldNode = WorldNode{{}, {}, mapFormat};
+
+    auto* layerNode = new LayerNode{Layer{"layer"}};
+    auto* outerGroupNode = new GroupNode{Group{"outer"}};
+    auto* innerGroupNode = new GroupNode{Group{"inner"}};
+    auto* entityNode = new EntityNode{Entity{}};
+    auto* brushNode = new BrushNode{
+      BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material") | kdl::value()};
+
+    // clang-format off
+    auto* patchNode = new PatchNode{BezierPatch{3, 3, {
+      {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
+      {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
+      {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "material"}};
+    // clang-format on
+
+    innerGroupNode->addChildren({entityNode, brushNode});
+    outerGroupNode->addChildren({innerGroupNode, patchNode});
+    worldNode.defaultLayer()->addChild(outerGroupNode);
+    worldNode.addChild(layerNode);
+
+    transformNode(*brushNode, vm::translation_matrix(vm::vec3d{64, 0, 0}), worldBounds);
+
+    CHECK(computeLogicalBounds({&worldNode}) == vm::bbox3d{});
+    CHECK(computeLogicalBounds({layerNode}) == vm::bbox3d{});
     CHECK(
-      filterBrushNodes(
-        {&worldNode, &layerNode, &groupNode, &entityNode, &brushNode, &patchNode})
-      == std::vector<BrushNode*>{&brushNode});
-  }
-
-  SECTION("Filter entity nodes")
-  {
+      computeLogicalBounds({entityNode})
+      == vm::bbox3d{vm::vec3d{-8, -8, -8}, vm::vec3d{8, 8, 8}});
     CHECK(
-      filterEntityNodes(
-        {&worldNode, &layerNode, &groupNode, &entityNode, &brushNode, &patchNode})
-      == std::vector<EntityNode*>{&entityNode});
-  }
-}
-
-TEST_CASE("ModelUtils.collectConnectedCoplanarFaces")
-{
-  constexpr auto worldBounds = vm::bbox3d{8192.0};
-  constexpr auto mapFormat = MapFormat::Standard;
-  const auto builder = BrushBuilder{mapFormat, worldBounds};
-
-  auto worldNode = WorldNode{{}, {}, mapFormat};
-  auto editorContext = EditorContext{};
-
-  // The flood finds adjacent brushes by querying the world's node tree by bounds rather
-  // than scanning the whole map.
-  const auto& nodeTree = worldNode.nodeTree();
-
-  // Boxes are 64 tall sitting on z=0, so every top face lands on the same plane (z=64).
-  // Laying them out in xy makes the coplanar regions easy to reason about.
-  const auto boxBounds = [&](const vm::bbox3d& bounds) {
-    auto* node = new BrushNode{builder.createCuboid(bounds, "material") | kdl::value()};
-    worldNode.defaultLayer()->addChild(node);
-    return node;
-  };
-
-  const auto box = [&](
-                     const double x0, const double y0, const double x1, const double y1) {
-    return boxBounds(vm::bbox3d{{x0, y0, 0}, {x1, y1, 64}});
-  };
-
-  const auto topFace = [](auto* node) {
-    return BrushFaceHandle{node, *node->brush().findFace(vm::vec3d{0, 0, 1})};
-  };
-
-  SECTION("Single cube selects only the clicked face")
-  {
-    auto* a = box(0, 0, 64, 64);
-    const auto region =
-      collectConnectedCoplanarFaces(topFace(a), editorContext, nodeTree);
-    CHECK_THAT(region, UnorderedEquals(std::vector<BrushFaceHandle>{topFace(a)}));
+      computeLogicalBounds({brushNode})
+      == vm::bbox3d{vm::vec3d{32, -32, -32}, vm::vec3d{96, 32, 32}});
+    CHECK(
+      computeLogicalBounds({patchNode})
+      == vm::bbox3d{vm::vec3d{0, 0, 0}, vm::vec3d{2, 2, 2}});
+    CHECK(
+      computeLogicalBounds({entityNode, brushNode})
+      == vm::bbox3d{vm::vec3d{-8, -32, -32}, vm::vec3d{96, 32, 32}});
   }
 
-  SECTION("Two boxes sharing a wall select both coplanar top faces")
+  SECTION("computePhysicalBounds")
   {
-    auto* a = box(0, 0, 64, 64);
-    auto* b = box(64, 0, 128, 64);
-    const auto region =
-      collectConnectedCoplanarFaces(topFace(a), editorContext, nodeTree);
-    CHECK_THAT(
-      region, UnorderedEquals(std::vector<BrushFaceHandle>{topFace(a), topFace(b)}));
+    constexpr auto worldBounds = vm::bbox3d{8192.0};
+    constexpr auto mapFormat = MapFormat::Quake3;
+
+    auto worldNode = WorldNode{{}, {}, mapFormat};
+
+    auto* layerNode = new LayerNode{Layer{"layer"}};
+    auto* outerGroupNode = new GroupNode{Group{"outer"}};
+    auto* innerGroupNode = new GroupNode{Group{"inner"}};
+    auto* entityNode = new EntityNode{Entity{}};
+    auto* brushNode = new BrushNode{
+      BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material") | kdl::value()};
+
+    // clang-format off
+    auto* patchNode = new PatchNode{BezierPatch{3, 3, {
+      {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
+      {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
+      {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "material"}};
+    // clang-format on
+
+    innerGroupNode->addChildren({entityNode, brushNode});
+    outerGroupNode->addChildren({innerGroupNode, patchNode});
+    worldNode.defaultLayer()->addChild(outerGroupNode);
+    worldNode.addChild(layerNode);
+
+    transformNode(*brushNode, vm::translation_matrix(vm::vec3d{64, 0, 0}), worldBounds);
+
+    CHECK(computePhysicalBounds({&worldNode}) == vm::bbox3d{});
+    CHECK(computePhysicalBounds({layerNode}) == vm::bbox3d{});
+    CHECK(
+      computePhysicalBounds({entityNode})
+      == vm::bbox3d{vm::vec3d{-8, -8, -8}, vm::vec3d{8, 8, 8}});
+    CHECK(
+      computePhysicalBounds({brushNode})
+      == vm::bbox3d{vm::vec3d{32, -32, -32}, vm::vec3d{96, 32, 32}});
+    CHECK(
+      computePhysicalBounds({patchNode})
+      == vm::bbox3d{vm::vec3d{0, 0, 0}, vm::vec3d{2, 2, 1}});
+    CHECK(
+      computePhysicalBounds({entityNode, brushNode})
+      == vm::bbox3d{vm::vec3d{-8, -32, -32}, vm::vec3d{96, 32, 32}});
   }
 
-  SECTION("Three boxes in a row select all three top faces")
+  SECTION("filterNodes")
   {
-    auto* a = box(0, 0, 64, 64);
-    auto* b = box(64, 0, 128, 64);
-    auto* c = box(128, 0, 192, 64);
+    constexpr auto worldBounds = vm::bbox3d{8192.0};
+    constexpr auto mapFormat = MapFormat::Quake3;
 
-    const auto region =
-      collectConnectedCoplanarFaces(topFace(a), editorContext, nodeTree);
-    CHECK_THAT(
-      region,
-      UnorderedEquals(std::vector<BrushFaceHandle>{topFace(a), topFace(b), topFace(c)}));
+    auto worldNode = WorldNode{{}, {}, mapFormat};
+
+    auto layerNode = LayerNode{Layer{"layer"}};
+    auto groupNode = GroupNode{Group{"outer"}};
+    auto entityNode = EntityNode{Entity{}};
+    auto brushNode = BrushNode{
+      BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material") | kdl::value()};
+    auto patchNode = PatchNode{BezierPatch{
+      3,
+      3,
+      {{0, 0, 0},
+       {1, 0, 1},
+       {2, 0, 0},
+       {0, 1, 1},
+       {1, 1, 2},
+       {2, 1, 1},
+       {0, 2, 0},
+       {1, 2, 1},
+       {2, 2, 0}},
+      "material"}};
+
+    SECTION("Filter brush nodes")
+    {
+      CHECK(
+        filterBrushNodes(
+          {&worldNode, &layerNode, &groupNode, &entityNode, &brushNode, &patchNode})
+        == std::vector<BrushNode*>{&brushNode});
+    }
+
+    SECTION("Filter entity nodes")
+    {
+      CHECK(
+        filterEntityNodes(
+          {&worldNode, &layerNode, &groupNode, &entityNode, &brushNode, &patchNode})
+        == std::vector<EntityNode*>{&entityNode});
+    }
   }
 
-  SECTION("Traversal stops at a perpendicular face")
+  SECTION("collectConnectedCoplanarFaces")
   {
-    auto* a = box(0, 0, 64, 64);
-    // A wall standing on a's +Y edge: it shares that edge but its faces are perpendicular
-    // to a's top face, so none of them are coplanar.
-    boxBounds(vm::bbox3d{{0, 64, 64}, {64, 128, 128}});
+    constexpr auto worldBounds = vm::bbox3d{8192.0};
+    constexpr auto mapFormat = MapFormat::Standard;
+    const auto builder = BrushBuilder{mapFormat, worldBounds};
 
-    const auto region =
-      collectConnectedCoplanarFaces(topFace(a), editorContext, nodeTree);
+    auto worldNode = WorldNode{{}, {}, mapFormat};
+    auto editorContext = EditorContext{};
 
-    CHECK_THAT(region, UnorderedEquals(std::vector<BrushFaceHandle>{topFace(a)}));
-  }
+    // The flood finds adjacent brushes by querying the world's node tree by bounds rather
+    // than scanning the whole map.
+    const auto& nodeTree = worldNode.nodeTree();
 
-  SECTION("T-junction with partial edge overlap is connected")
-  {
-    auto* a = box(0, 0, 64, 64);
-    // b touches only part of a's +X edge (y in [16, 48]).
-    auto* b = box(64, 16, 128, 48);
-    const auto region =
-      collectConnectedCoplanarFaces(topFace(a), editorContext, nodeTree);
-    CHECK_THAT(
-      region, UnorderedEquals(std::vector<BrushFaceHandle>{topFace(a), topFace(b)}));
-  }
+    // Boxes are 64 tall sitting on z=0, so every top face lands on the same plane (z=64).
+    // Laying them out in xy makes the coplanar regions easy to reason about.
+    const auto boxBounds = [&](const vm::bbox3d& bounds) {
+      auto* node = new BrushNode{builder.createCuboid(bounds, "material") | kdl::value()};
+      worldNode.defaultLayer()->addChild(node);
+      return node;
+    };
 
-  SECTION("Vertex-only contact is not connected")
-  {
-    auto* a = box(0, 0, 64, 64);
-    // b touches a only at the single corner (64, 64).
-    box(64, 64, 128, 128);
-    const auto region =
-      collectConnectedCoplanarFaces(topFace(a), editorContext, nodeTree);
-    CHECK_THAT(region, UnorderedEquals(std::vector<BrushFaceHandle>{topFace(a)}));
-  }
+    const auto box =
+      [&](const double x0, const double y0, const double x1, const double y1) {
+        return boxBounds(vm::bbox3d{{x0, y0, 0}, {x1, y1, 64}});
+      };
 
-  SECTION("A gap between coplanar faces is not connected")
-  {
-    auto* a = box(0, 0, 64, 64);
-    // b is coplanar but separated from a by a 16 unit gap.
-    box(80, 0, 144, 64);
-    const auto region =
-      collectConnectedCoplanarFaces(topFace(a), editorContext, nodeTree);
-    CHECK_THAT(region, UnorderedEquals(std::vector<BrushFaceHandle>{topFace(a)}));
-  }
+    const auto topFace = [](auto* node) {
+      return BrushFaceHandle{node, *node->brush().findFace(vm::vec3d{0, 0, 1})};
+    };
 
-  SECTION("A hidden or locked brush does not bridge the region")
-  {
-    auto* a = box(0, 0, 64, 64);
-    auto* b = box(64, 0, 128, 64);
-    auto* c = box(128, 0, 192, 64);
+    SECTION("Single cube selects only the clicked face")
+    {
+      auto* a = box(0, 0, 64, 64);
+      const auto region =
+        collectConnectedCoplanarFaces(topFace(a), editorContext, nodeTree);
+      CHECK_THAT(region, UnorderedEquals(std::vector<BrushFaceHandle>{topFace(a)}));
+    }
 
-    // With b selectable the whole row is connected.
-    CHECK_THAT(
-      collectConnectedCoplanarFaces(topFace(a), editorContext, nodeTree),
-      UnorderedEquals(std::vector<BrushFaceHandle>{topFace(a), topFace(b), topFace(c)}));
+    SECTION("Two boxes sharing a wall select both coplanar top faces")
+    {
+      auto* a = box(0, 0, 64, 64);
+      auto* b = box(64, 0, 128, 64);
+      const auto region =
+        collectConnectedCoplanarFaces(topFace(a), editorContext, nodeTree);
+      CHECK_THAT(
+        region, UnorderedEquals(std::vector<BrushFaceHandle>{topFace(a), topFace(b)}));
+    }
 
-    // Locking b makes it unselectable, so it neither gets selected nor bridges a to c.
-    b->setLockState(LockState::Locked);
-    const auto region =
-      collectConnectedCoplanarFaces(topFace(a), editorContext, nodeTree);
-    CHECK_THAT(region, UnorderedEquals(std::vector<BrushFaceHandle>{topFace(a)}));
-  }
+    SECTION("Three boxes in a row select all three top faces")
+    {
+      auto* a = box(0, 0, 64, 64);
+      auto* b = box(64, 0, 128, 64);
+      auto* c = box(128, 0, 192, 64);
 
-  SECTION("A far-away coplanar cluster is not selected")
-  {
-    auto* a = box(0, 0, 64, 64);
-    auto* b = box(64, 0, 128, 64);
+      const auto region =
+        collectConnectedCoplanarFaces(topFace(a), editorContext, nodeTree);
+      CHECK_THAT(
+        region,
+        UnorderedEquals(
+          std::vector<BrushFaceHandle>{topFace(a), topFace(b), topFace(c)}));
+    }
 
-    // c and far form their own connected, coplanar cluster far across the map; the chain
-    // back to the a-b row is broken by a wide gap.
-    auto* c = box(4096, 0, 4160, 64);
-    auto* far = box(4160, 0, 4224, 64);
+    SECTION("Traversal stops at a perpendicular face")
+    {
+      auto* a = box(0, 0, 64, 64);
+      // A wall standing on a's +Y edge: it shares that edge but its faces are
+      // perpendicular to a's top face, so none of them are coplanar.
+      boxBounds(vm::bbox3d{{0, 64, 64}, {64, 128, 128}});
 
-    // Flooding from that cluster selects far, so it is a face that would be selected if
-    // the flood ever reached it.
-    CHECK_THAT(
-      collectConnectedCoplanarFaces(topFace(c), editorContext, nodeTree),
-      UnorderedEquals(std::vector<BrushFaceHandle>{topFace(c), topFace(far)}));
+      const auto region =
+        collectConnectedCoplanarFaces(topFace(a), editorContext, nodeTree);
 
-    // Flooding from the a-b row never crosses the gap, so far stays out of the region.
-    CHECK_THAT(
-      collectConnectedCoplanarFaces(topFace(a), editorContext, nodeTree),
-      UnorderedEquals(std::vector<BrushFaceHandle>{topFace(a), topFace(b)}));
+      CHECK_THAT(region, UnorderedEquals(std::vector<BrushFaceHandle>{topFace(a)}));
+    }
+
+    SECTION("T-junction with partial edge overlap is connected")
+    {
+      auto* a = box(0, 0, 64, 64);
+      // b touches only part of a's +X edge (y in [16, 48]).
+      auto* b = box(64, 16, 128, 48);
+      const auto region =
+        collectConnectedCoplanarFaces(topFace(a), editorContext, nodeTree);
+      CHECK_THAT(
+        region, UnorderedEquals(std::vector<BrushFaceHandle>{topFace(a), topFace(b)}));
+    }
+
+    SECTION("Vertex-only contact is not connected")
+    {
+      auto* a = box(0, 0, 64, 64);
+      // b touches a only at the single corner (64, 64).
+      box(64, 64, 128, 128);
+      const auto region =
+        collectConnectedCoplanarFaces(topFace(a), editorContext, nodeTree);
+      CHECK_THAT(region, UnorderedEquals(std::vector<BrushFaceHandle>{topFace(a)}));
+    }
+
+    SECTION("A gap between coplanar faces is not connected")
+    {
+      auto* a = box(0, 0, 64, 64);
+      // b is coplanar but separated from a by a 16 unit gap.
+      box(80, 0, 144, 64);
+      const auto region =
+        collectConnectedCoplanarFaces(topFace(a), editorContext, nodeTree);
+      CHECK_THAT(region, UnorderedEquals(std::vector<BrushFaceHandle>{topFace(a)}));
+    }
+
+    SECTION("A hidden or locked brush does not bridge the region")
+    {
+      auto* a = box(0, 0, 64, 64);
+      auto* b = box(64, 0, 128, 64);
+      auto* c = box(128, 0, 192, 64);
+
+      // With b selectable the whole row is connected.
+      CHECK_THAT(
+        collectConnectedCoplanarFaces(topFace(a), editorContext, nodeTree),
+        UnorderedEquals(
+          std::vector<BrushFaceHandle>{topFace(a), topFace(b), topFace(c)}));
+
+      // Locking b makes it unselectable, so it neither gets selected nor bridges a to c.
+      b->setLockState(LockState::Locked);
+      const auto region =
+        collectConnectedCoplanarFaces(topFace(a), editorContext, nodeTree);
+      CHECK_THAT(region, UnorderedEquals(std::vector<BrushFaceHandle>{topFace(a)}));
+    }
+
+    SECTION("A far-away coplanar cluster is not selected")
+    {
+      auto* a = box(0, 0, 64, 64);
+      auto* b = box(64, 0, 128, 64);
+
+      // c and far form their own connected, coplanar cluster far across the map; the
+      // chain back to the a-b row is broken by a wide gap.
+      auto* c = box(4096, 0, 4160, 64);
+      auto* far = box(4160, 0, 4224, 64);
+
+      // Flooding from that cluster selects far, so it is a face that would be selected if
+      // the flood ever reached it.
+      CHECK_THAT(
+        collectConnectedCoplanarFaces(topFace(c), editorContext, nodeTree),
+        UnorderedEquals(std::vector<BrushFaceHandle>{topFace(c), topFace(far)}));
+
+      // Flooding from the a-b row never crosses the gap, so far stays out of the region.
+      CHECK_THAT(
+        collectConnectedCoplanarFaces(topFace(a), editorContext, nodeTree),
+        UnorderedEquals(std::vector<BrushFaceHandle>{topFace(a), topFace(b)}));
+    }
   }
 }
 

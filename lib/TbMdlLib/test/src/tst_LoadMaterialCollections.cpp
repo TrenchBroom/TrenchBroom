@@ -129,114 +129,68 @@ auto createResource(gl::ResourceLoader<gl::Texture> resourceLoader)
 
 } // namespace
 
-TEST_CASE("loadMaterial")
+TEST_CASE("LoadMaterialCollections")
 {
-  auto fs = fs::VirtualFileSystem{};
-  auto logger = NullLogger{};
-
-  const auto fixtureRoot = getFixtureRoot();
-
-  auto taskManager = kdl::task_manager{};
-
-  const auto testDir = fixtureRoot / "test/io/LoadMaterial/files";
-  fs.mount("", std::make_unique<fs::DiskFileSystem>(testDir));
-
-  const auto materialConfig = mdl::MaterialConfig{
-    "textures",
-    {".png", ".jpg"},
-    "",
-    std::nullopt,
-    "scripts",
-    {},
-  };
-
-  CHECK(
-    loadMaterial(fs, materialConfig, "material.jpg", createResource, {}, std::nullopt));
-
-  SECTION("find alternative file extensions")
+  SECTION("loadMaterial")
   {
-    CHECK(
-      loadMaterial(fs, materialConfig, "material.png", createResource, {}, std::nullopt));
-  }
-}
+    auto fs = fs::VirtualFileSystem{};
+    auto logger = NullLogger{};
 
-TEST_CASE("loadMaterialCollections")
-{
-  auto fs = fs::VirtualFileSystem{};
-  auto logger = NullLogger{};
+    const auto fixtureRoot = getFixtureRoot();
 
-  const auto fixtureRoot = getFixtureRoot();
+    auto taskManager = kdl::task_manager{};
 
-  auto taskManager = kdl::task_manager{};
-
-  SECTION("WAD file")
-  {
-    const auto wadPath =
-      fixtureRoot / "test/mdl/LoadMaterialCollections/wads/cr8_czg.wad";
-    fs.mount(
-      "", std::make_unique<fs::DiskFileSystem>(fixtureRoot)); // to find the palette
-    fs.mount("textures", fs::openFS<fs::WadFileSystem>(wadPath));
+    const auto testDir = fixtureRoot / "test/io/LoadMaterial/files";
+    fs.mount("", std::make_unique<fs::DiskFileSystem>(testDir));
 
     const auto materialConfig = mdl::MaterialConfig{
       "textures",
-      {".D"},
-      "test/mdl/LoadMaterialCollections/palette.lmp",
-      "wad",
+      {".png", ".jpg"},
       "",
+      std::nullopt,
+      "scripts",
       {},
     };
 
-    CHECK_THAT(
-      loadMaterialCollections(fs, materialConfig, createResource, taskManager, logger),
-      MatchesMaterialCollections({
-        {
-          "cr8_czg.wad",
-          {
-            MaterialInfo{"blowjob_machine", 128, 128},
-            MaterialInfo{"bongs2", 128, 128},
-            MaterialInfo{"can-o-jam", 64, 64},
-            MaterialInfo{"cap4can-o-jam", 64, 64},
-            MaterialInfo{"coffin1", 128, 128},
-            MaterialInfo{"coffin2", 128, 128},
-            MaterialInfo{"cr8_czg_1", 64, 64},
-            MaterialInfo{"cr8_czg_2", 64, 64},
-            MaterialInfo{"cr8_czg_3", 64, 128},
-            MaterialInfo{"cr8_czg_4", 64, 128},
-            MaterialInfo{"cr8_czg_5", 64, 128},
-            MaterialInfo{"crackpipes", 128, 128},
-            MaterialInfo{"czg_backhole", 128, 128},
-            MaterialInfo{"czg_fronthole", 128, 128},
-            MaterialInfo{"dex_5", 128, 128},
-            MaterialInfo{"eat_me", 64, 64},
-            MaterialInfo{"for_sux-m-ass", 64, 64},
-            MaterialInfo{"lasthopeofhuman", 128, 128},
-            MaterialInfo{"polished_turd", 64, 64},
-            MaterialInfo{"speedM_1", 128, 128},
-            MaterialInfo{"u_get_this", 64, 64},
-          },
-        },
-      }));
+    CHECK(
+      loadMaterial(fs, materialConfig, "material.jpg", createResource, {}, std::nullopt));
 
-    SECTION("Multiple WAD files with name conflicts")
+    SECTION("find alternative file extensions")
     {
-      const auto additionalWadPath =
-        fixtureRoot / "test/mdl/LoadMaterialCollections/wads/cr8_a_excerpt.wad";
-      fs.mount("textures", fs::openFS<fs::WadFileSystem>(additionalWadPath));
+      CHECK(loadMaterial(
+        fs, materialConfig, "material.png", createResource, {}, std::nullopt));
+    }
+  }
 
-      // Overriding is determined by load order: Wads that are loaded later override
-      // materials from other wads that were loaded before. But the material collections
-      // are sorted by name and not by load order!
+  SECTION("loadMaterialCollections")
+  {
+    auto fs = fs::VirtualFileSystem{};
+    auto logger = NullLogger{};
+
+    const auto fixtureRoot = getFixtureRoot();
+
+    auto taskManager = kdl::task_manager{};
+
+    SECTION("WAD file")
+    {
+      const auto wadPath =
+        fixtureRoot / "test/mdl/LoadMaterialCollections/wads/cr8_czg.wad";
+      fs.mount(
+        "", std::make_unique<fs::DiskFileSystem>(fixtureRoot)); // to find the palette
+      fs.mount("textures", fs::openFS<fs::WadFileSystem>(wadPath));
+
+      const auto materialConfig = mdl::MaterialConfig{
+        "textures",
+        {".D"},
+        "test/mdl/LoadMaterialCollections/palette.lmp",
+        "wad",
+        "",
+        {},
+      };
+
       CHECK_THAT(
         loadMaterialCollections(fs, materialConfig, createResource, taskManager, logger),
         MatchesMaterialCollections({
-          {
-            "cr8_a_excerpt.wad", // sorting does not depend on load order
-            {
-              MaterialInfo{"added", 128, 128},
-              // overrides material from cr8_czg.wad
-              MaterialInfo{"cr8_czg_1", 64, 128},
-            },
-          },
           {
             "cr8_czg.wad",
             {
@@ -246,8 +200,7 @@ TEST_CASE("loadMaterialCollections")
               MaterialInfo{"cap4can-o-jam", 64, 64},
               MaterialInfo{"coffin1", 128, 128},
               MaterialInfo{"coffin2", 128, 128},
-              // overridden from cr8_a_excerpt.wad
-              // MaterialInfo{"cr8_czg_1", 64, 64},
+              MaterialInfo{"cr8_czg_1", 64, 64},
               MaterialInfo{"cr8_czg_2", 64, 64},
               MaterialInfo{"cr8_czg_3", 64, 128},
               MaterialInfo{"cr8_czg_4", 64, 128},
@@ -265,17 +218,169 @@ TEST_CASE("loadMaterialCollections")
             },
           },
         }));
-    }
-  }
 
-  SECTION("Quake 3 shaders")
-  {
-    SECTION("Linking shaders with images")
+      SECTION("Multiple WAD files with name conflicts")
+      {
+        const auto additionalWadPath =
+          fixtureRoot / "test/mdl/LoadMaterialCollections/wads/cr8_a_excerpt.wad";
+        fs.mount("textures", fs::openFS<fs::WadFileSystem>(additionalWadPath));
+
+        // Overriding is determined by load order: Wads that are loaded later override
+        // materials from other wads that were loaded before. But the material collections
+        // are sorted by name and not by load order!
+        CHECK_THAT(
+          loadMaterialCollections(
+            fs, materialConfig, createResource, taskManager, logger),
+          MatchesMaterialCollections({
+            {
+              "cr8_a_excerpt.wad", // sorting does not depend on load order
+              {
+                MaterialInfo{"added", 128, 128},
+                // overrides material from cr8_czg.wad
+                MaterialInfo{"cr8_czg_1", 64, 128},
+              },
+            },
+            {
+              "cr8_czg.wad",
+              {
+                MaterialInfo{"blowjob_machine", 128, 128},
+                MaterialInfo{"bongs2", 128, 128},
+                MaterialInfo{"can-o-jam", 64, 64},
+                MaterialInfo{"cap4can-o-jam", 64, 64},
+                MaterialInfo{"coffin1", 128, 128},
+                MaterialInfo{"coffin2", 128, 128},
+                // overridden from cr8_a_excerpt.wad
+                // MaterialInfo{"cr8_czg_1", 64, 64},
+                MaterialInfo{"cr8_czg_2", 64, 64},
+                MaterialInfo{"cr8_czg_3", 64, 128},
+                MaterialInfo{"cr8_czg_4", 64, 128},
+                MaterialInfo{"cr8_czg_5", 64, 128},
+                MaterialInfo{"crackpipes", 128, 128},
+                MaterialInfo{"czg_backhole", 128, 128},
+                MaterialInfo{"czg_fronthole", 128, 128},
+                MaterialInfo{"dex_5", 128, 128},
+                MaterialInfo{"eat_me", 64, 64},
+                MaterialInfo{"for_sux-m-ass", 64, 64},
+                MaterialInfo{"lasthopeofhuman", 128, 128},
+                MaterialInfo{"polished_turd", 64, 64},
+                MaterialInfo{"speedM_1", 128, 128},
+                MaterialInfo{"u_get_this", 64, 64},
+              },
+            },
+          }));
+      }
+    }
+
+    SECTION("Quake 3 shaders")
     {
-      SECTION("Shader with image")
+      SECTION("Linking shaders with images")
+      {
+        SECTION("Shader with image")
+        {
+          const auto testDir =
+            fixtureRoot / "test/mdl/LoadMaterialCollections/shaders/shader_with_image";
+          fs.mount("", std::make_unique<fs::DiskFileSystem>(testDir));
+
+          const auto materialConfig = mdl::MaterialConfig{
+            "textures",
+            {".tga", ".png", ".jpg", ".jpeg"},
+            "",
+            std::nullopt,
+            "scripts",
+            {},
+          };
+
+          CHECK_THAT(
+            loadMaterialCollections(
+              fs, materialConfig, createResource, taskManager, logger),
+            MatchesMaterialCollections({
+              {
+                "textures/test",
+                {
+                  MaterialInfo{"test/editor_image", 128, 128}, // generated for image file
+                  MaterialInfo{"test/some_shader", 128, 128},  // loaded from shader file
+                },
+              },
+            }));
+        }
+
+        SECTION("Shader overrides image of same name")
+        {
+          const auto testDir =
+          fixtureRoot
+          / "test/mdl/LoadMaterialCollections/shaders/"
+            "shader_with_image_same_name";
+          fs.mount("", std::make_unique<fs::DiskFileSystem>(testDir));
+
+          const auto materialConfig = mdl::MaterialConfig{
+            "textures",
+            {".tga", ".png", ".jpg", ".jpeg"},
+            "",
+            std::nullopt,
+            "scripts",
+            {},
+          };
+
+          CHECK_THAT(
+            loadMaterialCollections(
+              fs, materialConfig, createResource, taskManager, logger),
+            MatchesMaterialCollections({
+              {
+                "textures/test",
+                {
+                  MaterialInfo{"test/editor_image", 128, 128}, // generated for image file
+                  MaterialInfo{"test/image_exists_with_editor_image", 128, 128},
+                  MaterialInfo{"test/image_exists_without_editor_image", 64, 64},
+                },
+              },
+            }));
+        }
+
+        SECTION("Shader with missing image file")
+        {
+          const auto testDir =
+            fixtureRoot
+            / "test/mdl/LoadMaterialCollections/shaders/shader_with_missing_image";
+          const auto fallbackDir = testDir / "fallback";
+
+          // We need to mount the fallback dir so that we can find "__TB_empty.png" which
+          // is automatically used when no texture can be found for a shader.
+          fs.mount("", std::make_unique<fs::DiskFileSystem>(fallbackDir));
+          fs.mount("", std::make_unique<fs::DiskFileSystem>(testDir));
+
+          const auto materialConfig = mdl::MaterialConfig{
+            "textures",
+            {".tga", ".png", ".jpg", ".jpeg"},
+            "",
+            std::nullopt,
+            "scripts",
+            {},
+          };
+
+          CHECK_THAT(
+            loadMaterialCollections(
+              fs, materialConfig, createResource, taskManager, logger),
+            MatchesMaterialCollections({
+              {
+                "textures",
+                {
+                  MaterialInfo{"__TB_empty", 32, 32}, // generated for fallback image
+                },
+              },
+              {
+                "textures/test",
+                {
+                  MaterialInfo{"test/some_shader", 32, 32}, // loaded from shader file
+                },
+              },
+            }));
+        }
+      }
+
+      SECTION("Skip malformed shader files")
       {
         const auto testDir =
-          fixtureRoot / "test/mdl/LoadMaterialCollections/shaders/shader_with_image";
+          fixtureRoot / "test/mdl/LoadMaterialCollections/shaders/malformed_shader";
         fs.mount("", std::make_unique<fs::DiskFileSystem>(testDir));
 
         const auto materialConfig = mdl::MaterialConfig{
@@ -301,43 +406,10 @@ TEST_CASE("loadMaterialCollections")
           }));
       }
 
-      SECTION("Shader overrides image of same name")
+      SECTION("Find shader image")
       {
         const auto testDir =
-          fixtureRoot
-          / "test/mdl/LoadMaterialCollections/shaders/"
-            "shader_with_image_same_name";
-        fs.mount("", std::make_unique<fs::DiskFileSystem>(testDir));
-
-        const auto materialConfig = mdl::MaterialConfig{
-          "textures",
-          {".tga", ".png", ".jpg", ".jpeg"},
-          "",
-          std::nullopt,
-          "scripts",
-          {},
-        };
-
-        CHECK_THAT(
-          loadMaterialCollections(
-            fs, materialConfig, createResource, taskManager, logger),
-          MatchesMaterialCollections({
-            {
-              "textures/test",
-              {
-                MaterialInfo{"test/editor_image", 128, 128}, // generated for image file
-                MaterialInfo{"test/image_exists_with_editor_image", 128, 128},
-                MaterialInfo{"test/image_exists_without_editor_image", 64, 64},
-              },
-            },
-          }));
-      }
-
-      SECTION("Shader with missing image file")
-      {
-        const auto testDir =
-          fixtureRoot
-          / "test/mdl/LoadMaterialCollections/shaders/shader_with_missing_image";
+          fixtureRoot / "test/mdl/LoadMaterialCollections/shaders/find_shader_image";
         const auto fallbackDir = testDir / "fallback";
 
         // We need to mount the fallback dir so that we can find "__TB_empty.png" which is
@@ -367,86 +439,20 @@ TEST_CASE("loadMaterialCollections")
             {
               "textures/test",
               {
-                MaterialInfo{"test/some_shader", 32, 32}, // loaded from shader file
+                MaterialInfo{"test/different_extension", 128, 128},
+                MaterialInfo{"test/editor_image", 128, 128},
+                MaterialInfo{"test/light_image", 128, 64},
+                MaterialInfo{"test/missing_extension", 128, 128},
+                MaterialInfo{"test/no_corresponding_image", 32, 32},
+                MaterialInfo{"test/stage_map", 64, 128},
+                MaterialInfo{"test/with_editor_image", 128, 128},
+                MaterialInfo{"test/with_light_image", 128, 64},
+                MaterialInfo{"test/with_shader_path", 64, 64},
+                MaterialInfo{"test/with_stage_map", 64, 128},
               },
             },
           }));
       }
-    }
-
-    SECTION("Skip malformed shader files")
-    {
-      const auto testDir =
-        fixtureRoot / "test/mdl/LoadMaterialCollections/shaders/malformed_shader";
-      fs.mount("", std::make_unique<fs::DiskFileSystem>(testDir));
-
-      const auto materialConfig = mdl::MaterialConfig{
-        "textures",
-        {".tga", ".png", ".jpg", ".jpeg"},
-        "",
-        std::nullopt,
-        "scripts",
-        {},
-      };
-
-      CHECK_THAT(
-        loadMaterialCollections(fs, materialConfig, createResource, taskManager, logger),
-        MatchesMaterialCollections({
-          {
-            "textures/test",
-            {
-              MaterialInfo{"test/editor_image", 128, 128}, // generated for image file
-              MaterialInfo{"test/some_shader", 128, 128},  // loaded from shader file
-            },
-          },
-        }));
-    }
-
-    SECTION("Find shader image")
-    {
-      const auto testDir =
-        fixtureRoot / "test/mdl/LoadMaterialCollections/shaders/find_shader_image";
-      const auto fallbackDir = testDir / "fallback";
-
-      // We need to mount the fallback dir so that we can find "__TB_empty.png" which is
-      // automatically used when no texture can be found for a shader.
-      fs.mount("", std::make_unique<fs::DiskFileSystem>(fallbackDir));
-      fs.mount("", std::make_unique<fs::DiskFileSystem>(testDir));
-
-      const auto materialConfig = mdl::MaterialConfig{
-        "textures",
-        {".tga", ".png", ".jpg", ".jpeg"},
-        "",
-        std::nullopt,
-        "scripts",
-        {},
-      };
-
-      CHECK_THAT(
-        loadMaterialCollections(fs, materialConfig, createResource, taskManager, logger),
-        MatchesMaterialCollections({
-          {
-            "textures",
-            {
-              MaterialInfo{"__TB_empty", 32, 32}, // generated for fallback image
-            },
-          },
-          {
-            "textures/test",
-            {
-              MaterialInfo{"test/different_extension", 128, 128},
-              MaterialInfo{"test/editor_image", 128, 128},
-              MaterialInfo{"test/light_image", 128, 64},
-              MaterialInfo{"test/missing_extension", 128, 128},
-              MaterialInfo{"test/no_corresponding_image", 32, 32},
-              MaterialInfo{"test/stage_map", 64, 128},
-              MaterialInfo{"test/with_editor_image", 128, 128},
-              MaterialInfo{"test/with_light_image", 128, 64},
-              MaterialInfo{"test/with_shader_path", 64, 64},
-              MaterialInfo{"test/with_stage_map", 64, 128},
-            },
-          },
-        }));
     }
   }
 }

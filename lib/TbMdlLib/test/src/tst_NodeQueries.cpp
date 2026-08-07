@@ -221,22 +221,13 @@ TEST_CASE("NodeQueries")
         {innerGroupNode, outerGroupNode}, [](const GroupNode&) { return true; }),
       UnorderedEquals(std::vector<Node*>{outerGroupNode, innerGroupNode}));
   }
-}
 
-TEST_CASE("collectBrushFaces")
-{
-  constexpr auto worldBounds = vm::bbox3d{8192.0};
-  constexpr auto mapFormat = MapFormat::Quake3;
-
-  auto worldNode = WorldNode{{}, {}, mapFormat};
-  auto* brushNode = new BrushNode{
-    BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material") | kdl::value()};
-
-  worldNode.defaultLayer()->addChild(brushNode);
-
-  CHECK_THAT(collectBrushFaces({&worldNode}), UnorderedEquals(toHandles(brushNode)));
-  CHECK_THAT(
-    collectBrushFaces({brushNode, brushNode}), UnorderedEquals(toHandles(brushNode)));
+  SECTION("collectBrushFaces")
+  {
+    CHECK_THAT(collectBrushFaces({&worldNode}), UnorderedEquals(toHandles(brushNode)));
+    CHECK_THAT(
+      collectBrushFaces({brushNode, brushNode}), UnorderedEquals(toHandles(brushNode)));
+  }
 }
 
 } // namespace tb::mdl

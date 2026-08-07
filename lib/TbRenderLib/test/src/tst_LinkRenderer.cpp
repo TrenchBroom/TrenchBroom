@@ -73,116 +73,121 @@ std::vector<ArrowVertex> expectedArrows(
 }
 } // namespace
 
-TEST_CASE("getArrows")
+TEST_CASE("LinkRenderer")
 {
-  const auto color = vm::vec4f{1, 0, 0, 1};
-
-  SECTION("no lines produce no arrows")
+  SECTION("getArrows")
   {
-    CHECK(getArrows({}).empty());
-  }
+    const auto color = vm::vec4f{1, 0, 0, 1};
 
-  SECTION("a line shorter than 512 units gets a single arrow at 60% of its length")
-  {
-    const auto start = vm::vec3f{0, 0, 0};
-    const auto end = vm::vec3f{400, 0, 0};
-    const auto links = std::vector<LineVertex>{
-      LineVertex{start, color},
-      LineVertex{end, color},
-    };
+    SECTION("no lines produce no arrows")
+    {
+      CHECK(getArrows({}).empty());
+    }
 
-    const auto actual = getArrows(links);
-    CHECK(toBytes(actual) == toBytes(expectedArrows(start, end, color, {0.6f})));
-  }
+    SECTION("a line shorter than 512 units gets a single arrow at 60% of its length")
+    {
+      const auto start = vm::vec3f{0, 0, 0};
+      const auto end = vm::vec3f{400, 0, 0};
+      const auto links = std::vector<LineVertex>{
+        LineVertex{start, color},
+        LineVertex{end, color},
+      };
 
-  SECTION("a line of exactly 512 units gets two arrows (not the short-line count)")
-  {
-    const auto start = vm::vec3f{0, 0, 0};
-    const auto end = vm::vec3f{512, 0, 0};
-    const auto links = std::vector<LineVertex>{
-      LineVertex{start, color},
-      LineVertex{end, color},
-    };
+      const auto actual = getArrows(links);
+      CHECK(toBytes(actual) == toBytes(expectedArrows(start, end, color, {0.6f})));
+    }
 
-    const auto actual = getArrows(links);
-    CHECK(toBytes(actual) == toBytes(expectedArrows(start, end, color, {0.2f, 0.6f})));
-  }
+    SECTION("a line of exactly 512 units gets two arrows (not the short-line count)")
+    {
+      const auto start = vm::vec3f{0, 0, 0};
+      const auto end = vm::vec3f{512, 0, 0};
+      const auto links = std::vector<LineVertex>{
+        LineVertex{start, color},
+        LineVertex{end, color},
+      };
 
-  SECTION("a line shorter than 1024 units gets two arrows at 20% and 60%")
-  {
-    const auto start = vm::vec3f{0, 0, 0};
-    const auto end = vm::vec3f{800, 0, 0};
-    const auto links = std::vector<LineVertex>{
-      LineVertex{start, color},
-      LineVertex{end, color},
-    };
+      const auto actual = getArrows(links);
+      CHECK(toBytes(actual) == toBytes(expectedArrows(start, end, color, {0.2f, 0.6f})));
+    }
 
-    const auto actual = getArrows(links);
-    CHECK(toBytes(actual) == toBytes(expectedArrows(start, end, color, {0.2f, 0.6f})));
-  }
+    SECTION("a line shorter than 1024 units gets two arrows at 20% and 60%")
+    {
+      const auto start = vm::vec3f{0, 0, 0};
+      const auto end = vm::vec3f{800, 0, 0};
+      const auto links = std::vector<LineVertex>{
+        LineVertex{start, color},
+        LineVertex{end, color},
+      };
 
-  SECTION("a line of exactly 1024 units gets three arrows (not the medium-line count)")
-  {
-    const auto start = vm::vec3f{0, 0, 0};
-    const auto end = vm::vec3f{1024, 0, 0};
-    const auto links = std::vector<LineVertex>{
-      LineVertex{start, color},
-      LineVertex{end, color},
-    };
+      const auto actual = getArrows(links);
+      CHECK(toBytes(actual) == toBytes(expectedArrows(start, end, color, {0.2f, 0.6f})));
+    }
 
-    const auto actual = getArrows(links);
-    CHECK(
-      toBytes(actual) == toBytes(expectedArrows(start, end, color, {0.1f, 0.4f, 0.7f})));
-  }
+    SECTION("a line of exactly 1024 units gets three arrows (not the medium-line count)")
+    {
+      const auto start = vm::vec3f{0, 0, 0};
+      const auto end = vm::vec3f{1024, 0, 0};
+      const auto links = std::vector<LineVertex>{
+        LineVertex{start, color},
+        LineVertex{end, color},
+      };
 
-  SECTION("a line of at least 1024 units gets three arrows at 10%, 40% and 70%")
-  {
-    const auto start = vm::vec3f{0, 0, 0};
-    const auto end = vm::vec3f{2000, 0, 0};
-    const auto links = std::vector<LineVertex>{
-      LineVertex{start, color},
-      LineVertex{end, color},
-    };
+      const auto actual = getArrows(links);
+      CHECK(
+        toBytes(actual)
+        == toBytes(expectedArrows(start, end, color, {0.1f, 0.4f, 0.7f})));
+    }
 
-    const auto actual = getArrows(links);
-    CHECK(
-      toBytes(actual) == toBytes(expectedArrows(start, end, color, {0.1f, 0.4f, 0.7f})));
-  }
+    SECTION("a line of at least 1024 units gets three arrows at 10%, 40% and 70%")
+    {
+      const auto start = vm::vec3f{0, 0, 0};
+      const auto end = vm::vec3f{2000, 0, 0};
+      const auto links = std::vector<LineVertex>{
+        LineVertex{start, color},
+        LineVertex{end, color},
+      };
 
-  SECTION("the arrow color is taken from the line's start vertex")
-  {
-    const auto start = vm::vec3f{0, 0, 0};
-    const auto end = vm::vec3f{100, 0, 0};
-    const auto startColor = vm::vec4f{0, 1, 0, 1};
-    const auto endColor = vm::vec4f{0, 0, 1, 1};
-    const auto links = std::vector<LineVertex>{
-      LineVertex{start, startColor},
-      LineVertex{end, endColor},
-    };
+      const auto actual = getArrows(links);
+      CHECK(
+        toBytes(actual)
+        == toBytes(expectedArrows(start, end, color, {0.1f, 0.4f, 0.7f})));
+    }
 
-    const auto actual = getArrows(links);
-    CHECK(toBytes(actual) == toBytes(expectedArrows(start, end, startColor, {0.6f})));
-  }
+    SECTION("the arrow color is taken from the line's start vertex")
+    {
+      const auto start = vm::vec3f{0, 0, 0};
+      const auto end = vm::vec3f{100, 0, 0};
+      const auto startColor = vm::vec4f{0, 1, 0, 1};
+      const auto endColor = vm::vec4f{0, 0, 1, 1};
+      const auto links = std::vector<LineVertex>{
+        LineVertex{start, startColor},
+        LineVertex{end, endColor},
+      };
 
-  SECTION("arrows for multiple lines are appended in order")
-  {
-    const auto start1 = vm::vec3f{0, 0, 0};
-    const auto end1 = vm::vec3f{100, 0, 0};
-    const auto start2 = vm::vec3f{0, 0, 0};
-    const auto end2 = vm::vec3f{0, 2000, 0};
-    const auto links = std::vector<LineVertex>{
-      LineVertex{start1, color},
-      LineVertex{end1, color},
-      LineVertex{start2, color},
-      LineVertex{end2, color},
-    };
+      const auto actual = getArrows(links);
+      CHECK(toBytes(actual) == toBytes(expectedArrows(start, end, startColor, {0.6f})));
+    }
 
-    auto expected = expectedArrows(start1, end1, color, {0.6f});
-    const auto expected2 = expectedArrows(start2, end2, color, {0.1f, 0.4f, 0.7f});
-    expected.insert(expected.end(), expected2.begin(), expected2.end());
+    SECTION("arrows for multiple lines are appended in order")
+    {
+      const auto start1 = vm::vec3f{0, 0, 0};
+      const auto end1 = vm::vec3f{100, 0, 0};
+      const auto start2 = vm::vec3f{0, 0, 0};
+      const auto end2 = vm::vec3f{0, 2000, 0};
+      const auto links = std::vector<LineVertex>{
+        LineVertex{start1, color},
+        LineVertex{end1, color},
+        LineVertex{start2, color},
+        LineVertex{end2, color},
+      };
 
-    const auto actual = getArrows(links);
-    CHECK(toBytes(actual) == toBytes(expected));
+      auto expected = expectedArrows(start1, end1, color, {0.6f});
+      const auto expected2 = expectedArrows(start2, end2, color, {0.1f, 0.4f, 0.7f});
+      expected.insert(expected.end(), expected2.begin(), expected2.end());
+
+      const auto actual = getArrows(links);
+      CHECK(toBytes(actual) == toBytes(expected));
+    }
   }
 }
 

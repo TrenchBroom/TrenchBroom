@@ -819,102 +819,104 @@ const auto cr8_czg_03_contents = std::vector<unsigned char>{
   0x10, 0x11, 0x8D, 0x8D, 0x12, 0x8D, 0x11, 0x10, 0x10, 0x11, 0xAE, 0xAE, 0x13, 0x8D,
   0x11, 0x10, 0x10, 0x11, 0x8D, 0x13, 0x8D, 0x13, 0x11, 0x10, 0x8E, 0x11, 0x8D, 0xAD};
 
-TEST_CASE("Hierarchical ImageFileSystems")
+TEST_CASE("ImageFileSystem")
 {
-  const auto fsTestPath = getFixtureRoot() / "test/fs/";
-  const auto [name, fs] =
-    GENERATE_REF(values<std::tuple<std::string, std::shared_ptr<FileSystem>>>({
-      {"IdPakFileSystem", openFS<IdPakFileSystem>(fsTestPath / "Pak/idpak.pak")},
-      {"DkPakFileSystem", openFS<DkPakFileSystem>(fsTestPath / "Pak/dkpak.pak")},
-      {"ZipFileSystem", openFS<ZipFileSystem>(fsTestPath / "Zip/zip.zip")},
-    }));
-
-  CAPTURE(name);
-
-  SECTION("pathInfo")
+  SECTION("hierarchical")
   {
-    CHECK(fs->pathInfo("pics") == fs::PathInfo::Directory);
-    CHECK(fs->pathInfo("PICS") == fs::PathInfo::Directory);
-    CHECK(fs->pathInfo("pics/tag1.pcx") == fs::PathInfo::File);
-    CHECK(fs->pathInfo("PICS/TAG1.pcX") == fs::PathInfo::File);
-    CHECK(fs->pathInfo("does_not_exist") == fs::PathInfo::Unknown);
-  }
-
-  SECTION("find")
-  {
-    CHECK_THAT(
-      fs->find("", fs::TraversalMode::Flat),
-      MatchesPathsResult({
-        "bear.cfg",
-        "pics",
-        "textures",
-        "amnet.cfg",
+    const auto fsTestPath = getFixtureRoot() / "test/fs/";
+    const auto [name, fs] =
+      GENERATE_REF(values<std::tuple<std::string, std::shared_ptr<FileSystem>>>({
+        {"IdPakFileSystem", openFS<IdPakFileSystem>(fsTestPath / "Pak/idpak.pak")},
+        {"DkPakFileSystem", openFS<DkPakFileSystem>(fsTestPath / "Pak/dkpak.pak")},
+        {"ZipFileSystem", openFS<ZipFileSystem>(fsTestPath / "Zip/zip.zip")},
       }));
 
-    CHECK_THAT(
-      fs->find("pics", fs::TraversalMode::Flat),
-      MatchesPathsResult({
-        "pics/tag2.pcx",
-        "pics/tag1.pcx",
-      }));
+    CAPTURE(name);
 
-    // querying with mismatched case must still return paths with the true on-disk /
-    // in-archive case, including the portion covered by the search path itself
-    CHECK_THAT(
-      fs->find("PICS", fs::TraversalMode::Flat),
-      MatchesPathsResult({
-        "pics/tag2.pcx",
-        "pics/tag1.pcx",
-      }));
+    SECTION("pathInfo")
+    {
+      CHECK(fs->pathInfo("pics") == fs::PathInfo::Directory);
+      CHECK(fs->pathInfo("PICS") == fs::PathInfo::Directory);
+      CHECK(fs->pathInfo("pics/tag1.pcx") == fs::PathInfo::File);
+      CHECK(fs->pathInfo("PICS/TAG1.pcX") == fs::PathInfo::File);
+      CHECK(fs->pathInfo("does_not_exist") == fs::PathInfo::Unknown);
+    }
 
-    CHECK_THAT(
-      fs->find("", fs::TraversalMode::Recursive),
-      MatchesPathsResult({
-        "amnet.cfg",
-        "textures",
-        "textures/e1u3",
-        "textures/e1u3/strs1_3.wal",
-        "textures/e1u3/stflr1_5.wal",
-        "textures/e1u2",
-        "textures/e1u2/basic1_7.wal",
-        "textures/e1u2/angle1_2.wal",
-        "textures/e1u2/angle1_1.wal",
-        "textures/e1u1",
-        "textures/e1u1/brlava.wal",
-        "textures/e1u1/box1_3.wal",
-        "pics",
-        "pics/tag2.pcx",
-        "pics/tag1.pcx",
-        "bear.cfg",
-      }));
+    SECTION("find")
+    {
+      CHECK_THAT(
+        fs->find("", fs::TraversalMode::Flat),
+        MatchesPathsResult({
+          "bear.cfg",
+          "pics",
+          "textures",
+          "amnet.cfg",
+        }));
 
-    CHECK_THAT(
-      fs->find("", TraversalMode{0}),
-      MatchesPathsResult({
-        "amnet.cfg",
-        "textures",
-        "pics",
-        "bear.cfg",
-      }));
+      CHECK_THAT(
+        fs->find("pics", fs::TraversalMode::Flat),
+        MatchesPathsResult({
+          "pics/tag2.pcx",
+          "pics/tag1.pcx",
+        }));
 
-    CHECK_THAT(
-      fs->find("", TraversalMode{1}),
-      MatchesPathsResult({
-        "amnet.cfg",
-        "textures",
-        "textures/e1u3",
-        "textures/e1u2",
-        "textures/e1u1",
-        "pics",
-        "pics/tag2.pcx",
-        "pics/tag1.pcx",
-        "bear.cfg",
-      }));
-  }
+      // querying with mismatched case must still return paths with the true on-disk /
+      // in-archive case, including the portion covered by the search path itself
+      CHECK_THAT(
+        fs->find("PICS", fs::TraversalMode::Flat),
+        MatchesPathsResult({
+          "pics/tag2.pcx",
+          "pics/tag1.pcx",
+        }));
 
-  SECTION("openFile")
-  {
-    const auto expectedContents = std::string{R"(//
+      CHECK_THAT(
+        fs->find("", fs::TraversalMode::Recursive),
+        MatchesPathsResult({
+          "amnet.cfg",
+          "textures",
+          "textures/e1u3",
+          "textures/e1u3/strs1_3.wal",
+          "textures/e1u3/stflr1_5.wal",
+          "textures/e1u2",
+          "textures/e1u2/basic1_7.wal",
+          "textures/e1u2/angle1_2.wal",
+          "textures/e1u2/angle1_1.wal",
+          "textures/e1u1",
+          "textures/e1u1/brlava.wal",
+          "textures/e1u1/box1_3.wal",
+          "pics",
+          "pics/tag2.pcx",
+          "pics/tag1.pcx",
+          "bear.cfg",
+        }));
+
+      CHECK_THAT(
+        fs->find("", TraversalMode{0}),
+        MatchesPathsResult({
+          "amnet.cfg",
+          "textures",
+          "pics",
+          "bear.cfg",
+        }));
+
+      CHECK_THAT(
+        fs->find("", TraversalMode{1}),
+        MatchesPathsResult({
+          "amnet.cfg",
+          "textures",
+          "textures/e1u3",
+          "textures/e1u2",
+          "textures/e1u1",
+          "pics",
+          "pics/tag2.pcx",
+          "pics/tag1.pcx",
+          "bear.cfg",
+        }));
+    }
+
+    SECTION("openFile")
+    {
+      const auto expectedContents = std::string{R"(//
 // my stuff
 //
 
@@ -944,86 +946,61 @@ alias v30 "fov 30; sensitivity 7; bind mouse1 v90"
 alias v90 "fov 90; sensitivity 13; bind mouse1 v30"
 )"};
 
-    const auto amnet_cfg = fs->openFile("amnet.cfg") | kdl::value();
-    auto reader = amnet_cfg->reader();
-    CHECK(reader.readString(reader.size()) == expectedContents);
+      const auto amnet_cfg = fs->openFile("amnet.cfg") | kdl::value();
+      auto reader = amnet_cfg->reader();
+      CHECK(reader.readString(reader.size()) == expectedContents);
 
-    // opening a file with mismatched case must still succeed
-    const auto amnet_cfg_mismatched = fs->openFile("AMNET.CFG") | kdl::value();
-    auto mismatchedReader = amnet_cfg_mismatched->reader();
-    CHECK(mismatchedReader.readString(mismatchedReader.size()) == expectedContents);
-  }
-}
-
-TEST_CASE("Flat ImageFileSystems")
-{
-  const auto fsTestPath = getFixtureRoot() / "test/fs/";
-  const auto [name, fs] =
-    GENERATE_REF(values<std::tuple<std::string, std::shared_ptr<FileSystem>>>({
-      {"WadFileSystem", openFS<WadFileSystem>(fsTestPath / "Wad/cr8_czg.wad")},
-    }));
-
-  CAPTURE(name);
-
-  SECTION("pathInfo")
-  {
-    CHECK(fs->pathInfo("cr8_czg_1.D") == fs::PathInfo::File);
-    CHECK(fs->pathInfo("speedM_1.D") == fs::PathInfo::File);
-    CHECK(fs->pathInfo("SpEeDm_1.D") == fs::PathInfo::File);
-    CHECK(fs->pathInfo("does_not_exist") == fs::PathInfo::Unknown);
+      // opening a file with mismatched case must still succeed
+      const auto amnet_cfg_mismatched = fs->openFile("AMNET.CFG") | kdl::value();
+      auto mismatchedReader = amnet_cfg_mismatched->reader();
+      CHECK(mismatchedReader.readString(mismatchedReader.size()) == expectedContents);
+    }
   }
 
-  SECTION("directoryContents")
+  SECTION("flat")
   {
-    const auto traversalMode =
-      GENERATE(fs::TraversalMode::Flat, fs::TraversalMode::Recursive);
-    CAPTURE(traversalMode);
-
-    CHECK_THAT(
-      fs->find("", traversalMode),
-      MatchesPathsResult({
-        "blowjob_machine.D", "bongs2.D",          "can-o-jam.D",     "cap4can-o-jam.D",
-        "coffin1.D",         "coffin2.D",         "cr8_czg_1.D",     "cr8_czg_2.D",
-        "cr8_czg_3.D",       "cr8_czg_4.D",       "cr8_czg_5.D",     "crackpipes.D",
-        "czg_backhole.D",    "czg_fronthole.D",   "dex_5.D",         "eat_me.D",
-        "for_sux-m-ass.D",   "lasthopeofhuman.D", "polished_turd.D", "speedM_1.D",
-        "u_get_this.D",
+    const auto fsTestPath = getFixtureRoot() / "test/fs/";
+    const auto [name, fs] =
+      GENERATE_REF(values<std::tuple<std::string, std::shared_ptr<FileSystem>>>({
+        {"WadFileSystem", openFS<WadFileSystem>(fsTestPath / "Wad/cr8_czg.wad")},
       }));
-  }
 
-  SECTION("openFile")
-  {
-    const auto cr8_czg_3_d = fs->openFile("cr8_czg_3.D") | kdl::value();
+    CAPTURE(name);
 
-    auto reader = cr8_czg_3_d->reader();
-    auto contents = std::vector<unsigned char>(reader.size());
-    reader.read(contents.data(), reader.size());
-    CHECK(contents == cr8_czg_03_contents);
-  }
-}
-
-TEST_CASE("WadFileSystem")
-{
-  SECTION("Wad files can be replaced while wad file system exists")
-  {
-    const auto wadPath = getFixtureRoot() / "test/fs/Wad/cr8_czg.wad";
-    const auto copyPath = getFixtureRoot() / "test/fs/Wad/cr8_czg_2.wad";
-
-    REQUIRE_FALSE(std::filesystem::is_regular_file(copyPath));
-    REQUIRE_NOTHROW(std::filesystem::copy(wadPath, copyPath));
-    REQUIRE(std::filesystem::is_regular_file(copyPath));
-
+    SECTION("pathInfo")
     {
-      const auto fs = openFS<WadFileSystem>(copyPath);
-
-      auto errorCode = std::error_code{};
-      CHECK(std::filesystem::remove(copyPath, errorCode));
-      CHECK(errorCode == std::error_code{});
+      CHECK(fs->pathInfo("cr8_czg_1.D") == fs::PathInfo::File);
+      CHECK(fs->pathInfo("speedM_1.D") == fs::PathInfo::File);
+      CHECK(fs->pathInfo("SpEeDm_1.D") == fs::PathInfo::File);
+      CHECK(fs->pathInfo("does_not_exist") == fs::PathInfo::Unknown);
     }
 
-    if (std::filesystem::is_regular_file(copyPath))
+    SECTION("directoryContents")
     {
-      REQUIRE(std::filesystem::remove(copyPath));
+      const auto traversalMode =
+        GENERATE(fs::TraversalMode::Flat, fs::TraversalMode::Recursive);
+      CAPTURE(traversalMode);
+
+      CHECK_THAT(
+        fs->find("", traversalMode),
+        MatchesPathsResult({
+          "blowjob_machine.D", "bongs2.D",          "can-o-jam.D",     "cap4can-o-jam.D",
+          "coffin1.D",         "coffin2.D",         "cr8_czg_1.D",     "cr8_czg_2.D",
+          "cr8_czg_3.D",       "cr8_czg_4.D",       "cr8_czg_5.D",     "crackpipes.D",
+          "czg_backhole.D",    "czg_fronthole.D",   "dex_5.D",         "eat_me.D",
+          "for_sux-m-ass.D",   "lasthopeofhuman.D", "polished_turd.D", "speedM_1.D",
+          "u_get_this.D",
+        }));
+    }
+
+    SECTION("openFile")
+    {
+      const auto cr8_czg_3_d = fs->openFile("cr8_czg_3.D") | kdl::value();
+
+      auto reader = cr8_czg_3_d->reader();
+      auto contents = std::vector<unsigned char>(reader.size());
+      reader.read(contents.data(), reader.size());
+      CHECK(contents == cr8_czg_03_contents);
     }
   }
 }

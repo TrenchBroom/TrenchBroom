@@ -98,75 +98,78 @@ void testImageContents(Result<gl::Texture> result, const ColorMatch match)
 
 } // namespace
 
-TEST_CASE("loadFreeImageTexture")
+TEST_CASE("LoadFreeImageTexture")
 {
-  SECTION("loading PNGs")
+  SECTION("loadFreeImageTexture")
   {
-    assertTexture("5x5.png", 5, 5);
-    assertTexture("707x710.png", 707, 710);
-    testImageContents(loadTexture("pngContentsTest.png"), ColorMatch::Exact);
-    CHECK(loadTexture("corruptPngTest.png").is_error());
-
-    // we don't support this format currently
-    CHECK(loadTexture("16bitGrayscale.png").is_error());
-  }
-
-  SECTION("loading JPGs")
-  {
-    testImageContents(loadTexture("jpgContentsTest.jpg"), ColorMatch::Approximate);
-  }
-
-  SECTION("alpha mask")
-  {
-    const auto texture = loadTexture("alphaMaskTest.png") | kdl::value();
-    const std::size_t w = 25u;
-    const std::size_t h = 10u;
-
-    CHECK(texture.width() == w);
-    CHECK(texture.height() == h);
-    CHECK(texture.buffersIfLoaded().size() == 1u);
-    CHECK((texture.format() == GL_BGRA || texture.format() == GL_RGBA));
-    CHECK(texture.mask() == gl::TextureMask::On);
-
-    auto& mip0Data = texture.buffersIfLoaded().at(0);
-    CHECK(mip0Data.size() == w * h * 4);
-
-    for (std::size_t y = 0; y < h; ++y)
+    SECTION("loading PNGs")
     {
-      for (std::size_t x = 0; x < w; ++x)
+      assertTexture("5x5.png", 5, 5);
+      assertTexture("707x710.png", 707, 710);
+      testImageContents(loadTexture("pngContentsTest.png"), ColorMatch::Exact);
+      CHECK(loadTexture("corruptPngTest.png").is_error());
+
+      // we don't support this format currently
+      CHECK(loadTexture("16bitGrayscale.png").is_error());
+    }
+
+    SECTION("loading JPGs")
+    {
+      testImageContents(loadTexture("jpgContentsTest.jpg"), ColorMatch::Approximate);
+    }
+
+    SECTION("alpha mask")
+    {
+      const auto texture = loadTexture("alphaMaskTest.png") | kdl::value();
+      const std::size_t w = 25u;
+      const std::size_t h = 10u;
+
+      CHECK(texture.width() == w);
+      CHECK(texture.height() == h);
+      CHECK(texture.buffersIfLoaded().size() == 1u);
+      CHECK((texture.format() == GL_BGRA || texture.format() == GL_RGBA));
+      CHECK(texture.mask() == gl::TextureMask::On);
+
+      auto& mip0Data = texture.buffersIfLoaded().at(0);
+      CHECK(mip0Data.size() == w * h * 4);
+
+      for (std::size_t y = 0; y < h; ++y)
       {
-        if (x == 0 && y == 0)
+        for (std::size_t x = 0; x < w; ++x)
         {
-          // top left pixel is green opaque
-          CHECK(getComponentOfPixel(texture, x, y, Component::R) == 0 /* R */);
-          CHECK(getComponentOfPixel(texture, x, y, Component::G) == 255 /* G */);
-          CHECK(getComponentOfPixel(texture, x, y, Component::B) == 0 /* B */);
-          CHECK(getComponentOfPixel(texture, x, y, Component::A) == 255 /* A */);
-        }
-        else
-        {
-          // others are fully transparent (RGB values are unknown)
-          CHECK(getComponentOfPixel(texture, x, y, Component::A) == 0 /* A */);
+          if (x == 0 && y == 0)
+          {
+            // top left pixel is green opaque
+            CHECK(getComponentOfPixel(texture, x, y, Component::R) == 0 /* R */);
+            CHECK(getComponentOfPixel(texture, x, y, Component::G) == 255 /* G */);
+            CHECK(getComponentOfPixel(texture, x, y, Component::B) == 0 /* B */);
+            CHECK(getComponentOfPixel(texture, x, y, Component::A) == 255 /* A */);
+          }
+          else
+          {
+            // others are fully transparent (RGB values are unknown)
+            CHECK(getComponentOfPixel(texture, x, y, Component::A) == 0 /* A */);
+          }
         }
       }
     }
+
+    SECTION("average color")
+    {
+      const auto texture = loadTexture("pngContentsTest.png") | kdl::value();
+      CHECK(
+        texture.averageColor().to<RgbaF>().toVec()
+        == vm::approx{vm::vec4f{0.631289f, 0.631289f, 0.631289f, 1.0f}});
+    }
   }
 
-  SECTION("average color")
+  SECTION("isSupportedFreeImageExtension")
   {
-    const auto texture = loadTexture("pngContentsTest.png") | kdl::value();
-    CHECK(
-      texture.averageColor().to<RgbaF>().toVec()
-      == vm::approx{vm::vec4f{0.631289f, 0.631289f, 0.631289f, 1.0f}});
+    CHECK(isSupportedFreeImageExtension(".jpg"));
+    CHECK(isSupportedFreeImageExtension(".jpeg"));
+    CHECK(isSupportedFreeImageExtension(".JPG"));
+    CHECK_FALSE(isSupportedFreeImageExtension("jpg"));
   }
-}
-
-TEST_CASE("isSupportedFreeImageExtension")
-{
-  CHECK(isSupportedFreeImageExtension(".jpg"));
-  CHECK(isSupportedFreeImageExtension(".jpeg"));
-  CHECK(isSupportedFreeImageExtension(".JPG"));
-  CHECK_FALSE(isSupportedFreeImageExtension("jpg"));
 }
 
 } // namespace tb::mdl

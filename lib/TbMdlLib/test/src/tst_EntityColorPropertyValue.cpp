@@ -26,146 +26,149 @@
 namespace tb::mdl
 {
 
-TEST_CASE("parseEntityColorPropertyValue")
+TEST_CASE("EntityColorPropertyValue")
 {
-  const auto entityDefinition = EntityDefinition{
-    "some_entity",
-    Color{},
-    "",
-    {
-      PropertyDefinition{"colorStr", PropertyValueTypes::String{}, "", ""},
-      PropertyDefinition{"color1", PropertyValueTypes::Color<RgbF>{}, "", ""},
-      PropertyDefinition{"color255", PropertyValueTypes::Color<RgbB>{}, "", ""},
-      PropertyDefinition{"colorAny", PropertyValueTypes::Color<Rgb>{}, "", ""},
-    }};
+  SECTION("parseEntityColorPropertyValue")
+  {
+    const auto entityDefinition = EntityDefinition{
+      "some_entity",
+      Color{},
+      "",
+      {
+        PropertyDefinition{"colorStr", PropertyValueTypes::String{}, "", ""},
+        PropertyDefinition{"color1", PropertyValueTypes::Color<RgbF>{}, "", ""},
+        PropertyDefinition{"color255", PropertyValueTypes::Color<RgbB>{}, "", ""},
+        PropertyDefinition{"colorAny", PropertyValueTypes::Color<Rgb>{}, "", ""},
+      }};
 
-  using T = std::tuple<
-    std::optional<EntityDefinition>,
-    std::string,
-    std::string,
-    Result<EntityColorPropertyValue>>;
+    using T = std::tuple<
+      std::optional<EntityDefinition>,
+      std::string,
+      std::string,
+      Result<EntityColorPropertyValue>>;
 
-  const auto [definition, propertyKey, propertyValue, expectedResult] =
-    GENERATE_COPY(values<T>({
-      {std::nullopt,
-       "colorStr",
-       "0 0 0",
-       EntityColorPropertyValue{RgbF{0.0f, 0.0f, 0.0f}, {}}},
-      {std::nullopt,
-       "colorStr",
-       "0 0 0 0",
-       EntityColorPropertyValue{RgbF{0.0f, 0.0f, 0.0f}, {0.0f}}},
-      {entityDefinition,
-       "colorStr",
-       "0 0 0",
-       EntityColorPropertyValue{RgbF{0.0f, 0.0f, 0.0f}, {}}},
-      {entityDefinition,
-       "colorStr",
-       "0 0 0 0",
-       EntityColorPropertyValue{RgbF{0.0f, 0.0f, 0.0f}, {0.0f}}},
-      {entityDefinition,
-       "colorAny",
-       "0 0 0",
-       EntityColorPropertyValue{RgbF{0.0f, 0.0f, 0.0f}, {}}},
-      {entityDefinition,
-       "colorAny",
-       "0 0 0 0",
-       EntityColorPropertyValue{RgbF{0.0f, 0.0f, 0.0f}, {0.0f}}},
-      {entityDefinition,
-       "color1",
-       "0 0 0",
-       EntityColorPropertyValue{RgbF{0.0f, 0.0f, 0.0f}, {}}},
-      {entityDefinition,
-       "color1",
-       "0 0 0 0",
-       EntityColorPropertyValue{RgbF{0.0f, 0.0f, 0.0f}, {0.0f}}},
-      {entityDefinition,
-       "color255",
-       "0 0 0",
-       EntityColorPropertyValue{RgbB{0, 0, 0}, {}}},
-      {entityDefinition,
-       "color255",
-       "0 0 0 0",
-       EntityColorPropertyValue{RgbB{0, 0, 0}, {0.0f}}},
-    }));
+    const auto [definition, propertyKey, propertyValue, expectedResult] =
+      GENERATE_COPY(values<T>({
+        {std::nullopt,
+         "colorStr",
+         "0 0 0",
+         EntityColorPropertyValue{RgbF{0.0f, 0.0f, 0.0f}, {}}},
+        {std::nullopt,
+         "colorStr",
+         "0 0 0 0",
+         EntityColorPropertyValue{RgbF{0.0f, 0.0f, 0.0f}, {0.0f}}},
+        {entityDefinition,
+         "colorStr",
+         "0 0 0",
+         EntityColorPropertyValue{RgbF{0.0f, 0.0f, 0.0f}, {}}},
+        {entityDefinition,
+         "colorStr",
+         "0 0 0 0",
+         EntityColorPropertyValue{RgbF{0.0f, 0.0f, 0.0f}, {0.0f}}},
+        {entityDefinition,
+         "colorAny",
+         "0 0 0",
+         EntityColorPropertyValue{RgbF{0.0f, 0.0f, 0.0f}, {}}},
+        {entityDefinition,
+         "colorAny",
+         "0 0 0 0",
+         EntityColorPropertyValue{RgbF{0.0f, 0.0f, 0.0f}, {0.0f}}},
+        {entityDefinition,
+         "color1",
+         "0 0 0",
+         EntityColorPropertyValue{RgbF{0.0f, 0.0f, 0.0f}, {}}},
+        {entityDefinition,
+         "color1",
+         "0 0 0 0",
+         EntityColorPropertyValue{RgbF{0.0f, 0.0f, 0.0f}, {0.0f}}},
+        {entityDefinition,
+         "color255",
+         "0 0 0",
+         EntityColorPropertyValue{RgbB{0, 0, 0}, {}}},
+        {entityDefinition,
+         "color255",
+         "0 0 0 0",
+         EntityColorPropertyValue{RgbB{0, 0, 0}, {0.0f}}},
+      }));
 
-  CAPTURE(definition, propertyKey, propertyValue);
+    CAPTURE(definition, propertyKey, propertyValue);
 
-  CHECK(
-    parseEntityColorPropertyValue(
-      definition ? &*definition : nullptr, propertyKey, propertyValue)
-    == expectedResult);
-}
+    CHECK(
+      parseEntityColorPropertyValue(
+        definition ? &*definition : nullptr, propertyKey, propertyValue)
+      == expectedResult);
+  }
 
-TEST_CASE("entityColorPropertyToString")
-{
-  const auto entityDefinition = EntityDefinition{
-    "some_entity",
-    Color{},
-    "",
-    {
-      PropertyDefinition{"colorStr", PropertyValueTypes::String{}, "", ""},
-      PropertyDefinition{"color1", PropertyValueTypes::Color<RgbF>{}, "", ""},
-      PropertyDefinition{"color255", PropertyValueTypes::Color<RgbB>{}, "", ""},
-      PropertyDefinition{"colorAny", PropertyValueTypes::Color<Rgb>{}, "", ""},
-    }};
+  SECTION("entityColorPropertyToString")
+  {
+    const auto entityDefinition = EntityDefinition{
+      "some_entity",
+      Color{},
+      "",
+      {
+        PropertyDefinition{"colorStr", PropertyValueTypes::String{}, "", ""},
+        PropertyDefinition{"color1", PropertyValueTypes::Color<RgbF>{}, "", ""},
+        PropertyDefinition{"color255", PropertyValueTypes::Color<RgbB>{}, "", ""},
+        PropertyDefinition{"colorAny", PropertyValueTypes::Color<Rgb>{}, "", ""},
+      }};
 
-  using T = std::tuple<
-    std::optional<EntityDefinition>,
-    std::string,
-    EntityColorPropertyValue,
-    Result<std::string>>;
+    using T = std::tuple<
+      std::optional<EntityDefinition>,
+      std::string,
+      EntityColorPropertyValue,
+      Result<std::string>>;
 
-  const auto [definition, propertyKey, colorValue, expectedResult] =
-    GENERATE_COPY(values<T>({
-      {std::nullopt,
-       "colorStr",
-       EntityColorPropertyValue{RgbF{0.0f, 0.0f, 0.0f}, {}},
-       "0 0 0"},
-      {std::nullopt,
-       "colorStr",
-       EntityColorPropertyValue{RgbF{0.0f, 0.0f, 0.0f}, {0.0f}},
-       "0 0 0 0"},
-      {entityDefinition,
-       "colorStr",
-       EntityColorPropertyValue{RgbF{0.0f, 0.0f, 0.0f}, {}},
-       "0 0 0"},
-      {entityDefinition,
-       "colorStr",
-       EntityColorPropertyValue{RgbF{0.0f, 0.0f, 0.0f}, {0.0f}},
-       "0 0 0 0"},
-      {entityDefinition,
-       "colorAny",
-       EntityColorPropertyValue{RgbF{0.0f, 0.0f, 0.0f}, {}},
-       "0 0 0"},
-      {entityDefinition,
-       "colorAny",
-       EntityColorPropertyValue{RgbF{0.0f, 0.0f, 0.0f}, {0.0f}},
-       "0 0 0 0"},
-      {entityDefinition,
-       "color1",
-       EntityColorPropertyValue{RgbF{0.0f, 0.0f, 0.0f}, {}},
-       "0 0 0"},
-      {entityDefinition,
-       "color1",
-       EntityColorPropertyValue{RgbF{0.0f, 0.0f, 0.0f}, {0.0f}},
-       "0 0 0 0"},
-      {entityDefinition,
-       "color255",
-       EntityColorPropertyValue{RgbB{0, 0, 0}, {}},
-       "0 0 0"},
-      {entityDefinition,
-       "color255",
-       EntityColorPropertyValue{RgbB{0, 0, 0}, {0.0f}},
-       "0 0 0 0"},
-    }));
+    const auto [definition, propertyKey, colorValue, expectedResult] =
+      GENERATE_COPY(values<T>({
+        {std::nullopt,
+         "colorStr",
+         EntityColorPropertyValue{RgbF{0.0f, 0.0f, 0.0f}, {}},
+         "0 0 0"},
+        {std::nullopt,
+         "colorStr",
+         EntityColorPropertyValue{RgbF{0.0f, 0.0f, 0.0f}, {0.0f}},
+         "0 0 0 0"},
+        {entityDefinition,
+         "colorStr",
+         EntityColorPropertyValue{RgbF{0.0f, 0.0f, 0.0f}, {}},
+         "0 0 0"},
+        {entityDefinition,
+         "colorStr",
+         EntityColorPropertyValue{RgbF{0.0f, 0.0f, 0.0f}, {0.0f}},
+         "0 0 0 0"},
+        {entityDefinition,
+         "colorAny",
+         EntityColorPropertyValue{RgbF{0.0f, 0.0f, 0.0f}, {}},
+         "0 0 0"},
+        {entityDefinition,
+         "colorAny",
+         EntityColorPropertyValue{RgbF{0.0f, 0.0f, 0.0f}, {0.0f}},
+         "0 0 0 0"},
+        {entityDefinition,
+         "color1",
+         EntityColorPropertyValue{RgbF{0.0f, 0.0f, 0.0f}, {}},
+         "0 0 0"},
+        {entityDefinition,
+         "color1",
+         EntityColorPropertyValue{RgbF{0.0f, 0.0f, 0.0f}, {0.0f}},
+         "0 0 0 0"},
+        {entityDefinition,
+         "color255",
+         EntityColorPropertyValue{RgbB{0, 0, 0}, {}},
+         "0 0 0"},
+        {entityDefinition,
+         "color255",
+         EntityColorPropertyValue{RgbB{0, 0, 0}, {0.0f}},
+         "0 0 0 0"},
+      }));
 
-  CAPTURE(definition, propertyKey, colorValue);
+    CAPTURE(definition, propertyKey, colorValue);
 
-  CHECK(
-    entityColorPropertyToString(
-      definition ? &*definition : nullptr, propertyKey, colorValue)
-    == expectedResult);
+    CHECK(
+      entityColorPropertyToString(
+        definition ? &*definition : nullptr, propertyKey, colorValue)
+      == expectedResult);
+  }
 }
 
 } // namespace tb::mdl
