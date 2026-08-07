@@ -524,6 +524,30 @@ TEST_CASE("Brush")
 
   SECTION("transformVertices")
   {
+    SECTION("Can't transform an empty set of vertices")
+    {
+      const auto worldBounds = vm::bbox3d{4096.0};
+
+      auto builder = BrushBuilder{MapFormat::Standard, worldBounds};
+      auto brush = builder.createCube(64.0, "material") | kdl::value();
+
+      const auto transform = vm::translation_matrix(vm::vec3d{16, 0, 0});
+      CHECK(!brush.canTransformVertices(worldBounds, {}, transform));
+    }
+
+    SECTION("Can't transform vertices with the identity transformation")
+    {
+      const auto worldBounds = vm::bbox3d{4096.0};
+
+      auto builder = BrushBuilder{MapFormat::Standard, worldBounds};
+      auto brush = builder.createCube(64.0, "material") | kdl::value();
+
+      const auto vertexPositions =
+        std::vector<vm::vec3d>{brush.vertexPositions().front()};
+      CHECK(!brush.canTransformVertices(
+        worldBounds, vertexPositions, vm::mat4x4d::identity()));
+    }
+
     SECTION("Move vertex onto adjacent vertex and back")
     {
       const auto worldBounds = vm::bbox3d{4096.0};
