@@ -60,220 +60,185 @@
 namespace tb::mdl
 {
 
-TEST_CASE("EntityNodeTest.canAddChild")
+TEST_CASE("EntityNode")
 {
   constexpr auto worldBounds = vm::bbox3d{8192.0};
   constexpr auto mapFormat = MapFormat::Quake3;
 
-  auto worldNode = WorldNode{{}, {}, mapFormat};
-  auto layerNode = LayerNode{Layer{"layer"}};
-  auto groupNode = GroupNode{Group{"group"}};
-  auto entityNode = EntityNode{Entity{}};
-  auto brushNode = BrushNode{
-    BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material") | kdl::value()};
+  SECTION("canAddChild")
+  {
+    auto worldNode = WorldNode{{}, {}, mapFormat};
+    auto layerNode = LayerNode{Layer{"layer"}};
+    auto groupNode = GroupNode{Group{"group"}};
+    auto entityNode = EntityNode{Entity{}};
+    auto brushNode = BrushNode{
+      BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material") | kdl::value()};
 
-  // clang-format off
-  auto patchNode = PatchNode{BezierPatch{3, 3, {
-    {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
-    {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
-    {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "material"}};
-  // clang-format on
+    // clang-format off
+    auto patchNode = PatchNode{BezierPatch{3, 3, {
+      {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
+      {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
+      {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "material"}};
+    // clang-format on
 
-  CHECK_FALSE(entityNode.canAddChild(worldNode));
-  CHECK_FALSE(entityNode.canAddChild(layerNode));
-  CHECK_FALSE(entityNode.canAddChild(groupNode));
-  CHECK_FALSE(entityNode.canAddChild(entityNode));
-  CHECK(entityNode.canAddChild(brushNode));
-  CHECK(entityNode.canAddChild(patchNode));
-}
+    CHECK_FALSE(entityNode.canAddChild(worldNode));
+    CHECK_FALSE(entityNode.canAddChild(layerNode));
+    CHECK_FALSE(entityNode.canAddChild(groupNode));
+    CHECK_FALSE(entityNode.canAddChild(entityNode));
+    CHECK(entityNode.canAddChild(brushNode));
+    CHECK(entityNode.canAddChild(patchNode));
+  }
 
-TEST_CASE("EntityNodeTest.canRemoveChild")
-{
-  constexpr auto worldBounds = vm::bbox3d{8192.0};
-  constexpr auto mapFormat = MapFormat::Quake3;
+  SECTION("canRemoveChild")
+  {
+    const auto worldNode = WorldNode{{}, {}, mapFormat};
+    auto layerNode = LayerNode{Layer{"layer"}};
+    auto groupNode = GroupNode{Group{"group"}};
+    auto entityNode = EntityNode{Entity{}};
+    auto brushNode = BrushNode{
+      BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material") | kdl::value()};
 
-  const auto worldNode = WorldNode{{}, {}, mapFormat};
-  auto layerNode = LayerNode{Layer{"layer"}};
-  auto groupNode = GroupNode{Group{"group"}};
-  auto entityNode = EntityNode{Entity{}};
-  auto brushNode = BrushNode{
-    BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material") | kdl::value()};
+    // clang-format off
+    auto patchNode = PatchNode{BezierPatch{3, 3, {
+      {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
+      {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
+      {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "material"}};
+    // clang-format on
 
-  // clang-format off
-  auto patchNode = PatchNode{BezierPatch{3, 3, {
-    {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
-    {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
-    {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "material"}};
-  // clang-format on
+    CHECK(entityNode.canRemoveChild(worldNode));
+    CHECK(worldNode.canRemoveChild(layerNode));
+    CHECK(entityNode.canRemoveChild(groupNode));
+    CHECK(entityNode.canRemoveChild(entityNode));
+    CHECK(entityNode.canRemoveChild(brushNode));
+    CHECK(entityNode.canRemoveChild(patchNode));
+  }
 
-  CHECK(entityNode.canRemoveChild(worldNode));
-  CHECK(worldNode.canRemoveChild(layerNode));
-  CHECK(entityNode.canRemoveChild(groupNode));
-  CHECK(entityNode.canRemoveChild(entityNode));
-  CHECK(entityNode.canRemoveChild(brushNode));
-  CHECK(entityNode.canRemoveChild(patchNode));
-}
+  SECTION("pointEntity")
+  {
+    auto entityNode = EntityNode{Entity{}};
+    auto brushNode1 = BrushNode{
+      BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material") | kdl::value()};
+    auto brushNode2 = BrushNode{
+      BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material") | kdl::value()};
 
-TEST_CASE("EntityNodeTest.setPointEntity")
-{
-  constexpr auto worldBounds = vm::bbox3d{8192.0};
-  constexpr auto mapFormat = MapFormat::Quake3;
+    REQUIRE(entityNode.entity().pointEntity());
+    entityNode.addChild(&brushNode1);
+    CHECK_FALSE(entityNode.entity().pointEntity());
+    entityNode.addChild(&brushNode2);
+    CHECK_FALSE(entityNode.entity().pointEntity());
 
-  auto entityNode = EntityNode{Entity{}};
-  auto brushNode1 = BrushNode{
-    BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material") | kdl::value()};
-  auto brushNode2 = BrushNode{
-    BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material") | kdl::value()};
+    entityNode.removeChild(&brushNode1);
+    CHECK_FALSE(entityNode.entity().pointEntity());
+    entityNode.removeChild(&brushNode2);
+    CHECK(entityNode.entity().pointEntity());
+  }
 
-  REQUIRE(entityNode.entity().pointEntity());
-  entityNode.addChild(&brushNode1);
-  CHECK_FALSE(entityNode.entity().pointEntity());
-  entityNode.addChild(&brushNode2);
-  CHECK_FALSE(entityNode.entity().pointEntity());
-
-  entityNode.removeChild(&brushNode1);
-  CHECK_FALSE(entityNode.entity().pointEntity());
-  entityNode.removeChild(&brushNode2);
-  CHECK(entityNode.entity().pointEntity());
-}
-
-TEST_CASE("EntityNodeTest.area")
-{
-  const auto definition = EntityDefinition{
-    "some_name",
-    Color{},
-    "",
-    {},
-    PointEntityDefinition{
-      vm::bbox3d{{0, 0, 0}, {1, 2, 3}},
+  SECTION("projectedArea")
+  {
+    const auto definition = EntityDefinition{
+      "some_name",
+      Color{},
+      "",
       {},
+      PointEntityDefinition{
+        vm::bbox3d{{0, 0, 0}, {1, 2, 3}},
+        {},
+        {},
+      },
+    };
+
+    auto entityNode = EntityNode{Entity{}};
+    entityNode.setDefinition(&definition);
+
+    CHECK(entityNode.projectedArea(vm::axis::x) == 6.0);
+    CHECK(entityNode.projectedArea(vm::axis::y) == 3.0);
+    CHECK(entityNode.projectedArea(vm::axis::z) == 2.0);
+  }
+
+  SECTION("pick")
+  {
+    // cube.bsp is a solid cube spanning {-32, -32, -32} to {32, 32, 32}
+    const auto environmentConfig = EnvironmentConfig{};
+    const auto& gameInfo = QuakeGameInfo;
+
+    auto logger = TestLogger{};
+    auto fs = GameFileSystem{};
+    fs.initialize(
+      environmentConfig,
+      gameInfo.gameConfig,
+      gameInfo.gamePathPreference.defaultValue,
       {},
-    },
-  };
+      logger);
 
-  auto entityNode = EntityNode{Entity{}};
-  entityNode.setDefinition(&definition);
+    const auto path = std::filesystem::path{"cube.bsp"};
+    const auto loadMaterial = [](auto) -> gl::Material {
+      throw std::runtime_error{"should not be called"};
+    };
 
-  CHECK(entityNode.projectedArea(vm::axis::x) == 6.0);
-  CHECK(entityNode.projectedArea(vm::axis::y) == 3.0);
-  CHECK(entityNode.projectedArea(vm::axis::z) == 2.0);
-}
+    auto model = loadEntityModelSync(
+                   fs, gameInfo.gameConfig.materialConfig, path, loadMaterial, logger)
+                   .value();
 
-TEST_CASE("EntityNodeTest.pick")
-{
-  // cube.bsp is a solid cube spanning {-32, -32, -32} to {32, 32, 32}
-  const auto environmentConfig = EnvironmentConfig{};
-  const auto& gameInfo = QuakeGameInfo;
+    auto entityNode = EntityNode{Entity{}};
+    entityNode.setModel(&model);
 
-  auto logger = TestLogger{};
-  auto fs = GameFileSystem{};
-  fs.initialize(
-    environmentConfig,
-    gameInfo.gameConfig,
-    gameInfo.gamePathPreference.defaultValue,
-    {},
-    logger);
+    const auto editorContext = EditorContext{};
 
-  const auto path = std::filesystem::path{"cube.bsp"};
-  const auto loadMaterial = [](auto) -> gl::Material {
-    throw std::runtime_error{"should not be called"};
-  };
+    // The entity's own (unmodeled) bounds are only {-8, -8, -8} to {8, 8, 8}, so a ray at
+    // x = 20 misses that bbox test entirely and falls through to hit-testing the model.
+    const auto rayOrigin = vm::vec3d{20, 0, 40};
 
-  auto model = loadEntityModelSync(
-                 fs, gameInfo.gameConfig.materialConfig, path, loadMaterial, logger)
-                 .value();
-
-  auto entityNode = EntityNode{Entity{}};
-  entityNode.setModel(&model);
-
-  const auto editorContext = EditorContext{};
-
-  // The entity's own (unmodeled) bounds are only {-8, -8, -8} to {8, 8, 8}, so a ray at
-  // x = 20 misses that bbox test entirely and falls through to hit-testing the model.
-  const auto rayOrigin = vm::vec3d{20, 0, 40};
-
-  SECTION("hits the model when the ray misses the entity's default bounds")
-  {
-    auto pickResult = PickResult{};
-    entityNode.pick(editorContext, vm::ray3d{rayOrigin, vm::vec3d{0, 0, -1}}, pickResult);
-
-    REQUIRE(pickResult.size() == 1u);
-    CHECK(pickResult.all().front().hitPoint() == vm::approx{vm::vec3d{20, 0, 32}});
-  }
-
-  SECTION("misses the model")
-  {
-    auto pickResult = PickResult{};
-    entityNode.pick(editorContext, vm::ray3d{rayOrigin, vm::vec3d{0, 0, 1}}, pickResult);
-
-    CHECK(pickResult.size() == 0u);
-  }
-}
-
-static const std::string TestClassname = "something";
-
-class EntityNodeTest
-{
-protected:
-  vm::bbox3d m_worldBounds;
-  EntityNode* m_entity;
-  WorldNode* m_world;
-
-  EntityNodeTest()
-  {
-    m_worldBounds = vm::bbox3d(8192.0);
-    m_entity = new EntityNode(Entity{{{EntityPropertyKeys::Classname, TestClassname}}});
-    m_world = new WorldNode({}, {}, MapFormat::Standard);
-  }
-
-  virtual ~EntityNodeTest()
-  {
-    // Only some of the tests add the entity to the world
-    if (m_entity->parent() == nullptr)
+    SECTION("hits the model when the ray misses the entity's default bounds")
     {
-      delete m_entity;
+      auto pickResult = PickResult{};
+      entityNode.pick(
+        editorContext, vm::ray3d{rayOrigin, vm::vec3d{0, 0, -1}}, pickResult);
+
+      REQUIRE(pickResult.size() == 1u);
+      CHECK(pickResult.all().front().hitPoint() == vm::approx{vm::vec3d{20, 0, 32}});
     }
-    delete m_world;
+
+    SECTION("misses the model")
+    {
+      auto pickResult = PickResult{};
+      entityNode.pick(
+        editorContext, vm::ray3d{rayOrigin, vm::vec3d{0, 0, 1}}, pickResult);
+
+      CHECK(pickResult.size() == 0u);
+    }
   }
-};
 
-TEST_CASE_METHOD(EntityNodeTest, "EntityNodeTest.originUpdateWithSetProperties")
-{
-  const vm::vec3d newOrigin(10, 20, 30);
-  const vm::bbox3d newBounds(
-    newOrigin - (EntityNode::DefaultBounds.size() / 2.0),
-    newOrigin + (EntityNode::DefaultBounds.size() / 2.0));
+  SECTION("setEntity updates the origin and the logical bounds")
+  {
+    const auto newOrigin = vm::vec3d{10, 20, 30};
+    const auto newBounds = vm::bbox3d{
+      newOrigin - (EntityNode::DefaultBounds.size() / 2.0),
+      newOrigin + (EntityNode::DefaultBounds.size() / 2.0)};
 
-  m_entity->setEntity(Entity{{{"origin", "10 20 30"}}});
-  CHECK(m_entity->entity().origin() == newOrigin);
-  CHECK(m_entity->logicalBounds() == newBounds);
-}
+    SECTION("when the node is not part of a world")
+    {
+      auto entityNode =
+        EntityNode{Entity{{{EntityPropertyKeys::Classname, "something"}}}};
 
-TEST_CASE_METHOD(EntityNodeTest, "EntityNodeTest.originUpdateWithAddOrUpdateProperties")
-{
-  const vm::vec3d newOrigin(10, 20, 30);
-  const vm::bbox3d newBounds(
-    newOrigin - (EntityNode::DefaultBounds.size() / 2.0),
-    newOrigin + (EntityNode::DefaultBounds.size() / 2.0));
+      entityNode.setEntity(Entity{{{"origin", "10 20 30"}}});
+      CHECK(entityNode.entity().origin() == newOrigin);
+      CHECK(entityNode.logicalBounds() == newBounds);
+    }
 
-  m_entity->setEntity(Entity{{{"origin", "10 20 30"}}});
-  CHECK(m_entity->entity().origin() == newOrigin);
-  CHECK(m_entity->logicalBounds() == newBounds);
-}
+    SECTION("when the node is part of a world")
+    {
+      // the world takes ownership of the entity node
+      auto* entityNode =
+        new EntityNode{Entity{{{EntityPropertyKeys::Classname, "something"}}}};
 
-// Same as above, but add the entity to a world
-TEST_CASE_METHOD(EntityNodeTest, "EntityNodeTest.originUpdateInWorld")
-{
-  m_world->defaultLayer()->addChild(m_entity);
+      auto worldNode = WorldNode{{}, {}, MapFormat::Standard};
+      worldNode.defaultLayer()->addChild(entityNode);
 
-  const vm::vec3d newOrigin(10, 20, 30);
-  const vm::bbox3d newBounds(
-    newOrigin - (EntityNode::DefaultBounds.size() / 2.0),
-    newOrigin + (EntityNode::DefaultBounds.size() / 2.0));
-
-  m_entity->setEntity(Entity{{{"origin", "10 20 30"}}});
-  CHECK(m_entity->entity().origin() == newOrigin);
-  CHECK(m_entity->logicalBounds() == newBounds);
+      entityNode->setEntity(Entity{{{"origin", "10 20 30"}}});
+      CHECK(entityNode->entity().origin() == newOrigin);
+      CHECK(entityNode->logicalBounds() == newBounds);
+    }
+  }
 }
 
 } // namespace tb::mdl
