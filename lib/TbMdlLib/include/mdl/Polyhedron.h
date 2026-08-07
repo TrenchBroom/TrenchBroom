@@ -1621,16 +1621,6 @@ private:
   Edge* removeEdge(Edge* edge);
 
   /**
-   * Removes the given degenerate face. A face is considered degenerate if it has only two
-   * vertices.
-   *
-   * If the given face is not degenerate, the behavior is undefined.
-   *
-   * @param face the face to remove, must not be null
-   */
-  void removeDegenerateFace(Face* face);
-
-  /**
    * Merges two adjacent faces of a polyhedron. The faces to be merged are those that
    * share the edge to which the given half edge belongs.
    *
