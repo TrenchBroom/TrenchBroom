@@ -215,4 +215,23 @@ TEST_CASE("PatchNode.pickFlatPatch")
   }
 }
 
+TEST_CASE("PatchNode.doGetProjectedArea")
+{
+  using P = BezierPatch::Point;
+
+  // clang-format off
+  auto patchNode = PatchNode{BezierPatch{3, 3, {
+    P{0.0, 0.0,  0.0, 0.0, 0.0}, P{2.0, 0.0,  0.0, 0.5, 0.0}, P{4.0, 0.0,  0.0, 1.0, 0.0},
+    P{0.0, 4.0,  8.0, 0.0, 0.5}, P{2.0, 4.0,  8.0, 0.5, 0.5}, P{4.0, 4.0,  8.0, 1.0, 0.5},
+    P{0.0, 8.0, 16.0, 0.0, 1.0}, P{2.0, 8.0, 16.0, 0.5, 1.0}, P{4.0, 8.0, 16.0, 1.0, 1.0},
+  }, "material"}};
+  // clang-format on
+
+  // physical bounds size is {4.0, 8.0, 16.0}
+  CHECK(patchNode.projectedArea(vm::axis::x) == 128.0);
+  CHECK(patchNode.projectedArea(vm::axis::y) == 64.0);
+  CHECK(patchNode.projectedArea(vm::axis::z) == 32.0);
+  CHECK(patchNode.projectedArea(static_cast<vm::axis::type>(3)) == 0.0);
+}
+
 } // namespace tb::mdl
