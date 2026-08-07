@@ -214,7 +214,7 @@ void UvCoordSystem::translate(
     vIndex = 1;
   }
   else if (
-    vm::abs(vm::dot(transformedUAxis, right)) > vm::abs(vm::dot(transformedVAxis, right)))
+    vm::abs(vm::dot(transformedVAxis, right)) > vm::abs(vm::dot(transformedUAxis, right)))
   {
     horizontalAxis = transformedVAxis;
     verticalAxis = transformedUAxis;
@@ -230,7 +230,7 @@ void UvCoordSystem::translate(
     vIndex = 0;
   }
   else if (
-    vm::abs(vm::dot(transformedUAxis, up)) > vm::abs(vm::dot(transformedVAxis, up)))
+    vm::abs(vm::dot(transformedVAxis, up)) > vm::abs(vm::dot(transformedUAxis, up)))
   {
     horizontalAxis = transformedUAxis;
     verticalAxis = transformedVAxis;
