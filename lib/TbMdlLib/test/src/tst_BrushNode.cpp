@@ -290,6 +290,21 @@ TEST_CASE("BrushNode")
     CHECK(hits2.empty());
   }
 
+  SECTION("doGetProjectedArea")
+  {
+    const auto worldBounds = vm::bbox3d{4096.0};
+    auto builder = BrushBuilder{MapFormat::Quake3, worldBounds};
+
+    // a cuboid with distinct side lengths, so each axis has a distinct projected area
+    auto brushNode = BrushNode{
+      builder.createCuboid(vm::bbox3d{{0, 0, 0}, {16, 8, 4}}, "some_material")
+      | kdl::value()};
+
+    CHECK(brushNode.projectedArea(vm::axis::x) == vm::approx{32.0});
+    CHECK(brushNode.projectedArea(vm::axis::y) == vm::approx{64.0});
+    CHECK(brushNode.projectedArea(vm::axis::z) == vm::approx{128.0});
+  }
+
   SECTION("clone")
   {
     const auto worldBounds = vm::bbox3d{4096.0};
