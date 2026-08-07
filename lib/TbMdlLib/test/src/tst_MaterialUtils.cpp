@@ -37,87 +37,90 @@
 namespace tb::mdl
 {
 
-TEST_CASE("getMaterialNameFromPathSuffix")
+TEST_CASE("MaterialUtils")
 {
-  using T = std::tuple<size_t, std::filesystem::path, std::string>;
+  SECTION("getMaterialNameFromPathSuffix")
+  {
+    using T = std::tuple<size_t, std::filesystem::path, std::string>;
 
-  const auto [prefixLength, path, expectedResult] = GENERATE(values<T>({
-    {1, "", ""},
-    {1, "textures", ""},
-    {1, "textures/e1m1", "e1m1"},
-    {1, "textures/e1m1/haha", "e1m1/haha"},
-    {1, "textures/e1m1/haha.jpg", "e1m1/haha"},
-    {1, "textures/nesting/e1m1/haha.jpg", "nesting/e1m1/haha"},
-    {2, "textures/nesting/e1m1/haha.jpg", "e1m1/haha"},
-    {3, "/textures/nesting/e1m1/haha.jpg", "e1m1/haha"},
-  }));
-
-  CAPTURE(prefixLength, path);
-
-  CHECK(getMaterialNameFromPathSuffix(path, prefixLength) == expectedResult);
-}
-
-TEST_CASE("findMaterialFile")
-{
-  auto env = fs::TestEnvironment{};
-  env.createDirectory("textures");
-  env.createFile("textures/test.png", "");
-  env.createFile("textures/test.jpg", "");
-  env.createFile("textures/other.txt", "");
-  env.createFile("textures/other.png", "");
-  env.createFile("textures/mixed.skin", "");
-  env.createFile("textures/mixed.jpg", "");
-
-  const auto extensions = std::vector<std::filesystem::path>{".png", ".jpg"};
-
-  auto diskFS = fs::DiskFileSystem{env.dir()};
-  // The parent directory does not exist, so there is nothing to search.
-  CHECK(findMaterialFile(diskFS, "asdf/test.png", extensions).is_error());
-  // The directory exists, but it contains no file with a matching base name.
-  CHECK(findMaterialFile(diskFS, "textures/missing.png", extensions).is_error());
-  CHECK(
-    findMaterialFile(diskFS, "textures/test.png", extensions)
-    == Result<std::filesystem::path>{std::filesystem::path{"textures/test.png"}});
-  CHECK_THAT(
-    findMaterialFile(diskFS, "textures/test.tga", extensions),
-    MatchesAnyOf(std::vector{
-      Result<std::filesystem::path>{std::filesystem::path{"textures/test.png"}},
-      Result<std::filesystem::path>{std::filesystem::path{"textures/test.jpg"}},
+    const auto [prefixLength, path, expectedResult] = GENERATE(values<T>({
+      {1, "", ""},
+      {1, "textures", ""},
+      {1, "textures/e1m1", "e1m1"},
+      {1, "textures/e1m1/haha", "e1m1/haha"},
+      {1, "textures/e1m1/haha.jpg", "e1m1/haha"},
+      {1, "textures/nesting/e1m1/haha.jpg", "nesting/e1m1/haha"},
+      {2, "textures/nesting/e1m1/haha.jpg", "e1m1/haha"},
+      {3, "/textures/nesting/e1m1/haha.jpg", "e1m1/haha"},
     }));
-  CHECK(
-    findMaterialFile(diskFS, "textures/other.png", extensions)
-    == Result<std::filesystem::path>{std::filesystem::path{"textures/other.png"}});
-  CHECK(
-    findMaterialFile(diskFS, "textures/mixed.skin", extensions)
-    == Result<std::filesystem::path>{std::filesystem::path{"textures/mixed.jpg"}});
-}
 
-TEST_CASE("loadDefaultMaterial")
-{
-  auto fs =
-    fs::DiskFileSystem{getFixtureRoot() / "test/mdl/MaterialUtils/loadDefaultMaterial"};
-  NullLogger logger;
+    CAPTURE(prefixLength, path);
 
-  auto material = loadDefaultMaterial(fs, "some_name", logger);
-  CHECK(material.name() == "some_name");
-}
+    CHECK(getMaterialNameFromPathSuffix(path, prefixLength) == expectedResult);
+  }
 
-TEST_CASE("makeReadTextureErrorHandler")
-{
-  auto logger = NullLogger{};
-  auto diskFS = fs::DiskFileSystem{
-    getFixtureRoot() / "test/mdl/MaterialUtils/makeReadTextureErrorHandler"};
+  SECTION("findMaterialFile")
+  {
+    auto env = fs::TestEnvironment{};
+    env.createDirectory("textures");
+    env.createFile("textures/test.png", "");
+    env.createFile("textures/test.jpg", "");
+    env.createFile("textures/other.txt", "");
+    env.createFile("textures/other.png", "");
+    env.createFile("textures/mixed.skin", "");
+    env.createFile("textures/mixed.jpg", "");
 
-  const auto file = diskFS.openFile("textures/corruptPngTest.png") | kdl::value();
-  auto reader = file->reader().buffer();
-  auto result = loadFreeImageTexture(reader);
-  REQUIRE(result.is_error());
+    const auto extensions = std::vector<std::filesystem::path>{".png", ".jpg"};
 
-  const auto defaultTexture = std::move(result)
-                              | kdl::or_else(makeReadTextureErrorHandler(diskFS, logger))
-                              | kdl::value();
-  CHECK(defaultTexture.width() == 32);
-  CHECK(defaultTexture.height() == 32);
+    auto diskFS = fs::DiskFileSystem{env.dir()};
+    // The parent directory does not exist, so there is nothing to search.
+    CHECK(findMaterialFile(diskFS, "asdf/test.png", extensions).is_error());
+    // The directory exists, but it contains no file with a matching base name.
+    CHECK(findMaterialFile(diskFS, "textures/missing.png", extensions).is_error());
+    CHECK(
+      findMaterialFile(diskFS, "textures/test.png", extensions)
+      == Result<std::filesystem::path>{std::filesystem::path{"textures/test.png"}});
+    CHECK_THAT(
+      findMaterialFile(diskFS, "textures/test.tga", extensions),
+      MatchesAnyOf(std::vector{
+        Result<std::filesystem::path>{std::filesystem::path{"textures/test.png"}},
+        Result<std::filesystem::path>{std::filesystem::path{"textures/test.jpg"}},
+      }));
+    CHECK(
+      findMaterialFile(diskFS, "textures/other.png", extensions)
+      == Result<std::filesystem::path>{std::filesystem::path{"textures/other.png"}});
+    CHECK(
+      findMaterialFile(diskFS, "textures/mixed.skin", extensions)
+      == Result<std::filesystem::path>{std::filesystem::path{"textures/mixed.jpg"}});
+  }
+
+  SECTION("loadDefaultMaterial")
+  {
+    auto fs =
+      fs::DiskFileSystem{getFixtureRoot() / "test/mdl/MaterialUtils/loadDefaultMaterial"};
+    NullLogger logger;
+
+    auto material = loadDefaultMaterial(fs, "some_name", logger);
+    CHECK(material.name() == "some_name");
+  }
+
+  SECTION("makeReadTextureErrorHandler")
+  {
+    auto logger = NullLogger{};
+    auto diskFS = fs::DiskFileSystem{
+      getFixtureRoot() / "test/mdl/MaterialUtils/makeReadTextureErrorHandler"};
+
+    const auto file = diskFS.openFile("textures/corruptPngTest.png") | kdl::value();
+    auto reader = file->reader().buffer();
+    auto result = loadFreeImageTexture(reader);
+    REQUIRE(result.is_error());
+
+    const auto defaultTexture =
+      std::move(result) | kdl::or_else(makeReadTextureErrorHandler(diskFS, logger))
+      | kdl::value();
+    CHECK(defaultTexture.width() == 32);
+    CHECK(defaultTexture.height() == 32);
+  }
 }
 
 } // namespace tb::mdl

@@ -31,15 +31,9 @@
 namespace tb::mdl
 {
 
-TEST_CASE("PortalFileTest.parseInvalidPRT1")
+namespace
 {
-  const auto path = getFixtureRoot() / "test/mdl/PortalFile/portaltest_prt1_invalid.prt";
-  CHECK(fs::Disk::withInputStream(path, [](auto& stream) {
-          return loadPortalFile(stream);
-        }).is_error());
-}
-
-static const std::vector<vm::polygon3f> ExpectedPortals{
+const std::vector<vm::polygon3f> ExpectedPortals{
   {{-96, -32, 80}, {-96, 160, 80}, {0, 160, 80}, {0, -32, 80}},
   {{208, -64, 80}, {64, -64, 80}, {64, 160, 80}, {208, 160, 80}},
   {{64, 80, 48},
@@ -59,41 +53,58 @@ static const std::vector<vm::polygon3f> ExpectedPortals{
    {0, 32, 64},
    {0, 64, 64}},
   {{-64, -32, 0}, {-32, -32, 0}, {-48, -32, 64}}};
+} // namespace
 
-TEST_CASE("PortalFileTest.parsePRT1")
+TEST_CASE("loadPortalFile")
 {
-  const auto path = getFixtureRoot() / "test/mdl/PortalFile/portaltest_prt1.prt";
-  CHECK(
-    (fs::Disk::withInputStream(path, [](auto& stream) { return loadPortalFile(stream); })
-     | kdl::value())
-    == ExpectedPortals);
-}
+  SECTION("invalid PRT1")
+  {
+    const auto path =
+      getFixtureRoot() / "test/mdl/PortalFile/portaltest_prt1_invalid.prt";
+    CHECK(fs::Disk::withInputStream(path, [](auto& stream) {
+            return loadPortalFile(stream);
+          }).is_error());
+  }
 
-TEST_CASE("PortalFileTest.parsePRT1Q3")
-{
-  const auto path = getFixtureRoot() / "test/mdl/PortalFile/portaltest_prt1q3.prt";
-  CHECK(
-    (fs::Disk::withInputStream(path, [](auto& stream) { return loadPortalFile(stream); })
-     | kdl::value())
-    == ExpectedPortals);
-}
+  SECTION("PRT1")
+  {
+    const auto path = getFixtureRoot() / "test/mdl/PortalFile/portaltest_prt1.prt";
+    CHECK(
+      (fs::Disk::withInputStream(
+         path, [](auto& stream) { return loadPortalFile(stream); })
+       | kdl::value())
+      == ExpectedPortals);
+  }
 
-TEST_CASE("PortalFileTest.parsePRT1AM")
-{
-  const auto path = getFixtureRoot() / "test/mdl/PortalFile/portaltest_prt1am.prt";
-  CHECK(
-    (fs::Disk::withInputStream(path, [](auto& stream) { return loadPortalFile(stream); })
-     | kdl::value())
-    == ExpectedPortals);
-}
+  SECTION("PRT1Q3")
+  {
+    const auto path = getFixtureRoot() / "test/mdl/PortalFile/portaltest_prt1q3.prt";
+    CHECK(
+      (fs::Disk::withInputStream(
+         path, [](auto& stream) { return loadPortalFile(stream); })
+       | kdl::value())
+      == ExpectedPortals);
+  }
 
-TEST_CASE("PortalFileTest.parsePRT2")
-{
-  const auto path = getFixtureRoot() / "test/mdl/PortalFile/portaltest_prt2.prt";
-  CHECK(
-    (fs::Disk::withInputStream(path, [](auto& stream) { return loadPortalFile(stream); })
-     | kdl::value())
-    == ExpectedPortals);
+  SECTION("PRT1AM")
+  {
+    const auto path = getFixtureRoot() / "test/mdl/PortalFile/portaltest_prt1am.prt";
+    CHECK(
+      (fs::Disk::withInputStream(
+         path, [](auto& stream) { return loadPortalFile(stream); })
+       | kdl::value())
+      == ExpectedPortals);
+  }
+
+  SECTION("PRT2")
+  {
+    const auto path = getFixtureRoot() / "test/mdl/PortalFile/portaltest_prt2.prt";
+    CHECK(
+      (fs::Disk::withInputStream(
+         path, [](auto& stream) { return loadPortalFile(stream); })
+       | kdl::value())
+      == ExpectedPortals);
+  }
 }
 
 } // namespace tb::mdl

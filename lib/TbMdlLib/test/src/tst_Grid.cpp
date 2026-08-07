@@ -89,6 +89,77 @@ TEST_CASE("Grid")
 
     g.setSize(4);
     CHECK(g.size() == 4);
+
+    SECTION("incSize is a no-op at the maximum size")
+    {
+      auto max = Grid{Grid::MaxSize};
+      max.incSize();
+      CHECK(max.size() == Grid::MaxSize);
+    }
+
+    SECTION("decSize is a no-op at the minimum size")
+    {
+      auto min = Grid{Grid::MinSize};
+      min.decSize();
+      CHECK(min.size() == Grid::MinSize);
+    }
+  }
+
+  SECTION("actualSize is 1 while snapping is disabled")
+  {
+    auto grid = Grid{2};
+    grid.toggleSnap();
+    CHECK(grid.actualSize() == 1.0);
+  }
+
+  SECTION("angle")
+  {
+    CHECK(Grid{2}.angle() == vm::approx{vm::to_radians(15.0)});
+  }
+
+  SECTION("visible")
+  {
+    auto grid = Grid{2};
+    CHECK(grid.visible());
+
+    grid.toggleVisible();
+    CHECK(!grid.visible());
+
+    grid.toggleVisible();
+    CHECK(grid.visible());
+  }
+
+  SECTION("intersectWithRay")
+  {
+    SECTION("along a single positive axis")
+    {
+      const auto ray = vm::ray3d{{0, 0, 0}, {1, 0, 0}};
+      CHECK(Grid{2}.intersectWithRay(ray, 0u) == vm::approx{4.0});
+    }
+
+    SECTION("picks the closer of two intersected grid planes")
+    {
+      const auto ray = vm::ray3d{{0, 0, 0}, vm::normalize(vm::vec3d{1, 2, 0})};
+      CHECK(Grid{2}.intersectWithRay(ray, 0u) == vm::approx{2.0 * vm::sqrt(5.0)});
+    }
+
+    SECTION("picks the closest of three intersected grid planes")
+    {
+      const auto ray = vm::ray3d{{0, 0, 0}, {1, 2, 4}};
+      CHECK(Grid{2}.intersectWithRay(ray, 0u) == vm::approx{1.0});
+    }
+
+    SECTION("falls back to a later axis if the ray is parallel to the first")
+    {
+      const auto ray = vm::ray3d{{0, 0, 0}, {0, 1, 0}};
+      CHECK(Grid{2}.intersectWithRay(ray, 0u) == vm::approx{4.0});
+    }
+  }
+
+  SECTION("referencePoint")
+  {
+    const auto bounds = vm::bbox3d{{0, 0, 0}, {10, 10, 10}};
+    CHECK(Grid{2}.referencePoint(bounds) == vm::vec3d{4, 4, 4});
   }
 
   SECTION("offsetScalars")
@@ -103,6 +174,13 @@ TEST_CASE("Grid")
 
     CHECK(Grid{2}.offset(3.0) == vm::approx{-1.0});
     CHECK(Grid{2}.offset(5.0) == vm::approx{1.0});
+  }
+
+  SECTION("offsetVectors")
+  {
+    CHECK(
+      Grid{2}.offset(vm::vec3d{5.0, 3.0, -5.0})
+      == vm::approx{vm::vec3d{1.0, -1.0, -1.0}});
   }
 
   SECTION("snapScalars")
@@ -139,6 +217,84 @@ TEST_CASE("Grid")
     CHECK(Grid{2}.snapUp(-1.999, true) == vm::approx{0.0});
     CHECK(Grid{2}.snapUp(-2.0, true) == vm::approx{0.0});
     CHECK(Grid{2}.snapUp(-4.0, true) == vm::approx{0.0});
+
+    CHECK(Grid{2}.snapDown(0.0, false) == vm::approx{0.0});
+    CHECK(Grid{2}.snapDown(1.999, false) == vm::approx{0.0});
+    CHECK(Grid{2}.snapDown(2.0, false) == vm::approx{0.0});
+    CHECK(Grid{2}.snapDown(4.0, false) == vm::approx{4.0});
+    CHECK(Grid{2}.snapDown(-1.999, false) == vm::approx{-4.0});
+    CHECK(Grid{2}.snapDown(-2.0, false) == vm::approx{-4.0});
+
+    CHECK(Grid{2}.snapDown(0.0, true) == vm::approx{-4.0});
+    CHECK(Grid{2}.snapDown(1.999, true) == vm::approx{0.0});
+    CHECK(Grid{2}.snapDown(2.0, true) == vm::approx{0.0});
+    CHECK(Grid{2}.snapDown(4.0, true) == vm::approx{0.0});
+    CHECK(Grid{2}.snapDown(-1.999, true) == vm::approx{-4.0});
+    CHECK(Grid{2}.snapDown(-2.0, true) == vm::approx{-4.0});
+    CHECK(Grid{2}.snapDown(-4.0, true) == vm::approx{-8.0});
+  }
+
+  SECTION("snapVectors")
+  {
+    CHECK(
+      Grid{2}.snapUp(vm::vec3d{1.999, -2.0, 4.0}, false)
+      == vm::approx{vm::vec3d{4.0, 0.0, 4.0}});
+    CHECK(
+      Grid{2}.snapDown(vm::vec3d{1.999, -2.0, 4.0}, false)
+      == vm::approx{vm::vec3d{0.0, -4.0, 4.0}});
+  }
+
+  SECTION("snapping is a no-op while disabled")
+  {
+    auto grid = Grid{2};
+    grid.toggleSnap();
+    REQUIRE(!grid.snap());
+
+    CHECK(grid.snap(3.7) == vm::approx{3.7});
+    CHECK(grid.offset(3.7) == vm::approx{0.0});
+
+    CHECK(grid.snap(vm::vec3d{1.3, -2.6, 5.1}) == vm::vec3d{1.3, -2.6, 5.1});
+    CHECK(grid.offset(vm::vec3d{1.3, -2.6, 5.1}) == vm::vec3d::zero());
+
+    CHECK(
+      grid.snapTowards(vm::vec3d{1.3, -2.6, 5.1}, vm::vec3d{1, 0, 0})
+      == vm::vec3d{1.3, -2.6, 5.1});
+  }
+
+  SECTION("snapOnPlane")
+  {
+    // clang-format off
+    const auto
+    [normal,    point,           expectedPoint] = GENERATE(table<vm::vec3d, vm::vec3d, vm::vec3d>({
+    {{1, 0, 0}, {1.3, 5.3, 2.7}, {0, 5, 3}},
+    {{0, 1, 0}, {1.3, 5.3, 2.7}, {1, 0, 3}},
+    {{0, 0, 1}, {1.3, 5.3, 2.7}, {1, 5, 0}},
+    }));
+    // clang-format on
+
+    CAPTURE(normal, point);
+
+    const auto onPlane = vm::plane3d{vm::vec3d{0, 0, 0}, normal};
+    CHECK(Grid{0}.snap(point, onPlane) == vm::approx{expectedPoint});
+  }
+
+  SECTION("snapUpDownOnPlane")
+  {
+    const auto onPlane = vm::plane3d{vm::vec3d{0, 0, 0}, vm::vec3d{0, 0, 1}};
+    const auto point = vm::vec3d{1.3, 5.3, 2.7};
+
+    CHECK(Grid{0}.snapUp(point, onPlane, false) == vm::approx{vm::vec3d{2, 6, 0}});
+    CHECK(Grid{0}.snapDown(point, onPlane, false) == vm::approx{vm::vec3d{1, 5, 0}});
+  }
+
+  SECTION("snapTowardsOnPlane")
+  {
+    const auto onPlane = vm::plane3d{vm::vec3d{0, 0, 0}, vm::vec3d{0, 0, 1}};
+    const auto point = vm::vec3d{1.3, 5.3, 2.7};
+
+    CHECK(
+      Grid{0}.snapTowards(point, onPlane, vm::vec3d{1, -1, 0})
+      == vm::approx{vm::vec3d{2, 5, 0}});
   }
 
   SECTION("snapOnLine")
@@ -275,6 +431,15 @@ TEST_CASE("Grid")
           snappedBoxCorner - vm::vec3d{box.size().x(), box.size().y(), 0.0};
 
         CHECK(grid16.moveDeltaForBounds(floor, box, worldBounds, pickRay) == newBoxMin);
+      }
+
+      SECTION("ray parallel to the target plane")
+      {
+        const auto pickRay = make_ray_from_to(vm::vec3d{0, 0, 50}, vm::vec3d{10, 0, 50});
+
+        CHECK(
+          grid16.moveDeltaForBounds(floor, box, worldBounds, pickRay)
+          == vm::vec3d{0, 0, 0});
       }
     }
 

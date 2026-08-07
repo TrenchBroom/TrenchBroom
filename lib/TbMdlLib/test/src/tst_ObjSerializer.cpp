@@ -46,30 +46,33 @@
 namespace tb::mdl
 {
 
-TEST_CASE("ObjSerializer.writeBrush")
+TEST_CASE("ObjSerializer")
 {
-  const auto worldBounds = vm::bbox3d{8192.0};
+  SECTION("writeBrush")
+  {
+    const auto worldBounds = vm::bbox3d{8192.0};
 
-  auto taskManager = kdl::task_manager{};
+    auto taskManager = kdl::task_manager{};
 
-  auto map = mdl::WorldNode{{}, {}, mdl::MapFormat::Quake3};
+    auto map = mdl::WorldNode{{}, {}, mdl::MapFormat::Quake3};
 
-  auto builder = mdl::BrushBuilder{map.mapFormat(), worldBounds};
-  auto* brushNode =
-    new mdl::BrushNode{builder.createCube(64.0, "some_material") | kdl::value()};
-  map.defaultLayer()->addChild(brushNode);
+    auto builder = mdl::BrushBuilder{map.mapFormat(), worldBounds};
+    auto* brushNode =
+      new mdl::BrushNode{builder.createCube(64.0, "some_material") | kdl::value()};
+    map.defaultLayer()->addChild(brushNode);
 
-  auto objStream = std::ostringstream{};
-  auto mtlStream = std::ostringstream{};
-  const auto mtlFilename = "some_file_name.mtl";
-  const auto objOptions =
-    ObjExportOptions{"/some/export/path.obj", ObjMtlPathMode::RelativeToGamePath};
+    auto objStream = std::ostringstream{};
+    auto mtlStream = std::ostringstream{};
+    const auto mtlFilename = "some_file_name.mtl";
+    const auto objOptions =
+      ObjExportOptions{"/some/export/path.obj", ObjMtlPathMode::RelativeToGamePath};
 
-  auto writer = NodeWriter{
-    map, std::make_unique<ObjSerializer>(objStream, mtlStream, mtlFilename, objOptions)};
-  writer.writeMap(taskManager);
+    auto writer = NodeWriter{
+      map,
+      std::make_unique<ObjSerializer>(objStream, mtlStream, mtlFilename, objOptions)};
+    writer.writeMap(taskManager);
 
-  CHECK(objStream.str() == R"(mtllib some_file_name.mtl
+    CHECK(objStream.str() == R"(mtllib some_file_name.mtl
 # vertices
 v -32 -32 -32
 v -32 -32 32
@@ -110,42 +113,43 @@ f  8/4/6  5/3/6  6/2/6  7/1/6
 
 )");
 
-  CHECK(mtlStream.str() == R"(newmtl some_material
+    CHECK(mtlStream.str() == R"(newmtl some_material
 
 )");
-}
+  }
 
-TEST_CASE("ObjSerializer.writePatch")
-{
-  auto taskManager = kdl::task_manager{};
-  auto map = mdl::WorldNode{{}, {}, mdl::MapFormat::Quake3};
+  SECTION("writePatch")
+  {
+    auto taskManager = kdl::task_manager{};
+    auto map = mdl::WorldNode{{}, {}, mdl::MapFormat::Quake3};
 
-  auto* patchNode = new mdl::PatchNode{mdl::BezierPatch{
-    3,
-    3,
-    {{0, 0, 0},
-     {1, 0, 1},
-     {2, 0, 0},
-     {0, 1, 1},
-     {1, 1, 2},
-     {2, 1, 1},
-     {0, 2, 0},
-     {1, 2, 1},
-     {2, 2, 0}},
-    "some_material"}};
-  map.defaultLayer()->addChild(patchNode);
+    auto* patchNode = new mdl::PatchNode{mdl::BezierPatch{
+      3,
+      3,
+      {{0, 0, 0},
+       {1, 0, 1},
+       {2, 0, 0},
+       {0, 1, 1},
+       {1, 1, 2},
+       {2, 1, 1},
+       {0, 2, 0},
+       {1, 2, 1},
+       {2, 2, 0}},
+      "some_material"}};
+    map.defaultLayer()->addChild(patchNode);
 
-  auto objStream = std::ostringstream{};
-  auto mtlStream = std::ostringstream{};
-  const auto mtlFilename = "some_file_name.mtl";
-  const auto objOptions =
-    ObjExportOptions{"/some/export/path.obj", ObjMtlPathMode::RelativeToGamePath};
+    auto objStream = std::ostringstream{};
+    auto mtlStream = std::ostringstream{};
+    const auto mtlFilename = "some_file_name.mtl";
+    const auto objOptions =
+      ObjExportOptions{"/some/export/path.obj", ObjMtlPathMode::RelativeToGamePath};
 
-  auto writer = NodeWriter{
-    map, std::make_unique<ObjSerializer>(objStream, mtlStream, mtlFilename, objOptions)};
-  writer.writeMap(taskManager);
+    auto writer = NodeWriter{
+      map,
+      std::make_unique<ObjSerializer>(objStream, mtlStream, mtlFilename, objOptions)};
+    writer.writeMap(taskManager);
 
-  CHECK(objStream.str() == R"(mtllib some_file_name.mtl
+    CHECK(objStream.str() == R"(mtllib some_file_name.mtl
 # vertices
 v 0 0 -0
 v 0 0.21875 -0.25
@@ -384,71 +388,72 @@ f  71/1/71  80/1/80  81/1/81  72/1/72
 
 )");
 
-  CHECK(mtlStream.str() == R"(newmtl some_material
+    CHECK(mtlStream.str() == R"(newmtl some_material
 
 )");
-}
-
-TEST_CASE("ObjSerializer.writeRelativeMaterialPath")
-{
-  const auto worldBounds = vm::bbox3d{8192.0};
-
-  auto taskManager = kdl::task_manager{};
-
-  // must outlive map
-  auto textureResource = createTextureResource(gl::Texture{16, 16});
-  auto material = gl::Material{"some_material", std::move(textureResource)};
-  material.setRelativePath("textures/some_material.png");
-
-  auto map = mdl::WorldNode{{}, {}, mdl::MapFormat::Quake3};
-
-  auto builder = mdl::BrushBuilder{map.mapFormat(), worldBounds};
-  auto* brushNode =
-    new mdl::BrushNode{builder.createCube(64.0, "some_material") | kdl::value()};
-  map.defaultLayer()->addChild(brushNode);
-
-  for (size_t i = 0; i < brushNode->brush().faceCount(); ++i)
-  {
-    brushNode->setFaceMaterial(i, &material);
   }
 
-  auto objStream = std::ostringstream{};
-  auto mtlStream = std::ostringstream{};
-  const auto mtlName = "some_mtl_file.mtl";
+  SECTION("writeRelativeMaterialPath")
+  {
+    const auto worldBounds = vm::bbox3d{8192.0};
 
-  using T = std::tuple<ObjExportOptions, std::string, std::optional<std::string>>;
+    auto taskManager = kdl::task_manager{};
 
-  const auto [options, materialAbsPath, expectedPath] = GENERATE(values<T>({
-    {{"/home/that_guy/quake/export/file.obj", ObjMtlPathMode::RelativeToExportPath},
-     "/home/that_guy/quake/textures/some_material.png",
-     "../textures/some_material.png"},
-    {{"/home/that_guy/quake/export/file.obj", ObjMtlPathMode::RelativeToExportPath},
-     "",
-     std::nullopt},
-    {{"/home/that_guy/quake/export/file.obj", ObjMtlPathMode::RelativeToGamePath},
-     "/home/that_guy/quake/textures/some_material.png",
-     "textures/some_material.png"},
-  }));
+    // must outlive map
+    auto textureResource = createTextureResource(gl::Texture{16, 16});
+    auto material = gl::Material{"some_material", std::move(textureResource)};
+    material.setRelativePath("textures/some_material.png");
 
-  CAPTURE(options, materialAbsPath);
+    auto map = mdl::WorldNode{{}, {}, mdl::MapFormat::Quake3};
 
-  material.setAbsolutePath(materialAbsPath);
+    auto builder = mdl::BrushBuilder{map.mapFormat(), worldBounds};
+    auto* brushNode =
+      new mdl::BrushNode{builder.createCube(64.0, "some_material") | kdl::value()};
+    map.defaultLayer()->addChild(brushNode);
 
-  auto writer = NodeWriter{
-    map, std::make_unique<ObjSerializer>(objStream, mtlStream, mtlName, options)};
-  writer.writeMap(taskManager);
+    for (size_t i = 0; i < brushNode->brush().faceCount(); ++i)
+    {
+      brushNode->setFaceMaterial(i, &material);
+    }
 
-  const auto expectedMtl = expectedPath ? fmt::format(
-                                            R"(newmtl some_material
+    auto objStream = std::ostringstream{};
+    auto mtlStream = std::ostringstream{};
+    const auto mtlName = "some_mtl_file.mtl";
+
+    using T = std::tuple<ObjExportOptions, std::string, std::optional<std::string>>;
+
+    const auto [options, materialAbsPath, expectedPath] = GENERATE(values<T>({
+      {{"/home/that_guy/quake/export/file.obj", ObjMtlPathMode::RelativeToExportPath},
+       "/home/that_guy/quake/textures/some_material.png",
+       "../textures/some_material.png"},
+      {{"/home/that_guy/quake/export/file.obj", ObjMtlPathMode::RelativeToExportPath},
+       "",
+       std::nullopt},
+      {{"/home/that_guy/quake/export/file.obj", ObjMtlPathMode::RelativeToGamePath},
+       "/home/that_guy/quake/textures/some_material.png",
+       "textures/some_material.png"},
+    }));
+
+    CAPTURE(options, materialAbsPath);
+
+    material.setAbsolutePath(materialAbsPath);
+
+    auto writer = NodeWriter{
+      map, std::make_unique<ObjSerializer>(objStream, mtlStream, mtlName, options)};
+    writer.writeMap(taskManager);
+
+    const auto expectedMtl = expectedPath ? fmt::format(
+                                              R"(newmtl some_material
 map_Kd {}
 
 )",
-                                            *expectedPath)
-                                        : R"(newmtl some_material
+                                              *expectedPath)
+                                          : R"(newmtl some_material
 
 )";
 
-  CHECK(mtlStream.str() == expectedMtl);
+    CHECK(mtlStream.str() == expectedMtl);
+  }
 }
 
 } // namespace tb::mdl

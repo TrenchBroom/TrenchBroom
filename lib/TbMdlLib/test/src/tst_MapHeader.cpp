@@ -27,23 +27,25 @@
 
 namespace tb::mdl
 {
-TEST_CASE("readMapHeader")
+TEST_CASE("MapHeader")
 {
-  auto env = fs::TestEnvironment{};
+  SECTION("readMapHeader")
+  {
+    auto env = fs::TestEnvironment{};
 
-  using namespace std::string_literals;
+    using namespace std::string_literals;
 
-  const auto detectGame = [&](const auto& mapFile) {
-    auto stream = std::istringstream{mapFile};
-    return readMapHeader(stream);
-  };
+    const auto detectGame = [&](const auto& mapFile) {
+      auto stream = std::istringstream{mapFile};
+      return readMapHeader(stream);
+    };
 
-  CHECK(detectGame(R"(// Game: Quake
+    CHECK(detectGame(R"(// Game: Quake
 // Format: Quake2
 )") == std::pair{"Quake"s, mdl::MapFormat::Quake2});
 
 
-  CHECK(detectGame(R"(// Game: Quake
+    CHECK(detectGame(R"(// Game: Quake
 // Format: Quake2
 {
 "classname" "worldspawn"
@@ -56,16 +58,17 @@ TEST_CASE("readMapHeader")
 ( -896 1056 -416 ) ( -896 1056 -448 ) ( -896 1344 -448 ) rtz/c_mf_v3c 16 96 0 1 1 0 0 0
 }
 })") == std::pair{"Quake"s, mdl::MapFormat::Quake2});
-}
+  }
 
-TEST_CASE("writeMapHeader")
-{
-  auto stream = std::ostringstream{};
-  writeMapHeader(stream, "Quake", mdl::MapFormat::Quake2);
+  SECTION("writeMapHeader")
+  {
+    auto stream = std::ostringstream{};
+    writeMapHeader(stream, "Quake", mdl::MapFormat::Quake2);
 
-  CHECK(stream.str() == R"(// Game: Quake
+    CHECK(stream.str() == R"(// Game: Quake
 // Format: Quake2
 )");
+  }
 }
 
 } // namespace tb::mdl

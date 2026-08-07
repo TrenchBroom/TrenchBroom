@@ -27,45 +27,47 @@
 namespace tb::mdl
 {
 
-TEST_CASE("GameEngineConfigParserTest.parseBlankConfig")
+TEST_CASE("parseGameEngineConfig")
 {
-  const auto config = R"(   )";
-  CHECK(parseGameEngineConfig(config).is_error());
-}
+  SECTION("blank config")
+  {
+    const auto config = R"(   )";
+    CHECK(parseGameEngineConfig(config).is_error());
+  }
 
-TEST_CASE("GameEngineConfigParserTest.parseEmptyConfig")
-{
-  const auto config = R"( { } )";
-  CHECK(parseGameEngineConfig(config).is_error());
-}
+  SECTION("empty config")
+  {
+    const auto config = R"( { } )";
+    CHECK(parseGameEngineConfig(config).is_error());
+  }
 
-TEST_CASE("GameEngineConfigParserTest.parseEmptyConfigWithTrailingGarbage")
-{
-  const auto config = R"(  {  } asdf)";
-  CHECK(parseGameEngineConfig(config).is_error());
-}
+  SECTION("empty config with trailing garbage")
+  {
+    const auto config = R"(  {  } asdf)";
+    CHECK(parseGameEngineConfig(config).is_error());
+  }
 
-TEST_CASE("GameEngineConfigParserTest.parseMissingProfiles")
-{
-  const auto config = R"(  { 'version' : 1 } )";
-  CHECK(parseGameEngineConfig(config).is_error());
-}
+  SECTION("missing profiles")
+  {
+    const auto config = R"(  { 'version' : 1 } )";
+    CHECK(parseGameEngineConfig(config).is_error());
+  }
 
-TEST_CASE("GameEngineConfigParserTest.parseMissingVersion")
-{
-  const auto config = R"(  { 'profiles': {} } )";
-  CHECK(parseGameEngineConfig(config).is_error());
-}
+  SECTION("missing version")
+  {
+    const auto config = R"(  { 'profiles': {} } )";
+    CHECK(parseGameEngineConfig(config).is_error());
+  }
 
-TEST_CASE("GameEngineConfigParserTest.parseEmptyProfiles")
-{
-  const auto config = R"(  { 'version': 1, 'profiles': [] } )";
-  CHECK(parseGameEngineConfig(config) == mdl::GameEngineConfig{});
-}
+  SECTION("empty profiles")
+  {
+    const auto config = R"(  { 'version': 1, 'profiles': [] } )";
+    CHECK(parseGameEngineConfig(config) == mdl::GameEngineConfig{});
+  }
 
-TEST_CASE("GameEngineConfigParserTest.parseOneProfileWithMissingAttributes")
-{
-  const auto config = R"(
+  SECTION("one profile with missing attributes")
+  {
+    const auto config = R"(
 {
 	"profiles": [
 		{
@@ -74,12 +76,12 @@ TEST_CASE("GameEngineConfigParserTest.parseOneProfileWithMissingAttributes")
 	"version": 1
 }
 )";
-  CHECK(parseGameEngineConfig(config).is_error());
-}
+    CHECK(parseGameEngineConfig(config).is_error());
+  }
 
-TEST_CASE("GameEngineConfigParserTest.parseTwoProfiles")
-{
-  const auto config = R"(
+  SECTION("two profiles")
+  {
+    const auto config = R"(
 {
 	"profiles": [
 		{
@@ -99,26 +101,26 @@ TEST_CASE("GameEngineConfigParserTest.parseTwoProfiles")
 }
 )";
 
-  CHECK(
-    parseGameEngineConfig(config)
-    == mdl::GameEngineConfig{
-      {{
-         .id = generateUuid(),
-         .name = "winquake",
-         .path = R"(C:\Quake\winquake.exe)",
-         .parameterSpec = "-flag1 -flag2",
-       },
-       {
-         .id = generateUuid(),
-         .name = "glquake",
-         .path = R"(C:\Quake\glquake.exe)",
-         .parameterSpec = "-flag3 -flag4",
-       }}});
-}
+    CHECK(
+      parseGameEngineConfig(config)
+      == mdl::GameEngineConfig{
+        {{
+           .id = generateUuid(),
+           .name = "winquake",
+           .path = R"(C:\Quake\winquake.exe)",
+           .parameterSpec = "-flag1 -flag2",
+         },
+         {
+           .id = generateUuid(),
+           .name = "glquake",
+           .path = R"(C:\Quake\glquake.exe)",
+           .parameterSpec = "-flag3 -flag4",
+         }}});
+  }
 
-TEST_CASE("GameEngineConfigParserTest.parseProfileWithExplicitId")
-{
-  const auto config = R"(
+  SECTION("profile with explicit id")
+  {
+    const auto config = R"(
 {
 	"profiles": [
 		{
@@ -132,15 +134,15 @@ TEST_CASE("GameEngineConfigParserTest.parseProfileWithExplicitId")
 }
 )";
 
-  const auto result = parseGameEngineConfig(config);
-  REQUIRE(result);
-  REQUIRE(result.value().profiles.size() == 1u);
-  CHECK(result.value().profiles[0].id == "11111111-2222-3333-4444-555555555555");
-}
+    const auto result = parseGameEngineConfig(config);
+    REQUIRE(result);
+    REQUIRE(result.value().profiles.size() == 1u);
+    CHECK(result.value().profiles[0].id == "11111111-2222-3333-4444-555555555555");
+  }
 
-TEST_CASE("GameEngineConfigParserTest.parseProfileWithoutIdGeneratesId")
-{
-  const auto config = R"(
+  SECTION("profile without id generates id")
+  {
+    const auto config = R"(
 {
 	"profiles": [
 		{
@@ -153,10 +155,11 @@ TEST_CASE("GameEngineConfigParserTest.parseProfileWithoutIdGeneratesId")
 }
 )";
 
-  const auto result = parseGameEngineConfig(config);
-  REQUIRE(result);
-  REQUIRE(result.value().profiles.size() == 1u);
-  CHECK(result.value().profiles[0].id != "");
+    const auto result = parseGameEngineConfig(config);
+    REQUIRE(result);
+    REQUIRE(result.value().profiles.size() == 1u);
+    CHECK(result.value().profiles[0].id != "");
+  }
 }
 
 } // namespace tb::mdl

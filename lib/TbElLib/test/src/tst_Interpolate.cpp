@@ -27,70 +27,74 @@
 
 namespace tb::el
 {
-TEST_CASE("interpolate")
+TEST_CASE("Interpolate")
 {
-
-  SECTION("interpolateEmptyString")
+  SECTION("interpolate")
   {
-    const auto variables = VariableTable{};
-    CHECK(interpolate({variables}, "") == "");
-    CHECK(interpolate(variables, "   ") == "   ");
-  }
+    SECTION("empty string")
+    {
+      const auto variables = VariableTable{};
+      CHECK(interpolate({variables}, "") == "");
+      CHECK(interpolate(variables, "   ") == "   ");
+    }
 
-  SECTION("interpolateStringWithoutExpression")
-  {
-    const auto variables = VariableTable{};
-    CHECK(interpolate(variables, " asdfasdf  sdf ") == " asdfasdf  sdf ");
-  }
+    SECTION("string without expression")
+    {
+      const auto variables = VariableTable{};
+      CHECK(interpolate(variables, " asdfasdf  sdf ") == " asdfasdf  sdf ");
+    }
 
-  SECTION("interpolateStringWithSimpleExpression")
-  {
-    const auto variables = VariableTable{};
-    CHECK(interpolate(variables, " asdfasdf ${'asdf'}  sdf ") == " asdfasdf asdf  sdf ");
-    CHECK(
-      interpolate(variables, " asdfasdf ${'asdf'} ${'AND'}  sdf ")
-      == " asdfasdf asdf AND  sdf ");
-    CHECK(
-      interpolate(variables, " asdfasdf ${'asdf'}${' AND'}  sdf ")
-      == " asdfasdf asdf AND  sdf ");
-    CHECK(interpolate(variables, " ${ true } ") == " true ");
-    CHECK(interpolate(variables, " ${ 'this'+' and ' }${'that'} ") == " this and that ");
-  }
+    SECTION("string with simple expression")
+    {
+      const auto variables = VariableTable{};
+      CHECK(
+        interpolate(variables, " asdfasdf ${'asdf'}  sdf ") == " asdfasdf asdf  sdf ");
+      CHECK(
+        interpolate(variables, " asdfasdf ${'asdf'} ${'AND'}  sdf ")
+        == " asdfasdf asdf AND  sdf ");
+      CHECK(
+        interpolate(variables, " asdfasdf ${'asdf'}${' AND'}  sdf ")
+        == " asdfasdf asdf AND  sdf ");
+      CHECK(interpolate(variables, " ${ true } ") == " true ");
+      CHECK(
+        interpolate(variables, " ${ 'this'+' and ' }${'that'} ") == " this and that ");
+    }
 
-  SECTION("interpolateStringWithNestedExpression")
-  {
-    const auto variables = VariableTable{};
-    CHECK(
-      interpolate(variables, " asdfasdf ${ 'nested ${TEST} expression' }  sdf ")
-      == " asdfasdf nested ${TEST} expression  sdf ");
-  }
+    SECTION("string with nested expression")
+    {
+      const auto variables = VariableTable{};
+      CHECK(
+        interpolate(variables, " asdfasdf ${ 'nested ${TEST} expression' }  sdf ")
+        == " asdfasdf nested ${TEST} expression  sdf ");
+    }
 
-  SECTION("interpolateStringWithVariable")
-  {
-    const auto variables = VariableTable{{{"TEST", Value{"interesting"}}}};
-    CHECK(
-      interpolate(variables, " an ${TEST} expression") == " an interesting expression");
-  }
+    SECTION("string with variable")
+    {
+      const auto variables = VariableTable{{{"TEST", Value{"interesting"}}}};
+      CHECK(
+        interpolate(variables, " an ${TEST} expression") == " an interesting expression");
+    }
 
-  SECTION("interpolateStringWithBackslashAndVariable")
-  {
-    const auto variables = VariableTable{{{"TEST", Value{"interesting"}}}};
-    CHECK(
-      interpolate(variables, " an \\${TEST} expression")
-      == " an \\interesting expression");
-  }
+    SECTION("string with backslash and variable")
+    {
+      const auto variables = VariableTable{{{"TEST", Value{"interesting"}}}};
+      CHECK(
+        interpolate(variables, " an \\${TEST} expression")
+        == " an \\interesting expression");
+    }
 
-  SECTION("interpolateStringWithUnknownVariable")
-  {
-    const auto variables = VariableTable{};
-    CHECK(interpolate(variables, " an ${TEST} expression").is_error());
-  }
+    SECTION("string with unknown variable")
+    {
+      const auto variables = VariableTable{};
+      CHECK(interpolate(variables, " an ${TEST} expression").is_error());
+    }
 
-  SECTION("interpolateStringWithUnterminatedEL")
-  {
-    const auto variables = VariableTable{};
-    CHECK(interpolate(variables, " an ${TEST").is_error());
-    CHECK(interpolate(variables, " an ${TEST expression").is_error());
+    SECTION("string with unterminated EL")
+    {
+      const auto variables = VariableTable{};
+      CHECK(interpolate(variables, " an ${TEST").is_error());
+      CHECK(interpolate(variables, " an ${TEST expression").is_error());
+    }
   }
 }
 

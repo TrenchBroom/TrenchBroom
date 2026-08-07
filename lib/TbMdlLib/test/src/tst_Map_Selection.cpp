@@ -1251,6 +1251,35 @@ TEST_CASE("Map_Selection")
     deselectAll(map);
     CHECK(map.lastSelectionBounds() == bounds);
   }
+
+  SECTION("referenceBounds")
+  {
+    SECTION("without a selection or a previous selection")
+    {
+      CHECK(map.referenceBounds() == vm::bbox3d{16.0});
+    }
+
+    SECTION("with a selection")
+    {
+      auto* brushNode = createBrushNode(map);
+      addNodes(map, {{&parentForNodes(map), {brushNode}}});
+      selectNodes(map, {brushNode});
+
+      CHECK(map.referenceBounds() == brushNode->logicalBounds());
+    }
+
+    SECTION("with a previous but no current selection")
+    {
+      auto* brushNode = createBrushNode(map);
+      addNodes(map, {{&parentForNodes(map), {brushNode}}});
+      selectNodes(map, {brushNode});
+      const auto bounds = brushNode->logicalBounds();
+
+      deselectAll(map);
+
+      CHECK(map.referenceBounds() == bounds);
+    }
+  }
 }
 
 } // namespace tb::mdl

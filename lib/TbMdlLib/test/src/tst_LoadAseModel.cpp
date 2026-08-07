@@ -167,107 +167,113 @@ TEST_CASE("loadAseModel")
     CHECK(material->texture()->width() == 32u);
     CHECK(material->texture()->height() == 32u);
   }
-}
 
-TEST_CASE("loadAseModel (Regression)", "[regression]")
-{
-  auto logger = NullLogger{};
-
-  const auto materialConfig = mdl::MaterialConfig{
-    {},
-    {".tga", ".png", ".jpg", ".jpeg"},
-    {},
-    {},
-    "scripts",
-    {},
-  };
-
-  const auto defaultAssetsPath = getFixtureRoot() / "test/io/ResourceUtils/assets";
-  auto fs = fs::VirtualFileSystem{};
-  fs.mount("", std::make_unique<fs::DiskFileSystem>(defaultAssetsPath));
-
-  auto taskManager = kdl::task_manager{};
-
-  SECTION("2657")
+  SECTION("Regression tests")
   {
-    const auto basePath = getFixtureRoot() / "test/mdl/LoadAseModel/steelstorm_player";
-    fs.mount("", std::make_unique<fs::DiskFileSystem>(basePath));
+    const auto regressionAssetsPath = getFixtureRoot() / "test/io/ResourceUtils/assets";
+    auto regressionFs = fs::VirtualFileSystem{};
+    regressionFs.mount("", std::make_unique<fs::DiskFileSystem>(regressionAssetsPath));
 
-    const auto shaders =
-      loadShaders(fs, materialConfig, taskManager, logger) | kdl::value();
-
-    const auto createResource = [](auto resourceLoader) {
-      return gl::createResourceSync(std::move(resourceLoader));
-    };
-
-    const auto loadMaterial = [&](const auto& materialPath) {
-      return mdl::loadMaterial(
-               fs, materialConfig, materialPath, createResource, shaders, std::nullopt)
-             | kdl::or_else(makeReadMaterialErrorHandler(fs, logger)) | kdl::value();
-    };
-
-    const auto aseFile = fs.openFile("player.ase") | kdl::value();
-    auto reader = aseFile->reader().buffer();
-
-    CHECK(loadAseModel("player", reader.stringView(), loadMaterial, logger));
-  }
-
-  SECTION("2679")
-  {
-    const auto basePath = getFixtureRoot() / "test/mdl/LoadAseModel/no_scene_directive";
-    fs.mount("", std::make_unique<fs::DiskFileSystem>(basePath));
-
-    const auto shaders =
-      loadShaders(fs, materialConfig, taskManager, logger) | kdl::value();
-
-    const auto createResource = [](auto resourceLoader) {
-      return gl::createResourceSync(std::move(resourceLoader));
-    };
-
-    const auto loadMaterial = [&](const auto& materialPath) {
-      return mdl::loadMaterial(
-               fs, materialConfig, materialPath, createResource, shaders, std::nullopt)
-             | kdl::or_else(makeReadMaterialErrorHandler(fs, logger)) | kdl::value();
-    };
-
-    const auto aseFile = fs.openFile("wedge_45.ase") | kdl::value();
-    auto reader = aseFile->reader().buffer();
-
-    CHECK(loadAseModel("wedge", reader.stringView(), loadMaterial, logger));
-  }
-
-  SECTION("2898")
-  {
-    const auto basePath = getFixtureRoot() / "test/mdl/LoadAseModel/index_out_of_bounds";
-    fs.mount("", std::make_unique<fs::DiskFileSystem>(basePath));
-
-    const auto shaders =
-      loadShaders(fs, materialConfig, taskManager, logger) | kdl::value();
-
-    const auto createResource = [](auto resourceLoader) {
-      return gl::createResourceSync(std::move(resourceLoader));
-    };
-
-    const auto loadMaterial = [&](const auto& materialPath) {
-      return mdl::loadMaterial(
-               fs, materialConfig, materialPath, createResource, shaders, std::nullopt)
-             | kdl::or_else(makeReadMaterialErrorHandler(fs, logger)) | kdl::value();
-    };
-
-    SECTION("vertex index")
+    SECTION("2657")
     {
-      const auto aseFile = fs.openFile("wedge_45.ase") | kdl::value();
+      const auto basePath = getFixtureRoot() / "test/mdl/LoadAseModel/steelstorm_player";
+      regressionFs.mount("", std::make_unique<fs::DiskFileSystem>(basePath));
+
+      const auto shaders =
+        loadShaders(regressionFs, materialConfig, taskManager, logger) | kdl::value();
+
+      const auto createResource = [](auto resourceLoader) {
+        return gl::createResourceSync(std::move(resourceLoader));
+      };
+
+      const auto loadMaterial = [&](const auto& materialPath) {
+        return mdl::loadMaterial(
+                 regressionFs,
+                 materialConfig,
+                 materialPath,
+                 createResource,
+                 shaders,
+                 std::nullopt)
+               | kdl::or_else(makeReadMaterialErrorHandler(regressionFs, logger))
+               | kdl::value();
+      };
+
+      const auto aseFile = regressionFs.openFile("player.ase") | kdl::value();
+      auto reader = aseFile->reader().buffer();
+
+      CHECK(loadAseModel("player", reader.stringView(), loadMaterial, logger));
+    }
+
+    SECTION("2679")
+    {
+      const auto basePath = getFixtureRoot() / "test/mdl/LoadAseModel/no_scene_directive";
+      regressionFs.mount("", std::make_unique<fs::DiskFileSystem>(basePath));
+
+      const auto shaders =
+        loadShaders(regressionFs, materialConfig, taskManager, logger) | kdl::value();
+
+      const auto createResource = [](auto resourceLoader) {
+        return gl::createResourceSync(std::move(resourceLoader));
+      };
+
+      const auto loadMaterial = [&](const auto& materialPath) {
+        return mdl::loadMaterial(
+                 regressionFs,
+                 materialConfig,
+                 materialPath,
+                 createResource,
+                 shaders,
+                 std::nullopt)
+               | kdl::or_else(makeReadMaterialErrorHandler(regressionFs, logger))
+               | kdl::value();
+      };
+
+      const auto aseFile = regressionFs.openFile("wedge_45.ase") | kdl::value();
       auto reader = aseFile->reader().buffer();
 
       CHECK(loadAseModel("wedge", reader.stringView(), loadMaterial, logger));
     }
 
-    SECTION("no UV")
+    SECTION("2898")
     {
-      const auto aseFile = fs.openFile("wedge_45_no_uv.ase") | kdl::value();
-      auto reader = aseFile->reader().buffer();
+      const auto basePath =
+        getFixtureRoot() / "test/mdl/LoadAseModel/index_out_of_bounds";
+      regressionFs.mount("", std::make_unique<fs::DiskFileSystem>(basePath));
 
-      CHECK(loadAseModel("wedge", reader.stringView(), loadMaterial, logger));
+      const auto shaders =
+        loadShaders(regressionFs, materialConfig, taskManager, logger) | kdl::value();
+
+      const auto createResource = [](auto resourceLoader) {
+        return gl::createResourceSync(std::move(resourceLoader));
+      };
+
+      const auto loadMaterial = [&](const auto& materialPath) {
+        return mdl::loadMaterial(
+                 regressionFs,
+                 materialConfig,
+                 materialPath,
+                 createResource,
+                 shaders,
+                 std::nullopt)
+               | kdl::or_else(makeReadMaterialErrorHandler(regressionFs, logger))
+               | kdl::value();
+      };
+
+      SECTION("vertex index")
+      {
+        const auto aseFile = regressionFs.openFile("wedge_45.ase") | kdl::value();
+        auto reader = aseFile->reader().buffer();
+
+        CHECK(loadAseModel("wedge", reader.stringView(), loadMaterial, logger));
+      }
+
+      SECTION("no UV")
+      {
+        const auto aseFile = regressionFs.openFile("wedge_45_no_uv.ase") | kdl::value();
+        auto reader = aseFile->reader().buffer();
+
+        CHECK(loadAseModel("wedge", reader.stringView(), loadMaterial, logger));
+      }
     }
   }
 }

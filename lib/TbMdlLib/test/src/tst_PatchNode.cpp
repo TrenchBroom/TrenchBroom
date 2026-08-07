@@ -89,9 +89,9 @@ namespace tb::mdl
 {
 using namespace Catch::Matchers;
 
-TEST_CASE("PatchNode.computeGridNormals") {}
+TEST_CASE("computeGridNormals") {}
 
-TEST_CASE("PatchNode.makePatchGrid")
+TEST_CASE("makePatchGrid")
 {
   using CP = BezierPatch::Point;
   using GP = PatchGrid::Point;
@@ -169,49 +169,71 @@ TEST_CASE("PatchNode.makePatchGrid")
                 })));
 }
 
-TEST_CASE("PatchNode.pickFlatPatch")
+TEST_CASE("PatchNode")
 {
-  using P = BezierPatch::Point;
-
-  // clang-format off
-  auto patchNode = PatchNode{BezierPatch{5, 5, {
-    P{0.0, 4.0, 0.0}, P{1.0, 4.0, 0.0}, P{2.0, 4.0, 0.0}, P{3.0, 4.0, 0.0}, P{4.0, 4.0, 0.0},
-    P{0.0, 3.0, 0.0}, P{1.0, 3.0, 0.0}, P{2.0, 3.0, 0.0}, P{3.0, 3.0, 0.0}, P{4.0, 3.0, 0.0},
-    P{0.0, 2.0, 0.0}, P{1.0, 2.0, 0.0}, P{2.0, 2.0, 0.0}, P{3.0, 2.0, 0.0}, P{4.0, 2.0, 0.0},
-    P{0.0, 1.0, 0.0}, P{1.0, 1.0, 0.0}, P{2.0, 1.0, 0.0}, P{3.0, 1.0, 0.0}, P{4.0, 1.0, 0.0},
-    P{0.0, 0.0, 0.0}, P{1.0, 0.0, 0.0}, P{2.0, 0.0, 0.0}, P{3.0, 0.0, 0.0}, P{4.0, 0.0, 0.0},
-  }, "material"}};
-  // clang-format on
-
-  using T = std::tuple<vm::ray3d, std::optional<vm::vec3d>>;
-
-  // clang-format off
-  const auto 
-  [pickRay,                                        expectedHitPoint  ] = GENERATE(values<T>({
-  {vm::ray3d{vm::vec3d{2, 2,  1}, vm::vec3d{0, 0, -1}}, vm::vec3d{2, 2, 0}},
-  {vm::ray3d{vm::vec3d{2, 2, -1}, vm::vec3d{0, 0, 1}}, vm::vec3d{2, 2, 0}},
-  {vm::ray3d{vm::vec3d{2, 3,  1}, vm::vec3d{0, 0, -1}}, vm::vec3d{2, 3, 0}},
-  {vm::ray3d{vm::vec3d{2, 3,  1}, vm::vec3d{0, 0, 1}}, std::nullopt     },
-  {vm::ray3d{vm::vec3d{0, -1, 1}, vm::vec3d{0, 0, -1}}, std::nullopt     },
-  }));
-  // clang-format on
-
-  CAPTURE(pickRay);
-
-  const auto editorContext = EditorContext{};
-  auto pickResult = PickResult{};
-  patchNode.pick(editorContext, pickRay, pickResult);
-
-  if (expectedHitPoint.has_value())
+  SECTION("pick")
   {
-    CHECK(pickResult.size() == 1u);
+    using P = BezierPatch::Point;
 
-    const auto hit = pickResult.all().front();
-    CHECK(hit.hitPoint() == expectedHitPoint);
+    // clang-format off
+    auto patchNode = PatchNode{BezierPatch{5, 5, {
+      P{0.0, 4.0, 0.0}, P{1.0, 4.0, 0.0}, P{2.0, 4.0, 0.0}, P{3.0, 4.0, 0.0}, P{4.0, 4.0, 0.0},
+      P{0.0, 3.0, 0.0}, P{1.0, 3.0, 0.0}, P{2.0, 3.0, 0.0}, P{3.0, 3.0, 0.0}, P{4.0, 3.0, 0.0},
+      P{0.0, 2.0, 0.0}, P{1.0, 2.0, 0.0}, P{2.0, 2.0, 0.0}, P{3.0, 2.0, 0.0}, P{4.0, 2.0, 0.0},
+      P{0.0, 1.0, 0.0}, P{1.0, 1.0, 0.0}, P{2.0, 1.0, 0.0}, P{3.0, 1.0, 0.0}, P{4.0, 1.0, 0.0},
+      P{0.0, 0.0, 0.0}, P{1.0, 0.0, 0.0}, P{2.0, 0.0, 0.0}, P{3.0, 0.0, 0.0}, P{4.0, 0.0, 0.0},
+    }, "material"}};
+    // clang-format on
+
+    using T = std::tuple<vm::ray3d, std::optional<vm::vec3d>>;
+
+    // clang-format off
+    const auto
+    [pickRay,                                        expectedHitPoint  ] = GENERATE(values<T>({
+    {vm::ray3d{vm::vec3d{2, 2,  1}, vm::vec3d{0, 0, -1}}, vm::vec3d{2, 2, 0}},
+    {vm::ray3d{vm::vec3d{2, 2, -1}, vm::vec3d{0, 0, 1}}, vm::vec3d{2, 2, 0}},
+    {vm::ray3d{vm::vec3d{2, 3,  1}, vm::vec3d{0, 0, -1}}, vm::vec3d{2, 3, 0}},
+    {vm::ray3d{vm::vec3d{2, 3,  1}, vm::vec3d{0, 0, 1}}, std::nullopt     },
+    {vm::ray3d{vm::vec3d{0, -1, 1}, vm::vec3d{0, 0, -1}}, std::nullopt     },
+    }));
+    // clang-format on
+
+    CAPTURE(pickRay);
+
+    const auto editorContext = EditorContext{};
+    auto pickResult = PickResult{};
+    patchNode.pick(editorContext, pickRay, pickResult);
+
+    if (expectedHitPoint.has_value())
+    {
+      CHECK(pickResult.size() == 1u);
+
+      const auto hit = pickResult.all().front();
+      CHECK(hit.hitPoint() == expectedHitPoint);
+    }
+    else
+    {
+      CHECK(pickResult.size() == 0u);
+    }
   }
-  else
+
+  SECTION("projectedArea")
   {
-    CHECK(pickResult.size() == 0u);
+    using P = BezierPatch::Point;
+
+    // clang-format off
+    auto patchNode = PatchNode{BezierPatch{3, 3, {
+      P{0.0, 0.0,  0.0, 0.0, 0.0}, P{2.0, 0.0,  0.0, 0.5, 0.0}, P{4.0, 0.0,  0.0, 1.0, 0.0},
+      P{0.0, 4.0,  8.0, 0.0, 0.5}, P{2.0, 4.0,  8.0, 0.5, 0.5}, P{4.0, 4.0,  8.0, 1.0, 0.5},
+      P{0.0, 8.0, 16.0, 0.0, 1.0}, P{2.0, 8.0, 16.0, 0.5, 1.0}, P{4.0, 8.0, 16.0, 1.0, 1.0},
+    }, "material"}};
+    // clang-format on
+
+    // physical bounds size is {4.0, 8.0, 16.0}
+    CHECK(patchNode.projectedArea(vm::axis::x) == 128.0);
+    CHECK(patchNode.projectedArea(vm::axis::y) == 64.0);
+    CHECK(patchNode.projectedArea(vm::axis::z) == 32.0);
+    CHECK(patchNode.projectedArea(static_cast<vm::axis::type>(3)) == 0.0);
   }
 }
 

@@ -19,16 +19,19 @@
 
 #include "mdl/BezierPatch.h"
 #include "mdl/BrushBuilder.h"
+#include "mdl/BrushFace.h"
 #include "mdl/BrushNode.h"
 #include "mdl/CatchConfig.h"
 #include "mdl/EditorContext.h"
 #include "mdl/Entity.h"
+#include "mdl/EntityDefinition.h"
 #include "mdl/EntityNode.h"
 #include "mdl/GroupNode.h"
 #include "mdl/LayerNode.h"
 #include "mdl/LockState.h"
 #include "mdl/MapFormat.h"
 #include "mdl/PatchNode.h"
+#include "mdl/Tag.h"
 #include "mdl/VisibilityState.h"
 #include "mdl/WorldNode.h"
 
@@ -43,177 +46,157 @@
 namespace tb::mdl
 {
 
-class EditorContextTest
+namespace
 {
-protected:
-  vm::bbox3d worldBounds;
-  WorldNode worldNode;
-  EditorContext context;
 
-  EditorContextTest()
-    : worldBounds{8192.0}
-    , worldNode{{}, {}, MapFormat::Quake3}
-  {
-  }
+const auto worldBounds = vm::bbox3d{8192.0};
 
-public:
-  GroupNode* createTopLevelGroup()
-  {
-    GroupNode* group;
-    std::tie(group, std::ignore) = createGroupedBrush();
-    return group;
-  }
+EntityNode* createTopLevelPointEntity(WorldNode& worldNode)
+{
+  auto* entityNode = new EntityNode{Entity{}};
+  worldNode.defaultLayer()->addChild(entityNode);
+  return entityNode;
+}
 
-  EntityNode* createTopLevelPointEntity()
-  {
-    auto* entityNode = new EntityNode{Entity{}};
-    worldNode.defaultLayer()->addChild(entityNode);
-    return entityNode;
-  }
+std::tuple<EntityNode*, BrushNode*> createTopLevelBrushEntity(WorldNode& worldNode)
+{
+  BrushBuilder builder(worldNode.mapFormat(), worldBounds);
+  auto* brushNode = new BrushNode{builder.createCube(32.0, "sometex") | kdl::value()};
+  auto* entityNode = new EntityNode{Entity{}};
+  entityNode->addChild(brushNode);
+  worldNode.defaultLayer()->addChild(entityNode);
+  return std::make_tuple(entityNode, brushNode);
+}
 
-  std::tuple<EntityNode*, BrushNode*> createTopLevelBrushEntity()
-  {
-    BrushBuilder builder(worldNode.mapFormat(), worldBounds);
-    auto* brushNode = new BrushNode{builder.createCube(32.0, "sometex") | kdl::value()};
-    auto* entityNode = new EntityNode{Entity{}};
-    entityNode->addChild(brushNode);
-    worldNode.defaultLayer()->addChild(entityNode);
-    return std::make_tuple(entityNode, brushNode);
-  }
+std::tuple<EntityNode*, PatchNode*> createTopLevelPatchEntity(WorldNode& worldNode)
+{
+  // clang-format off
+  auto* patchNode = new PatchNode{BezierPatch{3, 3, {
+    {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
+    {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
+    {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "material"}};
+  // clang-format on
 
-  std::tuple<EntityNode*, PatchNode*> createTopLevelPatchEntity()
-  {
-    // clang-format off
-    auto* patchNode = new PatchNode{BezierPatch{3, 3, {
-      {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
-      {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
-      {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "material"}};
-    // clang-format on
+  auto* entityNode = new EntityNode{Entity{}};
+  entityNode->addChild(patchNode);
+  worldNode.defaultLayer()->addChild(entityNode);
+  return std::make_tuple(entityNode, patchNode);
+}
 
-    auto* entityNode = new EntityNode{Entity{}};
-    entityNode->addChild(patchNode);
-    worldNode.defaultLayer()->addChild(entityNode);
-    return std::make_tuple(entityNode, patchNode);
-  }
+BrushNode* createTopLevelBrush(WorldNode& worldNode)
+{
+  BrushBuilder builder(worldNode.mapFormat(), worldBounds);
+  auto* brushNode = new BrushNode{builder.createCube(32.0, "sometex") | kdl::value()};
+  worldNode.defaultLayer()->addChild(brushNode);
+  return brushNode;
+}
 
-  BrushNode* createTopLevelBrush()
-  {
-    BrushBuilder builder(worldNode.mapFormat(), worldBounds);
-    auto* brushNode = new BrushNode{builder.createCube(32.0, "sometex") | kdl::value()};
-    worldNode.defaultLayer()->addChild(brushNode);
-    return brushNode;
-  }
+PatchNode* createTopLevelPatch(WorldNode& worldNode)
+{
+  // clang-format off
+  auto* patchNode = new PatchNode{BezierPatch{3, 3, {
+    {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
+    {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
+    {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "material"}};
+  // clang-format on
 
-  PatchNode* createTopLevelPatch()
-  {
-    // clang-format off
-    auto* patchNode = new PatchNode{BezierPatch{3, 3, {
-      {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
-      {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
-      {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "material"}};
-    // clang-format on
+  worldNode.defaultLayer()->addChild(patchNode);
+  return patchNode;
+}
 
-    worldNode.defaultLayer()->addChild(patchNode);
-    return patchNode;
-  }
+std::tuple<GroupNode*, BrushNode*> createGroupedBrush(WorldNode& worldNode)
+{
+  BrushBuilder builder(worldNode.mapFormat(), worldBounds);
+  auto* brushNode = new BrushNode{builder.createCube(32.0, "sometex") | kdl::value()};
+  auto* groupNode = new GroupNode{Group{"somegroup"}};
 
-  std::tuple<GroupNode*, GroupNode*> createNestedGroup()
-  {
-    GroupNode* outerGroup;
-    GroupNode* innerGroup;
-    std::tie(outerGroup, innerGroup, std::ignore) = createdNestedGroupedBrush();
+  groupNode->addChild(brushNode);
+  worldNode.defaultLayer()->addChild(groupNode);
 
-    return std::make_tuple(outerGroup, innerGroup);
-  }
+  return std::make_tuple(groupNode, brushNode);
+}
 
-  std::tuple<GroupNode*, BrushNode*> createGroupedBrush()
-  {
-    BrushBuilder builder(worldNode.mapFormat(), worldBounds);
-    auto* brushNode = new BrushNode{builder.createCube(32.0, "sometex") | kdl::value()};
-    auto* groupNode = new GroupNode{Group{"somegroup"}};
+std::tuple<GroupNode*, EntityNode*> createGroupedPointEntity(WorldNode& worldNode)
+{
+  auto* entityNode = new EntityNode{Entity{}};
+  auto* groupNode = new GroupNode{Group{"somegroup"}};
 
-    groupNode->addChild(brushNode);
-    worldNode.defaultLayer()->addChild(groupNode);
+  groupNode->addChild(entityNode);
+  worldNode.defaultLayer()->addChild(groupNode);
 
-    return std::make_tuple(groupNode, brushNode);
-  }
+  return std::make_tuple(groupNode, entityNode);
+}
 
-  std::tuple<GroupNode*, EntityNode*> createGroupedPointEntity()
-  {
-    auto* entityNode = new EntityNode{Entity{}};
-    auto* groupNode = new GroupNode{Group{"somegroup"}};
+std::tuple<GroupNode*, PatchNode*> createGroupedPatch(WorldNode& worldNode)
+{
+  // clang-format off
+  auto* patchNode = new PatchNode{BezierPatch{3, 3, {
+    {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
+    {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
+    {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "material"}};
+  // clang-format on
 
-    groupNode->addChild(entityNode);
-    worldNode.defaultLayer()->addChild(groupNode);
+  auto* groupNode = new GroupNode{Group{"somegroup"}};
 
-    return std::make_tuple(groupNode, entityNode);
-  }
+  groupNode->addChild(patchNode);
+  worldNode.defaultLayer()->addChild(groupNode);
 
-  std::tuple<GroupNode*, PatchNode*> createGroupedPatch()
-  {
-    // clang-format off
-    auto* patchNode = new PatchNode{BezierPatch{3, 3, {
-      {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
-      {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
-      {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "material"}};
-    // clang-format on
+  return std::make_tuple(groupNode, patchNode);
+}
 
-    auto* groupNode = new GroupNode{Group{"somegroup"}};
+std::tuple<GroupNode*, EntityNode*, BrushNode*> createGroupedBrushEntity(
+  WorldNode& worldNode)
+{
+  BrushBuilder builder(worldNode.mapFormat(), worldBounds);
+  auto* brushNode = new BrushNode{builder.createCube(32.0, "sometex") | kdl::value()};
+  auto* entityNode = new EntityNode{Entity{}};
+  auto* groupNode = new GroupNode{Group{"somegroup"}};
 
-    groupNode->addChild(patchNode);
-    worldNode.defaultLayer()->addChild(groupNode);
+  entityNode->addChild(brushNode);
+  groupNode->addChild(entityNode);
+  worldNode.defaultLayer()->addChild(groupNode);
 
-    return std::make_tuple(groupNode, patchNode);
-  }
+  return std::make_tuple(groupNode, entityNode, brushNode);
+}
 
-  std::tuple<GroupNode*, EntityNode*, BrushNode*> createGroupedBrushEntity()
-  {
-    BrushBuilder builder(worldNode.mapFormat(), worldBounds);
-    auto* brushNode = new BrushNode{builder.createCube(32.0, "sometex") | kdl::value()};
-    auto* entityNode = new EntityNode{Entity{}};
-    auto* groupNode = new GroupNode{Group{"somegroup"}};
+std::tuple<GroupNode*, EntityNode*, PatchNode*> createGroupedPatchEntity(
+  WorldNode& worldNode)
+{
+  // clang-format off
+  auto* patchNode = new PatchNode{BezierPatch{3, 3, {
+    {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
+    {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
+    {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "material"}};
+  // clang-format on
 
-    entityNode->addChild(brushNode);
-    groupNode->addChild(entityNode);
-    worldNode.defaultLayer()->addChild(groupNode);
+  auto* entityNode = new EntityNode{Entity{}};
+  auto* groupNode = new GroupNode{Group{"somegroup"}};
 
-    return std::make_tuple(groupNode, entityNode, brushNode);
-  }
+  entityNode->addChild(patchNode);
+  groupNode->addChild(entityNode);
+  worldNode.defaultLayer()->addChild(groupNode);
 
-  std::tuple<GroupNode*, EntityNode*, PatchNode*> createGroupedPatchEntity()
-  {
-    // clang-format off
-    auto* patchNode = new PatchNode{BezierPatch{3, 3, {
-      {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
-      {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
-      {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "material"}};
-    // clang-format on
+  return std::make_tuple(groupNode, entityNode, patchNode);
+}
 
-    auto* entityNode = new EntityNode{Entity{}};
-    auto* groupNode = new GroupNode{Group{"somegroup"}};
+std::tuple<GroupNode*, GroupNode*, BrushNode*> createdNestedGroupedBrush(
+  WorldNode& worldNode)
+{
+  BrushBuilder builder(worldNode.mapFormat(), worldBounds);
+  auto* innerBrushNode =
+    new BrushNode{builder.createCube(32.0, "sometex") | kdl::value()};
+  auto* innerGroupNode = new GroupNode{Group{"inner"}};
+  auto* outerGroupNode = new GroupNode{Group{"outer"}};
 
-    entityNode->addChild(patchNode);
-    groupNode->addChild(entityNode);
-    worldNode.defaultLayer()->addChild(groupNode);
+  innerGroupNode->addChild(innerBrushNode);
+  outerGroupNode->addChild(innerGroupNode);
+  worldNode.defaultLayer()->addChild(outerGroupNode);
 
-    return std::make_tuple(groupNode, entityNode, patchNode);
-  }
+  return std::make_tuple(outerGroupNode, innerGroupNode, innerBrushNode);
+}
 
-  std::tuple<GroupNode*, GroupNode*, BrushNode*> createdNestedGroupedBrush()
-  {
-    BrushBuilder builder(worldNode.mapFormat(), worldBounds);
-    auto* innerBrushNode =
-      new BrushNode{builder.createCube(32.0, "sometex") | kdl::value()};
-    auto* innerGroupNode = new GroupNode{Group{"inner"}};
-    auto* outerGroupNode = new GroupNode{Group{"outer"}};
+} // namespace
 
-    innerGroupNode->addChild(innerBrushNode);
-    outerGroupNode->addChild(innerGroupNode);
-    worldNode.defaultLayer()->addChild(outerGroupNode);
-
-    return std::make_tuple(outerGroupNode, innerGroupNode, innerBrushNode);
-  }
-};
 
 constexpr auto V_Inherited = VisibilityState::Inherited;
 constexpr auto V_Hidden = VisibilityState::Hidden;
@@ -223,8 +206,10 @@ constexpr auto L_Inherited = LockState::Inherited;
 constexpr auto L_Locked = LockState::Locked;
 constexpr auto L_Unlocked = LockState::Unlocked;
 
-TEST_CASE_METHOD(EditorContextTest, "EditorContextTest.testTopLevelNodes")
+TEST_CASE("EditorContext")
 {
+  auto worldNode = WorldNode{{}, {}, MapFormat::Quake3};
+  auto context = EditorContext{};
 
   SECTION("World")
   {
@@ -463,7 +448,7 @@ TEST_CASE_METHOD(EditorContextTest, "EditorContextTest.testTopLevelNodes")
     }));
     // clang-format on
 
-    auto [groupNode, brushNode] = createGroupedBrush();
+    auto [groupNode, brushNode] = createGroupedBrush(worldNode);
 
     CAPTURE(
       wrldVisState,
@@ -598,12 +583,12 @@ TEST_CASE_METHOD(EditorContextTest, "EditorContextTest.testTopLevelNodes")
     }));
     // clang-format on
 
-    using GetNodes = std::function<std::tuple<EntityNode*, Node*>(EditorContextTest&)>;
+    using GetNodes = std::function<std::tuple<EntityNode*, Node*>(WorldNode&)>;
     const GetNodes getNodes = GENERATE_COPY(
-      GetNodes{[](auto& test) { return test.createTopLevelBrushEntity(); }},
-      GetNodes{[](auto& test) { return test.createTopLevelPatchEntity(); }});
+      GetNodes{[](auto& world) { return createTopLevelBrushEntity(world); }},
+      GetNodes{[](auto& world) { return createTopLevelPatchEntity(world); }});
 
-    auto [entityNode, childNode] = getNodes(*this);
+    auto [entityNode, childNode] = getNodes(worldNode);
 
     CAPTURE(
       childNode->name(),
@@ -700,7 +685,7 @@ TEST_CASE_METHOD(EditorContextTest, "EditorContextTest.testTopLevelNodes")
     }));
     // clang-format on
 
-    auto* entityNode = createTopLevelPointEntity();
+    auto* entityNode = createTopLevelPointEntity(worldNode);
 
     CAPTURE(wrldVisState, wrldLckState, showPointEntities, entVisState, entLckState);
 
@@ -757,12 +742,12 @@ TEST_CASE_METHOD(EditorContextTest, "EditorContextTest.testTopLevelNodes")
     }));
     // clang-format on
 
-    using GetNode = std::function<Node*(EditorContextTest&)>;
+    using GetNode = std::function<Node*(WorldNode&)>;
     const GetNode getNode = GENERATE_COPY(
-      GetNode{[](auto& test) { return test.createTopLevelBrush(); }},
-      GetNode{[](auto& test) { return test.createTopLevelPatch(); }});
+      GetNode{[](auto& world) { return createTopLevelBrush(world); }},
+      GetNode{[](auto& world) { return createTopLevelPatch(world); }});
 
-    auto* node = getNode(*this);
+    auto* node = getNode(worldNode);
 
     CAPTURE(node->name(), wrldVisState, wrldLckState, nodeVisState, nodeLckState);
 
@@ -776,10 +761,8 @@ TEST_CASE_METHOD(EditorContextTest, "EditorContextTest.testTopLevelNodes")
     CHECK(context.editable(*node) == editable);
     CHECK(context.selectable(*node) == selectable);
   }
-}
 
-TEST_CASE_METHOD(EditorContextTest, "EditorContextTest.testGroupedNodes")
-{
+
   SECTION("Nested group")
   {
     using T = std::tuple<
@@ -907,7 +890,8 @@ TEST_CASE_METHOD(EditorContextTest, "EditorContextTest.testGroupedNodes")
     }));
     // clang-format on
 
-    auto [outerGroupNode, innerGroupNode, brushNode] = createdNestedGroupedBrush();
+    auto [outerGroupNode, innerGroupNode, brushNode] =
+      createdNestedGroupedBrush(worldNode);
 
     CAPTURE(
       outOpen,
@@ -1012,13 +996,13 @@ TEST_CASE_METHOD(EditorContextTest, "EditorContextTest.testGroupedNodes")
     }));
     // clang-format on
 
-    using GetNodes = std::function<std::tuple<GroupNode*, Node*>(EditorContextTest&)>;
+    using GetNodes = std::function<std::tuple<GroupNode*, Node*>(WorldNode&)>;
     const GetNodes getNodes = GENERATE_COPY(
-      GetNodes{[](auto& test) { return test.createGroupedPointEntity(); }},
-      GetNodes{[](auto& test) { return test.createGroupedBrush(); }},
-      GetNodes{[](auto& test) { return test.createGroupedPatch(); }});
+      GetNodes{[](auto& world) { return createGroupedPointEntity(world); }},
+      GetNodes{[](auto& world) { return createGroupedBrush(world); }},
+      GetNodes{[](auto& world) { return createGroupedPatch(world); }});
 
-    auto [groupNode, childNode] = getNodes(*this);
+    auto [groupNode, childNode] = getNodes(worldNode);
 
     CAPTURE(
       childNode->name(), grpOpen, grpVisState, grpLckState, entVisState, entLckState);
@@ -1169,12 +1153,12 @@ TEST_CASE_METHOD(EditorContextTest, "EditorContextTest.testGroupedNodes")
     // clang-format on
 
     using GetNodes =
-      std::function<std::tuple<GroupNode*, EntityNode*, Node*>(EditorContextTest&)>;
+      std::function<std::tuple<GroupNode*, EntityNode*, Node*>(WorldNode&)>;
     const GetNodes getNodes = GENERATE_COPY(
-      GetNodes{[](auto& test) { return test.createGroupedBrushEntity(); }},
-      GetNodes{[](auto& test) { return test.createGroupedPatchEntity(); }});
+      GetNodes{[](auto& world) { return createGroupedBrushEntity(world); }},
+      GetNodes{[](auto& world) { return createGroupedPatchEntity(world); }});
 
-    auto [groupNode, entityNode, childNode] = getNodes(*this);
+    auto [groupNode, entityNode, childNode] = getNodes(worldNode);
 
     CAPTURE(
       childNode->name(),
@@ -1201,6 +1185,154 @@ TEST_CASE_METHOD(EditorContextTest, "EditorContextTest.testGroupedNodes")
     CHECK(context.editable(*entityNode) == editable);
     CHECK(context.selectable(*entityNode) == selectable);
   }
+
+
+  SECTION("setShowBrushes")
+  {
+    auto* brushNode = createTopLevelBrush(worldNode);
+    REQUIRE(context.visible(*brushNode));
+
+    context.setShowBrushes(false);
+    CHECK(!context.visible(*brushNode));
+
+    context.setShowBrushes(true);
+    CHECK(context.visible(*brushNode));
+  }
+
+  SECTION("setShowPatches")
+  {
+    auto* patchNode = createTopLevelPatch(worldNode);
+    REQUIRE(context.visible(*patchNode));
+
+    context.setShowPatches(false);
+    CHECK(!context.visible(*patchNode));
+
+    context.setShowPatches(true);
+    CHECK(context.visible(*patchNode));
+  }
+
+  SECTION("setHiddenTags hides a tagged brush")
+  {
+    auto* brushNode = createTopLevelBrush(worldNode);
+
+    auto tag = Tag{"tag", {}};
+    tag.setIndex(0);
+    REQUIRE(brushNode->addTag(tag));
+
+    REQUIRE(context.hiddenTags() == 0u);
+    REQUIRE(context.visible(*brushNode));
+
+    context.setHiddenTags(tag.type());
+    CHECK(context.hiddenTags() == tag.type());
+    CHECK(!context.visible(*brushNode));
+
+    // setting the same tags again is a no-op
+    context.setHiddenTags(tag.type());
+    CHECK(!context.visible(*brushNode));
+
+    context.setHiddenTags(0);
+    CHECK(context.visible(*brushNode));
+  }
+
+  SECTION("setHiddenTags hides a brush with a tagged face")
+  {
+    auto builder = BrushBuilder{worldNode.mapFormat(), worldBounds};
+    auto brush = builder.createCube(32.0, "sometex") | kdl::value();
+
+    auto tag = Tag{"tag", {}};
+    tag.setIndex(0);
+    REQUIRE(brush.face(0).addTag(tag));
+
+    auto* brushNode = new BrushNode{std::move(brush)};
+    worldNode.defaultLayer()->addChild(brushNode);
+
+    const auto& face = brushNode->brush().face(0);
+    REQUIRE(context.visible(*brushNode, face));
+
+    context.setHiddenTags(tag.type());
+    CHECK(context.visible(*brushNode));
+    CHECK(!context.visible(*brushNode, face));
+  }
+
+  SECTION("setEntityDefinitionHidden hides entities with that definition")
+  {
+    const auto definition = EntityDefinition{
+      "some_name",
+      Color{},
+      "",
+      {},
+      PointEntityDefinition{vm::bbox3d{32.0}, {}, {}},
+    };
+
+    auto* entityNode = createTopLevelPointEntity(worldNode);
+    entityNode->setDefinition(&definition);
+    REQUIRE(context.visible(*entityNode));
+
+    REQUIRE(!context.entityDefinitionHidden(definition));
+    CHECK(!context.entityDefinitionHidden(*entityNode));
+
+    context.setEntityDefinitionHidden(definition, true);
+    CHECK(context.entityDefinitionHidden(definition));
+    CHECK(context.entityDefinitionHidden(*entityNode));
+    CHECK(!context.visible(*entityNode));
+
+    // hiding it again is a no-op
+    context.setEntityDefinitionHidden(definition, true);
+    CHECK(!context.visible(*entityNode));
+
+    context.setEntityDefinitionHidden(definition, false);
+    CHECK(!context.entityDefinitionHidden(definition));
+    CHECK(context.visible(*entityNode));
+
+    entityNode->setDefinition(nullptr);
+  }
+
+  SECTION("setEntityDefinitionHidden hides a brush whose entity has that definition")
+  {
+    const auto definition = EntityDefinition{"some_name", Color{}, "", {}};
+
+    auto [entityNode, brushNode] = createTopLevelBrushEntity(worldNode);
+    entityNode->setDefinition(&definition);
+    REQUIRE(context.visible(*brushNode));
+
+    context.setEntityDefinitionHidden(definition, true);
+    CHECK(!context.visible(*brushNode));
+
+    entityNode->setDefinition(nullptr);
+  }
+
+  SECTION("entityDefinitionHidden is false for an entity without a definition")
+  {
+    auto* entityNode = createTopLevelPointEntity(worldNode);
+    CHECK(!context.entityDefinitionHidden(*entityNode));
+  }
+
+  SECTION("a selected patch is visible")
+  {
+    auto* patchNode = createTopLevelPatch(worldNode);
+
+    context.setShowPatches(false);
+    REQUIRE(!context.visible(*patchNode));
+
+    patchNode->select();
+    CHECK(context.visible(*patchNode));
+  }
+
+  SECTION("setBlockSelection")
+  {
+    REQUIRE(!context.blockSelection());
+
+    // setting the same value again is a no-op
+    context.setBlockSelection(false);
+    CHECK(!context.blockSelection());
+
+    context.setBlockSelection(true);
+    CHECK(context.blockSelection());
+
+    context.setBlockSelection(false);
+    CHECK(!context.blockSelection());
+  }
 }
+
 
 } // namespace tb::mdl

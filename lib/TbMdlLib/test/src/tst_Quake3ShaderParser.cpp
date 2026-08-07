@@ -586,32 +586,29 @@ waterBubble
         } // stages
       }}));
   }
-}
 
-TEST_CASE("Quake3ShaderParser (Regression)", "[regression]")
-{
-  auto status = TestParserStatus{};
-
-  SECTION("2537")
+  SECTION("Regression tests")
   {
-    // see https://github.com/TrenchBroom/TrenchBroom/issues/2537
-    // The file contains a carriage return without a consecutive line feed, which tripped
-    // the parser.
+    SECTION("2537")
+    {
+      // see https://github.com/TrenchBroom/TrenchBroom/issues/2537
+      // The file contains a carriage return without a consecutive line feed, which
+      // tripped the parser.
 
-    auto fs = fs::DiskFileSystem{getFixtureRoot() / "test/mdl/Quake3ShaderParser"};
-    auto testFile = fs.openFile("am_cf_models.shader") | kdl::value();
-    auto reader = testFile->reader().buffer();
+      auto fs = fs::DiskFileSystem{getFixtureRoot() / "test/mdl/Quake3ShaderParser"};
+      auto testFile = fs.openFile("am_cf_models.shader") | kdl::value();
+      auto reader = testFile->reader().buffer();
 
-    auto parser = Quake3ShaderParser{reader.stringView()};
-    CHECK_NOTHROW(parser.parse(status));
-  }
+      auto parser = Quake3ShaderParser{reader.stringView()};
+      CHECK_NOTHROW(parser.parse(status));
+    }
 
-  SECTION("2633")
-  {
-    // see https://github.com/TrenchBroom/TrenchBroom/issues/2633
-    // apparently, the Q3 engine can handle this
+    SECTION("2633")
+    {
+      // see https://github.com/TrenchBroom/TrenchBroom/issues/2633
+      // apparently, the Q3 engine can handle this
 
-    const auto data = R"(
+      const auto data = R"(
 /textures/eerie/ironcrosslt2_10000
 {
     qer_editorimage textures/gothic_light/ironcrosslt2.tga
@@ -620,26 +617,26 @@ TEST_CASE("Quake3ShaderParser (Regression)", "[regression]")
 
 })";
 
-    auto parser = Quake3ShaderParser{data};
+      auto parser = Quake3ShaderParser{data};
 
-    CHECK_THAT(
-      parser.parse(status).value(),
-      UnorderedEquals(std::vector<mdl::Quake3Shader>{{
-        "textures/eerie/ironcrosslt2_10000",      // shaderPath
-        "textures/gothic_light/ironcrosslt2.tga", // editorImage
-        "",                                       // lightImage
-        mdl::Quake3Shader::Culling::Front,        // culling
-        {},                                       // surfaceParms
-        {}                                        // stages
-      }}));
-  }
+      CHECK_THAT(
+        parser.parse(status).value(),
+        UnorderedEquals(std::vector<mdl::Quake3Shader>{{
+          "textures/eerie/ironcrosslt2_10000",      // shaderPath
+          "textures/gothic_light/ironcrosslt2.tga", // editorImage
+          "",                                       // lightImage
+          mdl::Quake3Shader::Culling::Front,        // culling
+          {},                                       // surfaceParms
+          {}                                        // stages
+        }}));
+    }
 
-  SECTION("2663")
-  {
-    // see https://github.com/TrenchBroom/TrenchBroom/issues/2663
-    // Quake 3 allows this, too.
+    SECTION("2663")
+    {
+      // see https://github.com/TrenchBroom/TrenchBroom/issues/2663
+      // Quake 3 allows this, too.
 
-    const std::string data(R"(
+      const std::string data(R"(
 textures/evil3_floors/t-flr_oddtile_drty
 {
         {
@@ -655,8 +652,9 @@ textures/evil3_floors/cemtiledrk_mhbrk
 }
 )");
 
-    auto parser = Quake3ShaderParser{data};
-    CHECK_NOTHROW(parser.parse(status));
+      auto parser = Quake3ShaderParser{data};
+      CHECK_NOTHROW(parser.parse(status));
+    }
   }
 }
 

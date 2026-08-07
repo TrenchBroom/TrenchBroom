@@ -462,40 +462,43 @@ TEST_CASE("BrushFace")
 {
   auto taskManager = kdl::task_manager{};
 
-  SECTION("constructWithValidPoints")
+  SECTION("create")
   {
-    const auto p0 = vm::vec3d{0, 0, 4};
-    const auto p1 = vm::vec3d{1, 0, 4};
-    const auto p2 = vm::vec3d{0, -1, 4};
+    SECTION("with valid points")
+    {
+      const auto p0 = vm::vec3d{0, 0, 4};
+      const auto p1 = vm::vec3d{1, 0, 4};
+      const auto p2 = vm::vec3d{0, -1, 4};
 
-    auto face = BrushFace::create(
-                  p0,
-                  p1,
-                  p2,
-                  "",
-                  UvCoordSystem{ParaxialUvCoordSystem{p0, p1, p2, UvAttributes{}}},
-                  SurfaceAttributes{})
-                | kdl::value();
-    CHECK(face.points()[0] == vm::approx{p0});
-    CHECK(face.points()[1] == vm::approx{p1});
-    CHECK(face.points()[2] == vm::approx{p2});
-    CHECK(face.boundary().normal == vm::approx{vm::vec3d{0, 0, 1}});
-    CHECK(face.boundary().distance == 4.0);
-  }
+      auto face = BrushFace::create(
+                    p0,
+                    p1,
+                    p2,
+                    "",
+                    UvCoordSystem{ParaxialUvCoordSystem{p0, p1, p2, UvAttributes{}}},
+                    SurfaceAttributes{})
+                  | kdl::value();
+      CHECK(face.points()[0] == vm::approx{p0});
+      CHECK(face.points()[1] == vm::approx{p1});
+      CHECK(face.points()[2] == vm::approx{p2});
+      CHECK(face.boundary().normal == vm::approx{vm::vec3d{0, 0, 1}});
+      CHECK(face.boundary().distance == 4.0);
+    }
 
-  SECTION("constructWithColinearPoints")
-  {
-    const auto p0 = vm::vec3d{0, 0, 4};
-    const auto p1 = vm::vec3d{1, 0, 4};
-    const auto p2 = vm::vec3d{2, 0, 4};
+    SECTION("with colinear points")
+    {
+      const auto p0 = vm::vec3d{0, 0, 4};
+      const auto p1 = vm::vec3d{1, 0, 4};
+      const auto p2 = vm::vec3d{2, 0, 4};
 
-    CHECK_FALSE(BrushFace::create(
-      p0,
-      p1,
-      p2,
-      "",
-      UvCoordSystem{ParaxialUvCoordSystem{p0, p1, p2, UvAttributes{}}},
-      SurfaceAttributes{}));
+      CHECK(!BrushFace::create(
+        p0,
+        p1,
+        p2,
+        "",
+        UvCoordSystem{ParaxialUvCoordSystem{p0, p1, p2, UvAttributes{}}},
+        SurfaceAttributes{}));
+    }
   }
 
   SECTION("materialUsageCount")
@@ -590,7 +593,49 @@ TEST_CASE("BrushFace")
     CHECK(face.bounds() == vm::bbox3d{vm::vec3d{32, -64, -16}, vm::vec3d{32, 64, 16}});
   }
 
-  SECTION("testSetRotation_Paraxial")
+  SECTION("boundsCenter")
+  {
+    const auto worldBounds = vm::bbox3d{8192.0};
+    const auto builder = BrushBuilder{MapFormat::Standard, worldBounds};
+
+    SECTION("axis aligned face")
+    {
+      auto brush =
+        builder.createCuboid(
+          vm::bbox3d{vm::vec3d{-32, -64, -16}, vm::vec3d{32, 64, 16}}, "material")
+        | kdl::value();
+
+      const auto faceIndex = brush.findFace(vm::vec3d{1, 0, 0});
+      REQUIRE(faceIndex);
+      const auto& face = brush.face(*faceIndex);
+
+      CHECK(face.boundsCenter() == vm::approx{vm::vec3d{32, 0, 0}});
+    }
+
+    SECTION("face on a rotated brush")
+    {
+      auto brush =
+        builder.createCuboid(
+          vm::bbox3d{vm::vec3d{-32, -64, -16}, vm::vec3d{32, 64, 16}}, "material")
+        | kdl::value();
+      REQUIRE(brush.transform(
+        worldBounds, vm::rotation_matrix(0.0, 0.0, vm::to_radians(45.0)), false));
+
+      const auto& face = brush.faces().front();
+      const auto vertexPositions = face.vertexPositions();
+
+      auto expectedCenter = vm::vec3d{0, 0, 0};
+      for (const auto& position : vertexPositions)
+      {
+        expectedCenter = expectedCenter + position;
+      }
+      expectedCenter = expectedCenter / double(vertexPositions.size());
+
+      CHECK(face.boundsCenter() == vm::approx{expectedCenter});
+    }
+  }
+
+  SECTION("setUvAttributes rotates the UV axes (paraxial)")
   {
     const auto worldBounds = vm::bbox3d{8192.0};
     const gl::Material material(
@@ -613,46 +658,49 @@ TEST_CASE("BrushFace")
     CHECK(face.vAxis() == vm::approx{newYAxis});
   }
 
-  SECTION("testAlignmentLock_Paraxial")
+  SECTION("transform preserves UV alignment when locked")
   {
-    const auto worldBounds = vm::bbox3d{8192.0};
-    auto material =
-      gl::Material{"testMaterial", gl::createTextureResource(gl::Texture{64, 64})};
-
-    auto builder = BrushBuilder{MapFormat::Standard, worldBounds};
-    auto cube = builder.createCube(128.0, "") | kdl::value();
-
-    for (auto& face : cube.faces())
+    SECTION("paraxial UV coordinate system")
     {
-      face.setMaterial(&material);
-      checkAlignmentLockForFace(face, false);
+      const auto worldBounds = vm::bbox3d{8192.0};
+      auto material =
+        gl::Material{"testMaterial", gl::createTextureResource(gl::Texture{64, 64})};
+
+      auto builder = BrushBuilder{MapFormat::Standard, worldBounds};
+      auto cube = builder.createCube(128.0, "") | kdl::value();
+
+      for (auto& face : cube.faces())
+      {
+        face.setMaterial(&material);
+        checkAlignmentLockForFace(face, false);
+      }
+
+      checkAlignmentLockOffWithVerticalFlip(cube);
+      checkAlignmentLockOffWithScale(cube);
     }
 
-    checkAlignmentLockOffWithVerticalFlip(cube);
-    checkAlignmentLockOffWithScale(cube);
-  }
-
-  SECTION("testAlignmentLock_Parallel")
-  {
-    const auto worldBounds = vm::bbox3d{8192.0};
-    auto material =
-      gl::Material{"testMaterial", gl::createTextureResource(gl::Texture{64, 64})};
-
-    auto builder = BrushBuilder{MapFormat::Valve, worldBounds};
-    auto cube = builder.createCube(128.0, "") | kdl::value();
-
-    for (auto& face : cube.faces())
+    SECTION("parallel UV coordinate system")
     {
-      face.setMaterial(&material);
-      checkAlignmentLockForFace(face, true);
-    }
+      const auto worldBounds = vm::bbox3d{8192.0};
+      auto material =
+        gl::Material{"testMaterial", gl::createTextureResource(gl::Texture{64, 64})};
 
-    checkAlignmentLockOffWithVerticalFlip(cube);
-    checkAlignmentLockOffWithScale(cube);
+      auto builder = BrushBuilder{MapFormat::Valve, worldBounds};
+      auto cube = builder.createCube(128.0, "") | kdl::value();
+
+      for (auto& face : cube.faces())
+      {
+        face.setMaterial(&material);
+        checkAlignmentLockForFace(face, true);
+      }
+
+      checkAlignmentLockOffWithVerticalFlip(cube);
+      checkAlignmentLockOffWithScale(cube);
+    }
   }
 
   // https://github.com/TrenchBroom/TrenchBroom/issues/2001
-  SECTION("testValveRotation")
+  SECTION("rotateUv (Valve format)")
   {
     const auto data = R"(
 {
@@ -715,7 +763,7 @@ TEST_CASE("BrushFace")
   }
 
   // https://github.com/TrenchBroom/TrenchBroom/issues/1995
-  SECTION("testCopyUvCoordSystem")
+  SECTION("copyUvCoordSystemFromFace")
   {
     const auto data = R"(
 {
@@ -791,7 +839,7 @@ TEST_CASE("BrushFace")
   }
 
   // https://github.com/TrenchBroom/TrenchBroom/issues/2315
-  SECTION("move45DegreeFace")
+  SECTION("moveBoundary does not corrupt a 45-degree face")
   {
     const auto data = R"(
 // entity 0
@@ -835,7 +883,7 @@ TEST_CASE("BrushFace")
     kdl::col_delete_all(nodes.value());
   }
 
-  SECTION("formatConversion")
+  SECTION("converting between Standard and Valve format preserves UVs")
   {
     const auto worldBounds = vm::bbox3d{4096.0};
 

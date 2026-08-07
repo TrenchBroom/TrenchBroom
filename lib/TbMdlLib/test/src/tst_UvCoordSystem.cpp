@@ -60,6 +60,68 @@ TEST_CASE("UvCoordSystem")
       CHECK(parallel.vAxis() == vm::vec3d{1, 0, 0});
     }
   }
+
+  SECTION("translate")
+  {
+    const auto normal = vm::vec3d{0, 0, 1};
+    const auto offset = vm::vec2f{2, 3};
+
+    SECTION("uses the U axis as horizontal if it is closer to the right axis")
+    {
+      auto system = UvCoordSystem{
+        ParallelUvCoordSystem{vm::vec3d{1, 0, 0}, vm::vec3d{0, 1, 0}, UvAttributes{}}};
+      system.translate(normal, vm::vec3d{0, 1, 0}, vm::vec3d{1, 0, 0}, offset);
+      CHECK(system.uvAttributes().offset == vm::vec2f{-2, -3});
+    }
+
+    SECTION("uses the V axis as horizontal if it is closer to the right axis")
+    {
+      auto system = UvCoordSystem{
+        ParallelUvCoordSystem{vm::vec3d{0, 1, 0}, vm::vec3d{1, 0, 0}, UvAttributes{}}};
+      system.translate(normal, vm::vec3d{0, 1, 0}, vm::vec3d{1, 0, 0}, offset);
+      CHECK(system.uvAttributes().offset == vm::vec2f{-3, -2});
+    }
+
+    SECTION(
+      "falls back to comparing against the up axis if neither axis is clearly closer "
+      "to the right axis")
+    {
+      const auto right = vm::normalize(vm::vec3d{1, 1, 0});
+
+      SECTION("uses the V axis as horizontal if the U axis is closer to the up axis")
+      {
+        auto system = UvCoordSystem{
+          ParallelUvCoordSystem{vm::vec3d{1, 0, 0}, vm::vec3d{0, 1, 0}, UvAttributes{}}};
+        system.translate(normal, vm::vec3d{1, 0, 0}, right, offset);
+        CHECK(system.uvAttributes().offset == vm::vec2f{-3, -2});
+      }
+
+      SECTION("uses the U axis as horizontal if the V axis is closer to the up axis")
+      {
+        auto system = UvCoordSystem{
+          ParallelUvCoordSystem{vm::vec3d{1, 0, 0}, vm::vec3d{0, 1, 0}, UvAttributes{}}};
+        system.translate(normal, vm::vec3d{0, 1, 0}, right, offset);
+        CHECK(system.uvAttributes().offset == vm::vec2f{-2, -3});
+      }
+
+      SECTION("does nothing if neither axis can be clearly chosen")
+      {
+        auto system = UvCoordSystem{
+          ParallelUvCoordSystem{vm::vec3d{1, 0, 0}, vm::vec3d{0, 1, 0}, UvAttributes{}}};
+        const auto up = vm::normalize(vm::vec3d{1, -1, 0});
+        system.translate(normal, up, right, offset);
+        CHECK(system.uvAttributes().offset == vm::vec2f{0, 0});
+      }
+    }
+
+    SECTION("flips the offset direction for a negative scale")
+    {
+      auto system = UvCoordSystem{ParallelUvCoordSystem{
+        vm::vec3d{1, 0, 0}, vm::vec3d{0, 1, 0}, UvAttributes{{}, {-1, -1}, 0.0f}}};
+      system.translate(normal, vm::vec3d{0, 1, 0}, vm::vec3d{1, 0, 0}, offset);
+      CHECK(system.uvAttributes().offset == vm::vec2f{2, 3});
+    }
+  }
 }
 
 } // namespace tb::mdl
