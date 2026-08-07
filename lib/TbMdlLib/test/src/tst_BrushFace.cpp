@@ -590,6 +590,48 @@ TEST_CASE("BrushFace")
     CHECK(face.bounds() == vm::bbox3d{vm::vec3d{32, -64, -16}, vm::vec3d{32, 64, 16}});
   }
 
+  SECTION("boundsCenter")
+  {
+    const auto worldBounds = vm::bbox3d{8192.0};
+    const auto builder = BrushBuilder{MapFormat::Standard, worldBounds};
+
+    SECTION("axis aligned face")
+    {
+      auto brush =
+        builder.createCuboid(
+          vm::bbox3d{vm::vec3d{-32, -64, -16}, vm::vec3d{32, 64, 16}}, "material")
+        | kdl::value();
+
+      const auto faceIndex = brush.findFace(vm::vec3d{1, 0, 0});
+      REQUIRE(faceIndex);
+      const auto& face = brush.face(*faceIndex);
+
+      CHECK(face.boundsCenter() == vm::approx{vm::vec3d{32, 0, 0}});
+    }
+
+    SECTION("face on a rotated brush")
+    {
+      auto brush =
+        builder.createCuboid(
+          vm::bbox3d{vm::vec3d{-32, -64, -16}, vm::vec3d{32, 64, 16}}, "material")
+        | kdl::value();
+      REQUIRE(brush.transform(
+        worldBounds, vm::rotation_matrix(0.0, 0.0, vm::to_radians(45.0)), false));
+
+      const auto& face = brush.faces().front();
+      const auto vertexPositions = face.vertexPositions();
+
+      auto expectedCenter = vm::vec3d{0, 0, 0};
+      for (const auto& position : vertexPositions)
+      {
+        expectedCenter = expectedCenter + position;
+      }
+      expectedCenter = expectedCenter / double(vertexPositions.size());
+
+      CHECK(face.boundsCenter() == vm::approx{expectedCenter});
+    }
+  }
+
   SECTION("testSetRotation_Paraxial")
   {
     const auto worldBounds = vm::bbox3d{8192.0};
