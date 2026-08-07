@@ -211,6 +211,23 @@ TEST_CASE("updateLinkedGroups")
 {
   auto taskManager = kdl::task_manager{};
 
+  SECTION("Source group has a non-invertible transformation")
+  {
+    const auto worldBounds = vm::bbox3d{8192.0};
+
+    auto groupNode = GroupNode{Group{"name"}};
+    auto* entityNode = new EntityNode{Entity{}};
+    groupNode.addChild(entityNode);
+
+    transformNode(groupNode, vm::scaling_matrix(vm::vec3d{0, 1, 1}), worldBounds);
+    REQUIRE(!vm::invert(groupNode.group().transformation()).has_value());
+
+    updateLinkedGroups(groupNode, {}, worldBounds, taskManager)
+      | kdl::transform([](auto) { FAIL(); }) | kdl::transform_error([](auto e) {
+          CHECK(e == Error{"Group transformation is not invertible"});
+        });
+  }
+
   SECTION("Group with one object")
   {
     const auto worldBounds = vm::bbox3d{8192.0};
