@@ -17,30 +17,42 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "TestLogger.h"
+#include "gl/Material.h"
 #include "mdl/BezierPatch.h"
 #include "mdl/Brush.h"
 #include "mdl/BrushBuilder.h"
 #include "mdl/BrushNode.h"
 #include "mdl/CatchConfig.h"
+#include "mdl/EditorContext.h"
 #include "mdl/Entity.h"
 #include "mdl/EntityDefinition.h"
+#include "mdl/EntityModel.h"
 #include "mdl/EntityNode.h"
 #include "mdl/EntityProperties.h"
 #include "mdl/EntityRotation.h"
+#include "mdl/EnvironmentConfig.h"
+#include "mdl/GameConfigFixture.h"
+#include "mdl/GameFileSystem.h"
 #include "mdl/Group.h"
 #include "mdl/GroupNode.h"
 #include "mdl/Layer.h"
 #include "mdl/LayerNode.h"
+#include "mdl/LoadEntityModel.h"
 #include "mdl/MapFormat.h"
 #include "mdl/PatchNode.h"
+#include "mdl/PickResult.h"
 #include "mdl/WorldNode.h"
 
 #include "kd/result.h"
 
+#include "vm/approx.h"
 #include "vm/bbox.h"
+#include "vm/ray.h"
 #include "vm/util.h"
 #include "vm/vec.h"
 
+#include <filesystem>
 #include <string>
 
 #include <catch2/catch_test_macros.hpp>
@@ -145,6 +157,57 @@ TEST_CASE("EntityNodeTest.area")
   CHECK(entityNode.projectedArea(vm::axis::x) == 6.0);
   CHECK(entityNode.projectedArea(vm::axis::y) == 3.0);
   CHECK(entityNode.projectedArea(vm::axis::z) == 2.0);
+}
+
+TEST_CASE("EntityNodeTest.pick")
+{
+  // cube.bsp is a solid cube spanning {-32, -32, -32} to {32, 32, 32}
+  const auto environmentConfig = EnvironmentConfig{};
+  const auto& gameInfo = QuakeGameInfo;
+
+  auto logger = TestLogger{};
+  auto fs = GameFileSystem{};
+  fs.initialize(
+    environmentConfig,
+    gameInfo.gameConfig,
+    gameInfo.gamePathPreference.defaultValue,
+    {},
+    logger);
+
+  const auto path = std::filesystem::path{"cube.bsp"};
+  const auto loadMaterial = [](auto) -> gl::Material {
+    throw std::runtime_error{"should not be called"};
+  };
+
+  auto model = loadEntityModelSync(
+                 fs, gameInfo.gameConfig.materialConfig, path, loadMaterial, logger)
+                 .value();
+
+  auto entityNode = EntityNode{Entity{}};
+  entityNode.setModel(&model);
+
+  const auto editorContext = EditorContext{};
+
+  // The entity's own (unmodeled) bounds are only {-8, -8, -8} to {8, 8, 8}, so a ray at
+  // x = 20 misses that bbox test entirely and falls through to hit-testing the model.
+  const auto rayOrigin = vm::vec3d{20, 0, 40};
+
+  SECTION("hits the model when the ray misses the entity's default bounds")
+  {
+    auto pickResult = PickResult{};
+    entityNode.pick(editorContext, vm::ray3d{rayOrigin, vm::vec3d{0, 0, -1}}, pickResult);
+
+    REQUIRE(pickResult.size() == 1u);
+    CHECK(pickResult.all().front().hitPoint() == vm::approx{vm::vec3d{20, 0, 32}});
+  }
+
+  SECTION("misses the model")
+  {
+    auto pickResult = PickResult{};
+    entityNode.pick(editorContext, vm::ray3d{rayOrigin, vm::vec3d{0, 0, 1}}, pickResult);
+
+    CHECK(pickResult.size() == 0u);
+  }
 }
 
 static const std::string TestClassname = "something";
