@@ -432,4 +432,52 @@ TEST_CASE("WorldNodeTest.setPersistentIdsWhenAddingLayersAndGroups")
   CHECK(groupNode->persistentId() == 2u);
 }
 
+TEST_CASE("WorldNodeTest.cloneRecursively")
+{
+  constexpr auto worldBounds = vm::bbox3d{8192.0};
+  constexpr auto mapFormat = MapFormat::Quake3;
+
+  auto worldNode = WorldNode{{}, Entity{{{"classname", "worldspawn"}}}, mapFormat};
+
+  auto* brushNode = new BrushNode{
+    BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material") | kdl::value()};
+  worldNode.defaultLayer()->addChild(brushNode);
+
+  SECTION("with only the default layer")
+  {
+    auto* clone = static_cast<WorldNode*>(worldNode.cloneRecursively(worldBounds));
+
+    CHECK(clone != &worldNode);
+    CHECK(clone->entity() == worldNode.entity());
+    CHECK(clone->mapFormat() == worldNode.mapFormat());
+    CHECK(clone->defaultLayer() != worldNode.defaultLayer());
+    CHECK(clone->children().size() == 1u);
+    CHECK(clone->defaultLayer()->children().size() == 1u);
+    CHECK(clone->defaultLayer()->children().front() != brushNode);
+
+    delete clone;
+  }
+
+  SECTION("with an additional custom layer")
+  {
+    auto* layerNode = new LayerNode{Layer{"custom"}};
+    worldNode.addChild(layerNode);
+
+    auto* entityNode = new EntityNode{Entity{}};
+    layerNode->addChild(entityNode);
+
+    auto* clone = static_cast<WorldNode*>(worldNode.cloneRecursively(worldBounds));
+
+    CHECK(clone->children().size() == 2u);
+    CHECK(clone->defaultLayer()->children().size() == 1u);
+
+    auto* clonedLayerNode = clone->children().back();
+    CHECK(clonedLayerNode != layerNode);
+    CHECK(clonedLayerNode->children().size() == 1u);
+    CHECK(clonedLayerNode->children().front() != entityNode);
+
+    delete clone;
+  }
+}
+
 } // namespace tb::mdl
