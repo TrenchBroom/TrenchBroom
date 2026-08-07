@@ -277,445 +277,6 @@ public:
   ~DestroyableNode() override { m_destroyed = true; }
 };
 
-} // namespace
-
-TEST_CASE("NodeTest.destroyChild")
-{
-  auto rootNode = std::make_unique<TestNode>();
-
-  auto childDestroyed = false;
-  rootNode->addChild(new DestroyableNode{childDestroyed});
-
-  rootNode.reset();
-  CHECK(childDestroyed);
-}
-
-TEST_CASE("NodeTest.addRemoveChild")
-{
-  auto rootNode = MockNode{};
-  auto* childNode = new MockNode{};
-  auto* grandChildNode1 = new MockNode{};
-  auto* grandChildNode2 = new MockNode{};
-
-  childNode->expectCall(DoCanAddChild{true, grandChildNode1});
-  grandChildNode1->expectCall(DoParentWillChange{});
-  grandChildNode1->expectCall(DoAncestorWillChange{});
-  grandChildNode1->expectCall(DoParentDidChange{});
-  grandChildNode1->expectCall(DoAncestorDidChange{});
-  childNode->addChild(grandChildNode1);
-  CHECK(childNode->childCount() == 1u);
-  CHECK(childNode->familySize() == 2u);
-  CHECK(grandChildNode1->parent() == childNode);
-  CHECK(kdl::vec_contains(childNode->children(), grandChildNode1));
-
-  rootNode.expectCall(DoCanAddChild{true, childNode});
-  childNode->expectCall(DoParentWillChange{});
-  childNode->expectCall(DoAncestorWillChange{});
-  childNode->expectCall(DoParentDidChange{});
-  childNode->expectCall(DoAncestorDidChange{});
-  grandChildNode1->expectCall(DoAncestorWillChange{});
-  grandChildNode1->expectCall(DoAncestorDidChange{});
-
-  rootNode.addChild(childNode);
-  CHECK(rootNode.childCount() == 1u);
-  CHECK(rootNode.familySize() == 3u);
-  CHECK(childNode->parent() == &rootNode);
-  CHECK(kdl::vec_contains(rootNode.children(), childNode));
-
-  childNode->expectCall(DoCanAddChild{true, grandChildNode2});
-  grandChildNode2->expectCall(DoParentWillChange{});
-  grandChildNode2->expectCall(DoAncestorWillChange{});
-  grandChildNode2->expectCall(DoParentDidChange{});
-  grandChildNode2->expectCall(DoAncestorDidChange{});
-  childNode->addChild(grandChildNode2);
-  CHECK(rootNode.childCount() == 1u);
-  CHECK(rootNode.familySize() == 4u);
-  CHECK(childNode->childCount() == 2u);
-  CHECK(childNode->familySize() == 3u);
-  CHECK(grandChildNode2->parent() == childNode);
-  CHECK(kdl::vec_contains(childNode->children(), grandChildNode2));
-
-  rootNode.expectCall(DoCanRemoveChild{true, childNode});
-  childNode->expectCall(DoParentWillChange{});
-  childNode->expectCall(DoAncestorWillChange{});
-  childNode->expectCall(DoParentDidChange{});
-  childNode->expectCall(DoAncestorDidChange{});
-  grandChildNode1->expectCall(DoAncestorWillChange{});
-  grandChildNode1->expectCall(DoAncestorDidChange{});
-  grandChildNode2->expectCall(DoAncestorWillChange{});
-  grandChildNode2->expectCall(DoAncestorDidChange{});
-
-  rootNode.removeChild(childNode);
-  CHECK(childNode->parent() == nullptr);
-  CHECK_FALSE(kdl::vec_contains(rootNode.children(), childNode));
-  CHECK(rootNode.childCount() == 0u);
-  CHECK(rootNode.familySize() == 1u);
-  CHECK(childNode->childCount() == 2u);
-  CHECK(childNode->familySize() == 3u);
-
-  rootNode.expectCall(DoCanAddChild{true, childNode});
-  childNode->expectCall(DoParentWillChange{});
-  childNode->expectCall(DoAncestorWillChange{});
-  childNode->expectCall(DoParentDidChange{});
-  childNode->expectCall(DoAncestorDidChange{});
-  grandChildNode1->expectCall(DoAncestorWillChange{});
-  grandChildNode1->expectCall(DoAncestorDidChange{});
-  grandChildNode2->expectCall(DoAncestorWillChange{});
-  grandChildNode2->expectCall(DoAncestorDidChange{});
-
-  rootNode.addChild(childNode);
-  CHECK(childNode->parent() == &rootNode);
-  CHECK(kdl::vec_contains(rootNode.children(), childNode));
-  CHECK(rootNode.childCount() == 1u);
-  CHECK(rootNode.familySize() == 4u);
-  CHECK(childNode->childCount() == 2u);
-  CHECK(childNode->familySize() == 3u);
-}
-
-TEST_CASE("NodeTest.replaceChildren")
-{
-  auto rootNode = TestNode{};
-  auto* childNode1 = new TestNode{};
-  auto* childNode2 = new TestNode{};
-
-  rootNode.addChildren({childNode1, childNode2});
-
-  auto childNode3Ptr = std::make_unique<TestNode>();
-  auto* childNode3 = childNode3Ptr.get();
-
-  auto newChildren = std::vector<std::unique_ptr<Node>>{};
-  newChildren.push_back(std::move(childNode3Ptr));
-
-  const auto oldChildren = rootNode.replaceChildren(std::move(newChildren));
-
-  CHECK(oldChildren.size() == 2u);
-  CHECK_THAT(
-    oldChildren | std::views::transform([](const auto& c) { return c.get(); }),
-    UnorderedRangeEquals(std::vector{childNode1, childNode2}));
-  CHECK(childNode1->parent() == nullptr);
-  CHECK(childNode2->parent() == nullptr);
-
-  CHECK_THAT(rootNode.children(), UnorderedEquals(std::vector<Node*>{childNode3}));
-  CHECK(childNode3->parent() == &rootNode);
-}
-
-TEST_CASE("NodeTest.removeSelectedChild")
-{
-  auto rootNode = TestNode{};
-  auto* childNode = new TestNode{};
-  rootNode.addChild(childNode);
-  childNode->select();
-
-  CHECK(rootNode.descendantSelectionCount() == 1u);
-
-  rootNode.removeChild(childNode);
-
-  CHECK(rootNode.descendantSelectionCount() == 0u);
-  CHECK(childNode->selected());
-
-  delete childNode;
-}
-
-TEST_CASE("NodeTest.depth")
-{
-  auto rootNode = TestNode{};
-  auto* childNode = new TestNode{};
-  auto* grandChildNode = new TestNode{};
-
-  CHECK(rootNode.depth() == 0u);
-
-  rootNode.addChild(childNode);
-  CHECK(childNode->depth() == 1u);
-
-  childNode->addChild(grandChildNode);
-  CHECK(grandChildNode->depth() == 2u);
-}
-
-TEST_CASE("NodeTest.findDescendants")
-{
-  auto rootNode = TestNode{};
-  auto* childNode = new TestNode{};
-  auto* grandChildNode = new TestNode{};
-  auto unrelatedNode = TestNode{};
-
-  rootNode.addChild(childNode);
-  childNode->addChild(grandChildNode);
-
-  CHECK_THAT(
-    rootNode.findDescendants({childNode, grandChildNode, &unrelatedNode}),
-    UnorderedEquals(std::vector<Node*>{childNode, grandChildNode}));
-  CHECK_THAT(
-    childNode->findDescendants({childNode, grandChildNode}),
-    UnorderedEquals(std::vector<Node*>{grandChildNode}));
-  CHECK_THAT(
-    rootNode.findDescendants({&unrelatedNode}), UnorderedEquals(std::vector<Node*>{}));
-}
-
-TEST_CASE("NodeTest.selectDeselect")
-{
-  SECTION("selecting and deselecting an unselectable node has no effect")
-  {
-    auto node = MockNode{};
-
-    node.select();
-    CHECK(!node.selected());
-
-    node.deselect();
-    CHECK(!node.selected());
-  }
-
-  SECTION("selecting and deselecting a node without a parent")
-  {
-    auto node = TestNode{};
-
-    node.select();
-    CHECK(node.selected());
-
-    node.deselect();
-    CHECK(!node.selected());
-  }
-
-  SECTION("selecting and deselecting a child updates the parent's counters")
-  {
-    auto rootNode = TestNode{};
-    auto* childNode = new TestNode{};
-    rootNode.addChild(childNode);
-
-    CHECK(!rootNode.childSelected());
-    CHECK(rootNode.childSelectionCount() == 0u);
-
-    childNode->select();
-    CHECK(rootNode.childSelected());
-    CHECK(rootNode.childSelectionCount() == 1u);
-    CHECK(rootNode.descendantSelectionCount() == 1u);
-    CHECK(childNode->transitivelySelected());
-    CHECK(!childNode->parentSelected());
-
-    childNode->deselect();
-    CHECK(!rootNode.childSelected());
-    CHECK(rootNode.childSelectionCount() == 0u);
-    CHECK(!childNode->transitivelySelected());
-  }
-
-  SECTION("a node whose direct parent is selected is transitively selected")
-  {
-    auto rootNode = TestNode{};
-    auto* childNode = new TestNode{};
-    rootNode.addChild(childNode);
-
-    rootNode.select();
-    CHECK(childNode->parentSelected());
-    CHECK(childNode->transitivelySelected());
-  }
-
-  SECTION("a node whose grandparent is selected is transitively selected")
-  {
-    auto rootNode = TestNode{};
-    auto* childNode = new TestNode{};
-    auto* grandChildNode = new TestNode{};
-    rootNode.addChild(childNode);
-    childNode->addChild(grandChildNode);
-
-    rootNode.select();
-    CHECK(!childNode->selected());
-    CHECK(grandChildNode->parentSelected());
-    CHECK(grandChildNode->transitivelySelected());
-  }
-}
-
-TEST_CASE("NodeTest.issueHidden")
-{
-  auto node = TestNode{};
-  const auto type1 = freeIssueType();
-  const auto type2 = freeIssueType();
-
-  CHECK(!node.issueHidden(type1));
-  CHECK(!node.issueHidden(type2));
-
-  node.setIssueHidden(type1, true);
-  CHECK(node.issueHidden(type1));
-  CHECK(!node.issueHidden(type2));
-
-  node.setIssueHidden(type2, true);
-  CHECK(node.issueHidden(type1));
-  CHECK(node.issueHidden(type2));
-
-  node.setIssueHidden(type1, false);
-  CHECK(!node.issueHidden(type1));
-  CHECK(node.issueHidden(type2));
-}
-
-TEST_CASE("NodeTest.clone")
-{
-  const auto worldBounds = vm::bbox3d{8192.0};
-
-  auto* nodeA = new TestNode{};
-  auto* nodeB = new TestNode{};
-
-  auto clones = TestNode::cloneNodes(worldBounds, std::vector<Node*>{nodeA, nodeB});
-
-  CHECK(clones.size() == 2u);
-  CHECK(clones[0] != nodeA);
-  CHECK(clones[1] != nodeB);
-
-  kdl::vec_clear_and_delete(clones);
-  delete nodeA;
-  delete nodeB;
-}
-
-TEST_CASE("NodeTest.partialSelection")
-{
-  auto rootNode = TestNode{};
-  auto* childNode1 = new TestNode{};
-  auto* childNode2 = new TestNode{};
-  auto* grandChildNode1_1 = new TestNode{};
-  auto* grandChildNode1_2 = new TestNode{};
-
-  rootNode.addChild(childNode1);
-  rootNode.addChild(childNode2);
-
-  CHECK(rootNode.descendantSelectionCount() == 0u);
-  childNode1->select();
-  CHECK(childNode1->descendantSelectionCount() == 0u);
-  CHECK(rootNode.descendantSelectionCount() == 1u);
-  childNode2->select();
-  CHECK(childNode1->descendantSelectionCount() == 0u);
-  CHECK(childNode2->descendantSelectionCount() == 0u);
-  CHECK(rootNode.descendantSelectionCount() == 2u);
-
-  childNode1->deselect();
-  CHECK(childNode1->descendantSelectionCount() == 0u);
-  CHECK(rootNode.descendantSelectionCount() == 1u);
-
-  grandChildNode1_1->select();
-  childNode1->addChild(grandChildNode1_1);
-  CHECK(childNode1->descendantSelectionCount() == 1u);
-  CHECK(rootNode.descendantSelectionCount() == 2u);
-
-  childNode1->addChild(grandChildNode1_2);
-  CHECK(childNode1->descendantSelectionCount() == 1u);
-  CHECK(rootNode.descendantSelectionCount() == 2u);
-  grandChildNode1_2->select();
-  CHECK(childNode1->descendantSelectionCount() == 2u);
-  CHECK(rootNode.descendantSelectionCount() == 3u);
-
-  grandChildNode1_1->deselect();
-  CHECK(childNode1->descendantSelectionCount() == 1u);
-  CHECK(rootNode.descendantSelectionCount() == 2u);
-}
-
-TEST_CASE("NodeTest.isAncestorOf")
-{
-  auto rootNode = TestNode{};
-  auto* childNode1 = new TestNode{};
-  auto* childNode2 = new TestNode{};
-  auto* grandChildNode1_1 = new TestNode{};
-  auto* grandChildNode1_2 = new TestNode{};
-
-  rootNode.addChild(childNode1);
-  rootNode.addChild(childNode2);
-  childNode1->addChild(grandChildNode1_1);
-  childNode1->addChild(grandChildNode1_2);
-
-  CHECK_FALSE(rootNode.isAncestorOf(rootNode));
-  CHECK(rootNode.isAncestorOf(*childNode1));
-  CHECK(rootNode.isAncestorOf(*childNode2));
-  CHECK(rootNode.isAncestorOf(*grandChildNode1_1));
-  CHECK(rootNode.isAncestorOf(*grandChildNode1_2));
-
-  CHECK_FALSE(childNode1->isAncestorOf(rootNode));
-  CHECK_FALSE(childNode1->isAncestorOf(*childNode1));
-  CHECK_FALSE(childNode1->isAncestorOf(*childNode2));
-  CHECK(childNode1->isAncestorOf(*grandChildNode1_1));
-  CHECK(childNode1->isAncestorOf(*grandChildNode1_2));
-
-  CHECK_FALSE(childNode2->isAncestorOf(rootNode));
-  CHECK_FALSE(childNode2->isAncestorOf(*childNode1));
-  CHECK_FALSE(childNode2->isAncestorOf(*childNode2));
-  CHECK_FALSE(childNode2->isAncestorOf(*grandChildNode1_1));
-  CHECK_FALSE(childNode2->isAncestorOf(*grandChildNode1_2));
-
-  CHECK_FALSE(grandChildNode1_1->isAncestorOf(rootNode));
-  CHECK_FALSE(grandChildNode1_1->isAncestorOf(*childNode1));
-  CHECK_FALSE(grandChildNode1_1->isAncestorOf(*childNode2));
-  CHECK_FALSE(grandChildNode1_1->isAncestorOf(*grandChildNode1_1));
-  CHECK_FALSE(grandChildNode1_1->isAncestorOf(*grandChildNode1_2));
-
-  CHECK_FALSE(grandChildNode1_2->isAncestorOf(rootNode));
-  CHECK_FALSE(grandChildNode1_2->isAncestorOf(*childNode1));
-  CHECK_FALSE(grandChildNode1_2->isAncestorOf(*childNode2));
-  CHECK_FALSE(grandChildNode1_2->isAncestorOf(*grandChildNode1_1));
-  CHECK_FALSE(grandChildNode1_2->isAncestorOf(*grandChildNode1_2));
-
-  CHECK(rootNode.isAncestorOf(std::vector<Node*>{
-    &rootNode, childNode1, childNode2, grandChildNode1_1, grandChildNode1_2}));
-  CHECK(childNode1->isAncestorOf(std::vector<Node*>{
-    &rootNode, childNode1, childNode2, grandChildNode1_1, grandChildNode1_2}));
-  CHECK_FALSE(childNode2->isAncestorOf(std::vector<Node*>{
-    &rootNode, childNode1, childNode2, grandChildNode1_1, grandChildNode1_2}));
-  CHECK_FALSE(grandChildNode1_1->isAncestorOf(std::vector<Node*>{
-    &rootNode, childNode1, childNode2, grandChildNode1_1, grandChildNode1_2}));
-  CHECK_FALSE(grandChildNode1_1->isAncestorOf(std::vector<Node*>{
-    &rootNode, childNode1, childNode2, grandChildNode1_1, grandChildNode1_2}));
-}
-
-TEST_CASE("NodeTest.isDescendantOf")
-{
-  auto rootNode = TestNode{};
-  auto* childNode1 = new TestNode{};
-  auto* childNode2 = new TestNode{};
-  auto* grandChildNode1_1 = new TestNode{};
-  auto* grandChildNode1_2 = new TestNode{};
-
-  rootNode.addChild(childNode1);
-  rootNode.addChild(childNode2);
-  childNode1->addChild(grandChildNode1_1);
-  childNode1->addChild(grandChildNode1_2);
-
-  CHECK_FALSE(rootNode.isDescendantOf(rootNode));
-  CHECK_FALSE(rootNode.isDescendantOf(*childNode1));
-  CHECK_FALSE(rootNode.isDescendantOf(*childNode2));
-  CHECK_FALSE(rootNode.isDescendantOf(*grandChildNode1_1));
-  CHECK_FALSE(rootNode.isDescendantOf(*grandChildNode1_2));
-
-  CHECK(childNode1->isDescendantOf(rootNode));
-  CHECK_FALSE(childNode1->isDescendantOf(*childNode1));
-  CHECK_FALSE(childNode1->isDescendantOf(*childNode2));
-  CHECK_FALSE(childNode1->isDescendantOf(*grandChildNode1_1));
-  CHECK_FALSE(childNode1->isDescendantOf(*grandChildNode1_2));
-
-  CHECK(childNode2->isDescendantOf(rootNode));
-  CHECK_FALSE(childNode2->isDescendantOf(*childNode1));
-  CHECK_FALSE(childNode2->isDescendantOf(*childNode2));
-  CHECK_FALSE(childNode2->isDescendantOf(*grandChildNode1_1));
-  CHECK_FALSE(childNode2->isDescendantOf(*grandChildNode1_2));
-
-  CHECK(grandChildNode1_1->isDescendantOf(rootNode));
-  CHECK(grandChildNode1_1->isDescendantOf(*childNode1));
-  CHECK_FALSE(grandChildNode1_1->isDescendantOf(*childNode2));
-  CHECK_FALSE(grandChildNode1_1->isDescendantOf(*grandChildNode1_1));
-  CHECK_FALSE(grandChildNode1_1->isDescendantOf(*grandChildNode1_2));
-
-  CHECK(grandChildNode1_2->isDescendantOf(rootNode));
-  CHECK(grandChildNode1_2->isDescendantOf(*childNode1));
-  CHECK_FALSE(grandChildNode1_2->isDescendantOf(*childNode2));
-  CHECK_FALSE(grandChildNode1_2->isDescendantOf(*grandChildNode1_1));
-  CHECK_FALSE(grandChildNode1_2->isDescendantOf(*grandChildNode1_2));
-
-  CHECK_FALSE(rootNode.isDescendantOf(std::vector<Node*>{
-    &rootNode, childNode1, childNode2, grandChildNode1_1, grandChildNode1_2}));
-  CHECK(childNode1->isDescendantOf(std::vector<Node*>{
-    &rootNode, childNode1, childNode2, grandChildNode1_1, grandChildNode1_2}));
-  CHECK(childNode2->isDescendantOf(std::vector<Node*>{
-    &rootNode, childNode1, childNode2, grandChildNode1_1, grandChildNode1_2}));
-  CHECK(grandChildNode1_1->isDescendantOf(std::vector<Node*>{
-    &rootNode, childNode1, childNode2, grandChildNode1_1, grandChildNode1_2}));
-  CHECK(grandChildNode1_1->isDescendantOf(std::vector<Node*>{
-    &rootNode, childNode1, childNode2, grandChildNode1_1, grandChildNode1_2}));
-}
-
-namespace
-{
 enum class Visited
 {
   World,
@@ -762,139 +323,6 @@ const auto constNodeTestVisitor = kdl::overload(
   [](const BrushNode&) { return Visited::Brush; },
   [](const PatchNode&) { return Visited::Patch; });
 
-} // namespace
-
-TEST_CASE("NodeTest.accept")
-{
-  const auto worldBounds = vm::bbox3d{8192.0};
-
-  auto worldNode = WorldNode{{}, {}, MapFormat::Standard};
-  auto layerNode = LayerNode{Layer{"name"}};
-  auto groupNode = GroupNode{Group{"name"}};
-  auto entityNode = EntityNode{{}};
-  auto brushNode = BrushNode{
-    BrushBuilder{worldNode.mapFormat(), worldBounds}.createCube(32.0, "material")
-    | kdl::value()};
-
-  // clang-format off
-  auto patchNode = PatchNode{BezierPatch{3, 3, { 
-    BezierPatch::Point{}, BezierPatch::Point{}, BezierPatch::Point{},
-    BezierPatch::Point{}, BezierPatch::Point{}, BezierPatch::Point{},
-    BezierPatch::Point{}, BezierPatch::Point{}, BezierPatch::Point{},
-  }, "material"}};
-  // clang-format on
-
-  SECTION("Non const nodes accept non const visitor")
-  {
-    CHECK(worldNode.accept(nodeTestVisitor) == Visited::World);
-    CHECK(layerNode.accept(nodeTestVisitor) == Visited::Layer);
-    CHECK(groupNode.accept(nodeTestVisitor) == Visited::Group);
-    CHECK(entityNode.accept(nodeTestVisitor) == Visited::Entity);
-    CHECK(brushNode.accept(nodeTestVisitor) == Visited::Brush);
-    CHECK(brushNode.accept(nodeTestVisitor) == Visited::Brush);
-    CHECK(patchNode.accept(nodeTestVisitor) == Visited::Patch);
-  }
-
-  SECTION("Non const nodes accept const visitor")
-  {
-    CHECK(worldNode.accept(constNodeTestVisitor) == Visited::World);
-    CHECK(layerNode.accept(constNodeTestVisitor) == Visited::Layer);
-    CHECK(groupNode.accept(constNodeTestVisitor) == Visited::Group);
-    CHECK(entityNode.accept(constNodeTestVisitor) == Visited::Entity);
-    CHECK(brushNode.accept(constNodeTestVisitor) == Visited::Brush);
-    CHECK(patchNode.accept(constNodeTestVisitor) == Visited::Patch);
-  }
-
-  SECTION("Const nodes accept const visitor")
-  {
-    CHECK(
-      const_cast<const WorldNode&>(worldNode).accept(constNodeTestVisitor)
-      == Visited::World);
-    CHECK(
-      const_cast<const LayerNode&>(layerNode).accept(constNodeTestVisitor)
-      == Visited::Layer);
-    CHECK(
-      const_cast<const GroupNode&>(groupNode).accept(constNodeTestVisitor)
-      == Visited::Group);
-    CHECK(
-      const_cast<const EntityNode&>(entityNode).accept(constNodeTestVisitor)
-      == Visited::Entity);
-    CHECK(
-      const_cast<const BrushNode&>(brushNode).accept(constNodeTestVisitor)
-      == Visited::Brush);
-    CHECK(
-      const_cast<const PatchNode&>(patchNode).accept(constNodeTestVisitor)
-      == Visited::Patch);
-  }
-}
-
-TEST_CASE("NodeTest.acceptAndVisitChildren")
-{
-  auto worldNode = WorldNode{{}, {}, MapFormat::Standard};
-  auto* layerNode = worldNode.defaultLayer();
-
-  auto* entityNode1 = new EntityNode{Entity{}};
-  auto* entityNode2 = new EntityNode{Entity{}};
-  auto* groupNode = new GroupNode(Group{"name"});
-  auto* groupEntityNode = new EntityNode{Entity{}};
-
-  layerNode->addChild(entityNode1);
-  layerNode->addChild(entityNode2);
-  layerNode->addChild(groupNode);
-  groupNode->addChild(groupEntityNode);
-
-  const auto collectRecursively = [](auto& node) {
-    auto result = std::vector<Node*>{};
-    node.accept(kdl::overload(
-      [&](auto&& thisLambda, WorldNode& w) {
-        result.push_back(&w);
-        w.visitChildren(thisLambda);
-      },
-      [&](auto&& thisLambda, LayerNode& l) {
-        result.push_back(&l);
-        l.visitChildren(thisLambda);
-      },
-      [&](auto&& thisLambda, GroupNode& g) {
-        result.push_back(&g);
-        g.visitChildren(thisLambda);
-      },
-      [&](auto&& thisLambda, EntityNode& e) {
-        result.push_back(&e);
-        e.visitChildren(thisLambda);
-      },
-      [&](BrushNode& b) { result.push_back(&b); },
-      [&](PatchNode& p) { result.push_back(&p); }));
-    return result;
-  };
-
-  CHECK_THAT(
-    collectRecursively(worldNode),
-    Equals(std::vector<Node*>{
-      &worldNode, layerNode, entityNode1, entityNode2, groupNode, groupEntityNode}));
-  CHECK_THAT(
-    collectRecursively(*groupNode),
-    Equals(std::vector<Node*>{groupNode, groupEntityNode}));
-  CHECK_THAT(collectRecursively(*entityNode1), Equals(std::vector<Node*>{entityNode1}));
-}
-
-TEST_CASE("NodeTest.visitParent")
-{
-  auto worldNode = WorldNode{{}, {}, MapFormat::Standard};
-  auto* layerNode = worldNode.defaultLayer();
-
-  CHECK(worldNode.visitParent(nodeTestVisitor) == std::nullopt);
-  CHECK(worldNode.visitParent(constNodeTestVisitor) == std::nullopt);
-
-  CHECK(layerNode->visitParent(nodeTestVisitor) == Visited::World);
-  CHECK(layerNode->visitParent(constNodeTestVisitor) == Visited::World);
-
-  CHECK(EntityNode{Entity{}}.visitParent(nodeTestVisitor) == std::nullopt);
-  CHECK(EntityNode{Entity{}}.visitParent(constNodeTestVisitor) == std::nullopt);
-}
-
-namespace
-{
-
 auto makeCollectVisitedNodesVisitor(std::vector<Node*>& visited)
 {
   return kdl::overload(
@@ -908,125 +336,765 @@ auto makeCollectVisitedNodesVisitor(std::vector<Node*>& visited)
 
 } // namespace
 
-TEST_CASE("NodeTest.visitAll")
+TEST_CASE("Node")
 {
-  auto worldNode = WorldNode{{}, {}, MapFormat::Standard};
-  auto layerNode = LayerNode{Layer{"name"}};
-  auto groupNode = GroupNode{Group{"name"}};
-  auto entityNode = EntityNode{Entity{}};
-
-  const auto toVisit =
-    std::vector<Node*>{&worldNode, &layerNode, &groupNode, &entityNode};
-  auto visited = std::vector<Node*>{};
-  Node::visitAll(toVisit, makeCollectVisitedNodesVisitor(visited));
-
-  CHECK_THAT(visited, Equals(toVisit));
-}
-
-TEST_CASE("NodeTest.visitChildren")
-{
-  auto worldNode = WorldNode{{}, {}, MapFormat::Standard};
-  auto* layerNode = worldNode.defaultLayer();
-
-  auto* entityNode1 = new EntityNode{Entity{}};
-  auto* entityNode2 = new EntityNode{Entity{}};
-  layerNode->addChild(entityNode1);
-  layerNode->addChild(entityNode2);
-
-  SECTION("Visit children of world node")
+  SECTION("destructor")
   {
-    auto visited = std::vector<Node*>{};
-    worldNode.visitChildren(makeCollectVisitedNodesVisitor(visited));
-    CHECK_THAT(visited, Equals(std::vector<Node*>{layerNode}));
+    auto rootNode = std::make_unique<TestNode>();
+
+    auto childDestroyed = false;
+    rootNode->addChild(new DestroyableNode{childDestroyed});
+
+    rootNode.reset();
+    CHECK(childDestroyed);
   }
 
-  SECTION("Visit children of layer node")
+  SECTION("clone")
   {
-    auto visited = std::vector<Node*>{};
-    layerNode->visitChildren(makeCollectVisitedNodesVisitor(visited));
-    CHECK_THAT(visited, Equals(std::vector<Node*>{entityNode1, entityNode2}));
+    const auto worldBounds = vm::bbox3d{8192.0};
+
+    auto* nodeA = new TestNode{};
+    auto* nodeB = new TestNode{};
+
+    auto clones = TestNode::cloneNodes(worldBounds, std::vector<Node*>{nodeA, nodeB});
+
+    CHECK(clones.size() == 2u);
+    CHECK(clones[0] != nodeA);
+    CHECK(clones[1] != nodeB);
+
+    kdl::vec_clear_and_delete(clones);
+    delete nodeA;
+    delete nodeB;
   }
 
-  SECTION("Visit children of entity node")
+  SECTION("pathFrom")
   {
-    auto visited = std::vector<Node*>{};
-    entityNode1->visitChildren(makeCollectVisitedNodesVisitor(visited));
-    CHECK_THAT(visited, Equals(std::vector<Node*>{}));
+    auto rootNode = TestNode{};
+    auto& childNode1 = rootNode.addChild(new TestNode{});
+    auto& childNode2 = rootNode.addChild(new TestNode{});
+    auto& childNode1_1 = childNode1.addChild(new TestNode{});
+    auto& childNode1_2 = childNode1.addChild(new TestNode{});
+    auto& childNode1_1_1 = childNode1_1.addChild(new TestNode{});
+
+    CHECK(childNode1_1_1.pathFrom(rootNode) == NodePath{{0, 0, 0}});
+    CHECK(childNode1_1_1.pathFrom(childNode1) == NodePath{{0, 0}});
+    CHECK(childNode1_1_1.pathFrom(childNode1_1) == NodePath{{0}});
+    CHECK(childNode1_1_1.pathFrom(childNode1_1_1) == NodePath{{}});
+
+    CHECK(childNode2.pathFrom(rootNode) == NodePath{{1}});
+    CHECK(childNode1_2.pathFrom(rootNode) == NodePath{{0, 1}});
+    CHECK(rootNode.pathFrom(rootNode) == NodePath{{}});
   }
-}
 
-TEST_CASE("NodeTest.pathFrom")
-{
-  auto rootNode = TestNode{};
-  auto& childNode1 = rootNode.addChild(new TestNode{});
-  auto& childNode2 = rootNode.addChild(new TestNode{});
-  auto& childNode1_1 = childNode1.addChild(new TestNode{});
-  auto& childNode1_2 = childNode1.addChild(new TestNode{});
-  auto& childNode1_1_1 = childNode1_1.addChild(new TestNode{});
-
-  CHECK(childNode1_1_1.pathFrom(rootNode) == NodePath{{0, 0, 0}});
-  CHECK(childNode1_1_1.pathFrom(childNode1) == NodePath{{0, 0}});
-  CHECK(childNode1_1_1.pathFrom(childNode1_1) == NodePath{{0}});
-  CHECK(childNode1_1_1.pathFrom(childNode1_1_1) == NodePath{{}});
-
-  CHECK(childNode2.pathFrom(rootNode) == NodePath{{1}});
-  CHECK(childNode1_2.pathFrom(rootNode) == NodePath{{0, 1}});
-  CHECK(rootNode.pathFrom(rootNode) == NodePath{{}});
-}
-
-TEST_CASE("Nodepath.resolvePath")
-{
-  auto rootNode = TestNode{};
-  auto& childNode1 = rootNode.addChild(new TestNode{});
-  auto& childNode2 = rootNode.addChild(new TestNode{});
-  auto& childNode1_1 = childNode1.addChild(new TestNode{});
-  auto& childNode1_2 = childNode1.addChild(new TestNode{});
-  auto& childNode1_1_1 = childNode1_1.addChild(new TestNode{});
-
-  CHECK(rootNode.resolvePath(NodePath{{}}) == &rootNode);
-  CHECK(rootNode.resolvePath(NodePath{{0}}) == &childNode1);
-  CHECK(rootNode.resolvePath(NodePath{{1}}) == &childNode2);
-  CHECK(rootNode.resolvePath(NodePath{{2}}) == nullptr);
-  CHECK(rootNode.resolvePath(NodePath{{0, 0}}) == &childNode1_1);
-  CHECK(rootNode.resolvePath(NodePath{{0, 0, 0}}) == &childNode1_1_1);
-  CHECK(rootNode.resolvePath(NodePath{{0, 1}}) == &childNode1_2);
-  CHECK(childNode1.resolvePath(NodePath{{0, 0}}) == &childNode1_1_1);
-  CHECK(childNode1_1.resolvePath(NodePath{{0}}) == &childNode1_1_1);
-  CHECK(childNode1_1_1.resolvePath(NodePath{{}}) == &childNode1_1_1);
-}
-
-TEST_CASE("NodeTest.entityPropertyConfig")
-{
-  class RootNode : public TestNode
+  SECTION("resolvePath")
   {
-  private:
-    EntityPropertyConfig m_entityPropertyConfig;
+    auto rootNode = TestNode{};
+    auto& childNode1 = rootNode.addChild(new TestNode{});
+    auto& childNode2 = rootNode.addChild(new TestNode{});
+    auto& childNode1_1 = childNode1.addChild(new TestNode{});
+    auto& childNode1_2 = childNode1.addChild(new TestNode{});
+    auto& childNode1_1_1 = childNode1_1.addChild(new TestNode{});
 
-  public:
-    explicit RootNode(EntityPropertyConfig entityPropertyConfig)
-      : m_entityPropertyConfig{std::move(entityPropertyConfig)}
+    CHECK(rootNode.resolvePath(NodePath{{}}) == &rootNode);
+    CHECK(rootNode.resolvePath(NodePath{{0}}) == &childNode1);
+    CHECK(rootNode.resolvePath(NodePath{{1}}) == &childNode2);
+    CHECK(rootNode.resolvePath(NodePath{{2}}) == nullptr);
+    CHECK(rootNode.resolvePath(NodePath{{0, 0}}) == &childNode1_1);
+    CHECK(rootNode.resolvePath(NodePath{{0, 0, 0}}) == &childNode1_1_1);
+    CHECK(rootNode.resolvePath(NodePath{{0, 1}}) == &childNode1_2);
+    CHECK(childNode1.resolvePath(NodePath{{0, 0}}) == &childNode1_1_1);
+    CHECK(childNode1_1.resolvePath(NodePath{{0}}) == &childNode1_1_1);
+    CHECK(childNode1_1_1.resolvePath(NodePath{{}}) == &childNode1_1_1);
+  }
+
+  SECTION("depth")
+  {
+    auto rootNode = TestNode{};
+    auto* childNode = new TestNode{};
+    auto* grandChildNode = new TestNode{};
+
+    CHECK(rootNode.depth() == 0u);
+
+    rootNode.addChild(childNode);
+    CHECK(childNode->depth() == 1u);
+
+    childNode->addChild(grandChildNode);
+    CHECK(grandChildNode->depth() == 2u);
+  }
+
+  SECTION("isAncestorOf")
+  {
+    auto rootNode = TestNode{};
+    auto* childNode1 = new TestNode{};
+    auto* childNode2 = new TestNode{};
+    auto* grandChildNode1_1 = new TestNode{};
+    auto* grandChildNode1_2 = new TestNode{};
+
+    rootNode.addChild(childNode1);
+    rootNode.addChild(childNode2);
+    childNode1->addChild(grandChildNode1_1);
+    childNode1->addChild(grandChildNode1_2);
+
+    CHECK_FALSE(rootNode.isAncestorOf(rootNode));
+    CHECK(rootNode.isAncestorOf(*childNode1));
+    CHECK(rootNode.isAncestorOf(*childNode2));
+    CHECK(rootNode.isAncestorOf(*grandChildNode1_1));
+    CHECK(rootNode.isAncestorOf(*grandChildNode1_2));
+
+    CHECK_FALSE(childNode1->isAncestorOf(rootNode));
+    CHECK_FALSE(childNode1->isAncestorOf(*childNode1));
+    CHECK_FALSE(childNode1->isAncestorOf(*childNode2));
+    CHECK(childNode1->isAncestorOf(*grandChildNode1_1));
+    CHECK(childNode1->isAncestorOf(*grandChildNode1_2));
+
+    CHECK_FALSE(childNode2->isAncestorOf(rootNode));
+    CHECK_FALSE(childNode2->isAncestorOf(*childNode1));
+    CHECK_FALSE(childNode2->isAncestorOf(*childNode2));
+    CHECK_FALSE(childNode2->isAncestorOf(*grandChildNode1_1));
+    CHECK_FALSE(childNode2->isAncestorOf(*grandChildNode1_2));
+
+    CHECK_FALSE(grandChildNode1_1->isAncestorOf(rootNode));
+    CHECK_FALSE(grandChildNode1_1->isAncestorOf(*childNode1));
+    CHECK_FALSE(grandChildNode1_1->isAncestorOf(*childNode2));
+    CHECK_FALSE(grandChildNode1_1->isAncestorOf(*grandChildNode1_1));
+    CHECK_FALSE(grandChildNode1_1->isAncestorOf(*grandChildNode1_2));
+
+    CHECK_FALSE(grandChildNode1_2->isAncestorOf(rootNode));
+    CHECK_FALSE(grandChildNode1_2->isAncestorOf(*childNode1));
+    CHECK_FALSE(grandChildNode1_2->isAncestorOf(*childNode2));
+    CHECK_FALSE(grandChildNode1_2->isAncestorOf(*grandChildNode1_1));
+    CHECK_FALSE(grandChildNode1_2->isAncestorOf(*grandChildNode1_2));
+
+    CHECK(rootNode.isAncestorOf(std::vector<Node*>{
+      &rootNode, childNode1, childNode2, grandChildNode1_1, grandChildNode1_2}));
+    CHECK(childNode1->isAncestorOf(std::vector<Node*>{
+      &rootNode, childNode1, childNode2, grandChildNode1_1, grandChildNode1_2}));
+    CHECK_FALSE(childNode2->isAncestorOf(std::vector<Node*>{
+      &rootNode, childNode1, childNode2, grandChildNode1_1, grandChildNode1_2}));
+    CHECK_FALSE(grandChildNode1_1->isAncestorOf(std::vector<Node*>{
+      &rootNode, childNode1, childNode2, grandChildNode1_1, grandChildNode1_2}));
+    CHECK_FALSE(grandChildNode1_1->isAncestorOf(std::vector<Node*>{
+      &rootNode, childNode1, childNode2, grandChildNode1_1, grandChildNode1_2}));
+  }
+
+  SECTION("isDescendantOf")
+  {
+    auto rootNode = TestNode{};
+    auto* childNode1 = new TestNode{};
+    auto* childNode2 = new TestNode{};
+    auto* grandChildNode1_1 = new TestNode{};
+    auto* grandChildNode1_2 = new TestNode{};
+
+    rootNode.addChild(childNode1);
+    rootNode.addChild(childNode2);
+    childNode1->addChild(grandChildNode1_1);
+    childNode1->addChild(grandChildNode1_2);
+
+    CHECK_FALSE(rootNode.isDescendantOf(rootNode));
+    CHECK_FALSE(rootNode.isDescendantOf(*childNode1));
+    CHECK_FALSE(rootNode.isDescendantOf(*childNode2));
+    CHECK_FALSE(rootNode.isDescendantOf(*grandChildNode1_1));
+    CHECK_FALSE(rootNode.isDescendantOf(*grandChildNode1_2));
+
+    CHECK(childNode1->isDescendantOf(rootNode));
+    CHECK_FALSE(childNode1->isDescendantOf(*childNode1));
+    CHECK_FALSE(childNode1->isDescendantOf(*childNode2));
+    CHECK_FALSE(childNode1->isDescendantOf(*grandChildNode1_1));
+    CHECK_FALSE(childNode1->isDescendantOf(*grandChildNode1_2));
+
+    CHECK(childNode2->isDescendantOf(rootNode));
+    CHECK_FALSE(childNode2->isDescendantOf(*childNode1));
+    CHECK_FALSE(childNode2->isDescendantOf(*childNode2));
+    CHECK_FALSE(childNode2->isDescendantOf(*grandChildNode1_1));
+    CHECK_FALSE(childNode2->isDescendantOf(*grandChildNode1_2));
+
+    CHECK(grandChildNode1_1->isDescendantOf(rootNode));
+    CHECK(grandChildNode1_1->isDescendantOf(*childNode1));
+    CHECK_FALSE(grandChildNode1_1->isDescendantOf(*childNode2));
+    CHECK_FALSE(grandChildNode1_1->isDescendantOf(*grandChildNode1_1));
+    CHECK_FALSE(grandChildNode1_1->isDescendantOf(*grandChildNode1_2));
+
+    CHECK(grandChildNode1_2->isDescendantOf(rootNode));
+    CHECK(grandChildNode1_2->isDescendantOf(*childNode1));
+    CHECK_FALSE(grandChildNode1_2->isDescendantOf(*childNode2));
+    CHECK_FALSE(grandChildNode1_2->isDescendantOf(*grandChildNode1_1));
+    CHECK_FALSE(grandChildNode1_2->isDescendantOf(*grandChildNode1_2));
+
+    CHECK_FALSE(rootNode.isDescendantOf(std::vector<Node*>{
+      &rootNode, childNode1, childNode2, grandChildNode1_1, grandChildNode1_2}));
+    CHECK(childNode1->isDescendantOf(std::vector<Node*>{
+      &rootNode, childNode1, childNode2, grandChildNode1_1, grandChildNode1_2}));
+    CHECK(childNode2->isDescendantOf(std::vector<Node*>{
+      &rootNode, childNode1, childNode2, grandChildNode1_1, grandChildNode1_2}));
+    CHECK(grandChildNode1_1->isDescendantOf(std::vector<Node*>{
+      &rootNode, childNode1, childNode2, grandChildNode1_1, grandChildNode1_2}));
+    CHECK(grandChildNode1_1->isDescendantOf(std::vector<Node*>{
+      &rootNode, childNode1, childNode2, grandChildNode1_1, grandChildNode1_2}));
+  }
+
+  SECTION("findDescendants")
+  {
+    auto rootNode = TestNode{};
+    auto* childNode = new TestNode{};
+    auto* grandChildNode = new TestNode{};
+    auto unrelatedNode = TestNode{};
+
+    rootNode.addChild(childNode);
+    childNode->addChild(grandChildNode);
+
+    CHECK_THAT(
+      rootNode.findDescendants({childNode, grandChildNode, &unrelatedNode}),
+      UnorderedEquals(std::vector<Node*>{childNode, grandChildNode}));
+    CHECK_THAT(
+      childNode->findDescendants({childNode, grandChildNode}),
+      UnorderedEquals(std::vector<Node*>{grandChildNode}));
+    CHECK_THAT(
+      rootNode.findDescendants({&unrelatedNode}), UnorderedEquals(std::vector<Node*>{}));
+  }
+
+  SECTION("addChild")
+  {
+    auto rootNode = MockNode{};
+    auto* childNode = new MockNode{};
+    auto* grandChildNode1 = new MockNode{};
+    auto* grandChildNode2 = new MockNode{};
+
+    childNode->expectCall(DoCanAddChild{true, grandChildNode1});
+    grandChildNode1->expectCall(DoParentWillChange{});
+    grandChildNode1->expectCall(DoAncestorWillChange{});
+    grandChildNode1->expectCall(DoParentDidChange{});
+    grandChildNode1->expectCall(DoAncestorDidChange{});
+    childNode->addChild(grandChildNode1);
+    CHECK(childNode->childCount() == 1u);
+    CHECK(childNode->familySize() == 2u);
+    CHECK(grandChildNode1->parent() == childNode);
+    CHECK(kdl::vec_contains(childNode->children(), grandChildNode1));
+
+    rootNode.expectCall(DoCanAddChild{true, childNode});
+    childNode->expectCall(DoParentWillChange{});
+    childNode->expectCall(DoAncestorWillChange{});
+    childNode->expectCall(DoParentDidChange{});
+    childNode->expectCall(DoAncestorDidChange{});
+    grandChildNode1->expectCall(DoAncestorWillChange{});
+    grandChildNode1->expectCall(DoAncestorDidChange{});
+
+    rootNode.addChild(childNode);
+    CHECK(rootNode.childCount() == 1u);
+    CHECK(rootNode.familySize() == 3u);
+    CHECK(childNode->parent() == &rootNode);
+    CHECK(kdl::vec_contains(rootNode.children(), childNode));
+
+    childNode->expectCall(DoCanAddChild{true, grandChildNode2});
+    grandChildNode2->expectCall(DoParentWillChange{});
+    grandChildNode2->expectCall(DoAncestorWillChange{});
+    grandChildNode2->expectCall(DoParentDidChange{});
+    grandChildNode2->expectCall(DoAncestorDidChange{});
+    childNode->addChild(grandChildNode2);
+    CHECK(rootNode.childCount() == 1u);
+    CHECK(rootNode.familySize() == 4u);
+    CHECK(childNode->childCount() == 2u);
+    CHECK(childNode->familySize() == 3u);
+    CHECK(grandChildNode2->parent() == childNode);
+    CHECK(kdl::vec_contains(childNode->children(), grandChildNode2));
+  }
+
+  SECTION("removeChild")
+  {
+    SECTION("removing a child detaches it and its descendants remain intact")
     {
+      auto rootNode = MockNode{};
+      auto* childNode = new MockNode{};
+      auto* grandChildNode1 = new MockNode{};
+      auto* grandChildNode2 = new MockNode{};
+
+      childNode->expectCall(DoCanAddChild{true, grandChildNode1});
+      grandChildNode1->expectCall(DoParentWillChange{});
+      grandChildNode1->expectCall(DoAncestorWillChange{});
+      grandChildNode1->expectCall(DoParentDidChange{});
+      grandChildNode1->expectCall(DoAncestorDidChange{});
+      childNode->addChild(grandChildNode1);
+
+      rootNode.expectCall(DoCanAddChild{true, childNode});
+      childNode->expectCall(DoParentWillChange{});
+      childNode->expectCall(DoAncestorWillChange{});
+      childNode->expectCall(DoParentDidChange{});
+      childNode->expectCall(DoAncestorDidChange{});
+      grandChildNode1->expectCall(DoAncestorWillChange{});
+      grandChildNode1->expectCall(DoAncestorDidChange{});
+      rootNode.addChild(childNode);
+
+      childNode->expectCall(DoCanAddChild{true, grandChildNode2});
+      grandChildNode2->expectCall(DoParentWillChange{});
+      grandChildNode2->expectCall(DoAncestorWillChange{});
+      grandChildNode2->expectCall(DoParentDidChange{});
+      grandChildNode2->expectCall(DoAncestorDidChange{});
+      childNode->addChild(grandChildNode2);
+
+      rootNode.expectCall(DoCanRemoveChild{true, childNode});
+      childNode->expectCall(DoParentWillChange{});
+      childNode->expectCall(DoAncestorWillChange{});
+      childNode->expectCall(DoParentDidChange{});
+      childNode->expectCall(DoAncestorDidChange{});
+      grandChildNode1->expectCall(DoAncestorWillChange{});
+      grandChildNode1->expectCall(DoAncestorDidChange{});
+      grandChildNode2->expectCall(DoAncestorWillChange{});
+      grandChildNode2->expectCall(DoAncestorDidChange{});
+
+      rootNode.removeChild(childNode);
+      CHECK(childNode->parent() == nullptr);
+      CHECK_FALSE(kdl::vec_contains(rootNode.children(), childNode));
+      CHECK(rootNode.childCount() == 0u);
+      CHECK(rootNode.familySize() == 1u);
+      CHECK(childNode->childCount() == 2u);
+      CHECK(childNode->familySize() == 3u);
+
+      SECTION("a removed child can be added again")
+      {
+        rootNode.expectCall(DoCanAddChild{true, childNode});
+        childNode->expectCall(DoParentWillChange{});
+        childNode->expectCall(DoAncestorWillChange{});
+        childNode->expectCall(DoParentDidChange{});
+        childNode->expectCall(DoAncestorDidChange{});
+        grandChildNode1->expectCall(DoAncestorWillChange{});
+        grandChildNode1->expectCall(DoAncestorDidChange{});
+        grandChildNode2->expectCall(DoAncestorWillChange{});
+        grandChildNode2->expectCall(DoAncestorDidChange{});
+
+        rootNode.addChild(childNode);
+        CHECK(childNode->parent() == &rootNode);
+        CHECK(kdl::vec_contains(rootNode.children(), childNode));
+        CHECK(rootNode.childCount() == 1u);
+        CHECK(rootNode.familySize() == 4u);
+        CHECK(childNode->childCount() == 2u);
+        CHECK(childNode->familySize() == 3u);
+      }
     }
 
-  private:
-    const EntityPropertyConfig& doGetEntityPropertyConfig() const override
+    SECTION(
+      "removing a selected child decrements the parent's descendant selection count")
     {
-      return m_entityPropertyConfig;
+      auto rootNode = TestNode{};
+      auto* childNode = new TestNode{};
+      rootNode.addChild(childNode);
+      childNode->select();
+
+      CHECK(rootNode.descendantSelectionCount() == 1u);
+
+      rootNode.removeChild(childNode);
+
+      CHECK(rootNode.descendantSelectionCount() == 0u);
+      CHECK(childNode->selected());
+
+      delete childNode;
     }
-  };
+  }
 
-  const auto config =
-    EntityPropertyConfig{{el::ExpressionNode{el::LiteralExpression{el::Value{2.0}}}}};
-  auto root = std::make_unique<RootNode>(config);
-  REQUIRE(root->entityPropertyConfig() == config);
+  SECTION("replaceChildren")
+  {
+    auto rootNode = TestNode{};
+    auto* childNode1 = new TestNode{};
+    auto* childNode2 = new TestNode{};
 
-  auto node = std::make_unique<TestNode>();
-  CHECK(node->entityPropertyConfig() == EntityPropertyConfig{});
+    rootNode.addChildren({childNode1, childNode2});
 
-  root->addChild(node.release());
+    auto childNode3Ptr = std::make_unique<TestNode>();
+    auto* childNode3 = childNode3Ptr.get();
 
-  auto nodePtr = root->children().front();
-  CHECK(nodePtr->entityPropertyConfig() == config);
+    auto newChildren = std::vector<std::unique_ptr<Node>>{};
+    newChildren.push_back(std::move(childNode3Ptr));
+
+    const auto oldChildren = rootNode.replaceChildren(std::move(newChildren));
+
+    CHECK(oldChildren.size() == 2u);
+    CHECK_THAT(
+      oldChildren | std::views::transform([](const auto& c) { return c.get(); }),
+      UnorderedRangeEquals(std::vector{childNode1, childNode2}));
+    CHECK(childNode1->parent() == nullptr);
+    CHECK(childNode2->parent() == nullptr);
+
+    CHECK_THAT(rootNode.children(), UnorderedEquals(std::vector<Node*>{childNode3}));
+    CHECK(childNode3->parent() == &rootNode);
+  }
+
+  SECTION("select")
+  {
+    SECTION("an unselectable node cannot be selected")
+    {
+      auto node = MockNode{};
+
+      node.select();
+      CHECK(!node.selected());
+    }
+
+    SECTION("selecting a node without a parent")
+    {
+      auto node = TestNode{};
+
+      node.select();
+      CHECK(node.selected());
+    }
+
+    SECTION("selecting a child updates the parent's counters")
+    {
+      auto rootNode = TestNode{};
+      auto* childNode = new TestNode{};
+      rootNode.addChild(childNode);
+
+      CHECK(!rootNode.childSelected());
+      CHECK(rootNode.childSelectionCount() == 0u);
+
+      childNode->select();
+      CHECK(rootNode.childSelected());
+      CHECK(rootNode.childSelectionCount() == 1u);
+      CHECK(rootNode.descendantSelectionCount() == 1u);
+      CHECK(!childNode->parentSelected());
+    }
+  }
+
+  SECTION("deselect")
+  {
+    SECTION("an unselectable node cannot be deselected")
+    {
+      auto node = MockNode{};
+
+      node.deselect();
+      CHECK(!node.selected());
+    }
+
+    SECTION("deselecting a node without a parent")
+    {
+      auto node = TestNode{};
+      node.select();
+
+      node.deselect();
+      CHECK(!node.selected());
+    }
+
+    SECTION("deselecting a child updates the parent's counters")
+    {
+      auto rootNode = TestNode{};
+      auto* childNode = new TestNode{};
+      rootNode.addChild(childNode);
+      childNode->select();
+
+      childNode->deselect();
+      CHECK(!rootNode.childSelected());
+      CHECK(rootNode.childSelectionCount() == 0u);
+      CHECK(!childNode->transitivelySelected());
+    }
+  }
+
+  SECTION("transitivelySelected")
+  {
+    SECTION("a node is transitively selected if it is itself selected")
+    {
+      auto node = TestNode{};
+      node.select();
+      CHECK(node.transitivelySelected());
+    }
+
+    SECTION("a node whose direct parent is selected is transitively selected")
+    {
+      auto rootNode = TestNode{};
+      auto* childNode = new TestNode{};
+      rootNode.addChild(childNode);
+
+      rootNode.select();
+      CHECK(childNode->parentSelected());
+      CHECK(childNode->transitivelySelected());
+    }
+
+    SECTION("a node whose grandparent is selected is transitively selected")
+    {
+      auto rootNode = TestNode{};
+      auto* childNode = new TestNode{};
+      auto* grandChildNode = new TestNode{};
+      rootNode.addChild(childNode);
+      childNode->addChild(grandChildNode);
+
+      rootNode.select();
+      CHECK(!childNode->selected());
+      CHECK(grandChildNode->parentSelected());
+      CHECK(grandChildNode->transitivelySelected());
+    }
+  }
+
+  SECTION("descendantSelectionCount")
+  {
+    auto rootNode = TestNode{};
+    auto* childNode1 = new TestNode{};
+    auto* childNode2 = new TestNode{};
+    auto* grandChildNode1_1 = new TestNode{};
+    auto* grandChildNode1_2 = new TestNode{};
+
+    rootNode.addChild(childNode1);
+    rootNode.addChild(childNode2);
+
+    CHECK(rootNode.descendantSelectionCount() == 0u);
+    childNode1->select();
+    CHECK(childNode1->descendantSelectionCount() == 0u);
+    CHECK(rootNode.descendantSelectionCount() == 1u);
+    childNode2->select();
+    CHECK(childNode1->descendantSelectionCount() == 0u);
+    CHECK(childNode2->descendantSelectionCount() == 0u);
+    CHECK(rootNode.descendantSelectionCount() == 2u);
+
+    childNode1->deselect();
+    CHECK(childNode1->descendantSelectionCount() == 0u);
+    CHECK(rootNode.descendantSelectionCount() == 1u);
+
+    grandChildNode1_1->select();
+    childNode1->addChild(grandChildNode1_1);
+    CHECK(childNode1->descendantSelectionCount() == 1u);
+    CHECK(rootNode.descendantSelectionCount() == 2u);
+
+    childNode1->addChild(grandChildNode1_2);
+    CHECK(childNode1->descendantSelectionCount() == 1u);
+    CHECK(rootNode.descendantSelectionCount() == 2u);
+    grandChildNode1_2->select();
+    CHECK(childNode1->descendantSelectionCount() == 2u);
+    CHECK(rootNode.descendantSelectionCount() == 3u);
+
+    grandChildNode1_1->deselect();
+    CHECK(childNode1->descendantSelectionCount() == 1u);
+    CHECK(rootNode.descendantSelectionCount() == 2u);
+  }
+
+  SECTION("issueHidden")
+  {
+    auto node = TestNode{};
+    const auto type1 = freeIssueType();
+    const auto type2 = freeIssueType();
+
+    CHECK(!node.issueHidden(type1));
+    CHECK(!node.issueHidden(type2));
+
+    node.setIssueHidden(type1, true);
+    CHECK(node.issueHidden(type1));
+    CHECK(!node.issueHidden(type2));
+
+    node.setIssueHidden(type2, true);
+    CHECK(node.issueHidden(type1));
+    CHECK(node.issueHidden(type2));
+
+    node.setIssueHidden(type1, false);
+    CHECK(!node.issueHidden(type1));
+    CHECK(node.issueHidden(type2));
+  }
+
+  SECTION("accept")
+  {
+    const auto worldBounds = vm::bbox3d{8192.0};
+
+    auto worldNode = WorldNode{{}, {}, MapFormat::Standard};
+    auto layerNode = LayerNode{Layer{"name"}};
+    auto groupNode = GroupNode{Group{"name"}};
+    auto entityNode = EntityNode{{}};
+    auto brushNode = BrushNode{
+      BrushBuilder{worldNode.mapFormat(), worldBounds}.createCube(32.0, "material")
+      | kdl::value()};
+
+    // clang-format off
+    auto patchNode = PatchNode{BezierPatch{3, 3, {
+      BezierPatch::Point{}, BezierPatch::Point{}, BezierPatch::Point{},
+      BezierPatch::Point{}, BezierPatch::Point{}, BezierPatch::Point{},
+      BezierPatch::Point{}, BezierPatch::Point{}, BezierPatch::Point{},
+    }, "material"}};
+    // clang-format on
+
+    SECTION("Non const nodes accept non const visitor")
+    {
+      CHECK(worldNode.accept(nodeTestVisitor) == Visited::World);
+      CHECK(layerNode.accept(nodeTestVisitor) == Visited::Layer);
+      CHECK(groupNode.accept(nodeTestVisitor) == Visited::Group);
+      CHECK(entityNode.accept(nodeTestVisitor) == Visited::Entity);
+      CHECK(brushNode.accept(nodeTestVisitor) == Visited::Brush);
+      CHECK(brushNode.accept(nodeTestVisitor) == Visited::Brush);
+      CHECK(patchNode.accept(nodeTestVisitor) == Visited::Patch);
+    }
+
+    SECTION("Non const nodes accept const visitor")
+    {
+      CHECK(worldNode.accept(constNodeTestVisitor) == Visited::World);
+      CHECK(layerNode.accept(constNodeTestVisitor) == Visited::Layer);
+      CHECK(groupNode.accept(constNodeTestVisitor) == Visited::Group);
+      CHECK(entityNode.accept(constNodeTestVisitor) == Visited::Entity);
+      CHECK(brushNode.accept(constNodeTestVisitor) == Visited::Brush);
+      CHECK(patchNode.accept(constNodeTestVisitor) == Visited::Patch);
+    }
+
+    SECTION("Const nodes accept const visitor")
+    {
+      CHECK(
+        const_cast<const WorldNode&>(worldNode).accept(constNodeTestVisitor)
+        == Visited::World);
+      CHECK(
+        const_cast<const LayerNode&>(layerNode).accept(constNodeTestVisitor)
+        == Visited::Layer);
+      CHECK(
+        const_cast<const GroupNode&>(groupNode).accept(constNodeTestVisitor)
+        == Visited::Group);
+      CHECK(
+        const_cast<const EntityNode&>(entityNode).accept(constNodeTestVisitor)
+        == Visited::Entity);
+      CHECK(
+        const_cast<const BrushNode&>(brushNode).accept(constNodeTestVisitor)
+        == Visited::Brush);
+      CHECK(
+        const_cast<const PatchNode&>(patchNode).accept(constNodeTestVisitor)
+        == Visited::Patch);
+    }
+
+    SECTION("accept can be combined with visitChildren to recursively visit a subtree")
+    {
+      auto* layerNode1 = worldNode.defaultLayer();
+
+      auto* entityNode1 = new EntityNode{Entity{}};
+      auto* entityNode2 = new EntityNode{Entity{}};
+      auto* groupNode1 = new GroupNode(Group{"name"});
+      auto* groupEntityNode = new EntityNode{Entity{}};
+
+      layerNode1->addChild(entityNode1);
+      layerNode1->addChild(entityNode2);
+      layerNode1->addChild(groupNode1);
+      groupNode1->addChild(groupEntityNode);
+
+      const auto collectRecursively = [](auto& node) {
+        auto result = std::vector<Node*>{};
+        node.accept(kdl::overload(
+          [&](auto&& thisLambda, WorldNode& w) {
+            result.push_back(&w);
+            w.visitChildren(thisLambda);
+          },
+          [&](auto&& thisLambda, LayerNode& l) {
+            result.push_back(&l);
+            l.visitChildren(thisLambda);
+          },
+          [&](auto&& thisLambda, GroupNode& g) {
+            result.push_back(&g);
+            g.visitChildren(thisLambda);
+          },
+          [&](auto&& thisLambda, EntityNode& e) {
+            result.push_back(&e);
+            e.visitChildren(thisLambda);
+          },
+          [&](BrushNode& b) { result.push_back(&b); },
+          [&](PatchNode& p) { result.push_back(&p); }));
+        return result;
+      };
+
+      CHECK_THAT(
+        collectRecursively(worldNode),
+        Equals(std::vector<Node*>{
+          &worldNode,
+          layerNode1,
+          entityNode1,
+          entityNode2,
+          groupNode1,
+          groupEntityNode}));
+      CHECK_THAT(
+        collectRecursively(*groupNode1),
+        Equals(std::vector<Node*>{groupNode1, groupEntityNode}));
+      CHECK_THAT(
+        collectRecursively(*entityNode1), Equals(std::vector<Node*>{entityNode1}));
+    }
+  }
+
+  SECTION("visitParent")
+  {
+    auto worldNode = WorldNode{{}, {}, MapFormat::Standard};
+    auto* layerNode = worldNode.defaultLayer();
+
+    CHECK(worldNode.visitParent(nodeTestVisitor) == std::nullopt);
+    CHECK(worldNode.visitParent(constNodeTestVisitor) == std::nullopt);
+
+    CHECK(layerNode->visitParent(nodeTestVisitor) == Visited::World);
+    CHECK(layerNode->visitParent(constNodeTestVisitor) == Visited::World);
+
+    CHECK(EntityNode{Entity{}}.visitParent(nodeTestVisitor) == std::nullopt);
+    CHECK(EntityNode{Entity{}}.visitParent(constNodeTestVisitor) == std::nullopt);
+  }
+
+  SECTION("visitAll")
+  {
+    auto worldNode = WorldNode{{}, {}, MapFormat::Standard};
+    auto layerNode = LayerNode{Layer{"name"}};
+    auto groupNode = GroupNode{Group{"name"}};
+    auto entityNode = EntityNode{Entity{}};
+
+    const auto toVisit =
+      std::vector<Node*>{&worldNode, &layerNode, &groupNode, &entityNode};
+    auto visited = std::vector<Node*>{};
+    Node::visitAll(toVisit, makeCollectVisitedNodesVisitor(visited));
+
+    CHECK_THAT(visited, Equals(toVisit));
+  }
+
+  SECTION("visitChildren")
+  {
+    auto worldNode = WorldNode{{}, {}, MapFormat::Standard};
+    auto* layerNode = worldNode.defaultLayer();
+
+    auto* entityNode1 = new EntityNode{Entity{}};
+    auto* entityNode2 = new EntityNode{Entity{}};
+    layerNode->addChild(entityNode1);
+    layerNode->addChild(entityNode2);
+
+    SECTION("Visit children of world node")
+    {
+      auto visited = std::vector<Node*>{};
+      worldNode.visitChildren(makeCollectVisitedNodesVisitor(visited));
+      CHECK_THAT(visited, Equals(std::vector<Node*>{layerNode}));
+    }
+
+    SECTION("Visit children of layer node")
+    {
+      auto visited = std::vector<Node*>{};
+      layerNode->visitChildren(makeCollectVisitedNodesVisitor(visited));
+      CHECK_THAT(visited, Equals(std::vector<Node*>{entityNode1, entityNode2}));
+    }
+
+    SECTION("Visit children of entity node")
+    {
+      auto visited = std::vector<Node*>{};
+      entityNode1->visitChildren(makeCollectVisitedNodesVisitor(visited));
+      CHECK_THAT(visited, Equals(std::vector<Node*>{}));
+    }
+  }
+
+  SECTION("entityPropertyConfig")
+  {
+    class RootNode : public TestNode
+    {
+    private:
+      EntityPropertyConfig m_entityPropertyConfig;
+
+    public:
+      explicit RootNode(EntityPropertyConfig entityPropertyConfig)
+        : m_entityPropertyConfig{std::move(entityPropertyConfig)}
+      {
+      }
+
+    private:
+      const EntityPropertyConfig& doGetEntityPropertyConfig() const override
+      {
+        return m_entityPropertyConfig;
+      }
+    };
+
+    const auto config =
+      EntityPropertyConfig{{el::ExpressionNode{el::LiteralExpression{el::Value{2.0}}}}};
+    auto root = std::make_unique<RootNode>(config);
+    REQUIRE(root->entityPropertyConfig() == config);
+
+    auto node = std::make_unique<TestNode>();
+    CHECK(node->entityPropertyConfig() == EntityPropertyConfig{});
+
+    root->addChild(node.release());
+
+    auto nodePtr = root->children().front();
+    CHECK(nodePtr->entityPropertyConfig() == config);
+  }
 }
 
 } // namespace tb::mdl
