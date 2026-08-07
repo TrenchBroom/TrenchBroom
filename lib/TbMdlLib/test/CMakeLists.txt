@@ -52,6 +52,7 @@ target_sources(TbMdlLibTest PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_LoadMd2Model.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_LoadMd3Model.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_LoadMdlModel.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_LoadMdxModel.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_LoadMipTexture.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_LoadSpriteModel.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_LoadWalTexture.cpp
