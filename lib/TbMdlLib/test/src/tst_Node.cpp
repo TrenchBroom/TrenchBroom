@@ -27,6 +27,7 @@
 #include "mdl/EditorContext.h"
 #include "mdl/EntityNode.h"
 #include "mdl/GroupNode.h"
+#include "mdl/IssueType.h"
 #include "mdl/LayerNode.h"
 #include "mdl/MapFormat.h"
 #include "mdl/Node.h"
@@ -253,6 +254,13 @@ private: // implement Node interface
 
   void doAcceptTagVisitor(TagVisitor& /* visitor */) override {}
   void doAcceptTagVisitor(ConstTagVisitor& /* visitor */) const override {}
+
+public:
+  static std::vector<Node*> cloneNodes(
+    const vm::bbox3d& worldBounds, const std::vector<Node*>& nodes)
+  {
+    return clone(worldBounds, nodes);
+  }
 };
 
 class DestroyableNode : public TestNode
@@ -389,6 +397,170 @@ TEST_CASE("NodeTest.replaceChildren")
 
   CHECK_THAT(rootNode.children(), UnorderedEquals(std::vector<Node*>{childNode3}));
   CHECK(childNode3->parent() == &rootNode);
+}
+
+TEST_CASE("NodeTest.removeSelectedChild")
+{
+  auto rootNode = TestNode{};
+  auto* childNode = new TestNode{};
+  rootNode.addChild(childNode);
+  childNode->select();
+
+  CHECK(rootNode.descendantSelectionCount() == 1u);
+
+  rootNode.removeChild(childNode);
+
+  CHECK(rootNode.descendantSelectionCount() == 0u);
+  CHECK(childNode->selected());
+
+  delete childNode;
+}
+
+TEST_CASE("NodeTest.depth")
+{
+  auto rootNode = TestNode{};
+  auto* childNode = new TestNode{};
+  auto* grandChildNode = new TestNode{};
+
+  CHECK(rootNode.depth() == 0u);
+
+  rootNode.addChild(childNode);
+  CHECK(childNode->depth() == 1u);
+
+  childNode->addChild(grandChildNode);
+  CHECK(grandChildNode->depth() == 2u);
+}
+
+TEST_CASE("NodeTest.findDescendants")
+{
+  auto rootNode = TestNode{};
+  auto* childNode = new TestNode{};
+  auto* grandChildNode = new TestNode{};
+  auto unrelatedNode = TestNode{};
+
+  rootNode.addChild(childNode);
+  childNode->addChild(grandChildNode);
+
+  CHECK_THAT(
+    rootNode.findDescendants({childNode, grandChildNode, &unrelatedNode}),
+    UnorderedEquals(std::vector<Node*>{childNode, grandChildNode}));
+  CHECK_THAT(
+    childNode->findDescendants({childNode, grandChildNode}),
+    UnorderedEquals(std::vector<Node*>{grandChildNode}));
+  CHECK_THAT(
+    rootNode.findDescendants({&unrelatedNode}), UnorderedEquals(std::vector<Node*>{}));
+}
+
+TEST_CASE("NodeTest.selectDeselect")
+{
+  SECTION("selecting and deselecting an unselectable node has no effect")
+  {
+    auto node = MockNode{};
+
+    node.select();
+    CHECK(!node.selected());
+
+    node.deselect();
+    CHECK(!node.selected());
+  }
+
+  SECTION("selecting and deselecting a node without a parent")
+  {
+    auto node = TestNode{};
+
+    node.select();
+    CHECK(node.selected());
+
+    node.deselect();
+    CHECK(!node.selected());
+  }
+
+  SECTION("selecting and deselecting a child updates the parent's counters")
+  {
+    auto rootNode = TestNode{};
+    auto* childNode = new TestNode{};
+    rootNode.addChild(childNode);
+
+    CHECK(!rootNode.childSelected());
+    CHECK(rootNode.childSelectionCount() == 0u);
+
+    childNode->select();
+    CHECK(rootNode.childSelected());
+    CHECK(rootNode.childSelectionCount() == 1u);
+    CHECK(rootNode.descendantSelectionCount() == 1u);
+    CHECK(childNode->transitivelySelected());
+    CHECK(!childNode->parentSelected());
+
+    childNode->deselect();
+    CHECK(!rootNode.childSelected());
+    CHECK(rootNode.childSelectionCount() == 0u);
+    CHECK(!childNode->transitivelySelected());
+  }
+
+  SECTION("a node whose direct parent is selected is transitively selected")
+  {
+    auto rootNode = TestNode{};
+    auto* childNode = new TestNode{};
+    rootNode.addChild(childNode);
+
+    rootNode.select();
+    CHECK(childNode->parentSelected());
+    CHECK(childNode->transitivelySelected());
+  }
+
+  SECTION("a node whose grandparent is selected is transitively selected")
+  {
+    auto rootNode = TestNode{};
+    auto* childNode = new TestNode{};
+    auto* grandChildNode = new TestNode{};
+    rootNode.addChild(childNode);
+    childNode->addChild(grandChildNode);
+
+    rootNode.select();
+    CHECK(!childNode->selected());
+    CHECK(grandChildNode->parentSelected());
+    CHECK(grandChildNode->transitivelySelected());
+  }
+}
+
+TEST_CASE("NodeTest.issueHidden")
+{
+  auto node = TestNode{};
+  const auto type1 = freeIssueType();
+  const auto type2 = freeIssueType();
+
+  CHECK(!node.issueHidden(type1));
+  CHECK(!node.issueHidden(type2));
+
+  node.setIssueHidden(type1, true);
+  CHECK(node.issueHidden(type1));
+  CHECK(!node.issueHidden(type2));
+
+  node.setIssueHidden(type2, true);
+  CHECK(node.issueHidden(type1));
+  CHECK(node.issueHidden(type2));
+
+  node.setIssueHidden(type1, false);
+  CHECK(!node.issueHidden(type1));
+  CHECK(node.issueHidden(type2));
+}
+
+TEST_CASE("NodeTest.clone")
+{
+  const auto worldBounds = vm::bbox3d{8192.0};
+
+  auto* nodeA = new TestNode{};
+  auto* nodeB = new TestNode{};
+
+  auto clones = TestNode::cloneNodes(worldBounds, std::vector<Node*>{nodeA, nodeB});
+
+  CHECK(clones.size() == 2u);
+  CHECK(clones[0] != nodeA);
+  CHECK(clones[1] != nodeB);
+
+  kdl::vec_clear_and_delete(clones);
+  delete nodeA;
+  delete nodeB;
 }
 
 TEST_CASE("NodeTest.partialSelection")
