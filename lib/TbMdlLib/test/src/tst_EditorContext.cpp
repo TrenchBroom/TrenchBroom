@@ -19,16 +19,19 @@
 
 #include "mdl/BezierPatch.h"
 #include "mdl/BrushBuilder.h"
+#include "mdl/BrushFace.h"
 #include "mdl/BrushNode.h"
 #include "mdl/CatchConfig.h"
 #include "mdl/EditorContext.h"
 #include "mdl/Entity.h"
+#include "mdl/EntityDefinition.h"
 #include "mdl/EntityNode.h"
 #include "mdl/GroupNode.h"
 #include "mdl/LayerNode.h"
 #include "mdl/LockState.h"
 #include "mdl/MapFormat.h"
 #include "mdl/PatchNode.h"
+#include "mdl/Tag.h"
 #include "mdl/VisibilityState.h"
 #include "mdl/WorldNode.h"
 
@@ -1200,6 +1203,155 @@ TEST_CASE_METHOD(EditorContextTest, "EditorContextTest.testGroupedNodes")
     CHECK(context.visible(*entityNode) == visible);
     CHECK(context.editable(*entityNode) == editable);
     CHECK(context.selectable(*entityNode) == selectable);
+  }
+}
+
+TEST_CASE_METHOD(EditorContextTest, "EditorContextTest.testVisibilitySettings")
+{
+  SECTION("setShowBrushes")
+  {
+    auto* brushNode = createTopLevelBrush();
+    REQUIRE(context.visible(*brushNode));
+
+    context.setShowBrushes(false);
+    CHECK(!context.visible(*brushNode));
+
+    context.setShowBrushes(true);
+    CHECK(context.visible(*brushNode));
+  }
+
+  SECTION("setShowPatches")
+  {
+    auto* patchNode = createTopLevelPatch();
+    REQUIRE(context.visible(*patchNode));
+
+    context.setShowPatches(false);
+    CHECK(!context.visible(*patchNode));
+
+    context.setShowPatches(true);
+    CHECK(context.visible(*patchNode));
+  }
+
+  SECTION("setHiddenTags hides a tagged brush")
+  {
+    auto* brushNode = createTopLevelBrush();
+
+    auto tag = Tag{"tag", {}};
+    tag.setIndex(0);
+    REQUIRE(brushNode->addTag(tag));
+
+    REQUIRE(context.hiddenTags() == 0u);
+    REQUIRE(context.visible(*brushNode));
+
+    context.setHiddenTags(tag.type());
+    CHECK(context.hiddenTags() == tag.type());
+    CHECK(!context.visible(*brushNode));
+
+    // setting the same tags again is a no-op
+    context.setHiddenTags(tag.type());
+    CHECK(!context.visible(*brushNode));
+
+    context.setHiddenTags(0);
+    CHECK(context.visible(*brushNode));
+  }
+
+  SECTION("setHiddenTags hides a brush with a tagged face")
+  {
+    auto builder = BrushBuilder{worldNode.mapFormat(), worldBounds};
+    auto brush = builder.createCube(32.0, "sometex") | kdl::value();
+
+    auto tag = Tag{"tag", {}};
+    tag.setIndex(0);
+    REQUIRE(brush.face(0).addTag(tag));
+
+    auto* brushNode = new BrushNode{std::move(brush)};
+    worldNode.defaultLayer()->addChild(brushNode);
+
+    const auto& face = brushNode->brush().face(0);
+    REQUIRE(context.visible(*brushNode, face));
+
+    context.setHiddenTags(tag.type());
+    CHECK(context.visible(*brushNode));
+    CHECK(!context.visible(*brushNode, face));
+  }
+
+  SECTION("setEntityDefinitionHidden hides entities with that definition")
+  {
+    const auto definition = EntityDefinition{
+      "some_name",
+      Color{},
+      "",
+      {},
+      PointEntityDefinition{vm::bbox3d{32.0}, {}, {}},
+    };
+
+    auto* entityNode = createTopLevelPointEntity();
+    entityNode->setDefinition(&definition);
+    REQUIRE(context.visible(*entityNode));
+
+    REQUIRE(!context.entityDefinitionHidden(definition));
+    CHECK(!context.entityDefinitionHidden(*entityNode));
+
+    context.setEntityDefinitionHidden(definition, true);
+    CHECK(context.entityDefinitionHidden(definition));
+    CHECK(context.entityDefinitionHidden(*entityNode));
+    CHECK(!context.visible(*entityNode));
+
+    // hiding it again is a no-op
+    context.setEntityDefinitionHidden(definition, true);
+    CHECK(!context.visible(*entityNode));
+
+    context.setEntityDefinitionHidden(definition, false);
+    CHECK(!context.entityDefinitionHidden(definition));
+    CHECK(context.visible(*entityNode));
+
+    entityNode->setDefinition(nullptr);
+  }
+
+  SECTION("setEntityDefinitionHidden hides a brush whose entity has that definition")
+  {
+    const auto definition = EntityDefinition{"some_name", Color{}, "", {}};
+
+    auto [entityNode, brushNode] = createTopLevelBrushEntity();
+    entityNode->setDefinition(&definition);
+    REQUIRE(context.visible(*brushNode));
+
+    context.setEntityDefinitionHidden(definition, true);
+    CHECK(!context.visible(*brushNode));
+
+    entityNode->setDefinition(nullptr);
+  }
+
+  SECTION("entityDefinitionHidden is false for an entity without a definition")
+  {
+    auto* entityNode = createTopLevelPointEntity();
+    CHECK(!context.entityDefinitionHidden(*entityNode));
+  }
+
+  SECTION("a selected patch is visible")
+  {
+    auto* patchNode = createTopLevelPatch();
+
+    context.setShowPatches(false);
+    REQUIRE(!context.visible(*patchNode));
+
+    patchNode->select();
+    CHECK(context.visible(*patchNode));
+  }
+
+  SECTION("setBlockSelection")
+  {
+    REQUIRE(!context.blockSelection());
+
+    // setting the same value again is a no-op
+    context.setBlockSelection(false);
+    CHECK(!context.blockSelection());
+
+    context.setBlockSelection(true);
+    CHECK(context.blockSelection());
+
+    context.setBlockSelection(false);
+    CHECK(!context.blockSelection());
   }
 }
 
