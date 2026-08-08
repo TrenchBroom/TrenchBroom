@@ -979,11 +979,6 @@ bool ClipTool::doDeactivate()
   return true;
 }
 
-bool ClipTool::doRemove()
-{
-  return removeLastPoint();
-}
-
 void ClipTool::connectObservers()
 {
   m_notifierConnection +=
