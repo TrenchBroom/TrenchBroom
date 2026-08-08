@@ -755,9 +755,9 @@ To stamp a brush, hold #key(Ctrl) and #key(Alt) in a ddition to #key(Shift) and 
 
 #### Moving Faces Instead of Extruding {#moving_faces}
 
-The brush extrude tool offers a quick way to move an individual face of a brush in 2D views. Hold #key(Alt) in addition to #key(Shift) when starting to drag a face in a 2D view to enable this mode. You will notice that a face is highlighted as usual, but when you start dragging the mouse, the face will just be moved in the direction you are dragging. The move is not restricted by the face normal, and other faces will be affected as well.
+The brush extrude tool offers a quick way to move an individual face of a brush. Hold #key(Alt) in addition to #key(Shift) when starting to drag a face to enable this mode. You will notice that a face is highlighted as usual, but when you start dragging the mouse, the face will just be moved in the direction you are dragging. In 2D views, the move is not restricted by the face normal, and other faces will be affected as well. In 3D views, the move is restricted by the face normal.
 
-![Moving faces](images/ExtrudeTool2DFaceMoving.gif)
+![Moving faces (2D view)](images/ExtrudeTool2DFaceMoving.gif)
 
 The distance is snapped to the current grid size. Moving multiple faces is possible if the faces lie on the same plane. The [UV Lock](#uv_lock) setting controls whether alignment lock is used when dragging faces using this mode.
 
