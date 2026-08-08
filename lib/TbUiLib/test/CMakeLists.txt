@@ -42,6 +42,7 @@ target_sources(TbUiLibTest
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_SystemPaths.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_TextOutputAdapter.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_UpdateVersion.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_UvOffsetTool.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_UvOriginTool.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_UvScaleTool.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_UvShearTool.cpp
