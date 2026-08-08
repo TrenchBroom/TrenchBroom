@@ -41,6 +41,7 @@ target_sources(TbUiLibTest
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_SystemPaths.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_TextOutputAdapter.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_UpdateVersion.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_VertexTool.cpp
 
   PUBLIC FILE_SET cmd_tool TYPE HEADERS
     BASE_DIRS ${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>
