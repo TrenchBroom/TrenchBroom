@@ -225,13 +225,25 @@ void CommandProcessor::rollbackTransaction()
   contract_pre(!m_transactionStack.empty());
 
   auto& transaction = m_transactionStack.back();
-  for (auto it = std::rbegin(transaction.commands), end = std::rend(transaction.commands);
-       it != end;
-       ++it)
+  if (!transaction.commands.empty())
   {
-    undoCommand(**it);
+    const auto name =
+      !transaction.name.empty() ? transaction.name : transaction.commands.front()->name();
+    const auto isModification = std::ranges::any_of(
+      transaction.commands,
+      [](const auto& command) { return command->isModification(); });
+
+    for (auto it = std::rbegin(transaction.commands),
+              end = std::rend(transaction.commands);
+         it != end;
+         ++it)
+    {
+      undoCommand(**it);
+    }
+    transaction.commands.clear();
+
+    transactionUndoneNotifier(name, isCurrentDocumentStateObservable(), isModification);
   }
-  transaction.commands.clear();
 }
 
 bool CommandProcessor::isTransactionActive() const
