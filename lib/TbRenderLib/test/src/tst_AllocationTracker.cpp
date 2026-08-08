@@ -72,7 +72,7 @@ TEST_CASE("AllocationTracker")
   {
     SECTION("default")
     {
-      AllocationTracker t(100);
+      const AllocationTracker t(100);
       CHECK(t.capacity() == 100u);
       CHECK(t.largestPossibleAllocation() == 100u);
       CHECK(t.freeBlocks() == (std::vector<AllocationTracker::Range>{{0, 100}}));

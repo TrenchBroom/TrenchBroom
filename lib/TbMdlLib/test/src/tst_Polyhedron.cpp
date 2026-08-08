@@ -784,7 +784,7 @@ TEST_CASE("Polyhedron")
       const vm::vec3d p14(0, 39, 160);
       const vm::vec3d p15(0, 39, 0);
 
-      Polyhedron3d p({p1, p4, p6, p9, p10, p13, p14, p15});
+      const Polyhedron3d p({p1, p4, p6, p9, p10, p13, p14, p15});
       CHECK(p.polyhedron());
       CHECK(p.vertexCount() == 6u);
       CHECK(p.hasVertex(p1));
@@ -852,7 +852,7 @@ TEST_CASE("Polyhedron")
       const vm::vec3d p4(+1, -1, 0);
       const vm::vec3d p5(0, 0, 0);
 
-      Polyhedron3d p({p1, p2, p3, p4, p5});
+      const Polyhedron3d p({p1, p2, p3, p4, p5});
       CHECK(p.hasFace({p1, p2, p3, p4}));
     }
 
