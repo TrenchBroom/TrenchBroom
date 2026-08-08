@@ -19,6 +19,7 @@ target_sources(TbUiLibTest
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_ViewEditor.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_EntityPropertyModel.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_ExtrudeTool.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_ExtrudeToolController.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_HandleDragTracker.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_InputEvent.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_LaunchGameEngine.cpp
