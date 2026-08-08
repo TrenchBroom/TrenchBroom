@@ -27,6 +27,9 @@
 
 namespace kdl
 {
+namespace
+{
+
 struct Error1
 {
   kdl_reflect_inline_empty(Error1);
@@ -96,18 +99,20 @@ struct Counter
   kdl_reflect_inline(Counter, copies, moves);
 };
 
-TEST_CASE("void_success")
-{
-  CHECK(void_success == result<void>{});
-  CHECK(void_success.is_success());
-  CHECK_FALSE(void_success.is_error());
-
-  const auto make_void_success = []() { return void_success; };
-  make_void_success(); // no warning because void_success is not marked as nodiscard
-}
+} // namespace
 
 TEST_CASE("result")
 {
+  SECTION("void_success")
+  {
+    CHECK(void_success == result<void>{});
+    CHECK(void_success.is_success());
+    CHECK(!void_success.is_error());
+
+    const auto make_void_success = []() { return void_success; };
+    make_void_success(); // no warning because void_success is not marked as nodiscard
+  }
+
   SECTION("constructor")
   {
     SECTION("non-void result")
@@ -2335,6 +2340,29 @@ TEST_CASE("result")
         fold_results(std::vector<result<int, std::string>>{{1}, {"error"}, {3}})
         == result<std::vector<int>, std::string>{"error"});
     }
+
+    SECTION("result<void>")
+    {
+      SECTION("with empty range")
+      {
+        CHECK(fold_results(std::vector<result<void>>{}) == void_success);
+      }
+
+      SECTION("success case")
+      {
+        CHECK(
+          fold_results(std::vector{void_success, void_success, void_success})
+          == void_success);
+      }
+
+      SECTION("error case")
+      {
+        CHECK(
+          fold_results(
+            std::vector<result<void, std::string>>{void_success, "error", void_success})
+          == result<void, std::string>{"error"});
+      }
+    }
   }
 
   SECTION("collect_values")
@@ -3311,32 +3339,6 @@ TEST_CASE("result")
                        | first([](const auto&) { return result<int, Error1>{Error1{}}; });
         CHECK(r == std::nullopt);
       }
-    }
-  }
-}
-
-TEST_CASE("result<void>")
-{
-  SECTION("fold_results")
-  {
-    SECTION("with empty range")
-    {
-      CHECK(fold_results(std::vector<result<void>>{}) == void_success);
-    }
-
-    SECTION("success case")
-    {
-      CHECK(
-        fold_results(std::vector{void_success, void_success, void_success})
-        == void_success);
-    }
-
-    SECTION("error case")
-    {
-      CHECK(
-        fold_results(
-          std::vector<result<void, std::string>>{void_success, "error", void_success})
-        == result<void, std::string>{"error"});
     }
   }
 }

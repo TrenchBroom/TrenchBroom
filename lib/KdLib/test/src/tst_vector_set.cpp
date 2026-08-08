@@ -68,114 +68,126 @@ void assertVset(
 
 } // namespace
 
-TEST_CASE("vector_set_test.constructor_default")
+TEST_CASE("vector_set")
 {
-  vset s;
-  CHECK(s.empty());
-  CHECK(s.size() == 0u);
-}
+  SECTION("constructor")
+  {
+    SECTION("default")
+    {
+      const vset s;
+      CHECK(s.empty());
+      CHECK(s.size() == 0u);
+    }
 
-TEST_CASE("vector_set_test.constructor_default_with_capacity")
-{
-  vset s(7u);
-  CHECK(s.empty());
-  CHECK(s.size() == 0u);
-  CHECK(s.capacity() == 7u);
-}
+    SECTION("default_with_capacity")
+    {
+      const vset s(7u);
+      CHECK(s.empty());
+      CHECK(s.size() == 0u);
+      CHECK(s.capacity() == 7u);
+    }
 
-TEST_CASE("vector_set_test.constructor_with_range")
-{
-  assertVset(create_vset_from_range({}), {});
-  assertVset(create_vset_from_range({1}), {1});
-  assertVset(create_vset_from_range({1, 1}), {1});
-  assertVset(create_vset_from_range({1, 2}), {1, 2});
-  assertVset(create_vset_from_range({2, 1}), {1, 2});
-  assertVset(create_vset_from_range({2, 1, 3, 1, 2}), {1, 2, 3});
-}
+    SECTION("with_range")
+    {
+      assertVset(create_vset_from_range({}), {});
+      assertVset(create_vset_from_range({1}), {1});
+      assertVset(create_vset_from_range({1, 1}), {1});
+      assertVset(create_vset_from_range({1, 2}), {1, 2});
+      assertVset(create_vset_from_range({2, 1}), {1, 2});
+      assertVset(create_vset_from_range({2, 1, 3, 1, 2}), {1, 2, 3});
+    }
 
-TEST_CASE("vector_set_test.constructor_with_range_and_capacity")
-{
-  assertVset(create_vset_from_range(10u, {}), {}, 10u);
-  assertVset(create_vset_from_range(10u, {1}), {1}, 10u);
-  assertVset(create_vset_from_range(10u, {1, 1}), {1}, 10u);
-  assertVset(create_vset_from_range(10u, {1, 2}), {1, 2}, 10u);
-  assertVset(create_vset_from_range(10u, {2, 1}), {1, 2}, 10u);
-  assertVset(create_vset_from_range(10u, {2, 1, 3, 1, 2}), {1, 2, 3}, 10u);
-}
+    SECTION("with_range_and_capacity")
+    {
+      assertVset(create_vset_from_range(10u, {}), {}, 10u);
+      assertVset(create_vset_from_range(10u, {1}), {1}, 10u);
+      assertVset(create_vset_from_range(10u, {1, 1}), {1}, 10u);
+      assertVset(create_vset_from_range(10u, {1, 2}), {1, 2}, 10u);
+      assertVset(create_vset_from_range(10u, {2, 1}), {1, 2}, 10u);
+      assertVset(create_vset_from_range(10u, {2, 1, 3, 1, 2}), {1, 2, 3}, 10u);
+    }
 
-TEST_CASE("vector_set_test.constructor_with_initializer_list")
-{
-  assertVset(create_vset_from_list({}), {});
-  assertVset(create_vset_from_list({1}), {1});
-  assertVset(create_vset_from_list({1, 1}), {1});
-  assertVset(create_vset_from_list({1, 2}), {1, 2});
-  assertVset(create_vset_from_list({2, 1}), {1, 2});
-  assertVset(create_vset_from_list({2, 1, 3, 1, 2}), {1, 2, 3});
-}
+    SECTION("with_initializer_list")
+    {
+      assertVset(create_vset_from_list({}), {});
+      assertVset(create_vset_from_list({1}), {1});
+      assertVset(create_vset_from_list({1, 1}), {1});
+      assertVset(create_vset_from_list({1, 2}), {1, 2});
+      assertVset(create_vset_from_list({2, 1}), {1, 2});
+      assertVset(create_vset_from_list({2, 1, 3, 1, 2}), {1, 2, 3});
+    }
 
-TEST_CASE("vector_set_test.constructor_with_initializer_list_and_capacity")
-{
-  assertVset(create_vset_from_list(10u, {}), {}, 10u);
-  assertVset(create_vset_from_list(10u, {1}), {1}, 10u);
-  assertVset(create_vset_from_list(10u, {1, 1}), {1}, 10u);
-  assertVset(create_vset_from_list(10u, {1, 2}), {1, 2}, 10u);
-  assertVset(create_vset_from_list(10u, {2, 1}), {1, 2}, 10u);
-  assertVset(create_vset_from_list(10u, {2, 1, 3, 1, 2}), {1, 2, 3}, 10u);
-}
+    SECTION("with_initializer_list_and_capacity")
+    {
+      assertVset(create_vset_from_list(10u, {}), {}, 10u);
+      assertVset(create_vset_from_list(10u, {1}), {1}, 10u);
+      assertVset(create_vset_from_list(10u, {1, 1}), {1}, 10u);
+      assertVset(create_vset_from_list(10u, {1, 2}), {1, 2}, 10u);
+      assertVset(create_vset_from_list(10u, {2, 1}), {1, 2}, 10u);
+      assertVset(create_vset_from_list(10u, {2, 1, 3, 1, 2}), {1, 2, 3}, 10u);
+    }
 
-TEST_CASE("vector_set_test.constructor_with_vector")
-{
-  assertVset(create_vset_from_vector({}), {});
-  assertVset(create_vset_from_vector({1}), {1});
-  assertVset(create_vset_from_vector({1, 1}), {1});
-  assertVset(create_vset_from_vector({1, 2}), {1, 2});
-  assertVset(create_vset_from_vector({2, 1}), {1, 2});
-  assertVset(create_vset_from_vector({2, 1, 3, 1, 2}), {1, 2, 3});
-}
+    SECTION("with_vector")
+    {
+      assertVset(create_vset_from_vector({}), {});
+      assertVset(create_vset_from_vector({1}), {1});
+      assertVset(create_vset_from_vector({1, 1}), {1});
+      assertVset(create_vset_from_vector({1, 2}), {1, 2});
+      assertVset(create_vset_from_vector({2, 1}), {1, 2});
+      assertVset(create_vset_from_vector({2, 1, 3, 1, 2}), {1, 2, 3});
+    }
+  }
 
-TEST_CASE("vector_set_test.assignment_from_initializer_list")
-{
-  assertVset(vset() = {}, {});
-  assertVset(vset() = {1}, {1});
-  assertVset(vset() = {1, 1}, {1});
-  assertVset(vset() = {1, 2}, {1, 2});
-  assertVset(vset() = {2, 1}, {1, 2});
-  assertVset(vset() = {2, 1, 3, 1, 2}, {1, 2, 3});
+  SECTION("assignment")
+  {
+    SECTION("from_initializer_list")
+    {
+      assertVset(vset() = {}, {});
+      assertVset(vset() = {1}, {1});
+      assertVset(vset() = {1, 1}, {1});
+      assertVset(vset() = {1, 2}, {1, 2});
+      assertVset(vset() = {2, 1}, {1, 2});
+      assertVset(vset() = {2, 1, 3, 1, 2}, {1, 2, 3});
 
-  assertVset(vset({7, 8, 9}) = {}, {});
-  assertVset(vset({7, 8, 9}) = {1}, {1});
-  assertVset(vset({7, 8, 9}) = {1, 1}, {1});
-  assertVset(vset({7, 8, 9}) = {1, 2}, {1, 2});
-  assertVset(vset({7, 8, 9}) = {2, 1}, {1, 2});
-  assertVset(vset({7, 8, 9}) = {2, 1, 3, 1, 2}, {1, 2, 3});
-}
+      assertVset(vset({7, 8, 9}) = {}, {});
+      assertVset(vset({7, 8, 9}) = {1}, {1});
+      assertVset(vset({7, 8, 9}) = {1, 1}, {1});
+      assertVset(vset({7, 8, 9}) = {1, 2}, {1, 2});
+      assertVset(vset({7, 8, 9}) = {2, 1}, {1, 2});
+      assertVset(vset({7, 8, 9}) = {2, 1, 3, 1, 2}, {1, 2, 3});
+    }
 
-TEST_CASE("vector_set_test.assignment_from_vector")
-{
-  assertVset(vset() = std::vector<int>({}), {});
-  assertVset(vset() = std::vector<int>({1}), {1});
-  assertVset(vset() = std::vector<int>({1, 1}), {1});
-  assertVset(vset() = std::vector<int>({1, 2}), {1, 2});
-  assertVset(vset() = std::vector<int>({2, 1}), {1, 2});
-  assertVset(vset() = std::vector<int>({2, 1, 3, 1, 2}), {1, 2, 3});
+    SECTION("from_vector")
+    {
+      assertVset(vset() = std::vector<int>({}), {});
+      assertVset(vset() = std::vector<int>({1}), {1});
+      assertVset(vset() = std::vector<int>({1, 1}), {1});
+      assertVset(vset() = std::vector<int>({1, 2}), {1, 2});
+      assertVset(vset() = std::vector<int>({2, 1}), {1, 2});
+      assertVset(vset() = std::vector<int>({2, 1, 3, 1, 2}), {1, 2, 3});
 
-  assertVset(vset({7, 8, 9}) = std::vector<int>({}), {});
-  assertVset(vset({7, 8, 9}) = std::vector<int>({1}), {1});
-  assertVset(vset({7, 8, 9}) = std::vector<int>({1, 1}), {1});
-  assertVset(vset({7, 8, 9}) = std::vector<int>({1, 2}), {1, 2});
-  assertVset(vset({7, 8, 9}) = std::vector<int>({2, 1}), {1, 2});
-  assertVset(vset({7, 8, 9}) = std::vector<int>({2, 1, 3, 1, 2}), {1, 2, 3});
-}
+      assertVset(vset({7, 8, 9}) = std::vector<int>({}), {});
+      assertVset(vset({7, 8, 9}) = std::vector<int>({1}), {1});
+      assertVset(vset({7, 8, 9}) = std::vector<int>({1, 1}), {1});
+      assertVset(vset({7, 8, 9}) = std::vector<int>({1, 2}), {1, 2});
+      assertVset(vset({7, 8, 9}) = std::vector<int>({2, 1}), {1, 2});
+      assertVset(vset({7, 8, 9}) = std::vector<int>({2, 1, 3, 1, 2}), {1, 2, 3});
+    }
+  }
 
-TEST_CASE("vector_set_test.deduction_guide_range")
-{
-  std::vector<int> v({1, 2, 3});
-  vector_set s(std::begin(v), std::end(v));
-}
+  SECTION("deduction_guide")
+  {
+    SECTION("range")
+    {
+      std::vector<int> v({1, 2, 3});
+      const vector_set s(std::begin(v), std::end(v));
+    }
 
-TEST_CASE("vector_set_test.deduction_guide_range_and_capacity")
-{
-  std::vector<int> v({1, 2, 3});
-  vector_set s(3u, std::begin(v), std::end(v));
+    SECTION("range_and_capacity")
+    {
+      std::vector<int> v({1, 2, 3});
+      const vector_set s(3u, std::begin(v), std::end(v));
+    }
+  }
 }
 } // namespace kdl

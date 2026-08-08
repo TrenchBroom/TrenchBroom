@@ -24,6 +24,9 @@
 
 namespace kdl
 {
+namespace
+{
+
 struct move_only
 {
   move_only() = default;
@@ -31,92 +34,99 @@ struct move_only
   move_only(move_only&&) = default;
 };
 
-TEST_CASE("tup_capture")
+} // namespace
+
+TEST_CASE("tuple_utils")
 {
-  SECTION("Capturing single objects")
+  SECTION("tup_capture")
   {
-    auto str = std::string{};
-    const auto cstr = std::string{};
+    SECTION("Capturing single objects")
+    {
+      auto str = std::string{};
+      const auto cstr = std::string{};
 
-    static_assert(
-      std::is_same_v<decltype(tup_capture(std::string{})), std::tuple<std::string>>,
-      "rvalues must be captured by value");
-    static_assert(
-      std::is_same_v<decltype(tup_capture(str)), std::tuple<std::string&>>,
-      "lvalue references must be captured by by lvalue reference");
-    static_assert(
-      std::is_same_v<decltype(tup_capture(cstr)), std::tuple<const std::string&>>,
-      "const lvalue references must be captured by const lvalue reference");
+      static_assert(
+        std::is_same_v<decltype(tup_capture(std::string{})), std::tuple<std::string>>,
+        "rvalues must be captured by value");
+      static_assert(
+        std::is_same_v<decltype(tup_capture(str)), std::tuple<std::string&>>,
+        "lvalue references must be captured by by lvalue reference");
+      static_assert(
+        std::is_same_v<decltype(tup_capture(cstr)), std::tuple<const std::string&>>,
+        "const lvalue references must be captured by const lvalue reference");
 
-    tup_capture(move_only{}); // rvalues are moved
+      tup_capture(move_only{}); // rvalues are moved
+    }
+
+    SECTION("Capturing primitive types")
+    {
+      const int i = 1;
+      const size_t y = 2;
+
+      static_assert(
+        std::is_same_v<decltype(tup_capture(i)), std::tuple<const int&>>,
+        "rvalues must be captured by value");
+      static_assert(
+        std::is_same_v<decltype(tup_capture(y)), std::tuple<const size_t&>>,
+        "rvalues must be captured by value");
+    }
+
+    SECTION("Capturing multiple values")
+    {
+      const int i = 1;
+      const auto cstr = std::string{};
+
+      static_assert(
+        std::is_same_v<
+          decltype(tup_capture(std::string{}, i, cstr)),
+          std::tuple<std::string, const int&, const std::string&>>,
+        "can capture multiple arguments");
+    }
   }
 
-  SECTION("Capturing primitive types")
+  SECTION("tup_slice")
   {
-    int i = 1;
-    const size_t y = 2;
+    using namespace std::string_literals;
 
-    static_assert(
-      std::is_same_v<decltype(tup_capture(i)), std::tuple<int&>>,
-      "rvalues must be captured by value");
-    static_assert(
-      std::is_same_v<decltype(tup_capture(y)), std::tuple<const size_t&>>,
-      "rvalues must be captured by value");
+    CHECK(
+      tup_slice<0, 4>(std::tuple{1, 2.0f, "asdf"s, 'c'})
+      == std::tuple{1, 2.0f, "asdf"s, 'c'});
+
+    CHECK(
+      tup_slice<1, 3>(std::tuple{1, 2.0f, "asdf"s, 'c'})
+      == std::tuple{2.0f, "asdf"s, 'c'});
+
+    CHECK(
+      tup_slice<0, 3>(std::tuple{1, 2.0f, "asdf"s, 'c'}) == std::tuple{1, 2.0f, "asdf"s});
   }
 
-  SECTION("Capturing multiple values")
+  SECTION("tup_prefix")
   {
-    int i = 1;
-    const auto cstr = std::string{};
+    using namespace std::string_literals;
 
-    static_assert(
-      std::is_same_v<
-        decltype(tup_capture(std::string{}, i, cstr)),
-        std::tuple<std::string, int&, const std::string&>>,
-      "can capture multiple arguments");
+    CHECK(
+      tup_prefix<4>(std::tuple{1, 2.0f, "asdf"s, 'c'})
+      == std::tuple{1, 2.0f, "asdf"s, 'c'});
+
+    CHECK(
+      tup_prefix<3>(std::tuple{1, 2.0f, "asdf"s, 'c'}) == std::tuple{1, 2.0f, "asdf"s});
+
+    CHECK(tup_prefix<0>(std::tuple{1, 2.0f, "asdf"s, 'c'}) == std::tuple{});
   }
-}
 
-TEST_CASE("tup_slice")
-{
-  using namespace std::string_literals;
+  SECTION("tup_suffix")
+  {
+    using namespace std::string_literals;
 
-  CHECK(
-    tup_slice<0, 4>(std::tuple{1, 2.0f, "asdf"s, 'c'})
-    == std::tuple{1, 2.0f, "asdf"s, 'c'});
+    CHECK(
+      tup_suffix<4>(std::tuple{1, 2.0f, "asdf"s, 'c'})
+      == std::tuple{1, 2.0f, "asdf"s, 'c'});
 
-  CHECK(
-    tup_slice<1, 3>(std::tuple{1, 2.0f, "asdf"s, 'c'}) == std::tuple{2.0f, "asdf"s, 'c'});
+    CHECK(
+      tup_suffix<3>(std::tuple{1, 2.0f, "asdf"s, 'c'}) == std::tuple{2.0f, "asdf"s, 'c'});
 
-  CHECK(
-    tup_slice<0, 3>(std::tuple{1, 2.0f, "asdf"s, 'c'}) == std::tuple{1, 2.0f, "asdf"s});
-}
-
-TEST_CASE("tup_prefix")
-{
-  using namespace std::string_literals;
-
-  CHECK(
-    tup_prefix<4>(std::tuple{1, 2.0f, "asdf"s, 'c'})
-    == std::tuple{1, 2.0f, "asdf"s, 'c'});
-
-  CHECK(tup_prefix<3>(std::tuple{1, 2.0f, "asdf"s, 'c'}) == std::tuple{1, 2.0f, "asdf"s});
-
-  CHECK(tup_prefix<0>(std::tuple{1, 2.0f, "asdf"s, 'c'}) == std::tuple{});
-}
-
-TEST_CASE("tup_suffix")
-{
-  using namespace std::string_literals;
-
-  CHECK(
-    tup_suffix<4>(std::tuple{1, 2.0f, "asdf"s, 'c'})
-    == std::tuple{1, 2.0f, "asdf"s, 'c'});
-
-  CHECK(
-    tup_suffix<3>(std::tuple{1, 2.0f, "asdf"s, 'c'}) == std::tuple{2.0f, "asdf"s, 'c'});
-
-  CHECK(tup_suffix<0>(std::tuple{1, 2.0f, "asdf"s, 'c'}) == std::tuple{});
+    CHECK(tup_suffix<0>(std::tuple{1, 2.0f, "asdf"s, 'c'}) == std::tuple{});
+  }
 }
 
 } // namespace kdl

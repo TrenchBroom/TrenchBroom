@@ -25,65 +25,68 @@
 namespace kdl
 {
 
-TEST_CASE("set_temp_test.set_unset")
+TEST_CASE("set_temp")
 {
-  int value = 0;
+  SECTION("set_unset")
   {
-    set_temp s(value, 1);
-    CHECK(value == 1);
+    int value = 0;
+    {
+      const set_temp s(value, 1);
+      CHECK(value == 1);
+    }
+    CHECK(value == 0);
   }
-  CHECK(value == 0);
-}
 
-TEST_CASE("set_temp_test.set_unset_bool")
-{
-  bool value = false;
+  SECTION("set_unset_bool")
   {
-    set_temp s(value, true);
-    CHECK(value);
-  }
-  CHECK_FALSE(value);
-
-  {
-    set_temp s(value);
-    CHECK(value);
+    bool value = false;
+    {
+      const set_temp s(value, true);
+      CHECK(value);
+    }
+    CHECK(!value);
 
     {
-      set_temp t(value, false);
-      CHECK_FALSE(value);
+      const set_temp s(value);
+      CHECK(value);
+
+      {
+        const set_temp t(value, false);
+        CHECK(!value);
+      }
+      CHECK(value);
     }
-    CHECK(value);
+    CHECK(!value);
   }
-  CHECK_FALSE(value);
 }
 
-TEST_CASE("set_later_test.set")
+TEST_CASE("set_later")
 {
   int value = 0;
 
   {
-    set_later s(value, 1);
+    const set_later s(value, 1);
     CHECK(value == 0);
   }
   CHECK(value == 1);
 }
 
-TEST_CASE("inc_temp.inc_dec")
+TEST_CASE("inc_temp")
 {
   int value = 0;
 
   {
-    inc_temp i(value);
+    const inc_temp i(value);
     CHECK(value == 1);
   }
   CHECK(value == 0);
 }
 
-TEST_CASE("dec_temp.dec_inc")
+TEST_CASE("dec_temp")
 {
   int value = 0;
   {
-    dec_temp d(value);
+    const dec_temp d(value);
     CHECK(value == -1);
   }
   CHECK(value == 0);

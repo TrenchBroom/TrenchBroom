@@ -28,225 +28,229 @@ namespace kdl
 using namespace std::string_literals;
 using std::filesystem::path;
 
-TEST_CASE("parse_path")
+TEST_CASE("path_utils")
 {
-  CHECK(parse_path(R"()"s) == path{R"()"});
-  CHECK(parse_path(R"(/)"s) == path{R"(/)"});
-  CHECK(parse_path(R"(\)"s) == path{R"(/)"});
-  CHECK(parse_path(R"(\)"s, !K(replace_backslashes)) == path{R"(\)"});
-  CHECK(parse_path(R"(a/b/c)"s) == path{R"(a/b/c)"});
-  CHECK(parse_path(R"(a\b\c)"s) == path{R"(a/b/c)"});
-  CHECK(parse_path(R"(a\b\c)"s, !K(replace_backslashes)) == path{R"(a\b\c)"});
-}
-
-TEST_CASE("parse_utf8_path")
-{
-  SECTION("valid bytes")
+  SECTION("parse_path")
   {
-    const auto utf8Path = std::string{"textures/\xE3\x83\x86\xE3\x82\xAF.png"};
-    const auto path = parse_utf8_path(utf8Path);
+    CHECK(parse_path(R"()"s) == path{R"()"});
+    CHECK(parse_path(R"(/)"s) == path{R"(/)"});
+    CHECK(parse_path(R"(\)"s) == path{R"(/)"});
+    CHECK(parse_path(R"(\)"s, !K(replace_backslashes)) == path{R"(\)"});
+    CHECK(parse_path(R"(a/b/c)"s) == path{R"(a/b/c)"});
+    CHECK(parse_path(R"(a\b\c)"s) == path{R"(a/b/c)"});
+    CHECK(parse_path(R"(a\b\c)"s, !K(replace_backslashes)) == path{R"(a\b\c)"});
+  }
+
+  SECTION("parse_utf8_path")
+  {
+    SECTION("valid bytes")
+    {
+      const auto utf8Path = std::string{"textures/\xE3\x83\x86\xE3\x82\xAF.png"};
+      const auto path = parse_utf8_path(utf8Path);
 
 #ifdef _WIN32
-    CHECK(path.wstring() == L"textures\\\u30C6\u30AF.png");
+      CHECK(path.wstring() == L"textures\\\u30C6\u30AF.png");
 #else
-    CHECK(path.string() == utf8Path);
+      CHECK(path.string() == utf8Path);
 #endif
-  }
+    }
 
-  SECTION("malformed bytes")
-  {
-    const auto malformedPath = std::string{"textures/\xC3\x28.png"};
+    SECTION("malformed bytes")
+    {
+      const auto malformedPath = std::string{"textures/\xC3\x28.png"};
 
 #ifdef _WIN32
-    CHECK_THROWS_AS(parse_utf8_path(malformedPath), std::system_error);
+      CHECK_THROWS_AS(parse_utf8_path(malformedPath), std::system_error);
 #else
-    CHECK_NOTHROW(parse_utf8_path(malformedPath));
+      CHECK_NOTHROW(parse_utf8_path(malformedPath));
 #endif
+    }
   }
-}
 
-TEST_CASE("path_length"s)
-{
-  CHECK(path_length(path{}) == 0);
-  CHECK(path_length(path{""}) == 0);
-  CHECK(path_length(path{"/"}) == 1);
-  CHECK(path_length(path{"/asdf"}) == 2);
-  CHECK(path_length(path{"/asdf/"}) == 3);
-  CHECK(path_length(path{"/asdf/blah"}) == 3);
-  CHECK(path_length(path{"asdf"}) == 1);
-  CHECK(path_length(path{"asdf/"}) == 2);
-  CHECK(path_length(path{"asdf/blah"}) == 2);
-}
-
-TEST_CASE("path_has_prefix")
-{
-  CHECK(path_has_prefix(path{}, path{}));
-  CHECK(path_has_prefix(path{""}, path{}));
-  CHECK(path_has_prefix(path{"/"}, path{}));
-  CHECK(path_has_prefix(path{"asdf"}, path{}));
-  CHECK(path_has_prefix(path{"/asdf"}, path{}));
-  CHECK(path_has_prefix(path{"asdf/blah"}, path{}));
-  CHECK(path_has_prefix(path{"/asdf/blah"}, path{}));
-
-  CHECK(path_has_prefix(path{""}, path{""}));
-  CHECK(path_has_prefix(path{"/"}, path{""}));
-  CHECK(path_has_prefix(path{"asdf"}, path{""}));
-  CHECK(path_has_prefix(path{"/asdf"}, path{""}));
-  CHECK(path_has_prefix(path{"asdf/blah"}, path{""}));
-  CHECK(path_has_prefix(path{"/asdf/blah"}, path{""}));
-
-  CHECK_FALSE(path_has_prefix(path{""}, path{"/"}));
-  CHECK(path_has_prefix(path{"/"}, path{"/"}));
-  CHECK_FALSE(path_has_prefix(path{"asdf"}, path{"/"}));
-  CHECK(path_has_prefix(path{"/asdf"}, path{"/"}));
-  CHECK_FALSE(path_has_prefix(path{"asdf/blah"}, path{"/"}));
-  CHECK(path_has_prefix(path{"/asdf/blah"}, path{"/"}));
-
-  CHECK_FALSE(path_has_prefix(path{""}, path{"/asdf"}));
-  CHECK_FALSE(path_has_prefix(path{"/"}, path{"/asdf"}));
-  CHECK_FALSE(path_has_prefix(path{"asdf"}, path{"/asdf"}));
-  CHECK(path_has_prefix(path{"/asdf"}, path{"/asdf"}));
-  CHECK_FALSE(path_has_prefix(path{"asdf/blah"}, path{"/asdf"}));
-  CHECK(path_has_prefix(path{"/asdf/blah"}, path{"/asdf"}));
-
-  CHECK_FALSE(path_has_prefix(path{""}, path{"asdf"}));
-  CHECK_FALSE(path_has_prefix(path{"/"}, path{"asdf"}));
-  CHECK(path_has_prefix(path{"asdf"}, path{"asdf"}));
-  CHECK_FALSE(path_has_prefix(path{"/asdf"}, path{"asdf"}));
-  CHECK(path_has_prefix(path{"asdf/blah"}, path{"asdf"}));
-  CHECK_FALSE(path_has_prefix(path{"/asdf/blah"}, path{"asdf"}));
-}
-
-TEST_CASE("path_front")
-{
-  CHECK(path_front(path{}) == path{});
-  CHECK(path_front(path{""}) == path{});
-  CHECK(path_front(path{"/"}) == path{"/"});
-  CHECK(path_front(path{"/asdf"}) == path{"/"});
-  CHECK(path_front(path{"/asdf/blah"}) == path{"/"});
-  CHECK(path_front(path{"asdf"}) == path{"asdf"});
-  CHECK(path_front(path{"asdf/blah"}) == path{"asdf"});
-}
-
-TEST_CASE("path_to_lower")
-{
-  CHECK(path_to_lower(path{}) == path{});
-  CHECK(path_to_lower(path{"/"}) == path{"/"});
-  CHECK(path_to_lower(path{"/this/that"}) == path{"/this/that"});
-  CHECK(path_to_lower(path{"/THIS/that"}) == path{"/this/that"});
-  CHECK(path_to_lower(path{"/THIS/THAT"}) == path{"/this/that"});
-  CHECK(path_to_lower(path{"C:\\THIS\\THAT"}) == path{"c:\\this\\that"});
-
-  SECTION("characters outside the codepage are preserved and don't throw")
+  SECTION("path_length")
   {
-    // U+3041 HIRAGANA LETTER SMALL A, not representable in common Windows ANSI
-    // codepages - path_to_lower used to throw here on Windows (it round-tripped
-    // through a codepage-dependent narrow encoding); it must now leave such
-    // characters untouched instead of throwing.
-    const auto nonAsciiPath = parse_utf8_path("THIS/\xE3\x81\x81/THAT");
-    const auto expected = parse_utf8_path("this/\xE3\x81\x81/that");
-
-    CHECK_NOTHROW(path_to_lower(nonAsciiPath));
-    CHECK(path_to_lower(nonAsciiPath) == expected);
+    CHECK(path_length(path{}) == 0);
+    CHECK(path_length(path{""}) == 0);
+    CHECK(path_length(path{"/"}) == 1);
+    CHECK(path_length(path{"/asdf"}) == 2);
+    CHECK(path_length(path{"/asdf/"}) == 3);
+    CHECK(path_length(path{"/asdf/blah"}) == 3);
+    CHECK(path_length(path{"asdf"}) == 1);
+    CHECK(path_length(path{"asdf/"}) == 2);
+    CHECK(path_length(path{"asdf/blah"}) == 2);
   }
-}
 
-TEST_CASE("PathTest.path_clip")
-{
-  CHECK(path_clip(path{}, 0, 0) == path{});
-  CHECK(path_clip(path{"test"}, 0, 1) == path{"test"});
-  CHECK(path_clip(path{"test"}, 0, 2) == path{"test"});
-  CHECK(path_clip(path{"test/blah"}, 1, 1) == path{"blah"});
-  CHECK(path_clip(path{"test/blah"}, 1, 2) == path{"blah"});
-  CHECK(path_clip(path{"test/blah"}, 3, 2) == path{});
-  CHECK(path_clip(path{"test/blah"}, 0, 2) == path{"test/blah"});
-  CHECK(path_clip(path{"test/blah"}, 0, 1) == path{"test"});
-  CHECK(path_clip(path{"test/blah"}, 1, 1) == path{"blah"});
-  CHECK(path_clip(path{"/test/blah"}, 0, 3) == path{"/test/blah"});
-  CHECK(path_clip(path{"/test/blah"}, 1, 2) == path{"test/blah"});
-  CHECK(path_clip(path{"/test/blah"}, 2, 1) == path{"blah"});
-  CHECK(path_clip(path{"/test/blah"}, 0, 2) == path{"/test"});
-  CHECK(path_clip(path{"/test/blah"}, 0, 1) == path{"/"});
-  CHECK(path_clip(path{"/test/blah"}, 0, 0) == path{""});
+  SECTION("path_has_prefix")
+  {
+    CHECK(path_has_prefix(path{}, path{}));
+    CHECK(path_has_prefix(path{""}, path{}));
+    CHECK(path_has_prefix(path{"/"}, path{}));
+    CHECK(path_has_prefix(path{"asdf"}, path{}));
+    CHECK(path_has_prefix(path{"/asdf"}, path{}));
+    CHECK(path_has_prefix(path{"asdf/blah"}, path{}));
+    CHECK(path_has_prefix(path{"/asdf/blah"}, path{}));
+
+    CHECK(path_has_prefix(path{""}, path{""}));
+    CHECK(path_has_prefix(path{"/"}, path{""}));
+    CHECK(path_has_prefix(path{"asdf"}, path{""}));
+    CHECK(path_has_prefix(path{"/asdf"}, path{""}));
+    CHECK(path_has_prefix(path{"asdf/blah"}, path{""}));
+    CHECK(path_has_prefix(path{"/asdf/blah"}, path{""}));
+
+    CHECK(!path_has_prefix(path{""}, path{"/"}));
+    CHECK(path_has_prefix(path{"/"}, path{"/"}));
+    CHECK(!path_has_prefix(path{"asdf"}, path{"/"}));
+    CHECK(path_has_prefix(path{"/asdf"}, path{"/"}));
+    CHECK(!path_has_prefix(path{"asdf/blah"}, path{"/"}));
+    CHECK(path_has_prefix(path{"/asdf/blah"}, path{"/"}));
+
+    CHECK(!path_has_prefix(path{""}, path{"/asdf"}));
+    CHECK(!path_has_prefix(path{"/"}, path{"/asdf"}));
+    CHECK(!path_has_prefix(path{"asdf"}, path{"/asdf"}));
+    CHECK(path_has_prefix(path{"/asdf"}, path{"/asdf"}));
+    CHECK(!path_has_prefix(path{"asdf/blah"}, path{"/asdf"}));
+    CHECK(path_has_prefix(path{"/asdf/blah"}, path{"/asdf"}));
+
+    CHECK(!path_has_prefix(path{""}, path{"asdf"}));
+    CHECK(!path_has_prefix(path{"/"}, path{"asdf"}));
+    CHECK(path_has_prefix(path{"asdf"}, path{"asdf"}));
+    CHECK(!path_has_prefix(path{"/asdf"}, path{"asdf"}));
+    CHECK(path_has_prefix(path{"asdf/blah"}, path{"asdf"}));
+    CHECK(!path_has_prefix(path{"/asdf/blah"}, path{"asdf"}));
+  }
+
+  SECTION("path_front")
+  {
+    CHECK(path_front(path{}) == path{});
+    CHECK(path_front(path{""}) == path{});
+    CHECK(path_front(path{"/"}) == path{"/"});
+    CHECK(path_front(path{"/asdf"}) == path{"/"});
+    CHECK(path_front(path{"/asdf/blah"}) == path{"/"});
+    CHECK(path_front(path{"asdf"}) == path{"asdf"});
+    CHECK(path_front(path{"asdf/blah"}) == path{"asdf"});
+  }
+
+  SECTION("path_to_lower")
+  {
+    CHECK(path_to_lower(path{}) == path{});
+    CHECK(path_to_lower(path{"/"}) == path{"/"});
+    CHECK(path_to_lower(path{"/this/that"}) == path{"/this/that"});
+    CHECK(path_to_lower(path{"/THIS/that"}) == path{"/this/that"});
+    CHECK(path_to_lower(path{"/THIS/THAT"}) == path{"/this/that"});
+    CHECK(path_to_lower(path{"C:\\THIS\\THAT"}) == path{"c:\\this\\that"});
+
+    SECTION("characters outside the codepage are preserved and don't throw")
+    {
+      // U+3041 HIRAGANA LETTER SMALL A, not representable in common Windows ANSI
+      // codepages - path_to_lower used to throw here on Windows (it round-tripped
+      // through a codepage-dependent narrow encoding); it must now leave such
+      // characters untouched instead of throwing.
+      const auto nonAsciiPath = parse_utf8_path("THIS/\xE3\x81\x81/THAT");
+      const auto expected = parse_utf8_path("this/\xE3\x81\x81/that");
+
+      CHECK_NOTHROW(path_to_lower(nonAsciiPath));
+      CHECK(path_to_lower(nonAsciiPath) == expected);
+    }
+  }
+
+  SECTION("path_clip")
+  {
+    CHECK(path_clip(path{}, 0, 0) == path{});
+    CHECK(path_clip(path{"test"}, 0, 1) == path{"test"});
+    CHECK(path_clip(path{"test"}, 0, 2) == path{"test"});
+    CHECK(path_clip(path{"test/blah"}, 1, 1) == path{"blah"});
+    CHECK(path_clip(path{"test/blah"}, 1, 2) == path{"blah"});
+    CHECK(path_clip(path{"test/blah"}, 3, 2) == path{});
+    CHECK(path_clip(path{"test/blah"}, 0, 2) == path{"test/blah"});
+    CHECK(path_clip(path{"test/blah"}, 0, 1) == path{"test"});
+    CHECK(path_clip(path{"test/blah"}, 1, 1) == path{"blah"});
+    CHECK(path_clip(path{"/test/blah"}, 0, 3) == path{"/test/blah"});
+    CHECK(path_clip(path{"/test/blah"}, 1, 2) == path{"test/blah"});
+    CHECK(path_clip(path{"/test/blah"}, 2, 1) == path{"blah"});
+    CHECK(path_clip(path{"/test/blah"}, 0, 2) == path{"/test"});
+    CHECK(path_clip(path{"/test/blah"}, 0, 1) == path{"/"});
+    CHECK(path_clip(path{"/test/blah"}, 0, 0) == path{""});
 
 #ifdef _WIN32
-  CHECK(path_clip(path{R"(test\blah)"}, 0, 2) == path{R"(test\blah)"});
-  CHECK(path_clip(path{R"(test\blah)"}, 0, 1) == path{R"(test)"});
-  CHECK(path_clip(path{R"(c:\test\blah)"}, 0, 4) == path{R"(c:\test\blah)"});
-  CHECK(path_clip(path{R"(c:\test\blah)"}, 0, 3) == path{R"(c:\test)"});
-  CHECK(path_clip(path{R"(c:\test\blah)"}, 1, 3) == path{R"(\test\blah)"});
-  CHECK(path_clip(path{R"(test\blah)"}, 1, 1) == path{R"(blah)"});
+    CHECK(path_clip(path{R"(test\blah)"}, 0, 2) == path{R"(test\blah)"});
+    CHECK(path_clip(path{R"(test\blah)"}, 0, 1) == path{R"(test)"});
+    CHECK(path_clip(path{R"(c:\test\blah)"}, 0, 4) == path{R"(c:\test\blah)"});
+    CHECK(path_clip(path{R"(c:\test\blah)"}, 0, 3) == path{R"(c:\test)"});
+    CHECK(path_clip(path{R"(c:\test\blah)"}, 1, 3) == path{R"(\test\blah)"});
+    CHECK(path_clip(path{R"(test\blah)"}, 1, 1) == path{R"(blah)"});
 #endif
-}
+  }
 
-TEST_CASE("path_pop_front")
-{
-  CHECK(path_pop_front(path{}) == path{});
-  CHECK(path_pop_front(path{""}) == path{});
-  CHECK(path_pop_front(path{"/"}) == path{});
-  CHECK(path_pop_front(path{"/asdf"}) == path{"asdf"});
-  CHECK(path_pop_front(path{"/asdf/blah"}) == path{"asdf/blah"});
-  CHECK(path_pop_front(path{"asdf"}) == path{});
-  CHECK(path_pop_front(path{"asdf/blah"}) == path{"blah"});
-}
+  SECTION("path_pop_front")
+  {
+    CHECK(path_pop_front(path{}) == path{});
+    CHECK(path_pop_front(path{""}) == path{});
+    CHECK(path_pop_front(path{"/"}) == path{});
+    CHECK(path_pop_front(path{"/asdf"}) == path{"asdf"});
+    CHECK(path_pop_front(path{"/asdf/blah"}) == path{"asdf/blah"});
+    CHECK(path_pop_front(path{"asdf"}) == path{});
+    CHECK(path_pop_front(path{"asdf/blah"}) == path{"blah"});
+  }
 
-TEST_CASE("path_has_extension")
-{
-  CHECK(path_has_extension(path{}, ""));
-  CHECK(path_has_extension(path{"blah"}, ""));
-  CHECK_FALSE(path_has_extension(path{"blah.map"}, "map"));
-  CHECK(path_has_extension(path{"blah.map"}, ".map"));
-  CHECK(path_has_extension(path{"asdf/blah.map"}, ".map"));
-  CHECK_FALSE(path_has_extension(path{"asdf/blah.MAP"}, ".map"));
-}
+  SECTION("path_has_extension")
+  {
+    CHECK(path_has_extension(path{}, ""));
+    CHECK(path_has_extension(path{"blah"}, ""));
+    CHECK(!path_has_extension(path{"blah.map"}, "map"));
+    CHECK(path_has_extension(path{"blah.map"}, ".map"));
+    CHECK(path_has_extension(path{"asdf/blah.map"}, ".map"));
+    CHECK(!path_has_extension(path{"asdf/blah.MAP"}, ".map"));
+  }
 
-TEST_CASE("path_add_extension")
-{
-  CHECK(path_add_extension(path{}, path{}) == path{});
-  CHECK(path_add_extension(path{}, path{".ext"}) == path{".ext"});
-  CHECK(path_add_extension(path{"asdf"}, path{".ext"}) == path{"asdf.ext"});
-  CHECK(path_add_extension(path{"asdf.xyz"}, path{".ext"}) == path{"asdf.xyz.ext"});
-  CHECK(path_add_extension(path{"/"}, path{".ext"}) == path{"/.ext"});
-  CHECK(path_add_extension(path{"/asdf"}, path{".ext"}) == path{"/asdf.ext"});
-  CHECK(path_add_extension(path{"/asdf.xyz"}, path{".ext"}) == path{"/asdf.xyz.ext"});
-}
+  SECTION("path_add_extension")
+  {
+    CHECK(path_add_extension(path{}, path{}) == path{});
+    CHECK(path_add_extension(path{}, path{".ext"}) == path{".ext"});
+    CHECK(path_add_extension(path{"asdf"}, path{".ext"}) == path{"asdf.ext"});
+    CHECK(path_add_extension(path{"asdf.xyz"}, path{".ext"}) == path{"asdf.xyz.ext"});
+    CHECK(path_add_extension(path{"/"}, path{".ext"}) == path{"/.ext"});
+    CHECK(path_add_extension(path{"/asdf"}, path{".ext"}) == path{"/asdf.ext"});
+    CHECK(path_add_extension(path{"/asdf.xyz"}, path{".ext"}) == path{"/asdf.xyz.ext"});
+  }
 
-TEST_CASE("path_remove_extension")
-{
-  CHECK(path_remove_extension(path{}) == path{});
-  CHECK(path_remove_extension(path{".ext"}) == path{".ext"});
-  CHECK(path_remove_extension(path{"asdf.ext"}) == path{"asdf"});
-  CHECK(path_remove_extension(path{"asdf.xyz.ext"}) == path{"asdf.xyz"});
-  CHECK(path_remove_extension(path{"/.ext"}) == path{"/.ext"});
-  CHECK(path_remove_extension(path{"/asdf.ext"}) == path{"/asdf"});
-  CHECK(path_remove_extension(path{"/asdf.xyz.ext"}) == path{"/asdf.xyz"});
-}
+  SECTION("path_remove_extension")
+  {
+    CHECK(path_remove_extension(path{}) == path{});
+    CHECK(path_remove_extension(path{".ext"}) == path{".ext"});
+    CHECK(path_remove_extension(path{"asdf.ext"}) == path{"asdf"});
+    CHECK(path_remove_extension(path{"asdf.xyz.ext"}) == path{"asdf.xyz"});
+    CHECK(path_remove_extension(path{"/.ext"}) == path{"/.ext"});
+    CHECK(path_remove_extension(path{"/asdf.ext"}) == path{"/asdf"});
+    CHECK(path_remove_extension(path{"/asdf.xyz.ext"}) == path{"/asdf.xyz"});
+  }
 
-TEST_CASE("path_replace_extension")
-{
-  CHECK(path_replace_extension(path{}, path{".new"}) == path{".new"});
-  CHECK(path_replace_extension(path{"asdf"}, path{".new"}) == path{"asdf.new"});
-  CHECK(path_replace_extension(path{"asdf.xyz"}, path{".new"}) == path{"asdf.new"});
-  CHECK(path_replace_extension(path{"/"}, path{".new"}) == path{"/.new"});
-  CHECK(path_replace_extension(path{"/asdf"}, path{".new"}) == path{"/asdf.new"});
-  CHECK(path_replace_extension(path{"/asdf.xyz"}, path{".new"}) == path{"/asdf.new"});
+  SECTION("path_replace_extension")
+  {
+    CHECK(path_replace_extension(path{}, path{".new"}) == path{".new"});
+    CHECK(path_replace_extension(path{"asdf"}, path{".new"}) == path{"asdf.new"});
+    CHECK(path_replace_extension(path{"asdf.xyz"}, path{".new"}) == path{"asdf.new"});
+    CHECK(path_replace_extension(path{"/"}, path{".new"}) == path{"/.new"});
+    CHECK(path_replace_extension(path{"/asdf"}, path{".new"}) == path{"/asdf.new"});
+    CHECK(path_replace_extension(path{"/asdf.xyz"}, path{".new"}) == path{"/asdf.new"});
 
-  CHECK(path_replace_extension(path{".ext"}, path{".new"}) == path{".ext.new"});
-  CHECK(path_replace_extension(path{"asdf.ext"}, path{".new"}) == path{"asdf.new"});
-  CHECK(
-    path_replace_extension(path{"asdf.xyz.ext"}, path{".new"}) == path{"asdf.xyz.new"});
-  CHECK(path_replace_extension(path{"/.ext"}, path{".new"}) == path{"/.ext.new"});
-  CHECK(path_replace_extension(path{"/asdf.ext"}, path{".new"}) == path{"/asdf.new"});
-  CHECK(
-    path_replace_extension(path{"/asdf.xyz.ext"}, path{".new"}) == path{"/asdf.xyz.new"});
+    CHECK(path_replace_extension(path{".ext"}, path{".new"}) == path{".ext.new"});
+    CHECK(path_replace_extension(path{"asdf.ext"}, path{".new"}) == path{"asdf.new"});
+    CHECK(
+      path_replace_extension(path{"asdf.xyz.ext"}, path{".new"}) == path{"asdf.xyz.new"});
+    CHECK(path_replace_extension(path{"/.ext"}, path{".new"}) == path{"/.ext.new"});
+    CHECK(path_replace_extension(path{"/asdf.ext"}, path{".new"}) == path{"/asdf.new"});
+    CHECK(
+      path_replace_extension(path{"/asdf.xyz.ext"}, path{".new"})
+      == path{"/asdf.xyz.new"});
 
-  CHECK(path_replace_extension(path{}, path{}) == path{});
-  CHECK(path_replace_extension(path{".ext"}, path{}) == path{".ext"});
-  CHECK(path_replace_extension(path{"asdf.ext"}, path{}) == path{"asdf"});
-  CHECK(path_replace_extension(path{"asdf.xyz.ext"}, path{}) == path{"asdf.xyz"});
-  CHECK(path_replace_extension(path{"/.ext"}, path{}) == path{"/.ext"});
-  CHECK(path_replace_extension(path{"/asdf.ext"}, path{}) == path{"/asdf"});
-  CHECK(path_replace_extension(path{"/asdf.xyz.ext"}, path{}) == path{"/asdf.xyz"});
+    CHECK(path_replace_extension(path{}, path{}) == path{});
+    CHECK(path_replace_extension(path{".ext"}, path{}) == path{".ext"});
+    CHECK(path_replace_extension(path{"asdf.ext"}, path{}) == path{"asdf"});
+    CHECK(path_replace_extension(path{"asdf.xyz.ext"}, path{}) == path{"asdf.xyz"});
+    CHECK(path_replace_extension(path{"/.ext"}, path{}) == path{"/.ext"});
+    CHECK(path_replace_extension(path{"/asdf.ext"}, path{}) == path{"/asdf"});
+    CHECK(path_replace_extension(path{"/asdf.xyz.ext"}, path{}) == path{"/asdf.xyz"});
+  }
 }
 
 } // namespace kdl
