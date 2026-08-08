@@ -311,14 +311,14 @@ auto createExtrudeDragTracker(
     hit.hitPoint());
 }
 
-struct MoveDragDelegate : public HandleDragTrackerDelegate
+struct SlideDragDelegate : public HandleDragTrackerDelegate
 {
   ExtrudeTool& m_tool;
-  ExtrudeDragState m_moveDragState;
+  ExtrudeDragState m_dragState;
 
-  MoveDragDelegate(ExtrudeTool& tool, ExtrudeDragState moveDragState)
+  SlideDragDelegate(ExtrudeTool& tool, ExtrudeDragState dragState)
     : m_tool{tool}
-    , m_moveDragState{std::move(moveDragState)}
+    , m_dragState{std::move(dragState)}
   {
   }
 
@@ -355,7 +355,7 @@ struct MoveDragDelegate : public HandleDragTrackerDelegate
     const vm::vec3d& proposedHandlePosition) override
   {
     const auto delta = proposedHandlePosition - dragState.initialHandlePosition;
-    if (m_tool.move(delta, m_moveDragState))
+    if (m_tool.slide(delta, m_dragState))
     {
       return DragStatus::Continue;
     }
@@ -364,7 +364,7 @@ struct MoveDragDelegate : public HandleDragTrackerDelegate
 
   void end(const InputState& inputState, const DragState&) override
   {
-    m_tool.commit(m_moveDragState);
+    m_tool.commit(m_dragState);
     m_tool.updateProposedDragHandles(inputState.pickResult());
   }
 
@@ -382,18 +382,18 @@ struct MoveDragDelegate : public HandleDragTrackerDelegate
     render::RenderContext&,
     render::RenderBatch& renderBatch) const override
   {
-    auto edgeRenderer = buildEdgeRenderer(m_moveDragState.currentDragFaces);
+    auto edgeRenderer = buildEdgeRenderer(m_dragState.currentDragFaces);
     edgeRenderer.renderOnTop(renderBatch, pref(Preferences::ExtrudeHandleColor));
   }
 };
 
-auto createMoveDragTracker(
+auto createSlideDragTracker(
   ExtrudeTool& tool, const InputState& inputState, const mdl::Hit& hit)
 {
   const auto initialHandlePosition = hit.target<ExtrudeHitData>().initialHandlePosition;
 
   return createHandleDragTracker(
-    MoveDragDelegate{
+    SlideDragDelegate{
       tool,
       {tool.proposedDragHandles(),
        ExtrudeTool::getDragFaces(tool.proposedDragHandles())}},
@@ -595,8 +595,8 @@ std::unique_ptr<GestureTracker> ExtrudeToolController::acceptMouseDrag(
     {
       if (inputState.camera().orthographicProjection())
       {
-        m_tool.beginMove();
-        return createMoveDragTracker(m_tool, inputState, hit);
+        m_tool.beginSlide();
+        return createSlideDragTracker(m_tool, inputState, hit);
       }
     }
     else

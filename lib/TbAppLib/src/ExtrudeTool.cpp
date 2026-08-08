@@ -856,15 +856,15 @@ bool ExtrudeTool::extrude(const vm::vec3d& handleDelta, ExtrudeDragState& dragSt
   return true;
 }
 
-void ExtrudeTool::beginMove()
+void ExtrudeTool::beginSlide()
 {
   contract_pre(!m_dragging);
 
   m_dragging = true;
-  m_document.map().startTransaction("Move Faces", mdl::TransactionScope::LongRunning);
+  m_document.map().startTransaction("Slide Faces", mdl::TransactionScope::LongRunning);
 }
 
-bool ExtrudeTool::move(const vm::vec3d& delta, ExtrudeDragState& dragState)
+bool ExtrudeTool::slide(const vm::vec3d& delta, ExtrudeDragState& dragState)
 {
   contract_pre(m_dragging);
 

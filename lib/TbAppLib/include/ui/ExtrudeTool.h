@@ -156,8 +156,8 @@ public:
   void beginExtrude();
   bool extrude(const vm::vec3d& faceDelta, ExtrudeDragState& dragState);
 
-  void beginMove();
-  bool move(const vm::vec3d& delta, ExtrudeDragState& dragState);
+  void beginSlide();
+  bool slide(const vm::vec3d& delta, ExtrudeDragState& dragState);
 
   void beginStamp();
   bool stamp(const vm::vec3d& handleDelta, ExtrudeDragState& dragState);
