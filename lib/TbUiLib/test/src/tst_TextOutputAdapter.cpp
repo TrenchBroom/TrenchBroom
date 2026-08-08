@@ -27,7 +27,7 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 namespace tb::ui
 {
 
-TEST_CASE("TextOutputAdapterTest.test")
+TEST_CASE("TextOutputAdapter")
 {
   QTextEdit textEdit;
   TextOutputAdapter adapter(&textEdit);

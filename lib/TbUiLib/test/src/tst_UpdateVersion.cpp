@@ -35,19 +35,19 @@ TEST_CASE("UpdateVersion")
 {
   constexpr static auto _ = std::nullopt;
 
-  CHECK_FALSE(
-    UpdateVersion{SemanticVersion{1, 2, 3, _}}
-    < UpdateVersion{SemanticVersion{1, 2, 3, _}});
-  CHECK_FALSE(
-    UpdateVersion{SemanticVersion{1, 2, 3, _}}
-    < UpdateVersion{SemanticVersion{1, 2, 2, _}});
+  CHECK(
+    !(UpdateVersion{SemanticVersion{1, 2, 3, _}}
+      < UpdateVersion{SemanticVersion{1, 2, 3, _}}));
+  CHECK(
+    !(UpdateVersion{SemanticVersion{1, 2, 3, _}}
+      < UpdateVersion{SemanticVersion{1, 2, 2, _}}));
   CHECK(
     UpdateVersion{SemanticVersion{1, 2, 2, _}}
     < UpdateVersion{SemanticVersion{1, 2, 3, _}});
 
-  CHECK_FALSE(
-    UpdateVersion{SemanticVersion{1, 2, 3, 1}}
-    < UpdateVersion{SemanticVersion{1, 2, 3, 1}});
+  CHECK(
+    !(UpdateVersion{SemanticVersion{1, 2, 3, 1}}
+      < UpdateVersion{SemanticVersion{1, 2, 3, 1}}));
   CHECK(
     UpdateVersion{SemanticVersion{1, 2, 3, 1}}
     < UpdateVersion{SemanticVersion{1, 2, 3, 2}});
@@ -55,19 +55,19 @@ TEST_CASE("UpdateVersion")
   CHECK(
     UpdateVersion{SemanticVersion{1, 2, 3, 1}}
     < UpdateVersion{SemanticVersion{1, 2, 3, _}});
-  CHECK_FALSE(
-    UpdateVersion{SemanticVersion{1, 2, 3, _}}
-    < UpdateVersion{SemanticVersion{1, 2, 3, 2}});
+  CHECK(
+    !(UpdateVersion{SemanticVersion{1, 2, 3, _}}
+      < UpdateVersion{SemanticVersion{1, 2, 3, 2}}));
 
-  CHECK_FALSE(
-    UpdateVersion{TemporalVersion{2022, 2, _}}
-    < UpdateVersion{TemporalVersion{2022, 2, _}});
-  CHECK_FALSE(
-    UpdateVersion{TemporalVersion{2022, 2, _}}
-    < UpdateVersion{TemporalVersion{2022, 1, _}});
-  CHECK_FALSE(
-    UpdateVersion{TemporalVersion{2022, 2, _}}
-    < UpdateVersion{TemporalVersion{2021, 2, _}});
+  CHECK(
+    !(UpdateVersion{TemporalVersion{2022, 2, _}}
+      < UpdateVersion{TemporalVersion{2022, 2, _}}));
+  CHECK(
+    !(UpdateVersion{TemporalVersion{2022, 2, _}}
+      < UpdateVersion{TemporalVersion{2022, 1, _}}));
+  CHECK(
+    !(UpdateVersion{TemporalVersion{2022, 2, _}}
+      < UpdateVersion{TemporalVersion{2021, 2, _}}));
   CHECK(
     UpdateVersion{TemporalVersion{2022, 2, _}}
     < UpdateVersion{TemporalVersion{2022, 3, _}});
@@ -75,9 +75,9 @@ TEST_CASE("UpdateVersion")
     UpdateVersion{TemporalVersion{2022, 2, _}}
     < UpdateVersion{TemporalVersion{2023, 1, _}});
 
-  CHECK_FALSE(
-    UpdateVersion{TemporalVersion{2022, 2, 1}}
-    < UpdateVersion{TemporalVersion{2022, 2, 1}});
+  CHECK(
+    !(UpdateVersion{TemporalVersion{2022, 2, 1}}
+      < UpdateVersion{TemporalVersion{2022, 2, 1}}));
   CHECK(
     UpdateVersion{TemporalVersion{2022, 2, 1}}
     < UpdateVersion{TemporalVersion{2022, 2, 2}});
@@ -85,84 +85,87 @@ TEST_CASE("UpdateVersion")
   CHECK(
     UpdateVersion{TemporalVersion{2022, 2, 1}}
     < UpdateVersion{TemporalVersion{2022, 2, _}});
-  CHECK_FALSE(
-    UpdateVersion{TemporalVersion{2022, 2, _}}
-    < UpdateVersion{TemporalVersion{2022, 2, 1}});
+  CHECK(
+    !(UpdateVersion{TemporalVersion{2022, 2, _}}
+      < UpdateVersion{TemporalVersion{2022, 2, 1}}));
 
   CHECK(
     UpdateVersion{SemanticVersion{1, 2, 3, _}}
     < UpdateVersion{TemporalVersion{2022, 2, _}});
-  CHECK_FALSE(
-    UpdateVersion{TemporalVersion{2022, 2, _}}
-    < UpdateVersion{SemanticVersion{1, 2, 3, _}});
+  CHECK(
+    !(UpdateVersion{TemporalVersion{2022, 2, _}}
+      < UpdateVersion{SemanticVersion{1, 2, 3, _}}));
 }
 
-TEST_CASE("parseUpdateVersion")
+TEST_CASE("Update version free functions")
 {
-  using T = std::tuple<QString, std::optional<UpdateVersion>>;
-
-  // clang-format off
-  const auto 
-  [str,           expectedVersion] = GENERATE(values<T>({
-  {"",            std::nullopt},
-  {"asdf",        std::nullopt},
-  {"v2025.1a",    std::nullopt},
-  {"v3.2.x",      std::nullopt},
-  {"v3.2.1",      SemanticVersion{3, 2, 1}},
-  {"v2025.1",     TemporalVersion{2025, 1}},
-  {"v2025.1-RC2", TemporalVersion{2025, 1, 2}},
-  }));
-  // clang-format on
-
-  CAPTURE(str);
-
-  CHECK(parseUpdateVersion(str) == expectedVersion);
-}
-
-TEST_CASE("chooseAsset")
-{
-  SECTION("with release candidates")
+  SECTION("parseUpdateVersion")
   {
-    const auto assets = QList<upd::Asset>{
-      {"TrenchBroom-Win64-AMD64-v2025.3-RC3-Release.zip", QUrl{}, 0},
-      {"TrenchBroom-macOS-arm64-v2025.3-RC3-Release.zip", QUrl{}, 0},
-      {"TrenchBroom-macOS-x86_64-v2025.3-RC3-Release.zip", QUrl{}, 0},
-      {"TrenchBroom-Linux-x86_64-v2025.3-RC3-Release.zip", QUrl{}, 0},
-    };
+    using T = std::tuple<QString, std::optional<UpdateVersion>>;
 
-#if defined(Q_OS_WIN)
-    CHECK(chooseAsset(assets) == assets[0]);
-#elif defined(Q_OS_MACOS)
-#if defined(__arm64__)
-    CHECK(chooseAsset(assets) == assets[1]);
-#else
-    CHECK(chooseAsset(assets) == assets[2]);
-#endif
-#else
-    CHECK(chooseAsset(assets) == assets[3]);
-#endif
+    // clang-format off
+    const auto
+    [str,           expectedVersion] = GENERATE(values<T>({
+    {"",            std::nullopt},
+    {"asdf",        std::nullopt},
+    {"v2025.1a",    std::nullopt},
+    {"v3.2.x",      std::nullopt},
+    {"v3.2.1",      SemanticVersion{3, 2, 1}},
+    {"v2025.1",     TemporalVersion{2025, 1}},
+    {"v2025.1-RC2", TemporalVersion{2025, 1, 2}},
+    }));
+    // clang-format on
+
+    CAPTURE(str);
+
+    CHECK(parseUpdateVersion(str) == expectedVersion);
   }
 
-  SECTION("with release versions")
+  SECTION("chooseAsset")
   {
-    const auto assets = QList<upd::Asset>{
-      {"TrenchBroom-Win64-AMD64-v2025.3-Release.zip", QUrl{}, 0},
-      {"TrenchBroom-macOS-arm64-v2025.3-Release.zip", QUrl{}, 0},
-      {"TrenchBroom-macOS-x86_64-v2025.3-Release.zip", QUrl{}, 0},
-      {"TrenchBroom-Linux-x86_64-v2025.3-Release.zip", QUrl{}, 0},
-    };
+    SECTION("with release candidates")
+    {
+      const auto assets = QList<upd::Asset>{
+        {"TrenchBroom-Win64-AMD64-v2025.3-RC3-Release.zip", QUrl{}, 0},
+        {"TrenchBroom-macOS-arm64-v2025.3-RC3-Release.zip", QUrl{}, 0},
+        {"TrenchBroom-macOS-x86_64-v2025.3-RC3-Release.zip", QUrl{}, 0},
+        {"TrenchBroom-Linux-x86_64-v2025.3-RC3-Release.zip", QUrl{}, 0},
+      };
 
 #if defined(Q_OS_WIN)
-    CHECK(chooseAsset(assets) == assets[0]);
+      CHECK(chooseAsset(assets) == assets[0]);
 #elif defined(Q_OS_MACOS)
 #if defined(__arm64__)
-    CHECK(chooseAsset(assets) == assets[1]);
+      CHECK(chooseAsset(assets) == assets[1]);
 #else
-    CHECK(chooseAsset(assets) == assets[2]);
+      CHECK(chooseAsset(assets) == assets[2]);
 #endif
 #else
-    CHECK(chooseAsset(assets) == assets[3]);
+      CHECK(chooseAsset(assets) == assets[3]);
 #endif
+    }
+
+    SECTION("with release versions")
+    {
+      const auto assets = QList<upd::Asset>{
+        {"TrenchBroom-Win64-AMD64-v2025.3-Release.zip", QUrl{}, 0},
+        {"TrenchBroom-macOS-arm64-v2025.3-Release.zip", QUrl{}, 0},
+        {"TrenchBroom-macOS-x86_64-v2025.3-Release.zip", QUrl{}, 0},
+        {"TrenchBroom-Linux-x86_64-v2025.3-Release.zip", QUrl{}, 0},
+      };
+
+#if defined(Q_OS_WIN)
+      CHECK(chooseAsset(assets) == assets[0]);
+#elif defined(Q_OS_MACOS)
+#if defined(__arm64__)
+      CHECK(chooseAsset(assets) == assets[1]);
+#else
+      CHECK(chooseAsset(assets) == assets[2]);
+#endif
+#else
+      CHECK(chooseAsset(assets) == assets[3]);
+#endif
+    }
   }
 }
 

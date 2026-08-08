@@ -26,27 +26,30 @@
 namespace tb::ui
 {
 
-TEST_CASE("Portable flag begins false")
+TEST_CASE("SystemPaths")
 {
-  CHECK(SystemPaths::isPortable() == false);
-}
+  SECTION("Portable flag begins false")
+  {
+    CHECK(SystemPaths::isPortable() == false);
+  }
 
-TEST_CASE("Portable flag is changed by setPortable")
-{
-  CHECK(SystemPaths::isPortable() == false);
-  SystemPaths::setPortable();
-  CHECK(SystemPaths::isPortable() == true);
-  // cleanup
-  SystemPaths::setPortable(false);
-}
+  SECTION("Portable flag is changed by setPortable")
+  {
+    CHECK(SystemPaths::isPortable() == false);
+    SystemPaths::setPortable();
+    CHECK(SystemPaths::isPortable() == true);
+    // cleanup
+    SystemPaths::setPortable(false);
+  }
 
-TEST_CASE("userDataDirectory is changed by setPortable")
-{
-  auto initialDataDir = SystemPaths::userDataDirectory().string();
-  SystemPaths::setPortable();
-  CHECK(SystemPaths::userDataDirectory() != initialDataDir);
-  // cleanup
-  SystemPaths::setPortable(false);
+  SECTION("userDataDirectory is changed by setPortable")
+  {
+    auto initialDataDir = SystemPaths::userDataDirectory().string();
+    SystemPaths::setPortable();
+    CHECK(SystemPaths::userDataDirectory() != initialDataDir);
+    // cleanup
+    SystemPaths::setPortable(false);
+  }
 }
 
 } // namespace tb::ui
