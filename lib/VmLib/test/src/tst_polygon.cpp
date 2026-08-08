@@ -36,689 +36,693 @@ namespace vm
 {
 using namespace Catch::Matchers;
 
-TEST_CASE("polygon.constructor_default")
+TEST_CASE("polygon")
 {
-  CHECK(polygon3d{}.vertices().size() == 0u);
-}
-
-TEST_CASE("polygon.constructor_with_initializer_list")
-{
-  CHECK(
-    polygon3d{
-      vec3d{+1, +1, 0},
-      vec3d{+1, -1, 0},
-      vec3d{-1, -1, 0},
-      vec3d{-1, +1, 0},
-    }
-      .vertices()
-    == std::vector<vec3d>{
-      {-1, -1, 0},
-      {-1, +1, 0},
-      {+1, +1, 0},
-      {+1, -1, 0},
-    });
-}
-
-TEST_CASE("polygon.construct_with_vertex_list")
-{
-  const auto vertices = std::vector<vec3d>{
-    {+1, +1, 0},
-    {+1, -1, 0},
-    {-1, -1, 0},
-    {-1, +1, 0},
-  };
-  CHECK(
-    polygon3d{vertices}.vertices()
-    == std::vector<vec3d>{
-      {-1, -1, 0},
-      {-1, +1, 0},
-      {+1, +1, 0},
-      {+1, -1, 0},
-    });
-}
-
-TEST_CASE("polygon.has_vertex")
-{
-  const auto vertices = std::vector<vec3d>{
-    {+1, +1, 0},
-    {+1, -1, 0},
-    {-1, -1, 0},
-    {-1, +1, 0},
-  };
-
-  const auto p = polygon3d{vertices};
-  for (const auto& v : vertices)
+  SECTION("constructor_default")
   {
-    CHECK(p.hasVertex(v));
+    CHECK(polygon3d{}.vertices().size() == 0u);
   }
 
-  CHECK_FALSE(p.hasVertex(vec3d{1, 1, 1}));
-}
+  SECTION("constructor_with_initializer_list")
+  {
+    CHECK(
+      polygon3d{
+        vec3d{+1, +1, 0},
+        vec3d{+1, -1, 0},
+        vec3d{-1, -1, 0},
+        vec3d{-1, +1, 0},
+      }
+        .vertices()
+      == std::vector<vec3d>{
+        {-1, -1, 0},
+        {-1, +1, 0},
+        {+1, +1, 0},
+        {+1, -1, 0},
+      });
+  }
 
-TEST_CASE("polygon.vertex_count")
-{
-  const auto vertices = std::vector<vec3d>{
-    {+1, +1, 0},
-    {+1, -1, 0},
-    {-1, -1, 0},
-    {-1, +1, 0},
-  };
+  SECTION("construct_with_vertex_list")
+  {
+    const auto vertices = std::vector<vec3d>{
+      {+1, +1, 0},
+      {+1, -1, 0},
+      {-1, -1, 0},
+      {-1, +1, 0},
+    };
+    CHECK(
+      polygon3d{vertices}.vertices()
+      == std::vector<vec3d>{
+        {-1, -1, 0},
+        {-1, +1, 0},
+        {+1, +1, 0},
+        {+1, -1, 0},
+      });
+  }
 
-  const auto p = polygon3d{vertices};
-  CHECK(p.vertexCount() == 4u);
-  CHECK(polygon3d{}.vertexCount() == 0u);
-}
+  SECTION("has_vertex")
+  {
+    const auto vertices = std::vector<vec3d>{
+      {+1, +1, 0},
+      {+1, -1, 0},
+      {-1, -1, 0},
+      {-1, +1, 0},
+    };
 
-TEST_CASE("polygon.vertices")
-{
-  const auto vertices = std::vector<vec3d>{
-    {-1, -1, 0},
-    {-1, +1, 0},
-    {+1, +1, 0},
-    {+1, -1, 0},
-  };
+    const auto p = polygon3d{vertices};
+    for (const auto& v : vertices)
+    {
+      CHECK(p.hasVertex(v));
+    }
 
-  const auto p = polygon3d{vertices};
-  CHECK_THAT(p.vertices(), Equals(vertices));
-}
+    CHECK(!(p.hasVertex(vec3d{1, 1, 1})));
+  }
 
-TEST_CASE("polygon.center")
-{
-  const auto vertices = std::vector<vec3d>{
-    {-1, -1, 0},
-    {-1, +1, 0},
-    {+1, +1, 0},
-    {+1, -1, 0},
-  };
+  SECTION("vertex_count")
+  {
+    const auto vertices = std::vector<vec3d>{
+      {+1, +1, 0},
+      {+1, -1, 0},
+      {-1, -1, 0},
+      {-1, +1, 0},
+    };
 
-  const auto p = polygon3d{vertices};
-  CHECK(p.center() == approx(vec3d{0, 0, 0}));
-}
+    const auto p = polygon3d{vertices};
+    CHECK(p.vertexCount() == 4u);
+    CHECK(polygon3d{}.vertexCount() == 0u);
+  }
 
-TEST_CASE("polygon.invert")
-{
-  const auto p = polygon3d{
-    vec3d{-1, -1, 0},
-    vec3d{-1, +1, 0},
-    vec3d{+1, +1, 0},
-    vec3d{+1, -1, 0},
-  };
+  SECTION("vertices")
+  {
+    const auto vertices = std::vector<vec3d>{
+      {-1, -1, 0},
+      {-1, +1, 0},
+      {+1, +1, 0},
+      {+1, -1, 0},
+    };
 
-  CHECK(
-    p.invert().vertices()
-    == std::vector<vec3d>{
+    const auto p = polygon3d{vertices};
+    CHECK_THAT(p.vertices(), Equals(vertices));
+  }
+
+  SECTION("center")
+  {
+    const auto vertices = std::vector<vec3d>{
+      {-1, -1, 0},
+      {-1, +1, 0},
+      {+1, +1, 0},
+      {+1, -1, 0},
+    };
+
+    const auto p = polygon3d{vertices};
+    CHECK(p.center() == approx(vec3d{0, 0, 0}));
+  }
+
+  SECTION("invert")
+  {
+    const auto p = polygon3d{
       vec3d{-1, -1, 0},
-      vec3d{+1, -1, 0},
-      vec3d{+1, +1, 0},
       vec3d{-1, +1, 0},
-    });
-}
+      vec3d{+1, +1, 0},
+      vec3d{+1, -1, 0},
+    };
 
-TEST_CASE("polygon.translate")
-{
-  const auto p = polygon3d{
-    {+1, +1, 0},
-    {+1, -1, 0},
-    {-1, -1, 0},
-    {-1, +1, 0},
-  };
+    CHECK(
+      p.invert().vertices()
+      == std::vector<vec3d>{
+        vec3d{-1, -1, 0},
+        vec3d{+1, -1, 0},
+        vec3d{+1, +1, 0},
+        vec3d{-1, +1, 0},
+      });
+  }
 
-  const auto t = vec3d{1, 2, 3};
-  CHECK(p.translate(t).vertices() == p.vertices() + t);
-}
+  SECTION("translate")
+  {
+    const auto p = polygon3d{
+      {+1, +1, 0},
+      {+1, -1, 0},
+      {-1, -1, 0},
+      {-1, +1, 0},
+    };
 
-TEST_CASE("polygon.transform")
-{
-  const auto p = polygon3d{
-    {+1, +1, 0},
-    {+1, -1, 0},
-    {-1, -1, 0},
-    {-1, +1, 0},
-  };
+    const auto t = vec3d{1, 2, 3};
+    CHECK(p.translate(t).vertices() == p.vertices() + t);
+  }
 
-  const auto t = rotation_matrix(to_radians(14.0), to_radians(13.0), to_radians(44.0))
-                 * translation_matrix(vec3d{1, 2, 3});
-  CHECK(p.transform(t).vertices() == polygon3d{t * p.vertices()}.vertices());
-}
+  SECTION("transform")
+  {
+    const auto p = polygon3d{
+      {+1, +1, 0},
+      {+1, -1, 0},
+      {-1, -1, 0},
+      {-1, +1, 0},
+    };
 
-TEST_CASE("polygon.get_vertices")
-{
-  const auto p1 = polygon3d{
-    {+1, +1, 0},
-    {+1, -1, 0},
-    {-1, -1, 0},
-    {-1, +1, 0},
-  };
-  const auto p2 = p1.translate(vec3d{1, 2, 3});
-  const auto ps = std::vector<polygon3d>{p1, p2};
+    const auto t = rotation_matrix(to_radians(14.0), to_radians(13.0), to_radians(44.0))
+                   * translation_matrix(vec3d{1, 2, 3});
+    CHECK(p.transform(t).vertices() == polygon3d{t * p.vertices()}.vertices());
+  }
 
-  auto exp = p1.vertices();
-  exp.insert(std::end(exp), p2.vertices().begin(), p2.vertices().end());
+  SECTION("get_vertices")
+  {
+    const auto p1 = polygon3d{
+      {+1, +1, 0},
+      {+1, -1, 0},
+      {-1, -1, 0},
+      {-1, +1, 0},
+    };
+    const auto p2 = p1.translate(vec3d{1, 2, 3});
+    const auto ps = std::vector<polygon3d>{p1, p2};
 
-  auto act = std::vector<vec3d>();
-  polygon3d::get_vertices(std::begin(ps), std::end(ps), std::back_inserter(act));
+    auto exp = p1.vertices();
+    exp.insert(std::end(exp), p2.vertices().begin(), p2.vertices().end());
 
-  CHECK(act == exp);
-}
+    auto act = std::vector<vec3d>();
+    polygon3d::get_vertices(std::begin(ps), std::end(ps), std::back_inserter(act));
 
-TEST_CASE("polygon.compare")
-{
-  CHECK(compare(polygon3d{}, polygon3d{}) == std::strong_ordering::equal);
+    CHECK(act == exp);
+  }
 
-  CHECK(
-    compare(
+  SECTION("compare")
+  {
+    CHECK(compare(polygon3d{}, polygon3d{}) == std::strong_ordering::equal);
+
+    CHECK(
+      compare(
+        polygon3d{
+          {-1, -1, 0},
+          {-1, +1, 0},
+          {+1, +1, 0},
+          {+1, -1, 0},
+        },
+        polygon3d{
+          {-1, -1, 0},
+          {-1, +1, 0},
+          {+1, +1, 0},
+          {+1, -1, 0},
+        })
+      == std::strong_ordering::equal);
+
+    CHECK(
+      compare(
+        polygon3d{
+          {-1, -1, 0},
+          {-1, +1, 0},
+          {+1, +1, 0},
+          {+1, -1, 0},
+        },
+        polygon3d{
+          {-2, -1, 0},
+          {-1, +1, 0},
+          {+1, +1, 0},
+          {+1, -1, 0},
+        },
+        2.0)
+      == std::strong_ordering::equal);
+
+    CHECK(
+      compare(
+        polygon3d{
+          {-1, -1, 0},
+          {-1, +1, 0},
+          {+1, +1, 0},
+        },
+        polygon3d{
+          {-1, -1, 0},
+          {-1, +1, 0},
+          {+1, +1, 0},
+          {+1, -1, 0},
+        })
+      == std::strong_ordering::less);
+
+    CHECK(
+      compare(
+        polygon3d{
+          {-1, -1, 0},
+          {-1, +1, 0},
+          {+1, +1, 0},
+          {+1, -1, 0},
+        },
+        polygon3d{
+          {-1, -1, 0},
+          {-1, +1, 0},
+          {+1, +1, 0},
+        })
+      == std::strong_ordering::greater);
+
+    CHECK(
+      compare(
+        polygon3d{
+          {-1, -1, 0},
+          {-1, +1, 0},
+          {+1, +1, 0},
+        },
+        polygon3d{
+          {+1, -1, 0},
+          {-1, +1, 0},
+          {+1, +1, 0},
+          {+1, -1, 0},
+        })
+      == std::strong_ordering::less);
+
+    CHECK(
+      compare(
+        polygon3d{
+          {-1, -1, 0},
+          {-1, +1, 0},
+          {+1, +1, 0},
+        },
+        polygon3d{
+          {+1, -1, 0},
+          {-1, +1, 0},
+        })
+      == std::strong_ordering::less);
+
+    CHECK(
+      compare(
+        polygon3d{
+          {+1, -1, 0},
+          {-1, +1, 0},
+          {+1, +1, 0},
+          {+1, -1, 0},
+        },
+        polygon3d{
+          {-1, -1, 0},
+          {-1, +1, 0},
+          {+1, +1, 0},
+        })
+      == std::strong_ordering::greater);
+
+    CHECK(
+      compare(
+        polygon3d{
+          {+1, -1, 0},
+          {-1, +1, 0},
+        },
+        polygon3d{
+          {-1, -1, 0},
+          {-1, +1, 0},
+          {+1, +1, 0},
+        })
+      == std::strong_ordering::greater);
+  }
+
+  SECTION("operator_equal")
+  {
+    CHECK(polygon3d{} == polygon3d{});
+
+    CHECK(
       polygon3d{
         {-1, -1, 0},
         {-1, +1, 0},
         {+1, +1, 0},
         {+1, -1, 0},
-      },
+      }
+      == polygon3d{
+        {-1, -1, 0},
+        {-1, +1, 0},
+        {+1, +1, 0},
+        {+1, -1, 0},
+      });
+
+    CHECK_FALSE(
+      polygon3d{
+        {-1, -1, 0},
+        {-1, +1, 0},
+        {+1, +1, 0},
+      }
+      == polygon3d{
+        {-1, -1, 0},
+        {-1, +1, 0},
+        {+1, +1, 0},
+        {+1, -1, 0},
+      });
+
+    CHECK_FALSE(
       polygon3d{
         {-1, -1, 0},
         {-1, +1, 0},
         {+1, +1, 0},
         {+1, -1, 0},
-      })
-    == std::strong_ordering::equal);
+      }
+      == polygon3d{
+        {-1, -1, 0},
+        {-1, +1, 0},
+        {+1, +1, 0},
+      });
 
-  CHECK(
-    compare(
+    CHECK_FALSE(
+      polygon3d{
+        {-1, -1, 0},
+        {-1, +1, 0},
+        {+1, +1, 0},
+      }
+      == polygon3d{
+        {+1, -1, 0},
+        {-1, +1, 0},
+        {+1, +1, 0},
+        {+1, -1, 0},
+      });
+
+    CHECK_FALSE(
+      polygon3d{
+        {-1, -1, 0},
+        {-1, +1, 0},
+        {+1, +1, 0},
+      }
+      == polygon3d{
+        {+1, -1, 0},
+        {-1, +1, 0},
+      });
+
+    CHECK_FALSE(
+      polygon3d{
+        {+1, -1, 0},
+        {-1, +1, 0},
+        {+1, +1, 0},
+        {+1, -1, 0},
+      }
+      == polygon3d{
+        {-1, -1, 0},
+        {-1, +1, 0},
+        {+1, +1, 0},
+      });
+
+    CHECK_FALSE(
+      polygon3d{
+        {+1, -1, 0},
+        {-1, +1, 0},
+      }
+      == polygon3d{
+        {-1, -1, 0},
+        {-1, +1, 0},
+        {+1, +1, 0},
+      });
+  }
+
+  SECTION("operator_not_equal")
+  {
+    CHECK(!(polygon3d{} != polygon3d{}));
+
+    CHECK_FALSE(
       polygon3d{
         {-1, -1, 0},
         {-1, +1, 0},
         {+1, +1, 0},
         {+1, -1, 0},
-      },
-      polygon3d{
-        {-2, -1, 0},
-        {-1, +1, 0},
-        {+1, +1, 0},
-        {+1, -1, 0},
-      },
-      2.0)
-    == std::strong_ordering::equal);
-
-  CHECK(
-    compare(
-      polygon3d{
-        {-1, -1, 0},
-        {-1, +1, 0},
-        {+1, +1, 0},
-      },
-      polygon3d{
+      }
+      != polygon3d{
         {-1, -1, 0},
         {-1, +1, 0},
         {+1, +1, 0},
         {+1, -1, 0},
-      })
-    == std::strong_ordering::less);
+      });
 
-  CHECK(
-    compare(
+    CHECK(
+      polygon3d{
+        {-1, -1, 0},
+        {-1, +1, 0},
+        {+1, +1, 0},
+      }
+      != polygon3d{
+        {-1, -1, 0},
+        {-1, +1, 0},
+        {+1, +1, 0},
+        {+1, -1, 0},
+      });
+
+    CHECK(
       polygon3d{
         {-1, -1, 0},
         {-1, +1, 0},
         {+1, +1, 0},
         {+1, -1, 0},
-      },
+      }
+      != polygon3d{
+        {-1, -1, 0},
+        {-1, +1, 0},
+        {+1, +1, 0},
+      });
+
+    CHECK(
       polygon3d{
         {-1, -1, 0},
         {-1, +1, 0},
         {+1, +1, 0},
-      })
-    == std::strong_ordering::greater);
+      }
+      != polygon3d{
+        {+1, -1, 0},
+        {-1, +1, 0},
+        {+1, +1, 0},
+        {+1, -1, 0},
+      });
 
-  CHECK(
-    compare(
+    CHECK(
       polygon3d{
         {-1, -1, 0},
         {-1, +1, 0},
         {+1, +1, 0},
-      },
+      }
+      != polygon3d{
+        {+1, -1, 0},
+        {-1, +1, 0},
+      });
+
+    CHECK(
       polygon3d{
         {+1, -1, 0},
         {-1, +1, 0},
         {+1, +1, 0},
         {+1, -1, 0},
-      })
-    == std::strong_ordering::less);
+      }
+      != polygon3d{
+        {-1, -1, 0},
+        {-1, +1, 0},
+        {+1, +1, 0},
+      });
 
-  CHECK(
-    compare(
+    CHECK(
+      polygon3d{
+        {+1, -1, 0},
+        {-1, +1, 0},
+      }
+      != polygon3d{
+        {-1, -1, 0},
+        {-1, +1, 0},
+        {+1, +1, 0},
+      });
+  }
+
+  SECTION("operator_less_than")
+  {
+    CHECK_FALSE(
       polygon3d{
         {-1, -1, 0},
         {-1, +1, 0},
         {+1, +1, 0},
-      },
-      polygon3d{
         {+1, -1, 0},
-        {-1, +1, 0},
-      })
-    == std::strong_ordering::less);
-
-  CHECK(
-    compare(
-      polygon3d{
-        {+1, -1, 0},
+      }
+      < polygon3d{
+        {-1, -1, 0},
         {-1, +1, 0},
         {+1, +1, 0},
         {+1, -1, 0},
-      },
+      });
+
+    CHECK(
       polygon3d{
         {-1, -1, 0},
         {-1, +1, 0},
         {+1, +1, 0},
-      })
-    == std::strong_ordering::greater);
-
-  CHECK(
-    compare(
-      polygon3d{
-        {+1, -1, 0},
+      }
+      < polygon3d{
+        {-1, -1, 0},
         {-1, +1, 0},
-      },
+        {+1, +1, 0},
+        {+1, -1, 0},
+      });
+
+    CHECK_FALSE(
       polygon3d{
         {-1, -1, 0},
         {-1, +1, 0},
         {+1, +1, 0},
-      })
-    == std::strong_ordering::greater);
-}
+        {+1, -1, 0},
+      }
+      < polygon3d{
+        {-1, -1, 0},
+        {-1, +1, 0},
+        {+1, +1, 0},
+      });
+  }
 
-TEST_CASE("polygon.operator_equal")
-{
-  CHECK(polygon3d{} == polygon3d{});
+  SECTION("operator_less_than_or_equal")
+  {
+    CHECK(
+      polygon3d{
+        {-1, -1, 0},
+        {-1, +1, 0},
+        {+1, +1, 0},
+        {+1, -1, 0},
+      }
+      <= polygon3d{
+        {-1, -1, 0},
+        {-1, +1, 0},
+        {+1, +1, 0},
+        {+1, -1, 0},
+      });
 
-  CHECK(
-    polygon3d{
-      {-1, -1, 0},
-      {-1, +1, 0},
-      {+1, +1, 0},
-      {+1, -1, 0},
-    }
-    == polygon3d{
-      {-1, -1, 0},
-      {-1, +1, 0},
-      {+1, +1, 0},
-      {+1, -1, 0},
-    });
+    CHECK(
+      polygon3d{
+        {-1, -1, 0},
+        {-1, +1, 0},
+        {+1, +1, 0},
+      }
+      <= polygon3d{
+        {-1, -1, 0},
+        {-1, +1, 0},
+        {+1, +1, 0},
+        {+1, -1, 0},
+      });
 
-  CHECK_FALSE(
-    polygon3d{
-      {-1, -1, 0},
-      {-1, +1, 0},
-      {+1, +1, 0},
-    }
-    == polygon3d{
-      {-1, -1, 0},
-      {-1, +1, 0},
-      {+1, +1, 0},
-      {+1, -1, 0},
-    });
+    CHECK_FALSE(
+      polygon3d{
+        {-1, -1, 0},
+        {-1, +1, 0},
+        {+1, +1, 0},
+        {+1, -1, 0},
+      }
+      <= polygon3d{
+        {-1, -1, 0},
+        {-1, +1, 0},
+        {+1, +1, 0},
+      });
+  }
 
-  CHECK_FALSE(
-    polygon3d{
-      {-1, -1, 0},
-      {-1, +1, 0},
-      {+1, +1, 0},
-      {+1, -1, 0},
-    }
-    == polygon3d{
-      {-1, -1, 0},
-      {-1, +1, 0},
-      {+1, +1, 0},
-    });
+  SECTION("operator_greater_than")
+  {
+    CHECK_FALSE(
+      polygon3d{
+        {-1, -1, 0},
+        {-1, +1, 0},
+        {+1, +1, 0},
+        {+1, -1, 0},
+      }
+      > polygon3d{
+        {-1, -1, 0},
+        {-1, +1, 0},
+        {+1, +1, 0},
+        {+1, -1, 0},
+      });
 
-  CHECK_FALSE(
-    polygon3d{
-      {-1, -1, 0},
-      {-1, +1, 0},
-      {+1, +1, 0},
-    }
-    == polygon3d{
-      {+1, -1, 0},
-      {-1, +1, 0},
-      {+1, +1, 0},
-      {+1, -1, 0},
-    });
+    CHECK_FALSE(
+      polygon3d{
+        {-1, -1, 0},
+        {-1, +1, 0},
+        {+1, +1, 0},
+      }
+      > polygon3d{
+        {-1, -1, 0},
+        {-1, +1, 0},
+        {+1, +1, 0},
+        {+1, -1, 0},
+      });
 
-  CHECK_FALSE(
-    polygon3d{
-      {-1, -1, 0},
-      {-1, +1, 0},
-      {+1, +1, 0},
-    }
-    == polygon3d{
-      {+1, -1, 0},
-      {-1, +1, 0},
-    });
+    CHECK(
+      polygon3d{
+        {-1, -1, 0},
+        {-1, +1, 0},
+        {+1, +1, 0},
+        {+1, -1, 0},
+      }
+      > polygon3d{
+        {-1, -1, 0},
+        {-1, +1, 0},
+        {+1, +1, 0},
+      });
+  }
 
-  CHECK_FALSE(
-    polygon3d{
-      {+1, -1, 0},
-      {-1, +1, 0},
-      {+1, +1, 0},
-      {+1, -1, 0},
-    }
-    == polygon3d{
-      {-1, -1, 0},
-      {-1, +1, 0},
-      {+1, +1, 0},
-    });
+  SECTION("operator_greater_than_or_equal")
+  {
+    CHECK(
+      polygon3d{
+        {-1, -1, 0},
+        {-1, +1, 0},
+        {+1, +1, 0},
+        {+1, -1, 0},
+      }
+      >= polygon3d{
+        {-1, -1, 0},
+        {-1, +1, 0},
+        {+1, +1, 0},
+        {+1, -1, 0},
+      });
 
-  CHECK_FALSE(
-    polygon3d{
-      {+1, -1, 0},
-      {-1, +1, 0},
-    }
-    == polygon3d{
-      {-1, -1, 0},
-      {-1, +1, 0},
-      {+1, +1, 0},
-    });
-}
+    CHECK_FALSE(
+      polygon3d{
+        {-1, -1, 0},
+        {-1, +1, 0},
+        {+1, +1, 0},
+      }
+      >= polygon3d{
+        {-1, -1, 0},
+        {-1, +1, 0},
+        {+1, +1, 0},
+        {+1, -1, 0},
+      });
 
-TEST_CASE("polygon.operator_not_equal")
-{
-  CHECK_FALSE(polygon3d{} != polygon3d{});
+    CHECK(
+      polygon3d{
+        {-1, -1, 0},
+        {-1, +1, 0},
+        {+1, +1, 0},
+        {+1, -1, 0},
+      }
+      >= polygon3d{
+        {-1, -1, 0},
+        {-1, +1, 0},
+        {+1, +1, 0},
+      });
+  }
 
-  CHECK_FALSE(
-    polygon3d{
-      {-1, -1, 0},
-      {-1, +1, 0},
-      {+1, +1, 0},
-      {+1, -1, 0},
-    }
-    != polygon3d{
-      {-1, -1, 0},
-      {-1, +1, 0},
-      {+1, +1, 0},
-      {+1, -1, 0},
-    });
+  SECTION("compare_unoriented_empty_polygon")
+  {
+    const auto p1 = polygon3d{};
+    CHECK(compareUnoriented(p1, polygon3d{}) == std::strong_ordering::equal);
+    CHECK(compareUnoriented(p1, polygon3d{{0, 0, 0}}) == std::strong_ordering::less);
 
-  CHECK(
-    polygon3d{
-      {-1, -1, 0},
-      {-1, +1, 0},
-      {+1, +1, 0},
-    }
-    != polygon3d{
-      {-1, -1, 0},
-      {-1, +1, 0},
-      {+1, +1, 0},
-      {+1, -1, 0},
-    });
+    const auto p2 = polygon3d{{0, 0, 0}};
+    CHECK(compareUnoriented(p2, p1) == std::strong_ordering::greater);
+    CHECK(compareUnoriented(p2, polygon3d{{0, 0, 0}}) == std::strong_ordering::equal);
+  }
 
-  CHECK(
-    polygon3d{
-      {-1, -1, 0},
-      {-1, +1, 0},
-      {+1, +1, 0},
-      {+1, -1, 0},
-    }
-    != polygon3d{
-      {-1, -1, 0},
-      {-1, +1, 0},
-      {+1, +1, 0},
-    });
+  SECTION("testBackwardComparePolygonWithOneVertex")
+  {
+    const auto p2 = polygon3d{{0, 0, 0}};
+    CHECK(compareUnoriented(p2, polygon3d{{0, 0, 0}}) == std::strong_ordering::equal);
+    CHECK(
+      compareUnoriented(p2, polygon3d{{0, 0, 0}, {0, 0, 0}})
+      == std::strong_ordering::less);
+  }
 
-  CHECK(
-    polygon3d{
-      {-1, -1, 0},
-      {-1, +1, 0},
-      {+1, +1, 0},
-    }
-    != polygon3d{
-      {+1, -1, 0},
-      {-1, +1, 0},
-      {+1, +1, 0},
-      {+1, -1, 0},
-    });
-
-  CHECK(
-    polygon3d{
-      {-1, -1, 0},
-      {-1, +1, 0},
-      {+1, +1, 0},
-    }
-    != polygon3d{
-      {+1, -1, 0},
-      {-1, +1, 0},
-    });
-
-  CHECK(
-    polygon3d{
-      {+1, -1, 0},
-      {-1, +1, 0},
-      {+1, +1, 0},
-      {+1, -1, 0},
-    }
-    != polygon3d{
-      {-1, -1, 0},
-      {-1, +1, 0},
-      {+1, +1, 0},
-    });
-
-  CHECK(
-    polygon3d{
-      {+1, -1, 0},
-      {-1, +1, 0},
-    }
-    != polygon3d{
-      {-1, -1, 0},
-      {-1, +1, 0},
-      {+1, +1, 0},
-    });
-}
-
-TEST_CASE("polygon.operator_less_than")
-{
-  CHECK_FALSE(
-    polygon3d{
-      {-1, -1, 0},
-      {-1, +1, 0},
-      {+1, +1, 0},
-      {+1, -1, 0},
-    }
-    < polygon3d{
-      {-1, -1, 0},
-      {-1, +1, 0},
-      {+1, +1, 0},
-      {+1, -1, 0},
-    });
-
-  CHECK(
-    polygon3d{
-      {-1, -1, 0},
-      {-1, +1, 0},
-      {+1, +1, 0},
-    }
-    < polygon3d{
-      {-1, -1, 0},
-      {-1, +1, 0},
-      {+1, +1, 0},
-      {+1, -1, 0},
-    });
-
-  CHECK_FALSE(
-    polygon3d{
-      {-1, -1, 0},
-      {-1, +1, 0},
-      {+1, +1, 0},
-      {+1, -1, 0},
-    }
-    < polygon3d{
-      {-1, -1, 0},
-      {-1, +1, 0},
-      {+1, +1, 0},
-    });
-}
-
-TEST_CASE("polygon.operator_less_than_or_equal")
-{
-  CHECK(
-    polygon3d{
-      {-1, -1, 0},
-      {-1, +1, 0},
-      {+1, +1, 0},
-      {+1, -1, 0},
-    }
-    <= polygon3d{
-      {-1, -1, 0},
-      {-1, +1, 0},
-      {+1, +1, 0},
-      {+1, -1, 0},
-    });
-
-  CHECK(
-    polygon3d{
-      {-1, -1, 0},
-      {-1, +1, 0},
-      {+1, +1, 0},
-    }
-    <= polygon3d{
-      {-1, -1, 0},
-      {-1, +1, 0},
-      {+1, +1, 0},
-      {+1, -1, 0},
-    });
-
-  CHECK_FALSE(
-    polygon3d{
-      {-1, -1, 0},
-      {-1, +1, 0},
-      {+1, +1, 0},
-      {+1, -1, 0},
-    }
-    <= polygon3d{
-      {-1, -1, 0},
-      {-1, +1, 0},
-      {+1, +1, 0},
-    });
-}
-
-TEST_CASE("polygon.operator_greater_than")
-{
-  CHECK_FALSE(
-    polygon3d{
-      {-1, -1, 0},
-      {-1, +1, 0},
-      {+1, +1, 0},
-      {+1, -1, 0},
-    }
-    > polygon3d{
-      {-1, -1, 0},
-      {-1, +1, 0},
-      {+1, +1, 0},
-      {+1, -1, 0},
-    });
-
-  CHECK_FALSE(
-    polygon3d{
-      {-1, -1, 0},
-      {-1, +1, 0},
-      {+1, +1, 0},
-    }
-    > polygon3d{
-      {-1, -1, 0},
-      {-1, +1, 0},
-      {+1, +1, 0},
-      {+1, -1, 0},
-    });
-
-  CHECK(
-    polygon3d{
-      {-1, -1, 0},
-      {-1, +1, 0},
-      {+1, +1, 0},
-      {+1, -1, 0},
-    }
-    > polygon3d{
-      {-1, -1, 0},
-      {-1, +1, 0},
-      {+1, +1, 0},
-    });
-}
-
-TEST_CASE("polygon.operator_greater_than_or_equal")
-{
-  CHECK(
-    polygon3d{
-      {-1, -1, 0},
-      {-1, +1, 0},
-      {+1, +1, 0},
-      {+1, -1, 0},
-    }
-    >= polygon3d{
-      {-1, -1, 0},
-      {-1, +1, 0},
-      {+1, +1, 0},
-      {+1, -1, 0},
-    });
-
-  CHECK_FALSE(
-    polygon3d{
-      {-1, -1, 0},
-      {-1, +1, 0},
-      {+1, +1, 0},
-    }
-    >= polygon3d{
-      {-1, -1, 0},
-      {-1, +1, 0},
-      {+1, +1, 0},
-      {+1, -1, 0},
-    });
-
-  CHECK(
-    polygon3d{
-      {-1, -1, 0},
-      {-1, +1, 0},
-      {+1, +1, 0},
-      {+1, -1, 0},
-    }
-    >= polygon3d{
-      {-1, -1, 0},
-      {-1, +1, 0},
-      {+1, +1, 0},
-    });
-}
-
-TEST_CASE("polygon.compare_unoriented_empty_polygon")
-{
-  const auto p1 = polygon3d{};
-  CHECK(compareUnoriented(p1, polygon3d{}) == std::strong_ordering::equal);
-  CHECK(compareUnoriented(p1, polygon3d{{0, 0, 0}}) == std::strong_ordering::less);
-
-  const auto p2 = polygon3d{{0, 0, 0}};
-  CHECK(compareUnoriented(p2, p1) == std::strong_ordering::greater);
-  CHECK(compareUnoriented(p2, polygon3d{{0, 0, 0}}) == std::strong_ordering::equal);
-}
-
-TEST_CASE("polygon.testBackwardComparePolygonWithOneVertex")
-{
-  const auto p2 = polygon3d{{0, 0, 0}};
-  CHECK(compareUnoriented(p2, polygon3d{{0, 0, 0}}) == std::strong_ordering::equal);
-  CHECK(
-    compareUnoriented(p2, polygon3d{{0, 0, 0}, {0, 0, 0}}) == std::strong_ordering::less);
-}
-
-TEST_CASE("polygon.compare_unoriented")
-{
-  const auto p1 = polygon3d{
-    {-1.0, -1.0, 0.0},
-    {+1.0, -1.0, 0.0},
-    {+1.0, +1.0, 0.0},
-    {-1.0, +1.0, 0.0},
-  };
-  const auto p2 = polygon3d{
-    {-1.0, +1.0, 0.0},
-    {+1.0, +1.0, 0.0},
-    {+1.0, -1.0, 0.0},
-    {-1.0, -1.0, 0.0},
-  };
-  CHECK(compareUnoriented(p1, p1) == std::strong_ordering::equal);
-  CHECK(compareUnoriented(p1, p2) == std::strong_ordering::equal);
-  CHECK(compareUnoriented(p2, p1) == std::strong_ordering::equal);
-  CHECK(compareUnoriented(p2, p2) == std::strong_ordering::equal);
+  SECTION("compare_unoriented")
+  {
+    const auto p1 = polygon3d{
+      {-1.0, -1.0, 0.0},
+      {+1.0, -1.0, 0.0},
+      {+1.0, +1.0, 0.0},
+      {-1.0, +1.0, 0.0},
+    };
+    const auto p2 = polygon3d{
+      {-1.0, +1.0, 0.0},
+      {+1.0, +1.0, 0.0},
+      {+1.0, -1.0, 0.0},
+      {-1.0, -1.0, 0.0},
+    };
+    CHECK(compareUnoriented(p1, p1) == std::strong_ordering::equal);
+    CHECK(compareUnoriented(p1, p2) == std::strong_ordering::equal);
+    CHECK(compareUnoriented(p2, p1) == std::strong_ordering::equal);
+    CHECK(compareUnoriented(p2, p2) == std::strong_ordering::equal);
+  }
 }
 } // namespace vm
