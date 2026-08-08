@@ -60,8 +60,8 @@ TEST_CASE("LayerNode")
     {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "material"}};
     // clang-format on
 
-    CHECK_FALSE(layerNode.canAddChild(worldNode));
-    CHECK_FALSE(layerNode.canAddChild(layerNode));
+    CHECK(!layerNode.canAddChild(worldNode));
+    CHECK(!layerNode.canAddChild(layerNode));
     CHECK(layerNode.canAddChild(groupNode));
     CHECK(layerNode.canAddChild(entityNode));
     CHECK(layerNode.canAddChild(brushNode));

@@ -88,7 +88,7 @@ TEST_CASE("CompilationDialog")
 
       const auto result = dialog.selectProfile(unknown);
 
-      CHECK_FALSE(result);
+      CHECK(!result);
       REQUIRE(profileManager->selectedProfile() != nullptr);
       CHECK(profileManager->selectedProfile()->name == "profile 1");
     }

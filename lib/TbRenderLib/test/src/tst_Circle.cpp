@@ -45,7 +45,7 @@ TEST_CASE("Circle")
   SECTION("prepared and prepare")
   {
     auto circle = Circle{1.0f, 8, false};
-    CHECK_FALSE(circle.prepared());
+    CHECK(!circle.prepared());
 
     circle.prepare(gl, vboManager);
     CHECK(circle.prepared());

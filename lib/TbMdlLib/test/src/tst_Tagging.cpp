@@ -50,20 +50,20 @@ TEST_CASE("TaggingTest.testTagBrush")
   tag1.setIndex(0);
   tag2.setIndex(1);
 
-  CHECK_FALSE(brushNode->hasTag(tag1));
-  CHECK_FALSE(brushNode->hasTag(tag2));
+  CHECK(!brushNode->hasTag(tag1));
+  CHECK(!brushNode->hasTag(tag2));
 
   CHECK(brushNode->addTag(tag1));
-  CHECK_FALSE(brushNode->addTag(tag1));
+  CHECK(!brushNode->addTag(tag1));
 
   CHECK(brushNode->hasTag(tag1));
-  CHECK_FALSE(brushNode->hasTag(tag2));
+  CHECK(!brushNode->hasTag(tag2));
 
   CHECK(brushNode->removeTag(tag1));
-  CHECK_FALSE(brushNode->removeTag(tag1));
+  CHECK(!brushNode->removeTag(tag1));
 
-  CHECK_FALSE(brushNode->hasTag(tag1));
-  CHECK_FALSE(brushNode->hasTag(tag2));
+  CHECK(!brushNode->hasTag(tag1));
+  CHECK(!brushNode->hasTag(tag2));
 }
 
 } // namespace tb::mdl

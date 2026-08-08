@@ -27,43 +27,46 @@
 namespace kdl
 {
 
-TEST_CASE("range_utils.index_of")
+TEST_CASE("range_utils")
 {
-  using vec = std::vector<int>;
+  SECTION("index_of")
+  {
+    using vec = std::vector<int>;
 
-  CHECK(index_of(vec{}, 1) == std::nullopt);
-  CHECK(index_of(vec{2}, 1) == std::nullopt);
-  CHECK(index_of(vec{1}, 1) == 0u);
-  CHECK(index_of(vec{1, 2, 3}, 1) == 0u);
-  CHECK(index_of(vec{1, 2, 3}, 2) == 1u);
-  CHECK(index_of(vec{1, 2, 3}, 3) == 2u);
-  CHECK(index_of(vec{1, 2, 2}, 2) == 1u);
-  CHECK(index_of(vec{1, 2, 3}, 4) == std::nullopt);
+    CHECK(index_of(vec{}, 1) == std::nullopt);
+    CHECK(index_of(vec{2}, 1) == std::nullopt);
+    CHECK(index_of(vec{1}, 1) == 0u);
+    CHECK(index_of(vec{1, 2, 3}, 1) == 0u);
+    CHECK(index_of(vec{1, 2, 3}, 2) == 1u);
+    CHECK(index_of(vec{1, 2, 3}, 3) == 2u);
+    CHECK(index_of(vec{1, 2, 2}, 2) == 1u);
+    CHECK(index_of(vec{1, 2, 3}, 4) == std::nullopt);
 
-  CHECK(index_of(vec{}, [](const auto& i) { return i == 1; }) == std::nullopt);
-  CHECK(index_of(vec{2}, [](const auto& i) { return i == 1; }) == std::nullopt);
-  CHECK(index_of(vec{1}, [](const auto& i) { return i == 1; }) == 0u);
-  CHECK(index_of(vec{1, 2, 3}, [](const auto& i) { return i == 1; }) == 0u);
-  CHECK(index_of(vec{1, 2, 3}, [](const auto& i) { return i == 2; }) == 1u);
-  CHECK(index_of(vec{1, 2, 3}, [](const auto& i) { return i == 3; }) == 2u);
-  CHECK(index_of(vec{1, 2, 2}, [](const auto& i) { return i == 2; }) == 1u);
-  CHECK(index_of(vec{1, 2, 3}, [](const auto& i) { return i == 4; }) == std::nullopt);
-}
+    CHECK(index_of(vec{}, [](const auto& i) { return i == 1; }) == std::nullopt);
+    CHECK(index_of(vec{2}, [](const auto& i) { return i == 1; }) == std::nullopt);
+    CHECK(index_of(vec{1}, [](const auto& i) { return i == 1; }) == 0u);
+    CHECK(index_of(vec{1, 2, 3}, [](const auto& i) { return i == 1; }) == 0u);
+    CHECK(index_of(vec{1, 2, 3}, [](const auto& i) { return i == 2; }) == 1u);
+    CHECK(index_of(vec{1, 2, 3}, [](const auto& i) { return i == 3; }) == 2u);
+    CHECK(index_of(vec{1, 2, 2}, [](const auto& i) { return i == 2; }) == 1u);
+    CHECK(index_of(vec{1, 2, 3}, [](const auto& i) { return i == 4; }) == std::nullopt);
+  }
 
-TEST_CASE("pred")
-{
-  auto v = std::vector{1, 2, 3};
-  CHECK(*pred(v, v.begin()) == 3);
-  CHECK(*pred(v, v.begin() + 1) == 1);
-  CHECK(*pred(v, v.begin() + 2) == 2);
-}
+  SECTION("pred")
+  {
+    auto v = std::vector{1, 2, 3};
+    CHECK(*pred(v, v.begin()) == 3);
+    CHECK(*pred(v, v.begin() + 1) == 1);
+    CHECK(*pred(v, v.begin() + 2) == 2);
+  }
 
-TEST_CASE("succ")
-{
-  auto v = std::vector{1, 2, 3};
-  CHECK(*succ(v, v.begin()) == 2);
-  CHECK(*succ(v, v.begin() + 1) == 3);
-  CHECK(*succ(v, v.begin() + 2) == 1);
+  SECTION("succ")
+  {
+    auto v = std::vector{1, 2, 3};
+    CHECK(*succ(v, v.begin()) == 2);
+    CHECK(*succ(v, v.begin() + 1) == 3);
+    CHECK(*succ(v, v.begin() + 2) == 1);
+  }
 }
 
 } // namespace kdl

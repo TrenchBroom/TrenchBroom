@@ -122,8 +122,8 @@ TEST_CASE("TestUtilsTest.testUvCoordsEqual")
   CHECK(uvCoordsEqual(vm::vec2f(0.0, 0.0), vm::vec2f(-0.00001, 0.0)));
   CHECK(uvCoordsEqual(vm::vec2f(0.25, 0.0), vm::vec2f(-0.75, 0.0)));
 
-  CHECK_FALSE(uvCoordsEqual(vm::vec2f(0.0, 0.0), vm::vec2f(0.1, 0.1)));
-  CHECK_FALSE(uvCoordsEqual(vm::vec2f(-0.25, 0.0), vm::vec2f(0.25, 0.0)));
+  CHECK(!uvCoordsEqual(vm::vec2f(0.0, 0.0), vm::vec2f(0.1, 0.1)));
+  CHECK(!uvCoordsEqual(vm::vec2f(-0.25, 0.0), vm::vec2f(0.25, 0.0)));
 }
 
 TEST_CASE("TestUtilsTest.uvListsEqual")
@@ -133,13 +133,12 @@ TEST_CASE("TestUtilsTest.uvListsEqual")
     {{0, 0}, {1, 0}, {0, 1}},
     {{10, 0}, {11, 0}, {10, 1}})); // translation by whole UV increments OK
 
-  CHECK_FALSE(uvListsEqual(
+  CHECK(!uvListsEqual(
     {{0, 0}, {1, 0}, {0, 1}},
     {{10.5, 0}, {11.5, 0}, {10.5, 1}})); // translation by partial UV increments not OK
-  CHECK_FALSE(
-    uvListsEqual({{0, 0}, {1, 0}, {0, 1}}, {{0, 0}, {0, 1}, {1, 0}})); // wrong order
-  CHECK_FALSE(
-    uvListsEqual({{0, 0}, {1, 0}, {0, 1}}, {{0, 0}, {2, 0}, {0, 2}})); // unwanted scaling
+  CHECK(!uvListsEqual({{0, 0}, {1, 0}, {0, 1}}, {{0, 0}, {0, 1}, {1, 0}})); // wrong order
+  CHECK(!uvListsEqual(
+    {{0, 0}, {1, 0}, {0, 1}}, {{0, 0}, {2, 0}, {0, 2}})); // unwanted scaling
 }
 
 TEST_CASE("TestUtilsTest.pointExactlyIntegral")
@@ -149,8 +148,8 @@ TEST_CASE("TestUtilsTest.pointExactlyIntegral")
   CHECK(pointExactlyIntegral(vm::vec3d(-10000.0, -10000.0, -10000.0)));
 
   const double near1024 = vm::nextgreater(1024.0);
-  CHECK_FALSE(pointExactlyIntegral(vm::vec3d(1024.0, near1024, 1024.0)));
-  CHECK_FALSE(pointExactlyIntegral(vm::vec3d(1024.5, 1024.5, 1024.5)));
+  CHECK(!pointExactlyIntegral(vm::vec3d(1024.0, near1024, 1024.0)));
+  CHECK(!pointExactlyIntegral(vm::vec3d(1024.5, 1024.5, 1024.5)));
 }
 
 std::unique_ptr<kdl::task_manager> createTestTaskManager()

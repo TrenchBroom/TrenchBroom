@@ -112,7 +112,7 @@ void assertCanNotMoveVertices(
 {
   const auto worldBounds = vm::bbox3d{4096.0};
   const auto transform = vm::translation_matrix(delta);
-  CHECK_FALSE(brush.canTransformVertices(worldBounds, vertexPositions, transform));
+  CHECK(!brush.canTransformVertices(worldBounds, vertexPositions, transform));
 }
 
 void assertCanMoveVertex(
@@ -156,7 +156,7 @@ void assertCanNotMoveEdges(
 {
   const auto worldBounds = vm::bbox3d{4096.0};
   const auto transform = vm::translation_matrix(delta);
-  CHECK_FALSE(brush.canTransformEdges(worldBounds, edges, transform));
+  CHECK(!brush.canTransformEdges(worldBounds, edges, transform));
 }
 
 void assertCanMoveFaces(
@@ -181,7 +181,7 @@ void assertCanNotMoveFaces(
 {
   const auto worldBounds = vm::bbox3d{4096.0};
   const auto transform = vm::translation_matrix(delta);
-  CHECK_FALSE(brush.canTransformFaces(worldBounds, movingFaces, transform));
+  CHECK(!brush.canTransformFaces(worldBounds, movingFaces, transform));
 }
 
 void assertCanMoveFace(
@@ -200,7 +200,7 @@ void assertCanNotMoveFace(
 
   REQUIRE(topFaceIndex);
   const auto& topFace = brush.face(*topFaceIndex);
-  CHECK_FALSE(brush.canTransformFaces(worldBounds, {topFace.polygon()}, transform));
+  CHECK(!brush.canTransformFaces(worldBounds, {topFace.polygon()}, transform));
 }
 
 void assertCanMoveTopFace(const Brush& brush, const vm::vec3d delta)
@@ -237,7 +237,7 @@ void assertCannotSnapTo(
   CHECK(nodes.value().size() == 1u);
 
   auto brush = static_cast<BrushNode*>(nodes.value().front())->brush();
-  CHECK_FALSE(brush.canSnapVertices(worldBounds, gridSize));
+  CHECK(!brush.canSnapVertices(worldBounds, gridSize));
 
   kdl::col_delete_all(nodes.value());
 }
@@ -398,7 +398,7 @@ TEST_CASE("Brush")
     CHECK(brush.findFace(back.boundary()));
     CHECK(brush.findFace(top.boundary()));
     CHECK(brush.findFace(bottom.boundary()));
-    CHECK_FALSE(brush.findFace(right.boundary()));
+    CHECK(!brush.findFace(right.boundary()));
   }
 
   SECTION("moveBoundary")
@@ -1491,7 +1491,7 @@ TEST_CASE("Brush")
 
       CHECK(brush.canTransformVertices(
         worldBounds, allVertexPositions, vm::translation_matrix(vm::vec3d{16, 0, 0})));
-      CHECK_FALSE(brush.canTransformVertices(
+      CHECK(!brush.canTransformVertices(
         worldBounds, allVertexPositions, vm::translation_matrix(vm::vec3d{8192, 0, 0})));
     }
 
@@ -1565,9 +1565,9 @@ TEST_CASE("Brush")
 
         CHECK(brushCopy.faceCount() == 5u);
         CHECK(brushCopy.findFace(vm::polygon3d{baseQuadVertexPositions}));
-        CHECK_FALSE(brushCopy.findFace(vm::polygon3d{flippedBaseQuadVertexPositions}));
+        CHECK(!brushCopy.findFace(vm::polygon3d{flippedBaseQuadVertexPositions}));
         CHECK(brushCopy.findFace(vm::vec3d{0, 0, -1}));
-        CHECK_FALSE(brushCopy.findFace(vm::vec3d{0, 0, 1}));
+        CHECK(!brushCopy.findFace(vm::vec3d{0, 0, 1}));
 
         const auto oldVertexPositions = std::vector<vm::vec3d>{peakPosition};
         CHECK(brushCopy.canTransformVertices(worldBounds, oldVertexPositions, transform));
@@ -1577,9 +1577,9 @@ TEST_CASE("Brush")
         CHECK(newVertexPositions == transform * oldVertexPositions);
 
         CHECK(brushCopy.faceCount() == 5u);
-        CHECK_FALSE(brushCopy.findFace(vm::polygon3d{baseQuadVertexPositions}));
+        CHECK(!brushCopy.findFace(vm::polygon3d{baseQuadVertexPositions}));
         CHECK(brushCopy.findFace(vm::polygon3d{flippedBaseQuadVertexPositions}));
-        CHECK_FALSE(brushCopy.findFace(vm::vec3d{0, 0, -1}));
+        CHECK(!brushCopy.findFace(vm::vec3d{0, 0, -1}));
         CHECK(brushCopy.findFace(vm::vec3d{0, 0, 1}));
       }
 
@@ -1652,7 +1652,7 @@ TEST_CASE("Brush")
       CHECK(brush.hasVertex(vm::vec3d{+32, -32, -32}));
       CHECK(brush.hasVertex(vm::vec3d{+32, -32, +32}));
       CHECK(brush.hasVertex(vm::vec3d{+32, +32, -32}));
-      CHECK_FALSE(brush.hasVertex(vm::vec3d{+32, +32, +32}));
+      CHECK(!brush.hasVertex(vm::vec3d{+32, +32, +32}));
 
       CHECK(brush.removeVertices(worldBounds, {vm::vec3d{+32, +32, -32}}));
 
@@ -1663,8 +1663,8 @@ TEST_CASE("Brush")
       CHECK(brush.hasVertex(vm::vec3d{-32, +32, +32}));
       CHECK(brush.hasVertex(vm::vec3d{+32, -32, -32}));
       CHECK(brush.hasVertex(vm::vec3d{+32, -32, +32}));
-      CHECK_FALSE(brush.hasVertex(vm::vec3d{+32, +32, -32}));
-      CHECK_FALSE(brush.hasVertex(vm::vec3d{+32, +32, +32}));
+      CHECK(!brush.hasVertex(vm::vec3d{+32, +32, -32}));
+      CHECK(!brush.hasVertex(vm::vec3d{+32, +32, +32}));
 
       CHECK(brush.removeVertices(worldBounds, {vm::vec3d{+32, -32, +32}}));
 
@@ -1674,26 +1674,26 @@ TEST_CASE("Brush")
       CHECK(brush.hasVertex(vm::vec3d{-32, +32, -32}));
       CHECK(brush.hasVertex(vm::vec3d{-32, +32, +32}));
       CHECK(brush.hasVertex(vm::vec3d{+32, -32, -32}));
-      CHECK_FALSE(brush.hasVertex(vm::vec3d{+32, -32, +32}));
-      CHECK_FALSE(brush.hasVertex(vm::vec3d{+32, +32, -32}));
-      CHECK_FALSE(brush.hasVertex(vm::vec3d{+32, +32, +32}));
+      CHECK(!brush.hasVertex(vm::vec3d{+32, -32, +32}));
+      CHECK(!brush.hasVertex(vm::vec3d{+32, +32, -32}));
+      CHECK(!brush.hasVertex(vm::vec3d{+32, +32, +32}));
 
       CHECK(brush.removeVertices(worldBounds, {vm::vec3d{-32, -32, -32}}));
 
       CHECK(brush.vertexCount() == 4u);
-      CHECK_FALSE(brush.hasVertex(vm::vec3d{-32, -32, -32}));
+      CHECK(!brush.hasVertex(vm::vec3d{-32, -32, -32}));
       CHECK(brush.hasVertex(vm::vec3d{-32, -32, +32}));
       CHECK(brush.hasVertex(vm::vec3d{-32, +32, -32}));
       CHECK(brush.hasVertex(vm::vec3d{-32, +32, +32}));
       CHECK(brush.hasVertex(vm::vec3d{+32, -32, -32}));
-      CHECK_FALSE(brush.hasVertex(vm::vec3d{+32, -32, +32}));
-      CHECK_FALSE(brush.hasVertex(vm::vec3d{+32, +32, -32}));
-      CHECK_FALSE(brush.hasVertex(vm::vec3d{+32, +32, +32}));
+      CHECK(!brush.hasVertex(vm::vec3d{+32, -32, +32}));
+      CHECK(!brush.hasVertex(vm::vec3d{+32, +32, -32}));
+      CHECK(!brush.hasVertex(vm::vec3d{+32, +32, +32}));
 
-      CHECK_FALSE(brush.canRemoveVertices(worldBounds, {vm::vec3d{-32, -32, +32}}));
-      CHECK_FALSE(brush.canRemoveVertices(worldBounds, {vm::vec3d{-32, +32, -32}}));
-      CHECK_FALSE(brush.canRemoveVertices(worldBounds, {vm::vec3d{-32, +32, +32}}));
-      CHECK_FALSE(brush.canRemoveVertices(worldBounds, {vm::vec3d{+32, -32, -32}}));
+      CHECK(!brush.canRemoveVertices(worldBounds, {vm::vec3d{-32, -32, +32}}));
+      CHECK(!brush.canRemoveVertices(worldBounds, {vm::vec3d{-32, +32, -32}}));
+      CHECK(!brush.canRemoveVertices(worldBounds, {vm::vec3d{-32, +32, +32}}));
+      CHECK(!brush.canRemoveVertices(worldBounds, {vm::vec3d{+32, -32, -32}}));
     }
 
     SECTION("Remove multiple vertices")
@@ -1926,7 +1926,7 @@ TEST_CASE("Brush")
       };
 
       const auto transform = vm::translation_matrix(vm::vec3d{0, 128, 0});
-      CHECK_FALSE(brush.canTransformFaces(worldBounds, {face}, transform));
+      CHECK(!brush.canTransformFaces(worldBounds, {face}, transform));
     }
 
     SECTION("Cannot move a face of a tetrahedron beyond the opposing vertex")
@@ -2176,10 +2176,9 @@ TEST_CASE("Brush")
       const auto cubeFrontIndex = brush.findFace(vm::vec3d{0, -1, 0});
 
       CHECK(cubeTopIndex);
-      CHECK_FALSE(
-        cubeBottomIndex); // no face here, part of the wedge connecting to `edge`
+      CHECK(!cubeBottomIndex); // no face here, part of the wedge connecting to `edge`
       CHECK(cubeRightIndex);
-      CHECK_FALSE(cubeLeftIndex); // no face here, part of the wedge connecting to `edge`
+      CHECK(!cubeLeftIndex); // no face here, part of the wedge connecting to `edge`
       CHECK(cubeFrontIndex);
       CHECK(cubeBackIndex);
 
@@ -2275,7 +2274,7 @@ TEST_CASE("Brush")
             normal == vm::vec3d{0, 0, 1} || normal == vm::vec3d{0, 1, 0}
             || normal == vm::vec3d{0, -1, 0})
           {
-            CHECK_FALSE(uvListsEqual(oldUvCoords, newUvCoords));
+            CHECK(!uvListsEqual(oldUvCoords, newUvCoords));
             // TODO: actually check the UV's
           }
           else
@@ -2443,7 +2442,7 @@ TEST_CASE("Brush")
 
       const auto brush1Bounds = vm::bbox3d{{-8, -8, -8}, {8, 8, 8}};
       const auto brush2Bounds = vm::bbox3d{{124, 124, -4}, {132, 132, +4}};
-      CHECK_FALSE(brush1Bounds.intersects(brush2Bounds));
+      CHECK(!brush1Bounds.intersects(brush2Bounds));
 
       auto builder = BrushBuilder{MapFormat::Standard, worldBounds};
       const auto brush1 = builder.createCuboid(brush1Bounds, "material") | kdl::value();
@@ -2756,7 +2755,7 @@ TEST_CASE("Brush")
         {
           if (i != j)
           {
-            CHECK_FALSE(brush.canTransformVertices(
+            CHECK(!brush.canTransformVertices(
               worldBounds,
               {oldPositions[i]},
               vm::translation_matrix(oldPositions[j] - oldPositions[i])));
@@ -3506,7 +3505,7 @@ TEST_CASE("Brush")
       const auto result =
         minuend.subtract(MapFormat::Valve, worldBounds, "some_material", subtrahend)
         | kdl::fold;
-      CHECK_FALSE(result.is_error());
+      CHECK(!result.is_error());
 
       kdl::col_delete_all(minuendNodes.value());
       kdl::col_delete_all(subtrahendNodes.value());

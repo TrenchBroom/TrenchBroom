@@ -320,7 +320,7 @@ TEST_CASE("PreferenceManager")
         REQUIRE(preferenceManager.getPendingValue(stringPref) == "qwer");
 
         preferenceManager.set(stringPref, "fdsa");
-        CHECK_FALSE(preferenceManager.hasUnsavedChanges());
+        CHECK(!preferenceManager.hasUnsavedChanges());
         CHECK(preferenceManager.get(stringPref) == "fdsa");
         CHECK(preferenceManager.getPendingValue(stringPref) == "fdsa");
       }
@@ -392,19 +392,19 @@ TEST_CASE("PreferenceManager")
 
     SECTION("hasUnsavedChanges")
     {
-      CHECK_FALSE(preferenceManager.hasUnsavedChanges());
+      CHECK(!preferenceManager.hasUnsavedChanges());
 
       preferenceManager.set(stringPref, "qwer");
       CHECK(preferenceManager.hasUnsavedChanges());
 
       preferenceManager.saveChanges();
-      CHECK_FALSE(preferenceManager.hasUnsavedChanges());
+      CHECK(!preferenceManager.hasUnsavedChanges());
 
       preferenceManager.set(stringPref, "fdsa");
       CHECK(preferenceManager.hasUnsavedChanges());
 
       preferenceManager.discardChanges();
-      CHECK_FALSE(preferenceManager.hasUnsavedChanges());
+      CHECK(!preferenceManager.hasUnsavedChanges());
     }
 
     SECTION("when preference store is reloaded")
@@ -438,7 +438,7 @@ TEST_CASE("PreferenceManager")
 #ifdef __APPLE__
     CHECK(PreferenceManager::shouldSaveInstantly());
 #else
-    CHECK_FALSE(PreferenceManager::shouldSaveInstantly());
+    CHECK(!PreferenceManager::shouldSaveInstantly());
 #endif
   }
 
@@ -479,7 +479,7 @@ TEST_CASE("PreferenceManager")
       const auto instance = PreferenceManagerInstance{
         std::make_unique<MockPreferenceStore>(), !K(saveInstantly)};
 
-      CHECK_FALSE(PreferenceManager::instance().saveInstantly());
+      CHECK(!PreferenceManager::instance().saveInstantly());
     }
   }
 }
@@ -510,7 +510,7 @@ TEST_CASE("togglePref")
 
     togglePref(boolPref);
 
-    CHECK_FALSE(PreferenceManager::instance().get(boolPref));
+    CHECK(!PreferenceManager::instance().get(boolPref));
     CHECK(
       preferenceStore.values
       == std::unordered_map<std::filesystem::path, Value>{
@@ -522,7 +522,7 @@ TEST_CASE("togglePref")
   {
     togglePref(boolPref);
 
-    CHECK_FALSE(PreferenceManager::instance().hasUnsavedChanges());
+    CHECK(!PreferenceManager::instance().hasUnsavedChanges());
   }
 }
 

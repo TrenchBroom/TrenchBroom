@@ -64,12 +64,12 @@ TEST_CASE("WorldNode")
       {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "material"}};
     // clang-format on
 
-    CHECK_FALSE(worldNode.canAddChild(worldNode));
+    CHECK(!worldNode.canAddChild(worldNode));
     CHECK(worldNode.canAddChild(layerNode));
-    CHECK_FALSE(worldNode.canAddChild(groupNode));
-    CHECK_FALSE(worldNode.canAddChild(entityNode));
-    CHECK_FALSE(worldNode.canAddChild(brushNode));
-    CHECK_FALSE(worldNode.canAddChild(patchNode));
+    CHECK(!worldNode.canAddChild(groupNode));
+    CHECK(!worldNode.canAddChild(entityNode));
+    CHECK(!worldNode.canAddChild(brushNode));
+    CHECK(!worldNode.canAddChild(patchNode));
   }
 
   SECTION("canRemoveChild")
@@ -88,13 +88,13 @@ TEST_CASE("WorldNode")
       {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "material"}};
     // clang-format on
 
-    CHECK_FALSE(worldNode.canRemoveChild(worldNode));
+    CHECK(!worldNode.canRemoveChild(worldNode));
     CHECK(worldNode.canRemoveChild(layerNode));
-    CHECK_FALSE(worldNode.canRemoveChild(*worldNode.defaultLayer()));
-    CHECK_FALSE(worldNode.canRemoveChild(groupNode));
-    CHECK_FALSE(worldNode.canRemoveChild(entityNode));
-    CHECK_FALSE(worldNode.canRemoveChild(brushNode));
-    CHECK_FALSE(worldNode.canRemoveChild(patchNode));
+    CHECK(!worldNode.canRemoveChild(*worldNode.defaultLayer()));
+    CHECK(!worldNode.canRemoveChild(groupNode));
+    CHECK(!worldNode.canRemoveChild(entityNode));
+    CHECK(!worldNode.canRemoveChild(brushNode));
+    CHECK(!worldNode.canRemoveChild(patchNode));
   }
 
   SECTION("nodeTree")
@@ -144,7 +144,7 @@ TEST_CASE("WorldNode")
     {
       REQUIRE_FALSE(nodeTree.contains(layerNode));
       worldNode.addChild(layerNode);
-      CHECK_FALSE(nodeTree.contains(layerNode));
+      CHECK(!nodeTree.contains(layerNode));
     }
 
     SECTION("Adding a group node does not insert it into node tree")
@@ -153,7 +153,7 @@ TEST_CASE("WorldNode")
 
       REQUIRE_FALSE(nodeTree.contains(groupNode));
       worldNode.defaultLayer()->addChild(groupNode);
-      CHECK_FALSE(nodeTree.contains(groupNode));
+      CHECK(!nodeTree.contains(groupNode));
     }
 
     SECTION("Adding a subtree inserts all children into node tree")
@@ -165,7 +165,7 @@ TEST_CASE("WorldNode")
       REQUIRE_FALSE(nodeTree.contains(brushNode));
       REQUIRE_FALSE(nodeTree.contains(patchNode));
       worldNode.defaultLayer()->addChild(groupNode);
-      CHECK_FALSE(nodeTree.contains(groupNode));
+      CHECK(!nodeTree.contains(groupNode));
       CHECK(nodeTree.contains(entityNode));
       CHECK(nodeTree.contains(brushNode));
       CHECK(nodeTree.contains(patchNode));
@@ -179,7 +179,7 @@ TEST_CASE("WorldNode")
       REQUIRE(nodeTree.contains(node));
 
       worldNode.defaultLayer()->removeChild(node);
-      CHECK_FALSE(nodeTree.contains(node));
+      CHECK(!nodeTree.contains(node));
     }
 
     SECTION("Removing a nested node removes from node tree")
@@ -191,7 +191,7 @@ TEST_CASE("WorldNode")
       REQUIRE(nodeTree.contains(node));
 
       groupNode->removeChild(node);
-      CHECK_FALSE(nodeTree.contains(node));
+      CHECK(!nodeTree.contains(node));
     }
 
     SECTION("Removing a subtree removes all children from node tree")
@@ -204,9 +204,9 @@ TEST_CASE("WorldNode")
       REQUIRE(nodeTree.contains(patchNode));
 
       worldNode.defaultLayer()->removeChild(groupNode);
-      CHECK_FALSE(nodeTree.contains(entityNode));
-      CHECK_FALSE(nodeTree.contains(brushNode));
-      CHECK_FALSE(nodeTree.contains(patchNode));
+      CHECK(!nodeTree.contains(entityNode));
+      CHECK(!nodeTree.contains(brushNode));
+      CHECK(!nodeTree.contains(patchNode));
     }
 
     SECTION("Updating a descendant updates it in node tree")
@@ -274,8 +274,8 @@ TEST_CASE("WorldNode")
     REQUIRE(nodeTree.contains(patchNode));
 
     worldNode.rebuildNodeTree();
-    CHECK_FALSE(nodeTree.contains(layerNode));
-    CHECK_FALSE(nodeTree.contains(groupNode));
+    CHECK(!nodeTree.contains(layerNode));
+    CHECK(!nodeTree.contains(groupNode));
     CHECK(nodeTree.contains(entityNode));
     CHECK(nodeTree.contains(brushNode));
     CHECK(nodeTree.contains(patchNode));
@@ -305,9 +305,9 @@ TEST_CASE("WorldNode")
 
     const auto& nodeTree = worldNode.nodeTree();
 
-    CHECK_FALSE(nodeTree.contains(entityNode));
-    CHECK_FALSE(nodeTree.contains(brushNode));
-    CHECK_FALSE(nodeTree.contains(patchNode));
+    CHECK(!nodeTree.contains(entityNode));
+    CHECK(!nodeTree.contains(brushNode));
+    CHECK(!nodeTree.contains(patchNode));
   }
 
   SECTION("enableNodeTreeUpdates")

@@ -26,101 +26,104 @@
 
 namespace vm
 {
-TEST_CASE("mat_io.parse_valid_string_square")
+TEST_CASE("mat_io")
 {
-  SECTION("Parse 2x2 matrix")
+  SECTION("parse_valid_string_square")
   {
-    constexpr auto s = "1.0 2 3 4.5";
+    SECTION("Parse 2x2 matrix")
+    {
+      constexpr auto s = "1.0 2 3 4.5";
+
+      const auto result = parse<float, 2, 2>(s);
+      CHECK(result.has_value());
+      CHECK(*result == mat2x2f{1.0f, 2.0f, 3.0f, 4.5f});
+    }
+
+    SECTION("Parse 4x4 matrix")
+    {
+      constexpr auto s = "1 0 0 2 0 1 0 0 0 0 1 0 0 0 0 1";
+
+      const auto result = parse<float, 4, 4>(s);
+      CHECK(result.has_value());
+      CHECK(
+        *result
+        == mat4x4f{
+          1.0f,
+          0.0f,
+          0.0f,
+          2.0f,
+          0.0f,
+          1.0f,
+          0.0f,
+          0.0f,
+          0.0f,
+          0.0f,
+          1.0f,
+          0.0f,
+          0.0f,
+          0.0f,
+          0.0f,
+          1.0f});
+    }
+  }
+
+  SECTION("parse_valid_string_non_square")
+  {
+    constexpr auto s = "1.0 2 3 4.5 5 6";
+
+    SECTION("Parse 2x3 matrix")
+    {
+      const auto result = parse<float, 2, 3>(s);
+      CHECK(result.has_value());
+      CHECK(*result == mat<float, 2, 3>{1.0f, 2.0f, 3.0f, 4.5f, 5.0f, 6.0f});
+    }
+
+    SECTION("Parse 3x2 matrix")
+    {
+      const auto result = parse<float, 3, 2>(s);
+      CHECK(result.has_value());
+      CHECK(*result == mat<float, 3, 2>{1.0f, 2.0f, 3.0f, 4.5f, 5.0f, 6.0f});
+    }
+  }
+
+  SECTION("parse_short_string")
+  {
+    constexpr auto s = "1.0 2 3";
+
+    const auto result = parse<float, 2, 2>(s);
+    CHECK(!(result.has_value()));
+  }
+
+  SECTION("parse_long_string")
+  {
+    constexpr auto s = "1.0 2 3 4.5 5";
 
     const auto result = parse<float, 2, 2>(s);
     CHECK(result.has_value());
     CHECK(*result == mat2x2f{1.0f, 2.0f, 3.0f, 4.5f});
   }
 
-  SECTION("Parse 4x4 matrix")
+  SECTION("parse_invalid_string")
   {
-    constexpr auto s = "1 0 0 2 0 1 0 0 0 0 1 0 0 0 0 1";
+    constexpr auto s = "asdf";
 
-    const auto result = parse<float, 4, 4>(s);
-    CHECK(result.has_value());
-    CHECK(
-      *result
-      == mat4x4f{
-        1.0f,
-        0.0f,
-        0.0f,
-        2.0f,
-        0.0f,
-        1.0f,
-        0.0f,
-        0.0f,
-        0.0f,
-        0.0f,
-        1.0f,
-        0.0f,
-        0.0f,
-        0.0f,
-        0.0f,
-        1.0f});
-  }
-}
-
-TEST_CASE("mat_io.parse_valid_string_non_square")
-{
-  constexpr auto s = "1.0 2 3 4.5 5 6";
-
-  SECTION("Parse 2x3 matrix")
-  {
-    const auto result = parse<float, 2, 3>(s);
-    CHECK(result.has_value());
-    CHECK(*result == mat<float, 2, 3>{1.0f, 2.0f, 3.0f, 4.5f, 5.0f, 6.0f});
+    const auto result = parse<float, 2, 2>(s);
+    CHECK(!(result.has_value()));
   }
 
-  SECTION("Parse 3x2 matrix")
+  SECTION("parse_empty_string")
   {
-    const auto result = parse<float, 3, 2>(s);
-    CHECK(result.has_value());
-    CHECK(*result == mat<float, 3, 2>{1.0f, 2.0f, 3.0f, 4.5f, 5.0f, 6.0f});
+    constexpr auto s = "";
+
+    const auto result = parse<float, 2, 2>(s);
+    CHECK(!(result.has_value()));
   }
-}
 
-TEST_CASE("mat_io.parse_short_string")
-{
-  constexpr auto s = "1.0 2 3";
-
-  const auto result = parse<float, 2, 2>(s);
-  CHECK_FALSE(result.has_value());
-}
-
-TEST_CASE("mat_io.parse_long_string")
-{
-  constexpr auto s = "1.0 2 3 4.5 5";
-
-  const auto result = parse<float, 2, 2>(s);
-  CHECK(result.has_value());
-  CHECK(*result == mat2x2f{1.0f, 2.0f, 3.0f, 4.5f});
-}
-
-TEST_CASE("mat_io.parse_invalid_string")
-{
-  constexpr auto s = "asdf";
-
-  const auto result = parse<float, 2, 2>(s);
-  CHECK_FALSE(result.has_value());
-}
-
-TEST_CASE("mat_io.parse_empty_string")
-{
-  constexpr auto s = "";
-
-  const auto result = parse<float, 2, 2>(s);
-  CHECK_FALSE(result.has_value());
-}
-
-TEST_CASE("mat_io.stream_insertion")
-{
-  std::stringstream str;
-  str << mat3x3d{1, 2, 3, 4, 5, 6, 7, 8, 9};
-  CHECK(str.str() == "1 2 3 4 5 6 7 8 9");
+  SECTION("stream_insertion")
+  {
+    std::stringstream str;
+    str << mat3x3d{1, 2, 3, 4, 5, 6, 7, 8, 9};
+    CHECK(str.str() == "1 2 3 4 5 6 7 8 9");
+  }
 }
 } // namespace vm

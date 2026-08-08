@@ -184,6 +184,8 @@ BBoxEdge::BBoxEdge(const vm::vec3d& p0, const vm::vec3d& p1)
   }
 }
 
+kdl_reflect_impl(BBoxEdge);
+
 // ProportionalAxes
 
 ProportionalAxes::ProportionalAxes(

@@ -81,10 +81,10 @@ TEST_CASE("EntityNode")
       {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "material"}};
     // clang-format on
 
-    CHECK_FALSE(entityNode.canAddChild(worldNode));
-    CHECK_FALSE(entityNode.canAddChild(layerNode));
-    CHECK_FALSE(entityNode.canAddChild(groupNode));
-    CHECK_FALSE(entityNode.canAddChild(entityNode));
+    CHECK(!entityNode.canAddChild(worldNode));
+    CHECK(!entityNode.canAddChild(layerNode));
+    CHECK(!entityNode.canAddChild(groupNode));
+    CHECK(!entityNode.canAddChild(entityNode));
     CHECK(entityNode.canAddChild(brushNode));
     CHECK(entityNode.canAddChild(patchNode));
   }
@@ -123,12 +123,12 @@ TEST_CASE("EntityNode")
 
     REQUIRE(entityNode.entity().pointEntity());
     entityNode.addChild(&brushNode1);
-    CHECK_FALSE(entityNode.entity().pointEntity());
+    CHECK(!entityNode.entity().pointEntity());
     entityNode.addChild(&brushNode2);
-    CHECK_FALSE(entityNode.entity().pointEntity());
+    CHECK(!entityNode.entity().pointEntity());
 
     entityNode.removeChild(&brushNode1);
-    CHECK_FALSE(entityNode.entity().pointEntity());
+    CHECK(!entityNode.entity().pointEntity());
     entityNode.removeChild(&brushNode2);
     CHECK(entityNode.entity().pointEntity());
   }

@@ -63,11 +63,11 @@ TEST_CASE("RenderContext")
     auto context2D =
       RenderContext{testGl, RenderMode::Render2D, camera, fontManager, shaderManager};
     CHECK(context2D.render2D());
-    CHECK_FALSE(context2D.render3D());
+    CHECK(!context2D.render3D());
 
     auto context3D =
       RenderContext{testGl, RenderMode::Render3D, camera, fontManager, shaderManager};
-    CHECK_FALSE(context3D.render2D());
+    CHECK(!context3D.render2D());
     CHECK(context3D.render3D());
   }
 
@@ -75,15 +75,15 @@ TEST_CASE("RenderContext")
   {
     auto context2D =
       RenderContext{testGl, RenderMode::Render2D, camera, fontManager, shaderManager};
-    CHECK_FALSE(context2D.showFaces());
+    CHECK(!context2D.showFaces());
     context2D.setShowFaces(true);
-    CHECK_FALSE(context2D.showFaces()); // showFaces is only true in 3D render mode
+    CHECK(!context2D.showFaces()); // showFaces is only true in 3D render mode
 
     auto context3D =
       RenderContext{testGl, RenderMode::Render3D, camera, fontManager, shaderManager};
     CHECK(context3D.showFaces());
     context3D.setShowFaces(false);
-    CHECK_FALSE(context3D.showFaces());
+    CHECK(!context3D.showFaces());
   }
 
   SECTION("showEdges and setShowEdges")
@@ -97,7 +97,7 @@ TEST_CASE("RenderContext")
       RenderContext{testGl, RenderMode::Render3D, camera, fontManager, shaderManager};
     CHECK(context3D.showEdges());
     context3D.setShowEdges(false);
-    CHECK_FALSE(context3D.showEdges());
+    CHECK(!context3D.showEdges());
   }
 
   auto context =
@@ -113,49 +113,49 @@ TEST_CASE("RenderContext")
   SECTION("showMaterials and setShowMaterials")
   {
     context.setShowMaterials(false);
-    CHECK_FALSE(context.showMaterials());
+    CHECK(!context.showMaterials());
   }
 
   SECTION("shadeFaces and setShadeFaces")
   {
     context.setShadeFaces(false);
-    CHECK_FALSE(context.shadeFaces());
+    CHECK(!context.shadeFaces());
   }
 
   SECTION("showPointEntities and setShowPointEntities")
   {
     context.setShowPointEntities(false);
-    CHECK_FALSE(context.showPointEntities());
+    CHECK(!context.showPointEntities());
   }
 
   SECTION("showPointEntityModels and setShowPointEntityModels")
   {
     context.setShowPointEntityModels(false);
-    CHECK_FALSE(context.showPointEntityModels());
+    CHECK(!context.showPointEntityModels());
   }
 
   SECTION("showEntityClassnames and setShowEntityClassnames")
   {
     context.setShowEntityClassnames(false);
-    CHECK_FALSE(context.showEntityClassnames());
+    CHECK(!context.showEntityClassnames());
   }
 
   SECTION("showGroupBounds and setShowGroupBounds")
   {
     context.setShowGroupBounds(false);
-    CHECK_FALSE(context.showGroupBounds());
+    CHECK(!context.showGroupBounds());
   }
 
   SECTION("showBrushEntityBounds and setShowBrushEntityBounds")
   {
     context.setShowBrushEntityBounds(false);
-    CHECK_FALSE(context.showBrushEntityBounds());
+    CHECK(!context.showBrushEntityBounds());
   }
 
   SECTION("showPointEntityBounds and setShowPointEntityBounds")
   {
     context.setShowPointEntityBounds(false);
-    CHECK_FALSE(context.showPointEntityBounds());
+    CHECK(!context.showPointEntityBounds());
   }
 
   SECTION("showFog and setShowFog")
@@ -167,7 +167,7 @@ TEST_CASE("RenderContext")
   SECTION("showGrid and setShowGrid")
   {
     context.setShowGrid(false);
-    CHECK_FALSE(context.showGrid());
+    CHECK(!context.showGrid());
   }
 
   SECTION("gridSize and setGridSize")
@@ -191,7 +191,7 @@ TEST_CASE("RenderContext")
 
   SECTION("hideSelection and setHideSelection")
   {
-    CHECK_FALSE(context.hideSelection());
+    CHECK(!context.hideSelection());
     context.setHideSelection();
     CHECK(context.hideSelection()); // can only be set, never cleared
   }
@@ -199,14 +199,14 @@ TEST_CASE("RenderContext")
   SECTION("tintSelection and clearTintSelection")
   {
     context.clearTintSelection();
-    CHECK_FALSE(context.tintSelection()); // can only be cleared, never set
+    CHECK(!context.tintSelection()); // can only be cleared, never set
   }
 
   SECTION("showSelectionGuide and its setters")
   {
     SECTION("starts out hidden")
     {
-      CHECK_FALSE(context.showSelectionGuide());
+      CHECK(!context.showSelectionGuide());
     }
 
     SECTION("setShowSelectionGuide shows the guide from the hidden state")
@@ -220,7 +220,7 @@ TEST_CASE("RenderContext")
     {
       context.setShowSelectionGuide();
       context.setHideSelectionGuide();
-      CHECK_FALSE(context.showSelectionGuide());
+      CHECK(!context.showSelectionGuide());
     }
 
     SECTION("setForceShowSelectionGuide always shows the guide")
@@ -234,7 +234,7 @@ TEST_CASE("RenderContext")
     {
       context.setShowSelectionGuide();
       context.setForceHideSelectionGuide();
-      CHECK_FALSE(context.showSelectionGuide());
+      CHECK(!context.showSelectionGuide());
     }
 
     SECTION("setForceHideSelectionGuide cannot override a forced show")

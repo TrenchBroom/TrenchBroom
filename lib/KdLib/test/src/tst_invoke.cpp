@@ -25,27 +25,30 @@
 namespace kdl
 {
 
-TEST_CASE("invoke_test.invoke_later_lvalue")
+TEST_CASE("invoke_later")
 {
-  bool invoked = false;
-  auto lambda = [&invoked]() { invoked = true; };
-
+  SECTION("lvalue")
   {
-    invoke_later i(lambda);
-    CHECK_FALSE(invoked);
+    bool invoked = false;
+    auto lambda = [&invoked]() { invoked = true; };
+
+    {
+      const invoke_later i(lambda);
+      CHECK(!invoked);
+    }
+    CHECK(invoked);
   }
-  CHECK(invoked);
-}
 
-TEST_CASE("invoke_test.invoke_later_rvalue")
-{
-  bool invoked = false;
-
+  SECTION("rvalue")
   {
-    invoke_later i([&invoked]() { invoked = true; });
-    CHECK_FALSE(invoked);
+    bool invoked = false;
+
+    {
+      const invoke_later i([&invoked]() { invoked = true; });
+      CHECK(!invoked);
+    }
+    CHECK(invoked);
   }
-  CHECK(invoked);
 }
 
 } // namespace kdl

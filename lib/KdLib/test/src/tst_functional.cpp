@@ -27,76 +27,79 @@
 namespace kdl
 {
 
-TEST_CASE("logical_and")
+TEST_CASE("functional")
 {
-  const auto f1 = [](int a, int b, int) { return a == b; };
-  const auto f2 = [](int, int b, int c) { return b == c; };
-
-  SECTION("Lambdas")
+  SECTION("logical_and")
   {
-    const auto f1_and_f2 = logical_and(f1, f2);
+    const auto f1 = [](int a, int b, int) { return a == b; };
+    const auto f2 = [](int, int b, int c) { return b == c; };
 
-    CHECK(f1_and_f2(1, 1, 1));
-    CHECK_FALSE(f1_and_f2(1, 1, 2));
-    CHECK_FALSE(f1_and_f2(1, 2, 2));
-    CHECK_FALSE(f1_and_f2(1, 2, 3));
+    SECTION("Lambdas")
+    {
+      const auto f1_and_f2 = logical_and(f1, f2);
+
+      CHECK(f1_and_f2(1, 1, 1));
+      CHECK(!f1_and_f2(1, 1, 2));
+      CHECK(!f1_and_f2(1, 2, 2));
+      CHECK(!f1_and_f2(1, 2, 3));
+    }
+
+    SECTION("std::function")
+    {
+      const auto f1_and_f2 = logical_and(std::function{f1}, std::function{f2});
+
+      CHECK(f1_and_f2(1, 1, 1));
+      CHECK(!f1_and_f2(1, 1, 2));
+      CHECK(!f1_and_f2(1, 2, 2));
+      CHECK(!f1_and_f2(1, 2, 3));
+    }
   }
 
-  SECTION("std::function")
+  SECTION("logical_or")
   {
-    const auto f1_and_f2 = logical_and(std::function{f1}, std::function{f2});
+    const auto f1 = [](int a, int b, int) { return a == b; };
+    const auto f2 = [](int, int b, int c) { return b == c; };
 
-    CHECK(f1_and_f2(1, 1, 1));
-    CHECK_FALSE(f1_and_f2(1, 1, 2));
-    CHECK_FALSE(f1_and_f2(1, 2, 2));
-    CHECK_FALSE(f1_and_f2(1, 2, 3));
-  }
-}
+    SECTION("Lambdas")
+    {
+      const auto f1_or_f2 = logical_or(f1, f2);
 
-TEST_CASE("logical_or")
-{
-  const auto f1 = [](int a, int b, int) { return a == b; };
-  const auto f2 = [](int, int b, int c) { return b == c; };
+      CHECK(f1_or_f2(1, 1, 1));
+      CHECK(f1_or_f2(1, 1, 2));
+      CHECK(f1_or_f2(1, 2, 2));
+      CHECK(!f1_or_f2(1, 2, 3));
+    }
 
-  SECTION("Lambdas")
-  {
-    const auto f1_or_f2 = logical_or(f1, f2);
+    SECTION("std::function")
+    {
+      const auto f1_or_f2 = logical_or(std::function{f1}, std::function{f2});
 
-    CHECK(f1_or_f2(1, 1, 1));
-    CHECK(f1_or_f2(1, 1, 2));
-    CHECK(f1_or_f2(1, 2, 2));
-    CHECK_FALSE(f1_or_f2(1, 2, 3));
-  }
-
-  SECTION("std::function")
-  {
-    const auto f1_or_f2 = logical_or(std::function{f1}, std::function{f2});
-
-    CHECK(f1_or_f2(1, 1, 1));
-    CHECK(f1_or_f2(1, 1, 2));
-    CHECK(f1_or_f2(1, 2, 2));
-    CHECK_FALSE(f1_or_f2(1, 2, 3));
-  }
-}
-
-TEST_CASE("logical_not")
-{
-  const auto f = [](int a, int b) { return a == b; };
-
-  SECTION("Lambdas")
-  {
-    const auto fn = logical_not(f);
-
-    CHECK_FALSE(fn(1, 1));
-    CHECK(fn(1, 2));
+      CHECK(f1_or_f2(1, 1, 1));
+      CHECK(f1_or_f2(1, 1, 2));
+      CHECK(f1_or_f2(1, 2, 2));
+      CHECK(!f1_or_f2(1, 2, 3));
+    }
   }
 
-  SECTION("std::function")
+  SECTION("logical_not")
   {
-    const auto fn = logical_not(std::function{f});
+    const auto f = [](int a, int b) { return a == b; };
 
-    CHECK_FALSE(fn(1, 1));
-    CHECK(fn(1, 2));
+    SECTION("Lambdas")
+    {
+      const auto fn = logical_not(f);
+
+      CHECK(!fn(1, 1));
+      CHECK(fn(1, 2));
+    }
+
+    SECTION("std::function")
+    {
+      const auto fn = logical_not(std::function{f});
+
+      CHECK(!fn(1, 1));
+      CHECK(fn(1, 2));
+    }
   }
 }
 

@@ -111,7 +111,7 @@ TEST_CASE("compact_trie")
       find(index, "*"),
       UnorderedRangeEquals({"value", "value", "value2", "value3", "value4"}));
 
-    CHECK_FALSE(index.remove("andrary", "value2"));
+    CHECK(!index.remove("andrary", "value2"));
 
     CHECK(index.remove("andrary", "value3"));
     CHECK(find(index, "andrary*") == std::vector<std::string>{});

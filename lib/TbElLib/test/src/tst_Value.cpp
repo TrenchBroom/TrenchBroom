@@ -94,10 +94,10 @@ TEST_CASE("Value")
   SECTION("hasType")
   {
     CHECK(Value{1.0}.hasType(ValueType::Number));
-    CHECK_FALSE(Value{1.0}.hasType(ValueType::String));
+    CHECK(!Value{1.0}.hasType(ValueType::String));
 
     CHECK(Value{1.0}.hasType(ValueType::String, ValueType::Number));
-    CHECK_FALSE(Value{1.0}.hasType(ValueType::String, ValueType::Boolean));
+    CHECK(!Value{1.0}.hasType(ValueType::String, ValueType::Boolean));
   }
 
   SECTION("typeName")
@@ -527,20 +527,20 @@ TEST_CASE("Value")
       withEvaluationContext([](auto& context) {
         CHECK(Value{"ab"}.contains(context, 0));
         CHECK(Value{"ab"}.contains(context, 1));
-        CHECK_FALSE(Value{"ab"}.contains(context, 2));
-        CHECK_FALSE(Value{""}.contains(context, 0));
+        CHECK(!Value{"ab"}.contains(context, 2));
+        CHECK(!Value{""}.contains(context, 0));
 
         CHECK(Value{ArrayType{Value{1.0}}}.contains(context, 0));
-        CHECK_FALSE(Value{ArrayType{Value{1.0}}}.contains(context, 1));
-        CHECK_FALSE(Value{ArrayType{}}.contains(context, 0));
+        CHECK(!Value{ArrayType{Value{1.0}}}.contains(context, 1));
+        CHECK(!Value{ArrayType{}}.contains(context, 0));
 
         // every other type is not indexable by an integer
-        CHECK_FALSE(Value{MapType{{"0", Value{1.0}}}}.contains(context, 0));
-        CHECK_FALSE(Value{true}.contains(context, 0));
-        CHECK_FALSE(Value{1.0}.contains(context, 0));
-        CHECK_FALSE(boundedRange.contains(context, 0));
-        CHECK_FALSE(Value::Null.contains(context, 0));
-        CHECK_FALSE(Value::Undefined.contains(context, 0));
+        CHECK(!Value{MapType{{"0", Value{1.0}}}}.contains(context, 0));
+        CHECK(!Value{true}.contains(context, 0));
+        CHECK(!Value{1.0}.contains(context, 0));
+        CHECK(!boundedRange.contains(context, 0));
+        CHECK(!Value::Null.contains(context, 0));
+        CHECK(!Value::Undefined.contains(context, 0));
       }).ignore();
     }
 
@@ -548,9 +548,9 @@ TEST_CASE("Value")
     {
       withEvaluationContext([](auto& context) {
         CHECK(Value{MapType{{"a", Value{1.0}}}}.contains(context, "a"));
-        CHECK_FALSE(Value{MapType{{"a", Value{1.0}}}}.contains(context, "b"));
-        CHECK_FALSE(Value{MapType{}}.contains(context, "a"));
-        CHECK_FALSE(Value::Null.contains(context, "a"));
+        CHECK(!Value{MapType{{"a", Value{1.0}}}}.contains(context, "b"));
+        CHECK(!Value{MapType{}}.contains(context, "a"));
+        CHECK(!Value::Null.contains(context, "a"));
 
         CHECK_THROWS_AS(Value{"ab"}.contains(context, "a"), DereferenceError);
         CHECK_THROWS_AS(Value{ArrayType{}}.contains(context, "a"), DereferenceError);

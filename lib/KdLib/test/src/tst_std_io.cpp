@@ -42,60 +42,68 @@ inline std::ostream& operator<<(std::ostream& lhs, const test&)
 namespace kdl
 {
 
-TEST_CASE("range IO")
+TEST_CASE("std_io")
 {
-  CHECK(str_to_string(make_streamable(std::vector<int>{})) == "[]");
-  CHECK(str_to_string(make_streamable(std::vector<int>{1})) == "[1]");
-  CHECK(str_to_string(make_streamable(std::vector<int>{1, 2})) == "[1, 2]");
-  CHECK(
-    str_to_string(make_streamable(std::vector<some_ns::test>{{}, {}})) == "[test, test]");
-}
+  SECTION("range IO")
+  {
+    CHECK(str_to_string(make_streamable(std::vector<int>{})) == "[]");
+    CHECK(str_to_string(make_streamable(std::vector<int>{1})) == "[1]");
+    CHECK(str_to_string(make_streamable(std::vector<int>{1, 2})) == "[1, 2]");
+    CHECK(
+      str_to_string(make_streamable(std::vector<some_ns::test>{{}, {}}))
+      == "[test, test]");
+  }
 
-TEST_CASE("optional IO")
-{
-  CHECK(str_to_string(make_streamable(std::optional<int>{})) == "nullopt");
-  CHECK(str_to_string(make_streamable(std::optional<int>{0})) == "0");
-}
+  SECTION("optional IO")
+  {
+    CHECK(str_to_string(make_streamable(std::optional<int>{})) == "nullopt");
+    CHECK(str_to_string(make_streamable(std::optional<int>{0})) == "0");
+  }
 
-TEST_CASE("tuple IO")
-{
-  CHECK(str_to_string(make_streamable(std::tuple<int>{0})) == "{0}");
-  CHECK(
-    str_to_string(make_streamable(std::tuple<int, std::string>{0, "asdf"}))
-    == "{0, asdf}");
-}
+  SECTION("tuple IO")
+  {
+    CHECK(str_to_string(make_streamable(std::tuple<int>{0})) == "{0}");
+    CHECK(
+      str_to_string(make_streamable(std::tuple<int, std::string>{0, "asdf"}))
+      == "{0, asdf}");
+  }
 
-TEST_CASE("variant IO")
-{
-  CHECK(str_to_string(make_streamable(std::variant<int, std::string>{0})) == "0");
-  CHECK(str_to_string(make_streamable(std::variant<int, std::string>{"asdf"})) == "asdf");
+  SECTION("variant IO")
+  {
+    CHECK(str_to_string(make_streamable(std::variant<int, std::string>{0})) == "0");
+    CHECK(
+      str_to_string(make_streamable(std::variant<int, std::string>{"asdf"})) == "asdf");
+  }
 }
 } // namespace kdl
 
 namespace sibling
 {
-TEST_CASE("range IO - ADL from sibling namespace")
+TEST_CASE("std_io - ADL from sibling namespace")
 {
-  auto str = std::stringstream{};
-  str << kdl::make_streamable(std::vector<int>{1});
-}
+  SECTION("range IO")
+  {
+    auto str = std::stringstream{};
+    str << kdl::make_streamable(std::vector<int>{1});
+  }
 
-TEST_CASE("optional IO - ADL from sibling namespace")
-{
-  auto str = std::stringstream{};
-  str << kdl::make_streamable(std::optional<int>{0});
-}
+  SECTION("optional IO")
+  {
+    auto str = std::stringstream{};
+    str << kdl::make_streamable(std::optional<int>{0});
+  }
 
-TEST_CASE("tuple IO - ADL from sibling namespace")
-{
-  auto str = std::stringstream{};
-  str << kdl::make_streamable(std::tuple<int>{0});
-}
+  SECTION("tuple IO")
+  {
+    auto str = std::stringstream{};
+    str << kdl::make_streamable(std::tuple<int>{0});
+  }
 
-TEST_CASE("variant IO - ADL from sibling namespace")
-{
-  auto str = std::stringstream{};
-  str << kdl::make_streamable(std::variant<int, std::string>{0});
+  SECTION("variant IO")
+  {
+    auto str = std::stringstream{};
+    str << kdl::make_streamable(std::variant<int, std::string>{0});
+  }
 }
 
 } // namespace sibling

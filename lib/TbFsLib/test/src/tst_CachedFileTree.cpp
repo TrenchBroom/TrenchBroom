@@ -97,7 +97,7 @@ TEST_CASE("CachedFileTree")
 
       const auto* fileEntry = findCachedEntry(kdl::path_to_lower("a"), root);
       REQUIRE(fileEntry != nullptr);
-      CHECK_FALSE(isDirectoryEntry(*fileEntry));
+      CHECK(!isDirectoryEntry(*fileEntry));
 
       findOrCreateCachedDirectory("a/b", std::get<TestDirectoryEntry>(root));
 
@@ -220,7 +220,7 @@ TEST_CASE("CachedFileTree")
         std::filesystem::path{},
         [&](const TestEntry&, const std::filesystem::path&) { called = true; });
 
-      CHECK_FALSE(called);
+      CHECK(!called);
     }
   }
 

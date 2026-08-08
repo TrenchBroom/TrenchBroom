@@ -268,22 +268,22 @@ TEST_CASE("QPreferenceStore")
     CHECK(preferenceStore.load("some/path", value));
     CHECK(value == "fdsa");
   }
-}
 
-TEST_CASE("Preference lock file")
-{
-// ensure that a lock file can be created in a directory with non-ASCII characters
+  SECTION("lock file")
+  {
+    // ensure that a lock file can be created in a directory with non-ASCII characters
 #if defined(Q_OS_WIN)
-  const auto lockFilePath =
-    getFixtureRoot() / LR"(test\Кристиян\ぁ\preferences-v2.json.lck)";
+    const auto lockFilePath =
+      getFixtureRoot() / LR"(test\Кристиян\ぁ\preferences-v2.json.lck)";
 #else
-  const auto lockFilePath =
-    getFixtureRoot() / R"(test/Кристиян/ぁ/preferences-v2.json.lck)";
+    const auto lockFilePath =
+      getFixtureRoot() / R"(test/Кристиян/ぁ/preferences-v2.json.lck)";
 #endif
-  std::filesystem::create_directories(lockFilePath.parent_path());
+    std::filesystem::create_directories(lockFilePath.parent_path());
 
-  auto lockFile = QLockFile{pathAsQPath(lockFilePath)};
-  CHECK(lockFile.lock());
+    auto lockFile = QLockFile{pathAsQPath(lockFilePath)};
+    CHECK(lockFile.lock());
+  }
 }
 
 } // namespace tb::ui

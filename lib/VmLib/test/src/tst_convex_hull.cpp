@@ -28,70 +28,73 @@
 
 namespace vm
 {
-TEST_CASE("convex_hull.convex_hull_simple")
+TEST_CASE("convex_hull")
 {
-  const vm::vec3d p1(0.0, 0.0, 0.0);
-  const vm::vec3d p2(8.0, 8.0, 0.0);
-  const vm::vec3d p3(8.0, 0.0, 0.0);
-  const vm::vec3d p4(0.0, 8.0, 0.0);
+  SECTION("convex_hull_simple")
+  {
+    const vm::vec3d p1(0.0, 0.0, 0.0);
+    const vm::vec3d p2(8.0, 8.0, 0.0);
+    const vm::vec3d p3(8.0, 0.0, 0.0);
+    const vm::vec3d p4(0.0, 8.0, 0.0);
 
-  std::vector<vm::vec3d> points;
-  points.push_back(p1);
-  points.push_back(p2);
-  points.push_back(p3);
-  points.push_back(p4);
+    std::vector<vm::vec3d> points;
+    points.push_back(p1);
+    points.push_back(p2);
+    points.push_back(p3);
+    points.push_back(p4);
 
-  const std::vector<vm::vec3d> hull = vm::convex_hull<double>(points);
-  CHECK(hull.size() == 4u);
-  CHECK(hull[0] == p3);
-  CHECK(hull[1] == p2);
-  CHECK(hull[2] == p4);
-  CHECK(hull[3] == p1);
-}
+    const std::vector<vm::vec3d> hull = vm::convex_hull<double>(points);
+    CHECK(hull.size() == 4u);
+    CHECK(hull[0] == p3);
+    CHECK(hull[1] == p2);
+    CHECK(hull[2] == p4);
+    CHECK(hull[3] == p1);
+  }
 
-TEST_CASE("convex_hull.convex_hull_simple_with_internal_point")
-{
-  const vm::vec3d p1(0.0, 0.0, 0.0);
-  const vm::vec3d p2(8.0, 8.0, 0.0);
-  const vm::vec3d p3(8.0, 0.0, 0.0);
-  const vm::vec3d p4(0.0, 8.0, 0.0);
-  const vm::vec3d p5(4.0, 4.0, 0.0);
+  SECTION("convex_hull_simple_with_internal_point")
+  {
+    const vm::vec3d p1(0.0, 0.0, 0.0);
+    const vm::vec3d p2(8.0, 8.0, 0.0);
+    const vm::vec3d p3(8.0, 0.0, 0.0);
+    const vm::vec3d p4(0.0, 8.0, 0.0);
+    const vm::vec3d p5(4.0, 4.0, 0.0);
 
-  std::vector<vm::vec3d> points;
-  points.push_back(p1);
-  points.push_back(p2);
-  points.push_back(p3);
-  points.push_back(p4);
-  points.push_back(p5);
+    std::vector<vm::vec3d> points;
+    points.push_back(p1);
+    points.push_back(p2);
+    points.push_back(p3);
+    points.push_back(p4);
+    points.push_back(p5);
 
-  const std::vector<vm::vec3d> hull = vm::convex_hull<double>(points);
-  CHECK(hull.size() == 4u);
-  CHECK(hull[0] == p3);
-  CHECK(hull[1] == p2);
-  CHECK(hull[2] == p4);
-  CHECK(hull[3] == p1);
-}
+    const std::vector<vm::vec3d> hull = vm::convex_hull<double>(points);
+    CHECK(hull.size() == 4u);
+    CHECK(hull[0] == p3);
+    CHECK(hull[1] == p2);
+    CHECK(hull[2] == p4);
+    CHECK(hull[3] == p1);
+  }
 
-TEST_CASE("convex_hull.convex_hull_simple_with_point_on_line")
-{
-  const vm::vec3d p1(0.0, 0.0, 0.0);
-  const vm::vec3d p2(8.0, 8.0, 0.0);
-  const vm::vec3d p3(8.0, 0.0, 0.0);
-  const vm::vec3d p4(0.0, 8.0, 0.0);
-  const vm::vec3d p5(4.0, 0.0, 0.0);
+  SECTION("convex_hull_simple_with_point_on_line")
+  {
+    const vm::vec3d p1(0.0, 0.0, 0.0);
+    const vm::vec3d p2(8.0, 8.0, 0.0);
+    const vm::vec3d p3(8.0, 0.0, 0.0);
+    const vm::vec3d p4(0.0, 8.0, 0.0);
+    const vm::vec3d p5(4.0, 0.0, 0.0);
 
-  std::vector<vm::vec3d> points;
-  points.push_back(p1);
-  points.push_back(p2);
-  points.push_back(p3);
-  points.push_back(p4);
-  points.push_back(p5);
+    std::vector<vm::vec3d> points;
+    points.push_back(p1);
+    points.push_back(p2);
+    points.push_back(p3);
+    points.push_back(p4);
+    points.push_back(p5);
 
-  const std::vector<vm::vec3d> hull = vm::convex_hull<double>(points);
-  CHECK(hull.size() == 4u);
-  CHECK(hull[0] == p3);
-  CHECK(hull[1] == p2);
-  CHECK(hull[2] == p4);
-  CHECK(hull[3] == p1);
+    const std::vector<vm::vec3d> hull = vm::convex_hull<double>(points);
+    CHECK(hull.size() == 4u);
+    CHECK(hull[0] == p3);
+    CHECK(hull[1] == p2);
+    CHECK(hull[2] == p4);
+    CHECK(hull[3] == p1);
+  }
 }
 } // namespace vm

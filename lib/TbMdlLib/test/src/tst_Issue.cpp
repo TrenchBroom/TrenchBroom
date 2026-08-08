@@ -94,7 +94,7 @@ TEST_CASE("Issue.addSelectableNodes")
     return issue.addSelectableNodes(nodes);
   };
 
-  CHECK_FALSE(hasSelectableNodes(TestIssue{outerGroupNode}));
+  CHECK(!hasSelectableNodes(TestIssue{outerGroupNode}));
   CHECK_THAT(
     getSelectableNodes(TestIssue{outerGroupNode}), UnorderedEquals(std::vector<Node*>{}));
 

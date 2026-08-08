@@ -54,12 +54,12 @@ TEST_CASE("node_address")
     CHECK(node_address{0, 0, 0, 2}.contains({2, 2, 2, 1}));
     CHECK(node_address{-4, -4, -4, 2}.contains({-2, -2, -2, 1}));
 
-    CHECK_FALSE(node_address{0, 0, 0, 0}.contains({0, 0, 0, 1}));
-    CHECK_FALSE(node_address{0, 0, 0, 2}.contains({2, 2, 4, 1}));
-    CHECK_FALSE(node_address{0, 0, 0, 2}.contains({4, 0, 0, 2}));
-    CHECK_FALSE(node_address{0, 0, 0, 2}.contains({0, 0, 0, 3}));
+    CHECK(!node_address{0, 0, 0, 0}.contains({0, 0, 0, 1}));
+    CHECK(!node_address{0, 0, 0, 2}.contains({2, 2, 4, 1}));
+    CHECK(!node_address{0, 0, 0, 2}.contains({4, 0, 0, 2}));
+    CHECK(!node_address{0, 0, 0, 2}.contains({0, 0, 0, 3}));
 
-    CHECK_FALSE(node_address{0, 0, 0, 1}.contains({0, 3, 0, 0}));
+    CHECK(!node_address{0, 0, 0, 1}.contains({0, 3, 0, 0}));
   }
 
   SECTION("to_bounds")
@@ -197,8 +197,8 @@ TEST_CASE("node_address")
     CHECK(is_root({-1, -1, -1, 1}));
     CHECK(is_root({-2, -2, -2, 2}));
 
-    CHECK_FALSE(is_root({0, 0, 0, 0}));
-    CHECK_FALSE(is_root({1, 2, 3, 0}));
+    CHECK(!is_root({0, 0, 0, 0}));
+    CHECK(!is_root({1, 2, 3, 0}));
   }
 
   SECTION("get_root")
@@ -425,7 +425,7 @@ TEST_CASE("octree")
       CHECK(!tree.insert(vm::bbox3d{{0, 0, 0}, {2, 1, 1}}, 1));
 
       CHECK(tree.contains(1));
-      CHECK_FALSE(tree.empty());
+      CHECK(!tree.empty());
     }
   }
 
@@ -557,16 +557,16 @@ TEST_CASE("octree")
   {
     auto tree = octree<double, int>{32.0};
 
-    CHECK_FALSE(tree.contains(0));
-    CHECK_FALSE(tree.contains(1));
-    CHECK_FALSE(tree.contains(2));
-    CHECK_FALSE(tree.contains(3));
+    CHECK(!tree.contains(0));
+    CHECK(!tree.contains(1));
+    CHECK(!tree.contains(2));
+    CHECK(!tree.contains(3));
 
     REQUIRE(tree.insert(vm::bbox3d{{0, 0, 0}, {16, 16, 16}}, 1));
     REQUIRE(tree.insert(vm::bbox3d{{16, 16, 16}, {32, 32, 32}}, 2));
     REQUIRE(tree.insert(vm::bbox3d{{-16, -16, -16}, {0, 0, 0}}, 3));
 
-    CHECK_FALSE(tree.contains(0));
+    CHECK(!tree.contains(0));
     CHECK(tree.contains(1));
     CHECK(tree.contains(2));
     CHECK(tree.contains(3));

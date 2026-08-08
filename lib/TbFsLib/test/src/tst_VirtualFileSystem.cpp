@@ -190,7 +190,7 @@ TEST_CASE("VirtualFileSystem")
 
       // id1 is no longer mounted, so unmounting it again must fail rather than
       // removing some other mount point
-      CHECK_FALSE(vfs.unmount(id1));
+      CHECK(!vfs.unmount(id1));
       CHECK(vfs.pathInfo("mnt2/dir") == fs::PathInfo::Directory);
     }
 

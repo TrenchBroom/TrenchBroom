@@ -135,16 +135,16 @@ TEST_CASE("Map_Selection")
       SECTION("Cannot select linked groups if selection is empty")
       {
         deselectAll(map);
-        CHECK_FALSE(canSelectLinkedGroups(map));
+        CHECK(!canSelectLinkedGroups(map));
       }
 
       SECTION("Cannot select linked groups if selection contains non-groups")
       {
         deselectAll(map);
         selectNodes(map, {entityNode});
-        CHECK_FALSE(canSelectLinkedGroups(map));
+        CHECK(!canSelectLinkedGroups(map));
         selectNodes(map, {groupNode});
-        CHECK_FALSE(canSelectLinkedGroups(map));
+        CHECK(!canSelectLinkedGroups(map));
       }
 
       SECTION("Cannot select linked groups if selection contains unlinked groups")
@@ -155,10 +155,10 @@ TEST_CASE("Map_Selection")
         auto* unlinkedGroupNode = groupSelectedNodes(map, "other");
         REQUIRE(unlinkedGroupNode != nullptr);
 
-        CHECK_FALSE(canSelectLinkedGroups(map));
+        CHECK(!canSelectLinkedGroups(map));
 
         selectNodes(map, {groupNode});
-        CHECK_FALSE(canSelectLinkedGroups(map));
+        CHECK(!canSelectLinkedGroups(map));
       }
 
       SECTION("Select linked groups")

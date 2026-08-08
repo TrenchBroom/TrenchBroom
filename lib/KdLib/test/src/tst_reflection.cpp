@@ -28,35 +28,8 @@
 
 namespace kdl
 {
-namespace detail
+namespace
 {
-
-TEST_CASE("reflection_count_tokens")
-{
-  static_assert(reflection_count_tokens("") == 0);
-  static_assert(reflection_count_tokens("  ") == 0);
-  static_assert(reflection_count_tokens(",") == 0);
-  static_assert(reflection_count_tokens(" ,  ") == 0);
-  static_assert(reflection_count_tokens("asdf") == 1);
-  static_assert(reflection_count_tokens("asdf,blah") == 2);
-  static_assert(reflection_count_tokens(" asdf ,  blah ") == 2);
-}
-
-TEST_CASE("reflection_split_tokens")
-{
-  CHECK(reflection_split_tokens<0>("") == std::array<std::string_view, 0>{});
-  CHECK(reflection_split_tokens<0>("   ") == std::array<std::string_view, 0>{});
-  CHECK(reflection_split_tokens<0>(",") == std::array<std::string_view, 0>{});
-  CHECK(reflection_split_tokens<0>(" ,  ") == std::array<std::string_view, 0>{});
-  CHECK(reflection_split_tokens<1>("asdf") == std::array<std::string_view, 1>{"asdf"});
-  CHECK(
-    reflection_split_tokens<2>("asdf,blah")
-    == std::array<std::string_view, 2>{"asdf", "blah"});
-  CHECK(
-    reflection_split_tokens<2>(" asdf ,  blah ")
-    == std::array<std::string_view, 2>{"asdf", "blah"});
-}
-} // namespace detail
 
 struct empty
 {
@@ -71,47 +44,11 @@ struct test
   kdl_reflect_inline(test, someName, otherName);
 };
 
-TEST_CASE("member_names")
-{
-  CHECK(empty::member_names() == std::array<std::string_view, 0>{});
-  CHECK(test::member_names() == std::array<std::string_view, 2>{"someName", "otherName"});
-}
-
-TEST_CASE("members")
-{
-  CHECK(empty{}.members() == std::make_tuple());
-  CHECK(test{2, "asdf"}.members() == std::make_tuple(2, "asdf"));
-}
-
-TEST_CASE("operator==")
-{
-  CHECK(test{2, "asdf"} == test{2, "asdf"});
-  CHECK_FALSE(test{2, "asdf"} == test{3, "asdf"});
-  CHECK_FALSE(test{2, "asdf"} == test{2, "x"});
-}
-
-TEST_CASE("operator!=")
-{
-  CHECK(test{2, "asdf"} != test{3, "asdf"});
-  CHECK(test{2, "asdf"} != test{2, "x"});
-  CHECK_FALSE(test{2, "asdf"} != test{2, "asdf"});
-}
-
-TEST_CASE("operator<")
-{
-  CHECK(test{1, "asdf"} < test{2, "asdf"});
-  CHECK_FALSE(test{2, "asdf"} < test{2, "asdf"});
-  CHECK_FALSE(test{3, "asdf"} < test{2, "asdf"});
-
-  CHECK(test{2, "asdf"} < test{2, "bsdf"});
-  CHECK_FALSE(test{2, "asdf"} < test{2, "abdf"});
-}
-
 struct incomparable
 {
 };
 
-[[maybe_unused]] static std::ostream& operator<<(std::ostream& lhs, const incomparable&)
+[[maybe_unused]] std::ostream& operator<<(std::ostream& lhs, const incomparable&)
 {
   return lhs << "incomparable";
 }
@@ -134,11 +71,82 @@ struct custom
 
 } // namespace test_ns
 
-TEST_CASE("operator<<")
+} // namespace
+
+TEST_CASE("reflection")
 {
-  CHECK(str_to_string(empty{}) == "empty{}");
-  CHECK(str_to_string(test{1, "asdf"}) == "test{someName: 1, otherName: asdf}");
-  CHECK(str_to_string(test_ns::custom{{1, 2, 3}}) == "custom{v: [1, 2, 3]}");
+  SECTION("reflection_count_tokens")
+  {
+    static_assert(detail::reflection_count_tokens("") == 0);
+    static_assert(detail::reflection_count_tokens("  ") == 0);
+    static_assert(detail::reflection_count_tokens(",") == 0);
+    static_assert(detail::reflection_count_tokens(" ,  ") == 0);
+    static_assert(detail::reflection_count_tokens("asdf") == 1);
+    static_assert(detail::reflection_count_tokens("asdf,blah") == 2);
+    static_assert(detail::reflection_count_tokens(" asdf ,  blah ") == 2);
+  }
+
+  SECTION("reflection_split_tokens")
+  {
+    CHECK(detail::reflection_split_tokens<0>("") == std::array<std::string_view, 0>{});
+    CHECK(detail::reflection_split_tokens<0>("   ") == std::array<std::string_view, 0>{});
+    CHECK(detail::reflection_split_tokens<0>(",") == std::array<std::string_view, 0>{});
+    CHECK(
+      detail::reflection_split_tokens<0>(" ,  ") == std::array<std::string_view, 0>{});
+    CHECK(
+      detail::reflection_split_tokens<1>("asdf")
+      == std::array<std::string_view, 1>{"asdf"});
+    CHECK(
+      detail::reflection_split_tokens<2>("asdf,blah")
+      == std::array<std::string_view, 2>{"asdf", "blah"});
+    CHECK(
+      detail::reflection_split_tokens<2>(" asdf ,  blah ")
+      == std::array<std::string_view, 2>{"asdf", "blah"});
+  }
+
+  SECTION("member_names")
+  {
+    CHECK(empty::member_names() == std::array<std::string_view, 0>{});
+    CHECK(
+      test::member_names() == std::array<std::string_view, 2>{"someName", "otherName"});
+  }
+
+  SECTION("members")
+  {
+    CHECK(empty{}.members() == std::make_tuple());
+    CHECK(test{2, "asdf"}.members() == std::make_tuple(2, "asdf"));
+  }
+
+  SECTION("operator==")
+  {
+    CHECK(test{2, "asdf"} == test{2, "asdf"});
+    CHECK(!(test{2, "asdf"} == test{3, "asdf"}));
+    CHECK(!(test{2, "asdf"} == test{2, "x"}));
+  }
+
+  SECTION("operator!=")
+  {
+    CHECK(test{2, "asdf"} != test{3, "asdf"});
+    CHECK(test{2, "asdf"} != test{2, "x"});
+    CHECK(!(test{2, "asdf"} != test{2, "asdf"}));
+  }
+
+  SECTION("operator<")
+  {
+    CHECK(test{1, "asdf"} < test{2, "asdf"});
+    CHECK(!(test{2, "asdf"} < test{2, "asdf"}));
+    CHECK(!(test{3, "asdf"} < test{2, "asdf"}));
+
+    CHECK(test{2, "asdf"} < test{2, "bsdf"});
+    CHECK(!(test{2, "asdf"} < test{2, "abdf"}));
+  }
+
+  SECTION("operator<<")
+  {
+    CHECK(str_to_string(empty{}) == "empty{}");
+    CHECK(str_to_string(test{1, "asdf"}) == "test{someName: 1, otherName: asdf}");
+    CHECK(str_to_string(test_ns::custom{{1, 2, 3}}) == "custom{v: [1, 2, 3]}");
+  }
 }
 
 } // namespace kdl

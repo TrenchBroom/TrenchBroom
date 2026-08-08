@@ -169,8 +169,6 @@ private:
   bool doActivate() override;
   bool doDeactivate() override;
 
-  bool doRemove();
-
   void connectObservers();
   void refresh();
 };

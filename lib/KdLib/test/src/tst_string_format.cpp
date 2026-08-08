@@ -25,147 +25,155 @@
 namespace kdl
 {
 
-TEST_CASE("string_format_test.str_select")
+TEST_CASE("string_format")
 {
-  CHECK(str_select(true, "yes", "no") == "yes");
-  CHECK(str_select(false, "yes", "no") == "no");
-}
+  SECTION("str_select")
+  {
+    CHECK(str_select(true, "yes", "no") == "yes");
+    CHECK(str_select(false, "yes", "no") == "no");
+  }
 
-TEST_CASE("string_format_test.str_plural")
-{
-  CHECK(str_plural(0, "one", "many") == "many");
-  CHECK(str_plural(1, "one", "many") == "one");
-  CHECK(str_plural(2, "one", "many") == "many");
-}
+  SECTION("str_plural")
+  {
+    CHECK(str_plural(0, "one", "many") == "many");
+    CHECK(str_plural(1, "one", "many") == "one");
+    CHECK(str_plural(2, "one", "many") == "many");
+  }
 
-TEST_CASE("string_format_test.str_plural_with_prefix_suffix")
-{
-  CHECK(str_plural("prefix ", 0, "one", "many", " suffix") == "prefix many suffix");
-  CHECK(str_plural("prefix ", 1, "one", "many", " suffix") == "prefix one suffix");
-  CHECK(str_plural("prefix ", 2, "one", "many", " suffix") == "prefix many suffix");
-}
+  SECTION("str_plural_with_prefix_suffix")
+  {
+    CHECK(str_plural("prefix ", 0, "one", "many", " suffix") == "prefix many suffix");
+    CHECK(str_plural("prefix ", 1, "one", "many", " suffix") == "prefix one suffix");
+    CHECK(str_plural("prefix ", 2, "one", "many", " suffix") == "prefix many suffix");
+  }
 
-TEST_CASE("string_format_test.str_trim")
-{
-  CHECK(str_trim("") == "");
-  CHECK(str_trim("abc") == "abc");
-  CHECK(str_trim(" abc") == "abc");
-  CHECK(str_trim("abc  ") == "abc");
-  CHECK(str_trim("  abc   ") == "abc");
-  CHECK(str_trim("  abc   ") == "abc");
-  CHECK(str_trim("xyxxabczzxzyz", "xyz") == "abc");
-}
+  SECTION("str_trim")
+  {
+    CHECK(str_trim("") == "");
+    CHECK(str_trim("abc") == "abc");
+    CHECK(str_trim(" abc") == "abc");
+    CHECK(str_trim("abc  ") == "abc");
+    CHECK(str_trim("  abc   ") == "abc");
+    CHECK(str_trim("  abc   ") == "abc");
+    CHECK(str_trim("xyxxabczzxzyz", "xyz") == "abc");
+  }
 
-TEST_CASE("string_format_test.str_to_lower_char")
-{
-  constexpr auto input =
-    " !\"#$%&\\'()*+,-./"
-    "0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\\\]^_`abcdefghijklmnopqrstuvwxyz{|}~";
-  constexpr auto expected =
-    " !\"#$%&\\'()*+,-./"
-    "0123456789:;<=>?@abcdefghijklmnopqrstuvwxyz[\\\\]^_`abcdefghijklmnopqrstuvwxyz{|}~";
+  SECTION("str_to_lower_char")
+  {
+    constexpr auto input =
+      " !\"#$%&\\'()*+,-./"
+      "0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\\\]^_`abcdefghijklmnopqrstuvwxyz{|}"
+      "~";
+    constexpr auto expected =
+      " !\"#$%&\\'()*+,-./"
+      "0123456789:;<=>?@abcdefghijklmnopqrstuvwxyz[\\\\]^_`abcdefghijklmnopqrstuvwxyz{|}"
+      "~";
 
-  CHECK(str_to_lower(input) == expected);
-}
+    CHECK(str_to_lower(input) == expected);
+  }
 
-TEST_CASE("string_format_test.str_to_upper_char")
-{
-  constexpr auto input =
-    " !\"#$%&\\'()*+,-./"
-    "0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\\\]^_`abcdefghijklmnopqrstuvwxyz{|}~";
-  constexpr auto expected =
-    " !\"#$%&\\'()*+,-./"
-    "0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\\\]^_`ABCDEFGHIJKLMNOPQRSTUVWXYZ{|}~";
-  CHECK(str_to_upper(input) == expected);
-}
+  SECTION("str_to_upper_char")
+  {
+    constexpr auto input =
+      " !\"#$%&\\'()*+,-./"
+      "0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\\\]^_`abcdefghijklmnopqrstuvwxyz{|}"
+      "~";
+    constexpr auto expected =
+      " !\"#$%&\\'()*+,-./"
+      "0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\\\]^_`ABCDEFGHIJKLMNOPQRSTUVWXYZ{|}"
+      "~";
+    CHECK(str_to_upper(input) == expected);
+  }
 
-TEST_CASE("string_format_test.str_to_lower")
-{
-  CHECK(str_to_lower("") == "");
-  CHECK(str_to_lower("#?\"abc73474") == "#?\"abc73474");
-  CHECK(str_to_lower("#?\"abC73474") == "#?\"abc73474");
-  CHECK(str_to_lower("#?\"ABC73474") == "#?\"abc73474");
-  CHECK(str_to_lower("XYZ") == "xyz");
-}
+  SECTION("str_to_lower")
+  {
+    CHECK(str_to_lower("") == "");
+    CHECK(str_to_lower("#?\"abc73474") == "#?\"abc73474");
+    CHECK(str_to_lower("#?\"abC73474") == "#?\"abc73474");
+    CHECK(str_to_lower("#?\"ABC73474") == "#?\"abc73474");
+    CHECK(str_to_lower("XYZ") == "xyz");
+  }
 
-TEST_CASE("string_format_test.str_to_upper")
-{
-  CHECK(str_to_lower("") == "");
-  CHECK(str_to_upper("#?\"ABC73474") == "#?\"ABC73474");
-  CHECK(str_to_upper("#?\"ABc73474") == "#?\"ABC73474");
-  CHECK(str_to_upper("#?\"ABC73474") == "#?\"ABC73474");
-  CHECK(str_to_upper("xyz") == "XYZ");
-}
+  SECTION("str_to_upper")
+  {
+    CHECK(str_to_lower("") == "");
+    CHECK(str_to_upper("#?\"ABC73474") == "#?\"ABC73474");
+    CHECK(str_to_upper("#?\"ABc73474") == "#?\"ABC73474");
+    CHECK(str_to_upper("#?\"ABC73474") == "#?\"ABC73474");
+    CHECK(str_to_upper("xyz") == "XYZ");
+  }
 
-TEST_CASE("string_format_test.str_capitalize")
-{
-  CHECK(
-    str_capitalize("the quick brown fOX, .he jumped!")
-    == "The Quick Brown FOX, .he Jumped!");
-}
+  SECTION("str_capitalize")
+  {
+    CHECK(
+      str_capitalize("the quick brown fOX, .he jumped!")
+      == "The Quick Brown FOX, .he Jumped!");
+  }
 
-TEST_CASE("string_format_test.str_escape")
-{
-  CHECK(str_escape("", "") == "");
-  CHECK(str_escape("", ";") == "");
-  CHECK(str_escape("asdf", "") == "asdf");
-  CHECK(str_escape("\\", "") == "\\\\");
+  SECTION("str_escape")
+  {
+    CHECK(str_escape("", "") == "");
+    CHECK(str_escape("", ";") == "");
+    CHECK(str_escape("asdf", "") == "asdf");
+    CHECK(str_escape("\\", "") == "\\\\");
 
-  CHECK(
-    str_escape("c:\\blah\\fasel\\test.jpg", "\\") == "c:\\\\blah\\\\fasel\\\\test.jpg");
-  CHECK(
-    str_escape("c:\\blah\\fasel\\test.jpg", "\\:.")
-    == "c\\:\\\\blah\\\\fasel\\\\test\\.jpg");
-  CHECK(str_escape("asdf", "a") == "\\asdf");
-  CHECK(str_escape("asdf", "f") == "asd\\f");
-}
+    CHECK(
+      str_escape("c:\\blah\\fasel\\test.jpg", "\\") == "c:\\\\blah\\\\fasel\\\\test.jpg");
+    CHECK(
+      str_escape("c:\\blah\\fasel\\test.jpg", "\\:.")
+      == "c\\:\\\\blah\\\\fasel\\\\test\\.jpg");
+    CHECK(str_escape("asdf", "a") == "\\asdf");
+    CHECK(str_escape("asdf", "f") == "asd\\f");
+  }
 
-TEST_CASE("string_format_test.str_escape_if_necessary")
-{
-  CHECK(
-    str_escape_if_necessary(
-      "this # should be escaped, but not this \\#; this \\\\# however, should!", "#")
-    == "this \\# should be escaped, but not this \\#; this \\\\\\# however, should!");
-}
+  SECTION("str_escape_if_necessary")
+  {
+    CHECK(
+      str_escape_if_necessary(
+        "this # should be escaped, but not this \\#; this \\\\# however, should!", "#")
+      == "this \\# should be escaped, but not this \\#; this \\\\\\# however, should!");
+  }
 
-TEST_CASE("string_format_test.str_unescape")
-{
-  CHECK(str_unescape("", "") == "");
-  CHECK(str_unescape("", ";") == "");
-  CHECK(str_unescape("asdf", "") == "asdf");
+  SECTION("str_unescape")
+  {
+    CHECK(str_unescape("", "") == "");
+    CHECK(str_unescape("", ";") == "");
+    CHECK(str_unescape("asdf", "") == "asdf");
 
-  CHECK(
-    str_unescape("c:\\\\blah\\\\fasel\\\\test.jpg", "\\") == "c:\\blah\\fasel\\test.jpg");
-  CHECK(
-    str_unescape("c\\:\\\\blah\\\\fasel\\\\test\\.jpg", "\\:.")
-    == "c:\\blah\\fasel\\test.jpg");
-  CHECK(str_unescape("\\asdf", "a") == "asdf");
-  CHECK(str_unescape("asd\\f", "f") == "asdf");
-  CHECK(str_unescape("\\asdf", "a") == "asdf");
-  CHECK(str_unescape("asdf\\", "") == "asdf\\");
-  CHECK(str_unescape("asdf\\\\", "") == "asdf\\");
-  CHECK(str_unescape("asdf\\\\\\\\", "") == "asdf\\\\");
-}
+    CHECK(
+      str_unescape("c:\\\\blah\\\\fasel\\\\test.jpg", "\\")
+      == "c:\\blah\\fasel\\test.jpg");
+    CHECK(
+      str_unescape("c\\:\\\\blah\\\\fasel\\\\test\\.jpg", "\\:.")
+      == "c:\\blah\\fasel\\test.jpg");
+    CHECK(str_unescape("\\asdf", "a") == "asdf");
+    CHECK(str_unescape("asd\\f", "f") == "asdf");
+    CHECK(str_unescape("\\asdf", "a") == "asdf");
+    CHECK(str_unescape("asdf\\", "") == "asdf\\");
+    CHECK(str_unescape("asdf\\\\", "") == "asdf\\");
+    CHECK(str_unescape("asdf\\\\\\\\", "") == "asdf\\\\");
+  }
 
-TEST_CASE("string_format_test.str_is_blank")
-{
-  CHECK(str_is_blank(""));
-  CHECK(str_is_blank(" "));
-  CHECK(str_is_blank(" \n\r\t"));
-  CHECK_FALSE(str_is_blank("a \n\r\t"));
-  CHECK_FALSE(str_is_blank("  a \n\r\t"));
-  CHECK_FALSE(str_is_blank(" another one bites    "));
-}
+  SECTION("str_is_blank")
+  {
+    CHECK(str_is_blank(""));
+    CHECK(str_is_blank(" "));
+    CHECK(str_is_blank(" \n\r\t"));
+    CHECK(!str_is_blank("a \n\r\t"));
+    CHECK(!str_is_blank("  a \n\r\t"));
+    CHECK(!str_is_blank(" another one bites    "));
+  }
 
-TEST_CASE("string_format_test.str_is_numeric")
-{
-  CHECK(str_is_numeric(""));
-  CHECK_FALSE(str_is_numeric("a"));
-  CHECK_FALSE(str_is_numeric("66a"));
-  CHECK_FALSE(str_is_numeric("66a33"));
-  CHECK_FALSE(str_is_numeric("a33"));
-  CHECK(str_is_numeric("1"));
-  CHECK(str_is_numeric("1234567890"));
+  SECTION("str_is_numeric")
+  {
+    CHECK(str_is_numeric(""));
+    CHECK(!str_is_numeric("a"));
+    CHECK(!str_is_numeric("66a"));
+    CHECK(!str_is_numeric("66a33"));
+    CHECK(!str_is_numeric("a33"));
+    CHECK(str_is_numeric("1"));
+    CHECK(str_is_numeric("1234567890"));
+  }
 }
 
 } // namespace kdl

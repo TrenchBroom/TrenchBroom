@@ -52,42 +52,45 @@ struct MoveOnly
 
 } // namespace
 
-TEST_CASE("optional_and_then")
+TEST_CASE("optional_utils")
 {
-  const auto f = [](int x) { return std::optional{x * 2}; };
-  CHECK((std::optional<int>{42} | optional_and_then(f)) == 84);
-  CHECK((std::optional<int>{} | optional_and_then(f)) == std::nullopt);
-}
-
-TEST_CASE("optional_transform")
-{
-  const auto f = [](int x) { return x * 2; };
-  CHECK((std::optional<int>{42} | optional_transform(f)) == 84);
-  CHECK((std::optional<int>{} | optional_transform(f)) == std::nullopt);
-}
-
-TEST_CASE("optional_value_or")
-{
-  SECTION("rvalue fallback (copyable)")
+  SECTION("optional_and_then")
   {
-    CHECK((std::optional<int>{42} | optional_value_or(43)) == 42);
-    CHECK((std::optional<int>{} | optional_value_or(43)) == 43);
+    const auto f = [](int x) { return std::optional{x * 2}; };
+    CHECK((std::optional<int>{42} | optional_and_then(f)) == 84);
+    CHECK((std::optional<int>{} | optional_and_then(f)) == std::nullopt);
   }
 
-  SECTION("rvalue fallback (move-only)")
+  SECTION("optional_transform")
   {
-    CHECK(
-      *(std::optional<std::unique_ptr<int>>{}
-        | optional_value_or(std::make_unique<int>(43)))
-      == 43);
+    const auto f = [](int x) { return x * 2; };
+    CHECK((std::optional<int>{42} | optional_transform(f)) == 84);
+    CHECK((std::optional<int>{} | optional_transform(f)) == std::nullopt);
   }
 
-  SECTION("lvalue fallback (copyable)")
+  SECTION("optional_value_or")
   {
-    int fallback = 43;
-    CHECK((std::optional<int>{42} | optional_value_or(fallback)) == 42);
-    CHECK((std::optional<int>{} | optional_value_or(fallback)) == 43);
-    CHECK(fallback == 43);
+    SECTION("rvalue fallback (copyable)")
+    {
+      CHECK((std::optional<int>{42} | optional_value_or(43)) == 42);
+      CHECK((std::optional<int>{} | optional_value_or(43)) == 43);
+    }
+
+    SECTION("rvalue fallback (move-only)")
+    {
+      CHECK(
+        *(std::optional<std::unique_ptr<int>>{}
+          | optional_value_or(std::make_unique<int>(43)))
+        == 43);
+    }
+
+    SECTION("lvalue fallback (copyable)")
+    {
+      int fallback = 43;
+      CHECK((std::optional<int>{42} | optional_value_or(fallback)) == 42);
+      CHECK((std::optional<int>{} | optional_value_or(fallback)) == 43);
+      CHECK(fallback == 43);
+    }
   }
 }
 

@@ -60,7 +60,7 @@ TEST_CASE("Map_NodeLocking")
       CHECK(layerNode->locked());
 
       map.undoCommand();
-      CHECK_FALSE(layerNode->locked());
+      CHECK(!layerNode->locked());
     }
 
     SECTION("Object nodes")
@@ -94,10 +94,10 @@ TEST_CASE("Map_NodeLocking")
       SECTION("Undo and redo")
       {
         map.undoCommand();
-        CHECK_FALSE(brushNode->locked());
-        CHECK_FALSE(entityNode->locked());
-        CHECK_FALSE(groupNode->locked());
-        CHECK_FALSE(patchNode->locked());
+        CHECK(!brushNode->locked());
+        CHECK(!entityNode->locked());
+        CHECK(!groupNode->locked());
+        CHECK(!patchNode->locked());
 
         map.redoCommand();
         CHECK(brushNode->locked());

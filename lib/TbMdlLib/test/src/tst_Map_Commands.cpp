@@ -121,20 +121,20 @@ TEST_CASE("Map_Commands")
     auto fixture = MapFixture{};
     auto& map = fixture.create();
 
-    CHECK_FALSE(map.canRepeatCommands());
+    CHECK(!map.canRepeatCommands());
 
     auto* entityNode = new EntityNode{Entity{}};
     addNodes(map, {{&parentForNodes(map), {entityNode}}});
-    CHECK_FALSE(map.canRepeatCommands());
+    CHECK(!map.canRepeatCommands());
 
     selectNodes(map, {entityNode});
-    CHECK_FALSE(map.canRepeatCommands());
+    CHECK(!map.canRepeatCommands());
 
     duplicateSelectedNodes(map);
     CHECK(map.canRepeatCommands());
 
     map.clearRepeatableCommands();
-    CHECK_FALSE(map.canRepeatCommands());
+    CHECK(!map.canRepeatCommands());
   }
 
   SECTION("repeatCommands")

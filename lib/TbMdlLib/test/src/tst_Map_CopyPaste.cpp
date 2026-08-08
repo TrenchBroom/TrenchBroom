@@ -191,7 +191,7 @@ TEST_CASE("Map_CopyPaste")
       REQUIRE(worldNode.customLayers().empty());
 
       CHECK(paste(map, data) == PasteType::Node);
-      CHECK_FALSE(worldNode.entity().hasProperty("to_be_ignored"));
+      CHECK(!worldNode.entity().hasProperty("to_be_ignored"));
       CHECK(worldNode.customLayers().empty());
       CHECK(defaultLayerNode.childCount() == 1u);
       CHECK(dynamic_cast<BrushNode*>(defaultLayerNode.children().front()) != nullptr);
@@ -227,7 +227,7 @@ TEST_CASE("Map_CopyPaste")
       REQUIRE(defaultLayerNode.childCount() == 0u);
 
       CHECK(paste(map, data) == PasteType::Node);
-      CHECK_FALSE(worldNode.entity().hasProperty("to_be_ignored"));
+      CHECK(!worldNode.entity().hasProperty("to_be_ignored"));
       CHECK(defaultLayerNode.childCount() == 1u);
 
       const auto* groupNode =
@@ -265,7 +265,7 @@ TEST_CASE("Map_CopyPaste")
       REQUIRE(defaultLayerNode.childCount() == 0u);
 
       CHECK(paste(map, data) == PasteType::Node);
-      CHECK_FALSE(worldNode.entity().hasProperty("to_be_ignored"));
+      CHECK(!worldNode.entity().hasProperty("to_be_ignored"));
       CHECK(defaultLayerNode.childCount() == 1u);
 
       const auto* entityNode =
@@ -300,7 +300,7 @@ TEST_CASE("Map_CopyPaste")
       REQUIRE(defaultLayerNode.childCount() == 0u);
 
       CHECK(paste(map, data) == PasteType::Node);
-      CHECK_FALSE(worldNode.entity().hasProperty("to_be_ignored"));
+      CHECK(!worldNode.entity().hasProperty("to_be_ignored"));
       CHECK(defaultLayerNode.childCount() == 1u);
       CHECK(dynamic_cast<BrushNode*>(defaultLayerNode.children().front()) != nullptr);
     }

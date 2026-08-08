@@ -63,7 +63,7 @@ TEST_CASE("Transaction")
     map.undoCommand();
     selectAllNodes(map);
 
-    CHECK_FALSE(map.selection().hasNodes());
+    CHECK(!map.selection().hasNodes());
   }
 
   SECTION("rollback")
@@ -73,7 +73,7 @@ TEST_CASE("Transaction")
     CHECK(transaction.state() == Transaction::State::Running);
 
     selectAllNodes(map);
-    CHECK_FALSE(map.selection().hasNodes());
+    CHECK(!map.selection().hasNodes());
 
     // must commit the transaction in order to destroy it
     transaction.commit();
@@ -86,7 +86,7 @@ TEST_CASE("Transaction")
     CHECK(transaction.state() == Transaction::State::Cancelled);
 
     selectAllNodes(map);
-    CHECK_FALSE(map.selection().hasNodes());
+    CHECK(!map.selection().hasNodes());
   }
 }
 

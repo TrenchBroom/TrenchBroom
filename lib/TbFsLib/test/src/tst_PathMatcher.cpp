@@ -52,15 +52,15 @@ TEST_CASE("PathMatcher")
     CHECK(matcher("foo.txt", unusedGetPathInfo));
     CHECK(matcher("foo.map", unusedGetPathInfo));
     CHECK(matcher("dir/foo.map", unusedGetPathInfo));
-    CHECK_FALSE(matcher("foo.wad", unusedGetPathInfo));
-    CHECK_FALSE(matcher("foo", unusedGetPathInfo));
+    CHECK(!matcher("foo.wad", unusedGetPathInfo));
+    CHECK(!matcher("foo", unusedGetPathInfo));
 
     // both the path's and the extensions' cases are ignored
     CHECK(matcher("FOO.TXT", unusedGetPathInfo));
     CHECK(matcher("foo.TXT", unusedGetPathInfo));
 
     const auto emptyMatcher = makeExtensionPathMatcher({});
-    CHECK_FALSE(emptyMatcher("foo.txt", unusedGetPathInfo));
+    CHECK(!emptyMatcher("foo.txt", unusedGetPathInfo));
 
     CHECK(unusedGetPathInfo.callCount == 0);
   }
@@ -78,8 +78,8 @@ TEST_CASE("PathMatcher")
     // glob matching is case insensitive
     CHECK(matcher("FOO.TXT", unusedGetPathInfo));
 
-    CHECK_FALSE(matcher("bar.txt", unusedGetPathInfo));
-    CHECK_FALSE(matcher("dir/foobar.txt", unusedGetPathInfo));
+    CHECK(!matcher("bar.txt", unusedGetPathInfo));
+    CHECK(!matcher("dir/foobar.txt", unusedGetPathInfo));
 
     CHECK(unusedGetPathInfo.callCount == 0);
   }
@@ -102,10 +102,10 @@ TEST_CASE("PathMatcher")
     CHECK(matcher("file.txt", getPathInfo));
     CHECK(queriedPath == "file.txt");
 
-    CHECK_FALSE(matcher("does_not_exist", getPathInfo));
+    CHECK(!matcher("does_not_exist", getPathInfo));
 
     const auto directoryOnlyMatcher = makePathInfoPathMatcher({PathInfo::Directory});
-    CHECK_FALSE(directoryOnlyMatcher("file.txt", getPathInfo));
+    CHECK(!directoryOnlyMatcher("file.txt", getPathInfo));
   }
 
   SECTION("matchAnyPath")

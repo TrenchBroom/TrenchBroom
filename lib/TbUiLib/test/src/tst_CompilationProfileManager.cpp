@@ -115,7 +115,7 @@ TEST_CASE("CompilationProfileManager")
       const auto unknownProfile = mdl::CompilationProfile{"unknown", "", {}};
       const auto result = manager->selectProfile(unknownProfile);
 
-      CHECK_FALSE(result);
+      CHECK(!result);
       REQUIRE(manager->selectedProfile() != nullptr);
       CHECK(manager->selectedProfile()->name == "test 1");
     }
@@ -181,7 +181,7 @@ TEST_CASE("CompilationProfileManager")
 
     CHECK(listWidget->selectedItems().empty());
     CHECK(manager->selectedProfile() == nullptr);
-    CHECK_FALSE(removeButton->isEnabled());
+    CHECK(!removeButton->isEnabled());
   }
 
   SECTION("select profile by clicking profile list item")

@@ -121,181 +121,37 @@ auto makeHandleTracker(
 
 } // namespace
 
-TEST_CASE("RestrictedDragTracker.constructor")
+TEST_CASE("HandleDragTracker")
 {
-  GIVEN("A delegate")
+  SECTION("constructor")
   {
-    const auto initialHandlePosition = vm::vec3d{1, 1, 1};
-    const auto initialHitPoint = vm::vec3d{1, 1, 0};
-    const auto handleOffset = initialHandlePosition - initialHitPoint;
-
-    auto data = TestDelegateData{makeHandlePositionProposer(
-      // always returns the same handle position
-      [](const auto&) { return vm::vec3d{2, 2, 2}; },
-      makeIdentityHandleSnapper())};
-
-    auto tracker = makeHandleTracker(data, initialHandlePosition, initialHitPoint);
-
-    THEN("The initial handle position was passed to initialize")
+    GIVEN("A delegate")
     {
-      CHECK(
-        data.initializeArguments
-        == std::vector<std::tuple<vm::vec3d, vm::vec3d>>{
-          {initialHandlePosition, handleOffset}});
+      const auto initialHandlePosition = vm::vec3d{1, 1, 1};
+      const auto initialHitPoint = vm::vec3d{1, 1, 0};
+      const auto handleOffset = initialHandlePosition - initialHitPoint;
 
-      AND_THEN(
-        "The initial handle position is passed to drag for the initial and the last "
-        "handle "
-        "position")
-      {
-        tracker.update(InputState{});
+      auto data = TestDelegateData{makeHandlePositionProposer(
+        // always returns the same handle position
+        [](const auto&) { return vm::vec3d{2, 2, 2}; },
+        makeIdentityHandleSnapper())};
 
-        CHECK(
-          data.dragArguments
-          == std::vector<std::tuple<DragState, vm::vec3d>>{
-            {{vm::vec3d{1, 1, 1}, vm::vec3d{1, 1, 1}, vm::vec3d{0, 0, 1}},
-             vm::vec3d{2, 2, 2}},
-          });
-      }
-    }
-  }
-}
+      auto tracker = makeHandleTracker(data, initialHandlePosition, initialHitPoint);
 
-TEST_CASE("RestrictedDragTracker.drag")
-{
-  GIVEN("A drag tracker")
-  {
-    const auto initialHandlePosition = vm::vec3d{1, 1, 1};
-    const auto initialHitPoint = initialHandlePosition;
-    auto handlePositionToReturn = vm::vec3d{};
-
-    auto data = TestDelegateData{makeHandlePositionProposer(
-      // always returns the same hit position
-      [&](const auto&) { return handlePositionToReturn; },
-      makeIdentityHandleSnapper())};
-
-    auto tracker = makeHandleTracker(data, initialHandlePosition, initialHitPoint);
-
-    WHEN("drag is called for the first time after the drag started")
-    {
-      handlePositionToReturn = vm::vec3d{2, 2, 2};
-      REQUIRE(tracker.update(InputState{}));
-
-      THEN("drag got the initial and the next handle positions")
+      THEN("The initial handle position was passed to initialize")
       {
         CHECK(
-          data.dragArguments
-          == std::vector<std::tuple<DragState, vm::vec3d>>{
-            {{vm::vec3d{1, 1, 1}, vm::vec3d{1, 1, 1}, vm::vec3d{0, 0, 0}},
-             vm::vec3d{2, 2, 2}},
-          });
+          data.initializeArguments
+          == std::vector<std::tuple<vm::vec3d, vm::vec3d>>{
+            {initialHandlePosition, handleOffset}});
 
-        AND_WHEN("drag is called again")
+        AND_THEN(
+          "The initial handle position is passed to drag for the initial and the last "
+          "handle "
+          "position")
         {
-          handlePositionToReturn = vm::vec3d{3, 3, 3};
-          REQUIRE(tracker.update(InputState{}));
+          tracker.update(InputState{});
 
-          THEN("drag got the last and the next handle positions")
-          {
-            CHECK(
-              data.dragArguments
-              == std::vector<std::tuple<DragState, vm::vec3d>>{
-                {{vm::vec3d{1, 1, 1}, vm::vec3d{1, 1, 1}, vm::vec3d{0, 0, 0}},
-                 vm::vec3d{2, 2, 2}},
-                {{vm::vec3d{1, 1, 1}, vm::vec3d{2, 2, 2}, vm::vec3d{0, 0, 0}},
-                 vm::vec3d{3, 3, 3}},
-              });
-          }
-        }
-      }
-    }
-
-    WHEN("drag returns drag status deny")
-    {
-      handlePositionToReturn = vm::vec3d{2, 2, 2};
-      data.dragStatusToReturn = DragStatus::Deny;
-      REQUIRE(tracker.update(InputState{}));
-
-      THEN("drag got the initial and the next handle positions")
-      {
-        CHECK(
-          data.dragArguments
-          == std::vector<std::tuple<DragState, vm::vec3d>>{
-            {{vm::vec3d{1, 1, 1}, vm::vec3d{1, 1, 1}, vm::vec3d{0, 0, 0}},
-             vm::vec3d{2, 2, 2}},
-          });
-
-        AND_WHEN("drag is called again")
-        {
-          handlePositionToReturn = vm::vec3d{3, 3, 3};
-          REQUIRE(tracker.update(InputState{}));
-
-          THEN("drag got the initial handle position for the last handle position again")
-          {
-            CHECK(
-              data.dragArguments
-              == std::vector<std::tuple<DragState, vm::vec3d>>{
-                {{vm::vec3d{1, 1, 1}, vm::vec3d{1, 1, 1}, vm::vec3d{0, 0, 0}},
-                 vm::vec3d{2, 2, 2}},
-                {{vm::vec3d{1, 1, 1}, vm::vec3d{1, 1, 1}, vm::vec3d{0, 0, 0}},
-                 vm::vec3d{3, 3, 3}},
-              });
-          }
-        }
-      }
-    }
-
-    WHEN("drag returns drag status cancel")
-    {
-      handlePositionToReturn = vm::vec3d{2, 2, 2};
-      data.dragStatusToReturn = DragStatus::End;
-      const auto dragResult = tracker.update(InputState{});
-
-      THEN("the drag tracker returns false")
-      {
-        CHECK_FALSE(dragResult);
-      }
-    }
-  }
-}
-
-TEST_CASE("RestrictedDragTracker.handlePositionComputations")
-{
-  const auto initialHandlePosition = vm::vec3d{1, 1, 1};
-  const auto initialHitPoint = vm::vec3d{1, 1, 0};
-
-  auto getHandlePositionArguments = std::vector<std::tuple<DragState, vm::vec3d>>{};
-  auto handlePositionToReturn = vm::vec3d{};
-
-  GIVEN("A drag tracker")
-  {
-    auto data = TestDelegateData{makeHandlePositionProposer(
-      // returns the handle position set above
-      [&](const InputState&) { return handlePositionToReturn; },
-      // returns the proposed handle position, but records the arguments
-      [&](const auto&, const auto& dragState, const auto& proposedHandlePosition) {
-        getHandlePositionArguments.emplace_back(dragState, proposedHandlePosition);
-        return proposedHandlePosition;
-      })};
-
-    auto tracker = makeHandleTracker(data, initialHandlePosition, initialHitPoint);
-
-    WHEN("drag is called for the first time")
-    {
-      handlePositionToReturn = vm::vec3d{2, 2, 2};
-      REQUIRE(tracker.update(InputState{}));
-
-      THEN("getHandlePosition is called with the expected arguments")
-      {
-        CHECK(
-          getHandlePositionArguments
-          == std::vector<std::tuple<DragState, vm::vec3d>>{
-            {{vm::vec3d{1, 1, 1}, vm::vec3d{1, 1, 1}, vm::vec3d{0, 0, 1}},
-             vm::vec3d{2, 2, 2}},
-          });
-
-        AND_THEN("The new handle position was passed to the delegate's drag function")
-        {
           CHECK(
             data.dragArguments
             == std::vector<std::tuple<DragState, vm::vec3d>>{
@@ -304,10 +160,132 @@ TEST_CASE("RestrictedDragTracker.handlePositionComputations")
             });
         }
       }
+    }
+  }
 
-      AND_WHEN("drag is called again")
+  SECTION("drag")
+  {
+    GIVEN("A drag tracker")
+    {
+      const auto initialHandlePosition = vm::vec3d{1, 1, 1};
+      const auto initialHitPoint = initialHandlePosition;
+      auto handlePositionToReturn = vm::vec3d{};
+
+      auto data = TestDelegateData{makeHandlePositionProposer(
+        // always returns the same hit position
+        [&](const auto&) { return handlePositionToReturn; },
+        makeIdentityHandleSnapper())};
+
+      auto tracker = makeHandleTracker(data, initialHandlePosition, initialHitPoint);
+
+      WHEN("drag is called for the first time after the drag started")
       {
-        handlePositionToReturn = vm::vec3d{3, 3, 3};
+        handlePositionToReturn = vm::vec3d{2, 2, 2};
+        REQUIRE(tracker.update(InputState{}));
+
+        THEN("drag got the initial and the next handle positions")
+        {
+          CHECK(
+            data.dragArguments
+            == std::vector<std::tuple<DragState, vm::vec3d>>{
+              {{vm::vec3d{1, 1, 1}, vm::vec3d{1, 1, 1}, vm::vec3d{0, 0, 0}},
+               vm::vec3d{2, 2, 2}},
+            });
+
+          AND_WHEN("drag is called again")
+          {
+            handlePositionToReturn = vm::vec3d{3, 3, 3};
+            REQUIRE(tracker.update(InputState{}));
+
+            THEN("drag got the last and the next handle positions")
+            {
+              CHECK(
+                data.dragArguments
+                == std::vector<std::tuple<DragState, vm::vec3d>>{
+                  {{vm::vec3d{1, 1, 1}, vm::vec3d{1, 1, 1}, vm::vec3d{0, 0, 0}},
+                   vm::vec3d{2, 2, 2}},
+                  {{vm::vec3d{1, 1, 1}, vm::vec3d{2, 2, 2}, vm::vec3d{0, 0, 0}},
+                   vm::vec3d{3, 3, 3}},
+                });
+            }
+          }
+        }
+      }
+
+      WHEN("drag returns drag status deny")
+      {
+        handlePositionToReturn = vm::vec3d{2, 2, 2};
+        data.dragStatusToReturn = DragStatus::Deny;
+        REQUIRE(tracker.update(InputState{}));
+
+        THEN("drag got the initial and the next handle positions")
+        {
+          CHECK(
+            data.dragArguments
+            == std::vector<std::tuple<DragState, vm::vec3d>>{
+              {{vm::vec3d{1, 1, 1}, vm::vec3d{1, 1, 1}, vm::vec3d{0, 0, 0}},
+               vm::vec3d{2, 2, 2}},
+            });
+
+          AND_WHEN("drag is called again")
+          {
+            handlePositionToReturn = vm::vec3d{3, 3, 3};
+            REQUIRE(tracker.update(InputState{}));
+
+            THEN(
+              "drag got the initial handle position for the last handle position again")
+            {
+              CHECK(
+                data.dragArguments
+                == std::vector<std::tuple<DragState, vm::vec3d>>{
+                  {{vm::vec3d{1, 1, 1}, vm::vec3d{1, 1, 1}, vm::vec3d{0, 0, 0}},
+                   vm::vec3d{2, 2, 2}},
+                  {{vm::vec3d{1, 1, 1}, vm::vec3d{1, 1, 1}, vm::vec3d{0, 0, 0}},
+                   vm::vec3d{3, 3, 3}},
+                });
+            }
+          }
+        }
+      }
+
+      WHEN("drag returns drag status cancel")
+      {
+        handlePositionToReturn = vm::vec3d{2, 2, 2};
+        data.dragStatusToReturn = DragStatus::End;
+        const auto dragResult = tracker.update(InputState{});
+
+        THEN("the drag tracker returns false")
+        {
+          CHECK(!dragResult);
+        }
+      }
+    }
+  }
+
+  SECTION("handlePositionComputations")
+  {
+    const auto initialHandlePosition = vm::vec3d{1, 1, 1};
+    const auto initialHitPoint = vm::vec3d{1, 1, 0};
+
+    auto getHandlePositionArguments = std::vector<std::tuple<DragState, vm::vec3d>>{};
+    auto handlePositionToReturn = vm::vec3d{};
+
+    GIVEN("A drag tracker")
+    {
+      auto data = TestDelegateData{makeHandlePositionProposer(
+        // returns the handle position set above
+        [&](const InputState&) { return handlePositionToReturn; },
+        // returns the proposed handle position, but records the arguments
+        [&](const auto&, const auto& dragState, const auto& proposedHandlePosition) {
+          getHandlePositionArguments.emplace_back(dragState, proposedHandlePosition);
+          return proposedHandlePosition;
+        })};
+
+      auto tracker = makeHandleTracker(data, initialHandlePosition, initialHitPoint);
+
+      WHEN("drag is called for the first time")
+      {
+        handlePositionToReturn = vm::vec3d{2, 2, 2};
         REQUIRE(tracker.update(InputState{}));
 
         THEN("getHandlePosition is called with the expected arguments")
@@ -317,12 +295,155 @@ TEST_CASE("RestrictedDragTracker.handlePositionComputations")
             == std::vector<std::tuple<DragState, vm::vec3d>>{
               {{vm::vec3d{1, 1, 1}, vm::vec3d{1, 1, 1}, vm::vec3d{0, 0, 1}},
                vm::vec3d{2, 2, 2}},
-              {{vm::vec3d{1, 1, 1}, vm::vec3d{2, 2, 2}, vm::vec3d{0, 0, 1}},
-               vm::vec3d{3, 3, 3}},
             });
 
-          AND_THEN("The hit position was passed to the delegate's drag function")
+          AND_THEN("The new handle position was passed to the delegate's drag function")
           {
+            CHECK(
+              data.dragArguments
+              == std::vector<std::tuple<DragState, vm::vec3d>>{
+                {{vm::vec3d{1, 1, 1}, vm::vec3d{1, 1, 1}, vm::vec3d{0, 0, 1}},
+                 vm::vec3d{2, 2, 2}},
+              });
+          }
+        }
+
+        AND_WHEN("drag is called again")
+        {
+          handlePositionToReturn = vm::vec3d{3, 3, 3};
+          REQUIRE(tracker.update(InputState{}));
+
+          THEN("getHandlePosition is called with the expected arguments")
+          {
+            CHECK(
+              getHandlePositionArguments
+              == std::vector<std::tuple<DragState, vm::vec3d>>{
+                {{vm::vec3d{1, 1, 1}, vm::vec3d{1, 1, 1}, vm::vec3d{0, 0, 1}},
+                 vm::vec3d{2, 2, 2}},
+                {{vm::vec3d{1, 1, 1}, vm::vec3d{2, 2, 2}, vm::vec3d{0, 0, 1}},
+                 vm::vec3d{3, 3, 3}},
+              });
+
+            AND_THEN("The hit position was passed to the delegate's drag function")
+            {
+              CHECK(
+                data.dragArguments
+                == std::vector<std::tuple<DragState, vm::vec3d>>{
+                  {{vm::vec3d{1, 1, 1}, vm::vec3d{1, 1, 1}, vm::vec3d{0, 0, 1}},
+                   vm::vec3d{2, 2, 2}},
+                  {{vm::vec3d{1, 1, 1}, vm::vec3d{2, 2, 2}, vm::vec3d{0, 0, 1}},
+                   vm::vec3d{3, 3, 3}},
+                });
+            }
+          }
+        }
+      }
+    }
+  }
+
+  SECTION("modifierKeyChange")
+  {
+    const auto initialHandlePosition = vm::vec3d{1, 1, 1};
+    const auto initialHitPoint = vm::vec3d{1, 1, 0};
+
+    auto initialGetHandlePositionArguments =
+      std::vector<std::tuple<DragState, vm::vec3d>>{};
+
+    GIVEN("A delegate that returns null from modifierKeyChange")
+    {
+      auto data = TestDelegateData{makeHandlePositionProposer(
+        // returns a constant handle position
+        [&](const InputState&) { return vm::vec3d{2, 2, 2}; },
+        // returns the proposed handle position, but records the arguments
+        [&](const auto&, const auto& dragState, const auto& proposedHandlePosition) {
+          initialGetHandlePositionArguments.emplace_back(
+            dragState, proposedHandlePosition);
+          return proposedHandlePosition;
+        })};
+
+      auto tracker = makeHandleTracker(data, initialHandlePosition, initialHitPoint);
+
+      tracker.update(InputState{});
+      REQUIRE(initialGetHandlePositionArguments.size() == 1);
+
+      WHEN("A modifier key change is notified")
+      {
+        tracker.modifierKeyChange(InputState{});
+
+        THEN("The drag state are passed to the delegate")
+        {
+          CHECK(
+            data.modifierKeyChangeArguments
+            == std::vector<DragState>{
+              {vm::vec3d{1, 1, 1}, vm::vec3d{2, 2, 2}, vm::vec3d{0, 0, 1}}});
+
+          AND_THEN("The next call to drag uses the initial drag config")
+          {
+            tracker.update(InputState{});
+            CHECK(initialGetHandlePositionArguments.size() == 2);
+          }
+        }
+      }
+    }
+
+    GIVEN("A delegate that returns a new drag config from modifierKeyChange")
+    {
+      auto otherGetHandlePositionArguments =
+        std::vector<std::tuple<DragState, vm::vec3d>>{};
+      auto otherHitPositionToReturn = vm::vec3d{};
+
+      auto data = TestDelegateData{makeHandlePositionProposer(
+        // returns a constant hit position
+        [&](const InputState&) { return vm::vec3d{2, 2, 2}; },
+        // returns the proposed handle position, but records the arguments
+        [&](const auto&, const auto& dragState, const auto& proposedHandlePosition) {
+          initialGetHandlePositionArguments.emplace_back(
+            dragState, proposedHandlePosition);
+          return proposedHandlePosition;
+        })};
+
+      data.updateDragConfigToReturn = UpdateDragConfig{
+        makeHandlePositionProposer(
+          // returns a constant hit position
+          [&](const InputState&) { return otherHitPositionToReturn; },
+          // returns the proposed handle position, but records the arguments
+          [&](const auto&, const auto& dragState, const auto& proposedHandlePosition) {
+            otherGetHandlePositionArguments.emplace_back(
+              dragState, proposedHandlePosition);
+            return proposedHandlePosition;
+          }),
+        ResetInitialHandlePosition::Keep};
+
+      auto tracker = makeHandleTracker(data, initialHandlePosition, initialHitPoint);
+
+      tracker.update(InputState{});
+      REQUIRE(initialGetHandlePositionArguments.size() == 1);
+      REQUIRE(
+        data.dragArguments
+        == std::vector<std::tuple<DragState, vm::vec3d>>{
+          {{vm::vec3d{1, 1, 1}, vm::vec3d{1, 1, 1}, vm::vec3d{0, 0, 1}},
+           vm::vec3d{2, 2, 2}},
+        });
+
+      WHEN("A modifier key change is notified")
+      {
+        otherHitPositionToReturn = vm::vec3d{3, 3, 3};
+        tracker.modifierKeyChange(InputState{});
+
+        THEN("The drag state was passed to the delegate")
+        {
+          CHECK(
+            data.modifierKeyChangeArguments
+            == std::vector<DragState>{
+              {vm::vec3d{1, 1, 1}, vm::vec3d{2, 2, 2}, vm::vec3d{0, 0, 1}}});
+
+          AND_THEN(
+            "A synthetic drag to the new handle position happens using the other drag "
+            "config")
+          {
+            CHECK(initialGetHandlePositionArguments.size() == 1);
+            CHECK(otherGetHandlePositionArguments.size() == 1);
+
             CHECK(
               data.dragArguments
               == std::vector<std::tuple<DragState, vm::vec3d>>{
@@ -332,144 +453,30 @@ TEST_CASE("RestrictedDragTracker.handlePositionComputations")
                  vm::vec3d{3, 3, 3}},
               });
           }
-        }
-      }
-    }
-  }
-}
 
-TEST_CASE("RestrictedDragTracker.modifierKeyChange")
-{
-  const auto initialHandlePosition = vm::vec3d{1, 1, 1};
-  const auto initialHitPoint = vm::vec3d{1, 1, 0};
-
-  auto initialGetHandlePositionArguments =
-    std::vector<std::tuple<DragState, vm::vec3d>>{};
-
-  GIVEN("A delegate that returns null from modifierKeyChange")
-  {
-    auto data = TestDelegateData{makeHandlePositionProposer(
-      // returns a constant handle position
-      [&](const InputState&) { return vm::vec3d{2, 2, 2}; },
-      // returns the proposed handle position, but records the arguments
-      [&](const auto&, const auto& dragState, const auto& proposedHandlePosition) {
-        initialGetHandlePositionArguments.emplace_back(dragState, proposedHandlePosition);
-        return proposedHandlePosition;
-      })};
-
-    auto tracker = makeHandleTracker(data, initialHandlePosition, initialHitPoint);
-
-    tracker.update(InputState{});
-    REQUIRE(initialGetHandlePositionArguments.size() == 1);
-
-    WHEN("A modifier key change is notified")
-    {
-      tracker.modifierKeyChange(InputState{});
-
-      THEN("The drag state are passed to the delegate")
-      {
-        CHECK(
-          data.modifierKeyChangeArguments
-          == std::vector<DragState>{
-            {vm::vec3d{1, 1, 1}, vm::vec3d{2, 2, 2}, vm::vec3d{0, 0, 1}}});
-
-        AND_THEN("The next call to drag uses the initial drag config")
-        {
-          tracker.update(InputState{});
-          CHECK(initialGetHandlePositionArguments.size() == 2);
-        }
-      }
-    }
-  }
-
-  GIVEN("A delegate that returns a new drag config from modifierKeyChange")
-  {
-    auto otherGetHandlePositionArguments =
-      std::vector<std::tuple<DragState, vm::vec3d>>{};
-    auto otherHitPositionToReturn = vm::vec3d{};
-
-    auto data = TestDelegateData{makeHandlePositionProposer(
-      // returns a constant hit position
-      [&](const InputState&) { return vm::vec3d{2, 2, 2}; },
-      // returns the proposed handle position, but records the arguments
-      [&](const auto&, const auto& dragState, const auto& proposedHandlePosition) {
-        initialGetHandlePositionArguments.emplace_back(dragState, proposedHandlePosition);
-        return proposedHandlePosition;
-      })};
-
-    data.updateDragConfigToReturn = UpdateDragConfig{
-      makeHandlePositionProposer(
-        // returns a constant hit position
-        [&](const InputState&) { return otherHitPositionToReturn; },
-        // returns the proposed handle position, but records the arguments
-        [&](const auto&, const auto& dragState, const auto& proposedHandlePosition) {
-          otherGetHandlePositionArguments.emplace_back(dragState, proposedHandlePosition);
-          return proposedHandlePosition;
-        }),
-      ResetInitialHandlePosition::Keep};
-
-    auto tracker = makeHandleTracker(data, initialHandlePosition, initialHitPoint);
-
-    tracker.update(InputState{});
-    REQUIRE(initialGetHandlePositionArguments.size() == 1);
-    REQUIRE(
-      data.dragArguments
-      == std::vector<std::tuple<DragState, vm::vec3d>>{
-        {{vm::vec3d{1, 1, 1}, vm::vec3d{1, 1, 1}, vm::vec3d{0, 0, 1}},
-         vm::vec3d{2, 2, 2}},
-      });
-
-    WHEN("A modifier key change is notified")
-    {
-      otherHitPositionToReturn = vm::vec3d{3, 3, 3};
-      tracker.modifierKeyChange(InputState{});
-
-      THEN("The drag state was passed to the delegate")
-      {
-        CHECK(
-          data.modifierKeyChangeArguments
-          == std::vector<DragState>{
-            {vm::vec3d{1, 1, 1}, vm::vec3d{2, 2, 2}, vm::vec3d{0, 0, 1}}});
-
-        AND_THEN(
-          "A synthetic drag to the new handle position happens using the other drag "
-          "config")
-        {
-          CHECK(initialGetHandlePositionArguments.size() == 1);
-          CHECK(otherGetHandlePositionArguments.size() == 1);
-
-          CHECK(
-            data.dragArguments
-            == std::vector<std::tuple<DragState, vm::vec3d>>{
-              {{vm::vec3d{1, 1, 1}, vm::vec3d{1, 1, 1}, vm::vec3d{0, 0, 1}},
-               vm::vec3d{2, 2, 2}},
-              {{vm::vec3d{1, 1, 1}, vm::vec3d{2, 2, 2}, vm::vec3d{0, 0, 1}},
-               vm::vec3d{3, 3, 3}},
-            });
-        }
-
-        AND_WHEN("drag is called again")
-        {
-          otherHitPositionToReturn = vm::vec3d{4, 4, 4};
-          tracker.update(InputState{});
-
-          AND_THEN("The other handle position is passed")
+          AND_WHEN("drag is called again")
           {
-            CHECK(
-              data.dragArguments
-              == std::vector<std::tuple<DragState, vm::vec3d>>{
-                {{vm::vec3d{1, 1, 1}, vm::vec3d{1, 1, 1}, vm::vec3d{0, 0, 1}},
-                 vm::vec3d{2, 2, 2}},
-                {{vm::vec3d{1, 1, 1}, vm::vec3d{2, 2, 2}, vm::vec3d{0, 0, 1}},
-                 vm::vec3d{3, 3, 3}},
-                {{vm::vec3d{1, 1, 1}, vm::vec3d{3, 3, 3}, vm::vec3d{0, 0, 1}},
-                 vm::vec3d{4, 4, 4}},
-              });
+            otherHitPositionToReturn = vm::vec3d{4, 4, 4};
+            tracker.update(InputState{});
 
-            AND_THEN("The other drag config was used")
+            AND_THEN("The other handle position is passed")
             {
-              CHECK(initialGetHandlePositionArguments.size() == 1);
-              CHECK(otherGetHandlePositionArguments.size() == 2);
+              CHECK(
+                data.dragArguments
+                == std::vector<std::tuple<DragState, vm::vec3d>>{
+                  {{vm::vec3d{1, 1, 1}, vm::vec3d{1, 1, 1}, vm::vec3d{0, 0, 1}},
+                   vm::vec3d{2, 2, 2}},
+                  {{vm::vec3d{1, 1, 1}, vm::vec3d{2, 2, 2}, vm::vec3d{0, 0, 1}},
+                   vm::vec3d{3, 3, 3}},
+                  {{vm::vec3d{1, 1, 1}, vm::vec3d{3, 3, 3}, vm::vec3d{0, 0, 1}},
+                   vm::vec3d{4, 4, 4}},
+                });
+
+              AND_THEN("The other drag config was used")
+              {
+                CHECK(initialGetHandlePositionArguments.size() == 1);
+                CHECK(otherGetHandlePositionArguments.size() == 2);
+              }
             }
           }
         }
@@ -478,267 +485,274 @@ TEST_CASE("RestrictedDragTracker.modifierKeyChange")
   }
 }
 
-TEST_CASE("makeLineHandlePicker")
+TEST_CASE("DragHandlePicker")
 {
-  using T = std::tuple<vm::line3d, vm::vec3d, vm::ray3d, vm::vec3d>;
+  SECTION("makeLineHandlePicker")
+  {
+    using T = std::tuple<vm::line3d, vm::vec3d, vm::ray3d, vm::vec3d>;
 
-  // clang-format off
-  const auto 
-  [line,                                            handleOffset,         pickRay,                                         expectedHandlePosition] = GENERATE(values<T>({
-  {vm::line3d{vm::vec3d{0, 0, 0}, vm::vec3d{0, 0, 1}}, vm::vec3d{ 0,  0,  0}, vm::ray3d{vm::vec3d{0, -1, 0}, vm::vec3d{0, 1, 0}}, vm::vec3d{0, 0, 0}},
-  {vm::line3d{vm::vec3d{0, 0, 0}, vm::vec3d{0, 0, 1}}, vm::vec3d{-1, -1, -1}, vm::ray3d{vm::vec3d{1, -1, 1}, vm::vec3d{0, 1, 0}}, vm::vec3d{0, 0, 0}}, // hitPoint is at {1 1 1}
-  {vm::line3d{vm::vec3d{0, 0, 0}, vm::vec3d{0, 0, 1}}, vm::vec3d{-1, -1, -1}, vm::ray3d{vm::vec3d{1, -1, 2}, vm::vec3d{0, 1, 0}}, vm::vec3d{0, 0, 1}}, // hitPoint is at {1 1 1}
-  }));
-  // clang-format on
+    // clang-format off
+    const auto 
+    [line,                                            handleOffset,         pickRay,                                         expectedHandlePosition] = GENERATE(values<T>({
+    {vm::line3d{vm::vec3d{0, 0, 0}, vm::vec3d{0, 0, 1}}, vm::vec3d{ 0,  0,  0}, vm::ray3d{vm::vec3d{0, -1, 0}, vm::vec3d{0, 1, 0}}, vm::vec3d{0, 0, 0}},
+    {vm::line3d{vm::vec3d{0, 0, 0}, vm::vec3d{0, 0, 1}}, vm::vec3d{-1, -1, -1}, vm::ray3d{vm::vec3d{1, -1, 1}, vm::vec3d{0, 1, 0}}, vm::vec3d{0, 0, 0}}, // hitPoint is at {1 1 1}
+    {vm::line3d{vm::vec3d{0, 0, 0}, vm::vec3d{0, 0, 1}}, vm::vec3d{-1, -1, -1}, vm::ray3d{vm::vec3d{1, -1, 2}, vm::vec3d{0, 1, 0}}, vm::vec3d{0, 0, 1}}, // hitPoint is at {1 1 1}
+    }));
+    // clang-format on
 
-  CAPTURE(line, handleOffset, pickRay);
+    CAPTURE(line, handleOffset, pickRay);
 
-  const auto camera = gl::OrthographicCamera{};
-  auto inputState = InputState{};
-  inputState.setPickRequest(PickRequest{pickRay, camera});
+    const auto camera = gl::OrthographicCamera{};
+    auto inputState = InputState{};
+    inputState.setPickRequest(PickRequest{pickRay, camera});
 
-  CHECK(makeLineHandlePicker(line, handleOffset)(inputState) == expectedHandlePosition);
+    CHECK(makeLineHandlePicker(line, handleOffset)(inputState) == expectedHandlePosition);
+  }
+
+  SECTION("makePlaneHandlePicker")
+  {
+    using T = std::tuple<vm::plane3d, vm::vec3d, vm::ray3d, vm::vec3d>;
+
+    // clang-format off
+    const auto
+    [plane,                                            handleOffset,         pickRay,                                         expectedHandlePosition] = GENERATE(values<T>({
+    {vm::plane3d{vm::vec3d{0, 0, 0}, vm::vec3d{0, 0, 1}}, vm::vec3d{ 0,  0,  0}, vm::ray3d{vm::vec3d{0, 0, 1}, vm::vec3d{0, 0, -1}}, vm::vec3d{0, 0, 0}},
+    {vm::plane3d{vm::vec3d{0, 0, 0}, vm::vec3d{0, 0, 1}}, vm::vec3d{-1, -1, -1}, vm::ray3d{vm::vec3d{1, 1, 1}, vm::vec3d{0, 0, -1}}, vm::vec3d{0, 0, 0}}, // hitPoint is at {1 1 1}
+    {vm::plane3d{vm::vec3d{0, 0, 0}, vm::vec3d{0, 0, 1}}, vm::vec3d{-1, -1, -1}, vm::ray3d{vm::vec3d{1, 2, 1}, vm::vec3d{0, 0, -1}}, vm::vec3d{0, 1, 0}}, // hitPoint is at {1 1 1}
+    }));
+    // clang-format on
+
+    CAPTURE(plane, handleOffset, pickRay);
+
+    const auto camera = gl::OrthographicCamera{};
+    auto inputState = InputState{};
+    inputState.setPickRequest(PickRequest{pickRay, camera});
+
+    CHECK(
+      makePlaneHandlePicker(plane, handleOffset)(inputState) == expectedHandlePosition);
+  }
+
+  SECTION("makeCircleHandlePicker")
+  {
+    using T = std::tuple<vm::vec3d, vm::vec3d, double, vm::vec3d, vm::ray3d, vm::vec3d>;
+
+    // clang-format off
+    const auto
+    [center,            normal,            radius, handleOffset,         pickRay,                                         expectedHandlePosition] = GENERATE(values<T>({
+    {vm::vec3d{0, 0, 0}, vm::vec3d{0, 0, 1}, 10.0,   vm::vec3d{ 0,  0,  0}, vm::ray3d{vm::vec3d{5, 0, 1}, vm::vec3d{0, 0, -1}}, 10.0 * vm::normalize(vm::vec3d{1, 0, 0})},
+    {vm::vec3d{0, 0, 0}, vm::vec3d{0, 0, 1}, 10.0,   vm::vec3d{ 0,  0,  1}, vm::ray3d{vm::vec3d{5, 0, 1}, vm::vec3d{0, 0, -1}}, 10.0 * vm::normalize(vm::vec3d{1, 0, 0})},
+    {vm::vec3d{0, 0, 0}, vm::vec3d{0, 0, 1}, 10.0,   vm::vec3d{ 0,  0,  0}, vm::ray3d{vm::vec3d{5, 5, 1}, vm::vec3d{0, 0, -1}}, 10.0 * vm::normalize(vm::vec3d{1, 1, 0})},
+    {vm::vec3d{0, 0, 0}, vm::vec3d{0, 0, 1}, 10.0,   vm::vec3d{ 1,  1,  1}, vm::ray3d{vm::vec3d{5, 5, 1}, vm::vec3d{0, 0, -1}}, 10.0 * vm::normalize(vm::vec3d{1, 1, 0})},
+    }));
+    // clang-format on
+
+    CAPTURE(center, normal, radius, handleOffset, pickRay);
+
+    const auto camera = gl::OrthographicCamera{};
+    auto inputState = InputState{};
+    inputState.setPickRequest(PickRequest{pickRay, camera});
+
+    CHECK(
+      makeCircleHandlePicker(center, normal, radius, handleOffset)(inputState)
+      == vm::approx{expectedHandlePosition});
+  }
+
+  SECTION("makeSurfaceHandlePicker")
+  {
+    using namespace mdl::HitFilters;
+
+    static const auto HitType = mdl::HitType::freeType();
+    static const auto OtherHitType = mdl::HitType::freeType();
+    static const auto BothTypes = HitType | OtherHitType;
+
+    const auto hit = mdl::Hit{HitType, 10.0, vm::vec3d{0, 0, 10}, size_t{1}};
+    const auto otherHit = mdl::Hit{OtherHitType, 12.0, vm::vec3d{0, 0, 12}, size_t{2}};
+
+    using T = std::tuple<mdl::HitFilter, vm::vec3d, vm::ray3d, vm::vec3d>;
+
+    // clang-format off
+    const auto
+    [hitFilter,          handleOffset,      pickRay,                                          expectedHandlePosition] = GENERATE_REF(values<T>({
+    {type(HitType),      vm::vec3d{0, 0, 0}, vm::ray3d{vm::vec3d{0, 0, 20}, vm::vec3d{0, 0, -1}}, vm::vec3d{hit.hitPoint()}},
+    {type(OtherHitType), vm::vec3d{0, 0, 0}, vm::ray3d{vm::vec3d{0, 0, 20}, vm::vec3d{0, 0, -1}}, vm::vec3d{otherHit.hitPoint()}},
+    {type(BothTypes),    vm::vec3d{0, 0, 0}, vm::ray3d{vm::vec3d{0, 0, 20}, vm::vec3d{0, 0, -1}}, vm::vec3d{hit.hitPoint()}},
+    {type(HitType),      vm::vec3d{1, 1, 1}, vm::ray3d{vm::vec3d{0, 0, 20}, vm::vec3d{0, 0, -1}}, vm::vec3d{hit.hitPoint() + vm::vec3d{1, 1, 1}}},
+    }));
+    // clang-format on
+
+    CAPTURE(handleOffset, pickRay);
+
+    const auto camera = gl::OrthographicCamera{};
+    auto inputState = InputState{};
+    inputState.setPickRequest(PickRequest{pickRay, camera});
+
+    auto pickResult = mdl::PickResult{};
+    pickResult.addHit(hit);
+    pickResult.addHit(otherHit);
+    inputState.setPickResult(std::move(pickResult));
+
+    CHECK(
+      makeSurfaceHandlePicker(hitFilter, handleOffset)(inputState)
+      == expectedHandlePosition);
+  }
 }
 
-TEST_CASE("makePlaneHandlePicker")
+TEST_CASE("DragHandleSnapper")
 {
-  using T = std::tuple<vm::plane3d, vm::vec3d, vm::ray3d, vm::vec3d>;
+  SECTION("makeIdentityHandleSnapper")
+  {
+    using T = std::tuple<vm::vec3d, vm::vec3d>;
 
-  // clang-format off
-  const auto
-  [plane,                                            handleOffset,         pickRay,                                         expectedHandlePosition] = GENERATE(values<T>({
-  {vm::plane3d{vm::vec3d{0, 0, 0}, vm::vec3d{0, 0, 1}}, vm::vec3d{ 0,  0,  0}, vm::ray3d{vm::vec3d{0, 0, 1}, vm::vec3d{0, 0, -1}}, vm::vec3d{0, 0, 0}},
-  {vm::plane3d{vm::vec3d{0, 0, 0}, vm::vec3d{0, 0, 1}}, vm::vec3d{-1, -1, -1}, vm::ray3d{vm::vec3d{1, 1, 1}, vm::vec3d{0, 0, -1}}, vm::vec3d{0, 0, 0}}, // hitPoint is at {1 1 1}
-  {vm::plane3d{vm::vec3d{0, 0, 0}, vm::vec3d{0, 0, 1}}, vm::vec3d{-1, -1, -1}, vm::ray3d{vm::vec3d{1, 2, 1}, vm::vec3d{0, 0, -1}}, vm::vec3d{0, 1, 0}}, // hitPoint is at {1 1 1}
-  }));
-  // clang-format on
+    // clang-format off
+    const auto 
+    [proposedHandlePosition, expectedHandlePosition] = GENERATE(values<T>({
+    {vm::vec3d{0, 0, 0}, vm::vec3d{0, 0, 0}},
+    {vm::vec3d{1, 2, 3}, vm::vec3d{1, 2, 3}},
+    }));
+    // clang-format on
 
-  CAPTURE(plane, handleOffset, pickRay);
+    CAPTURE(proposedHandlePosition);
 
-  const auto camera = gl::OrthographicCamera{};
-  auto inputState = InputState{};
-  inputState.setPickRequest(PickRequest{pickRay, camera});
+    CHECK(
+      makeIdentityHandleSnapper()(InputState{}, DragState{}, proposedHandlePosition)
+      == expectedHandlePosition);
+  }
 
-  CHECK(makePlaneHandlePicker(plane, handleOffset)(inputState) == expectedHandlePosition);
-}
+  SECTION("makeRelativeHandleSnapper")
+  {
+    using T = std::tuple<vm::vec3d, vm::vec3d, int, vm::vec3d>;
 
-TEST_CASE("makeCircleHandlePicker")
-{
-  using T = std::tuple<vm::vec3d, vm::vec3d, double, vm::vec3d, vm::ray3d, vm::vec3d>;
+    // clang-format off
+    const auto
+    [initialHandlePosition, proposedHandlePosition, gridSize, expectedHandlePosition] = GENERATE(values<T>({
+    {vm::vec3d{3, 1, 2},     vm::vec3d{3, 1, 2},      4,        vm::vec3d{3, 1, 2}},
+    {vm::vec3d{3, 1, 2},     vm::vec3d{7, 1, 2},      4,        vm::vec3d{3, 1, 2}},
+    {vm::vec3d{3, 1, 2},     vm::vec3d{8, 1, 2},      3,        vm::vec3d{11, 1, 2}},
+    {vm::vec3d{3, 1, 2},     vm::vec3d{10, 1, 2},     4,        vm::vec3d{3, 1, 2}},
+    {vm::vec3d{3, 1, 2},     vm::vec3d{11, 1, 2},     4,        vm::vec3d{19, 1, 2}},
+    {vm::vec3d{3, 1, 2},     vm::vec3d{33, 1, 2},     4,        vm::vec3d{35, 1, 2}},
+    }));
+    // clang-format on
 
-  // clang-format off
-  const auto
-  [center,            normal,            radius, handleOffset,         pickRay,                                         expectedHandlePosition] = GENERATE(values<T>({
-  {vm::vec3d{0, 0, 0}, vm::vec3d{0, 0, 1}, 10.0,   vm::vec3d{ 0,  0,  0}, vm::ray3d{vm::vec3d{5, 0, 1}, vm::vec3d{0, 0, -1}}, 10.0 * vm::normalize(vm::vec3d{1, 0, 0})},
-  {vm::vec3d{0, 0, 0}, vm::vec3d{0, 0, 1}, 10.0,   vm::vec3d{ 0,  0,  1}, vm::ray3d{vm::vec3d{5, 0, 1}, vm::vec3d{0, 0, -1}}, 10.0 * vm::normalize(vm::vec3d{1, 0, 0})},
-  {vm::vec3d{0, 0, 0}, vm::vec3d{0, 0, 1}, 10.0,   vm::vec3d{ 0,  0,  0}, vm::ray3d{vm::vec3d{5, 5, 1}, vm::vec3d{0, 0, -1}}, 10.0 * vm::normalize(vm::vec3d{1, 1, 0})},
-  {vm::vec3d{0, 0, 0}, vm::vec3d{0, 0, 1}, 10.0,   vm::vec3d{ 1,  1,  1}, vm::ray3d{vm::vec3d{5, 5, 1}, vm::vec3d{0, 0, -1}}, 10.0 * vm::normalize(vm::vec3d{1, 1, 0})},
-  }));
-  // clang-format on
+    CAPTURE(initialHandlePosition, proposedHandlePosition, gridSize);
 
-  CAPTURE(center, normal, radius, handleOffset, pickRay);
+    const auto grid = mdl::Grid{gridSize};
+    CHECK(
+      makeRelativeHandleSnapper(grid)(
+        InputState{},
+        DragState{initialHandlePosition, vm::vec3d{}, vm::vec3d{}},
+        proposedHandlePosition)
+      == expectedHandlePosition);
+  }
 
-  const auto camera = gl::OrthographicCamera{};
-  auto inputState = InputState{};
-  inputState.setPickRequest(PickRequest{pickRay, camera});
+  SECTION("makeAbsoluteHandleSnapper")
+  {
+    using T = std::tuple<vm::vec3d, int, vm::vec3d>;
 
-  CHECK(
-    makeCircleHandlePicker(center, normal, radius, handleOffset)(inputState)
-    == vm::approx{expectedHandlePosition});
-}
+    // clang-format off
+    const auto
+    [proposedHandlePosition, gridSize, expectedHandlePosition] = GENERATE(values<T>({
+    {vm::vec3d{0, 0, 0},      4,        vm::vec3d{0, 0, 0}},
+    {vm::vec3d{4, 3, 2},      4,        vm::vec3d{0, 0, 0}},
+    {vm::vec3d{4, 3, 22},     3,        vm::vec3d{8, 0, 24}},
+    {vm::vec3d{7, 0, 0},      4,        vm::vec3d{0, 0, 0}},
+    {vm::vec3d{8, 17, 31},    4,        vm::vec3d{16, 16, 32}},
+    }));
+    // clang-format on
 
-TEST_CASE("makeSurfaceHandlePicker")
-{
-  using namespace mdl::HitFilters;
+    CAPTURE(proposedHandlePosition, gridSize);
 
-  static const auto HitType = mdl::HitType::freeType();
-  static const auto OtherHitType = mdl::HitType::freeType();
-  static const auto BothTypes = HitType | OtherHitType;
+    const auto grid = mdl::Grid{gridSize};
+    CHECK(
+      makeAbsoluteHandleSnapper(grid)(
+        InputState{},
+        DragState{vm::vec3d{}, vm::vec3d{}, vm::vec3d{}},
+        proposedHandlePosition)
+      == expectedHandlePosition);
+  }
 
-  const auto hit = mdl::Hit{HitType, 10.0, vm::vec3d{0, 0, 10}, size_t{1}};
-  const auto otherHit = mdl::Hit{OtherHitType, 12.0, vm::vec3d{0, 0, 12}, size_t{2}};
+  SECTION("makeRelativeLineHandleSnapper")
+  {
+    using T = std::tuple<vm::vec3d, vm::vec3d, int, vm::line3d, vm::vec3d>;
 
-  using T = std::tuple<mdl::HitFilter, vm::vec3d, vm::ray3d, vm::vec3d>;
+    // clang-format off
+    const auto
+    [initialHandlePosition, proposedHandlePosition, gridSize, line,                                            expectedHandlePosition] = GENERATE(values<T>({
+    {vm::vec3d{0, 0, 0},     vm::vec3d{0, 0, 0},      4,        vm::line3d{vm::vec3d{0, 0, 0}, vm::vec3d{0, 0, 1}}, vm::vec3d{0, 0, 0}},
+    {vm::vec3d{0, 0, 0},     vm::vec3d{0, 0, 7},      4,        vm::line3d{vm::vec3d{0, 0, 0}, vm::vec3d{0, 0, 1}}, vm::vec3d{0, 0, 0}},
+    {vm::vec3d{0, 0, 0},     vm::vec3d{2, 9, 7},      4,        vm::line3d{vm::vec3d{0, 0, 0}, vm::vec3d{0, 0, 1}}, vm::vec3d{0, 0, 0}},
+    {vm::vec3d{0, 0, 0},     vm::vec3d{2, 9, 8},      4,        vm::line3d{vm::vec3d{0, 0, 0}, vm::vec3d{0, 0, 1}}, vm::vec3d{0, 0, 16}},
+    {vm::vec3d{0, 0, 1},     vm::vec3d{2, 9, 8},      4,        vm::line3d{vm::vec3d{0, 0, 0}, vm::vec3d{0, 0, 1}}, vm::vec3d{0, 0, 1}},
+    {vm::vec3d{0, 0, 1},     vm::vec3d{2, 9, 9},      4,        vm::line3d{vm::vec3d{0, 0, 0}, vm::vec3d{0, 0, 1}}, vm::vec3d{0, 0, 17}},
+    {vm::vec3d{22, 9, 1},    vm::vec3d{2, 9, 9},      4,        vm::line3d{vm::vec3d{0, 0, 0}, vm::vec3d{0, 0, 1}}, vm::vec3d{0, 0, 17}},
+    }));
+    // clang-format on
 
-  // clang-format off
-  const auto
-  [hitFilter,          handleOffset,      pickRay,                                          expectedHandlePosition] = GENERATE_REF(values<T>({
-  {type(HitType),      vm::vec3d{0, 0, 0}, vm::ray3d{vm::vec3d{0, 0, 20}, vm::vec3d{0, 0, -1}}, vm::vec3d{hit.hitPoint()}},
-  {type(OtherHitType), vm::vec3d{0, 0, 0}, vm::ray3d{vm::vec3d{0, 0, 20}, vm::vec3d{0, 0, -1}}, vm::vec3d{otherHit.hitPoint()}},
-  {type(BothTypes),    vm::vec3d{0, 0, 0}, vm::ray3d{vm::vec3d{0, 0, 20}, vm::vec3d{0, 0, -1}}, vm::vec3d{hit.hitPoint()}},
-  {type(HitType),      vm::vec3d{1, 1, 1}, vm::ray3d{vm::vec3d{0, 0, 20}, vm::vec3d{0, 0, -1}}, vm::vec3d{hit.hitPoint() + vm::vec3d{1, 1, 1}}},
-  }));
-  // clang-format on
+    CAPTURE(initialHandlePosition, proposedHandlePosition, gridSize, line);
 
-  CAPTURE(handleOffset, pickRay);
+    const auto grid = mdl::Grid{gridSize};
+    CHECK(
+      makeRelativeLineHandleSnapper(grid, line)(
+        InputState{},
+        DragState{initialHandlePosition, vm::vec3d{}, vm::vec3d{}},
+        proposedHandlePosition)
+      == expectedHandlePosition);
+  }
 
-  const auto camera = gl::OrthographicCamera{};
-  auto inputState = InputState{};
-  inputState.setPickRequest(PickRequest{pickRay, camera});
+  SECTION("makeAbsoluteLineHandleSnapper")
+  {
+    using T = std::tuple<vm::vec3d, int, vm::line3d, vm::vec3d>;
 
-  auto pickResult = mdl::PickResult{};
-  pickResult.addHit(hit);
-  pickResult.addHit(otherHit);
-  inputState.setPickResult(std::move(pickResult));
+    // clang-format off
+    const auto
+    [proposedHandlePosition, gridSize, line,                                            expectedHandlePosition] = GENERATE(values<T>({
+    {vm::vec3d{0, 0, 0},      4,        vm::line3d{vm::vec3d{0, 0, 0}, vm::vec3d{0, 0, 1}}, vm::vec3d{0, 0, 0}},
+    {vm::vec3d{0, 0, 7},      4,        vm::line3d{vm::vec3d{0, 0, 0}, vm::vec3d{0, 0, 1}}, vm::vec3d{0, 0, 0}},
+    {vm::vec3d{0, 0, 7},      3,        vm::line3d{vm::vec3d{0, 0, 0}, vm::vec3d{0, 0, 1}}, vm::vec3d{0, 0, 8}},
+    {vm::vec3d{2, 9, 7},      4,        vm::line3d{vm::vec3d{0, 0, 0}, vm::vec3d{0, 0, 1}}, vm::vec3d{0, 0, 0}},
+    {vm::vec3d{2, 9, 9},      4,        vm::line3d{vm::vec3d{0, 0, 0}, vm::vec3d{0, 0, 1}}, vm::vec3d{0, 0, 16}},
+    {vm::vec3d{2, 9, 31},     4,        vm::line3d{vm::vec3d{0, 0, 0}, vm::vec3d{0, 0, 1}}, vm::vec3d{0, 0, 32}},
+    }));
+    // clang-format on
 
-  CHECK(
-    makeSurfaceHandlePicker(hitFilter, handleOffset)(inputState)
-    == expectedHandlePosition);
-}
+    CAPTURE(proposedHandlePosition, gridSize, line);
 
-TEST_CASE("makeIdentityHandleSnapper")
-{
-  using T = std::tuple<vm::vec3d, vm::vec3d>;
+    const auto grid = mdl::Grid{gridSize};
+    CHECK(
+      makeAbsoluteLineHandleSnapper(grid, line)(
+        InputState{},
+        DragState{vm::vec3d{}, vm::vec3d{}, vm::vec3d{}},
+        proposedHandlePosition)
+      == expectedHandlePosition);
+  }
 
-  // clang-format off
-  const auto 
-  [proposedHandlePosition, expectedHandlePosition] = GENERATE(values<T>({
-  {vm::vec3d{0, 0, 0}, vm::vec3d{0, 0, 0}},
-  {vm::vec3d{1, 2, 3}, vm::vec3d{1, 2, 3}},
-  }));
-  // clang-format on
+  SECTION("makeCircleHandleSnapper")
+  {
+    using T = std::tuple<vm::vec3d, vm::vec3d, double, vm::vec3d>;
 
-  CAPTURE(proposedHandlePosition);
+    // clang-format off
+    const auto
+    [initialHandlePosition, proposedHandlePosition, snapAngle, expectedHandlePosition] = GENERATE(values<T>({
+    {vm::vec3d{1, 0, 0},     vm::vec3d{1, 0, 0},      15.0,      vm::normalize(vm::vec3d{1, 0, 0})},
+    {vm::vec3d{1, 0, 0},     vm::vec3d{1, 1, 0},      15.0,      vm::normalize(vm::vec3d{1, 1, 0})},
+    {vm::vec3d{1, 0, 0},     vm::vec3d{1, 2, 0},      15.0,      vm::normalize(vm::vec3d{0.5, 0.866025, 0})},
+    {vm::vec3d{1, 0, 0},     vm::vec3d{1, 1, 0},      45.0,      vm::normalize(vm::vec3d{1, 1, 0})},
+    }));
+    // clang-format on
 
-  CHECK(
-    makeIdentityHandleSnapper()(InputState{}, DragState{}, proposedHandlePosition)
-    == expectedHandlePosition);
-}
+    CAPTURE(initialHandlePosition, proposedHandlePosition, snapAngle);
 
-TEST_CASE("makeRelativeHandleSnapper")
-{
-  using T = std::tuple<vm::vec3d, vm::vec3d, int, vm::vec3d>;
-
-  // clang-format off
-  const auto
-  [initialHandlePosition, proposedHandlePosition, gridSize, expectedHandlePosition] = GENERATE(values<T>({
-  {vm::vec3d{3, 1, 2},     vm::vec3d{3, 1, 2},      4,        vm::vec3d{3, 1, 2}},
-  {vm::vec3d{3, 1, 2},     vm::vec3d{7, 1, 2},      4,        vm::vec3d{3, 1, 2}},
-  {vm::vec3d{3, 1, 2},     vm::vec3d{8, 1, 2},      3,        vm::vec3d{11, 1, 2}},
-  {vm::vec3d{3, 1, 2},     vm::vec3d{10, 1, 2},     4,        vm::vec3d{3, 1, 2}},
-  {vm::vec3d{3, 1, 2},     vm::vec3d{11, 1, 2},     4,        vm::vec3d{19, 1, 2}},
-  {vm::vec3d{3, 1, 2},     vm::vec3d{33, 1, 2},     4,        vm::vec3d{35, 1, 2}},
-  }));
-  // clang-format on
-
-  CAPTURE(initialHandlePosition, proposedHandlePosition, gridSize);
-
-  const auto grid = mdl::Grid{gridSize};
-  CHECK(
-    makeRelativeHandleSnapper(grid)(
-      InputState{},
-      DragState{initialHandlePosition, vm::vec3d{}, vm::vec3d{}},
-      proposedHandlePosition)
-    == expectedHandlePosition);
-}
-
-TEST_CASE("makeAbsoluteHandleSnapper")
-{
-  using T = std::tuple<vm::vec3d, int, vm::vec3d>;
-
-  // clang-format off
-  const auto
-  [proposedHandlePosition, gridSize, expectedHandlePosition] = GENERATE(values<T>({
-  {vm::vec3d{0, 0, 0},      4,        vm::vec3d{0, 0, 0}},
-  {vm::vec3d{4, 3, 2},      4,        vm::vec3d{0, 0, 0}},
-  {vm::vec3d{4, 3, 22},     3,        vm::vec3d{8, 0, 24}},
-  {vm::vec3d{7, 0, 0},      4,        vm::vec3d{0, 0, 0}},
-  {vm::vec3d{8, 17, 31},    4,        vm::vec3d{16, 16, 32}},
-  }));
-  // clang-format on
-
-  CAPTURE(proposedHandlePosition, gridSize);
-
-  const auto grid = mdl::Grid{gridSize};
-  CHECK(
-    makeAbsoluteHandleSnapper(grid)(
-      InputState{},
-      DragState{vm::vec3d{}, vm::vec3d{}, vm::vec3d{}},
-      proposedHandlePosition)
-    == expectedHandlePosition);
-}
-
-TEST_CASE("makeRelativeLineHandleSnapper")
-{
-  using T = std::tuple<vm::vec3d, vm::vec3d, int, vm::line3d, vm::vec3d>;
-
-  // clang-format off
-  const auto
-  [initialHandlePosition, proposedHandlePosition, gridSize, line,                                            expectedHandlePosition] = GENERATE(values<T>({
-  {vm::vec3d{0, 0, 0},     vm::vec3d{0, 0, 0},      4,        vm::line3d{vm::vec3d{0, 0, 0}, vm::vec3d{0, 0, 1}}, vm::vec3d{0, 0, 0}},
-  {vm::vec3d{0, 0, 0},     vm::vec3d{0, 0, 7},      4,        vm::line3d{vm::vec3d{0, 0, 0}, vm::vec3d{0, 0, 1}}, vm::vec3d{0, 0, 0}},
-  {vm::vec3d{0, 0, 0},     vm::vec3d{2, 9, 7},      4,        vm::line3d{vm::vec3d{0, 0, 0}, vm::vec3d{0, 0, 1}}, vm::vec3d{0, 0, 0}},
-  {vm::vec3d{0, 0, 0},     vm::vec3d{2, 9, 8},      4,        vm::line3d{vm::vec3d{0, 0, 0}, vm::vec3d{0, 0, 1}}, vm::vec3d{0, 0, 16}},
-  {vm::vec3d{0, 0, 1},     vm::vec3d{2, 9, 8},      4,        vm::line3d{vm::vec3d{0, 0, 0}, vm::vec3d{0, 0, 1}}, vm::vec3d{0, 0, 1}},
-  {vm::vec3d{0, 0, 1},     vm::vec3d{2, 9, 9},      4,        vm::line3d{vm::vec3d{0, 0, 0}, vm::vec3d{0, 0, 1}}, vm::vec3d{0, 0, 17}},
-  {vm::vec3d{22, 9, 1},    vm::vec3d{2, 9, 9},      4,        vm::line3d{vm::vec3d{0, 0, 0}, vm::vec3d{0, 0, 1}}, vm::vec3d{0, 0, 17}},
-  }));
-  // clang-format on
-
-  CAPTURE(initialHandlePosition, proposedHandlePosition, gridSize, line);
-
-  const auto grid = mdl::Grid{gridSize};
-  CHECK(
-    makeRelativeLineHandleSnapper(grid, line)(
-      InputState{},
-      DragState{initialHandlePosition, vm::vec3d{}, vm::vec3d{}},
-      proposedHandlePosition)
-    == expectedHandlePosition);
-}
-
-TEST_CASE("makeAbsoluteLineHandleSnapper")
-{
-  using T = std::tuple<vm::vec3d, int, vm::line3d, vm::vec3d>;
-
-  // clang-format off
-  const auto
-  [proposedHandlePosition, gridSize, line,                                            expectedHandlePosition] = GENERATE(values<T>({
-  {vm::vec3d{0, 0, 0},      4,        vm::line3d{vm::vec3d{0, 0, 0}, vm::vec3d{0, 0, 1}}, vm::vec3d{0, 0, 0}},
-  {vm::vec3d{0, 0, 7},      4,        vm::line3d{vm::vec3d{0, 0, 0}, vm::vec3d{0, 0, 1}}, vm::vec3d{0, 0, 0}},
-  {vm::vec3d{0, 0, 7},      3,        vm::line3d{vm::vec3d{0, 0, 0}, vm::vec3d{0, 0, 1}}, vm::vec3d{0, 0, 8}},
-  {vm::vec3d{2, 9, 7},      4,        vm::line3d{vm::vec3d{0, 0, 0}, vm::vec3d{0, 0, 1}}, vm::vec3d{0, 0, 0}},
-  {vm::vec3d{2, 9, 9},      4,        vm::line3d{vm::vec3d{0, 0, 0}, vm::vec3d{0, 0, 1}}, vm::vec3d{0, 0, 16}},
-  {vm::vec3d{2, 9, 31},     4,        vm::line3d{vm::vec3d{0, 0, 0}, vm::vec3d{0, 0, 1}}, vm::vec3d{0, 0, 32}},
-  }));
-  // clang-format on
-
-  CAPTURE(proposedHandlePosition, gridSize, line);
-
-  const auto grid = mdl::Grid{gridSize};
-  CHECK(
-    makeAbsoluteLineHandleSnapper(grid, line)(
-      InputState{},
-      DragState{vm::vec3d{}, vm::vec3d{}, vm::vec3d{}},
-      proposedHandlePosition)
-    == expectedHandlePosition);
-}
-
-TEST_CASE("makeCircleHandleSnapper")
-{
-  using T = std::tuple<vm::vec3d, vm::vec3d, double, vm::vec3d>;
-
-  // clang-format off
-  const auto
-  [initialHandlePosition, proposedHandlePosition, snapAngle, expectedHandlePosition] = GENERATE(values<T>({
-  {vm::vec3d{1, 0, 0},     vm::vec3d{1, 0, 0},      15.0,      vm::normalize(vm::vec3d{1, 0, 0})},
-  {vm::vec3d{1, 0, 0},     vm::vec3d{1, 1, 0},      15.0,      vm::normalize(vm::vec3d{1, 1, 0})},
-  {vm::vec3d{1, 0, 0},     vm::vec3d{1, 2, 0},      15.0,      vm::normalize(vm::vec3d{0.5, 0.866025, 0})},
-  {vm::vec3d{1, 0, 0},     vm::vec3d{1, 1, 0},      45.0,      vm::normalize(vm::vec3d{1, 1, 0})},
-  }));
-  // clang-format on
-
-  CAPTURE(initialHandlePosition, proposedHandlePosition, snapAngle);
-
-  const auto grid = mdl::Grid{4};
-  const auto center = vm::vec3d{0, 0, 0};
-  const auto normal = vm::vec3d{0, 0, 1};
-  const auto radius = 10.0;
-  CHECK(
-    makeCircleHandleSnapper(grid, vm::to_radians(snapAngle), center, normal, radius)(
-      InputState{},
-      DragState{initialHandlePosition, vm::vec3d{0, 0, 0}, vm::vec3d{0, 0, 0}},
-      proposedHandlePosition)
-    == vm::approx{radius * expectedHandlePosition});
+    const auto grid = mdl::Grid{4};
+    const auto center = vm::vec3d{0, 0, 0};
+    const auto normal = vm::vec3d{0, 0, 1};
+    const auto radius = 10.0;
+    CHECK(
+      makeCircleHandleSnapper(grid, vm::to_radians(snapAngle), center, normal, radius)(
+        InputState{},
+        DragState{initialHandlePosition, vm::vec3d{0, 0, 0}, vm::vec3d{0, 0, 0}},
+        proposedHandlePosition)
+      == vm::approx{radius * expectedHandlePosition});
+  }
 }
 
 } // namespace tb::ui

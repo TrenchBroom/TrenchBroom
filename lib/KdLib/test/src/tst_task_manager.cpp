@@ -51,13 +51,13 @@ TEST_CASE("task_manager")
 {
   using namespace std::string_literals;
 
-  const auto max_concurrent_tasks = GENERATE(0u, 1u, 2u, 3u, 4u);
-  CAPTURE(max_concurrent_tasks);
-
-  auto tm = task_manager{max_concurrent_tasks};
-
   SECTION("run_task")
   {
+    const auto max_concurrent_tasks = GENERATE(0u, 1u, 2u, 3u, 4u);
+    CAPTURE(max_concurrent_tasks);
+
+    auto tm = task_manager{max_concurrent_tasks};
+
     auto [task1, task_ran1] = make_task(4);
     auto [task2, task_ran2] = make_task("asdf"s);
     auto [task3, task_ran3] = make_task(15);
@@ -85,29 +85,77 @@ TEST_CASE("task_manager")
 
   SECTION("run_tasks")
   {
-    auto [task1, task_ran1] = make_task(4);
-    auto [task2, task_ran2] = make_task(10);
-    auto [task3, task_ran3] = make_task(15);
+    SECTION("basic")
+    {
+      const auto max_concurrent_tasks = GENERATE(0u, 1u, 2u, 3u, 4u);
+      CAPTURE(max_concurrent_tasks);
 
-    REQUIRE(!task_ran1);
-    REQUIRE(!task_ran2);
-    REQUIRE(!task_ran3);
+      auto tm = task_manager{max_concurrent_tasks};
 
-    auto futures = tm.run_tasks(std::vector{task1, task2, task3}) | kdl::views::as_rvalue
-                   | kdl::ranges::to<std::vector>();
+      auto [task1, task_ran1] = make_task(4);
+      auto [task2, task_ran2] = make_task(10);
+      auto [task3, task_ran3] = make_task(15);
 
-    CHECK(futures[0].get() == 4);
-    CHECK(futures[1].get() == 10);
-    CHECK(futures[2].get() == 15);
+      REQUIRE(!task_ran1);
+      REQUIRE(!task_ran2);
+      REQUIRE(!task_ran3);
 
+      auto futures = tm.run_tasks(std::vector{task1, task2, task3})
+                     | kdl::views::as_rvalue | kdl::ranges::to<std::vector>();
 
-    CHECK(task_ran1);
-    CHECK(task_ran2);
-    CHECK(task_ran3);
+      CHECK(futures[0].get() == 4);
+      CHECK(futures[1].get() == 10);
+      CHECK(futures[2].get() == 15);
+
+      CHECK(task_ran1);
+      CHECK(task_ran2);
+      CHECK(task_ran3);
+    }
+
+    SECTION("stress test")
+    {
+      auto tm = task_manager{};
+
+      const auto ints = std::views::iota(0, 1000) | kdl::ranges::to<std::vector>();
+      using diff_type = std::ranges::range_difference_t<decltype(ints)>;
+
+      auto futures = std::vector<std::future<int>>{};
+
+      for (auto i = ints.begin(); i < ints.end(); i += 100)
+      {
+        const auto e =
+          i
+          + std::min(static_cast<diff_type>(100), static_cast<diff_type>(ints.end() - i));
+
+        auto tasks = std::ranges::subrange{i, e} | std::views::transform([&](int j) {
+                       return std::function{[j] {
+                         std::this_thread::sleep_for(std::chrono::milliseconds{100});
+                         return j;
+                       }};
+                     })
+                     | kdl::ranges::to<std::vector>();
+
+        auto new_futures = tm.run_tasks(tasks);
+        futures.insert(
+          futures.end(),
+          std::make_move_iterator(new_futures.begin()),
+          std::make_move_iterator(new_futures.end()));
+      }
+
+      const auto results =
+        futures | std::views::transform([](auto& future) { return future.get(); })
+        | kdl::ranges::to<std::vector>();
+      CHECK(results == results);
+    }
   }
 
   SECTION("run_tasks_and_wait")
   {
+    const auto max_concurrent_tasks = GENERATE(0u, 1u, 2u, 3u, 4u);
+    CAPTURE(max_concurrent_tasks);
+
+    auto tm = task_manager{max_concurrent_tasks};
+
     auto [task1, task_ran1] = make_task(4);
     auto [task2, task_ran2] = make_task(10);
     auto [task3, task_ran3] = make_task(15);
@@ -125,41 +173,6 @@ TEST_CASE("task_manager")
     CHECK(task_ran2);
     CHECK(task_ran3);
   }
-}
-
-TEST_CASE("task_manager stress test")
-{
-  auto tm = task_manager{};
-
-  const auto ints = std::views::iota(0, 1000) | kdl::ranges::to<std::vector>();
-  using diff_type = std::ranges::range_difference_t<decltype(ints)>;
-
-  auto futures = std::vector<std::future<int>>{};
-
-  for (auto i = ints.begin(); i < ints.end(); i += 100)
-  {
-    const auto e =
-      i + std::min(static_cast<diff_type>(100), static_cast<diff_type>(ints.end() - i));
-
-    auto tasks = std::ranges::subrange{i, e} | std::views::transform([&](int j) {
-                   return std::function{[j] {
-                     std::this_thread::sleep_for(std::chrono::milliseconds{100});
-                     return j;
-                   }};
-                 })
-                 | kdl::ranges::to<std::vector>();
-
-    auto new_futures = tm.run_tasks(tasks);
-    futures.insert(
-      futures.end(),
-      std::make_move_iterator(new_futures.begin()),
-      std::make_move_iterator(new_futures.end()));
-  }
-
-  const auto results = futures
-                       | std::views::transform([](auto& future) { return future.get(); })
-                       | kdl::ranges::to<std::vector>();
-  CHECK(results == results);
 }
 
 } // namespace kdl

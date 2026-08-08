@@ -193,7 +193,7 @@ TEST_CASE("string_utils")
       str_replace_every("the brick brown fox", "bro", "cro") == "the brick crown fox");
   }
 
-  SECTION("string_format_test.str_to_string")
+  SECTION("str_to_string")
   {
     CHECK(str_to_string("abc") == "abc");
     CHECK(str_to_string(1234) == "1234");
@@ -201,7 +201,7 @@ TEST_CASE("string_utils")
     CHECK(str_to_string(to_string{"xyz"}) == "xyz;");
   }
 
-  SECTION("string_format_test.str_to_int")
+  SECTION("str_to_int")
   {
     CHECK(str_to_int("0") == 0);
     CHECK(str_to_int("1") == 1);
@@ -215,7 +215,7 @@ TEST_CASE("string_utils")
     CHECK(str_to_int("") == std::nullopt);
   }
 
-  SECTION("string_format_test.str_to_long")
+  SECTION("str_to_long")
   {
     CHECK(str_to_long("0") == 0l);
     CHECK(str_to_long("1") == 1l);
@@ -231,7 +231,7 @@ TEST_CASE("string_utils")
     CHECK(str_to_long("") == std::nullopt);
   }
 
-  SECTION("string_format_test.str_to_long_long")
+  SECTION("str_to_long_long")
   {
     CHECK(str_to_long_long("0") == 0ll);
     CHECK(str_to_long_long("1") == 1ll);
@@ -249,7 +249,7 @@ TEST_CASE("string_utils")
     CHECK(str_to_long_long("") == std::nullopt);
   }
 
-  SECTION("string_format_test.str_to_u_long")
+  SECTION("str_to_u_long")
   {
 
     CHECK(str_to_u_long("0") == 0ul);
@@ -264,7 +264,7 @@ TEST_CASE("string_utils")
     CHECK(str_to_u_long("") == std::nullopt);
   }
 
-  SECTION("string_format_test.str_to_u_long_long")
+  SECTION("str_to_u_long_long")
   {
     CHECK(str_to_u_long_long("0") == 0ull);
     CHECK(str_to_u_long_long("1") == 1ull);
@@ -279,7 +279,7 @@ TEST_CASE("string_utils")
     CHECK(str_to_u_long_long("") == std::nullopt);
   }
 
-  SECTION("string_format_test.str_to_size")
+  SECTION("str_to_size")
   {
     CHECK(str_to_size("0") == 0u);
     CHECK(str_to_size("1") == 1u);
@@ -293,7 +293,7 @@ TEST_CASE("string_utils")
     CHECK(str_to_size("") == std::nullopt);
   }
 
-  SECTION("string_format_test.str_to_float")
+  SECTION("str_to_float")
   {
     CHECK(str_to_float("0") == 0.0f);
     CHECK(str_to_float("1.0") == 1.0f);
@@ -308,7 +308,7 @@ TEST_CASE("string_utils")
     CHECK(str_to_float("") == std::nullopt);
   }
 
-  SECTION("string_format_test.str_to_double")
+  SECTION("str_to_double")
   {
     CHECK(str_to_double("0") == 0.0);
     CHECK(str_to_double("1.0") == 1.0);
@@ -329,7 +329,7 @@ TEST_CASE("string_utils")
     CHECK(str_to_double("+ 1.0") == std::nullopt);
   }
 
-  SECTION("string_format_test.str_make_random")
+  SECTION("str_make_random")
   {
     CHECK(str_make_random(32).length() == 32);
     CHECK(str_make_random(32) != str_make_random(32));

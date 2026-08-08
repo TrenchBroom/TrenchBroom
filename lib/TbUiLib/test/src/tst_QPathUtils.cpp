@@ -35,133 +35,136 @@
 namespace tb::ui
 {
 
-TEST_CASE("pathAsQPath")
+TEST_CASE("QPathUtils")
 {
-  using T = std::tuple<std::filesystem::path, QString>;
-
-  // clang-format off
-  #if defined(Q_OS_WIN)
-  const auto 
-  [fsPath,                             qPath] = GENERATE(values<T>({
-  {LR"()",                              R"()"},
-  {LR"(file.txt)",                      R"(file.txt)"},
-  {LR"(home\user\file.txt)",            R"(home/user/file.txt)"},
-  {LR"(C:\Users\user\file.txt)",        R"(C:/Users/user/file.txt)"},
-  {LR"(C:\Users\Кристиян\ぁ\file.txt)", R"(C:/Users/Кристиян/ぁ/file.txt)"},
-  }));
-  #else
-  const auto 
-  [fsPath,                             qPath] = GENERATE(values<T>({
-  {R"()",                              R"()"},
-  {R"(file.txt)",                      R"(file.txt)"},
-  {R"(/home/user/file.txt)",           R"(/home/user/file.txt)"},
-  {R"(/home/Кристиян/ぁ/file.txt)",    R"(/home/Кристиян/ぁ/file.txt)"},
-  }));
-  #endif
-  // clang-format on
-
-  CAPTURE(fmt::format("{}", fsPath));
-
-  CHECK(pathAsQPath(fsPath) == qPath);
-}
-
-TEST_CASE("pathAsQString")
-{
-  using T = std::tuple<std::filesystem::path, std::string>;
-
-  // clang-format off
-  #if defined(Q_OS_WIN)
-  const auto 
-  [fsPath,                             qPath] = GENERATE(values<T>({
-  {LR"()",                              R"()"},
-  {LR"(file.txt)",                      R"(file.txt)"},
-  {LR"(home\user\file.txt)",            R"(home\user\file.txt)"},
-  {LR"(C:\Users\user\file.txt)",        R"(C:\Users\user\file.txt)"},
-  {LR"(C:\Users\Кристиян\ぁ\file.txt)", R"(C:\Users\Кристиян\ぁ\file.txt)"},
-  }));
-  #else
-  const auto 
-  [fsPath,                             qPath] = GENERATE(values<T>({
-  {R"()",                              R"()"},
-  {R"(file.txt)",                      R"(file.txt)"},
-  {R"(/home/user/file.txt)",           R"(/home/user/file.txt)"},
-  {R"(/home/Кристиян/ぁ/file.txt)",    R"(/home/Кристиян/ぁ/file.txt)"},
-  }));
-  #endif
-  // clang-format on
-
-  CAPTURE(fmt::format("{}", fsPath));
-
-  CHECK(pathAsQString(fsPath) == QString::fromStdString(qPath));
-}
-
-TEST_CASE("pathAsGenericQString")
-{
-  using T = std::tuple<std::filesystem::path, QString>;
-
-  // clang-format off
-  #if defined(Q_OS_WIN)
-  const auto 
-  [fsPath,                             qPath] = GENERATE(values<T>({
-  {LR"()",                              R"()"},
-  {LR"(file.txt)",                      R"(file.txt)"},
-  {LR"(home\user\file.txt)",           R"(home/user/file.txt)"},
-  {LR"(C:\Users\user\file.txt)",        R"(C:/Users/user/file.txt)"},
-  {LR"(C:\Users\Кристиян\ぁ\file.txt)", R"(C:/Users/Кристиян/ぁ/file.txt)"},
-  }));
-  #else
-  const auto 
-  [fsPath,                             qPath] = GENERATE(values<T>({
-  {R"()",                              R"()"},
-  {R"(file.txt)",                      R"(file.txt)"},
-  {R"(/home/user/file.txt)",           R"(/home/user/file.txt)"},
-  {R"(/home/Кристиян/ぁ/file.txt)",    R"(/home/Кристиян/ぁ/file.txt)"},
-  }));
-  #endif
-  // clang-format on
-
-  CAPTURE(fmt::format("{}", fsPath));
-
-  CHECK(pathAsGenericQString(fsPath) == qPath);
-}
-
-TEST_CASE("pathFromQString")
-{
-  using T = std::tuple<QString, std::filesystem::path>;
-
-  // clang-format off
-  #if defined(Q_OS_WIN)
-  const auto 
-  [qPath,                              fsPath] = GENERATE(values<T>({
-  {R"()",                              LR"()"},
-  {R"(file.txt)",                      LR"(file.txt)"},
-  {R"(home\user\file.txt)",            LR"(home\user\file.txt)"},
-  {R"(C:\Users\user\file.txt)",        LR"(C:\Users\user\file.txt)"},
-  {R"(C:\Users\Кристиян\ぁ\file.txt)", LR"(C:\Users\Кристиян\ぁ\file.txt)"},
-  {R"(C:/Users/user/file.txt)",        LR"(C:\Users\user\file.txt)"},
-  {R"(C:/Users/Кристиян/ぁ/file.txt)", LR"(C:\Users\Кристиян\ぁ\file.txt)"},
-  }));
-  #else 
-  const auto 
-  [qPath,                              fsPath] = GENERATE(values<T>({
-  {R"()",                              R"()"},
-  {R"(file.txt)",                      R"(file.txt)"},
-  {R"(C:\Users\user\file.txt)",        R"(C:/Users/user/file.txt)"},
-  {R"(/home/user/file.txt)",           R"(/home/user/file.txt)"},
-  {R"(/home/Кристиян/ぁ/file.txt)",    R"(/home/Кристиян/ぁ/file.txt)"},
-  }));
-  #endif
-  // clang-format on
-
-  CAPTURE(qPath);
-
-  // We cannot just use a CHECK macro here because it triggers Catch2's builtin string
-  // conversion for std::filesystem::path, which throws on windows if the path contains
-  // wide characters. Instead, we use fmt::format, which handles everything correctly.
-  if (pathFromQString(qPath) != fsPath)
+  SECTION("pathAsQPath")
   {
-    CAPTURE(fmt::format("{}", pathFromQString(qPath)), fmt::format("{}", fsPath));
-    FAIL();
+    using T = std::tuple<std::filesystem::path, QString>;
+
+    // clang-format off
+    #if defined(Q_OS_WIN)
+    const auto
+    [fsPath,                             qPath] = GENERATE(values<T>({
+    {LR"()",                              R"()"},
+    {LR"(file.txt)",                      R"(file.txt)"},
+    {LR"(home\user\file.txt)",            R"(home/user/file.txt)"},
+    {LR"(C:\Users\user\file.txt)",        R"(C:/Users/user/file.txt)"},
+    {LR"(C:\Users\Кристиян\ぁ\file.txt)", R"(C:/Users/Кристиян/ぁ/file.txt)"},
+    }));
+    #else
+    const auto
+    [fsPath,                             qPath] = GENERATE(values<T>({
+    {R"()",                              R"()"},
+    {R"(file.txt)",                      R"(file.txt)"},
+    {R"(/home/user/file.txt)",           R"(/home/user/file.txt)"},
+    {R"(/home/Кристиян/ぁ/file.txt)",    R"(/home/Кристиян/ぁ/file.txt)"},
+    }));
+    #endif
+    // clang-format on
+
+    CAPTURE(fmt::format("{}", fsPath));
+
+    CHECK(pathAsQPath(fsPath) == qPath);
+  }
+
+  SECTION("pathAsQString")
+  {
+    using T = std::tuple<std::filesystem::path, std::string>;
+
+    // clang-format off
+    #if defined(Q_OS_WIN)
+    const auto
+    [fsPath,                             qPath] = GENERATE(values<T>({
+    {LR"()",                              R"()"},
+    {LR"(file.txt)",                      R"(file.txt)"},
+    {LR"(home\user\file.txt)",            R"(home\user\file.txt)"},
+    {LR"(C:\Users\user\file.txt)",        R"(C:\Users\user\file.txt)"},
+    {LR"(C:\Users\Кристиян\ぁ\file.txt)", R"(C:\Users\Кристиян\ぁ\file.txt)"},
+    }));
+    #else
+    const auto
+    [fsPath,                             qPath] = GENERATE(values<T>({
+    {R"()",                              R"()"},
+    {R"(file.txt)",                      R"(file.txt)"},
+    {R"(/home/user/file.txt)",           R"(/home/user/file.txt)"},
+    {R"(/home/Кристиян/ぁ/file.txt)",    R"(/home/Кристиян/ぁ/file.txt)"},
+    }));
+    #endif
+    // clang-format on
+
+    CAPTURE(fmt::format("{}", fsPath));
+
+    CHECK(pathAsQString(fsPath) == QString::fromStdString(qPath));
+  }
+
+  SECTION("pathAsGenericQString")
+  {
+    using T = std::tuple<std::filesystem::path, QString>;
+
+    // clang-format off
+    #if defined(Q_OS_WIN)
+    const auto
+    [fsPath,                             qPath] = GENERATE(values<T>({
+    {LR"()",                              R"()"},
+    {LR"(file.txt)",                      R"(file.txt)"},
+    {LR"(home\user\file.txt)",           R"(home/user/file.txt)"},
+    {LR"(C:\Users\user\file.txt)",        R"(C:/Users/user/file.txt)"},
+    {LR"(C:\Users\Кристиян\ぁ\file.txt)", R"(C:/Users/Кристиян/ぁ/file.txt)"},
+    }));
+    #else
+    const auto
+    [fsPath,                             qPath] = GENERATE(values<T>({
+    {R"()",                              R"()"},
+    {R"(file.txt)",                      R"(file.txt)"},
+    {R"(/home/user/file.txt)",           R"(/home/user/file.txt)"},
+    {R"(/home/Кристиян/ぁ/file.txt)",    R"(/home/Кристиян/ぁ/file.txt)"},
+    }));
+    #endif
+    // clang-format on
+
+    CAPTURE(fmt::format("{}", fsPath));
+
+    CHECK(pathAsGenericQString(fsPath) == qPath);
+  }
+
+  SECTION("pathFromQString")
+  {
+    using T = std::tuple<QString, std::filesystem::path>;
+
+    // clang-format off
+    #if defined(Q_OS_WIN)
+    const auto
+    [qPath,                              fsPath] = GENERATE(values<T>({
+    {R"()",                              LR"()"},
+    {R"(file.txt)",                      LR"(file.txt)"},
+    {R"(home\user\file.txt)",            LR"(home\user\file.txt)"},
+    {R"(C:\Users\user\file.txt)",        LR"(C:\Users\user\file.txt)"},
+    {R"(C:\Users\Кристиян\ぁ\file.txt)", LR"(C:\Users\Кристиян\ぁ\file.txt)"},
+    {R"(C:/Users/user/file.txt)",        LR"(C:\Users\user\file.txt)"},
+    {R"(C:/Users/Кристиян/ぁ/file.txt)", LR"(C:\Users\Кристиян\ぁ\file.txt)"},
+    }));
+    #else
+    const auto
+    [qPath,                              fsPath] = GENERATE(values<T>({
+    {R"()",                              R"()"},
+    {R"(file.txt)",                      R"(file.txt)"},
+    {R"(C:\Users\user\file.txt)",        R"(C:/Users/user/file.txt)"},
+    {R"(/home/user/file.txt)",           R"(/home/user/file.txt)"},
+    {R"(/home/Кристиян/ぁ/file.txt)",    R"(/home/Кристиян/ぁ/file.txt)"},
+    }));
+    #endif
+    // clang-format on
+
+    CAPTURE(qPath);
+
+    // We cannot just use a CHECK macro here because it triggers Catch2's builtin string
+    // conversion for std::filesystem::path, which throws on windows if the path contains
+    // wide characters. Instead, we use fmt::format, which handles everything correctly.
+    if (pathFromQString(qPath) != fsPath)
+    {
+      CAPTURE(fmt::format("{}", pathFromQString(qPath)), fmt::format("{}", fsPath));
+      FAIL();
+    }
   }
 }
 

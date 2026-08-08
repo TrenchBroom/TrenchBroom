@@ -118,7 +118,7 @@ TEST_CASE("checkLinkedGroupsToUpdate")
   CHECK(checkLinkedGroupsToUpdate({&groupNode1}));
   CHECK(checkLinkedGroupsToUpdate({&groupNode1, &groupNode2}));
   CHECK(checkLinkedGroupsToUpdate({&linkedGroupNode, &groupNode2}));
-  CHECK_FALSE(checkLinkedGroupsToUpdate({&groupNode1, &linkedGroupNode}));
+  CHECK(!checkLinkedGroupsToUpdate({&groupNode1, &linkedGroupNode}));
 }
 
 TEST_CASE("UpdateLinkedGroupsHelper")
@@ -158,7 +158,7 @@ TEST_CASE("UpdateLinkedGroupsHelper")
         REQUIRE(helper.applyLinkedGroupUpdates(map));
         helper.undoLinkedGroupUpdates(map);
       }
-      CHECK_FALSE(deleted);
+      CHECK(!deleted);
     }
   }
 

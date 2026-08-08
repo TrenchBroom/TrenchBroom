@@ -168,7 +168,7 @@ TEST_CASE("LoadFreeImageTexture")
     CHECK(isSupportedFreeImageExtension(".jpg"));
     CHECK(isSupportedFreeImageExtension(".jpeg"));
     CHECK(isSupportedFreeImageExtension(".JPG"));
-    CHECK_FALSE(isSupportedFreeImageExtension("jpg"));
+    CHECK(!isSupportedFreeImageExtension("jpg"));
   }
 }
 

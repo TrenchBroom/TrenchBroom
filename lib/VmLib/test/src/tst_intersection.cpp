@@ -64,370 +64,6 @@ constexpr std::array<vec3d, 3> triangle()
   };
 }
 
-TEST_CASE("intersection.square_contains_center")
-{
-  CER_CHECK(containsPoint(square(), vec3d{0.0, 0.0, 0.0}));
-}
-
-TEST_CASE("intersection.square_contains_corner_top_left")
-{
-  CER_CHECK(containsPoint(square(), vec3d{-1.0, +1.0, 0.0}));
-}
-
-TEST_CASE("intersection.square_contains_corner_top_right")
-{
-  CER_CHECK(containsPoint(square(), vec3d{+1.0, +1.0, 0.0}));
-}
-
-TEST_CASE("intersection.square_contains_corner_bottom_right")
-{
-  CER_CHECK(containsPoint(square(), vec3d{+1.0, -1.0, 0.0}));
-}
-
-TEST_CASE("intersection.square_contains_corner_bottom_left")
-{
-  CER_CHECK(containsPoint(square(), vec3d{-1.0, -1.0, 0.0}));
-}
-
-TEST_CASE("intersection.square_contains_edge_center_left")
-{
-  CER_CHECK(containsPoint(square(), vec3d{-1.0, 0.0, 0.0}));
-}
-
-TEST_CASE("intersection.square_contains_edge_center_top")
-{
-  CER_CHECK(containsPoint(square(), vec3d{0.0, +1.0, 0.0}));
-}
-
-TEST_CASE("intersection.square_contains_edge_center_right")
-{
-  CER_CHECK(containsPoint(square(), vec3d{+1.0, 0.0, 0.0}));
-}
-
-TEST_CASE("intersection.square_contains_edge_center_bottom")
-{
-  CER_CHECK(containsPoint(square(), vec3d{0.0, -1.0, 0.0}));
-}
-
-TEST_CASE("intersection.triangle_contains_origin")
-{
-  CER_CHECK(containsPoint(triangle(), vec3d{0.0, 0.0, 0.0}));
-}
-
-TEST_CASE("intersection.triangle_contains_corner_top")
-{
-  CER_CHECK(containsPoint(triangle(), vec3d{-1.0, +1.0, 0.0}));
-}
-
-TEST_CASE("intersection.triangle_contains_corner_left")
-{
-  CER_CHECK(containsPoint(triangle(), vec3d{-1.0, -1.0, 0.0}));
-}
-
-TEST_CASE("intersection.triangle_contains_corner_right")
-{
-  CER_CHECK(containsPoint(triangle(), vec3d{+1.0, -1.0, 0.0}));
-}
-
-TEST_CASE("intersection.triangle_contains_edge_center_top_left")
-{
-  CER_CHECK(containsPoint(triangle(), (triangle()[0] + triangle()[1]) / 2.0));
-}
-
-TEST_CASE("intersection.triangle_contains_edge_center_top_right")
-{
-  CER_CHECK(containsPoint(triangle(), (triangle()[1] + triangle()[2]) / 2.0));
-}
-
-TEST_CASE("intersection.triangle_contains_edge_center_bottom")
-{
-  CER_CHECK(containsPoint(triangle(), (triangle()[2] + triangle()[0]) / 2.0));
-}
-
-TEST_CASE("intersection.triangle_contains_outer_point"){
-  CER_CHECK_FALSE(containsPoint(triangle(), vec3d{+1.0, +1.0, 0.0}))}
-
-TEST_CASE("intersection.intersect_ray_plane")
-{
-  constexpr auto ray = ray3f{vec3f{0, 0, 0}, vec3f{0, 0, 1}};
-  CER_CHECK(
-    intersect_ray_plane(ray, plane3f{vec3f{0.0f, 0.0f, -1.0f}, vec3f{0, 0, 1}})
-    == std::nullopt);
-  CER_CHECK(
-    intersect_ray_plane(ray, plane3f{vec3f{0.0f, 0.0f, 0.0f}, vec3f{0, 0, 1}})
-    == approx(0.0f));
-  CER_CHECK(
-    intersect_ray_plane(ray, plane3f{vec3f{0.0f, 0.0f, 1.0f}, vec3f{0, 0, 1}})
-    == approx(1.0f));
-}
-
-TEST_CASE("intersection.intersect_ray_triangle")
-{
-  constexpr auto p0 = vec3d{2.0, 5.0, 2.0};
-  constexpr auto p1 = vec3d{4.0, 7.0, 2.0};
-  constexpr auto p2 = vec3d{3.0, 2.0, 2.0};
-
-  CER_CHECK(
-    intersect_ray_triangle(ray3d{vec3d{0, 0, 0}, vec3d{1, 0, 0}}, p0, p1, p2)
-    == std::nullopt);
-  CER_CHECK(
-    intersect_ray_triangle(ray3d{vec3d{0, 0, 0}, vec3d{0, 1, 0}}, p0, p1, p2)
-    == std::nullopt);
-  CER_CHECK(
-    intersect_ray_triangle(ray3d{vec3d{0, 0, 0}, vec3d{0, 0, 1}}, p0, p1, p2)
-    == std::nullopt);
-  CER_CHECK(
-    intersect_ray_triangle(ray3d{vec3d{0.0, 0.0, 2.0}, vec3d{0, 1, 0}}, p0, p1, p2)
-    == std::nullopt);
-  CER_CHECK(
-    intersect_ray_triangle(ray3d{vec3d{3.0, 5.0, 0.0}, vec3d{0, 0, 1}}, p0, p1, p2)
-    == approx(2.0));
-  CER_CHECK(
-    intersect_ray_triangle(ray3d{vec3d{2.0, 5.0, 0.0}, vec3d{0, 0, 1}}, p0, p1, p2)
-    == approx(2.0));
-  CER_CHECK(
-    intersect_ray_triangle(ray3d{vec3d{4.0, 7.0, 0.0}, vec3d{0, 0, 1}}, p0, p1, p2)
-    == approx(2.0));
-  CER_CHECK(
-    intersect_ray_triangle(ray3d{vec3d{3.0, 2.0, 0.0}, vec3d{0, 0, 1}}, p0, p1, p2)
-    == approx(2.0));
-}
-
-TEST_CASE("intersection.intersect_ray_square")
-{
-  constexpr auto poly = square() + vec3d{0, 0, 1};
-
-  CER_CHECK(
-    intersect_ray_polygon(
-      ray3d{vec3d{0, 0, 0}, vec3d{0, 0, -1}},
-      plane3d{vec3d{0, 0, 1}, vec3d{0, 0, 1}},
-      std::begin(poly),
-      std::end(poly))
-    == std::nullopt);
-  CER_CHECK(
-    intersect_ray_polygon(
-      ray3d{vec3d{2, 2, 0}, vec3d{0, 0, 1}},
-      plane3d{vec3d{0, 0, 1}, vec3d{0, 0, 1}},
-      std::begin(poly),
-      std::end(poly))
-    == std::nullopt);
-  CER_CHECK(
-    intersect_ray_polygon(
-      ray3d{vec3d{-2, 0, 1}, vec3d{1, 0, 0}},
-      plane3d{vec3d{0, 0, 1}, vec3d{0, 0, 1}},
-      std::begin(poly),
-      std::end(poly))
-    == std::nullopt);
-  CER_CHECK(
-    intersect_ray_polygon(
-      ray3d{vec3d{-2, 0, 0}, vec3d{1, 0, 0}},
-      plane3d{vec3d{0, 0, 1}, vec3d{0, 0, 1}},
-      std::begin(poly),
-      std::end(poly))
-    == std::nullopt);
-
-  CER_CHECK(
-    intersect_ray_polygon(
-      ray3d{vec3d{0, 0, 0}, vec3d{0, 0, 1}},
-      plane3d{vec3d{0, 0, 1}, vec3d{0, 0, 1}},
-      std::begin(poly),
-      std::end(poly))
-    == approx(+1.0));
-  CER_CHECK(
-    intersect_ray_polygon(
-      ray3d{vec3d{0, 0, 2}, vec3d{0, 0, -1}},
-      plane3d{vec3d{0, 0, 1}, vec3d{0, 0, 1}},
-      std::begin(poly),
-      std::end(poly))
-    == approx(+1.0));
-  CER_CHECK(
-    intersect_ray_polygon(
-      ray3d{vec3d{+1, +1, 0}, vec3d{0, 0, 1}},
-      plane3d{vec3d{0, 0, 1}, vec3d{0, 0, 1}},
-      std::begin(poly),
-      std::end(poly))
-    == approx(+1.0));
-  CER_CHECK(
-    intersect_ray_polygon(
-      ray3d{vec3d{+1, -1, 0}, vec3d{0, 0, 1}},
-      plane3d{vec3d{0, 0, 1}, vec3d{0, 0, 1}},
-      std::begin(poly),
-      std::end(poly))
-    == approx(+1.0));
-  CER_CHECK(
-    intersect_ray_polygon(
-      ray3d{vec3d{-1, +1, 0}, vec3d{0, 0, 1}},
-      plane3d{vec3d{0, 0, 1}, vec3d{0, 0, 1}},
-      std::begin(poly),
-      std::end(poly))
-    == approx(+1.0));
-  CER_CHECK(
-    intersect_ray_polygon(
-      ray3d{vec3d{-1, -1, 0}, vec3d{0, 0, 1}},
-      plane3d{vec3d{0, 0, 1}, vec3d{0, 0, 1}},
-      std::begin(poly),
-      std::end(poly))
-    == approx(+1.0));
-  CER_CHECK(
-    intersect_ray_polygon(
-      ray3d{vec3d{0, +1, 0}, vec3d{0, 0, 1}},
-      plane3d{vec3d{0, 0, 1}, vec3d{0, 0, 1}},
-      std::begin(poly),
-      std::end(poly))
-    == approx(+1.0));
-  CER_CHECK(
-    intersect_ray_polygon(
-      ray3d{vec3d{0, -1, 0}, vec3d{0, 0, 1}},
-      plane3d{vec3d{0, 0, 1}, vec3d{0, 0, 1}},
-      std::begin(poly),
-      std::end(poly))
-    == approx(+1.0));
-  CER_CHECK(
-    intersect_ray_polygon(
-      ray3d{vec3d{+1, 0, 0}, vec3d{0, 0, 1}},
-      plane3d{vec3d{0, 0, 1}, vec3d{0, 0, 1}},
-      std::begin(poly),
-      std::end(poly))
-    == approx(+1.0));
-  CER_CHECK(
-    intersect_ray_polygon(
-      ray3d{vec3d{-1, 0, 0}, vec3d{0, 0, 1}},
-      plane3d{vec3d{0, 0, 1}, vec3d{0, 0, 1}},
-      std::begin(poly),
-      std::end(poly))
-    == approx(+1.0));
-}
-
-TEST_CASE("intersection.intersect_ray_bbox")
-{
-  constexpr auto bounds = bbox3f{vec3f{-12.0f, -3.0f, 4.0f}, vec3f{8.0f, 9.0f, 8.0f}};
-
-  CER_CHECK(
-    intersect_ray_bbox(ray3f{vec3f{0, 0, 0}, vec3f{0, 0, -1}}, bounds) == std::nullopt);
-  CER_CHECK(
-    intersect_ray_bbox(ray3f{vec3f{0, 0, 0}, vec3f{0, 0, 1}}, bounds) == approx(4.0f));
-
-  constexpr auto origin = vec3f{-10.0f, -7.0f, 14.0f};
-  constexpr auto diff = vec3f{-2.0f, 3.0f, 8.0f} - origin;
-  constexpr auto dir = normalize_c(diff);
-  CHECK(intersect_ray_bbox(ray3f{origin, dir}, bounds) == approx(length(diff)));
-}
-
-TEST_CASE("intersection.intersect_ray_sphere")
-{
-  const ray3f ray(vec3f{0, 0, 0}, vec3f{0, 0, 1});
-
-  // ray originates inside sphere and hits at north pole
-  CHECK(intersect_ray_sphere(ray, vec3f{0, 0, 0}, 2.0f) == approx(2.0f));
-
-  // ray originates outside sphere and hits at south pole
-  CHECK(intersect_ray_sphere(ray, vec3f{0.0f, 0.0f, 5.0f}, 2.0f) == approx(3.0f));
-
-  // miss
-  CHECK(intersect_ray_sphere(ray, vec3f{3.0f, 2.0f, 2.0f}, 1.0f) == std::nullopt);
-}
-
-TEST_CASE("intersection.intersect_ray_torus")
-{
-  CHECK(
-    intersect_ray_torus(ray3f{vec3f{0, 0, 0}, vec3f{0, 1, 0}}, vec3f{0, 0, 0}, 5.0f, 1.0f)
-    == approx(4.0f));
-  CHECK(
-    intersect_ray_torus(ray3f{vec3f{0, 0, 0}, vec3f{1, 0, 0}}, vec3f{0, 0, 0}, 5.0f, 1.0f)
-    == approx(4.0f));
-
-  CHECK(
-    intersect_ray_torus(
-      ray3f{vec3f{0.0f, -10.0f, 0.0f}, vec3f{0, 1, 0}}, vec3f{0, 0, 0}, 5.0f, 1.0f)
-    == approx(4.0f));
-  CHECK(
-    intersect_ray_torus(
-      ray3f{vec3f{-10.0f, 0.0f, 0.0f}, vec3f{1, 0, 0}}, vec3f{0, 0, 0}, 5.0f, 1.0f)
-    == approx(4.0f));
-
-  CHECK(
-    intersect_ray_torus(
-      ray3f{vec3f{0.0f, -5.0f, 5.0f}, vec3f{0, 0, -1}}, vec3f{0, 0, 0}, 5.0f, 1.0f)
-    == approx(4.0f));
-
-  CHECK(
-    intersect_ray_torus(
-      ray3f{vec3f{5.0f, -5.0f, 5.0f}, vec3f{0, 0, -1}},
-      vec3f{5.0f, 0.0f, 0.0f},
-      5.0f,
-      1.0f)
-    == approx(4.0f));
-
-  CHECK(
-    intersect_ray_torus(ray3f{vec3f{0, 0, 0}, vec3f{0, 0, 1}}, vec3f{0, 0, 0}, 5.0f, 1.0f)
-    == std::nullopt);
-}
-
-TEST_CASE("intersection.intersect_line_line")
-{
-  CER_CHECK(
-    intersect_line_line(line{vec2d{0, 0}, vec2d{0, 1}}, line{vec2d{0, 0}, vec2d{0, 1}})
-    == std::nullopt);
-  CER_CHECK(
-    intersect_line_line(line{vec2d{0, 0}, vec2d{0, 1}}, line{vec2d{1, 0}, vec2d{0, 1}})
-    == std::nullopt);
-  CER_CHECK(
-    intersect_line_line(line{vec2d{0, 0}, vec2d{0, 1}}, line{vec2d{0, 0}, vec2d{1, 0}})
-    == 0.0);
-  CER_CHECK(
-    intersect_line_line(line{vec2d{0, 0}, vec2d{0, 1}}, line{vec2d{0, 1}, vec2d{1, 0}})
-    == 1.0);
-}
-
-TEST_CASE("intersection.intersect_line_plane")
-{
-  constexpr auto p = plane3f{5.0f, vec3f{0, 0, 1}};
-  constexpr auto l = line3f{vec3f{0, 0, 15}, normalize_c(vec3f{1, 0, -1})};
-  CER_CHECK(point_at_distance(l, *intersect_line_plane(l, p)) == approx(vec3f{10, 0, 5}));
-}
-
-TEST_CASE("intersection.intersect_plane_plane")
-{
-  constexpr auto p1 = plane3f{10.0f, vec3f{0, 0, 1}};
-  constexpr auto p2 = plane3f{20.0f, vec3f{1, 0, 0}};
-  const auto line = intersect_plane_plane(p1, p2);
-
-  CHECK(lineOnPlane(p1, *line));
-  CHECK(lineOnPlane(p2, *line));
-}
-
-TEST_CASE("intersection.intersect_plane_plane_parallel")
-{
-  constexpr auto p1 = plane3f{10.0f, vec3f{0, 0, 1}};
-  constexpr auto p2 = plane3f{11.0f, vec3f{0, 0, 1}};
-  CHECK(intersect_plane_plane(p1, p2) == std::nullopt);
-}
-
-TEST_CASE("intersection.intersect_plane_plane_similar")
-{
-  constexpr auto anchor = vec3f{100, 100, 100};
-  constexpr auto p1 = plane3f{anchor, vec3f{1, 0, 0}};
-  const auto p2 = plane3f{
-    anchor,
-    quatf{vec3f{0, -1, 0}, to_radians(0.5f)}
-      * vec3f{1, 0, 0}}; // p1 rotated by 0.5 degrees
-  const auto line = intersect_plane_plane(p1, p2);
-
-  CHECK(lineOnPlane(p1, *line));
-  CHECK(lineOnPlane(p2, *line));
-}
-
-TEST_CASE("intersection.intersect_plane_plane_too_similar")
-{
-  constexpr auto anchor = vec3f{100, 100, 100};
-  constexpr auto p1 = plane3f{anchor, vec3f{1, 0, 0}};
-  const auto p2 = plane3f{
-    anchor,
-    quatf{vec3f{0, -1, 0}, to_radians(0.0001f)}
-      * vec3f{1, 0, 0}}; // p1 rotated by 0.0001 degrees
-
-  CHECK(intersect_plane_plane(p1, p2) == std::nullopt);
-}
 
 bool lineOnPlane(const plane3f& plane, const line3f& line)
 {
@@ -445,116 +81,489 @@ bool lineOnPlane(const plane3f& plane, const line3f& line)
   }
 }
 
-TEST_CASE("intersection.polygon_clip_by_plane")
+TEST_CASE("intersection")
 {
-  constexpr auto poly = square();
-
-  constexpr auto plane1 = plane3d{{0, 0, 0}, vec3d{0, 0, 1}};
-  constexpr auto plane2 = plane3d{{0, 1, 0}, vec3d{0, 0, 1}};
-  constexpr auto plane5 = plane3d{{0, -1, 0}, -vec3d{0, 0, 1}};
-
-  constexpr auto plane3 = plane3d{{0, 0, 0}, vec3d{1, 0, 0}};
-  const auto plane4 = *vm::from_points(vec3d{-1, -1, 0}, vec3d{1, 1, 0}, vec3d{0, 0, 1});
-
-  SECTION("no clipping")
+  SECTION("square_contains_center")
   {
-    CHECK(polygon_clip_by_plane(plane1, std::begin(poly), std::end(poly)).empty());
-    CHECK(polygon_clip_by_plane(plane2, std::begin(poly), std::end(poly)).empty());
-    CHECK(polygon_clip_by_plane(plane5, std::begin(poly), std::end(poly)).empty());
+    CER_CHECK(containsPoint(square(), vec3d{0.0, 0.0, 0.0}));
   }
 
-  SECTION("clipping")
+  SECTION("square_contains_corner_top_left")
   {
-    // split into two rectangles
+    CER_CHECK(containsPoint(square(), vec3d{-1.0, +1.0, 0.0}));
+  }
+
+  SECTION("square_contains_corner_top_right")
+  {
+    CER_CHECK(containsPoint(square(), vec3d{+1.0, +1.0, 0.0}));
+  }
+
+  SECTION("square_contains_corner_bottom_right")
+  {
+    CER_CHECK(containsPoint(square(), vec3d{+1.0, -1.0, 0.0}));
+  }
+
+  SECTION("square_contains_corner_bottom_left")
+  {
+    CER_CHECK(containsPoint(square(), vec3d{-1.0, -1.0, 0.0}));
+  }
+
+  SECTION("square_contains_edge_center_left")
+  {
+    CER_CHECK(containsPoint(square(), vec3d{-1.0, 0.0, 0.0}));
+  }
+
+  SECTION("square_contains_edge_center_top")
+  {
+    CER_CHECK(containsPoint(square(), vec3d{0.0, +1.0, 0.0}));
+  }
+
+  SECTION("square_contains_edge_center_right")
+  {
+    CER_CHECK(containsPoint(square(), vec3d{+1.0, 0.0, 0.0}));
+  }
+
+  SECTION("square_contains_edge_center_bottom")
+  {
+    CER_CHECK(containsPoint(square(), vec3d{0.0, -1.0, 0.0}));
+  }
+
+  SECTION("triangle_contains_origin")
+  {
+    CER_CHECK(containsPoint(triangle(), vec3d{0.0, 0.0, 0.0}));
+  }
+
+  SECTION("triangle_contains_corner_top")
+  {
+    CER_CHECK(containsPoint(triangle(), vec3d{-1.0, +1.0, 0.0}));
+  }
+
+  SECTION("triangle_contains_corner_left")
+  {
+    CER_CHECK(containsPoint(triangle(), vec3d{-1.0, -1.0, 0.0}));
+  }
+
+  SECTION("triangle_contains_corner_right")
+  {
+    CER_CHECK(containsPoint(triangle(), vec3d{+1.0, -1.0, 0.0}));
+  }
+
+  SECTION("triangle_contains_edge_center_top_left")
+  {
+    CER_CHECK(containsPoint(triangle(), (triangle()[0] + triangle()[1]) / 2.0));
+  }
+
+  SECTION("triangle_contains_edge_center_top_right")
+  {
+    CER_CHECK(containsPoint(triangle(), (triangle()[1] + triangle()[2]) / 2.0));
+  }
+
+  SECTION("triangle_contains_edge_center_bottom")
+  {
+    CER_CHECK(containsPoint(triangle(), (triangle()[2] + triangle()[0]) / 2.0));
+  }
+
+  SECTION("triangle_contains_outer_point"){
+    CER_CHECK_FALSE(containsPoint(triangle(), vec3d{+1.0, +1.0, 0.0}))}
+
+  SECTION("intersect_ray_plane")
+  {
+    constexpr auto ray = ray3f{vec3f{0, 0, 0}, vec3f{0, 0, 1}};
+    CER_CHECK(
+      intersect_ray_plane(ray, plane3f{vec3f{0.0f, 0.0f, -1.0f}, vec3f{0, 0, 1}})
+      == std::nullopt);
+    CER_CHECK(
+      intersect_ray_plane(ray, plane3f{vec3f{0.0f, 0.0f, 0.0f}, vec3f{0, 0, 1}})
+      == approx(0.0f));
+    CER_CHECK(
+      intersect_ray_plane(ray, plane3f{vec3f{0.0f, 0.0f, 1.0f}, vec3f{0, 0, 1}})
+      == approx(1.0f));
+  }
+
+  SECTION("intersect_ray_triangle")
+  {
+    constexpr auto p0 = vec3d{2.0, 5.0, 2.0};
+    constexpr auto p1 = vec3d{4.0, 7.0, 2.0};
+    constexpr auto p2 = vec3d{3.0, 2.0, 2.0};
+
+    CER_CHECK(
+      intersect_ray_triangle(ray3d{vec3d{0, 0, 0}, vec3d{1, 0, 0}}, p0, p1, p2)
+      == std::nullopt);
+    CER_CHECK(
+      intersect_ray_triangle(ray3d{vec3d{0, 0, 0}, vec3d{0, 1, 0}}, p0, p1, p2)
+      == std::nullopt);
+    CER_CHECK(
+      intersect_ray_triangle(ray3d{vec3d{0, 0, 0}, vec3d{0, 0, 1}}, p0, p1, p2)
+      == std::nullopt);
+    CER_CHECK(
+      intersect_ray_triangle(ray3d{vec3d{0.0, 0.0, 2.0}, vec3d{0, 1, 0}}, p0, p1, p2)
+      == std::nullopt);
+    CER_CHECK(
+      intersect_ray_triangle(ray3d{vec3d{3.0, 5.0, 0.0}, vec3d{0, 0, 1}}, p0, p1, p2)
+      == approx(2.0));
+    CER_CHECK(
+      intersect_ray_triangle(ray3d{vec3d{2.0, 5.0, 0.0}, vec3d{0, 0, 1}}, p0, p1, p2)
+      == approx(2.0));
+    CER_CHECK(
+      intersect_ray_triangle(ray3d{vec3d{4.0, 7.0, 0.0}, vec3d{0, 0, 1}}, p0, p1, p2)
+      == approx(2.0));
+    CER_CHECK(
+      intersect_ray_triangle(ray3d{vec3d{3.0, 2.0, 0.0}, vec3d{0, 0, 1}}, p0, p1, p2)
+      == approx(2.0));
+  }
+
+  SECTION("intersect_ray_square")
+  {
+    constexpr auto poly = square() + vec3d{0, 0, 1};
+
+    CER_CHECK(
+      intersect_ray_polygon(
+        ray3d{vec3d{0, 0, 0}, vec3d{0, 0, -1}},
+        plane3d{vec3d{0, 0, 1}, vec3d{0, 0, 1}},
+        std::begin(poly),
+        std::end(poly))
+      == std::nullopt);
+    CER_CHECK(
+      intersect_ray_polygon(
+        ray3d{vec3d{2, 2, 0}, vec3d{0, 0, 1}},
+        plane3d{vec3d{0, 0, 1}, vec3d{0, 0, 1}},
+        std::begin(poly),
+        std::end(poly))
+      == std::nullopt);
+    CER_CHECK(
+      intersect_ray_polygon(
+        ray3d{vec3d{-2, 0, 1}, vec3d{1, 0, 0}},
+        plane3d{vec3d{0, 0, 1}, vec3d{0, 0, 1}},
+        std::begin(poly),
+        std::end(poly))
+      == std::nullopt);
+    CER_CHECK(
+      intersect_ray_polygon(
+        ray3d{vec3d{-2, 0, 0}, vec3d{1, 0, 0}},
+        plane3d{vec3d{0, 0, 1}, vec3d{0, 0, 1}},
+        std::begin(poly),
+        std::end(poly))
+      == std::nullopt);
+
+    CER_CHECK(
+      intersect_ray_polygon(
+        ray3d{vec3d{0, 0, 0}, vec3d{0, 0, 1}},
+        plane3d{vec3d{0, 0, 1}, vec3d{0, 0, 1}},
+        std::begin(poly),
+        std::end(poly))
+      == approx(+1.0));
+    CER_CHECK(
+      intersect_ray_polygon(
+        ray3d{vec3d{0, 0, 2}, vec3d{0, 0, -1}},
+        plane3d{vec3d{0, 0, 1}, vec3d{0, 0, 1}},
+        std::begin(poly),
+        std::end(poly))
+      == approx(+1.0));
+    CER_CHECK(
+      intersect_ray_polygon(
+        ray3d{vec3d{+1, +1, 0}, vec3d{0, 0, 1}},
+        plane3d{vec3d{0, 0, 1}, vec3d{0, 0, 1}},
+        std::begin(poly),
+        std::end(poly))
+      == approx(+1.0));
+    CER_CHECK(
+      intersect_ray_polygon(
+        ray3d{vec3d{+1, -1, 0}, vec3d{0, 0, 1}},
+        plane3d{vec3d{0, 0, 1}, vec3d{0, 0, 1}},
+        std::begin(poly),
+        std::end(poly))
+      == approx(+1.0));
+    CER_CHECK(
+      intersect_ray_polygon(
+        ray3d{vec3d{-1, +1, 0}, vec3d{0, 0, 1}},
+        plane3d{vec3d{0, 0, 1}, vec3d{0, 0, 1}},
+        std::begin(poly),
+        std::end(poly))
+      == approx(+1.0));
+    CER_CHECK(
+      intersect_ray_polygon(
+        ray3d{vec3d{-1, -1, 0}, vec3d{0, 0, 1}},
+        plane3d{vec3d{0, 0, 1}, vec3d{0, 0, 1}},
+        std::begin(poly),
+        std::end(poly))
+      == approx(+1.0));
+    CER_CHECK(
+      intersect_ray_polygon(
+        ray3d{vec3d{0, +1, 0}, vec3d{0, 0, 1}},
+        plane3d{vec3d{0, 0, 1}, vec3d{0, 0, 1}},
+        std::begin(poly),
+        std::end(poly))
+      == approx(+1.0));
+    CER_CHECK(
+      intersect_ray_polygon(
+        ray3d{vec3d{0, -1, 0}, vec3d{0, 0, 1}},
+        plane3d{vec3d{0, 0, 1}, vec3d{0, 0, 1}},
+        std::begin(poly),
+        std::end(poly))
+      == approx(+1.0));
+    CER_CHECK(
+      intersect_ray_polygon(
+        ray3d{vec3d{+1, 0, 0}, vec3d{0, 0, 1}},
+        plane3d{vec3d{0, 0, 1}, vec3d{0, 0, 1}},
+        std::begin(poly),
+        std::end(poly))
+      == approx(+1.0));
+    CER_CHECK(
+      intersect_ray_polygon(
+        ray3d{vec3d{-1, 0, 0}, vec3d{0, 0, 1}},
+        plane3d{vec3d{0, 0, 1}, vec3d{0, 0, 1}},
+        std::begin(poly),
+        std::end(poly))
+      == approx(+1.0));
+  }
+
+  SECTION("intersect_ray_bbox")
+  {
+    constexpr auto bounds = bbox3f{vec3f{-12.0f, -3.0f, 4.0f}, vec3f{8.0f, 9.0f, 8.0f}};
+
+    CER_CHECK(
+      intersect_ray_bbox(ray3f{vec3f{0, 0, 0}, vec3f{0, 0, -1}}, bounds) == std::nullopt);
+    CER_CHECK(
+      intersect_ray_bbox(ray3f{vec3f{0, 0, 0}, vec3f{0, 0, 1}}, bounds) == approx(4.0f));
+
+    constexpr auto origin = vec3f{-10.0f, -7.0f, 14.0f};
+    constexpr auto diff = vec3f{-2.0f, 3.0f, 8.0f} - origin;
+    constexpr auto dir = normalize_c(diff);
+    CHECK(intersect_ray_bbox(ray3f{origin, dir}, bounds) == approx(length(diff)));
+  }
+
+  SECTION("intersect_ray_sphere")
+  {
+    const ray3f ray(vec3f{0, 0, 0}, vec3f{0, 0, 1});
+
+    // ray originates inside sphere and hits at north pole
+    CHECK(intersect_ray_sphere(ray, vec3f{0, 0, 0}, 2.0f) == approx(2.0f));
+
+    // ray originates outside sphere and hits at south pole
+    CHECK(intersect_ray_sphere(ray, vec3f{0.0f, 0.0f, 5.0f}, 2.0f) == approx(3.0f));
+
+    // miss
+    CHECK(intersect_ray_sphere(ray, vec3f{3.0f, 2.0f, 2.0f}, 1.0f) == std::nullopt);
+  }
+
+  SECTION("intersect_ray_torus")
+  {
     CHECK(
-      polygon_clip_by_plane(plane3, std::begin(poly), std::end(poly))
-      == std::vector<vec3d>{
-        {-1, -1, 0},
-        {-1, 1, 0},
-        {0, 1, 0},
-        {0, -1, 0},
-      });
-
-    // split into two triangles
+      intersect_ray_torus(
+        ray3f{vec3f{0, 0, 0}, vec3f{0, 1, 0}}, vec3f{0, 0, 0}, 5.0f, 1.0f)
+      == approx(4.0f));
     CHECK(
-      polygon_clip_by_plane(plane4, std::begin(poly), std::end(poly))
-      == std::vector<vec3d>{
-        {-1, -1, 0},
-        {1, 1, 0},
-        {1, -1, 0},
-      });
+      intersect_ray_torus(
+        ray3f{vec3f{0, 0, 0}, vec3f{1, 0, 0}}, vec3f{0, 0, 0}, 5.0f, 1.0f)
+      == approx(4.0f));
+
+    CHECK(
+      intersect_ray_torus(
+        ray3f{vec3f{0.0f, -10.0f, 0.0f}, vec3f{0, 1, 0}}, vec3f{0, 0, 0}, 5.0f, 1.0f)
+      == approx(4.0f));
+    CHECK(
+      intersect_ray_torus(
+        ray3f{vec3f{-10.0f, 0.0f, 0.0f}, vec3f{1, 0, 0}}, vec3f{0, 0, 0}, 5.0f, 1.0f)
+      == approx(4.0f));
+
+    CHECK(
+      intersect_ray_torus(
+        ray3f{vec3f{0.0f, -5.0f, 5.0f}, vec3f{0, 0, -1}}, vec3f{0, 0, 0}, 5.0f, 1.0f)
+      == approx(4.0f));
+
+    CHECK(
+      intersect_ray_torus(
+        ray3f{vec3f{5.0f, -5.0f, 5.0f}, vec3f{0, 0, -1}},
+        vec3f{5.0f, 0.0f, 0.0f},
+        5.0f,
+        1.0f)
+      == approx(4.0f));
+
+    CHECK(
+      intersect_ray_torus(
+        ray3f{vec3f{0, 0, 0}, vec3f{0, 0, 1}}, vec3f{0, 0, 0}, 5.0f, 1.0f)
+      == std::nullopt);
   }
-}
 
-TEST_CASE("intersection.intersect_bbox_polygon")
-{
-  constexpr auto poly = square();
-
-  constexpr auto bbox1 = bbox3d{{-10, -10, -10}, {-5, -5, -5}};
-
-  constexpr auto bbox2 = bbox3d{{-1.1, -1.1, -1}, {-0.9, -0.9, 1}};
-  constexpr auto bbox3 = bbox3d{{0, 0, 0}, {2, 2, 2}};
-  constexpr auto bbox4 = bbox3d{{0.9, -0.1, -1}, {1.1, 0.1, 1}};
-
-  SECTION("no intersection")
+  SECTION("intersect_line_line")
   {
-    CHECK_FALSE(intersect_bbox_polygon(bbox1, std::begin(poly), std::end(poly)));
+    CER_CHECK(
+      intersect_line_line(line{vec2d{0, 0}, vec2d{0, 1}}, line{vec2d{0, 0}, vec2d{0, 1}})
+      == std::nullopt);
+    CER_CHECK(
+      intersect_line_line(line{vec2d{0, 0}, vec2d{0, 1}}, line{vec2d{1, 0}, vec2d{0, 1}})
+      == std::nullopt);
+    CER_CHECK(
+      intersect_line_line(line{vec2d{0, 0}, vec2d{0, 1}}, line{vec2d{0, 0}, vec2d{1, 0}})
+      == 0.0);
+    CER_CHECK(
+      intersect_line_line(line{vec2d{0, 0}, vec2d{0, 1}}, line{vec2d{0, 1}, vec2d{1, 0}})
+      == 1.0);
   }
 
-  SECTION("intersection")
+  SECTION("intersect_line_plane")
   {
-    // polygon point inside bbox
-    CHECK(intersect_bbox_polygon(bbox2, std::begin(poly), std::end(poly)));
-
-    // bbox edge intersects polygon
-    CHECK(intersect_bbox_polygon(bbox3, std::begin(poly), std::end(poly)));
-
-    // polygon edge intersects bbox
-    CHECK(intersect_bbox_polygon(bbox4, std::begin(poly), std::end(poly)));
+    constexpr auto p = plane3f{5.0f, vec3f{0, 0, 1}};
+    constexpr auto l = line3f{vec3f{0, 0, 15}, normalize_c(vec3f{1, 0, -1})};
+    CER_CHECK(
+      point_at_distance(l, *intersect_line_plane(l, p)) == approx(vec3f{10, 0, 5}));
   }
-}
 
-TEST_CASE("intersection.segments_overlap")
-{
-  static constexpr auto epsilon = constants<double>::almost_zero();
+  SECTION("intersect_plane_plane")
+  {
+    constexpr auto p1 = plane3f{10.0f, vec3f{0, 0, 1}};
+    constexpr auto p2 = plane3f{20.0f, vec3f{1, 0, 0}};
+    const auto line = intersect_plane_plane(p1, p2);
 
-  const auto [s1, s2, expectedOverlap] = GENERATE(table<segment3d, segment3d, bool>({
-    // [==] [==] // disjoint
-    {{{0, 0, 0}, {3, 0, 0}}, {{4, 0, 0}, {7, 0, 0}}, false},
-    // [==][==] // abutting
-    {{{0, 0, 0}, {3, 0, 0}}, {{3, 0, 0}, {6, 0, 0}}, false},
-    // [==][==] // abutting, swapped
-    {{{0, 0, 0}, {3, 0, 0}}, {{-2, 0, 0}, {0, 0, 0}}, false},
-    // [==[]==] // overlap
-    {{{0, 0, 0}, {3, 0, 0}}, {{2, 0, 0}, {5, 0, 0}}, true},
-    // [==[]==] // overlap, swapped
-    {{{0, 0, 0}, {3, 0, 0}}, {{-1, 0, 0}, {2, 0, 0}}, true},
-    // [=[==]=] // s1 contains s2, no coincident ends
-    {{{0, 0, 0}, {3, 0, 0}}, {{1, 0, 0}, {2, 0, 0}}, true},
-    // [=[==]=] // s2 contains s1, no coincident ends
-    {{{0, 0, 0}, {3, 0, 0}}, {{-1, 0, 0}, {4, 0, 0}}, true},
-    // [=[===] // s1 contains s2, right ends coincide
-    {{{0, 0, 0}, {3, 0, 0}}, {{1, 0, 0}, {3, 0, 0}}, true},
-    // [===]=] // s1 contains s2, left ends coincide
-    {{{0, 0, 0}, {3, 0, 0}}, {{0, 0, 0}, {2, 0, 0}}, true},
-    // [===] // s1 and s2 coincide
-    {{{0, 0, 0}, {3, 0, 0}}, {{0, 0, 0}, {3, 0, 0}}, true},
+    CHECK(lineOnPlane(p1, *line));
+    CHECK(lineOnPlane(p2, *line));
+  }
 
-    // [==[]==] // overlap, but offset
-    {{{0, 0, 0}, {3, 0, 0}}, {{2, 0, 1}, {5, 0, 1}}, false},
-    // [===] // overlap, but crossing
-    {{{0, 0, 0}, {3, 0, 0}}, {{0, 0, 1}, {3, 0, -1}}, false},
+  SECTION("intersect_plane_plane_parallel")
+  {
+    constexpr auto p1 = plane3f{10.0f, vec3f{0, 0, 1}};
+    constexpr auto p2 = plane3f{11.0f, vec3f{0, 0, 1}};
+    CHECK(intersect_plane_plane(p1, p2) == std::nullopt);
+  }
 
-    // [==[]==] // overlap by 2* epsilon, just above threshold
-    {{{0, 0, 0}, {3, 0, 0}}, {{3 - 2 * epsilon, 0, 0}, {6 - 2 * epsilon, 0, 0}}, true},
-    // [==[]==] // overlap by epsilon, exactly at threshold
-    {{{0, 0, 0}, {3, 0, 0}}, {{3 - epsilon, 0, 0}, {6 - epsilon, 0, 0}}, false},
-    // [==[]==] // overlap by epsilon/2, just below threshold
-    {{{0, 0, 0}, {3, 0, 0}}, {{3 - epsilon / 2, 0, 0}, {6 - epsilon / 2, 0, 0}}, false},
-  }));
+  SECTION("intersect_plane_plane_similar")
+  {
+    constexpr auto anchor = vec3f{100, 100, 100};
+    constexpr auto p1 = plane3f{anchor, vec3f{1, 0, 0}};
+    const auto p2 = plane3f{
+      anchor,
+      quatf{vec3f{0, -1, 0}, to_radians(0.5f)}
+        * vec3f{1, 0, 0}}; // p1 rotated by 0.5 degrees
+    const auto line = intersect_plane_plane(p1, p2);
 
-  CAPTURE(s1, s2);
+    CHECK(lineOnPlane(p1, *line));
+    CHECK(lineOnPlane(p2, *line));
+  }
 
-  CHECK(segments_overlap(s1, s2, epsilon) == expectedOverlap);
+  SECTION("intersect_plane_plane_too_similar")
+  {
+    constexpr auto anchor = vec3f{100, 100, 100};
+    constexpr auto p1 = plane3f{anchor, vec3f{1, 0, 0}};
+    const auto p2 = plane3f{
+      anchor,
+      quatf{vec3f{0, -1, 0}, to_radians(0.0001f)}
+        * vec3f{1, 0, 0}}; // p1 rotated by 0.0001 degrees
+
+    CHECK(intersect_plane_plane(p1, p2) == std::nullopt);
+  }
+
+  SECTION("polygon_clip_by_plane")
+  {
+    constexpr auto poly = square();
+
+    constexpr auto plane1 = plane3d{{0, 0, 0}, vec3d{0, 0, 1}};
+    constexpr auto plane2 = plane3d{{0, 1, 0}, vec3d{0, 0, 1}};
+    constexpr auto plane5 = plane3d{{0, -1, 0}, -vec3d{0, 0, 1}};
+
+    constexpr auto plane3 = plane3d{{0, 0, 0}, vec3d{1, 0, 0}};
+    const auto plane4 =
+      *vm::from_points(vec3d{-1, -1, 0}, vec3d{1, 1, 0}, vec3d{0, 0, 1});
+
+    SECTION("no clipping")
+    {
+      CHECK(polygon_clip_by_plane(plane1, std::begin(poly), std::end(poly)).empty());
+      CHECK(polygon_clip_by_plane(plane2, std::begin(poly), std::end(poly)).empty());
+      CHECK(polygon_clip_by_plane(plane5, std::begin(poly), std::end(poly)).empty());
+    }
+
+    SECTION("clipping")
+    {
+      // split into two rectangles
+      CHECK(
+        polygon_clip_by_plane(plane3, std::begin(poly), std::end(poly))
+        == std::vector<vec3d>{
+          {-1, -1, 0},
+          {-1, 1, 0},
+          {0, 1, 0},
+          {0, -1, 0},
+        });
+
+      // split into two triangles
+      CHECK(
+        polygon_clip_by_plane(plane4, std::begin(poly), std::end(poly))
+        == std::vector<vec3d>{
+          {-1, -1, 0},
+          {1, 1, 0},
+          {1, -1, 0},
+        });
+    }
+  }
+
+  SECTION("intersect_bbox_polygon")
+  {
+    constexpr auto poly = square();
+
+    constexpr auto bbox1 = bbox3d{{-10, -10, -10}, {-5, -5, -5}};
+
+    constexpr auto bbox2 = bbox3d{{-1.1, -1.1, -1}, {-0.9, -0.9, 1}};
+    constexpr auto bbox3 = bbox3d{{0, 0, 0}, {2, 2, 2}};
+    constexpr auto bbox4 = bbox3d{{0.9, -0.1, -1}, {1.1, 0.1, 1}};
+
+    SECTION("no intersection")
+    {
+      CHECK(!(intersect_bbox_polygon(bbox1, std::begin(poly), std::end(poly))));
+    }
+
+    SECTION("intersection")
+    {
+      // polygon point inside bbox
+      CHECK(intersect_bbox_polygon(bbox2, std::begin(poly), std::end(poly)));
+
+      // bbox edge intersects polygon
+      CHECK(intersect_bbox_polygon(bbox3, std::begin(poly), std::end(poly)));
+
+      // polygon edge intersects bbox
+      CHECK(intersect_bbox_polygon(bbox4, std::begin(poly), std::end(poly)));
+    }
+  }
+
+  SECTION("segments_overlap")
+  {
+    static constexpr auto epsilon = constants<double>::almost_zero();
+
+    const auto [s1, s2, expectedOverlap] = GENERATE(table<segment3d, segment3d, bool>({
+      // [==] [==] // disjoint
+      {{{0, 0, 0}, {3, 0, 0}}, {{4, 0, 0}, {7, 0, 0}}, false},
+      // [==][==] // abutting
+      {{{0, 0, 0}, {3, 0, 0}}, {{3, 0, 0}, {6, 0, 0}}, false},
+      // [==][==] // abutting, swapped
+      {{{0, 0, 0}, {3, 0, 0}}, {{-2, 0, 0}, {0, 0, 0}}, false},
+      // [==[]==] // overlap
+      {{{0, 0, 0}, {3, 0, 0}}, {{2, 0, 0}, {5, 0, 0}}, true},
+      // [==[]==] // overlap, swapped
+      {{{0, 0, 0}, {3, 0, 0}}, {{-1, 0, 0}, {2, 0, 0}}, true},
+      // [=[==]=] // s1 contains s2, no coincident ends
+      {{{0, 0, 0}, {3, 0, 0}}, {{1, 0, 0}, {2, 0, 0}}, true},
+      // [=[==]=] // s2 contains s1, no coincident ends
+      {{{0, 0, 0}, {3, 0, 0}}, {{-1, 0, 0}, {4, 0, 0}}, true},
+      // [=[===] // s1 contains s2, right ends coincide
+      {{{0, 0, 0}, {3, 0, 0}}, {{1, 0, 0}, {3, 0, 0}}, true},
+      // [===]=] // s1 contains s2, left ends coincide
+      {{{0, 0, 0}, {3, 0, 0}}, {{0, 0, 0}, {2, 0, 0}}, true},
+      // [===] // s1 and s2 coincide
+      {{{0, 0, 0}, {3, 0, 0}}, {{0, 0, 0}, {3, 0, 0}}, true},
+
+      // [==[]==] // overlap, but offset
+      {{{0, 0, 0}, {3, 0, 0}}, {{2, 0, 1}, {5, 0, 1}}, false},
+      // [===] // overlap, but crossing
+      {{{0, 0, 0}, {3, 0, 0}}, {{0, 0, 1}, {3, 0, -1}}, false},
+
+      // [==[]==] // overlap by 2* epsilon, just above threshold
+      {{{0, 0, 0}, {3, 0, 0}}, {{3 - 2 * epsilon, 0, 0}, {6 - 2 * epsilon, 0, 0}}, true},
+      // [==[]==] // overlap by epsilon, exactly at threshold
+      {{{0, 0, 0}, {3, 0, 0}}, {{3 - epsilon, 0, 0}, {6 - epsilon, 0, 0}}, false},
+      // [==[]==] // overlap by epsilon/2, just below threshold
+      {{{0, 0, 0}, {3, 0, 0}}, {{3 - epsilon / 2, 0, 0}, {6 - epsilon / 2, 0, 0}}, false},
+    }));
+
+    CAPTURE(s1, s2);
+
+    CHECK(segments_overlap(s1, s2, epsilon) == expectedOverlap);
+  }
 }
 } // namespace vm

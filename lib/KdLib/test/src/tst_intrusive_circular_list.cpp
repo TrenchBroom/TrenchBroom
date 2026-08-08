@@ -130,1421 +130,1459 @@ void assertList(
 
 } // namespace
 
-TEST_CASE("intrusive_circular_list_test.constructor_default")
+TEST_CASE("intrusive_circular_list")
 {
-  assertList({}, list());
-}
-
-TEST_CASE("intrusive_circular_list_test.constructor_initializer_list")
-{
-  assertList({}, list({}));
-
-  auto* e1 = new element();
-  assertList({e1}, list({e1}));
-
-  auto* e2 = new element();
-  auto* e3 = new element();
-  assertList({e2, e3}, list({e2, e3}));
-}
-
-TEST_CASE("intrusive_circular_list_test.destructor_cleanup")
-{
-  auto t1_deleted = false;
-  auto t2_deleted = false;
-  auto t3_deleted = false;
-
+  SECTION("constructor")
   {
-    auto* t1 = new delete_tracking_element(t1_deleted);
-    auto* t2 = new delete_tracking_element(t2_deleted);
-    auto* t3 = new delete_tracking_element(t3_deleted);
+    SECTION("default")
+    {
+      assertList({}, list());
+    }
 
-    list l;
-    l.push_back(t1);
-    l.push_back(t2);
-    l.push_back(t3);
+    SECTION("initializer_list")
+    {
+      assertList({}, list({}));
 
-    // l falls out of scope and destroys the elements
+      auto* e1 = new element();
+      assertList({e1}, list({e1}));
+
+      auto* e2 = new element();
+      auto* e3 = new element();
+      assertList({e2, e3}, list({e2, e3}));
+    }
   }
 
-  CHECK(t1_deleted);
-  CHECK(t2_deleted);
-  CHECK(t3_deleted);
-}
-
-TEST_CASE("intrusive_circular_list_test.iterators")
-{
-  list l;
-
-  // empty list
-  CHECK(l.end() == l.begin());
-
-  auto* e1 = l.emplace_back();
-
-  auto it = l.begin();
-  auto end = l.end();
-  CHECK(end != it);
-
-  CHECK(*it == e1);
-  CHECK(*it++ == e1);
-  CHECK(end == it);
-
-  auto* e2 = l.emplace_back();
-
-  it = l.begin();
-  end = l.end();
-  CHECK(end != it);
-
-  CHECK(*it == e1);
-  CHECK(*it++ == e1);
-  CHECK(*it == e2);
-  CHECK(*it++ == e2);
-  CHECK(end == it);
-}
-
-TEST_CASE("intrusive_circular_list_test.reverse_iterators")
-{
-  list l;
-
-  // empty list
-  CHECK(l.rend() == l.rbegin());
-
-  auto* e1 = l.emplace_back();
-
-  auto it = l.rbegin();
-  auto end = l.rend();
-  CHECK(end != it);
-
-  CHECK(*it == e1);
-  CHECK(*it++ == e1);
-  CHECK(end == it);
-
-  auto* e2 = l.emplace_back();
-  auto* e3 = l.emplace_back();
-
-  it = l.rbegin();
-  end = l.rend();
-  CHECK(end != it);
-
-  CHECK(*it == e3);
-  CHECK(*it++ == e3);
-  CHECK(*it == e2);
-  CHECK(*it++ == e2);
-  CHECK(*it == e1);
-  CHECK(*it++ == e1);
-  CHECK(end == it);
-}
-
-TEST_CASE("intrusive_circular_list_test.empty")
-{
-  list l;
-  CHECK(l.empty());
-
-  auto* e1 = new element();
-  l.push_back(e1);
-  CHECK_FALSE(l.empty());
-}
-
-TEST_CASE("intrusive_circular_list_test.size")
-{
-  list l;
-  CHECK(l.size() == 0u);
-
-  auto* e1 = new element();
-  l.push_back(e1);
-  CHECK(l.size() == 1u);
-}
-
-TEST_CASE("intrusive_circular_list_test.front")
-{
-  list l;
-
-  auto* e1 = new element();
-  auto* e2 = new element();
-  auto* e3 = new element();
-
-  CHECK(l.front() == nullptr);
-
-  l.push_back(e1);
-  CHECK(l.front() == e1);
-
-  l.push_back(e2);
-  CHECK(l.front() == e1);
-
-  l.push_back(e3);
-  CHECK(l.front() == e1);
-}
-
-TEST_CASE("intrusive_circular_list_test.back")
-{
-  list l;
-
-  auto* e1 = new element();
-  auto* e2 = new element();
-  auto* e3 = new element();
-
-  CHECK(l.back() == nullptr);
-
-  l.push_back(e1);
-  CHECK(l.back() == e1);
-
-  l.push_back(e2);
-  CHECK(l.back() == e2);
-
-  l.push_back(e3);
-  CHECK(l.back() == e3);
-}
-
-TEST_CASE("intrusive_circular_list_test.contains")
-{
-  list l;
-
-  auto* e1 = new element();
-  auto* e2 = new element();
-  auto* e3 = new element();
-
-  l.push_back(e1);
-  l.push_back(e2);
-
-  CHECK(l.contains(e1));
-  CHECK(l.contains(e2));
-  CHECK_FALSE(l.contains(e3));
-
-  l.push_back(e3);
-  CHECK(l.contains(e3));
-}
-
-TEST_CASE("intrusive_circular_list_test.push_back")
-{
-  list l;
-  auto* e1 = new element();
-  l.push_back(e1);
-  assertList({e1}, l);
-
-  auto* e2 = new element();
-  l.push_back(e2);
-  assertList({e1, e2}, l);
-
-  auto* e3 = new element();
-  l.push_back(e3);
-  assertList({e1, e2, e3}, l);
-}
-
-TEST_CASE("intrusive_circular_list_test.remove_single_item")
-{
-  auto* e1 = new element();
-  list l({e1});
-  assertList({e1}, l.remove(e1));
-  assertList({}, l);
-}
-
-TEST_CASE("intrusive_circular_list_test.remove_front_item")
-{
-  auto* e1 = new element();
-  auto* e2 = new element();
-  auto* e3 = new element();
-  list l({e1, e2, e3});
-  assertList({e1}, l.remove(e1));
-  assertList({e2, e3}, l);
-}
-
-TEST_CASE("intrusive_circular_list_test.remove_mid_item")
-{
-  auto* e1 = new element();
-  auto* e2 = new element();
-  auto* e3 = new element();
-  list l({e1, e2, e3});
-  assertList({e2}, l.remove(e2));
-  assertList({e3, e1}, l); // removal affects list head
-}
-
-TEST_CASE("intrusive_circular_list_test.remove_back_item")
-{
-  auto* e1 = new element();
-  auto* e2 = new element();
-  auto* e3 = new element();
-  list l({e1, e2, e3});
-  assertList({e3}, l.remove(e3));
-  assertList({e1, e2}, l);
-}
-
-TEST_CASE("intrusive_circular_list_test.remove_single")
-{
-  auto e1_deleted = false;
-  auto e2_deleted = false;
-  auto e3_deleted = false;
-  auto e4_deleted = false;
-
-  list l;
-
-  auto* e1 = new delete_tracking_element(e1_deleted);
-  auto* e2 = new delete_tracking_element(e2_deleted);
-  auto* e3 = new delete_tracking_element(e3_deleted);
-  auto* e4 = new delete_tracking_element(e4_deleted);
-
-  l.push_back(e1);
-  l.push_back(e2);
-  l.push_back(e3);
-  l.push_back(e4);
-
-  // mid element
-  l.remove(list::iter(e2), std::next(list::iter(e2)), 1u);
-  CHECK_FALSE(e1_deleted);
-  CHECK(e2_deleted);
-  CHECK_FALSE(e3_deleted);
-  CHECK_FALSE(e4_deleted);
-  assertList({e1, e3, e4}, l);
-
-  // front element
-  l.remove(list::iter(e3), std::next(list::iter(e3)), 1u);
-  CHECK_FALSE(e1_deleted);
-  CHECK(e2_deleted);
-  CHECK(e3_deleted);
-  CHECK_FALSE(e4_deleted);
-  assertList({e1, e4}, l);
-
-  // back element
-  l.remove(list::iter(e1), std::next(list::iter(e1)), 1u);
-  CHECK(e1_deleted);
-  CHECK(e2_deleted);
-  CHECK(e3_deleted);
-  CHECK_FALSE(e4_deleted);
-  assertList({e4}, l);
-
-  // single element
-  l.remove(list::iter(e4), std::next(list::iter(e4)), 1u);
-  CHECK(e1_deleted);
-  CHECK(e2_deleted);
-  CHECK(e3_deleted);
-  CHECK(e4_deleted);
-  assertList({}, l);
-}
-
-TEST_CASE("intrusive_circular_list_test.remove_multiple")
-{
-  auto e1_deleted = false;
-  auto e2_deleted = false;
-  auto e3_deleted = false;
-  auto e4_deleted = false;
-
-  list l;
-
-  auto* e1 = new delete_tracking_element(e1_deleted);
-  auto* e2 = new delete_tracking_element(e2_deleted);
-  auto* e3 = new delete_tracking_element(e3_deleted);
-  auto* e4 = new delete_tracking_element(e4_deleted);
-
-  l.push_back(e1);
-  l.push_back(e2);
-  l.push_back(e3);
-  l.push_back(e4);
-
-  l.remove(list::iter(e4), std::next(list::iter(e1)), 2u);
-  CHECK(e1_deleted);
-  CHECK_FALSE(e2_deleted);
-  CHECK_FALSE(e3_deleted);
-  CHECK(e4_deleted);
-  assertList({e2, e3}, l);
-}
-
-TEST_CASE("intrusive_circular_list_test.remove_all")
-{
-  auto e1_deleted = false;
-  auto e2_deleted = false;
-
-  list l;
-
-  auto* e1 = new delete_tracking_element(e1_deleted);
-  auto* e2 = new delete_tracking_element(e2_deleted);
-
-  l.push_back(e1);
-  l.push_back(e2);
-
-  l.remove(list::iter(e1), std::next(list::iter(e2)), 2u);
-  CHECK(e1_deleted);
-  CHECK(e2_deleted);
-  assertList({}, l);
-}
-
-TEST_CASE("intrusive_circular_list_test.release_single")
-{
-  auto e1_deleted = false;
-  auto e2_deleted = false;
-  auto e3_deleted = false;
-  auto e4_deleted = false;
-
-  list l;
-
-  element* e1 = new delete_tracking_element(e1_deleted);
-  element* e2 = new delete_tracking_element(e2_deleted);
-  element* e3 = new delete_tracking_element(e3_deleted);
-  element* e4 = new delete_tracking_element(e4_deleted);
-
-  l.push_back(e1);
-  l.push_back(e2);
-  l.push_back(e3);
-  l.push_back(e4);
-
-  // mid element
-  l.release(list::iter(e2), std::next(list::iter(e2)), 1u);
-  CHECK_FALSE(e1_deleted);
-  CHECK_FALSE(e2_deleted);
-  CHECK_FALSE(e3_deleted);
-  CHECK_FALSE(e4_deleted);
-  assertList({e1, e3, e4}, l);
-  assertLinks(e2, {e2});
-
-  // front element
-  l.release(list::iter(e3), std::next(list::iter(e3)), 1u);
-  CHECK_FALSE(e1_deleted);
-  CHECK_FALSE(e2_deleted);
-  CHECK_FALSE(e3_deleted);
-  CHECK_FALSE(e4_deleted);
-  assertList({e1, e4}, l);
-  assertLinks(e3, {e3});
-
-  // back element
-  l.release(list::iter(e1), std::next(list::iter(e1)), 1u);
-  CHECK_FALSE(e1_deleted);
-  CHECK_FALSE(e2_deleted);
-  CHECK_FALSE(e3_deleted);
-  CHECK_FALSE(e4_deleted);
-  assertList({e4}, l);
-  assertLinks(e1, {e1});
-
-  // single element
-  l.release(list::iter(e4), std::next(list::iter(e4)), 1u);
-  CHECK_FALSE(e1_deleted);
-  CHECK_FALSE(e2_deleted);
-  CHECK_FALSE(e3_deleted);
-  CHECK_FALSE(e4_deleted);
-  assertList({}, l);
-  assertLinks(e4, {e4});
-}
-
-TEST_CASE("intrusive_circular_list_test.release_multiple")
-{
-  auto e1_deleted = false;
-  auto e2_deleted = false;
-  auto e3_deleted = false;
-  auto e4_deleted = false;
-
-  list l;
-
-  element* e1 = new delete_tracking_element(e1_deleted);
-  element* e2 = new delete_tracking_element(e2_deleted);
-  element* e3 = new delete_tracking_element(e3_deleted);
-  element* e4 = new delete_tracking_element(e4_deleted);
-
-  l.push_back(e1);
-  l.push_back(e2);
-  l.push_back(e3);
-  l.push_back(e4);
-
-  l.release(list::iter(e4), std::next(list::iter(e1)), 2u);
-  CHECK_FALSE(e1_deleted);
-  CHECK_FALSE(e2_deleted);
-  CHECK_FALSE(e3_deleted);
-  CHECK_FALSE(e4_deleted);
-  assertList({e2, e3}, l);
-  assertLinks(e4, {e1, e4});
-}
-
-TEST_CASE("intrusive_circular_list_test.release_all")
-{
-  auto e1_deleted = false;
-  auto e2_deleted = false;
-
-  list l;
-
-  element* e1 = new delete_tracking_element(e1_deleted);
-  element* e2 = new delete_tracking_element(e2_deleted);
-
-  l.push_back(e1);
-  l.push_back(e2);
-
-  l.release(list::iter(e1), std::next(list::iter(e2)), 2u);
-  CHECK_FALSE(e1_deleted);
-  CHECK_FALSE(e2_deleted);
-  assertList({}, l);
-  assertLinks(e1, {e1, e2});
-}
-
-TEST_CASE("intrusive_circular_list_test.emplace_back")
-{
-  list l;
-
-  auto* e1 = l.emplace_back();
-  assertList({e1}, l);
-
-  auto* e2 = l.emplace_back();
-  assertList({e1, e2}, l);
-
-  auto* e3 = l.emplace_back();
-  assertList({e1, e2, e3}, l);
-}
-
-TEST_CASE("intrusive_circular_list_test.emplace_back_subtype")
-{
-  auto e1_deleted = false;
+  SECTION("destructor")
+  {
+    auto t1_deleted = false;
+    auto t2_deleted = false;
+    auto t3_deleted = false;
+
+    {
+      auto* t1 = new delete_tracking_element(t1_deleted);
+      auto* t2 = new delete_tracking_element(t2_deleted);
+      auto* t3 = new delete_tracking_element(t3_deleted);
+
+      list l;
+      l.push_back(t1);
+      l.push_back(t2);
+      l.push_back(t3);
+
+      // l falls out of scope and destroys the elements
+    }
+
+    CHECK(t1_deleted);
+    CHECK(t2_deleted);
+    CHECK(t3_deleted);
+  }
+
+  SECTION("iterators")
   {
     list l;
-    auto* e1 = l.emplace_back<delete_tracking_element>(e1_deleted);
+
+    // empty list
+    CHECK(l.end() == l.begin());
+
+    auto* e1 = l.emplace_back();
+
+    auto it = l.begin();
+    auto end = l.end();
+    CHECK(end != it);
+
+    CHECK(*it == e1);
+    CHECK(*it++ == e1);
+    CHECK(end == it);
+
+    auto* e2 = l.emplace_back();
+
+    it = l.begin();
+    end = l.end();
+    CHECK(end != it);
+
+    CHECK(*it == e1);
+    CHECK(*it++ == e1);
+    CHECK(*it == e2);
+    CHECK(*it++ == e2);
+    CHECK(end == it);
+  }
+
+  SECTION("reverse_iterators")
+  {
+    list l;
+
+    // empty list
+    CHECK(l.rend() == l.rbegin());
+
+    auto* e1 = l.emplace_back();
+
+    auto it = l.rbegin();
+    auto end = l.rend();
+    CHECK(end != it);
+
+    CHECK(*it == e1);
+    CHECK(*it++ == e1);
+    CHECK(end == it);
+
+    auto* e2 = l.emplace_back();
+    auto* e3 = l.emplace_back();
+
+    it = l.rbegin();
+    end = l.rend();
+    CHECK(end != it);
+
+    CHECK(*it == e3);
+    CHECK(*it++ == e3);
+    CHECK(*it == e2);
+    CHECK(*it++ == e2);
+    CHECK(*it == e1);
+    CHECK(*it++ == e1);
+    CHECK(end == it);
+  }
+
+  SECTION("empty")
+  {
+    list l;
+    CHECK(l.empty());
+
+    auto* e1 = new element();
+    l.push_back(e1);
+    CHECK(!l.empty());
+  }
+
+  SECTION("size")
+  {
+    list l;
+    CHECK(l.size() == 0u);
+
+    auto* e1 = new element();
+    l.push_back(e1);
+    CHECK(l.size() == 1u);
+  }
+
+  SECTION("front")
+  {
+    list l;
+
+    auto* e1 = new element();
+    auto* e2 = new element();
+    auto* e3 = new element();
+
+    CHECK(l.front() == nullptr);
+
+    l.push_back(e1);
+    CHECK(l.front() == e1);
+
+    l.push_back(e2);
+    CHECK(l.front() == e1);
+
+    l.push_back(e3);
+    CHECK(l.front() == e1);
+  }
+
+  SECTION("back")
+  {
+    list l;
+
+    auto* e1 = new element();
+    auto* e2 = new element();
+    auto* e3 = new element();
+
+    CHECK(l.back() == nullptr);
+
+    l.push_back(e1);
+    CHECK(l.back() == e1);
+
+    l.push_back(e2);
+    CHECK(l.back() == e2);
+
+    l.push_back(e3);
+    CHECK(l.back() == e3);
+  }
+
+  SECTION("contains")
+  {
+    list l;
+
+    auto* e1 = new element();
+    auto* e2 = new element();
+    auto* e3 = new element();
+
+    l.push_back(e1);
+    l.push_back(e2);
+
+    CHECK(l.contains(e1));
+    CHECK(l.contains(e2));
+    CHECK(!l.contains(e3));
+
+    l.push_back(e3);
+    CHECK(l.contains(e3));
+  }
+
+  SECTION("push_back")
+  {
+    list l;
+    auto* e1 = new element();
+    l.push_back(e1);
     assertList({e1}, l);
+
+    auto* e2 = new element();
+    l.push_back(e2);
+    assertList({e1, e2}, l);
+
+    auto* e3 = new element();
+    l.push_back(e3);
+    assertList({e1, e2, e3}, l);
   }
-  CHECK(e1_deleted);
-}
-
-TEST_CASE("intrusive_circular_list_test.reverse")
-{
-  auto* e1 = new element();
-  auto* e2 = new element();
-  auto* e3 = new element();
-  list l({e1, e2, e3});
-
-  l.reverse();
-  assertList({e3, e2, e1}, l);
-}
-
-TEST_CASE("intrusive_circular_list_test.append_list")
-{
-  list from;
-  list to;
-
-  auto* f1 = new element();
-  auto* f2 = new element();
-  auto* f3 = new element();
-
-  from.push_back(f1);
-  from.push_back(f2);
-  from.push_back(f3);
-
-  auto* t1 = new element();
-  auto* t2 = new element();
-
-  to.push_back(t1);
-  to.push_back(t2);
-
-  to.append(from);
-  assertList({t1, t2, f1, f2, f3}, to);
-  assertList({}, from);
-}
-
-TEST_CASE("intrusive_circular_list_test.insert_list_front")
-{
-  list from;
-  list to;
-
-  auto* f1 = new element();
-  auto* f2 = new element();
-  auto* f3 = new element();
-
-  from.push_back(f1);
-  from.push_back(f2);
-  from.push_back(f3);
-
-  auto* t1 = new element();
-  auto* t2 = new element();
-
-  to.push_back(t1);
-  to.push_back(t2);
-
-  to.insert(list::iter(t1), from);
-  assertList({f1, f2, f3, t1, t2}, to);
-  assertList({}, from);
-}
-
-TEST_CASE("intrusive_circular_list_test.insert_list_back")
-{
-  list from;
-  list to;
-
-  auto* f1 = new element();
-  auto* f2 = new element();
-  auto* f3 = new element();
-
-  from.push_back(f1);
-  from.push_back(f2);
-  from.push_back(f3);
-
-  auto* t1 = new element();
-  auto* t2 = new element();
-
-  to.push_back(t1);
-  to.push_back(t2);
-
-  to.insert(std::end(to), from);
-  assertList({t1, t2, f1, f2, f3}, to);
-  assertList({}, from);
-}
-
-TEST_CASE("intrusive_circular_list_test.splice_back_one_item")
-{
-  list from;
-  list to;
-
-  auto* f1 = new element();
-  auto* f2 = new element();
-  auto* f3 = new element();
-
-  from.push_back(f1);
-  from.push_back(f2);
-  from.push_back(f3);
-
-  auto* t1 = new element();
-  auto* t2 = new element();
-
-  to.push_back(t1);
-  to.push_back(t2);
-
-  to.splice_back(from, list::iter(f1), list::iter(f2), 1u);
-  assertList({t1, t2, f1}, to);
-  assertList({f2, f3}, from);
-}
-
-TEST_CASE("intrusive_circular_list_test.splice_back_two_items")
-{
-  list from;
-  list to;
-
-  auto* f1 = new element();
-  auto* f2 = new element();
-  auto* f3 = new element();
-
-  from.push_back(f1);
-  from.push_back(f2);
-  from.push_back(f3);
-
-  auto* t1 = new element();
-  auto* t2 = new element();
-
-  to.push_back(t1);
-  to.push_back(t2);
-
-  to.splice_back(from, list::iter(f1), list::iter(f3), 2u);
-  assertList({t1, t2, f1, f2}, to);
-  assertList({f3}, from);
-}
-
-TEST_CASE("intrusive_circular_list_test.splice_one_item_into_empty_list")
-{
-  list from;
-  list to;
-
-  auto* f1 = new element();
-  auto* f2 = new element();
-  auto* f3 = new element();
-
-  from.push_back(f1);
-  from.push_back(f2);
-  from.push_back(f3);
-
-  to.splice(std::begin(to), from, list::iter(f2), list::iter(f3), 1u);
-  assertList({f2}, to);
-  assertList({f1, f3}, from);
-}
-
-TEST_CASE("intrusive_circular_list_test.splice_two_items_into_empty_list")
-{
-  list from;
-  list to;
-
-  auto* f1 = new element();
-  auto* f2 = new element();
-  auto* f3 = new element();
-
-  from.push_back(f1);
-  from.push_back(f2);
-  from.push_back(f3);
-
-  to.splice(std::begin(to), from, list::iter(f2), list::iter(f1), 2u);
-  assertList({f2, f3}, to);
-  assertList({f1}, from);
-}
-
-TEST_CASE("intrusive_circular_list_test.splice_all_items_into_empty_list")
-{
-  list from;
-  list to;
-
-  auto* f1 = new element();
-  auto* f2 = new element();
-  auto* f3 = new element();
-
-  from.push_back(f1);
-  from.push_back(f2);
-  from.push_back(f3);
-
-  to.splice(std::end(to), from, std::begin(from), std::end(from), 3u);
-  assertList({f1, f2, f3}, to);
-  assertList({}, from);
-}
-
-TEST_CASE("intrusive_circular_list_test.splice_one_item_into_front")
-{
-  list from;
-  list to;
-
-  auto* f1 = new element();
-  auto* f2 = new element();
-  auto* f3 = new element();
-
-  from.push_back(f1);
-  from.push_back(f2);
-  from.push_back(f3);
-
-  auto* t1 = new element();
-  auto* t2 = new element();
-  auto* t3 = new element();
-
-  to.push_back(t1);
-  to.push_back(t2);
-  to.push_back(t3);
-
-  to.splice(list::iter(t1), from, list::iter(f2), list::iter(f3), 1u);
-  assertList({f2, t1, t2, t3}, to);
-  assertList({f1, f3}, from);
-}
-
-TEST_CASE("intrusive_circular_list_test.splice_one_item_into_mid")
-{
-  list from;
-  list to;
-
-  auto* f1 = new element();
-  auto* f2 = new element();
-  auto* f3 = new element();
-
-  from.push_back(f1);
-  from.push_back(f2);
-  from.push_back(f3);
-
-  auto* t1 = new element();
-  auto* t2 = new element();
-  auto* t3 = new element();
-
-  to.push_back(t1);
-  to.push_back(t2);
-  to.push_back(t3);
-
-  to.splice(list::iter(t2), from, list::iter(f2), list::iter(f3), 1u);
-  assertList({t1, f2, t2, t3}, to);
-  assertList({f1, f3}, from);
-}
-
-TEST_CASE("intrusive_circular_list_test.splice_one_item_into_last")
-{
-  list from;
-  list to;
-
-  auto* f1 = new element();
-  auto* f2 = new element();
-  auto* f3 = new element();
-
-  from.push_back(f1);
-  from.push_back(f2);
-  from.push_back(f3);
-
-  auto* t1 = new element();
-  auto* t2 = new element();
-  auto* t3 = new element();
-
-  to.push_back(t1);
-  to.push_back(t2);
-  to.push_back(t3);
-
-  to.splice(list::iter(t3), from, list::iter(f2), list::iter(f3), 1u);
-  assertList({t1, t2, f2, t3}, to);
-  assertList({f1, f3}, from);
-}
-
-TEST_CASE("intrusive_circular_list_test.splice_last_two_items_into_front")
-{
-  list from;
-  list to;
-
-  auto* f1 = new element();
-  auto* f2 = new element();
-  auto* f3 = new element();
-
-  from.push_back(f1);
-  from.push_back(f2);
-  from.push_back(f3);
-
-  auto* t1 = new element();
-  auto* t2 = new element();
-  auto* t3 = new element();
-
-  to.push_back(t1);
-  to.push_back(t2);
-  to.push_back(t3);
-
-  to.splice(list::iter(t1), from, list::iter(f2), list::iter(f1), 2u);
-  assertList({f2, f3, t1, t2, t3}, to);
-  assertList({f1}, from);
-}
-
-TEST_CASE("intrusive_circular_list_test.splice_last_two_items_into_mid")
-{
-  list from;
-  list to;
-
-  auto* f1 = new element();
-  auto* f2 = new element();
-  auto* f3 = new element();
-
-  from.push_back(f1);
-  from.push_back(f2);
-  from.push_back(f3);
-
-  auto* t1 = new element();
-  auto* t2 = new element();
-  auto* t3 = new element();
-
-  to.push_back(t1);
-  to.push_back(t2);
-  to.push_back(t3);
-
-  to.splice(list::iter(t2), from, list::iter(f2), std::end(from), 2u);
-  assertList({t1, f2, f3, t2, t3}, to);
-  assertList({f1}, from);
-}
-
-TEST_CASE("intrusive_circular_list_test.splice_last_two_items_into_last")
-{
-  list from;
-  list to;
-
-  auto* f1 = new element();
-  auto* f2 = new element();
-  auto* f3 = new element();
-
-  from.push_back(f1);
-  from.push_back(f2);
-  from.push_back(f3);
-
-  auto* t1 = new element();
-  auto* t2 = new element();
-  auto* t3 = new element();
-
-  to.push_back(t1);
-  to.push_back(t2);
-  to.push_back(t3);
-
-  to.splice(list::iter(t3), from, list::iter(f2), std::next(list::iter(f3)), 2u);
-  assertList({t1, t2, f2, f3, t3}, to);
-  assertList({f1}, from);
-}
-
-TEST_CASE("intrusive_circular_list_test.splice_last_and_first_items_items_front")
-{
-  list from;
-  list to;
-
-  auto* f1 = new element();
-  auto* f2 = new element();
-  auto* f3 = new element();
-
-  from.push_back(f1);
-  from.push_back(f2);
-  from.push_back(f3);
-
-  auto* t1 = new element();
-  auto* t2 = new element();
-  auto* t3 = new element();
-
-  to.push_back(t1);
-  to.push_back(t2);
-  to.push_back(t3);
-
-  to.splice(list::iter(t1), from, list::iter(f3), list::iter(f2), 2u);
-  assertList({f3, f1, t1, t2, t3}, to);
-  assertList({f2}, from);
-}
-
-TEST_CASE("intrusive_circular_list_test.splice_all_items_into_front")
-{
-  list from;
-  list to;
-
-  auto* f1 = new element();
-  auto* f2 = new element();
-  auto* f3 = new element();
-
-  from.push_back(f1);
-  from.push_back(f2);
-  from.push_back(f3);
-
-  auto* t1 = new element();
-  auto* t2 = new element();
-  auto* t3 = new element();
-
-  to.push_back(t1);
-  to.push_back(t2);
-  to.push_back(t3);
-
-  to.splice(std::begin(to), from, list::iter(f3), list::iter(f3), 3u);
-  assertList({f3, f1, f2, t1, t2, t3}, to);
-  assertList({}, from);
-}
-
-TEST_CASE("intrusive_circular_list_test.splice_all_items_into_mid")
-{
-  list from;
-  list to;
-
-  auto* f1 = new element();
-  auto* f2 = new element();
-  auto* f3 = new element();
-
-  from.push_back(f1);
-  from.push_back(f2);
-  from.push_back(f3);
-
-  auto* t1 = new element();
-  auto* t2 = new element();
-  auto* t3 = new element();
-
-  to.push_back(t1);
-  to.push_back(t2);
-  to.push_back(t3);
-
-  to.splice(list::iter(t2), from, list::iter(f3), list::iter(f3), 3u);
-  assertList({t1, f3, f1, f2, t2, t3}, to);
-  assertList({}, from);
-}
-
-TEST_CASE("intrusive_circular_list_test.splice_all_items_into_last")
-{
-  list from;
-  list to;
-
-  auto* f1 = new element();
-  auto* f2 = new element();
-  auto* f3 = new element();
-
-  from.push_back(f1);
-  from.push_back(f2);
-  from.push_back(f3);
-
-  auto* t1 = new element();
-  auto* t2 = new element();
-  auto* t3 = new element();
-
-  to.push_back(t1);
-  to.push_back(t2);
-  to.push_back(t3);
-
-  to.splice(list::iter(t3), from, list::iter(f3), list::iter(f3), 3u);
-  assertList({t1, t2, f3, f1, f2, t3}, to);
-  assertList({}, from);
-}
-
-TEST_CASE("intrusive_circular_list_test.splice_replace_first_item_with_one_item")
-{
-  auto t1_deleted = false;
-  auto t2_deleted = false;
-  auto t3_deleted = false;
-
-  list from;
-  list to;
-
-  auto* f1 = new element();
-  auto* f2 = new element();
-  auto* f3 = new element();
-
-  from.push_back(f1);
-  from.push_back(f2);
-  from.push_back(f3);
-
-  auto* t1 = new delete_tracking_element(t1_deleted);
-  auto* t2 = new delete_tracking_element(t2_deleted);
-  auto* t3 = new delete_tracking_element(t3_deleted);
-
-  to.push_back(t1);
-  to.push_back(t2);
-  to.push_back(t3);
-
-  to.splice_replace(
-    list::iter(t1), list::iter(t2), 1u, from, list::iter(f2), list::iter(f3), 1u);
-  assertList({f2, t2, t3}, to);
-  assertList({f1, f3}, from);
-
-  CHECK(t1_deleted);
-  CHECK_FALSE(t2_deleted);
-  CHECK_FALSE(t3_deleted);
-}
-
-TEST_CASE("intrusive_circular_list_test.splice_replace_mid_item_with_one_item")
-{
-  auto t1_deleted = false;
-  auto t2_deleted = false;
-  auto t3_deleted = false;
-
-  list from;
-  list to;
-
-  auto* f1 = new element();
-  auto* f2 = new element();
-  auto* f3 = new element();
-
-  from.push_back(f1);
-  from.push_back(f2);
-  from.push_back(f3);
-
-  auto* t1 = new delete_tracking_element(t1_deleted);
-  auto* t2 = new delete_tracking_element(t2_deleted);
-  auto* t3 = new delete_tracking_element(t3_deleted);
-
-  to.push_back(t1);
-  to.push_back(t2);
-  to.push_back(t3);
-
-  to.splice_replace(
-    list::iter(t2), list::iter(t3), 1u, from, list::iter(f2), list::iter(f3), 1u);
-  assertList({t1, f2, t3}, to);
-  assertList({f1, f3}, from);
-
-  CHECK_FALSE(t1_deleted);
-  CHECK(t2_deleted);
-  CHECK_FALSE(t3_deleted);
-}
-
-TEST_CASE("intrusive_circular_list_test.splice_replace_last_item_with_one_item")
-{
-  auto t1_deleted = false;
-  auto t2_deleted = false;
-  auto t3_deleted = false;
-
-  list from;
-  list to;
-
-  auto* f1 = new element();
-  auto* f2 = new element();
-  auto* f3 = new element();
-
-  from.push_back(f1);
-  from.push_back(f2);
-  from.push_back(f3);
-
-  auto* t1 = new delete_tracking_element(t1_deleted);
-  auto* t2 = new delete_tracking_element(t2_deleted);
-  auto* t3 = new delete_tracking_element(t3_deleted);
-
-  to.push_back(t1);
-  to.push_back(t2);
-  to.push_back(t3);
-
-  to.splice_replace(
-    list::iter(t3), std::end(to), 1u, from, list::iter(f2), list::iter(f3), 1u);
-  assertList({t1, t2, f2}, to);
-  assertList({f1, f3}, from);
-
-  CHECK_FALSE(t1_deleted);
-  CHECK_FALSE(t2_deleted);
-  CHECK(t3_deleted);
-}
-
-TEST_CASE("intrusive_circular_list_test.splice_replace_first_item_with_two_items")
-{
-  auto t1_deleted = false;
-  auto t2_deleted = false;
-  auto t3_deleted = false;
-
-  list from;
-  list to;
-
-  auto* f1 = new element();
-  auto* f2 = new element();
-  auto* f3 = new element();
-
-  from.push_back(f1);
-  from.push_back(f2);
-  from.push_back(f3);
-
-  auto* t1 = new delete_tracking_element(t1_deleted);
-  auto* t2 = new delete_tracking_element(t2_deleted);
-  auto* t3 = new delete_tracking_element(t3_deleted);
-
-  to.push_back(t1);
-  to.push_back(t2);
-  to.push_back(t3);
-
-  to.splice_replace(
-    list::iter(t1), list::iter(t2), 1u, from, list::iter(f3), list::iter(f2), 2u);
-  assertList({t2, t3, f3, f1}, to);
-  assertList({f2}, from);
-
-  CHECK(t1_deleted);
-  CHECK_FALSE(t2_deleted);
-  CHECK_FALSE(t3_deleted);
-}
-
-TEST_CASE("intrusive_circular_list_test.splice_replace_mid_item_with_two_items")
-{
-  auto t1_deleted = false;
-  auto t2_deleted = false;
-  auto t3_deleted = false;
-
-  list from;
-  list to;
-
-  auto* f1 = new element();
-  auto* f2 = new element();
-  auto* f3 = new element();
-
-  from.push_back(f1);
-  from.push_back(f2);
-  from.push_back(f3);
-
-  auto* t1 = new delete_tracking_element(t1_deleted);
-  auto* t2 = new delete_tracking_element(t2_deleted);
-  auto* t3 = new delete_tracking_element(t3_deleted);
-
-  to.push_back(t1);
-  to.push_back(t2);
-  to.push_back(t3);
-
-  to.splice_replace(
-    list::iter(t2), list::iter(t3), 1u, from, list::iter(f3), list::iter(f2), 2u);
-  assertList({t1, f3, f1, t3}, to);
-  assertList({f2}, from);
-
-  CHECK_FALSE(t1_deleted);
-  CHECK(t2_deleted);
-  CHECK_FALSE(t3_deleted);
-}
-
-TEST_CASE("intrusive_circular_list_test.splice_replace_last_item_with_two_items")
-{
-  auto t1_deleted = false;
-  auto t2_deleted = false;
-  auto t3_deleted = false;
-
-  list from;
-  list to;
-
-  auto* f1 = new element();
-  auto* f2 = new element();
-  auto* f3 = new element();
-
-  from.push_back(f1);
-  from.push_back(f2);
-  from.push_back(f3);
-
-  auto* t1 = new delete_tracking_element(t1_deleted);
-  auto* t2 = new delete_tracking_element(t2_deleted);
-  auto* t3 = new delete_tracking_element(t3_deleted);
-
-  to.push_back(t1);
-  to.push_back(t2);
-  to.push_back(t3);
-
-  to.splice_replace(
-    list::iter(t3), list::iter(t1), 1u, from, list::iter(f3), list::iter(f2), 2u);
-  assertList({t1, t2, f3, f1}, to);
-  assertList({f2}, from);
-
-  CHECK_FALSE(t1_deleted);
-  CHECK_FALSE(t2_deleted);
-  CHECK(t3_deleted);
-}
-
-TEST_CASE("intrusive_circular_list_test.splice_replace_mid_item_with_all_items")
-{
-  auto t1_deleted = false;
-  auto t2_deleted = false;
-  auto t3_deleted = false;
-
-  list from;
-  list to;
-
-  auto* f1 = new element();
-  auto* f2 = new element();
-  auto* f3 = new element();
-
-  from.push_back(f1);
-  from.push_back(f2);
-  from.push_back(f3);
-
-  auto* t1 = new delete_tracking_element(t1_deleted);
-  auto* t2 = new delete_tracking_element(t2_deleted);
-  auto* t3 = new delete_tracking_element(t3_deleted);
-
-  to.push_back(t1);
-  to.push_back(t2);
-  to.push_back(t3);
-
-  to.splice_replace(
-    list::iter(t2), list::iter(t3), 1u, from, list::iter(f3), list::iter(f3), 3u);
-  assertList({t1, f3, f1, f2, t3}, to);
-  assertList({}, from);
-
-  CHECK_FALSE(t1_deleted);
-  CHECK(t2_deleted);
-  CHECK_FALSE(t3_deleted);
-}
-
-TEST_CASE("intrusive_circular_list_test.splice_replace_first_two_items_with_two_items")
-{
-  auto t1_deleted = false;
-  auto t2_deleted = false;
-  auto t3_deleted = false;
-
-  list from;
-  list to;
-
-  auto* f1 = new element();
-  auto* f2 = new element();
-  auto* f3 = new element();
-
-  from.push_back(f1);
-  from.push_back(f2);
-  from.push_back(f3);
-
-  auto* t1 = new delete_tracking_element(t1_deleted);
-  auto* t2 = new delete_tracking_element(t2_deleted);
-  auto* t3 = new delete_tracking_element(t3_deleted);
-
-  to.push_back(t1);
-  to.push_back(t2);
-  to.push_back(t3);
-
-  to.splice_replace(
-    list::iter(t1), list::iter(t3), 2u, from, list::iter(f1), list::iter(f3), 2u);
-  assertList({f1, f2, t3}, to);
-  assertList({f3}, from);
-
-  CHECK(t1_deleted);
-  CHECK(t2_deleted);
-  CHECK_FALSE(t3_deleted);
-}
-
-TEST_CASE("intrusive_circular_list_test.splice_replace_last_two_items_with_two_items")
-{
-  auto t1_deleted = false;
-  auto t2_deleted = false;
-  auto t3_deleted = false;
-
-  list from;
-  list to;
-
-  auto* f1 = new element();
-  auto* f2 = new element();
-  auto* f3 = new element();
-
-  from.push_back(f1);
-  from.push_back(f2);
-  from.push_back(f3);
-
-  auto* t1 = new delete_tracking_element(t1_deleted);
-  auto* t2 = new delete_tracking_element(t2_deleted);
-  auto* t3 = new delete_tracking_element(t3_deleted);
-
-  to.push_back(t1);
-  to.push_back(t2);
-  to.push_back(t3);
-
-  to.splice_replace(
-    list::iter(t2), list::iter(t1), 2u, from, list::iter(f1), list::iter(f3), 2u);
-  assertList({t1, f1, f2}, to);
-  assertList({f3}, from);
-
-  CHECK_FALSE(t1_deleted);
-  CHECK(t2_deleted);
-  CHECK(t3_deleted);
-}
-
-TEST_CASE(
-  "intrusive_circular_list_test.splice_replace_last_and_first_items_with_two_items")
-{
-  auto t1_deleted = false;
-  auto t2_deleted = false;
-  auto t3_deleted = false;
-
-  list from;
-  list to;
-
-  auto* f1 = new element();
-  auto* f2 = new element();
-  auto* f3 = new element();
-
-  from.push_back(f1);
-  from.push_back(f2);
-  from.push_back(f3);
-
-  auto* t1 = new delete_tracking_element(t1_deleted);
-  auto* t2 = new delete_tracking_element(t2_deleted);
-  auto* t3 = new delete_tracking_element(t3_deleted);
-
-  to.push_back(t1);
-  to.push_back(t2);
-  to.push_back(t3);
-
-  to.splice_replace(
-    list::iter(t3), list::iter(t2), 2u, from, list::iter(f1), list::iter(f3), 2u);
-  assertList({t2, f1, f2}, to);
-  assertList({f3}, from);
-
-  CHECK(t1_deleted);
-  CHECK_FALSE(t2_deleted);
-  CHECK(t3_deleted);
-}
-
-TEST_CASE("intrusive_circular_list_test.splice_replace_all_items_with_two_items")
-{
-  auto t1_deleted = false;
-  auto t2_deleted = false;
-  auto t3_deleted = false;
-
-  list from;
-  list to;
-
-  auto* f1 = new element();
-  auto* f2 = new element();
-  auto* f3 = new element();
-
-  from.push_back(f1);
-  from.push_back(f2);
-  from.push_back(f3);
-
-  auto* t1 = new delete_tracking_element(t1_deleted);
-  auto* t2 = new delete_tracking_element(t2_deleted);
-  auto* t3 = new delete_tracking_element(t3_deleted);
-
-  to.push_back(t1);
-  to.push_back(t2);
-  to.push_back(t3);
-
-  to.splice_replace(
-    list::iter(t3), list::iter(t3), 3u, from, list::iter(f1), list::iter(f3), 2u);
-  assertList({f1, f2}, to);
-  assertList({f3}, from);
-
-  CHECK(t1_deleted);
-  CHECK(t2_deleted);
-  CHECK(t3_deleted);
-}
-
-TEST_CASE("intrusive_circular_list_test.splice_replace_all_items_with_one_item")
-{
-  auto t1_deleted = false;
-  auto t2_deleted = false;
-  auto t3_deleted = false;
-
-  list from;
-  list to;
-
-  auto* f1 = new element();
-  auto* f2 = new element();
-  auto* f3 = new element();
-
-  from.push_back(f1);
-  from.push_back(f2);
-  from.push_back(f3);
-
-  auto* t1 = new delete_tracking_element(t1_deleted);
-  auto* t2 = new delete_tracking_element(t2_deleted);
-  auto* t3 = new delete_tracking_element(t3_deleted);
-
-  to.push_back(t1);
-  to.push_back(t2);
-  to.push_back(t3);
-
-  to.splice_replace(
-    list::iter(t2), list::iter(t2), 3u, from, list::iter(f1), list::iter(f2), 1u);
-  assertList({f1}, to);
-  assertList({f2, f3}, from);
-
-  CHECK(t1_deleted);
-  CHECK(t2_deleted);
-  CHECK(t3_deleted);
-}
-
-TEST_CASE("intrusive_circular_list_test.splice_replace_all_items_with_all_items")
-{
-  auto t1_deleted = false;
-  auto t2_deleted = false;
-  auto t3_deleted = false;
-
-  list from;
-  list to;
-
-  auto* f1 = new element();
-  auto* f2 = new element();
-  auto* f3 = new element();
-
-  from.push_back(f1);
-  from.push_back(f2);
-  from.push_back(f3);
-
-  auto* t1 = new delete_tracking_element(t1_deleted);
-  auto* t2 = new delete_tracking_element(t2_deleted);
-  auto* t3 = new delete_tracking_element(t3_deleted);
-
-  to.push_back(t1);
-  to.push_back(t2);
-  to.push_back(t3);
-
-  to.splice_replace(
-    std::begin(to),
-    std::end(to),
-    to.size(),
-    from,
-    std::begin(from),
-    std::end(from),
-    from.size());
-  assertList({f1, f2, f3}, to);
-  assertList({}, from);
-
-  CHECK(t1_deleted);
-  CHECK(t2_deleted);
-  CHECK(t3_deleted);
-}
-
-TEST_CASE("intrusive_circular_list_test.release")
-{
-  auto e1_deleted = false;
-  auto e2_deleted = false;
-
-  list l;
-
-  element* e1 = new delete_tracking_element(e1_deleted);
-  element* e2 = new delete_tracking_element(e2_deleted);
-
-  l.push_back(e1);
-  l.push_back(e2);
-
-  l.release();
-  CHECK_FALSE(e1_deleted);
-  CHECK_FALSE(e2_deleted);
-  assertList({}, l);
-  assertLinks(e1, {e1, e2});
-}
-
-TEST_CASE("intrusive_circular_list_test.clear_empty_list")
-{
-  list l;
-
-  l.clear();
-  assertList({}, l);
-}
-
-TEST_CASE("intrusive_circular_list_test.clear_with_items")
-{
-  auto e1_deleted = false;
-  auto e2_deleted = false;
-
-  list l;
-
-  element* e1 = new delete_tracking_element(e1_deleted);
-  element* e2 = new delete_tracking_element(e2_deleted);
-
-  l.push_back(e1);
-  l.push_back(e2);
-
-  l.clear();
-  CHECK(e1_deleted);
-  CHECK(e2_deleted);
-  assertList({}, l);
+
+  SECTION("remove")
+  {
+    SECTION("single item")
+    {
+      SECTION("only item")
+      {
+        auto* e1 = new element();
+        list l({e1});
+        assertList({e1}, l.remove(e1));
+        assertList({}, l);
+      }
+
+      SECTION("front item")
+      {
+        auto* e1 = new element();
+        auto* e2 = new element();
+        auto* e3 = new element();
+        list l({e1, e2, e3});
+        assertList({e1}, l.remove(e1));
+        assertList({e2, e3}, l);
+      }
+
+      SECTION("mid item")
+      {
+        auto* e1 = new element();
+        auto* e2 = new element();
+        auto* e3 = new element();
+        list l({e1, e2, e3});
+        assertList({e2}, l.remove(e2));
+        assertList({e3, e1}, l); // removal affects list head
+      }
+
+      SECTION("back item")
+      {
+        auto* e1 = new element();
+        auto* e2 = new element();
+        auto* e3 = new element();
+        list l({e1, e2, e3});
+        assertList({e3}, l.remove(e3));
+        assertList({e1, e2}, l);
+      }
+    }
+
+    SECTION("range")
+    {
+      SECTION("single")
+      {
+        auto e1_deleted = false;
+        auto e2_deleted = false;
+        auto e3_deleted = false;
+        auto e4_deleted = false;
+
+        list l;
+
+        auto* e1 = new delete_tracking_element(e1_deleted);
+        auto* e2 = new delete_tracking_element(e2_deleted);
+        auto* e3 = new delete_tracking_element(e3_deleted);
+        auto* e4 = new delete_tracking_element(e4_deleted);
+
+        l.push_back(e1);
+        l.push_back(e2);
+        l.push_back(e3);
+        l.push_back(e4);
+
+        // mid element
+        l.remove(list::iter(e2), std::next(list::iter(e2)), 1u);
+        CHECK(!e1_deleted);
+        CHECK(e2_deleted);
+        CHECK(!e3_deleted);
+        CHECK(!e4_deleted);
+        assertList({e1, e3, e4}, l);
+
+        // front element
+        l.remove(list::iter(e3), std::next(list::iter(e3)), 1u);
+        CHECK(!e1_deleted);
+        CHECK(e2_deleted);
+        CHECK(e3_deleted);
+        CHECK(!e4_deleted);
+        assertList({e1, e4}, l);
+
+        // back element
+        l.remove(list::iter(e1), std::next(list::iter(e1)), 1u);
+        CHECK(e1_deleted);
+        CHECK(e2_deleted);
+        CHECK(e3_deleted);
+        CHECK(!e4_deleted);
+        assertList({e4}, l);
+
+        // single element
+        l.remove(list::iter(e4), std::next(list::iter(e4)), 1u);
+        CHECK(e1_deleted);
+        CHECK(e2_deleted);
+        CHECK(e3_deleted);
+        CHECK(e4_deleted);
+        assertList({}, l);
+      }
+
+      SECTION("multiple")
+      {
+        auto e1_deleted = false;
+        auto e2_deleted = false;
+        auto e3_deleted = false;
+        auto e4_deleted = false;
+
+        list l;
+
+        auto* e1 = new delete_tracking_element(e1_deleted);
+        auto* e2 = new delete_tracking_element(e2_deleted);
+        auto* e3 = new delete_tracking_element(e3_deleted);
+        auto* e4 = new delete_tracking_element(e4_deleted);
+
+        l.push_back(e1);
+        l.push_back(e2);
+        l.push_back(e3);
+        l.push_back(e4);
+
+        l.remove(list::iter(e4), std::next(list::iter(e1)), 2u);
+        CHECK(e1_deleted);
+        CHECK(!e2_deleted);
+        CHECK(!e3_deleted);
+        CHECK(e4_deleted);
+        assertList({e2, e3}, l);
+      }
+
+      SECTION("all")
+      {
+        auto e1_deleted = false;
+        auto e2_deleted = false;
+
+        list l;
+
+        auto* e1 = new delete_tracking_element(e1_deleted);
+        auto* e2 = new delete_tracking_element(e2_deleted);
+
+        l.push_back(e1);
+        l.push_back(e2);
+
+        l.remove(list::iter(e1), std::next(list::iter(e2)), 2u);
+        CHECK(e1_deleted);
+        CHECK(e2_deleted);
+        assertList({}, l);
+      }
+    }
+  }
+
+  SECTION("release")
+  {
+    SECTION("range")
+    {
+      SECTION("single")
+      {
+        auto e1_deleted = false;
+        auto e2_deleted = false;
+        auto e3_deleted = false;
+        auto e4_deleted = false;
+
+        list l;
+
+        element* e1 = new delete_tracking_element(e1_deleted);
+        element* e2 = new delete_tracking_element(e2_deleted);
+        element* e3 = new delete_tracking_element(e3_deleted);
+        element* e4 = new delete_tracking_element(e4_deleted);
+
+        l.push_back(e1);
+        l.push_back(e2);
+        l.push_back(e3);
+        l.push_back(e4);
+
+        // mid element
+        l.release(list::iter(e2), std::next(list::iter(e2)), 1u);
+        CHECK(!e1_deleted);
+        CHECK(!e2_deleted);
+        CHECK(!e3_deleted);
+        CHECK(!e4_deleted);
+        assertList({e1, e3, e4}, l);
+        assertLinks(e2, {e2});
+
+        // front element
+        l.release(list::iter(e3), std::next(list::iter(e3)), 1u);
+        CHECK(!e1_deleted);
+        CHECK(!e2_deleted);
+        CHECK(!e3_deleted);
+        CHECK(!e4_deleted);
+        assertList({e1, e4}, l);
+        assertLinks(e3, {e3});
+
+        // back element
+        l.release(list::iter(e1), std::next(list::iter(e1)), 1u);
+        CHECK(!e1_deleted);
+        CHECK(!e2_deleted);
+        CHECK(!e3_deleted);
+        CHECK(!e4_deleted);
+        assertList({e4}, l);
+        assertLinks(e1, {e1});
+
+        // single element
+        l.release(list::iter(e4), std::next(list::iter(e4)), 1u);
+        CHECK(!e1_deleted);
+        CHECK(!e2_deleted);
+        CHECK(!e3_deleted);
+        CHECK(!e4_deleted);
+        assertList({}, l);
+        assertLinks(e4, {e4});
+      }
+
+      SECTION("multiple")
+      {
+        auto e1_deleted = false;
+        auto e2_deleted = false;
+        auto e3_deleted = false;
+        auto e4_deleted = false;
+
+        list l;
+
+        element* e1 = new delete_tracking_element(e1_deleted);
+        element* e2 = new delete_tracking_element(e2_deleted);
+        element* e3 = new delete_tracking_element(e3_deleted);
+        element* e4 = new delete_tracking_element(e4_deleted);
+
+        l.push_back(e1);
+        l.push_back(e2);
+        l.push_back(e3);
+        l.push_back(e4);
+
+        l.release(list::iter(e4), std::next(list::iter(e1)), 2u);
+        CHECK(!e1_deleted);
+        CHECK(!e2_deleted);
+        CHECK(!e3_deleted);
+        CHECK(!e4_deleted);
+        assertList({e2, e3}, l);
+        assertLinks(e4, {e1, e4});
+      }
+
+      SECTION("all")
+      {
+        auto e1_deleted = false;
+        auto e2_deleted = false;
+
+        list l;
+
+        element* e1 = new delete_tracking_element(e1_deleted);
+        element* e2 = new delete_tracking_element(e2_deleted);
+
+        l.push_back(e1);
+        l.push_back(e2);
+
+        l.release(list::iter(e1), std::next(list::iter(e2)), 2u);
+        CHECK(!e1_deleted);
+        CHECK(!e2_deleted);
+        assertList({}, l);
+        assertLinks(e1, {e1, e2});
+      }
+    }
+
+    SECTION("clear without deleting")
+    {
+      auto e1_deleted = false;
+      auto e2_deleted = false;
+
+      list l;
+
+      element* e1 = new delete_tracking_element(e1_deleted);
+      element* e2 = new delete_tracking_element(e2_deleted);
+
+      l.push_back(e1);
+      l.push_back(e2);
+
+      l.release();
+      CHECK(!e1_deleted);
+      CHECK(!e2_deleted);
+      assertList({}, l);
+      assertLinks(e1, {e1, e2});
+    }
+  }
+
+  SECTION("emplace_back")
+  {
+    SECTION("default")
+    {
+      list l;
+
+      auto* e1 = l.emplace_back();
+      assertList({e1}, l);
+
+      auto* e2 = l.emplace_back();
+      assertList({e1, e2}, l);
+
+      auto* e3 = l.emplace_back();
+      assertList({e1, e2, e3}, l);
+    }
+
+    SECTION("subtype")
+    {
+      auto e1_deleted = false;
+      {
+        list l;
+        auto* e1 = l.emplace_back<delete_tracking_element>(e1_deleted);
+        assertList({e1}, l);
+      }
+      CHECK(e1_deleted);
+    }
+  }
+
+  SECTION("reverse")
+  {
+    auto* e1 = new element();
+    auto* e2 = new element();
+    auto* e3 = new element();
+    list l({e1, e2, e3});
+
+    l.reverse();
+    assertList({e3, e2, e1}, l);
+  }
+
+  SECTION("append")
+  {
+    list from;
+    list to;
+
+    auto* f1 = new element();
+    auto* f2 = new element();
+    auto* f3 = new element();
+
+    from.push_back(f1);
+    from.push_back(f2);
+    from.push_back(f3);
+
+    auto* t1 = new element();
+    auto* t2 = new element();
+
+    to.push_back(t1);
+    to.push_back(t2);
+
+    to.append(from);
+    assertList({t1, t2, f1, f2, f3}, to);
+    assertList({}, from);
+  }
+
+  SECTION("insert")
+  {
+    SECTION("into front")
+    {
+      list from;
+      list to;
+
+      auto* f1 = new element();
+      auto* f2 = new element();
+      auto* f3 = new element();
+
+      from.push_back(f1);
+      from.push_back(f2);
+      from.push_back(f3);
+
+      auto* t1 = new element();
+      auto* t2 = new element();
+
+      to.push_back(t1);
+      to.push_back(t2);
+
+      to.insert(list::iter(t1), from);
+      assertList({f1, f2, f3, t1, t2}, to);
+      assertList({}, from);
+    }
+
+    SECTION("into back")
+    {
+      list from;
+      list to;
+
+      auto* f1 = new element();
+      auto* f2 = new element();
+      auto* f3 = new element();
+
+      from.push_back(f1);
+      from.push_back(f2);
+      from.push_back(f3);
+
+      auto* t1 = new element();
+      auto* t2 = new element();
+
+      to.push_back(t1);
+      to.push_back(t2);
+
+      to.insert(std::end(to), from);
+      assertList({t1, t2, f1, f2, f3}, to);
+      assertList({}, from);
+    }
+  }
+
+  SECTION("splice_back")
+  {
+    SECTION("one item")
+    {
+      list from;
+      list to;
+
+      auto* f1 = new element();
+      auto* f2 = new element();
+      auto* f3 = new element();
+
+      from.push_back(f1);
+      from.push_back(f2);
+      from.push_back(f3);
+
+      auto* t1 = new element();
+      auto* t2 = new element();
+
+      to.push_back(t1);
+      to.push_back(t2);
+
+      to.splice_back(from, list::iter(f1), list::iter(f2), 1u);
+      assertList({t1, t2, f1}, to);
+      assertList({f2, f3}, from);
+    }
+
+    SECTION("two items")
+    {
+      list from;
+      list to;
+
+      auto* f1 = new element();
+      auto* f2 = new element();
+      auto* f3 = new element();
+
+      from.push_back(f1);
+      from.push_back(f2);
+      from.push_back(f3);
+
+      auto* t1 = new element();
+      auto* t2 = new element();
+
+      to.push_back(t1);
+      to.push_back(t2);
+
+      to.splice_back(from, list::iter(f1), list::iter(f3), 2u);
+      assertList({t1, t2, f1, f2}, to);
+      assertList({f3}, from);
+    }
+  }
+
+  SECTION("splice")
+  {
+    SECTION("one item into empty list")
+    {
+      list from;
+      list to;
+
+      auto* f1 = new element();
+      auto* f2 = new element();
+      auto* f3 = new element();
+
+      from.push_back(f1);
+      from.push_back(f2);
+      from.push_back(f3);
+
+      to.splice(std::begin(to), from, list::iter(f2), list::iter(f3), 1u);
+      assertList({f2}, to);
+      assertList({f1, f3}, from);
+    }
+
+    SECTION("two items into empty list")
+    {
+      list from;
+      list to;
+
+      auto* f1 = new element();
+      auto* f2 = new element();
+      auto* f3 = new element();
+
+      from.push_back(f1);
+      from.push_back(f2);
+      from.push_back(f3);
+
+      to.splice(std::begin(to), from, list::iter(f2), list::iter(f1), 2u);
+      assertList({f2, f3}, to);
+      assertList({f1}, from);
+    }
+
+    SECTION("all items into empty list")
+    {
+      list from;
+      list to;
+
+      auto* f1 = new element();
+      auto* f2 = new element();
+      auto* f3 = new element();
+
+      from.push_back(f1);
+      from.push_back(f2);
+      from.push_back(f3);
+
+      to.splice(std::end(to), from, std::begin(from), std::end(from), 3u);
+      assertList({f1, f2, f3}, to);
+      assertList({}, from);
+    }
+
+    SECTION("one item into front")
+    {
+      list from;
+      list to;
+
+      auto* f1 = new element();
+      auto* f2 = new element();
+      auto* f3 = new element();
+
+      from.push_back(f1);
+      from.push_back(f2);
+      from.push_back(f3);
+
+      auto* t1 = new element();
+      auto* t2 = new element();
+      auto* t3 = new element();
+
+      to.push_back(t1);
+      to.push_back(t2);
+      to.push_back(t3);
+
+      to.splice(list::iter(t1), from, list::iter(f2), list::iter(f3), 1u);
+      assertList({f2, t1, t2, t3}, to);
+      assertList({f1, f3}, from);
+    }
+
+    SECTION("one item into mid")
+    {
+      list from;
+      list to;
+
+      auto* f1 = new element();
+      auto* f2 = new element();
+      auto* f3 = new element();
+
+      from.push_back(f1);
+      from.push_back(f2);
+      from.push_back(f3);
+
+      auto* t1 = new element();
+      auto* t2 = new element();
+      auto* t3 = new element();
+
+      to.push_back(t1);
+      to.push_back(t2);
+      to.push_back(t3);
+
+      to.splice(list::iter(t2), from, list::iter(f2), list::iter(f3), 1u);
+      assertList({t1, f2, t2, t3}, to);
+      assertList({f1, f3}, from);
+    }
+
+    SECTION("one item into last")
+    {
+      list from;
+      list to;
+
+      auto* f1 = new element();
+      auto* f2 = new element();
+      auto* f3 = new element();
+
+      from.push_back(f1);
+      from.push_back(f2);
+      from.push_back(f3);
+
+      auto* t1 = new element();
+      auto* t2 = new element();
+      auto* t3 = new element();
+
+      to.push_back(t1);
+      to.push_back(t2);
+      to.push_back(t3);
+
+      to.splice(list::iter(t3), from, list::iter(f2), list::iter(f3), 1u);
+      assertList({t1, t2, f2, t3}, to);
+      assertList({f1, f3}, from);
+    }
+
+    SECTION("last two items into front")
+    {
+      list from;
+      list to;
+
+      auto* f1 = new element();
+      auto* f2 = new element();
+      auto* f3 = new element();
+
+      from.push_back(f1);
+      from.push_back(f2);
+      from.push_back(f3);
+
+      auto* t1 = new element();
+      auto* t2 = new element();
+      auto* t3 = new element();
+
+      to.push_back(t1);
+      to.push_back(t2);
+      to.push_back(t3);
+
+      to.splice(list::iter(t1), from, list::iter(f2), list::iter(f1), 2u);
+      assertList({f2, f3, t1, t2, t3}, to);
+      assertList({f1}, from);
+    }
+
+    SECTION("last two items into mid")
+    {
+      list from;
+      list to;
+
+      auto* f1 = new element();
+      auto* f2 = new element();
+      auto* f3 = new element();
+
+      from.push_back(f1);
+      from.push_back(f2);
+      from.push_back(f3);
+
+      auto* t1 = new element();
+      auto* t2 = new element();
+      auto* t3 = new element();
+
+      to.push_back(t1);
+      to.push_back(t2);
+      to.push_back(t3);
+
+      to.splice(list::iter(t2), from, list::iter(f2), std::end(from), 2u);
+      assertList({t1, f2, f3, t2, t3}, to);
+      assertList({f1}, from);
+    }
+
+    SECTION("last two items into last")
+    {
+      list from;
+      list to;
+
+      auto* f1 = new element();
+      auto* f2 = new element();
+      auto* f3 = new element();
+
+      from.push_back(f1);
+      from.push_back(f2);
+      from.push_back(f3);
+
+      auto* t1 = new element();
+      auto* t2 = new element();
+      auto* t3 = new element();
+
+      to.push_back(t1);
+      to.push_back(t2);
+      to.push_back(t3);
+
+      to.splice(list::iter(t3), from, list::iter(f2), std::next(list::iter(f3)), 2u);
+      assertList({t1, t2, f2, f3, t3}, to);
+      assertList({f1}, from);
+    }
+
+    SECTION("last and first items into front")
+    {
+      list from;
+      list to;
+
+      auto* f1 = new element();
+      auto* f2 = new element();
+      auto* f3 = new element();
+
+      from.push_back(f1);
+      from.push_back(f2);
+      from.push_back(f3);
+
+      auto* t1 = new element();
+      auto* t2 = new element();
+      auto* t3 = new element();
+
+      to.push_back(t1);
+      to.push_back(t2);
+      to.push_back(t3);
+
+      to.splice(list::iter(t1), from, list::iter(f3), list::iter(f2), 2u);
+      assertList({f3, f1, t1, t2, t3}, to);
+      assertList({f2}, from);
+    }
+
+    SECTION("all items into front")
+    {
+      list from;
+      list to;
+
+      auto* f1 = new element();
+      auto* f2 = new element();
+      auto* f3 = new element();
+
+      from.push_back(f1);
+      from.push_back(f2);
+      from.push_back(f3);
+
+      auto* t1 = new element();
+      auto* t2 = new element();
+      auto* t3 = new element();
+
+      to.push_back(t1);
+      to.push_back(t2);
+      to.push_back(t3);
+
+      to.splice(std::begin(to), from, list::iter(f3), list::iter(f3), 3u);
+      assertList({f3, f1, f2, t1, t2, t3}, to);
+      assertList({}, from);
+    }
+
+    SECTION("all items into mid")
+    {
+      list from;
+      list to;
+
+      auto* f1 = new element();
+      auto* f2 = new element();
+      auto* f3 = new element();
+
+      from.push_back(f1);
+      from.push_back(f2);
+      from.push_back(f3);
+
+      auto* t1 = new element();
+      auto* t2 = new element();
+      auto* t3 = new element();
+
+      to.push_back(t1);
+      to.push_back(t2);
+      to.push_back(t3);
+
+      to.splice(list::iter(t2), from, list::iter(f3), list::iter(f3), 3u);
+      assertList({t1, f3, f1, f2, t2, t3}, to);
+      assertList({}, from);
+    }
+
+    SECTION("all items into last")
+    {
+      list from;
+      list to;
+
+      auto* f1 = new element();
+      auto* f2 = new element();
+      auto* f3 = new element();
+
+      from.push_back(f1);
+      from.push_back(f2);
+      from.push_back(f3);
+
+      auto* t1 = new element();
+      auto* t2 = new element();
+      auto* t3 = new element();
+
+      to.push_back(t1);
+      to.push_back(t2);
+      to.push_back(t3);
+
+      to.splice(list::iter(t3), from, list::iter(f3), list::iter(f3), 3u);
+      assertList({t1, t2, f3, f1, f2, t3}, to);
+      assertList({}, from);
+    }
+  }
+
+  SECTION("splice_replace")
+  {
+    SECTION("first item with one item")
+    {
+      auto t1_deleted = false;
+      auto t2_deleted = false;
+      auto t3_deleted = false;
+
+      list from;
+      list to;
+
+      auto* f1 = new element();
+      auto* f2 = new element();
+      auto* f3 = new element();
+
+      from.push_back(f1);
+      from.push_back(f2);
+      from.push_back(f3);
+
+      auto* t1 = new delete_tracking_element(t1_deleted);
+      auto* t2 = new delete_tracking_element(t2_deleted);
+      auto* t3 = new delete_tracking_element(t3_deleted);
+
+      to.push_back(t1);
+      to.push_back(t2);
+      to.push_back(t3);
+
+      to.splice_replace(
+        list::iter(t1), list::iter(t2), 1u, from, list::iter(f2), list::iter(f3), 1u);
+      assertList({f2, t2, t3}, to);
+      assertList({f1, f3}, from);
+
+      CHECK(t1_deleted);
+      CHECK(!t2_deleted);
+      CHECK(!t3_deleted);
+    }
+
+    SECTION("mid item with one item")
+    {
+      auto t1_deleted = false;
+      auto t2_deleted = false;
+      auto t3_deleted = false;
+
+      list from;
+      list to;
+
+      auto* f1 = new element();
+      auto* f2 = new element();
+      auto* f3 = new element();
+
+      from.push_back(f1);
+      from.push_back(f2);
+      from.push_back(f3);
+
+      auto* t1 = new delete_tracking_element(t1_deleted);
+      auto* t2 = new delete_tracking_element(t2_deleted);
+      auto* t3 = new delete_tracking_element(t3_deleted);
+
+      to.push_back(t1);
+      to.push_back(t2);
+      to.push_back(t3);
+
+      to.splice_replace(
+        list::iter(t2), list::iter(t3), 1u, from, list::iter(f2), list::iter(f3), 1u);
+      assertList({t1, f2, t3}, to);
+      assertList({f1, f3}, from);
+
+      CHECK(!t1_deleted);
+      CHECK(t2_deleted);
+      CHECK(!t3_deleted);
+    }
+
+    SECTION("last item with one item")
+    {
+      auto t1_deleted = false;
+      auto t2_deleted = false;
+      auto t3_deleted = false;
+
+      list from;
+      list to;
+
+      auto* f1 = new element();
+      auto* f2 = new element();
+      auto* f3 = new element();
+
+      from.push_back(f1);
+      from.push_back(f2);
+      from.push_back(f3);
+
+      auto* t1 = new delete_tracking_element(t1_deleted);
+      auto* t2 = new delete_tracking_element(t2_deleted);
+      auto* t3 = new delete_tracking_element(t3_deleted);
+
+      to.push_back(t1);
+      to.push_back(t2);
+      to.push_back(t3);
+
+      to.splice_replace(
+        list::iter(t3), std::end(to), 1u, from, list::iter(f2), list::iter(f3), 1u);
+      assertList({t1, t2, f2}, to);
+      assertList({f1, f3}, from);
+
+      CHECK(!t1_deleted);
+      CHECK(!t2_deleted);
+      CHECK(t3_deleted);
+    }
+
+    SECTION("first item with two items")
+    {
+      auto t1_deleted = false;
+      auto t2_deleted = false;
+      auto t3_deleted = false;
+
+      list from;
+      list to;
+
+      auto* f1 = new element();
+      auto* f2 = new element();
+      auto* f3 = new element();
+
+      from.push_back(f1);
+      from.push_back(f2);
+      from.push_back(f3);
+
+      auto* t1 = new delete_tracking_element(t1_deleted);
+      auto* t2 = new delete_tracking_element(t2_deleted);
+      auto* t3 = new delete_tracking_element(t3_deleted);
+
+      to.push_back(t1);
+      to.push_back(t2);
+      to.push_back(t3);
+
+      to.splice_replace(
+        list::iter(t1), list::iter(t2), 1u, from, list::iter(f3), list::iter(f2), 2u);
+      assertList({t2, t3, f3, f1}, to);
+      assertList({f2}, from);
+
+      CHECK(t1_deleted);
+      CHECK(!t2_deleted);
+      CHECK(!t3_deleted);
+    }
+
+    SECTION("mid item with two items")
+    {
+      auto t1_deleted = false;
+      auto t2_deleted = false;
+      auto t3_deleted = false;
+
+      list from;
+      list to;
+
+      auto* f1 = new element();
+      auto* f2 = new element();
+      auto* f3 = new element();
+
+      from.push_back(f1);
+      from.push_back(f2);
+      from.push_back(f3);
+
+      auto* t1 = new delete_tracking_element(t1_deleted);
+      auto* t2 = new delete_tracking_element(t2_deleted);
+      auto* t3 = new delete_tracking_element(t3_deleted);
+
+      to.push_back(t1);
+      to.push_back(t2);
+      to.push_back(t3);
+
+      to.splice_replace(
+        list::iter(t2), list::iter(t3), 1u, from, list::iter(f3), list::iter(f2), 2u);
+      assertList({t1, f3, f1, t3}, to);
+      assertList({f2}, from);
+
+      CHECK(!t1_deleted);
+      CHECK(t2_deleted);
+      CHECK(!t3_deleted);
+    }
+
+    SECTION("last item with two items")
+    {
+      auto t1_deleted = false;
+      auto t2_deleted = false;
+      auto t3_deleted = false;
+
+      list from;
+      list to;
+
+      auto* f1 = new element();
+      auto* f2 = new element();
+      auto* f3 = new element();
+
+      from.push_back(f1);
+      from.push_back(f2);
+      from.push_back(f3);
+
+      auto* t1 = new delete_tracking_element(t1_deleted);
+      auto* t2 = new delete_tracking_element(t2_deleted);
+      auto* t3 = new delete_tracking_element(t3_deleted);
+
+      to.push_back(t1);
+      to.push_back(t2);
+      to.push_back(t3);
+
+      to.splice_replace(
+        list::iter(t3), list::iter(t1), 1u, from, list::iter(f3), list::iter(f2), 2u);
+      assertList({t1, t2, f3, f1}, to);
+      assertList({f2}, from);
+
+      CHECK(!t1_deleted);
+      CHECK(!t2_deleted);
+      CHECK(t3_deleted);
+    }
+
+    SECTION("mid item with all items")
+    {
+      auto t1_deleted = false;
+      auto t2_deleted = false;
+      auto t3_deleted = false;
+
+      list from;
+      list to;
+
+      auto* f1 = new element();
+      auto* f2 = new element();
+      auto* f3 = new element();
+
+      from.push_back(f1);
+      from.push_back(f2);
+      from.push_back(f3);
+
+      auto* t1 = new delete_tracking_element(t1_deleted);
+      auto* t2 = new delete_tracking_element(t2_deleted);
+      auto* t3 = new delete_tracking_element(t3_deleted);
+
+      to.push_back(t1);
+      to.push_back(t2);
+      to.push_back(t3);
+
+      to.splice_replace(
+        list::iter(t2), list::iter(t3), 1u, from, list::iter(f3), list::iter(f3), 3u);
+      assertList({t1, f3, f1, f2, t3}, to);
+      assertList({}, from);
+
+      CHECK(!t1_deleted);
+      CHECK(t2_deleted);
+      CHECK(!t3_deleted);
+    }
+
+    SECTION("first two items with two items")
+    {
+      auto t1_deleted = false;
+      auto t2_deleted = false;
+      auto t3_deleted = false;
+
+      list from;
+      list to;
+
+      auto* f1 = new element();
+      auto* f2 = new element();
+      auto* f3 = new element();
+
+      from.push_back(f1);
+      from.push_back(f2);
+      from.push_back(f3);
+
+      auto* t1 = new delete_tracking_element(t1_deleted);
+      auto* t2 = new delete_tracking_element(t2_deleted);
+      auto* t3 = new delete_tracking_element(t3_deleted);
+
+      to.push_back(t1);
+      to.push_back(t2);
+      to.push_back(t3);
+
+      to.splice_replace(
+        list::iter(t1), list::iter(t3), 2u, from, list::iter(f1), list::iter(f3), 2u);
+      assertList({f1, f2, t3}, to);
+      assertList({f3}, from);
+
+      CHECK(t1_deleted);
+      CHECK(t2_deleted);
+      CHECK(!t3_deleted);
+    }
+
+    SECTION("last two items with two items")
+    {
+      auto t1_deleted = false;
+      auto t2_deleted = false;
+      auto t3_deleted = false;
+
+      list from;
+      list to;
+
+      auto* f1 = new element();
+      auto* f2 = new element();
+      auto* f3 = new element();
+
+      from.push_back(f1);
+      from.push_back(f2);
+      from.push_back(f3);
+
+      auto* t1 = new delete_tracking_element(t1_deleted);
+      auto* t2 = new delete_tracking_element(t2_deleted);
+      auto* t3 = new delete_tracking_element(t3_deleted);
+
+      to.push_back(t1);
+      to.push_back(t2);
+      to.push_back(t3);
+
+      to.splice_replace(
+        list::iter(t2), list::iter(t1), 2u, from, list::iter(f1), list::iter(f3), 2u);
+      assertList({t1, f1, f2}, to);
+      assertList({f3}, from);
+
+      CHECK(!t1_deleted);
+      CHECK(t2_deleted);
+      CHECK(t3_deleted);
+    }
+
+    SECTION("last and first items with two items")
+    {
+      auto t1_deleted = false;
+      auto t2_deleted = false;
+      auto t3_deleted = false;
+
+      list from;
+      list to;
+
+      auto* f1 = new element();
+      auto* f2 = new element();
+      auto* f3 = new element();
+
+      from.push_back(f1);
+      from.push_back(f2);
+      from.push_back(f3);
+
+      auto* t1 = new delete_tracking_element(t1_deleted);
+      auto* t2 = new delete_tracking_element(t2_deleted);
+      auto* t3 = new delete_tracking_element(t3_deleted);
+
+      to.push_back(t1);
+      to.push_back(t2);
+      to.push_back(t3);
+
+      to.splice_replace(
+        list::iter(t3), list::iter(t2), 2u, from, list::iter(f1), list::iter(f3), 2u);
+      assertList({t2, f1, f2}, to);
+      assertList({f3}, from);
+
+      CHECK(t1_deleted);
+      CHECK(!t2_deleted);
+      CHECK(t3_deleted);
+    }
+
+    SECTION("all items with two items")
+    {
+      auto t1_deleted = false;
+      auto t2_deleted = false;
+      auto t3_deleted = false;
+
+      list from;
+      list to;
+
+      auto* f1 = new element();
+      auto* f2 = new element();
+      auto* f3 = new element();
+
+      from.push_back(f1);
+      from.push_back(f2);
+      from.push_back(f3);
+
+      auto* t1 = new delete_tracking_element(t1_deleted);
+      auto* t2 = new delete_tracking_element(t2_deleted);
+      auto* t3 = new delete_tracking_element(t3_deleted);
+
+      to.push_back(t1);
+      to.push_back(t2);
+      to.push_back(t3);
+
+      to.splice_replace(
+        list::iter(t3), list::iter(t3), 3u, from, list::iter(f1), list::iter(f3), 2u);
+      assertList({f1, f2}, to);
+      assertList({f3}, from);
+
+      CHECK(t1_deleted);
+      CHECK(t2_deleted);
+      CHECK(t3_deleted);
+    }
+
+    SECTION("all items with one item")
+    {
+      auto t1_deleted = false;
+      auto t2_deleted = false;
+      auto t3_deleted = false;
+
+      list from;
+      list to;
+
+      auto* f1 = new element();
+      auto* f2 = new element();
+      auto* f3 = new element();
+
+      from.push_back(f1);
+      from.push_back(f2);
+      from.push_back(f3);
+
+      auto* t1 = new delete_tracking_element(t1_deleted);
+      auto* t2 = new delete_tracking_element(t2_deleted);
+      auto* t3 = new delete_tracking_element(t3_deleted);
+
+      to.push_back(t1);
+      to.push_back(t2);
+      to.push_back(t3);
+
+      to.splice_replace(
+        list::iter(t2), list::iter(t2), 3u, from, list::iter(f1), list::iter(f2), 1u);
+      assertList({f1}, to);
+      assertList({f2, f3}, from);
+
+      CHECK(t1_deleted);
+      CHECK(t2_deleted);
+      CHECK(t3_deleted);
+    }
+
+    SECTION("all items with all items")
+    {
+      auto t1_deleted = false;
+      auto t2_deleted = false;
+      auto t3_deleted = false;
+
+      list from;
+      list to;
+
+      auto* f1 = new element();
+      auto* f2 = new element();
+      auto* f3 = new element();
+
+      from.push_back(f1);
+      from.push_back(f2);
+      from.push_back(f3);
+
+      auto* t1 = new delete_tracking_element(t1_deleted);
+      auto* t2 = new delete_tracking_element(t2_deleted);
+      auto* t3 = new delete_tracking_element(t3_deleted);
+
+      to.push_back(t1);
+      to.push_back(t2);
+      to.push_back(t3);
+
+      to.splice_replace(
+        std::begin(to),
+        std::end(to),
+        to.size(),
+        from,
+        std::begin(from),
+        std::end(from),
+        from.size());
+      assertList({f1, f2, f3}, to);
+      assertList({}, from);
+
+      CHECK(t1_deleted);
+      CHECK(t2_deleted);
+      CHECK(t3_deleted);
+    }
+  }
+
+  SECTION("clear")
+  {
+    SECTION("empty list")
+    {
+      list l;
+
+      l.clear();
+      assertList({}, l);
+    }
+
+    SECTION("with items")
+    {
+      auto e1_deleted = false;
+      auto e2_deleted = false;
+
+      list l;
+
+      element* e1 = new delete_tracking_element(e1_deleted);
+      element* e2 = new delete_tracking_element(e2_deleted);
+
+      l.push_back(e1);
+      l.push_back(e2);
+
+      l.clear();
+      CHECK(e1_deleted);
+      CHECK(e2_deleted);
+      assertList({}, l);
+    }
+  }
 }
 } // namespace kdl

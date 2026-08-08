@@ -739,7 +739,7 @@ TEST_CASE("Map_TagManagement")
 
       auto callback = TestCallback{0};
       tag.disable(callback, map);
-      CHECK_FALSE(tag.matches(*patchNode));
+      CHECK(!tag.matches(*patchNode));
     }
   }
 }

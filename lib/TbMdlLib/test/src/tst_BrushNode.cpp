@@ -176,13 +176,13 @@ TEST_CASE("BrushNode")
     }, "some_material"}};
       // clang-format on
 
-      CHECK_FALSE(brushNode.contains(patchNode));
+      CHECK(!brushNode.contains(patchNode));
 
       transformNode(patchNode, vm::translation_matrix(vm::vec3d{0, -8, 0}), worldBounds);
       CHECK(brushNode.contains(patchNode));
 
       transformNode(patchNode, vm::translation_matrix(vm::vec3d{0, 0, 32}), worldBounds);
-      CHECK_FALSE(brushNode.contains(patchNode));
+      CHECK(!brushNode.contains(patchNode));
     }
   }
 
@@ -228,14 +228,14 @@ TEST_CASE("BrushNode")
       {
         transformNode(
           patchNode, vm::translation_matrix(vm::vec3d{0, -8, 64}), worldBounds);
-        CHECK_FALSE(brushNode.intersects(patchNode));
+        CHECK(!brushNode.intersects(patchNode));
       }
 
       SECTION("Patch doesn't touch brush, but bounds intersect")
       {
         transformNode(
           patchNode, vm::translation_matrix(vm::vec3d{0, 32, 0}), worldBounds);
-        CHECK_FALSE(brushNode.intersects(patchNode));
+        CHECK(!brushNode.intersects(patchNode));
       }
 
       SECTION("Brush does not contain any grid points, but patch intersects")
