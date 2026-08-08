@@ -870,8 +870,10 @@ bool ExtrudeTool::slide(const vm::vec3d& delta, ExtrudeDragState& dragState)
 
   auto& map = m_document.map();
   map.rollbackTransaction();
-  if (transformFaces(
-        map, getPolygons(dragState.initialDragHandles), vm::translation_matrix(delta)))
+  if (
+    vm::is_equal(delta, vm::vec3d{0, 0, 0}, vm::Cd::almost_zero())
+    || transformFaces(
+      map, getPolygons(dragState.initialDragHandles), vm::translation_matrix(delta)))
   {
     dragState.totalDelta = delta;
   }

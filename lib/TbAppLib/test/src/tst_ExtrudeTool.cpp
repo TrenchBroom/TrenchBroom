@@ -1088,6 +1088,19 @@ TEST_CASE("ExtrudeTool")
       CHECK(brushNode->logicalBounds() == vm::bbox3d{{-16, -16, -16}, {16, 16, 8}});
     }
 
+    SECTION("slide can return to original position")
+    {
+      // Dragging back to the start produces a zero delta. Without the fix, transformFaces
+      // with a zero translation returns false, leaving totalDelta at the previous
+      // non-zero value, so commit() would incorrectly apply that offset.
+      tool.beginSlide();
+      CHECK(tool.slide({0, 0, 8}, dragState)); // move outward
+      CHECK(tool.slide({0, 0, 0}, dragState)); // return to origin
+      tool.commit(dragState);
+
+      CHECK(brushNode->logicalBounds() == brushBounds);
+    }
+
     SECTION("slide restores to last valid position when the brush would become invalid")
     {
       const auto validDelta = vm::vec3d{0, 0, 8};
