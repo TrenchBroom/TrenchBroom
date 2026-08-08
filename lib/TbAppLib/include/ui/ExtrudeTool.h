@@ -103,6 +103,7 @@ struct ExtrudeHitData
  * Also:
  *  - split brushes outward/inward (Ctrl+Shift+LMB Drag)
  *  - move faces (Alt+Shift+LMB Drag, 2D views only)
+ *  - stamp a new brush from the dragged face (Ctrl+Alt+Shift+LMB Drag)
  */
 class ExtrudeTool : public Tool
 {
@@ -157,6 +158,9 @@ public:
 
   void beginMove();
   bool move(const vm::vec3d& delta, ExtrudeDragState& dragState);
+
+  void beginStamp();
+  bool stamp(const vm::vec3d& handleDelta, ExtrudeDragState& dragState);
 
   void commit(const ExtrudeDragState& dragState);
   void cancel();

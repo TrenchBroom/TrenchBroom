@@ -22,6 +22,7 @@
 #include "base/Logger.h"
 #include "base/PreferenceManager.h"
 #include "gl/Camera.h"
+#include "mdl/BrushBuilder.h"
 #include "mdl/BrushFace.h"
 #include "mdl/BrushGeometry.h"
 #include "mdl/BrushNode.h"
@@ -36,6 +37,7 @@
 #include "mdl/PickResult.h"
 #include "mdl/Polyhedron.h"
 #include "mdl/TransactionScope.h"
+#include "mdl/WorldNode.h"
 #include "prefs/Preferences.h"
 #include "ui/MapDocument.h"
 
@@ -510,6 +512,79 @@ bool splitBrushesInward(
   return true;
 }
 
+/**
+ * Stamps a new brush per drag handle, shaped as the convex hull of the dragged face's
+ * vertices at their original position and at the current (dragged) position. The original
+ * brushes are left unchanged.
+ *
+ * - rolls back the transaction
+ * - adds one new brush per drag handle
+ * - sets dragState.totalDelta to the given delta
+ * - returns true, or false (leaving no new brushes) if brush creation failed or if any
+ *   handle's face is dragged inward (which would create a brush overlapping the original)
+ */
+bool stampBrushes(mdl::Map& map, const vm::vec3d& delta, ExtrudeDragState& dragState)
+{
+  // Deny stamping when any handle's face is dragged inward — the resulting brush would
+  // overlap the original.
+  if (std::ranges::any_of(dragState.initialDragHandles, [&](const auto& h) {
+        return vm::dot(h.faceNormal(), delta) <= 0.0;
+      }))
+  {
+    return false;
+  }
+
+  const auto brushBuilder =
+    mdl::BrushBuilder{map.worldNode().mapFormat(), map.worldBounds()};
+
+  auto newDragFaces = std::vector<mdl::BrushFaceHandle>{};
+  auto newNodes = std::map<mdl::Node*, std::vector<mdl::Node*>>{};
+
+  return dragState.initialDragHandles
+         | std::views::transform([&](const auto& dragHandle) {
+             const auto& face = dragHandle.faceAtDragStart();
+             const auto points =
+               kdl::views::concat(
+                 face.vertexPositions(),
+                 face.vertexPositions()
+                   | std::views::transform([&](const auto& p) { return p + delta; }))
+               | kdl::ranges::to<std::vector>();
+
+             const auto newDragFaceNormal = dragHandle.faceNormal();
+             auto* brushNode = dragHandle.faceHandle.node();
+
+             return brushBuilder.createBrush(points, face.materialName())
+                    | kdl::transform([&](auto brush) {
+                        auto* newBrushNode = new mdl::BrushNode(std::move(brush));
+                        newNodes[brushNode->parent()].push_back(newBrushNode);
+
+                        if (
+                          const auto newDragFaceIndex =
+                            newBrushNode->brush().findFace(newDragFaceNormal))
+                        {
+                          newDragFaces.emplace_back(newBrushNode, *newDragFaceIndex);
+                        }
+                      });
+           })
+         | kdl::fold | kdl::transform([&]() {
+             // Apply the changes calculated above
+             map.rollbackTransaction();
+
+             deselectAll(map);
+
+             const auto addedNodes = addNodes(map, newNodes);
+             selectNodes(map, addedNodes);
+
+             dragState.currentDragFaces = std::move(newDragFaces);
+             dragState.totalDelta = delta;
+           })
+         | kdl::transform_error([&](auto e) {
+             map.logger().error() << "Failed to stamp brush: " << e.msg;
+             kdl::map_clear_and_delete(newNodes);
+           })
+         | kdl::is_success();
+}
+
 std::vector<vm::polygon3d> getPolygons(const std::vector<ExtrudeDragHandle>& dragHandles)
 {
   return dragHandles | std::views::transform([](const auto& dragHandle) {
@@ -812,6 +887,22 @@ bool ExtrudeTool::move(const vm::vec3d& delta, ExtrudeDragState& dragState)
   dragState.currentDragFaces = getDragFaces(m_proposedDragHandles);
 
   return true;
+}
+
+void ExtrudeTool::beginStamp()
+{
+  contract_pre(!m_dragging);
+
+  m_dragging = true;
+  m_document.map().startTransaction("Stamp Brush", mdl::TransactionScope::LongRunning);
+}
+
+bool ExtrudeTool::stamp(const vm::vec3d& handleDelta, ExtrudeDragState& dragState)
+{
+  contract_pre(m_dragging);
+
+  auto& map = m_document.map();
+  return stampBrushes(map, handleDelta, dragState);
 }
 
 void ExtrudeTool::commit(const ExtrudeDragState& dragState)
