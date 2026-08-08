@@ -1037,6 +1037,70 @@ TEST_CASE("ExtrudeTool")
         {{0, -16, 16}, {16, 16, 24}},
       }));
   }
+
+  SECTION("slide")
+  {
+    auto& document = fixture.create();
+    auto& map = document.map();
+
+    auto tool = ExtrudeTool{document};
+
+    constexpr auto brushBounds = vm::bbox3d{16.0};
+
+    auto builder = mdl::BrushBuilder{map.worldNode().mapFormat(), map.worldBounds()};
+    auto* brushNode =
+      new mdl::BrushNode{builder.createCuboid(brushBounds, "material") | kdl::value()};
+
+    addNodes(map, {{map.editorContext().currentLayer(), {brushNode}}});
+    selectNodes(map, {brushNode});
+
+    // shoot straight down at the top face (+Z)
+    const auto pickRay = vm::ray3d{{0, 0, 32}, {0, 0, -1}};
+    const auto pickResult = performPick(map, tool, pickRay);
+
+    auto dragState = ExtrudeDragState{
+      tool.proposedDragHandles(),
+      ExtrudeTool::getDragFaces(tool.proposedDragHandles()),
+      false,
+      vm::vec3d{0, 0, 0}};
+
+    SECTION("slide outward grows the brush")
+    {
+      const auto delta = vm::vec3d{0, 0, 8};
+
+      tool.beginSlide();
+      CHECK(tool.slide(delta, dragState));
+      tool.commit(dragState);
+
+      // original brush was modified in place
+      CHECK(brushNode->logicalBounds() == vm::bbox3d{{-16, -16, -16}, {16, 16, 24}});
+      CHECK(brushNode->selected());
+    }
+
+    SECTION("slide inward shrinks the brush")
+    {
+      const auto delta = vm::vec3d{0, 0, -8};
+
+      tool.beginSlide();
+      CHECK(tool.slide(delta, dragState));
+      tool.commit(dragState);
+
+      CHECK(brushNode->logicalBounds() == vm::bbox3d{{-16, -16, -16}, {16, 16, 8}});
+    }
+
+    SECTION("slide restores to last valid position when the brush would become invalid")
+    {
+      const auto validDelta = vm::vec3d{0, 0, 8};
+      const auto collapseDelta = vm::vec3d{0, 0, -10000};
+
+      tool.beginSlide();
+      CHECK(tool.slide(validDelta, dragState));    // totalDelta = validDelta
+      CHECK(tool.slide(collapseDelta, dragState)); // fails; restores to validDelta
+      tool.commit(dragState);
+
+      CHECK(brushNode->logicalBounds() == vm::bbox3d{{-16, -16, -16}, {16, 16, 24}});
+    }
+  }
 }
 
 } // namespace tb::ui
