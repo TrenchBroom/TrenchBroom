@@ -1095,7 +1095,7 @@ TEST_CASE("Map_Entities")
     }}};
     addNodes(map, {{&parentForNodes(map), {entityNode}}});
 
-    CHECK_FALSE(canClearProtectedEntityProperties(map));
+    CHECK(!canClearProtectedEntityProperties(map));
 
     selectNodes(map, {entityNode});
     CHECK(canClearProtectedEntityProperties(map));
@@ -1162,7 +1162,7 @@ TEST_CASE("Map_Entities")
     selectNodes(map, {groupNode});
     selectNodes(map, {linkedGroupNode});
 
-    CHECK_FALSE(canClearProtectedEntityProperties(map));
+    CHECK(!canClearProtectedEntityProperties(map));
 
     deselectNodes(map, {groupNode});
 

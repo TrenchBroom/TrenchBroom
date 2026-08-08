@@ -74,10 +74,10 @@ TEST_CASE("makeBackupPathMatcher")
   CHECK(matcher("test.1.map", getPathInfo));
   CHECK(matcher("test.2.map", getPathInfo));
   CHECK(matcher("test.20.map", getPathInfo));
-  CHECK_FALSE(matcher("dir", getPathInfo));
-  CHECK_FALSE(matcher("test.map", getPathInfo));
-  CHECK_FALSE(matcher("test.1-crash.map", getPathInfo));
-  CHECK_FALSE(matcher("test.2-crash.map", getPathInfo));
+  CHECK(!matcher("dir", getPathInfo));
+  CHECK(!matcher("test.map", getPathInfo));
+  CHECK(!matcher("test.1-crash.map", getPathInfo));
+  CHECK(!matcher("test.2-crash.map", getPathInfo));
 }
 
 TEST_CASE("Autosaver")
@@ -105,8 +105,8 @@ TEST_CASE("Autosaver")
 
     autosaver.triggerAutosave();
 
-    CHECK_FALSE(env.fileExists("autosave/test.1.map"));
-    CHECK_FALSE(env.directoryExists("autosave"));
+    CHECK(!env.fileExists("autosave/test.1.map"));
+    CHECK(!env.directoryExists("autosave"));
   }
 
   SECTION("Trigger a save when the interval expires")
@@ -199,8 +199,8 @@ TEST_CASE("Autosaver")
     auto autosaver = Autosaver{map, 0s};
     autosaver.triggerAutosave();
 
-    CHECK_FALSE(env.fileExists("autosave/test.1.map"));
-    CHECK_FALSE(env.directoryExists("autosave"));
+    CHECK(!env.fileExists("autosave/test.1.map"));
+    CHECK(!env.directoryExists("autosave"));
   }
 
   SECTION("Autosave works when crash files are present")

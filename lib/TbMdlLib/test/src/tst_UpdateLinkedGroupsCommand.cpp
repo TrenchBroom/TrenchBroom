@@ -74,7 +74,7 @@ TEST_CASE("UpdateLinkedGroupsCommand")
     firstCommand.performDo(map);
     secondCommand.performDo(map);
 
-    CHECK_FALSE(firstCommand.collateWith(secondCommand));
+    CHECK(!firstCommand.collateWith(secondCommand));
   }
 }
 

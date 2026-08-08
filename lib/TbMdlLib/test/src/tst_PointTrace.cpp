@@ -42,7 +42,7 @@ TEST_CASE("PointTrace")
   CHECK(trace.points() == points);
 
   CHECK(trace.hasNextPoint());
-  CHECK_FALSE(trace.hasPreviousPoint());
+  CHECK(!trace.hasPreviousPoint());
   CHECK(trace.currentPoint() == vm::vec3f{1, 1, 1});
   CHECK(trace.currentDirection() == vm::vec3f{0, 0, 1});
 
@@ -55,7 +55,7 @@ TEST_CASE("PointTrace")
 
   trace.advance();
 
-  CHECK_FALSE(trace.hasNextPoint());
+  CHECK(!trace.hasNextPoint());
   CHECK(trace.hasPreviousPoint());
   CHECK(trace.currentPoint() == vm::vec3f{1, 2, 2});
   CHECK(trace.currentDirection() == vm::vec3f{0, 1, 0});

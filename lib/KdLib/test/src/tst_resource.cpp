@@ -93,11 +93,11 @@ TEST_CASE("resource")
   SECTION("operator bool")
   {
     CHECK(bool(resource{1, [](auto) {}}));
-    CHECK_FALSE(bool(resource{0, [](auto) {}}));
+    CHECK(!bool(resource{0, [](auto) {}}));
 
     const auto i = 0;
     CHECK(bool(resource{&i, [](auto) {}}));
-    CHECK_FALSE(bool(resource{static_cast<int*>(nullptr), [](auto) {}}));
+    CHECK(!bool(resource{static_cast<int*>(nullptr), [](auto) {}}));
   }
 
   SECTION("release")

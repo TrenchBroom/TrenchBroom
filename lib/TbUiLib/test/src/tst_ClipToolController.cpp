@@ -114,7 +114,7 @@ TEST_CASE("ClipToolController")
     clipPoint2ScreenSpace.x(),
     static_cast<float>(viewport.height) - clipPoint2ScreenSpace.y()};
 
-  CHECK_FALSE(tool.canClip());
+  CHECK(!tool.canClip());
   CHECK(tool.canAddPoint(clipPoint1));
 
   // HACK: bias the points towards the center of the screen a bit
@@ -129,7 +129,7 @@ TEST_CASE("ClipToolController")
   CHECK(controller.mouseClick(inputState));
   inputState.mouseUp(MouseButtons::Left);
 
-  CHECK_FALSE(tool.canClip());
+  CHECK(!tool.canClip());
   CHECK(tool.canAddPoint(clipPoint2));
 
   // HACK: bias the points towards the center of the screen a bit

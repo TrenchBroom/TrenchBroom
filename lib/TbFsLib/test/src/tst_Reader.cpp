@@ -54,7 +54,7 @@ void createEmpty(Reader&& r)
   CHECK_NOTHROW(r.seekFromBegin(0U));
   CHECK_NOTHROW(r.seekFromEnd(0U));
   CHECK_NOTHROW(r.seekForward(0U));
-  CHECK_FALSE(r.canRead(1U));
+  CHECK(!r.canRead(1U));
   CHECK(r.canRead(0U));
   CHECK(r.eof());
   CHECK_THROWS_AS(r.readChar<char>(), ReaderException);
@@ -66,20 +66,20 @@ void createNonEmpty(Reader&& r)
   CHECK(r.position() == 0U);
   CHECK(r.canRead(0U));
   CHECK(r.canRead(10U));
-  CHECK_FALSE(r.canRead(11U));
-  CHECK_FALSE(r.eof());
+  CHECK(!r.canRead(11U));
+  CHECK(!r.eof());
 
   // read a char
   CHECK(r.readChar<char>() == 'a');
   CHECK(r.position() == 1U);
   CHECK(r.canRead(1U));
   CHECK(r.canRead(9U));
-  CHECK_FALSE(r.canRead(10U));
+  CHECK(!r.canRead(10U));
 
   // read remainder
   CHECK(r.readString(9) == std::string("bcdefghij"));
   CHECK(r.position() == 10U);
-  CHECK_FALSE(r.canRead(1U));
+  CHECK(!r.canRead(1U));
   CHECK(r.canRead(0U));
   CHECK(r.eof());
   CHECK_THROWS_AS(r.readChar<char>(), ReaderException);

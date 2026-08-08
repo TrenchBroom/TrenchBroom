@@ -43,7 +43,7 @@ TEST_CASE("VertexArray")
     CHECK(array.empty());
     CHECK(array.sizeInBytes() == 0u);
     CHECK(array.vertexCount() == 0u);
-    CHECK_FALSE(array.prepared());
+    CHECK(!array.prepared());
   }
 
   SECTION("copy construction copies the given vertices")
@@ -54,7 +54,7 @@ TEST_CASE("VertexArray")
     };
     const auto array = VertexArray::copy(vertices);
 
-    CHECK_FALSE(array.empty());
+    CHECK(!array.empty());
     CHECK(array.vertexCount() == 2u);
     CHECK(array.sizeInBytes() == 2u * sizeof(VertexTypes::P3::Vertex));
 
@@ -108,7 +108,7 @@ TEST_CASE("VertexArray")
       };
       auto array = VertexArray::copy(vertices);
 
-      CHECK_FALSE(array.prepared());
+      CHECK(!array.prepared());
       array.prepare(gl, vboManager);
       CHECK(array.prepared());
       CHECK(vboManager.currentVboCount() == 1u);
@@ -130,7 +130,7 @@ TEST_CASE("VertexArray")
     auto shaderProgram = ShaderProgram{"test", 1u};
     auto array = VertexArray{};
 
-    CHECK_FALSE(array.setup(gl, shaderProgram));
+    CHECK(!array.setup(gl, shaderProgram));
   }
 
   SECTION("setup, render and cleanup on a prepared, non-empty array")

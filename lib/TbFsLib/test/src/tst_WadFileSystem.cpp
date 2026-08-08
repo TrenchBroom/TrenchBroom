@@ -80,7 +80,7 @@ TEST_CASE("WadFileSystem")
       // cr8_czg.wad already covers the "wad2" magic; this covers "wad3"
       // independently, since both are valid and the check short-circuits on the
       // first match
-      CHECK_FALSE(openWadFails(fsTestPath / "wad3_empty.wad"));
+      CHECK(!openWadFails(fsTestPath / "wad3_empty.wad"));
     }
 
     SECTION("skips an entry with an empty name and continues with the next entry")

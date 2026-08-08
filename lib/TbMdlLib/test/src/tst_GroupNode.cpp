@@ -70,34 +70,34 @@ TEST_CASE("GroupNode")
     REQUIRE_FALSE(childGroupNode->hasOpenedDescendant());
 
     groupNode->open();
-    CHECK_FALSE(grandParentGroupNode.opened());
-    CHECK_FALSE(grandParentGroupNode.closed());
-    CHECK_FALSE(parentGroupNode->opened());
-    CHECK_FALSE(parentGroupNode->closed());
+    CHECK(!grandParentGroupNode.opened());
+    CHECK(!grandParentGroupNode.closed());
+    CHECK(!parentGroupNode->opened());
+    CHECK(!parentGroupNode->closed());
     CHECK(groupNode->opened());
-    CHECK_FALSE(groupNode->closed());
-    CHECK_FALSE(childGroupNode->opened());
+    CHECK(!groupNode->closed());
+    CHECK(!childGroupNode->opened());
     CHECK(childGroupNode->closed());
 
     CHECK(grandParentGroupNode.hasOpenedDescendant());
     CHECK(parentGroupNode->hasOpenedDescendant());
-    CHECK_FALSE(groupNode->hasOpenedDescendant());
-    CHECK_FALSE(childGroupNode->hasOpenedDescendant());
+    CHECK(!groupNode->hasOpenedDescendant());
+    CHECK(!childGroupNode->hasOpenedDescendant());
 
     groupNode->close();
-    CHECK_FALSE(grandParentGroupNode.opened());
+    CHECK(!grandParentGroupNode.opened());
     CHECK(grandParentGroupNode.closed());
-    CHECK_FALSE(parentGroupNode->opened());
+    CHECK(!parentGroupNode->opened());
     CHECK(parentGroupNode->closed());
-    CHECK_FALSE(groupNode->opened());
+    CHECK(!groupNode->opened());
     CHECK(groupNode->closed());
-    CHECK_FALSE(childGroupNode->opened());
+    CHECK(!childGroupNode->opened());
     CHECK(childGroupNode->closed());
 
-    CHECK_FALSE(grandParentGroupNode.hasOpenedDescendant());
-    CHECK_FALSE(parentGroupNode->hasOpenedDescendant());
-    CHECK_FALSE(groupNode->hasOpenedDescendant());
-    CHECK_FALSE(childGroupNode->hasOpenedDescendant());
+    CHECK(!grandParentGroupNode.hasOpenedDescendant());
+    CHECK(!parentGroupNode->hasOpenedDescendant());
+    CHECK(!groupNode->hasOpenedDescendant());
+    CHECK(!childGroupNode->hasOpenedDescendant());
   }
 
   SECTION("canAddChild")
@@ -119,9 +119,9 @@ TEST_CASE("GroupNode")
       {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "material"}};
     // clang-format on
 
-    CHECK_FALSE(groupNode.canAddChild(worldNode));
-    CHECK_FALSE(groupNode.canAddChild(layerNode));
-    CHECK_FALSE(groupNode.canAddChild(groupNode));
+    CHECK(!groupNode.canAddChild(worldNode));
+    CHECK(!groupNode.canAddChild(layerNode));
+    CHECK(!groupNode.canAddChild(groupNode));
     CHECK(groupNode.canAddChild(entityNode));
     CHECK(groupNode.canAddChild(brushNode));
     CHECK(groupNode.canAddChild(patchNode));
@@ -131,11 +131,11 @@ TEST_CASE("GroupNode")
       auto linkedGroupNode = std::make_unique<GroupNode>(Group{"group"});
       setLinkId(groupNode, "linked_group_id");
       setLinkId(*linkedGroupNode, groupNode.linkId());
-      CHECK_FALSE(groupNode.canAddChild(*linkedGroupNode));
+      CHECK(!groupNode.canAddChild(*linkedGroupNode));
 
       auto outerGroupNode = GroupNode{Group{"outer_group"}};
       outerGroupNode.addChild(linkedGroupNode.release());
-      CHECK_FALSE(groupNode.canAddChild(outerGroupNode));
+      CHECK(!groupNode.canAddChild(outerGroupNode));
     }
   }
 

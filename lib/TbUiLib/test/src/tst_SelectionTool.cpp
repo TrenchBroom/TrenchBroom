@@ -119,7 +119,7 @@ TEST_CASE("SelectionTool")
           THEN("The group is opened")
           {
             CHECK(map.selection().brushFaces.empty());
-            CHECK_FALSE(map.selection().hasNodes());
+            CHECK(!map.selection().hasNodes());
             CHECK(map.editorContext().currentGroup() == groupNode);
           }
         }
@@ -177,7 +177,7 @@ TEST_CASE("SelectionTool")
             CHECK(
               map.selection().brushFaces
               == std::vector<mdl::BrushFaceHandle>{{brushNode, topFaceIndex}});
-            CHECK_FALSE(map.selection().hasNodes());
+            CHECK(!map.selection().hasNodes());
           }
 
           AND_WHEN("I shift click on the selected face again")
@@ -192,7 +192,7 @@ TEST_CASE("SelectionTool")
               CHECK(
                 map.selection().brushFaces
                 == std::vector<mdl::BrushFaceHandle>{{brushNode, topFaceIndex}});
-              CHECK_FALSE(map.selection().hasNodes());
+              CHECK(!map.selection().hasNodes());
             }
           }
 
@@ -206,7 +206,7 @@ TEST_CASE("SelectionTool")
             THEN("The top face gets deselected")
             {
               CHECK(map.selection().brushFaces.empty());
-              CHECK_FALSE(map.selection().hasNodes());
+              CHECK(!map.selection().hasNodes());
             }
           }
         }
@@ -246,7 +246,7 @@ TEST_CASE("SelectionTool")
             THEN("The brush gets deselected")
             {
               CHECK(map.selection().brushFaces.empty());
-              CHECK_FALSE(map.selection().hasNodes());
+              CHECK(!map.selection().hasNodes());
             }
           }
         }
@@ -261,7 +261,7 @@ TEST_CASE("SelectionTool")
           THEN("All brush faces are selected")
           {
             CHECK(map.selection().brushFaces.size() == 6);
-            CHECK_FALSE(map.selection().hasNodes());
+            CHECK(!map.selection().hasNodes());
           }
         }
 
@@ -294,7 +294,7 @@ TEST_CASE("SelectionTool")
               CHECK(
                 map.selection().brushFaces
                 == std::vector<mdl::BrushFaceHandle>{{brushNode, topFaceIndex}});
-              CHECK_FALSE(map.selection().hasNodes());
+              CHECK(!map.selection().hasNodes());
             }
           }
 
@@ -311,7 +311,7 @@ TEST_CASE("SelectionTool")
                 map.selection().brushFaces,
                 UnorderedEquals(std::vector<mdl::BrushFaceHandle>{
                   {brushNode, topFaceIndex}, {brushNode, frontFaceIndex}}));
-              CHECK_FALSE(map.selection().hasNodes());
+              CHECK(!map.selection().hasNodes());
             }
           }
 
@@ -356,7 +356,7 @@ TEST_CASE("SelectionTool")
                   UnorderedEquals(std::vector<mdl::BrushFaceHandle>{
                     {brushNode, topFaceIndex},
                     {coplanarBrushNode, coplanarTopFaceIndex}}));
-                CHECK_FALSE(map.selection().hasNodes());
+                CHECK(!map.selection().hasNodes());
               }
             }
 
@@ -376,7 +376,7 @@ TEST_CASE("SelectionTool")
                     {brushNode, frontFaceIndex},
                     {brushNode, topFaceIndex},
                     {coplanarBrushNode, coplanarTopFaceIndex}}));
-                CHECK_FALSE(map.selection().hasNodes());
+                CHECK(!map.selection().hasNodes());
               }
             }
           }
@@ -425,7 +425,7 @@ TEST_CASE("SelectionTool")
               CHECK(
                 map.selection().brushFaces
                 == std::vector<mdl::BrushFaceHandle>{{brushNode, topFaceIndex}});
-              CHECK_FALSE(map.selection().hasNodes());
+              CHECK(!map.selection().hasNodes());
             }
           }
 
@@ -441,7 +441,7 @@ TEST_CASE("SelectionTool")
               CHECK(
                 map.selection().brushFaces
                 == std::vector<mdl::BrushFaceHandle>{{brushNode, topFaceIndex}});
-              CHECK_FALSE(map.selection().hasNodes());
+              CHECK(!map.selection().hasNodes());
             }
           }
 
@@ -499,7 +499,7 @@ TEST_CASE("SelectionTool")
             THEN("Nothing happens")
             {
               CHECK(map.selection().brushFaces.empty());
-              CHECK_FALSE(map.selection().hasNodes());
+              CHECK(!map.selection().hasNodes());
             }
           }
 
@@ -512,7 +512,7 @@ TEST_CASE("SelectionTool")
             THEN("Nothing happens")
             {
               CHECK(map.selection().brushFaces.empty());
-              CHECK_FALSE(map.selection().hasNodes());
+              CHECK(!map.selection().hasNodes());
             }
           }
         }
@@ -568,7 +568,7 @@ TEST_CASE("SelectionTool")
       map.editorContext().setHiddenTags(hiddenTag.type());
 
       REQUIRE(hiddenBrushNode->brush().face(hiddenTopFaceIndex).hasTag(hiddenTag));
-      CHECK_FALSE(map.editorContext().visible(
+      CHECK(!map.editorContext().visible(
         *hiddenBrushNode, hiddenBrushNode->brush().face(hiddenTopFaceIndex)));
 
       auto camera = gl::OrthographicCamera{};
@@ -597,7 +597,7 @@ TEST_CASE("SelectionTool")
 
           THEN("The top face of the visible brush get selected")
           {
-            CHECK_FALSE(map.selection().hasNodes());
+            CHECK(!map.selection().hasNodes());
             CHECK(
               map.selection().brushFaces
               == std::vector<mdl::BrushFaceHandle>{

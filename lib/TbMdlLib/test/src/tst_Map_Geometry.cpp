@@ -202,7 +202,7 @@ TEST_CASE("Map_Geometry")
 
         THEN("The entity does not have any empty property keys")
         {
-          CHECK_FALSE(hasEmptyName(entityNode->entity().propertyKeys()));
+          CHECK(!hasEmptyName(entityNode->entity().propertyKeys()));
 
           AND_WHEN("The transformation is undone")
           {
@@ -210,7 +210,7 @@ TEST_CASE("Map_Geometry")
 
             THEN("The entity still doesn't have any empty property keys")
             {
-              CHECK_FALSE(hasEmptyName(entityNode->entity().propertyKeys()));
+              CHECK(!hasEmptyName(entityNode->entity().propertyKeys()));
             }
           }
         }
@@ -439,13 +439,13 @@ TEST_CASE("Map_Geometry")
       auto* groupNode = groupSelectedNodes(map, "test");
       CHECK(groupNode->selected());
 
-      CHECK_FALSE(entityNode->entity().hasProperty("origin"));
+      CHECK(!entityNode->entity().hasProperty("origin"));
       CHECK(rotateSelection(map, vm::vec3d{0, 0, 0}, vm::vec3d{0, 0, 1}, 10));
-      CHECK_FALSE(entityNode->entity().hasProperty("origin"));
+      CHECK(!entityNode->entity().hasProperty("origin"));
 
       map.undoCommand();
 
-      CHECK_FALSE(entityNode->entity().hasProperty("origin"));
+      CHECK(!entityNode->entity().hasProperty("origin"));
     }
 
     SECTION("Undoing a rotation removes angle key")
@@ -490,7 +490,7 @@ TEST_CASE("Map_Geometry")
     SECTION("single brush")
     {
       // attempting an invalid scale has no effect
-      CHECK_FALSE(scaleSelection(map, initialBBox, invalidBBox));
+      CHECK(!scaleSelection(map, initialBBox, invalidBBox));
       CHECK(brushNode->logicalBounds().size() == vm::vec3d{200, 200, 200});
       CHECK(
         brushNode->brush()
@@ -512,7 +512,7 @@ TEST_CASE("Map_Geometry")
       [[maybe_unused]] auto* group = groupSelectedNodes(map, "my group");
 
       // attempting an invalid scale has no effect
-      CHECK_FALSE(scaleSelection(map, initialBBox, invalidBBox));
+      CHECK(!scaleSelection(map, initialBBox, invalidBBox));
       CHECK(brushNode->logicalBounds().size() == vm::vec3d{200, 200, 200});
 
       CHECK(scaleSelection(map, initialBBox, doubleBBox));
@@ -1273,7 +1273,7 @@ TEST_CASE("Map_Geometry")
       selectNodes(map, {subtrahend1});
       CHECK(csgSubtract(map));
       CHECK(entityNode->children().size() == 0u);
-      CHECK_FALSE(map.selection().hasNodes());
+      CHECK(!map.selection().hasNodes());
 
       // check that the selection is restored after undo
       map.undoCommand();

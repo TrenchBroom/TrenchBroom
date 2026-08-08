@@ -77,7 +77,7 @@ TEST_CASE("AllocationTracker")
       CHECK(t.largestPossibleAllocation() == 100u);
       CHECK(t.freeBlocks() == (std::vector<AllocationTracker::Range>{{0, 100}}));
       CHECK(t.usedBlocks() == (std::vector<AllocationTracker::Range>{}));
-      CHECK_FALSE(t.hasAllocations());
+      CHECK(!t.hasAllocations());
     }
 
     SECTION("empty")
@@ -88,7 +88,7 @@ TEST_CASE("AllocationTracker")
       CHECK(t.allocate(1) == nullptr);
       CHECK(t.freeBlocks() == (std::vector<AllocationTracker::Range>{}));
       CHECK(t.usedBlocks() == (std::vector<AllocationTracker::Range>{}));
-      CHECK_FALSE(t.hasAllocations());
+      CHECK(!t.hasAllocations());
     }
 
     SECTION("zero capacity")
@@ -99,7 +99,7 @@ TEST_CASE("AllocationTracker")
       CHECK(t.allocate(1) == nullptr);
       CHECK(t.freeBlocks() == (std::vector<AllocationTracker::Range>{}));
       CHECK(t.usedBlocks() == (std::vector<AllocationTracker::Range>{}));
-      CHECK_FALSE(t.hasAllocations());
+      CHECK(!t.hasAllocations());
     }
   }
 
@@ -268,7 +268,7 @@ TEST_CASE("AllocationTracker")
       CHECK(t.freeBlocks() == (std::vector<AllocationTracker::Range>{{0, 100}}));
       CHECK(t.usedBlocks() == (std::vector<AllocationTracker::Range>{}));
 
-      CHECK_FALSE(t.hasAllocations());
+      CHECK(!t.hasAllocations());
     }
 
     SECTION("with free space at end")
@@ -375,7 +375,7 @@ TEST_CASE("AllocationTracker")
       CHECK(t.usedBlocks() == (std::vector<AllocationTracker::Range>{}));
       CHECK(
         t.freeBlocks() == (std::vector<AllocationTracker::Range>{{0, 140 * NumBrushes}}));
-      CHECK_FALSE(t.hasAllocations());
+      CHECK(!t.hasAllocations());
 
       for (size_t i = 0; i < NumBrushes; ++i)
       {

@@ -157,11 +157,11 @@ TEST_CASE("Polyhedron")
 
       auto p = Polyhedron3d{p1};
 
-      CHECK_FALSE(p.empty());
+      CHECK(!p.empty());
       CHECK(p.point());
-      CHECK_FALSE(p.edge());
-      CHECK_FALSE(p.polygon());
-      CHECK_FALSE(p.polyhedron());
+      CHECK(!p.edge());
+      CHECK(!p.polygon());
+      CHECK(!p.polyhedron());
 
       CHECK(p.hasAllVertices({p1}));
     }
@@ -172,11 +172,11 @@ TEST_CASE("Polyhedron")
 
       auto p = Polyhedron3d{p1, p1};
 
-      CHECK_FALSE(p.empty());
+      CHECK(!p.empty());
       CHECK(p.point());
-      CHECK_FALSE(p.edge());
-      CHECK_FALSE(p.polygon());
-      CHECK_FALSE(p.polyhedron());
+      CHECK(!p.edge());
+      CHECK(!p.polygon());
+      CHECK(!p.polyhedron());
 
       CHECK(p.hasAllVertices({p1}));
     }
@@ -188,11 +188,11 @@ TEST_CASE("Polyhedron")
 
       auto p = Polyhedron3d{p1, p2};
 
-      CHECK_FALSE(p.empty());
-      CHECK_FALSE(p.point());
+      CHECK(!p.empty());
+      CHECK(!p.point());
       CHECK(p.edge());
-      CHECK_FALSE(p.polygon());
-      CHECK_FALSE(p.polyhedron());
+      CHECK(!p.polygon());
+      CHECK(!p.polyhedron());
 
       CHECK(p.hasAllVertices({p1, p2}));
     }
@@ -205,11 +205,11 @@ TEST_CASE("Polyhedron")
 
       auto p = Polyhedron3d{p1, p2, p3};
 
-      CHECK_FALSE(p.empty());
-      CHECK_FALSE(p.point());
+      CHECK(!p.empty());
+      CHECK(!p.point());
       CHECK(p.edge());
-      CHECK_FALSE(p.polygon());
-      CHECK_FALSE(p.polyhedron());
+      CHECK(!p.polygon());
+      CHECK(!p.polyhedron());
 
       CHECK(p.hasAllVertices({p1, p3}));
     }
@@ -222,11 +222,11 @@ TEST_CASE("Polyhedron")
 
       auto p = Polyhedron3d{p1, p2, p3};
 
-      CHECK_FALSE(p.empty());
-      CHECK_FALSE(p.point());
-      CHECK_FALSE(p.edge());
+      CHECK(!p.empty());
+      CHECK(!p.point());
+      CHECK(!p.edge());
       CHECK(p.polygon());
-      CHECK_FALSE(p.polyhedron());
+      CHECK(!p.polyhedron());
 
       CHECK(p.hasAllVertices({p1, p2, p3}));
     }
@@ -240,11 +240,11 @@ TEST_CASE("Polyhedron")
 
       auto p = Polyhedron3d{p1, p2, p3, p4};
 
-      CHECK_FALSE(p.empty());
-      CHECK_FALSE(p.point());
-      CHECK_FALSE(p.edge());
+      CHECK(!p.empty());
+      CHECK(!p.point());
+      CHECK(!p.edge());
       CHECK(p.polygon());
-      CHECK_FALSE(p.polyhedron());
+      CHECK(!p.polyhedron());
 
       CHECK(p.hasAllVertices({p1, p2, p3}));
     }
@@ -258,11 +258,11 @@ TEST_CASE("Polyhedron")
 
       auto p = Polyhedron3d{p1, p2, p3, p4};
 
-      CHECK_FALSE(p.empty());
-      CHECK_FALSE(p.point());
-      CHECK_FALSE(p.edge());
+      CHECK(!p.empty());
+      CHECK(!p.point());
+      CHECK(!p.edge());
       CHECK(p.polygon());
-      CHECK_FALSE(p.polyhedron());
+      CHECK(!p.polyhedron());
 
       CHECK(p.hasAllVertices({p1, p2, p4}));
     }

@@ -121,7 +121,7 @@ TEST_CASE("RenderBatch")
         CHECK(order == std::vector<std::string>{"rendered"});
       }
 
-      CHECK_FALSE(destroyed);
+      CHECK(!destroyed);
       delete renderable;
       CHECK(destroyed);
     }
@@ -139,7 +139,7 @@ TEST_CASE("RenderBatch")
         CHECK(order == std::vector<std::string>{"prepared", "rendered"});
       }
 
-      CHECK_FALSE(destroyed);
+      CHECK(!destroyed);
       delete renderable;
       CHECK(destroyed);
     }
@@ -159,7 +159,7 @@ TEST_CASE("RenderBatch")
         CHECK(order == std::vector<std::string>{"prepared", "rendered"});
       }
 
-      CHECK_FALSE(destroyed);
+      CHECK(!destroyed);
       delete renderable;
       CHECK(destroyed);
     }
@@ -178,7 +178,7 @@ TEST_CASE("RenderBatch")
         batch.addOneShot(renderable);
         batch.render(renderContext);
         CHECK(order == std::vector<std::string>{"rendered"});
-        CHECK_FALSE(destroyed);
+        CHECK(!destroyed);
       }
 
       CHECK(destroyed); // the batch deleted it on destruction
@@ -195,7 +195,7 @@ TEST_CASE("RenderBatch")
         batch.addOneShot(renderable);
         batch.render(renderContext);
         CHECK(order == std::vector<std::string>{"prepared", "rendered"});
-        CHECK_FALSE(destroyed);
+        CHECK(!destroyed);
       }
 
       CHECK(destroyed);
@@ -212,7 +212,7 @@ TEST_CASE("RenderBatch")
         batch.addOneShot(renderable);
         batch.render(renderContext);
         CHECK(order == std::vector<std::string>{"prepared", "rendered"});
-        CHECK_FALSE(destroyed);
+        CHECK(!destroyed);
       }
 
       CHECK(destroyed);

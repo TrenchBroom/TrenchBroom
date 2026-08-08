@@ -228,11 +228,11 @@ TEST_CASE("TokenizerBase")
     auto tokenizer = SimpleTokenizer{R"(a\;\ab)", ";", '\\'};
 
     // 'a' is not escaped
-    CHECK_FALSE(tokenizer.escaped());
+    CHECK(!tokenizer.escaped());
 
     // the escape character itself is not escaped
     tokenizer.advance();
-    CHECK_FALSE(tokenizer.escaped());
+    CHECK(!tokenizer.escaped());
 
     // ';' is escapable and preceded by the escape character
     tokenizer.advance();
@@ -241,14 +241,14 @@ TEST_CASE("TokenizerBase")
     SECTION("resetEscaped")
     {
       tokenizer.resetEscaped();
-      CHECK_FALSE(tokenizer.escaped());
+      CHECK(!tokenizer.escaped());
     }
 
     SECTION("a character that is not escapable is never escaped")
     {
       tokenizer.advance();
       tokenizer.advance();
-      CHECK_FALSE(tokenizer.escaped());
+      CHECK(!tokenizer.escaped());
     }
   }
 

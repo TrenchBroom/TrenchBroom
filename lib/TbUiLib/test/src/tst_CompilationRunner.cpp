@@ -140,7 +140,7 @@ TEST_CASE("CompilationRunToolTaskRunner")
 
     CHECK(exec.started);
     CHECK(exec.errored);
-    CHECK_FALSE(exec.ended);
+    CHECK(!exec.ended);
   }
 
   SECTION("system specific path separators")
@@ -171,7 +171,7 @@ TEST_CASE("CompilationRunToolTaskRunner")
     REQUIRE(exec.executeAndWait(5000ms));
 
     CHECK(exec.started);
-    CHECK_FALSE(exec.errored);
+    CHECK(!exec.errored);
     CHECK(exec.ended);
   }
 
@@ -192,7 +192,7 @@ TEST_CASE("CompilationRunToolTaskRunner")
     REQUIRE(exec.executeAndWait(5000ms));
 
     CHECK(exec.started);
-    CHECK_FALSE(exec.errored);
+    CHECK(!exec.errored);
     CHECK(exec.ended);
   }
 
@@ -262,7 +262,7 @@ escaped str)"));
 
     CHECK(exec.started);
     CHECK(exec.errored);
-    CHECK_FALSE(exec.ended);
+    CHECK(!exec.ended);
   }
 #endif
 
@@ -291,7 +291,7 @@ escaped str)"));
     CHECK(exec.ended == !treatNonZeroResultCodeAsError);
 #else
     CHECK(exec.errored);
-    CHECK_FALSE(exec.ended);
+    CHECK(!exec.ended);
 #endif
   }
 #endif
@@ -333,7 +333,7 @@ TEST_CASE("CompilationLaunchEngineTaskRunner")
     REQUIRE(exec.executeAndWait(5000ms));
 
     CHECK(exec.started);
-    CHECK_FALSE(exec.errored);
+    CHECK(!exec.errored);
     CHECK(exec.ended);
     CHECK_THAT(
       output.toPlainText().toStdString(),
@@ -405,7 +405,7 @@ TEST_CASE("CompilationLaunchEngineTaskRunner")
     REQUIRE(exec.executeAndWait(5000ms));
 
     CHECK(exec.started);
-    CHECK_FALSE(exec.errored);
+    CHECK(!exec.errored);
     CHECK(exec.ended);
     CHECK_THAT(
       output.toPlainText().toStdString(),
@@ -739,7 +739,7 @@ TEST_CASE("CompilationRunner")
     REQUIRE(compilationStartedSpy.count() == 1);
     REQUIRE(compilationEndedSpy.count() == 1);
 
-    CHECK_FALSE(testEnvironment.fileExists(should_not_exist));
+    CHECK(!testEnvironment.fileExists(should_not_exist));
   }
 
   SECTION("runLaunchEngineTask")

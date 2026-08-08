@@ -256,7 +256,7 @@ TEST_CASE("HandleDragTracker")
 
         THEN("the drag tracker returns false")
         {
-          CHECK_FALSE(dragResult);
+          CHECK(!dragResult);
         }
       }
     }

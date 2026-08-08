@@ -300,7 +300,7 @@ TEST_CASE("Map_Picking")
        */
 
       CHECK(innerGroup->opened());
-      CHECK_FALSE(outerGroup->opened());
+      CHECK(!outerGroup->opened());
       CHECK(outerGroup->hasOpenedDescendant());
 
       // pick a brush in the outer group

@@ -71,7 +71,7 @@ TEST_CASE("WorldReader")
     const auto& world = worldResult.value();
     CHECK(world != nullptr);
     CHECK(world->childCount() == 1u);
-    CHECK_FALSE(world->children().front()->hasChildren());
+    CHECK(!world->children().front()->hasChildren());
   }
 
   SECTION("Empty entity")
@@ -609,7 +609,7 @@ TEST_CASE("WorldReader")
     CHECK(brush.face(*b_rc_v16w_index).surfaceAttributes().value == 3.0);
     CHECK(
       brush.face(*b_rc_v16w_index).surfaceAttributes().color == Color{RgbB{8, 9, 10}});
-    CHECK_FALSE(brush.face(*c_mf_v3cww_index).surfaceAttributes().color);
+    CHECK(!brush.face(*c_mf_v3cww_index).surfaceAttributes().color);
   }
 
   SECTION("Invalid Daikatana surface color")
@@ -1348,7 +1348,7 @@ common/caulk
     const auto& worldNode = worldResult.value();
     CHECK(worldNode != nullptr);
     CHECK(worldNode->childCount() == 1u);
-    CHECK_FALSE(worldNode->children().front()->hasChildren());
+    CHECK(!worldNode->children().front()->hasChildren());
 
     CHECK(worldNode->entity().hasProperty(mdl::EntityPropertyKeys::Classname));
     CHECK(worldNode->entity().hasProperty("message"));
@@ -1371,7 +1371,7 @@ common/caulk
     const auto& worldNode = worldResult.value();
     CHECK(worldNode != nullptr);
     CHECK(worldNode->childCount() == 1u);
-    CHECK_FALSE(worldNode->children().front()->hasChildren());
+    CHECK(!worldNode->children().front()->hasChildren());
 
     CHECK(worldNode->entity().hasProperty(mdl::EntityPropertyKeys::Classname));
     CHECK(worldNode->entity().hasProperty("path"));
@@ -1394,7 +1394,7 @@ common/caulk
     const auto& worldNode = worldResult.value();
     CHECK(worldNode != nullptr);
     CHECK(worldNode->childCount() == 1u);
-    CHECK_FALSE(worldNode->children().front()->hasChildren());
+    CHECK(!worldNode->children().front()->hasChildren());
 
     CHECK(worldNode->entity().hasProperty(mdl::EntityPropertyKeys::Classname));
     CHECK(worldNode->entity().hasProperty("path"));
@@ -1417,7 +1417,7 @@ common/caulk
     const auto& worldNode = worldResult.value();
     CHECK(worldNode != nullptr);
     CHECK(worldNode->childCount() == 1u);
-    CHECK_FALSE(worldNode->children().front()->hasChildren());
+    CHECK(!worldNode->children().front()->hasChildren());
 
     CHECK(worldNode->entity().hasProperty(mdl::EntityPropertyKeys::Classname));
     CHECK(worldNode->entity().hasProperty("message"));
@@ -1441,7 +1441,7 @@ common/caulk
     const auto& worldNode = worldResult.value();
     CHECK(worldNode != nullptr);
     CHECK(worldNode->childCount() == 1u);
-    CHECK_FALSE(worldNode->children().front()->hasChildren());
+    CHECK(!worldNode->children().front()->hasChildren());
 
     CHECK(worldNode->entity().hasProperty(mdl::EntityPropertyKeys::Classname));
     CHECK(worldNode->entity().hasProperty("message"));

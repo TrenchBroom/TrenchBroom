@@ -216,7 +216,7 @@ TEST_CASE("Map_Groups")
 
       CHECK(node->parent() == groupNode);
       CHECK(groupNode->selected());
-      CHECK_FALSE(node->selected());
+      CHECK(!node->selected());
 
       map.undoCommand();
       CHECK(groupNode->parent() == nullptr);
@@ -245,14 +245,14 @@ TEST_CASE("Map_Groups")
       CHECK(childNode2->parent() == entityNode);
       CHECK(entityNode->parent() == groupNode);
       CHECK(groupNode->selected());
-      CHECK_FALSE(childNode1->selected());
+      CHECK(!childNode1->selected());
 
       map.undoCommand();
       CHECK(groupNode->parent() == nullptr);
       CHECK(childNode1->parent() == entityNode);
       CHECK(childNode2->parent() == entityNode);
       CHECK(entityNode->parent() == &parentForNodes(map));
-      CHECK_FALSE(groupNode->selected());
+      CHECK(!groupNode->selected());
       CHECK(childNode1->selected());
     }
 
@@ -277,15 +277,15 @@ TEST_CASE("Map_Groups")
       CHECK(childNode2->parent() == entityNode);
       CHECK(entityNode->parent() == groupNode);
       CHECK(groupNode->selected());
-      CHECK_FALSE(childNode1->selected());
-      CHECK_FALSE(childNode2->selected());
+      CHECK(!childNode1->selected());
+      CHECK(!childNode2->selected());
 
       map.undoCommand();
       CHECK(groupNode->parent() == nullptr);
       CHECK(childNode1->parent() == entityNode);
       CHECK(childNode2->parent() == entityNode);
       CHECK(entityNode->parent() == &parentForNodes(map));
-      CHECK_FALSE(groupNode->selected());
+      CHECK(!groupNode->selected());
       CHECK(childNode1->selected());
       CHECK(childNode2->selected());
     }
@@ -450,7 +450,7 @@ TEST_CASE("Map_Groups")
       addNodes(map, {{entityNode1, {brushNode1}}});
       selectNodes(map, {entityNode1});
       CHECK_THAT(map.selection().nodes, Equals(std::vector<Node*>{brushNode1}));
-      CHECK_FALSE(entityNode1->selected());
+      CHECK(!entityNode1->selected());
       CHECK(brushNode1->selected());
 
       auto* groupNode = groupSelectedNodes(map, "Group");
@@ -462,7 +462,7 @@ TEST_CASE("Map_Groups")
 
       ungroupSelectedNodes(map);
       CHECK_THAT(map.selection().nodes, Equals(std::vector<Node*>{brushNode1}));
-      CHECK_FALSE(entityNode1->selected());
+      CHECK(!entityNode1->selected());
       CHECK(brushNode1->selected());
     }
 
@@ -658,7 +658,7 @@ TEST_CASE("Map_Groups")
 
     deselectAll(map);
 
-    CHECK_FALSE(canCreateLinkedDuplicate(map));
+    CHECK(!canCreateLinkedDuplicate(map));
     CHECK(createLinkedDuplicate(map) == nullptr);
 
     selectNodes(map, {groupNode});
@@ -685,7 +685,7 @@ TEST_CASE("Map_Groups")
 
     SECTION("Separating a group that isn't linked")
     {
-      CHECK_FALSE(canSeparateSelectedLinkedGroups(map));
+      CHECK(!canSeparateSelectedLinkedGroups(map));
     }
 
     SECTION("Separating all members of a link set")
@@ -694,7 +694,7 @@ TEST_CASE("Map_Groups")
       REQUIRE_THAT(*linkedGroupNode, MatchesNode(*groupNode));
 
       selectNodes(map, {groupNode, linkedGroupNode});
-      CHECK_FALSE(canSeparateSelectedLinkedGroups(map));
+      CHECK(!canSeparateSelectedLinkedGroups(map));
     }
 
     SECTION("Separating one group from a link set with two members")
@@ -876,13 +876,13 @@ TEST_CASE("Map_Groups")
 
     SECTION("When nothing is selected")
     {
-      CHECK_FALSE(canExtractLinkedGroups(map));
+      CHECK(!canExtractLinkedGroups(map));
     }
 
     SECTION("When the selection isn't grouped")
     {
       selectNodes(map, {ungroupedNode});
-      CHECK_FALSE(canExtractLinkedGroups(map));
+      CHECK(!canExtractLinkedGroups(map));
     }
 
     SECTION("Extracting from a group that isn't linked")
@@ -890,7 +890,7 @@ TEST_CASE("Map_Groups")
       openGroup(map, *groupNode);
       selectNodes(map, {groupedBrushNode});
 
-      CHECK_FALSE(canExtractLinkedGroups(map));
+      CHECK(!canExtractLinkedGroups(map));
     }
 
     SECTION("When the group is linked")
@@ -921,7 +921,7 @@ TEST_CASE("Map_Groups")
            groupedBrushEntityBrushNode1,
            groupedBrushEntityBrushNode2});
 
-        CHECK_FALSE(canExtractLinkedGroups(map));
+        CHECK(!canExtractLinkedGroups(map));
       }
 
       SECTION("Extracting a subset of nodes in a group")
@@ -1125,7 +1125,7 @@ TEST_CASE("Map_Groups")
 
     CHECK(canUpdateLinkedGroups({entityNode}));
     CHECK(canUpdateLinkedGroups({linkedEntityNode}));
-    CHECK_FALSE(canUpdateLinkedGroups(kdl::vec_static_cast<mdl::Node*>(entityNodes)));
+    CHECK(!canUpdateLinkedGroups(kdl::vec_static_cast<mdl::Node*>(entityNodes)));
   }
 
   SECTION("setHasPendingChanges")

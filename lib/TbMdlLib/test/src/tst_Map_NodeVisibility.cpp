@@ -82,7 +82,7 @@ TEST_CASE("Map_NodeVisibility")
 
           THEN("The node is isolated and selected")
           {
-            CHECK_FALSE(nodeToIsolate->hidden());
+            CHECK(!nodeToIsolate->hidden());
             CHECK(nodeToHide->hidden());
             CHECK(nodeToIsolate->selected());
           }
@@ -93,8 +93,8 @@ TEST_CASE("Map_NodeVisibility")
 
             THEN("All nodes are visible again and selection is restored")
             {
-              CHECK_FALSE(nodeToIsolate->hidden());
-              CHECK_FALSE(nodeToHide->hidden());
+              CHECK(!nodeToIsolate->hidden());
+              CHECK(!nodeToHide->hidden());
 
               CHECK_THAT(map.selection().nodes, UnorderedEquals(selectedNodes));
             }
@@ -161,10 +161,10 @@ TEST_CASE("Map_NodeVisibility")
 
             THEN("All nodes are visible and selection is restored")
             {
-              CHECK_FALSE(nodeToHide->hidden());
-              CHECK_FALSE(entityNode->hidden());
-              CHECK_FALSE(childNode1->hidden());
-              CHECK_FALSE(childNode2->hidden());
+              CHECK(!nodeToHide->hidden());
+              CHECK(!entityNode->hidden());
+              CHECK(!childNode1->hidden());
+              CHECK(!childNode2->hidden());
 
               CHECK_THAT(map.selection().nodes, UnorderedEquals(selectedNodes));
             }

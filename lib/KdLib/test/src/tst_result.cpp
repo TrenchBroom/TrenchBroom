@@ -2233,7 +2233,7 @@ TEST_CASE("result")
       CHECK(constLValueSuccess.if_error([&](const auto&) {
         called = true;
       }) == result<int, Error1, Error2>{1});
-      CHECK_FALSE(called);
+      CHECK(!called);
 
       called = false;
       const auto constLValueError = result<int, Error1, Error2>{Error1{}};
@@ -2252,7 +2252,7 @@ TEST_CASE("result")
       CHECK(constLValueSuccess.if_error([&](const auto&) {
         called = true;
       }) == result<int&, Error1, Error2>{i});
-      CHECK_FALSE(called);
+      CHECK(!called);
 
       called = false;
       const auto constLValueError = result<int&, Error1, Error2>{Error1{}};
@@ -2271,7 +2271,7 @@ TEST_CASE("result")
       CHECK(constLValueSuccess.if_error([&](const auto&) {
         called = true;
       }) == result<const int&, Error1, Error2>{i});
-      CHECK_FALSE(called);
+      CHECK(!called);
 
       called = false;
       const auto constLValueError = result<const int&, Error1, Error2>{Error1{}};
@@ -2289,7 +2289,7 @@ TEST_CASE("result")
       CHECK(constLValueSuccess.if_error([&](const auto&) {
         called = true;
       }) == result<multi_value<int, float>, Error1, Error2>{multi_value{1, 2.0f}});
-      CHECK_FALSE(called);
+      CHECK(!called);
 
       called = false;
       const auto constLValueError =
@@ -2307,7 +2307,7 @@ TEST_CASE("result")
       CHECK(constLValueSuccess.if_error([&](const auto&) {
         called = true;
       }) == kdl::result<void, Error1, Error2>{});
-      CHECK_FALSE(called);
+      CHECK(!called);
 
       called = false;
       const auto constLValueError = result<void, Error1, Error2>{Error1{}};

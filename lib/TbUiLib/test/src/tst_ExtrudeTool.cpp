@@ -108,7 +108,7 @@ mdl::PickResult performPick(mdl::Map& map, ExtrudeTool& tool, const vm::ray3d& p
 
   const auto hit = tool.pick3D(pickRay, perspectiveCameraFor(pickRay), pickResult);
   CHECK(hit.type() == ExtrudeTool::ExtrudeHitType);
-  CHECK_FALSE(vm::is_nan(hit.hitPoint()));
+  CHECK(!vm::is_nan(hit.hitPoint()));
 
   REQUIRE(hit.isMatch());
   pickResult.addHit(hit);
@@ -152,7 +152,7 @@ TEST_CASE("ExtrudeTool")
       REQUIRE(pickResult.all().size() == 1);
 
       const auto hit = tool.pick2D(pickRay, orthographicCameraFor(pickRay), pickResult);
-      CHECK_FALSE(hit.isMatch());
+      CHECK(!hit.isMatch());
     }
 
     SECTION("Pick ray does not hit brush directly")
