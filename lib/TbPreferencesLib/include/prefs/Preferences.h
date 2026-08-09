@@ -19,9 +19,8 @@
 
 #pragma once
 
-#include <QKeySequence>
-
 #include "base/Color.h"
+#include "base/KeySequence.h"
 #include "base/Preference.h"
 
 #include "vm/util.h"
@@ -32,8 +31,6 @@
 
 namespace tb::Preferences
 {
-// NOTE: any QKeySequence preferences must be functions like CameraFly*
-// because QKeySequence docs specify that you can't create an instance before QApplication
 
 // Must be set to false for tests, see TestPreferenceManager::initialize
 inline auto AskForAutoUpdates = Preference<bool>{"updater/Ask for auto updates", true};
@@ -259,18 +256,18 @@ inline auto CameraFlyMoveSpeed =
 
 inline auto Link2DCameras = Preference<bool>{"Controls/Camera/Link 2D cameras", true};
 
-inline auto CameraFlyForward = Preference<std::vector<QKeySequence>>{
-  "Controls/Camera/Move forward", std::vector<QKeySequence>{'W'}};
-inline auto CameraFlyBackward = Preference<std::vector<QKeySequence>>{
-  "Controls/Camera/Move backward", std::vector<QKeySequence>{'S'}};
-inline auto CameraFlyLeft = Preference<std::vector<QKeySequence>>{
-  "Controls/Camera/Move left", std::vector<QKeySequence>{'A'}};
-inline auto CameraFlyRight = Preference<std::vector<QKeySequence>>{
-  "Controls/Camera/Move right", std::vector<QKeySequence>{'D'}};
-inline auto CameraFlyUp = Preference<std::vector<QKeySequence>>{
-  "Controls/Camera/Move up", std::vector<QKeySequence>{'Q'}};
-inline auto CameraFlyDown = Preference<std::vector<QKeySequence>>{
-  "Controls/Camera/Move down", std::vector<QKeySequence>{'X'}};
+inline auto CameraFlyForward = Preference<std::vector<KeySequence>>{
+  "Controls/Camera/Move forward", std::vector<KeySequence>{KeySequence{"W"}}};
+inline auto CameraFlyBackward = Preference<std::vector<KeySequence>>{
+  "Controls/Camera/Move backward", std::vector<KeySequence>{KeySequence{"S"}}};
+inline auto CameraFlyLeft = Preference<std::vector<KeySequence>>{
+  "Controls/Camera/Move left", std::vector<KeySequence>{KeySequence{"A"}}};
+inline auto CameraFlyRight = Preference<std::vector<KeySequence>>{
+  "Controls/Camera/Move right", std::vector<KeySequence>{KeySequence{"D"}}};
+inline auto CameraFlyUp = Preference<std::vector<KeySequence>>{
+  "Controls/Camera/Move up", std::vector<KeySequence>{KeySequence{"Q"}}};
+inline auto CameraFlyDown = Preference<std::vector<KeySequence>>{
+  "Controls/Camera/Move down", std::vector<KeySequence>{KeySequence{"X"}}};
 
 // Map view config
 inline auto ShowEntityClassnames =
@@ -309,6 +306,6 @@ inline auto EntityLinkMode =
 
 std::vector<Preference<Color>*> colorPreferences();
 
-std::vector<Preference<std::vector<QKeySequence>>*> keyPreferences();
+std::vector<Preference<std::vector<KeySequence>>*> keyPreferences();
 
 } // namespace tb::Preferences

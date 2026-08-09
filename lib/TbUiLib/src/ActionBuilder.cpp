@@ -27,9 +27,12 @@
 #include "ui/ActionManager.h"
 #include "ui/ActionMenu.h"
 #include "ui/ImageUtils.h"
+#include "ui/QKeySequenceUtils.h"
 
 #include "kd/contracts.h"
 #include "kd/ranges/to.h"
+
+#include <ranges>
 
 namespace tb::ui
 {
@@ -39,17 +42,19 @@ void updateActionKeySequence(QAction& qAction, const Action& tAction)
   const auto& keySequences = pref(tAction.preference());
 
   auto tooltip = tAction.label();
-  for (const auto& keySequence : keySequences)
+  auto qKeySequences =
+    keySequences | std::views::transform(toQKeySequence) | kdl::ranges::to<QList>();
+  for (const auto& qKeySequence : qKeySequences)
   {
-    if (!keySequence.isEmpty())
+    if (!qKeySequence.isEmpty())
     {
       tooltip.append(
-        QObject::tr(" (%1)").arg(keySequence.toString(QKeySequence::NativeText)));
+        QObject::tr(" (%1)").arg(qKeySequence.toString(QKeySequence::NativeText)));
     }
   }
 
   qAction.setToolTip(tooltip);
-  qAction.setShortcuts(keySequences | kdl::ranges::to<QList>());
+  qAction.setShortcuts(qKeySequences);
 }
 
 namespace

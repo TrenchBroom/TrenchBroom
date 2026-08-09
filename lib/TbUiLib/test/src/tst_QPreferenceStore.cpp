@@ -19,12 +19,12 @@
 
 #include <QCoreApplication>
 #include <QJsonObject>
-#include <QKeySequence>
 #include <QLockFile>
 #include <QtSystemDetection>
 
 #include "Observer.h"
 #include "TestEnvironment.h"
+#include "base/KeySequence.h"
 #include "fs/TestEnvironment.h"
 #include "ui/CatchConfig.h"
 #include "ui/QPathUtils.h"
@@ -144,12 +144,9 @@ TEST_CASE("QPreferenceStore")
 
     auto preferenceStore = QPreferenceStore{pathAsQString(preferenceFilePath), 50ms};
 
-    auto value = std::vector<QKeySequence>{};
+    auto value = std::vector<KeySequence>{};
     CHECK(preferenceStore.load("some/path", value));
-    CHECK(
-      value
-      == std::vector<QKeySequence>{
-        QKeySequence::fromString("Ctrl+Alt+W", QKeySequence::PortableText)});
+    CHECK(value == std::vector<KeySequence>{KeySequence{"Ctrl+Alt+W"}});
   }
 
   SECTION("filters unsupported shortcuts")
@@ -161,13 +158,10 @@ TEST_CASE("QPreferenceStore")
 
     auto preferenceStore = QPreferenceStore{pathAsQString(preferenceFilePath), 50ms};
 
-    auto value = std::vector<QKeySequence>{};
+    auto value = std::vector<KeySequence>{};
     CHECK(preferenceStore.load("some/path", value));
     CHECK(
-      value
-      == std::vector<QKeySequence>{
-        QKeySequence::fromString("A", QKeySequence::PortableText),
-        QKeySequence::fromString("Ctrl+Return", QKeySequence::PortableText)});
+      value == std::vector<KeySequence>{KeySequence{"A"}, KeySequence{"Ctrl+Return"}});
   }
 
   SECTION("preferences aren't saved immediately")

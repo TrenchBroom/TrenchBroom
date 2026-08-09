@@ -20,6 +20,7 @@
 #include "ui/KeyboardShortcutModel.h"
 
 #include <QBrush>
+#include <QKeySequence>
 
 #include "base/Macros.h"
 #include "base/PreferenceManager.h"
@@ -30,6 +31,7 @@
 #include "ui/ActionMenu.h"
 #include "ui/KeyboardShortcutUtils.h"
 #include "ui/MapDocument.h"
+#include "ui/QKeySequenceUtils.h"
 #include "ui/QPathUtils.h"
 
 #include "kd/contracts.h"
@@ -109,9 +111,13 @@ QVariant KeyboardShortcutModel::data(const QModelIndex& index, const int role) c
     switch (index.column())
     {
     case 0:
-      return !keyboardShortcuts.empty() ? keyboardShortcuts[0] : QKeySequence{};
+      return QVariant::fromValue(
+        !keyboardShortcuts.empty() ? toQKeySequence(keyboardShortcuts[0])
+                                   : QKeySequence{});
     case 1:
-      return keyboardShortcuts.size() > 1 ? keyboardShortcuts[1] : QKeySequence{};
+      return QVariant::fromValue(
+        keyboardShortcuts.size() > 1 ? toQKeySequence(keyboardShortcuts[1])
+                                     : QKeySequence{});
     case 2:
       return QString::fromStdString(actionContextName(actionInfo.actionContext()));
     case 3:
@@ -153,7 +159,7 @@ bool KeyboardShortcutModel::setData(
     {
       keyboardShortcuts.emplace_back();
     }
-    keyboardShortcuts[0] = keySequence;
+    keyboardShortcuts[0] = fromQKeySequence(keySequence);
     break;
   case 1:
     if (keyboardShortcuts.empty())
@@ -164,7 +170,7 @@ bool KeyboardShortcutModel::setData(
     {
       keyboardShortcuts.emplace_back();
     }
-    keyboardShortcuts[1] = keySequence;
+    keyboardShortcuts[1] = fromQKeySequence(keySequence);
     break;
   default:
     break;

@@ -19,8 +19,6 @@
 
 #include "ui/ActionInfo.h"
 
-#include <QKeySequence>
-
 #include "base/PreferenceManager.h"
 #include "ui/ActionContext.h"
 
@@ -38,7 +36,7 @@ namespace
 struct ActionConflictKey
 {
   ActionContext::Type actionContext;
-  QKeySequence keySequence;
+  KeySequence keySequence;
 
   bool operator<(const ActionConflictKey& other) const
   {
@@ -60,7 +58,7 @@ ActionInfo::ActionInfo(
   const ActionInfoType type,
   std::filesystem::path displayPath,
   const ActionContext::Type actionContext,
-  const Preference<std::vector<QKeySequence>>& keyboardShortcutPreference)
+  const Preference<std::vector<KeySequence>>& keyboardShortcutPreference)
   : m_type{type}
   , m_displayPath{std::move(displayPath)}
   , m_actionContext{actionContext}
@@ -83,8 +81,7 @@ ActionContext::Type ActionInfo::actionContext() const
   return m_actionContext;
 }
 
-const Preference<std::vector<QKeySequence>>& ActionInfo::keyboardShortcutPreference()
-  const
+const Preference<std::vector<KeySequence>>& ActionInfo::keyboardShortcutPreference() const
 {
   return *m_keyboardShortcutPreference;
 }
@@ -115,7 +112,7 @@ std::vector<size_t> findConflicts(const std::vector<ActionInfo>& actionInfos)
     const auto actionIndex = static_cast<size_t>(index);
     for (const auto& keySequence : pref(actionInfo.keyboardShortcutPreference()))
     {
-      if (keySequence.count() > 0)
+      if (!keySequence.value.empty())
       {
         const auto [it, noConflict] = entries.emplace(
           ActionConflictKey{actionInfo.actionContext(), keySequence}, actionIndex);

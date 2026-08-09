@@ -19,9 +19,9 @@
 
 #pragma once
 
-#include <QKeySequence>
 #include <QString>
 
+#include "base/KeySequence.h"
 #include "base/Macros.h"
 #include "base/Preference.h"
 #include "ui/ActionContext.h"
@@ -29,6 +29,8 @@
 #include <filesystem>
 #include <functional>
 #include <optional>
+
+class QKeySequence;
 
 namespace tb
 {
@@ -55,7 +57,7 @@ class Action
 private:
   QString m_label;
   ActionContext::Type m_actionContext;
-  Preference<std::vector<QKeySequence>> m_shortcutPreference;
+  Preference<std::vector<KeySequence>> m_shortcutPreference;
 
   ExecuteFn m_execute;
   EnabledFn m_enabled;
@@ -98,8 +100,8 @@ public:
   const QString& label() const;
   ActionContext::Type actionContext() const;
 
-  const Preference<std::vector<QKeySequence>>& preference() const;
-  Preference<std::vector<QKeySequence>>& preference();
+  const Preference<std::vector<KeySequence>>& preference() const;
+  Preference<std::vector<KeySequence>>& preference();
 
   void execute(ActionExecutionContext& context) const;
   bool enabled(const ActionExecutionContext& context) const;
@@ -115,7 +117,7 @@ public:
 
   deleteCopy(Action);
 
-  // cannot be noexcept because it will call QKeySequence's copy constructor
+  // cannot be noexcept because it will call KeySequence's copy constructor
   Action(Action&& other) = default;
   Action& operator=(Action&& other) = default;
 };

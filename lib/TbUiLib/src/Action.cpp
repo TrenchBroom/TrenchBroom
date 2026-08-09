@@ -19,7 +19,10 @@
 
 #include "ui/Action.h"
 
+#include <QKeySequence>
+
 #include "ui/ActionExecutionContext.h"
+#include "ui/QKeySequenceUtils.h"
 
 #include "kd/const_overload.h"
 
@@ -38,7 +41,7 @@ Action::Action(
   std::optional<QString> statusTip)
   : m_label{std::move(label)}
   , m_actionContext{actionContext}
-  , m_shortcutPreference{std::move(preferencePath), {defaultShortcut}}
+  , m_shortcutPreference{std::move(preferencePath), {fromQKeySequence(defaultShortcut)}}
   , m_execute{std::move(execute)}
   , m_enabled{std::move(enabled)}
   , m_checked{std::move(checked)}
@@ -98,12 +101,12 @@ ActionContext::Type Action::actionContext() const
   return m_actionContext;
 }
 
-const Preference<std::vector<QKeySequence>>& Action::preference() const
+const Preference<std::vector<KeySequence>>& Action::preference() const
 {
   return m_shortcutPreference;
 }
 
-Preference<std::vector<QKeySequence>>& Action::preference()
+Preference<std::vector<KeySequence>>& Action::preference()
 {
   return KDL_CONST_OVERLOAD(preference());
 }

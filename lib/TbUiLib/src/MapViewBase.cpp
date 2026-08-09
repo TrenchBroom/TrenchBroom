@@ -83,6 +83,7 @@
 #include "ui/MapViewActivationTracker.h"
 #include "ui/MapViewToolBox.h"
 #include "ui/MapWindow.h"
+#include "ui/QKeySequenceUtils.h"
 #include "ui/SelectionTool.h"
 #include "ui/SignalDelayer.h"
 
@@ -302,7 +303,8 @@ void MapViewBase::createActions()
 
     auto* shortcut = new QShortcut{this};
     shortcut->setContext(Qt::WidgetWithChildrenShortcut);
-    shortcut->setKeys(keySequences | kdl::ranges::to<QList>());
+    shortcut->setKeys(
+      keySequences | std::views::transform(toQKeySequence) | kdl::ranges::to<QList>());
     connect(
       shortcut, &QShortcut::activated, this, [this, &action] { triggerAction(action); });
     connect(shortcut, &QShortcut::activatedAmbiguously, this, [this, &action] {
@@ -324,7 +326,9 @@ void MapViewBase::updateActionBindings()
 {
   for (auto& [shortcut, action] : m_shortcuts)
   {
-    shortcut->setKeys(pref(action->preference()) | kdl::ranges::to<QList>());
+    shortcut->setKeys(
+      pref(action->preference()) | std::views::transform(toQKeySequence)
+      | kdl::ranges::to<QList>());
   }
 }
 

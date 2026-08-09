@@ -13,6 +13,5 @@ target_link_libraries(TbPreferencesLib
     CompilerConfig
     PrecompileStdHeaders
   PUBLIC
-    Qt6::Gui
     TbBaseLib
 )

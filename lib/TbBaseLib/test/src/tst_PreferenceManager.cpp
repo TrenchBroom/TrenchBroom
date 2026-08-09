@@ -18,6 +18,7 @@
  */
 
 #include "base/Color.h"
+#include "base/KeySequence.h"
 #include "base/PreferenceManager.h"
 #include "base/PreferenceStore.h"
 
@@ -113,9 +114,10 @@ struct MockPreferenceStore : public PreferenceStore
     return false;
   }
 
-  bool load(const std::filesystem::path&, std::vector<QKeySequence>&) override
+  bool load(const std::filesystem::path&, std::vector<KeySequence>&) override
   {
-    // cannot test std::vector<QKeySequence> here
+    // not covered by this mock; see tst_QPreferenceStore.cpp for shortcut-specific
+    // coverage
     return false;
   }
 
@@ -150,9 +152,10 @@ struct MockPreferenceStore : public PreferenceStore
     values[path] = value;
   }
 
-  void save(const std::filesystem::path&, const std::vector<QKeySequence>&) override
+  void save(const std::filesystem::path&, const std::vector<KeySequence>&) override
   {
-    // can't test std::vector<QKeySequence> here
+    // not covered by this mock; see tst_QPreferenceStore.cpp for shortcut-specific
+    // coverage
   }
 
   std::unordered_map<std::filesystem::path, Value> values;
