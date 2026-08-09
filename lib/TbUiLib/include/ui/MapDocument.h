@@ -22,7 +22,6 @@
 #include "base/Notifier.h"
 #include "base/NotifierConnection.h"
 #include "mdl/PointTrace.h"
-#include "ui/Action.h"
 
 #include "vm/bbox.h"
 #include "vm/polygon.h"
@@ -73,7 +72,6 @@ class MapRenderer;
 
 namespace ui
 {
-class ActionManager;
 class AsyncTaskRunner;
 class CachingLogger;
 
@@ -163,9 +161,6 @@ private:
   std::optional<PointFile> m_pointFile;
   std::optional<PortalFile> m_portalFile;
 
-  std::optional<std::vector<Action>> m_cachedTagActions;
-  std::optional<std::vector<Action>> m_cachedEntityDefinitionActions;
-
   std::unique_ptr<render::MapRenderer> m_mapRenderer;
 
   NotifierConnection m_notifierConnection;
@@ -228,33 +223,6 @@ public: // accessors and such
   Logger& logger();
   void setTargetLogger(Logger* parentLogger);
 
-public: // tag and entity definition actions
-  template <typename ActionVisitor>
-  void visitTagActions(const ActionManager& actionManager, ActionVisitor&& visitor)
-  {
-    for (auto& action : cacheTagActions(actionManager))
-    {
-      visitor(action);
-    }
-  }
-
-  template <typename ActionVisitor>
-  void visitEntityDefinitionActions(
-    const ActionManager& actionManager, ActionVisitor&& visitor)
-  {
-    for (auto& action : cacheEntityDefinitionActions(actionManager))
-    {
-      visitor(action);
-    }
-  }
-
-private: // tag and entity definition actions
-  std::vector<Action>& cacheTagActions(const ActionManager& actionManager);
-  void clearTagActions();
-
-  std::vector<Action>& cacheEntityDefinitionActions(const ActionManager& actionManager);
-  void clearEntityDefinitionActions();
-
 public: // point file management
   mdl::PointTrace* pointTrace();
   void loadPointFile(std::filesystem::path path);
@@ -279,7 +247,6 @@ private: // observers
   void transactionUndone(const std::string& name, bool observable, bool isModification);
   void documentWasLoaded();
   void documentWasCleared();
-  void entityDefinitionsDidChange();
   void preferenceDidChange(const std::filesystem::path& preferencePath);
 };
 

@@ -27,7 +27,6 @@
 #include "mdl/Autosaver.h"
 #include "mdl/CommandProcessor.h"
 #include "mdl/EditorContext.h"
-#include "mdl/EntityDefinitionManager.h"
 #include "mdl/EntityModelManager.h"
 #include "mdl/GameInfo.h"
 #include "mdl/Grid.h"
@@ -38,13 +37,11 @@
 #include "mdl/NodeWriter.h"
 #include "mdl/PortalFile.h"
 #include "mdl/PushSelection.h"
-#include "mdl/TagManager.h"
 #include "mdl/Transaction.h"
 #include "mdl/UpdateLinkedGroupsHelper.h"
 #include "mdl/WorldReader.h"
 #include "prefs/Preferences.h"
 #include "render/MapRenderer.h"
-#include "ui/ActionManager.h"
 
 #include "kd/contracts.h"
 #include "kd/result.h"
@@ -237,36 +234,6 @@ const std::vector<vm::polygon3f>* MapDocument::portals() const
   return m_portalFile ? &m_portalFile->portals : nullptr;
 }
 
-std::vector<Action>& MapDocument::cacheTagActions(const ActionManager& actionManager)
-{
-  if (!m_cachedTagActions)
-  {
-    m_cachedTagActions = actionManager.createTagActions(m_map->tagManager().smartTags());
-  }
-  return *m_cachedTagActions;
-}
-
-void MapDocument::clearTagActions()
-{
-  m_cachedTagActions = std::nullopt;
-}
-
-std::vector<Action>& MapDocument::cacheEntityDefinitionActions(
-  const ActionManager& actionManager)
-{
-  if (!m_cachedEntityDefinitionActions)
-  {
-    m_cachedEntityDefinitionActions = actionManager.createEntityDefinitionActions(
-      m_map->entityDefinitionManager().definitions());
-  }
-  return *m_cachedEntityDefinitionActions;
-}
-
-void MapDocument::clearEntityDefinitionActions()
-{
-  m_cachedEntityDefinitionActions = std::nullopt;
-}
-
 void MapDocument::loadPointFile(std::filesystem::path path)
 {
   static_assert(
@@ -385,9 +352,6 @@ void MapDocument::connectObservers()
   m_notifierConnection +=
     transactionUndoneNotifier.connect(this, &MapDocument::transactionUndone);
 
-  m_notifierConnection += entityDefinitionsDidChangeNotifier.connect(
-    this, &MapDocument::entityDefinitionsDidChange);
-
   auto& prefs = PreferenceManager::instance();
   m_notifierConnection +=
     prefs.preferenceDidChangeNotifier.connect(this, &MapDocument::preferenceDidChange);
@@ -480,14 +444,6 @@ void MapDocument::transactionUndone(
 void MapDocument::documentWasLoaded()
 {
   m_mapRenderer = std::make_unique<render::MapRenderer>(*m_map);
-
-  clearTagActions();
-  clearEntityDefinitionActions();
-}
-
-void MapDocument::entityDefinitionsDidChange()
-{
-  clearEntityDefinitionActions();
 }
 
 void MapDocument::preferenceDidChange(const std::filesystem::path&)
