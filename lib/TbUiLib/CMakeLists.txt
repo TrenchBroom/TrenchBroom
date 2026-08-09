@@ -159,6 +159,7 @@ target_sources(TbUiLib
     ${CMAKE_CURRENT_SOURCE_DIR}/src/PreferenceDialog.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/PreferencePane.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/QColorUtils.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/QKeySequenceUtils.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/QPathUtils.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/QPreferenceStore.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/QPreferenceStoreDelegate.cpp
@@ -404,6 +405,7 @@ target_sources(TbUiLib
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/PreferenceDialog.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/PreferencePane.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/QColorUtils.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/QKeySequenceUtils.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/QPathUtils.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/QPreferenceStore.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/QPreferenceStoreDelegate.h
