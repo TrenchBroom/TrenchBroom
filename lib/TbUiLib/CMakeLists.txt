@@ -518,6 +518,7 @@ target_link_libraries(TbUiLib
     Qt6::OpenGL
     Qt6::OpenGLWidgets
     Qt6::Widgets
+    TbAppLib
     TbBaseLib
     TbMdlLib
     TbPreferencesLib

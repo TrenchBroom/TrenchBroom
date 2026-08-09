@@ -1,4 +1,5 @@
 add_subdirectory(KdLib)
+add_subdirectory(TbAppLib)
 add_subdirectory(TbBaseLib)
 add_subdirectory(TbElLib)
 add_subdirectory(TbFsLib)
