@@ -312,6 +312,7 @@ target_sources(TbUiLib
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/DrawShapeToolController2D.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/DrawShapeToolController3D.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/DrawShapeToolExtension.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/DrawShapeToolExtensionKind.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/DrawShapeToolExtensionManager.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/DrawShapeToolExtensionPage.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/DrawShapeToolExtensionPages.h
