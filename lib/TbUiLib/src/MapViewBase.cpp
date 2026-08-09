@@ -308,7 +308,7 @@ void MapViewBase::createActions()
     connect(
       shortcut, &QShortcut::activated, this, [this, &action] { triggerAction(action); });
     connect(shortcut, &QShortcut::activatedAmbiguously, this, [this, &action] {
-      triggerAmbiguousAction(action.label());
+      triggerAmbiguousAction(QString::fromStdString(action.label()));
     });
     m_shortcuts.emplace_back(shortcut, &action);
   };

@@ -28,14 +28,14 @@ namespace tb::ui
 
 Action::Action(
   std::filesystem::path preferencePath,
-  QString label,
+  std::string label,
   const ActionContext::Type actionContext,
   KeySequence defaultShortcut,
   ExecuteFn execute,
   EnabledFn enabled,
   std::optional<CheckedFn> checked,
   std::optional<std::filesystem::path> iconPath,
-  std::optional<QString> statusTip)
+  std::optional<std::string> statusTip)
   : m_label{std::move(label)}
   , m_actionContext{actionContext}
   , m_shortcutPreference{std::move(preferencePath), {std::move(defaultShortcut)}}
@@ -49,13 +49,13 @@ Action::Action(
 
 Action::Action(
   std::filesystem::path preferencePath,
-  QString label,
+  std::string label,
   const ActionContext::Type actionContext,
   KeySequence defaultShortcut,
   ExecuteFn execute,
   EnabledFn enabled,
   std::optional<std::filesystem::path> iconPath,
-  std::optional<QString> statusTip)
+  std::optional<std::string> statusTip)
   : Action{
       std::move(preferencePath),
       std::move(label),
@@ -71,7 +71,7 @@ Action::Action(
 
 Action::Action(
   std::filesystem::path preferencePath,
-  QString label,
+  std::string label,
   ActionContext::Type actionContext,
   ExecuteFn execute,
   EnabledFn enabled)
@@ -88,7 +88,7 @@ Action::Action(
 {
 }
 
-const QString& Action::label() const
+const std::string& Action::label() const
 {
   return m_label;
 }
@@ -136,7 +136,7 @@ const std::optional<std::filesystem::path>& Action::iconPath() const
   return m_iconPath;
 }
 
-const std::optional<QString>& Action::statusTip() const
+const std::optional<std::string>& Action::statusTip() const
 {
   return m_statusTip;
 }

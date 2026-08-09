@@ -32,9 +32,9 @@
 #include "ui/KeyboardShortcutUtils.h"
 #include "ui/MapDocument.h"
 #include "ui/QKeySequenceUtils.h"
-#include "ui/QPathUtils.h"
 
 #include "kd/contracts.h"
+#include "kd/path_utils.h"
 #include "kd/set_adapter.h"
 #include "kd/vector_utils.h"
 
@@ -258,7 +258,7 @@ void KeyboardShortcutModel::initializeMenuActions()
     [&](const MenuAction& actionItem) {
       m_actions.emplace_back(
         ActionInfoType::Menu,
-        currentPath / pathFromQString(actionItem.action.label()),
+        currentPath / kdl::parse_utf8_path(actionItem.action.label()),
         actionItem.action.actionContext(),
         actionItem.action.preference());
     },
@@ -274,7 +274,7 @@ void KeyboardShortcutModel::initializeViewActions()
   m_actionManager.visitMapViewActions([&](Action& action) {
     m_actions.emplace_back(
       ActionInfoType::View,
-      "Map View" / pathFromQString(action.label()),
+      "Map View" / kdl::parse_utf8_path(action.label()),
       action.actionContext(),
       action.preference());
   });
@@ -321,7 +321,7 @@ void KeyboardShortcutModel::initializeTagActions()
   m_document->visitTagActions(m_actionManager, [&](Action& action) {
     m_actions.emplace_back(
       ActionInfoType::Tag,
-      "Tags" / pathFromQString(action.label()),
+      "Tags" / kdl::parse_utf8_path(action.label()),
       action.actionContext(),
       action.preference());
   });
@@ -334,7 +334,7 @@ void KeyboardShortcutModel::initializeEntityDefinitionActions()
   m_document->visitEntityDefinitionActions(m_actionManager, [&](Action& action) {
     m_actions.emplace_back(
       ActionInfoType::EntityDefinition,
-      "Entity Definitions" / pathFromQString(action.label()),
+      "Entity Definitions" / kdl::parse_utf8_path(action.label()),
       action.actionContext(),
       action.preference());
   });

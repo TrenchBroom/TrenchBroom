@@ -135,7 +135,8 @@ void printMenuShortcuts(ActionManager& actionManager, QTextStream& out)
     [](const MenuSeparator&) {},
     [&](const MenuAction& actionItem) {
       out << "    '" << pathAsGenericQString(actionItem.action.preference().path) << "': "
-          << "{ path: " << toString(currentPath, actionItem.action.label())
+          << "{ path: "
+          << toString(currentPath, QString::fromStdString(actionItem.action.label()))
           << ", shortcut: " << toString(pref(actionItem.action.preference())) << " },\n";
     },
     [&](const auto& thisLambda, const Menu& menu) {

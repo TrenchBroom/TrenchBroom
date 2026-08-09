@@ -20,6 +20,7 @@
 #include "ui/ActionBuilder.h"
 
 #include <QMenuBar>
+#include <QString>
 #include <QToolBar>
 
 #include "base/PreferenceManager.h"
@@ -41,7 +42,7 @@ void updateActionKeySequence(QAction& qAction, const Action& tAction)
 {
   const auto& keySequences = pref(tAction.preference());
 
-  auto tooltip = tAction.label();
+  auto tooltip = QString::fromStdString(tAction.label());
   auto qKeySequences =
     keySequences | std::views::transform(toQKeySequence) | kdl::ranges::to<QList>();
   for (const auto& qKeySequence : qKeySequences)
@@ -71,7 +72,8 @@ QAction& findOrCreateQtAction(
   }
 
   auto& qtAction =
-    *actionMap.emplace(&tbAction, new QAction{tbAction.label()}).first->second;
+    *actionMap.emplace(&tbAction, new QAction{QString::fromStdString(tbAction.label())})
+       .first->second;
 
   qtAction.setCheckable(tbAction.checkable());
   if (const auto& iconPath = tbAction.iconPath())
@@ -80,7 +82,7 @@ QAction& findOrCreateQtAction(
   }
   if (const auto& statusTip = tbAction.statusTip())
   {
-    qtAction.setStatusTip(*statusTip);
+    qtAction.setStatusTip(QString::fromStdString(*statusTip));
   }
   updateActionKeySequence(qtAction, tbAction);
 

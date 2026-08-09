@@ -19,7 +19,7 @@
 
 #include "ui/ActionManager.h"
 
-#include <QString>
+#include <QtSystemDetection>
 
 #include "base/PreferenceManager.h"
 #include "mdl/EntityDefinition.h"
@@ -44,6 +44,8 @@
 
 #include "vm/util.h"
 
+#include <fmt/format.h>
+
 #include <string>
 
 namespace tb::ui
@@ -63,7 +65,7 @@ std::vector<Action> ActionManager::createTagActions(
   {
     result.emplace_back(
       std::filesystem::path{"Filters/Tags/" + tag.name() + "/Toggle Visible"},
-      QObject::tr("Toggle %1 visible").arg(QString::fromStdString(tag.name())),
+      fmt::format("Toggle {} visible", tag.name()),
       ActionContext::Any,
       [&tag](auto& context) { context.mapView().toggleTagVisible(tag); },
       [](const auto& context) { return context.hasDocument(); });
@@ -71,7 +73,7 @@ std::vector<Action> ActionManager::createTagActions(
     {
       result.emplace_back(
         std::filesystem::path{"Tags/" + tag.name() + "/Enable"},
-        QObject::tr("Turn Selection into %1").arg(QString::fromStdString(tag.name())),
+        fmt::format("Turn Selection into {}", tag.name()),
         ActionContext::AnyView | ActionContext::AnySelection | ActionContext::AnyOrNoTool,
         [&tag](auto& context) { context.mapView().enableTag(tag); },
         [](const auto& context) { return context.hasDocument(); });
@@ -80,7 +82,7 @@ std::vector<Action> ActionManager::createTagActions(
     {
       result.emplace_back(
         std::filesystem::path{"Tags/" + tag.name() + "/Disable"},
-        QObject::tr("Turn Selection into non-%1").arg(QString::fromStdString(tag.name())),
+        fmt::format("Turn Selection into non-{}", tag.name()),
         ActionContext::AnyView | ActionContext::AnySelection | ActionContext::AnyOrNoTool,
         [&tag](auto& context) { context.mapView().disableTag(tag); },
         [](const auto& context) { return context.hasDocument(); });
@@ -99,7 +101,7 @@ std::vector<Action> ActionManager::createEntityDefinitionActions(
   {
     result.emplace_back(
       std::filesystem::path{"Entities/" + definition.name + "/Toggle"},
-      QObject::tr("Toggle %1 visible").arg(QString::fromStdString(definition.name)),
+      fmt::format("Toggle {} visible", definition.name),
       ActionContext::Any,
       [&](auto& context) { context.mapView().toggleEntityDefinitionVisible(definition); },
       [](const auto& context) { return context.hasDocument(); });
@@ -107,7 +109,7 @@ std::vector<Action> ActionManager::createEntityDefinitionActions(
     {
       result.emplace_back(
         std::filesystem::path{"Entities/" + definition.name + "/Create"},
-        QObject::tr("Create %1").arg(QString::fromStdString(definition.name)),
+        fmt::format("Create {}", definition.name),
         ActionContext::Any,
         [&](auto& context) { context.mapView().createEntity(definition); },
         [](const auto& context) { return context.hasDocument(); });
@@ -151,7 +153,7 @@ void ActionManager::createViewActions()
   /* ========== Tool Specific Actions ========== */
   addAction(Action{
     std::filesystem::path{"Controls/Map view/Create brush"},
-    QObject::tr("Create Brush"),
+    "Create Brush",
     ActionContext::View3D | ActionContext::AnyOrNoSelection
       | ActionContext::AssembleBrushTool,
     KeySequence{"Return"},
@@ -163,7 +165,7 @@ void ActionManager::createViewActions()
   });
   addAction(Action{
     std::filesystem::path{"Controls/Map view/Toggle clip side"},
-    QObject::tr("Toggle Clip Side"),
+    "Toggle Clip Side",
     ActionContext::AnyView | ActionContext::AnyOrNoSelection | ActionContext::ClipTool,
     KeySequence{"Ctrl+Return"},
     [](auto& context) { context.mapView().toggleClipSide(); },
@@ -173,7 +175,7 @@ void ActionManager::createViewActions()
   });
   addAction(Action{
     std::filesystem::path{"Controls/Map view/Perform clip"},
-    QObject::tr("Perform Clip"),
+    "Perform Clip",
     ActionContext::AnyView | ActionContext::AnyOrNoSelection | ActionContext::ClipTool,
     KeySequence{"Return"},
     [](auto& context) { context.mapView().performClip(); },
@@ -183,7 +185,7 @@ void ActionManager::createViewActions()
   });
   addAction(Action{
     std::filesystem::path{"Controls/Map view/Perform sweep"},
-    QObject::tr("Perform Sweep"),
+    "Perform Sweep",
     ActionContext::AnyView | ActionContext::AnyOrNoSelection | ActionContext::SweepTool,
     KeySequence{"Return"},
     [](auto& context) { context.mapView().performSweep(); },
@@ -193,7 +195,7 @@ void ActionManager::createViewActions()
   });
   addAction(Action{
     std::filesystem::path{"Controls/Map view/Decrease sweep scale"},
-    QObject::tr("Decrease Sweep Scale"),
+    "Decrease Sweep Scale",
     ActionContext::AnyView | ActionContext::SelectionOwnedByTool
       | ActionContext::SweepTool,
     KeySequence{"["},
@@ -202,7 +204,7 @@ void ActionManager::createViewActions()
   });
   addAction(Action{
     std::filesystem::path{"Controls/Map view/Increase sweep scale"},
-    QObject::tr("Increase Sweep Scale"),
+    "Increase Sweep Scale",
     ActionContext::AnyView | ActionContext::SelectionOwnedByTool
       | ActionContext::SweepTool,
     KeySequence{"]"},
@@ -215,7 +217,7 @@ void ActionManager::createViewActions()
   // these preference paths are structured like "action in 2D view; action in 3D view"
   addAction(Action{
     std::filesystem::path{"Controls/Map view/Move objects up; Move objects forward"},
-    QObject::tr("Move Forward"),
+    "Move Forward",
     ActionContext::AnyView | ActionContext::NodeSelection
       | ActionContext::SelectionOwnedByTool | ActionContext::AnyNodeHandleTool
       | ActionContext::RotateTool | ActionContext::SweepTool | ActionContext::NoTool,
@@ -225,7 +227,7 @@ void ActionManager::createViewActions()
   });
   addAction(Action{
     std::filesystem::path{"Controls/Map view/Move objects down; Move objects backward"},
-    QObject::tr("Move Backward"),
+    "Move Backward",
     ActionContext::AnyView | ActionContext::NodeSelection
       | ActionContext::SelectionOwnedByTool | ActionContext::AnyNodeHandleTool
       | ActionContext::RotateTool | ActionContext::SweepTool | ActionContext::NoTool,
@@ -235,7 +237,7 @@ void ActionManager::createViewActions()
   });
   addAction(Action{
     std::filesystem::path{"Controls/Map view/Move objects left"},
-    QObject::tr("Move Left"),
+    "Move Left",
     ActionContext::AnyView | ActionContext::NodeSelection
       | ActionContext::SelectionOwnedByTool | ActionContext::AnyNodeHandleTool
       | ActionContext::RotateTool | ActionContext::SweepTool | ActionContext::NoTool,
@@ -245,7 +247,7 @@ void ActionManager::createViewActions()
   });
   addAction(Action{
     std::filesystem::path{"Controls/Map view/Move objects right"},
-    QObject::tr("Move Right"),
+    "Move Right",
     ActionContext::AnyView | ActionContext::NodeSelection
       | ActionContext::SelectionOwnedByTool | ActionContext::AnyNodeHandleTool
       | ActionContext::RotateTool | ActionContext::SweepTool | ActionContext::NoTool,
@@ -255,7 +257,7 @@ void ActionManager::createViewActions()
   });
   addAction(Action{
     std::filesystem::path{"Controls/Map view/Move objects backward; Move objects up"},
-    QObject::tr("Move Up"),
+    "Move Up",
     ActionContext::AnyView | ActionContext::NodeSelection
       | ActionContext::SelectionOwnedByTool | ActionContext::AnyNodeHandleTool
       | ActionContext::RotateTool | ActionContext::SweepTool | ActionContext::NoTool,
@@ -265,7 +267,7 @@ void ActionManager::createViewActions()
   });
   addAction(Action{
     std::filesystem::path{"Controls/Map view/Move objects forward; Move objects down"},
-    QObject::tr("Move Down"),
+    "Move Down",
     ActionContext::AnyView | ActionContext::NodeSelection
       | ActionContext::SelectionOwnedByTool | ActionContext::AnyNodeHandleTool
       | ActionContext::RotateTool | ActionContext::SweepTool | ActionContext::NoTool,
@@ -280,7 +282,7 @@ void ActionManager::createViewActions()
     std::filesystem::path(
       "Controls/Map view/Duplicate and move objects up; Duplicate and move "
       "objects forward"),
-    QObject::tr("Duplicate and Move Forward"),
+    "Duplicate and Move Forward",
     ActionContext::AnyView | ActionContext::NodeSelection | ActionContext::AnyOrNoTool,
     KeySequence{"Ctrl+Up"},
     [](auto& context) {
@@ -292,7 +294,7 @@ void ActionManager::createViewActions()
     std::filesystem::path(
       "Controls/Map view/Duplicate and move objects down; Duplicate and move "
       "objects backward"),
-    QObject::tr("Duplicate and Move Backward"),
+    "Duplicate and Move Backward",
     ActionContext::AnyView | ActionContext::NodeSelection | ActionContext::AnyOrNoTool,
     KeySequence{"Ctrl+Down"},
     [](auto& context) {
@@ -302,7 +304,7 @@ void ActionManager::createViewActions()
   });
   addAction(Action{
     std::filesystem::path{"Controls/Map view/Duplicate and move objects left"},
-    QObject::tr("Duplicate and Move Left"),
+    "Duplicate and Move Left",
     ActionContext::AnyView | ActionContext::NodeSelection | ActionContext::AnyOrNoTool,
     KeySequence{"Ctrl+Left"},
     [](auto& context) { context.mapView().duplicateAndMoveObjects(vm::direction::left); },
@@ -310,7 +312,7 @@ void ActionManager::createViewActions()
   });
   addAction(Action{
     std::filesystem::path{"Controls/Map view/Duplicate and move objects right"},
-    QObject::tr("Duplicate and Move Right"),
+    "Duplicate and Move Right",
     ActionContext::AnyView | ActionContext::NodeSelection | ActionContext::AnyOrNoTool,
     KeySequence{"Ctrl+Right"},
     [](auto& context) {
@@ -322,7 +324,7 @@ void ActionManager::createViewActions()
     std::filesystem::path(
       "Controls/Map view/Duplicate and move objects backward; Duplicate and move "
       "objects up"),
-    QObject::tr("Duplicate and Move Up"),
+    "Duplicate and Move Up",
     ActionContext::AnyView | ActionContext::NodeSelection | ActionContext::AnyOrNoTool,
     KeySequence{"Ctrl+PgUp"},
     [](auto& context) { context.mapView().duplicateAndMoveObjects(vm::direction::up); },
@@ -332,7 +334,7 @@ void ActionManager::createViewActions()
     std::filesystem::path(
       "Controls/Map view/Duplicate and move objects forward; Duplicate and move "
       "objects down"),
-    QObject::tr("Duplicate and Move Down"),
+    "Duplicate and Move Down",
     ActionContext::AnyView | ActionContext::NodeSelection | ActionContext::AnyOrNoTool,
     KeySequence{"Ctrl+PgDown"},
     [](auto& context) { context.mapView().duplicateAndMoveObjects(vm::direction::down); },
@@ -343,7 +345,7 @@ void ActionManager::createViewActions()
   // applies to objects, vertices, handles (e.g. rotation center), the sweep cap
   addAction(Action{
     std::filesystem::path{"Controls/Map view/Roll objects clockwise"},
-    QObject::tr("Roll Clockwise"),
+    "Roll Clockwise",
     ActionContext::AnyView | ActionContext::NodeSelection
       | ActionContext::SelectionOwnedByTool | ActionContext::RotateTool
       | ActionContext::SweepTool | ActionContext::NoTool,
@@ -353,7 +355,7 @@ void ActionManager::createViewActions()
   });
   addAction(Action{
     std::filesystem::path{"Controls/Map view/Roll objects counter-clockwise"},
-    QObject::tr("Roll Counter-clockwise"),
+    "Roll Counter-clockwise",
     ActionContext::AnyView | ActionContext::NodeSelection
       | ActionContext::SelectionOwnedByTool | ActionContext::RotateTool
       | ActionContext::SweepTool | ActionContext::NoTool,
@@ -363,7 +365,7 @@ void ActionManager::createViewActions()
   });
   addAction(Action{
     std::filesystem::path{"Controls/Map view/Yaw objects clockwise"},
-    QObject::tr("Yaw Clockwise"),
+    "Yaw Clockwise",
     ActionContext::AnyView | ActionContext::NodeSelection
       | ActionContext::SelectionOwnedByTool | ActionContext::RotateTool
       | ActionContext::SweepTool | ActionContext::NoTool,
@@ -373,7 +375,7 @@ void ActionManager::createViewActions()
   });
   addAction(Action{
     std::filesystem::path{"Controls/Map view/Yaw objects counter-clockwise"},
-    QObject::tr("Yaw Counter-clockwise"),
+    "Yaw Counter-clockwise",
     ActionContext::AnyView | ActionContext::NodeSelection
       | ActionContext::SelectionOwnedByTool | ActionContext::RotateTool
       | ActionContext::SweepTool | ActionContext::NoTool,
@@ -383,7 +385,7 @@ void ActionManager::createViewActions()
   });
   addAction(Action{
     std::filesystem::path{"Controls/Map view/Pitch objects clockwise"},
-    QObject::tr("Pitch Clockwise"),
+    "Pitch Clockwise",
     ActionContext::AnyView | ActionContext::NodeSelection
       | ActionContext::SelectionOwnedByTool | ActionContext::RotateTool
       | ActionContext::SweepTool | ActionContext::NoTool,
@@ -393,7 +395,7 @@ void ActionManager::createViewActions()
   });
   addAction(Action{
     std::filesystem::path{"Controls/Map view/Pitch objects counter-clockwise"},
-    QObject::tr("Pitch Counter-clockwise"),
+    "Pitch Counter-clockwise",
     ActionContext::AnyView | ActionContext::NodeSelection
       | ActionContext::SelectionOwnedByTool | ActionContext::RotateTool
       | ActionContext::SweepTool | ActionContext::NoTool,
@@ -405,7 +407,7 @@ void ActionManager::createViewActions()
   /* ========== Texturing ========== */
   addAction(Action{
     std::filesystem::path{"Controls/Map view/Move textures up"},
-    QObject::tr("Move Textures Up"),
+    "Move Textures Up",
     ActionContext::View3D | ActionContext::FaceSelection | ActionContext::AnyOrNoTool,
     KeySequence{"Up"},
     [](auto& context) {
@@ -415,7 +417,7 @@ void ActionManager::createViewActions()
   });
   addAction(Action{
     std::filesystem::path{"Controls/Map view/Move textures up (coarse)"},
-    QObject::tr("Move Textures Up (Coarse)"),
+    "Move Textures Up (Coarse)",
     ActionContext::View3D | ActionContext::FaceSelection | ActionContext::AnyOrNoTool,
     KeySequence{"Shift+Up"},
     [](auto& context) {
@@ -425,7 +427,7 @@ void ActionManager::createViewActions()
   });
   addAction(Action{
     std::filesystem::path{"Controls/Map view/Move textures up (fine)"},
-    QObject::tr("Move Textures Up (Fine)"),
+    "Move Textures Up (Fine)",
     ActionContext::View3D | ActionContext::FaceSelection | ActionContext::AnyOrNoTool,
     KeySequence{"Ctrl+Up"},
     [](auto& context) {
@@ -435,7 +437,7 @@ void ActionManager::createViewActions()
   });
   addAction(Action{
     std::filesystem::path{"Controls/Map view/Move textures down"},
-    QObject::tr("Move Textures Down"),
+    "Move Textures Down",
     ActionContext::View3D | ActionContext::FaceSelection | ActionContext::AnyOrNoTool,
     KeySequence{"Down"},
     [](auto& context) {
@@ -445,7 +447,7 @@ void ActionManager::createViewActions()
   });
   addAction(Action{
     std::filesystem::path{"Controls/Map view/Move textures down (coarse)"},
-    QObject::tr("Move Textures Down (Coarse)"),
+    "Move Textures Down (Coarse)",
     ActionContext::View3D | ActionContext::FaceSelection | ActionContext::AnyOrNoTool,
     KeySequence{"Shift+Down"},
     [](auto& context) {
@@ -455,7 +457,7 @@ void ActionManager::createViewActions()
   });
   addAction(Action{
     std::filesystem::path{"Controls/Map view/Move textures down (fine)"},
-    QObject::tr("Move Textures Down (Fine)"),
+    "Move Textures Down (Fine)",
     ActionContext::View3D | ActionContext::FaceSelection | ActionContext::AnyOrNoTool,
     KeySequence{"Ctrl+Down"},
     [](auto& context) {
@@ -465,7 +467,7 @@ void ActionManager::createViewActions()
   });
   addAction(Action{
     std::filesystem::path{"Controls/Map view/Move textures left"},
-    QObject::tr("Move Textures Left"),
+    "Move Textures Left",
     ActionContext::View3D | ActionContext::FaceSelection | ActionContext::AnyOrNoTool,
     KeySequence{"Left"},
     [](auto& context) {
@@ -475,7 +477,7 @@ void ActionManager::createViewActions()
   });
   addAction(Action{
     std::filesystem::path{"Controls/Map view/Move textures left (coarse)"},
-    QObject::tr("Move Textures Left (Coarse)"),
+    "Move Textures Left (Coarse)",
     ActionContext::View3D | ActionContext::FaceSelection | ActionContext::AnyOrNoTool,
     KeySequence{"Shift+Left"},
     [](auto& context) {
@@ -485,7 +487,7 @@ void ActionManager::createViewActions()
   });
   addAction(Action{
     std::filesystem::path{"Controls/Map view/Move textures left (fine)"},
-    QObject::tr("Move Textures Left (Fine)"),
+    "Move Textures Left (Fine)",
     ActionContext::View3D | ActionContext::FaceSelection | ActionContext::AnyOrNoTool,
     KeySequence{"Ctrl+Left"},
     [](auto& context) {
@@ -495,7 +497,7 @@ void ActionManager::createViewActions()
   });
   addAction(Action{
     std::filesystem::path{"Controls/Map view/Move textures right"},
-    QObject::tr("Move Textures Right"),
+    "Move Textures Right",
     ActionContext::View3D | ActionContext::FaceSelection | ActionContext::AnyOrNoTool,
     KeySequence{"Right"},
     [](auto& context) {
@@ -505,7 +507,7 @@ void ActionManager::createViewActions()
   });
   addAction(Action{
     std::filesystem::path{"Controls/Map view/Move textures right (coarse)"},
-    QObject::tr("Move Textures Right (Coarse)"),
+    "Move Textures Right (Coarse)",
     ActionContext::View3D | ActionContext::FaceSelection | ActionContext::AnyOrNoTool,
     KeySequence{"Shift+Right"},
     [](auto& context) {
@@ -515,7 +517,7 @@ void ActionManager::createViewActions()
   });
   addAction(Action{
     std::filesystem::path{"Controls/Map view/Move textures right (fine)"},
-    QObject::tr("Move Textures Right (Fine)"),
+    "Move Textures Right (Fine)",
     ActionContext::View3D | ActionContext::FaceSelection | ActionContext::AnyOrNoTool,
     KeySequence{"Ctrl+Right"},
     [](auto& context) {
@@ -525,7 +527,7 @@ void ActionManager::createViewActions()
   });
   addAction(Action{
     std::filesystem::path{"Controls/Map view/Rotate textures clockwise"},
-    QObject::tr("Rotate Textures Clockwise"),
+    "Rotate Textures Clockwise",
     ActionContext::View3D | ActionContext::FaceSelection | ActionContext::AnyOrNoTool,
     KeySequence{"PgUp"},
     [](auto& context) {
@@ -535,7 +537,7 @@ void ActionManager::createViewActions()
   });
   addAction(Action{
     std::filesystem::path{"Controls/Map view/Rotate textures clockwise (coarse)"},
-    QObject::tr("Rotate Textures Clockwise (Coarse)"),
+    "Rotate Textures Clockwise (Coarse)",
     ActionContext::View3D | ActionContext::FaceSelection | ActionContext::AnyOrNoTool,
     KeySequence{"Shift+PgUp"},
     [](auto& context) {
@@ -545,7 +547,7 @@ void ActionManager::createViewActions()
   });
   addAction(Action{
     std::filesystem::path{"Controls/Map view/Rotate textures clockwise (fine)"},
-    QObject::tr("Rotate Textures Clockwise (Fine)"),
+    "Rotate Textures Clockwise (Fine)",
     ActionContext::View3D | ActionContext::FaceSelection | ActionContext::AnyOrNoTool,
     KeySequence{"Ctrl+PgUp"},
     [](auto& context) {
@@ -555,7 +557,7 @@ void ActionManager::createViewActions()
   });
   addAction(Action{
     std::filesystem::path{"Controls/Map view/Rotate textures counter-clockwise"},
-    QObject::tr("Rotate Textures Counter-clockwise"),
+    "Rotate Textures Counter-clockwise",
     ActionContext::View3D | ActionContext::FaceSelection | ActionContext::AnyOrNoTool,
     KeySequence{"PgDown"},
     [](auto& context) {
@@ -565,7 +567,7 @@ void ActionManager::createViewActions()
   });
   addAction(Action{
     std::filesystem::path{"Controls/Map view/Rotate textures counter-clockwise (coarse)"},
-    QObject::tr("Rotate Textures Counter-clockwise (Coarse)"),
+    "Rotate Textures Counter-clockwise (Coarse)",
     ActionContext::View3D | ActionContext::FaceSelection | ActionContext::AnyOrNoTool,
     KeySequence{"Shift+PgDown"},
     [](auto& context) {
@@ -575,7 +577,7 @@ void ActionManager::createViewActions()
   });
   addAction(Action{
     std::filesystem::path{"Controls/Map view/Rotate textures counter-clockwise (fine)"},
-    QObject::tr("Rotate Textures Counter-clockwise (Fine)"),
+    "Rotate Textures Counter-clockwise (Fine)",
     ActionContext::View3D | ActionContext::FaceSelection | ActionContext::AnyOrNoTool,
     KeySequence{"Ctrl+PgDown"},
     [](auto& context) {
@@ -585,7 +587,7 @@ void ActionManager::createViewActions()
   });
   addAction(Action{
     std::filesystem::path{"Controls/Map view/Reveal in texture browser"},
-    QObject::tr("Reveal in texture browser"),
+    "Reveal in texture browser",
     ActionContext::View3D | ActionContext::AnySelection | ActionContext::AnyOrNoTool,
     KeySequence{},
     [](auto& context) { context.mapWindow().revealMaterial(); },
@@ -593,7 +595,7 @@ void ActionManager::createViewActions()
   });
   addAction(Action{
     std::filesystem::path{"Controls/Map view/Flip textures horizontally"},
-    QObject::tr("Flip textures horizontally"),
+    "Flip textures horizontally",
     ActionContext::View3D | ActionContext::FaceSelection | ActionContext::AnyOrNoTool,
     KeySequence{"Ctrl+F"},
     [](auto& context) { context.mapView().flipUv(vm::direction::right); },
@@ -601,7 +603,7 @@ void ActionManager::createViewActions()
   });
   addAction(Action{
     std::filesystem::path{"Controls/Map view/Flip textures vertically"},
-    QObject::tr("Flip textures vertically"),
+    "Flip textures vertically",
     ActionContext::View3D | ActionContext::FaceSelection | ActionContext::AnyOrNoTool,
     KeySequence{"Ctrl+Alt+F"},
     [](auto& context) { context.mapView().flipUv(vm::direction::up); },
@@ -609,7 +611,7 @@ void ActionManager::createViewActions()
   });
   addAction(Action{
     std::filesystem::path{"Controls/Map view/Reset texture alignment"},
-    QObject::tr("Reset texture alignment"),
+    "Reset texture alignment",
     ActionContext::AnyView | ActionContext::AnySelection | ActionContext::AnyOrNoTool,
     KeySequence{"Shift+R"},
     [](auto& context) { context.mapView().resetUv(); },
@@ -617,7 +619,7 @@ void ActionManager::createViewActions()
   });
   addAction(Action{
     std::filesystem::path{"Controls/Map view/Reset texture alignment to world aligned"},
-    QObject::tr("Reset texture alignment to world aligned"),
+    "Reset texture alignment to world aligned",
     ActionContext::AnyView | ActionContext::AnySelection | ActionContext::AnyOrNoTool,
     KeySequence{"Alt+Shift+R"},
     [](auto& context) { context.mapView().resetUvToWorld(); },
@@ -627,7 +629,7 @@ void ActionManager::createViewActions()
   /* ========== Tag Actions ========== */
   addAction(Action{
     std::filesystem::path{"Controls/Map view/Make structural"},
-    QObject::tr("Make Structural"),
+    "Make Structural",
     ActionContext::AnyView | ActionContext::NodeSelection | ActionContext::AnyOrNoTool,
     KeySequence{"Alt+S"},
     [](auto& context) { context.mapView().makeSelectionStructural(); },
@@ -638,7 +640,7 @@ void ActionManager::createViewActions()
   addAction(Action{
     std::filesystem::path{
       "Controls/Map view/View Filter > Toggle show entity classnames"},
-    QObject::tr("Toggle Show Entity Classnames"),
+    "Toggle Show Entity Classnames",
     ActionContext::Any,
     KeySequence{},
     [](auto& context) { context.mapView().toggleShowEntityClassnames(); },
@@ -646,7 +648,7 @@ void ActionManager::createViewActions()
   });
   addAction(Action{
     std::filesystem::path{"Controls/Map view/View Filter > Toggle show group bounds"},
-    QObject::tr("Toggle Show Group Bounds"),
+    "Toggle Show Group Bounds",
     ActionContext::Any,
     KeySequence{},
     [](auto& context) { context.mapView().toggleShowGroupBounds(); },
@@ -655,7 +657,7 @@ void ActionManager::createViewActions()
   addAction(Action{
     std::filesystem::path{
       "Controls/Map view/View Filter > Toggle show brush entity bounds"},
-    QObject::tr("Toggle Show Brush Entity Bounds"),
+    "Toggle Show Brush Entity Bounds",
     ActionContext::Any,
     KeySequence{},
     [](auto& context) { context.mapView().toggleShowBrushEntityBounds(); },
@@ -664,7 +666,7 @@ void ActionManager::createViewActions()
   addAction(Action{
     std::filesystem::path{
       "Controls/Map view/View Filter > Toggle show point entity bounds"},
-    QObject::tr("Toggle Show Point Entity Bounds"),
+    "Toggle Show Point Entity Bounds",
     ActionContext::Any,
     KeySequence{},
     [](auto& context) { context.mapView().toggleShowPointEntityBounds(); },
@@ -672,7 +674,7 @@ void ActionManager::createViewActions()
   });
   addAction(Action{
     std::filesystem::path{"Controls/Map view/View Filter > Toggle show point entities"},
-    QObject::tr("Toggle Show Point Entities"),
+    "Toggle Show Point Entities",
     ActionContext::Any,
     KeySequence{},
     [](auto& context) { context.mapView().toggleShowPointEntities(); },
@@ -681,7 +683,7 @@ void ActionManager::createViewActions()
   addAction(Action{
     std::filesystem::path{
       "Controls/Map view/View Filter > Toggle show point entity models"},
-    QObject::tr("Toggle Show Point Entity Models"),
+    "Toggle Show Point Entity Models",
     ActionContext::Any,
     KeySequence{},
     [](auto& context) { context.mapView().toggleShowPointEntityModels(); },
@@ -689,7 +691,7 @@ void ActionManager::createViewActions()
   });
   addAction(Action{
     std::filesystem::path{"Controls/Map view/View Filter > Toggle show brushes"},
-    QObject::tr("Toggle Show Brushes"),
+    "Toggle Show Brushes",
     ActionContext::Any,
     KeySequence{},
     [](auto& context) { context.mapView().toggleShowBrushes(); },
@@ -697,7 +699,7 @@ void ActionManager::createViewActions()
   });
   addAction(Action{
     std::filesystem::path{"Controls/Map view/View Filter > Show textures"},
-    QObject::tr("Show Textures"),
+    "Show Textures",
     ActionContext::Any,
     KeySequence{},
     [](auto& context) { context.mapView().showMaterials(); },
@@ -705,7 +707,7 @@ void ActionManager::createViewActions()
   });
   addAction(Action{
     std::filesystem::path{"Controls/Map view/View Filter > Hide textures"},
-    QObject::tr("Hide Textures"),
+    "Hide Textures",
     ActionContext::Any,
     KeySequence{},
     [](auto& context) { context.mapView().hideMaterials(); },
@@ -713,7 +715,7 @@ void ActionManager::createViewActions()
   });
   addAction(Action{
     std::filesystem::path{"Controls/Map view/View Filter > Hide faces"},
-    QObject::tr("Hide Faces"),
+    "Hide Faces",
     ActionContext::Any,
     KeySequence{},
     [](auto& context) { context.mapView().hideFaces(); },
@@ -721,7 +723,7 @@ void ActionManager::createViewActions()
   });
   addAction(Action{
     std::filesystem::path{"Controls/Map view/View Filter > Shade faces"},
-    QObject::tr("Toggle Shade Faces"),
+    "Toggle Shade Faces",
     ActionContext::Any,
     KeySequence{},
     [](auto& context) { context.mapView().toggleShadeFaces(); },
@@ -729,7 +731,7 @@ void ActionManager::createViewActions()
   });
   addAction(Action{
     std::filesystem::path{"Controls/Map view/View Filter > Use fog"},
-    QObject::tr("Toggle Show Fog"),
+    "Toggle Show Fog",
     ActionContext::Any,
     KeySequence{},
     [](auto& context) { context.mapView().toggleShowFog(); },
@@ -737,7 +739,7 @@ void ActionManager::createViewActions()
   });
   addAction(Action{
     std::filesystem::path{"Controls/Map view/View Filter > Show edges"},
-    QObject::tr("Toggle Show Edges"),
+    "Toggle Show Edges",
     ActionContext::Any,
     KeySequence{},
     [](auto& context) { context.mapView().toggleShowEdges(); },
@@ -745,7 +747,7 @@ void ActionManager::createViewActions()
   });
   addAction(Action{
     std::filesystem::path{"Controls/Map view/View Filter > Show all entity links"},
-    QObject::tr("Show All Entity Links"),
+    "Show All Entity Links",
     ActionContext::Any,
     KeySequence{},
     [](auto& context) { context.mapView().showAllEntityLinks(); },
@@ -754,7 +756,7 @@ void ActionManager::createViewActions()
   addAction(Action{
     std::filesystem::path{
       "Controls/Map view/View Filter > Show transitively selected entity links"},
-    QObject::tr("Show Transitively Selected Entity Links"),
+    "Show Transitively Selected Entity Links",
     ActionContext::Any,
     KeySequence{},
     [](auto& context) { context.mapView().showTransitivelySelectedEntityLinks(); },
@@ -763,7 +765,7 @@ void ActionManager::createViewActions()
   addAction(Action{
     std::filesystem::path{
       "Controls/Map view/View Filter > Show directly selected entity links"},
-    QObject::tr("Show Directly Selected Entity Links"),
+    "Show Directly Selected Entity Links",
     ActionContext::Any,
     KeySequence{},
     [](auto& context) { context.mapView().showDirectlySelectedEntityLinks(); },
@@ -771,7 +773,7 @@ void ActionManager::createViewActions()
   });
   addAction(Action{
     std::filesystem::path{"Controls/Map view/View Filter > Hide entity links"},
-    QObject::tr("Hide All Entity Links"),
+    "Hide All Entity Links",
     ActionContext::Any,
     KeySequence{},
     [](auto& context) { context.mapView().hideAllEntityLinks(); },
@@ -781,7 +783,7 @@ void ActionManager::createViewActions()
   /* ========== Misc Actions ========== */
   addAction(Action{
     std::filesystem::path{"Controls/Map view/Cycle map view"},
-    QObject::tr("Cycle View"),
+    "Cycle View",
     ActionContext::Any,
     KeySequence{"Space"},
     [](auto& context) { context.mapView().cycleMapView(); },
@@ -789,7 +791,7 @@ void ActionManager::createViewActions()
   });
   addAction(Action{
     std::filesystem::path{"Controls/Map view/Reset camera zoom"},
-    QObject::tr("Reset Camera Zoom"),
+    "Reset Camera Zoom",
     ActionContext::View3D | ActionContext::AnyOrNoTool | ActionContext::AnyOrNoSelection,
     KeySequence{"Ctrl+Alt+Z"},
     [](auto& context) { context.mapView().resetCameraZoom(); },
@@ -797,7 +799,7 @@ void ActionManager::createViewActions()
   });
   addAction(Action{
     std::filesystem::path{"Controls/Map view/Cancel"},
-    QObject::tr("Cancel"),
+    "Cancel",
     ActionContext::Any,
     KeySequence{"Esc"},
     [](auto& context) { context.mapView().cancel(); },
@@ -823,7 +825,7 @@ void ActionManager::createFileMenu()
   auto& fileMenu = createMainMenu("File");
   fileMenu.addItem(addAction(Action{
     "Menu/File/New",
-    QObject::tr("New Document"),
+    "New Document",
     ActionContext::Any,
     standardShortcut(StandardShortcut::New),
     [](auto& context) { context.appController().newDocument(); },
@@ -832,7 +834,7 @@ void ActionManager::createFileMenu()
   fileMenu.addSeparator();
   fileMenu.addItem(addAction(Action{
     "Menu/File/Open...",
-    QObject::tr("Open Document..."),
+    "Open Document...",
     ActionContext::Any,
     standardShortcut(StandardShortcut::Open),
     [](auto& context) { context.appController().openDocument(); },
@@ -842,7 +844,7 @@ void ActionManager::createFileMenu()
   fileMenu.addSeparator();
   fileMenu.addItem(addAction(Action{
     "Menu/File/Save",
-    QObject::tr("Save Document"),
+    "Save Document",
     ActionContext::Any,
     standardShortcut(StandardShortcut::Save),
     [](auto& context) { context.mapWindow().saveDocument(); },
@@ -850,7 +852,7 @@ void ActionManager::createFileMenu()
   }));
   fileMenu.addItem(addAction(Action{
     "Menu/File/Save as...",
-    QObject::tr("Save Document as..."),
+    "Save Document as...",
     ActionContext::Any,
     standardShortcut(StandardShortcut::SaveAs),
     [](auto& context) { context.mapWindow().saveDocumentAs(); },
@@ -860,7 +862,7 @@ void ActionManager::createFileMenu()
   auto& exportMenu = fileMenu.addMenu("Export");
   exportMenu.addItem(addAction(Action{
     "Menu/File/Export/Wavefront OBJ...",
-    QObject::tr("Wavefront OBJ..."),
+    "Wavefront OBJ...",
     ActionContext::Any,
     KeySequence{},
     [](auto& context) { context.mapWindow().exportDocumentAsObj(); },
@@ -868,21 +870,22 @@ void ActionManager::createFileMenu()
   }));
   exportMenu.addItem(addAction(Action{
     "Menu/File/Export/Map...",
-    QObject::tr("Map..."),
+    "Map...",
     ActionContext::Any,
     KeySequence{},
     [](auto& context) { context.mapWindow().exportDocumentAsMap(); },
     [](const auto& context) { return context.hasDocument(); },
     std::nullopt,
-    QObject::tr("Exports the current map to a .map file. Layers marked Omit From Export "
-                "will be omitted."),
+    std::nullopt,
+    "Exports the current map to a .map file. Layers marked Omit From Export "
+    "will be omitted.",
   }));
 
   /* ========== File Menu (Associated Resources) ========== */
   fileMenu.addSeparator();
   fileMenu.addItem(addAction(Action{
     "Menu/File/Load Point File...",
-    QObject::tr("Load Point File..."),
+    "Load Point File...",
     ActionContext::Any,
     KeySequence{},
     [](auto& context) { context.mapWindow().loadPointFile(); },
@@ -890,7 +893,7 @@ void ActionManager::createFileMenu()
   }));
   fileMenu.addItem(addAction(Action{
     "Menu/File/Reload Point File",
-    QObject::tr("Reload Point File"),
+    "Reload Point File",
     ActionContext::Any,
     KeySequence{},
     [](auto& context) { context.mapWindow().reloadPointFile(); },
@@ -900,7 +903,7 @@ void ActionManager::createFileMenu()
   }));
   fileMenu.addItem(addAction(Action{
     "Menu/File/Unload Point File",
-    QObject::tr("Unload Point File"),
+    "Unload Point File",
     ActionContext::Any,
     KeySequence{},
     [](auto& context) { context.mapWindow().unloadPointFile(); },
@@ -911,7 +914,7 @@ void ActionManager::createFileMenu()
   fileMenu.addSeparator();
   fileMenu.addItem(addAction(Action{
     "Menu/File/Load Portal File...",
-    QObject::tr("Load Portal File..."),
+    "Load Portal File...",
     ActionContext::Any,
     KeySequence{},
     [](auto& context) { context.mapWindow().loadPortalFile(); },
@@ -919,7 +922,7 @@ void ActionManager::createFileMenu()
   }));
   fileMenu.addItem(addAction(Action{
     "Menu/File/Reload Portal File",
-    QObject::tr("Reload Portal File"),
+    "Reload Portal File",
     ActionContext::Any,
     KeySequence{},
     [](auto& context) { context.mapWindow().reloadPortalFile(); },
@@ -929,7 +932,7 @@ void ActionManager::createFileMenu()
   }));
   fileMenu.addItem(addAction(Action{
     "Menu/File/Unload Portal File",
-    QObject::tr("Unload Portal File"),
+    "Unload Portal File",
     ActionContext::Any,
     KeySequence{},
     [](auto& context) { context.mapWindow().unloadPortalFile(); },
@@ -940,7 +943,7 @@ void ActionManager::createFileMenu()
   fileMenu.addSeparator();
   fileMenu.addItem(addAction(Action{
     "Menu/File/Reload Material Collections",
-    QObject::tr("Reload Material Collections"),
+    "Reload Material Collections",
     ActionContext::Any,
     KeySequence{"F5"},
     [](auto& context) { context.mapWindow().reloadMaterialCollections(); },
@@ -950,7 +953,7 @@ void ActionManager::createFileMenu()
   }));
   fileMenu.addItem(addAction(Action{
     "Menu/File/Reload Entity Definitions",
-    QObject::tr("Reload Entity Definitions"),
+    "Reload Entity Definitions",
     ActionContext::Any,
     KeySequence{"F6"},
     [](auto& context) { context.mapWindow().reloadEntityDefinitions(); },
@@ -961,17 +964,18 @@ void ActionManager::createFileMenu()
   fileMenu.addSeparator();
   fileMenu.addItem(addAction(Action{
     "Menu/File/Revert",
-    QObject::tr("Revert Document"),
+    "Revert Document",
     ActionContext::Any,
     KeySequence{},
     [](auto& context) { context.mapWindow().revertDocument(); },
     [](const auto& context) { return context.hasDocument(); },
     std::nullopt,
-    QObject::tr("Discards any unsaved changes and reloads the map file."),
+    std::nullopt,
+    "Discards any unsaved changes and reloads the map file.",
   }));
   fileMenu.addItem(addAction(Action{
     "Menu/File/Close",
-    QObject::tr("Close Document"),
+    "Close Document",
     ActionContext::Any,
     standardShortcut(StandardShortcut::Close),
     [](auto& context) { context.mapWindow().closeDocument(); },
@@ -985,7 +989,7 @@ void ActionManager::createEditMenu()
   editMenu.addItem(
     addAction(Action{
       std::filesystem::path{"Menu/Edit/Undo"},
-      QObject::tr("Undo"),
+      "Undo",
       ActionContext::Any,
       standardShortcut(StandardShortcut::Undo),
       [](auto& context) { context.mapWindow().undo(); },
@@ -997,7 +1001,7 @@ void ActionManager::createEditMenu()
   editMenu.addItem(
     addAction(Action{
       std::filesystem::path{"Menu/Edit/Redo"},
-      QObject::tr("Redo"),
+      "Redo",
       ActionContext::Any,
       standardShortcut(StandardShortcut::Redo),
       [](auto& context) { context.mapWindow().redo(); },
@@ -1009,7 +1013,7 @@ void ActionManager::createEditMenu()
   editMenu.addSeparator();
   editMenu.addItem(addAction(Action{
     "Menu/Edit/Repeat",
-    QObject::tr("Repeat Last Commands"),
+    "Repeat Last Commands",
     ActionContext::Any,
     KeySequence{"Ctrl+R"},
     [](auto& context) { context.mapWindow().repeatLastCommands(); },
@@ -1017,7 +1021,7 @@ void ActionManager::createEditMenu()
   }));
   editMenu.addItem(addAction(Action{
     "Menu/Edit/Clear Repeatable Commands",
-    QObject::tr("Clear Repeatable Commands"),
+    "Clear Repeatable Commands",
     ActionContext::Any,
     KeySequence{"Ctrl+Shift+R"},
     [](auto& context) { context.mapWindow().clearRepeatableCommands(); },
@@ -1029,7 +1033,7 @@ void ActionManager::createEditMenu()
   editMenu.addItem(
     addAction(Action{
       std::filesystem::path{"Menu/Edit/Cut"},
-      QObject::tr("Cut"),
+      "Cut",
       ActionContext::Any,
       standardShortcut(StandardShortcut::Cut),
       [](auto& context) { context.mapWindow().cutSelection(); },
@@ -1041,7 +1045,7 @@ void ActionManager::createEditMenu()
   editMenu.addItem(
     addAction(Action{
       std::filesystem::path{"Menu/Edit/Copy"},
-      QObject::tr("Copy"),
+      "Copy",
       ActionContext::Any,
       standardShortcut(StandardShortcut::Copy),
       [](auto& context) { context.mapWindow().copySelection(); },
@@ -1053,7 +1057,7 @@ void ActionManager::createEditMenu()
   editMenu.addItem(
     addAction(Action{
       std::filesystem::path{"Menu/Edit/Paste"},
-      QObject::tr("Paste"),
+      "Paste",
       ActionContext::Any,
       standardShortcut(StandardShortcut::Paste),
       [](auto& context) { context.mapWindow().pasteAtCursorPosition(); },
@@ -1065,7 +1069,7 @@ void ActionManager::createEditMenu()
   editMenu.addItem(
     addAction(Action{
       std::filesystem::path{"Menu/Edit/Paste at Original Position"},
-      QObject::tr("Paste at Original Position"),
+      "Paste at Original Position",
       ActionContext::Any,
       KeySequence{"Ctrl+Alt+V"},
       [](auto& context) { context.mapWindow().pasteAtOriginalPosition(); },
@@ -1076,7 +1080,7 @@ void ActionManager::createEditMenu()
     MenuEntryType::PasteAtOriginalPosition);
   editMenu.addItem(addAction(Action{
     "Menu/Edit/Duplicate",
-    QObject::tr("Duplicate"),
+    "Duplicate",
     ActionContext::Any,
     KeySequence{"Ctrl+D"},
     [](auto& context) { context.mapWindow().duplicateSelection(); },
@@ -1087,7 +1091,7 @@ void ActionManager::createEditMenu()
   }));
   editMenu.addItem(addAction(Action{
     std::filesystem::path{"Menu/Edit/Delete"},
-    QObject::tr("Delete"),
+    "Delete",
     ActionContext::Any,
     standardShortcut(StandardShortcut::Delete),
     [](auto& context) { context.mapWindow().deleteSelection(); },
@@ -1100,7 +1104,7 @@ void ActionManager::createEditMenu()
   auto& transformMenu = editMenu.addMenu("Transform");
   transformMenu.addItem(addAction(Action{
     std::filesystem::path{"Controls/Map view/Flip objects horizontally"},
-    QObject::tr("Flip Horizontally"),
+    "Flip Horizontally",
     ActionContext::AnyView | ActionContext::NodeSelection | ActionContext::AnyOrNoTool,
     KeySequence{"Ctrl+F"},
     [](auto& context) { context.mapView().flip(vm::direction::left); },
@@ -1111,7 +1115,7 @@ void ActionManager::createEditMenu()
   }));
   transformMenu.addItem(addAction(Action{
     std::filesystem::path{"Controls/Map view/Flip objects vertically"},
-    QObject::tr("Flip Vertically"),
+    "Flip Vertically",
     ActionContext::AnyView | ActionContext::NodeSelection | ActionContext::AnyOrNoTool,
     KeySequence{"Ctrl+Alt+F"},
     [](auto& context) { context.mapView().flip(vm::direction::up); },
@@ -1122,7 +1126,7 @@ void ActionManager::createEditMenu()
   }));
   transformMenu.addItem(addAction(Action{
     std::filesystem::path{"Menu/Edit/Move objects"},
-    QObject::tr("Move..."),
+    "Move...",
     ActionContext::AnyView | ActionContext::NodeSelection | ActionContext::AnyOrNoTool,
     KeySequence{"Ctrl+Alt+M"},
     [](auto& context) { context.mapWindow().moveSelectedObjects(); },
@@ -1134,7 +1138,7 @@ void ActionManager::createEditMenu()
   auto& csgMenu = editMenu.addMenu("CSG");
   csgMenu.addItem(addAction(Action{
     "Menu/Edit/CSG/Convex Merge",
-    QObject::tr("Convex Merge"),
+    "Convex Merge",
     ActionContext::Any,
     KeySequence{"Ctrl+J"},
     [](auto& context) { context.mapWindow().csgConvexMerge(); },
@@ -1144,7 +1148,7 @@ void ActionManager::createEditMenu()
   }));
   csgMenu.addItem(addAction(Action{
     "Menu/Edit/CSG/Subtract",
-    QObject::tr("Subtract"),
+    "Subtract",
     ActionContext::Any,
     KeySequence{"Ctrl+K"},
     [](auto& context) { context.mapWindow().csgSubtract(); },
@@ -1154,7 +1158,7 @@ void ActionManager::createEditMenu()
   }));
   csgMenu.addItem(addAction(Action{
     "Menu/Edit/CSG/Hollow",
-    QObject::tr("Hollow"),
+    "Hollow",
     ActionContext::Any,
     KeySequence{"Ctrl+Shift+K"},
     [](auto& context) { context.mapWindow().csgHollow(); },
@@ -1164,7 +1168,7 @@ void ActionManager::createEditMenu()
   }));
   csgMenu.addItem(addAction(Action{
     "Menu/Edit/CSG/Intersect",
-    QObject::tr("Intersect"),
+    "Intersect",
     ActionContext::Any,
     KeySequence{"Ctrl+L"},
     [](auto& context) { context.mapWindow().csgIntersect(); },
@@ -1176,7 +1180,7 @@ void ActionManager::createEditMenu()
   auto& vertexEditingMenu = editMenu.addMenu("Vertices");
   vertexEditingMenu.addItem(addAction(Action{
     "Menu/Edit/Snap Vertices to Integer",
-    QObject::tr("Snap Vertices to Integer"),
+    "Snap Vertices to Integer",
     ActionContext::Any,
     KeySequence{"Ctrl+Shift+V"},
     [](auto& context) { context.mapWindow().snapVerticesToInteger(); },
@@ -1186,7 +1190,7 @@ void ActionManager::createEditMenu()
   }));
   vertexEditingMenu.addItem(addAction(Action{
     "Menu/Edit/Snap Vertices to Grid",
-    QObject::tr("Snap Vertices to Grid"),
+    "Snap Vertices to Grid",
     ActionContext::Any,
     KeySequence{"Ctrl+Alt+Shift+V"},
     [](auto& context) { context.mapWindow().snapVerticesToGrid(); },
@@ -1198,7 +1202,7 @@ void ActionManager::createEditMenu()
   auto& patchEditingMenu = editMenu.addMenu("Patches");
   patchEditingMenu.addItem(addAction(Action{
     "Menu/Edit/Convert Selection to Patches",
-    QObject::tr("Convert Selection to Patches"),
+    "Convert Selection to Patches",
     ActionContext::Any,
     KeySequence{"Ctrl+P"},
     [](auto& context) { context.mapWindow().convertSelectionToPatches(); },
@@ -1210,7 +1214,7 @@ void ActionManager::createEditMenu()
   auto& texturesMenu = editMenu.addMenu("Textures");
   texturesMenu.addItem(addAction(Action{
     "Menu/Edit/Texture Lock",
-    QObject::tr("Texture Lock"),
+    "Texture Lock",
     ActionContext::Any,
     KeySequence{},
     [](auto& context) { context.mapWindow().toggleAlignmentLock(); },
@@ -1220,7 +1224,7 @@ void ActionManager::createEditMenu()
   }));
   texturesMenu.addItem(addAction(Action{
     "Menu/Edit/UV Lock",
-    QObject::tr("UV Lock"),
+    "UV Lock",
     ActionContext::Any,
     KeySequence{"U"},
     [](auto& context) { context.mapWindow().toggleUvLock(); },
@@ -1231,7 +1235,7 @@ void ActionManager::createEditMenu()
   texturesMenu.addSeparator();
   texturesMenu.addItem(addAction(Action{
     "Menu/Edit/Replace Material...",
-    QObject::tr("Replace Material..."),
+    "Replace Material...",
     ActionContext::Any,
     KeySequence{},
     [](auto& context) { context.mapWindow().replaceMaterial(); },
@@ -1244,7 +1248,7 @@ void ActionManager::createSelectionMenu()
   auto& selectionMenu = createMainMenu("Selection");
   selectionMenu.addItem(addAction(Action{
     "Menu/Edit/Select All",
-    QObject::tr("Select All"),
+    "Select All",
     ActionContext::Any,
     standardShortcut(StandardShortcut::SelectAll),
     [](auto& context) { context.mapWindow().selectAll(); },
@@ -1254,7 +1258,7 @@ void ActionManager::createSelectionMenu()
   }));
   selectionMenu.addItem(addAction(Action{
     std::filesystem::path{"Menu/Edit/Invert Selection"},
-    QObject::tr("Invert Selection"),
+    "Invert Selection",
     ActionContext::Any,
     KeySequence{"Ctrl+Alt+A"},
     [](auto& context) { context.mapWindow().selectInverse(); },
@@ -1264,7 +1268,7 @@ void ActionManager::createSelectionMenu()
   }));
   selectionMenu.addItem(addAction(Action{
     std::filesystem::path{"Menu/Edit/Deselect All"},
-    QObject::tr("Deselect All"),
+    "Deselect All",
     ActionContext::Any,
     KeySequence{"Ctrl+Shift+A"},
     [](auto& context) { context.mapWindow().selectNone(); },
@@ -1275,7 +1279,7 @@ void ActionManager::createSelectionMenu()
   selectionMenu.addSeparator();
   selectionMenu.addItem(addAction(Action{
     "Menu/Edit/Select Siblings",
-    QObject::tr("Select Siblings"),
+    "Select Siblings",
     ActionContext::Any,
     KeySequence{"Ctrl+B"},
     [](auto& context) { context.mapWindow().selectSiblings(); },
@@ -1285,7 +1289,7 @@ void ActionManager::createSelectionMenu()
   }));
   selectionMenu.addItem(addAction(Action{
     "Menu/Edit/Select Touching",
-    QObject::tr("Select Touching"),
+    "Select Touching",
     ActionContext::Any,
     KeySequence{"Ctrl+T"},
     [](auto& context) { context.mapWindow().selectTouching(); },
@@ -1295,7 +1299,7 @@ void ActionManager::createSelectionMenu()
   }));
   selectionMenu.addItem(addAction(Action{
     "Menu/Edit/Select Inside",
-    QObject::tr("Select Inside"),
+    "Select Inside",
     ActionContext::Any,
     KeySequence{"Ctrl+E"},
     [](auto& context) { context.mapWindow().selectInside(); },
@@ -1305,7 +1309,7 @@ void ActionManager::createSelectionMenu()
   }));
   selectionMenu.addItem(addAction(Action{
     std::filesystem::path{"Menu/Edit/Select Tall"},
-    QObject::tr("Select Tall"),
+    "Select Tall",
     ActionContext::Any,
     KeySequence{"Ctrl+Shift+E"},
     [](auto& context) { context.mapWindow().selectTall(); },
@@ -1315,7 +1319,7 @@ void ActionManager::createSelectionMenu()
   }));
   selectionMenu.addItem(addAction(Action{
     "Menu/Edit/Select by Line Number",
-    QObject::tr("Select by Line Number..."),
+    "Select by Line Number...",
     ActionContext::Any,
     KeySequence{},
     [](auto& context) { context.mapWindow().selectByLineNumber(); },
@@ -1330,7 +1334,7 @@ void ActionManager::createGroupsMenu()
   auto& groupsMenu = createMainMenu("Groups");
   groupsMenu.addItem(addAction(Action{
     std::filesystem::path{"Menu/Edit/Group"},
-    QObject::tr("Group Selected Objects"),
+    "Group Selected Objects",
     ActionContext::Any,
     KeySequence{"Ctrl+G"},
     [](auto& context) { context.mapWindow().groupSelectedObjects(); },
@@ -1340,7 +1344,7 @@ void ActionManager::createGroupsMenu()
   }));
   groupsMenu.addItem(addAction(Action{
     "Menu/Edit/Ungroup",
-    QObject::tr("Ungroup Selected Objects"),
+    "Ungroup Selected Objects",
     ActionContext::Any,
     KeySequence{"Ctrl+Shift+G"},
     [](auto& context) { context.mapWindow().ungroupSelectedObjects(); },
@@ -1350,7 +1354,7 @@ void ActionManager::createGroupsMenu()
   }));
   groupsMenu.addItem(addAction(Action{
     "Menu/Edit/Rename Groups",
-    QObject::tr("Rename Selected Groups"),
+    "Rename Selected Groups",
     ActionContext::Any,
     KeySequence{"Ctrl+Alt+G"},
     [](auto& context) { context.mapWindow().renameSelectedGroups(); },
@@ -1362,7 +1366,7 @@ void ActionManager::createGroupsMenu()
 
   groupsMenu.addItem(addAction(Action{
     std::filesystem::path{"Menu/Edit/Create Linked Duplicate"},
-    QObject::tr("Create Linked Duplicate"),
+    "Create Linked Duplicate",
     ActionContext::Any,
     KeySequence{"Ctrl+Shift+D"},
     [](auto& context) { createLinkedDuplicate(context.map()); },
@@ -1372,7 +1376,7 @@ void ActionManager::createGroupsMenu()
   }));
   groupsMenu.addItem(addAction(Action{
     std::filesystem::path{"Menu/Edit/Select Linked Groups"},
-    QObject::tr("Select Linked Groups"),
+    "Select Linked Groups",
     ActionContext::Any,
     KeySequence{},
     [](auto& context) { selectLinkedGroups(context.map()); },
@@ -1382,7 +1386,7 @@ void ActionManager::createGroupsMenu()
   }));
   groupsMenu.addItem(addAction(Action{
     std::filesystem::path{"Menu/Edit/Separate Linked Groups"},
-    QObject::tr("Separate Selected Groups"),
+    "Separate Selected Groups",
     ActionContext::Any,
     KeySequence{},
     [](auto& context) { separateSelectedLinkedGroups(context.map()); },
@@ -1392,7 +1396,7 @@ void ActionManager::createGroupsMenu()
   }));
   groupsMenu.addItem(addAction(Action{
     std::filesystem::path{"Menu/Edit/Extract Linked Groups"},
-    QObject::tr("Extract Selected Objects"),
+    "Extract Selected Objects",
     ActionContext::Any,
     KeySequence{},
     [](auto& context) { extractLinkedGroups(context.map()); },
@@ -1402,7 +1406,7 @@ void ActionManager::createGroupsMenu()
   }));
   groupsMenu.addItem(addAction(Action{
     std::filesystem::path{"Menu/Edit/Clear Protected Properties"},
-    QObject::tr("Clear Protected Properties"),
+    "Clear Protected Properties",
     ActionContext::Any,
     KeySequence{},
     [](auto& context) { clearProtectedEntityProperties(context.map()); },
@@ -1417,7 +1421,7 @@ void ActionManager::createToolsMenu()
   auto& toolsMenu = createMainMenu("Tools");
   toolsMenu.addItem(addAction(Action{
     "Menu/Edit/Tools/Brush Tool",
-    QObject::tr("Brush Tool"),
+    "Brush Tool",
     ActionContext::Any,
     KeySequence{"B"},
     [](auto& context) { context.mapWindow().toolBox().toggleAssembleBrushTool(); },
@@ -1433,7 +1437,7 @@ void ActionManager::createToolsMenu()
   }));
   toolsMenu.addItem(addAction(Action{
     "Menu/Edit/Tools/Clip Tool",
-    QObject::tr("Clip Tool"),
+    "Clip Tool",
     ActionContext::Any,
     KeySequence{"C"},
     [](auto& context) { context.mapWindow().toolBox().toggleClipTool(); },
@@ -1447,7 +1451,7 @@ void ActionManager::createToolsMenu()
   }));
   toolsMenu.addItem(addAction(Action{
     "Menu/Edit/Tools/Rotate Tool",
-    QObject::tr("Rotate Tool"),
+    "Rotate Tool",
     ActionContext::Any,
     KeySequence{"R"},
     [](auto& context) { context.mapWindow().toolBox().toggleRotateTool(); },
@@ -1461,7 +1465,7 @@ void ActionManager::createToolsMenu()
   }));
   toolsMenu.addItem(addAction(Action{
     "Menu/Edit/Tools/Sweep Tool",
-    QObject::tr("Sweep Tool"),
+    "Sweep Tool",
     ActionContext::Any,
     KeySequence{"Y"},
     [](auto& context) { context.mapWindow().toolBox().toggleSweepTool(); },
@@ -1475,7 +1479,7 @@ void ActionManager::createToolsMenu()
   }));
   toolsMenu.addItem(addAction(Action{
     "Menu/Edit/Tools/Scale Tool",
-    QObject::tr("Scale Tool"),
+    "Scale Tool",
     ActionContext::Any,
     KeySequence{"T"},
     [](auto& context) { context.mapWindow().toolBox().toggleScaleTool(); },
@@ -1489,7 +1493,7 @@ void ActionManager::createToolsMenu()
   }));
   toolsMenu.addItem(addAction(Action{
     "Menu/Edit/Tools/Shear Tool",
-    QObject::tr("Shear Tool"),
+    "Shear Tool",
     ActionContext::Any,
     KeySequence{"G"},
     [](auto& context) { context.mapWindow().toolBox().toggleShearTool(); },
@@ -1503,7 +1507,7 @@ void ActionManager::createToolsMenu()
   }));
   toolsMenu.addItem(addAction(Action{
     "Menu/Edit/Tools/Vertex Tool",
-    QObject::tr("Vertex Tool"),
+    "Vertex Tool",
     ActionContext::Any,
     KeySequence{"V"},
     [](auto& context) { context.mapWindow().toolBox().toggleVertexTool(); },
@@ -1518,7 +1522,7 @@ void ActionManager::createToolsMenu()
   }));
   toolsMenu.addItem(addAction(Action{
     "Menu/Edit/Tools/Edge Tool",
-    QObject::tr("Edge Tool"),
+    "Edge Tool",
     ActionContext::Any,
     KeySequence{"E"},
     [](auto& context) { context.mapWindow().toolBox().toggleEdgeTool(); },
@@ -1533,7 +1537,7 @@ void ActionManager::createToolsMenu()
   }));
   toolsMenu.addItem(addAction(Action{
     "Menu/Edit/Tools/Face Tool",
-    QObject::tr("Face Tool"),
+    "Face Tool",
     ActionContext::Any,
     KeySequence{"F"},
     [](auto& context) { context.mapWindow().toolBox().toggleFaceTool(); },
@@ -1548,7 +1552,7 @@ void ActionManager::createToolsMenu()
   }));
   toolsMenu.addItem(addAction(Action{
     "Menu/Edit/Tools/Control Point Tool",
-    QObject::tr("Control Point Tool"),
+    "Control Point Tool",
     ActionContext::Any,
     KeySequence{"P"},
     [](auto& context) { context.mapWindow().toolBox().toggleControlPointTool(); },
@@ -1564,7 +1568,7 @@ void ActionManager::createToolsMenu()
   }));
   toolsMenu.addItem(addAction(Action{
     "Controls/Map view/Deactivate current tool",
-    QObject::tr("Deactivate Current Tool"),
+    "Deactivate Current Tool",
     ActionContext::Any,
     KeySequence{"Shift+Esc"},
     [](auto& context) { context.mapView().deactivateCurrentTool(); },
@@ -1582,7 +1586,7 @@ void ActionManager::createViewMenu()
   auto& gridMenu = viewMenu.addMenu("Grid");
   gridMenu.addItem(addAction(Action{
     "Menu/View/Grid/Show Grid",
-    QObject::tr("Show Grid"),
+    "Show Grid",
     ActionContext::Any,
     KeySequence{"0"},
     [](auto& context) { context.mapWindow().toggleShowGrid(); },
@@ -1593,7 +1597,7 @@ void ActionManager::createViewMenu()
   }));
   gridMenu.addItem(addAction(Action{
     "Menu/View/Grid/Snap to Grid",
-    QObject::tr("Snap to Grid"),
+    "Snap to Grid",
     ActionContext::Any,
     KeySequence{"Alt+0"},
     [](auto& context) { context.mapWindow().toggleSnapToGrid(); },
@@ -1604,7 +1608,7 @@ void ActionManager::createViewMenu()
   }));
   gridMenu.addItem(addAction(Action{
     "Menu/View/Grid/Increase Grid Size",
-    QObject::tr("Increase Grid Size"),
+    "Increase Grid Size",
     ActionContext::Any,
     KeySequence{"+"},
     [](auto& context) { context.mapWindow().incGridSize(); },
@@ -1614,7 +1618,7 @@ void ActionManager::createViewMenu()
   }));
   gridMenu.addItem(addAction(Action{
     "Menu/View/Grid/Decrease Grid Size",
-    QObject::tr("Decrease Grid Size"),
+    "Decrease Grid Size",
     ActionContext::Any,
     KeySequence{"-"},
     [](auto& context) { context.mapWindow().decGridSize(); },
@@ -1625,7 +1629,7 @@ void ActionManager::createViewMenu()
   gridMenu.addSeparator();
   gridMenu.addItem(addAction(Action{
     "Menu/View/Grid/Set Grid Size 0.125",
-    QObject::tr("Set Grid Size 0.125"),
+    "Set Grid Size 0.125",
     ActionContext::Any,
     KeySequence{},
     [](auto& context) { context.mapWindow().setGridSize(-3); },
@@ -1636,7 +1640,7 @@ void ActionManager::createViewMenu()
   }));
   gridMenu.addItem(addAction(Action{
     "Menu/View/Grid/Set Grid Size 0.25",
-    QObject::tr("Set Grid Size 0.25"),
+    "Set Grid Size 0.25",
     ActionContext::Any,
     KeySequence{},
     [](auto& context) { context.mapWindow().setGridSize(-2); },
@@ -1647,7 +1651,7 @@ void ActionManager::createViewMenu()
   }));
   gridMenu.addItem(addAction(Action{
     "Menu/View/Grid/Set Grid Size 0.5",
-    QObject::tr("Set Grid Size 0.5"),
+    "Set Grid Size 0.5",
     ActionContext::Any,
     KeySequence{},
     [](auto& context) { context.mapWindow().setGridSize(-1); },
@@ -1658,7 +1662,7 @@ void ActionManager::createViewMenu()
   }));
   gridMenu.addItem(addAction(Action{
     "Menu/View/Grid/Set Grid Size 1",
-    QObject::tr("Set Grid Size 1"),
+    "Set Grid Size 1",
     ActionContext::Any,
     KeySequence{"1"},
     [](auto& context) { context.mapWindow().setGridSize(0); },
@@ -1669,7 +1673,7 @@ void ActionManager::createViewMenu()
   }));
   gridMenu.addItem(addAction(Action{
     "Menu/View/Grid/Set Grid Size 2",
-    QObject::tr("Set Grid Size 2"),
+    "Set Grid Size 2",
     ActionContext::Any,
     KeySequence{"2"},
     [](auto& context) { context.mapWindow().setGridSize(1); },
@@ -1680,7 +1684,7 @@ void ActionManager::createViewMenu()
   }));
   gridMenu.addItem(addAction(Action{
     "Menu/View/Grid/Set Grid Size 4",
-    QObject::tr("Set Grid Size 4"),
+    "Set Grid Size 4",
     ActionContext::Any,
     KeySequence{"3"},
     [](auto& context) { context.mapWindow().setGridSize(2); },
@@ -1691,7 +1695,7 @@ void ActionManager::createViewMenu()
   }));
   gridMenu.addItem(addAction(Action{
     "Menu/View/Grid/Set Grid Size 8",
-    QObject::tr("Set Grid Size 8"),
+    "Set Grid Size 8",
     ActionContext::Any,
     KeySequence{"4"},
     [](auto& context) { context.mapWindow().setGridSize(3); },
@@ -1702,7 +1706,7 @@ void ActionManager::createViewMenu()
   }));
   gridMenu.addItem(addAction(Action{
     "Menu/View/Grid/Set Grid Size 16",
-    QObject::tr("Set Grid Size 16"),
+    "Set Grid Size 16",
     ActionContext::Any,
     KeySequence{"5"},
     [](auto& context) { context.mapWindow().setGridSize(4); },
@@ -1713,7 +1717,7 @@ void ActionManager::createViewMenu()
   }));
   gridMenu.addItem(addAction(Action{
     "Menu/View/Grid/Set Grid Size 32",
-    QObject::tr("Set Grid Size 32"),
+    "Set Grid Size 32",
     ActionContext::Any,
     KeySequence{"6"},
     [](auto& context) { context.mapWindow().setGridSize(5); },
@@ -1724,7 +1728,7 @@ void ActionManager::createViewMenu()
   }));
   gridMenu.addItem(addAction(Action{
     "Menu/View/Grid/Set Grid Size 64",
-    QObject::tr("Set Grid Size 64"),
+    "Set Grid Size 64",
     ActionContext::Any,
     KeySequence{"7"},
     [](auto& context) { context.mapWindow().setGridSize(6); },
@@ -1735,7 +1739,7 @@ void ActionManager::createViewMenu()
   }));
   gridMenu.addItem(addAction(Action{
     "Menu/View/Grid/Set Grid Size 128",
-    QObject::tr("Set Grid Size 128"),
+    "Set Grid Size 128",
     ActionContext::Any,
     KeySequence{"8"},
     [](auto& context) { context.mapWindow().setGridSize(7); },
@@ -1746,7 +1750,7 @@ void ActionManager::createViewMenu()
   }));
   gridMenu.addItem(addAction(Action{
     "Menu/View/Grid/Set Grid Size 256",
-    QObject::tr("Set Grid Size 256"),
+    "Set Grid Size 256",
     ActionContext::Any,
     KeySequence{"9"},
     [](auto& context) { context.mapWindow().setGridSize(8); },
@@ -1759,7 +1763,7 @@ void ActionManager::createViewMenu()
   auto& cameraMenu = viewMenu.addMenu("Camera");
   cameraMenu.addItem(addAction(Action{
     "Menu/View/Camera/Move to Next Point",
-    QObject::tr("Move Camera to Next Point"),
+    "Move Camera to Next Point",
     ActionContext::Any,
     KeySequence{"."},
     [](auto& context) { context.mapWindow().moveCameraToNextPoint(); },
@@ -1769,7 +1773,7 @@ void ActionManager::createViewMenu()
   }));
   cameraMenu.addItem(addAction(Action{
     "Menu/View/Camera/Move to Previous Point",
-    QObject::tr("Move Camera to Previous Point"),
+    "Move Camera to Previous Point",
     ActionContext::Any,
     KeySequence{","},
     [](auto& context) { context.mapWindow().moveCameraToPreviousPoint(); },
@@ -1779,7 +1783,7 @@ void ActionManager::createViewMenu()
   }));
   cameraMenu.addItem(addAction(Action{
     "Menu/View/Camera/Reset 2D Cameras",
-    QObject::tr("Reset 2D Cameras"),
+    "Reset 2D Cameras",
     ActionContext::Any,
     KeySequence{"Ctrl+Shift+U"},
     [](auto& context) { context.mapWindow().reset2dCameras(); },
@@ -1789,7 +1793,7 @@ void ActionManager::createViewMenu()
   }));
   cameraMenu.addItem(addAction(Action{
     "Menu/View/Camera/Focus on Selection",
-    QObject::tr("Focus Camera on Selection"),
+    "Focus Camera on Selection",
     ActionContext::Any,
     KeySequence{"Ctrl+U"},
     [](auto& context) { context.mapWindow().focusCameraOnSelection(); },
@@ -1799,7 +1803,7 @@ void ActionManager::createViewMenu()
   }));
   cameraMenu.addItem(addAction(Action{
     "Menu/View/Camera/Move Camera to...",
-    QObject::tr("Move Camera to..."),
+    "Move Camera to...",
     ActionContext::Any,
     KeySequence{},
     [](auto& context) { context.mapWindow().moveCameraToPosition(); },
@@ -1809,7 +1813,7 @@ void ActionManager::createViewMenu()
   viewMenu.addSeparator();
   viewMenu.addItem(addAction(Action{
     "Menu/View/Isolate",
-    QObject::tr("Isolate Selection"),
+    "Isolate Selection",
     ActionContext::Any,
     KeySequence{"Ctrl+I"},
     [](auto& context) { context.mapWindow().isolateSelection(); },
@@ -1819,7 +1823,7 @@ void ActionManager::createViewMenu()
   }));
   viewMenu.addItem(addAction(Action{
     "Menu/View/Hide",
-    QObject::tr("Hide Selection"),
+    "Hide Selection",
     ActionContext::Any,
     KeySequence{"Ctrl+Alt+I"},
     [](auto& context) { context.mapWindow().hideSelection(); },
@@ -1829,7 +1833,7 @@ void ActionManager::createViewMenu()
   }));
   viewMenu.addItem(addAction(Action{
     "Menu/View/Show All",
-    QObject::tr("Show All"),
+    "Show All",
     ActionContext::Any,
     KeySequence{"Ctrl+Shift+I"},
     [](auto& context) { context.mapWindow().showAll(); },
@@ -1838,7 +1842,7 @@ void ActionManager::createViewMenu()
   viewMenu.addSeparator();
   viewMenu.addItem(addAction(Action{
     "Menu/View/Switch to Map Inspector",
-    QObject::tr("Show Map Inspector"),
+    "Show Map Inspector",
     ActionContext::Any,
     KeySequence{"Ctrl+1"},
     [](auto& context) { context.mapWindow().switchToInspectorPage(InspectorPage::Map); },
@@ -1846,7 +1850,7 @@ void ActionManager::createViewMenu()
   }));
   viewMenu.addItem(addAction(Action{
     "Menu/View/Switch to Entity Inspector",
-    QObject::tr("Show Entity Inspector"),
+    "Show Entity Inspector",
     ActionContext::Any,
     KeySequence{"Ctrl+2"},
     [](auto& context) {
@@ -1856,7 +1860,7 @@ void ActionManager::createViewMenu()
   }));
   viewMenu.addItem(addAction(Action{
     "Menu/View/Switch to Face Inspector",
-    QObject::tr("Show Face Inspector"),
+    "Show Face Inspector",
     ActionContext::Any,
     KeySequence{"Ctrl+3"},
     [](auto& context) { context.mapWindow().switchToInspectorPage(InspectorPage::Face); },
@@ -1865,7 +1869,7 @@ void ActionManager::createViewMenu()
   viewMenu.addSeparator();
   viewMenu.addItem(addAction(Action{
     "Menu/View/Toggle Toolbar",
-    QObject::tr("Toggle Toolbar"),
+    "Toggle Toolbar",
     ActionContext::Any,
     KeySequence{"Ctrl+Alt+T"},
     [](auto& context) { context.mapWindow().toggleToolbar(); },
@@ -1876,7 +1880,7 @@ void ActionManager::createViewMenu()
   }));
   viewMenu.addItem(addAction(Action{
     "Menu/View/Toggle Info Panel",
-    QObject::tr("Toggle Info Panel"),
+    "Toggle Info Panel",
     ActionContext::Any,
     KeySequence{"Ctrl+4"},
     [](auto& context) { context.mapWindow().toggleInfoPanel(); },
@@ -1887,7 +1891,7 @@ void ActionManager::createViewMenu()
   }));
   viewMenu.addItem(addAction(Action{
     "Menu/View/Toggle Inspector",
-    QObject::tr("Toggle Inspector"),
+    "Toggle Inspector",
     ActionContext::Any,
     KeySequence{"Ctrl+5"},
     [](auto& context) { context.mapWindow().toggleInspector(); },
@@ -1898,7 +1902,7 @@ void ActionManager::createViewMenu()
   }));
   viewMenu.addItem(addAction(Action{
     "Menu/View/Maximize Current View",
-    QObject::tr("Maximize Current View"),
+    "Maximize Current View",
     ActionContext::Any,
 #if defined(Q_OS_MACOS)
     // Command + Space opens Spotlight so we can't use it, so use Ctrl + Space instead.
@@ -1915,7 +1919,7 @@ void ActionManager::createViewMenu()
   viewMenu.addSeparator();
   viewMenu.addItem(addAction(Action{
     "Menu/File/Preferences...",
-    QObject::tr("Preferences..."),
+    "Preferences...",
     ActionContext::Any,
     standardShortcut(StandardShortcut::Preferences),
     [](auto& context) { context.appController().showPreferences(); },
@@ -1928,7 +1932,7 @@ void ActionManager::createRunMenu()
   auto& runMenu = createMainMenu("Run");
   runMenu.addItem(addAction(Action{
     "Menu/Run/Compile...",
-    QObject::tr("Compile Map..."),
+    "Compile Map...",
     ActionContext::Any,
     KeySequence{},
     [](auto& context) { context.mapWindow().showCompileDialog(); },
@@ -1936,7 +1940,7 @@ void ActionManager::createRunMenu()
   }));
   runMenu.addItem(addAction(Action{
     "Menu/Run/Launch...",
-    QObject::tr("Launch Engine..."),
+    "Launch Engine...",
     ActionContext::Any,
     KeySequence{},
     [](auto& context) { context.mapWindow().showLaunchEngineDialog(); },
@@ -1946,7 +1950,7 @@ void ActionManager::createRunMenu()
   runMenu.addItem(
     addAction(Action{
       "Menu/Run/Rerun...",
-      QObject::tr("Re-run compilation..."),
+      "Re-run compilation...",
       ActionContext::Any,
       KeySequence{},
       [](auto& context) { context.mapWindow().rerunLastCompilation(); },
@@ -1963,7 +1967,7 @@ void ActionManager::createDebugMenu()
   auto& debugMenu = createMainMenu("Debug");
   debugMenu.addItem(addAction(Action{
     "Menu/Debug/Print Vertices",
-    QObject::tr("Print Vertices to Console"),
+    "Print Vertices to Console",
     ActionContext::Any,
     KeySequence{},
     [](auto& context) { context.mapWindow().debugPrintVertices(); },
@@ -1971,7 +1975,7 @@ void ActionManager::createDebugMenu()
   }));
   debugMenu.addItem(addAction(Action{
     "Menu/Debug/Create Brush...",
-    QObject::tr("Create Brush..."),
+    "Create Brush...",
     ActionContext::Any,
     KeySequence{},
     [](auto& context) { context.mapWindow().debugCreateBrush(); },
@@ -1979,7 +1983,7 @@ void ActionManager::createDebugMenu()
   }));
   debugMenu.addItem(addAction(Action{
     "Menu/Debug/Create Cube...",
-    QObject::tr("Create Cube..."),
+    "Create Cube...",
     ActionContext::Any,
     KeySequence{},
     [](auto& context) { context.mapWindow().debugCreateCube(); },
@@ -1987,7 +1991,7 @@ void ActionManager::createDebugMenu()
   }));
   debugMenu.addItem(addAction(Action{
     "Menu/Debug/Crash...",
-    QObject::tr("Crash..."),
+    "Crash...",
     ActionContext::Any,
     KeySequence{},
     [](auto& context) { context.mapWindow().debugCrash(); },
@@ -1995,7 +1999,7 @@ void ActionManager::createDebugMenu()
   }));
   debugMenu.addItem(addAction(Action{
     "Menu/Debug/Throw Exception During Command",
-    QObject::tr("Throw Exception During Command"),
+    "Throw Exception During Command",
     ActionContext::Any,
     KeySequence{},
     [](auto& context) { context.mapWindow().debugThrowExceptionDuringCommand(); },
@@ -2003,7 +2007,7 @@ void ActionManager::createDebugMenu()
   }));
   debugMenu.addItem(addAction(Action{
     "Menu/Debug/Show Crash Report Dialog",
-    QObject::tr("Show Crash Report Dialog..."),
+    "Show Crash Report Dialog...",
     ActionContext::Any,
     KeySequence{},
     [](auto& context) { context.appController().debugShowCrashReportDialog(); },
@@ -2011,7 +2015,7 @@ void ActionManager::createDebugMenu()
   }));
   debugMenu.addItem(addAction(Action{
     "Menu/Debug/Set Window Size...",
-    QObject::tr("Set Window Size..."),
+    "Set Window Size...",
     ActionContext::Any,
     KeySequence{},
     [](auto& context) { context.mapWindow().debugSetWindowSize(); },
@@ -2019,7 +2023,7 @@ void ActionManager::createDebugMenu()
   }));
   debugMenu.addItem(addAction(Action{
     "Menu/Debug/Show Palette...",
-    QObject::tr("Show Palette..."),
+    "Show Palette...",
     ActionContext::Any,
     KeySequence{},
     [](auto& context) { context.mapWindow().debugShowPalette(); },
@@ -2033,7 +2037,7 @@ void ActionManager::createHelpMenu()
   auto& helpMenu = createMainMenu("Help");
   helpMenu.addItem(addAction(Action{
     std::filesystem::path{"Menu/Help/TrenchBroom Manual"},
-    QObject::tr("TrenchBroom Manual"),
+    "TrenchBroom Manual",
     ActionContext::Any,
     standardShortcut(StandardShortcut::HelpContents),
     [](auto& context) { context.appController().showManual(); },
@@ -2041,7 +2045,7 @@ void ActionManager::createHelpMenu()
   }));
   helpMenu.addItem(addAction(Action{
     "Menu/File/About TrenchBroom",
-    QObject::tr("About TrenchBroom"),
+    "About TrenchBroom",
     ActionContext::Any,
     KeySequence{},
     [](auto& context) { context.appController().showAboutDialog(); },
