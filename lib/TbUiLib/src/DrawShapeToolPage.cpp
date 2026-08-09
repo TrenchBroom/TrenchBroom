@@ -26,7 +26,7 @@
 #include <QToolButton>
 
 #include "ui/BitmapButton.h"
-#include "ui/DrawShapeToolExtension.h"
+#include "ui/DrawShapeToolExtensionManager.h"
 #include "ui/ImageUtils.h"
 #include "ui/ViewConstants.h"
 

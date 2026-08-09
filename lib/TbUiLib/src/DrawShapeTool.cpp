@@ -26,7 +26,7 @@
 #include "mdl/Map_Nodes.h"
 #include "mdl/Map_Selection.h"
 #include "mdl/Transaction.h"
-#include "ui/DrawShapeToolExtension.h"
+#include "ui/DrawShapeToolExtensionManager.h"
 #include "ui/MapDocument.h"
 
 #include "kd/ranges/to.h"

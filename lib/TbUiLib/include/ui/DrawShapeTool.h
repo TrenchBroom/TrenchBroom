@@ -21,7 +21,7 @@
 
 #include "base/NotifierConnection.h"
 #include "ui/CreateBrushesToolBase.h"
-#include "ui/DrawShapeToolExtension.h"
+#include "ui/DrawShapeToolExtensionManager.h"
 
 namespace tb::ui
 {
