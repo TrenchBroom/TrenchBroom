@@ -19,8 +19,6 @@
 
 #include "ui/CameraTool3D.h"
 
-#include <QtSystemDetection>
-
 #include "base/PreferenceManager.h"
 #include "gl/PerspectiveCamera.h"
 #include "mdl/Hit.h"
@@ -281,7 +279,7 @@ void CameraTool3D::mouseScroll(const InputState& inputState)
   const float factor = pref(Preferences::CameraMouseWheelInvert) ? -1.0f : 1.0f;
   const bool zoom = inputState.modifierKeysPressed(ModifierKeys::Shift);
   const float scrollDist =
-#if defined(Q_OS_MACOS)
+#if defined(__APPLE__)
     inputState.modifierKeysPressed(ModifierKeys::Shift) ? inputState.scrollX()
                                                         : inputState.scrollY();
 #else
