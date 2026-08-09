@@ -75,7 +75,7 @@
 #include "render/RenderService.h"
 #include "ui/ActionExecutionContext.h"
 #include "ui/ActionManager.h"
-#include "ui/Animation.h"
+#include "ui/AnimationManager.h"
 #include "ui/AppController.h"
 #include "ui/EnableDisableTagCallback.h"
 #include "ui/FlashSelectionAnimation.h"

@@ -19,8 +19,6 @@
 
 #include "ui/Animation.h"
 
-#include <QTimer>
-
 #include "kd/contracts.h"
 
 #include <algorithm>
@@ -109,74 +107,6 @@ std::unique_ptr<AnimationCurve> Animation::createAnimationCurve(
     return std::make_unique<FlatAnimationCurve>();
   }
   return nullptr;
-}
-
-// AnimationManager
-
-const int AnimationManager::AnimationUpdateRateHz = 60;
-
-AnimationManager::AnimationManager(QObject* parent)
-  : QObject{parent}
-  , m_timer{new QTimer{this}}
-{
-  connect(m_timer, &QTimer::timeout, this, &AnimationManager::onTimerTick);
-}
-
-void AnimationManager::runAnimation(
-  std::unique_ptr<Animation> animation, const bool replace)
-{
-  contract_pre(animation != nullptr);
-
-  auto& list = m_animations[animation->type()];
-  if (replace)
-  {
-    list.clear();
-  }
-  list.emplace_back(std::move(animation));
-
-  // start the ticks if needed
-  if (!m_timer->isActive())
-  {
-    contract_assert(!m_elapsedTimer.isValid());
-
-    m_elapsedTimer.start();
-    m_timer->start(1000 / AnimationUpdateRateHz);
-  }
-}
-
-void AnimationManager::onTimerTick()
-{
-  contract_pre(m_elapsedTimer.isValid());
-
-  const auto msElapsed = static_cast<double>(m_elapsedTimer.restart());
-
-  // advance the animation times
-  if (!m_animations.empty())
-  {
-    auto mapIt = std::begin(m_animations);
-    while (mapIt != std::end(m_animations))
-    {
-      auto& list = mapIt->second;
-      auto listIt = std::begin(list);
-      while (listIt != std::end(list))
-      {
-        auto& animation = *listIt;
-        const auto finished = animation->step(msElapsed);
-        animation->update();
-
-        listIt = finished ? list.erase(listIt) : std::next(listIt);
-      }
-
-      mapIt = list.empty() ? m_animations.erase(mapIt) : std::next(mapIt);
-    }
-  }
-
-  // stop the animations if all are finished
-  if (m_animations.empty())
-  {
-    m_elapsedTimer.invalidate();
-    m_timer->stop();
-  }
 }
 
 } // namespace tb::ui

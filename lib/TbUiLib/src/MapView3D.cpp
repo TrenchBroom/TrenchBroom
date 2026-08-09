@@ -42,6 +42,7 @@
 #include "render/RenderBatch.h"
 #include "render/RenderContext.h"
 #include "render/SelectionBoundsRenderer.h"
+#include "ui/AnimationManager.h"
 #include "ui/AssembleBrushToolController3D.h"
 #include "ui/CameraAnimation.h"
 #include "ui/CameraTool3D.h"

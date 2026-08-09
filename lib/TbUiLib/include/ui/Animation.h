@@ -19,14 +19,7 @@
 
 #pragma once
 
-#include <QElapsedTimer>
-#include <QObject>
-
-#include <map>
 #include <memory>
-#include <vector>
-
-class QTimer;
 
 namespace tb::ui
 {
@@ -97,26 +90,4 @@ private:
   virtual void doUpdate(double progress) = 0;
 };
 
-class AnimationManager : public QObject
-{
-  Q_OBJECT
-private:
-  static const int AnimationUpdateRateHz;
-
-private:
-  /**
-   * To measure how much time to run the animation for in onTimerTick()
-   */
-  QElapsedTimer m_elapsedTimer;
-  QTimer* m_timer;
-
-  std::map<Animation::Type, std::vector<std::unique_ptr<Animation>>> m_animations;
-
-public:
-  explicit AnimationManager(QObject* parent);
-  void runAnimation(std::unique_ptr<Animation> animation, bool replace);
-
-private:
-  void onTimerTick();
-};
 } // namespace tb::ui

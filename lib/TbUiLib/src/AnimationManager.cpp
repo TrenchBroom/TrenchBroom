@@ -1,0 +1,95 @@
+/*
+ Copyright (C) 2010 Kristian Duske
+
+ This file is part of TrenchBroom.
+
+ TrenchBroom is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+
+ TrenchBroom is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#include "ui/AnimationManager.h"
+
+#include <QTimer>
+
+#include "kd/contracts.h"
+
+namespace tb::ui
+{
+
+const int AnimationManager::AnimationUpdateRateHz = 60;
+
+AnimationManager::AnimationManager(QObject* parent)
+  : QObject{parent}
+  , m_timer{new QTimer{this}}
+{
+  connect(m_timer, &QTimer::timeout, this, &AnimationManager::onTimerTick);
+}
+
+void AnimationManager::runAnimation(
+  std::unique_ptr<Animation> animation, const bool replace)
+{
+  contract_pre(animation != nullptr);
+
+  auto& list = m_animations[animation->type()];
+  if (replace)
+  {
+    list.clear();
+  }
+  list.emplace_back(std::move(animation));
+
+  // start the ticks if needed
+  if (!m_timer->isActive())
+  {
+    contract_assert(!m_elapsedTimer.isValid());
+
+    m_elapsedTimer.start();
+    m_timer->start(1000 / AnimationUpdateRateHz);
+  }
+}
+
+void AnimationManager::onTimerTick()
+{
+  contract_pre(m_elapsedTimer.isValid());
+
+  const auto msElapsed = static_cast<double>(m_elapsedTimer.restart());
+
+  // advance the animation times
+  if (!m_animations.empty())
+  {
+    auto mapIt = std::begin(m_animations);
+    while (mapIt != std::end(m_animations))
+    {
+      auto& list = mapIt->second;
+      auto listIt = std::begin(list);
+      while (listIt != std::end(list))
+      {
+        auto& animation = *listIt;
+        const auto finished = animation->step(msElapsed);
+        animation->update();
+
+        listIt = finished ? list.erase(listIt) : std::next(listIt);
+      }
+
+      mapIt = list.empty() ? m_animations.erase(mapIt) : std::next(mapIt);
+    }
+  }
+
+  // stop the animations if all are finished
+  if (m_animations.empty())
+  {
+    m_elapsedTimer.invalidate();
+    m_timer->stop();
+  }
+}
+
+} // namespace tb::ui
