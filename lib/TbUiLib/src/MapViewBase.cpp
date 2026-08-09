@@ -112,6 +112,7 @@ MapViewBase::MapViewBase(
   , m_toolBox{toolBox}
   , m_animationManager{std::make_unique<AnimationManager>(this)}
   , m_updateActionStatesSignalDelayer{new SignalDelayer{this}}
+  , m_actionCache{document}
 {
   setToolBox(toolBox);
   bindEvents();
@@ -318,8 +319,8 @@ void MapViewBase::createActions()
   // by the menu or toolbar since they would conflict.
   actionManager.visitMapViewActions(visitor);
 
-  m_document.visitTagActions(actionManager, visitor);
-  m_document.visitEntityDefinitionActions(actionManager, visitor);
+  m_actionCache.visitTagActions(actionManager, visitor);
+  m_actionCache.visitEntityDefinitionActions(actionManager, visitor);
 }
 
 void MapViewBase::updateActionBindings()

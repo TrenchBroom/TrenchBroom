@@ -22,7 +22,9 @@
 #include <QAbstractTableModel>
 
 #include "ui/ActionInfo.h"
+#include "ui/MapDocumentActionCache.h"
 
+#include <memory>
 #include <vector>
 
 class QObject;
@@ -38,6 +40,7 @@ class KeyboardShortcutModel : public QAbstractTableModel
 private:
   ActionManager& m_actionManager;
   MapDocument* m_document;
+  std::unique_ptr<MapDocumentActionCache> m_actionCache;
   std::vector<ActionInfo> m_actions;
   std::vector<int> m_conflicts;
 

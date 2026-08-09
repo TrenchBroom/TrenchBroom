@@ -53,7 +53,9 @@ KeyboardShortcutModel::KeyboardShortcutModel(
 
 void KeyboardShortcutModel::reset()
 {
+  m_actionCache.reset();
   m_actions.clear();
+
   initializeActions();
   updateConflicts();
   if (totalActionCount() > 0)
@@ -243,6 +245,8 @@ void KeyboardShortcutModel::initializeActions()
   initializeKeys();
   if (m_document)
   {
+    m_actionCache = std::make_unique<MapDocumentActionCache>(*m_document);
+
     initializeTagActions();
     initializeEntityDefinitionActions();
   }
@@ -316,9 +320,9 @@ void KeyboardShortcutModel::initializeKeys()
 
 void KeyboardShortcutModel::initializeTagActions()
 {
-  contract_pre(m_document);
+  contract_pre(m_actionCache);
 
-  m_document->visitTagActions(m_actionManager, [&](Action& action) {
+  m_actionCache->visitTagActions(m_actionManager, [&](Action& action) {
     m_actions.emplace_back(
       ActionInfoType::Tag,
       "Tags" / kdl::parse_utf8_path(action.label()),
@@ -329,9 +333,9 @@ void KeyboardShortcutModel::initializeTagActions()
 
 void KeyboardShortcutModel::initializeEntityDefinitionActions()
 {
-  contract_pre(m_document);
+  contract_pre(m_actionCache);
 
-  m_document->visitEntityDefinitionActions(m_actionManager, [&](Action& action) {
+  m_actionCache->visitEntityDefinitionActions(m_actionManager, [&](Action& action) {
     m_actions.emplace_back(
       ActionInfoType::EntityDefinition,
       "Entity Definitions" / kdl::parse_utf8_path(action.label()),
