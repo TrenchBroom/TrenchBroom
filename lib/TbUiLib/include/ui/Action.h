@@ -30,8 +30,6 @@
 #include <functional>
 #include <optional>
 
-class QKeySequence;
-
 namespace tb
 {
 namespace mdl
@@ -69,27 +67,6 @@ private:
   bool m_isMenuAction = false;
 
 public:
-  Action(
-    std::filesystem::path preferencePath,
-    QString label,
-    ActionContext::Type actionContext,
-    QKeySequence defaultShortcut,
-    ExecuteFn execute,
-    EnabledFn enabled,
-    std::optional<CheckedFn> checked,
-    std::optional<std::filesystem::path> iconPath = std::nullopt,
-    std::optional<QString> statusTip = std::nullopt);
-
-  Action(
-    std::filesystem::path preferencePath,
-    QString label,
-    ActionContext::Type actionContext,
-    QKeySequence defaultShortcut,
-    ExecuteFn execute,
-    EnabledFn enabled,
-    std::optional<std::filesystem::path> iconPath = std::nullopt,
-    std::optional<QString> statusTip = std::nullopt);
-
   Action(
     std::filesystem::path preferencePath,
     QString label,

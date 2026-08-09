@@ -19,58 +19,12 @@
 
 #include "ui/Action.h"
 
-#include <QKeySequence>
-
 #include "ui/ActionExecutionContext.h"
-#include "ui/QKeySequenceUtils.h"
 
 #include "kd/const_overload.h"
 
 namespace tb::ui
 {
-
-Action::Action(
-  std::filesystem::path preferencePath,
-  QString label,
-  const ActionContext::Type actionContext,
-  QKeySequence defaultShortcut,
-  ExecuteFn execute,
-  EnabledFn enabled,
-  std::optional<CheckedFn> checked,
-  std::optional<std::filesystem::path> iconPath,
-  std::optional<QString> statusTip)
-  : m_label{std::move(label)}
-  , m_actionContext{actionContext}
-  , m_shortcutPreference{std::move(preferencePath), {fromQKeySequence(defaultShortcut)}}
-  , m_execute{std::move(execute)}
-  , m_enabled{std::move(enabled)}
-  , m_checked{std::move(checked)}
-  , m_iconPath{std::move(iconPath)}
-  , m_statusTip{std::move(statusTip)}
-{
-}
-
-Action::Action(
-  std::filesystem::path preferencePath,
-  QString label,
-  const ActionContext::Type actionContext,
-  QKeySequence defaultShortcut,
-  ExecuteFn execute,
-  EnabledFn enabled,
-  std::optional<std::filesystem::path> iconPath,
-  std::optional<QString> statusTip)
-  : Action{
-      std::move(preferencePath),
-      std::move(label),
-      actionContext,
-      defaultShortcut,
-      std::move(execute),
-      std::move(enabled),
-      std::nullopt,
-      std::move(iconPath),
-      std::move(statusTip)}
-{
-}
 
 Action::Action(
   std::filesystem::path preferencePath,
@@ -125,7 +79,7 @@ Action::Action(
       std::move(preferencePath),
       std::move(label),
       actionContext,
-      QKeySequence{},
+      KeySequence{},
       std::move(execute),
       std::move(enabled),
       std::nullopt,
