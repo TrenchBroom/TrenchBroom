@@ -27,7 +27,7 @@
 #include "ui/GestureTracker.h"
 #include "ui/InputState.h"
 #include "ui/MapDocument.h"
-#include "ui/UvView.h"
+#include "ui/UvViewHelper.h"
 
 #include "kd/contracts.h"
 #include "kd/range_fold.h"

@@ -19,9 +19,6 @@
 
 #include "ui/ActionMenu.h"
 
-#include "ui/MapViewBase.h"
-#include "ui/MapWindow.h"
-
 #include <string>
 
 namespace tb::ui
