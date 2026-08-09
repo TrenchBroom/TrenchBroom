@@ -25,6 +25,7 @@
 #include "base/Result.h"
 #include "mdl/Brush.h"
 #include "mdl/BrushBuilder.h"
+#include "ui/DrawShapeToolParameters.h"
 
 #include <filesystem>
 #include <string>
@@ -50,66 +51,6 @@ protected:
   void addApplyButton(MapDocument& document);
 };
 
-class ShapeParameters
-{
-public:
-  enum class StairDirection
-  {
-    PosX,
-    NegX,
-    PosY,
-    NegY,
-  };
-
-private:
-  // For axis aligned shapes
-  vm::axis::type m_axis = vm::axis::z;
-
-  // For circular shapes
-  mdl::CircleShape m_circleShape = mdl::EdgeAlignedCircle{8};
-
-  // For hollow shapes
-  bool m_hollow = false;
-  double m_thickness = 16.0;
-
-  // For UV sphere
-  size_t m_numRings = 8;
-
-  // For ICO sphere
-  size_t m_accuracy = 1;
-
-  // For stair shapes
-  double m_stepHeight = 16.0;
-  StairDirection m_stairDirection = StairDirection::PosX;
-
-public:
-  Notifier<> parametersDidChangeNotifier;
-
-  vm::axis::type axis() const;
-  void setAxis(vm::axis::type axis);
-
-  const mdl::CircleShape& circleShape() const;
-  void setCircleShape(mdl::CircleShape circleShape);
-
-  bool hollow() const;
-  void setHollow(bool hollow);
-
-  double thickness() const;
-  void setThickness(double thickness);
-
-  size_t numRings() const;
-  void setNumRings(size_t numRings);
-
-  size_t accuracy() const;
-  void setAccuracy(size_t accuracy);
-
-  double stepHeight() const;
-  void setStepHeight(double stepHeight);
-
-  StairDirection stairDirection() const;
-  void setStairDirection(StairDirection stairDirection);
-};
-
 class DrawShapeToolExtension
 {
 protected:
@@ -122,9 +63,9 @@ public:
   virtual const std::string& name() const = 0;
   virtual const std::filesystem::path& iconPath() const = 0;
   virtual DrawShapeToolExtensionPage* createToolPage(
-    ShapeParameters& parameters, QWidget* parent = nullptr) = 0;
+    DrawShapeToolParameters& parameters, QWidget* parent = nullptr) = 0;
   virtual Result<std::vector<mdl::Brush>> createBrushes(
-    const vm::bbox3d& bounds, const ShapeParameters& parameters) const = 0;
+    const vm::bbox3d& bounds, const DrawShapeToolParameters& parameters) const = 0;
 };
 
 } // namespace tb::ui

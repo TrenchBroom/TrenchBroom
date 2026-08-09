@@ -35,6 +35,7 @@
 #include "mdl/Map.h"
 #include "mdl/WorldNode.h"
 #include "ui/BitmapButton.h"
+#include "ui/DrawShapeToolParameters.h"
 #include "ui/MapDocument.h"
 #include "ui/ViewConstants.h"
 
@@ -51,7 +52,7 @@ namespace tb::ui
 namespace
 {
 
-using StairDirection = ShapeParameters::StairDirection;
+using StairDirection = DrawShapeToolParameters::StairDirection;
 
 vm::axis::type stairDirectionToAxis(const StairDirection direction)
 {
@@ -112,13 +113,13 @@ const std::filesystem::path& DrawShapeToolCuboidExtension::iconPath() const
 }
 
 DrawShapeToolExtensionPage* DrawShapeToolCuboidExtension::createToolPage(
-  ShapeParameters&, QWidget* parent)
+  DrawShapeToolParameters&, QWidget* parent)
 {
   return new DrawShapeToolExtensionPage{parent};
 }
 
 Result<std::vector<mdl::Brush>> DrawShapeToolCuboidExtension::createBrushes(
-  const vm::bbox3d& bounds, const ShapeParameters&) const
+  const vm::bbox3d& bounds, const DrawShapeToolParameters&) const
 {
   auto& map = m_document.map();
 
@@ -133,7 +134,7 @@ Result<std::vector<mdl::Brush>> DrawShapeToolCuboidExtension::createBrushes(
 }
 
 DrawShapeToolAxisAlignedShapeExtensionPage::DrawShapeToolAxisAlignedShapeExtensionPage(
-  ShapeParameters& parameters, QWidget* parent)
+  DrawShapeToolParameters& parameters, QWidget* parent)
   : DrawShapeToolExtensionPage{parent}
   , m_parameters{parameters}
 {
@@ -155,7 +156,7 @@ DrawShapeToolAxisAlignedShapeExtensionPage::DrawShapeToolAxisAlignedShapeExtensi
 }
 
 DrawShapeToolCircularShapeExtensionPage::DrawShapeToolCircularShapeExtensionPage(
-  ShapeParameters& parameters, QWidget* parent)
+  DrawShapeToolParameters& parameters, QWidget* parent)
   : DrawShapeToolAxisAlignedShapeExtensionPage{parameters, parent}
   , m_parameters{parameters}
 {
@@ -267,7 +268,7 @@ DrawShapeToolCircularShapeExtensionPage::DrawShapeToolCircularShapeExtensionPage
 }
 
 DrawShapeToolCylinderShapeExtensionPage::DrawShapeToolCylinderShapeExtensionPage(
-  MapDocument& document, ShapeParameters& parameters, QWidget* parent)
+  MapDocument& document, DrawShapeToolParameters& parameters, QWidget* parent)
   : DrawShapeToolCircularShapeExtensionPage{parameters, parent}
   , m_parameters{parameters}
 {
@@ -317,13 +318,13 @@ const std::filesystem::path& DrawShapeToolCylinderExtension::iconPath() const
 }
 
 DrawShapeToolExtensionPage* DrawShapeToolCylinderExtension::createToolPage(
-  ShapeParameters& parameters, QWidget* parent)
+  DrawShapeToolParameters& parameters, QWidget* parent)
 {
   return new DrawShapeToolCylinderShapeExtensionPage{m_document, parameters, parent};
 }
 
 Result<std::vector<mdl::Brush>> DrawShapeToolCylinderExtension::createBrushes(
-  const vm::bbox3d& bounds, const ShapeParameters& parameters) const
+  const vm::bbox3d& bounds, const DrawShapeToolParameters& parameters) const
 {
   auto& map = m_document.map();
 
@@ -349,7 +350,7 @@ Result<std::vector<mdl::Brush>> DrawShapeToolCylinderExtension::createBrushes(
 }
 
 DrawShapeToolConeShapeExtensionPage::DrawShapeToolConeShapeExtensionPage(
-  MapDocument& document, ShapeParameters& parameters, QWidget* parent)
+  MapDocument& document, DrawShapeToolParameters& parameters, QWidget* parent)
   : DrawShapeToolCircularShapeExtensionPage{parameters, parent}
   , m_parameters{parameters}
 {
@@ -374,13 +375,13 @@ const std::filesystem::path& DrawShapeToolConeExtension::iconPath() const
 }
 
 DrawShapeToolExtensionPage* DrawShapeToolConeExtension::createToolPage(
-  ShapeParameters& parameters, QWidget* parent)
+  DrawShapeToolParameters& parameters, QWidget* parent)
 {
   return new DrawShapeToolConeShapeExtensionPage{m_document, parameters, parent};
 }
 
 Result<std::vector<mdl::Brush>> DrawShapeToolConeExtension::createBrushes(
-  const vm::bbox3d& bounds, const ShapeParameters& parameters) const
+  const vm::bbox3d& bounds, const DrawShapeToolParameters& parameters) const
 {
   auto& map = m_document.map();
 
@@ -396,7 +397,7 @@ Result<std::vector<mdl::Brush>> DrawShapeToolConeExtension::createBrushes(
 }
 
 DrawShapeToolIcoSphereShapeExtensionPage::DrawShapeToolIcoSphereShapeExtensionPage(
-  MapDocument& document, ShapeParameters& parameters, QWidget* parent)
+  MapDocument& document, DrawShapeToolParameters& parameters, QWidget* parent)
   : DrawShapeToolExtensionPage{parent}
   , m_parameters{parameters}
 {
@@ -436,13 +437,13 @@ const std::filesystem::path& DrawShapeToolIcoSphereExtension::iconPath() const
 }
 
 DrawShapeToolExtensionPage* DrawShapeToolIcoSphereExtension::createToolPage(
-  ShapeParameters& parameters, QWidget* parent)
+  DrawShapeToolParameters& parameters, QWidget* parent)
 {
   return new DrawShapeToolIcoSphereShapeExtensionPage{m_document, parameters, parent};
 }
 
 Result<std::vector<mdl::Brush>> DrawShapeToolIcoSphereExtension::createBrushes(
-  const vm::bbox3d& bounds, const ShapeParameters& parameters) const
+  const vm::bbox3d& bounds, const DrawShapeToolParameters& parameters) const
 {
   auto& map = m_document.map();
 
@@ -457,7 +458,7 @@ Result<std::vector<mdl::Brush>> DrawShapeToolIcoSphereExtension::createBrushes(
 }
 
 DrawShapeToolUvSphereShapeExtensionPage::DrawShapeToolUvSphereShapeExtensionPage(
-  MapDocument& document, ShapeParameters& parameters, QWidget* parent)
+  MapDocument& document, DrawShapeToolParameters& parameters, QWidget* parent)
   : DrawShapeToolCircularShapeExtensionPage{parameters, parent}
   , m_parameters{parameters}
 {
@@ -508,13 +509,13 @@ const std::filesystem::path& DrawShapeToolUvSphereExtension::iconPath() const
 }
 
 DrawShapeToolExtensionPage* DrawShapeToolUvSphereExtension::createToolPage(
-  ShapeParameters& parameters, QWidget* parent)
+  DrawShapeToolParameters& parameters, QWidget* parent)
 {
   return new DrawShapeToolUvSphereShapeExtensionPage{m_document, parameters, parent};
 }
 
 Result<std::vector<mdl::Brush>> DrawShapeToolUvSphereExtension::createBrushes(
-  const vm::bbox3d& bounds, const ShapeParameters& parameters) const
+  const vm::bbox3d& bounds, const DrawShapeToolParameters& parameters) const
 {
   auto& map = m_document.map();
 
@@ -534,7 +535,7 @@ Result<std::vector<mdl::Brush>> DrawShapeToolUvSphereExtension::createBrushes(
 }
 
 DrawShapeToolStairsExtensionPage::DrawShapeToolStairsExtensionPage(
-  MapDocument& document, ShapeParameters& parameters, QWidget* parent)
+  MapDocument& document, DrawShapeToolParameters& parameters, QWidget* parent)
   : DrawShapeToolExtensionPage{parent}
   , m_parameters{parameters}
 {
@@ -592,13 +593,13 @@ const std::filesystem::path& DrawShapeToolStairsExtension::iconPath() const
 }
 
 DrawShapeToolExtensionPage* DrawShapeToolStairsExtension::createToolPage(
-  ShapeParameters& parameters, QWidget* parent)
+  DrawShapeToolParameters& parameters, QWidget* parent)
 {
   return new DrawShapeToolStairsExtensionPage{m_document, parameters, parent};
 }
 
 Result<std::vector<mdl::Brush>> DrawShapeToolStairsExtension::createBrushes(
-  const vm::bbox3d& bounds, const ShapeParameters& parameters) const
+  const vm::bbox3d& bounds, const DrawShapeToolParameters& parameters) const
 {
   auto& map = m_document.map();
 
@@ -641,7 +642,7 @@ Result<std::vector<mdl::Brush>> DrawShapeToolStairsExtension::createBrushes(
 }
 
 DrawShapeToolArchShapeExtensionPage::DrawShapeToolArchShapeExtensionPage(
-  MapDocument& document, ShapeParameters& parameters, QWidget* parent)
+  MapDocument& document, DrawShapeToolParameters& parameters, QWidget* parent)
   : DrawShapeToolCircularShapeExtensionPage{parameters, parent}
   , m_parameters{parameters}
 {
@@ -681,13 +682,13 @@ const std::filesystem::path& DrawShapeToolArchExtension::iconPath() const
 }
 
 DrawShapeToolExtensionPage* DrawShapeToolArchExtension::createToolPage(
-  ShapeParameters& parameters, QWidget* parent)
+  DrawShapeToolParameters& parameters, QWidget* parent)
 {
   return new DrawShapeToolArchShapeExtensionPage{m_document, parameters, parent};
 }
 
 Result<std::vector<mdl::Brush>> DrawShapeToolArchExtension::createBrushes(
-  const vm::bbox3d& bounds, const ShapeParameters& parameters) const
+  const vm::bbox3d& bounds, const DrawShapeToolParameters& parameters) const
 {
   auto& map = m_document.map();
 

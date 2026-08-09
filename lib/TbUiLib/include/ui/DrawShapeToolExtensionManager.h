@@ -21,6 +21,7 @@
 
 #include "base/Notifier.h"
 #include "ui/DrawShapeToolExtension.h"
+#include "ui/DrawShapeToolParameters.h"
 
 #include <memory>
 #include <vector>
@@ -34,7 +35,7 @@ class MapDocument;
 class DrawShapeToolExtensionManager
 {
 private:
-  ShapeParameters m_parameters;
+  DrawShapeToolParameters m_parameters;
   std::vector<std::unique_ptr<DrawShapeToolExtension>> m_extensions;
   size_t m_currentExtensionIndex = 0;
 

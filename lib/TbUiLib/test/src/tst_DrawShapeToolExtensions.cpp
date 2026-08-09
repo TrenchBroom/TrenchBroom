@@ -22,6 +22,7 @@
 #include "mdl/CircleShape.h"
 #include "ui/CatchConfig.h"
 #include "ui/DrawShapeToolExtensions.h"
+#include "ui/DrawShapeToolParameters.h"
 #include "ui/MapDocumentFixture.h"
 
 #include "kd/range_fold.h"
@@ -36,7 +37,7 @@ TEST_CASE("DrawShapeToolCuboidExtension")
   auto fixture = MapDocumentFixture{};
   auto& document = fixture.create();
   auto extension = DrawShapeToolCuboidExtension{document};
-  auto parameters = ShapeParameters{};
+  auto parameters = DrawShapeToolParameters{};
 
   SECTION("createBrushes")
   {
@@ -54,7 +55,7 @@ TEST_CASE("DrawShapeToolCylinderExtension")
   auto fixture = MapDocumentFixture{};
   auto& document = fixture.create();
   auto extension = DrawShapeToolCylinderExtension{document};
-  auto parameters = ShapeParameters{};
+  auto parameters = DrawShapeToolParameters{};
 
   SECTION("Create solid cylinder with default circle shape")
   {
@@ -155,7 +156,7 @@ TEST_CASE("DrawShapeToolConeExtension")
   auto fixture = MapDocumentFixture{};
   auto& document = fixture.create();
   auto extension = DrawShapeToolConeExtension{document};
-  auto parameters = ShapeParameters{};
+  auto parameters = DrawShapeToolParameters{};
 
   SECTION("Create solid cone with default circle shape")
   {
@@ -228,7 +229,7 @@ TEST_CASE("DrawShapeToolIcoSphereExtension")
   auto fixture = MapDocumentFixture{};
   auto& document = fixture.create();
   auto extension = DrawShapeToolIcoSphereExtension{document};
-  auto parameters = ShapeParameters{};
+  auto parameters = DrawShapeToolParameters{};
 
   SECTION("Create icosphere with default accuracy")
   {
@@ -257,7 +258,7 @@ TEST_CASE("DrawShapeToolUvSphereExtension")
   auto fixture = MapDocumentFixture{};
   auto& document = fixture.create();
   auto extension = DrawShapeToolUvSphereExtension{document};
-  auto parameters = ShapeParameters{};
+  auto parameters = DrawShapeToolParameters{};
 
   SECTION("Create uvsphere with default ring count")
   {
@@ -349,7 +350,7 @@ TEST_CASE("DrawShapeToolStairsExtension")
   auto fixture = MapDocumentFixture{};
   auto& document = fixture.create();
   auto extension = DrawShapeToolStairsExtension{document};
-  auto parameters = ShapeParameters{};
+  auto parameters = DrawShapeToolParameters{};
 
   SECTION("Create stairs with default step height")
   {
@@ -414,7 +415,7 @@ TEST_CASE("DrawShapeToolStairsExtension")
 
     SECTION("+X direction")
     {
-      parameters.setStairDirection(ShapeParameters::StairDirection::PosX);
+      parameters.setStairDirection(DrawShapeToolParameters::StairDirection::PosX);
       const auto bounds = vm::bbox3d{{-64, -64, 0}, {64, 64, 128}};
       const auto result = extension.createBrushes(bounds, parameters);
       REQUIRE(result.is_success());
@@ -422,7 +423,7 @@ TEST_CASE("DrawShapeToolStairsExtension")
 
     SECTION("-X direction")
     {
-      parameters.setStairDirection(ShapeParameters::StairDirection::NegX);
+      parameters.setStairDirection(DrawShapeToolParameters::StairDirection::NegX);
       const auto bounds = vm::bbox3d{{0, -64, -64}, {128, 64, 64}};
       const auto result = extension.createBrushes(bounds, parameters);
       REQUIRE(result.is_success());
@@ -430,7 +431,7 @@ TEST_CASE("DrawShapeToolStairsExtension")
 
     SECTION("+Y direction")
     {
-      parameters.setStairDirection(ShapeParameters::StairDirection::PosY);
+      parameters.setStairDirection(DrawShapeToolParameters::StairDirection::PosY);
       const auto bounds = vm::bbox3d{{-64, 0, -64}, {64, 128, 64}};
       const auto result = extension.createBrushes(bounds, parameters);
       REQUIRE(result.is_success());
@@ -438,7 +439,7 @@ TEST_CASE("DrawShapeToolStairsExtension")
 
     SECTION("-Y direction")
     {
-      parameters.setStairDirection(ShapeParameters::StairDirection::NegY);
+      parameters.setStairDirection(DrawShapeToolParameters::StairDirection::NegY);
       const auto bounds = vm::bbox3d{{-64, 0, -64}, {64, 128, 64}};
       const auto result = extension.createBrushes(bounds, parameters);
       REQUIRE(result.is_success());
@@ -451,7 +452,7 @@ TEST_CASE("DrawShapeToolArchExtension")
   auto fixture = MapDocumentFixture{};
   auto& document = fixture.create();
   auto extension = DrawShapeToolArchExtension{document};
-  auto parameters = ShapeParameters{};
+  auto parameters = DrawShapeToolParameters{};
 
   SECTION("createBrushes wires parameters to the brush builder")
   {
@@ -475,9 +476,9 @@ TEST_CASE("DrawShapeToolArchExtension")
   }
 }
 
-TEST_CASE("ShapeParameters")
+TEST_CASE("DrawShapeToolParameters")
 {
-  auto parameters = ShapeParameters{};
+  auto parameters = DrawShapeToolParameters{};
 
   SECTION("Default values")
   {
@@ -487,7 +488,7 @@ TEST_CASE("ShapeParameters")
     REQUIRE(parameters.numRings() == 8);
     REQUIRE(parameters.accuracy() == 1);
     REQUIRE(parameters.stepHeight() == 16.0);
-    REQUIRE(parameters.stairDirection() == ShapeParameters::StairDirection::PosX);
+    REQUIRE(parameters.stairDirection() == DrawShapeToolParameters::StairDirection::PosX);
   }
 
   SECTION("Axis modifications")
@@ -598,18 +599,18 @@ TEST_CASE("ShapeParameters")
   {
     auto parametersDidChange = Observer<>{parameters.parametersDidChangeNotifier};
 
-    parameters.setStairDirection(ShapeParameters::StairDirection::PosX);
+    parameters.setStairDirection(DrawShapeToolParameters::StairDirection::PosX);
     CHECK(parametersDidChange.notifications.empty());
 
-    parameters.setStairDirection(ShapeParameters::StairDirection::NegX);
-    REQUIRE(parameters.stairDirection() == ShapeParameters::StairDirection::NegX);
+    parameters.setStairDirection(DrawShapeToolParameters::StairDirection::NegX);
+    REQUIRE(parameters.stairDirection() == DrawShapeToolParameters::StairDirection::NegX);
     CHECK(parametersDidChange.notifications.size() == 1u);
 
-    parameters.setStairDirection(ShapeParameters::StairDirection::NegX);
+    parameters.setStairDirection(DrawShapeToolParameters::StairDirection::NegX);
     CHECK(parametersDidChange.notifications.size() == 1u);
 
-    parameters.setStairDirection(ShapeParameters::StairDirection::PosY);
-    REQUIRE(parameters.stairDirection() == ShapeParameters::StairDirection::PosY);
+    parameters.setStairDirection(DrawShapeToolParameters::StairDirection::PosY);
+    REQUIRE(parameters.stairDirection() == DrawShapeToolParameters::StairDirection::PosY);
     CHECK(parametersDidChange.notifications.size() == 2u);
   }
 
