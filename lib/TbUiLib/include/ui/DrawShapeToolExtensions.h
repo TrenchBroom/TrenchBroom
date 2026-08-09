@@ -22,11 +22,8 @@
 #include "base/Result.h"
 #include "mdl/BrushBuilder.h"
 #include "ui/DrawShapeToolExtension.h"
-#include "ui/DrawShapeToolExtensionPages.h"
 
 #include <vector>
-
-class QWidget;
 
 namespace tb::ui
 {
@@ -40,8 +37,6 @@ public:
 
   const std::string& name() const override;
   const std::filesystem::path& iconPath() const override;
-  DrawShapeToolExtensionPage* createToolPage(
-    DrawShapeToolParameters& parameters, QWidget* parent) override;
   Result<std::vector<mdl::Brush>> createBrushes(
     const vm::bbox3d& bounds, const DrawShapeToolParameters& parameters) const override;
 };
@@ -53,8 +48,6 @@ public:
 
   const std::string& name() const override;
   const std::filesystem::path& iconPath() const override;
-  DrawShapeToolExtensionPage* createToolPage(
-    DrawShapeToolParameters& parameters, QWidget* parent) override;
   Result<std::vector<mdl::Brush>> createBrushes(
     const vm::bbox3d& bounds, const DrawShapeToolParameters& parameters) const override;
 };
@@ -66,8 +59,6 @@ public:
 
   const std::string& name() const override;
   const std::filesystem::path& iconPath() const override;
-  DrawShapeToolExtensionPage* createToolPage(
-    DrawShapeToolParameters& parameters, QWidget* parent) override;
   Result<std::vector<mdl::Brush>> createBrushes(
     const vm::bbox3d& bounds, const DrawShapeToolParameters& parameters) const override;
 };
@@ -79,8 +70,6 @@ public:
 
   const std::string& name() const override;
   const std::filesystem::path& iconPath() const override;
-  DrawShapeToolExtensionPage* createToolPage(
-    DrawShapeToolParameters& parameters, QWidget* parent) override;
   Result<std::vector<mdl::Brush>> createBrushes(
     const vm::bbox3d& bounds, const DrawShapeToolParameters& parameters) const override;
 };
@@ -92,8 +81,6 @@ public:
 
   const std::string& name() const override;
   const std::filesystem::path& iconPath() const override;
-  DrawShapeToolExtensionPage* createToolPage(
-    DrawShapeToolParameters& parameters, QWidget* parent) override;
   Result<std::vector<mdl::Brush>> createBrushes(
     const vm::bbox3d& bounds, const DrawShapeToolParameters& parameters) const override;
 };
@@ -105,8 +92,6 @@ public:
 
   const std::string& name() const override;
   const std::filesystem::path& iconPath() const override;
-  DrawShapeToolExtensionPage* createToolPage(
-    DrawShapeToolParameters& parameters, QWidget* parent) override;
   Result<std::vector<mdl::Brush>> createBrushes(
     const vm::bbox3d& bounds, const DrawShapeToolParameters& parameters) const override;
 };
@@ -118,8 +103,6 @@ public:
 
   const std::string& name() const override;
   const std::filesystem::path& iconPath() const override;
-  DrawShapeToolExtensionPage* createToolPage(
-    DrawShapeToolParameters& parameters, QWidget* parent) override;
   Result<std::vector<mdl::Brush>> createBrushes(
     const vm::bbox3d& bounds, const DrawShapeToolParameters& parameters) const override;
 };

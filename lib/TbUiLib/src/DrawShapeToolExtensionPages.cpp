@@ -31,11 +31,15 @@
 
 #include "ui/BitmapButton.h"
 #include "ui/DrawShapeToolExtension.h"
+#include "ui/DrawShapeToolExtensionKind.h"
 #include "ui/DrawShapeToolParameters.h"
 #include "ui/ViewConstants.h"
 
+#include "kd/ranges/to.h"
+
 #include <algorithm>
 #include <array>
+#include <ranges>
 
 namespace tb::ui
 {
@@ -70,6 +74,33 @@ StairDirection indexToStairDirection(const size_t index)
     StairDirection::PosY,
     StairDirection::NegY};
   return directions[std::min(index, directions.size() - 1u)];
+}
+
+DrawShapeToolExtensionPage* createExtensionPage(
+  const DrawShapeToolExtensionKind kind,
+  MapDocument& document,
+  DrawShapeToolParameters& parameters,
+  QWidget* parent)
+{
+  switch (kind)
+  {
+  case DrawShapeToolExtensionKind::Cuboid:
+    return new DrawShapeToolExtensionPage{parent};
+  case DrawShapeToolExtensionKind::Stairs:
+    return new DrawShapeToolStairsExtensionPage{document, parameters, parent};
+  case DrawShapeToolExtensionKind::Arch:
+    return new DrawShapeToolArchShapeExtensionPage{document, parameters, parent};
+  case DrawShapeToolExtensionKind::Cylinder:
+    return new DrawShapeToolCylinderShapeExtensionPage{document, parameters, parent};
+  case DrawShapeToolExtensionKind::Cone:
+    return new DrawShapeToolConeShapeExtensionPage{document, parameters, parent};
+  case DrawShapeToolExtensionKind::UvSphere:
+    return new DrawShapeToolUvSphereShapeExtensionPage{document, parameters, parent};
+  case DrawShapeToolExtensionKind::IcoSphere:
+    return new DrawShapeToolIcoSphereShapeExtensionPage{document, parameters, parent};
+  }
+
+  return nullptr;
 }
 
 } // namespace
@@ -368,6 +399,20 @@ DrawShapeToolArchShapeExtensionPage::DrawShapeToolArchShapeExtensionPage(
 
   m_notifierConnection += m_parameters.parametersDidChangeNotifier.connect(
     [=, this]() { thicknessBox->setValue(m_parameters.thickness()); });
+}
+
+std::vector<DrawShapeToolExtensionPage*> createDrawShapeToolExtensionPages(
+  MapDocument& document, DrawShapeToolParameters& parameters, QWidget* parent)
+{
+  auto result = DrawShapeToolExtensionKinds | std::views::transform([&](const auto kind) {
+                  return createExtensionPage(kind, document, parameters, parent);
+                })
+                | kdl::ranges::to<std::vector>();
+
+  // update all pages to reflect the current parameter values
+  parameters.parametersDidChangeNotifier();
+
+  return result;
 }
 
 } // namespace tb::ui

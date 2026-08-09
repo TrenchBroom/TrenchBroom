@@ -26,8 +26,6 @@
 #include <memory>
 #include <vector>
 
-class QWidget;
-
 namespace tb::ui
 {
 class MapDocument;
@@ -35,11 +33,10 @@ class MapDocument;
 class DrawShapeToolExtensionManager
 {
 private:
+  MapDocument& m_document;
   DrawShapeToolParameters m_parameters;
   std::vector<std::unique_ptr<DrawShapeToolExtension>> m_extensions;
   size_t m_currentExtensionIndex = 0;
-
-  NotifierConnection m_notifierConnection;
 
 public:
   Notifier<size_t> currentExtensionDidChangeNotifier;
@@ -47,12 +44,14 @@ public:
 
   explicit DrawShapeToolExtensionManager(MapDocument& document);
 
+  MapDocument& document() const;
+  DrawShapeToolParameters& parameters();
+
   const std::vector<DrawShapeToolExtension*> extensions() const;
 
   const DrawShapeToolExtension& currentExtension() const;
   bool setCurrentExtensionIndex(size_t currentExtensionIndex);
 
-  std::vector<DrawShapeToolExtensionPage*> createToolPages(QWidget* parent = nullptr);
   Result<std::vector<mdl::Brush>> createBrushes(const vm::bbox3d& bounds) const;
 };
 

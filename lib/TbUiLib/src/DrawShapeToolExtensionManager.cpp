@@ -30,9 +30,20 @@ namespace tb::ui
 {
 
 DrawShapeToolExtensionManager::DrawShapeToolExtensionManager(MapDocument& document)
-  : m_extensions{createDrawShapeToolExtensions(document)}
+  : m_document{document}
+  , m_extensions{createDrawShapeToolExtensions(document)}
 {
   contract_pre(!m_extensions.empty());
+}
+
+MapDocument& DrawShapeToolExtensionManager::document() const
+{
+  return m_document;
+}
+
+DrawShapeToolParameters& DrawShapeToolExtensionManager::parameters()
+{
+  return m_parameters;
 }
 
 const std::vector<DrawShapeToolExtension*> DrawShapeToolExtensionManager::extensions()
@@ -58,23 +69,6 @@ bool DrawShapeToolExtensionManager::setCurrentExtensionIndex(size_t currentExten
   }
 
   return false;
-}
-
-std::vector<DrawShapeToolExtensionPage*> DrawShapeToolExtensionManager::createToolPages(
-  QWidget* parent)
-{
-  auto toolPages = m_extensions | std::views::transform([&](const auto& extension) {
-                     auto* toolPage = extension->createToolPage(m_parameters, parent);
-                     m_notifierConnection +=
-                       toolPage->applyParametersNotifier.connect(applyParametersNotifier);
-                     return toolPage;
-                   })
-                   | kdl::ranges::to<std::vector>();
-
-  // update all tool pages to reflect the current parameter values
-  m_parameters.parametersDidChangeNotifier();
-
-  return toolPages;
 }
 
 Result<std::vector<mdl::Brush>> DrawShapeToolExtensionManager::createBrushes(

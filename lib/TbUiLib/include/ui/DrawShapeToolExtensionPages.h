@@ -23,6 +23,8 @@
 
 #include "ui/DrawShapeToolExtensionPage.h"
 
+#include <vector>
+
 namespace tb::ui
 {
 class MapDocument;
@@ -135,5 +137,8 @@ private:
 
   Q_OBJECT
 };
+
+std::vector<DrawShapeToolExtensionPage*> createDrawShapeToolExtensionPages(
+  MapDocument& document, DrawShapeToolParameters& parameters, QWidget* parent = nullptr);
 
 } // namespace tb::ui
