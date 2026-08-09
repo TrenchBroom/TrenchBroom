@@ -572,12 +572,6 @@ ScaleTool::ScaleTool(MapDocument& document)
 
 ScaleTool::~ScaleTool() = default;
 
-bool ScaleTool::doActivate()
-{
-  m_toolPage->activate();
-  return true;
-}
-
 const mdl::Grid& ScaleTool::grid() const
 {
   return m_document.map().grid();
@@ -1060,10 +1054,7 @@ void ScaleTool::cancelScale()
 
 QWidget* ScaleTool::doCreatePage(QWidget* parent)
 {
-  contract_pre(m_toolPage == nullptr);
-
-  m_toolPage = new ScaleToolPage{m_document, parent};
-  return m_toolPage;
+  return new ScaleToolPage{m_document, *this, parent};
 }
 
 } // namespace tb::ui

@@ -52,7 +52,6 @@ class PickResult;
 namespace ui
 {
 class MapDocument;
-class ScaleToolPage;
 
 /**
  * Identifies the side of a bbox using a normal. The normal will be one of +/- 1.0 along
@@ -233,7 +232,6 @@ public:
 
 private:
   MapDocument& m_document;
-  ScaleToolPage* m_toolPage = nullptr;
   bool m_resizing = false;
   AnchorPos m_anchorPos = AnchorPos::Opposite;
   vm::bbox3d m_bboxAtDragStart;
@@ -244,8 +242,6 @@ private:
 public:
   explicit ScaleTool(MapDocument& document);
   ~ScaleTool() override;
-
-  bool doActivate() override;
 
   const mdl::Grid& grid() const;
 

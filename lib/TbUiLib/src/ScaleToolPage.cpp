@@ -42,16 +42,16 @@
 namespace tb::ui
 {
 
-ScaleToolPage::ScaleToolPage(MapDocument& document, QWidget* parent)
+ScaleToolPage::ScaleToolPage(MapDocument& document, ScaleTool& tool, QWidget* parent)
   : QWidget{parent}
   , m_document{document}
 {
   createGui();
-  connectObservers();
+  connectObservers(tool);
   updateGui();
 }
 
-void ScaleToolPage::connectObservers()
+void ScaleToolPage::connectObservers(ScaleTool& tool)
 {
   m_notifierConnection +=
     m_document.documentWasLoadedNotifier.connect([&]() { updateGui(); });
@@ -59,6 +59,8 @@ void ScaleToolPage::connectObservers()
     m_document.documentDidChangeNotifier.connect([&]() { updateGui(); });
   m_notifierConnection +=
     m_document.selectionDidChangeNotifier.connect([&](const auto&) { updateGui(); });
+  m_notifierConnection +=
+    tool.toolActivatedNotifier.connect([&](const auto&) { activate(); });
 }
 
 void ScaleToolPage::activate()
