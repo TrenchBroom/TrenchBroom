@@ -66,6 +66,7 @@ target_sources(TbUiLib
     ${CMAKE_CURRENT_SOURCE_DIR}/src/DrawShapeToolController3D.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/DrawShapeToolExtension.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/DrawShapeToolExtensionManager.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/DrawShapeToolExtensionPage.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/DrawShapeToolExtensions.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/DrawShapeToolPage.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/DrawShapeToolParameters.cpp
@@ -311,6 +312,7 @@ target_sources(TbUiLib
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/DrawShapeToolController3D.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/DrawShapeToolExtension.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/DrawShapeToolExtensionManager.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/DrawShapeToolExtensionPage.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/DrawShapeToolExtensions.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/DrawShapeToolPage.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/DrawShapeToolParameters.h

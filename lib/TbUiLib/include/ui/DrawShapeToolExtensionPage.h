@@ -17,16 +17,30 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ui/DrawShapeToolExtension.h"
+#pragma once
+
+#include <QWidget>
+
+#include "base/Notifier.h"
 
 namespace tb::ui
 {
+class MapDocument;
 
-DrawShapeToolExtension::DrawShapeToolExtension(MapDocument& document)
-  : m_document{document}
+class DrawShapeToolExtensionPage : public QWidget
 {
-}
+  Q_OBJECT
+protected:
+  NotifierConnection m_notifierConnection;
 
-DrawShapeToolExtension::~DrawShapeToolExtension() = default;
+public:
+  Notifier<> applyParametersNotifier;
+
+  explicit DrawShapeToolExtensionPage(QWidget* parent = nullptr);
+
+protected:
+  void addWidget(QWidget* widget);
+  void addApplyButton(MapDocument& document);
+};
 
 } // namespace tb::ui

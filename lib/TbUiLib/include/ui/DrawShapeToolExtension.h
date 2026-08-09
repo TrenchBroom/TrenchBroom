@@ -19,13 +19,10 @@
 
 #pragma once
 
-#include <QWidget>
-
-#include "base/Notifier.h"
 #include "base/Result.h"
 #include "mdl/Brush.h"
 #include "mdl/BrushBuilder.h"
-#include "ui/DrawShapeToolParameters.h"
+#include "ui/DrawShapeToolExtensionPage.h"
 
 #include <filesystem>
 #include <string>
@@ -33,23 +30,8 @@
 
 namespace tb::ui
 {
+class DrawShapeToolParameters;
 class MapDocument;
-
-class DrawShapeToolExtensionPage : public QWidget
-{
-  Q_OBJECT
-protected:
-  NotifierConnection m_notifierConnection;
-
-public:
-  Notifier<> applyParametersNotifier;
-
-  explicit DrawShapeToolExtensionPage(QWidget* parent = nullptr);
-
-protected:
-  void addWidget(QWidget* widget);
-  void addApplyButton(MapDocument& document);
-};
 
 class DrawShapeToolExtension
 {
