@@ -75,6 +75,49 @@ Action::Action(
 Action::Action(
   std::filesystem::path preferencePath,
   QString label,
+  const ActionContext::Type actionContext,
+  KeySequence defaultShortcut,
+  ExecuteFn execute,
+  EnabledFn enabled,
+  std::optional<CheckedFn> checked,
+  std::optional<std::filesystem::path> iconPath,
+  std::optional<QString> statusTip)
+  : m_label{std::move(label)}
+  , m_actionContext{actionContext}
+  , m_shortcutPreference{std::move(preferencePath), {std::move(defaultShortcut)}}
+  , m_execute{std::move(execute)}
+  , m_enabled{std::move(enabled)}
+  , m_checked{std::move(checked)}
+  , m_iconPath{std::move(iconPath)}
+  , m_statusTip{std::move(statusTip)}
+{
+}
+
+Action::Action(
+  std::filesystem::path preferencePath,
+  QString label,
+  const ActionContext::Type actionContext,
+  KeySequence defaultShortcut,
+  ExecuteFn execute,
+  EnabledFn enabled,
+  std::optional<std::filesystem::path> iconPath,
+  std::optional<QString> statusTip)
+  : Action{
+      std::move(preferencePath),
+      std::move(label),
+      actionContext,
+      std::move(defaultShortcut),
+      std::move(execute),
+      std::move(enabled),
+      std::nullopt,
+      std::move(iconPath),
+      std::move(statusTip)}
+{
+}
+
+Action::Action(
+  std::filesystem::path preferencePath,
+  QString label,
   ActionContext::Type actionContext,
   ExecuteFn execute,
   EnabledFn enabled)

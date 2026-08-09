@@ -94,6 +94,27 @@ public:
     std::filesystem::path preferencePath,
     QString label,
     ActionContext::Type actionContext,
+    KeySequence defaultShortcut,
+    ExecuteFn execute,
+    EnabledFn enabled,
+    std::optional<CheckedFn> checked,
+    std::optional<std::filesystem::path> iconPath = std::nullopt,
+    std::optional<QString> statusTip = std::nullopt);
+
+  Action(
+    std::filesystem::path preferencePath,
+    QString label,
+    ActionContext::Type actionContext,
+    KeySequence defaultShortcut,
+    ExecuteFn execute,
+    EnabledFn enabled,
+    std::optional<std::filesystem::path> iconPath = std::nullopt,
+    std::optional<QString> statusTip = std::nullopt);
+
+  Action(
+    std::filesystem::path preferencePath,
+    QString label,
+    ActionContext::Type actionContext,
     ExecuteFn execute,
     EnabledFn enabled);
 
