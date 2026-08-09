@@ -201,6 +201,7 @@ target_sources(TbUiLib
     ${CMAKE_CURRENT_SOURCE_DIR}/src/SmartWadEditor.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/SpinControl.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Splitter.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/StandardShortcut.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/SwitchableMapViewContainer.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/SwitchableTitledPanel.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/SyncHeightEventFilter.cpp
@@ -448,6 +449,7 @@ target_sources(TbUiLib
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/SmartWadEditor.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/SpinControl.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/Splitter.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/StandardShortcut.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/SwitchableMapViewContainer.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/SwitchableTitledPanel.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/SyncHeightEventFilter.h
