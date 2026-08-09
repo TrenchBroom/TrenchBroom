@@ -19,8 +19,8 @@
 
 #include "Observer.h"
 #include "mdl/BrushBuilder.h"
+#include "mdl/CatchConfig.h"
 #include "mdl/CircleShape.h"
-#include "ui/CatchConfig.h"
 #include "ui/DrawShapeToolExtensions.h"
 #include "ui/DrawShapeToolParameters.h"
 #include "ui/MapDocumentFixture.h"

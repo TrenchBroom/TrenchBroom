@@ -21,6 +21,7 @@
 #include "TestEnvironment.h"
 #include "base/Logger.h"
 #include "gl/ResourceManager.h"
+#include "mdl/CatchConfig.h"
 #include "mdl/EntityNode.h"
 #include "mdl/EnvironmentConfig.h"
 #include "mdl/GameConfigFixture.h"
@@ -30,7 +31,6 @@
 #include "mdl/Map_Nodes.h"
 #include "mdl/TestUtils.h"
 #include "mdl/WorldNode.h"
-#include "ui/CatchConfig.h"
 #include "ui/MapDocument.h"
 
 #include <catch2/catch_test_macros.hpp>

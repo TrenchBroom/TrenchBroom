@@ -65,13 +65,9 @@ target_sources(TbUiLib
     ${CMAKE_CURRENT_SOURCE_DIR}/src/DrawShapeTool.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/DrawShapeToolController2D.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/DrawShapeToolController3D.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/DrawShapeToolExtension.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/DrawShapeToolExtensionManager.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/DrawShapeToolExtensionPage.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/DrawShapeToolExtensionPages.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/DrawShapeToolExtensions.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/DrawShapeToolPage.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/DrawShapeToolParameters.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/DropTracker.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/EdgeTool.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/EdgeToolController.cpp
@@ -133,7 +129,6 @@ target_sources(TbUiLib
     ${CMAKE_CURRENT_SOURCE_DIR}/src/LayerEditor.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/LayerListBox.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/LimitedKeySequenceEdit.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/MapDocument.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/MapDocumentActionCache.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/MapInspector.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/MapView.cpp
@@ -314,14 +309,9 @@ target_sources(TbUiLib
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/DrawShapeTool.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/DrawShapeToolController2D.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/DrawShapeToolController3D.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/DrawShapeToolExtension.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/DrawShapeToolExtensionKind.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/DrawShapeToolExtensionManager.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/DrawShapeToolExtensionPage.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/DrawShapeToolExtensionPages.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/DrawShapeToolExtensions.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/DrawShapeToolPage.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/DrawShapeToolParameters.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/DropTracker.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/EdgeTool.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/EdgeToolController.h
@@ -383,7 +373,6 @@ target_sources(TbUiLib
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/LayerEditor.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/LayerListBox.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/LimitedKeySequenceEdit.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/MapDocument.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/MapDocumentActionCache.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/MapInspector.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/MapView.h

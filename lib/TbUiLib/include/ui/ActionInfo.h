@@ -27,13 +27,8 @@
 #include <filesystem>
 #include <vector>
 
-class QObject;
-
 namespace tb::ui
 {
-class Action;
-class ActionManager;
-class MapDocument;
 
 enum class ActionInfoType
 {
