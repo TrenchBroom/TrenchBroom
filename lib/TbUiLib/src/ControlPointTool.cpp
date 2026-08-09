@@ -22,7 +22,6 @@
 #include "mdl/Map.h"
 #include "mdl/Map_Patches.h"
 #include "mdl/NodeHandles.h"
-#include "ui/ControlPointToolPage.h"
 #include "ui/MapDocument.h"
 
 #include "kd/contracts.h"
@@ -78,11 +77,6 @@ std::string ControlPointTool::actionName() const
     handleManager().selectedHandleCount<mdl::ControlPointHandle>(),
     "Move Control Point",
     "Move Control Points");
-}
-
-QWidget* ControlPointTool::doCreatePage(QWidget* parent)
-{
-  return new ControlPointToolPage{m_document, parent};
 }
 
 void ControlPointTool::addHandles(const std::vector<mdl::Node*>& nodes)

@@ -38,10 +38,11 @@ public:
 
   bool cancel();
 
+  DrawShapeToolExtensionManager& extensionManager();
+  void applyExtensionParameters();
+
 private:
   DrawShapeToolExtensionManager m_extensionManager;
-
-  QWidget* doCreatePage(QWidget* parent) override;
 };
 
 } // namespace tb::ui

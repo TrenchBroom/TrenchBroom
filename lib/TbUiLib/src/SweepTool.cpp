@@ -38,7 +38,6 @@
 #include "render/RenderService.h"
 #include "ui/HandleDragTracker.h"
 #include "ui/MapDocument.h"
-#include "ui/SweepToolPage.h"
 
 #include "kd/ranges/concat_view.h"
 #include "kd/ranges/to.h"
@@ -594,11 +593,6 @@ void SweepTool::nodesWereRemoved(const std::vector<mdl::Node*>& nodes)
   {
     updateBrushes();
   }
-}
-
-QWidget* SweepTool::doCreatePage(QWidget* parent)
-{
-  return new SweepToolPage{*this, parent};
 }
 
 } // namespace tb::ui

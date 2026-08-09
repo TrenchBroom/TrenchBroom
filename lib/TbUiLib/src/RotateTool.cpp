@@ -27,7 +27,6 @@
 #include "mdl/TransactionScope.h"
 #include "ui/MapDocument.h"
 #include "ui/RotateHandle.h"
-#include "ui/RotateToolPage.h"
 
 namespace tb::ui
 {
@@ -146,11 +145,6 @@ void RotateTool::applyRotation(
   auto& map = m_document.map();
   map.rollbackTransaction();
   rotateSelection(map, center, axis, angle);
-}
-
-QWidget* RotateTool::doCreatePage(QWidget* parent)
-{
-  return new RotateToolPage{m_document, *this, parent};
 }
 
 Tool& RotateTool::tool()

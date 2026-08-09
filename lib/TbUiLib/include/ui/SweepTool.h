@@ -151,8 +151,6 @@ public:
 private:
   void connectObservers();
   void nodesWereRemoved(const std::vector<mdl::Node*>& nodes);
-
-  QWidget* doCreatePage(QWidget* parent) override;
 };
 
 } // namespace ui

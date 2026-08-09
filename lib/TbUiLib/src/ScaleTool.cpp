@@ -31,7 +31,6 @@
 #include "mdl/TransactionScope.h"
 #include "prefs/Preferences.h"
 #include "ui/MapDocument.h"
-#include "ui/ScaleToolPage.h"
 
 #include "kd/contracts.h"
 #include "kd/ranges/to.h"
@@ -1050,11 +1049,6 @@ void ScaleTool::cancelScale()
 {
   m_document.map().cancelTransaction();
   m_resizing = false;
-}
-
-QWidget* ScaleTool::doCreatePage(QWidget* parent)
-{
-  return new ScaleToolPage{m_document, *this, parent};
 }
 
 } // namespace tb::ui

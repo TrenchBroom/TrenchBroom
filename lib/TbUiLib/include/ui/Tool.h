@@ -21,18 +21,12 @@
 
 #include "base/Notifier.h"
 
-class QWidget;
-class QStackedLayout;
-
 namespace tb::ui
 {
 class Tool
 {
 private:
   bool m_active = false;
-
-  QStackedLayout* m_book = nullptr;
-  int m_pageIndex = 0;
 
 public:
   Notifier<Tool&> toolActivatedNotifier;
@@ -53,16 +47,11 @@ public:
   void refreshViews();
   void notifyToolHandleSelectionChanged();
 
-  void createPage(QStackedLayout* book);
-  void showPage();
-
   virtual bool ownsSelection() const;
 
 private:
   virtual bool doActivate();
   virtual bool doDeactivate();
-
-  virtual QWidget* doCreatePage(QWidget* parent);
 };
 
 } // namespace tb::ui

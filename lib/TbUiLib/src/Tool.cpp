@@ -19,9 +19,6 @@
 
 #include "ui/Tool.h"
 
-#include <QStackedLayout>
-#include <QWidget>
-
 #include "kd/contracts.h"
 
 namespace tb::ui
@@ -73,20 +70,6 @@ void Tool::notifyToolHandleSelectionChanged()
   toolHandleSelectionChangedNotifier(*this);
 }
 
-void Tool::createPage(QStackedLayout* book)
-{
-  contract_pre(!m_book);
-
-  m_book = book;
-  m_pageIndex = m_book->count();
-  m_book->addWidget(doCreatePage(m_book->parentWidget()));
-}
-
-void Tool::showPage()
-{
-  m_book->setCurrentIndex(m_pageIndex);
-}
-
 bool Tool::ownsSelection() const
 {
   return false;
@@ -100,11 +83,6 @@ bool Tool::doActivate()
 bool Tool::doDeactivate()
 {
   return true;
-}
-
-QWidget* Tool::doCreatePage(QWidget* parent)
-{
-  return new QWidget{parent};
 }
 
 } // namespace tb::ui

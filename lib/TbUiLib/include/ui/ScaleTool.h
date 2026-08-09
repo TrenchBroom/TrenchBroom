@@ -300,9 +300,6 @@ public:
   void scaleByDelta(const vm::vec3d& delta);
   void commitScale();
   void cancelScale();
-
-private:
-  QWidget* doCreatePage(QWidget* parent) override;
 };
 
 } // namespace ui

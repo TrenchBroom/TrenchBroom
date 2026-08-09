@@ -91,9 +91,6 @@ public:
   vm::vec3d handleCenter() const override;
   void setHandleCenter(const vm::vec3d& position) override;
   std::unique_ptr<RingDragTracker> beginRingDrag() override;
-
-private:
-  QWidget* doCreatePage(QWidget* parent) override;
 };
 
 } // namespace ui
