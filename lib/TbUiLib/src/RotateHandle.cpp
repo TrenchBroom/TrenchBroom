@@ -27,7 +27,6 @@
 #include "render/RenderBatch.h"
 #include "render/RenderContext.h"
 #include "render/RenderService.h"
-#include "ui/QVecUtils.h"
 
 #include "vm/intersection.h"
 #include "vm/mat_ext.h"
@@ -321,7 +320,8 @@ void RotateHandle::Handle3D::renderHighlight(
       renderService.setForegroundColor(pref(Preferences::InfoOverlayTextColor));
       renderService.setBackgroundColor(pref(Preferences::InfoOverlayBackgroundColor));
       renderService.renderString(
-        toString(m_position).toStdString(), vm::vec3f{m_position});
+        fmt::format("{} {} {}", m_position.x(), m_position.y(), m_position.z()),
+        vm::vec3f{m_position});
       break;
     case HitArea::XAxis:
       renderService.setForegroundColor(pref(Preferences::XAxisColor));

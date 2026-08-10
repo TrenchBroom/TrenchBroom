@@ -39,7 +39,7 @@ TEST_CASE("CameraTool3D")
 
   auto camera = gl::PerspectiveCamera{};
   auto cameraTool = CameraTool3D{camera};
-  auto inputState = InputState{};
+  auto inputState = InputState{0.0f, 0.0f};
 
   SECTION("Left drag is ignored")
   {

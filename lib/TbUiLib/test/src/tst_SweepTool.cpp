@@ -184,7 +184,7 @@ TEST_CASE("SweepTool")
 
       // off-arm positions are projected onto the arm before snapping
       const auto proposed = center + arm * 1.3 + vm::vec3d{5, 0, 0};
-      const auto snapped = snapper(InputState{}, DragState{}, proposed);
+      const auto snapped = snapper(InputState{0.0f, 0.0f}, DragState{}, proposed);
 
       REQUIRE(snapped.has_value());
       CHECK(*snapped == vm::approx{center + arm * 1.25});

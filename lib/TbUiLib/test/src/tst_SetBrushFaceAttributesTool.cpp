@@ -102,7 +102,7 @@ TEST_CASE("SetBrushFaceAttributesTool")
   {
     SECTION("false without the copy modifier")
     {
-      auto inputState = InputState{};
+      auto inputState = InputState{0.0f, 0.0f};
       inputState.mouseDown(MouseButtons::Left);
       inputState.setPickResult(pickFaceCenter(map, vm::vec3d{116, 0, 16}));
       CHECK(!controller.mouseClick(inputState));
@@ -112,7 +112,7 @@ TEST_CASE("SetBrushFaceAttributesTool")
     {
       mdl::deselectAll(map);
 
-      auto inputState = InputState{};
+      auto inputState = InputState{0.0f, 0.0f};
       inputState.setModifierKeys(ModifierKeys::Alt);
       inputState.mouseDown(MouseButtons::Left);
       inputState.setPickResult(pickFaceCenter(map, vm::vec3d{116, 0, 16}));
@@ -121,7 +121,7 @@ TEST_CASE("SetBrushFaceAttributesTool")
 
     SECTION("false without a brush hit")
     {
-      auto inputState = InputState{};
+      auto inputState = InputState{0.0f, 0.0f};
       inputState.setModifierKeys(ModifierKeys::Alt);
       inputState.mouseDown(MouseButtons::Left);
       CHECK(!controller.mouseClick(inputState));
@@ -130,7 +130,7 @@ TEST_CASE("SetBrushFaceAttributesTool")
 
   SECTION("mouseClick copies attributes to only the clicked face")
   {
-    auto inputState = InputState{};
+    auto inputState = InputState{0.0f, 0.0f};
     inputState.setModifierKeys(ModifierKeys::Alt);
     inputState.mouseDown(MouseButtons::Left);
     inputState.setPickResult(pickFaceCenter(map, vm::vec3d{116, 0, 16}));
@@ -144,7 +144,7 @@ TEST_CASE("SetBrushFaceAttributesTool")
   SECTION(
     "mouseDoubleClick undoes the single-face transfer and applies to the whole brush")
   {
-    auto inputState = InputState{};
+    auto inputState = InputState{0.0f, 0.0f};
     inputState.setModifierKeys(ModifierKeys::Alt);
     inputState.mouseDown(MouseButtons::Left);
     inputState.setPickResult(pickFaceCenter(map, vm::vec3d{116, 0, 16}));
@@ -163,7 +163,7 @@ TEST_CASE("SetBrushFaceAttributesTool")
 
   SECTION("mouseDoubleClick does nothing if the last command was not a face transfer")
   {
-    auto inputState = InputState{};
+    auto inputState = InputState{0.0f, 0.0f};
     inputState.setModifierKeys(ModifierKeys::Alt);
     inputState.mouseDown(MouseButtons::Left);
     inputState.setPickResult(pickFaceCenter(map, vm::vec3d{116, 0, 16}));
@@ -174,13 +174,13 @@ TEST_CASE("SetBrushFaceAttributesTool")
 
   SECTION("acceptMouseDrag")
   {
-    auto inputState = InputState{};
+    auto inputState = InputState{0.0f, 0.0f};
     inputState.setModifierKeys(ModifierKeys::Alt);
     inputState.mouseDown(MouseButtons::Left);
 
     SECTION("returns nullptr if the drag modifiers don't apply")
     {
-      auto plainInputState = InputState{};
+      auto plainInputState = InputState{0.0f, 0.0f};
       plainInputState.mouseDown(MouseButtons::Left);
       CHECK(controller.acceptMouseDrag(plainInputState) == nullptr);
     }
@@ -196,7 +196,7 @@ TEST_CASE("SetBrushFaceAttributesTool")
       auto tracker = controller.acceptMouseDrag(inputState);
       REQUIRE(tracker != nullptr);
 
-      auto topHitState = InputState{};
+      auto topHitState = InputState{0.0f, 0.0f};
       topHitState.setModifierKeys(ModifierKeys::Alt);
       topHitState.mouseDown(MouseButtons::Left);
       topHitState.setPickResult(pickFaceCenter(map, vm::vec3d{116, 0, 16}));
@@ -204,7 +204,7 @@ TEST_CASE("SetBrushFaceAttributesTool")
       CHECK(brushB->brush().face(brushBTopFaceIndex).materialName() == "material_a");
       CHECK(brushB->brush().face(brushBSideFaceIndex).materialName() == "material_b");
 
-      auto sideHitState = InputState{};
+      auto sideHitState = InputState{0.0f, 0.0f};
       sideHitState.setModifierKeys(ModifierKeys::Alt);
       sideHitState.mouseDown(MouseButtons::Left);
       sideHitState.setPickResult(pickAlongRay(map, vm::ray3d{{200, 0, 0}, {-1, 0, 0}}));
@@ -220,7 +220,7 @@ TEST_CASE("SetBrushFaceAttributesTool")
       auto tracker = controller.acceptMouseDrag(inputState);
       REQUIRE(tracker != nullptr);
 
-      auto topHitState = InputState{};
+      auto topHitState = InputState{0.0f, 0.0f};
       topHitState.setModifierKeys(ModifierKeys::Alt);
       topHitState.mouseDown(MouseButtons::Left);
       topHitState.setPickResult(pickFaceCenter(map, vm::vec3d{116, 0, 16}));

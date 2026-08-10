@@ -37,7 +37,6 @@
 #include "render/BrushRenderer.h"
 #include "render/RenderService.h"
 #include "ui/MapDocument.h"
-#include "ui/QVecUtils.h"
 
 #include "kd/map_utils.h"
 #include "kd/optional_utils.h"
@@ -369,7 +368,8 @@ private:
     {
       const auto& point = m_points[i].point;
       renderService.renderHandle(vm::vec3f{point});
-      renderService.renderString(toString(point).toStdString(), vm::vec3f{point});
+      renderService.renderString(
+        fmt::format("{} {} {}", point.x(), point.y(), point.z()), vm::vec3f{point});
     }
   }
 

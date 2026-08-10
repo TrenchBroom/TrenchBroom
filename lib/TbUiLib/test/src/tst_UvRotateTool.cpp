@@ -109,7 +109,7 @@ TEST_CASE("UvRotateTool")
   };
 
   const auto inputStateFor = [&](const vm::ray3d& ray) {
-    auto inputState = InputState{};
+    auto inputState = InputState{0.0f, 0.0f};
     inputState.setPickRequest(PickRequest{ray, helper.camera()});
     auto pickResult = mdl::PickResult{};
     controller.pick(inputState, pickResult);
@@ -136,7 +136,7 @@ TEST_CASE("UvRotateTool")
       auto emptyTool = UvRotateTool{document, emptyHelper};
       auto& emptyController = static_cast<ToolController&>(emptyTool);
 
-      auto inputState = InputState{};
+      auto inputState = InputState{0.0f, 0.0f};
       inputState.setPickRequest(
         PickRequest{vm::ray3d{{0, 0, 100}, {0, 0, -1}}, emptyCamera});
       auto pickResult = mdl::PickResult{};
@@ -165,7 +165,7 @@ TEST_CASE("UvRotateTool")
 
     SECTION("does not hit when the ray misses the face's plane")
     {
-      auto inputState = InputState{};
+      auto inputState = InputState{0.0f, 0.0f};
       inputState.setPickRequest(
         PickRequest{vm::ray3d{{0, 0, 100}, {1, 0, 0}}, helper.camera()});
       auto pickResult = mdl::PickResult{};

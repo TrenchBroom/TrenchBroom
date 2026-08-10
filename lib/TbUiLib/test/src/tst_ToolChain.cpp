@@ -223,7 +223,7 @@ TEST_CASE("ToolChain")
   bOwner->callOrder = &callOrder;
   auto& b = *bOwner.get();
 
-  const auto inputState = InputState{};
+  const auto inputState = InputState{0.0f, 0.0f};
 
   SECTION("append builds the chain in append order")
   {

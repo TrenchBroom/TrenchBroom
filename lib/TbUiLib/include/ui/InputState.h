@@ -98,7 +98,6 @@ private:
   mdl::PickResult m_pickResult;
 
 public:
-  InputState();
   InputState(float mouseX, float mouseY);
   virtual ~InputState();
 

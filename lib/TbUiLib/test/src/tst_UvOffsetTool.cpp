@@ -99,7 +99,7 @@ TEST_CASE("UvOffsetTool")
   };
 
   const auto inputStateFor = [&](const vm::ray3d& ray) {
-    auto inputState = InputState{};
+    auto inputState = InputState{0.0f, 0.0f};
     inputState.setPickRequest(PickRequest{ray, helper.camera()});
     return inputState;
   };

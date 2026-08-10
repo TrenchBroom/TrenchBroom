@@ -149,7 +149,7 @@ TEST_CASE("VertexTool")
 
       SECTION("a direct vertex hit is returned as-is")
       {
-        auto inputState = InputState{};
+        auto inputState = InputState{0.0f, 0.0f};
         auto pickResult = mdl::PickResult{};
         pickResult.addHit(vertexHit);
         inputState.setPickResult(std::move(pickResult));
@@ -171,7 +171,7 @@ TEST_CASE("VertexTool")
         const auto faceHit =
           mdl::Hit{mdl::FaceHandle::HandleHitType, 0.0, vm::vec3d{0, 0, 16}, faceHandle};
 
-        auto inputState = InputState{};
+        auto inputState = InputState{0.0f, 0.0f};
         inputState.setModifierKeys(ModifierKeys::Shift);
         auto pickResult = mdl::PickResult{};
         pickResult.addHit(faceHit);
@@ -184,7 +184,7 @@ TEST_CASE("VertexTool")
 
       SECTION("without a vertex hit and without Shift, nothing is returned")
       {
-        auto inputState = InputState{};
+        auto inputState = InputState{0.0f, 0.0f};
         auto pickResult = mdl::PickResult{};
         pickResult.addHit(vertexHit);
         // hitType requested does not match what's in the pick result
@@ -209,7 +209,7 @@ TEST_CASE("VertexTool")
 
         SECTION("Shift with a top edge hit returns all edge hits")
         {
-          auto inputState = InputState{};
+          auto inputState = InputState{0.0f, 0.0f};
           inputState.setModifierKeys(ModifierKeys::Shift);
           auto pickResult = mdl::PickResult{};
           pickResult.addHit(edgeHit);
@@ -223,7 +223,7 @@ TEST_CASE("VertexTool")
 
         SECTION("Shift with a top face hit returns all face hits")
         {
-          auto inputState = InputState{};
+          auto inputState = InputState{0.0f, 0.0f};
           inputState.setModifierKeys(ModifierKeys::Shift);
           auto pickResult = mdl::PickResult{};
           pickResult.addHit(faceHit);
@@ -245,7 +245,7 @@ TEST_CASE("VertexTool")
           const auto fartherFaceHit = mdl::Hit{
             mdl::FaceHandle::HandleHitType, 10.0, vm::vec3d{0, 0, 16}, faceHandle};
 
-          auto inputState = InputState{};
+          auto inputState = InputState{0.0f, 0.0f};
           inputState.setModifierKeys(ModifierKeys::Shift);
           auto pickResult = mdl::PickResult{};
           pickResult.addHit(otherHit);
@@ -260,7 +260,7 @@ TEST_CASE("VertexTool")
 
         SECTION("without Shift, nothing is returned")
         {
-          auto inputState = InputState{};
+          auto inputState = InputState{0.0f, 0.0f};
           auto pickResult = mdl::PickResult{};
           pickResult.addHit(faceHit);
           inputState.setPickResult(std::move(pickResult));

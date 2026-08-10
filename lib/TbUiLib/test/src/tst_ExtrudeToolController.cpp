@@ -102,7 +102,7 @@ TEST_CASE("ExtrudeToolController")
     const auto camera = perspectiveCameraFor(pickRay);
 
     const auto inputStateFor = [&](ModifierKeyState modifiers) {
-      auto inputState = InputState{};
+      auto inputState = InputState{0.0f, 0.0f};
       inputState.setPickRequest(PickRequest{pickRay, camera});
       auto pickResult = mdl::PickResult{};
       pick(map, pickRay, pickResult);
@@ -244,7 +244,7 @@ TEST_CASE("ExtrudeToolController")
         // the extrude handle picker projects the drag ray onto a vertical line
         // through the hit point (the face normal); a ray parallel to that line has
         // no well-defined projection, so angle this one away from straight-down
-        auto dragInputState = InputState{};
+        auto dragInputState = InputState{0.0f, 0.0f};
         const auto dragRay =
           vm::ray3d{pickRay.origin, vm::normalize(vm::vec3d{0, 0.5, -1})};
         dragInputState.setPickRequest(PickRequest{dragRay, camera});
@@ -297,7 +297,7 @@ TEST_CASE("ExtrudeToolController")
     const auto camera = orthographicCameraFor(pickRay);
 
     const auto inputStateFor = [&](ModifierKeyState modifiers) {
-      auto inputState = InputState{};
+      auto inputState = InputState{0.0f, 0.0f};
       inputState.setPickRequest(PickRequest{pickRay, camera});
       auto pickResult = mdl::PickResult{};
       pick(map, pickRay, pickResult);
@@ -353,7 +353,7 @@ TEST_CASE("ExtrudeToolController")
       // intersection point, simulating the mouse moving across the view. Shift along
       // X, perpendicular to the dragged (+X-facing) seam face, so its plane actually
       // moves -- a shift along Y would just slide the face within its own plane.
-      auto dragInputState = InputState{};
+      auto dragInputState = InputState{0.0f, 0.0f};
       const auto dragRay =
         vm::ray3d{pickRay.origin + vm::vec3d{8, 0, 0}, pickRay.direction};
       dragInputState.setPickRequest(PickRequest{dragRay, camera});

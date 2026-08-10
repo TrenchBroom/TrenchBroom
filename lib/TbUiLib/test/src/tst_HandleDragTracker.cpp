@@ -116,7 +116,7 @@ auto makeHandleTracker(
   const vm::vec3d& handleOffset)
 {
   return HandleDragTracker<TestDelegate>{
-    TestDelegate{data}, InputState{}, initialHandlePosition, handleOffset};
+    TestDelegate{data}, InputState{0.0f, 0.0f}, initialHandlePosition, handleOffset};
 }
 
 } // namespace
@@ -150,7 +150,7 @@ TEST_CASE("HandleDragTracker")
           "handle "
           "position")
         {
-          tracker.update(InputState{});
+          tracker.update(InputState{0.0f, 0.0f});
 
           CHECK(
             data.dragArguments
@@ -181,7 +181,7 @@ TEST_CASE("HandleDragTracker")
       WHEN("drag is called for the first time after the drag started")
       {
         handlePositionToReturn = vm::vec3d{2, 2, 2};
-        REQUIRE(tracker.update(InputState{}));
+        REQUIRE(tracker.update(InputState{0.0f, 0.0f}));
 
         THEN("drag got the initial and the next handle positions")
         {
@@ -195,7 +195,7 @@ TEST_CASE("HandleDragTracker")
           AND_WHEN("drag is called again")
           {
             handlePositionToReturn = vm::vec3d{3, 3, 3};
-            REQUIRE(tracker.update(InputState{}));
+            REQUIRE(tracker.update(InputState{0.0f, 0.0f}));
 
             THEN("drag got the last and the next handle positions")
             {
@@ -216,7 +216,7 @@ TEST_CASE("HandleDragTracker")
       {
         handlePositionToReturn = vm::vec3d{2, 2, 2};
         data.dragStatusToReturn = DragStatus::Deny;
-        REQUIRE(tracker.update(InputState{}));
+        REQUIRE(tracker.update(InputState{0.0f, 0.0f}));
 
         THEN("drag got the initial and the next handle positions")
         {
@@ -230,7 +230,7 @@ TEST_CASE("HandleDragTracker")
           AND_WHEN("drag is called again")
           {
             handlePositionToReturn = vm::vec3d{3, 3, 3};
-            REQUIRE(tracker.update(InputState{}));
+            REQUIRE(tracker.update(InputState{0.0f, 0.0f}));
 
             THEN(
               "drag got the initial handle position for the last handle position again")
@@ -252,7 +252,7 @@ TEST_CASE("HandleDragTracker")
       {
         handlePositionToReturn = vm::vec3d{2, 2, 2};
         data.dragStatusToReturn = DragStatus::End;
-        const auto dragResult = tracker.update(InputState{});
+        const auto dragResult = tracker.update(InputState{0.0f, 0.0f});
 
         THEN("the drag tracker returns false")
         {
@@ -286,7 +286,7 @@ TEST_CASE("HandleDragTracker")
       WHEN("drag is called for the first time")
       {
         handlePositionToReturn = vm::vec3d{2, 2, 2};
-        REQUIRE(tracker.update(InputState{}));
+        REQUIRE(tracker.update(InputState{0.0f, 0.0f}));
 
         THEN("getHandlePosition is called with the expected arguments")
         {
@@ -311,7 +311,7 @@ TEST_CASE("HandleDragTracker")
         AND_WHEN("drag is called again")
         {
           handlePositionToReturn = vm::vec3d{3, 3, 3};
-          REQUIRE(tracker.update(InputState{}));
+          REQUIRE(tracker.update(InputState{0.0f, 0.0f}));
 
           THEN("getHandlePosition is called with the expected arguments")
           {
@@ -363,12 +363,12 @@ TEST_CASE("HandleDragTracker")
 
       auto tracker = makeHandleTracker(data, initialHandlePosition, initialHitPoint);
 
-      tracker.update(InputState{});
+      tracker.update(InputState{0.0f, 0.0f});
       REQUIRE(initialGetHandlePositionArguments.size() == 1);
 
       WHEN("A modifier key change is notified")
       {
-        tracker.modifierKeyChange(InputState{});
+        tracker.modifierKeyChange(InputState{0.0f, 0.0f});
 
         THEN("The drag state are passed to the delegate")
         {
@@ -379,7 +379,7 @@ TEST_CASE("HandleDragTracker")
 
           AND_THEN("The next call to drag uses the initial drag config")
           {
-            tracker.update(InputState{});
+            tracker.update(InputState{0.0f, 0.0f});
             CHECK(initialGetHandlePositionArguments.size() == 2);
           }
         }
@@ -416,7 +416,7 @@ TEST_CASE("HandleDragTracker")
 
       auto tracker = makeHandleTracker(data, initialHandlePosition, initialHitPoint);
 
-      tracker.update(InputState{});
+      tracker.update(InputState{0.0f, 0.0f});
       REQUIRE(initialGetHandlePositionArguments.size() == 1);
       REQUIRE(
         data.dragArguments
@@ -428,7 +428,7 @@ TEST_CASE("HandleDragTracker")
       WHEN("A modifier key change is notified")
       {
         otherHitPositionToReturn = vm::vec3d{3, 3, 3};
-        tracker.modifierKeyChange(InputState{});
+        tracker.modifierKeyChange(InputState{0.0f, 0.0f});
 
         THEN("The drag state was passed to the delegate")
         {
@@ -457,7 +457,7 @@ TEST_CASE("HandleDragTracker")
           AND_WHEN("drag is called again")
           {
             otherHitPositionToReturn = vm::vec3d{4, 4, 4};
-            tracker.update(InputState{});
+            tracker.update(InputState{0.0f, 0.0f});
 
             AND_THEN("The other handle position is passed")
             {
@@ -503,7 +503,7 @@ TEST_CASE("DragHandlePicker")
     CAPTURE(line, handleOffset, pickRay);
 
     const auto camera = gl::OrthographicCamera{};
-    auto inputState = InputState{};
+    auto inputState = InputState{0.0f, 0.0f};
     inputState.setPickRequest(PickRequest{pickRay, camera});
 
     CHECK(makeLineHandlePicker(line, handleOffset)(inputState) == expectedHandlePosition);
@@ -525,7 +525,7 @@ TEST_CASE("DragHandlePicker")
     CAPTURE(plane, handleOffset, pickRay);
 
     const auto camera = gl::OrthographicCamera{};
-    auto inputState = InputState{};
+    auto inputState = InputState{0.0f, 0.0f};
     inputState.setPickRequest(PickRequest{pickRay, camera});
 
     CHECK(
@@ -549,7 +549,7 @@ TEST_CASE("DragHandlePicker")
     CAPTURE(center, normal, radius, handleOffset, pickRay);
 
     const auto camera = gl::OrthographicCamera{};
-    auto inputState = InputState{};
+    auto inputState = InputState{0.0f, 0.0f};
     inputState.setPickRequest(PickRequest{pickRay, camera});
 
     CHECK(
@@ -583,7 +583,7 @@ TEST_CASE("DragHandlePicker")
     CAPTURE(handleOffset, pickRay);
 
     const auto camera = gl::OrthographicCamera{};
-    auto inputState = InputState{};
+    auto inputState = InputState{0.0f, 0.0f};
     inputState.setPickRequest(PickRequest{pickRay, camera});
 
     auto pickResult = mdl::PickResult{};
@@ -614,7 +614,8 @@ TEST_CASE("DragHandleSnapper")
     CAPTURE(proposedHandlePosition);
 
     CHECK(
-      makeIdentityHandleSnapper()(InputState{}, DragState{}, proposedHandlePosition)
+      makeIdentityHandleSnapper()(
+        InputState{0.0f, 0.0f}, DragState{}, proposedHandlePosition)
       == expectedHandlePosition);
   }
 
@@ -639,7 +640,7 @@ TEST_CASE("DragHandleSnapper")
     const auto grid = mdl::Grid{gridSize};
     CHECK(
       makeRelativeHandleSnapper(grid)(
-        InputState{},
+        InputState{0.0f, 0.0f},
         DragState{initialHandlePosition, vm::vec3d{}, vm::vec3d{}},
         proposedHandlePosition)
       == expectedHandlePosition);
@@ -665,7 +666,7 @@ TEST_CASE("DragHandleSnapper")
     const auto grid = mdl::Grid{gridSize};
     CHECK(
       makeAbsoluteHandleSnapper(grid)(
-        InputState{},
+        InputState{0.0f, 0.0f},
         DragState{vm::vec3d{}, vm::vec3d{}, vm::vec3d{}},
         proposedHandlePosition)
       == expectedHandlePosition);
@@ -693,7 +694,7 @@ TEST_CASE("DragHandleSnapper")
     const auto grid = mdl::Grid{gridSize};
     CHECK(
       makeRelativeLineHandleSnapper(grid, line)(
-        InputState{},
+        InputState{0.0f, 0.0f},
         DragState{initialHandlePosition, vm::vec3d{}, vm::vec3d{}},
         proposedHandlePosition)
       == expectedHandlePosition);
@@ -720,7 +721,7 @@ TEST_CASE("DragHandleSnapper")
     const auto grid = mdl::Grid{gridSize};
     CHECK(
       makeAbsoluteLineHandleSnapper(grid, line)(
-        InputState{},
+        InputState{0.0f, 0.0f},
         DragState{vm::vec3d{}, vm::vec3d{}, vm::vec3d{}},
         proposedHandlePosition)
       == expectedHandlePosition);
@@ -748,7 +749,7 @@ TEST_CASE("DragHandleSnapper")
     const auto radius = 10.0;
     CHECK(
       makeCircleHandleSnapper(grid, vm::to_radians(snapAngle), center, normal, radius)(
-        InputState{},
+        InputState{0.0f, 0.0f},
         DragState{initialHandlePosition, vm::vec3d{0, 0, 0}, vm::vec3d{0, 0, 0}},
         proposedHandlePosition)
       == vm::approx{radius * expectedHandlePosition});

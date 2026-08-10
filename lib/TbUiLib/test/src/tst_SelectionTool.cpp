@@ -109,7 +109,7 @@ TEST_CASE("SelectionTool")
 
         REQUIRE(map.selection().brushFaces.empty());
 
-        auto inputState = InputState{};
+        auto inputState = InputState{0.0f, 0.0f};
         inputState.setPickRequest({pickRay, camera});
         inputState.setPickResult(std::move(pickResult));
 
@@ -177,7 +177,7 @@ TEST_CASE("SelectionTool")
 
         REQUIRE(map.selection().brushFaces.empty());
 
-        auto inputState = InputState{};
+        auto inputState = InputState{0.0f, 0.0f};
         inputState.setPickRequest({pickRay, camera});
         inputState.setPickResult(std::move(pickResult));
 
@@ -600,7 +600,7 @@ TEST_CASE("SelectionTool")
         CHECK(pickResult.all().size() == 2);
         REQUIRE(map.selection().brushFaces.empty());
 
-        auto inputState = InputState{};
+        auto inputState = InputState{0.0f, 0.0f};
         inputState.setPickRequest({pickRay, camera});
         inputState.setPickResult(std::move(pickResult));
 
@@ -670,7 +670,7 @@ TEST_CASE("SelectionTool")
       pick(map, pickRay, pickResult);
       REQUIRE(pickResult.all().size() == 2);
 
-      auto inputState = InputState{};
+      auto inputState = InputState{0.0f, 0.0f};
       inputState.setPickRequest({pickRay, camera});
       inputState.setPickResult(std::move(pickResult));
 
@@ -773,7 +773,7 @@ TEST_CASE("SelectionTool")
       pick(map, pickRay, pickResult);
       REQUIRE(pickResult.all().size() == 1);
 
-      auto inputState = InputState{};
+      auto inputState = InputState{0.0f, 0.0f};
       inputState.setPickRequest({pickRay, camera});
       inputState.setPickResult(std::move(pickResult));
 
@@ -811,7 +811,7 @@ TEST_CASE("SelectionTool")
             vm::vec3d{0, 0, 0},
             mdl::BrushFaceHandle{brushNode, frontFaceIndex}});
 
-          auto dragInputState = InputState{};
+          auto dragInputState = InputState{0.0f, 0.0f};
           dragInputState.setPickRequest({pickRay, camera});
           dragInputState.setPickResult(std::move(frontPickResult));
           dragInputState.setModifierKeys(ModifierKeys::Shift | ModifierKeys::CtrlCmd);
@@ -850,7 +850,7 @@ TEST_CASE("SelectionTool")
           entityPickResult.addHit(mdl::Hit{
             mdl::EntityNode::EntityHitType, 0.0, vm::vec3d{64, 0, 0}, entityNode});
 
-          auto dragInputState = InputState{};
+          auto dragInputState = InputState{0.0f, 0.0f};
           dragInputState.setPickRequest({pickRay, camera});
           dragInputState.setPickResult(std::move(entityPickResult));
           dragInputState.setModifierKeys(ModifierKeys::CtrlCmd);

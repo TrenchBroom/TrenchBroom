@@ -93,7 +93,7 @@ TEST_CASE("UvScaleTool")
   auto& controller = static_cast<ToolController&>(tool);
 
   const auto inputStateFor = [&](const vm::ray3d& ray) {
-    auto inputState = InputState{};
+    auto inputState = InputState{0.0f, 0.0f};
     inputState.setPickRequest(PickRequest{ray, helper.camera()});
     auto pickResult = mdl::PickResult{};
     controller.pick(inputState, pickResult);
@@ -115,7 +115,7 @@ TEST_CASE("UvScaleTool")
       auto emptyTool = UvScaleTool{document, emptyHelper};
       auto& emptyController = static_cast<ToolController&>(emptyTool);
 
-      auto inputState = InputState{};
+      auto inputState = InputState{0.0f, 0.0f};
       inputState.setPickRequest(
         PickRequest{vm::ray3d{{0, 0, 100}, {0, 0, -1}}, emptyCamera});
 
@@ -172,7 +172,7 @@ TEST_CASE("UvScaleTool")
     SECTION("returns nullptr when the pick ray does not hit the face's plane")
     {
       // a handle hit is present, but the ray is parallel to the face's boundary
-      auto inputState = InputState{};
+      auto inputState = InputState{0.0f, 0.0f};
       inputState.setPickRequest(
         PickRequest{vm::ray3d{{0, 0, 100}, {1, 0, 0}}, helper.camera()});
       auto pickResult = mdl::PickResult{};

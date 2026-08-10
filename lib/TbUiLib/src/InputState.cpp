@@ -19,8 +19,6 @@
 
 #include "ui/InputState.h"
 
-#include <QCursor>
-
 #include "base/Macros.h"
 #include "gl/Camera.h"
 
@@ -30,13 +28,6 @@
 
 namespace tb::ui
 {
-
-InputState::InputState()
-{
-  const auto mouseState = QCursor::pos();
-  m_mouseX = float(mouseState.x());
-  m_mouseY = float(mouseState.y());
-}
 
 InputState::InputState(const float mouseX, const float mouseY)
   : m_mouseX{mouseX}

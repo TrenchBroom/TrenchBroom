@@ -196,7 +196,7 @@ auto makeInputState(
   gl::Camera& camera,
   ModifierKeyState modifierKeys = ModifierKeys::None)
 {
-  auto inputState = InputState{};
+  auto inputState = InputState{0.0f, 0.0f};
   inputState.setPickRequest(
     PickRequest{vm::ray3d{rayOrigin, vm::normalize(rayDirection)}, camera});
   inputState.setModifierKeys(modifierKeys);

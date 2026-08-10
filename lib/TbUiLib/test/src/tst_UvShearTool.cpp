@@ -97,7 +97,7 @@ TEST_CASE("UvShearTool")
   auto& controller = static_cast<ToolController&>(tool);
 
   const auto inputStateFor = [&](const vm::ray3d& ray) {
-    auto inputState = InputState{};
+    auto inputState = InputState{0.0f, 0.0f};
     inputState.setPickRequest(PickRequest{ray, helper.camera()});
     auto pickResult = mdl::PickResult{};
     controller.pick(inputState, pickResult);
@@ -129,7 +129,7 @@ TEST_CASE("UvShearTool")
       auto emptyTool = UvShearTool{document, emptyHelper};
       auto& emptyController = static_cast<ToolController&>(emptyTool);
 
-      auto inputState = InputState{};
+      auto inputState = InputState{0.0f, 0.0f};
       inputState.setPickRequest(PickRequest{gridOriginRay, emptyCamera});
       auto pickResult = mdl::PickResult{};
       emptyController.pick(inputState, pickResult);
