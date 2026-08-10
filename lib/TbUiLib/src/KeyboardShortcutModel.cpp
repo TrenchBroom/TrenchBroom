@@ -35,6 +35,8 @@
 
 #include "kd/contracts.h"
 #include "kd/path_utils.h"
+#include "kd/ranges/join_with_view.h"
+#include "kd/ranges/to.h"
 #include "kd/set_adapter.h"
 #include "kd/vector_utils.h"
 
@@ -83,13 +85,13 @@ QVariant KeyboardShortcutModel::headerData(
     switch (section)
     {
     case 0:
-      return QString{"Shortcut"};
-    case 1:
-      return QString{"Alternative"};
-    case 2:
-      return QString{"Context"};
-    case 3:
       return QString{"Description"};
+    case 1:
+      return QString{"Context"};
+    case 2:
+      return QString{"Shortcut"};
+    case 3:
+      return QString{"Alternative"};
     }
   }
   return QVariant{};
@@ -110,20 +112,28 @@ QVariant KeyboardShortcutModel::data(const QModelIndex& index, const int role) c
     const auto& keyboardShortcuts =
       prefs.getPendingValue(actionInfo.keyboardShortcutPreference());
 
+    const auto s = std::filesystem::path{"a/b"};
+    const std::string blah =
+      s | std::views::transform([](const auto& e) { return e.string(); })
+      | kdl::views::join_with(std::string{" > "}) | kdl::ranges::to<std::string>();
+
     switch (index.column())
     {
     case 0:
+      return QString::fromStdString(
+        actionInfo.displayPath()
+        | std::views::transform([](const auto& e) { return e.string(); })
+        | kdl::views::join_with(std::string{" » "}) | kdl::ranges::to<std::string>());
+    case 1:
+      return QString::fromStdString(actionContextName(actionInfo.actionContext()));
+    case 2:
       return QVariant::fromValue(
         !keyboardShortcuts.empty() ? toQKeySequence(keyboardShortcuts[0])
                                    : QKeySequence{});
-    case 1:
+    case 3:
       return QVariant::fromValue(
         keyboardShortcuts.size() > 1 ? toQKeySequence(keyboardShortcuts[1])
                                      : QKeySequence{});
-    case 2:
-      return QString::fromStdString(actionContextName(actionInfo.actionContext()));
-    case 3:
-      return QString::fromStdString(actionInfo.displayPath().generic_string());
     }
   }
 
@@ -156,14 +166,14 @@ bool KeyboardShortcutModel::setData(
 
   switch (index.column())
   {
-  case 0:
+  case 2:
     if (keyboardShortcuts.empty())
     {
       keyboardShortcuts.emplace_back();
     }
     keyboardShortcuts[0] = fromQKeySequence(keySequence);
     break;
-  case 1:
+  case 3:
     if (keyboardShortcuts.empty())
     {
       keyboardShortcuts.emplace_back();
@@ -195,8 +205,8 @@ Qt::ItemFlags KeyboardShortcutModel::flags(const QModelIndex& index) const
 
   switch (index.column())
   {
-  case 0:
-  case 1:
+  case 2:
+  case 3:
     return Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsEditable;
   default:
     return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
