@@ -96,6 +96,10 @@ QPreferenceStoreDelegate::QPreferenceStoreDelegate(
 {
   m_saveTimer->setSingleShot(true);
   m_saveTimer->setInterval(saveDelay);
+  // Qt::CoarseTimer (the default) may fire up to 5% early to align with other pending
+  // timers, which made the "preferences are saved after a delay" tests flaky on Windows,
+  // where the effective inaccuracy is even larger
+  m_saveTimer->setTimerType(Qt::PreciseTimer);
 
   connect(m_saveTimer, &QTimer::timeout, this, [&]() {
     qDebug() << "Saving preferences after timeout";

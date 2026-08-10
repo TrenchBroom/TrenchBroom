@@ -172,8 +172,8 @@ TEST_CASE("QPreferenceStore")
     CHECK(!env.fileExists(preferenceFilename));
   }
 
-  // Qt's coarse timers may fire up to 5% early, so lower bounds on the save delay must
-  // be checked with some tolerance
+  // even with Qt::PreciseTimer, a loaded machine may cause the timer to fire slightly
+  // early, so lower bounds on the save delay must be checked with some tolerance
   const auto notBefore = [](const auto saveTime, const auto saveDelay) {
     return std::chrono::steady_clock::now() >= saveTime + (saveDelay * 9) / 10;
   };
