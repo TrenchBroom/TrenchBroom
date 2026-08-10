@@ -47,9 +47,11 @@
 #include "kd/result.h"
 
 #include <catch2/catch_test_macros.hpp>
+#include <catch2/matchers/catch_matchers_range_equals.hpp>
 
 namespace tb::ui
 {
+using namespace Catch::Matchers;
 
 namespace
 {
@@ -136,6 +138,15 @@ TEST_CASE("ExtrudeToolController")
       {
         const auto inputState =
           inputStateFor(ModifierKeys::Shift | ModifierKeys::CtrlCmd);
+        const auto& hit = inputState.pickResult().first(
+          mdl::HitFilters::type(ExtrudeTool::ExtrudeHitType));
+        CHECK(hit.isMatch());
+      }
+
+      SECTION("adds a hit with Shift+CtrlCmd+Alt held")
+      {
+        const auto inputState =
+          inputStateFor(ModifierKeys::Shift | ModifierKeys::CtrlCmd | ModifierKeys::Alt);
         const auto& hit = inputState.pickResult().first(
           mdl::HitFilters::type(ExtrudeTool::ExtrudeHitType));
         CHECK(hit.isMatch());
@@ -269,6 +280,41 @@ TEST_CASE("ExtrudeToolController")
         // mid-drag, so a fresh drag can be accepted again
         CHECK(controller.acceptMouseDrag(inputState) != nullptr);
       }
+
+      SECTION("starts a stamp drag with Shift+CtrlCmd+Alt")
+      {
+        map.grid().toggleSnap(); // disable snapping for a deterministic delta
+
+        auto inputState =
+          inputStateFor(ModifierKeys::Shift | ModifierKeys::CtrlCmd | ModifierKeys::Alt);
+        inputState.mouseDown(MouseButtons::Left);
+
+        auto tracker = controller.acceptMouseDrag(inputState);
+        REQUIRE(tracker != nullptr);
+
+        const auto boundsBefore = brushNode->logicalBounds();
+
+        // same picker as plain extrude, see above
+        auto dragInputState = InputState{0.0f, 0.0f};
+        const auto dragRay =
+          vm::ray3d{pickRay.origin, vm::normalize(vm::vec3d{0, 0.5, -1})};
+        dragInputState.setPickRequest(PickRequest{dragRay, camera});
+        dragInputState.setModifierKeys(
+          ModifierKeys::Shift | ModifierKeys::CtrlCmd | ModifierKeys::Alt);
+        dragInputState.mouseDown(MouseButtons::Left);
+        CHECK(tracker->update(dragInputState));
+
+        tracker->end(dragInputState);
+
+        // stamping leaves the original brush untouched and deselected; a new brush
+        // is created and selected instead
+        CHECK(brushNode->logicalBounds() == boundsBefore);
+        CHECK(!brushNode->selected());
+
+        const auto brushes = map.selection().brushes;
+        REQUIRE(brushes.size() == 1);
+        CHECK(brushes.front() != brushNode);
+      }
     }
   }
 
@@ -307,7 +353,7 @@ TEST_CASE("ExtrudeToolController")
       return inputState;
     };
 
-    SECTION("pick requires Shift, Shift+CtrlCmd, or Shift+Alt")
+    SECTION("pick requires Shift, Shift+CtrlCmd, Shift+Alt, or Shift+CtrlCmd+Alt")
     {
       SECTION("Shift")
       {
@@ -320,6 +366,15 @@ TEST_CASE("ExtrudeToolController")
       SECTION("Shift+Alt")
       {
         const auto inputState = inputStateFor(ModifierKeys::Shift | ModifierKeys::Alt);
+        CHECK(inputState.pickResult()
+                .first(mdl::HitFilters::type(ExtrudeTool::ExtrudeHitType))
+                .isMatch());
+      }
+
+      SECTION("Shift+CtrlCmd+Alt")
+      {
+        const auto inputState =
+          inputStateFor(ModifierKeys::Shift | ModifierKeys::CtrlCmd | ModifierKeys::Alt);
         CHECK(inputState.pickResult()
                 .first(mdl::HitFilters::type(ExtrudeTool::ExtrudeHitType))
                 .isMatch());
@@ -366,6 +421,107 @@ TEST_CASE("ExtrudeToolController")
       const auto faceAfter =
         leftBrush->brush().face(*leftBrush->brush().findFace(vm::vec3d{1, 0, 0}));
       CHECK(faceAfter.boundary() != boundaryBefore);
+    }
+
+    SECTION(
+      "acceptMouseDrag starts a stamp drag with Shift+CtrlCmd+Alt in an orthographic "
+      "view")
+    {
+      // A side view from positive X looking in -X, positioned above both brushes (z=20 >
+      // z_top=16), so the 3D pick misses all faces and pick2D falls through to
+      // findClosestHorizonEdge. The seam edge at x=16 is the closest horizon edge; from
+      // this view direction its makeEdgeHit logic picks leftFaceHandle = top face (+Z).
+      // collectCoplanarFaces then finds both brushes' top faces -- both have normal +Z at
+      // z=16 -- so both handles are outward for a +Z drag and the stamp succeeds.
+      map.grid().toggleSnap(); // disable snapping for a deterministic delta
+
+      const auto sidePickRay = vm::ray3d{{64, 0, 20}, {-1, 0, 0}};
+      const auto sideCamera = orthographicCameraFor(sidePickRay);
+
+      auto inputState = InputState{0.0f, 0.0f};
+      inputState.setPickRequest(PickRequest{sidePickRay, sideCamera});
+      auto pickResult = mdl::PickResult{};
+      pick(map, sidePickRay, pickResult);
+      inputState.setModifierKeys(
+        ModifierKeys::Shift | ModifierKeys::CtrlCmd | ModifierKeys::Alt);
+      controller.pick(inputState, pickResult);
+      inputState.setPickResult(std::move(pickResult));
+      inputState.mouseDown(MouseButtons::Left);
+
+      auto tracker = controller.acceptMouseDrag(inputState);
+      REQUIRE(tracker != nullptr);
+      REQUIRE(tool.proposedDragHandles().size() == 2);
+
+      const auto leftBoundsBefore = leftBrush->logicalBounds();
+      const auto rightBoundsBefore = rightBrush->logicalBounds();
+
+      // shift the pick ray origin in +Z to drag the top faces upward
+      auto dragInputState = InputState{0.0f, 0.0f};
+      const auto dragRay =
+        vm::ray3d{sidePickRay.origin + vm::vec3d{0, 0, 8}, sidePickRay.direction};
+      dragInputState.setPickRequest(PickRequest{dragRay, sideCamera});
+      dragInputState.setModifierKeys(
+        ModifierKeys::Shift | ModifierKeys::CtrlCmd | ModifierKeys::Alt);
+      dragInputState.mouseDown(MouseButtons::Left);
+      CHECK(tracker->update(dragInputState));
+
+      tracker->end(dragInputState);
+
+      // stamp succeeds: both originals untouched and deselected; two new brushes added
+      CHECK(leftBrush->logicalBounds() == leftBoundsBefore);
+      CHECK(rightBrush->logicalBounds() == rightBoundsBefore);
+      CHECK(!leftBrush->selected());
+      CHECK(!rightBrush->selected());
+
+      const auto newBrushBounds =
+        map.selection().brushes
+        | std::views::transform([](const auto* node) { return node->logicalBounds(); });
+      CHECK_THAT(
+        newBrushBounds,
+        UnorderedRangeEquals(std::vector<vm::bbox3d>{
+          {{-16, -16, 16}, {16, 16, 24}},
+          {{16, -16, 16}, {48, 16, 24}},
+        }));
+    }
+
+    SECTION(
+      "acceptMouseDrag stamp drag with Shift+CtrlCmd+Alt is denied when a handle "
+      "would be dragged inward in an orthographic view")
+    {
+      map.grid().toggleSnap(); // disable snapping for a deterministic delta
+
+      auto inputState =
+        inputStateFor(ModifierKeys::Shift | ModifierKeys::CtrlCmd | ModifierKeys::Alt);
+      inputState.mouseDown(MouseButtons::Left);
+
+      auto tracker = controller.acceptMouseDrag(inputState);
+      REQUIRE(tracker != nullptr);
+
+      const auto leftBoundsBefore = leftBrush->logicalBounds();
+      const auto rightBoundsBefore = rightBrush->logicalBounds();
+
+      // same drag ray shift technique as the move-drag test above
+      auto dragInputState = InputState{0.0f, 0.0f};
+      const auto dragRay =
+        vm::ray3d{pickRay.origin + vm::vec3d{8, 0, 0}, pickRay.direction};
+      dragInputState.setPickRequest(PickRequest{dragRay, camera});
+      dragInputState.setModifierKeys(
+        ModifierKeys::Shift | ModifierKeys::CtrlCmd | ModifierKeys::Alt);
+      dragInputState.mouseDown(MouseButtons::Left);
+      // The seam faces have opposing normals (+X for leftBrush, -X for rightBrush). The
+      // drag delta is in the +X direction, which is inward for rightBrush's -X face, so
+      // the stamp is denied to prevent overlapping brushes.
+      CHECK(tracker->update(dragInputState));
+
+      tracker->end(dragInputState);
+
+      // stamp denied: original brushes are unchanged and still selected; no new brushes
+      // were added to the scene
+      CHECK(leftBrush->logicalBounds() == leftBoundsBefore);
+      CHECK(rightBrush->logicalBounds() == rightBoundsBefore);
+      CHECK(leftBrush->selected());
+      CHECK(rightBrush->selected());
+      CHECK(map.selection().brushes.size() == 2);
     }
   }
 }

@@ -102,7 +102,11 @@ struct ExtrudeHitData
  *
  * Also:
  *  - split brushes outward/inward (Ctrl+Shift+LMB Drag)
- *  - move faces (Alt+Shift+LMB Drag, 2D views only)
+ *  - move faces along their normals, preserving face shape
+ *    (Alt+Shift+LMB Drag, 3D views; movement is constrained to the face normal
+ *    by the controller)
+ *  - move faces freely (Alt+Shift+LMB Drag, 2D views only)
+ *  - stamp a new brush from the dragged face (Ctrl+Alt+Shift+LMB Drag)
  */
 class ExtrudeTool : public Tool
 {
@@ -155,8 +159,11 @@ public:
   void beginExtrude();
   bool extrude(const vm::vec3d& faceDelta, ExtrudeDragState& dragState);
 
-  void beginMove();
-  bool move(const vm::vec3d& delta, ExtrudeDragState& dragState);
+  void beginSlide();
+  bool slide(const vm::vec3d& delta, ExtrudeDragState& dragState);
+
+  void beginStamp();
+  bool stamp(const vm::vec3d& handleDelta, ExtrudeDragState& dragState);
 
   void commit(const ExtrudeDragState& dragState);
   void cancel();

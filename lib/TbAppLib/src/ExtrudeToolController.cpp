@@ -311,30 +311,34 @@ auto createExtrudeDragTracker(
     hit.hitPoint());
 }
 
-struct MoveDragDelegate : public HandleDragTrackerDelegate
+/**
+ * Base class for sliding faces. Unlike a regular extrude, which moves the boundary plane
+ * and lets adjacent planes determine new vertex positions (potentially scaling
+ * non-rectangular faces), this operation translates all face vertices individually so the
+ * face retains its exact shape.
+ */
+struct SlideDragDelegateBase : public HandleDragTrackerDelegate
 {
   ExtrudeTool& m_tool;
-  ExtrudeDragState m_moveDragState;
+  ExtrudeDragState m_dragState;
 
-  MoveDragDelegate(ExtrudeTool& tool, ExtrudeDragState moveDragState)
+  SlideDragDelegateBase(ExtrudeTool& tool, ExtrudeDragState dragState)
     : m_tool{tool}
-    , m_moveDragState{std::move(moveDragState)}
+    , m_dragState{std::move(dragState)}
   {
   }
 
-  HandlePositionProposer start(
+  virtual DragHandlePicker makePicker(
     const InputState& inputState,
     const vm::vec3d& initialHandlePosition,
-    const vm::vec3d& handleOffset) override
-  {
-    auto picker = makePlaneHandlePicker(
-      vm::plane3d{initialHandlePosition, vm::vec3d{inputState.camera().direction()}},
-      handleOffset);
+    const vm::vec3d& handleOffset) const = 0;
 
-    auto snapper = [&](
-                     const InputState&,
-                     const DragState& dragState,
-                     const vm::vec3d& proposedHandlePosition) {
+  auto makeSnapper()
+  {
+    return [this](
+             const InputState&,
+             const DragState& dragState,
+             const vm::vec3d& proposedHandlePosition) {
       auto& grid = m_tool.grid();
       if (!grid.snap())
       {
@@ -345,8 +349,15 @@ struct MoveDragDelegate : public HandleDragTrackerDelegate
       const auto snappedDelta = grid.snap(totalDelta);
       return dragState.initialHandlePosition + snappedDelta;
     };
+  }
 
-    return makeHandlePositionProposer(std::move(picker), std::move(snapper));
+  HandlePositionProposer start(
+    const InputState& inputState,
+    const vm::vec3d& initialHandlePosition,
+    const vm::vec3d& handleOffset) override
+  {
+    return makeHandlePositionProposer(
+      makePicker(inputState, initialHandlePosition, handleOffset), makeSnapper());
   }
 
   DragStatus update(
@@ -355,7 +366,7 @@ struct MoveDragDelegate : public HandleDragTrackerDelegate
     const vm::vec3d& proposedHandlePosition) override
   {
     const auto delta = proposedHandlePosition - dragState.initialHandlePosition;
-    if (m_tool.move(delta, m_moveDragState))
+    if (m_tool.slide(delta, m_dragState))
     {
       return DragStatus::Continue;
     }
@@ -364,7 +375,7 @@ struct MoveDragDelegate : public HandleDragTrackerDelegate
 
   void end(const InputState& inputState, const DragState&) override
   {
-    m_tool.commit(m_moveDragState);
+    m_tool.commit(m_dragState);
     m_tool.updateProposedDragHandles(inputState.pickResult());
   }
 
@@ -382,18 +393,231 @@ struct MoveDragDelegate : public HandleDragTrackerDelegate
     render::RenderContext&,
     render::RenderBatch& renderBatch) const override
   {
-    auto edgeRenderer = buildEdgeRenderer(m_moveDragState.currentDragFaces);
+    auto edgeRenderer = buildEdgeRenderer(m_dragState.currentDragFaces);
     edgeRenderer.renderOnTop(renderBatch, pref(Preferences::ExtrudeHandleColor));
   }
 };
 
-auto createMoveDragTracker(
+/**
+ * Slides face vertices on a plance on each update (Alt+Shift+LMB Drag, 2D only).
+ */
+struct SlideFaceDragDelegate2D : public SlideDragDelegateBase
+{
+  using SlideDragDelegateBase::SlideDragDelegateBase;
+
+  DragHandlePicker makePicker(
+    const InputState& inputState,
+    const vm::vec3d& initialHandlePosition,
+    const vm::vec3d& handleOffset) const override
+  {
+    return makePlaneHandlePicker(
+      vm::plane3d{initialHandlePosition, vm::vec3d{inputState.camera().direction()}},
+      handleOffset);
+  }
+};
+
+auto createSlideDragTracker2D(
   ExtrudeTool& tool, const InputState& inputState, const mdl::Hit& hit)
 {
   const auto initialHandlePosition = hit.target<ExtrudeHitData>().initialHandlePosition;
 
   return createHandleDragTracker(
-    MoveDragDelegate{
+    SlideFaceDragDelegate2D{
+      tool,
+      {tool.proposedDragHandles(),
+       ExtrudeTool::getDragFaces(tool.proposedDragHandles())}},
+    inputState,
+    initialHandlePosition,
+    hit.hitPoint());
+}
+
+/**
+ * Slides face vertices along the face normal on each update (Alt+Shift+LMB Drag, 3D
+ * only). Uses the same canonical face-normal picker as the regular extrude.
+ */
+struct SlideDragDelegate3D : public SlideDragDelegateBase
+{
+  using SlideDragDelegateBase::SlideDragDelegateBase;
+
+  DragHandlePicker makePicker(
+    const InputState&,
+    const vm::vec3d& initialHandlePosition,
+    const vm::vec3d& handleOffset) const override
+  {
+    const auto faceNormal = m_dragState.initialDragHandles.front().faceNormal();
+    return makeLineHandlePicker(
+      vm::line3d{initialHandlePosition, faceNormal}, handleOffset);
+  }
+};
+
+auto createSlideDragTracker3D(
+  ExtrudeTool& tool, const InputState& inputState, const mdl::Hit& hit)
+{
+  const auto initialHandlePosition = hit.target<ExtrudeHitData>().initialHandlePosition;
+
+  return createHandleDragTracker(
+    SlideDragDelegate3D{
+      tool,
+      {tool.proposedDragHandles(),
+       ExtrudeTool::getDragFaces(tool.proposedDragHandles())}},
+    inputState,
+    initialHandlePosition,
+    hit.hitPoint());
+}
+
+/**
+ * Stamps a new brush from the dragged face on each update (Ctrl+Alt+Shift+LMB Drag).
+ * The drag is constrained to the face normal, same as ExtrudeDragDelegate, reusing the
+ * same picker logic. The snapper differs: ExtrudeDragDelegate snaps based on where the
+ * face's vertices would land if slid along their adjacent (non-boundary) edges, since
+ * that's how a real moveBoundary extrusion moves them. Stamping instead translates
+ * every face vertex straight along the drag direction (no edge-sliding), so it must
+ * snap based on where each vertex crosses a grid plane along that straight line
+ * instead -- otherwise a stamped brush from an angled face would not land on the grid.
+ */
+struct StampDragDelegate : public HandleDragTrackerDelegate
+{
+  ExtrudeTool& m_tool;
+  ExtrudeDragState m_stampDragState;
+
+  StampDragDelegate(ExtrudeTool& tool, ExtrudeDragState stampDragState)
+    : m_tool{tool}
+    , m_stampDragState{std::move(stampDragState)}
+  {
+  }
+
+  DragHandlePicker makeCanonicalHandlePicker(
+    const vm::plane3d& plane,
+    const vm::vec3d& initialHandlePosition,
+    const vm::vec3d& handleOffset)
+  {
+    return
+      [planeHandlePicker = makePlaneHandlePicker(plane, handleOffset),
+       faceNormal = m_stampDragState.initialDragHandles.front().faceNormal(),
+       initialHandlePosition](const InputState& inputState_) -> std::optional<vm::vec3d> {
+        if (const auto pointOnPlane = planeHandlePicker(inputState_))
+        {
+          const auto moveDelta = *pointOnPlane - initialHandlePosition;
+          const auto canonicalMoveDistance = vm::dot(moveDelta, faceNormal);
+          return initialHandlePosition + canonicalMoveDistance * faceNormal;
+        }
+        return std::nullopt;
+      };
+  }
+
+  auto makePicker(
+    const InputState& inputState,
+    const vm::vec3d& initialHandlePosition,
+    const vm::vec3d& handleOffset)
+  {
+    using namespace mdl::HitFilters;
+
+    const auto& hit = inputState.pickResult().first(type(ExtrudeTool::ExtrudeHitType));
+    contract_assert(hit.isMatch());
+
+    const auto& hitData = hit.target<ExtrudeHitData>();
+    return std::visit(
+      kdl::overload(
+        [&](const vm::line3d& line) { return makeLineHandlePicker(line, handleOffset); },
+        [&](const vm::plane3d& plane) {
+          return makeCanonicalHandlePicker(plane, initialHandlePosition, handleOffset);
+        }),
+      hitData.dragReference);
+  }
+
+  HandlePositionProposer start(
+    const InputState& inputState,
+    const vm::vec3d& initialHandlePosition,
+    const vm::vec3d& handleOffset) override
+  {
+    auto picker = makePicker(inputState, initialHandlePosition, handleOffset);
+    auto snapper = [&](
+                     const InputState&,
+                     const DragState& dragState,
+                     const vm::vec3d& proposedHandlePosition) {
+      auto& grid = m_tool.grid();
+      if (!grid.snap())
+      {
+        return proposedHandlePosition;
+      }
+
+      const auto moveDelta = proposedHandlePosition - dragState.initialHandlePosition;
+      const auto moveDirection = vm::normalize(moveDelta);
+      const auto moveDistance = vm::dot(moveDelta, moveDirection);
+
+      // Every vertex of every dragged face is translated straight along moveDirection
+      // by the same distance (see stampBrushes()), so snap by finding, for each such
+      // vertex, where its own straight-line trajectory crosses a grid plane -- not by
+      // sliding it along an adjacent edge, which is what snapMoveDistanceForFace does.
+      auto snappedMoveDistance = std::numeric_limits<double>::max();
+      for (const auto& dragHandle : m_stampDragState.initialDragHandles)
+      {
+        for (const auto& vertexPosition : dragHandle.faceAtDragStart().vertexPositions())
+        {
+          const auto line = vm::line3d{vertexPosition, moveDirection};
+          const auto snappedDistanceForVertex = grid.snapToGridPlane(line, moveDistance);
+          if (
+            vm::abs(snappedDistanceForVertex - moveDistance)
+            < vm::abs(snappedMoveDistance - moveDistance))
+          {
+            snappedMoveDistance = snappedDistanceForVertex;
+          }
+        }
+      }
+
+      return dragState.initialHandlePosition + snappedMoveDistance * moveDirection;
+    };
+
+    return makeHandlePositionProposer(std::move(picker), std::move(snapper));
+  }
+
+  DragStatus update(
+    const InputState&,
+    const DragState& dragState,
+    const vm::vec3d& proposedHandlePosition) override
+  {
+    const auto handleDelta = proposedHandlePosition - dragState.initialHandlePosition;
+    if (
+      vm::is_equal(handleDelta, m_stampDragState.totalDelta, vm::Cd::almost_zero())
+      || m_tool.stamp(handleDelta, m_stampDragState))
+    {
+      return DragStatus::Continue;
+    }
+    return DragStatus::Deny;
+  }
+
+  void end(const InputState& inputState, const DragState&) override
+  {
+    m_tool.commit(m_stampDragState);
+    m_tool.updateProposedDragHandles(inputState.pickResult());
+  }
+
+  void cancel(const DragState&) override { m_tool.cancel(); }
+
+  void setRenderOptions(
+    const InputState&, render::RenderContext& renderContext) const override
+  {
+    renderContext.setForceShowSelectionGuide();
+  }
+
+  void render(
+    const InputState&,
+    const DragState&,
+    render::RenderContext&,
+    render::RenderBatch& renderBatch) const override
+  {
+    auto edgeRenderer = buildEdgeRenderer(m_stampDragState.currentDragFaces);
+    edgeRenderer.renderOnTop(renderBatch, pref(Preferences::ExtrudeHandleColor));
+  }
+};
+
+auto createStampDragTracker(
+  ExtrudeTool& tool, const InputState& inputState, const mdl::Hit& hit)
+{
+  const auto initialHandlePosition = hit.target<ExtrudeHitData>().initialHandlePosition;
+
+  return createHandleDragTracker(
+    StampDragDelegate{
       tool,
       {tool.proposedDragHandles(),
        ExtrudeTool::getDragFaces(tool.proposedDragHandles())}},
@@ -424,13 +648,20 @@ std::unique_ptr<GestureTracker> ExtrudeToolController::acceptMouseDrag(
   const auto& hit = inputState.pickResult().first(type(ExtrudeTool::ExtrudeHitType));
   if (hit.isMatch())
   {
-    if (inputState.modifierKeysDown(ModifierKeys::Alt))
+    if (inputState.modifierKeysPressed(
+          ModifierKeys::Shift | ModifierKeys::CtrlCmd | ModifierKeys::Alt))
     {
+      m_tool.beginStamp();
+      return createStampDragTracker(m_tool, inputState, hit);
+    }
+    else if (inputState.modifierKeysDown(ModifierKeys::Alt))
+    {
+      m_tool.beginSlide();
       if (inputState.camera().orthographicProjection())
       {
-        m_tool.beginMove();
-        return createMoveDragTracker(m_tool, inputState, hit);
+        return createSlideDragTracker2D(m_tool, inputState, hit);
       }
+      return createSlideDragTracker3D(m_tool, inputState, hit);
     }
     else
     {
@@ -480,7 +711,9 @@ bool ExtrudeToolController2D::doHandleInput(const InputState& inputState) const
   return (
     inputState.modifierKeysPressed(ModifierKeys::Shift)
     || inputState.modifierKeysPressed(ModifierKeys::Shift | ModifierKeys::CtrlCmd)
-    || inputState.modifierKeysPressed(ModifierKeys::Shift | ModifierKeys::Alt));
+    || inputState.modifierKeysPressed(ModifierKeys::Shift | ModifierKeys::Alt)
+    || inputState.modifierKeysPressed(
+      ModifierKeys::Shift | ModifierKeys::CtrlCmd | ModifierKeys::Alt));
 }
 
 ExtrudeToolController3D::ExtrudeToolController3D(ExtrudeTool& tool)
@@ -498,7 +731,10 @@ bool ExtrudeToolController3D::doHandleInput(const InputState& inputState) const
 {
   return (
     inputState.modifierKeysPressed(ModifierKeys::Shift)
-    || inputState.modifierKeysPressed(ModifierKeys::Shift | ModifierKeys::CtrlCmd));
+    || inputState.modifierKeysPressed(ModifierKeys::Shift | ModifierKeys::CtrlCmd)
+    || inputState.modifierKeysPressed(ModifierKeys::Shift | ModifierKeys::Alt)
+    || inputState.modifierKeysPressed(
+      ModifierKeys::Shift | ModifierKeys::CtrlCmd | ModifierKeys::Alt));
 }
 
 } // namespace tb::ui

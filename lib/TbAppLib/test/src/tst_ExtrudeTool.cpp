@@ -840,6 +840,280 @@ TEST_CASE("ExtrudeTool")
         AllDifferent<std::vector<std::string>>());
     }
   }
+
+  SECTION("stamp")
+  {
+    auto& document = fixture.create();
+    auto& map = document.map();
+
+    auto tool = ExtrudeTool{document};
+
+    constexpr auto brushBounds = vm::bbox3d{16.0};
+
+    auto builder = mdl::BrushBuilder{map.worldNode().mapFormat(), map.worldBounds()};
+    auto* brushNode1 = new mdl::BrushNode{
+      builder.createCuboid(brushBounds, "left", "right", "front", "back", "top", "bottom")
+      | kdl::value()};
+
+    addNodes(map, {{map.editorContext().currentLayer(), {brushNode1}}});
+    selectNodes(map, {brushNode1});
+
+    // shoot straight down at the top face (+Z, material "top")
+    const auto pickRay = vm::ray3d{{0, 0, 32}, {0, 0, -1}};
+    const auto pickResult = performPick(map, tool, pickRay);
+
+    auto dragState = ExtrudeDragState{
+      tool.proposedDragHandles(),
+      ExtrudeTool::getDragFaces(tool.proposedDragHandles()),
+      false,
+      vm::vec3d{0, 0, 0}};
+
+    const auto delta = vm::vec3d{0, 0, 16};
+
+    tool.beginStamp();
+    REQUIRE(tool.stamp(delta, dragState));
+    tool.commit(dragState);
+
+    SECTION("the original brush is left unchanged and deselected")
+    {
+      CHECK(brushNode1->logicalBounds() == brushBounds);
+      CHECK(!brushNode1->selected());
+    }
+
+    SECTION(
+      "a new brush is created and selected, shaped as the convex hull of the "
+      "dragged face's original and translated vertices")
+    {
+      const auto brushes = map.selection().brushes;
+      REQUIRE(brushes.size() == 1);
+
+      auto* newBrushNode = brushes.front();
+      CHECK(newBrushNode != brushNode1);
+      CHECK(newBrushNode->logicalBounds() == vm::bbox3d{{-16, -16, 16}, {16, 16, 32}});
+
+      // stamped from the top face, so every face of the new brush carries its material
+      CHECK_THAT(
+        newBrushNode->brush().faces() | std::views::transform([](const auto& face) {
+          return face.materialName();
+        }) | kdl::ranges::to<std::vector>(),
+        RangeEquals(std::vector<std::string>(newBrushNode->brush().faceCount(), "top")));
+    }
+  }
+
+  SECTION("stamp is denied when dragged inward")
+  {
+    auto& document = fixture.create();
+    auto& map = document.map();
+
+    auto tool = ExtrudeTool{document};
+
+    constexpr auto brushBounds = vm::bbox3d{16.0};
+
+    auto builder = mdl::BrushBuilder{map.worldNode().mapFormat(), map.worldBounds()};
+    auto* brushNode =
+      new mdl::BrushNode{builder.createCuboid(brushBounds, "material") | kdl::value()};
+
+    addNodes(map, {{map.editorContext().currentLayer(), {brushNode}}});
+    selectNodes(map, {brushNode});
+
+    // shoot straight down at the top face (+Z)
+    const auto pickRay = vm::ray3d{{0, 0, 32}, {0, 0, -1}};
+    const auto pickResult = performPick(map, tool, pickRay);
+
+    auto dragState = ExtrudeDragState{
+      tool.proposedDragHandles(),
+      ExtrudeTool::getDragFaces(tool.proposedDragHandles()),
+      false,
+      vm::vec3d{0, 0, 0}};
+
+    // dragging the top face (+Z normal) downward is inward — stamp must be denied
+    const auto inwardDelta = vm::vec3d{0, 0, -8};
+
+    tool.beginStamp();
+    CHECK(!tool.stamp(inwardDelta, dragState));
+    tool.cancel();
+
+    // original brush is untouched; no new brushes were created
+    CHECK(brushNode->logicalBounds() == brushBounds);
+    CHECK(map.selection().brushes.size() == 1);
+    CHECK(map.selection().brushes.front() == brushNode);
+  }
+
+  SECTION("stamp with multiple drag handles denied when any face is dragged inward")
+  {
+    auto& document = fixture.create();
+    auto& map = document.map();
+
+    auto tool = ExtrudeTool{document};
+
+    auto builder = mdl::BrushBuilder{map.worldNode().mapFormat(), map.worldBounds()};
+
+    // brushNode2 sits on top of brushNode1: brushNode1's top face (+Z) and
+    // brushNode2's bottom face (-Z) are coincident at z=16 but face in opposite
+    // directions. The upward delta (0,0,8) is outward for the +Z face but inward for
+    // the -Z face, so stamping must be denied.
+    auto* brushNode1 = new mdl::BrushNode{
+      builder.createCuboid(vm::bbox3d{{-16, -16, -16}, {16, 16, 16}}, "material")
+      | kdl::value()};
+    auto* brushNode2 = new mdl::BrushNode{
+      builder.createCuboid(vm::bbox3d{{0, -16, 16}, {32, 16, 48}}, "material")
+      | kdl::value()};
+
+    addNodes(map, {{map.editorContext().currentLayer(), {brushNode1, brushNode2}}});
+    selectNodes(map, {brushNode1, brushNode2});
+
+    const auto pickRay = vm::ray3d{{-8, 0, 32}, {0, 0, -1}};
+    const auto pickResult = performPick(map, tool, pickRay);
+    REQUIRE(tool.proposedDragHandles().size() == 2);
+
+    auto dragState = ExtrudeDragState{
+      tool.proposedDragHandles(),
+      ExtrudeTool::getDragFaces(tool.proposedDragHandles()),
+      false,
+      vm::vec3d{0, 0, 0}};
+
+    const auto delta = vm::vec3d{0, 0, 8};
+
+    tool.beginStamp();
+    CHECK(!tool.stamp(delta, dragState));
+    tool.cancel();
+
+    // both original brushes are left unchanged; no new brushes were created
+    CHECK(brushNode1->logicalBounds() == vm::bbox3d{{-16, -16, -16}, {16, 16, 16}});
+    CHECK(brushNode2->logicalBounds() == vm::bbox3d{{0, -16, 16}, {32, 16, 48}});
+    CHECK(map.selection().brushes.size() == 2);
+  }
+
+  SECTION("stamp with multiple same-direction drag handles")
+  {
+    auto& document = fixture.create();
+    auto& map = document.map();
+
+    auto tool = ExtrudeTool{document};
+
+    auto builder = mdl::BrushBuilder{map.worldNode().mapFormat(), map.worldBounds()};
+
+    // Two side-by-side brushes whose top faces are coplanar at z=16 and both face +Z.
+    // Any upward delta is outward for both handles, so stamping succeeds.
+    auto* brushNode1 = new mdl::BrushNode{
+      builder.createCuboid(vm::bbox3d{{-16, -16, -16}, {0, 16, 16}}, "material")
+      | kdl::value()};
+    auto* brushNode2 = new mdl::BrushNode{
+      builder.createCuboid(vm::bbox3d{{0, -16, -16}, {16, 16, 16}}, "material")
+      | kdl::value()};
+
+    addNodes(map, {{map.editorContext().currentLayer(), {brushNode1, brushNode2}}});
+    selectNodes(map, {brushNode1, brushNode2});
+
+    // Pick from above — both top faces (coplanar at z=16, normal +Z) are selected
+    const auto pickRay = vm::ray3d{{-8, 0, 32}, {0, 0, -1}};
+    const auto pickResult = performPick(map, tool, pickRay);
+    REQUIRE(tool.proposedDragHandles().size() == 2);
+
+    auto dragState = ExtrudeDragState{
+      tool.proposedDragHandles(),
+      ExtrudeTool::getDragFaces(tool.proposedDragHandles()),
+      false,
+      vm::vec3d{0, 0, 0}};
+
+    const auto delta = vm::vec3d{0, 0, 8};
+
+    tool.beginStamp();
+    REQUIRE(tool.stamp(delta, dragState));
+    tool.commit(dragState);
+
+    // original brushes are unchanged
+    CHECK(brushNode1->logicalBounds() == vm::bbox3d{{-16, -16, -16}, {0, 16, 16}});
+    CHECK(brushNode2->logicalBounds() == vm::bbox3d{{0, -16, -16}, {16, 16, 16}});
+
+    // one new brush stamped per handle, each spanning from z=16 to z=24
+    const auto bounds =
+      map.selection().brushes
+      | std::views::transform([](const auto* node) { return node->logicalBounds(); });
+    CHECK_THAT(
+      bounds,
+      UnorderedRangeEquals(std::vector<vm::bbox3d>{
+        {{-16, -16, 16}, {0, 16, 24}},
+        {{0, -16, 16}, {16, 16, 24}},
+      }));
+  }
+
+  SECTION("slide")
+  {
+    auto& document = fixture.create();
+    auto& map = document.map();
+
+    auto tool = ExtrudeTool{document};
+
+    constexpr auto brushBounds = vm::bbox3d{16.0};
+
+    auto builder = mdl::BrushBuilder{map.worldNode().mapFormat(), map.worldBounds()};
+    auto* brushNode =
+      new mdl::BrushNode{builder.createCuboid(brushBounds, "material") | kdl::value()};
+
+    addNodes(map, {{map.editorContext().currentLayer(), {brushNode}}});
+    selectNodes(map, {brushNode});
+
+    // shoot straight down at the top face (+Z)
+    const auto pickRay = vm::ray3d{{0, 0, 32}, {0, 0, -1}};
+    const auto pickResult = performPick(map, tool, pickRay);
+
+    auto dragState = ExtrudeDragState{
+      tool.proposedDragHandles(),
+      ExtrudeTool::getDragFaces(tool.proposedDragHandles()),
+      false,
+      vm::vec3d{0, 0, 0}};
+
+    SECTION("slide outward grows the brush")
+    {
+      const auto delta = vm::vec3d{0, 0, 8};
+
+      tool.beginSlide();
+      CHECK(tool.slide(delta, dragState));
+      tool.commit(dragState);
+
+      // original brush was modified in place
+      CHECK(brushNode->logicalBounds() == vm::bbox3d{{-16, -16, -16}, {16, 16, 24}});
+      CHECK(brushNode->selected());
+    }
+
+    SECTION("slide inward shrinks the brush")
+    {
+      const auto delta = vm::vec3d{0, 0, -8};
+
+      tool.beginSlide();
+      CHECK(tool.slide(delta, dragState));
+      tool.commit(dragState);
+
+      CHECK(brushNode->logicalBounds() == vm::bbox3d{{-16, -16, -16}, {16, 16, 8}});
+    }
+
+    SECTION("slide can return to original position")
+    {
+      // Dragging back to the start produces a zero delta. Without the fix, transformFaces
+      // with a zero translation returns false, leaving totalDelta at the previous
+      // non-zero value, so commit() would incorrectly apply that offset.
+      tool.beginSlide();
+      CHECK(tool.slide({0, 0, 8}, dragState)); // move outward
+      CHECK(tool.slide({0, 0, 0}, dragState)); // return to origin
+      tool.commit(dragState);
+
+      CHECK(brushNode->logicalBounds() == brushBounds);
+    }
+
+    SECTION("slide restores to last valid position when the brush would become invalid")
+    {
+      const auto validDelta = vm::vec3d{0, 0, 8};
+      const auto collapseDelta = vm::vec3d{0, 0, -10000};
+
+      tool.beginSlide();
+      CHECK(tool.slide(validDelta, dragState));    // totalDelta = validDelta
+      CHECK(tool.slide(collapseDelta, dragState)); // fails; restores to validDelta
+      tool.commit(dragState);
+
+      CHECK(brushNode->logicalBounds() == vm::bbox3d{{-16, -16, -16}, {16, 16, 24}});
+    }
+  }
 }
 
 } // namespace tb::ui

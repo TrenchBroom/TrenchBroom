@@ -743,11 +743,21 @@ The extrude tool also works in the 2D viewports, of course, but the ability to m
 
 Both snap modes are used simultaneously. There may be situations when you have to move the camera closer to a face in order to have sufficient precision when dragging the face.
 
+#### Stamping Brushes
+
+Normally, extruded brushes continue the shape of the original brush, but this is not always desirable.
+
+![Extruding vs. stamping](images/ExtrudeToolStamping.png)
+
+In the image, the selected brush on the left has been extruded from the top face of the brush below it. It continues the shape of the brush, a frustum. The selected brush on the right has been stamped from the top face of the brush below it. Stamping does not continue the shape of the original brush, instead, it just duplicates the selected face and moves it along its normal. The new brush then becomes the convex hull of the vertices of the original face and its duplicate.
+
+To stamp a brush, hold #key(Ctrl) and #key(Alt) in a ddition to #key(Shift) and drag a face of a selected brush.
+
 #### Moving Faces Instead of Extruding {#moving_faces}
 
-The brush extrude tool offers a quick way to move an individual face of a brush in 2D views. Hold #key(Alt) in addition to #key(Shift) when starting to drag a face in a 2D view to enable this mode. You will notice that a face is highlighted as usual, but when you start dragging the mouse, the face will just be moved in the direction you are dragging. The move is not restricted by the face normal, and other faces will be affected as well.
+The brush extrude tool offers a quick way to move an individual face of a brush. Hold #key(Alt) in addition to #key(Shift) when starting to drag a face to enable this mode. You will notice that a face is highlighted as usual, but when you start dragging the mouse, the face will just be moved in the direction you are dragging. In 2D views, the move is not restricted by the face normal, and other faces will be affected as well. In 3D views, the move is restricted by the face normal.
 
-![Moving faces](images/ExtrudeTool2DFaceMoving.gif)
+![Moving faces (2D view)](images/ExtrudeTool2DFaceMoving.gif)
 
 The distance is snapped to the current grid size. Moving multiple faces is possible if the faces lie on the same plane. The [UV Lock](#uv_lock) setting controls whether alignment lock is used when dragging faces using this mode.
 

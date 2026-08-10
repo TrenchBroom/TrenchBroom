@@ -531,6 +531,7 @@ TEST_CASE("CommandProcessor")
         CN{CN::Type::Undone, command2Ptr},
         CN{CN::Type::Undo, command1Ptr},
         CN{CN::Type::Undone, command1Ptr},
+        TN{TN::Type::Undone, transactionName, K(isObservable), !K(isModification)},
       });
 
     CHECK(!commandProcessor.canUndo());
@@ -542,6 +543,72 @@ TEST_CASE("CommandProcessor")
     CHECK(!commandProcessor.canUndo());
     CHECK(!commandProcessor.canRedo());
 
+    CHECK(notifications.empty());
+  }
+
+  SECTION("rollbackEmptyTransaction")
+  {
+    /*
+     * Roll back a transaction that has no commands. No notification should be
+     * triggered since nothing was undone.
+     */
+
+    commandProcessor.startTransaction("transaction", TransactionScope::Oneshot);
+    commandProcessor.rollbackTransaction();
+
+    CHECK(!commandProcessor.canUndo());
+    CHECK(!commandProcessor.canRedo());
+    CHECK(notifications.empty());
+
+    commandProcessor.commitTransaction();
+
+    CHECK(!commandProcessor.canUndo());
+    CHECK(!commandProcessor.canRedo());
+    CHECK(notifications.empty());
+  }
+
+  SECTION("rollbackTransactionWithUnnamedTransaction")
+  {
+    /*
+     * Roll back a transaction that was started without a name. The transaction
+     * notification should fall back to the name of the first command that was
+     * undone, mirroring the fallback used when committing an unnamed transaction.
+     */
+
+    const auto commandName1 = "test command 1";
+    auto command1 =
+      std::make_unique<TestCommand>(commandName1, !K(updateModificationCount));
+    auto* command1Ptr = command1.get();
+
+    const auto commandName2 = "test command 2";
+    auto command2 =
+      std::make_unique<TestCommand>(commandName2, !K(updateModificationCount));
+    auto* command2Ptr = command2.get();
+
+    command1->expectDo(true);
+    command2->expectDo(true);
+    command1->expectCollate(command2.get(), false);
+
+    command2->expectUndo(true);
+    command1->expectUndo(true);
+
+    commandProcessor.startTransaction("", TransactionScope::Oneshot);
+    CHECK(commandProcessor.executeAndStore(std::move(command1)));
+    CHECK(commandProcessor.executeAndStore(std::move(command2)));
+    getNotifications();
+
+    commandProcessor.rollbackTransaction();
+    CHECK(
+      getNotifications()
+      == std::vector<Notification>{
+        CN{CN::Type::Undo, command2Ptr},
+        CN{CN::Type::Undone, command2Ptr},
+        CN{CN::Type::Undo, command1Ptr},
+        CN{CN::Type::Undone, command1Ptr},
+        TN{TN::Type::Undone, commandName1, K(isObservable), !K(isModification)},
+      });
+
+    commandProcessor.commitTransaction();
     CHECK(notifications.empty());
   }
 

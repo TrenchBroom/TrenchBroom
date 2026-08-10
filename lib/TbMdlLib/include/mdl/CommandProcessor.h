@@ -203,6 +203,9 @@ public:
    * `commitTransaction`. Since the transaction will be empty, committing it will just do
    * nothing but remove the transaction itself.
    *
+   * If the transaction contained any commands, triggers a `transactionUndone`
+   * notification after undoing them.
+   *
    * Precondition: a transaction is currently executing.
    */
   void rollbackTransaction();
