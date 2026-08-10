@@ -17,10 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <QKeySequence>
-
+#include "base/KeySequence.h"
 #include "ui/ActionInfo.h"
-#include "ui/StringMakers.h"
 
 #include <vector>
 
@@ -36,7 +34,7 @@ namespace
 {
 
 auto makeActionInfo(
-  const Preference<std::vector<QKeySequence>>& preference,
+  const Preference<std::vector<KeySequence>>& preference,
   const ActionContext::Type actionContext = ActionContext::Any)
 {
   return ActionInfo{
@@ -56,9 +54,9 @@ TEST_CASE("ActionInfo")
     SECTION("Ignores empty shortcuts")
     {
       const auto preference1 =
-        Preference<std::vector<QKeySequence>>{"Action 1", {QKeySequence{}}};
+        Preference<std::vector<KeySequence>>{"Action 1", {KeySequence{}}};
       const auto preference2 =
-        Preference<std::vector<QKeySequence>>{"Action 2", {QKeySequence{}}};
+        Preference<std::vector<KeySequence>>{"Action 2", {KeySequence{}}};
 
       CHECK_THAT(
         findConflicts({makeActionInfo(preference1), makeActionInfo(preference2)}),
@@ -68,9 +66,9 @@ TEST_CASE("ActionInfo")
     SECTION("Ignores distinct shortcuts")
     {
       const auto preference1 =
-        Preference<std::vector<QKeySequence>>{"Action 1", {QKeySequence{'A'}}};
+        Preference<std::vector<KeySequence>>{"Action 1", {KeySequence{"A"}}};
       const auto preference2 =
-        Preference<std::vector<QKeySequence>>{"Action 2", {QKeySequence{'B'}}};
+        Preference<std::vector<KeySequence>>{"Action 2", {KeySequence{"B"}}};
 
       CHECK_THAT(
         findConflicts({makeActionInfo(preference1), makeActionInfo(preference2)}),
@@ -80,9 +78,9 @@ TEST_CASE("ActionInfo")
     SECTION("Ignores matching shortcuts in disjoint action contexts")
     {
       const auto preference1 =
-        Preference<std::vector<QKeySequence>>{"Action 1", {QKeySequence{'A'}}};
+        Preference<std::vector<KeySequence>>{"Action 1", {KeySequence{"A"}}};
       const auto preference2 =
-        Preference<std::vector<QKeySequence>>{"Action 2", {QKeySequence{'A'}}};
+        Preference<std::vector<KeySequence>>{"Action 2", {KeySequence{"A"}}};
 
       CHECK_THAT(
         findConflicts({
@@ -99,9 +97,9 @@ TEST_CASE("ActionInfo")
     SECTION("Reports matching shortcuts in overlapping action contexts")
     {
       const auto preference1 =
-        Preference<std::vector<QKeySequence>>{"Action 1", {QKeySequence{'A'}}};
+        Preference<std::vector<KeySequence>>{"Action 1", {KeySequence{"A"}}};
       const auto preference2 =
-        Preference<std::vector<QKeySequence>>{"Action 2", {QKeySequence{'A'}}};
+        Preference<std::vector<KeySequence>>{"Action 2", {KeySequence{"A"}}};
 
       CHECK_THAT(
         findConflicts({
@@ -118,11 +116,11 @@ TEST_CASE("ActionInfo")
     SECTION("Reports later duplicates against the first matching shortcut")
     {
       const auto preference1 =
-        Preference<std::vector<QKeySequence>>{"Action 1", {QKeySequence{'A'}}};
+        Preference<std::vector<KeySequence>>{"Action 1", {KeySequence{"A"}}};
       const auto preference2 =
-        Preference<std::vector<QKeySequence>>{"Action 2", {QKeySequence{'A'}}};
+        Preference<std::vector<KeySequence>>{"Action 2", {KeySequence{"A"}}};
       const auto preference3 =
-        Preference<std::vector<QKeySequence>>{"Action 3", {QKeySequence{'A'}}};
+        Preference<std::vector<KeySequence>>{"Action 3", {KeySequence{"A"}}};
 
       CHECK_THAT(
         findConflicts({
@@ -135,14 +133,14 @@ TEST_CASE("ActionInfo")
 
     SECTION("Reports matching shortcuts in multi-shortcut preferences")
     {
-      const auto preference1 = Preference<std::vector<QKeySequence>>{
-        "Action 1", {QKeySequence{'A'}, QKeySequence{'B'}}};
+      const auto preference1 = Preference<std::vector<KeySequence>>{
+        "Action 1", {KeySequence{"A"}, KeySequence{"B"}}};
 
       const auto preference2 = GENERATE(
-        Preference<std::vector<QKeySequence>>{
-          "Action 2", {QKeySequence{'C'}, QKeySequence{'B'}}},
-        Preference<std::vector<QKeySequence>>{
-          "Action 2", {QKeySequence{'B'}, QKeySequence{'C'}}});
+        Preference<std::vector<KeySequence>>{
+          "Action 2", {KeySequence{"C"}, KeySequence{"B"}}},
+        Preference<std::vector<KeySequence>>{
+          "Action 2", {KeySequence{"B"}, KeySequence{"C"}}});
 
       CAPTURE(preference2);
 
@@ -156,8 +154,8 @@ TEST_CASE("ActionInfo")
 
     SECTION("Ignores duplicate shortcuts in the same multi-shortcut preference")
     {
-      const auto preference = Preference<std::vector<QKeySequence>>{
-        "Action", {QKeySequence{'A'}, QKeySequence{'A'}}};
+      const auto preference = Preference<std::vector<KeySequence>>{
+        "Action", {KeySequence{"A"}, KeySequence{"A"}}};
 
       CHECK_THAT(
         findConflicts({
@@ -169,10 +167,10 @@ TEST_CASE("ActionInfo")
     SECTION(
       "Reports duplicate shortcuts in the same preference only against other actions")
     {
-      const auto preference1 = Preference<std::vector<QKeySequence>>{
-        "Action 1", {QKeySequence{'A'}, QKeySequence{'A'}}};
+      const auto preference1 = Preference<std::vector<KeySequence>>{
+        "Action 1", {KeySequence{"A"}, KeySequence{"A"}}};
       const auto preference2 =
-        Preference<std::vector<QKeySequence>>{"Action 2", {QKeySequence{'A'}}};
+        Preference<std::vector<KeySequence>>{"Action 2", {KeySequence{"A"}}};
 
       CHECK_THAT(
         findConflicts({

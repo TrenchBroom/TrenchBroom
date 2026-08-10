@@ -52,7 +52,7 @@ bool TestPreferenceStore::load(const std::filesystem::path&, Color&)
   return false;
 }
 
-bool TestPreferenceStore::load(const std::filesystem::path&, std::vector<QKeySequence>&)
+bool TestPreferenceStore::load(const std::filesystem::path&, std::vector<KeySequence>&)
 {
   return false;
 }
@@ -72,7 +72,7 @@ void TestPreferenceStore::save(const std::filesystem::path&, const std::filesyst
 void TestPreferenceStore::save(const std::filesystem::path&, const Color&) {}
 
 void TestPreferenceStore::save(
-  const std::filesystem::path&, const std::vector<QKeySequence>&)
+  const std::filesystem::path&, const std::vector<KeySequence>&)
 {
 }
 

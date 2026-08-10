@@ -20,6 +20,7 @@
 #include "ui/KeyboardShortcutModel.h"
 
 #include <QBrush>
+#include <QKeySequence>
 
 #include "base/Macros.h"
 #include "base/PreferenceManager.h"
@@ -30,9 +31,10 @@
 #include "ui/ActionMenu.h"
 #include "ui/KeyboardShortcutUtils.h"
 #include "ui/MapDocument.h"
-#include "ui/QPathUtils.h"
+#include "ui/QKeySequenceUtils.h"
 
 #include "kd/contracts.h"
+#include "kd/path_utils.h"
 #include "kd/set_adapter.h"
 #include "kd/vector_utils.h"
 
@@ -51,7 +53,9 @@ KeyboardShortcutModel::KeyboardShortcutModel(
 
 void KeyboardShortcutModel::reset()
 {
+  m_actionCache.reset();
   m_actions.clear();
+
   initializeActions();
   updateConflicts();
   if (totalActionCount() > 0)
@@ -109,9 +113,13 @@ QVariant KeyboardShortcutModel::data(const QModelIndex& index, const int role) c
     switch (index.column())
     {
     case 0:
-      return !keyboardShortcuts.empty() ? keyboardShortcuts[0] : QKeySequence{};
+      return QVariant::fromValue(
+        !keyboardShortcuts.empty() ? toQKeySequence(keyboardShortcuts[0])
+                                   : QKeySequence{});
     case 1:
-      return keyboardShortcuts.size() > 1 ? keyboardShortcuts[1] : QKeySequence{};
+      return QVariant::fromValue(
+        keyboardShortcuts.size() > 1 ? toQKeySequence(keyboardShortcuts[1])
+                                     : QKeySequence{});
     case 2:
       return QString::fromStdString(actionContextName(actionInfo.actionContext()));
     case 3:
@@ -153,7 +161,7 @@ bool KeyboardShortcutModel::setData(
     {
       keyboardShortcuts.emplace_back();
     }
-    keyboardShortcuts[0] = keySequence;
+    keyboardShortcuts[0] = fromQKeySequence(keySequence);
     break;
   case 1:
     if (keyboardShortcuts.empty())
@@ -164,7 +172,7 @@ bool KeyboardShortcutModel::setData(
     {
       keyboardShortcuts.emplace_back();
     }
-    keyboardShortcuts[1] = keySequence;
+    keyboardShortcuts[1] = fromQKeySequence(keySequence);
     break;
   default:
     break;
@@ -237,6 +245,8 @@ void KeyboardShortcutModel::initializeActions()
   initializeKeys();
   if (m_document)
   {
+    m_actionCache = std::make_unique<MapDocumentActionCache>(*m_document);
+
     initializeTagActions();
     initializeEntityDefinitionActions();
   }
@@ -252,7 +262,7 @@ void KeyboardShortcutModel::initializeMenuActions()
     [&](const MenuAction& actionItem) {
       m_actions.emplace_back(
         ActionInfoType::Menu,
-        currentPath / pathFromQString(actionItem.action.label()),
+        currentPath / kdl::parse_utf8_path(actionItem.action.label()),
         actionItem.action.actionContext(),
         actionItem.action.preference());
     },
@@ -268,7 +278,7 @@ void KeyboardShortcutModel::initializeViewActions()
   m_actionManager.visitMapViewActions([&](Action& action) {
     m_actions.emplace_back(
       ActionInfoType::View,
-      "Map View" / pathFromQString(action.label()),
+      "Map View" / kdl::parse_utf8_path(action.label()),
       action.actionContext(),
       action.preference());
   });
@@ -310,12 +320,12 @@ void KeyboardShortcutModel::initializeKeys()
 
 void KeyboardShortcutModel::initializeTagActions()
 {
-  contract_pre(m_document);
+  contract_pre(m_actionCache);
 
-  m_document->visitTagActions(m_actionManager, [&](Action& action) {
+  m_actionCache->visitTagActions(m_actionManager, [&](Action& action) {
     m_actions.emplace_back(
       ActionInfoType::Tag,
-      "Tags" / pathFromQString(action.label()),
+      "Tags" / kdl::parse_utf8_path(action.label()),
       action.actionContext(),
       action.preference());
   });
@@ -323,12 +333,12 @@ void KeyboardShortcutModel::initializeTagActions()
 
 void KeyboardShortcutModel::initializeEntityDefinitionActions()
 {
-  contract_pre(m_document);
+  contract_pre(m_actionCache);
 
-  m_document->visitEntityDefinitionActions(m_actionManager, [&](Action& action) {
+  m_actionCache->visitEntityDefinitionActions(m_actionManager, [&](Action& action) {
     m_actions.emplace_back(
       ActionInfoType::EntityDefinition,
-      "Entity Definitions" / pathFromQString(action.label()),
+      "Entity Definitions" / kdl::parse_utf8_path(action.label()),
       action.actionContext(),
       action.preference());
   });

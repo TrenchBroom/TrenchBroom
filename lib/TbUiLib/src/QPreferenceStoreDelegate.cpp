@@ -34,6 +34,7 @@
 
 #include "base/Macros.h"
 #include "ui/KeyboardShortcutUtils.h"
+#include "ui/QKeySequenceUtils.h"
 #include "ui/QPathUtils.h"
 
 #include "kd/ranges/to.h"
@@ -217,7 +218,7 @@ bool QPreferenceStoreDelegate::load(const std::filesystem::path& path, Color& va
 }
 
 bool QPreferenceStoreDelegate::load(
-  const std::filesystem::path& path, std::vector<QKeySequence>& value)
+  const std::filesystem::path& path, std::vector<KeySequence>& value)
 {
   if (const auto iValue = m_cache.find(path); iValue != m_cache.end())
   {
@@ -231,7 +232,8 @@ bool QPreferenceStoreDelegate::load(
           jsonArray | std::views::transform([](const auto& x) {
             return QKeySequence::fromString(x.toString(), QKeySequence::PortableText);
           })
-          | std::views::filter(isSupportedShortcut) | kdl::ranges::to<std::vector>();
+          | std::views::filter(isSupportedShortcut)
+          | std::views::transform(fromQKeySequence) | kdl::ranges::to<std::vector>();
         return true;
       }
     }
@@ -242,7 +244,7 @@ bool QPreferenceStoreDelegate::load(
             QKeySequence::fromString(jsonValue.toString(), QKeySequence::PortableText);
           isSupportedShortcut(keySequence))
       {
-        value.push_back(keySequence);
+        value.push_back(fromQKeySequence(keySequence));
       }
       return true;
     }
@@ -289,12 +291,13 @@ void QPreferenceStoreDelegate::save(const std::filesystem::path& path, const Col
 }
 
 void QPreferenceStoreDelegate::save(
-  const std::filesystem::path& path, const std::vector<QKeySequence>& value)
+  const std::filesystem::path& path, const std::vector<KeySequence>& value)
 {
   auto jsonArray = QJsonArray{};
   for (const auto& keySequence : value)
   {
-    jsonArray.push_back(QJsonValue{keySequence.toString(QKeySequence::PortableText)});
+    jsonArray.push_back(
+      QJsonValue{toQKeySequence(keySequence).toString(QKeySequence::PortableText)});
   }
 
   m_cache[path] = std::move(jsonArray);

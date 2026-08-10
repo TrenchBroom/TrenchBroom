@@ -27,6 +27,7 @@
 #include <memory>
 
 class QStackedLayout;
+class QWidget;
 
 namespace tb
 {
@@ -57,6 +58,7 @@ class MapViewToolBox : public ToolBox
 {
 private:
   MapDocument& m_document;
+  QStackedLayout* m_bookCtrl = nullptr;
 
   std::unique_ptr<ClipTool> m_clipTool;
   std::unique_ptr<AssembleBrushTool> m_assembleBrushTool;
@@ -72,6 +74,13 @@ private:
   std::unique_ptr<EdgeTool> m_edgeTool;
   std::unique_ptr<FaceTool> m_faceTool;
   std::unique_ptr<ControlPointTool> m_controlPointTool;
+
+  QWidget* m_emptyToolPage = nullptr;
+  QWidget* m_rotateToolPage = nullptr;
+  QWidget* m_sweepToolPage = nullptr;
+  QWidget* m_scaleToolPage = nullptr;
+  QWidget* m_controlPointToolPage = nullptr;
+  QWidget* m_drawShapeToolPage = nullptr;
 
   NotifierConnection m_notifierConnection;
 
@@ -182,7 +191,6 @@ private: // Tool related methods
   void createTools(QStackedLayout* bookCtrl);
 
 private: // notification
-  void registerTool(Tool& tool, QStackedLayout* bookCtrl);
   void connectObservers();
   void toolActivated(Tool& tool);
   void toolDeactivated(Tool& tool);

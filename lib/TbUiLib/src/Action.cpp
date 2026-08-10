@@ -28,17 +28,17 @@ namespace tb::ui
 
 Action::Action(
   std::filesystem::path preferencePath,
-  QString label,
+  std::string label,
   const ActionContext::Type actionContext,
-  QKeySequence defaultShortcut,
+  KeySequence defaultShortcut,
   ExecuteFn execute,
   EnabledFn enabled,
   std::optional<CheckedFn> checked,
   std::optional<std::filesystem::path> iconPath,
-  std::optional<QString> statusTip)
+  std::optional<std::string> statusTip)
   : m_label{std::move(label)}
   , m_actionContext{actionContext}
-  , m_shortcutPreference{std::move(preferencePath), {defaultShortcut}}
+  , m_shortcutPreference{std::move(preferencePath), {std::move(defaultShortcut)}}
   , m_execute{std::move(execute)}
   , m_enabled{std::move(enabled)}
   , m_checked{std::move(checked)}
@@ -49,18 +49,18 @@ Action::Action(
 
 Action::Action(
   std::filesystem::path preferencePath,
-  QString label,
+  std::string label,
   const ActionContext::Type actionContext,
-  QKeySequence defaultShortcut,
+  KeySequence defaultShortcut,
   ExecuteFn execute,
   EnabledFn enabled,
   std::optional<std::filesystem::path> iconPath,
-  std::optional<QString> statusTip)
+  std::optional<std::string> statusTip)
   : Action{
       std::move(preferencePath),
       std::move(label),
       actionContext,
-      defaultShortcut,
+      std::move(defaultShortcut),
       std::move(execute),
       std::move(enabled),
       std::nullopt,
@@ -71,7 +71,7 @@ Action::Action(
 
 Action::Action(
   std::filesystem::path preferencePath,
-  QString label,
+  std::string label,
   ActionContext::Type actionContext,
   ExecuteFn execute,
   EnabledFn enabled)
@@ -79,7 +79,7 @@ Action::Action(
       std::move(preferencePath),
       std::move(label),
       actionContext,
-      QKeySequence{},
+      KeySequence{},
       std::move(execute),
       std::move(enabled),
       std::nullopt,
@@ -88,7 +88,7 @@ Action::Action(
 {
 }
 
-const QString& Action::label() const
+const std::string& Action::label() const
 {
   return m_label;
 }
@@ -98,12 +98,12 @@ ActionContext::Type Action::actionContext() const
   return m_actionContext;
 }
 
-const Preference<std::vector<QKeySequence>>& Action::preference() const
+const Preference<std::vector<KeySequence>>& Action::preference() const
 {
   return m_shortcutPreference;
 }
 
-Preference<std::vector<QKeySequence>>& Action::preference()
+Preference<std::vector<KeySequence>>& Action::preference()
 {
   return KDL_CONST_OVERLOAD(preference());
 }
@@ -136,7 +136,7 @@ const std::optional<std::filesystem::path>& Action::iconPath() const
   return m_iconPath;
 }
 
-const std::optional<QString>& Action::statusTip() const
+const std::optional<std::string>& Action::statusTip() const
 {
   return m_statusTip;
 }

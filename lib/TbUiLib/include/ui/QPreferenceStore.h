@@ -29,8 +29,6 @@
 #include <filesystem>
 #include <memory>
 
-class QKeySequence;
-
 namespace tb
 {
 class Logger;
@@ -60,7 +58,7 @@ public:
   bool load(const std::filesystem::path& path, std::string& value) override;
   bool load(const std::filesystem::path& path, std::filesystem::path& value) override;
   bool load(const std::filesystem::path& path, Color& value) override;
-  bool load(const std::filesystem::path& path, std::vector<QKeySequence>& value) override;
+  bool load(const std::filesystem::path& path, std::vector<KeySequence>& value) override;
 
   void save(const std::filesystem::path& path, bool value) override;
   void save(const std::filesystem::path& path, float value) override;
@@ -70,7 +68,7 @@ public:
     const std::filesystem::path& path, const std::filesystem::path& value) override;
   void save(const std::filesystem::path& path, const Color& value) override;
   void save(
-    const std::filesystem::path& path, const std::vector<QKeySequence>& value) override;
+    const std::filesystem::path& path, const std::vector<KeySequence>& value) override;
 };
 
 } // namespace ui

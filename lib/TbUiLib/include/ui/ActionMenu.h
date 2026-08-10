@@ -19,8 +19,6 @@
 
 #pragma once
 
-#include <QKeySequence>
-
 #include "ui/Action.h"
 
 #include "kd/overload.h"

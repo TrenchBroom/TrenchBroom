@@ -35,6 +35,7 @@ class QStackedLayout;
 namespace tb::ui
 {
 class MapDocument;
+class ScaleTool;
 
 class ScaleToolPage : public QWidget
 {
@@ -53,11 +54,11 @@ private:
   NotifierConnection m_notifierConnection;
 
 public:
-  explicit ScaleToolPage(MapDocument& document, QWidget* parent = nullptr);
-  void activate();
+  ScaleToolPage(MapDocument& document, ScaleTool& tool, QWidget* parent = nullptr);
 
 private:
-  void connectObservers();
+  void activate();
+  void connectObservers(ScaleTool& tool);
 
   void createGui();
   void updateGui();

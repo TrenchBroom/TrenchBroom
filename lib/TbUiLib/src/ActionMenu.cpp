@@ -19,12 +19,6 @@
 
 #include "ui/ActionMenu.h"
 
-#include <QKeySequence>
-#include <QString>
-
-#include "ui/MapViewBase.h"
-#include "ui/MapWindow.h"
-
 #include <string>
 
 namespace tb::ui

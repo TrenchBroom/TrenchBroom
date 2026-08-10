@@ -30,6 +30,7 @@
 #include "prefs/Preferences.h"
 #include "ui/ActionManager.h"
 #include "ui/ActionMenu.h"
+#include "ui/QKeySequenceUtils.h"
 #include "ui/QPathUtils.h"
 #include "ui/QPreferenceStore.h"
 #include "ui/SystemPaths.h"
@@ -72,7 +73,7 @@ QString toString(const QStringList& path, const QString& suffix)
   return result;
 }
 
-QString toString(const std::vector<QKeySequence>& keySequences)
+QString toString(const std::vector<KeySequence>& keySequences)
 {
   static const std::array<std::tuple<int, QString>, 4> Modifiers = {
     std::make_tuple(static_cast<int>(Qt::CTRL), QString::fromLatin1("Ctrl")),
@@ -86,7 +87,7 @@ QString toString(const std::vector<QKeySequence>& keySequences)
 
   for (auto i = 0u; i < keySequences.size(); ++i)
   {
-    const auto& keySequence = keySequences[i];
+    const auto keySequence = toQKeySequence(keySequences[i]);
 
     if (i > 0)
     {
@@ -134,7 +135,8 @@ void printMenuShortcuts(ActionManager& actionManager, QTextStream& out)
     [](const MenuSeparator&) {},
     [&](const MenuAction& actionItem) {
       out << "    '" << pathAsGenericQString(actionItem.action.preference().path) << "': "
-          << "{ path: " << toString(currentPath, actionItem.action.label())
+          << "{ path: "
+          << toString(currentPath, QString::fromStdString(actionItem.action.label()))
           << ", shortcut: " << toString(pref(actionItem.action.preference())) << " },\n";
     },
     [&](const auto& thisLambda, const Menu& menu) {

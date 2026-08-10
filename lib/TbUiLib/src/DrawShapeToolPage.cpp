@@ -26,7 +26,8 @@
 #include <QToolButton>
 
 #include "ui/BitmapButton.h"
-#include "ui/DrawShapeToolExtension.h"
+#include "ui/DrawShapeToolExtensionManager.h"
+#include "ui/DrawShapeToolExtensionPages.h"
 #include "ui/ImageUtils.h"
 #include "ui/ViewConstants.h"
 
@@ -68,8 +69,11 @@ void DrawShapeToolPage::createGui()
   m_extensionButton->setPopupMode(QToolButton::InstantPopup);
 
   m_extensionPages = new QStackedLayout{};
-  for (auto* extensionPage : m_extensionManager.createToolPages())
+  for (auto* extensionPage : createDrawShapeToolExtensionPages(
+         m_extensionManager.document(), m_extensionManager.parameters()))
   {
+    m_notifierConnection += extensionPage->applyParametersNotifier.connect(
+      m_extensionManager.applyParametersNotifier);
     m_extensionPages->addWidget(extensionPage);
   }
 

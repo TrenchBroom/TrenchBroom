@@ -19,6 +19,7 @@
 
 #include "ui/ToolBoxConnector.h"
 
+#include <QCursor>
 #include <QGuiApplication>
 
 #include "base/Macros.h"
@@ -34,6 +35,12 @@ namespace tb::ui
 {
 namespace
 {
+
+auto makeInputState()
+{
+  const auto mouseState = QCursor::pos();
+  return InputState{float(mouseState.x()), float(mouseState.y())};
+}
 
 auto getScrollSource(const ScrollEvent& event)
 {
@@ -51,6 +58,7 @@ auto getScrollSource(const ScrollEvent& event)
 
 ToolBoxConnector::ToolBoxConnector()
   : m_toolChain{std::make_unique<ToolChain>()}
+  , m_inputState{makeInputState()}
 {
 }
 

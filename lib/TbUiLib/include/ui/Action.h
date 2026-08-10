@@ -19,9 +19,7 @@
 
 #pragma once
 
-#include <QKeySequence>
-#include <QString>
-
+#include "base/KeySequence.h"
 #include "base/Macros.h"
 #include "base/Preference.h"
 #include "ui/ActionContext.h"
@@ -29,6 +27,7 @@
 #include <filesystem>
 #include <functional>
 #include <optional>
+#include <string>
 
 namespace tb
 {
@@ -53,53 +52,53 @@ using CheckedFn = std::function<bool(const ActionExecutionContext&)>;
 class Action
 {
 private:
-  QString m_label;
+  std::string m_label;
   ActionContext::Type m_actionContext;
-  Preference<std::vector<QKeySequence>> m_shortcutPreference;
+  Preference<std::vector<KeySequence>> m_shortcutPreference;
 
   ExecuteFn m_execute;
   EnabledFn m_enabled;
   std::optional<CheckedFn> m_checked;
 
   std::optional<std::filesystem::path> m_iconPath;
-  std::optional<QString> m_statusTip;
+  std::optional<std::string> m_statusTip;
 
   bool m_isMenuAction = false;
 
 public:
   Action(
     std::filesystem::path preferencePath,
-    QString label,
+    std::string label,
     ActionContext::Type actionContext,
-    QKeySequence defaultShortcut,
+    KeySequence defaultShortcut,
     ExecuteFn execute,
     EnabledFn enabled,
     std::optional<CheckedFn> checked,
     std::optional<std::filesystem::path> iconPath = std::nullopt,
-    std::optional<QString> statusTip = std::nullopt);
+    std::optional<std::string> statusTip = std::nullopt);
 
   Action(
     std::filesystem::path preferencePath,
-    QString label,
+    std::string label,
     ActionContext::Type actionContext,
-    QKeySequence defaultShortcut,
+    KeySequence defaultShortcut,
     ExecuteFn execute,
     EnabledFn enabled,
     std::optional<std::filesystem::path> iconPath = std::nullopt,
-    std::optional<QString> statusTip = std::nullopt);
+    std::optional<std::string> statusTip = std::nullopt);
 
   Action(
     std::filesystem::path preferencePath,
-    QString label,
+    std::string label,
     ActionContext::Type actionContext,
     ExecuteFn execute,
     EnabledFn enabled);
 
-  const QString& label() const;
+  const std::string& label() const;
   ActionContext::Type actionContext() const;
 
-  const Preference<std::vector<QKeySequence>>& preference() const;
-  Preference<std::vector<QKeySequence>>& preference();
+  const Preference<std::vector<KeySequence>>& preference() const;
+  Preference<std::vector<KeySequence>>& preference();
 
   void execute(ActionExecutionContext& context) const;
   bool enabled(const ActionExecutionContext& context) const;
@@ -108,14 +107,14 @@ public:
 
   const std::optional<std::filesystem::path>& iconPath() const;
 
-  const std::optional<QString>& statusTip() const;
+  const std::optional<std::string>& statusTip() const;
 
   bool isMenuAction() const;
   void setIsMenuAction(bool isMenuAction);
 
   deleteCopy(Action);
 
-  // cannot be noexcept because it will call QKeySequence's copy constructor
+  // cannot be noexcept because it will call KeySequence's copy constructor
   Action(Action&& other) = default;
   Action& operator=(Action&& other) = default;
 };

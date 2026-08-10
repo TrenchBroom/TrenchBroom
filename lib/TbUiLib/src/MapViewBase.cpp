@@ -75,7 +75,7 @@
 #include "render/RenderService.h"
 #include "ui/ActionExecutionContext.h"
 #include "ui/ActionManager.h"
-#include "ui/Animation.h"
+#include "ui/AnimationManager.h"
 #include "ui/AppController.h"
 #include "ui/EnableDisableTagCallback.h"
 #include "ui/FlashSelectionAnimation.h"
@@ -83,6 +83,7 @@
 #include "ui/MapViewActivationTracker.h"
 #include "ui/MapViewToolBox.h"
 #include "ui/MapWindow.h"
+#include "ui/QKeySequenceUtils.h"
 #include "ui/SelectionTool.h"
 #include "ui/SignalDelayer.h"
 
@@ -111,6 +112,7 @@ MapViewBase::MapViewBase(
   , m_toolBox{toolBox}
   , m_animationManager{std::make_unique<AnimationManager>(this)}
   , m_updateActionStatesSignalDelayer{new SignalDelayer{this}}
+  , m_actionCache{document}
 {
   setToolBox(toolBox);
   bindEvents();
@@ -302,11 +304,12 @@ void MapViewBase::createActions()
 
     auto* shortcut = new QShortcut{this};
     shortcut->setContext(Qt::WidgetWithChildrenShortcut);
-    shortcut->setKeys(keySequences | kdl::ranges::to<QList>());
+    shortcut->setKeys(
+      keySequences | std::views::transform(toQKeySequence) | kdl::ranges::to<QList>());
     connect(
       shortcut, &QShortcut::activated, this, [this, &action] { triggerAction(action); });
     connect(shortcut, &QShortcut::activatedAmbiguously, this, [this, &action] {
-      triggerAmbiguousAction(action.label());
+      triggerAmbiguousAction(QString::fromStdString(action.label()));
     });
     m_shortcuts.emplace_back(shortcut, &action);
   };
@@ -316,15 +319,17 @@ void MapViewBase::createActions()
   // by the menu or toolbar since they would conflict.
   actionManager.visitMapViewActions(visitor);
 
-  m_document.visitTagActions(actionManager, visitor);
-  m_document.visitEntityDefinitionActions(actionManager, visitor);
+  m_actionCache.visitTagActions(actionManager, visitor);
+  m_actionCache.visitEntityDefinitionActions(actionManager, visitor);
 }
 
 void MapViewBase::updateActionBindings()
 {
   for (auto& [shortcut, action] : m_shortcuts)
   {
-    shortcut->setKeys(pref(action->preference()) | kdl::ranges::to<QList>());
+    shortcut->setKeys(
+      pref(action->preference()) | std::views::transform(toQKeySequence)
+      | kdl::ranges::to<QList>());
   }
 }
 

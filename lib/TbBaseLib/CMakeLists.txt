@@ -5,6 +5,7 @@ target_sources(TbBaseLib
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Color.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/ColorChannel.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/FileLocation.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/KeySequence.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Logger.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/LoggerCache.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/LoggingHub.cpp

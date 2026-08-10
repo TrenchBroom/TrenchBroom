@@ -25,6 +25,7 @@
 #include "base/PreferenceManager.h"
 #include "gl/Camera.h"
 #include "prefs/Preferences.h"
+#include "ui/QKeySequenceUtils.h"
 
 #include "vm/vec.h"
 
@@ -41,10 +42,11 @@ qint64 msecsSinceReference()
 }
 
 bool eventMatchesShortcut(
-  const std::vector<QKeySequence>& shortcuts, const QKeyEvent& event)
+  const std::vector<KeySequence>& shortcuts, const QKeyEvent& event)
 {
   return std::ranges::any_of(shortcuts, [&](const auto& shortcut) {
-    if (shortcut.isEmpty())
+    const auto qShortcut = toQKeySequence(shortcut);
+    if (qShortcut.isEmpty())
     {
       return false;
     }
@@ -54,7 +56,7 @@ bool eventMatchesShortcut(
     const auto modifiers = Qt::KeyboardModifiers{};
     const auto key = event.keyCombination().key();
     const auto eventSequence = QKeySequence{QKeyCombination{modifiers, key}};
-    return eventSequence.matches(shortcut) == QKeySequence::ExactMatch;
+    return eventSequence.matches(qShortcut) == QKeySequence::ExactMatch;
   });
 }
 

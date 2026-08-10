@@ -19,8 +19,7 @@
 
 #pragma once
 
-#include <QKeySequence>
-
+#include "base/KeySequence.h"
 #include "base/Preference.h"
 #include "ui/ActionContext.h"
 
@@ -28,13 +27,8 @@
 #include <filesystem>
 #include <vector>
 
-class QObject;
-
 namespace tb::ui
 {
-class Action;
-class ActionManager;
-class MapDocument;
 
 enum class ActionInfoType
 {
@@ -55,21 +49,21 @@ private:
    */
   std::filesystem::path m_displayPath;
   ActionContext::Type m_actionContext;
-  const Preference<std::vector<QKeySequence>>* m_keyboardShortcutPreference;
+  const Preference<std::vector<KeySequence>>* m_keyboardShortcutPreference;
 
 public:
   ActionInfo(
     ActionInfoType type,
     std::filesystem::path displayPath,
     ActionContext::Type actionContext,
-    const Preference<std::vector<QKeySequence>>& keyboardShortcutPreference);
+    const Preference<std::vector<KeySequence>>& keyboardShortcutPreference);
 
   const std::filesystem::path& displayPath() const;
 
   ActionInfoType type() const;
 
   ActionContext::Type actionContext() const;
-  const Preference<std::vector<QKeySequence>>& keyboardShortcutPreference() const;
+  const Preference<std::vector<KeySequence>>& keyboardShortcutPreference() const;
 
   std::strong_ordering operator<=>(const ActionInfo& other) const;
   bool operator==(const ActionInfo& other) const;

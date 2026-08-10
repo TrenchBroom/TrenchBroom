@@ -37,6 +37,7 @@
 #include "render/MapRenderer.h"
 #include "render/RenderContext.h"
 #include "render/SelectionBoundsRenderer.h"
+#include "ui/AnimationManager.h"
 #include "ui/CameraAnimation.h"
 #include "ui/CameraLinkHelper.h"
 #include "ui/CameraTool2D.h"

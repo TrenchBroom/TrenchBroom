@@ -1,0 +1,93 @@
+/*
+ Copyright (C) 2010 Kristian Duske
+
+ This file is part of TrenchBroom.
+
+ TrenchBroom is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+
+ TrenchBroom is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#pragma once
+
+#include <memory>
+
+namespace tb::ui
+{
+
+class AnimationCurve
+{
+public:
+  virtual ~AnimationCurve();
+  double apply(double progress) const;
+
+private:
+  virtual double doApply(double progress) const = 0;
+};
+
+class FlatAnimationCurve : public AnimationCurve
+{
+private:
+  double doApply(double progress) const override;
+};
+
+class EaseInEaseOutAnimationCurve : public AnimationCurve
+{
+private:
+  double m_threshold;
+
+public:
+  explicit EaseInEaseOutAnimationCurve(double duration);
+  double doApply(double progress) const override;
+};
+
+class Animation
+{
+public:
+  using Type = int;
+  static const Type NoType = -1;
+
+  enum class Curve
+  {
+    Flat,
+    EaseInEaseOut
+  };
+
+private:
+  const Type m_type;
+  std::unique_ptr<AnimationCurve> m_curve;
+
+  const double m_duration;
+  double m_elapsed = 0.0;
+  double m_progress = 0.0;
+
+public:
+  static Type freeType();
+
+  Animation(Type type, Curve curve, double duration);
+  virtual ~Animation();
+
+  Type type() const;
+  /**
+   * Advances the animation by the given number of milliseconds.
+   * @return true if the animation is finished.
+   */
+  bool step(double deltaMilliseconds);
+  void update();
+
+private:
+  static std::unique_ptr<AnimationCurve> createAnimationCurve(
+    Curve curve, double duration);
+  virtual void doUpdate(double progress) = 0;
+};
+
+} // namespace tb::ui

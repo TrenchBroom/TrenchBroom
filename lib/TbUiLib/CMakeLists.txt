@@ -10,27 +10,17 @@ target_sources(TbUiLib
     ${CMAKE_CURRENT_SOURCE_DIR}/src/ActionInfo.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/ActionManager.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/ActionMenu.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/AngleIndicatorRenderer.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/Animation.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/AnimationManager.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/AppController.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/AppInfoPanel.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/AssembleBrushTool.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/AssembleBrushToolController3D.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/AutoSizeTableRows.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/BitmapButton.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/BorderLine.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/BorderPanel.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/CameraAnimation.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/CameraLinkHelper.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/CameraTool2D.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/CameraTool3D.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/CellLayout.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/CellView.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/ChoosePathTypeDialog.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/ClickableLabel.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/ClickableTitleBar.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/ClipTool.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/ClipToolController.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/CollapsibleTitledPanel.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/ColorButton.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/ColorModel.cpp
@@ -46,30 +36,19 @@ target_sources(TbUiLib
     ${CMAKE_CURRENT_SOURCE_DIR}/src/CompilationTaskListBox.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/CompilationVariables.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Console.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/ControlPointTool.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/ControlPointToolController.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/ControlPointToolPage.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/ContainerBar.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Contracts.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/ControlListBox.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/CrashDialog.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/CrashReporter.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/CreateBrushesToolBase.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/CreateEntityTool.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/CreateEntityToolController.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/CurrentGameIndicator.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/CyclingMapView.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/DialogButtonLayout.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/DialogHeader.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/DrawShapeTool.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/DrawShapeToolController2D.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/DrawShapeToolController3D.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/DrawShapeToolExtension.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/DrawShapeToolExtensions.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/DrawShapeToolExtensionPage.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/DrawShapeToolExtensionPages.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/DrawShapeToolPage.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/DropTracker.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/EdgeTool.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/EdgeToolController.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/ElidedLabel.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/EmptyWidget.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/EnableDisableTagCallback.cpp
@@ -82,12 +61,8 @@ target_sources(TbUiLib
     ${CMAKE_CURRENT_SOURCE_DIR}/src/EntityPropertyItemDelegate.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/EntityPropertyModel.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/EntityPropertyTable.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/ExtrudeTool.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/ExtrudeToolController.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/FaceAttribsEditor.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/FaceInspector.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/FaceTool.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/FaceToolController.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/FileDialogDefaultDir.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/FileEventFilter.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/FileLogger.cpp
@@ -105,16 +80,13 @@ target_sources(TbUiLib
     ${CMAKE_CURRENT_SOURCE_DIR}/src/GameEngineProfileManager.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/GameListBox.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/GamesPreferencePane.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/GestureTracker.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/GetVersion.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/GlFunctions.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/GlQt.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/HandleDragTracker.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/ImageListBox.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/ImageUtils.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/InfoPanel.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/InputEvent.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/InputState.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Inspector.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/IssueBrowser.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/IssueBrowserView.cpp
@@ -122,13 +94,12 @@ target_sources(TbUiLib
     ${CMAKE_CURRENT_SOURCE_DIR}/src/KeyboardPreferencePane.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/KeyboardShortcutItemDelegate.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/KeyboardShortcutModel.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/Lasso.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/LaunchGameEngine.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/LaunchGameEngineDialog.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/LayerEditor.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/LayerListBox.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/LimitedKeySequenceEdit.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/MapDocument.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/MapDocumentActionCache.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/MapInspector.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/MapView.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/MapView2D.cpp
@@ -146,19 +117,16 @@ target_sources(TbUiLib
     ${CMAKE_CURRENT_SOURCE_DIR}/src/MiniToolBarLayout.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/ModEditor.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/MousePreferencePane.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/MoveHandleDragTracker.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/MoveObjectsTool.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/MoveObjectsToolController.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/MultiCompletionLineEdit.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/MultiPaneMapView.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/ObjExportDialog.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/OnePaneMapView.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/PickRequest.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/PopupButton.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/PopupWindow.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/PreferenceDialog.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/PreferencePane.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/QColorUtils.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/QKeySequenceUtils.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/QPathUtils.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/QPreferenceStore.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/QPreferenceStoreDelegate.cpp
@@ -171,23 +139,10 @@ target_sources(TbUiLib
     ${CMAKE_CURRENT_SOURCE_DIR}/src/RecentDocuments.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/RenderView.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/ReplaceMaterialDialog.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/RotateHandle.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/RotateHandleController.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/RotateTool.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/RotateToolController.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/RotateToolPage.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/SweepTool.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/SweepToolController.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/SweepToolPage.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/SweepToolUtils.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/ScaleTool.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/ScaleToolController.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/ScaleToolPage.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/SearchBox.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/SelectionTool.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/SetBrushFaceAttributesTool.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/ShearTool.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/ShearToolController.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/KeyboardShortcutUtils.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/SignalDelayer.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/SliderWithLabel.cpp
@@ -200,6 +155,7 @@ target_sources(TbUiLib
     ${CMAKE_CURRENT_SOURCE_DIR}/src/SmartWadEditor.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/SpinControl.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Splitter.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/StandardShortcut.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/SwitchableMapViewContainer.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/SwitchableTitledPanel.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/SyncHeightEventFilter.cpp
@@ -210,27 +166,15 @@ target_sources(TbUiLib
     ${CMAKE_CURRENT_SOURCE_DIR}/src/ThreePaneMapView.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/TitleBar.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/TitledPanel.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/Tool.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/ToolBox.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/ToolBoxConnector.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/ToolChain.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/ToolController.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/TwoPaneMapView.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/UvCameraTool.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/UvEditor.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/UvOffsetTool.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/UvOriginTool.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/UvRotateTool.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/UvScaleTool.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/UvShearTool.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/UvView.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/UvViewHelper.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/UpdateConfig.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/UpdatePreferencePane.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/UpdateVersion.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/VariableStoreModel.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/VertexTool.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/VertexToolController.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/ViewEditor.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/ViewPreferencePane.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/ViewUtils.cpp
@@ -250,28 +194,17 @@ target_sources(TbUiLib
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/ActionInfo.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/ActionManager.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/ActionMenu.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/AngleIndicatorRenderer.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/Animation.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/AnimationManager.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/AppController.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/AppInfoPanel.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/AssembleBrushTool.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/AssembleBrushToolController3D.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/AutoSizeTableRows.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/BitmapButton.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/BorderLine.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/BorderPanel.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/BrushHandleToolBase.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/CameraAnimation.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/CameraLinkHelper.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/CameraTool2D.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/CameraTool3D.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/CellLayout.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/CellView.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/ChoosePathTypeDialog.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/ClickableLabel.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/ClickableTitleBar.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/ClipTool.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/ClipToolController.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/CollapsibleTitledPanel.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/ColorButton.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/ColorModel.h
@@ -287,30 +220,19 @@ target_sources(TbUiLib
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/CompilationTaskListBox.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/CompilationVariables.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/Console.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/ControlPointTool.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/ControlPointToolController.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/ControlPointToolPage.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/ContainerBar.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/Contracts.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/ControlListBox.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/CrashDialog.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/CrashReporter.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/CreateBrushesToolBase.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/CreateEntityTool.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/CreateEntityToolController.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/CurrentGameIndicator.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/CyclingMapView.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/DialogButtonLayout.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/DialogHeader.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/DrawShapeTool.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/DrawShapeToolController2D.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/DrawShapeToolController3D.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/DrawShapeToolExtension.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/DrawShapeToolExtensions.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/DrawShapeToolExtensionPage.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/DrawShapeToolExtensionPages.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/DrawShapeToolPage.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/DropTracker.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/EdgeTool.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/EdgeToolController.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/ElidedLabel.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/EmptyWidget.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/EnableDisableTagCallback.h
@@ -323,12 +245,8 @@ target_sources(TbUiLib
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/EntityPropertyItemDelegate.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/EntityPropertyModel.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/EntityPropertyTable.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/ExtrudeTool.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/ExtrudeToolController.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/FaceAttribsEditor.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/FaceInspector.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/FaceTool.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/FaceToolController.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/FileDialogDefaultDir.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/FileEventFilter.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/FileLogger.h
@@ -346,16 +264,13 @@ target_sources(TbUiLib
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/GameEngineProfileManager.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/GameListBox.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/GamesPreferencePane.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/GestureTracker.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/GetVersion.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/GlFunctions.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/GlQt.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/HandleDragTracker.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/ImageListBox.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/ImageUtils.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/InfoPanel.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/InputEvent.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/InputState.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/Inspector.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/IssueBrowser.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/IssueBrowserView.h
@@ -363,13 +278,12 @@ target_sources(TbUiLib
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/KeyboardPreferencePane.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/KeyboardShortcutItemDelegate.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/KeyboardShortcutModel.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/Lasso.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/LaunchGameEngine.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/LaunchGameEngineDialog.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/LayerEditor.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/LayerListBox.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/LimitedKeySequenceEdit.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/MapDocument.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/MapDocumentActionCache.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/MapInspector.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/MapView.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/MapView2D.h
@@ -388,22 +302,16 @@ target_sources(TbUiLib
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/MiniToolBarLayout.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/ModEditor.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/MousePreferencePane.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/MoveHandleDragTracker.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/MoveObjectsTool.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/MoveObjectsToolController.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/MultiCompletionLineEdit.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/MultiPaneMapView.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/NodeHandleToolBase.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/NodeHandleToolControllerBase.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/NodeHandleToolControllerParts.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/ObjExportDialog.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/OnePaneMapView.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/PickRequest.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/PopupButton.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/PopupWindow.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/PreferenceDialog.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/PreferencePane.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/QColorUtils.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/QKeySequenceUtils.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/QPathUtils.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/QPreferenceStore.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/QPreferenceStoreDelegate.h
@@ -417,23 +325,10 @@ target_sources(TbUiLib
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/RecentDocuments.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/RenderView.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/ReplaceMaterialDialog.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/RotateHandle.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/RotateHandleController.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/RotateTool.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/RotateToolController.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/RotateToolPage.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/SweepTool.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/SweepToolController.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/SweepToolPage.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/SweepToolUtils.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/ScaleTool.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/ScaleToolController.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/ScaleToolPage.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/SearchBox.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/SelectionTool.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/SetBrushFaceAttributesTool.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/ShearTool.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/ShearToolController.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/KeyboardShortcutUtils.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/SignalDelayer.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/SliderWithLabel.h
@@ -446,6 +341,7 @@ target_sources(TbUiLib
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/SmartWadEditor.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/SpinControl.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/Splitter.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/StandardShortcut.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/SwitchableMapViewContainer.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/SwitchableTitledPanel.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/SyncHeightEventFilter.h
@@ -456,27 +352,15 @@ target_sources(TbUiLib
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/ThreePaneMapView.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/TitleBar.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/TitledPanel.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/Tool.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/ToolBox.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/ToolBoxConnector.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/ToolChain.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/ToolController.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/TwoPaneMapView.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/UvCameraTool.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/UvEditor.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/UvOffsetTool.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/UvOriginTool.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/UvRotateTool.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/UvScaleTool.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/UvShearTool.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/UvView.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/UvViewHelper.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/UpdateConfig.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/UpdatePreferencePane.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/UpdateVersion.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/VariableStoreModel.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/VertexTool.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/VertexToolController.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/ViewConstants.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/ViewEditor.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/ViewPreferencePane.h
@@ -503,6 +387,7 @@ target_link_libraries(TbUiLib
     Qt6::OpenGL
     Qt6::OpenGLWidgets
     Qt6::Widgets
+    TbAppLib
     TbBaseLib
     TbMdlLib
     TbPreferencesLib
