@@ -10,7 +10,6 @@ target_sources(TbUiLib
     ${CMAKE_CURRENT_SOURCE_DIR}/src/ActionInfo.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/ActionManager.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/ActionMenu.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/Animation.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/AnimationManager.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/AppController.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/AppInfoPanel.cpp
@@ -18,9 +17,6 @@ target_sources(TbUiLib
     ${CMAKE_CURRENT_SOURCE_DIR}/src/BitmapButton.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/BorderLine.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/BorderPanel.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/CameraAnimation.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/CameraLinkHelper.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/CellLayout.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/CellView.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/ChoosePathTypeDialog.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/ClickableLabel.cpp
@@ -198,7 +194,6 @@ target_sources(TbUiLib
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/ActionInfo.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/ActionManager.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/ActionMenu.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/Animation.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/AnimationManager.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/AppController.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/AppInfoPanel.h
@@ -206,9 +201,6 @@ target_sources(TbUiLib
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/BitmapButton.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/BorderLine.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/BorderPanel.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/CameraAnimation.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/CameraLinkHelper.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/CellLayout.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/CellView.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/ChoosePathTypeDialog.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/ClickableLabel.h

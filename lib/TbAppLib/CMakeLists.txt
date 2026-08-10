@@ -3,10 +3,14 @@ add_library(TbAppLib STATIC)
 target_sources(TbAppLib
   PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src/AngleIndicatorRenderer.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/Animation.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/AssembleBrushTool.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/AssembleBrushToolController3D.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/CameraAnimation.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/CameraLinkHelper.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/CameraTool2D.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/CameraTool3D.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/CellLayout.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/ClipTool.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/ClipToolController.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/ControlPointTool.cpp
@@ -67,11 +71,15 @@ target_sources(TbAppLib
     BASE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/include
     FILES
       ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/AngleIndicatorRenderer.h
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/Animation.h
       ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/AssembleBrushTool.h
       ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/AssembleBrushToolController3D.h
       ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/BrushHandleToolBase.h
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/CameraAnimation.h
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/CameraLinkHelper.h
       ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/CameraTool2D.h
       ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/CameraTool3D.h
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/CellLayout.h
       ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/ClipTool.h
       ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/ClipToolController.h
       ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/ControlPointTool.h
