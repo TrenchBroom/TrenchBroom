@@ -19,7 +19,7 @@
 
 #include "gl/OrthographicCamera.h"
 #include "gl/PerspectiveCamera.h"
-#include "ui/CatchConfig.h"
+#include "mdl/CatchConfig.h"
 #include "ui/MoveHandleDragTracker.h"
 #include "ui/PickRequest.h"
 

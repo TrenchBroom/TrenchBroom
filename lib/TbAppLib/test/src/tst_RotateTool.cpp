@@ -18,6 +18,7 @@
  */
 
 #include "mdl/BrushNode.h" // IWYU pragma: keep
+#include "mdl/CatchConfig.h"
 #include "mdl/Entity.h"
 #include "mdl/EntityNode.h"
 #include "mdl/Grid.h"
@@ -25,7 +26,6 @@
 #include "mdl/Map_Nodes.h"
 #include "mdl/Map_Selection.h"
 #include "mdl/TestFactory.h"
-#include "ui/CatchConfig.h"
 #include "ui/MapDocument.h"
 #include "ui/MapDocumentFixture.h"
 #include "ui/RotateTool.h"

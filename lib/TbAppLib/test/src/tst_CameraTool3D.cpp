@@ -19,9 +19,9 @@
 
 #include "base/PreferenceManager.h"
 #include "gl/PerspectiveCamera.h"
+#include "mdl/CatchConfig.h"
 #include "prefs/Preferences.h"
 #include "ui/CameraTool3D.h"
-#include "ui/CatchConfig.h"
 #include "ui/GestureTracker.h"
 #include "ui/InputState.h"
 

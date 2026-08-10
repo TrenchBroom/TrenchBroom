@@ -27,7 +27,9 @@
 #include "mdl/BrushFace.h"
 #include "mdl/BrushFaceHandle.h"
 #include "mdl/BrushNode.h"
+#include "mdl/CatchConfig.h"
 #include "mdl/EditorContext.h"
+#include "mdl/HitFilter.h"
 #include "mdl/LayerNode.h" // IWYU pragma: keep
 #include "mdl/Map.h"
 #include "mdl/Map_Nodes.h"
@@ -35,14 +37,13 @@
 #include "mdl/PickResult.h"
 #include "mdl/UvAttributes.h"
 #include "mdl/WorldNode.h"
-#include "ui/CatchConfig.h"
 #include "ui/GestureTracker.h"
 #include "ui/InputState.h"
 #include "ui/MapDocument.h"
 #include "ui/MapDocumentFixture.h"
 #include "ui/PickRequest.h"
 #include "ui/ToolController.h"
-#include "ui/UvOffsetTool.h"
+#include "ui/UvRotateTool.h"
 #include "ui/UvViewHelper.h"
 
 #include "kd/result.h"
@@ -52,7 +53,7 @@
 namespace tb::ui
 {
 
-TEST_CASE("UvOffsetTool")
+TEST_CASE("UvRotateTool")
 {
   // declared before the fixture, so it outlives (is destroyed after) the brush that
   // references it via a raw, non-owning pointer
@@ -90,17 +91,29 @@ TEST_CASE("UvOffsetTool")
   auto helper = UvViewHelper{camera};
   helper.setFaceHandle(faceHandle);
 
-  auto tool = UvOffsetTool{document, helper};
+  auto tool = UvRotateTool{document, helper};
   auto& controller = static_cast<ToolController&>(tool);
+
+  // matches the private RotateHandleRadius / RotateHandleWidth constants in
+  // UvRotateTool.cpp
+  constexpr auto RotateHandleRadius = 32.0;
 
   // a vertical ray hits the (planar, z = 16) face exactly at (x, y, 16)
   const auto rayAt = [](const vm::vec3d& facePoint) {
     return vm::ray3d{{facePoint.x(), facePoint.y(), 100}, {0, 0, -1}};
   };
 
+  const auto pointOnRing = [&] {
+    const auto zoom = double(helper.camera().zoom());
+    return helper.origin() + vm::vec3d{RotateHandleRadius / zoom, 0, 0};
+  };
+
   const auto inputStateFor = [&](const vm::ray3d& ray) {
     auto inputState = InputState{0.0f, 0.0f};
     inputState.setPickRequest(PickRequest{ray, helper.camera()});
+    auto pickResult = mdl::PickResult{};
+    controller.pick(inputState, pickResult);
+    inputState.setPickResult(std::move(pickResult));
     return inputState;
   };
 
@@ -114,11 +127,59 @@ TEST_CASE("UvOffsetTool")
     CHECK(&controller.tool() == static_cast<Tool*>(&tool));
   }
 
+  SECTION("pick")
+  {
+    SECTION("with an invalid helper, nothing is hit")
+    {
+      auto emptyCamera = gl::OrthographicCamera{};
+      auto emptyHelper = UvViewHelper{emptyCamera};
+      auto emptyTool = UvRotateTool{document, emptyHelper};
+      auto& emptyController = static_cast<ToolController&>(emptyTool);
+
+      auto inputState = InputState{0.0f, 0.0f};
+      inputState.setPickRequest(
+        PickRequest{vm::ray3d{{0, 0, 100}, {0, 0, -1}}, emptyCamera});
+      auto pickResult = mdl::PickResult{};
+      emptyController.pick(inputState, pickResult);
+
+      CHECK(pickResult.empty());
+    }
+
+    SECTION("hits the rotate ring")
+    {
+      const auto inputState = inputStateFor(rayAt(pointOnRing()));
+
+      CHECK(inputState.pickResult()
+              .first(mdl::HitFilters::type(UvRotateTool::AngleHandleHitType))
+              .isMatch());
+    }
+
+    SECTION("does not hit at the origin, far from the ring")
+    {
+      const auto inputState = inputStateFor(rayAt(helper.origin()));
+
+      CHECK(!inputState.pickResult()
+               .first(mdl::HitFilters::type(UvRotateTool::AngleHandleHitType))
+               .isMatch());
+    }
+
+    SECTION("does not hit when the ray misses the face's plane")
+    {
+      auto inputState = InputState{0.0f, 0.0f};
+      inputState.setPickRequest(
+        PickRequest{vm::ray3d{{0, 0, 100}, {1, 0, 0}}, helper.camera()});
+      auto pickResult = mdl::PickResult{};
+      controller.pick(inputState, pickResult);
+
+      CHECK(pickResult.empty());
+    }
+  }
+
   SECTION("acceptMouseDrag")
   {
-    SECTION("returns nullptr with a modifier key held")
+    SECTION("returns nullptr with an unsupported modifier key held")
     {
-      auto inputState = inputStateFor(rayAt(helper.origin()));
+      auto inputState = inputStateFor(rayAt(pointOnRing()));
       inputState.setModifierKeys(ModifierKeys::Shift);
       inputState.mouseDown(MouseButtons::Left);
 
@@ -127,63 +188,68 @@ TEST_CASE("UvOffsetTool")
 
     SECTION("returns nullptr with the wrong mouse button")
     {
-      auto inputState = inputStateFor(rayAt(helper.origin()));
+      auto inputState = inputStateFor(rayAt(pointOnRing()));
       inputState.mouseDown(MouseButtons::Right);
 
       CHECK(controller.acceptMouseDrag(inputState) == nullptr);
     }
 
-    SECTION("starts a drag anywhere on the face")
+    SECTION("returns nullptr without a ring hit and without CtrlCmd")
     {
       auto inputState = inputStateFor(rayAt(helper.origin()));
+      inputState.mouseDown(MouseButtons::Left);
+
+      CHECK(controller.acceptMouseDrag(inputState) == nullptr);
+    }
+
+    SECTION("starts a drag on a ring hit")
+    {
+      auto inputState = inputStateFor(rayAt(pointOnRing()));
       inputState.mouseDown(MouseButtons::Left);
 
       CHECK(controller.acceptMouseDrag(inputState) != nullptr);
     }
 
-    SECTION("dragging the face pans the UV offset")
+    SECTION("with CtrlCmd, starts a drag anywhere on the face")
     {
       auto inputState = inputStateFor(rayAt(helper.origin()));
+      inputState.setModifierKeys(ModifierKeys::CtrlCmd);
+      inputState.mouseDown(MouseButtons::Left);
+
+      CHECK(controller.acceptMouseDrag(inputState) != nullptr);
+    }
+
+    SECTION("dragging the ring changes the face's UV rotation")
+    {
+      auto inputState = inputStateFor(rayAt(pointOnRing()));
       inputState.mouseDown(MouseButtons::Left);
 
       auto tracker = controller.acceptMouseDrag(inputState);
       REQUIRE(tracker != nullptr);
-      REQUIRE(faceHandle.face().uvAttributes().offset == vm::vec2f{0, 0});
+      REQUIRE(faceHandle.face().uvAttributes().rotation == 0.0f);
 
-      auto dragInputState = inputStateFor(rayAt(helper.origin() + vm::vec3d{20, 0, 0}));
+      // rotate a quarter turn around the origin
+      const auto zoom = double(helper.camera().zoom());
+      const auto quarterTurnPoint =
+        helper.origin() + vm::vec3d{0, RotateHandleRadius / zoom, 0};
+      auto dragInputState = inputStateFor(rayAt(quarterTurnPoint));
       dragInputState.setModifierKeys(ModifierKeys::CtrlCmd);
-      CHECK(tracker->update(dragInputState));
 
-      const auto offsetAfterDrag = faceHandle.face().uvAttributes().offset;
-      CHECK(offsetAfterDrag != vm::vec2f{0, 0});
+      CHECK(tracker->update(dragInputState));
+      CHECK(faceHandle.face().uvAttributes().rotation != 0.0f);
 
       SECTION("ending the drag keeps the change")
       {
+        const auto rotationAfterDrag = faceHandle.face().uvAttributes().rotation;
         tracker->end(dragInputState);
-        CHECK(faceHandle.face().uvAttributes().offset == offsetAfterDrag);
+        CHECK(faceHandle.face().uvAttributes().rotation == rotationAfterDrag);
       }
 
       SECTION("cancelling the drag reverts the change")
       {
         tracker->cancel();
-        CHECK(faceHandle.face().uvAttributes().offset == vm::vec2f{0, 0});
+        CHECK(faceHandle.face().uvAttributes().rotation == 0.0f);
       }
-    }
-
-    SECTION("dragging without the snapping modifier still pans the offset")
-    {
-      auto inputState = inputStateFor(rayAt(helper.origin()));
-      inputState.mouseDown(MouseButtons::Left);
-
-      auto tracker = controller.acceptMouseDrag(inputState);
-      REQUIRE(tracker != nullptr);
-
-      // no CtrlCmd held, so this exercises the snapDelta() codepath
-      const auto dragInputState =
-        inputStateFor(rayAt(helper.origin() + vm::vec3d{20, 0, 0}));
-      CHECK(tracker->update(dragInputState));
-
-      CHECK(faceHandle.face().uvAttributes().offset != vm::vec2f{0, 0});
     }
   }
 }

@@ -2,21 +2,135 @@ add_library(TbAppLib STATIC)
 
 target_sources(TbAppLib
   PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/AngleIndicatorRenderer.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/AssembleBrushTool.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/AssembleBrushToolController3D.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/CameraTool2D.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/CameraTool3D.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/ClipTool.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/ClipToolController.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/ControlPointTool.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/ControlPointToolController.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/CreateBrushesToolBase.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/CreateEntityTool.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/CreateEntityToolController.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/DrawShapeTool.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/DrawShapeToolController2D.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/DrawShapeToolController3D.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/DrawShapeToolExtension.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/DrawShapeToolExtensionManager.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/DrawShapeToolExtensions.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/DrawShapeToolParameters.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/DropTracker.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/EdgeTool.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/EdgeToolController.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/ExtrudeTool.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/ExtrudeToolController.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/FaceTool.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/FaceToolController.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/GestureTracker.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/HandleDragTracker.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/InputState.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/Lasso.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/MapDocument.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/MoveHandleDragTracker.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/MoveObjectsTool.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/MoveObjectsToolController.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/PickRequest.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/RotateHandle.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/RotateHandleController.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/RotateTool.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/RotateToolController.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/ScaleTool.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/ScaleToolController.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/SelectionTool.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/SetBrushFaceAttributesTool.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/ShearTool.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/ShearToolController.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/SweepTool.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/SweepToolController.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/SweepToolUtils.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/Tool.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/ToolChain.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/ToolController.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/UvCameraTool.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/UvOffsetTool.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/UvOriginTool.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/UvRotateTool.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/UvScaleTool.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/UvShearTool.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/UvViewHelper.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/VertexTool.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/VertexToolController.cpp
 
   PUBLIC FILE_SET headers TYPE HEADERS
     BASE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/include
     FILES
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/AngleIndicatorRenderer.h
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/AssembleBrushTool.h
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/AssembleBrushToolController3D.h
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/BrushHandleToolBase.h
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/CameraTool2D.h
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/CameraTool3D.h
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/ClipTool.h
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/ClipToolController.h
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/ControlPointTool.h
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/ControlPointToolController.h
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/CreateBrushesToolBase.h
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/CreateEntityTool.h
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/CreateEntityToolController.h
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/DrawShapeTool.h
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/DrawShapeToolController2D.h
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/DrawShapeToolController3D.h
       ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/DrawShapeToolExtension.h
       ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/DrawShapeToolExtensionKind.h
       ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/DrawShapeToolExtensionManager.h
       ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/DrawShapeToolExtensions.h
       ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/DrawShapeToolParameters.h
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/DropTracker.h
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/EdgeTool.h
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/EdgeToolController.h
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/ExtrudeTool.h
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/ExtrudeToolController.h
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/FaceTool.h
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/FaceToolController.h
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/GestureTracker.h
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/HandleDragTracker.h
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/InputState.h
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/Lasso.h
       ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/MapDocument.h
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/MoveHandleDragTracker.h
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/MoveObjectsTool.h
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/MoveObjectsToolController.h
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/NodeHandleToolBase.h
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/NodeHandleToolControllerBase.h
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/NodeHandleToolControllerParts.h
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/PickRequest.h
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/RotateHandle.h
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/RotateHandleController.h
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/RotateTool.h
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/RotateToolController.h
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/ScaleTool.h
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/ScaleToolController.h
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/SelectionTool.h
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/SetBrushFaceAttributesTool.h
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/ShearTool.h
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/ShearToolController.h
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/SweepTool.h
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/SweepToolController.h
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/SweepToolUtils.h
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/Tool.h
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/ToolChain.h
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/ToolController.h
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/UvCameraTool.h
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/UvOffsetTool.h
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/UvOriginTool.h
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/UvRotateTool.h
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/UvScaleTool.h
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/UvShearTool.h
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/UvViewHelper.h
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/VertexTool.h
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/VertexToolController.h
 )
 
 target_link_libraries(TbAppLib

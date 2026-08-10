@@ -27,8 +27,8 @@
 #include "mdl/BrushFace.h"
 #include "mdl/BrushFaceHandle.h"
 #include "mdl/BrushNode.h"
+#include "mdl/CatchConfig.h"
 #include "mdl/EditorContext.h"
-#include "mdl/Hit.h"
 #include "mdl/LayerNode.h" // IWYU pragma: keep
 #include "mdl/Map.h"
 #include "mdl/Map_Nodes.h"
@@ -36,14 +36,13 @@
 #include "mdl/PickResult.h"
 #include "mdl/UvAttributes.h"
 #include "mdl/WorldNode.h"
-#include "ui/CatchConfig.h"
 #include "ui/GestureTracker.h"
 #include "ui/InputState.h"
 #include "ui/MapDocument.h"
 #include "ui/MapDocumentFixture.h"
 #include "ui/PickRequest.h"
 #include "ui/ToolController.h"
-#include "ui/UvScaleTool.h"
+#include "ui/UvOffsetTool.h"
 #include "ui/UvViewHelper.h"
 
 #include "kd/result.h"
@@ -53,8 +52,10 @@
 namespace tb::ui
 {
 
-TEST_CASE("UvScaleTool")
+TEST_CASE("UvOffsetTool")
 {
+  // declared before the fixture, so it outlives (is destroyed after) the brush that
+  // references it via a raw, non-owning pointer
   auto material =
     gl::Material{"material", gl::createTextureResource(gl::Texture{64, 64})};
 
@@ -89,15 +90,17 @@ TEST_CASE("UvScaleTool")
   auto helper = UvViewHelper{camera};
   helper.setFaceHandle(faceHandle);
 
-  auto tool = UvScaleTool{document, helper};
+  auto tool = UvOffsetTool{document, helper};
   auto& controller = static_cast<ToolController&>(tool);
+
+  // a vertical ray hits the (planar, z = 16) face exactly at (x, y, 16)
+  const auto rayAt = [](const vm::vec3d& facePoint) {
+    return vm::ray3d{{facePoint.x(), facePoint.y(), 100}, {0, 0, -1}};
+  };
 
   const auto inputStateFor = [&](const vm::ray3d& ray) {
     auto inputState = InputState{0.0f, 0.0f};
     inputState.setPickRequest(PickRequest{ray, helper.camera()});
-    auto pickResult = mdl::PickResult{};
-    controller.pick(inputState, pickResult);
-    inputState.setPickResult(std::move(pickResult));
     return inputState;
   };
 
@@ -106,46 +109,16 @@ TEST_CASE("UvScaleTool")
     CHECK(!controller.cancel());
   }
 
-  SECTION("pick")
+  SECTION("tool returns itself")
   {
-    SECTION("with an invalid helper, nothing is hit")
-    {
-      auto emptyCamera = gl::OrthographicCamera{};
-      auto emptyHelper = UvViewHelper{emptyCamera};
-      auto emptyTool = UvScaleTool{document, emptyHelper};
-      auto& emptyController = static_cast<ToolController&>(emptyTool);
-
-      auto inputState = InputState{0.0f, 0.0f};
-      inputState.setPickRequest(
-        PickRequest{vm::ray3d{{0, 0, 100}, {0, 0, -1}}, emptyCamera});
-
-      auto pickResult = mdl::PickResult{};
-      emptyController.pick(inputState, pickResult);
-      CHECK(pickResult.empty());
-    }
-
-    SECTION("hits both scale handles at a grid intersection")
-    {
-      const auto inputState = inputStateFor(vm::ray3d{{0, 0, 100}, {0, 0, -1}});
-
-      CHECK(
-        inputState.pickResult()
-          .all(mdl::HitFilters::type(UvScaleTool::XHandleHitType))
-          .size()
-        == 1u);
-      CHECK(
-        inputState.pickResult()
-          .all(mdl::HitFilters::type(UvScaleTool::YHandleHitType))
-          .size()
-        == 1u);
-    }
+    CHECK(&controller.tool() == static_cast<Tool*>(&tool));
   }
 
   SECTION("acceptMouseDrag")
   {
     SECTION("returns nullptr with a modifier key held")
     {
-      auto inputState = inputStateFor(vm::ray3d{{0, 0, 100}, {0, 0, -1}});
+      auto inputState = inputStateFor(rayAt(helper.origin()));
       inputState.setModifierKeys(ModifierKeys::Shift);
       inputState.mouseDown(MouseButtons::Left);
 
@@ -154,67 +127,63 @@ TEST_CASE("UvScaleTool")
 
     SECTION("returns nullptr with the wrong mouse button")
     {
-      auto inputState = inputStateFor(vm::ray3d{{0, 0, 100}, {0, 0, -1}});
+      auto inputState = inputStateFor(rayAt(helper.origin()));
       inputState.mouseDown(MouseButtons::Right);
 
       CHECK(controller.acceptMouseDrag(inputState) == nullptr);
     }
 
-    SECTION("returns nullptr when no handle is hit")
+    SECTION("starts a drag anywhere on the face")
     {
-      // far from any grid intersection
-      auto inputState = inputStateFor(vm::ray3d{{32, 32, 100}, {0, 0, -1}});
+      auto inputState = inputStateFor(rayAt(helper.origin()));
       inputState.mouseDown(MouseButtons::Left);
 
-      CHECK(controller.acceptMouseDrag(inputState) == nullptr);
+      CHECK(controller.acceptMouseDrag(inputState) != nullptr);
     }
 
-    SECTION("returns nullptr when the pick ray does not hit the face's plane")
+    SECTION("dragging the face pans the UV offset")
     {
-      // a handle hit is present, but the ray is parallel to the face's boundary
-      auto inputState = InputState{0.0f, 0.0f};
-      inputState.setPickRequest(
-        PickRequest{vm::ray3d{{0, 0, 100}, {1, 0, 0}}, helper.camera()});
-      auto pickResult = mdl::PickResult{};
-      pickResult.addHit(
-        mdl::Hit{UvScaleTool::XHandleHitType, 0.0, vm::vec3d{0, 0, 100}, 0});
-      inputState.setPickResult(std::move(pickResult));
-      inputState.mouseDown(MouseButtons::Left);
-
-      CHECK(controller.acceptMouseDrag(inputState) == nullptr);
-    }
-
-    SECTION("dragging a handle changes the face's UV scale or offset")
-    {
-      auto inputState = inputStateFor(vm::ray3d{{0, 0, 100}, {0, 0, -1}});
+      auto inputState = inputStateFor(rayAt(helper.origin()));
       inputState.mouseDown(MouseButtons::Left);
 
       auto tracker = controller.acceptMouseDrag(inputState);
       REQUIRE(tracker != nullptr);
-
-      REQUIRE(faceHandle.face().uvAttributes().scale == vm::vec2f{1, 1});
       REQUIRE(faceHandle.face().uvAttributes().offset == vm::vec2f{0, 0});
 
-      const auto dragInputState = inputStateFor(vm::ray3d{{32, 0, 100}, {0, 0, -1}});
+      auto dragInputState = inputStateFor(rayAt(helper.origin() + vm::vec3d{20, 0, 0}));
+      dragInputState.setModifierKeys(ModifierKeys::CtrlCmd);
       CHECK(tracker->update(dragInputState));
 
-      const auto draggedScale = faceHandle.face().uvAttributes().scale;
-      const auto draggedOffset = faceHandle.face().uvAttributes().offset;
-      CHECK((draggedScale != vm::vec2f{1, 1} || draggedOffset != vm::vec2f{0, 0}));
+      const auto offsetAfterDrag = faceHandle.face().uvAttributes().offset;
+      CHECK(offsetAfterDrag != vm::vec2f{0, 0});
 
       SECTION("ending the drag keeps the change")
       {
         tracker->end(dragInputState);
-        CHECK(faceHandle.face().uvAttributes().scale == draggedScale);
-        CHECK(faceHandle.face().uvAttributes().offset == draggedOffset);
+        CHECK(faceHandle.face().uvAttributes().offset == offsetAfterDrag);
       }
 
       SECTION("cancelling the drag reverts the change")
       {
         tracker->cancel();
-        CHECK(faceHandle.face().uvAttributes().scale == vm::vec2f{1, 1});
         CHECK(faceHandle.face().uvAttributes().offset == vm::vec2f{0, 0});
       }
+    }
+
+    SECTION("dragging without the snapping modifier still pans the offset")
+    {
+      auto inputState = inputStateFor(rayAt(helper.origin()));
+      inputState.mouseDown(MouseButtons::Left);
+
+      auto tracker = controller.acceptMouseDrag(inputState);
+      REQUIRE(tracker != nullptr);
+
+      // no CtrlCmd held, so this exercises the snapDelta() codepath
+      const auto dragInputState =
+        inputStateFor(rayAt(helper.origin() + vm::vec3d{20, 0, 0}));
+      CHECK(tracker->update(dragInputState));
+
+      CHECK(faceHandle.face().uvAttributes().offset != vm::vec2f{0, 0});
     }
   }
 }

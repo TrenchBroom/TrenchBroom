@@ -27,6 +27,7 @@
 #include "mdl/BrushFace.h"
 #include "mdl/BrushFaceHandle.h"
 #include "mdl/BrushNode.h"
+#include "mdl/CatchConfig.h"
 #include "mdl/EditorContext.h"
 #include "mdl/LayerNode.h" // IWYU pragma: keep
 #include "mdl/Map.h"
@@ -35,7 +36,6 @@
 #include "mdl/Map_Selection.h"
 #include "mdl/PickResult.h"
 #include "mdl/WorldNode.h"
-#include "ui/CatchConfig.h"
 #include "ui/GestureTracker.h"
 #include "ui/InputState.h"
 #include "ui/MapDocument.h"

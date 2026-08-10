@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "mdl/CatchConfig.h"
 #include "mdl/PickResult.h"
-#include "ui/CatchConfig.h"
 #include "ui/DropTracker.h"
 #include "ui/GestureTracker.h"
 #include "ui/InputState.h"

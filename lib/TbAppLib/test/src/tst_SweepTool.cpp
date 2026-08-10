@@ -19,6 +19,7 @@
 
 #include "mdl/Brush.h"
 #include "mdl/BrushNode.h"
+#include "mdl/CatchConfig.h"
 #include "mdl/Entity.h"
 #include "mdl/EntityNode.h"
 #include "mdl/Grid.h"
@@ -27,7 +28,6 @@
 #include "mdl/Map_Nodes.h"
 #include "mdl/Map_Selection.h"
 #include "mdl/TestFactory.h"
-#include "ui/CatchConfig.h"
 #include "ui/HandleDragTracker.h"
 #include "ui/InputState.h"
 #include "ui/MapDocument.h"

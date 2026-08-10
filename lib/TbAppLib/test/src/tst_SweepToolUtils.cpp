@@ -18,11 +18,11 @@
  */
 
 #include "mdl/BrushNode.h"
+#include "mdl/CatchConfig.h"
 #include "mdl/Entity.h"
 #include "mdl/EntityNode.h"
 #include "mdl/Map.h" // IWYU pragma: keep
 #include "mdl/Map_Nodes.h"
-#include "ui/CatchConfig.h"
 #include "ui/MapDocument.h"
 #include "ui/MapDocumentFixture.h"
 #include "ui/SweepToolUtils.h"

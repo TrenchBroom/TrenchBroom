@@ -18,11 +18,11 @@
  */
 
 #include "gl/OrthographicCamera.h"
+#include "mdl/CatchConfig.h"
 #include "mdl/Grid.h"
 #include "mdl/Hit.h"
 #include "mdl/HitFilter.h"
 #include "mdl/PickResult.h"
-#include "ui/CatchConfig.h"
 #include "ui/HandleDragTracker.h"
 
 #include "vm/approx.h"

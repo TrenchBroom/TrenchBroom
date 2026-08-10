@@ -22,6 +22,7 @@
 #include "mdl/Brush.h"
 #include "mdl/BrushBuilder.h"
 #include "mdl/BrushNode.h" // IWYU pragma: keep
+#include "mdl/CatchConfig.h"
 #include "mdl/EditorContext.h"
 #include "mdl/Entity.h"
 #include "mdl/EntityNode.h"
@@ -35,7 +36,6 @@
 #include "mdl/PickResult.h"
 #include "mdl/TestFactory.h"
 #include "mdl/WorldNode.h"
-#include "ui/CatchConfig.h"
 #include "ui/MapDocument.h"
 #include "ui/MapDocumentFixture.h"
 #include "ui/ScaleTool.h"

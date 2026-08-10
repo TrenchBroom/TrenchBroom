@@ -27,10 +27,10 @@
 #include "mdl/BrushFace.h"
 #include "mdl/BrushFaceHandle.h"
 #include "mdl/BrushNode.h"
+#include "mdl/CatchConfig.h"
 #include "mdl/HitType.h"
 #include "mdl/MapFormat.h"
 #include "mdl/PickResult.h"
-#include "ui/CatchConfig.h"
 #include "ui/UvViewHelper.h"
 
 #include "kd/result.h"
