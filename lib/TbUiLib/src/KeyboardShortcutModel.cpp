@@ -354,8 +354,13 @@ void KeyboardShortcutModel::initializeEntityDefinitionActions()
 
 void KeyboardShortcutModel::updateConflicts()
 {
-  m_conflicts = findConflicts(m_actions);
-  for (const auto& row : m_conflicts)
+  auto changedRows = std::exchange(m_conflicts, findConflicts(m_actions));
+
+  // Notify rows that either gained or lost conflict status, so the sort proxy re-queries
+  // ConflictRole for them and moves them accordingly.
+  changedRows.insert(m_conflicts.begin(), m_conflicts.end());
+
+  for (const auto& row : changedRows)
   {
     const auto index = createIndex(int(row), 0);
     emit dataChanged(index, index, {Qt::DisplayRole});
