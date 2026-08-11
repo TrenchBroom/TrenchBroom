@@ -20,15 +20,16 @@
 #include "base/KeySequence.h"
 #include "ui/ActionInfo.h"
 
+#include <unordered_set>
 #include <vector>
 
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/generators/catch_generators.hpp>
-#include <catch2/matchers/catch_matchers_vector.hpp>
+#include <catch2/matchers/catch_matchers_range_equals.hpp>
 
 namespace tb::ui
 {
-using Catch::Matchers::UnorderedEquals;
+using Catch::Matchers::UnorderedRangeEquals;
 
 namespace
 {
@@ -60,7 +61,7 @@ TEST_CASE("ActionInfo")
 
       CHECK_THAT(
         findConflicts({makeActionInfo(preference1), makeActionInfo(preference2)}),
-        UnorderedEquals(std::vector<size_t>{}));
+        UnorderedRangeEquals(std::unordered_set<size_t>{}));
     }
 
     SECTION("Ignores distinct shortcuts")
@@ -72,7 +73,7 @@ TEST_CASE("ActionInfo")
 
       CHECK_THAT(
         findConflicts({makeActionInfo(preference1), makeActionInfo(preference2)}),
-        UnorderedEquals(std::vector<size_t>{}));
+        UnorderedRangeEquals(std::unordered_set<size_t>{}));
     }
 
     SECTION("Ignores matching shortcuts in disjoint action contexts")
@@ -91,7 +92,7 @@ TEST_CASE("ActionInfo")
             preference2,
             ActionContext::View3D | ActionContext::NoSelection | ActionContext::NoTool),
         }),
-        UnorderedEquals(std::vector<size_t>{}));
+        UnorderedRangeEquals(std::unordered_set<size_t>{}));
     }
 
     SECTION("Reports matching shortcuts in overlapping action contexts")
@@ -110,7 +111,7 @@ TEST_CASE("ActionInfo")
             preference2,
             ActionContext::AnyView | ActionContext::NoSelection | ActionContext::NoTool),
         }),
-        UnorderedEquals(std::vector<size_t>{0, 1}));
+        UnorderedRangeEquals(std::unordered_set<size_t>{0, 1}));
     }
 
     SECTION("Reports later duplicates against the first matching shortcut")
@@ -128,7 +129,7 @@ TEST_CASE("ActionInfo")
           makeActionInfo(preference2),
           makeActionInfo(preference3),
         }),
-        UnorderedEquals(std::vector<size_t>{0, 1, 0, 2}));
+        UnorderedRangeEquals(std::unordered_set<size_t>{0, 1, 2}));
     }
 
     SECTION("Reports matching shortcuts in multi-shortcut preferences")
@@ -149,7 +150,7 @@ TEST_CASE("ActionInfo")
           makeActionInfo(preference1),
           makeActionInfo(preference2),
         }),
-        UnorderedEquals(std::vector<size_t>{0, 1}));
+        UnorderedRangeEquals(std::unordered_set<size_t>{0, 1}));
     }
 
     SECTION("Ignores duplicate shortcuts in the same multi-shortcut preference")
@@ -161,7 +162,7 @@ TEST_CASE("ActionInfo")
         findConflicts({
           makeActionInfo(preference),
         }),
-        UnorderedEquals(std::vector<size_t>{}));
+        UnorderedRangeEquals(std::unordered_set<size_t>{}));
     }
 
     SECTION(
@@ -177,7 +178,7 @@ TEST_CASE("ActionInfo")
           makeActionInfo(preference1),
           makeActionInfo(preference2),
         }),
-        UnorderedEquals(std::vector<size_t>{0, 1}));
+        UnorderedRangeEquals(std::unordered_set<size_t>{0, 1}));
     }
   }
 }

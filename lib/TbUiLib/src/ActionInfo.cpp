@@ -102,10 +102,10 @@ bool ActionInfo::operator==(const ActionInfo& other) const
   return m_type == other.m_type && m_displayPath == other.m_displayPath;
 }
 
-std::vector<size_t> findConflicts(const std::vector<ActionInfo>& actionInfos)
+std::unordered_set<size_t> findConflicts(const std::vector<ActionInfo>& actionInfos)
 {
   auto entries = std::map<ActionConflictKey, size_t>{};
-  auto conflicts = std::vector<size_t>{};
+  auto conflicts = std::unordered_set<size_t>{};
 
   for (const auto& [index, actionInfo] : actionInfos | kdl::views::enumerate)
   {
@@ -120,8 +120,8 @@ std::vector<size_t> findConflicts(const std::vector<ActionInfo>& actionInfos)
         {
           // found a duplicate, so there are conflicts
           const auto otherIndex = it->second;
-          conflicts.emplace_back(otherIndex);
-          conflicts.emplace_back(actionIndex);
+          conflicts.insert(otherIndex);
+          conflicts.insert(actionIndex);
         }
       }
     }

@@ -37,8 +37,6 @@
 #include "kd/path_utils.h"
 #include "kd/ranges/join_with_view.h"
 #include "kd/ranges/to.h"
-#include "kd/set_adapter.h"
-#include "kd/vector_utils.h"
 
 namespace tb::ui
 {
@@ -245,7 +243,7 @@ bool KeyboardShortcutModel::hasConflicts(const QModelIndex& index) const
     return false;
   }
 
-  return kdl::wrap_set(m_conflicts).count(index.row()) > 0u;
+  return m_conflicts.count(size_t(index.row())) > 0u;
 }
 
 void KeyboardShortcutModel::initializeActions()
@@ -356,10 +354,10 @@ void KeyboardShortcutModel::initializeEntityDefinitionActions()
 
 void KeyboardShortcutModel::updateConflicts()
 {
-  m_conflicts = kdl::vec_static_cast<int>(findConflicts(m_actions));
+  m_conflicts = findConflicts(m_actions);
   for (const auto& row : m_conflicts)
   {
-    const auto index = createIndex(row, 0);
+    const auto index = createIndex(int(row), 0);
     emit dataChanged(index, index, {Qt::DisplayRole});
   }
 }
