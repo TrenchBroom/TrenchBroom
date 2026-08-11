@@ -131,12 +131,6 @@ void KeyboardPreferencePane::updateControls()
 
 bool KeyboardPreferencePane::validate()
 {
-  if (m_model->hasConflicts())
-  {
-    QMessageBox::warning(
-      this, "Conflicts", "Please fix all conflicting shortcuts (highlighted in red).");
-    return false;
-  }
   return true;
 }
 
