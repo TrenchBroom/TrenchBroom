@@ -46,6 +46,8 @@ private:
   std::unordered_set<size_t> m_conflicts;
 
 public:
+  static constexpr int ConflictRole = Qt::UserRole + 1;
+
   explicit KeyboardShortcutModel(
     ActionManager& actionManager, MapDocument* document, QObject* parent = nullptr);
 

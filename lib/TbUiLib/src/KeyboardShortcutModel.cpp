@@ -140,6 +140,17 @@ QVariant KeyboardShortcutModel::data(const QModelIndex& index, const int role) c
     return QBrush{Qt::red};
   }
 
+  if (role == ConflictRole)
+  {
+    // Encode the row's original position into the sort value so that resorting a single
+    // row (e.g. when a conflict is resolved) reinserts it at the correct position instead
+    // of just at the end of its group: QSortFilterProxyModel's incremental resort finds
+    // the new position via binary search against the current proxy order, which only
+    // lands on the correct spot if lessThan() defines a strict total order, i.e. no two
+    // rows compare equal.
+    return hasConflicts(index) ? index.row() : totalActionCount() + index.row();
+  }
+
   return QVariant{};
 }
 

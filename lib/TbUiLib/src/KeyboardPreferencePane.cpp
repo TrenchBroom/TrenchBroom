@@ -53,8 +53,19 @@ KeyboardPreferencePane::KeyboardPreferencePane(
   m_proxy->setSourceModel(m_model);
   m_proxy->setFilterCaseSensitivity(Qt::CaseInsensitive);
   m_proxy->setFilterKeyColumn(0); // Filter based on the text in the Description column
+  m_proxy->setSortRole(KeyboardShortcutModel::ConflictRole);
+  m_proxy->sort(0); // Sort rows with conflicts to the top
 
   m_table->setModel(m_proxy);
+
+  // Keep the current row in view when sorting moves it, e.g. when editing a shortcut
+  // introduces or resolves a conflict.
+  connect(m_proxy, &QAbstractItemModel::layoutChanged, this, [&] {
+    if (const auto currentIndex = m_table->currentIndex(); currentIndex.isValid())
+    {
+      m_table->scrollTo(currentIndex);
+    }
+  });
 
   m_table->setHorizontalHeader(new QHeaderView(Qt::Horizontal));
   m_table->horizontalHeader()->setSectionResizeMode(2, QHeaderView::ResizeMode::Fixed);
