@@ -1211,8 +1211,8 @@ void ActionManager::createEditMenu()
     },
   }));
 
-  auto& texturesMenu = editMenu.addMenu("Textures");
-  texturesMenu.addItem(addAction(Action{
+  auto& materialsMenu = editMenu.addMenu("Materials");
+  materialsMenu.addItem(addAction(Action{
     "Menu/Edit/Texture Lock",
     "Texture Lock",
     ActionContext::Any,
@@ -1222,7 +1222,7 @@ void ActionManager::createEditMenu()
     [](const auto&) { return pref(Preferences::AlignmentLock); },
     std::filesystem::path{"AlignmentLock.svg"},
   }));
-  texturesMenu.addItem(addAction(Action{
+  materialsMenu.addItem(addAction(Action{
     "Menu/Edit/UV Lock",
     "UV Lock",
     ActionContext::Any,
@@ -1232,8 +1232,8 @@ void ActionManager::createEditMenu()
     [](const auto&) { return pref(Preferences::UvLock); },
     std::filesystem::path{"UVLock.svg"},
   }));
-  texturesMenu.addSeparator();
-  texturesMenu.addItem(addAction(Action{
+  materialsMenu.addSeparator();
+  materialsMenu.addItem(addAction(Action{
     "Menu/Edit/Replace Material...",
     "Replace Material...",
     ActionContext::Any,
