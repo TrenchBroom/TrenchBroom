@@ -104,13 +104,16 @@ bool ActionInfo::operator==(const ActionInfo& other) const
 
 std::unordered_set<size_t> findConflicts(const std::vector<ActionInfo>& actionInfos)
 {
+  auto& prefs = PreferenceManager::instance();
+
   auto entries = std::map<ActionConflictKey, size_t>{};
   auto conflicts = std::unordered_set<size_t>{};
 
   for (const auto& [index, actionInfo] : actionInfos | kdl::views::enumerate)
   {
     const auto actionIndex = static_cast<size_t>(index);
-    for (const auto& keySequence : pref(actionInfo.keyboardShortcutPreference()))
+    for (const auto& keySequence :
+         prefs.getPendingValue(actionInfo.keyboardShortcutPreference()))
     {
       if (!keySequence.value.empty())
       {

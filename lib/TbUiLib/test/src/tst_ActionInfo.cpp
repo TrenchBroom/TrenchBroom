@@ -17,8 +17,12 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "TestPreferenceStore.h"
 #include "base/KeySequence.h"
+#include "base/PreferenceManager.h"
 #include "ui/ActionInfo.h"
+
+#include "kd/k.h"
 
 #include <unordered_set>
 #include <vector>
@@ -45,6 +49,27 @@ auto makeActionInfo(
     preference,
   };
 }
+
+/**
+ * Temporarily replaces the global PreferenceManager instance with one that doesn't save
+ * instantly, so that PreferenceManager::set() only produces a pending (unsaved) value.
+ * Restores an instance equivalent to the one RunAllTests.cpp sets up when it goes out of
+ * scope, so later tests in the same binary still see a live instance.
+ */
+struct ScopedPendingPreferenceManager
+{
+  ScopedPendingPreferenceManager()
+  {
+    PreferenceManager::createInstance(
+      std::make_unique<TestPreferenceStore>(), !K(saveInstantly));
+  }
+
+  ~ScopedPendingPreferenceManager()
+  {
+    PreferenceManager::createInstance(
+      std::make_unique<TestPreferenceStore>(), K(saveInstantly));
+  }
+};
 
 } // namespace
 
@@ -178,6 +203,29 @@ TEST_CASE("ActionInfo")
           makeActionInfo(preference1),
           makeActionInfo(preference2),
         }),
+        UnorderedRangeEquals(std::unordered_set<size_t>{0, 1}));
+    }
+
+    SECTION("Reports conflicts introduced by a pending, unsaved preference change")
+    {
+      const auto scopedPreferenceManager = ScopedPendingPreferenceManager{};
+
+      const auto preference1 =
+        Preference<std::vector<KeySequence>>{"Action 1", {KeySequence{"A"}}};
+      const auto preference2 =
+        Preference<std::vector<KeySequence>>{"Action 2", {KeySequence{"B"}}};
+
+      REQUIRE_THAT(
+        findConflicts({makeActionInfo(preference1), makeActionInfo(preference2)}),
+        UnorderedRangeEquals(std::unordered_set<size_t>{}));
+
+      // Not saved, only pending -- getPendingValue() must be consulted for this to be
+      // picked up by findConflicts()
+      PreferenceManager::instance().set(
+        preference2, std::vector<KeySequence>{KeySequence{"A"}});
+
+      CHECK_THAT(
+        findConflicts({makeActionInfo(preference1), makeActionInfo(preference2)}),
         UnorderedRangeEquals(std::unordered_set<size_t>{0, 1}));
     }
   }
