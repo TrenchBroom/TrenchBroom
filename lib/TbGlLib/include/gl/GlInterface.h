@@ -67,6 +67,9 @@ public:
   virtual void depthRange(GLclampd nearVal, GLclampd farVal) = 0;
   virtual void depthFunc(GLenum func) = 0;
 
+  virtual void colorMask(
+    GLboolean red, GLboolean green, GLboolean blue, GLboolean alpha) = 0;
+
   virtual GLuint createProgram() = 0;
   virtual void deleteProgram(GLuint program) = 0;
 

@@ -65,6 +65,8 @@ public:
   void depthRange(GLclampd, GLclampd) override;
   void depthFunc(GLenum) override;
 
+  void colorMask(GLboolean, GLboolean, GLboolean, GLboolean) override;
+
   GLuint createProgram() override;
   void deleteProgram(GLuint) override;
 

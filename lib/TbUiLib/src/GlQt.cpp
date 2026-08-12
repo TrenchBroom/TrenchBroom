@@ -151,6 +151,12 @@ void GlQt::depthRange(const GLclampd nearVal, const GLclampd farVal)
   m_gl.glDepthRange(nearVal, farVal);
 }
 
+void GlQt::colorMask(
+  const GLboolean red, const GLboolean green, const GLboolean blue, const GLboolean alpha)
+{
+  m_gl.glColorMask(red, green, blue, alpha);
+}
+
 void GlQt::depthFunc(const GLenum func)
 {
   m_gl.glDepthFunc(func);

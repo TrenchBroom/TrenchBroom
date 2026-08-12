@@ -265,6 +265,16 @@ void MockGl::depthRange(const GLclampd nearVal, const GLclampd farVal)
   onDepthRange(nearVal, farVal);
 }
 
+void MockGl::colorMask(
+  const GLboolean red, const GLboolean green, const GLboolean blue, const GLboolean alpha)
+{
+  if (!onColorMask)
+  {
+    throw MockGlUnexpectedCall{"colorMask"};
+  }
+  onColorMask(red, green, blue, alpha);
+}
+
 void MockGl::depthFunc(const GLenum func)
 {
   if (!onDepthFunc)

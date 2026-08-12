@@ -217,6 +217,12 @@ void GlDebug::depthRange(const GLclampd nearVal, const GLclampd farVal)
   glAssert(m_gl.depthRange(nearVal, farVal));
 }
 
+void GlDebug::colorMask(
+  const GLboolean red, const GLboolean green, const GLboolean blue, const GLboolean alpha)
+{
+  glAssert(m_gl.colorMask(red, green, blue, alpha));
+}
+
 void GlDebug::depthFunc(const GLenum func)
 {
   glAssert(m_gl.depthFunc(func));
