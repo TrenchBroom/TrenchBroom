@@ -45,6 +45,7 @@ namespace tb::mdl
 
 namespace
 {
+
 /**
  * The byte order of a 32bpp FIBITMAP is defined by the macros FI_RGBA_RED,
  * FI_RGBA_GREEN, FI_RGBA_BLUE, FI_RGBA_ALPHA.

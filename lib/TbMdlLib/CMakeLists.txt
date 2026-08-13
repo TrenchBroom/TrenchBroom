@@ -25,6 +25,7 @@ target_sources(TbMdlLib
     ${CMAKE_CURRENT_SOURCE_DIR}/src/CompilationTask.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/CurrentGroupCommand.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/DecalDefinition.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/DecodeBmpPalette.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/DefParser.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/EditorContext.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/EmptyBrushEntityValidator.cpp
@@ -66,8 +67,6 @@ target_sources(TbMdlLib
     ${CMAKE_CURRENT_SOURCE_DIR}/src/HitAdapter.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/HitFilter.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/HitType.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/ImageLoader.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/ImageLoaderImpl.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/InitFreeImage.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/InvalidUvScaleValidator.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Issue.cpp

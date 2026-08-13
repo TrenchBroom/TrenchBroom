@@ -19,40 +19,16 @@
 
 #pragma once
 
-#include "mdl/ImageLoader.h"
-
-#include <FreeImage.h>
-
 #include <vector>
 
 namespace tb::mdl
 {
 
-class ImageLoaderImpl
-{
-private:
-  FIMEMORY* m_stream = nullptr;
-  FIBITMAP* m_bitmap = nullptr;
-
-public:
-  ImageLoaderImpl(const char* begin, const char* end);
-  ~ImageLoaderImpl();
-
-  size_t width() const;
-  size_t height() const;
-
-  bool hasPalette() const;
-
-  std::vector<unsigned char> loadPalette() const;
-  std::vector<unsigned char> loadPixels() const;
-
-private:
-  size_t paletteSize() const;
-  bool hasIndices() const;
-  bool hasPixels() const;
-
-  std::vector<unsigned char> loadIndexedPixels() const;
-  std::vector<unsigned char> loadDirectPixels() const;
-};
+/**
+ * Decodes a BMP image and returns its colors as a flat sequence of RGB triples: the
+ * image's own palette if it has one (for indexed images), otherwise its pixels (for
+ * direct-color images).
+ */
+std::vector<unsigned char> decodeBmpPalette(const char* begin, const char* end);
 
 } // namespace tb::mdl

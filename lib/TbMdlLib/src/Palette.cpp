@@ -24,7 +24,7 @@
 #include "fs/Reader.h"
 #include "fs/ReaderException.h"
 #include "gl/TextureBuffer.h"
-#include "mdl/ImageLoader.h"
+#include "mdl/DecodeBmpPalette.h"
 
 #include "kd/contracts.h"
 #include "kd/path_utils.h"
@@ -203,9 +203,7 @@ Result<Palette> loadPcx(fs::Reader& reader)
 Result<Palette> loadBmp(fs::Reader& reader)
 {
   auto bufferedReader = reader.buffer();
-  auto imageLoader = ImageLoader{bufferedReader.begin(), bufferedReader.end()};
-  auto data =
-    imageLoader.hasPalette() ? imageLoader.loadPalette() : imageLoader.loadPixels();
+  auto data = decodeBmpPalette(bufferedReader.begin(), bufferedReader.end());
   return makePalette(data, PaletteColorFormat::Rgb);
 }
 
