@@ -13,7 +13,6 @@ target_sources(TbMdlLibTest PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_CompareHits.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_CompilationConfig.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_DecalDefinition.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_DecodeBmpPalette.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_DefParser.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_EditorContext.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Entity.cpp
@@ -46,7 +45,7 @@ target_sources(TbMdlLibTest PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_LoadDdsTexture.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_LoadDkmModel.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_LoadFmModel.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_LoadFreeImageTexture.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_LoadImageTexture.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_LoadM8Texture.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_LoadM32Texture.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_LoadMaterialCollections.cpp

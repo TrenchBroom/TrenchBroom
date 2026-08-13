@@ -17,19 +17,26 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#pragma once
+#include "InitFreeImage.h"
 
-namespace tb::mdl
+#include <FreeImage.h>
+
+namespace tb::img
 {
 
-class InitFreeImage
+InitFreeImage::InitFreeImage()
 {
-private:
-  InitFreeImage();
-  ~InitFreeImage();
+  FreeImage_Initialise(true);
+}
 
-public:
-  static void initialize();
-};
+InitFreeImage::~InitFreeImage()
+{
+  FreeImage_DeInitialise();
+}
 
-} // namespace tb::mdl
+void InitFreeImage::initialize()
+{
+  static auto initFreeImage = InitFreeImage{};
+}
+
+} // namespace tb::img

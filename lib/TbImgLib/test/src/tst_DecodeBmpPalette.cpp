@@ -17,14 +17,13 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "mdl/CatchConfig.h"
-#include "mdl/DecodeBmpPalette.h"
+#include "img/DecodeBmpPalette.h"
 
 #include <array>
 
 #include <catch2/catch_test_macros.hpp>
 
-namespace tb::mdl
+namespace tb::img
 {
 namespace
 {
@@ -98,7 +97,7 @@ TEST_CASE("decodeBmpPalette")
 {
   SECTION("direct-color image")
   {
-    const auto* begin = reinterpret_cast<const char*>(Bmp4x2.data());
+    const auto* begin = Bmp4x2.data();
     const auto* end = begin + Bmp4x2.size();
 
     // clang-format off
@@ -115,7 +114,7 @@ TEST_CASE("decodeBmpPalette")
 
   SECTION("indexed image")
   {
-    const auto* begin = reinterpret_cast<const char*>(IndexedBmp4x2.data());
+    const auto* begin = IndexedBmp4x2.data();
     const auto* end = begin + IndexedBmp4x2.size();
 
     // an 8bpp bitmap always reports a 256-entry palette, regardless of biClrUsed;
@@ -146,4 +145,4 @@ TEST_CASE("decodeBmpPalette")
   }
 }
 
-} // namespace tb::mdl
+} // namespace tb::img

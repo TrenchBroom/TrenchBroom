@@ -21,7 +21,7 @@
 #include "fs/DiskFileSystem.h"
 #include "gl/Texture.h"
 #include "mdl/CatchConfig.h"
-#include "mdl/LoadFreeImageTexture.h"
+#include "mdl/LoadImageTexture.h"
 #include "mdl/TestUtils.h"
 
 #include "kd/result.h"
@@ -41,11 +41,11 @@ namespace
 auto loadTexture(const std::string& name)
 {
   auto diskFS =
-    fs::DiskFileSystem{getFixtureRoot() / "test" / "mdl" / "LoadFreeImageTexture"};
+    fs::DiskFileSystem{getFixtureRoot() / "test" / "mdl" / "LoadImageTexture"};
 
   return diskFS.openFile(name) | kdl::and_then([](const auto& file) {
            auto reader = file->reader().buffer();
-           return loadFreeImageTexture(reader);
+           return loadImageTexture(reader);
          });
 }
 
@@ -98,9 +98,9 @@ void testImageContents(Result<gl::Texture> result, const ColorMatch match)
 
 } // namespace
 
-TEST_CASE("LoadFreeImageTexture")
+TEST_CASE("LoadImageTexture")
 {
-  SECTION("loadFreeImageTexture")
+  SECTION("loadImageTexture")
   {
     SECTION("loading PNGs")
     {
@@ -163,12 +163,12 @@ TEST_CASE("LoadFreeImageTexture")
     }
   }
 
-  SECTION("isSupportedFreeImageExtension")
+  SECTION("isSupportedImageExtension")
   {
-    CHECK(isSupportedFreeImageExtension(".jpg"));
-    CHECK(isSupportedFreeImageExtension(".jpeg"));
-    CHECK(isSupportedFreeImageExtension(".JPG"));
-    CHECK(!isSupportedFreeImageExtension("jpg"));
+    CHECK(isSupportedImageExtension(".jpg"));
+    CHECK(isSupportedImageExtension(".jpeg"));
+    CHECK(isSupportedImageExtension(".JPG"));
+    CHECK(!isSupportedImageExtension("jpg"));
   }
 }
 

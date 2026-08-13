@@ -17,26 +17,37 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "InitFreeImage.h"
+#pragma once
 
-#include <FreeImage.h>
+#include "base/Color.h"
+#include "base/Result.h"
+#include "gl/GlUtils.h"
 
-namespace tb::mdl
+#include <filesystem>
+
+namespace tb
+{
+namespace gl
+{
+class Texture;
+class TextureBuffer;
+} // namespace gl
+
+namespace fs
+{
+class Reader;
+} // namespace fs
+
+namespace mdl
 {
 
-InitFreeImage::InitFreeImage()
-{
-  FreeImage_Initialise(true);
-}
+Color getAverageColor(const gl::TextureBuffer& buffer, GLenum format);
 
-InitFreeImage::~InitFreeImage()
-{
-  FreeImage_DeInitialise();
-}
+Result<gl::Texture> loadImageTextureFromMemory(const uint8_t* begin, size_t size);
 
-void InitFreeImage::initialize()
-{
-  static auto initFreeImage = InitFreeImage{};
-}
+Result<gl::Texture> loadImageTexture(fs::Reader& reader);
 
-} // namespace tb::mdl
+bool isSupportedImageExtension(const std::filesystem::path& extension);
+
+} // namespace mdl
+} // namespace tb

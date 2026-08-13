@@ -19,16 +19,12 @@
 
 #pragma once
 
-#include <vector>
+#include "base/Result.h"
+#include "img/Image.h"
 
-namespace tb::mdl
+namespace tb::img
 {
 
-/**
- * Decodes a BMP image and returns its colors as a flat sequence of RGB triples: the
- * image's own palette if it has one (for indexed images), otherwise its pixels (for
- * direct-color images).
- */
-std::vector<unsigned char> decodeBmpPalette(const char* begin, const char* end);
+Result<Image> decodeImage(const unsigned char* begin, size_t size);
 
-} // namespace tb::mdl
+} // namespace tb::img

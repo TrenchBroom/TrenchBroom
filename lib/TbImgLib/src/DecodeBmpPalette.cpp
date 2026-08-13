@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "mdl/DecodeBmpPalette.h"
+#include "img/DecodeBmpPalette.h"
 
 #include "InitFreeImage.h"
 #include "base/Macros.h"
@@ -27,7 +27,7 @@
 
 #include <FreeImage.h>
 
-namespace tb::mdl
+namespace tb::img
 {
 
 namespace
@@ -75,13 +75,14 @@ std::vector<unsigned char> decodeDirectPixels(
 
 } // namespace
 
-std::vector<unsigned char> decodeBmpPalette(const char* begin, const char* end)
+std::vector<unsigned char> decodeBmpPalette(
+  const unsigned char* begin, const unsigned char* end)
 {
   InitFreeImage::initialize();
 
   // this is supremely evil, but FreeImage guarantees that it will not modify wrapped
   // memory
-  auto* address = reinterpret_cast<BYTE*>(const_cast<char*>(begin));
+  auto* address = const_cast<unsigned char*>(begin);
   const auto length = DWORD(end - begin);
 
   auto stream =
@@ -99,4 +100,4 @@ std::vector<unsigned char> decodeBmpPalette(const char* begin, const char* end)
   return decodeDirectPixels(*bitmap, width, height);
 }
 
-} // namespace tb::mdl
+} // namespace tb::img
