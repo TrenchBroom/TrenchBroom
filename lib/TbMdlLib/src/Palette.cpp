@@ -203,10 +203,9 @@ Result<Palette> loadPcx(fs::Reader& reader)
 Result<Palette> loadBmp(fs::Reader& reader)
 {
   auto bufferedReader = reader.buffer();
-  auto imageLoader =
-    ImageLoader{ImageLoader::BMP, bufferedReader.begin(), bufferedReader.end()};
-  auto data = imageLoader.hasPalette() ? imageLoader.loadPalette()
-                                       : imageLoader.loadPixels(ImageLoader::RGB);
+  auto imageLoader = ImageLoader{bufferedReader.begin(), bufferedReader.end()};
+  auto data =
+    imageLoader.hasPalette() ? imageLoader.loadPalette() : imageLoader.loadPixels();
   return makePalette(data, PaletteColorFormat::Rgb);
 }
 

@@ -41,28 +41,16 @@ void InitFreeImage::initialize()
   static InitFreeImage initFreeImage;
 }
 
-ImageLoaderImpl::ImageLoaderImpl(
-  const ImageLoader::Format format, const std::filesystem::path& path)
+ImageLoaderImpl::ImageLoaderImpl(const char* begin, const char* end)
 {
   InitFreeImage::initialize();
-
-  const auto fifFormat = translateFormat(format);
-  m_bitmap = FreeImage_Load(fifFormat, path.string().c_str());
-}
-
-ImageLoaderImpl::ImageLoaderImpl(
-  const ImageLoader::Format format, const char* begin, const char* end)
-{
-  InitFreeImage::initialize();
-
-  const auto fifFormat = translateFormat(format);
 
   // this is supremely evil, but FreeImage guarantees that it will not modify wrapped
   // memory
   auto* address = reinterpret_cast<BYTE*>(const_cast<char*>(begin));
   auto length = DWORD(end - begin);
   m_stream = FreeImage_OpenMemory(address, length);
-  m_bitmap = FreeImage_LoadFromMemory(fifFormat, m_stream);
+  m_bitmap = FreeImage_LoadFromMemory(FIF_BMP, m_stream);
 }
 
 ImageLoaderImpl::~ImageLoaderImpl()
@@ -84,11 +72,6 @@ size_t ImageLoaderImpl::paletteSize() const
   return size_t(FreeImage_GetColorsUsed(m_bitmap));
 }
 
-size_t ImageLoaderImpl::bitsPerPixel() const
-{
-  return size_t(FreeImage_GetBPP(m_bitmap));
-}
-
 size_t ImageLoaderImpl::width() const
 {
   return size_t(FreeImage_GetWidth(m_bitmap));
@@ -97,16 +80,6 @@ size_t ImageLoaderImpl::width() const
 size_t ImageLoaderImpl::height() const
 {
   return size_t(FreeImage_GetHeight(m_bitmap));
-}
-
-size_t ImageLoaderImpl::byteWidth() const
-{
-  return size_t(FreeImage_GetLine(m_bitmap));
-}
-
-size_t ImageLoaderImpl::scanWidth() const
-{
-  return size_t(FreeImage_GetPitch(m_bitmap));
 }
 
 bool ImageLoaderImpl::hasPalette() const
@@ -146,41 +119,19 @@ std::vector<unsigned char> ImageLoaderImpl::loadPalette() const
   return result;
 }
 
-std::vector<unsigned char> ImageLoaderImpl::loadIndices() const
-{
-  contract_pre(hasIndices());
-
-  auto result = std::vector<unsigned char>(width() * height());
-  for (unsigned y = 0; y < height(); ++y)
-  {
-    for (unsigned x = 0; x < width(); ++x)
-    {
-      BYTE index = 0;
-      assertResult(FreeImage_GetPixelIndex(m_bitmap, x, y, &index) == TRUE);
-      result[(height() - y - 1) * width() + x] = static_cast<unsigned char>(index);
-    }
-  }
-
-  return result;
-}
-
-std::vector<unsigned char> ImageLoaderImpl::loadPixels(
-  const ImageLoader::PixelFormat format) const
+std::vector<unsigned char> ImageLoaderImpl::loadPixels() const
 {
   contract_pre(hasPixels());
 
-  const auto pSize = pixelSize(format);
-  return hasIndices() ? loadIndexedPixels(pSize) : loadPixels(pSize);
+  return hasIndices() ? loadIndexedPixels() : loadDirectPixels();
 }
 
-std::vector<unsigned char> ImageLoaderImpl::loadIndexedPixels(const size_t pSize) const
+std::vector<unsigned char> ImageLoaderImpl::loadIndexedPixels() const
 {
-  contract_pre(pSize == 3);
-
   const auto* palette = FreeImage_GetPalette(m_bitmap);
   contract_assert(palette != nullptr);
 
-  auto result = std::vector<unsigned char>(width() * height() * pSize);
+  auto result = std::vector<unsigned char>(width() * height() * 3);
   for (unsigned y = 0; y < height(); ++y)
   {
     for (unsigned x = 0; x < width(); ++x)
@@ -189,7 +140,7 @@ std::vector<unsigned char> ImageLoaderImpl::loadIndexedPixels(const size_t pSize
       assertResult(FreeImage_GetPixelIndex(m_bitmap, x, y, &paletteIndex) == TRUE);
       contract_assert(paletteIndex < paletteSize());
 
-      const auto pixelIndex = ((height() - y - 1) * width() + x) * pSize;
+      const auto pixelIndex = ((height() - y - 1) * width() + x) * 3;
       result[pixelIndex + 0] = static_cast<unsigned char>(palette[paletteIndex].rgbRed);
       result[pixelIndex + 1] = static_cast<unsigned char>(palette[paletteIndex].rgbGreen);
       result[pixelIndex + 2] = static_cast<unsigned char>(palette[paletteIndex].rgbBlue);
@@ -198,9 +149,9 @@ std::vector<unsigned char> ImageLoaderImpl::loadIndexedPixels(const size_t pSize
   return result;
 }
 
-std::vector<unsigned char> ImageLoaderImpl::loadPixels(const size_t pSize) const
+std::vector<unsigned char> ImageLoaderImpl::loadDirectPixels() const
 {
-  auto result = std::vector<unsigned char>(width() * height() * pSize);
+  auto result = std::vector<unsigned char>(width() * height() * 3);
   for (unsigned y = 0; y < height(); ++y)
   {
     for (unsigned x = 0; x < width(); ++x)
@@ -208,42 +159,14 @@ std::vector<unsigned char> ImageLoaderImpl::loadPixels(const size_t pSize) const
       RGBQUAD pixel;
       assertResult(FreeImage_GetPixelColor(m_bitmap, x, y, &pixel) == TRUE);
 
-      const auto pixelIndex = ((height() - y - 1) * width() + x) * pSize;
+      const auto pixelIndex = ((height() - y - 1) * width() + x) * 3;
       result[pixelIndex + 0] = static_cast<unsigned char>(pixel.rgbRed);
       result[pixelIndex + 1] = static_cast<unsigned char>(pixel.rgbGreen);
       result[pixelIndex + 2] = static_cast<unsigned char>(pixel.rgbBlue);
-      if (pSize > 3)
-      {
-        result[pixelIndex + 3] = static_cast<unsigned char>(pixel.rgbReserved);
-      }
     }
   }
 
   return result;
-}
-
-FREE_IMAGE_FORMAT ImageLoaderImpl::translateFormat(const ImageLoader::Format format)
-{
-  switch (format)
-  {
-  case ImageLoader::PCX:
-    return FIF_PCX;
-  case ImageLoader::BMP:
-    return FIF_BMP;
-    switchDefault();
-  }
-}
-
-size_t ImageLoaderImpl::pixelSize(const ImageLoader::PixelFormat format)
-{
-  switch (format)
-  {
-  case ImageLoader::RGB:
-    return 3;
-  case ImageLoader::RGBA:
-    return 4;
-    switchDefault();
-  }
 }
 
 } // namespace tb::mdl

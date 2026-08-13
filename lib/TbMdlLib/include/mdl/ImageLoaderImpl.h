@@ -23,7 +23,6 @@
 
 #include <FreeImage.h>
 
-#include <filesystem>
 #include <vector>
 
 namespace tb::mdl
@@ -46,30 +45,24 @@ private:
   FIBITMAP* m_bitmap = nullptr;
 
 public:
-  ImageLoaderImpl(ImageLoader::Format format, const std::filesystem::path& path);
-  ImageLoaderImpl(ImageLoader::Format format, const char* begin, const char* end);
+  ImageLoaderImpl(const char* begin, const char* end);
   ~ImageLoaderImpl();
 
-  size_t paletteSize() const;
-  size_t bitsPerPixel() const;
   size_t width() const;
   size_t height() const;
-  size_t byteWidth() const;
-  size_t scanWidth() const;
 
   bool hasPalette() const;
+
+  std::vector<unsigned char> loadPalette() const;
+  std::vector<unsigned char> loadPixels() const;
+
+private:
+  size_t paletteSize() const;
   bool hasIndices() const;
   bool hasPixels() const;
 
-  std::vector<unsigned char> loadPalette() const;
-  std::vector<unsigned char> loadIndices() const;
-  std::vector<unsigned char> loadPixels(ImageLoader::PixelFormat format) const;
-
-private:
-  std::vector<unsigned char> loadIndexedPixels(size_t pSize) const;
-  std::vector<unsigned char> loadPixels(size_t pSize) const;
-  static FREE_IMAGE_FORMAT translateFormat(ImageLoader::Format format);
-  static size_t pixelSize(ImageLoader::PixelFormat format);
+  std::vector<unsigned char> loadIndexedPixels() const;
+  std::vector<unsigned char> loadDirectPixels() const;
 };
 
 } // namespace tb::mdl

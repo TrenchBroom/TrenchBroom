@@ -19,53 +19,30 @@
 
 #pragma once
 
-#include <filesystem>
 #include <memory>
 #include <vector>
 
 namespace tb::mdl
 {
 class ImageLoaderImpl;
-class Path;
 
 class ImageLoader
 {
-public:
-  enum Format
-  {
-    PCX,
-    BMP
-  };
-
-  enum PixelFormat
-  {
-    RGB,
-    RGBA
-  };
-
 private:
   // we're using the PIMPL idiom here to insulate the clients from the FreeImage headers
   std::unique_ptr<ImageLoaderImpl> m_impl;
 
 public:
-  ImageLoader(Format format, const std::filesystem::path& path);
-  ImageLoader(Format format, const char* begin, const char* end);
+  ImageLoader(const char* begin, const char* end);
   ~ImageLoader();
 
-  size_t paletteSize() const;
-  size_t bitsPerPixel() const;
   size_t width() const;
   size_t height() const;
-  size_t byteWidth() const;
-  size_t scanWidth() const;
 
   bool hasPalette() const;
-  bool hasIndices() const;
-  bool hasPixels() const;
 
   std::vector<unsigned char> loadPalette() const;
-  std::vector<unsigned char> loadIndices() const;
-  std::vector<unsigned char> loadPixels(PixelFormat format) const;
+  std::vector<unsigned char> loadPixels() const;
 
 private:
   ImageLoader(const ImageLoader& other);

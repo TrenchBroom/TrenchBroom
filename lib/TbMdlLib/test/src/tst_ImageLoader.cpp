@@ -100,12 +100,11 @@ TEST_CASE("ImageLoader")
   {
     const auto* begin = reinterpret_cast<const char*>(Bmp4x2.data());
     const auto* end = begin + Bmp4x2.size();
-    auto loader = ImageLoader{ImageLoader::BMP, begin, end};
+    auto loader = ImageLoader{begin, end};
 
     REQUIRE(loader.width() == 4u);
     REQUIRE(loader.height() == 2u);
-    REQUIRE(loader.hasPixels());
-    REQUIRE_FALSE(loader.hasIndices());
+    REQUIRE_FALSE(loader.hasPalette());
 
     // clang-format off
     const auto expected = std::vector<unsigned char>{
@@ -116,19 +115,18 @@ TEST_CASE("ImageLoader")
     };
     // clang-format on
 
-    CHECK(loader.loadPixels(ImageLoader::RGB) == expected);
+    CHECK(loader.loadPixels() == expected);
   }
 
   SECTION("indexed images")
   {
     const auto* begin = reinterpret_cast<const char*>(IndexedBmp4x2.data());
     const auto* end = begin + IndexedBmp4x2.size();
-    auto loader = ImageLoader{ImageLoader::BMP, begin, end};
+    auto loader = ImageLoader{begin, end};
 
     REQUIRE(loader.width() == 4u);
     REQUIRE(loader.height() == 2u);
     REQUIRE(loader.hasPalette());
-    REQUIRE(loader.hasIndices());
 
     SECTION("loadPalette")
     {
@@ -159,18 +157,6 @@ TEST_CASE("ImageLoader")
       CHECK(actualPrefix == expectedPrefix);
     }
 
-    SECTION("loadIndices")
-    {
-      // clang-format off
-      const auto expected = std::vector<unsigned char>{
-        3, 2, 1, 0, // row 0 (top of the image)
-        0, 1, 2, 3, // row 1 (bottom of the image)
-      };
-      // clang-format on
-
-      CHECK(loader.loadIndices() == expected);
-    }
-
     SECTION("loadPixels")
     {
       // clang-format off
@@ -182,7 +168,7 @@ TEST_CASE("ImageLoader")
       };
       // clang-format on
 
-      CHECK(loader.loadPixels(ImageLoader::RGB) == expected);
+      CHECK(loader.loadPixels() == expected);
     }
   }
 }
