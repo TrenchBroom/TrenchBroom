@@ -21,8 +21,6 @@
 
 #include "kd/contracts.h"
 
-#include <FreeImage.h>
-
 #include <algorithm>
 #include <iostream>
 
@@ -130,41 +128,6 @@ void setMipBufferSize(
                                         * std::max(size_t(1), mipSize.y() / 4))
                                      : (bytesPerPixel * mipSize.x() * mipSize.y());
     buffers[level] = TextureBuffer{numBytes};
-  }
-}
-
-void resizeMips(
-  TextureBufferList& buffers, const vm::vec2s& oldSize, const vm::vec2s& newSize)
-{
-  if (oldSize != newSize)
-  {
-    for (size_t i = 0; i < buffers.size(); ++i)
-    {
-      const auto div = size_t(1) << i;
-      const auto oldWidth = int(oldSize.x() / div);
-      const auto oldHeight = int(oldSize.y() / div);
-      const auto oldPitch = oldWidth * 3;
-      auto* oldPtr = buffers[i].data();
-
-      auto* oldBitmap = FreeImage_ConvertFromRawBits(
-        oldPtr, oldWidth, oldHeight, oldPitch, 24, 0xFF0000, 0x00FF00, 0x0000FF, true);
-      contract_assert(oldBitmap != nullptr);
-
-      const auto newWidth = int(newSize.x() / div);
-      const auto newHeight = int(newSize.y() / div);
-      const auto newPitch = newWidth * 3;
-
-      auto* newBitmap = FreeImage_Rescale(oldBitmap, newWidth, newHeight, FILTER_BICUBIC);
-      contract_assert(newBitmap != nullptr);
-
-      buffers[i] = TextureBuffer{3 * newSize.x() * newSize.y()};
-      auto* newPtr = buffers[i].data();
-
-      FreeImage_ConvertToRawBits(
-        newPtr, newBitmap, newPitch, 24, 0xFF0000, 0x00FF00, 0x0000FF, true);
-      FreeImage_Unload(oldBitmap);
-      FreeImage_Unload(newBitmap);
-    }
   }
 }
 

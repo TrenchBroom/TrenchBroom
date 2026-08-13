@@ -60,7 +60,4 @@ void setMipBufferSize(
   size_t height,
   GLenum format);
 
-void resizeMips(
-  TextureBufferList& buffers, const vm::vec2s& oldSize, const vm::vec2s& newSize);
-
 } // namespace tb::gl
