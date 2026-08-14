@@ -19,6 +19,8 @@
 
 #include "img/DecodeBmpPalette.h"
 
+#include "kd/result.h"
+
 #include <array>
 
 #include <catch2/catch_test_macros.hpp>
@@ -109,7 +111,7 @@ TEST_CASE("decodeBmpPalette")
     };
     // clang-format on
 
-    CHECK(decodeBmpPalette(begin, end) == expected);
+    CHECK((decodeBmpPalette(begin, end) | kdl::value()) == expected);
   }
 
   SECTION("indexed image")
@@ -121,7 +123,7 @@ TEST_CASE("decodeBmpPalette")
     // entries beyond the 4 the fixture actually populated are filled by FreeImage
     // with an unspecified fallback (observed to be a grayscale ramp), so only the
     // entries the fixture controls are checked here
-    const auto palette = decodeBmpPalette(begin, end);
+    const auto palette = decodeBmpPalette(begin, end) | kdl::value();
     REQUIRE(palette.size() == 256u * 3u);
 
     const auto actualPrefix =

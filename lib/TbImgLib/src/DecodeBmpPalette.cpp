@@ -27,6 +27,8 @@
 
 #include <FreeImage.h>
 
+#include <stdexcept>
+
 namespace tb::img
 {
 
@@ -75,29 +77,47 @@ std::vector<unsigned char> decodeDirectPixels(
 
 } // namespace
 
-std::vector<unsigned char> decodeBmpPalette(
+Result<std::vector<unsigned char>> decodeBmpPalette(
   const unsigned char* begin, const unsigned char* end)
 {
-  InitFreeImage::initialize();
-
-  // this is supremely evil, but FreeImage guarantees that it will not modify wrapped
-  // memory
-  auto* address = const_cast<unsigned char*>(begin);
-  const auto length = DWORD(end - begin);
-
-  auto stream =
-    kdl::resource{FreeImage_OpenMemory(address, length), FreeImage_CloseMemory};
-  auto bitmap =
-    kdl::resource{FreeImage_LoadFromMemory(FIF_BMP, *stream), FreeImage_Unload};
-
-  if (FreeImage_GetPalette(*bitmap) != nullptr)
+  try
   {
-    return decodePalette(*bitmap);
-  }
+    InitFreeImage::initialize();
 
-  const auto width = size_t(FreeImage_GetWidth(*bitmap));
-  const auto height = size_t(FreeImage_GetHeight(*bitmap));
-  return decodeDirectPixels(*bitmap, width, height);
+    // this is supremely evil, but FreeImage guarantees that it will not modify wrapped
+    // memory
+    auto* address = const_cast<unsigned char*>(begin);
+    const auto length = DWORD(end - begin);
+
+    auto stream =
+      kdl::resource{FreeImage_OpenMemory(address, length), FreeImage_CloseMemory};
+
+    if (!stream)
+    {
+      return Error{"FreeImage could not open memory"};
+    }
+
+    auto bitmap =
+      kdl::resource{FreeImage_LoadFromMemory(FIF_BMP, *stream), FreeImage_Unload};
+
+    if (!bitmap)
+    {
+      return Error{"FreeImage could not load BMP data"};
+    }
+
+    if (FreeImage_GetPalette(*bitmap) != nullptr)
+    {
+      return decodePalette(*bitmap);
+    }
+
+    const auto width = size_t(FreeImage_GetWidth(*bitmap));
+    const auto height = size_t(FreeImage_GetHeight(*bitmap));
+    return decodeDirectPixels(*bitmap, width, height);
+  }
+  catch (const std::exception& e)
+  {
+    return Error{e.what()};
+  }
 }
 
 } // namespace tb::img

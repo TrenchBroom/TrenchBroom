@@ -19,6 +19,8 @@
 
 #pragma once
 
+#include "base/Result.h"
+
 #include <vector>
 
 namespace tb::img
@@ -29,7 +31,7 @@ namespace tb::img
  * image's own palette if it has one (for indexed images), otherwise its pixels (for
  * direct-color images).
  */
-std::vector<unsigned char> decodeBmpPalette(
+Result<std::vector<unsigned char>> decodeBmpPalette(
   const unsigned char* begin, const unsigned char* end);
 
 } // namespace tb::img

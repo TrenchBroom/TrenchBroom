@@ -29,6 +29,7 @@
 #include "kd/contracts.h"
 #include "kd/path_utils.h"
 #include "kd/reflection_impl.h"
+#include "kd/result.h"
 
 #include <fmt/format.h>
 #include <fmt/std.h>
@@ -205,8 +206,9 @@ Result<Palette> loadBmp(fs::Reader& reader)
   auto bufferedReader = reader.buffer();
   const auto* begin = reinterpret_cast<const unsigned char*>(bufferedReader.begin());
   const auto* end = reinterpret_cast<const unsigned char*>(bufferedReader.end());
-  auto data = img::decodeBmpPalette(begin, end);
-  return makePalette(data, PaletteColorFormat::Rgb);
+  return img::decodeBmpPalette(begin, end) | kdl::and_then([](auto&& data) {
+           return makePalette(data, PaletteColorFormat::Rgb);
+         });
 }
 
 } // namespace

@@ -72,6 +72,11 @@ Result<Image> decodeImage(const unsigned char* begin, const size_t size)
       FreeImage_OpenMemory(const_cast<unsigned char*>(begin), static_cast<DWORD>(size)),
       FreeImage_CloseMemory};
 
+    if (!imageMemory)
+    {
+      return Error{"FreeImage could not open memory"};
+    }
+
     const auto imageFormat = FreeImage_GetFileTypeFromMemory(*imageMemory);
     if (imageFormat == FIF_UNKNOWN)
     {
