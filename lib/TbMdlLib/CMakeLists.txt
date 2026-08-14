@@ -66,8 +66,6 @@ target_sources(TbMdlLib
     ${CMAKE_CURRENT_SOURCE_DIR}/src/HitAdapter.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/HitFilter.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/HitType.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/ImageLoader.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/ImageLoaderImpl.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/InvalidUvScaleValidator.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Issue.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/IssueQuickFix.cpp
@@ -86,8 +84,8 @@ target_sources(TbMdlLib
     ${CMAKE_CURRENT_SOURCE_DIR}/src/LoadEntityDefinitions.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/LoadEntityModel.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/LoadFmModel.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/LoadFreeImageTexture.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/LoadImageSpriteModel.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/LoadImageTexture.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/LoadM8Texture.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/LoadM32Texture.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/LoadMaterialCollections.cpp
@@ -213,9 +211,9 @@ target_link_libraries(TbMdlLib
     CompilerConfig
     PrecompileStdHeaders
     assimp
-    FreeImage
     miniz
     tinyxml2::tinyxml2
+    TbImgLib
   PUBLIC
     fmt::fmt-header-only
     KdLib

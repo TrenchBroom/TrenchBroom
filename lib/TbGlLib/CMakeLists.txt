@@ -53,7 +53,6 @@ target_link_libraries(TbGlLib
   PRIVATE
     CompilerConfig
     PrecompileStdHeaders
-    FreeImage
     freetype
   PUBLIC
     fmt::fmt-header-only

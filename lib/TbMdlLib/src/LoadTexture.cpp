@@ -22,7 +22,7 @@
 #include "fs/FileSystem.h"
 #include "gl/Texture.h"
 #include "mdl/LoadDdsTexture.h"
-#include "mdl/LoadFreeImageTexture.h"
+#include "mdl/LoadImageTexture.h"
 #include "mdl/LoadM32Texture.h"
 #include "mdl/LoadM8Texture.h"
 #include "mdl/LoadMipTexture.h"
@@ -98,11 +98,11 @@ Result<gl::Texture> loadTexture(
              return loadDdsTexture(reader);
            });
   }
-  else if (isSupportedFreeImageExtension(extension))
+  else if (isSupportedImageExtension(extension))
   {
     return fs.openFile(path) | kdl::and_then([&](auto file) {
              auto reader = file->reader().buffer();
-             return loadFreeImageTexture(reader);
+             return loadImageTexture(reader);
            });
   }
 

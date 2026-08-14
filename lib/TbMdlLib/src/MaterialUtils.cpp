@@ -27,7 +27,7 @@
 #include "gl/Texture.h"
 #include "gl/TextureBuffer.h"
 #include "gl/TextureResource.h"
-#include "mdl/LoadFreeImageTexture.h"
+#include "mdl/LoadImageTexture.h"
 
 #include "kd/functional.h"
 #include "kd/path_utils.h"
@@ -117,7 +117,7 @@ gl::Texture loadDefaultTexture(const fs::FileSystem& fs, Logger& logger)
 
     return fs.openFile(DefaultTexturePath) | kdl::and_then([&](auto file) {
              auto reader = file->reader().buffer();
-             return loadFreeImageTexture(reader);
+             return loadImageTexture(reader);
            })
            | kdl::transform_error([&](auto e) {
                logger.error() << "Could not load default texture: " << e.msg;

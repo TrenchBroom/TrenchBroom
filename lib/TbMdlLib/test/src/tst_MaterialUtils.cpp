@@ -23,7 +23,7 @@
 #include "fs/DiskFileSystem.h"
 #include "fs/TestEnvironment.h"
 #include "mdl/CatchConfig.h"
-#include "mdl/LoadFreeImageTexture.h"
+#include "mdl/LoadImageTexture.h"
 #include "mdl/MaterialUtils.h"
 
 #include "kd/result.h"
@@ -96,9 +96,9 @@ TEST_CASE("MaterialUtils")
 
   SECTION("loadDefaultMaterial")
   {
+    auto logger = NullLogger{};
     auto fs =
       fs::DiskFileSystem{getFixtureRoot() / "test/mdl/MaterialUtils/loadDefaultMaterial"};
-    NullLogger logger;
 
     auto material = loadDefaultMaterial(fs, "some_name", logger);
     CHECK(material.name() == "some_name");
@@ -112,7 +112,7 @@ TEST_CASE("MaterialUtils")
 
     const auto file = diskFS.openFile("textures/corruptPngTest.png") | kdl::value();
     auto reader = file->reader().buffer();
-    auto result = loadFreeImageTexture(reader);
+    auto result = loadImageTexture(reader);
     REQUIRE(result.is_error());
 
     const auto defaultTexture =

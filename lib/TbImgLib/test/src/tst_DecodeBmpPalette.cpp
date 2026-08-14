@@ -17,14 +17,15 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "mdl/CatchConfig.h"
-#include "mdl/ImageLoader.h"
+#include "img/DecodeBmpPalette.h"
+
+#include "kd/result.h"
 
 #include <array>
 
 #include <catch2/catch_test_macros.hpp>
 
-namespace tb::mdl
+namespace tb::img
 {
 namespace
 {
@@ -94,18 +95,12 @@ constexpr auto IndexedBmp4x2 = std::array<unsigned char, 78>{
 
 } // namespace
 
-TEST_CASE("ImageLoader")
+TEST_CASE("decodeBmpPalette")
 {
-  SECTION("loadPixels")
+  SECTION("direct-color image")
   {
-    const auto* begin = reinterpret_cast<const char*>(Bmp4x2.data());
+    const auto* begin = Bmp4x2.data();
     const auto* end = begin + Bmp4x2.size();
-    auto loader = ImageLoader{ImageLoader::BMP, begin, end};
-
-    REQUIRE(loader.width() == 4u);
-    REQUIRE(loader.height() == 2u);
-    REQUIRE(loader.hasPixels());
-    REQUIRE_FALSE(loader.hasIndices());
 
     // clang-format off
     const auto expected = std::vector<unsigned char>{
@@ -116,75 +111,40 @@ TEST_CASE("ImageLoader")
     };
     // clang-format on
 
-    CHECK(loader.loadPixels(ImageLoader::RGB) == expected);
+    CHECK((decodeBmpPalette(begin, end) | kdl::value()) == expected);
   }
 
-  SECTION("indexed images")
+  SECTION("indexed image")
   {
-    const auto* begin = reinterpret_cast<const char*>(IndexedBmp4x2.data());
+    const auto* begin = IndexedBmp4x2.data();
     const auto* end = begin + IndexedBmp4x2.size();
-    auto loader = ImageLoader{ImageLoader::BMP, begin, end};
 
-    REQUIRE(loader.width() == 4u);
-    REQUIRE(loader.height() == 2u);
-    REQUIRE(loader.hasPalette());
-    REQUIRE(loader.hasIndices());
+    // an 8bpp bitmap always reports a 256-entry palette, regardless of biClrUsed;
+    // entries beyond the 4 the fixture actually populated are filled by FreeImage
+    // with an unspecified fallback (observed to be a grayscale ramp), so only the
+    // entries the fixture controls are checked here
+    const auto palette = decodeBmpPalette(begin, end) | kdl::value();
+    REQUIRE(palette.size() == 256u * 3u);
 
-    SECTION("loadPalette")
-    {
-      // an 8bpp bitmap always reports a 256-entry palette, regardless of biClrUsed;
-      // entries beyond the 4 the fixture actually populated are filled by FreeImage
-      // with an unspecified fallback (observed to be a grayscale ramp), so only the
-      // entries the fixture controls are checked here
-      const auto palette = loader.loadPalette();
-      REQUIRE(palette.size() == 256u * 3u);
+    const auto actualPrefix =
+      std::vector<unsigned char>(palette.begin(), palette.begin() + 12);
+    const auto expectedPrefix = std::vector<unsigned char>{
+      255,
+      0,
+      0, // red
+      0,
+      255,
+      0, // green
+      0,
+      0,
+      255, // blue
+      255,
+      255,
+      255, // white
+    };
 
-      const auto actualPrefix =
-        std::vector<unsigned char>(palette.begin(), palette.begin() + 12);
-      const auto expectedPrefix = std::vector<unsigned char>{
-        255,
-        0,
-        0, // red
-        0,
-        255,
-        0, // green
-        0,
-        0,
-        255, // blue
-        255,
-        255,
-        255, // white
-      };
-
-      CHECK(actualPrefix == expectedPrefix);
-    }
-
-    SECTION("loadIndices")
-    {
-      // clang-format off
-      const auto expected = std::vector<unsigned char>{
-        3, 2, 1, 0, // row 0 (top of the image)
-        0, 1, 2, 3, // row 1 (bottom of the image)
-      };
-      // clang-format on
-
-      CHECK(loader.loadIndices() == expected);
-    }
-
-    SECTION("loadPixels")
-    {
-      // clang-format off
-      const auto expected = std::vector<unsigned char>{
-        // row 0 (top of the image)
-        255, 255, 255,   0, 0, 255,   0, 255, 0,   255, 0, 0,
-        // row 1 (bottom of the image)
-        255, 0, 0,       0, 255, 0,   0, 0, 255,   255, 255, 255,
-      };
-      // clang-format on
-
-      CHECK(loader.loadPixels(ImageLoader::RGB) == expected);
-    }
+    CHECK(actualPrefix == expectedPrefix);
   }
 }
 
-} // namespace tb::mdl
+} // namespace tb::img

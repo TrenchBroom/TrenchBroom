@@ -29,7 +29,7 @@
 #include "gl/Texture.h"
 #include "gl/TextureResource.h"
 #include "mdl/GameConfig.h"
-#include "mdl/LoadFreeImageTexture.h"
+#include "mdl/LoadImageTexture.h"
 #include "mdl/LoadShaders.h"
 #include "mdl/LoadTexture.h"
 #include "mdl/MaterialUtils.h"
@@ -199,7 +199,7 @@ Result<gl::Material> loadShaderMaterial(
            return [&, path = std::move(path_)]() {
              return fs.openFile(path) | kdl::and_then([&](auto file) {
                       auto reader = file->reader().buffer();
-                      return loadFreeImageTexture(reader).transform([](auto texture) {
+                      return loadImageTexture(reader).transform([](auto texture) {
                         texture.setMask(gl::TextureMask::Off);
                         return texture;
                       });

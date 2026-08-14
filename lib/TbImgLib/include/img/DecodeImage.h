@@ -19,35 +19,12 @@
 
 #pragma once
 
-#include "base/Color.h"
 #include "base/Result.h"
-#include "gl/GlUtils.h"
+#include "img/Image.h"
 
-#include <filesystem>
-
-namespace tb
-{
-namespace gl
-{
-class Texture;
-class TextureBuffer;
-} // namespace gl
-
-namespace fs
-{
-class Reader;
-} // namespace fs
-
-namespace mdl
+namespace tb::img
 {
 
-Color getAverageColor(const gl::TextureBuffer& buffer, GLenum format);
+Result<Image> decodeImage(const unsigned char* begin, size_t size);
 
-Result<gl::Texture> loadFreeImageTextureFromMemory(const uint8_t* begin, size_t size);
-
-Result<gl::Texture> loadFreeImageTexture(fs::Reader& reader);
-
-bool isSupportedFreeImageExtension(const std::filesystem::path& extension);
-
-} // namespace mdl
-} // namespace tb
+} // namespace tb::img

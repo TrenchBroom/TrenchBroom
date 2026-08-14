@@ -31,7 +31,7 @@
 #include "gl/IndexRangeMapBuilder.h"
 #include "gl/Texture.h"
 #include "mdl/BrushFace.h"
-#include "mdl/LoadFreeImageTexture.h"
+#include "mdl/LoadImageTexture.h"
 #include "mdl/MaterialUtils.h"
 
 #include "kd/path_utils.h"
@@ -233,7 +233,7 @@ std::optional<gl::Texture> loadFallbackTexture(const fs::FileSystem& fs)
   return texturePaths | kdl::first([&](const auto& texturePath) {
            return fs.openFile(texturePath) | kdl::and_then([](auto file) {
                     auto reader = file->reader().buffer();
-                    return loadFreeImageTexture(reader);
+                    return loadImageTexture(reader);
                   });
          });
 }
@@ -262,7 +262,7 @@ gl::Texture loadTextureFromFileSystem(
          | kdl::and_then([&](const auto& actualPath) { return fs.openFile(actualPath); })
          | kdl::and_then([](auto file) {
              auto reader = file->reader().buffer();
-             return loadFreeImageTexture(reader);
+             return loadImageTexture(reader);
            })
          | kdl::or_else(makeReadTextureErrorHandler(fs, logger)) | kdl::value();
 }
@@ -312,7 +312,7 @@ gl::Texture loadUncompressedEmbeddedTexture(
 gl::Texture loadCompressedEmbeddedTexture(
   const aiTexel& data, const size_t size, const fs::FileSystem& fs, Logger& logger)
 {
-  return loadFreeImageTextureFromMemory(reinterpret_cast<const uint8_t*>(&data), size)
+  return loadImageTextureFromMemory(reinterpret_cast<const uint8_t*>(&data), size)
          | kdl::or_else(makeReadTextureErrorHandler(fs, logger)) | kdl::value();
 }
 

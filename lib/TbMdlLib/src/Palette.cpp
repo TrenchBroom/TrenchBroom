@@ -24,11 +24,12 @@
 #include "fs/Reader.h"
 #include "fs/ReaderException.h"
 #include "gl/TextureBuffer.h"
-#include "mdl/ImageLoader.h"
+#include "img/DecodeBmpPalette.h"
 
 #include "kd/contracts.h"
 #include "kd/path_utils.h"
 #include "kd/reflection_impl.h"
+#include "kd/result.h"
 
 #include <fmt/format.h>
 #include <fmt/std.h>
@@ -203,11 +204,11 @@ Result<Palette> loadPcx(fs::Reader& reader)
 Result<Palette> loadBmp(fs::Reader& reader)
 {
   auto bufferedReader = reader.buffer();
-  auto imageLoader =
-    ImageLoader{ImageLoader::BMP, bufferedReader.begin(), bufferedReader.end()};
-  auto data = imageLoader.hasPalette() ? imageLoader.loadPalette()
-                                       : imageLoader.loadPixels(ImageLoader::RGB);
-  return makePalette(data, PaletteColorFormat::Rgb);
+  const auto* begin = reinterpret_cast<const unsigned char*>(bufferedReader.begin());
+  const auto* end = reinterpret_cast<const unsigned char*>(bufferedReader.end());
+  return img::decodeBmpPalette(begin, end) | kdl::and_then([](auto&& data) {
+           return makePalette(data, PaletteColorFormat::Rgb);
+         });
 }
 
 } // namespace

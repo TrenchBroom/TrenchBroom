@@ -22,7 +22,7 @@
 #include "fs/ReaderException.h"
 #include "gl/IndexRangeMap.h"
 #include "gl/IndexRangeMapBuilder.h"
-#include "mdl/LoadFreeImageTexture.h"
+#include "mdl/LoadImageTexture.h"
 #include "mdl/MaterialUtils.h"
 
 namespace tb::mdl
@@ -33,8 +33,7 @@ namespace
 auto loadMaterial(
   const fs::FileSystem& fs, fs::Reader& reader, std::string name, Logger& logger)
 {
-  return loadFreeImageTexture(reader)
-         | kdl::or_else(makeReadTextureErrorHandler(fs, logger))
+  return loadImageTexture(reader) | kdl::or_else(makeReadTextureErrorHandler(fs, logger))
          | kdl::and_then([&](auto texture) {
              auto textureResource = createTextureResource(std::move(texture));
              return Result<gl::Material>{
@@ -85,7 +84,7 @@ void createFrame(EntityModelData& modelData)
 
 bool canLoadImageSpriteModel(const std::filesystem::path& path)
 {
-  return isSupportedFreeImageExtension(path.extension());
+  return isSupportedImageExtension(path.extension());
 }
 
 Result<EntityModelData> loadImageSpriteModel(
