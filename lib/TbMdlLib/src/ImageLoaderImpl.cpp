@@ -19,27 +19,13 @@
 
 #include "mdl/ImageLoaderImpl.h"
 
+#include "InitFreeImage.h"
 #include "base/Macros.h"
 
 #include "kd/contracts.h"
 
 namespace tb::mdl
 {
-
-InitFreeImage::InitFreeImage()
-{
-  FreeImage_Initialise(true);
-}
-
-InitFreeImage::~InitFreeImage()
-{
-  FreeImage_DeInitialise();
-}
-
-void InitFreeImage::initialize()
-{
-  static InitFreeImage initFreeImage;
-}
 
 ImageLoaderImpl::ImageLoaderImpl(const char* begin, const char* end)
 {

@@ -17,42 +17,26 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#pragma once
-
-#include "mdl/ImageLoader.h"
+#include "InitFreeImage.h"
 
 #include <FreeImage.h>
-
-#include <vector>
 
 namespace tb::mdl
 {
 
-class ImageLoaderImpl
+InitFreeImage::InitFreeImage()
 {
-private:
-  FIMEMORY* m_stream = nullptr;
-  FIBITMAP* m_bitmap = nullptr;
+  FreeImage_Initialise(true);
+}
 
-public:
-  ImageLoaderImpl(const char* begin, const char* end);
-  ~ImageLoaderImpl();
+InitFreeImage::~InitFreeImage()
+{
+  FreeImage_DeInitialise();
+}
 
-  size_t width() const;
-  size_t height() const;
-
-  bool hasPalette() const;
-
-  std::vector<unsigned char> loadPalette() const;
-  std::vector<unsigned char> loadPixels() const;
-
-private:
-  size_t paletteSize() const;
-  bool hasIndices() const;
-  bool hasPixels() const;
-
-  std::vector<unsigned char> loadIndexedPixels() const;
-  std::vector<unsigned char> loadDirectPixels() const;
-};
+void InitFreeImage::initialize()
+{
+  static auto initFreeImage = InitFreeImage{};
+}
 
 } // namespace tb::mdl

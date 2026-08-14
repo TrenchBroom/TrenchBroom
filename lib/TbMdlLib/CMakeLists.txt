@@ -68,6 +68,7 @@ target_sources(TbMdlLib
     ${CMAKE_CURRENT_SOURCE_DIR}/src/HitType.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/ImageLoader.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/ImageLoaderImpl.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/InitFreeImage.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/InvalidUvScaleValidator.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Issue.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/IssueQuickFix.cpp

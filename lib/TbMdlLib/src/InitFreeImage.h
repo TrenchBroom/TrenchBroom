@@ -19,40 +19,17 @@
 
 #pragma once
 
-#include "mdl/ImageLoader.h"
-
-#include <FreeImage.h>
-
-#include <vector>
-
 namespace tb::mdl
 {
 
-class ImageLoaderImpl
+class InitFreeImage
 {
 private:
-  FIMEMORY* m_stream = nullptr;
-  FIBITMAP* m_bitmap = nullptr;
+  InitFreeImage();
+  ~InitFreeImage();
 
 public:
-  ImageLoaderImpl(const char* begin, const char* end);
-  ~ImageLoaderImpl();
-
-  size_t width() const;
-  size_t height() const;
-
-  bool hasPalette() const;
-
-  std::vector<unsigned char> loadPalette() const;
-  std::vector<unsigned char> loadPixels() const;
-
-private:
-  size_t paletteSize() const;
-  bool hasIndices() const;
-  bool hasPixels() const;
-
-  std::vector<unsigned char> loadIndexedPixels() const;
-  std::vector<unsigned char> loadDirectPixels() const;
+  static void initialize();
 };
 
 } // namespace tb::mdl

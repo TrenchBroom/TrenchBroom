@@ -20,10 +20,10 @@
 #include "mdl/LoadFreeImageTexture.h"
 
 #include "FreeImage.h"
+#include "InitFreeImage.h"
 #include "fs/Reader.h"
 #include "gl/Texture.h"
 #include "gl/TextureBuffer.h"
-#include "mdl/ImageLoaderImpl.h"
 #include "mdl/MaterialUtils.h"
 
 #include "kd/contracts.h"
