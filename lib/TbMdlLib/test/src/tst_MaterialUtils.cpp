@@ -96,9 +96,9 @@ TEST_CASE("MaterialUtils")
 
   SECTION("loadDefaultMaterial")
   {
+    auto logger = NullLogger{};
     auto fs =
       fs::DiskFileSystem{getFixtureRoot() / "test/mdl/MaterialUtils/loadDefaultMaterial"};
-    NullLogger logger;
 
     auto material = loadDefaultMaterial(fs, "some_name", logger);
     CHECK(material.name() == "some_name");
