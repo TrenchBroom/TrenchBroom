@@ -291,6 +291,12 @@ public:
   void cleanup(gl::Gl& gl);
 
   void render(gl::Gl& gl, gl::PrimType primType) const;
+
+  /**
+   * Renders just the given sub-range of indices (offset and count in index units,
+   * matching AllocationTracker::Block::pos/size), instead of the whole buffer.
+   */
+  void render(gl::Gl& gl, gl::PrimType primType, size_t offset, size_t count) const;
 };
 
 class VertexArrayInterface

@@ -26,6 +26,7 @@
 
 #include "vm/vec.h"
 
+#include <cstdint>
 #include <stdexcept>
 
 #include <catch2/catch_test_macros.hpp>
@@ -240,6 +241,48 @@ TEST_CASE("BrushIndexArray")
 
     CHECK(capturedMode == GL_TRIANGLES);
     CHECK(capturedCount == 3);
+  }
+
+  SECTION("setup, render and cleanup issue a draw call over just the given sub-range")
+  {
+    auto array = BrushIndexArray{};
+    const auto [block, dest] = array.getPointerToInsertElementsAt(6);
+    for (auto i = 0u; i < 6; ++i)
+    {
+      dest[i] = i;
+    }
+
+    array.prepare(gl, vboManager);
+    gl.onBindBuffer = [](GLenum, GLuint) {};
+
+    auto capturedMode = GLenum{0};
+    auto capturedCount = GLsizei{-1};
+    auto capturedIndices = static_cast<const void*>(nullptr);
+    gl.onDrawElements =
+      [&](const GLenum mode, const GLsizei count, GLenum, const void* indices) {
+        capturedMode = mode;
+        capturedCount = count;
+        capturedIndices = indices;
+      };
+
+    array.setup(gl);
+
+    // baseline: offset 0 gives the buffer's own base pointer
+    array.render(gl, gl::PrimType::Triangles, 0, 6);
+    const auto* baseIndices = capturedIndices;
+
+    array.render(gl, gl::PrimType::Triangles, 3, 3);
+    array.cleanup(gl);
+
+    CHECK(capturedMode == GL_TRIANGLES);
+    CHECK(capturedCount == 3);
+    // the sub-range starts 3 GLuint's past the buffer's base pointer -- computed via
+    // uintptr_t rather than pointer arithmetic since baseIndices is null in this test
+    // (it stands for the VBO's own base, per glDrawElements' offset-as-pointer idiom),
+    // and offsetting a null pointer is undefined behavior
+    const auto expectedIndices = reinterpret_cast<const void*>(
+      reinterpret_cast<std::uintptr_t>(baseIndices) + 3 * sizeof(GLuint));
+    CHECK(capturedIndices == expectedIndices);
   }
 
   vboManager.destroyPendingVbos(gl);
