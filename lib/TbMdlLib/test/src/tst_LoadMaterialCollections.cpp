@@ -212,6 +212,59 @@ TEST_CASE("LoadMaterialCollections")
 
       CHECK(!material.effectiveAlphaFunc());
     }
+
+    SECTION("a Quake 3 shader stage's alphaFunc sets Material::effectiveAlphaFunc")
+    {
+      auto shader = Quake3Shader{};
+      shader.shaderPath = "material";
+      shader.editorImage = "material";
+      shader.addStage().alphaFunc =
+        gl::MaterialAlphaFunc{gl::MaterialAlphaFunc::Compare::Greater, 0.0f};
+
+      const auto material =
+        loadMaterial(
+          fs, materialConfig, "material", createResource, {shader}, std::nullopt)
+        | kdl::value();
+      CHECK(
+        material.effectiveAlphaFunc()
+        == gl::MaterialAlphaFunc{gl::MaterialAlphaFunc::Compare::Greater, 0.0f});
+    }
+
+    SECTION("a Quake 3 shader's qer_alphaFunc alone sets Material::effectiveAlphaFunc")
+    {
+      auto shader = Quake3Shader{};
+      shader.shaderPath = "material";
+      shader.editorImage = "material";
+      shader.qerAlphaFunc =
+        gl::MaterialAlphaFunc{gl::MaterialAlphaFunc::Compare::GreaterEqual, 0.25f};
+
+      const auto material =
+        loadMaterial(
+          fs, materialConfig, "material", createResource, {shader}, std::nullopt)
+        | kdl::value();
+      CHECK(
+        material.effectiveAlphaFunc()
+        == gl::MaterialAlphaFunc{gl::MaterialAlphaFunc::Compare::GreaterEqual, 0.25f});
+    }
+
+    SECTION("a stage's alphaFunc wins over the shader's qer_alphaFunc")
+    {
+      auto shader = Quake3Shader{};
+      shader.shaderPath = "material";
+      shader.editorImage = "material";
+      shader.qerAlphaFunc =
+        gl::MaterialAlphaFunc{gl::MaterialAlphaFunc::Compare::GreaterEqual, 0.25f};
+      shader.addStage().alphaFunc =
+        gl::MaterialAlphaFunc{gl::MaterialAlphaFunc::Compare::Less, 0.5f};
+
+      const auto material =
+        loadMaterial(
+          fs, materialConfig, "material", createResource, {shader}, std::nullopt)
+        | kdl::value();
+      CHECK(
+        material.effectiveAlphaFunc()
+        == gl::MaterialAlphaFunc{gl::MaterialAlphaFunc::Compare::Less, 0.5f});
+    }
   }
 
   SECTION("loadMaterialCollections")

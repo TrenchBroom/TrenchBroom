@@ -19,9 +19,12 @@
 
 #pragma once
 
+#include "gl/Material.h"
+
 #include "kd/reflection_decl.h"
 
 #include <filesystem>
+#include <optional>
 #include <set>
 #include <string>
 #include <vector>
@@ -60,8 +63,9 @@ public:
 public:
   std::filesystem::path map;
   BlendFunc blendFunc;
+  std::optional<gl::MaterialAlphaFunc> alphaFunc;
 
-  kdl_reflect_decl(Quake3ShaderStage, map, blendFunc);
+  kdl_reflect_decl(Quake3ShaderStage, map, blendFunc, alphaFunc);
 };
 
 class Quake3Shader
@@ -81,12 +85,20 @@ public:
   Culling culling = Culling::Front;
   std::set<std::string> surfaceParms;
   std::vector<Quake3ShaderStage> stages;
+  std::optional<gl::MaterialAlphaFunc> qerAlphaFunc;
 
 public:
   Quake3ShaderStage& addStage();
 
   kdl_reflect_decl(
-    Quake3Shader, shaderPath, editorImage, lightImage, culling, surfaceParms, stages);
+    Quake3Shader,
+    shaderPath,
+    editorImage,
+    lightImage,
+    culling,
+    surfaceParms,
+    stages,
+    qerAlphaFunc);
 };
 
 std::ostream& operator<<(std::ostream& lhs, Quake3Shader::Culling rhs);
