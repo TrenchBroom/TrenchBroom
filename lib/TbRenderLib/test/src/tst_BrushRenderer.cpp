@@ -17,14 +17,207 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "TestPreferenceStore.h"
+#include "base/PreferenceManager.h"
+#include "gl/FontManager.h"
+#include "gl/Material.h"
+#include "gl/MockGl.h"
+#include "gl/OrthographicCamera.h"
+#include "gl/ShaderManager.h"
+#include "gl/Shaders.h"
+#include "gl/TestUtils.h"
+#include "gl/Texture.h"
+#include "gl/VboManager.h"
+#include "mdl/Brush.h"
+#include "mdl/BrushBuilder.h"
+#include "mdl/BrushFace.h"
+#include "mdl/BrushNode.h"
+#include "mdl/MapFormat.h"
 #include "render/BrushRenderer.h"
+#include "render/RenderBatch.h"
+#include "render/RenderContext.h"
 
+#include "kd/filesystem_utils.h"
+#include "kd/result.h"
+
+#include "vm/bbox.h"
+
+#include <fstream>
+#include <unordered_map>
 #include <vector>
 
 #include <catch2/catch_test_macros.hpp>
 
 namespace tb::render
 {
+
+namespace
+{
+
+// creates the global PreferenceManager instance (FaceRenderer::render() reads
+// Preferences::Brightness etc.) and destroys it again when it goes out of scope, so no
+// instance leaks into other test cases
+struct PreferenceManagerInstance
+{
+  PreferenceManagerInstance()
+  {
+    PreferenceManager::createInstance(std::make_unique<TestPreferenceStore>(), true);
+  }
+
+  ~PreferenceManagerInstance() { PreferenceManager::destroyInstance(); }
+};
+
+mdl::BrushNode makeCubeBrushNode(gl::Material& material)
+{
+  const auto worldBounds = vm::bbox3d{4096.0};
+  auto builder = mdl::BrushBuilder{mdl::MapFormat::Standard, worldBounds};
+  auto brush = builder.createCube(64.0, "material") | kdl::value();
+  for (auto& face : brush.faces())
+  {
+    face.setMaterial(&material);
+  }
+  return mdl::BrushNode{std::move(brush)};
+}
+
+} // namespace
+
+TEST_CASE("BrushRenderer rendering")
+{
+  auto preferenceManager = PreferenceManagerInstance{};
+
+  auto tmpFile = kdl::tmp_file{};
+  {
+    auto ofs = std::ofstream{tmpFile.path()};
+    ofs << "void main() {}\n";
+  }
+
+  auto gl = gl::MockGl{};
+  gl::installVboSupport(gl);
+  gl::installShaderCompileSupport(gl);
+
+  // Every uniform name gets a stable, distinct location the first time it's looked up,
+  // so uniform value callbacks below can identify which uniform they belong to.
+  auto locationToName = std::unordered_map<GLint, std::string>{};
+  gl.onGetUniformLocation = [&, nextLocation = GLint{1}](
+                              GLuint, const GLchar* name) mutable -> GLint {
+    for (const auto& [location, existingName] : locationToName)
+    {
+      if (existingName == name)
+      {
+        return location;
+      }
+    }
+    const auto location = nextLocation++;
+    locationToName[location] = name;
+    return location;
+  };
+
+  auto capturedAlphas = std::vector<GLfloat>{};
+  gl.onUniform1f = [&](const GLint location, const GLfloat value) {
+    if (locationToName.at(location) == "Alpha")
+    {
+      capturedAlphas.push_back(value);
+    }
+  };
+  gl.onUniform1i = [](GLint, GLint) {};
+  gl.onUniform3f = [](GLint, GLfloat, GLfloat, GLfloat) {};
+  gl.onUniform4f = [](GLint, GLfloat, GLfloat, GLfloat, GLfloat) {};
+
+  gl.onUseProgram = [](GLuint) {};
+  gl.onGetIntegerv = [](const GLenum pname, GLint* params) {
+    if (pname == GL_CURRENT_PROGRAM)
+    {
+      *params = GLint{1};
+    }
+  };
+
+  gl.onEnable = [](GLenum) {};
+  gl.onDisable = [](GLenum) {};
+  gl.onActiveTexture = [](GLenum) {};
+
+  gl.onMatrixMode = [](GLenum) {};
+  gl.onLoadMatrixd = [](const GLdouble*) {};
+  gl.onLoadMatrixf = [](const GLfloat*) {};
+
+  gl.onVertexPointer = [](GLint, GLenum, GLsizei, const GLvoid*) {};
+  gl.onNormalPointer = [](GLenum, GLsizei, const GLvoid*) {};
+  gl.onTexCoordPointer = [](GLint, GLenum, GLsizei, const GLvoid*) {};
+  gl.onEnableClientState = [](GLenum) {};
+  gl.onDisableClientState = [](GLenum) {};
+  gl.onClientActiveTexture = [](GLenum) {};
+
+  auto depthMaskCalls = std::vector<GLboolean>{};
+  gl.onDepthMask = [&](const GLboolean flag) { depthMaskCalls.push_back(flag); };
+
+  auto drawCallCount = 0;
+  gl.onDrawElements = [&](GLenum, GLsizei, GLenum, const void*) { ++drawCallCount; };
+
+  auto vboManager = gl::VboManager{};
+  auto shaderManager =
+    gl::ShaderManager{[&](const std::filesystem::path&) { return tmpFile.path(); }};
+  REQUIRE(shaderManager.loadProgram(gl, gl::Shaders::FaceShader).is_success());
+
+  auto camera = gl::OrthographicCamera{};
+  auto fontManager = gl::FontManager{[](const auto& path) { return path; }};
+  auto renderContext =
+    RenderContext{gl, RenderMode::Render3D, camera, fontManager, shaderManager};
+  renderContext.setShowEdges(false);
+
+  auto opaqueMaterial = gl::Material{"opaque", createTextureResource(gl::Texture{4, 4})};
+
+  auto blendMaterial = gl::Material{"blend", createTextureResource(gl::Texture{4, 4})};
+  blendMaterial.setBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+  SECTION(
+    "a material with real blend factors is drawn in the transparent pass, with depth "
+    "writes disabled, even when TransparencyAlpha is 1.0")
+  {
+    auto renderer = BrushRenderer{};
+    auto brushNode = makeCubeBrushNode(blendMaterial);
+    renderer.addBrush(brushNode);
+
+    auto batch = RenderBatch{vboManager};
+    renderer.render(renderContext, batch);
+    batch.render(renderContext);
+
+    CHECK(depthMaskCalls == std::vector<GLboolean>{GL_FALSE, GL_TRUE});
+    CHECK(drawCallCount == 1);
+  }
+
+  SECTION("a material without real blend factors stays in the opaque pass")
+  {
+    auto renderer = BrushRenderer{};
+    auto brushNode = makeCubeBrushNode(opaqueMaterial);
+    renderer.addBrush(brushNode);
+
+    auto batch = RenderBatch{vboManager};
+    renderer.render(renderContext, batch);
+    batch.render(renderContext);
+
+    CHECK(depthMaskCalls.empty());
+    CHECK(drawCallCount == 1);
+  }
+
+  SECTION(
+    "a material with real blend factors renders with its own alpha, not the "
+    "whole-batch X-ray/hidden-brush fade")
+  {
+    auto renderer = BrushRenderer{};
+    renderer.setTransparencyAlpha(0.4f);
+
+    auto brushNode = makeCubeBrushNode(blendMaterial);
+    renderer.addBrush(brushNode);
+
+    auto batch = RenderBatch{vboManager};
+    renderer.render(renderContext, batch);
+    batch.render(renderContext);
+
+    REQUIRE(!capturedAlphas.empty());
+    CHECK(capturedAlphas.back() == 1.0f);
+  }
+
+  vboManager.destroyPendingVbos(gl);
+}
 
 TEST_CASE("BrushRenderer")
 {

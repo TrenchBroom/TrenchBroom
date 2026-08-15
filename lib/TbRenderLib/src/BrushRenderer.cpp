@@ -455,6 +455,7 @@ void BrushRenderer::renderTransparentFaces(RenderBatch& renderBatch)
   m_transparentFaceRenderer.setTint(m_tint);
   m_transparentFaceRenderer.setTintColor(m_tintColor);
   m_transparentFaceRenderer.setAlpha(m_transparencyAlpha);
+  m_transparentFaceRenderer.setDisableDepthWrite(true);
   m_transparentFaceRenderer.render(renderBatch);
 }
 
@@ -486,11 +487,23 @@ void BrushRenderer::validate()
 }
 
 bool BrushRenderer::shouldDrawFaceInTransparentPass(
-  const mdl::BrushNode& brushNode, const mdl::BrushFace& face) const
+  const mdl::BrushNode& brushNode,
+  const mdl::BrushFace& face,
+  const gl::Material* material) const
 {
+  // A material with real per-pixel blending must always be drawn in the transparent pass
+  // (with depth-writes off) regardless of the X-ray/hidden-brush preference below --
+  // that preference only concerns the whole-brush fade, an unrelated feature.
+  if (
+    material
+    && material->effectiveBlendFunc().enable == gl::MaterialBlendFunc::Enable::UseFactors)
+  {
+    return true;
+  }
+
   if (m_transparencyAlpha >= 1.0f)
   {
-    // In this case, draw everything in the opaque pass
+    // In this case, draw everything else in the opaque pass
     // see: https://github.com/TrenchBroom/TrenchBroom/issues/2848
     return false;
   }
@@ -592,7 +605,7 @@ void BrushRenderer::validateBrush(const mdl::BrushNode& brushNode)
       if (cache.face->isMarked())
       {
         contract_assert(cache.material == material);
-        if (shouldDrawFaceInTransparentPass(brushNode, *cache.face))
+        if (shouldDrawFaceInTransparentPass(brushNode, *cache.face, material))
         {
           transparentIndexCount += triIndicesCountForPolygon(cache.vertexCount);
         }
@@ -624,7 +637,7 @@ void BrushRenderer::validateBrush(const mdl::BrushNode& brushNode)
         const auto& cache = facesSortedByMaterial[j];
         if (
           cache.face->isMarked()
-          && shouldDrawFaceInTransparentPass(brushNode, *cache.face))
+          && shouldDrawFaceInTransparentPass(brushNode, *cache.face, material))
         {
           addTriIndicesForPolygon(
             currentDest,
@@ -659,7 +672,7 @@ void BrushRenderer::validateBrush(const mdl::BrushNode& brushNode)
         const auto& cache = facesSortedByMaterial[j];
         if (
           cache.face->isMarked()
-          && !shouldDrawFaceInTransparentPass(brushNode, *cache.face))
+          && !shouldDrawFaceInTransparentPass(brushNode, *cache.face, material))
         {
           addTriIndicesForPolygon(
             currentDest,

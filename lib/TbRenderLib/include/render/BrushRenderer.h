@@ -309,7 +309,9 @@ public:
 
 private:
   bool shouldDrawFaceInTransparentPass(
-    const mdl::BrushNode& brushNode, const mdl::BrushFace& face) const;
+    const mdl::BrushNode& brushNode,
+    const mdl::BrushFace& face,
+    const gl::Material* material) const;
   void validateBrush(const mdl::BrushNode& brushNode);
 
 public:

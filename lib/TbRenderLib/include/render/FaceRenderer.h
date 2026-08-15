@@ -52,6 +52,7 @@ private:
   bool m_tint = false;
   Color m_tintColor;
   float m_alpha = 1.0;
+  bool m_disableDepthWrite = false;
 
 public:
   FaceRenderer();
@@ -64,6 +65,7 @@ public:
   void setTint(bool tint);
   void setTintColor(const Color& color);
   void setAlpha(float alpha);
+  void setDisableDepthWrite(bool disableDepthWrite);
 
   void render(RenderBatch& renderBatch);
 
