@@ -415,6 +415,13 @@ void MaterialBrowserView::renderMaterials(
               Vertex{{bounds.right(), height - (bounds.top() - y)}, {1, 0}},
             });
 
+            const auto alphaFunc = material.effectiveAlphaFunc();
+            shader.set("EnableMasked", alphaFunc.has_value());
+            if (alphaFunc)
+            {
+              shader.set("AlphaFuncCompare", static_cast<size_t>(alphaFunc->compare));
+              shader.set("AlphaFuncThreshold", alphaFunc->threshold);
+            }
             material.activate(
               gl,
               pref(Preferences::TextureMinFilter),

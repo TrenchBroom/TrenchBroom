@@ -137,6 +137,14 @@ private:
     shader.set("CameraZoom", m_helper.camera().zoom());
     shader.set("Material", 0);
 
+    const auto alphaFunc = material->effectiveAlphaFunc();
+    shader.set("EnableMasked", alphaFunc.has_value());
+    if (alphaFunc)
+    {
+      shader.set("AlphaFuncCompare", static_cast<size_t>(alphaFunc->compare));
+      shader.set("AlphaFuncThreshold", alphaFunc->threshold);
+    }
+
     if (m_vertexArray.setup(gl, shader.program()))
     {
       material->activate(
