@@ -65,4 +65,17 @@ void setAlphaFuncUniforms(ActiveShader& shader, const Material* material)
   }
 }
 
+AlphaTestedMaterialRenderFunc::AlphaTestedMaterialRenderFunc(
+  ActiveShader& shader, const int minFilter, const int magFilter)
+  : DefaultMaterialRenderFunc{minFilter, magFilter}
+  , m_shader{shader}
+{
+}
+
+void AlphaTestedMaterialRenderFunc::before(Gl& gl, const Material* material)
+{
+  DefaultMaterialRenderFunc::before(gl, material);
+  setAlphaFuncUniforms(m_shader, material);
+}
+
 } // namespace tb::gl

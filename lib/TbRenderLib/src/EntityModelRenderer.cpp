@@ -24,6 +24,7 @@
 #include "gl/ActiveShader.h"
 #include "gl/Camera.h"
 #include "gl/GlInterface.h"
+#include "gl/Material.h"
 #include "gl/MaterialIndexRangeRenderer.h"
 #include "gl/MaterialRenderFunc.h"
 #include "gl/Shaders.h"
@@ -173,6 +174,9 @@ void EntityModelRenderer::render(RenderContext& renderContext)
     shader.set("TintColor", m_tintColor);
     shader.set("GrayScale", false);
     shader.set("Material", 0);
+    shader.set("EnableMasked", false);
+    shader.set("AlphaFuncCompare", size_t{0});
+    shader.set("AlphaFuncThreshold", 0.5f);
     shader.set("ShowSoftMapBounds", !renderContext.softMapBounds().is_empty());
     shader.set("SoftMapBoundsMin", renderContext.softMapBounds().min);
     shader.set("SoftMapBoundsMax", renderContext.softMapBounds().max);
@@ -212,8 +216,8 @@ void EntityModelRenderer::render(RenderContext& renderContext)
 
       shader.set("ModelMatrix", transformation);
 
-      auto renderFunc = gl::DefaultMaterialRenderFunc{
-        renderContext.minFilterMode(), renderContext.magFilterMode()};
+      auto renderFunc = gl::AlphaTestedMaterialRenderFunc{
+        shader, renderContext.minFilterMode(), renderContext.magFilterMode()};
       renderer->render(gl, shader.program(), renderFunc);
     }
   }
