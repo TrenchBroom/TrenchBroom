@@ -170,6 +170,8 @@ void FaceRenderer::render(RenderContext& context)
     shader.set("ShowFog", showFog);
     shader.set("Alpha", m_alpha);
     shader.set("EnableMasked", false);
+    shader.set("AlphaFuncCompare", size_t{0});
+    shader.set("AlphaFuncThreshold", 0.5f);
     shader.set("ShowSoftMapBounds", !context.softMapBounds().is_empty());
     shader.set("SoftMapBoundsMin", context.softMapBounds().min);
     shader.set("SoftMapBoundsMax", context.softMapBounds().max);
@@ -192,11 +194,22 @@ void FaceRenderer::render(RenderContext& context)
     {
       if (brushIndexHolderPtr->hasValidIndices())
       {
-        const auto* texture = getTexture(material);
-        const auto enableMasked = texture && texture->mask() == gl::TextureMask::On;
+        const auto alphaFunc = material ? material->effectiveAlphaFunc()
+                                        : std::optional<gl::MaterialAlphaFunc>{};
+        const auto isRealBlend = material
+                                 && material->effectiveBlendFunc().enable
+                                      == gl::MaterialBlendFunc::Enable::UseFactors;
 
         // set any per-material uniforms
-        shader.set("EnableMasked", enableMasked);
+        shader.set("EnableMasked", alphaFunc.has_value());
+        if (alphaFunc)
+        {
+          shader.set("AlphaFuncCompare", static_cast<size_t>(alphaFunc->compare));
+          shader.set("AlphaFuncThreshold", alphaFunc->threshold);
+        }
+        // A material with real per-pixel blending renders with its own true alpha,
+        // independent of the whole-batch X-ray/hidden-brush fade.
+        shader.set("Alpha", isRealBlend ? 1.0f : m_alpha);
 
         func.before(gl, material);
         brushIndexHolderPtr->setup(gl);
