@@ -121,6 +121,11 @@ void FaceRenderer::setAlpha(const float alpha)
   m_alpha = alpha;
 }
 
+void FaceRenderer::setDisableDepthWrite(const bool disableDepthWrite)
+{
+  m_disableDepthWrite = disableDepthWrite;
+}
+
 void FaceRenderer::render(RenderBatch& renderBatch)
 {
   renderBatch.add(this);
@@ -186,7 +191,7 @@ void FaceRenderer::render(RenderContext& context)
       context.minFilterMode(),
       context.magFilterMode()};
 
-    if (m_alpha < 1.0f)
+    if (m_disableDepthWrite)
     {
       gl.depthMask(GL_FALSE);
     }
@@ -218,7 +223,7 @@ void FaceRenderer::render(RenderContext& context)
         func.after(gl, material);
       }
     }
-    if (m_alpha < 1.0f)
+    if (m_disableDepthWrite)
     {
       gl.depthMask(GL_TRUE);
     }
