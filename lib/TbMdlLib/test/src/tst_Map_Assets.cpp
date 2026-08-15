@@ -19,10 +19,12 @@
 
 #include "Observer.h"
 #include "fs/TestEnvironment.h"
+#include "gl/MaterialCollection.h"
 #include "gl/MaterialManager.h"
 #include "mdl/BrushFace.h" // IWYU pragma: keep
 #include "mdl/BrushNode.h"
 #include "mdl/CatchConfig.h"
+#include "mdl/GameConfigFixture.h"
 #include "mdl/LayerNode.h"
 #include "mdl/Map.h"
 #include "mdl/MapFixture.h"
@@ -338,6 +340,31 @@ TEST_CASE("Map_Assets")
 
     CHECK(std::ranges::none_of(
       faces, [](const auto* face) { return face->material() == nullptr; }));
+  }
+
+  SECTION("reloadMaterialCollections picks up materials added to disk")
+  {
+    auto env = fs::TestEnvironment{};
+    env.createDirectory("textures");
+    env.createFile("textures/tex1.png", "tex1");
+
+    auto gameConfig = DefaultGameInfo.gameConfig;
+    gameConfig.materialConfig.extensions = {".png"};
+    gameConfig.materialConfig.palette = std::filesystem::path{};
+
+    auto fixtureConfig = MapFixtureConfig{};
+    fixtureConfig.gameInfo = detail::makeGameInfoFixture(gameConfig, env.dir());
+
+    auto& map = fixture.create(fixtureConfig);
+
+    REQUIRE(map.materialManager().collections().size() == 1);
+    REQUIRE(map.materialManager().collections().front().materials().size() == 1);
+
+    env.createFile("textures/tex2.png", "tex2");
+    reloadMaterialCollections(map);
+
+    REQUIRE(map.materialManager().collections().size() == 1);
+    CHECK(map.materialManager().collections().front().materials().size() == 2);
   }
 
   SECTION("reloadEntityDefinitions")
