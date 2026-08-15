@@ -43,6 +43,7 @@
 #include "vm/bbox.h"
 
 #include <fstream>
+#include <optional>
 #include <unordered_map>
 #include <vector>
 
@@ -67,11 +68,14 @@ struct PreferenceManagerInstance
   ~PreferenceManagerInstance() { PreferenceManager::destroyInstance(); }
 };
 
-mdl::BrushNode makeCubeBrushNode(gl::Material& material)
+mdl::BrushNode makeCubeBrushNode(
+  gl::Material& material, const vm::vec3d& center = vm::vec3d{0, 0, 0})
 {
   const auto worldBounds = vm::bbox3d{4096.0};
   auto builder = mdl::BrushBuilder{mdl::MapFormat::Standard, worldBounds};
-  auto brush = builder.createCube(64.0, "material") | kdl::value();
+  const auto bounds = vm::bbox3d{
+    center - vm::vec3d{32.0, 32.0, 32.0}, center + vm::vec3d{32.0, 32.0, 32.0}};
+  auto brush = builder.createCuboid(bounds, "material") | kdl::value();
   for (auto& face : brush.faces())
   {
     face.setMaterial(&material);
@@ -113,10 +117,18 @@ TEST_CASE("BrushRenderer rendering")
   };
 
   auto capturedAlphas = std::vector<GLfloat>{};
+  // tracks the most recently set AlphaFuncThreshold, so onDrawElements below can record
+  // which material's item was active for each draw call, to verify sorted draw order
+  auto currentAlphaFuncThreshold = std::optional<GLfloat>{};
   gl.onUniform1f = [&](const GLint location, const GLfloat value) {
-    if (locationToName.at(location) == "Alpha")
+    const auto& name = locationToName.at(location);
+    if (name == "Alpha")
     {
       capturedAlphas.push_back(value);
+    }
+    else if (name == "AlphaFuncThreshold")
+    {
+      currentAlphaFuncThreshold = value;
     }
   };
   gl.onUniform1i = [](GLint, GLint) {};
@@ -150,7 +162,14 @@ TEST_CASE("BrushRenderer rendering")
   gl.onDepthMask = [&](const GLboolean flag) { depthMaskCalls.push_back(flag); };
 
   auto drawCallCount = 0;
-  gl.onDrawElements = [&](GLenum, GLsizei, GLenum, const void*) { ++drawCallCount; };
+  auto drawnThresholds = std::vector<GLfloat>{};
+  gl.onDrawElements = [&](GLenum, GLsizei, GLenum, const void*) {
+    ++drawCallCount;
+    if (currentAlphaFuncThreshold)
+    {
+      drawnThresholds.push_back(*currentAlphaFuncThreshold);
+    }
+  };
 
   auto vboManager = gl::VboManager{};
   auto shaderManager =
@@ -214,6 +233,54 @@ TEST_CASE("BrushRenderer rendering")
 
     REQUIRE(!capturedAlphas.empty());
     CHECK(capturedAlphas.back() == 1.0f);
+  }
+
+  SECTION("transparent brushes are drawn back-to-front by distance to the camera")
+  {
+    auto nearMaterial = gl::Material{"near", createTextureResource(gl::Texture{4, 4})};
+    nearMaterial.setBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    nearMaterial.setAlphaFunc(gl::MaterialAlphaFunc::Compare::GreaterEqual, 0.1f);
+
+    auto midMaterial = gl::Material{"mid", createTextureResource(gl::Texture{4, 4})};
+    midMaterial.setBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    midMaterial.setAlphaFunc(gl::MaterialAlphaFunc::Compare::GreaterEqual, 0.2f);
+
+    auto farMaterial = gl::Material{"far", createTextureResource(gl::Texture{4, 4})};
+    farMaterial.setBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    farMaterial.setAlphaFunc(gl::MaterialAlphaFunc::Compare::GreaterEqual, 0.3f);
+
+    // the default camera is at the origin; brushes are added in an order that does not
+    // match distance to it, to confirm the renderer is actually sorting rather than
+    // just preserving insertion or material-map order
+    auto renderer = BrushRenderer{};
+    auto midBrush = makeCubeBrushNode(midMaterial, vm::vec3d{200.0, 0.0, 0.0});
+    auto farBrush = makeCubeBrushNode(farMaterial, vm::vec3d{300.0, 0.0, 0.0});
+    auto nearBrush = makeCubeBrushNode(nearMaterial, vm::vec3d{100.0, 0.0, 0.0});
+    renderer.addBrush(midBrush);
+    renderer.addBrush(farBrush);
+    renderer.addBrush(nearBrush);
+
+    auto batch = RenderBatch{vboManager};
+    renderer.render(renderContext, batch);
+    batch.render(renderContext);
+
+    CHECK(drawnThresholds == std::vector<GLfloat>{0.3f, 0.2f, 0.1f});
+  }
+
+  SECTION(
+    "transparent brushes sharing a material are no longer batched into one draw call")
+  {
+    auto renderer = BrushRenderer{};
+    auto brush1 = makeCubeBrushNode(blendMaterial, vm::vec3d{100.0, 0.0, 0.0});
+    auto brush2 = makeCubeBrushNode(blendMaterial, vm::vec3d{200.0, 0.0, 0.0});
+    renderer.addBrush(brush1);
+    renderer.addBrush(brush2);
+
+    auto batch = RenderBatch{vboManager};
+    renderer.render(renderContext, batch);
+    batch.render(renderContext);
+
+    CHECK(drawCallCount == 2);
   }
 
   vboManager.destroyPendingVbos(gl);
