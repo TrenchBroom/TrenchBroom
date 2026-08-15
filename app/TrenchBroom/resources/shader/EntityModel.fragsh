@@ -24,24 +24,43 @@ uniform sampler2D Material;
 uniform bool ApplyTinting;
 uniform vec4 TintColor;
 uniform bool GrayScale;
+uniform bool EnableMasked;
+// 0 = GreaterEqual (keep if alpha >= AlphaFuncThreshold)
+// 1 = Less (keep if alpha < AlphaFuncThreshold)
+// 2 = Greater (keep if alpha > AlphaFuncThreshold)
+uniform int AlphaFuncCompare;
+uniform float AlphaFuncThreshold;
 
 varying vec4 worldCoordinates;
 
 vec3 applySoftMapBoundsTint(vec3 inputFragColor, vec3 worldCoords);
 
+// Mirrors gl::MaterialAlphaFunc::Compare -- keep the fragment when its alpha compares to
+// AlphaFuncThreshold according to AlphaFuncCompare, discard it otherwise.
+bool passesAlphaFunc(float alpha)
+{
+  if (AlphaFuncCompare == 1)
+  {
+    return alpha < AlphaFuncThreshold;
+  }
+  if (AlphaFuncCompare == 2)
+  {
+    return alpha > AlphaFuncThreshold;
+  }
+  return alpha >= AlphaFuncThreshold;
+}
+
 void main()
 {
   vec4 texel = texture2D(Material, gl_TexCoord[0].st);
 
-  // Assume alpha masked or opaque.
-  // TODO: Make this optional if we gain support for translucent textures
-  if (texel.a < 0.5)
+  if (EnableMasked && !passesAlphaFunc(texel.a))
   {
     discard;
   }
 
   gl_FragColor = vec4(vec3(Brightness / 2.0 * texel), texel.a);
-  gl_FragColor = clamp(2 * gl_FragColor, 0.0, 1.0);
+  gl_FragColor = vec4(clamp(2.0 * gl_FragColor.rgb, 0.0, 1.0), gl_FragColor.a);
 
   if (GrayScale)
   {

@@ -43,7 +43,8 @@ struct SprPicture
   size_t height;
 };
 
-SprPicture parsePicture(fs::Reader& reader, const Palette& palette)
+SprPicture parsePicture(
+  fs::Reader& reader, const Palette& palette, const img::ImageAlphaDomain alphaDomain)
 {
   const auto xOffset = reader.readInt<int32_t>();
   const auto yOffset = reader.readInt<int32_t>();
@@ -67,12 +68,10 @@ SprPicture parsePicture(fs::Reader& reader, const Palette& palette)
     gl::TextureMask::On,
     gl::NoEmbeddedDefaults{},
     std::move(rgbaImage)};
+  texture.setAlphaDomain(alphaDomain);
   auto textureResource = createTextureResource(std::move(texture));
 
   auto material = gl::Material{"", std::move(textureResource)};
-  // Preserves today's unconditional hard-cutout behavior. RenderMode-aware handling
-  // (e.g. treating Additive/IndexAlpha sprites as translucent instead) is Phase 2 work.
-  material.setAlphaFunc(gl::MaterialAlphaFunc::Compare::GreaterEqual, 0.5f);
 
   return SprPicture{std::move(material), xOffset, yOffset, width, height};
 }
@@ -87,19 +86,20 @@ void skipPicture(fs::Reader& reader)
   reader.seekForward(width * height);
 }
 
-SprPicture parsePictureFrame(fs::Reader& reader, const Palette& palette)
+SprPicture parsePictureFrame(
+  fs::Reader& reader, const Palette& palette, const img::ImageAlphaDomain alphaDomain)
 {
   const auto group = reader.readInt<int32_t>();
   if (group == 0)
   { // single picture frame
-    return parsePicture(reader, palette);
+    return parsePicture(reader, palette, alphaDomain);
   }
 
   // multiple picture frame
   const auto pictureCount = reader.readSize<int32_t>();
   reader.seekForward(pictureCount * sizeof(float));
 
-  auto picture = parsePicture(reader, palette);
+  auto picture = parsePicture(reader, palette, alphaDomain);
   for (size_t i = 0; i < pictureCount - 1; ++i)
   {
     skipPicture(reader);
@@ -220,6 +220,34 @@ Result<Palette> parseEmbeddedPalette(
   reader.read(data.data(), data.size());
   data = processGoldsourcePalette(renderMode, data);
   return makePalette(data, PaletteColorFormat::Rgba);
+}
+
+/**
+ * Classifies the alpha channel that indexedToRgba() will produce for a sprite's pictures,
+ * given the SPR version and (for version 2) render mode. Quake1 sprites (version 1)
+ * always use Index255Transparent against the external palette, which is strictly binary.
+ * Half-Life sprites (version 2) bake their alpha into the embedded palette itself via
+ * processGoldsourcePalette(): Normal is fully opaque, AlphaTest is strictly binary, and
+ * Additive/IndexAlpha are graduated (R+G+B)/3.
+ */
+img::ImageAlphaDomain spriteAlphaDomain(const int version, const RenderMode renderMode)
+{
+  if (version != 2)
+  {
+    return img::ImageAlphaDomain::Binary;
+  }
+
+  switch (renderMode)
+  {
+  case RenderMode::Normal:
+    return img::ImageAlphaDomain::Opaque;
+  case RenderMode::Additive:
+  case RenderMode::IndexAlpha:
+    return img::ImageAlphaDomain::Graduated;
+  case RenderMode::AlphaTest:
+    return img::ImageAlphaDomain::Binary;
+    switchDefault();
+  }
 }
 
 auto makeTris(
@@ -347,6 +375,8 @@ Result<EntityModelData> loadSpriteModel(
                    /* const auto beamLength = */ reader.readFloat<float>();
                    /* const auto synchtype = */ reader.readInt<int32_t>();
 
+                   const auto alphaDomain = spriteAlphaDomain(version, renderMode);
+
                    return parseEmbeddedPalette(reader, renderMode, version, palette)
                      .transform([&](auto embeddedPalette) {
                        auto data = EntityModelData{PitchType::Normal, orientationType};
@@ -357,7 +387,8 @@ Result<EntityModelData> loadSpriteModel(
 
                        for (size_t i = 0; i < frameCount; ++i)
                        {
-                         auto pictureFrame = parsePictureFrame(reader, embeddedPalette);
+                         auto pictureFrame =
+                           parsePictureFrame(reader, embeddedPalette, alphaDomain);
                          materials.push_back(std::move(pictureFrame.material));
 
                          const auto w = static_cast<float>(pictureFrame.width);

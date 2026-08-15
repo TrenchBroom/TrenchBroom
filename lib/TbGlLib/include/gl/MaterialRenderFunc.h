@@ -53,4 +53,19 @@ public:
  */
 void setAlphaFuncUniforms(ActiveShader& shader, const Material* material);
 
+/**
+ * Like DefaultMaterialRenderFunc, but also sets the alpha-test uniforms via
+ * setAlphaFuncUniforms(), for shaders that support alpha-test cutout.
+ */
+class AlphaTestedMaterialRenderFunc : public DefaultMaterialRenderFunc
+{
+private:
+  ActiveShader& m_shader;
+
+public:
+  AlphaTestedMaterialRenderFunc(ActiveShader& shader, int minFilter, int magFilter);
+
+  void before(Gl& gl, const Material* material) override;
+};
+
 } // namespace tb::gl
