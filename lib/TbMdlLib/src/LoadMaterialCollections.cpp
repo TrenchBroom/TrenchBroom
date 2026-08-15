@@ -247,6 +247,15 @@ Result<gl::Material> loadShaderMaterial(
                }
              }
 
+             const auto& alphaFunc =
+               !shader.stages.empty() && shader.stages.front().alphaFunc
+                 ? shader.stages.front().alphaFunc
+                 : shader.qerAlphaFunc;
+             if (alphaFunc)
+             {
+               material.setAlphaFunc(alphaFunc->compare, alphaFunc->threshold);
+             }
+
              return material;
            });
 }
