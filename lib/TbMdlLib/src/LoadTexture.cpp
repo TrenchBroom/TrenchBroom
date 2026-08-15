@@ -97,7 +97,7 @@ Result<gl::Texture> loadTexture(
              return loadDdsTexture(reader);
            });
   }
-  else if (isSupportedImageExtension(path.extension()))
+  else if (isImageTexture(path))
   {
     return fs.openFile(path) | kdl::and_then([&](auto file) {
              auto reader = file->reader().buffer();

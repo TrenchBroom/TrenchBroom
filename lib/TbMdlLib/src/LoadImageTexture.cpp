@@ -127,9 +127,9 @@ Result<gl::Texture> loadImageTexture(fs::Reader& reader)
   return loadImageTextureFromMemory(imageBegin, imageSize);
 }
 
-bool isSupportedImageExtension(const std::filesystem::path& extension)
+bool isImageTexture(const std::filesystem::path& path)
 {
-  return img::isSupportedExtension(extension);
+  return img::isSupportedExtension(path.extension());
 }
 
 } // namespace tb::mdl

@@ -163,12 +163,14 @@ TEST_CASE("LoadImageTexture")
     }
   }
 
-  SECTION("isSupportedImageExtension")
+  SECTION("isImageTexture")
   {
-    CHECK(isSupportedImageExtension(".jpg"));
-    CHECK(isSupportedImageExtension(".jpeg"));
-    CHECK(isSupportedImageExtension(".JPG"));
-    CHECK(!isSupportedImageExtension("jpg"));
+    CHECK(isImageTexture("texture.jpg"));
+    CHECK(isImageTexture("texture.jpeg"));
+    CHECK(isImageTexture("texture.JPG"));
+    CHECK(isImageTexture("path/to/texture.jpg"));
+    CHECK(!isImageTexture("texture.d"));
+    CHECK(!isImageTexture("texture"));
   }
 }
 
