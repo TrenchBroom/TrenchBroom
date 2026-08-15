@@ -22,6 +22,7 @@
 #include "base/Color.h"
 #include "render/Renderable.h"
 
+#include <functional>
 #include <memory>
 #include <unordered_map>
 
@@ -31,6 +32,7 @@ namespace gl
 {
 class Gl;
 class Material;
+class MaterialRenderFunc;
 } // namespace gl
 
 namespace render
@@ -72,6 +74,10 @@ public:
 private:
   void prepare(gl::Gl& gl, gl::VboManager& vboManager) override;
   void render(RenderContext& context) override;
+  void renderOpaqueItems(
+    RenderContext& context,
+    gl::MaterialRenderFunc& func,
+    const std::function<void(const gl::Material*)>& setMaterialUniforms) const;
 };
 
 } // namespace render

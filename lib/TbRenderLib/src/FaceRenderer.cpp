@@ -184,43 +184,59 @@ void FaceRenderer::render(RenderContext& context)
       "SoftMapBoundsColor",
       RgbaF{prefs.get(Preferences::SoftMapBoundsColor).to<RgbF>(), 0.1f});
 
-    auto func = RenderFunc{
+    auto renderFunc = RenderFunc{
       shader,
       applyMaterial,
       m_faceColor,
       context.minFilterMode(),
       context.magFilterMode()};
 
+    const auto setMaterialUniforms = [&](const gl::Material* material) {
+      const auto isRealBlend = material
+                               && material->effectiveBlendFunc().enable
+                                    == gl::MaterialBlendFunc::Enable::UseFactors;
+
+      gl::setAlphaFuncUniforms(shader, material);
+      // A material with real per-pixel blending renders with its own true alpha,
+      // independent of the whole-batch X-ray/hidden-brush fade.
+      shader.set("Alpha", isRealBlend ? 1.0f : m_alpha);
+    };
+
     if (m_disableDepthWrite)
     {
       gl.depthMask(GL_FALSE);
     }
-    for (const auto& [material, brushIndexHolderPtr] : *m_indexArrayMap)
-    {
-      if (brushIndexHolderPtr->hasValidIndices())
-      {
-        const auto isRealBlend = material
-                                 && material->effectiveBlendFunc().enable
-                                      == gl::MaterialBlendFunc::Enable::UseFactors;
 
-        // set any per-material uniforms
-        gl::setAlphaFuncUniforms(shader, material);
-        // A material with real per-pixel blending renders with its own true alpha,
-        // independent of the whole-batch X-ray/hidden-brush fade.
-        shader.set("Alpha", isRealBlend ? 1.0f : m_alpha);
+    renderOpaqueItems(context, renderFunc, setMaterialUniforms);
 
-        func.before(gl, material);
-        brushIndexHolderPtr->setup(gl);
-        brushIndexHolderPtr->render(gl, gl::PrimType::Triangles);
-        brushIndexHolderPtr->cleanup(gl);
-        func.after(gl, material);
-      }
-    }
     if (m_disableDepthWrite)
     {
       gl.depthMask(GL_TRUE);
     }
+
     m_vertexArray->cleanup(gl, shader.program());
+  }
+}
+
+void FaceRenderer::renderOpaqueItems(
+  RenderContext& context,
+  gl::MaterialRenderFunc& renderFunc,
+  const std::function<void(const gl::Material*)>& setMaterialUniforms) const
+{
+  auto& gl = context.gl();
+
+  for (const auto& [material, brushIndexHolderPtr] : *m_indexArrayMap)
+  {
+    if (brushIndexHolderPtr->hasValidIndices())
+    {
+      setMaterialUniforms(material);
+
+      renderFunc.before(gl, material);
+      brushIndexHolderPtr->setup(gl);
+      brushIndexHolderPtr->render(gl, gl::PrimType::Triangles);
+      brushIndexHolderPtr->cleanup(gl);
+      renderFunc.after(gl, material);
+    }
   }
 }
 
