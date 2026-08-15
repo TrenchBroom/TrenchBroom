@@ -31,21 +31,6 @@
 namespace tb::gl
 {
 
-std::ostream& operator<<(std::ostream& lhs, const TextureType& rhs)
-{
-  switch (rhs)
-  {
-  case TextureType::Opaque:
-    lhs << "Opaque";
-    break;
-  case TextureType::Masked:
-    lhs << "Masked";
-    break;
-    switchDefault();
-  }
-  return lhs;
-}
-
 std::ostream& operator<<(std::ostream& lhs, const MaterialCulling& rhs)
 {
   switch (rhs)

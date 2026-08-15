@@ -34,17 +34,6 @@ namespace tb::gl
 {
 class Gl;
 
-enum class TextureType
-{
-  Opaque,
-  /**
-   * Modifies texture uploading to support mask textures.
-   */
-  Masked
-};
-
-std::ostream& operator<<(std::ostream& lhs, const TextureType& rhs);
-
 enum class MaterialCulling
 {
   Default,
