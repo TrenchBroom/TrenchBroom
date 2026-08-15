@@ -33,6 +33,10 @@
 #include "render/RenderBatch.h"
 #include "render/RenderContext.h"
 
+#include "vm/vec.h"
+
+#include <algorithm>
+
 namespace tb::render
 {
 
@@ -94,9 +98,11 @@ FaceRenderer::FaceRenderer() = default;
 FaceRenderer::FaceRenderer(
   std::shared_ptr<BrushVertexArray> vertexArray,
   std::shared_ptr<MaterialToBrushIndicesMap> indexArrayMap,
-  Color faceColor)
+  Color faceColor,
+  std::shared_ptr<const std::vector<TransparentDrawItem>> sortedDrawItems)
   : m_vertexArray{std::move(vertexArray)}
   , m_indexArrayMap{std::move(indexArrayMap)}
+  , m_sortedDrawItems{std::move(sortedDrawItems)}
   , m_faceColor{std::move(faceColor)}
 {
 }
@@ -207,7 +213,14 @@ void FaceRenderer::render(RenderContext& context)
       gl.depthMask(GL_FALSE);
     }
 
-    renderOpaqueItems(context, renderFunc, setMaterialUniforms);
+    if (m_sortedDrawItems)
+    {
+      renderTransparentItems(context, renderFunc, setMaterialUniforms);
+    }
+    else
+    {
+      renderOpaqueItems(context, renderFunc, setMaterialUniforms);
+    }
 
     if (m_disableDepthWrite)
     {
@@ -215,6 +228,50 @@ void FaceRenderer::render(RenderContext& context)
     }
 
     m_vertexArray->cleanup(gl, shader.program());
+  }
+}
+
+void FaceRenderer::renderTransparentItems(
+  RenderContext& context,
+  gl::MaterialRenderFunc& renderFunc,
+  const std::function<void(const gl::Material*)>& setMaterialUniforms)
+{
+  auto& gl = context.gl();
+
+  // Correct back-to-front blending requires draw order to follow distance to the
+  // camera, which is fundamentally incompatible with batching by material -- so unlike
+  // renderOpaqueItems, this draws one item at a time in sorted order instead of one
+  // whole material buffer at a time.
+  //
+  // Sort a reused array of pointers into m_sortedDrawItems rather than a copy of the
+  // items themselves -- the camera (and therefore the sort order) can change every
+  // frame, but the items themselves only change when BrushRenderer::validate() reruns.
+  m_transparentDrawOrder.resize(m_sortedDrawItems->size());
+  std::ranges::transform(
+    *m_sortedDrawItems, m_transparentDrawOrder.begin(), [](const auto& item) {
+      return &item;
+    });
+  std::ranges::sort(m_transparentDrawOrder, [&](const auto* lhs, const auto* rhs) {
+    return vm::squared_distance(lhs->sortPosition, context.camera().position())
+           > vm::squared_distance(rhs->sortPosition, context.camera().position());
+  });
+
+  for (const auto* item : m_transparentDrawOrder)
+  {
+    if (const auto it = m_indexArrayMap->find(item->material);
+        it != m_indexArrayMap->end())
+    {
+      const auto& brushIndexHolderPtr = it->second;
+
+      setMaterialUniforms(item->material);
+
+      renderFunc.before(gl, item->material);
+      brushIndexHolderPtr->setup(gl);
+      brushIndexHolderPtr->render(
+        gl, gl::PrimType::Triangles, item->indexPos, item->indexCount);
+      brushIndexHolderPtr->cleanup(gl);
+      renderFunc.after(gl, item->material);
+    }
   }
 }
 
