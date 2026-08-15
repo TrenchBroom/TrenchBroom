@@ -75,6 +75,26 @@ std::ostream& operator<<(std::ostream& lhs, const MaterialBlendFunc::Enable& rhs
   return lhs;
 }
 
+kdl_reflect_impl(MaterialAlphaFunc);
+
+std::ostream& operator<<(std::ostream& lhs, const MaterialAlphaFunc::Compare& rhs)
+{
+  switch (rhs)
+  {
+  case MaterialAlphaFunc::Compare::GreaterEqual:
+    lhs << "GreaterEqual";
+    break;
+  case MaterialAlphaFunc::Compare::Less:
+    lhs << "Less";
+    break;
+  case MaterialAlphaFunc::Compare::Greater:
+    lhs << "Greater";
+    break;
+    switchDefault();
+  }
+  return lhs;
+}
+
 kdl_reflect_impl(Material);
 
 Material::Material(std::string name, std::shared_ptr<TextureResource> textureResource)
@@ -95,6 +115,7 @@ Material::Material(Material&& other)
   , m_surfaceParms{std::move(other.m_surfaceParms)}
   , m_culling{std::move(other.m_culling)}
   , m_blendFunc{std::move(other.m_blendFunc)}
+  , m_alphaFunc{std::move(other.m_alphaFunc)}
 {
 }
 
@@ -109,6 +130,7 @@ Material& Material::operator=(Material&& other)
   m_surfaceParms = std::move(other.m_surfaceParms);
   m_culling = std::move(other.m_culling);
   m_blendFunc = std::move(other.m_blendFunc);
+  m_alphaFunc = std::move(other.m_alphaFunc);
   return *this;
 }
 
@@ -192,6 +214,46 @@ void Material::setBlendFunc(const GLenum srcFactor, const GLenum destFactor)
 void Material::disableBlend()
 {
   m_blendFunc.enable = MaterialBlendFunc::Enable::DisableBlend;
+}
+
+void Material::setAlphaFunc(
+  const MaterialAlphaFunc::Compare compare, const float threshold)
+{
+  m_alphaFunc = MaterialAlphaFunc{compare, threshold};
+}
+
+std::optional<MaterialAlphaFunc> Material::effectiveAlphaFunc() const
+{
+  if (m_alphaFunc)
+  {
+    return m_alphaFunc;
+  }
+
+  if (const auto* texture = this->texture();
+      texture && texture->alphaDomain() == img::ImageAlphaDomain::Binary)
+  {
+    return MaterialAlphaFunc{MaterialAlphaFunc::Compare::GreaterEqual, 0.5f};
+  }
+
+  return std::nullopt;
+}
+
+MaterialBlendFunc Material::effectiveBlendFunc() const
+{
+  if (m_blendFunc.enable != MaterialBlendFunc::Enable::UseDefault || m_alphaFunc)
+  {
+    return m_blendFunc;
+  }
+
+
+  if (const auto* texture = this->texture();
+      texture && texture->alphaDomain() == img::ImageAlphaDomain::Graduated)
+  {
+    return MaterialBlendFunc{
+      MaterialBlendFunc::Enable::UseFactors, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA};
+  }
+
+  return m_blendFunc;
 }
 
 size_t Material::usageCount() const
