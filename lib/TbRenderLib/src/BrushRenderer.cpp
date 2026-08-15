@@ -328,8 +328,8 @@ void BrushRenderer::clear()
   m_opaqueFaces = std::make_shared<MaterialToBrushIndicesMap>();
 
   m_opaqueFaceRenderer = FaceRenderer{m_vertexArray, m_opaqueFaces, m_faceColor};
-  m_transparentFaceRenderer =
-    FaceRenderer{m_vertexArray, m_transparentFaces, m_faceColor};
+  m_transparentFaceRenderer = FaceRenderer{
+    m_vertexArray, m_transparentFaces, m_faceColor, collectTransparentDrawItems()};
   m_edgeRenderer = IndexedEdgeRenderer{m_vertexArray, m_edgeIndices};
 }
 
@@ -481,8 +481,8 @@ void BrushRenderer::validate()
   contract_assert(valid());
 
   m_opaqueFaceRenderer = FaceRenderer{m_vertexArray, m_opaqueFaces, m_faceColor};
-  m_transparentFaceRenderer =
-    FaceRenderer{m_vertexArray, m_transparentFaces, m_faceColor};
+  m_transparentFaceRenderer = FaceRenderer{
+    m_vertexArray, m_transparentFaces, m_faceColor, collectTransparentDrawItems()};
   m_edgeRenderer = IndexedEdgeRenderer{m_vertexArray, m_edgeIndices};
 }
 
@@ -628,10 +628,11 @@ void BrushRenderer::validateBrush(const mdl::BrushNode& brushNode)
 
       auto [key, insertDest] =
         holderPtr->getPointerToInsertElementsAt(transparentIndexCount);
-      info.transparentFaceIndicesKeys.emplace_back(material, key);
 
       // process all faces with this material (they'll be consecutive)
       auto* currentDest = insertDest;
+      auto sortPositionSum = vm::vec3f{};
+      auto sortPositionCount = size_t{0};
       for (size_t j = i; j < nextI; ++j)
       {
         const auto& cache = facesSortedByMaterial[j];
@@ -646,10 +647,19 @@ void BrushRenderer::validateBrush(const mdl::BrushNode& brushNode)
             cache.vertexCount);
 
           currentDest += triIndicesCountForPolygon(cache.vertexCount);
+
+          // Used to sort this (brush, material) group against every other transparent
+          // group by distance to the camera -- see FaceRenderer's sorted-draw mode.
+          sortPositionSum = sortPositionSum + vm::vec3f{cache.face->center()};
+          ++sortPositionCount;
         }
       }
 
       contract_assert(currentDest == (insertDest + transparentIndexCount));
+      contract_assert(sortPositionCount > 0);
+
+      info.transparentFaceIndicesKeys.emplace_back(
+        material, key, sortPositionSum / static_cast<float>(sortPositionCount));
     }
 
     if (opaqueIndexCount > 0)
@@ -687,6 +697,21 @@ void BrushRenderer::validateBrush(const mdl::BrushNode& brushNode)
       contract_assert(currentDest == (insertDest + opaqueIndexCount));
     }
   }
+}
+
+std::shared_ptr<std::vector<TransparentDrawItem>> BrushRenderer::
+  collectTransparentDrawItems() const
+{
+  auto items = std::make_shared<std::vector<TransparentDrawItem>>();
+  for (const auto& [brushNode, info] : m_brushInfo)
+  {
+    for (const auto& key : info.transparentFaceIndicesKeys)
+    {
+      items->push_back(TransparentDrawItem{
+        key.material, key.block->pos, key.block->size, key.sortPosition});
+    }
+  }
+  return items;
 }
 
 void BrushRenderer::addBrush(const mdl::BrushNode& brushNode)
@@ -749,16 +774,16 @@ void BrushRenderer::removeBrushFromVbo(const mdl::BrushNode& brushNode)
       m_opaqueFaces->erase(material);
     }
   }
-  for (const auto& [material, transparentKey] : info.transparentFaceIndicesKeys)
+  for (const auto& transparentKey : info.transparentFaceIndicesKeys)
   {
-    auto faceIndexHolder = m_transparentFaces->at(material);
-    faceIndexHolder->zeroElementsWithKey(transparentKey);
+    auto faceIndexHolder = m_transparentFaces->at(transparentKey.material);
+    faceIndexHolder->zeroElementsWithKey(transparentKey.block);
 
     if (!faceIndexHolder->hasValidIndices())
     {
       // There are no indices left to render for this material, so delete the <Material,
       // BrushIndexArray> entry from the map
-      m_transparentFaces->erase(material);
+      m_transparentFaces->erase(transparentKey.material);
     }
   }
 
