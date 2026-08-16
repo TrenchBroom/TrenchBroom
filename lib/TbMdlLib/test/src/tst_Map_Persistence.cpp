@@ -27,8 +27,11 @@
 #include "mdl/MapFixture.h"
 #include "mdl/Map_Nodes.h"
 #include "mdl/TestFactory.h"
+#include "version/Version.h"
 
 #include "kd/k.h"
+
+#include <fmt/format.h>
 
 #include <catch2/catch_test_macros.hpp>
 
@@ -37,6 +40,9 @@ namespace tb::mdl
 
 TEST_CASE("Map_Persistence")
 {
+  const auto generatorComment =
+    fmt::format("// Generator: TrenchBroom {} (Build {})\n", VERSION_STR, BUILD_ID_STR);
+
   SECTION("save")
   {
     auto env = fs::TestEnvironment{};
@@ -79,9 +85,10 @@ TEST_CASE("Map_Persistence")
     CHECK(map.path() == path);
 
     REQUIRE(env.fileExists(path));
-    CHECK(env.loadFile(path) == R"(// Game: Test
-// Format: Valve
-// entity 0
+    CHECK(
+      env.loadFile(path)
+      == fmt::format("// Game: Test\n// Format: Valve\n{}", generatorComment)
+           + R"(// entity 0
 {
 "classname" "worldspawn"
 }
@@ -119,9 +126,10 @@ TEST_CASE("Map_Persistence")
     CHECK(map.path() == path);
 
     REQUIRE(env.fileExists(path));
-    CHECK(env.loadFile(path) == R"(// Game: Test
-// Format: Standard
-// entity 0
+    CHECK(
+      env.loadFile(path)
+      == fmt::format("// Game: Test\n// Format: Standard\n{}", generatorComment)
+           + R"(// entity 0
 {
 "classname" "worldspawn"
 }

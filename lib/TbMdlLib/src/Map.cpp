@@ -99,6 +99,7 @@
 #include "mdl/WorldNode.h" // IWYU pragma: keep
 #include "mdl/WorldNodePathSeparatorValidator.h"
 #include "mdl/WorldReader.h"
+#include "version/Version.h"
 
 #include "kd/contracts.h"
 #include "kd/path_utils.h"
@@ -113,7 +114,6 @@
 #include <memory>
 #include <ranges>
 #include <string>
-#include <tuple>
 #include <vector>
 
 
@@ -867,8 +867,12 @@ Result<void> Map::saveTo(const std::filesystem::path& path) const
 
   m_logger.info() << "Saving document to " << path;
 
+  const auto generator =
+    fmt::format("TrenchBroom {} (Build {})", VERSION_STR, BUILD_ID_STR);
+
   fs::Disk::withOutputStream(path, [&](auto& stream) {
-    writeMapHeader(stream, gameInfo().gameConfig.name, m_worldNode->mapFormat());
+    writeMapHeader(
+      stream, gameInfo().gameConfig.name, m_worldNode->mapFormat(), generator);
 
     auto writer = NodeWriter{*m_worldNode, stream};
     writer.setExporting(false);
