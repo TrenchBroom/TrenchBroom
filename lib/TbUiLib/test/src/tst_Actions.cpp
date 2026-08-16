@@ -24,12 +24,12 @@
 #include "ui/ActionMenu.h"
 #include "ui/CatchConfig.h"
 
-#include "kd/contracts.h"
 #include "kd/ranges/concat_view.h"
 #include "kd/ranges/to.h"
 
 #include <sstream>
 #include <string>
+#include <unordered_set>
 #include <vector>
 
 #include <catch2/catch_test_macros.hpp>
@@ -98,19 +98,13 @@ auto collectAllActionInfos(const ActionManager& actionManager)
          | kdl::ranges::to<std::vector>();
 }
 
-using ActionConflict = std::tuple<ActionInfo, ActionInfo>;
-
 auto getActionConflicts(
-  const std::vector<ActionInfo>& actions, const std::vector<size_t>& conflicts)
+  const std::vector<ActionInfo>& actions, const std::unordered_set<size_t>& conflicts)
 {
-  contract_pre(conflicts.size() % 2 == 0);
-
-  auto conflictingActions = std::vector<ActionConflict>{};
-  for (size_t i = 0; i < conflicts.size(); i += 2)
+  auto conflictingActions = std::vector<ActionInfo>{};
+  for (const auto index : conflicts)
   {
-    const auto& actionInfo1 = actions[conflicts[i + 0]];
-    const auto& actionInfo2 = actions[conflicts[i + 1]];
-    conflictingActions.emplace_back(actionInfo1, actionInfo2);
+    conflictingActions.push_back(actions[index]);
   }
   return conflictingActions;
 }
@@ -127,7 +121,7 @@ TEST_CASE("Actions")
 
     const auto conflicts =
       getActionConflicts(allActionInfos, findConflicts(allActionInfos));
-    CHECK(conflicts == std::vector<ActionConflict>{});
+    CHECK(conflicts == std::vector<ActionInfo>{});
   }
 }
 
@@ -137,13 +131,12 @@ namespace Catch
 {
 
 template <>
-struct StringMaker<tb::ui::ActionConflict>
+struct StringMaker<tb::ui::ActionInfo>
 {
-  static std::string convert(const tb::ui::ActionConflict& value)
+  static std::string convert(const tb::ui::ActionInfo& value)
   {
-    const auto& [actionInfo1, actionInfo2] = value;
     auto str = std::stringstream{};
-    str << actionInfo1.displayPath() << " conflicts with " << actionInfo2.displayPath();
+    str << value.displayPath();
     return str.str();
   }
 };

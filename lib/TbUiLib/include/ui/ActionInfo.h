@@ -25,6 +25,7 @@
 
 #include <compare>
 #include <filesystem>
+#include <unordered_set>
 #include <vector>
 
 namespace tb::ui
@@ -69,6 +70,6 @@ public:
   bool operator==(const ActionInfo& other) const;
 };
 
-std::vector<size_t> findConflicts(const std::vector<ActionInfo>& actionInfos);
+std::unordered_set<size_t> findConflicts(const std::vector<ActionInfo>& actionInfos);
 
 } // namespace tb::ui

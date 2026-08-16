@@ -102,15 +102,18 @@ bool ActionInfo::operator==(const ActionInfo& other) const
   return m_type == other.m_type && m_displayPath == other.m_displayPath;
 }
 
-std::vector<size_t> findConflicts(const std::vector<ActionInfo>& actionInfos)
+std::unordered_set<size_t> findConflicts(const std::vector<ActionInfo>& actionInfos)
 {
+  auto& prefs = PreferenceManager::instance();
+
   auto entries = std::map<ActionConflictKey, size_t>{};
-  auto conflicts = std::vector<size_t>{};
+  auto conflicts = std::unordered_set<size_t>{};
 
   for (const auto& [index, actionInfo] : actionInfos | kdl::views::enumerate)
   {
     const auto actionIndex = static_cast<size_t>(index);
-    for (const auto& keySequence : pref(actionInfo.keyboardShortcutPreference()))
+    for (const auto& keySequence :
+         prefs.getPendingValue(actionInfo.keyboardShortcutPreference()))
     {
       if (!keySequence.value.empty())
       {
@@ -120,8 +123,8 @@ std::vector<size_t> findConflicts(const std::vector<ActionInfo>& actionInfos)
         {
           // found a duplicate, so there are conflicts
           const auto otherIndex = it->second;
-          conflicts.emplace_back(otherIndex);
-          conflicts.emplace_back(actionIndex);
+          conflicts.insert(otherIndex);
+          conflicts.insert(actionIndex);
         }
       }
     }

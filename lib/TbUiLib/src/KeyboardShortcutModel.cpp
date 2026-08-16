@@ -37,8 +37,6 @@
 #include "kd/path_utils.h"
 #include "kd/ranges/join_with_view.h"
 #include "kd/ranges/to.h"
-#include "kd/set_adapter.h"
-#include "kd/vector_utils.h"
 
 namespace tb::ui
 {
@@ -140,6 +138,17 @@ QVariant KeyboardShortcutModel::data(const QModelIndex& index, const int role) c
   if (role == Qt::ForegroundRole && hasConflicts(index))
   {
     return QBrush{Qt::red};
+  }
+
+  if (role == ConflictRole)
+  {
+    // Encode the row's original position into the sort value so that resorting a single
+    // row (e.g. when a conflict is resolved) reinserts it at the correct position instead
+    // of just at the end of its group: QSortFilterProxyModel's incremental resort finds
+    // the new position via binary search against the current proxy order, which only
+    // lands on the correct spot if lessThan() defines a strict total order, i.e. no two
+    // rows compare equal.
+    return hasConflicts(index) ? index.row() : totalActionCount() + index.row();
   }
 
   return QVariant{};
@@ -245,7 +254,7 @@ bool KeyboardShortcutModel::hasConflicts(const QModelIndex& index) const
     return false;
   }
 
-  return kdl::wrap_set(m_conflicts).count(index.row()) > 0u;
+  return m_conflicts.count(size_t(index.row())) > 0u;
 }
 
 void KeyboardShortcutModel::initializeActions()
@@ -356,10 +365,15 @@ void KeyboardShortcutModel::initializeEntityDefinitionActions()
 
 void KeyboardShortcutModel::updateConflicts()
 {
-  m_conflicts = kdl::vec_static_cast<int>(findConflicts(m_actions));
-  for (const auto& row : m_conflicts)
+  auto changedRows = std::exchange(m_conflicts, findConflicts(m_actions));
+
+  // Notify rows that either gained or lost conflict status, so the sort proxy re-queries
+  // ConflictRole for them and moves them accordingly.
+  changedRows.insert(m_conflicts.begin(), m_conflicts.end());
+
+  for (const auto& row : changedRows)
   {
-    const auto index = createIndex(row, 0);
+    const auto index = createIndex(int(row), 0);
     emit dataChanged(index, index, {Qt::DisplayRole});
   }
 }
