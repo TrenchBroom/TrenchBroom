@@ -113,6 +113,7 @@
 #include <memory>
 #include <ranges>
 #include <string>
+#include <tuple>
 #include <vector>
 
 
@@ -1233,6 +1234,12 @@ void Map::loadMaterials()
     m_gameFileSystem->reloadWads(
       gameInfo().gameConfig.materialConfig.root, searchPaths, wadPaths, logger());
   }
+
+  // rescans the loose-file search path mounts (e.g. reloadWads above only replaces the
+  // wad mounts, it doesn't pick up files added to or removed from disk directories)
+  m_gameFileSystem->reload() | kdl::transform_error([&](auto e) {
+    m_logger.error() << "Could not reload game file systems: " + e.msg;
+  });
 
   m_materialManager->clear();
 
