@@ -214,6 +214,7 @@ target_link_libraries(TbMdlLib
     freeimage::FreeImage
     miniz::miniz
     tinyxml2::tinyxml2
+    TbVersionLib
   PUBLIC
     fmt::fmt-header-only
     KdLib

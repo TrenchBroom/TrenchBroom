@@ -30,6 +30,7 @@ namespace
 
 constexpr auto GameHeader = "Game";
 constexpr auto FormatHeader = "Format";
+constexpr auto GeneratorHeader = "Generator";
 
 Result<std::optional<std::string>> readInfoComment(
   std::istream& stream, const std::string& name)
@@ -71,10 +72,14 @@ Result<std::pair<std::optional<std::string>, MapFormat>> readMapHeader(
 }
 
 void writeMapHeader(
-  std::ostream& stream, const std::string_view gameName, const MapFormat mapFormat)
+  std::ostream& stream,
+  const std::string_view gameName,
+  const MapFormat mapFormat,
+  std::string_view generator)
 {
   stream << "// " << GameHeader << ": " << gameName << "\n"
-         << "// " << FormatHeader << ": " << formatName(mapFormat) << "\n";
+         << "// " << FormatHeader << ": " << formatName(mapFormat) << "\n"
+         << "// " << GeneratorHeader << ": " << generator << "\n";
 }
 
 } // namespace tb::mdl

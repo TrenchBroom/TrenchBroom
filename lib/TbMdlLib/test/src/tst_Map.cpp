@@ -50,15 +50,19 @@
 #include "mdl/TestFactory.h"
 #include "mdl/TestUtils.h"
 #include "mdl/WorldNode.h"
+#include "version/Version.h"
 
 #include "kd/vector_utils.h"
 
 #include "vm/vec_io.h" // IWYU pragma: keep
 
+#include <fmt/format.h>
+
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/generators/catch_generators.hpp>
 #include <catch2/matchers/catch_matchers_predicate.hpp>
 #include <catch2/matchers/catch_matchers_quantifiers.hpp>
+#include <catch2/matchers/catch_matchers_string.hpp>
 
 namespace tb::mdl
 {
@@ -148,6 +152,19 @@ TEST_CASE("Map")
 
       CHECK(!map.modified());
     }
+  }
+
+  SECTION("saveTo writes the expected generator string")
+  {
+    auto fixture = MapFixture{};
+    auto& map = fixture.create();
+
+    auto env = fs::TestEnvironment{};
+    REQUIRE(map.saveTo(env.dir() / "test.map"));
+
+    const auto expectedGenerator =
+      fmt::format("// Generator: TrenchBroom {} (Build {})", VERSION_STR, BUILD_ID_STR);
+    CHECK_THAT(env.loadFile("test.map"), ContainsSubstring(expectedGenerator));
   }
 
   SECTION("selection")
