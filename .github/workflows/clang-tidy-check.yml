@@ -33,6 +33,9 @@ jobs:
           cd build
           cmake .. -GNinja -DCMAKE_PREFIX_PATH="$QT_ROOT_DIR" -DCMAKE_BUILD_TYPE=Release -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DTB_ENABLE_PCH=0
 
+      - name: Generate version header
+        run: cmake --build build --target TbVersionLib_GenerateVersion
+
       - name: Run clang-tidy
         uses: cpp-linter/cpp-linter-action@v2
         id: linter
@@ -40,12 +43,12 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           version: 18
-          style: 'file'  # Use .clang-format config file. 
+          style: 'file'  # Use .clang-format config file.
           tidy-checks: '' # Use .clang-tidy config file.
           extensions: 'c,h,C,H,cpp,hpp,cc,hh,c++,h++,cxx,hxx,fragsh,vertsh'
           files-changed-only: true
           database: ${{github.workspace}}/build
-          ignore: 'build|lib/TbUiLib/src/GetVersion.cpp'
+          ignore: 'build'
           ignore-tidy: 'app/TrenchBroom/resources/shader'
           step-summary: true
           thread-comments: true

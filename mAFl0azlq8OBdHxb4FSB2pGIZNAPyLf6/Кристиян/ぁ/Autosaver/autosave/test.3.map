@@ -1,0 +1,9 @@
+// Game: Test
+// Format: Standard
+// Generator: TrenchBroom 2026.2-RC1 (Build v2026.2-RC1-316-ge7307f4d0b-dirty Debug macOS)// entity 0
+{
+"classname" "worldspawn"
+}
+// entity 1
+{
+}

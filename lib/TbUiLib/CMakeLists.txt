@@ -368,12 +368,9 @@ target_sources(TbUiLib
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/WadUtils.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/WelcomeWindow.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/WidgetState.h
-  
-  PRIVATE FILE_SET version_header TYPE HEADERS
-    BASE_DIRS ${CMAKE_CURRENT_BINARY_DIR}/generated
 )
 
-target_link_libraries(TbUiLib 
+target_link_libraries(TbUiLib
   PRIVATE
     CompilerConfig
     PrecompileQtHeaders
@@ -381,6 +378,7 @@ target_link_libraries(TbUiLib
     cpptrace::cpptrace
     ctre::ctre
     Qt6::Svg
+    TbVersionLib
   PUBLIC
     KdLib
     Qt6::Network
@@ -397,16 +395,6 @@ target_link_libraries(TbUiLib
 )
 
 set_target_properties(TbUiLib PROPERTIES AUTOMOC TRUE)
-
-# Create the cmake script for generating the version information
-add_custom_target(TbUiLib_GenerateVersion ${CMAKE_COMMAND}
-  -D UTILS="${CMAKE_SOURCE_DIR}/cmake/Utils.cmake"
-  -D APP_BUILD_TYPE="${APP_BUILD_TYPE}"
-  -D SRC="${CMAKE_CURRENT_SOURCE_DIR}/include/ui/Version.h.in"
-  -D DST="${CMAKE_CURRENT_BINARY_DIR}/generated/ui/Version.h"
-  -D GIT_EXECUTABLE="${GIT_EXECUTABLE}"
-  -P "${CMAKE_CURRENT_SOURCE_DIR}/cmake/GenerateVersion.cmake")
-add_dependencies(TbUiLib TbUiLib_GenerateVersion)
 
 if(APPLE)
     # Silence macOS OpenGL deprecation warnings

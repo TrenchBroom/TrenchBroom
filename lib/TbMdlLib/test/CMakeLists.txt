@@ -129,6 +129,7 @@ target_link_libraries(TbMdlLibTest
     TbFsTestUtilsLib
     TbMdlLib
     TbMdlTestUtilsLib
+    TbVersionLib
 )
 
 # Copy fixtures

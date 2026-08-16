@@ -27,6 +27,7 @@
 
 namespace tb::mdl
 {
+
 TEST_CASE("MapHeader")
 {
   SECTION("readMapHeader")
@@ -42,6 +43,7 @@ TEST_CASE("MapHeader")
 
     CHECK(detectGame(R"(// Game: Quake
 // Format: Quake2
+// Generator: TrenchBroom v2026.2-RC1-315-g401604c1eb-dirty Debug macOS
 )") == std::pair{"Quake"s, mdl::MapFormat::Quake2});
 
 
@@ -63,10 +65,11 @@ TEST_CASE("MapHeader")
   SECTION("writeMapHeader")
   {
     auto stream = std::ostringstream{};
-    writeMapHeader(stream, "Quake", mdl::MapFormat::Quake2);
+    writeMapHeader(stream, "Quake", mdl::MapFormat::Quake2, "TrenchBroom 2024.1");
 
     CHECK(stream.str() == R"(// Game: Quake
 // Format: Quake2
+// Generator: TrenchBroom 2024.1
 )");
   }
 }
