@@ -314,6 +314,7 @@ void UvView::setupGL(render::RenderContext& renderContext)
   gl.blendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   gl.shadeModel(GL_SMOOTH);
   gl.disable(GL_DEPTH_TEST);
+  gl.disable(GL_CULL_FACE);
 }
 
 void UvView::renderMaterial(render::RenderContext&, render::RenderBatch& renderBatch)
