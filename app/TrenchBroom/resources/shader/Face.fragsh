@@ -21,12 +21,6 @@
 
 uniform float Brightness;
 uniform float Alpha;
-uniform bool EnableMasked;
-// 0 = GreaterEqual (keep if alpha >= AlphaFuncThreshold)
-// 1 = Less (keep if alpha < AlphaFuncThreshold)
-// 2 = Greater (keep if alpha > AlphaFuncThreshold)
-uniform int AlphaFuncCompare;
-uniform float AlphaFuncThreshold;
 uniform bool ApplyMaterial;
 uniform sampler2D Material;
 uniform bool ApplyTinting;
@@ -48,21 +42,7 @@ float grid(
 vec3 applySoftMapBoundsTint(vec3 inputFragColor, vec3 worldCoords);
 vec3 adaptiveGridColor(vec3 background);
 float texturedGridAlpha(float alpha);
-
-// Mirrors gl::MaterialAlphaFunc::Compare -- keep the fragment when its alpha compares to
-// AlphaFuncThreshold according to AlphaFuncCompare, discard it otherwise.
-bool passesAlphaFunc(float alpha)
-{
-  if (AlphaFuncCompare == 1)
-  {
-    return alpha < AlphaFuncThreshold;
-  }
-  if (AlphaFuncCompare == 2)
-  {
-    return alpha > AlphaFuncThreshold;
-  }
-  return alpha >= AlphaFuncThreshold;
-}
+bool passesAlphaFunc(float alpha);
 
 void main()
 {
@@ -76,7 +56,7 @@ void main()
   }
 
   // Discard fully-cutout pixels for alpha-tested (masked) materials.
-  if (EnableMasked && !passesAlphaFunc(gl_FragColor.a))
+  if (!passesAlphaFunc(gl_FragColor.a))
   {
     discard;
   }

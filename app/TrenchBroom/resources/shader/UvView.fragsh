@@ -22,12 +22,6 @@
 uniform float Brightness;
 uniform bool ApplyMaterial;
 uniform sampler2D Material;
-uniform bool EnableMasked;
-// 0 = GreaterEqual (keep if alpha >= AlphaFuncThreshold)
-// 1 = Less (keep if alpha < AlphaFuncThreshold)
-// 2 = Greater (keep if alpha > AlphaFuncThreshold)
-uniform int AlphaFuncCompare;
-uniform float AlphaFuncThreshold;
 uniform bool RenderGrid;
 uniform vec2 GridSizes;
 uniform float GridAlpha;
@@ -45,21 +39,7 @@ varying vec4 faceColor;
 float gridLine(float coord, float stripeSize, float isMajor);
 vec3 adaptiveGridColor(vec3 background);
 float texturedGridAlpha(float alpha);
-
-// Mirrors gl::MaterialAlphaFunc::Compare -- keep the fragment when its alpha compares to
-// AlphaFuncThreshold according to AlphaFuncCompare, discard it otherwise.
-bool passesAlphaFunc(float alpha)
-{
-  if (AlphaFuncCompare == 1)
-  {
-    return alpha < AlphaFuncThreshold;
-  }
-  if (AlphaFuncCompare == 2)
-  {
-    return alpha > AlphaFuncThreshold;
-  }
-  return alpha >= AlphaFuncThreshold;
-}
+bool passesAlphaFunc(float alpha);
 
 float getSoftStripes(float coord, float gridDivider, float gridSize, float stripeSize)
 {
@@ -116,7 +96,7 @@ void main()
   // Discard fully-cutout pixels for alpha-tested (masked) materials -- this preview
   // relies purely on GL_BLEND otherwise, which some materials (e.g. a Quake 3 shader
   // stage with alphaFunc but no blendFunc) explicitly disable via Material::activate().
-  if (EnableMasked && !passesAlphaFunc(gl_FragColor.a))
+  if (!passesAlphaFunc(gl_FragColor.a))
   {
     discard;
   }
