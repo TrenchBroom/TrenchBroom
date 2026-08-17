@@ -232,6 +232,36 @@ TEST_CASE("Material")
       material.deactivate(gl);
       CHECK(poppedAttribCount == 1);
     }
+
+    SECTION(
+      "apply the blend func implicitly derived from a graduated texture's alpha domain")
+    {
+      auto texture = Texture{4, 4};
+      texture.setAlphaDomain(img::ImageAlphaDomain::Graduated);
+      texture.upload(gl);
+      auto material =
+        Material{"some material", createTextureResource(std::move(texture))};
+
+      auto pushedAttribs = std::vector<GLbitfield>{};
+      gl.onPushAttrib = [&](const GLbitfield mask) { pushedAttribs.push_back(mask); };
+
+      auto poppedAttribCount = 0;
+      gl.onPopAttrib = [&]() { ++poppedAttribCount; };
+
+      auto capturedBlendFunc = std::pair<GLenum, GLenum>{0, 0};
+      gl.onBlendFunc = [&](const GLenum src, const GLenum dst) {
+        capturedBlendFunc = {src, dst};
+      };
+
+      material.activate(gl, GL_LINEAR, GL_LINEAR);
+      CHECK(
+        capturedBlendFunc
+        == std::pair<GLenum, GLenum>{GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA});
+      REQUIRE(pushedAttribs == std::vector<GLbitfield>{GL_COLOR_BUFFER_BIT});
+
+      material.deactivate(gl);
+      CHECK(poppedAttribCount == 1);
+    }
   }
 
   SECTION("effectiveAlphaFunc and effectiveBlendFunc")
