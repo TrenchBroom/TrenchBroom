@@ -24,6 +24,7 @@
 #include "gl/Camera.h"
 #include "gl/GlInterface.h"
 #include "gl/Material.h"
+#include "gl/MaterialRenderFunc.h"
 #include "gl/PrimType.h"
 #include "gl/Shaders.h"
 #include "gl/Texture.h"
@@ -137,13 +138,7 @@ private:
     shader.set("CameraZoom", m_helper.camera().zoom());
     shader.set("Material", 0);
 
-    const auto alphaFunc = material->effectiveAlphaFunc();
-    shader.set("EnableMasked", alphaFunc.has_value());
-    if (alphaFunc)
-    {
-      shader.set("AlphaFuncCompare", static_cast<size_t>(alphaFunc->compare));
-      shader.set("AlphaFuncThreshold", alphaFunc->threshold);
-    }
+    gl::setAlphaFuncUniforms(shader, material);
 
     if (m_vertexArray.setup(gl, shader.program()))
     {
