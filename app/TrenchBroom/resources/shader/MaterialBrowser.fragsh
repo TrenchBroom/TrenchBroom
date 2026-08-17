@@ -23,27 +23,8 @@ uniform float Brightness;
 uniform sampler2D Material;
 uniform bool ApplyTinting;
 uniform vec4 TintColor;
-uniform bool EnableMasked;
-// 0 = GreaterEqual (keep if alpha >= AlphaFuncThreshold)
-// 1 = Less (keep if alpha < AlphaFuncThreshold)
-// 2 = Greater (keep if alpha > AlphaFuncThreshold)
-uniform int AlphaFuncCompare;
-uniform float AlphaFuncThreshold;
 
-// Mirrors gl::MaterialAlphaFunc::Compare -- keep the fragment when its alpha compares to
-// AlphaFuncThreshold according to AlphaFuncCompare, discard it otherwise.
-bool passesAlphaFunc(float alpha)
-{
-  if (AlphaFuncCompare == 1)
-  {
-    return alpha < AlphaFuncThreshold;
-  }
-  if (AlphaFuncCompare == 2)
-  {
-    return alpha > AlphaFuncThreshold;
-  }
-  return alpha >= AlphaFuncThreshold;
-}
+bool passesAlphaFunc(float alpha);
 
 void main()
 {
@@ -52,7 +33,7 @@ void main()
   // Discard fully-cutout pixels for alpha-tested (masked) materials -- this preview
   // relies purely on GL_BLEND otherwise, which some materials (e.g. a Quake 3 shader
   // stage with alphaFunc but no blendFunc) explicitly disable via Material::activate().
-  if (EnableMasked && !passesAlphaFunc(gl_FragColor.a))
+  if (!passesAlphaFunc(gl_FragColor.a))
   {
     discard;
   }
