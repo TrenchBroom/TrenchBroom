@@ -328,18 +328,21 @@ struct RenderFunc : public gl::MaterialRenderFunc
   const Color& defaultColor;
   int minFilter;
   int magFilter;
+  float alpha;
 
   RenderFunc(
     gl::ActiveShader& i_shader,
     const bool i_applyMaterial,
     const Color& i_defaultColor,
     const int i_minFilter,
-    const int i_magFilter)
+    const int i_magFilter,
+    const float i_alpha)
     : shader{i_shader}
     , applyMaterial{i_applyMaterial}
     , defaultColor{i_defaultColor}
     , minFilter{i_minFilter}
     , magFilter{i_magFilter}
+    , alpha{i_alpha}
   {
   }
 
@@ -356,6 +359,16 @@ struct RenderFunc : public gl::MaterialRenderFunc
       shader.set("ApplyMaterial", false);
       shader.set("Color", defaultColor);
     }
+
+    const auto isRealBlend = material
+                             && material->effectiveBlendFunc().enable
+                                  == gl::MaterialBlendFunc::Enable::UseFactors;
+
+    gl::setAlphaFuncUniforms(shader, material);
+
+    // A material with real per-pixel blending renders with its own true alpha,
+    // independent of the whole-batch X-ray/hidden-patch fade.
+    shader.set("Alpha", isRealBlend ? 1.0f : alpha);
   }
 
   void after(gl::Gl& gl, const gl::Material* material) override
@@ -399,6 +412,8 @@ void PatchRenderer::render(RenderContext& context)
   shader.set("ShowFog", showFog);
   shader.set("Alpha", 1.0f);
   shader.set("EnableMasked", false);
+  shader.set("AlphaFuncCompare", size_t{0});
+  shader.set("AlphaFuncThreshold", 0.5f);
   shader.set("ShowSoftMapBounds", !context.softMapBounds().is_empty());
   shader.set("SoftMapBoundsMin", context.softMapBounds().min);
   shader.set("SoftMapBoundsMax", context.softMapBounds().max);
@@ -411,7 +426,8 @@ void PatchRenderer::render(RenderContext& context)
     applyMaterial,
     m_defaultColor,
     context.minFilterMode(),
-    context.magFilterMode()};
+    context.magFilterMode(),
+    m_alpha};
 
   m_patchMeshRenderer.render(gl, shader.program(), func);
 }
