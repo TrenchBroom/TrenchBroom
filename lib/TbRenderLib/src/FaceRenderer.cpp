@@ -199,19 +199,12 @@ void FaceRenderer::render(RenderContext& context)
     {
       if (brushIndexHolderPtr->hasValidIndices())
       {
-        const auto alphaFunc = material ? material->effectiveAlphaFunc()
-                                        : std::optional<gl::MaterialAlphaFunc>{};
         const auto isRealBlend = material
                                  && material->effectiveBlendFunc().enable
                                       == gl::MaterialBlendFunc::Enable::UseFactors;
 
         // set any per-material uniforms
-        shader.set("EnableMasked", alphaFunc.has_value());
-        if (alphaFunc)
-        {
-          shader.set("AlphaFuncCompare", static_cast<size_t>(alphaFunc->compare));
-          shader.set("AlphaFuncThreshold", alphaFunc->threshold);
-        }
+        gl::setAlphaFuncUniforms(shader, material);
         // A material with real per-pixel blending renders with its own true alpha,
         // independent of the whole-batch X-ray/hidden-brush fade.
         shader.set("Alpha", isRealBlend ? 1.0f : m_alpha);
