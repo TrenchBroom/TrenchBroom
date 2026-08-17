@@ -293,16 +293,17 @@ void Material::activate(Gl& gl, const int minFilter, const int magFilter) const
       break;
     }
 
-    if (m_blendFunc.enable != MaterialBlendFunc::Enable::UseDefault)
+    if (const auto blendFunc = effectiveBlendFunc();
+        blendFunc.enable != MaterialBlendFunc::Enable::UseDefault)
     {
       gl.pushAttrib(GL_COLOR_BUFFER_BIT);
-      if (m_blendFunc.enable == MaterialBlendFunc::Enable::UseFactors)
+      if (blendFunc.enable == MaterialBlendFunc::Enable::UseFactors)
       {
-        gl.blendFunc(m_blendFunc.srcFactor, m_blendFunc.destFactor);
+        gl.blendFunc(blendFunc.srcFactor, blendFunc.destFactor);
       }
       else
       {
-        contract_assert(m_blendFunc.enable == MaterialBlendFunc::Enable::DisableBlend);
+        contract_assert(blendFunc.enable == MaterialBlendFunc::Enable::DisableBlend);
         gl.disable(GL_BLEND);
       }
     }
@@ -313,7 +314,7 @@ void Material::deactivate(Gl& gl) const
 {
   if (const auto* texture = m_textureResource->get(); texture && texture->deactivate(gl))
   {
-    if (m_blendFunc.enable != MaterialBlendFunc::Enable::UseDefault)
+    if (effectiveBlendFunc().enable != MaterialBlendFunc::Enable::UseDefault)
     {
       gl.popAttrib();
     }
