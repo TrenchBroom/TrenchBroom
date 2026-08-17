@@ -61,6 +61,8 @@ LayerListBoxWidget::LayerListBoxWidget(
   m_nameText->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Preferred);
   setInfoStyle(m_infoText);
 
+  m_hiddenButton->setObjectName("LayerListBoxWidget_HiddenButton");
+
   connect(m_omitFromExportButton, &QAbstractButton::clicked, this, [&]() {
     emit layerOmitFromExportToggled(m_layer);
   });
@@ -217,6 +219,10 @@ void LayerListBox::connectObservers()
     m_document.documentWasLoadedNotifier.connect([&] { reloadItems(); });
   m_notifierConnection +=
     m_document.documentDidChangeNotifier.connect([&] { reloadItems(); });
+  m_notifierConnection += m_document.nodeVisibilityDidChangeNotifier.connect(
+    [&](const std::vector<mdl::Node*>&) { updateItems(); });
+  m_notifierConnection += m_document.nodeLockingDidChangeNotifier.connect(
+    [&](const std::vector<mdl::Node*>&) { updateItems(); });
   m_notifierConnection +=
     map.currentLayerDidChangeNotifier.connect([&] { updateItems(); });
 }
