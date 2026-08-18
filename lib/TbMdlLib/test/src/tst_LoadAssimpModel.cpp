@@ -126,13 +126,18 @@ TEST_CASE("loadAssimpModel")
     const auto hasIntermediateAlpha =
       std::ranges::any_of(alphas, [](const auto a) { return a != 0 && a != 255; });
 
+    const auto* skin = modelData.value().surface(0).skin(0);
     if (hasIntermediateAlpha)
     {
       CHECK(texture->alphaDomain() == img::ImageAlphaDomain::Graduated);
+      CHECK(!skin->effectiveAlphaFunc());
+      CHECK(
+        skin->effectiveBlendFunc().enable == gl::MaterialBlendFunc::Enable::UseFactors);
     }
     else
     {
       CHECK(texture->alphaDomain() == img::ImageAlphaDomain::Binary);
+      CHECK(skin->effectiveAlphaFunc());
     }
   }
 
