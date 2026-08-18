@@ -49,7 +49,7 @@ cmake .. \
   -DCMAKE_INSTALL_PREFIX=/usr \
   || exit 1
 
-cmake --build . --config Release -- -j $(nproc) || exit 1
+cmake --build . --config Release --parallel || exit 1
 
 # Run tests
 
