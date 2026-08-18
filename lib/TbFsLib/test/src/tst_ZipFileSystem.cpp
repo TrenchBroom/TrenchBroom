@@ -55,6 +55,25 @@ TEST_CASE("ZipFileSystem")
       CHECK_THAT(fs->find("", TraversalMode::Recursive), MatchesPathsResult({}));
     }
   }
+
+  SECTION("reload")
+  {
+    auto fs = openFS<ZipFileSystem>(fsTestPath / "zip.zip");
+
+    // reload can be called multiple times
+    CHECK(fs->reload().is_success());
+    CHECK(fs->reload().is_success());
+
+    CHECK_THAT(
+      fs->find("", TraversalMode::Flat),
+      MatchesPathsResult({
+        "bear.cfg",
+        "pics",
+        "textures",
+        "amnet.cfg",
+      }));
+    CHECK(fs->openFile("amnet.cfg").is_success());
+  }
 }
 
 } // namespace tb::fs
