@@ -60,6 +60,8 @@ void TestGl::depthMask(GLboolean) {}
 void TestGl::depthRange(GLclampd, GLclampd) {}
 void TestGl::depthFunc(GLenum) {}
 
+void TestGl::colorMask(GLboolean, GLboolean, GLboolean, GLboolean) {}
+
 GLuint TestGl::createProgram()
 {
   return 0u;

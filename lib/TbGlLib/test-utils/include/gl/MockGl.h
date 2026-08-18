@@ -86,6 +86,8 @@ public:
   std::function<void(GLclampd, GLclampd)> onDepthRange;
   std::function<void(GLenum)> onDepthFunc;
 
+  std::function<void(GLboolean, GLboolean, GLboolean, GLboolean)> onColorMask;
+
   std::function<GLuint()> onCreateProgram;
   std::function<void(GLuint)> onDeleteProgram;
 
@@ -225,6 +227,9 @@ public:
   void depthMask(GLboolean flag) override;
   void depthRange(GLclampd nearVal, GLclampd farVal) override;
   void depthFunc(GLenum func) override;
+
+  void colorMask(
+    GLboolean red, GLboolean green, GLboolean blue, GLboolean alpha) override;
 
   GLuint createProgram() override;
   void deleteProgram(GLuint program) override;

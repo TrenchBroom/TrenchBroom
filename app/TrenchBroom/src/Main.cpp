@@ -260,6 +260,9 @@ int main(int argc, char* argv[])
   format.setVersion(2, 1);
   format.setProfile(QSurfaceFormat::CompatibilityProfile);
   format.setDepthBufferSize(24);
+  // Best-effort hint; not reliably honored by Qt's Wayland QPA plugin (see
+  // RenderView::render() for the fix that doesn't depend on this).
+  format.setAlphaBufferSize(0);
   format.setSamples(4);
   QSurfaceFormat::setDefaultFormat(format);
 
