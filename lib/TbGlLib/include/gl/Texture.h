@@ -22,6 +22,7 @@
 #include "base/Color.h"
 #include "gl/GlUtils.h"
 #include "gl/TextureBuffer.h"
+#include "img/ImageAlphaDomain.h"
 
 #include "kd/reflection_decl.h"
 
@@ -93,6 +94,7 @@ private:
 
   GLenum m_format;
   TextureMask m_mask;
+  img::ImageAlphaDomain m_alphaDomain = img::ImageAlphaDomain::Opaque;
 
   EmbeddedDefaults m_embeddedDefaults;
 
@@ -105,6 +107,7 @@ private:
     m_averageColor,
     m_format,
     m_mask,
+    m_alphaDomain,
     m_embeddedDefaults,
     m_state);
 
@@ -146,6 +149,9 @@ public:
 
   TextureMask mask() const;
   void setMask(TextureMask mask);
+
+  img::ImageAlphaDomain alphaDomain() const;
+  void setAlphaDomain(img::ImageAlphaDomain alphaDomain);
 
   const EmbeddedDefaults& embeddedDefaults() const;
 

@@ -64,6 +64,17 @@ TEST_CASE("Texture")
     CHECK(!texture.isReady());
   }
 
+  SECTION("alphaDomain defaults to Opaque and round-trips through setAlphaDomain")
+  {
+    auto texture = Texture{
+      4, 4, RgbaF{}, GL_RGBA, TextureMask::Off, NoEmbeddedDefaults{}, std::move(buffers)};
+
+    CHECK(texture.alphaDomain() == img::ImageAlphaDomain::Opaque);
+
+    texture.setAlphaDomain(img::ImageAlphaDomain::Binary);
+    CHECK(texture.alphaDomain() == img::ImageAlphaDomain::Binary);
+  }
+
   SECTION("constructor with a single buffer")
   {
     const auto texture = Texture{

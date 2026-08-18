@@ -275,6 +275,16 @@ void Texture::setMask(const TextureMask mask)
   m_mask = mask;
 }
 
+img::ImageAlphaDomain Texture::alphaDomain() const
+{
+  return m_alphaDomain;
+}
+
+void Texture::setAlphaDomain(const img::ImageAlphaDomain alphaDomain)
+{
+  m_alphaDomain = alphaDomain;
+}
+
 const EmbeddedDefaults& Texture::embeddedDefaults() const
 {
   return m_embeddedDefaults;

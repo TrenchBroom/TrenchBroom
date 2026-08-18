@@ -59,6 +59,7 @@ target_link_libraries(TbGlLib
     KdLib
     TbBaseLib
     TbFsLib
+    TbImgLib
     VmLib
 )
 
