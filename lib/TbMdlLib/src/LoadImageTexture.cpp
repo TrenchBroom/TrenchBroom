@@ -102,7 +102,9 @@ Result<gl::Texture> loadImageTextureFromMemory(const uint8_t* begin, const size_
                decodedImage.pixels.size());
 
              const auto textureMask =
-               decodedImage.hasTransparency ? gl::TextureMask::On : gl::TextureMask::Off;
+               decodedImage.alphaDomain != img::ImageAlphaDomain::Opaque
+                 ? gl::TextureMask::On
+                 : gl::TextureMask::Off;
              const auto averageColor = getAverageColor(buffers.at(0), format);
 
              return gl::Texture{

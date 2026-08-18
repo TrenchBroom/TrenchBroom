@@ -102,7 +102,7 @@ TEST_CASE("decodeImage")
     // others are 161, 161, 161
     CHECK(pixelAt(image, 1, 1) == std::array<unsigned char, 4>{161, 161, 161, 255});
 
-    CHECK(!image.hasTransparency);
+    CHECK(image.alphaDomain == ImageAlphaDomain::Opaque);
   }
 
   SECTION("transparency")
@@ -110,7 +110,7 @@ TEST_CASE("decodeImage")
     const auto image = decodeFixture("alphaMaskTest.png") | kdl::value();
     CHECK(image.width == 25u);
     CHECK(image.height == 10u);
-    CHECK(image.hasTransparency);
+    CHECK(image.alphaDomain == ImageAlphaDomain::Binary);
 
     // top left pixel is green, opaque
     CHECK(pixelAt(image, 0, 0) == std::array<unsigned char, 4>{0, 255, 0, 255});
