@@ -48,6 +48,7 @@
 #include <fmt/format.h>
 #include <fmt/std.h>
 
+#include <algorithm>
 #include <ranges>
 
 namespace tb::mdl
@@ -299,7 +300,21 @@ gl::Texture loadUncompressedEmbeddedTexture(
   std::ranges::copy(sourceRange, reinterpret_cast<aiTexel*>(buffer.data()));
 
   const auto averageColor = getAverageColor(buffer, GL_BGRA);
-  return {
+
+  // aiTexel is a real per-texel ARGB8888 value, not a palette index, so a texel that
+  // doesn't match transparentTexel (or when no transparentTexel is given at all) can
+  // still carry its own meaningful alpha -- classify the actual resulting buffer rather
+  // than just the mask match, so genuine graduated alpha in the source asset isn't
+  // discarded.
+  const auto alphas =
+    sourceRange | std::views::transform([](const auto& texel) { return texel.a; });
+
+  const auto hasTransparency =
+    std::ranges::any_of(alphas, [](const auto& alpha) { return alpha != 255; });
+  const auto hasIntermediateAlpha = std::ranges::any_of(
+    alphas, [](const auto& alpha) { return alpha != 0 && alpha != 255; });
+
+  auto texture = gl::Texture{
     width,
     height,
     averageColor,
@@ -307,6 +322,11 @@ gl::Texture loadUncompressedEmbeddedTexture(
     gl::TextureMask::On,
     gl::NoEmbeddedDefaults{},
     std::move(buffer)};
+  texture.setAlphaDomain(
+    !hasTransparency       ? img::ImageAlphaDomain::Opaque
+    : hasIntermediateAlpha ? img::ImageAlphaDomain::Graduated
+                           : img::ImageAlphaDomain::Binary);
+  return texture;
 }
 
 gl::Texture loadCompressedEmbeddedTexture(
