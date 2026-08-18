@@ -125,6 +125,35 @@ TEST_CASE("LoadMipTexture")
     }) | kdl::transform_error([](const auto& e) { FAIL(e); });
   }
 
+  SECTION("loadIdMipTexture sets alphaDomain from the mask")
+  {
+    const auto mask = GENERATE(gl::TextureMask::On, gl::TextureMask::Off);
+    CAPTURE(mask);
+
+    const auto palettePath = getFixtureRoot() / "test/mdl/LoadMipTexture/palette.lmp";
+    const auto wadPath = getFixtureRoot() / "test/mdl/LoadMipTexture/cr8_czg.wad";
+
+    fs::Disk::openFile(wadPath) | kdl::transform([&](auto wadFile) {
+      return fs::WadFileSystem{wadFile};
+    }) | kdl::and_then([&](auto wadFS) {
+      REQUIRE(wadFS.reload());
+      return wadFS.openFile("cr8_czg_1.D")
+             | kdl::join(
+               fs::Disk::openFile(palettePath) | kdl::and_then([&](auto paletteFile) {
+                 return mdl::loadPalette(*paletteFile, palettePath);
+               }))
+             | kdl::and_then([&](auto textureFile, auto palette) {
+                 auto reader = textureFile->reader().buffer();
+                 return loadIdMipTexture(reader, palette, mask);
+               })
+             | kdl::transform([&](auto texture) {
+                 CHECK(
+                   texture.alphaDomain()
+                   == (mask == gl::TextureMask::On ? img::ImageAlphaDomain::Binary : img::ImageAlphaDomain::Opaque));
+               });
+    }) | kdl::transform_error([](const auto& e) { FAIL(e); });
+  }
+
   SECTION("loadHlMipTexture")
   {
     using TexInfo = std::tuple<std::string, size_t, size_t>;
@@ -152,6 +181,24 @@ TEST_CASE("LoadMipTexture")
     CHECK(logger.countMessages(LogLevel::Warn) == 0);
     CHECK(texture.width() == width);
     CHECK(texture.height() == height);
+  }
+
+  SECTION("loadHlMipTexture sets alphaDomain from the mask")
+  {
+    const auto mask = GENERATE(gl::TextureMask::On, gl::TextureMask::Off);
+    CAPTURE(mask);
+
+    const auto wadPath = getFixtureRoot() / "test/mdl/LoadMipTexture/hl.wad";
+    auto wadFS = fs::WadFileSystem{fs::Disk::openFile(wadPath) | kdl::value()};
+    REQUIRE(wadFS.reload());
+
+    const auto file = wadFS.openFile("bongs2.C") | kdl::value();
+    auto reader = file->reader().buffer();
+    const auto texture = loadHlMipTexture(reader, mask) | kdl::value();
+
+    CHECK(
+      texture.alphaDomain()
+      == (mask == gl::TextureMask::On ? img::ImageAlphaDomain::Binary : img::ImageAlphaDomain::Opaque));
   }
 }
 
