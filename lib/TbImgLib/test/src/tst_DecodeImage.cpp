@@ -117,6 +117,18 @@ TEST_CASE("decodeImage")
     // other pixels are fully transparent (RGB values are unknown)
     CHECK(pixelAt(image, 1, 0)[3] == 0);
   }
+
+  SECTION("intermediate alpha")
+  {
+    const auto binary = decodeFixture("alphaMaskTest.png") | kdl::value();
+    CHECK(binary.alphaDomain == ImageAlphaDomain::Binary);
+
+    const auto opaque = decodeFixture("pngContentsTest.png") | kdl::value();
+    CHECK(opaque.alphaDomain == ImageAlphaDomain::Opaque);
+
+    const auto graduated = decodeFixture("gradientAlphaTest.png") | kdl::value();
+    CHECK(graduated.alphaDomain == ImageAlphaDomain::Graduated);
+  }
 }
 
 } // namespace tb::img
