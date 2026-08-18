@@ -160,6 +160,58 @@ TEST_CASE("LoadMaterialCollections")
       CHECK(loadMaterial(
         fs, materialConfig, "material.png", createResource, {}, std::nullopt));
     }
+
+    SECTION(
+      "a `{`-prefixed name on a MIP texture extension eagerly sets "
+      "Material::effectiveAlphaFunc, without resolving the texture resource")
+    {
+      const auto mipMaterialConfig = mdl::MaterialConfig{
+        "textures",
+        {".D"},
+        "",
+        std::nullopt,
+        "scripts",
+        {},
+      };
+
+      auto lazyCreateResource = [](gl::ResourceLoader<gl::Texture> resourceLoader) {
+        return std::make_shared<gl::TextureResource>(std::move(resourceLoader));
+      };
+
+      const auto material = loadMaterial(
+                              fs,
+                              mipMaterialConfig,
+                              "textures/{fence.D",
+                              lazyCreateResource,
+                              {},
+                              std::nullopt)
+                            | kdl::value();
+
+      // the resource must still be unresolved, or the check below could also be
+      // satisfied by Material::effectiveAlphaFunc()'s ImageAlphaDomain fallback
+      CHECK(material.textureResource().get() == nullptr);
+      CHECK(
+        material.effectiveAlphaFunc()
+        == gl::MaterialAlphaFunc{gl::MaterialAlphaFunc::Compare::GreaterEqual, 0.5f});
+    }
+
+    SECTION("a `{`-prefixed name on a non-MIP texture extension is not masked")
+    {
+      auto lazyCreateResource = [](gl::ResourceLoader<gl::Texture> resourceLoader) {
+        return std::make_shared<gl::TextureResource>(std::move(resourceLoader));
+      };
+
+      const auto material = loadMaterial(
+                              fs,
+                              materialConfig,
+                              "textures/{material.jpg",
+                              lazyCreateResource,
+                              {},
+                              std::nullopt)
+                            | kdl::value();
+
+      CHECK(!material.effectiveAlphaFunc());
+    }
   }
 
   SECTION("loadMaterialCollections")

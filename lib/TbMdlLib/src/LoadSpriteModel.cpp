@@ -70,6 +70,9 @@ SprPicture parsePicture(fs::Reader& reader, const Palette& palette)
   auto textureResource = createTextureResource(std::move(texture));
 
   auto material = gl::Material{"", std::move(textureResource)};
+  // Preserves today's unconditional hard-cutout behavior. RenderMode-aware handling
+  // (e.g. treating Additive/IndexAlpha sprites as translucent instead) is Phase 2 work.
+  material.setAlphaFunc(gl::MaterialAlphaFunc::Compare::GreaterEqual, 0.5f);
 
   return SprPicture{std::move(material), xOffset, yOffset, width, height};
 }

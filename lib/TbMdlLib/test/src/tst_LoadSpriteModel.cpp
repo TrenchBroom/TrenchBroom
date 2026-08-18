@@ -135,6 +135,18 @@ TEST_CASE("loadSpriteModel")
       CHECK(frame.intersect(vm::ray3f{{0, 0, 1000}, {0, 0, -1}}) == std::nullopt);
     }) | kdl::transform_error([](const auto& e) { FAIL(e); });
   }
+
+  SECTION("alpha-test")
+  {
+    // Every SPR picture gets an unconditional hard cutout today, regardless of
+    // orientation; RenderMode-aware handling is not implemented yet.
+    loadFixture("Oriented") | kdl::transform([&](const auto& modelData) {
+      const auto& surface = modelData.surfaces().front();
+      CHECK(
+        surface.skin(0)->effectiveAlphaFunc()
+        == gl::MaterialAlphaFunc{gl::MaterialAlphaFunc::Compare::GreaterEqual, 0.5f});
+    }) | kdl::transform_error([](const auto& e) { FAIL(e); });
+  }
 }
 
 } // namespace tb::mdl
