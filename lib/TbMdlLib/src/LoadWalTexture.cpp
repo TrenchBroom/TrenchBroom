@@ -210,7 +210,7 @@ Result<gl::Texture> readDkWal(fs::Reader& reader)
                  averageColor,
                  PaletteTransparency::Index255Transparent);
 
-               return gl::Texture{
+               auto texture = gl::Texture{
                  width,
                  height,
                  averageColor,
@@ -218,6 +218,13 @@ Result<gl::Texture> readDkWal(fs::Reader& reader)
                  hasTransparency ? gl::TextureMask::On : gl::TextureMask::Off,
                  std::move(embeddedDefaults),
                  std::move(buffers)};
+               // Index255Transparent only ever produces fully transparent or fully
+               // opaque pixels (the transparent palette index maps to alpha 0, every
+               // other index to alpha 255), so this can never be Graduated.
+               texture.setAlphaDomain(
+                 hasTransparency ? img::ImageAlphaDomain::Binary
+                                 : img::ImageAlphaDomain::Opaque);
+               return texture;
              });
   }
   catch (const fs::ReaderException& e)

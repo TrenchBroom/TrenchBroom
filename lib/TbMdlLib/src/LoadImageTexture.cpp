@@ -107,7 +107,7 @@ Result<gl::Texture> loadImageTextureFromMemory(const uint8_t* begin, const size_
                  : gl::TextureMask::Off;
              const auto averageColor = getAverageColor(buffers.at(0), format);
 
-             return gl::Texture{
+             auto texture = gl::Texture{
                decodedImage.width,
                decodedImage.height,
                averageColor,
@@ -115,6 +115,8 @@ Result<gl::Texture> loadImageTextureFromMemory(const uint8_t* begin, const size_
                textureMask,
                gl::NoEmbeddedDefaults{},
                std::move(buffers)};
+             texture.setAlphaDomain(decodedImage.alphaDomain);
+             return texture;
            });
 }
 
