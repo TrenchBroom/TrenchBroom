@@ -19,7 +19,7 @@ cmake .. -GNinja -DCMAKE_PREFIX_PATH="%QT_ROOT_DIR%" -DCMAKE_BUILD_TYPE=Release 
 
 IF %ERRORLEVEL% NEQ 0 GOTO ERROR
 
-cmake --build . --config Release
+cmake --build . --config Release --parallel
 
 IF %ERRORLEVEL% NEQ 0 GOTO ERROR
 

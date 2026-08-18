@@ -56,7 +56,7 @@ cmake .. \
   -DTB_NOTARIZATION_PASSWORD="$TB_NOTARIZATION_PASSWORD" \
   || exit 1
 
-cmake --build . --config "$TB_BUILD_TYPE" || exit 1
+cmake --build . --config "$TB_BUILD_TYPE" --parallel || exit 1
 
 BUILD_DIR=$(pwd)
 ctest --test-dir "$BUILD_DIR" --output-on-failure -j || exit 1
