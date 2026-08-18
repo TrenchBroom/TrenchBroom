@@ -42,8 +42,6 @@ class FileSystem;
 namespace mdl
 {
 
-enum class TextureMask;
-
 static const auto DefaultTexturePath = std::filesystem::path{"textures/__TB_empty.png"};
 
 std::string getMaterialNameFromPathSuffix(
@@ -108,7 +106,7 @@ inline auto makeReadMaterialErrorHandler(const fs::FileSystem& fs, Logger& logge
     });
 }
 
-gl::TextureMask getTextureMaskFromName(std::string_view name);
+bool isMaskedTextureName(std::string_view name);
 
 } // namespace mdl
 } // namespace tb

@@ -50,7 +50,6 @@ TEST_CASE("loadM32Texture")
 
     CHECK(texture.width() == 2);
     CHECK(texture.height() == 2);
-    CHECK(texture.mask() == gl::TextureMask::On);
     // pixels (1,0) and (0,1) have alpha values (180, 90) that are neither fully
     // transparent nor fully opaque
     CHECK(texture.alphaDomain() == img::ImageAlphaDomain::Graduated);
@@ -71,7 +70,6 @@ TEST_CASE("loadM32Texture")
 
     CHECK(texture.width() == 2);
     CHECK(texture.height() == 2);
-    CHECK(texture.mask() == gl::TextureMask::On);
     // every pixel is either fully transparent or fully opaque
     CHECK(texture.alphaDomain() == img::ImageAlphaDomain::Binary);
 

@@ -314,18 +314,13 @@ gl::Texture loadUncompressedEmbeddedTexture(
   const auto hasIntermediateAlpha = std::ranges::any_of(
     alphas, [](const auto& alpha) { return alpha != 0 && alpha != 255; });
 
+  const auto alphaDomain = !hasTransparency       ? img::ImageAlphaDomain::Opaque
+                           : hasIntermediateAlpha ? img::ImageAlphaDomain::Graduated
+                                                  : img::ImageAlphaDomain::Binary;
+
   auto texture = gl::Texture{
-    width,
-    height,
-    averageColor,
-    GL_BGRA,
-    gl::TextureMask::On,
-    gl::NoEmbeddedDefaults{},
-    std::move(buffer)};
-  texture.setAlphaDomain(
-    !hasTransparency       ? img::ImageAlphaDomain::Opaque
-    : hasIntermediateAlpha ? img::ImageAlphaDomain::Graduated
-                           : img::ImageAlphaDomain::Binary);
+    width, height, averageColor, GL_BGRA, gl::NoEmbeddedDefaults{}, std::move(buffer)};
+  texture.setAlphaDomain(alphaDomain);
   return texture;
 }
 

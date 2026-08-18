@@ -60,7 +60,6 @@ void assertTexture(
   CHECK(texture.width() == width);
   CHECK(texture.height() == height);
   CHECK(texture.format() == format);
-  CHECK(texture.mask() == gl::TextureMask::Off);
   CHECK(texture.alphaDomain() == alphaDomain);
 }
 

@@ -251,9 +251,6 @@ gl::Material parseSkin(
   const auto size = width * height;
   const auto transparency = (flags & MF_HOLEY) ? PaletteTransparency::Index255Transparent
                                                : PaletteTransparency::Opaque;
-  const auto mask = (transparency == PaletteTransparency::Index255Transparent)
-                      ? gl::TextureMask::On
-                      : gl::TextureMask::Off;
   const auto alphaDomain =
     (flags & MF_HOLEY) ? img::ImageAlphaDomain::Binary : img::ImageAlphaDomain::Opaque;
   auto avgColor = Color{RgbaF{}};
@@ -265,13 +262,7 @@ gl::Material parseSkin(
     palette.indexedToRgba(reader, size, rgbaImage, transparency, avgColor);
 
     auto texture = gl::Texture{
-      width,
-      height,
-      avgColor,
-      GL_RGBA,
-      mask,
-      gl::NoEmbeddedDefaults{},
-      std::move(rgbaImage)};
+      width, height, avgColor, GL_RGBA, gl::NoEmbeddedDefaults{}, std::move(rgbaImage)};
     texture.setAlphaDomain(alphaDomain);
 
     auto textureResource = createTextureResource(std::move(texture));
@@ -285,13 +276,7 @@ gl::Material parseSkin(
   reader.seekForward((pictureCount - 1) * size); // skip all remaining pictures
 
   auto texture = gl::Texture{
-    width,
-    height,
-    avgColor,
-    GL_RGBA,
-    mask,
-    gl::NoEmbeddedDefaults{},
-    std::move(rgbaImage)};
+    width, height, avgColor, GL_RGBA, gl::NoEmbeddedDefaults{}, std::move(rgbaImage)};
   texture.setAlphaDomain(alphaDomain);
 
   auto textureResource = createTextureResource(std::move(texture));

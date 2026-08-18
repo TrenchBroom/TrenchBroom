@@ -126,18 +126,18 @@ Result<gl::Texture> loadM32Texture(fs::Reader& reader)
       }
     }
 
+    const auto alphaDomain = !hasTransparency       ? img::ImageAlphaDomain::Opaque
+                             : hasIntermediateAlpha ? img::ImageAlphaDomain::Graduated
+                                                    : img::ImageAlphaDomain::Binary;
+
     auto texture = gl::Texture{
       widths[0],
       heights[0],
       mip0AverageColor,
       GL_RGBA,
-      hasTransparency ? gl::TextureMask::On : gl::TextureMask::Off,
       gl::NoEmbeddedDefaults{},
       std::move(buffers)};
-    texture.setAlphaDomain(
-      !hasTransparency       ? img::ImageAlphaDomain::Opaque
-      : hasIntermediateAlpha ? img::ImageAlphaDomain::Graduated
-                             : img::ImageAlphaDomain::Binary);
+    texture.setAlphaDomain(alphaDomain);
     return texture;
   }
   catch (const fs::ReaderException& e)

@@ -106,11 +106,11 @@ std::vector<gl::Material> parseMaterials(
 
     auto materialName = readMipTextureName(reader);
     auto textureReader = reader.subReaderFromBegin(size_t(offset)).buffer();
-    const auto mask = getTextureMaskFromName(materialName);
+    const auto isMasked = isMaskedTextureName(materialName);
 
     result.push_back(
-      (version == 29 ? loadIdMipTexture(textureReader, palette, mask)
-                     : loadHlMipTexture(textureReader, mask))
+      (version == 29 ? loadIdMipTexture(textureReader, palette, isMasked)
+                     : loadHlMipTexture(textureReader, isMasked))
       | kdl::or_else(makeReadTextureErrorHandler(fs, logger))
       | kdl::transform([&](auto texture) {
           auto textureResource = createTextureResource(std::move(texture));

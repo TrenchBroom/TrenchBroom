@@ -29,7 +29,6 @@ namespace tb
 namespace gl
 {
 class Texture;
-enum class TextureMask;
 } // namespace gl
 
 namespace fs
@@ -48,9 +47,9 @@ bool isHlMipTexture(const std::filesystem::path& path);
 bool isMipTexture(const std::filesystem::path& path);
 
 Result<gl::Texture> loadIdMipTexture(
-  fs::Reader& reader, const Palette& palette, gl::TextureMask mask);
+  fs::Reader& reader, const Palette& palette, bool isMasked);
 
-Result<gl::Texture> loadHlMipTexture(fs::Reader& reader, gl::TextureMask mask);
+Result<gl::Texture> loadHlMipTexture(fs::Reader& reader, bool isMasked);
 
 } // namespace mdl
 } // namespace tb
