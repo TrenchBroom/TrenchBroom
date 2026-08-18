@@ -27,6 +27,7 @@
 #include <fmt/std.h>
 #include <miniz.h>
 
+#include <cstdio>
 #include <memory>
 #include <mutex>
 #include <string>
@@ -63,20 +64,17 @@ std::string filename(mz_zip_archive& archive, const mz_uint fileIndex)
 struct ZipFileSystem::State
 {
   mz_zip_archive archive;
-  bool initialized = false;
   std::mutex mutex;
 };
 
 ZipFileSystem::ZipFileSystem(std::shared_ptr<CFile> file)
   : ImageFileSystem{std::move(file)}
-  , m_state{std::make_unique<State>()}
 {
-  mz_zip_zero_struct(&m_state->archive);
 }
 
 ZipFileSystem::~ZipFileSystem()
 {
-  if (m_state->initialized)
+  if (m_state)
   {
     mz_zip_reader_end(&m_state->archive);
   }
@@ -84,16 +82,28 @@ ZipFileSystem::~ZipFileSystem()
 
 Result<void> ZipFileSystem::doReadDirectory()
 {
-  contract_assert(!m_state->initialized);
+  if (m_state)
+  {
+    mz_zip_reader_end(&m_state->archive);
+    m_state.reset();
+  }
+
+  auto state = std::make_unique<State>();
+  mz_zip_zero_struct(&state->archive);
+
+  // mz_zip_reader_init_cfile() anchors the archive at the file's current cursor
+  // position (to support zips appended to other data); rewind first so a re-init on
+  // reload doesn't anchor at wherever a previous read/extraction left the cursor
+  std::rewind(m_file->file());
 
   if (
-    mz_zip_reader_init_cfile(&m_state->archive, m_file->file(), m_file->size(), 0)
+    mz_zip_reader_init_cfile(&state->archive, m_file->file(), m_file->size(), 0)
     != MZ_TRUE)
   {
     return Error{"Error calling mz_zip_reader_init_cfile"};
   }
 
-  m_state->initialized = true;
+  m_state = std::move(state);
 
   const auto numFiles = mz_zip_reader_get_num_files(&m_state->archive);
   for (mz_uint i = 0; i < numFiles; ++i)
