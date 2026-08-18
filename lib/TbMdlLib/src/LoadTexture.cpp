@@ -48,8 +48,7 @@ Result<gl::Texture> loadTexture(
   const fs::FileSystem& fs,
   const std::optional<Palette>& palette)
 {
-  const auto extension = kdl::path_to_lower(path.extension());
-  if (extension == ".d")
+  if (isIdMipTexture(path))
   {
     if (!palette)
     {
@@ -62,7 +61,7 @@ Result<gl::Texture> loadTexture(
              return loadIdMipTexture(reader, *palette, mask);
            });
   }
-  else if (extension == ".c")
+  else if (isHlMipTexture(path))
   {
     const auto mask = getTextureMaskFromName(name);
     return fs.openFile(path) | kdl::and_then([&](auto file) {
@@ -70,35 +69,35 @@ Result<gl::Texture> loadTexture(
              return loadHlMipTexture(reader, mask);
            });
   }
-  else if (extension == ".wal")
+  else if (isWalTexture(path))
   {
     return fs.openFile(path) | kdl::and_then([&](auto file) {
              auto reader = file->reader().buffer();
              return loadWalTexture(reader, palette);
            });
   }
-  else if (extension == ".m8")
+  else if (isM8Texture(path))
   {
     return fs.openFile(path) | kdl::and_then([&](auto file) {
              auto reader = file->reader().buffer();
              return loadM8Texture(reader);
            });
   }
-  else if (extension == ".m32")
+  else if (isM32Texture(path))
   {
     return fs.openFile(path) | kdl::and_then([&](auto file) {
              auto reader = file->reader().buffer();
              return loadM32Texture(reader);
            });
   }
-  else if (extension == ".dds")
+  else if (isDdsTexture(path))
   {
     return fs.openFile(path) | kdl::and_then([&](auto file) {
              auto reader = file->reader().buffer();
              return loadDdsTexture(reader);
            });
   }
-  else if (isSupportedImageExtension(extension))
+  else if (isSupportedImageExtension(path.extension()))
   {
     return fs.openFile(path) | kdl::and_then([&](auto file) {
              auto reader = file->reader().buffer();
@@ -106,7 +105,8 @@ Result<gl::Texture> loadTexture(
            });
   }
 
-  return Error{fmt::format("Unknown texture file extension: {}", extension)};
+  return Error{fmt::format(
+    "Unknown texture file extension: {}", kdl::path_to_lower(path.extension()))};
 }
 
 } // namespace tb::mdl

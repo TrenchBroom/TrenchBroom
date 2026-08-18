@@ -45,6 +45,15 @@ TEST_CASE("loadWalTexture")
   auto paletteFile = fs.openFile(palettePath) | kdl::value();
   const auto palette = mdl::loadPalette(*paletteFile, palettePath) | kdl::value();
 
+  SECTION("isWalTexture")
+  {
+    CHECK(isWalTexture("texture.wal"));
+    CHECK(isWalTexture("texture.WAL"));
+    CHECK(isWalTexture("path/to/texture.wal"));
+    CHECK(!isWalTexture("texture.d"));
+    CHECK(!isWalTexture("texture"));
+  }
+
   using TexInfo = std::tuple<std::filesystem::path, size_t, size_t, gl::EmbeddedDefaults>;
 
   // clang-format off

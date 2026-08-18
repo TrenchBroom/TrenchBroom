@@ -27,6 +27,7 @@
 #include "mdl/MaterialUtils.h"
 #include "mdl/Palette.h"
 
+#include "kd/path_utils.h"
 #include "kd/result.h"
 
 #include <fmt/format.h>
@@ -138,6 +139,21 @@ std::string readMipTextureName(fs::Reader& reader)
   {
     return "";
   }
+}
+
+bool isIdMipTexture(const std::filesystem::path& path)
+{
+  return kdl::path_to_lower(path.extension()) == ".d";
+}
+
+bool isHlMipTexture(const std::filesystem::path& path)
+{
+  return kdl::path_to_lower(path.extension()) == ".c";
+}
+
+bool isMipTexture(const std::filesystem::path& path)
+{
+  return isIdMipTexture(path) || isHlMipTexture(path);
 }
 
 Result<gl::Texture> loadIdMipTexture(

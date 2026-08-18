@@ -30,6 +30,15 @@ namespace tb::mdl
 
 TEST_CASE("loadM32Texture")
 {
+  SECTION("isM32Texture")
+  {
+    CHECK(isM32Texture("texture.m32"));
+    CHECK(isM32Texture("texture.M32"));
+    CHECK(isM32Texture("path/to/texture.m32"));
+    CHECK(!isM32Texture("texture.m8"));
+    CHECK(!isM32Texture("texture"));
+  }
+
   const auto fs = fs::DiskFileSystem{getFixtureRoot()};
   const auto file = fs.openFile("test/mdl/LoadM32Texture/test.m32") | kdl::value();
 

@@ -22,6 +22,8 @@
 
 #include "base/Result.h"
 
+#include <filesystem>
+
 namespace tb
 {
 namespace gl
@@ -36,6 +38,8 @@ class Reader;
 
 namespace mdl
 {
+
+bool isDdsTexture(const std::filesystem::path& path);
 
 Result<gl::Texture> loadDdsTexture(fs::Reader& reader);
 
