@@ -200,10 +200,7 @@ Result<gl::Material> loadShaderMaterial(
            return [&, path = std::move(path_)]() {
              return fs.openFile(path) | kdl::and_then([&](auto file) {
                       auto reader = file->reader().buffer();
-                      return loadImageTexture(reader).transform([](auto texture) {
-                        texture.setMask(gl::TextureMask::Off);
-                        return texture;
-                      });
+                      return loadImageTexture(reader);
                     });
            };
          })
@@ -308,11 +305,10 @@ Result<gl::Material> loadTextureMaterial(
   // For the classic id-tech miptex formats, the `{`-prefixed fence-texture naming
   // convention is known from the name alone, so the alpha-test decision can be set here
   // rather than waiting for the (lazily loaded) texture to become ready.
-  const auto mask =
-    isMipTexture(texturePath) ? getTextureMaskFromName(name) : gl::TextureMask::Off;
+  const auto isMasked = isMipTexture(texturePath) && isMaskedTextureName(name);
 
   auto material = gl::Material{std::move(name), std::move(textureResource)};
-  if (mask == gl::TextureMask::On)
+  if (isMasked)
   {
     material.setAlphaFunc(gl::MaterialAlphaFunc::Compare::GreaterEqual, 0.5f);
   }

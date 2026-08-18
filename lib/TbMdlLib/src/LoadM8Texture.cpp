@@ -123,7 +123,6 @@ Result<gl::Texture> loadM8Texture(fs::Reader& reader)
                  heights[0],
                  mip0AverageColor,
                  GL_RGBA,
-                 gl::TextureMask::Off,
                  gl::NoEmbeddedDefaults{},
                  std::move(buffers)};
              });

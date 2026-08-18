@@ -57,16 +57,16 @@ Result<gl::Texture> loadTexture(
 
     return fs.openFile(path) | kdl::and_then([&](auto file) {
              auto reader = file->reader().buffer();
-             const auto mask = getTextureMaskFromName(name);
-             return loadIdMipTexture(reader, *palette, mask);
+             const auto isMasked = isMaskedTextureName(name);
+             return loadIdMipTexture(reader, *palette, isMasked);
            });
   }
   else if (isHlMipTexture(path))
   {
-    const auto mask = getTextureMaskFromName(name);
+    const auto isMasked = isMaskedTextureName(name);
     return fs.openFile(path) | kdl::and_then([&](auto file) {
              auto reader = file->reader().buffer();
-             return loadHlMipTexture(reader, mask);
+             return loadHlMipTexture(reader, isMasked);
            });
   }
   else if (isWalTexture(path))

@@ -302,13 +302,7 @@ Result<gl::Texture> loadDdsTexture(fs::Reader& reader)
     const auto alphaDomain = classifyDdsAlphaDomain(format, buffers.at(0));
 
     auto texture = gl::Texture{
-      width,
-      height,
-      RgbaF{},
-      format,
-      gl::TextureMask::Off,
-      gl::NoEmbeddedDefaults{},
-      std::move(buffers)};
+      width, height, RgbaF{}, format, gl::NoEmbeddedDefaults{}, std::move(buffers)};
     texture.setAlphaDomain(alphaDomain);
     return texture;
   }

@@ -61,13 +61,7 @@ SprPicture parsePicture(
     averageColor);
 
   auto texture = gl::Texture{
-    width,
-    height,
-    averageColor,
-    GL_RGBA,
-    gl::TextureMask::On,
-    gl::NoEmbeddedDefaults{},
-    std::move(rgbaImage)};
+    width, height, averageColor, GL_RGBA, gl::NoEmbeddedDefaults{}, std::move(rgbaImage)};
   texture.setAlphaDomain(alphaDomain);
   auto textureResource = createTextureResource(std::move(texture));
 

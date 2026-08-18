@@ -89,7 +89,6 @@ TEST_CASE("loadWalTexture")
     CHECK(texture.embeddedDefaults() == embeddedDefaults);
 
     // Quake2 WAL textures never carry transparency in TrenchBroom's loader
-    CHECK(texture.mask() == gl::TextureMask::Off);
     CHECK(texture.alphaDomain() == img::ImageAlphaDomain::Opaque);
   }
 
@@ -108,7 +107,6 @@ TEST_CASE("loadWalTexture")
       const auto texture = loadWalTexture(reader, std::nullopt) | kdl::value();
       CHECK(texture.width() == 2);
       CHECK(texture.height() == 2);
-      CHECK(texture.mask() == gl::TextureMask::Off);
       CHECK(texture.alphaDomain() == img::ImageAlphaDomain::Opaque);
     }
 
@@ -120,7 +118,6 @@ TEST_CASE("loadWalTexture")
       const auto texture = loadWalTexture(reader, std::nullopt) | kdl::value();
       CHECK(texture.width() == 2);
       CHECK(texture.height() == 2);
-      CHECK(texture.mask() == gl::TextureMask::On);
       CHECK(texture.alphaDomain() == img::ImageAlphaDomain::Binary);
     }
   }

@@ -116,7 +116,7 @@ TEST_CASE("LoadMipTexture")
                }))
              | kdl::and_then([](auto textureFile, auto palette) {
                  auto reader = textureFile->reader().buffer();
-                 return loadIdMipTexture(reader, palette, gl::TextureMask::Off);
+                 return loadIdMipTexture(reader, palette, false);
                })
              | kdl::transform([&](auto texture) {
                  CHECK(texture.width() == width);
@@ -127,8 +127,8 @@ TEST_CASE("LoadMipTexture")
 
   SECTION("loadIdMipTexture sets alphaDomain from the mask")
   {
-    const auto mask = GENERATE(gl::TextureMask::On, gl::TextureMask::Off);
-    CAPTURE(mask);
+    const auto isMasked = GENERATE(true, false);
+    CAPTURE(isMasked);
 
     const auto palettePath = getFixtureRoot() / "test/mdl/LoadMipTexture/palette.lmp";
     const auto wadPath = getFixtureRoot() / "test/mdl/LoadMipTexture/cr8_czg.wad";
@@ -144,12 +144,12 @@ TEST_CASE("LoadMipTexture")
                }))
              | kdl::and_then([&](auto textureFile, auto palette) {
                  auto reader = textureFile->reader().buffer();
-                 return loadIdMipTexture(reader, palette, mask);
+                 return loadIdMipTexture(reader, palette, isMasked);
                })
              | kdl::transform([&](auto texture) {
                  CHECK(
                    texture.alphaDomain()
-                   == (mask == gl::TextureMask::On ? img::ImageAlphaDomain::Binary : img::ImageAlphaDomain::Opaque));
+                   == (isMasked ? img::ImageAlphaDomain::Binary : img::ImageAlphaDomain::Opaque));
                });
     }) | kdl::transform_error([](const auto& e) { FAIL(e); });
   }
@@ -175,7 +175,7 @@ TEST_CASE("LoadMipTexture")
 
     const auto file = wadFS.openFile(textureName + ".C") | kdl::value();
     auto reader = file->reader().buffer();
-    const auto texture = loadHlMipTexture(reader, gl::TextureMask::Off) | kdl::value();
+    const auto texture = loadHlMipTexture(reader, false) | kdl::value();
 
     CHECK(logger.countMessages(LogLevel::Error) == 0);
     CHECK(logger.countMessages(LogLevel::Warn) == 0);
@@ -185,8 +185,8 @@ TEST_CASE("LoadMipTexture")
 
   SECTION("loadHlMipTexture sets alphaDomain from the mask")
   {
-    const auto mask = GENERATE(gl::TextureMask::On, gl::TextureMask::Off);
-    CAPTURE(mask);
+    const auto isMasked = GENERATE(true, false);
+    CAPTURE(isMasked);
 
     const auto wadPath = getFixtureRoot() / "test/mdl/LoadMipTexture/hl.wad";
     auto wadFS = fs::WadFileSystem{fs::Disk::openFile(wadPath) | kdl::value()};
@@ -194,11 +194,11 @@ TEST_CASE("LoadMipTexture")
 
     const auto file = wadFS.openFile("bongs2.C") | kdl::value();
     auto reader = file->reader().buffer();
-    const auto texture = loadHlMipTexture(reader, mask) | kdl::value();
+    const auto texture = loadHlMipTexture(reader, isMasked) | kdl::value();
 
     CHECK(
       texture.alphaDomain()
-      == (mask == gl::TextureMask::On ? img::ImageAlphaDomain::Binary : img::ImageAlphaDomain::Opaque));
+      == (isMasked ? img::ImageAlphaDomain::Binary : img::ImageAlphaDomain::Opaque));
   }
 }
 

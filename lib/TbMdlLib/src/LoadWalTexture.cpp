@@ -153,7 +153,6 @@ Result<gl::Texture> readQ2Wal(fs::Reader& reader, const std::optional<Palette>& 
       height,
       averageColor,
       GL_RGBA,
-      gl::TextureMask::Off,
       std::move(embeddedDefaults),
       std::move(buffers)};
   }
@@ -215,7 +214,6 @@ Result<gl::Texture> readDkWal(fs::Reader& reader)
                  height,
                  averageColor,
                  GL_RGBA,
-                 hasTransparency ? gl::TextureMask::On : gl::TextureMask::Off,
                  std::move(embeddedDefaults),
                  std::move(buffers)};
                // Index255Transparent only ever produces fully transparent or fully

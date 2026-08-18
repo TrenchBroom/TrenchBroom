@@ -33,17 +33,6 @@ namespace tb::gl
 {
 class Gl;
 
-enum class TextureMask
-{
-  /**
-   * Modifies texture uploading to support mask textures.
-   */
-  On,
-  Off,
-};
-
-std::ostream& operator<<(std::ostream& lhs, const TextureMask& rhs);
-
 struct NoEmbeddedDefaults
 {
   kdl_reflect_decl_empty(NoEmbeddedDefaults);
@@ -93,7 +82,6 @@ private:
   Color m_averageColor;
 
   GLenum m_format;
-  TextureMask m_mask;
   img::ImageAlphaDomain m_alphaDomain = img::ImageAlphaDomain::Opaque;
 
   EmbeddedDefaults m_embeddedDefaults;
@@ -106,7 +94,6 @@ private:
     m_height,
     m_averageColor,
     m_format,
-    m_mask,
     m_alphaDomain,
     m_embeddedDefaults,
     m_state);
@@ -117,7 +104,6 @@ public:
     size_t height,
     Color averageColor,
     GLenum format,
-    TextureMask mask,
     EmbeddedDefaults embeddedDefaults,
     std::vector<TextureBuffer> buffers);
 
@@ -126,7 +112,6 @@ public:
     size_t height,
     Color averageColor,
     GLenum format,
-    TextureMask mask,
     EmbeddedDefaults embeddedDefaults,
     TextureBuffer buffer);
 
@@ -146,9 +131,6 @@ public:
   const Color& averageColor() const;
 
   GLenum format() const;
-
-  TextureMask mask() const;
-  void setMask(TextureMask mask);
 
   img::ImageAlphaDomain alphaDomain() const;
   void setAlphaDomain(img::ImageAlphaDomain alphaDomain);
