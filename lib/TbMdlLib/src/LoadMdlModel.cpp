@@ -254,6 +254,8 @@ gl::Material parseSkin(
   const auto mask = (transparency == PaletteTransparency::Index255Transparent)
                       ? gl::TextureMask::On
                       : gl::TextureMask::Off;
+  const auto alphaDomain =
+    (flags & MF_HOLEY) ? img::ImageAlphaDomain::Binary : img::ImageAlphaDomain::Opaque;
   auto avgColor = Color{RgbaF{}};
   auto rgbaImage = gl::TextureBuffer{size * 4};
 
@@ -270,6 +272,7 @@ gl::Material parseSkin(
       mask,
       gl::NoEmbeddedDefaults{},
       std::move(rgbaImage)};
+    texture.setAlphaDomain(alphaDomain);
 
     auto textureResource = createTextureResource(std::move(texture));
     return gl::Material{std::move(skinName), std::move(textureResource)};
@@ -289,6 +292,7 @@ gl::Material parseSkin(
     mask,
     gl::NoEmbeddedDefaults{},
     std::move(rgbaImage)};
+  texture.setAlphaDomain(alphaDomain);
 
   auto textureResource = createTextureResource(std::move(texture));
   return gl::Material{std::move(skinName), std::move(textureResource)};

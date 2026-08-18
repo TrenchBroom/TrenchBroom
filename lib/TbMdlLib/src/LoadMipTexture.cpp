@@ -110,7 +110,7 @@ Result<gl::Texture> readMipTexture(
                }
              }
 
-             return gl::Texture{
+             auto texture = gl::Texture{
                width,
                height,
                averageColor,
@@ -118,6 +118,10 @@ Result<gl::Texture> readMipTexture(
                mask,
                gl::NoEmbeddedDefaults{},
                std::move(buffers)};
+             texture.setAlphaDomain(
+               mask == gl::TextureMask::On ? img::ImageAlphaDomain::Binary
+                                           : img::ImageAlphaDomain::Opaque);
+             return texture;
            });
   }
   catch (const fs::ReaderException& e)
