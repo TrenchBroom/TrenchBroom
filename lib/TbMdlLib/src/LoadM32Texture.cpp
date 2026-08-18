@@ -23,6 +23,7 @@
 #include "fs/ReaderException.h"
 #include "gl/Texture.h"
 
+#include "kd/path_utils.h"
 #include "kd/ranges/to.h"
 
 #include <ranges>
@@ -49,6 +50,11 @@ std::vector<size_t> readSizeVec(const size_t count, fs::Reader& reader)
 }
 
 } // namespace
+
+bool isM32Texture(const std::filesystem::path& path)
+{
+  return kdl::path_to_lower(path.extension()) == ".m32";
+}
 
 Result<gl::Texture> loadM32Texture(fs::Reader& reader)
 {

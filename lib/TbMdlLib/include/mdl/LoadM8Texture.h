@@ -21,6 +21,8 @@
 
 #include "base/Result.h"
 
+#include <filesystem>
+
 namespace tb
 {
 namespace gl
@@ -39,6 +41,8 @@ namespace mdl
 /**
  * Heretic 2 .m8 format
  */
+bool isM8Texture(const std::filesystem::path& path);
+
 Result<gl::Texture> loadM8Texture(fs::Reader& reader);
 
 } // namespace mdl

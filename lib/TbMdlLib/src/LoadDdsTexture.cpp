@@ -26,6 +26,8 @@
 #include "gl/TextureBuffer.h"
 #include "mdl/MaterialUtils.h"
 
+#include "kd/path_utils.h"
+
 #include <fmt/format.h>
 
 namespace tb::mdl
@@ -126,6 +128,11 @@ void readDdsMips(fs::Reader& reader, gl::TextureBufferList& buffers)
 }
 
 } // namespace
+
+bool isDdsTexture(const std::filesystem::path& path)
+{
+  return kdl::path_to_lower(path.extension()) == ".dds";
+}
 
 Result<gl::Texture> loadDdsTexture(fs::Reader& reader)
 {

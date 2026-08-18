@@ -26,6 +26,7 @@
 #include "mdl/Palette.h"
 
 #include "kd/contracts.h"
+#include "kd/path_utils.h"
 
 #include <fmt/format.h>
 
@@ -226,6 +227,11 @@ Result<gl::Texture> readDkWal(fs::Reader& reader)
 }
 
 } // namespace
+
+bool isWalTexture(const std::filesystem::path& path)
+{
+  return kdl::path_to_lower(path.extension()) == ".wal";
+}
 
 Result<gl::Texture> loadWalTexture(
   fs::Reader& reader, const std::optional<Palette>& palette)

@@ -41,6 +41,37 @@ namespace tb::mdl
 
 TEST_CASE("LoadMipTexture")
 {
+  SECTION("isIdMipTexture")
+  {
+    CHECK(isIdMipTexture("texture.d"));
+    CHECK(isIdMipTexture("texture.D"));
+    CHECK(isIdMipTexture("path/to/texture.d"));
+    CHECK(!isIdMipTexture("texture.c"));
+    CHECK(!isIdMipTexture("texture.wal"));
+    CHECK(!isIdMipTexture("texture"));
+  }
+
+  SECTION("isHlMipTexture")
+  {
+    CHECK(isHlMipTexture("texture.c"));
+    CHECK(isHlMipTexture("texture.C"));
+    CHECK(isHlMipTexture("path/to/texture.c"));
+    CHECK(!isHlMipTexture("texture.d"));
+    CHECK(!isHlMipTexture("texture.wal"));
+    CHECK(!isHlMipTexture("texture"));
+  }
+
+  SECTION("isMipTexture")
+  {
+    CHECK(isMipTexture("texture.d"));
+    CHECK(isMipTexture("texture.D"));
+    CHECK(isMipTexture("texture.c"));
+    CHECK(isMipTexture("texture.C"));
+    CHECK(isMipTexture("path/to/texture.d"));
+    CHECK(!isMipTexture("texture.wal"));
+    CHECK(!isMipTexture("texture"));
+  }
+
   SECTION("loadIdMipTexture")
   {
     using TexInfo = std::tuple<std::string, size_t, size_t>;

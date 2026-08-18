@@ -21,6 +21,7 @@
 
 #include "base/Result.h"
 
+#include <filesystem>
 #include <string>
 
 namespace tb
@@ -41,6 +42,10 @@ namespace mdl
 class Palette;
 
 std::string readMipTextureName(fs::Reader& reader);
+
+bool isIdMipTexture(const std::filesystem::path& path);
+bool isHlMipTexture(const std::filesystem::path& path);
+bool isMipTexture(const std::filesystem::path& path);
 
 Result<gl::Texture> loadIdMipTexture(
   fs::Reader& reader, const Palette& palette, gl::TextureMask mask);

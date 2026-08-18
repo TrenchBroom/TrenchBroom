@@ -63,6 +63,15 @@ void assertTexture(
 
 TEST_CASE("loadDdsTexture")
 {
+  SECTION("isDdsTexture")
+  {
+    CHECK(isDdsTexture("texture.dds"));
+    CHECK(isDdsTexture("texture.DDS"));
+    CHECK(isDdsTexture("path/to/texture.dds"));
+    CHECK(!isDdsTexture("texture.d"));
+    CHECK(!isDdsTexture("texture"));
+  }
+
   assertTexture("dds_rgb.dds", 128, 128, GL_BGR);
   assertTexture("dds_rgba.dds", 128, 128, GL_BGRA);
   assertTexture("dds_bc1.dds", 128, 128, GL_COMPRESSED_RGBA_S3TC_DXT1_EXT);
