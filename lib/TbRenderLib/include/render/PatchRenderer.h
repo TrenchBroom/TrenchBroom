@@ -44,15 +44,37 @@ namespace render
 class RenderBatch;
 class RenderContext;
 
-class PatchRenderer : public IndexedRenderable
+class PatchRenderer
 {
 private:
+  /**
+   * Draws one of m_opaqueMeshRenderer/m_transparentMeshRenderer as an independent batch
+   * entry, so the opaque and transparent patches can be interleaved with other objects'
+   * opaque/transparent passes rather than always drawn together.
+   */
+  class MeshPass : public IndexedRenderable
+  {
+  private:
+    PatchRenderer& m_owner;
+    gl::MaterialIndexArrayRenderer& m_meshRenderer;
+
+  public:
+    MeshPass(PatchRenderer& owner, gl::MaterialIndexArrayRenderer& meshRenderer);
+
+  private:
+    void prepare(gl::Gl& gl, gl::VboManager& vboManager) override;
+    void render(RenderContext& context) override;
+  };
+
   const mdl::EditorContext& m_editorContext;
 
   bool m_valid = true;
   kdl::vector_set<const mdl::PatchNode*> m_patchNodes;
 
-  gl::MaterialIndexArrayRenderer m_patchMeshRenderer;
+  gl::MaterialIndexArrayRenderer m_opaqueMeshRenderer;
+  gl::MaterialIndexArrayRenderer m_transparentMeshRenderer;
+  MeshPass m_opaquePass;
+  MeshPass m_transparentPass;
   DirectEdgeRenderer m_edgeRenderer;
 
   Color m_defaultColor;
@@ -119,14 +141,13 @@ public:
    */
   void invalidatePatch(const mdl::PatchNode& patchNode);
 
-  void render(RenderContext& renderContext, RenderBatch& renderBatch);
+  void renderOpaque(RenderContext& renderContext, RenderBatch& renderBatch);
+  void renderTransparent(RenderContext& renderContext, RenderBatch& renderBatch);
 
 private:
   void validate();
-
-private: // implement IndexedRenderable interface
-  void prepare(gl::Gl& gl, gl::VboManager& vboManager) override;
-  void render(RenderContext& renderContext) override;
+  void renderMesh(
+    RenderContext& renderContext, gl::MaterialIndexArrayRenderer& meshRenderer);
 };
 
 } // namespace render
