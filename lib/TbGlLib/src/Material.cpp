@@ -296,14 +296,19 @@ void Material::activate(Gl& gl, const int minFilter, const int magFilter) const
     if (const auto blendFunc = effectiveBlendFunc();
         blendFunc.enable != MaterialBlendFunc::Enable::UseDefault)
     {
-      gl.pushAttrib(GL_COLOR_BUFFER_BIT);
       if (blendFunc.enable == MaterialBlendFunc::Enable::UseFactors)
       {
+        // A material with real per-pixel blending must not write depth: otherwise its
+        // fully or partially transparent fragments would still pass the depth test and
+        // occlude geometry drawn behind them.
+        gl.pushAttrib(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         gl.blendFunc(blendFunc.srcFactor, blendFunc.destFactor);
+        gl.depthMask(GL_FALSE);
       }
       else
       {
         contract_assert(blendFunc.enable == MaterialBlendFunc::Enable::DisableBlend);
+        gl.pushAttrib(GL_COLOR_BUFFER_BIT);
         gl.disable(GL_BLEND);
       }
     }
