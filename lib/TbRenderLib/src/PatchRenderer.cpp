@@ -48,8 +48,27 @@
 namespace tb::render
 {
 
+PatchRenderer::MeshPass::MeshPass(
+  PatchRenderer& owner, gl::MaterialIndexArrayRenderer& meshRenderer)
+  : m_owner{owner}
+  , m_meshRenderer{meshRenderer}
+{
+}
+
+void PatchRenderer::MeshPass::prepare(gl::Gl& gl, gl::VboManager& vboManager)
+{
+  m_meshRenderer.prepare(gl, vboManager);
+}
+
+void PatchRenderer::MeshPass::render(RenderContext& context)
+{
+  m_owner.renderMesh(context, m_meshRenderer);
+}
+
 PatchRenderer::PatchRenderer(const mdl::EditorContext& editorContext)
   : m_editorContext{editorContext}
+  , m_opaquePass{*this, m_opaqueMeshRenderer}
+  , m_transparentPass{*this, m_transparentMeshRenderer}
 {
 }
 
@@ -131,7 +150,7 @@ void PatchRenderer::invalidatePatch(const mdl::PatchNode&)
   invalidate();
 }
 
-void PatchRenderer::render(RenderContext& renderContext, RenderBatch& renderBatch)
+void PatchRenderer::renderOpaque(RenderContext& renderContext, RenderBatch& renderBatch)
 {
   if (!m_valid)
   {
@@ -140,7 +159,7 @@ void PatchRenderer::render(RenderContext& renderContext, RenderBatch& renderBatc
 
   if (renderContext.showFaces())
   {
-    renderBatch.add(this);
+    renderBatch.add(&m_opaquePass);
   }
 
   if (renderContext.showEdges())
@@ -150,6 +169,20 @@ void PatchRenderer::render(RenderContext& renderContext, RenderBatch& renderBatc
       m_edgeRenderer.renderOnTop(renderBatch, m_occludedEdgeColor);
     }
     m_edgeRenderer.render(renderBatch, m_edgeColor);
+  }
+}
+
+void PatchRenderer::renderTransparent(
+  RenderContext& renderContext, RenderBatch& renderBatch)
+{
+  if (!m_valid)
+  {
+    validate();
+  }
+
+  if (renderContext.showFaces())
+  {
+    renderBatch.add(&m_transparentPass);
   }
 }
 
@@ -303,20 +336,35 @@ static DirectEdgeRenderer buildEdgeRenderer(
   return DirectEdgeRenderer{std::move(vertexArray), std::move(indexRangeMap)};
 }
 
+namespace
+{
+bool isRealBlend(const mdl::PatchNode* patchNode)
+{
+  const auto* material = patchNode->patch().material();
+  return material
+         && material->effectiveBlendFunc().enable
+              == gl::MaterialBlendFunc::Enable::UseFactors;
+}
+} // namespace
+
 void PatchRenderer::validate()
 {
   if (!m_valid)
   {
-    m_patchMeshRenderer = buildMeshRenderer(m_patchNodes.get_data(), m_editorContext);
+    auto opaquePatchNodes = std::vector<const mdl::PatchNode*>{};
+    auto transparentPatchNodes = std::vector<const mdl::PatchNode*>{};
+    for (const auto* patchNode : m_patchNodes.get_data())
+    {
+      (isRealBlend(patchNode) ? transparentPatchNodes : opaquePatchNodes)
+        .push_back(patchNode);
+    }
+
+    m_opaqueMeshRenderer = buildMeshRenderer(opaquePatchNodes, m_editorContext);
+    m_transparentMeshRenderer = buildMeshRenderer(transparentPatchNodes, m_editorContext);
     m_edgeRenderer = buildEdgeRenderer(m_patchNodes.get_data(), m_editorContext);
 
     m_valid = true;
   }
-}
-
-void PatchRenderer::prepare(gl::Gl& gl, gl::VboManager& vboManager)
-{
-  m_patchMeshRenderer.prepare(gl, vboManager);
 }
 
 namespace
@@ -381,7 +429,8 @@ struct RenderFunc : public gl::MaterialRenderFunc
 };
 } // namespace
 
-void PatchRenderer::render(RenderContext& context)
+void PatchRenderer::renderMesh(
+  RenderContext& context, gl::MaterialIndexArrayRenderer& meshRenderer)
 {
   auto& gl = context.gl();
 
@@ -429,7 +478,7 @@ void PatchRenderer::render(RenderContext& context)
     context.magFilterMode(),
     m_alpha};
 
-  m_patchMeshRenderer.render(gl, shader.program(), func);
+  meshRenderer.render(gl, shader.program(), func);
 }
 
 } // namespace tb::render
