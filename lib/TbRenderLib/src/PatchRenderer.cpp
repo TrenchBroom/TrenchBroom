@@ -413,19 +413,7 @@ void PatchRenderer::render(RenderContext& context)
     context.minFilterMode(),
     context.magFilterMode()};
 
-  /*
-  if (m_alpha < 1.0f) {
-      gl.depthMask(GL_FALSE);
-  }
-  */
-
   m_patchMeshRenderer.render(gl, shader.program(), func);
-
-  /*
-  if (m_alpha < 1.0f) {
-      gl.depthMask(GL_TRUE);
-  }
-  */
 }
 
 } // namespace tb::render
