@@ -201,6 +201,9 @@ TEST_CASE("Material")
       auto poppedAttribCount = 0;
       gl.onPopAttrib = [&]() { ++poppedAttribCount; };
 
+      auto depthMaskCalls = std::vector<GLboolean>{};
+      gl.onDepthMask = [&](const GLboolean flag) { depthMaskCalls.push_back(flag); };
+
       SECTION("UseFactors")
       {
         material.setBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -214,6 +217,11 @@ TEST_CASE("Material")
         CHECK(
           capturedBlendFunc
           == std::pair<GLenum, GLenum>{GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA});
+        // A material with real per-pixel blending must not write depth.
+        CHECK(depthMaskCalls == std::vector<GLboolean>{GL_FALSE});
+        REQUIRE(
+          pushedAttribs
+          == std::vector<GLbitfield>{GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT});
       }
 
       SECTION("DisableBlend")
@@ -225,9 +233,9 @@ TEST_CASE("Material")
 
         material.activate(gl, GL_LINEAR, GL_LINEAR);
         CHECK(disabledCaps == std::vector<GLenum>{GL_BLEND});
+        CHECK(depthMaskCalls.empty());
+        REQUIRE(pushedAttribs == std::vector<GLbitfield>{GL_COLOR_BUFFER_BIT});
       }
-
-      REQUIRE(pushedAttribs == std::vector<GLbitfield>{GL_COLOR_BUFFER_BIT});
 
       material.deactivate(gl);
       CHECK(poppedAttribCount == 1);
@@ -248,6 +256,9 @@ TEST_CASE("Material")
       auto poppedAttribCount = 0;
       gl.onPopAttrib = [&]() { ++poppedAttribCount; };
 
+      auto depthMaskCalls = std::vector<GLboolean>{};
+      gl.onDepthMask = [&](const GLboolean flag) { depthMaskCalls.push_back(flag); };
+
       auto capturedBlendFunc = std::pair<GLenum, GLenum>{0, 0};
       gl.onBlendFunc = [&](const GLenum src, const GLenum dst) {
         capturedBlendFunc = {src, dst};
@@ -257,7 +268,11 @@ TEST_CASE("Material")
       CHECK(
         capturedBlendFunc
         == std::pair<GLenum, GLenum>{GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA});
-      REQUIRE(pushedAttribs == std::vector<GLbitfield>{GL_COLOR_BUFFER_BIT});
+      // A material with real per-pixel blending must not write depth.
+      CHECK(depthMaskCalls == std::vector<GLboolean>{GL_FALSE});
+      REQUIRE(
+        pushedAttribs
+        == std::vector<GLbitfield>{GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT});
 
       material.deactivate(gl);
       CHECK(poppedAttribCount == 1);
