@@ -12,3 +12,4 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(miniz)
 
 suppress_dependency_warnings(miniz)
+apply_sanitizer_options(miniz)

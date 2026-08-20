@@ -103,39 +103,11 @@ else()
   message(FATAL_ERROR "Cannot set compile options for target CompilerConfig")
 endif()
 
-# Enable sanitizers if possible and requested.
-if(TB_ENABLE_ASAN)
-  message(STATUS "Enabling ASan")
-
-  if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-    target_compile_options(CompilerConfig INTERFACE -fsanitize=address)
-    target_link_options(CompilerConfig INTERFACE -fsanitize=address)
-  else()
-    message(WARNING "TB isn't set up to enable ASan for compiler ${CMAKE_CXX_COMPILER_ID}")
-  endif()
-endif()
-
-if(TB_ENABLE_TSAN)
-  message(STATUS "Enabling TSan")
-
-  if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-    target_compile_options(CompilerConfig INTERFACE -fsanitize=thread)
-    target_link_options(CompilerConfig INTERFACE -fsanitize=thread)
-  else()
-    message(WARNING "TB isn't set up to enable TSan for compiler ${CMAKE_CXX_COMPILER_ID}")
-  endif()
-endif()
-
-if(TB_ENABLE_UBSAN)
-  message(STATUS "Enabling UBSan")
-
-  if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-    target_compile_options(CompilerConfig INTERFACE -fsanitize=undefined)
-    target_link_options(CompilerConfig INTERFACE -fsanitize=undefined)
-  else()
-    message(WARNING "TB isn't set up to enable UBSan for compiler ${CMAKE_CXX_COMPILER_ID}")
-  endif()
-endif()
+# Apply the sanitizer flags determined by cmake/Sanitizers.cmake (included from the root
+# CMakeLists.txt before this file). The same variables are applied to third-party targets by
+# cmake/dependencies/CompilerConfig.cmake's apply_sanitizer_options().
+target_compile_options(CompilerConfig INTERFACE ${TB_SANITIZER_COMPILE_OPTIONS})
+target_link_options(CompilerConfig INTERFACE ${TB_SANITIZER_LINK_OPTIONS})
 
 # Enable gcov-compatible coverage if requested.
 if(TB_ENABLE_GCOV)

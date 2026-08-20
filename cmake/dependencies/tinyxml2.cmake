@@ -10,3 +10,4 @@ set(tinyxml2_BUILD_TESTING OFF)
 FetchContent_MakeAvailable(tinyxml2)
 
 suppress_dependency_warnings(tinyxml2)
+apply_sanitizer_options(tinyxml2)

@@ -21,3 +21,4 @@ FetchContent_MakeAvailable(freetype)
 unset(CMAKE_POLICY_VERSION_MINIMUM)
 
 suppress_dependency_warnings(freetype)
+apply_sanitizer_options(freetype)

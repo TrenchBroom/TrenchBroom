@@ -16,11 +16,14 @@ FetchContent_MakeAvailable(cpptrace)
 set(BUILD_SHARED_LIBS ${_tb_saved_build_shared_libs})
 
 suppress_dependency_warnings(cpptrace-lib)
+apply_sanitizer_options(cpptrace-lib)
 
 if(TARGET dwarf)
   suppress_dependency_warnings(dwarf)
+  apply_sanitizer_options(dwarf)
 endif()
 
 if(TARGET libzstd_static)
   suppress_dependency_warnings(libzstd_static)
+  apply_sanitizer_options(libzstd_static)
 endif()
