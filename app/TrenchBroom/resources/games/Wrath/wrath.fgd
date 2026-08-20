@@ -3,54 +3,6 @@
 //  Version  : 20260820
 //  Edited by: xaGe, hemebond
 
-//'-12 -12 -44'   // artifact_nsize;
-//'12 12 0'       // artifact_size;
-//'-16 -16 -8'    // dark_helm_nsize;
-//'16 16 8'       // dark_helm_size;
-//'-16 -16 -8'    // dark_armor_nsize;
-//'16 16 20'      // dark_armor_size;
-//'-16 -16 -8'    // dark_shard_nsize;
-//'16 16 2'       // dark_shard_size;
-//'-16 -16 -8'    // helm_nsize;
-//'16 16 8'       // helm_size;
-//'-16 -16 -8'    // armor_nsize;
-//'16 16 20'      // armor_size;
-//'-16 -16 -8'    // shard_nsize;
-//'16 16 2'       // shard_size;
-//'12 12 2'       // heart_size;
-//'16 16 24'      // chalice_size;
-//'16 16 16'          // vial_size;
-//'16 16 20'      // beaker_size;
-//'16 16 9'       // fangs_size;
-//'12 12 12'      // wtf_size;
-//'16 16 11'      // ore_size;
-//'16 16 9'       // orel_size;
-//'16 16 8'       // cysts_size;
-//'16 16 8'       // cysts_size;
-//'16 16 6'       // shells_size;
-//'16 16 6'       // slugs_size;
-//'-12 -12 -24'   // slag_nsize;
-//'12 12 8'       // slag_size;
-//'-12 -12 -24'   // spitter_nsize;
-//'12 12 8'       // spitter_size;
-//'-12 -12 -24'   // retcher_nsize;
-//'12 12 8'       // retcher_size;
-//'-12 -12 -24'   // coach_nsize;
-//'12 12 8'       // coach_size;
-//'-12 -12 -48'   // coffer_key_nsize;
-//'12 12 0'       // coffer_key_size;
-//'4 4 4'         // retcher_projectile_size;
-//'12 12 8'       // invader_pickup_size;
-
-@BaseClass = DifficultyFlags [
-    spawnflags(Flags) =
-    [
-        256 : "Not on Easy" : 0
-        512 : "Not on Normal" : 0
-        1024 : "Not on Hard" : 0
-        2048 : "Not in Deathmatch" : 0
-    ]
-]
 @BaseClass = TargetName [
     targetname(target_source) : "Name"
 ]
@@ -74,21 +26,24 @@
 
 // SOUND ENTITIES
 
-@PointClass color(0 1 0.2) size(-16 -16 -16, 16 16 16) = soundbox : ""
-[
-    rad_sound(integer) : "unknown" : 512
-    volume(integer) : "volume level" : 1
-    noise(string) : "sound to play" : "sound/doors/e1m2_pillar.ogg"
+@PointClass color(0 1 0.2) size(-16 -16 -16, 16 16 16) = soundbox : "Sound Box" [
+    rad_sound(integer) : "Sounds Radius" : 512
+    volume(integer) : "Volume" : 1
+    noise(string) : "Noise" : "sound/doors/e1m2_pillar.ogg" : "Sound file to play"
+    delay(float) : "Delay" : "-1"
+    minpitch(float) : "Minimum Pitch" : "0.1"
+    spawnflags(flags) = [
+        1 : "Attenuation 0"
+        2 : "Force Loop"
+        32 : "No Spatialize" : 0 : "2D sound only"
+    ]
 ]
 
-@PointClass color(0 1 0) size(-16 -16 -16, 16 16 16) = randomsoundbox : ""
-[
-    //<flag key="2dsound" name="2D sound" bit="5">2D sound only
+@PointClass color(0 1 0) size(-16 -16 -16, 16 16 16) = randomsoundbox : "Random Sound Box" [
     spawnflags(flags) =
     [
-        32 : "2d sound" : 0 : "2D sound only"
+        32 : "No Spatialize" : 0 : "2D sound only"
     ]
-    //<string key="noise" name="noise">
     noise1(string)
     noise2(string)
     noise3(string)
@@ -104,52 +59,49 @@
     noise13(string)
     noise14(string)
     noise15(string)
-    //<real key="rad_sound" name="rad_sound">
-    rad_sound(float)
-    //<real key="rad_sound_inner" name="rad_sound_inner">inner sound box with no attenuation, default 0
+    rad_sound(float) : "Sound Radius" : "512"
     rad_sound_inner(float) : : "0" : "inner sound box with no attenuation, default 0"
-    //<real key="volume" name="volume">
-    volume(float)
-    //<real key="mindelay" name="minimum delay">
-    mindelay(float) : "minimum delay"
-    //<real key="maxdelay" name="maximum delay">
-    maxdelay(float) : "maximum delay"
+    volume(float) : "Volume" : "1"
+    mindelay(float) : "Minimum Delay"
+    maxdelay(float) : "Maximum Delay"
 ]
 
 //
 // HEALTH_* ENTITIES
 //
 
-@PointClass base(DifficultyFlags) color(1 0 0) size(-2 -2 -8, 2 2 8) model("models/items/lifeblood_vial.md3") = health_life_vial : "" []
-@PointClass base(DifficultyFlags) color(1 0 0) size(-2 -2 -8, 2 2 8) model("models/items/lifeblood_beaker.md3") = health_life_beaker : "" []
-@PointClass base(DifficultyFlags) color(1 0 0) size(-2 -2 -8, 2 2 8) model("models/items/lifeblood_chalice.md3") = health_life_chalice : "" []
+@PointClass color(1 0 0) size(-16 -16 -24, 16 16 24) model("models/items/lifeblood_vial.md3") = health_life_vial : "" []
+@PointClass color(1 0 0) size(-16 -16 -24, 16 16 24) model("models/items/lifeblood_beaker.md3") = health_life_beaker : "" []
+@PointClass color(1 0 0) size(-16 -16 -24, 16 16 24) model("models/items/lifeblood_chalice.md3") = health_life_chalice : "" []
+@PointClass color(1 0 0) size(-16 -16 -24, 16 16 24) model("models/items/lifeblood_vial.md3") = health_life_chalice2 : "" []
+
 
 //
 // ARMOR_* ENTITIES
 //
 
-@PointClass base(DifficultyFlags) size(-8 -8 -8, 8 8 2) model("models/items/armor_shard.md3") = armor_shard : "10 regular armor" []
-@PointClass base(DifficultyFlags) size(-8 -8 -8, 8 8 8) model("models/items/helm.md3") = armor_helm : "" []
-@PointClass base(DifficultyFlags) size(-14 -14 -8, 14 14 20) model("models/items/armor.md3") = armor_armor : "" []
-@PointClass base(DifficultyFlags) size(-8 -8 -8, 8 8 2) model("models/items/armor_shard_dark.md3") = armor_shard_dark : "" []
-@PointClass base(DifficultyFlags) size(-8 -8 -8, 8 8 8) model("models/items/helm_dark.md3") = armor_helm_dark : "" []
-@PointClass base(DifficultyFlags) size(-14 -14 -8, 14 14 20) model("models/items/armor_dark.md3") = armor_armor_dark : "" []
+@PointClass size(-16 -16 -8, 16 16 2) model("models/items/armor_shard.md3") = armor_shard : "10 regular armor" []
+@PointClass size(-16 -16 -8, 16 16 8) model("models/items/helm.md3") = armor_helm : "" []
+@PointClass size(-16 -16 -8, 16 16 20) model("models/items/armor.md3") = armor_armor : "" []
+@PointClass size(-16 -16 -8, 16 16 2) model("models/items/armor_shard_dark.md3") = armor_shard_dark : "" []
+@PointClass size(-16 -16 -8, 16 16 8) model("models/items/helm_dark.md3") = armor_helm_dark : "" []
+@PointClass size(-16 -16 -8, 16 16 20) model("models/items/armor_dark.md3") = armor_armor_dark : "" []
+
 
 //
 // ARTIFACT_* ENTITIES
 //
 
-@PointClass base(DifficultyFlags) size(-8 -8 -44, 8 8 0) model({"path": "models/artifacts/soul_tether.md3"}) = artifact_soul_tether : "Artifact: Soul Tether ( save item )" []
-@PointClass base(DifficultyFlags) size(-8 -8 -44, 8 8 0) model({"path": "models/artifacts/artifact_attar.md3"}) = artifact_attar : "Artifact: Confounding Attar ( monster infighting potion )" []
-@PointClass base(DifficultyFlags) size(-8 -8 -44, 8 8 0) model({"path": "models/artifacts/artifact_aegis.md3"}) = artifact_aegis : "Artifact: Cruel Aegis ( 1 health point invulnerability )" []
-@PointClass base(DifficultyFlags) size(-8 -8 -44, 8 8 0) model({"path": "models/artifacts/artifact_apparatus.md3"}) = artifact_apparatus : "Drowner's Apparatus ( swimming breather )" []
-@PointClass base(DifficultyFlags) size(-8 -8 -44, 8 8 0) model({"path": "models/artifacts/artifact_siphon.md3"}) = artifact_siphon : "Artifact: Life Siphon ( heart healer )" []
-@PointClass base(DifficultyFlags) size(-8 -8 -44, 8 8 0) model({"path": "models/artifacts/artifact_deflection.md3"}) = artifact_deflection : "Artifact: Orb Of Deflection ( static golden forcefield )" []
-@PointClass base(DifficultyFlags) size(-8 -8 -44, 8 8 0) model({"path": "models/artifacts/artifact_revelation.md3"}) = artifact_revelation : "Artifact: Mark Of Revelation ( shows all secrets in the map )" []
-@PointClass base(DifficultyFlags) size(-8 -8 -44, 8 8 0) model({"path": "models/artifacts/artifact_rage.md3"}) = artifact_rage : "Artifact: Flask Of Rage ( quin damage )" []
-@PointClass base(DifficultyFlags) size(-8 -8 -44, 8 8 0) model({"path": "models/artifacts/artifact_grenade.md3"}) = artifact_grenade : "Artifact: Void Grenade ( black hole bomb )" []
-@PointClass base(DifficultyFlags) size(-8 -8 -44, 8 8 0) model({"path": "models/artifacts/artifact_animus.md3"}) = artifact_animus : "Artifact: Vicious Animus ( bone turret )" []
-@PointClass base(DifficultyFlags) size(-8 -8 -44, 8 8 0) model({"path": "models/artifacts/artifact_shockwave.md3"}) = artifact_shockwave : "Artifact: Shockwave ( electric ring )" []
+@PointClass size(-12 -12 -44, 12 12 0) model({"path": "models/artifacts/artifact_aegis.md3"}) = artifact_aegis : "Artifact: Cruel Aegis ( 1 health point invulnerability )" []
+@PointClass size(-12 -12 -44, 12 12 0) model({"path": "models/artifacts/artifact_animus.md3"}) = artifact_animus : "Artifact: Vicious Animus ( bone turret )" []
+@PointClass size(-12 -12 -44, 12 12 0) model({"path": "models/artifacts/artifact_apparatus.md3"}) = artifact_apparatus : "Drowner's Apparatus ( swimming breather )" []
+@PointClass size(-12 -12 -44, 12 12 0) model({"path": "models/artifacts/artifact_attar.md3"}) = artifact_attar : "Artifact: Confounding Attar ( monster infighting potion )" []
+@PointClass size(-12 -12 -44, 12 12 0) model({"path": "models/artifacts/artifact_deflection.md3"}) = artifact_deflection : "Artifact: Orb Of Deflection ( static golden forcefield )" []
+@PointClass size(-12 -12 -44, 12 12 0) model({"path": "models/artifacts/artifact_grenade.md3"}) = artifact_grenade : "Artifact: Void Grenade ( black hole bomb )" []
+@PointClass size(-12 -12 -44, 12 12 0) model({"path": "models/artifacts/artifact_rage.md3"}) = artifact_rage : "Artifact: Flask Of Rage ( quin damage )" []
+@PointClass size(-12 -12 -44, 12 12 0) model({"path": "models/artifacts/artifact_revelation.md3"}) = artifact_revelation : "Artifact: Mark Of Revelation ( shows all secrets in the map )" []
+@PointClass size(-12 -12 -44, 12 12 0) model({"path": "models/artifacts/artifact_shockwave.md3"}) = artifact_shockwave : "Artifact: Shockwave ( electric ring )" []
+@PointClass size(-12 -12 -44, 12 12 0) model({"path": "models/artifacts/artifact_siphon.md3"}) = artifact_siphon : "Artifact: Life Siphon ( heart healer )" []
 
 
 //
@@ -161,38 +113,41 @@
         1 : "Inspect Animation" : 0 : "Play inpect animation when pickup up."
     ]
 ]
-@PointClass base(DifficultyFlags, Weapon) color(0 0 0.5) size(-8 -8 -24, 8 8 16) model({"path": "models/weapons/melee/w_blade.md3"}) = weapon_blade : "Blade" []
-@PointClass base(DifficultyFlags, Weapon) color(0 0 0.5) size(-8 -8 -24, 8 8 16) model({"path": "models/weapons/revolver/w_revolver.md3"}) = weapon_revolver : "Revolver" []
-@PointClass base(DifficultyFlags, Weapon) color(0 0 0.5) size(-8 -8 -24, 8 8 16) model({"path": "models/weapons/shotgun/w_shotgun.md3"}) = weapon_shotgun : "Shotgun" []
-@PointClass base(DifficultyFlags, Weapon) color(0 0 0.5) size(-8 -8 -24, 8 8 16) model({"path": "models/weapons/spitter/w_spitter.md3"}) = weapon_spitter : "Spitter gun" []
-@PointClass base(DifficultyFlags, Weapon) color(0 0 0.5) size(-8 -8 -24, 8 8 16) model({"path": "models/weapons/retcher/w_retcher.md3"}) = weapon_retcher : "Retcher" []
-@PointClass base(DifficultyFlags, Weapon) color(0 0 0.5) size(-8 -8 -24, 8 8 16) model({"path": "models/weapons/cannon/w_cannon.md3"}) = weapon_cannon : "Cannon" []
-@PointClass base(DifficultyFlags, Weapon) color(0 0 0.5) size(-8 -8 -24, 8 8 16) model({"path": "models/weapons/lance/w_lance.md3"}) = weapon_lance : "Lance" []
-@PointClass base(DifficultyFlags, Weapon) color(0 0 0.5) size(-8 -8 -24, 8 8 16) model({"path": "models/weapons/crystal/w_crystal.md3"}) = weapon_crystal : "Lance" []
-@PointClass base(DifficultyFlags, Weapon) color(0 0 0.5) size(-8 -8 -24, 8 8 16) model({"path": "models/weapons/mace/w_mace.md3"}) = weapon_mace : "Mace" []
+@PointClass base(Weapon) color(0 0 0.5) size(-12 -12 -24, 12 12 8) model({"path": "models/weapons/melee/w_blade.md3"}) = weapon_blade : "Blade" []
+@PointClass base(Weapon) color(0 0 0.5) size(-12 -12 -24, 12 12 8) model({"path": "models/weapons/revolver/w_revolver.md3"}) = weapon_revolver : "Revolver" []
+@PointClass base(Weapon) color(0 0 0.5) size(-12 -12 -24, 12 12 8) model({"path": "models/weapons/shotgun/w_shotgun.md3"}) = weapon_shotgun : "Shotgun" []
+@PointClass base(Weapon) color(0 0 0.5) size(-12 -12 -24, 12 12 8) model({"path": "models/weapons/spitter/w_spitter.md3"}) = weapon_spitter : "Spitter gun" []
+@PointClass base(Weapon) color(0 0 0.5) size(-12 -12 -24, 12 12 8) model({"path": "models/weapons/retcher/w_retcher.md3"}) = weapon_retcher : "Retcher" []
+@PointClass base(Weapon) color(0 0 0.5) size(-12 -12 -24, 12 12 8) model({"path": "models/weapons/cannon/w_cannon.md3"}) = weapon_cannon : "Cannon" []
+@PointClass base(Weapon) color(0 0 0.5) size(-12 -12 -24, 12 12 8) model({"path": "models/weapons/lance/w_lance.md3"}) = weapon_lance : "Lance" []
+@PointClass base(Weapon) color(0 0 0.5) size(-12 -12 -24, 12 12 8) model({"path": "models/weapons/crystal/w_crystal.md3"}) = weapon_crystal : "Lance" []
+@PointClass base(Weapon) color(0 0 0.5) size(-12 -12 -24, 12 12 8) model({"path": "models/weapons/mace/w_mace.md3"}) = weapon_mace : "Mace" []
 
 //
 // AMMO_* ENTITIES
 //
 
-@PointClass base(DifficultyFlags) size(-10 -10 -6, 10 10 6) model({"path": "models/items/ammo_revolver.md3"}) = ammo_revolver : "15 Coach Gun ammo." []
-@PointClass base(DifficultyFlags) size(-10 -10 -6, 10 10 6) model({"path": "models/items/ammo_shotgun.md3"}) = ammo_shotgun : "20 shotgun ammo" []
-@PointClass base(DifficultyFlags) size(-8 -8 -15, 8 8 15) model({"path": "models/items/ammo_spitter.md3"}) = ammo_spitter : "30 Fang Spitter ammo." []
-@PointClass base(DifficultyFlags) size(-8 -8 -8, 8 8 8) model({"path": "models/items/ammo_retcher.md3"}) = ammo_retcher : "3 Retcher ammo." []
-@PointClass base(DifficultyFlags) size(-8 -8 -8, 8 8 8) model({"path": "models/items/ammo_cannon.md3"}) = ammo_cannon : "3 Retcher ammo." []
-@PointClass base(DifficultyFlags) size(-8 -8 -8, 8 8 8) model({"path": "models/items/ammo_lance.md3"}) = ammo_lance : "3 Retcher ammo." []
-@PointClass base(DifficultyFlags) size(-8 -8 -8, 8 8 8) model({"path": "models/items/ammo_crystal.md3"}) = ammo_crystal : "10 Boiler ammo." []
+@PointClass size(-16 -16 -6, 16 16 6) model({"path": "models/items/ammo_revolver.md3"}) = ammo_revolver : "15 Coach Gun ammo." []
+@PointClass size(-16 -16 -6, 16 16 6) model({"path": "models/items/ammo_shotgun.md3"}) = ammo_shotgun : "20 shotgun ammo" []
+@PointClass size(-16 -16 -9, 16 16 9) model({"path": "models/items/ammo_spitter.md3"}) = ammo_spitter : "15 Fang Spitter ammo." []
+@PointClass size(-16 -16 -8, 16 16 8) model({"path": "models/items/ammo_retcher.md3"}) = ammo_retcher : "3 Retcher ammo." []
+@PointClass size(-16 -16 -11, 16 16 11) model({"path": "models/items/ammo_cannon.md3"}) = ammo_cannon : "5 Cannon ammo." []
+@PointClass size(-16 -16 -8, 16 16 8) model({"path": "models/items/ammo_lance.md3"}) = ammo_lance : "5 Lance ammo." []
+@PointClass size(-16 -16 -8, 16 16 8) model({"path": "models/items/ammo_crystal.md3"}) = ammo_crystal : "50 Crystal ammo." []
+@PointClass size(-16 -16 -6, 16 16 6) model({"path": "models/weapons/mace/soul.md3"}) = ammo_mace : "10 Mace ammo." []
 
 //
 // ITEM_* ENTITIES
 //
 
-@PointClass base(DifficultyFlags) color(.8 .8 .4) size(-8 -8 -8, 8 8 8) model({"path": "models/items/item_readable.md3"}) = item_readable : "Lore Scroll" [
+@PointClass size(-12 -12 -44, 12 12 0) model({"path": "models/artifacts/soul_tether.md3"}) = item_tether : "Soul Tether ( save item )" []
+
+@PointClass base(TargetName) color(.8 .8 .4) size(-8 -8 0, 8 8 6) model({"path": "models/items/item_readable.md3"}) = item_readable : "Lore Scroll" [
     angles(vector) : "Pitch Yaw Roll" : "0 0 0" : "Individual control of PITCH, YAW, and ROLL (default 0 0 0)."
-    note(float) : "Note number." : : "Number of note file, containing flavour text."
+    note(integer) : "Note number." : 0 : "Number of note file, containing flavour text."
 ]
 
-@PointClass base(DifficultyFlags) color(0.5 0.6 0.5) size(-12 -12 -16, 12 12 16) = item_donor : "Gives items to the player when the map is loaded." [
+@PointClass color(0.5 0.6 0.5) size(-12 -12 -16, 12 12 16) = item_donor : "Gives items to the player when the map is loaded." [
     fweapon_revolver(integer) : "Revolver" : 0
     fweapon_shotgun(integer) : "Shotgun" : 0
     fweapon_spitter(integer) : "Fang Spitter" : 0
@@ -211,6 +166,7 @@
     ammo_crystal(integer) : "Ammo Crystalliser" : 0
     ammo_mace(integer) : "Ammo Mace" : 0
 
+    health(integer) : "Health" : 0
     rarmorvalue(integer) : "Armor Value" : 0
     darmorvalue(integer) : "Dark Armor Value" : 0
 
@@ -233,7 +189,7 @@
 // SPAWNER ENTITIES
 //
 
-@PointClass base(DifficultyFlags) color(1 0.5 0) size(-8 -8 -16, 8 8 16) = item_spawner : "Spawn items entity" [
+@PointClass color(1 0.5 0) size(-8 -8 -16, 8 8 16) = item_spawner : "Spawn items entity" [
     classitem1(choices) : "encounter 1: 0 relics" : 1 = [
         1 : "Soul Tether"
 
@@ -243,7 +199,8 @@
         5 : "Cysts ( Retcher )"
         6 : "Ore ( Slag Cannon )"
         7 : "Spore ( Lance )"
-        8 : "Crystals ( Boiler? )"
+        8 : "Crystals"
+        9 : "Mace"
 
         10 : "Health Vial"
         11 : "Health Beaker"
@@ -275,7 +232,8 @@
         5 : "Cysts ( Retcher )"
         6 : "Ore ( Slag Cannon )"
         7 : "Spore ( Lance )"
-        8 : "Crystals ( Boiler? )"
+        8 : "Crystals"
+        9 : "Mace"
 
         10 : "Health Vial"
         11 : "Health Beaker"
@@ -307,7 +265,8 @@
         5 : "Cysts ( Retcher )"
         6 : "Ore ( Slag Cannon )"
         7 : "Spore ( Lance )"
-        8 : "Crystals ( Boiler? )"
+        8 : "Crystals"
+        9 : "Mace"
 
         10 : "Health Vial"
         11 : "Health Beaker"
@@ -339,7 +298,8 @@
         5 : "Cysts ( Retcher )"
         6 : "Ore ( Slag Cannon )"
         7 : "Spore ( Lance )"
-        8 : "Crystals ( Boiler? )"
+        8 : "Crystals"
+        9 : "Mace"
 
         10 : "Health Vial"
         11 : "Health Beaker"
@@ -371,7 +331,8 @@
         5 : "Cysts ( Retcher )"
         6 : "Ore ( Slag Cannon )"
         7 : "Spore ( Lance )"
-        8 : "Crystals ( Boiler? )"
+        8 : "Crystals"
+        9 : "Mace"
 
         10 : "Health Vial"
         11 : "Health Beaker"
@@ -400,7 +361,7 @@
     targetname(target_source) : "Target Name" : : "A func_button or trigger is required to activate it."
 ]
 
-@PointClass base(DifficultyFlags, Weapon) color(0 1 1) size(-16 -16 0, 16 16 64) = weapon_spawner : "Spawn weapons entity" [
+@PointClass base(Weapon) color(0 1 1) size(-16 -16 0, 16 16 64) = weapon_spawner : "Spawn weapons entity" [
     classweapon1(choices) : "Encounter 1 Weapon, 0 relics" : 1 = [
         1 : "Revolver"
         2 : "Shotgun"
@@ -453,9 +414,10 @@
     ]
     target(target_destination) : "Target" : : "Target for the spawned weapons."
     targetname(target_source) : "Target Name" : : "A func_button or trigger is required to activate it."
+    delay(float) : "Delay"
 ]
 
-@PointClass base(DifficultyFlags, Weapon) color(1 1 0) size(-16 -16 -32, 16 16 32) = enemy_spawner : "Spawner enemies entity" [
+@PointClass base(Weapon) color(1 1 0) size(-16 -16 -32, 16 16 32) = enemy_spawner : "Spawner enemies entity" [
     spawnflags(flags) = [
         1 : "Ambush" : 0 : "the monster will only wake up on really seeing the player, not another monster getting angry"
     ]
@@ -562,7 +524,7 @@
     turret(integer) : "Turret" : 0 : "Monster will not run, just shoot"
 ]
 
-@PointClass base(DifficultyFlags, Weapon) color(1 0 0.3) size(-32 -32 -64, 32 32 64) = enemy_spawner_warp : "Spawner enemies entity, using warp" [
+@PointClass base(Weapon) color(1 0 0.3) size(-32 -32 -64, 32 32 64) model("models/warp/warp.md3") = enemy_spawner_warp : "Spawner enemies entity, using warp" [
     spawnflags(flags) = [
         1 : "Ambush" : 0 : "the monster will only wake up on really seeing the player, not another monster getting angry"
     ]
@@ -675,61 +637,140 @@
         1 : "Ambush" : 0 : "the monster will only wake up on really seeing the player, not another monster getting angry"
     ]
 ]
-@PointClass base(DifficultyFlags, Monster) color(1 0 0) size(-32 -32 -32, 32 32 32) model({"path": "models/enemies/lurker/lurker.md3"}) = monster_lurker : "Lurker ( nopefish )" []
-@PointClass base(DifficultyFlags, Monster) color(1 0 0) size(-16 -16 -32, 16 16 32) model({"path": "models/enemies/fallen/fallen1.md3"}) = monster_fallen : "Monster: Fallen" []
-@PointClass base(DifficultyFlags, Monster) color(1 0 0) size(-16 -16 -32, 16 16 32) model({"path": "models/enemies/invader/invader.md3"}) = monster_invader : "Monster: Invader" []
-@PointClass base(DifficultyFlags, Monster) color(1 0 0) size(-16 -16 -32, 16 16 32) model({"path": "models/enemies/widow/widow.md3"}) = monster_widow : "Monster: Widow" []
-@PointClass base(DifficultyFlags, Monster) color(1 0 0) size(-16 -16 -32, 16 16 32) model({"path": "models/enemies/wretch/wretch.md3"}) = monster_wretch : "Monster: Wretch" []
-@PointClass base(DifficultyFlags, Monster) color(1 0 0) size(-16 -16 -32, 16 16 32) model({"path": "models/enemies/wraith/wraith.md3"}) = monster_wraith : "Monster: Wraith" []
-@PointClass base(DifficultyFlags, Monster) color(1 0 0) size(-32 -32 -32, 32 32 32) model({"path": "models/enemies/heretic/heretic.md3"}) = monster_heretic : "Monster: Heretic" []
-@PointClass base(DifficultyFlags, Monster) color(1 0 0) size(-16 -16 0, 16 16 64) model({"path": "models/enemies/oppressor/oppressor.md3"}) = monster_oppressor : "Monster: Oppressor" []
-@PointClass base(DifficultyFlags, Monster) color(1 0 0) size(-16 -16 -32, 16 16 32) model({"path": "models/enemies/afflicted/afflicted.md3"}) = monster_afflicted : "Monster: Afflicted" []
-@PointClass base(DifficultyFlags, Monster) color(1 0 0) size(-48 -48 -32, 48 48 32) model({"path": "models/enemies/stricken/stricken.md3"}) = monster_stricken : "Monster: Stricken" []
-@PointClass base(DifficultyFlags, Monster) color(1 0 0) size(-32 -32 -32, 32 32 52) model({"path": "models/enemies/executioner/executioner.md3"}) = monster_executioner : "Monster: Executioner" []
-@PointClass base(DifficultyFlags, Monster) color(1 0 0) size(-16 -16 -32, 16 16 32) model({"path": "models/enemies/prowler/prowler.md3"}) = monster_prowler : "Prowler ( invisible manspider )" []
-@PointClass base(DifficultyFlags, Monster) color(1 0 0) size(-16 -16 -32, 16 16 32) model({"path": "models/enemies/prowler/prowler.md3"}) = monster_keeler : "Keeper ( flying mechanical brain forcefield generator )" []
-@PointClass base(DifficultyFlags, Monster) color(1 0 0) size(-32 -32 -32, 32 32 48) model({"path": "models/enemies/brute/brute.md3"}) = monster_brute : "Brute ( metal gorilla )" []
+@PointClass base(Monster) color(1 0 0) size(-22.4 -22.4 -22.4, 22.4 22.4 22.4) model({"path": "models/enemies/lurker/lurker.md3"}) = monster_lurker : "Lurker ( nopefish )" []
+@PointClass base(Monster) color(1 0 0) size(-12 -12 -32, 12 12 32) model({"path": "models/enemies/fallen/fallen1.md3"}) = monster_fallen : "Monster: Fallen" []
+@PointClass base(Monster) color(1 0 0) size(-16 -16 -32, 16 16 32) model({"path": "models/enemies/invader/invader.md3"}) = monster_invader : "Monster: Invader" []
+@PointClass base(Monster) color(1 0 0) size(-12 -12 -32, 12 12 24) model({"path": "models/enemies/widow/widow.md3"}) = monster_widow : "Monster: Widow" []
+@PointClass base(Monster) color(1 0 0) size(-16 -16 -32, 16 16 32) model({"path": "models/enemies/wretch/wretch.md3"}) = monster_wretch : "Monster: Wretch" []
+@PointClass base(Monster) color(1 0 0) size(-16 -16 -32, 16 16 32) model({"path": "models/enemies/wraith/wraith.md3"}) = monster_wraith : "Monster: Wraith" []
+@PointClass base(Monster) color(1 0 0) size(-32 -32 -32, 32 32 32) model({"path": "models/enemies/heretic/heretic.md3"}) = monster_heretic : "Monster: Heretic" []
+@PointClass base(Monster) color(1 0 0) size(-20 -20 -32, 20 20 56) model({"path": "models/enemies/oppressor/oppressor.md3"}) = monster_oppressor : "Monster: Oppressor" []
+@PointClass base(Monster) color(1 0 0) size(-10 -10 -32, 10 10 32) model({"path": "models/enemies/afflicted/afflicted.md3"}) = monster_afflicted : "Monster: Afflicted" []
+@PointClass base(Monster) color(1 0 0) size(-48 -48 -32, 48 48 44) model({"path": "models/enemies/stricken/stricken.md3"}) = monster_stricken : "Monster: Stricken" []
+@PointClass base(Monster) color(1 0 0) size(-16 -16 -32, 16 16 48) model({"path": "models/enemies/executioner/executioner.md3"}) = monster_executioner : "Monster: Executioner" []
+@PointClass base(Monster) color(1 0 0) size(-30 -30 -24, 30 30 24) model({"path": "models/enemies/prowler/prowler.md3"}) = monster_prowler : "Prowler ( invisible manspider )" []
+@PointClass base(Monster) color(1 0 0) size(-16 -16 0, 16 16 64) model({"path": "models/enemies/keeper/keeper.md3"}) = monster_keeper : "Keeper ( flying mechanical brain forcefield generator )" []
+@PointClass base(Monster) color(1 0 0) size(-32 -32 -32, 32 32 48) model({"path": "models/enemies/brute/brute.md3"}) = monster_brute : "Brute ( metal gorilla )" []
 
 //
 // RELIC_* ENTITIES
 //
 
-@PointClass base(DifficultyFlags) color(0.7 0.7 0.7) size(-8 -8 -48, 8 8 0) model({"path": "models/items/relic.md3"}) = relic_intro : "" []
-@PointClass base(DifficultyFlags) color(0.7 0.7 0.7) size(-8 -8 -48, 8 8 0) model({"path": "models/items/relic.md3"}) = relic_e1m1 : "" []
-@PointClass base(DifficultyFlags) color(0.7 0.7 0.7) size(-8 -8 -48, 8 8 0) model({"path": "models/items/relic.md3"}) = relic_e1m2 : "" []
-@PointClass base(DifficultyFlags) color(0.7 0.7 0.7) size(-8 -8 -48, 8 8 0) model({"path": "models/items/relic.md3"}) = relic_e1m3 : "" []
-@PointClass base(DifficultyFlags) color(0.7 0.7 0.7) size(-8 -8 -48, 8 8 0) model({"path": "models/items/relic.md3"}) = relic_e1m4 : "" []
-@PointClass base(DifficultyFlags) color(0.7 0.7 0.7) size(-8 -8 -48, 8 8 0) model({"path": "models/items/relic.md3"}) = relic_e1m5 : "" []
-@PointClass base(DifficultyFlags) color(0.7 0.7 0.7) size(-8 -8 -48, 8 8 0) model({"path": "models/items/relic.md3"}) = relic_e2m1 : "" []
-@PointClass base(DifficultyFlags) color(0.7 0.7 0.7) size(-8 -8 -48, 8 8 0) model({"path": "models/items/relic.md3"}) = relic_e2m2 : "" []
-@PointClass base(DifficultyFlags) color(0.7 0.7 0.7) size(-8 -8 -48, 8 8 0) model({"path": "models/items/relic.md3"}) = relic_e2m3 : "" []
-@PointClass base(DifficultyFlags) color(0.7 0.7 0.7) size(-8 -8 -48, 8 8 0) model({"path": "models/items/relic.md3"}) = relic_e2m4 : "" []
-@PointClass base(DifficultyFlags) color(0.7 0.7 0.7) size(-8 -8 -48, 8 8 0) model({"path": "models/items/relic.md3"}) = relic_e2m5 : "" []
-@PointClass base(DifficultyFlags) color(0.7 0.7 0.7) size(-8 -8 -48, 8 8 0) model({"path": "models/items/relic.md3"}) = relic_e3m1 : "" []
-@PointClass base(DifficultyFlags) color(0.7 0.7 0.7) size(-8 -8 -48, 8 8 0) model({"path": "models/items/relic.md3"}) = relic_e3m2 : "" []
-@PointClass base(DifficultyFlags) color(0.7 0.7 0.7) size(-8 -8 -48, 8 8 0) model({"path": "models/items/relic.md3"}) = relic_e3m3 : "" []
-@PointClass base(DifficultyFlags) color(0.7 0.7 0.7) size(-8 -8 -48, 8 8 0) model({"path": "models/items/relic.md3"}) = relic_e3m4 : "" []
-@PointClass base(DifficultyFlags) color(0.7 0.7 0.7) size(-8 -8 -48, 8 8 0) model({"path": "models/items/relic.md3"}) = relic_e3m5 : "" []
+@PointClass color(0.7 0.7 0.7) size(-12 -12 -48, 12 12 0) model({"path": "gfx/hud/messages/icons/msgicon_relic_intro.tga"}) = relic_intro : "" []
+@PointClass color(0.7 0.7 0.7) size(-12 -12 -48, 12 12 0) model({"path": "gfx/hud/messages/icons/msgicon_relic_e1m1.tga"}) = relic_e1m1 : "" []
+@PointClass color(0.7 0.7 0.7) size(-12 -12 -48, 12 12 0) model({"path": "gfx/hud/messages/icons/msgicon_relic_e1m2.tga"}) = relic_e1m2 : "" []
+@PointClass color(0.7 0.7 0.7) size(-12 -12 -48, 12 12 0) model({"path": "gfx/hud/messages/icons/msgicon_relic_e1m3.tga"}) = relic_e1m3 : "" []
+@PointClass color(0.7 0.7 0.7) size(-12 -12 -48, 12 12 0) model({"path": "gfx/hud/messages/icons/msgicon_relic_e1m4.tga"}) = relic_e1m4 : "" []
+@PointClass color(0.7 0.7 0.7) size(-12 -12 -48, 12 12 0) model({"path": "gfx/hud/messages/icons/msgicon_relic_e1m5.tga"}) = relic_e1m5 : "" []
+@PointClass color(0.7 0.7 0.7) size(-12 -12 -48, 12 12 0) model({"path": "gfx/hud/messages/icons/msgicon_relic_e2m1.tga"}) = relic_e2m1 : "" []
+@PointClass color(0.7 0.7 0.7) size(-12 -12 -48, 12 12 0) model({"path": "gfx/hud/messages/icons/msgicon_relic_e2m2.tga"}) = relic_e2m2 : "" []
+@PointClass color(0.7 0.7 0.7) size(-12 -12 -48, 12 12 0) model({"path": "gfx/hud/messages/icons/msgicon_relic_e2m3.tga"}) = relic_e2m3 : "" []
+@PointClass color(0.7 0.7 0.7) size(-12 -12 -48, 12 12 0) model({"path": "gfx/hud/messages/icons/msgicon_relic_e2m4.tga"}) = relic_e2m4 : "" []
+@PointClass color(0.7 0.7 0.7) size(-12 -12 -48, 12 12 0) model({"path": "gfx/hud/messages/icons/msgicon_relic_e2m5.tga"}) = relic_e2m5 : "" []
+@PointClass color(0.7 0.7 0.7) size(-12 -12 -48, 12 12 0) model({"path": "gfx/hud/messages/icons/msgicon_relic_e3m1.tga"}) = relic_e3m1 : "" []
+@PointClass color(0.7 0.7 0.7) size(-12 -12 -48, 12 12 0) model({"path": "gfx/hud/messages/icons/msgicon_relic_e3m2.tga"}) = relic_e3m2 : "" []
+@PointClass color(0.7 0.7 0.7) size(-12 -12 -48, 12 12 0) model({"path": "gfx/hud/messages/icons/msgicon_relic_e3m3.tga"}) = relic_e3m3 : "" []
+@PointClass color(0.7 0.7 0.7) size(-12 -12 -48, 12 12 0) model({"path": "gfx/hud/messages/icons/msgicon_relic_e3m4.tga"}) = relic_e3m4 : "" []
+@PointClass color(0.7 0.7 0.7) size(-12 -12 -48, 12 12 0) model({"path": "gfx/hud/messages/icons/msgicon_relic_e3m5.tga"}) = relic_e3m5 : "" []
 
 //
 // KEY_* ENTITIES
 //
 
+@BaseClass
+    color(1 0 0)
+    size(-8 -8 -48, 8 8 0)
+= Key : "" [
+    episode(choices) : "Episode" : 1 = [
+        1 : "Episode 1"
+        2 : "Episode 2"
+        3 : "Episode 3"
+    ]
+]
 
-@PointClass color(1 0 0) size(-8 -8 -48, 8 8 0) model({"path": "models/keys/key_1_coffer.md3"}) = key_coffer : "" []
-@PointClass color(1 0 0) size(-8 -8 -48, 8 8 0) model({"path": "models/keys/key_1_blue.md3"}) = key_blue : "" []
-@PointClass color(1 0 0) size(-8 -8 -48, 8 8 0) model({"path": "models/keys/key_1_yellow.md3"}) = key_yellow : "" []
-@PointClass color(1 0 0) size(-8 -8 -48, 8 8 0) model({"path": "models/keys/key_1_red.md3"}) = key_red : "" []
+@PointClass
+    base(Key)
+    model({{
+        episode == 1 -> {"path": "models/keys/key_1_coffer.md3"},
+        episode == 2 -> {"path": "models/keys/key_2_coffer.md3"},
+        episode == 3 -> {"path": "models/keys/key_3_coffer.md3"},
+        "models/keys/key_1_coffer.md3"
+    }})
+= key_coffer : "" []
+
+@PointClass
+    base(Key)
+    model({{
+        episode == 1 -> {"path": "models/keys/key_1_blue.md3"},
+        episode == 2 -> {"path": "models/keys/key_2_blue.md3"},
+        episode == 3 -> {"path": "models/keys/key_3_blue.md3"},
+        "models/keys/key_1_blue.md3"
+    }})
+= key_blue : "" []
+
+@PointClass
+    base(Key)
+    model({{
+        episode == 1 -> {"path": "models/keys/key_1_yellow.md3"},
+        episode == 2 -> {"path": "models/keys/key_2_yellow.md3"},
+        episode == 3 -> {"path": "models/keys/key_3_yellow.md3"},
+        "models/keys/key_1_yellow.md3"
+    }})
+= key_yellow : "" []
+
+@PointClass
+    base(Key)
+    model({{
+        episode == 1 -> {"path": "models/keys/key_1_red.md3"},
+        episode == 2 -> {"path": "models/keys/key_2_red.md3"},
+        episode == 3 -> {"path": "models/keys/key_3_red.md3"},
+        "models/keys/key_1_red.md3"
+    }})
+= key_red : "" []
 
 //
 // OBJECT_* ENTITIES
 //
 
-@PointClass color(0 1 1) size(-8 -8 -8, 8 8 8) model({"path": "models/objects/fixtures/torch1.md3"}) = object_torch1 : "flamey wall torch" [
+@PointClass
+    color(0 1 1)
+    size(-4 -4 -8, 4 4 8)
+    model({{
+        episode == 1 -> {"path": "models/objects/fixtures/torch1.md3"},
+        episode == 2 -> {"path": "models/objects/fixtures/e2_torch.md3"},
+        episode == 3 -> {"path": "models/objects/fixtures/e3_torch.md3"},
+        episode == 4 -> {"path": "models/objects/fixtures/e2_torch_2.md3"},
+        "models/objects/fixtures/torch1.md3"
+    }})
+= object_torch1 : "flamey wall torch" [
+    episode(choices) : "Episode" : 1 = [
+        1 : "Episode 1"
+        2 : "Episode 2"
+        3 : "Episode 3"
+        4 : "Episode 4"
+    ]
     skin(integer) : "Alternate" : 1 : "(ALTERNATE) uses an alternate flame pattern and sound effect.  Use this every other torch placement to reduce syncing of sound/animation of multiple visible torches"
 ]
 
-@PointClass color(0 1 1) size(-8 -8 -8, 8 8 8) model({"path": "models/objects/coffers/coffer1_locked.md3"}) = object_coffer : "object_coffer"[
+@PointClass model("models/objects/fixtures/e2_torch.md3") = object_torch2 []
+@PointClass model("models/objects/fixtures/e2_torch_2.md3") = object_torch2b []
+@PointClass model("models/objects/fixtures/e3_torch.md3") = object_torch3 []
+
+@PointClass
+    color(0 1 1)
+    size(-32 -32 0, 32 32 64)
+    model({{
+        episode == 1 -> {"path": "models/objects/coffers/coffer1_locked.md3"},
+        episode == 2 -> {"path": "models/objects/coffers/coffer2_locked.md3"},
+        episode == 3 -> {"path": "models/objects/coffers/coffer3_locked.md3"},
+        "models/objects/coffers/coffer1_locked.md3"
+    }})
+= object_coffer : "object_coffer"[
+    episode(choices) : "Episode" : 1 = [
+        1 : "Episode 1"
+        2 : "Episode 2"
+        3 : "Episode 3"
+    ]
     coffer_artifacts(choices) : "Artifacts" : 0 = [
         1 : "Mark of Revelation"
         2 : "Drowners Apparatus"
@@ -772,15 +813,19 @@
 @PointClass model("models/objects/hubs/hub2_portal.md3") = portal_hub2 : "point entity" []
 @PointClass model("models/objects/hubs/hub3_portal.md3") = portal_hub3 : "point entity" []
 
-@PointClass color(0 0.4 1) size(-12 -12 -16, 12 12 16) model({"path": model}) = object_switch : "When a switch is used by a player, it moves in the direction set by the `angle` key, triggers all its targets." [
+@PointClass
+    color(0 0.4 1)
+    size(-12 -12 -16, 12 12 16)
+    model({{
+        model -> model, "models/objects/switches/e1_switch1.md3"
+    }})
+= object_switch : "When a switch is used by a player, it moves in the direction set by the `angle` key, triggers all its targets." [
     model(model) : "Model File" : "models/objects/switches/e1_switch1.md3" : "Path/name of model to use"
-    angle(float) : "Direction" : "0" : "Determines the direction in which the button will move (up = -1, down = -2)."
+    angles(vector) : "Angles" : "0 0 0"
     target(target_destination) : "Target" : : "All entities with a matching targetname will be triggered."
     wait(float) : "Return Delay" : "-1" : "Number of seconds button stays pressed (default 1, -1 = no return)."
     delay(float) : "Delay" : "0" : "delay before firing (after being used)"
 ]
-
-@PointClass base(object_switch) = switch_e1_switch1 []
 
 @PointClass size(-4 -4 -8, 4 4 8) model({"path": "models/objects/fixtures/fire1.md3"}) = object_fire1 : "fire" []
 
@@ -788,8 +833,12 @@
 // BREAKABLE ENTITIES
 //
 
-@PointClass color(0 1 1) size(-12 -12 0, 12 12 32) model({"path": "models/destruct/urns/urn32.md3"}) = breakable_urn_small : "small urn"
-[
+@PointClass
+    color(0 1 1)
+    size(-12 -12 0, 12 12 32)
+    model("models/destruct/urns/urn32.md3")
+= breakable_urn_small : "small urn" [
+    health(integer) : "Health" : 10
     urn_health(choices) : "Lifeblood" : 0 = [
         1 : "vial"
         2 : "beaker"
@@ -814,8 +863,12 @@
     ]
 ]
 
-@PointClass color(0 1 1) size(-16 -16 0, 16 16 48) model({"path": "models/destruct/urns/urn48.md3"}) = breakable_urn_medium : "medium urn"
-[
+@PointClass
+    color(0 1 1)
+    size(-16 -16 0, 16 16 48)
+    model("models/destruct/urns/urn48.md3")
+= breakable_urn_medium : "medium urn" [
+    health(integer) : "Health" : 10
     urn_health(choices) : "Lifeblood" : 0 = [
         1 : "vial"
         2 : "beaker"
@@ -840,8 +893,12 @@
     ]
 ]
 
-@PointClass color(0 1 1) size(-16 -16 -0, 16 16 64) model({"path": "models/destruct/urns/urn64.md3"}) = breakable_urn_large : "large urn"
-[
+@PointClass
+    color(0 1 1)
+    size(-16 -16 -0, 16 16 64)
+    model("models/destruct/urns/urn64.md3")
+= breakable_urn_large : "large urn" [
+    health(integer) : "Health" : 10
     urn_health(choices) : "Lifeblood" : 0 = [
         1 : "vial"
         2 : "beaker"
@@ -881,6 +938,7 @@
         "models/destruct/skulls/b_skull1.md3"
     }})
 = breakable_skull : "Skull breakable prop, medium and large." [
+    health(integer) : "Health" : 10
     model(string) : "Model File" : "models/destruct/skulls/skull_a1.md3" : "Path/name of model to use"
     angle(float) : "Yaw Angle" : "0" : "Direction in which model will be oriented."
     angles(vector) : "Pitch Yaw Roll" : "0 0 0" : "Individual control of PITCH, YAW, and ROLL (default 0 0 0)."
@@ -941,7 +999,7 @@
         "models/destruct/skulls/skull_a10.md3"
     }})
 = breakable_skull_small_a : "Skull breakable prop, small humanoid." [
-    health(float) : "Health" : "10"
+    health(integer) : "Health" : 10
     model(string) : "Model File" : "models/destruct/skulls/skull_a1.md3" : "Path/name of model to use"
     angle(float) : "Yaw Angle" : "0" : "Direction in which model will be oriented."
     angles(vector) : "Pitch Yaw Roll" : "0 0 0" : "Individual control of PITCH, YAW, and ROLL (default 0 0 0)."
@@ -998,7 +1056,7 @@
         "models/destruct/skulls/skull_b6.md3"
     }})
 = breakable_skull_small_b : "Skull breakable prop, small humanoid." [
-    health(float) : "Health" : "10"
+    health(integer) : "Health" : 10
     angle(float) : "Yaw Angle" : "0" : "Direction in which model will be oriented."
     angles(vector) : "Pitch Yaw Roll" : "0 0 0" : "Individual control of PITCH, YAW, and ROLL (default 0 0 0)."
     type(choices) : "Variant" : 1 = [
@@ -1043,7 +1101,7 @@
         "models/destruct/skulls/skull_c3.md3"
     }})
 = breakable_skull_small_c : "Skull breakable prop, small humanoid." [
-    health(float) : "Health" : "10"
+    health(integer) : "Health" : 10
     angle(float) : "Yaw Angle" : "0" : "Direction in which model will be oriented."
     angles(vector) : "Pitch Yaw Roll" : "0 0 0" : "Individual control of PITCH, YAW, and ROLL (default 0 0 0)."
     type(choices) : "Variant" : 1 = [
@@ -1087,7 +1145,7 @@
         "models/destruct/skulls/skull_d5.md3"
     }})
 = breakable_skull_small_d : "Skull breakable prop, small humanoid." [
-    health(float) : "Health" : "10"
+    health(integer) : "Health" : 10
     angle(float) : "Yaw Angle" : "0" : "Direction in which model will be oriented."
     angles(vector) : "Pitch Yaw Roll" : "0 0 0" : "Individual control of PITCH, YAW, and ROLL (default 0 0 0)."
     type(choices) : "Variant" : 1 = [
@@ -1126,7 +1184,7 @@
 //
 
 @SolidClass base(TargetName) color(0 0.5 0.8) = func_bobbing : "Solid entity that oscillates back and forth in a linear motion. By default, it will have an amount of displacement in either direction equal to the dimension of the brush in the axis in which it's bobbing. Entity bobs on the Z axis (up-down) by default. It can also emit sound if the `noise` key is set. Will crush the player when blocked." [
-    speed(float) : "Bob Cycle Time" : "4" : "amount of time in seconds for one complete oscillation cycle (default 4)."
+    speed(float) : "Bob Cycle Time" : "16" : "amount of time in seconds for one complete oscillation cycle."
     height(integer) : "Vertical Travel" : 32 : "sets the amount of travel of the oscillation movement (default 32)."
     phase(float) : "Bob Cycle Phase" : "0" : "sets the start offset of the oscillation cycle. Values must be 0 &lt; phase &lt; 1. Any integer phase value is the same as no offset (default 0)."
     noise(string) : "Sound File" : : "path/name of .wav file to play. Use looping sounds only (eg. sound/world/drone6.wav - See Notes)."
@@ -1150,18 +1208,31 @@
     //Target this entity with a misc_model to have the model attached to the entity (set the model's "target" key to the same value as this entity's "targetname").
 ]
 
+@SolidClass = func_bob : "Moves back and forth between the two targets" [
+    speed(float) : "Bob Cycle Time" : "512" : "amount of time in seconds for one complete oscillation cycle."
+    count(float) : "Count" : 2 : "Easing factor"
+    distancetotarget(float) : "Distance to Target" : 128
+    target(target_destination) : "Target 1"
+    target2(target_destination) : "Target 2"
+]
+
 // FIXME the using property doesn't work and the QuakeC code always sets particle emitters to start active
 @SolidClass base(TargetName) color(.4 .4 .4) = func_particles : "Particles Emitter, use an invisible brush to determine the area of spawning"
 [
-    particlename(string) : "Particle effect Name" : : "which particle name will use, located in effectinfo.txt"
+    particlename(string) : "Particle effect Name" : "proj_heretic_impact" : "which particle name will use, located in effectinfo.txt"
     delay(float) : "Delay time" : "0.5" : "Delay time between each particle spawning"
-    density(float) : "Density ammount" : "1" : "multiply of ammount of particles."
-    count(float) : "ammount of particles" : "1" : "amount of particles(default is based on size of brush)."
+    density(integer) : "Density ammount" : 1 : "multiply of ammount of particles."
+    count(integer) : "ammount of particles" : 1 : "amount of particles(default is based on size of brush)."
     using(integer) : "Start Active" : 1 : "The emitter will start emiting particles, if 0, targetname is required."
+    clipdist(integer) : "Clip Distance" : 512 : "Distance at which particles will no longer be shown."
 ]
 
 @PointClass base(TargetName) color(.4 .4 .4) size(-8 -8 -8, 8 8 8) = model_emitter : "Particles Emitter, use an invisible point to determine the origin of spawning" [
     using(integer) : "Start Active" : 1 : "The emitter will start emiting particles, if 0, targetname is required."
+    spawnflags(flags) = [
+        1 : "Start Active" : 0 : "The emitter will start emiting particles"
+    ]
+
     model1(string) : "Spawned Model A" : "particles/" : "Spawned model A"
     model2(string) : "Spawned Model B" : "particles/" : "Spawned model B"
     model3(string) : "Spawned Model C" : "particles/" : "Spawned model C"
@@ -1171,16 +1242,20 @@
     model7(string) : "Spawned Model G" : "particles/" : "Spawned model G"
     model8(string) : "Spawned Model H" : "particles/" : "Spawned model H"
 
+    noise1(string) : "Noise 1"
+    noise2(string) : "Noise 2"
+    noise3(string) : "Noise 3"
+
     delay(float) : "Delay time" : "0.5" : "Delay time between each model spawning"
     gravity(float) : "Gravity" : "-0.1" : "Gravity of model (default normal gravity: 1)."
     loop(integer) : "Looped" : 1 : "Is the use continous? -1 no, 1 YES"
     speed(float) : "Speed" : "16" : "default speed of the models."
-    count(float) : "Amount of Particles" : "1" : "amount of particles model in each spawn."
+    count(integer) : "Amount of Particles" : 1 : "amount of particles model in each spawn."
     min_time(float) : "Min Time Life" : "1" : "min time life before fade."
     max_time(float) : "Max Time Life" : "1" : "max time life before fade."
     min_size(float) : "Min Scale Size" : "1" : "min scale value."
     max_size(float) : "Max Scale Size" : "1" : "max scale value."
-    clipdist(float) : "Clip Distance" : "512" : "Distance at which particles will no longer be shown. Default 512 units."
+    clipdist(integer) : "Clip Distance" : 512 : "Distance at which particles will no longer be shown. Default 512 units."
     valpha(vector) : "Alpha  Values" : "0 1 1" : "alpha (min_alpha max_alpha fade_rate)."
     originoffset(vector) : "Origin Offset" : "0 0 0" : "Offset particle spawning origin by this values. Coordspace are world, x – forward, y – right, z – up."
     originjitter(vector) : "Origin Jitter" : "0 0 0" : "Like originoffset but each axis is jittered between -value/+value. Hence it is defining spherical shape of particle random spawning."
@@ -1209,12 +1284,12 @@
 
 @SolidClass base(TargetName) color(.4 .4 .4) = func_weather : "Particles Emitter, use an invisible brush to determine the area of spawning" [
     type(choices) : "Type of weather particle" : 1 = [
-        1 : "Rain"
-        2 : "Snow"
+        1 : "Snow"
+        2 : "Rain"
     ]
     delay(float) : "Delay time" : "0.1" : "Delay time between each particle spawning"
-    density(float) : "Density ammount" : "1" : "amount of particle density(default is 1)."
-    using(integer) : "Start Active" : 0 : "The emitter will start emiting particles, if 0, targetname is required."
+    density(integer) : "Density ammount" : 1 : "amount of particle density(default is 1)."
+    using(integer) : "Start Active" : 1 : "The emitter will start emiting particles, if 0, targetname is required."
 ]
 
 @SolidClass color(0 .5 .8) = func_illusionary : "A simple entity that looks solid but lets you walk through it. Does not block light." [
@@ -1406,7 +1481,7 @@ rot_ang_z(float) : "Rotate Z" : "0" : "rotate speed for angle Z"
     ]
 ]
 
-@SolidClass base(DifficultyFlags) color(0 .4 1) = func_rotate : "brush entity" [
+@SolidClass color(0 .4 1) = func_rotate : "brush entity" [
     // -------- FLAGS --------
     rot_ang_x(float) : "Rotate X" : "0" : "final angle value for X"
     rot_ang_y(float) : "Rotate Y" : "0" : "final angle value for Y"
@@ -1414,7 +1489,7 @@ rot_ang_z(float) : "Rotate Z" : "0" : "rotate speed for angle Z"
     wait(float) : "Rotate Duration" : "32" : "Length of time it takes to complete rotation."
 ]
 
-@SolidClass base(DifficultyFlags) color(0 .4 1) = func_shrine [
+@SolidClass color(0 .4 1) = func_shrine [
     // -------- FLAGS --------
     targetname(target_source) : "Target Name" : "" : "targetname is required to attach misc_model of shrine."
 ]
@@ -1466,11 +1541,11 @@ rot_ang_z(float) : "Rotate Z" : "0" : "rotate speed for angle Z"
     forcecrouch(integer) : "Force Crouch" : 0 : "Force crouch for player if causes damage (useful for vertical crushes)"
 ]
 
-@SolidClass base(DifficultyFlags, TargetName) color(.8 .1 1) = func_ray [
+@SolidClass base(TargetName) color(.8 .1 1) = func_ray [
     valpha(color1) : "Alpha Fades" : "0.01 1 1" : "Floating-point vector used to define fading in of object: start alpha, end alpha, and time taken to transition."
 ]
 
-@PointClass base(TargetName) color(.5 0 .5) size(-8 -64 -64, 8 64 64) = portal_level_to_hub : "A portal back to the hub that is activated by a targeting relic." [
+@PointClass base(TargetName) color(.5 0 .5) size(-32 -32 -64, 32 32 64) model({"path": "models/portals/portal_level_to_hub.md3", "frame": "19"}) = portal_level_to_hub : "A portal back to the hub that is activated by a targeting relic." [
     wait(float) : "Return Delay" : "1" : "delay before firing (after being triggered)"
     map(string) : "Next Map" : "" : "name of the next map, dont use `.bsp` extension"
     location(integer) : "Location place" : 0 : "Location place number identifier related to the next map info_player_start."
@@ -1534,14 +1609,14 @@ rot_ang_z(float) : "Rotate Z" : "0" : "rotate speed for angle Z"
 
 @SolidClass base(Target) color(0.5 0.0 0.5) = trigger_aggro : "Targeted monster will become angry at player." []
 
-@PointClass base(DifficultyFlags, Target, TargetName) color(1 0 1) size(-12 -12 -12, 12 12 12) = trigger_counter : "Acts as an intermediary for an action that takes multiple inputs. If nomessage is not set, it will print `1 more.. ` etc. when triggered and `sequence complete` when finished. After the counter has been triggered `count` times, it will fire all of its targets and remove itself. It's a once-only trigger (i.e. Wait is always -1)." [
+@PointClass base(Target, TargetName) color(1 0 1) size(-12 -12 -12, 12 12 12) = trigger_counter : "Acts as an intermediary for an action that takes multiple inputs. If nomessage is not set, it will print `1 more.. ` etc. when triggered and `sequence complete` when finished. After the counter has been triggered `count` times, it will fire all of its targets and remove itself. It's a once-only trigger (i.e. Wait is always -1)." [
     count(integer) : "Count" : 2 : "number of triggers needed to fire own target, default is 2"
     spawnflags(flags) = [
         1 : "No Message" : 0 : "disables count display"
     ]
 ]
 
-@SolidClass base(DifficultyFlags, Target) color(0.5 0.0 0.5) = trigger_once : "Variable sized trigger. Triggers once, then removes itself. You must set the key `target` to the name of another object in the level that has a matching `targetname`. If notouch is set, the trigger is only fired by other entities, not by touching. Wait is always -1." [
+@SolidClass base(Target) color(0.5 0.0 0.5) = trigger_once : "Variable sized trigger. Triggers once, then removes itself. You must set the key `target` to the name of another object in the level that has a matching `targetname`. If notouch is set, the trigger is only fired by other entities, not by touching. Wait is always -1." [
     spawnflags(flags) = [
         1 : "No Touch" : 0 : "only triggered by other entities, not by touching"
     ]
@@ -1559,13 +1634,14 @@ rot_ang_z(float) : "Rotate Z" : "0" : "rotate speed for angle Z"
         2 : "only monsters will touch and activate it"
     ]
     disarmed(integer) : "Disarmed" : 0 : "it will not fire when player touch, if value = 1 trigger should to be activated"
-    sounds(integer) : "Message Sound" : 0 : "Message Soundy"
+    sounds(integer) : "Message Sound" : 0 : "Set to 1 to use default centerprint sound. Otherwise uses noise property."
+    noise(string) : "Noise"
     health(boolean) : "Shootable" : "0" : "can be shot to activate"
     angle(float) : "Facing Direction" : : "if set, the trigger will only fire when someone is facing the direction of the angle, use `360` for angle 0."
     delay(float) : "Delay" : : "delay before firing (after being triggered)"
 ]
 
-@SolidClass base(DifficultyFlags) color(0.5 0.0 0.5) = trigger_multiple : "Variable sized trigger. Triggers multiple times. You must set the key `target` to the name of another object in the level that has a matching `targetname`. If notouch is set, the trigger is only fired by other entities, not by touching. Wait is always -1." [
+@SolidClass color(0.5 0.0 0.5) = trigger_multiple : "Variable sized trigger. Triggers multiple times. You must set the key `target` to the name of another object in the level that has a matching `targetname`. If notouch is set, the trigger is only fired by other entities, not by touching. Wait is always -1." [
     // -------- FLAGS --------
     spawnflags(flags) = [
         1 : "No Touch" : 0 : "only triggered by other entities, not by touching"
@@ -1599,7 +1675,7 @@ rot_ang_z(float) : "Rotate Z" : "0" : "rotate speed for angle Z"
     message(string) : "Message" : : "message to display when triggered"
 ]
 
-@SolidClass base(DifficultyFlags) color(0.5 0.0 0.5) = trigger_teleport : "Any object touching this will be transported to the corresponding info_teleport_destination entity. You must set the `target` field, and create an object with a `targetname` field that matches." [
+@SolidClass color(0.5 0.0 0.5) = trigger_teleport : "Any object touching this will be transported to the corresponding info_teleport_destination entity. You must set the `target` field, and create an object with a `targetname` field that matches." [
     //-------- FLAGS --------
     spawnflags(flags) = [
         1 : "Player Only" : 0 : "only players will teleport"
@@ -1611,7 +1687,7 @@ rot_ang_z(float) : "Rotate Z" : "0" : "rotate speed for angle Z"
 
 @SolidClass color(0.5 0.0 0.5) = trigger_shrine : "Shrine trigger." []
 
-@SolidClass base(DifficultyFlags) color(0.5 0.0 0.5) = trigger_monsterjump : "Walking monsters that touch this will jump in the direction of the trigger's angle." [
+@SolidClass color(0.5 0.0 0.5) = trigger_monsterjump : "Walking monsters that touch this will jump in the direction of the trigger's angle." [
     // -------- KEYS --------
     angle(float) : "Direction" : : "angle towards the monster jumps"
     speed(float) : "Speed" : "200" : "the speed thrown forward. default is 200"
@@ -1627,7 +1703,7 @@ rot_ang_z(float) : "Rotate Z" : "0" : "rotate speed for angle Z"
     stoptime(float) : "No input Time" : "0" : "how much time inputs for player will be deactived,0 value forces a frikfiked value"
 ]
 
-@PointClass base(DifficultyFlags) color(0.5 0.0 0.5) size(-8 -8 -8, 8 8 8) = trigger_relay : "This fixed size trigger cannot be touched, it can only be fired by other events." [
+@PointClass color(0.5 0.0 0.5) size(-8 -8 -8, 8 8 8) = trigger_relay : "This fixed size trigger cannot be touched, it can only be fired by other events." [
     // -------- KEYS --------
     killtarget(string) : "Remove Target" : : "removes target"
     target(target_destination) : "Target" : : "fires target when triggered"
@@ -1666,7 +1742,7 @@ rot_ang_z(float) : "Rotate Z" : "0" : "rotate speed for angle Z"
 ]
 
 
-@PointClass base(DifficultyFlags, TargetName) color(0.5 0.0 0.5) size(-8 -8 -8, 8 8 8) = trigger_shake : "This fixed size trigger cannot be touched, it can only be fired by other events." [
+@PointClass base(TargetName) color(0.5 0.0 0.5) size(-8 -8 -8, 8 8 8) = trigger_shake : "This fixed size trigger cannot be touched, it can only be fired by other events." [
     // -------- KEYS --------
     wait(float) : "Wait" : "1" : "shake time duration (in seconds, default = 1)"
     intensity_y(float) : "Vertical Intensity" : "10" : "vertical shake intensity (default = 10)"
@@ -1676,14 +1752,14 @@ rot_ang_z(float) : "Rotate Z" : "0" : "rotate speed for angle Z"
     sattenuation(boolean) : "Attenuation" : : "Attenuation of intensity based on distance, if radius is setted"
 ]
 
-@SolidClass base(DifficultyFlags, TargetName) color(0.5 0.0 0.5) = trigger_lightning : "If the trigger is touched by player random lightnings will spawn, useful only for exterior areas." [
+@SolidClass base(TargetName) color(0.5 0.0 0.5) = trigger_lightning : "If the trigger is touched by player random lightnings will spawn, useful only for exterior areas." [
     // -------- KEYS --------
     using(boolean) : "Start Active" : "1" : "The trigger lightning will start active, if 0, targetname is required."
     wait(float) : "Wait" : "10" : "Minimum time lapse between lightnings, -1 = single lightning"
     delay(float) : "Additional Random Wait" : "10" : "Additional time that is added to the wait, the values are from 0 to the value of the specific"
 ]
 
-@SolidClass base(DifficultyFlags, TargetName) color(0.5 0.0 0.5) = trigger_hurt : "Any object touching this will be hurt." [
+@SolidClass base(TargetName) color(0.5 0.0 0.5) = trigger_hurt : "Any object touching this will be hurt." [
     //-------- KEYS --------
     dmg(float) : "Damage Inflicted" : "5" : "sets damage, default is 5"
     message(string) : "Message" : : "message text"
@@ -1694,7 +1770,7 @@ rot_ang_z(float) : "Rotate Z" : "0" : "rotate speed for angle Z"
     allowoverlap(boolean) : "Overlap" : "0" : "If set to 1, allows overlapping triggers to act as a single trigger"
 ]
 
-@SolidClass base(DifficultyFlags) color(0.5 0.0 0.5) = trigger_fog : "Trigger fog to change the fog values and interpolates the values over time" [
+@SolidClass color(0.5 0.0 0.5) = trigger_fog : "Trigger fog to change the fog values and interpolates the values over time" [
     // -------- KEYS --------
     wait(float) : "Transition Time" : "1" : "Number of seconds transition will take. Default value is 1."
     n_fog_d(float) : "Density" : "0" : "Density value of the fog."
@@ -1708,14 +1784,14 @@ rot_ang_z(float) : "Rotate Z" : "0" : "rotate speed for angle Z"
     n_fog_f(float) : "Fade Depth" : "128" : "Fade depth value of the fog. Default value is 128."
 ]
 
-@SolidClass base(DifficultyFlags) color(0.5 0.0 0.5) = trigger_angle : "Changes the angles of monsters." [
+@SolidClass color(0.5 0.0 0.5) = trigger_angle : "Changes the angles of monsters." [
     // -------- KEYS --------
     minorangle(float) : "Min Angle factor" : "0" : "sets min angle factor to touch, from 1 to -1"
     target(target_destination) : "Target" : : "target info_angle to set y angles"
     angle(float) : "Direction" : : "Determines the orientation angle of the trigger."
 ]
 
-@SolidClass base(DifficultyFlags) color(0.5 0.0 0.5) = trigger_turret : "Turn some monsters in turrets." [
+@SolidClass color(0.5 0.0 0.5) = trigger_turret : "Turn some monsters in turrets." [
     // -------- KEYS --------
     turret_enemy_visible(float) : "Enemy is Visible" : "0" : "Turret model will be avaible only when player is visible"
     angle_deviance(float) : "Angle deviance" : "90" : "range of angles at which the monster will behave as a turret (this is both a positive and negative value, default is 90)"
@@ -1723,7 +1799,7 @@ rot_ang_z(float) : "Rotate Z" : "0" : "rotate speed for angle Z"
 ]
 
 
-@SolidClass base(DifficultyFlags) color(0.5 0.0 0.5) = trigger_no_check_angles : "Turn some monsters in turrets." [
+@SolidClass color(0.5 0.0 0.5) = trigger_no_check_angles : "Turn some monsters in turrets." [
     // -------- KEYS --------
     no_fixed_angles_time(float) : "Time" : "0" : "time in seconds when the checking angles AI will be off, use -1 to activate it again"
 ]
@@ -1739,8 +1815,7 @@ rot_ang_z(float) : "Rotate Z" : "0" : "rotate speed for angle Z"
 
 @SolidClass base(TargetName) color(0.5 0.0 0.5) = trigger_gibzone : "trigger that will determine the zone of the spawning gibs for func_destruct and func_destruct_rotate" []
 
-@PointClass base(DifficultyFlags) color(0.5 0.0 0.5) size(-8 -8 -8, 8 8 8) = trigger_artifact_checker : "This fixed size trigger cannot be touched, it can only be fired by other events." [
-    // -------- KEYS --------
+@PointClass color(0.5 0.0 0.5) size(-8 -8 -8, 8 8 8) = trigger_artifact_checker : "This fixed size trigger cannot be touched, it can only be fired by other events." [
     target(target_destination) : "Target" : : "fires target when player uses selected artifact"
     type(choices) : "" : "1" : "Artifact used by player that will trigger the entity" = [
         1 : "Mark Revelation"
@@ -1767,16 +1842,26 @@ rot_ang_z(float) : "Rotate Z" : "0" : "rotate speed for angle Z"
     using(integer) : "Start Active" : 1 : "The emitter will start emiting particles, if 0, targetname is required."
     target(target_destination) : "Target" : : "Target this to an info_notnull"
     targetname(target_source) : "Target Name" : : "Target the beam to switch it on."
-    wait(float) : "Wait delay" : "-1" : "Duration of beam. Set to -1 for permanent."
-    dmg(float) : "Damage Inflicted" : "-1" : "Damage inflicted"
+    wait(float) : "Wait delay" : "1" : "Duration of beam. Set to -1 for permanent."
+    dmg(float) : "Damage Inflicted" : "10" : "Damage inflicted"
+    scale(float) : "Scale" : "1"
+    duration(float) : "Duration" : "0.5"
 ]
 
-@PointClass color(.8 .6 .4) size(-8 -8 -8, 8 8 8) = info_chain : "Procedural hanging chain." [
+@PointClass
+    color(.8 .6 .4)
+    size(-8 -8 -8, 8 8 8)
+    model({{
+        model -> model, "models/misc/chain.md3"
+    }})
+= info_chain : "Procedural hanging chain." [
     target(target_destination) : "Target" : : "Target this to an info_notnull"
     height(float) : "Height" : : "Relative height of chain curve ( slack )"
     offset_angle(float) : "Offset Angle"
     scale(float) : "Scale" : : "Scale of chain models"
     lip(float) : "Lip" : "0" : "Adds or subtracts links from end of the chain"
+    auto_angle(integer) : "Auto Angle" : 0
+    tag_name(string) : "Tag Name" : "tag_chain"
 ]
 
 @PointClass base(TargetName) color(.8 .8 .8) size(-8 -8 -8, 8 8 8) = info_null : "Used as a positional target for light entities to create a spotlight effect. A target_position can be used instead of this but was kept in Q3A for legacy purposes." []
@@ -1789,7 +1874,7 @@ rot_ang_z(float) : "Rotate Z" : "0" : "rotate speed for angle Z"
 
 @PointClass base(TargetName) color(0 .5 0) size(-8 -8 -8, 8 8 8) = info_angle : "Used as a angle target for trigger_angle" []
 
-@PointClass base(DifficultyFlags) color(.8 .8 .8) size(-16 -16 -32, 16 16 32) = info_player_start : "The normal starting point for a level. Only one is allowed." [
+@PointClass color(.8 .8 .8) size(-16 -16 -32, 16 16 32) = info_player_start : "The normal starting point for a level. Only one is allowed." [
     location(integer) : "Location place" : : "Location place number identifier related to the last trigger_exitlevel touched in the previous level."
     angle(float) : "Yaw Angle" : : "viewing angle when spawning"
 ]
@@ -1820,11 +1905,9 @@ rot_ang_z(float) : "Rotate Z" : "0" : "rotate speed for angle Z"
 // BOSS_* ENTITIES
 //
 
-@PointClass base(Target, TargetName) color(.9 .3 0) size(-128 -128 -128, 128 128 256) = boss_guardian3 : "3rd boss monster, The Dreadful One. The big bad, the final form." []
+@PointClass base(Target, TargetName) color(.9 .3 0) size(-128 -128 -128, 128 128 256) model("models/enemies/boss3/boss3_start.md3") = boss_guardian3 : "3rd boss monster, The Dreadful One. The big bad, the final form." []
 
-@PointClass base(Target, TargetName) color(.8 .6 .6) size(-12 -12 -12, 12 12 12) = boss_path : "Point to which boss monsters will travel, depending on their behaviour. Like a path_corner for normal monsters to walk between." []
-
-@PointClass base(Target, TargetName) color(.8 .6 .6) size(-16 -16 -16, 16 16 16) = boss_finalpath : "Point to which boss monsters will travel, depending on their behaviour. Final destination for boss3." []
+@PointClass base(Target, TargetName) color(.8 .6 .6) size(-8 -8 -256, 8 8 256) = boss_path : "Point to which boss monsters will travel, depending on their behaviour. Like a path_corner for normal monsters to walk between." []
 
 @PointClass base(Target, TargetName) color(.7 .2 0) size(-16 -16 -24, 16 16 24) model("models/warp/warp.md3") = boss_summoner : "Point at which boss3 will spawn monsters during summonings." [
     classmonster1(choices) : "Encounter" : 1 = [
@@ -1920,10 +2003,6 @@ rot_ang_z(float) : "Rotate Z" : "0" : "rotate speed for angle Z"
 ]
 
 @PointClass base(Target, TargetName) color(1 0 0) size(-16 -16 -32, 16 16 32) model({"path": "models/enemies/martyr/martyr.md3"}) = boss_martyr : "Martyr creature, focal point of boss3 summoning behaviour." []
-
-@PointClass base(TargetName) color(1 .1 0) size(-12 -12 -12, 12 12 12) = boss_orb : "Blood orb, generated from Martyr creature for boss3 summonings." [
-    target(target_destination) : "Target" : : "This should point at the associated boss_martyr entity"
-]
 
 //
 // LIGHT ENTITY
@@ -2062,7 +2141,7 @@ rot_ang_z(float) : "Rotate Z" : "0" : "rotate speed for angle Z"
     scale(float) : "Uniform Scale" : "1" : "Floating-point value used to scale a model up or down (default 1.0)."
 ]
 
-@PointClass color(.7 .7 .7) size(-16 -16 -32, 16 16 32) model("models/enemies/shepherd/shepherd.md3") = place_shepherd : "The Shepherd of Wayward Souls. For INTRO and HUB map appearances." [
+@PointClass color(.7 .7 .7) size(-16 -16 -24, 16 16 32) model("models/enemies/shepherd/shepherd.md3") = place_shepherd : "The Shepherd of Wayward Souls. For INTRO and HUB map appearances." [
     spawnflags(flags) = [
         1 : "Hub Behaviour" : 0 : "The Shepherd will deliver monologues appropriate for each encounter level in a hub map."
     ]
@@ -2102,7 +2181,7 @@ rot_ang_z(float) : "Rotate Z" : "0" : "rotate speed for angle Z"
     delay(float) : "Delay" : "10" : "amount of time between each lightning flash + wait, it will work for the first spawn as well"
 ]
 
-@PointClass base(DifficultyFlags) color(0 1 0) size(-8 -8 -8, 8 8 8) model("models/items/cysts.md3") = misc_cyst : "3 Retcher ammo." [
+@PointClass color(0 1 0) size(-8 -8 -8, 8 8 8) model("models/items/cysts.md3") = misc_cyst : "3 Retcher ammo." [
     targetname(target_source) : "Target Name" : : "Cyst can explode it with func_button or trigger"
     dmg(float) : "Damage Inflicted" : "16" : "Damage caused by explosion"
     sradius(float) : "Radius" : "16" : "Radius of explosion"
@@ -2120,6 +2199,11 @@ rot_ang_z(float) : "Rotate Z" : "0" : "rotate speed for angle Z"
     message(string) : "Logon Message" : : "Text to print at user logon. Used for name of level."
     music(sound) : "Music File" : : "Path/name of looping .wav file used for level's music (e.g. music/sonic5.wav)."
     gravity(float) : "Gravity" : "800" : "Gravity of level (default normal gravity: 800)."
+    episode(choices) : "Episode" : 1 = [
+        1 : "Episode 1"
+        2 : "Episode 2"
+        3 : "Episode 3"
+    ]
     //-------- Q3MAP2 KEYS --------
     gridsize(vector) : "Dynamic Light Granularity" : "128 128 256" : "Granularity of the lightgrid created by q3map. Value is three integers separated by spaces, representing number of units between grid points in X Y Z. Default gridsize value is 128 128 256. Use larger powers of 2 to reduce BSP size and compile time on very large maps."
     _blocksize(vector) : "BSP Block Size" : "1024 1024 1024" : "Q3Map always splits the BSP tree along the planes X=_blocksize*n and Y=_blocksize*n. Increase the blocksize using larger powers of 2 to reduce compile times on very large maps with a low structural brush density (default 1024 1024 1024, 0 values = disable)."
