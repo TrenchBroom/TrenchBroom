@@ -1,6 +1,9 @@
 # Using target_link_library to link an object library to qt requires 3.12
 # 3.14 is required for generator expressions in install(CODE)
-cmake_minimum_required(VERSION 3.25)
+# 3.28 is required for FetchContent_Declare's EXCLUDE_FROM_ALL option, used in
+# cmake/dependencies/ to keep fetched dependencies' own install() rules out of
+# the packaged build.
+cmake_minimum_required(VERSION 3.28)
 
 # Fix warning with Ninja and cotire (see https://github.com/sakra/cotire/issues/81)
 if(POLICY CMP0058)

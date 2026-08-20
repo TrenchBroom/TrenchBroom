@@ -4,6 +4,7 @@ FetchContent_Declare(
   GIT_REPOSITORY https://github.com/hanickadot/compile-time-regular-expressions
   GIT_TAG        e34c26ba149b9fd9c34aa0f678e39739641a0d1e # v3.10.0
   SYSTEM
+  EXCLUDE_FROM_ALL
 )
 
 set(CTRE_BUILD_TESTS OFF)
