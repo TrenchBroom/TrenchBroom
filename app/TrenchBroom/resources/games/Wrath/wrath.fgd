@@ -1210,8 +1210,8 @@
 
 @SolidClass = func_bob : "Moves back and forth between the two targets" [
     speed(float) : "Bob Cycle Time" : "512" : "amount of time in seconds for one complete oscillation cycle."
-    count(float) : "Count" : 2 : "Easing factor"
-    distancetotarget(float) : "Distance to Target" : 128
+    count(float) : "Count" : "2" : "Easing factor"
+    distancetotarget(float) : "Distance to Target" : "128"
     target(target_destination) : "Target 1"
     target2(target_destination) : "Target 2"
 ]
