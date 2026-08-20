@@ -1384,7 +1384,6 @@ rot_ang_z(float) : "Rotate Z" : "0" : "rotate speed for angle Z"
 ]
 
 @SolidClass color(0 .4 1) = func_plat : "Rising platform the player can ride to reach higher places. Plats must always be drawn in the raised position, so they will operate and be lighted correctly but they spawn in the lowered position. The plat will stay in the raised position until the player steps off. There are no proper sounds for this entity, only beep noises. It will spawn in the game and work properly but it sounds silly (see notes)." [
-    // -------- KEYS --------
     speed(float) : "Move Speed" : "150" : "Determines how fast the plat moves (default 150)."
     lip(float) : "Lip" : "16" : "Lip remaining at end of move (default 16). Has no effect if `height` is set."
     height(float) : "Vertical Travel" : : "If set, this will determine the total amount of vertical travel of the plat."
@@ -1396,10 +1395,9 @@ rot_ang_z(float) : "Rotate Z" : "0" : "rotate speed for angle Z"
     volume(float) : "Sound Volume" : "1" : "Volume of sounds."
     targetname(target_source) : "Target Name" : "" : "If set, the trigger that points to this will raise the plat each time it fires. The plat raises and comes back down a second later if no player is on it."
     _lightmapscale(float) : "Lightmap Scale" : "1" : "Floating point value scales the resolution of lightmaps on brushes/patches in this entity (default 1.0)."
-    ]
+]
 
-    @SolidClass base(Target) color(0 .4 1) = func_destruct : "brush entity then can be destroyed by player" [
-    // -------- KEYS --------
+@SolidClass base(Target) color(0 .4 1) = func_destruct : "brush entity then can be destroyed by player" [
     health(float) : "Health" : "10" : "Health of the func."
     min_damage(float) : "Minimun damage needed to destroy in a single hit" : "0" : "Minimum damage needed in a single hit."
     gibcount(float) : "Gib Count" : "4" : "Amount of gibs (default 4)."
@@ -1439,7 +1437,6 @@ rot_ang_z(float) : "Rotate Z" : "0" : "rotate speed for angle Z"
 ]
 
 @SolidClass base(Target) color(0 .4 1) = func_destruct_rotate : "explodes in a shower of gibs when damaged." [
-    // -------- KEYS --------
     gibcount(float) : "Gib Count" : "4" : "Amount of gibs (default 4)."
     bouncefactor(float) : "Bounce" : "0.25" : "Bounciness of debris (default 0.25)."
     particlename(string) : "Particles" : "" : "Name of particles (found in effectinfo.txt)"
@@ -1482,7 +1479,6 @@ rot_ang_z(float) : "Rotate Z" : "0" : "rotate speed for angle Z"
 ]
 
 @SolidClass color(0 .4 1) = func_rotate : "brush entity" [
-    // -------- FLAGS --------
     rot_ang_x(float) : "Rotate X" : "0" : "final angle value for X"
     rot_ang_y(float) : "Rotate Y" : "0" : "final angle value for Y"
     rot_ang_z(float) : "Rotate Z" : "0" : "final angle value for Z"
@@ -1490,12 +1486,10 @@ rot_ang_z(float) : "Rotate Z" : "0" : "rotate speed for angle Z"
 ]
 
 @SolidClass color(0 .4 1) = func_shrine [
-    // -------- FLAGS --------
     targetname(target_source) : "Target Name" : "" : "targetname is required to attach misc_model of shrine."
 ]
 
 @SolidClass base(Target) color(0 .4 1) = func_trap : "Normal sliding door entity. By default, the door will activate when player walks close to it or when damage is inflicted to it." [
-    // -------- KEYS --------
     angle(float) : "Direction" : "0" : "Determines the opening direction of trap (up = -1, down = -2)."
     targetname(target_source) : "Target Name" : "" : "If set, a func_button or trigger is required to activate the door (unless using health key)."
     fake_lighted(integer) : "Fake Lightning" : 0 : "Set to 1 and brush will use fake lightning."
@@ -1552,7 +1546,6 @@ rot_ang_z(float) : "Rotate Z" : "0" : "rotate speed for angle Z"
 ]
 
 @SolidClass color(0 .4 1) = func_train : "Trains are moving solids that follow a string of path_corner entities. Trains in Q3A are very basic, they also require an origin brush (see notes)." [
-    // -------- KEYS --------
     speed(float) : "Move Speed" : "100" : "Speed of displacement of train (default 100 or overridden by speed value of path)."
     target(target_destination) : "Target" : "" : "This points to the first path_corner of the path which is also the spawn location of the train's origin."
     model2(string) : "Model File" : "" : "Path/name of model to include (.md3 files only, e.g. models/mapobjects/pipe/pipe02.md3)."
@@ -1589,7 +1582,6 @@ rot_ang_z(float) : "Rotate Z" : "0" : "rotate speed for angle Z"
 //
 
 @PointClass color(.5 .3 0) size(-8 -8 -8, 8 8 8) = path_corner : "Path corner entity that func_trains can be made to follow." [
-    // -------- KEYS --------
     target(target_destination) : "Target" : "" : "Point to next path_corner in the path."
     targetname(target_source) : "Target Name" : "" : "The train following the path or the previous path_corner in the path points to this."
     speed(float) : "Move Speed" : "" : "Speed of func_train while moving to the next path corner. This will override the speed value of the train."
@@ -1642,11 +1634,9 @@ rot_ang_z(float) : "Rotate Z" : "0" : "rotate speed for angle Z"
 ]
 
 @SolidClass color(0.5 0.0 0.5) = trigger_multiple : "Variable sized trigger. Triggers multiple times. You must set the key `target` to the name of another object in the level that has a matching `targetname`. If notouch is set, the trigger is only fired by other entities, not by touching. Wait is always -1." [
-    // -------- FLAGS --------
     spawnflags(flags) = [
         1 : "No Touch" : 0 : "only triggered by other entities, not by touching"
     ]
-    // -------- KEYS --------
     player_weapon(choices) : "if player has this weapon, make this trigger active,0 = no required weapon" : 0 = [
         1 : "Coachgun"
         2 : "Shotgun"
@@ -1667,28 +1657,23 @@ rot_ang_z(float) : "Rotate Z" : "0" : "rotate speed for angle Z"
 ]
 
 @SolidClass color(0.5 0.0 0.5) = trigger_secret : "Secret counter trigger." [
-    // -------- FLAGS --------
     spawnflags(flags) = [
         1 : "No Touch" : 0 : "only triggered by other entities, not by touching"
     ]
-    // -------- KEYS --------
     message(string) : "Message" : : "message to display when triggered"
 ]
 
 @SolidClass color(0.5 0.0 0.5) = trigger_teleport : "Any object touching this will be transported to the corresponding info_teleport_destination entity. You must set the `target` field, and create an object with a `targetname` field that matches." [
-    //-------- FLAGS --------
     spawnflags(flags) = [
         1 : "Player Only" : 0 : "only players will teleport"
         2 : "Silent" : 0 : "silences teleporting"
     ]
-    //-------- KEYS --------
     target(target_destination) : "Target" : : "name of info_teleport_destination"
 ]
 
 @SolidClass color(0.5 0.0 0.5) = trigger_shrine : "Shrine trigger." []
 
 @SolidClass color(0.5 0.0 0.5) = trigger_monsterjump : "Walking monsters that touch this will jump in the direction of the trigger's angle." [
-    // -------- KEYS --------
     angle(float) : "Direction" : : "angle towards the monster jumps"
     speed(float) : "Speed" : "200" : "the speed thrown forward. default is 200"
     height(float) : "Height" : "200" : "the speed thrown upwards. default is 200"
@@ -1704,7 +1689,6 @@ rot_ang_z(float) : "Rotate Z" : "0" : "rotate speed for angle Z"
 ]
 
 @PointClass color(0.5 0.0 0.5) size(-8 -8 -8, 8 8 8) = trigger_relay : "This fixed size trigger cannot be touched, it can only be fired by other events." [
-    // -------- KEYS --------
     killtarget(string) : "Remove Target" : : "removes target"
     target(target_destination) : "Target" : : "fires target when triggered"
     delay(float) : "Delay" : "delay before firing (after being triggered)"
@@ -1743,7 +1727,6 @@ rot_ang_z(float) : "Rotate Z" : "0" : "rotate speed for angle Z"
 
 
 @PointClass base(TargetName) color(0.5 0.0 0.5) size(-8 -8 -8, 8 8 8) = trigger_shake : "This fixed size trigger cannot be touched, it can only be fired by other events." [
-    // -------- KEYS --------
     wait(float) : "Wait" : "1" : "shake time duration (in seconds, default = 1)"
     intensity_y(float) : "Vertical Intensity" : "10" : "vertical shake intensity (default = 10)"
     intensity_x(float) : "Horizontal Intensity" : "10" : "horizontal shake intensity (default = 10)"
@@ -1753,14 +1736,12 @@ rot_ang_z(float) : "Rotate Z" : "0" : "rotate speed for angle Z"
 ]
 
 @SolidClass base(TargetName) color(0.5 0.0 0.5) = trigger_lightning : "If the trigger is touched by player random lightnings will spawn, useful only for exterior areas." [
-    // -------- KEYS --------
     using(boolean) : "Start Active" : "1" : "The trigger lightning will start active, if 0, targetname is required."
     wait(float) : "Wait" : "10" : "Minimum time lapse between lightnings, -1 = single lightning"
     delay(float) : "Additional Random Wait" : "10" : "Additional time that is added to the wait, the values are from 0 to the value of the specific"
 ]
 
 @SolidClass base(TargetName) color(0.5 0.0 0.5) = trigger_hurt : "Any object touching this will be hurt." [
-    //-------- KEYS --------
     dmg(float) : "Damage Inflicted" : "5" : "sets damage, default is 5"
     message(string) : "Message" : : "message text"
     using(boolean) : "Start Active" : "1" : "The emitter will start active, if 0, targetname is required."
@@ -1771,7 +1752,6 @@ rot_ang_z(float) : "Rotate Z" : "0" : "rotate speed for angle Z"
 ]
 
 @SolidClass color(0.5 0.0 0.5) = trigger_fog : "Trigger fog to change the fog values and interpolates the values over time" [
-    // -------- KEYS --------
     wait(float) : "Transition Time" : "1" : "Number of seconds transition will take. Default value is 1."
     n_fog_d(float) : "Density" : "0" : "Density value of the fog."
     n_fog_r(float) : "Red" : "0" : "Red value of the fog."
@@ -1785,14 +1765,12 @@ rot_ang_z(float) : "Rotate Z" : "0" : "rotate speed for angle Z"
 ]
 
 @SolidClass color(0.5 0.0 0.5) = trigger_angle : "Changes the angles of monsters." [
-    // -------- KEYS --------
     minorangle(float) : "Min Angle factor" : "0" : "sets min angle factor to touch, from 1 to -1"
     target(target_destination) : "Target" : : "target info_angle to set y angles"
     angle(float) : "Direction" : : "Determines the orientation angle of the trigger."
 ]
 
 @SolidClass color(0.5 0.0 0.5) = trigger_turret : "Turn some monsters in turrets." [
-    // -------- KEYS --------
     turret_enemy_visible(float) : "Enemy is Visible" : "0" : "Turret model will be avaible only when player is visible"
     angle_deviance(float) : "Angle deviance" : "90" : "range of angles at which the monster will behave as a turret (this is both a positive and negative value, default is 90)"
     target(target_destination) : "Target" : : "if present target info_angle to set y angles"
@@ -1800,7 +1778,6 @@ rot_ang_z(float) : "Rotate Z" : "0" : "rotate speed for angle Z"
 
 
 @SolidClass color(0.5 0.0 0.5) = trigger_no_check_angles : "Turn some monsters in turrets." [
-    // -------- KEYS --------
     no_fixed_angles_time(float) : "Time" : "0" : "time in seconds when the checking angles AI will be off, use -1 to activate it again"
 ]
 
