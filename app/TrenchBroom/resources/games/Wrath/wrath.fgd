@@ -2078,8 +2078,8 @@ rot_ang_z(float) : "Rotate Z" : "0" : "rotate speed for angle Z"
     //EXTRUDE_UPWARDS+AXIAL_BACKPLANE
 ]
 
-@PointClass base(Target, TargetName) color(1 .5 .25) size(-16 -16 -16, 16 16 16) model({"Path": model}) = model_destruct : "Explodes in a shower of gibs when damaged." [
-    model(string) : "Model File" : "" : "Path/name of model to use (e.g. models/mapobjects/teleporter/teleporter.md3)."
+@PointClass base(Target, TargetName) color(1 .5 .25) size(-16 -16 -16, 16 16 16) model(model) = model_destruct : "Explodes in a shower of gibs when damaged." [
+    model(string) : "Model File" : : "Path/name of model to use (e.g. models/mapobjects/teleporter/teleporter.md3)."
     health(float) : "Health" : "10" : "Health of the model."
     gibcount(float) : "Gib Count" : "4" : "Amount of gibs (default 4)."
     bouncefactor(float) : "Bounce" : "0.25" : "Bounciness of debris (default 0.25)."
