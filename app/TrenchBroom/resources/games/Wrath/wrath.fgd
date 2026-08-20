@@ -1,11 +1,46 @@
 //  UNOFFICIAL WRATH FGD
 //  Name     : wrath.fgd
-//  Version  : 202009160800
-//  Edited by: xaGe
+//  Version  : 20260820
+//  Edited by: xaGe, hemebond
 
-// This is very basic but includes all weapons, pickups, and enemies. I am sure the Wrath team has a very awesome game definition
-// file they use to make the game that will be released after the game is finalized. Until then I will try to add any new entities
-// introduced to the game until then.
+//'-12 -12 -44'   // artifact_nsize;
+//'12 12 0'       // artifact_size;
+//'-16 -16 -8'    // dark_helm_nsize;
+//'16 16 8'       // dark_helm_size;
+//'-16 -16 -8'    // dark_armor_nsize;
+//'16 16 20'      // dark_armor_size;
+//'-16 -16 -8'    // dark_shard_nsize;
+//'16 16 2'       // dark_shard_size;
+//'-16 -16 -8'    // helm_nsize;
+//'16 16 8'       // helm_size;
+//'-16 -16 -8'    // armor_nsize;
+//'16 16 20'      // armor_size;
+//'-16 -16 -8'    // shard_nsize;
+//'16 16 2'       // shard_size;
+//'12 12 2'       // heart_size;
+//'16 16 24'      // chalice_size;
+//'16 16 16'          // vial_size;
+//'16 16 20'      // beaker_size;
+//'16 16 9'       // fangs_size;
+//'12 12 12'      // wtf_size;
+//'16 16 11'      // ore_size;
+//'16 16 9'       // orel_size;
+//'16 16 8'       // cysts_size;
+//'16 16 8'       // cysts_size;
+//'16 16 6'       // shells_size;
+//'16 16 6'       // slugs_size;
+//'-12 -12 -24'   // slag_nsize;
+//'12 12 8'       // slag_size;
+//'-12 -12 -24'   // spitter_nsize;
+//'12 12 8'       // spitter_size;
+//'-12 -12 -24'   // retcher_nsize;
+//'12 12 8'       // retcher_size;
+//'-12 -12 -24'   // coach_nsize;
+//'12 12 8'       // coach_size;
+//'-12 -12 -48'   // coffer_key_nsize;
+//'12 12 0'       // coffer_key_size;
+//'4 4 4'         // retcher_projectile_size;
+//'12 12 8'       // invader_pickup_size;
 
 @BaseClass = DifficultyFlags [
     spawnflags(Flags) =
@@ -48,12 +83,12 @@
 
 @PointClass color(0 1 0) size(-16 -16 -16, 16 16 16) = randomsoundbox : ""
 [
-    //<flag key="2dsound" name="2D sound" bit="5">2D sound only</flag>
+    //<flag key="2dsound" name="2D sound" bit="5">2D sound only
     spawnflags(flags) =
     [
         32 : "2d sound" : 0 : "2D sound only"
     ]
-    //<string key="noise" name="noise"></string>
+    //<string key="noise" name="noise">
     noise1(string)
     noise2(string)
     noise3(string)
@@ -69,15 +104,15 @@
     noise13(string)
     noise14(string)
     noise15(string)
-    //<real key="rad_sound" name="rad_sound"></real>
+    //<real key="rad_sound" name="rad_sound">
     rad_sound(float)
-    //<real key="rad_sound_inner" name="rad_sound_inner">inner sound box with no attenuation, default 0</real>
+    //<real key="rad_sound_inner" name="rad_sound_inner">inner sound box with no attenuation, default 0
     rad_sound_inner(float) : : "0" : "inner sound box with no attenuation, default 0"
-    //<real key="volume" name="volume"></real>
+    //<real key="volume" name="volume">
     volume(float)
-    //<real key="mindelay" name="minimum delay"></real>
+    //<real key="mindelay" name="minimum delay">
     mindelay(float) : "minimum delay"
-    //<real key="maxdelay" name="maximum delay"></real>
+    //<real key="maxdelay" name="maximum delay">
     maxdelay(float) : "maximum delay"
 ]
 
@@ -831,11 +866,25 @@
     ]
 ]
 
-@PointClass color(.9 .8 .7) size(-12 -12 -12, 12 12 12) model({"path": {{model -> model, "models/destruct/skulls/skull_a1.md3"}}}) = breakable_skull : "Skull breakable prop, medium and large." [
+@PointClass
+    color(.9 .8 .7)
+    size(-12 -12 -12, 12 12 12)
+    model({{
+        type == 1 ->   {"path": "models/destruct/skulls/b_skull1.md3"},
+        type == 2 ->   {"path": "models/destruct/skulls/b_skull2.md3"},
+        type == 3 ->   {"path": "models/destruct/skulls/b_skull3.md3"},
+        type == 4 ->   {"path": "models/destruct/skulls/b_skull4.md3"},
+        type == 5 ->   {"path": "models/destruct/skulls/b_skull5.md3"},
+        type == 6 ->   {"path": "models/destruct/skulls/b_skull6.md3"},
+        type == 7 ->   {"path": "models/destruct/skulls/b_skull7.md3"},
+        type == 8 ->   {"path": "models/destruct/skulls/b_skull8.md3"},
+        "models/destruct/skulls/b_skull1.md3"
+    }})
+= breakable_skull : "Skull breakable prop, medium and large." [
     model(string) : "Model File" : "models/destruct/skulls/skull_a1.md3" : "Path/name of model to use"
     angle(float) : "Yaw Angle" : "0" : "Direction in which model will be oriented."
     angles(vector) : "Pitch Yaw Roll" : "0 0 0" : "Individual control of PITCH, YAW, and ROLL (default 0 0 0)."
-    type(choices) : "Variant" : 0 = [
+    type(choices) : "Variant" : 1 = [
         1 : "Nostrilsaurus"
         2 : "Predalike"
         3 : "Cyclops"
@@ -875,12 +924,43 @@
     ]
 ]
 
-@PointClass color(.9 .8 .7) size(-16 -16 -16, 16 16 16) model({"path": {{model -> model, "models/destructskulls/skull_a1.md3"}}}) = breakable_skull_small_a : "Skull breakable prop, small humanoid."
-[
+@PointClass
+    color(.9 .8 .7)
+    size(-12 -12 -12, 12 12 12)
+    model({{
+        (spawnflags & 4) != 0 -> {"path": "models/destruct/skulls/skull_a1.md3"},
+        type == 2 -> {"path": "models/destruct/skulls/skull_a2.md3"},
+        type == 3 -> {"path": "models/destruct/skulls/skull_a3.md3"},
+        type == 4 -> {"path": "models/destruct/skulls/skull_a4.md3"},
+        type == 5 -> {"path": "models/destruct/skulls/skull_a5.md3"},
+        type == 6 -> {"path": "models/destruct/skulls/skull_a6.md3"},
+        type == 7 -> {"path": "models/destruct/skulls/skull_a7.md3"},
+        type == 8 -> {"path": "models/destruct/skulls/skull_a8.md3"},
+        type == 9 -> {"path": "models/destruct/skulls/skull_a9.md3"},
+        type == 10 -> {"path": "models/destruct/skulls/skull_a10.md3"},
+        "models/destruct/skulls/skull_a10.md3"
+    }})
+= breakable_skull_small_a : "Skull breakable prop, small humanoid." [
+    health(float) : "Health" : "10"
     model(string) : "Model File" : "models/destruct/skulls/skull_a1.md3" : "Path/name of model to use"
     angle(float) : "Yaw Angle" : "0" : "Direction in which model will be oriented."
     angles(vector) : "Pitch Yaw Roll" : "0 0 0" : "Individual control of PITCH, YAW, and ROLL (default 0 0 0)."
-    type(int) : "Variant" : 0
+    type(choices) : "Variant" : 1 = [
+        1 : "Random"
+        2 : ""
+        3 : ""
+        4 : ""
+        5 : ""
+        6 : ""
+        7 : ""
+        8 : ""
+        9 : ""
+        10 : ""
+    ]
+    spawnflags(flags) = [
+        4 : "Skull 1"
+    ]
+
     urn_health(choices) : "Lifeblood" : 0 = [
         1 : "vial"
         2 : "beaker"
@@ -905,12 +985,30 @@
     ]
 ]
 
-@PointClass color(.9 .8 .7) size(-16 -16 -16, 16 16 16) model({"path": {{model -> model, "models/destructskulls/skull_a1.md3"}}}) = breakable_skull_small_b : "Skull breakable prop, small humanoid."
-[
-    model(string) : "Model File" : "models/destructskulls/skull_a1.md3" : "Path/name of model to use"
+@PointClass
+    color(.9 .8 .7)
+    size(-12 -12 -12, 12 12 12)
+    model({{
+        type == 1 -> {"path": "models/destruct/skulls/skull_b1.md3"},
+        type == 2 -> {"path": "models/destruct/skulls/skull_b2.md3"},
+        type == 3 -> {"path": "models/destruct/skulls/skull_b3.md3"},
+        type == 4 -> {"path": "models/destruct/skulls/skull_b4.md3"},
+        type == 5 -> {"path": "models/destruct/skulls/skull_b5.md3"},
+        type == 6 -> {"path": "models/destruct/skulls/skull_b6.md3"},
+        "models/destruct/skulls/skull_b6.md3"
+    }})
+= breakable_skull_small_b : "Skull breakable prop, small humanoid." [
+    health(float) : "Health" : "10"
     angle(float) : "Yaw Angle" : "0" : "Direction in which model will be oriented."
     angles(vector) : "Pitch Yaw Roll" : "0 0 0" : "Individual control of PITCH, YAW, and ROLL (default 0 0 0)."
-    type(int) : "Variant" : 0
+    type(choices) : "Variant" : 1 = [
+        1 : ""
+        2 : ""
+        3 : ""
+        4 : ""
+        5 : ""
+        6 : ""
+    ]
     urn_health(choices) : "Lifeblood" : 0 = [
         1 : "vial"
         2 : "beaker"
@@ -935,12 +1033,24 @@
     ]
 ]
 
-@PointClass color(.9 .8 .7) size(-16 -16 -16, 16 16 16) model({"path": {{model -> model, "models/destructskulls/skull_a1.md3"}}}) = breakable_skull_small_c : "Skull breakable prop, small humanoid."
-[
-    model(string) : "Model File" : "models/destructskulls/skull_a1.md3" : "Path/name of model to use"
+@PointClass
+    color(.9 .8 .7)
+    size(-12 -12 -12, 12 12 12)
+    model({{
+        type == 1 -> {"path": "models/destruct/skulls/skull_c1.md3"},
+        type == 2 -> {"path": "models/destruct/skulls/skull_c2.md3"},
+        type == 3 -> {"path": "models/destruct/skulls/skull_c3.md3"},
+        "models/destruct/skulls/skull_c3.md3"
+    }})
+= breakable_skull_small_c : "Skull breakable prop, small humanoid." [
+    health(float) : "Health" : "10"
     angle(float) : "Yaw Angle" : "0" : "Direction in which model will be oriented."
     angles(vector) : "Pitch Yaw Roll" : "0 0 0" : "Individual control of PITCH, YAW, and ROLL (default 0 0 0)."
-    type(int) : "Variant" : 0
+    type(choices) : "Variant" : 1 = [
+        1 : ""
+        2 : ""
+        3 : ""
+    ]
     urn_health(choices) : "Lifeblood" : 0 = [
         1 : "vial"
         2 : "beaker"
@@ -965,13 +1075,28 @@
     ]
 ]
 
-// FIXME: Custom models
-@PointClass color(.9 .8 .7) size(-16 -16 -16, 16 16 16) model({"path": {{model -> model, "models/destructskulls/skull_a1.md3"}}}) = breakable_skull_small_d : "Skull breakable prop, small humanoid."
-[
-    model(string) : "Model File" : "models/destructskulls/skull_a1.md3" : "Path/name of model to use"
+@PointClass
+    color(.9 .8 .7)
+    size(-12 -12 -12, 12 12 12)
+    model({{
+        type == 1 -> {"path": "models/destruct/skulls/skull_d1.md3"},
+        type == 2 -> {"path": "models/destruct/skulls/skull_d2.md3"},
+        type == 3 -> {"path": "models/destruct/skulls/skull_d3.md3"},
+        type == 3 -> {"path": "models/destruct/skulls/skull_d4.md3"},
+        type == 3 -> {"path": "models/destruct/skulls/skull_d5.md3"},
+        "models/destruct/skulls/skull_d5.md3"
+    }})
+= breakable_skull_small_d : "Skull breakable prop, small humanoid." [
+    health(float) : "Health" : "10"
     angle(float) : "Yaw Angle" : "0" : "Direction in which model will be oriented."
     angles(vector) : "Pitch Yaw Roll" : "0 0 0" : "Individual control of PITCH, YAW, and ROLL (default 0 0 0)."
-    type(int) : "Variant" : 0
+    type(choices) : "Variant" : 1 = [
+        1 : ""
+        2 : ""
+        3 : ""
+        4 : ""
+        5 : ""
+    ]
     urn_health(choices) : "Lifeblood" : 0 = [
         1 : "vial"
         2 : "beaker"
@@ -1002,16 +1127,13 @@
 
 @SolidClass base(TargetName) color(0 0.5 0.8) = func_bobbing : "Solid entity that oscillates back and forth in a linear motion. By default, it will have an amount of displacement in either direction equal to the dimension of the brush in the axis in which it's bobbing. Entity bobs on the Z axis (up-down) by default. It can also emit sound if the `noise` key is set. Will crush the player when blocked." [
     speed(float) : "Bob Cycle Time" : "4" : "amount of time in seconds for one complete oscillation cycle (default 4)."
-    height(int) : "Vertical Travel" : 32 : "sets the amount of travel of the oscillation movement (default 32)."
-    phase(float) : "Bob Cycle Phase" : 0 : "sets the start offset of the oscillation cycle. Values must be 0 &lt; phase &lt; 1. Any integer phase value is the same as no offset (default 0)."
+    height(integer) : "Vertical Travel" : 32 : "sets the amount of travel of the oscillation movement (default 32)."
+    phase(float) : "Bob Cycle Phase" : "0" : "sets the start offset of the oscillation cycle. Values must be 0 &lt; phase &lt; 1. Any integer phase value is the same as no offset (default 0)."
     noise(string) : "Sound File" : : "path/name of .wav file to play. Use looping sounds only (eg. sound/world/drone6.wav - See Notes)."
     model2(string) : "Model File" : : "path/name of model to include (eg: models/mapobjects/jets/jets01.md3)."
     origin(vector) : "World Origin" : : "alternate method of setting XYZ origin of sound and .md3 model included with entity (See Notes)."
     light(float) : "Model Light Intensity" : "0" : "constantLight radius of .md3 model included with entity. Has no effect on the entity's brushes (default 0)."
     color(vector) : "Model Light Color" : "1 1 1" : "constantLight color of .md3 model included with entity. Has no effect on the entity's brushes (default 1 1 1)."
-    notfree(int) : "Hidden For FFA" : 0 : "when set to 1, entity will not spawn in 'Free for all' and 'Tournament' modes."
-    notteam(int) : "Hidden For Teamplay" : 0 : "when set to 1, entity will not spawn in 'Teamplay' and 'CTF' modes."
-    notsingle(int) : "Hidden For SP" : 0 : "when set to 1, entity will not spawn in Single Player mode (bot play mode)."
     //-------- Q3MAP2 KEYS --------
     _lightmapscale(float) : "Lightmap Scale" : "1.0" : "Floating point value scaling the resolution of lightmaps on brushes/patches in this entity (default 1.0)."
     _castshadows(integer) : "Shadow Caster Level" : 0 : "Allows per-entity control over shadow casting. Defaults to 0 on entities, 1 on world. 0 = no shadow casting. 1 = cast shadows on world. > 1 = cast shadows on entities with _rs (or _receiveshadows) with the corresponding value, AND world. Negative values imply same, but DO NOT cast shadows on world."
@@ -1031,8 +1153,6 @@
 // FIXME the using property doesn't work and the QuakeC code always sets particle emitters to start active
 @SolidClass base(TargetName) color(.4 .4 .4) = func_particles : "Particles Emitter, use an invisible brush to determine the area of spawning"
 [
-    density(integer) : "Description" : 20
-    delay(string) : "Description" : "0.1"
     particlename(string) : "Particle effect Name" : : "which particle name will use, located in effectinfo.txt"
     delay(float) : "Delay time" : "0.5" : "Delay time between each particle spawning"
     density(float) : "Density ammount" : "1" : "multiply of ammount of particles."
@@ -1054,7 +1174,6 @@
     delay(float) : "Delay time" : "0.5" : "Delay time between each model spawning"
     gravity(float) : "Gravity" : "-0.1" : "Gravity of model (default normal gravity: 1)."
     loop(integer) : "Looped" : 1 : "Is the use continous? -1 no, 1 YES"
-    using(integer) : "Active" : 1 : "The entity starts activated."
     speed(float) : "Speed" : "16" : "default speed of the models."
     count(float) : "Amount of Particles" : "1" : "amount of particles model in each spawn."
     min_time(float) : "Min Time Life" : "1" : "min time life before fade."
@@ -1154,7 +1273,7 @@ rot_ang_z(float) : "Rotate Z" : "0" : "rotate speed for angle Z"
 
 // FIXME must have more properties
 @SolidClass base(Target, TargetName) color(0 .4 1) = func_door : "Normal sliding door entity. By default, the door will activate when player walks close to it or when damage is inflicted to it." [
-    angle(float) : "Direction" : 0 : "Determines the opening direction of door (up = -1, down = -2)."
+    angle(float) : "Direction" : "0" : "Determines the opening direction of door (up = -1, down = -2)."
     keyrequired(choices) : "Key Required" : 0 : "Key need to open" = [
         0 : "Unlocked"
         1 : "Red key"
@@ -1302,7 +1421,7 @@ rot_ang_z(float) : "Rotate Z" : "0" : "rotate speed for angle Z"
 
 @SolidClass base(Target) color(0 .4 1) = func_trap : "Normal sliding door entity. By default, the door will activate when player walks close to it or when damage is inflicted to it." [
     // -------- KEYS --------
-    angle(float) : "Direction" : 0 : "Determines the opening direction of trap (up = -1, down = -2)."
+    angle(float) : "Direction" : "0" : "Determines the opening direction of trap (up = -1, down = -2)."
     targetname(target_source) : "Target Name" : "" : "If set, a func_button or trigger is required to activate the door (unless using health key)."
     fake_lighted(integer) : "Fake Lightning" : 0 : "Set to 1 and brush will use fake lightning."
     speed(float) : "Open Move Speed" : "60" : "Determines how fast the crusher moves (default is around 60)."
@@ -1326,7 +1445,7 @@ rot_ang_z(float) : "Rotate Z" : "0" : "rotate speed for angle Z"
 
 @SolidClass base(Target, TargetName) color(0 .4 1) = func_blade : "Normal sliding door entity. By default, the door will activate when player walks close to it or when damage is inflicted to it." [
     //  -------- KEYS --------
-    angle(float) : "Direction" : 0 : "Determines the opening direction of trap (up = -1, down = -2)."
+    angle(float) : "Direction" : "0" : "Determines the opening direction of trap (up = -1, down = -2)."
     fake_lighted(integer) : "Fake Lightning" : 0 : "Set to 1 and brush will use fake lightning."
     speed(float) : "Open Move Speed" : "60" : "Determines how fast the crusher moves (default is around 60)."
     speed2(float) : "Close Move Speed" : "120" : "Determines how fast the crusher moves (default is around 120)."
@@ -1427,7 +1546,7 @@ rot_ang_z(float) : "Rotate Z" : "0" : "rotate speed for angle Z"
         1 : "No Touch" : 0 : "only triggered by other entities, not by touching"
     ]
 
-    respawnable(boolean) : "Restart" : 0 : "Resets trigger so it can be triggered again upon level re-entry"
+    respawnable(boolean) : "Restart" : "0" : "Resets trigger so it can be triggered again upon level re-entry"
     player_weapon(choices) : "if player has this weapon, make this trigger active,0 = no required weapon" : 0 = [
         1 : "Coachgun"
         2 : "Shotgun"
@@ -1441,7 +1560,7 @@ rot_ang_z(float) : "Rotate Z" : "0" : "rotate speed for angle Z"
     ]
     disarmed(integer) : "Disarmed" : 0 : "it will not fire when player touch, if value = 1 trigger should to be activated"
     sounds(integer) : "Message Sound" : 0 : "Message Soundy"
-    health(boolean) : "Shootable" : 0 : "can be shot to activate"
+    health(boolean) : "Shootable" : "0" : "can be shot to activate"
     angle(float) : "Facing Direction" : : "if set, the trigger will only fire when someone is facing the direction of the angle, use `360` for angle 0."
     delay(float) : "Delay" : : "delay before firing (after being triggered)"
 ]
@@ -1466,7 +1585,7 @@ rot_ang_z(float) : "Rotate Z" : "0" : "rotate speed for angle Z"
     wait(float) : "Trigger Wait" : "1" : "Number of seconds before trigger can be activated again."
     disarmed(integer) : "Disarmed" : 0 : "it will not fire when player touch, if value = 1 trigger should to be activated"
     sounds(integer) : "Message Sound" : 0 : "Message Soundy"
-    health(boolean) : "Shootable" : 0 : "can be shot to activate"
+    health(boolean) : "Shootable" : "0" : "can be shot to activate"
     angle(float) : "Facing Direction" : : "if set, the trigger will only fire when someone is facing the direction of the angle, use `360` for angle 0."
     delay(float) : "Delay" : : "delay before firing (after being triggered)"
 ]
@@ -1606,37 +1725,35 @@ rot_ang_z(float) : "Rotate Z" : "0" : "rotate speed for angle Z"
 
 @SolidClass base(DifficultyFlags) color(0.5 0.0 0.5) = trigger_no_check_angles : "Turn some monsters in turrets." [
     // -------- KEYS --------
-    // <real key="no_fixed_angles_time" name="Time" value="0">time in seconds when the checking angles AI will be off, use -1 to activate it again</real>
+    no_fixed_angles_time(float) : "Time" : "0" : "time in seconds when the checking angles AI will be off, use -1 to activate it again"
 ]
 
 @SolidClass color(0.5 0.0 0.5) = trigger_fly : "Sigil of Flight" [
-    // <real key="duration" name="Fly Duration" value="10">Number in seconds of the duration of the effect. A value of -1 will stop the flying effect.  </real>
+    duration(float) : "Fly Duration" : "10" : "Number in seconds of the duration of the effect. A value of -1 will stop the flying effect."
 ]
 
 @SolidClass color(0.5 0.0 0.5) = trigger_displacement : "Sigil of Displacement" [
-    // <real key="duration" name="Displacement Duration" value="10">Number in seconds of the duration of the effect. </real>
+    duration(float) : "Displacement Duration" : "10" : "Number in seconds of the duration of the effect."
 ]
 
 
-@SolidClass color(0.5 0.0 0.5) = trigger_gibzone : "trigger that will determine the zone of the spawning gibs for func_destruct and func_destruct_rotate" [
-// <targetname key="targetname" name="Targetname">targetname of the entity</targetname>
-]
+@SolidClass base(TargetName) color(0.5 0.0 0.5) = trigger_gibzone : "trigger that will determine the zone of the spawning gibs for func_destruct and func_destruct_rotate" []
 
 @PointClass base(DifficultyFlags) color(0.5 0.0 0.5) size(-8 -8 -8, 8 8 8) = trigger_artifact_checker : "This fixed size trigger cannot be touched, it can only be fired by other events." [
     // -------- KEYS --------
-//<target key="target" name="Target">fires target when player uses selected artifact</target>
-//<real key="type" name="Artifact used by player that will trigger the entity" value="1">
-//        1 : "Mark Revelation
-//        2 : "Drowner App"
-//        3 : "Berseker"
-//        4 : "Attar"
-//        5 : "Black Grenade"
-//        6 : "Life Siphon"
-//        7 : "Trinket of Respite"
-//        8 : "Cruel Aegis"
-//        9 : "Vicious Idol"
-//        10 : "Ring of Fire"
-//</real>
+    target(target_destination) : "Target" : : "fires target when player uses selected artifact"
+    type(choices) : "" : "1" : "Artifact used by player that will trigger the entity" = [
+        1 : "Mark Revelation"
+        2 : "Drowner App"
+        3 : "Berseker"
+        4 : "Attar"
+        5 : "Black Grenade"
+        6 : "Life Siphon"
+        7 : "Trinket of Respite"
+        8 : "Cruel Aegis"
+        9 : "Vicious Idol"
+        10 : "Ring of Fire"
+    ]
 ]
 
 @SolidClass = trigger_melee : "Give the player the melee weapon and switch to it?" []
@@ -1647,76 +1764,54 @@ rot_ang_z(float) : "Rotate Z" : "0" : "rotate speed for angle Z"
 //
 
 @PointClass color(.8 .1 1) size(-8 -8 -8, 8 8 8) = info_beam : "Starting point for emitting purple energy beam for e2m4 map." [
-//<flag key="using" name="Start Active" bit="1">The emitter will start emiting particles, if 0, targetname is required.</flag>
-//<target key="target" name="Target">Target this to an info_notnull</target>
-//<targetname key="targetname" name="Target Name">Target the beam to switch it on.</targetname>
-//<real key="wait" name="Wait delay" value="-1">Duration of beam. Set to -1 for permanent.</real>
-//<real key="dmg" name="Damage Inflicted" value="-1">Damage inflicted</real>
+    using(integer) : "Start Active" : 1 : "The emitter will start emiting particles, if 0, targetname is required."
+    target(target_destination) : "Target" : : "Target this to an info_notnull"
+    targetname(target_source) : "Target Name" : : "Target the beam to switch it on."
+    wait(float) : "Wait delay" : "-1" : "Duration of beam. Set to -1 for permanent."
+    dmg(float) : "Damage Inflicted" : "-1" : "Damage inflicted"
 ]
 
 @PointClass color(.8 .6 .4) size(-8 -8 -8, 8 8 8) = info_chain : "Procedural hanging chain." [
-//<target key="target" name="Target">Target this to an info_notnull</target>
-//<real key="height" name="Height">Relative height of chain curve ( slack )</real>
-//<real key="offset_angle" name="Offset Angle"></real>
-//<real key="scale" name="Scale">Scale of chain models</real>
-//<real key="lip" name="Lip" value="0">Adds or subtracts links from end of the chain</real>
+    target(target_destination) : "Target" : : "Target this to an info_notnull"
+    height(float) : "Height" : : "Relative height of chain curve ( slack )"
+    offset_angle(float) : "Offset Angle"
+    scale(float) : "Scale" : : "Scale of chain models"
+    lip(float) : "Lip" : "0" : "Adds or subtracts links from end of the chain"
 ]
 
-@PointClass color(.8 .8 .8) size(-8 -8 -8, 8 8 8) = info_null : "Used as a positional target for light entities to create a spotlight effect. A target_position can be used instead of this but was kept in Q3A for legacy purposes." [
-//-------- KEYS --------
-//<targetname key="targetname" name="Target Name">Must match the target key of entity that uses this for pointing.</targetname>
-//<boolean key="notfree" name="Hidden For FFA">When set to 1, entity will not spawn in "Free for all" and "Tournament" modes.</boolean>
-//<boolean key="notteam" name="Hidden For Teamplay">When set to 1, entity will not spawn in "Teamplay" and "CTF" modes.</boolean>
-//<boolean key="notsingle" name="Hidden For SP">When set to 1, entity will not spawn in Single Player mode (bot play mode).</boolean>
-//<string key="gametype" name="Game Type">Defines the gametypes that will spawn this item. Q3A point release 1.32 only. Q3A values: ffa tournament single team ctf. Q3TA values: oneflag obelisk harvester teamtournament.</string>
-]
+@PointClass base(TargetName) color(.8 .8 .8) size(-8 -8 -8, 8 8 8) = info_null : "Used as a positional target for light entities to create a spotlight effect. A target_position can be used instead of this but was kept in Q3A for legacy purposes." []
 
-@PointClass color(.8 .8 .8) size(-8 -8 -8, 8 8 8) = info_notnull : "Used as a positional target for entities that can use directional pointing. A target_position can be used instead of this but was kept in Q3A for legacy purposes." [
-//-------- KEYS --------
-//<targetname key="targetname" name="Target Name">Must match the target key of entity that uses this for pointing.</targetname>
-]
+@PointClass base(TargetName) color(.8 .8 .8) size(-8 -8 -8, 8 8 8) = info_notnull : "Used as a positional target for entities that can use directional pointing. A target_position can be used instead of this but was kept in Q3A for legacy purposes." []
 
 @PointClass color(1 .5 0) size(-64 -64 -16, 64 64 16) model({"path": "models/dev/node_ed.md3"}) = info_node : "Navigation node, for Wrath monster pathing." [
-//Place nodes at least 128 units apart, indicated by circumference ring on model.
+    //Place nodes at least 128 units apart, indicated by circumference ring on model.
 ]
 
-@PointClass color(0 .5 0) size(-8 -8 -8, 8 8 8) = info_angle : "Used as a angle target for trigger_angle" [
-//-------- KEYS --------
-//<targetname key="targetname" name="Target Name">Must match the target key of entity that uses this for pointing.</targetname>
-]
+@PointClass base(TargetName) color(0 .5 0) size(-8 -8 -8, 8 8 8) = info_angle : "Used as a angle target for trigger_angle" []
 
 @PointClass base(DifficultyFlags) color(.8 .8 .8) size(-16 -16 -32, 16 16 32) = info_player_start : "The normal starting point for a level. Only one is allowed." [
-// -------- KEYS --------
-// <integer key="location" name="Location place">Location place number identifier related to the last trigger_exitlevel touched in the previous level.</integer>
-// <angle key="angle" name="Yaw Angle">viewing angle when spawning</angle>
+    location(integer) : "Location place" : : "Location place number identifier related to the last trigger_exitlevel touched in the previous level."
+    angle(float) : "Yaw Angle" : : "viewing angle when spawning"
 ]
 
 @PointClass color(.7 .7 .7) size(-16 -16 -24, 16 16 32) = info_player_deathmatch : "Normal player spawning location for Q3A levels." [
-// -------- KEYS --------
-// <angle key="angle" name="Yaw Angle">Direction in which player will look when spawning in the game. Does not apply to bots.</angle>
-// <target key="target" name="Target">This can point at a target_give entity for respawn freebies.</target>
-// <boolean key="nobots" name="No Bots">When set to 1, bots will never use this spawn point to respawn in the game.</boolean>
-// <boolean key="nohumans" name="No Humans">When set to 1, human players will never use this spawn point to respawn in the game.</boolean>
-// <boolean key="notfree" name="Hidden For FFA">When set to 1, entity will not spawn in "Free for all" and "Tournament" modes.</boolean>
-// <boolean key="notteam" name="Hidden For Teamplay">When set to 1, entity will not spawn in "Teamplay" and "CTF" modes.</boolean>
-// <boolean key="notsingle" name="Hidden For SP">When set to 1, entity will not spawn in Single Player mode (bot play mode).</boolean>
-// <string key="gametype" name="Game Type">Defines the gametypes that will spawn this item. Q3A point release 1.32 only. Q3A values: ffa tournament single team ctf. Q3TA values: oneflag obelisk harvester teamtournament.</string>
-// -------- SPAWNFLAGS --------
-// <flag key="INITIAL" name="Initial Spawn Point" bit="0">Makes the spawnpoint the initial place for the player to spawn at the beginning of the game.</flag>
+    angle(float) : "Yaw Angle" : : "Direction in which player will look when spawning in the game. Does not apply to bots."
+    target(target_destination) : "Target" : : "This can point at a target_give entity for respawn freebies."
+    spawnflags(flags) = [
+        1 : "Initial Spawn Point" : 0 : "Makes the spawnpoint the initial place for the player to spawn at the beginning of the game."
+    ]
 ]
 
 @PointClass color(1 1 1) size(-32 -32 -24, 32 32 -16) = info_teleport_destination : "Teleport destination location point for trigger_teleporter entities." [
-//-------- KEYS --------
-//<angle key="angle" name="Yaw Angle">Direction in which player will look when teleported.</angle>
-//<targetname key="targetname" name="Target Name">Make the trigger_teleporter point to this.</targetname>
+    angle(float) : "Yaw Angle" : : "Direction in which player will look when teleported."
+    targetname(target_source) : "Target Name" : : "Make the trigger_teleporter point to this."
 ]
 
 @PointClass color(1 .5 .25) size(-16 -16 -32, 16 16 32) model({"path": "models/objects/teleporters/teleporter.md3"}) = teleporter : "A standard teleporter that transports the player between a pair of linked teleporters.It is both, destination and origin.Using models/objects/teleporter.md3 as model." [
-//-------- KEYS --------
-//<angle key="angle" name="Yaw Angle">Direction in which player will look when teleported.</angle>
-//<real key="inactive" name="Disarmed" value="0"> 1 Turns the teleporter invisible and inactive, it should be triggered to active it </real>
-//<targetname key="targetname" name="Target Name">Make the trigger_teleporter point to this.</targetname>
-//<target key="target" name="Target">Targetname of linked teleporter.</target>
+    angle(float) : "Yaw Angle" : : "Direction in which player will look when teleported."
+    inactive(integer) : "Disarmed" : 0 : "1 Turns the teleporter invisible and inactive, it should be triggered to active it"
+    targetname(target_source) : "Target Name" : : "Make the trigger_teleporter point to this."
+    target(target_destination) : "Target" : : "Targetname of linked teleporter."
 ]
 
 
@@ -1725,130 +1820,109 @@ rot_ang_z(float) : "Rotate Z" : "0" : "rotate speed for angle Z"
 // BOSS_* ENTITIES
 //
 
-@PointClass color(.9 .3 0) size(-128 -128 -128, 128 128 256) = boss_guardian3 : "3rd boss monster, The Dreadful One. The big bad, the final form." [
-//-------- KEYS --------
-//<target key="target" name="Target">Targetname of linked teleporter.</target>
-//<targetname key="targetname" name="Target Name">Must match the target key of entity that uses this for pointing.</targetname>
+@PointClass base(Target, TargetName) color(.9 .3 0) size(-128 -128 -128, 128 128 256) = boss_guardian3 : "3rd boss monster, The Dreadful One. The big bad, the final form." []
+
+@PointClass base(Target, TargetName) color(.8 .6 .6) size(-12 -12 -12, 12 12 12) = boss_path : "Point to which boss monsters will travel, depending on their behaviour. Like a path_corner for normal monsters to walk between." []
+
+@PointClass base(Target, TargetName) color(.8 .6 .6) size(-16 -16 -16, 16 16 16) = boss_finalpath : "Point to which boss monsters will travel, depending on their behaviour. Final destination for boss3." []
+
+@PointClass base(Target, TargetName) color(.7 .2 0) size(-16 -16 -24, 16 16 24) model("models/warp/warp.md3") = boss_summoner : "Point at which boss3 will spawn monsters during summonings." [
+    classmonster1(choices) : "Encounter" : 1 = [
+        1 : "Fallen ( zombie )"
+        2 : "Invader ( shotgunner zombie )"
+        3 : "Wretch ( plasma lightbulb )"
+        4 : "Prowler ( invisible manspider )"
+        5 : "Widow ( fast zombie )"
+        6 : "Wraith ( plasma scrag )"
+        7 : "Heretic ( grey cacodemon )"
+        8 : "Lurker ( nopefish )"
+        9 : "Oppressor ( lava revenant )"
+        10 : "Executioner ( big bad blade boi )"
+        11 : "Stricken ( artillery frog )"
+        12 : "Afflicted ( slime zombie )"
+        13 : "Melon Head ( suck it and see )"
+        14 : "Symbol ( space invader squid )"
+        15 : "Brute ( metal gorilla )"
+        16 : "Keeper ( flying brain claw )"
+    ]
+    classmonster2(choices) : "Encounter" : 1 = [
+        1 : "Fallen ( zombie )"
+        2 : "Invader ( shotgunner zombie )"
+        3 : "Wretch ( plasma lightbulb )"
+        4 : "Prowler ( invisible manspider )"
+        5 : "Widow ( fast zombie )"
+        6 : "Wraith ( plasma scrag )"
+        7 : "Heretic ( grey cacodemon )"
+        8 : "Lurker ( nopefish )"
+        9 : "Oppressor ( lava revenant )"
+        10 : "Executioner ( big bad blade boi )"
+        11 : "Stricken ( artillery frog )"
+        12 : "Afflicted ( slime zombie )"
+        13 : "Melon Head ( suck it and see )"
+        14 : "Symbol ( space invader squid )"
+        15 : "Brute ( metal gorilla )"
+        16 : "Keeper ( flying brain claw )"
+    ]
+    classmonster3(choices) : "Encounter" : 1 = [
+        1 : "Fallen ( zombie )"
+        2 : "Invader ( shotgunner zombie )"
+        3 : "Wretch ( plasma lightbulb )"
+        4 : "Prowler ( invisible manspider )"
+        5 : "Widow ( fast zombie )"
+        6 : "Wraith ( plasma scrag )"
+        7 : "Heretic ( grey cacodemon )"
+        8 : "Lurker ( nopefish )"
+        9 : "Oppressor ( lava revenant )"
+        10 : "Executioner ( big bad blade boi )"
+        11 : "Stricken ( artillery frog )"
+        12 : "Afflicted ( slime zombie )"
+        13 : "Melon Head ( suck it and see )"
+        14 : "Symbol ( space invader squid )"
+        15 : "Brute ( metal gorilla )"
+        16 : "Keeper ( flying brain claw )"
+    ]
+    classmonster4(choices) : "Encounter" : 1 = [
+        1 : "Fallen ( zombie )"
+        2 : "Invader ( shotgunner zombie )"
+        3 : "Wretch ( plasma lightbulb )"
+        4 : "Prowler ( invisible manspider )"
+        5 : "Widow ( fast zombie )"
+        6 : "Wraith ( plasma scrag )"
+        7 : "Heretic ( grey cacodemon )"
+        8 : "Lurker ( nopefish )"
+        9 : "Oppressor ( lava revenant )"
+        10 : "Executioner ( big bad blade boi )"
+        11 : "Stricken ( artillery frog )"
+        12 : "Afflicted ( slime zombie )"
+        13 : "Melon Head ( suck it and see )"
+        14 : "Symbol ( space invader squid )"
+        15 : "Brute ( metal gorilla )"
+        16 : "Keeper ( flying brain claw )"
+    ]
+    classmonster5(choices) : "Encounter" : 1 = [
+        1 : "Fallen ( zombie )"
+        2 : "Invader ( shotgunner zombie )"
+        3 : "Wretch ( plasma lightbulb )"
+        4 : "Prowler ( invisible manspider )"
+        5 : "Widow ( fast zombie )"
+        6 : "Wraith ( plasma scrag )"
+        7 : "Heretic ( grey cacodemon )"
+        8 : "Lurker ( nopefish )"
+        9 : "Oppressor ( lava revenant )"
+        10 : "Executioner ( big bad blade boi )"
+        11 : "Stricken ( artillery frog )"
+        12 : "Afflicted ( slime zombie )"
+        13 : "Melon Head ( suck it and see )"
+        14 : "Symbol ( space invader squid )"
+        15 : "Brute ( metal gorilla )"
+        16 : "Keeper ( flying brain claw )"
+    ]
 ]
 
-@PointClass color(.8 .6 .6) size(-12 -12 -12, 12 12 12) = boss_path : "Point to which boss monsters will travel, depending on their behaviour. Like a path_corner for normal monsters to walk between." [
-//-------- KEYS --------
-//<target key="target" name="Target">Targetname of linked teleporter.</target>
-//<targetname key="targetname" name="Target Name">Must match the target key of entity that uses this for pointing.</targetname>
-]
+@PointClass base(Target, TargetName) color(1 0 0) size(-16 -16 -32, 16 16 32) model({"path": "models/enemies/martyr/martyr.md3"}) = boss_martyr : "Martyr creature, focal point of boss3 summoning behaviour." []
 
-@PointClass color(.8 .6 .6) size(-16 -16 -16, 16 16 16) = boss_finalpath : "Point to which boss monsters will travel, depending on their behaviour. Final destination for boss3." [
-//-------- KEYS --------
-//<target key="target" name="Target">Targetname of linked teleporter.</target>
-//<targetname key="targetname" name="Target Name">Must match the target key of entity that uses this for pointing.</targetname>
-]
-
-@PointClass color(.7 .2 0) size(-16 -16 -24, 16 16 24) = boss_summoner : "Point at which boss3 will spawn monsters during summonings." [
-//-------- KEYS --------
-//<real key="classmonster1" name="Encounter" value="1">
-//        1 : "Fallen" ( zombie )
-//        2 : "Invader" ( shotgunner zombie )
-//        3 : "Wretch" ( plasma lightbulb )
-//        4 : "Prowler" ( invisible manspider )
-//        5 : "Widow" ( fast zombie )
-//        6 : "Wraith" ( plasma scrag )
-//        7 : "Heretic" ( grey cacodemon )
-//        8 : "Lurker" ( nopefish )
-//        9 : "Oppressor" ( lava revenant )
-//        10 : "Executioner" ( big bad blade boi )
-//        11 : "Stricken" ( artillery frog )
-//        12 : "Afflicted" ( slime zombie )
-//        13 : "Melon Head" ( suck it and see )
-//        14 : "Symbol" ( space invader squid )
-//        15 : "Brute" ( metal gorilla )
-//        16 : "Keeper" ( flying brain claw )
-//</real>
-//<real key="classmonster2" name="Encounter1" value="1">
-//        1 : "Fallen" ( zombie )
-//        2 : "Invader" ( shotgunner zombie )
-//        3 : "Wretch" ( plasma lightbulb )
-//        4 : "Prowler" ( invisible manspider )
-//        5 : "Widow" ( fast zombie )
-//        6 : "Wraith" ( plasma scrag )
-//        7 : "Heretic" ( grey cacodemon )
-//        8 : "Lurker" ( nopefish )
-//        9 : "Oppressor" ( lava revenant )
-//        10 : "Executioner" ( big bad blade boi )
-//        11 : "Stricken" ( artillery frog )
-//        12 : "Afflicted" ( slime zombie )
-//        13 : "Melon Head" ( suck it and see )
-//        14 : "Symbol" ( space invader squid )
-//        15 : "Brute" ( metal gorilla )
-//        16 : "Keeper" ( flying brain claw )
-//</real>
-//<real key="classmonster3" name="Encounter2" value="1">
-//        1 : "Fallen" ( zombie )
-//        2 : "Invader" ( shotgunner zombie )
-//        3 : "Wretch" ( plasma lightbulb )
-//        4 : "Prowler" ( invisible manspider )
-//        5 : "Widow" ( fast zombie )
-//        6 : "Wraith" ( plasma scrag )
-//        7 : "Heretic" ( grey cacodemon )
-//        8 : "Lurker" ( nopefish )
-//        9 : "Oppressor" ( lava revenant )
-//        10 : "Executioner" ( big bad blade boi )
-//        11 : "Stricken" ( artillery frog )
-//        12 : "Afflicted" ( slime zombie )
-//        13 : "Melon Head" ( suck it and see )
-//        14 : "Symbol" ( space invader squid )
-//        15 : "Brute" ( metal gorilla )
-//        16 : "Keeper" ( flying brain claw )
-//</real>
-//<real key="classmonster4" name="Encounter3" value="1">
-//        1 : "Fallen" ( zombie )
-//        2 : "Invader" ( shotgunner zombie )
-//        3 : "Wretch" ( plasma lightbulb )
-//        4 : "Prowler" ( invisible manspider )
-//        5 : "Widow" ( fast zombie )
-//        6 : "Wraith" ( plasma scrag )
-//        7 : "Heretic" ( grey cacodemon )
-//        8 : "Lurker" ( nopefish )
-//        9 : "Oppressor" ( lava revenant )
-//        10 : "Executioner" ( big bad blade boi )
-//        11 : "Stricken" ( artillery frog )
-//        12 : "Afflicted" ( slime zombie )
-//        13 : "Melon Head" ( suck it and see )
-//        14 : "Symbol" ( space invader squid )
-//        15 : "Brute" ( metal gorilla )
-//        16 : "Keeper" ( flying brain claw )
-//</real>
-//<real key="classmonster5" name="Encounter4" value="1">
-//        1 : "Fallen" ( zombie )
-//        2 : "Invader" ( shotgunner zombie )
-//        3 : "Wretch" ( plasma lightbulb )
-//        4 : "Prowler" ( invisible manspider )
-//        5 : "Widow" ( fast zombie )
-//        6 : "Wraith" ( plasma scrag )
-//        7 : "Heretic" ( grey cacodemon )
-//        8 : "Lurker" ( nopefish )
-//        9 : "Oppressor" ( lava revenant )
-//        10 : "Executioner" ( big bad blade boi )
-//        11 : "Stricken" ( artillery frog )
-//        12 : "Afflicted" ( slime zombie )
-//        13 : "Melon Head" ( suck it and see )
-//        14 : "Symbol" ( space invader squid )
-//        15 : "Brute" ( metal gorilla )
-//        16 : "Keeper" ( flying brain claw )
-//</real>
-//<target key="target" name="Target"></target>
-//<targetname key="targetname" name="Target Name">Must match the target key of entity that uses this for pointing.</targetname>
-]
-
-@PointClass color(1 0 0) size(-16 -16 -32, 16 16 32) model({"path": "models/enemies/martyr/martyr.md3"}) = boss_martyr : "Martyr creature, focal point of boss3 summoning behaviour." [
-//-------- KEYS --------
-//<target key="target" name="Target"></target>
-//<targetname key="targetname" name="Target Name">Must match the target key of entity that uses this for pointing.</targetname>
-]
-
-@PointClass color(1 .1 0) size(-12 -12 -12, 12 12 12) = boss_orb : "Blood orb, generated from Martyr creature for boss3 summonings." [
-//-------- KEYS --------
-//<target key="target" name="Target">This should point at the associated boss_martyr entity</target>
-//<targetname key="targetname" name="Target Name">Must match the target key of entity that uses this for pointing.</targetname>
+@PointClass base(TargetName) color(1 .1 0) size(-12 -12 -12, 12 12 12) = boss_orb : "Blood orb, generated from Martyr creature for boss3 summonings." [
+    target(target_destination) : "Target" : : "This should point at the associated boss_martyr entity"
 ]
 
 //
@@ -1856,39 +1930,43 @@ rot_ang_z(float) : "Rotate Z" : "0" : "rotate speed for angle Z"
 //
 
 @PointClass color(.65 .65 1) size(-8 -8 -8, 8 8 8) = light : "Non-displayed point light source. The -pointscale and -scale arguments to Q3Map2 affect the brightness of these lights. The -skyscale argument affects brightness of entity sun lights." [
-//-------- Q3MAP2 KEYS --------
-//<real key="light" name="Light Intensity" value="300">Overrides the default 300 intensity. Negative values may be used for negative lights.</real>
-//<color key="_color" name="Light Color" value="1 1 1">Weighted RGB value of light color (default 1.0 1.0 1.0 = white).</color>
-//<target key="target" name="Target">Lights pointed at a target will be spotlights.</target>
-//<real key="radius" name="Spotlight Radius" value="64">Overrides the default 64 unit radius of a spotlight at the target point.</real>
-//<boolean key="_sun" name="Sun">Set this key to 1 on a spotlight to make an infinite sun light.</boolean>
-//<real key="fade" name="Linear Fade" value="1">Fades light attenuation. Only affects linear lights.</real>
-//<real key="scale" name="Intensity Scale" value="1">Scales light attenuation, from SOF2/JK2. Scales the "light" value.</real>
-//<real key="_deviance" name="Penumbra Deviance" value="0">Penumbra effect - distance measured in world units for point/spot lights, and degrees for suns (~0.5-3).</real>
-//<integer key="_samples" name="Penumbra Samples" value="1">Penumbra effect - the number of random jitters distributed over the solid arc (~16).</integer>
-//<boolean key="_filter" name="Lightmap Filtering">Set this key to 1 to toggle on lightmap filtering.</boolean>
-//<real key="_filterradius" name="Filter Radius">Filters lightmaps within set radius.</real>
-//<real key="_anglescale" name="Light Attenuation Scale" value="1">Scales light attenuation. Smaller values lessens angle attenuation, larger values for sharper, more faceted lighting (default 1.0).</real>
-//<integer key="style" name="Light Style Index">Light style index number associated with worldspawn light style. Values are between 1 and 31.</integer>
-//-------- SPAWNFLAGS --------
-//<flag key="LINEAR" name="Linear Falloff" bit="0">Use a linear falloff. Default is inverse distance squared (more realistic).</flag>
-//<flag key="NOANGLE" name="No Angle Attenuation" bit="1">Ignore angle attenuation.</flag>
-//<flag key="NOGRIDLIGHT" name="Not Dynamic" bit="4">Do not affect the lightgrid (dynamic entity lighting).</flag>
+    // -------- Q3MAP2 KEYS --------
+    light(float) : "Light Intensity" : "300" : "Overrides the default 300 intensity. Negative values may be used for negative lights."
+    _color(color1) : "Light Color" : "1 1 1" : "Weighted RGB value of light color (default 1.0 1.0 1.0 = white)."
+    target(target_destination) : "Target" : : "Lights pointed at a target will be spotlights."
+    radius(float) : "Spotlight Radius" : "64" : "Overrides the default 64 unit radius of a spotlight at the target point."
+    _sun(boolean) : "Sun" : : "Set this key to 1 on a spotlight to make an infinite sun light."
+    fade(float) : "Linear Fade" : "1" : "Fades light attenuation. Only affects linear lights."
+    scale(float) : "Intensity Scale" : "1" : "Scales light attenuation, from SOF2/JK2. Scales the `light` value."
+    _deviance(float) : "Penumbra Deviance" : "0" : "Penumbra effect - distance measured in world units for point/spot lights, and degrees for suns (~0.5-3)."
+    _samples(float) : "Penumbra Samples" : "1" : "Penumbra effect - the number of random jitters distributed over the solid arc (~16)."
+    _filter(boolean) : "Lightmap Filtering" : : "Set this key to 1 to toggle on lightmap filtering."
+    _filterradius(float) : "Filter Radius" : : "Filters lightmaps within set radius."
+    _anglescale(float) : "Light Attenuation Scale" : "1" : "Scales light attenuation. Smaller values lessens angle attenuation, larger values for sharper, more faceted lighting (default 1.0)."
+    style(integer) : "Light Style Index" : : "Light style index number associated with worldspawn light style. Values are between 1 and 31."
+
+    spawnflags(flags) = [
+        1 : "Linear Falloff" : 0 : "Use a linear falloff. Default is inverse distance squared (more realistic)."
+        2 : "No Angle Attenuation" : 0 : "Ignore angle attenuation."
+        16 : "Not Dynamic" : 0 : "Do not affect the lightgrid (dynamic entity lighting)."
+    ]
 ]
 
 @PointClass color(0 0.7 0.3) size(-6 -6 -6, 6 6 6) = lightJunior : "Non-displayed point light source THAT ONLY AFFECTS ENTITIES (lightgrid). The -pointscale and -scale arguments to Q3Map2 affect the brightness of these lights. The -skyscale argument affects brightness of entity sun lights." [
-//-------- Q3MAP2 KEYS --------
-//<real key="_light" name="Light Intensity" value="300">Overrides the default 300 intensity.</real>
-//<color key="_color" name="Light Color" value="1 1 1">Weighted RGB value of light color (default 1.0 1.0 1.0 = white).</color>
-//<target key="target" name="Target">Lights pointed at a target will be spotlights.</target>
-//<real key="radius" name="Spotlight Radius" value="64">Overrides the default 64 unit radius of a spotlight at the target point.</real>
-//<boolean key="_sun" name="Sun">Set this key to 1 on a spotlight to make an infinite sun light.</boolean>
-//<real key="fade" name="Linear Fade" value="1">Fades light attenuation. Only affects linear lights.</real>
-//<real key="scale" name="Intensity Scale" value="1">Scales light attenuation, from SOF2/JK2. Scales the "light" value.</real>
-//-------- SPAWNFLAGS --------
-//<flag key="LINEAR" name="Linear Falloff" bit="0">Use a linear falloff. Default is inverse distance squared (more realistic).</flag>
-//<flag key="NOANGLE" name="No Angle Attenuation" bit="1">Ignore angle attenuation.</flag>
-//<flag key="NOGRIDLIGHT" name="Not Dynamic" bit="4">Do not affect the lightgrid (dynamic entity lighting). Setting this spawnflag will disable this light entirely.</flag>
+    // -------- Q3MAP2 KEYS --------
+    _light(float) : "Light Intensity" : "300" : "Overrides the default 300 intensity. Negative values may be used for negative lights."
+    _color(color1) : "Light Color" : "1 1 1" : "Weighted RGB value of light color (default 1.0 1.0 1.0 = white)."
+    target(target_destination) : "Target" : : "Lights pointed at a target will be spotlights."
+    radius(float) : "Spotlight Radius" : "64" : "Overrides the default 64 unit radius of a spotlight at the target point."
+    _sun(boolean) : "Sun" : : "Set this key to 1 on a spotlight to make an infinite sun light."
+    fade(float) : "Linear Fade" : "1" : "Fades light attenuation. Only affects linear lights."
+    scale(float) : "Intensity Scale" : "1" : "Scales light attenuation, from SOF2/JK2. Scales the `light` value."
+
+    spawnflags(flags) = [
+        1 : "Linear Falloff" : 0 : "Use a linear falloff. Default is inverse distance squared (more realistic)."
+        2 : "No Angle Attenuation" : 0 : "Ignore angle attenuation."
+        16 : "Not Dynamic" : 0 : "Do not affect the lightgrid (dynamic entity lighting)."
+    ]
 ]
 
 
@@ -1898,145 +1976,139 @@ rot_ang_z(float) : "Rotate Z" : "0" : "rotate speed for angle Z"
 //
 
 @PointClass color(.8 .6 .3) size(-16 -16 -16, 16 16 16) model({"path": model}) = misc_model : "Generic placeholder for inserting MD3 models in game. Requires compilation of map geometry to be added to level. If the map is compiled with Q3Map2, then ASE, 3DS, OBJ and other model formats are supported." [
-//-------- Q3MAP2 KEYS --------
-//<model key="model" name="Model File">Path/name of model to use (e.g. models/mapobjects/teleporter/teleporter.md3).</model>
-//<angle key="angle" name="Yaw Angle">Direction in which model will be oriented.</angle>
-//<angles key="angles" name="Pitch Yaw Roll">Individual control of PITCH, YAW, and ROLL (default 0 0 0).</angles>
-//<real key="modelscale" name="Uniform Scale" value="1">Floating-point value used to scale a model up or down (default 1.0).</real>
-//<real3 key="modelscale_vec" name="Scale XYZ" value="1 1 1">Floating-point vector used to scale a model's axes individually (default 1.0 1.0 1.0).</real3>
-//<array key="_remap" name="Shader Remaps">Used to remap textures/shaders in the model. To remap all shaders to a given shader, use "*;models/mymodel/mytexture". To remap a specific shader, use "models/mymodel/old;models/mymodel/new".</array>
-//<target key="target" name="Target">Used to attach the misc_model to a brush entity, where its "targetname" key is the same value.</target>
-//<real key="_lightmapscale" name="Lightmap Scale" value="1">Floating point value scales the resolution of lightmaps on this model (if model is using lightmapped shaders) (default 1.0).</real>
-//<integer key="_castshadows" name="Shadow Caster Level" value="1">Allows per-entity control over shadow casting. Defaults to 0 on entities, 1 on world. 0 = no shadow casting. 1 = cast shadows on world. &gt; 1 = cast shadows on entities with _rs (or _receiveshadows) with the corresponding value, AND world. Negative values imply same, but DO NOT cast shadows on world.</integer>
-//<integer key="_receiveshadows" name="Shadow Reciever Level" value="1">Allows per-entity control over shadow reception. Defaults to 1 on everything (world shadows). 0 = receives NO shadows. &gt; 1 = receive shadows only from corresponding keyed entities (see above) and world. &lt; 1 = receive shadows ONLY from corresponding keyed entities.</integer>
-//<texture key="_celshader" name="Cel Shader">Sets the cel shader used for this geometry. Note: Omit the "textures/" prefix.</texture>
-//<real key="_clipdepth" name="Autoclip thickness" value="2">Autoclip brushes thickness (default 2.0).</real>
-//-------- SPAWNFLAGS --------
-//<flag key="_RMG_BSP" name="_RMG_BSP" bit="0">in SoF2, append a _RMG_BSP suffix to shader names instead of _BSP</flag>
-//<flag key="CLIPMODEL" name="Clip Model" bit="1">Clips the model for player/weapon collisions; extruding every face along most perpendicular axial direction. For use on large architectural or terrain models, not for small decorative models.</flag>
-//<flag key="FORCEMETA" name="Force Meta" bit="2">Toggles on q3map_forceMeta for lightmapped models. Converts model triangles to bsp metasurfaces.</flag>
-//<flag key="EXTRUDE_FACE_NORMALS" name="EXTRUDE_FACE_NORMALS" bit="3">extrude along the model face normals for clipping</flag>
-//<flag key="EXTRUDE_TERRAIN" name="EXTRUDE_TERRAIN" bit="4">extrude each surface of the model along its average axial direction ( up/down/west/east/north/south ); faces with not matching direction (or too steep) are clipped in default mode</flag>
-//<flag key="COLOR_TO_ALPHA" name="COLOR_TO_ALPHA" bit="5">use the color value as alpha (for terrain blending)</flag>
-//<flag key="NOSMOOTH" name="NOSMOOTH" bit="6">Don't smooth normals when importing (forces all faces planar).</flag>
-//<flag key="EXTRUDE_VERTEX_NORMALS" name="EXTRUDE_VERTEX_NORMALS" bit="7">extrude along the model vertex normals for clipping; accurate collisions, if normals are fine; bad ones are replaced with 45 degrees to face</flag>
-//<flag key="PYRAMIDAL_CLIP" name="PYRAMIDAL_CLIP" bit="8">pyramidal clipping brushes (4-sided); accurate collisions</flag>
-//<flag key="EXTRUDE_DOWNWARDS" name="EXTRUDE_DOWNWARDS" bit="9">for horizontal terrain; when not possible, extrude in default mode</flag>
-//<flag key="EXTRUDE_UPWARDS" name="EXTRUDE_UPWARDS" bit="10">-//-</flag>
-//<flag key="MAX_EXTRUDE" name="MAX_EXTRUDE" bit="11">Extrude to the max/min point of every model surface to reduce bsp size (uses axial back plane)</flag>
-//<flag key="AXIAL_BACKPLANE" name="AXIAL_BACKPLANE" bit="12">use axial back plane for clipping brushes to effectively reduce bsp size; might cause unwanted collisions, make sure to -debugclip; negative _clipdepth / -clipdepth limits max thickness of resulting brushes (making non-axial backplane, if hit the limit)</flag>
-//other possible modes of clipping:
-//CLIPMODEL+AXIAL_BACKPLANE
-//EXTRUDE_FACE_NORMALS+PYRAMIDAL_CLIP - truncated pyramid with 45 degrees sides
-//EXTRUDE_TERRAIN+MAX_EXTRUDE
-//EXTRUDE_TERRAIN+AXIAL_BACKPLANE
-//EXTRUDE_VERTEX_NORMALS + PYRAMIDAL_CLIP - vertex normals mode: don't check for sides, sticking outwards
-//PYRAMIDAL_CLIP+AXIAL_BACKPLANE - pyramid with 3 of 4 sides axial (->small bsp)
-//EXTRUDE_DOWNWARDS+EXTRUDE_UPWARDS
-//EXTRUDE_DOWNWARDS+MAX_EXTRUDE
-//EXTRUDE_DOWNWARDS+AXIAL_BACKPLANE
-//EXTRUDE_DOWNWARDS+EXTRUDE_UPWARDS+MAX_EXTRUDE
-//EXTRUDE_DOWNWARDS+EXTRUDE_UPWARDS+AXIAL_BACKPLANE
-//EXTRUDE_UPWARDS+MAX_EXTRUDE
-//EXTRUDE_UPWARDS+AXIAL_BACKPLANE
+    // -------- Q3MAP2 KEYS --------
+    model(string) : "Model File" : : "Path/name of model to use (e.g. models/mapobjects/teleporter/teleporter.md3)."
+    angle(float) : "Yaw Angle" : : "Direction in which model will be oriented."
+    angles(vector) : "Pitch Yaw Roll" : "0 0 0" : "Individual control of PITCH, YAW, and ROLL (default 0 0 0)."
+    modelscale(float) : "Uniform Scale" : "1" : "Floating-point value used to scale a model up or down (default 1.0)."
+    modelscale_vec(float) : "Scale XYZ" : "1 1 1" : "Floating-point vector used to scale a model's axes individually (default 1.0 1.0 1.0)."
+    _remap(array) : "Shader Remaps" : : "Used to remap textures/shaders in the model. To remap all shaders to a given shader, use `*;models/mymodel/mytexture`. To remap a specific shader, use `models/mymodel/old;models/mymodel/new`."
+    target(target_destination) : "Target" : : "Used to attach the misc_model to a brush entity, where its `targetname` key is the same value."
+    _lightmapscale(float) : "Lightmap Scale" : "1" : "Floating point value scales the resolution of lightmaps on this model (if model is using lightmapped shaders) (default 1.0)."
+    _castshadows(integer) : "Shadow Caster Level" : 1 : "Allows per-entity control over shadow casting. Defaults to 0 on entities, 1 on world. 0 = no shadow casting. 1 = cast shadows on world. &gt; 1 = cast shadows on entities with _rs (or _receiveshadows) with the corresponding value, AND world. Negative values imply same, but DO NOT cast shadows on world."
+    _receiveshadows(integer) : "Shadow Reciever Level" : 1 : "Allows per-entity control over shadow reception. Defaults to 1 on everything (world shadows). 0 = receives NO shadows. &gt; 1 = receive shadows only from corresponding keyed entities (see above) and world. &lt; 1 = receive shadows ONLY from corresponding keyed entities."
+    _celshader(texture) : "Cel Shader" : : "Sets the cel shader used for this geometry. Note: Omit the `textures/` prefix."
+    _clipdepth(float) : "Autoclip thickness" : "2" : "Autoclip brushes thickness (default 2.0)."
+
+    spawnflags(flags) = [
+        1 : "_RMG_BSP" : 0 : "in SoF2, append a _RMG_BSP suffix to shader names instead of _BSP"
+        2 : "Clip Model" : 0 : "Clips the model for player/weapon collisions; extruding every face along most perpendicular axial direction. For use on large architectural or terrain models, not for small decorative models."
+        4 : "Force Meta" : 0 : "Toggles on q3map_forceMeta for lightmapped models. Converts model triangles to bsp metasurfaces."
+        8 : "EXTRUDE_FACE_NORMALS" : 0 : "extrude along the model face normals for clipping"
+        16 : "EXTRUDE_TERRAIN" : 0 : "extrude each surface of the model along its average axial direction ( up/down/west/east/north/south ); faces with not matching direction (or too steep) are clipped in default mode"
+        32 : "COLOR_TO_ALPHA" : 0 : "use the color value as alpha (for terrain blending)"
+        64 : "NOSMOOTH" : 0 : "Don't smooth normals when importing (forces all faces planar)."
+        128 : "EXTRUDE_VERTEX_NORMALS" : 0 : "extrude along the model vertex normals for clipping; accurate collisions, if normals are fine; bad ones are replaced with 45 degrees to face"
+        256 : "PYRAMIDAL_CLIP" : 0 : "pyramidal clipping brushes (4-sided); accurate collisions"
+        512 : "EXTRUDE_DOWNWARDS" : 0 : "for horizontal terrain; when not possible, extrude in default mode"
+        1024 : "EXTRUDE_UPWARDS" : 0 : "-//-"
+        2048 : "MAX_EXTRUDE" : 0 : "Extrude to the max/min point of every model surface to reduce bsp size (uses axial back plane)"
+        4096 : "AXIAL_BACKPLANE" : 0 : "use axial back plane for clipping brushes to effectively reduce bsp size; might cause unwanted collisions, make sure to -debugclip; negative _clipdepth / -clipdepth limits max thickness of resulting brushes (making non-axial backplane, if hit the limit)"
+    ]
+
+    //other possible modes of clipping:
+    //CLIPMODEL+AXIAL_BACKPLANE
+    //EXTRUDE_FACE_NORMALS+PYRAMIDAL_CLIP - truncated pyramid with 45 degrees sides
+    //EXTRUDE_TERRAIN+MAX_EXTRUDE
+    //EXTRUDE_TERRAIN+AXIAL_BACKPLANE
+    //EXTRUDE_VERTEX_NORMALS + PYRAMIDAL_CLIP - vertex normals mode: don't check for sides, sticking outwards
+    //PYRAMIDAL_CLIP+AXIAL_BACKPLANE - pyramid with 3 of 4 sides axial (->small bsp)
+    //EXTRUDE_DOWNWARDS+EXTRUDE_UPWARDS
+    //EXTRUDE_DOWNWARDS+MAX_EXTRUDE
+    //EXTRUDE_DOWNWARDS+AXIAL_BACKPLANE
+    //EXTRUDE_DOWNWARDS+EXTRUDE_UPWARDS+MAX_EXTRUDE
+    //EXTRUDE_DOWNWARDS+EXTRUDE_UPWARDS+AXIAL_BACKPLANE
+    //EXTRUDE_UPWARDS+MAX_EXTRUDE
+    //EXTRUDE_UPWARDS+AXIAL_BACKPLANE
 ]
 
-@PointClass color(1 .5 .25) size(-16 -16 -16, 16 16 16) model({"Path": model}) = model_destruct : "Explodes in a shower of gibs when damaged." [
-//-------- KEYS --------
-//<model key="model" name="Model File">Path/name of model to use (e.g. models/mapobjects/teleporter/teleporter.md3).</model>
-//<real key="health" name="Health" value="10">Health of the model.</real>
-//<real key="gibcount" name="Gib Count" value="4">Amount of gibs (default 4).</real>
-//<real key="bouncefactor" name="Bounce" value="0.25">Bounciness of debris (default 0.25).</real>
-//<real key="particlename" name="Particles">Name of particles (found in effectinfo.txt)</real>
-//<boolean key="startnonsolid" name="Starts Non Solid" value="0">Set to 1 and brush will be non solid the first second (useful for node graph).</boolean>
-//<real key="mass" name="Mass" value="0.75">Weight of debris (default 0.75).</real>
-//<real key="noise" name="Sound Effect" value="sound/impact/destruct/">Weight of debris (default 0.75).</real>
-//<real key="base_scale" name="Gib Scale" value="1">Scales size of gibs. "-1" is no scaling applied.</real>
-//<real key="type" name="Material Type" value="0">    0 : "Custom (enables custom debris models)"
-//        1 : "Stone"
-//        2 : "Wood"
-//        3 : "Metal"
-//        4 : "Glass"
-//        5 : "Ice"</real>
-//<real key="gibmodel1" name="Debris Model A" value="models/destruct/">Custom derbis model A</real>
-//<real key="gibmodel2" name="Debris Model B" value="models/destruct/">Custom derbis model B</real>
-//<real key="gibmodel3" name="Debris Model V" value="models/destruct/">Custom derbis model C</real>
-//<real key="rad_sound" name="Sound Radius" value="256">Radius of destruction sounds.</real>
-//<real key="volume" name="Sound Volume" value="1">Volume of destruction sounds.</real>
-//<real key="spread_vel" name="Spread Factor" value="0">Spread Factor.</real>
-//<real key="only_damage_monster" name="Monster Damage" value="0">Can be destroyed only by monsters.</real>
-//<real key="touch_smash" name="Touch Destruction" value="0"> 0 : "No Touch Destruction"
-//        1 : "Can be destroyed if touched by Player"
-//        2 : "Can be destroyed if touched by Monsters"
-//        3 : "Can be destroyed if touched by Player and Monsters"</real>
-//<real key="touch_smash_delay" name="Touch Destruction Delay" value="0">(delay before be destroyed if touch destruction is enabled)</real>
-//-------- Q3MAP2 KEYS --------
-//<target key="target" name="Target">All entities with a matching targetname will be triggered.</target>
-//<targetname key="targetname" name="Target Name">Used to attach a misc_model entity to this entity.</targetname>
+@PointClass base(Target, TargetName) color(1 .5 .25) size(-16 -16 -16, 16 16 16) model({"Path": model}) = model_destruct : "Explodes in a shower of gibs when damaged." [
+    model(string) : "Model File" : "" : "Path/name of model to use (e.g. models/mapobjects/teleporter/teleporter.md3)."
+    health(float) : "Health" : "10" : "Health of the model."
+    gibcount(float) : "Gib Count" : "4" : "Amount of gibs (default 4)."
+    bouncefactor(float) : "Bounce" : "0.25" : "Bounciness of debris (default 0.25)."
+    particlename(string) : "Particles" : : "Name of particles (found in effectinfo.txt)"
+    startnonsolid(boolean) : "Starts Non Solid" : "0" : "Set to 1 and brush will be non solid the first second (useful for node graph)."
+    mass(float) : "Mass" : "0.75" : "Weight of debris (default 0.75)."
+    noise(string) : "Sound Effect" : "sound/impact/destruct/" : ""
+    base_scale(float) : "Gib Scale" : "1" : "Scales size of gibs. `-1` is no scaling applied."
+    type(choices) : "Material Type" : 0 = [
+        0 : "Custom (enables custom debris models)"
+        1 : "Stone"
+        2 : "Wood"
+        3 : "Metal"
+        4 : "Glass"
+        5 : "Ice"
+    ]
+    gibmodel1(string) : "Debris Model A" : "models/destruct/" : "Custom derbis model A"
+    gibmodel2(string) : "Debris Model B" : "models/destruct/" : "Custom derbis model B"
+    gibmodel3(string) : "Debris Model V" : "models/destruct/" : "Custom derbis model C"
+    rad_sound(float) : "Sound Radius" : "256" : "Radius of destruction sounds."
+    volume(float) : "Sound Volume" : "1" : "Volume of destruction sounds."
+    spread_vel(float) : "Spread Factor" : "0" : "Spread Factor."
+    only_damage_monster(boolean) : "Monster Damage" : "0" : "Can be destroyed only by monsters."
+    touch_smash(choices) : "Touch Destruction" : 0 = [
+        0 : "No Touch Destruction"
+        1 : "Can be destroyed if touched by Player"
+        2 : "Can be destroyed if touched by Monsters"
+        3 : "Can be destroyed if touched by Player and Monsters"
+    ]
+    touch_smash_delay(float) : "Touch Destruction Delay" : "0" : "(delay before be destroyed if touch destruction is enabled)"
 ]
 
 @PointClass color(1 .5 .25) size(-16 -16 -16, 16 16 16) model({"Path": model}) = place_model : "Generic placeholder for inserting MD3 models in game. Doesnt Requires compilation of map geometry to be added to level." [
-//-------- Q3MAP2 KEYS --------
-//<model key="model" name="Model File">Path/name of model to use (e.g. models/mapobjects/teleporter/teleporter.md3).</model>
-//<angles key="angles" name="Pitch Yaw Roll">Individual control of PITCH, YAW, and ROLL (default 0 0 0).</angles>
-//<real key="scale" name="Uniform Scale" value="1">Floating-point value used to scale a model up or down (default 1.0).</real>
+    model(string) : "Model File" : : "Path/name of model to use (e.g. models/mapobjects/teleporter/teleporter.md3)."
+    angles(vector) : "Pitch Yaw Roll" : "0 0 0" : "Individual control of PITCH, YAW, and ROLL (default 0 0 0)."
+    scale(float) : "Uniform Scale" : "1" : "Floating-point value used to scale a model up or down (default 1.0)."
 ]
 
-@PointClass color(.7 .7 .7) size(-16 -16 -32, 16 16 32) model("models/enemies/shepherd.md3") = place_shepherd : "The Shepherd of Wayward Souls. For INTRO and HUB map appearances." [
-//-------- SPAWNFLAGS --------
-//<flag key="HUB" name="Hub Behaviour" bit="0">The Shepherd will deliver monologues appropriate for each encounter level in a hub map.</flag>
+@PointClass color(.7 .7 .7) size(-16 -16 -32, 16 16 32) model("models/enemies/shepherd/shepherd.md3") = place_shepherd : "The Shepherd of Wayward Souls. For INTRO and HUB map appearances." [
+    spawnflags(flags) = [
+        1 : "Hub Behaviour" : 0 : "The Shepherd will deliver monologues appropriate for each encounter level in a hub map."
+    ]
 ]
 
 @PointClass color(1 .5 .25) size(-8 -8 -8, 8 8 8) = misc_portal_camera : "Portal camera. This camera is used to project its view onto a portal surface in the level through the intermediary of a misc_portal_surface entity. Use the `angles` key or target a target_position or info_notnull entity to set the camera's pointing direction." [
-//-------- KEYS --------
-//<angles key="angles" name="Pitch Yaw Roll">This sets the pitch and yaw aiming angles of the portal camera (default 0 0). Use "roll" key to set roll angle.</angles>
-//<target key="target" name="Target">Point this to a target_position entity to set the camera's pointing direction.</target>
-//<targetname key="targetname" name="Target Name">A misc_portal_surface portal surface indicator must point to this.</targetname>
-//<real key="roll" name="Roll">Roll angle of camera. A value of 0 is upside down and 180 is the same as the player's view.</real>
-//<boolean key="notfree" name="Hidden For FFA">When set to 1, entity will not spawn in "Free for all" and "Tournament" modes.</boolean>
-//<boolean key="notteam" name="Hidden For Teamplay">When set to 1, entity will not spawn in "Teamplay" and "CTF" modes.</boolean>
-//<boolean key="notsingle" name="Hidden For SP">When set to 1, entity will not spawn in Single Player mode (bot play mode).</boolean>
-//<string key="gametype" name="Game Type">Defines the gametypes that will spawn this item. Q3A point release 1.32 only. Q3A values: ffa tournament single team ctf. Q3TA values: oneflag obelisk harvester teamtournament.</string>
-//-------- SPAWNFLAGS --------
-//<flag key="SLOWROTATE" name="Rotate Slowly" bit="0">Makes the portal camera rotate slowly along the roll axis.</flag>
-//<flag key="FASTROTATE" name="Rotate Faster" bit="1">Makes the portal camera rotate faster along the roll axis.</flag>
-//<flag key="NOWOBBLE" name="No Wobble" bit="2">Stops the camera portal from wobbling. Q3A point release 1.32.</flag>
-//-------- NOTES --------
-//Both the setting "angles" key or "targeting a target_position" methods can be used to aim the camera. However, the target_position method is simpler. In both cases, the "roll" key must be used to set the roll angle. If either the SLOWROTATE or FASTROTATE spawnflag is set, then the "roll" value is irrelevant.
+    angles(angles) : "Pitch Yaw Roll" : "0 0 0" : "This sets the pitch and yaw aiming angles of the portal camera (default 0 0). Use `roll` key to set roll angle."
+    target(target_destination) : "Target" : : "Point this to a target_position entity to set the camera's pointing direction."
+    targetname(target_source) : "Target Name" : : "A misc_portal_surface portal surface indicator must point to this."
+    roll(float) : "Roll" : : "Roll angle of camera. A value of 0 is upside down and 180 is the same as the player's view."
+    spawnflags(flags) = [
+        1 : "Rotate Slowly" : 0 : "Makes the portal camera rotate slowly along the roll axis."
+        2 : "Rotate Faster" : 0 : "Makes the portal camera rotate faster along the roll axis."
+        4 : "No Wobble" : 0 : "Stops the camera portal from wobbling. Q3A point release 1.32."
+    ]
+    //-------- NOTES --------
+    //Both the setting "angles" key or "targeting a target_position" methods can be used to aim the camera. However, the target_position method is simpler. In both cases, the "roll" key must be used to set the roll angle. If either the SLOWROTATE or FASTROTATE spawnflag is set, then the "roll" value is irrelevant.
 ]
 
 @PointClass color(1 .5 .25) size(-8 -8 -8, 8 8 8) = misc_portal_surface : "Portal surface indicator. This will `lock on` the brush face closest to it and identify as a portal. The view displayed on the portal surface is the view of the misc_portal_camera that this entity targets. Also used for mirrors (see notes)." [
-//-------- KEYS --------
-//<target key="target" name="Target">Point this to a misc_portal_camera that "sees" the view you want to display on the portal.</target>
-//<boolean key="notfree" name="Hidden For FFA">When set to 1, entity will not spawn in "Free for all" and "Tournament" modes.</boolean>
-//<boolean key="notteam" name="Hidden For Teamplay">When set to 1, entity will not spawn in "Teamplay" and "CTF" modes.</boolean>
-//<boolean key="notsingle" name="Hidden For SP">When set to 1, entity will not spawn in Single Player mode (bot play mode).</boolean>
-//<string key="gametype" name="Game Type">Defines the gametypes that will spawn this item. Q3A point release 1.32 only. Q3A values: ffa tournament single team ctf. Q3TA values: oneflag obelisk harvester teamtournament.</string>
-//-------- NOTES --------
-//The entity must be no farther than 64 units away from the portal surface to lock onto it. To make a mirror, apply the common/mirror shader to the surface, place this entity near it but don't target a misc_portal_camera.
+    target(target_destination) : "Target" : : "Point this to a misc_portal_camera that `sees` the view you want to display on the portal."
+    //-------- NOTES --------
+    //The entity must be no farther than 64 units away from the portal surface to lock onto it. To make a mirror, apply the common/mirror shader to the surface, place this entity near it but don't target a misc_portal_camera.
 ]
 
 @PointClass color(1 1 1) size(-2 -2 -2, 2 2 2) = misc_lightning : "Lightning. It requires a big real time light of 12, 13 , 14 lightstyles placed in rtlights file in maps/ folder." [
-//-------- KEYS --------
-//<real key="style" name="Light Style" value="0"> 12 : "12 lightstyle"
-//        13 : "13 lightstyle"
-//        14 : "14 lightstyle"</real>
-//<string key="noise" name="clap thunder sound 1">sound to play, default is env/thunder_clap1.ogg</string>
-//<string key="noise1" name="clap thunder sound 2">sound to play, default is env/thunder_clap2.ogg</string>
-//<string key="noise2" name="clap thunder sound 3">sound to play, default is env/thunder_clap3.ogg</string>
-//<targetname key="targetname" name="Target Name">If used, misc_lightning should be targeted by button or trigger</targetname>
-//<real key="wait" name="Wait delay" value="10">amount of time between each lightning flash</real>
-//<real key="delay" name="Delay" value="10"> amount of time between each lightning flash + wait, it will work for the first spawn as well </real>
+    style(choices) : "Light Style" : 0 = [
+        12 : "12 lightstyle"
+        13 : "13 lightstyle"
+        14 : "14 lightstyle"
+    ]
+    noise(string) : "clap thunder sound 1" : "env/thunder_clap1.ogg" : "sound to play, default is env/thunder_clap1.ogg"
+    noise1(string) : "clap thunder sound 2" : "env/thunder_clap2.ogg" : "sound to play, default is env/thunder_clap2.ogg"
+    noise2(string) : "clap thunder sound 3" : "env/thunder_clap3.ogg" : "sound to play, default is env/thunder_clap3.ogg"
+    targetname(target_source) : "Target Name" : : "If used, misc_lightning should be targeted by button or trigger"
+    wait(float) : "Wait delay" : "10" : "amount of time between each lightning flash"
+    delay(float) : "Delay" : "10" : "amount of time between each lightning flash + wait, it will work for the first spawn as well"
 ]
 
 @PointClass base(DifficultyFlags) color(0 1 0) size(-8 -8 -8, 8 8 8) model("models/items/cysts.md3") = misc_cyst : "3 Retcher ammo." [
-//-------- KEYS --------
-//<targetname key="targetname" name="Target Name">Cyst can explode it with func_button or trigger</targetname>
-//<real key="dmg" name="Damage Inflicted" value="16">Damage caused by explosion</real>
-//<real key="sradius" name="Radius" value="16">Radius of explosion</real>
-//<real key="health" name="Health" value="16">Health of the cyst. if health is 0 it should be triggered to explode</real>
-//<real key="scale" name="Model Scale" value="2">Scale of the model, it will affect collisions box size</real>
-//<real key="type" name="Model Type" value="1">Values from 1 to 4, it will change the default cyst model</real>
+    targetname(target_source) : "Target Name" : : "Cyst can explode it with func_button or trigger"
+    dmg(float) : "Damage Inflicted" : "16" : "Damage caused by explosion"
+    sradius(float) : "Radius" : "16" : "Radius of explosion"
+    health(float) : "Health" : "16" : "Health of the cyst. if health is 0 it should be triggered to explode"
+    scale(float) : "Model Scale" : "2" : "Scale of the model, it will affect collisions box size"
+    type(float) : "Model Type" : "1" : "Values from 1 to 4, it will change the default cyst model"
 ]
 
 
@@ -2045,40 +2117,29 @@ rot_ang_z(float) : "Rotate Z" : "0" : "rotate speed for angle Z"
 //
 
 @SolidClass color(0 0 0) = worldspawn : "Only used for the world." [
-//-------- KEYS --------
-//<string key="message" name="Logon Message">Text to print at user logon. Used for name of level.</string>
-//<sound key="music" name="Music File">Path/name of looping .wav file used for level's music (e.g. music/sonic5.wav).</sound>
-//<real key="gravity" name="Gravity" value="800">Gravity of level (default normal gravity: 800).</real>
-//-------- Q3MAP2 KEYS --------
-//<integer key="gridsize" name="Dynamic Light Granularity" value="128 128 256">Granularity of the lightgrid created by q3map. Value is three integers separated by spaces, representing number of units between grid points in X Y Z. Default gridsize value is 128 128 256. Use larger powers of 2 to reduce BSP size and compile time on very large maps.</integer>
-//<integer key="_blocksize" name="BSP Block Size" value="1024 1024 1024">Q3Map always splits the BSP tree along the planes X=_blocksize*n and Y=_blocksize*n. Increase the blocksize using larger powers of 2 to reduce compile times on very large maps with a low structural brush density (default 1024 1024 1024, 0 values = disable).</integer>
-//<real key="_ambient" name="Ambient Intensity" value="0">Adds a constant value to overall lighting. Use is not recommended. Ambient light will have a tendency to flatten out variations in light and shade.</real>
-//<color key="_color" name="Ambient Color" value="1 1 1">RGB color value for ambient and other global light parameters (default is 1 1 1).</color>
-//<real key="_minlight" name="Min Lightmap Intensity" value="0">Minimum light value, levelwide. Uses the _color key to set color. Does not add unlike ambient.</real>
-//<real key="_minvertexlight" name="Min Vertex Intensity" value="0">Minimum vertex lighting, levelwide.</real>
-//<real key="_mingridlight" name="Min Dynamic Intensity" value="0">Minimum lightgrid (dynamic entity lighting) levelwide.</real>
-//<boolean key="_keeplights" name="Keep Light Entities">Keep light entities in the BSP. Normally stripped out by the BSP process and read from the .map file by the lighting phase.</boolean>
-//<boolean key="_noshadersun" name="Ignore Shader Sun">Ignore q3map_sun/sun directives in sky shaders and ONLY use entity sun lights.</boolean>
-//<real key="_farplanedist" name="Far Clip Distance">Limit on how many units the vis phase of compilation can see. Used in combination with level-wide fog, it can help reduce r_speeds on large, open maps.</real>
-//<texture key="_foghull" name="Fog Hull Shader">Shader to use for "fog hull". Foghull shader should be a sky shader. Omit the "textures/" prefix.</texture>
-//<real key="_lightmapscale" name="Lightmap Scale" value="1">Floating point value scales the resolution of lightmaps on brushes/patches in the world. Can be overridden in func_group (or other entities) (default 1.0).</real>
-//<integer key="_castshadows" name="Shadow Caster Level" value="1">Allows per-entity control over shadow casting. Defaults to 0 on entities, 1 on world. 0 = no shadow casting. 1 = cast shadows on world. &gt; 1 = cast shadows on entities with _rs (or _receiveshadows) with the corresponding value, AND world. Negative values imply same, but DO NOT cast shadows on world.</integer>
-//<integer key="_receiveshadows" name="Shadow Reciever Level" value="1">Allows per-entity control over shadow reception. Defaults to 1 on everything (world shadows). 0 = receives NO shadows. &gt; 1 = receive shadows only from corresponding keyed entities (see above) and world. &lt; 1 = receive shadows ONLY from corresponding keyed entities.</integer>
-//<texture key="_celshader" name="Cel Shader">Sets the cel shader used for this geometry. Note: Omit the "textures/" prefix.</texture> Overridable in entities.
-//<string key="_styleNalphaGen" name="Style Light alphaGen">*IMPORTANT* Replace "N" in the key "_styleNalphaGen" with an integer between 1 and 31 as your style index. Values takes standard shader waveform functions (e.g. wave sin 0.5 0.3 0.25 1.5)</string>
-//<string key="_styleNrgbGen" name="Style Light rgbGen">*IMPORTANT* Replace "N" in the key "_styleNrgbGen" with an integer between 1 and 31 as your style index. Values take standard shader waveform functions (e.g. wave sin 0.5 0.3 0.25 1.5)</string>
-//-------- Q3MAP2 TERRAIN KEYS --------
-//<texture key="_indexmap" name="Terrain Blending Map">Path/name for the art file used to guide the mapping of textures on the terrain surface.</texture>
-//<integer key="_layers" name="Terrain Layers">Integer value denotes number of unique root shaders that will be used on the terrain.</integer>
-//<texture key="_shader" name="Terrain MetaShader">Path to the metashader used to assign textures to the terrain entity. Note: Omit the "textures/" prefix.</texture>
+    message(string) : "Logon Message" : : "Text to print at user logon. Used for name of level."
+    music(sound) : "Music File" : : "Path/name of looping .wav file used for level's music (e.g. music/sonic5.wav)."
+    gravity(float) : "Gravity" : "800" : "Gravity of level (default normal gravity: 800)."
+    //-------- Q3MAP2 KEYS --------
+    gridsize(vector) : "Dynamic Light Granularity" : "128 128 256" : "Granularity of the lightgrid created by q3map. Value is three integers separated by spaces, representing number of units between grid points in X Y Z. Default gridsize value is 128 128 256. Use larger powers of 2 to reduce BSP size and compile time on very large maps."
+    _blocksize(vector) : "BSP Block Size" : "1024 1024 1024" : "Q3Map always splits the BSP tree along the planes X=_blocksize*n and Y=_blocksize*n. Increase the blocksize using larger powers of 2 to reduce compile times on very large maps with a low structural brush density (default 1024 1024 1024, 0 values = disable)."
+    _ambient(float) : "Ambient Intensity" : "0" : "Adds a constant value to overall lighting. Use is not recommended. Ambient light will have a tendency to flatten out variations in light and shade."
+    _color(color1) : "Ambient Color" : "1 1 1" : "RGB color value for ambient and other global light parameters (default is 1 1 1)."
+    _minlight(float) : "Min Lightmap Intensity" : "0" : "Minimum light value, levelwide. Uses the _color key to set color. Does not add unlike ambient."
+    _minvertexlight(float) : "Min Vertex Intensity" : "0" : "Minimum vertex lighting, levelwide."
+    _mingridlight(float) : "Min Dynamic Intensity" : "0" : "Minimum lightgrid (dynamic entity lighting) levelwide."
+    _keeplights(boolean) : "Keep Light Entities" : : "Keep light entities in the BSP. Normally stripped out by the BSP process and read from the .map file by the lighting phase."
+    _noshadersun(boolean) : "Ignore Shader Sun" : : "Ignore q3map_sun/sun directives in sky shaders and ONLY use entity sun lights."
+    _farplanedist(float) : "Far Clip Distance" : : "Limit on how many units the vis phase of compilation can see. Used in combination with level-wide fog, it can help reduce r_speeds on large, open maps."
+    _foghull(texture) : "Fog Hull Shader" : : "Shader to use for `fog hull`. Foghull shader should be a sky shader. Omit the `textures/` prefix."
+    _lightmapscale(float) : "Lightmap Scale" : "1" : "Floating point value scales the resolution of lightmaps on brushes/patches in the world. Can be overridden in func_group (or other entities) (default 1.0)."
+    _castshadows(integer) : "Shadow Caster Level" : 1 : "Allows per-entity control over shadow casting. Defaults to 0 on entities, 1 on world. 0 = no shadow casting. 1 = cast shadows on world. &gt; 1 = cast shadows on entities with _rs (or _receiveshadows) with the corresponding value, AND world. Negative values imply same, but DO NOT cast shadows on world."
+    _receiveshadows(integer) : "Shadow Reciever Level" : 1 : "Allows per-entity control over shadow reception. Defaults to 1 on everything (world shadows). 0 = receives NO shadows. &gt; 1 = receive shadows only from corresponding keyed entities (see above) and world. &lt; 1 = receive shadows ONLY from corresponding keyed entities."
+    _celshader(texture) : "Cel Shader" : : "Sets the cel shader used for this geometry. Note: Omit the `textures/` prefix. Overridable in entities."
+    _styleNalphaGen(string) : "Style Light alphaGen" : : "*IMPORTANT* Replace `N` in the key `_styleNalphaGen` with an integer between 1 and 31 as your style index. Values takes standard shader waveform functions (e.g. wave sin 0.5 0.3 0.25 1.5)"
+    _styleNrgbGen(string) : "Style Light rgbGen" : : "*IMPORTANT* Replace `N` in the key `_styleNrgbGen` with an integer between 1 and 31 as your style index. Values take standard shader waveform functions (e.g. wave sin 0.5 0.3 0.25 1.5)"
+    //-------- Q3MAP2 TERRAIN KEYS --------
+    _indexmap(texture) : "Terrain Blending Map" : : "Path/name for the art file used to guide the mapping of textures on the terrain surface."
+    _layers(integer) : "Terrain Layers" : : "Integer value denotes number of unique root shaders that will be used on the terrain."
+    _shader(texture) : "Terrain MetaShader" : : "Path to the metashader used to assign textures to the terrain entity. Note: Omit the `textures/` prefix."
 ]
-
-
-
-
-
-
-
-
-
-
