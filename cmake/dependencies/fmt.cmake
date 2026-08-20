@@ -12,3 +12,4 @@ set(FMT_INSTALL OFF)
 FetchContent_MakeAvailable(fmt)
 
 suppress_dependency_warnings(fmt)
+apply_sanitizer_options(fmt)

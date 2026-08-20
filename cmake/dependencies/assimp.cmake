@@ -41,3 +41,4 @@ set(BUILD_SHARED_LIBS ${_tb_saved_build_shared_libs})
 unset(CMAKE_POLICY_VERSION_MINIMUM)
 
 suppress_dependency_warnings(assimp)
+apply_sanitizer_options(assimp)

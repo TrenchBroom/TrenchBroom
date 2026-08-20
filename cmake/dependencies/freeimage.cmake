@@ -13,6 +13,7 @@ FetchContent_MakeAvailable(FreeImage)
 unset(CMAKE_POLICY_VERSION_MINIMUM)
 
 suppress_dependency_warnings(FreeImage)
+apply_sanitizer_options(FreeImage)
 
 # The fork's FreeImage target does not expose its public header directory.
 target_include_directories(FreeImage SYSTEM INTERFACE $<BUILD_INTERFACE:${freeimage_SOURCE_DIR}/Source>)

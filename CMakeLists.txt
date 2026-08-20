@@ -72,6 +72,7 @@ if(WIN32)
 endif()
 
 include(cmake/Utils.cmake)
+include(cmake/Sanitizers.cmake)
 include(cmake/CompilerConfig.cmake)
 include(cmake/PrecompileHeaders.cmake)
 

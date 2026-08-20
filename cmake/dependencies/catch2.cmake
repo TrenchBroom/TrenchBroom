@@ -18,6 +18,8 @@ set(CMAKE_CXX_VISIBILITY_PRESET ${_tb_saved_cxx_visibility})
 
 suppress_dependency_warnings(Catch2)
 suppress_dependency_warnings(Catch2WithMain)
+apply_sanitizer_options(Catch2)
+apply_sanitizer_options(Catch2WithMain)
 
 # Make Catch2's CMake helpers (catch_discover_tests) available via include(Catch).
 list(APPEND CMAKE_MODULE_PATH ${catch2_SOURCE_DIR}/extras)
