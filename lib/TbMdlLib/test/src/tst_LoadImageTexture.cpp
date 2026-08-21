@@ -55,7 +55,7 @@ void assertTexture(const std::string& name, const size_t width, const size_t hei
     CHECK(texture.width() == width);
     CHECK(texture.height() == height);
     CHECK((texture.format() == GL_BGRA || texture.format() == GL_RGBA));
-    CHECK(texture.mask() == gl::TextureMask::Off);
+    CHECK(texture.alphaDomain() == img::ImageAlphaDomain::Opaque);
   }) | kdl::transform_error([](const auto& e) { FAIL(e.msg); });
 }
 
@@ -70,7 +70,7 @@ void testImageContents(Result<gl::Texture> result, const ColorMatch match)
     CHECK(texture.height() == h);
     CHECK(texture.buffersIfLoaded().size() == 1u);
     CHECK((texture.format() == GL_BGRA || texture.format() == GL_RGBA));
-    CHECK(texture.mask() == gl::TextureMask::Off);
+    CHECK(texture.alphaDomain() == img::ImageAlphaDomain::Opaque);
 
     for (std::size_t y = 0; y < h; ++y)
     {
@@ -128,7 +128,9 @@ TEST_CASE("LoadImageTexture")
       CHECK(texture.height() == h);
       CHECK(texture.buffersIfLoaded().size() == 1u);
       CHECK((texture.format() == GL_BGRA || texture.format() == GL_RGBA));
-      CHECK(texture.mask() == gl::TextureMask::On);
+      // every pixel is either fully transparent or fully opaque, so this is a binary
+      // cutout mask, not a graduated alpha channel
+      CHECK(texture.alphaDomain() == img::ImageAlphaDomain::Binary);
 
       auto& mip0Data = texture.buffersIfLoaded().at(0);
       CHECK(mip0Data.size() == w * h * 4);
@@ -154,6 +156,12 @@ TEST_CASE("LoadImageTexture")
       }
     }
 
+    SECTION("graduated alpha")
+    {
+      const auto texture = loadTexture("gradientAlphaTest.png") | kdl::value();
+      CHECK(texture.alphaDomain() == img::ImageAlphaDomain::Graduated);
+    }
+
     SECTION("average color")
     {
       const auto texture = loadTexture("pngContentsTest.png") | kdl::value();
@@ -163,12 +171,14 @@ TEST_CASE("LoadImageTexture")
     }
   }
 
-  SECTION("isSupportedImageExtension")
+  SECTION("isImageTexture")
   {
-    CHECK(isSupportedImageExtension(".jpg"));
-    CHECK(isSupportedImageExtension(".jpeg"));
-    CHECK(isSupportedImageExtension(".JPG"));
-    CHECK(!isSupportedImageExtension("jpg"));
+    CHECK(isImageTexture("texture.jpg"));
+    CHECK(isImageTexture("texture.jpeg"));
+    CHECK(isImageTexture("texture.JPG"));
+    CHECK(isImageTexture("path/to/texture.jpg"));
+    CHECK(!isImageTexture("texture.d"));
+    CHECK(!isImageTexture("texture"));
   }
 }
 

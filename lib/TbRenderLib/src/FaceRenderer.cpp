@@ -33,6 +33,10 @@
 #include "render/RenderBatch.h"
 #include "render/RenderContext.h"
 
+#include "vm/vec.h"
+
+#include <algorithm>
+
 namespace tb::render
 {
 
@@ -94,9 +98,11 @@ FaceRenderer::FaceRenderer() = default;
 FaceRenderer::FaceRenderer(
   std::shared_ptr<BrushVertexArray> vertexArray,
   std::shared_ptr<MaterialToBrushIndicesMap> indexArrayMap,
-  Color faceColor)
+  Color faceColor,
+  std::shared_ptr<const std::vector<TransparentDrawItem>> sortedDrawItems)
   : m_vertexArray{std::move(vertexArray)}
   , m_indexArrayMap{std::move(indexArrayMap)}
+  , m_sortedDrawItems{std::move(sortedDrawItems)}
   , m_faceColor{std::move(faceColor)}
 {
 }
@@ -119,6 +125,11 @@ void FaceRenderer::setTintColor(const Color& color)
 void FaceRenderer::setAlpha(const float alpha)
 {
   m_alpha = alpha;
+}
+
+void FaceRenderer::setDisableDepthWrite(const bool disableDepthWrite)
+{
+  m_disableDepthWrite = disableDepthWrite;
 }
 
 void FaceRenderer::render(RenderBatch& renderBatch)
@@ -170,6 +181,8 @@ void FaceRenderer::render(RenderContext& context)
     shader.set("ShowFog", showFog);
     shader.set("Alpha", m_alpha);
     shader.set("EnableMasked", false);
+    shader.set("AlphaFuncCompare", size_t{0});
+    shader.set("AlphaFuncThreshold", 0.5f);
     shader.set("ShowSoftMapBounds", !context.softMapBounds().is_empty());
     shader.set("SoftMapBoundsMin", context.softMapBounds().min);
     shader.set("SoftMapBoundsMax", context.softMapBounds().max);
@@ -177,39 +190,110 @@ void FaceRenderer::render(RenderContext& context)
       "SoftMapBoundsColor",
       RgbaF{prefs.get(Preferences::SoftMapBoundsColor).to<RgbF>(), 0.1f});
 
-    auto func = RenderFunc{
+    auto renderFunc = RenderFunc{
       shader,
       applyMaterial,
       m_faceColor,
       context.minFilterMode(),
       context.magFilterMode()};
 
-    if (m_alpha < 1.0f)
+    const auto setMaterialUniforms = [&](const gl::Material* material) {
+      const auto isRealBlend = material
+                               && material->effectiveBlendFunc().enable
+                                    == gl::MaterialBlendFunc::Enable::UseFactors;
+
+      gl::setAlphaFuncUniforms(shader, material);
+      // A material with real per-pixel blending renders with its own true alpha,
+      // independent of the whole-batch X-ray/hidden-brush fade.
+      shader.set("Alpha", isRealBlend ? 1.0f : m_alpha);
+    };
+
+    if (m_disableDepthWrite)
     {
       gl.depthMask(GL_FALSE);
     }
-    for (const auto& [material, brushIndexHolderPtr] : *m_indexArrayMap)
+
+    if (m_sortedDrawItems)
     {
-      if (brushIndexHolderPtr->hasValidIndices())
-      {
-        const auto* texture = getTexture(material);
-        const auto enableMasked = texture && texture->mask() == gl::TextureMask::On;
-
-        // set any per-material uniforms
-        shader.set("EnableMasked", enableMasked);
-
-        func.before(gl, material);
-        brushIndexHolderPtr->setup(gl);
-        brushIndexHolderPtr->render(gl, gl::PrimType::Triangles);
-        brushIndexHolderPtr->cleanup(gl);
-        func.after(gl, material);
-      }
+      renderTransparentItems(context, renderFunc, setMaterialUniforms);
     }
-    if (m_alpha < 1.0f)
+    else
+    {
+      renderOpaqueItems(context, renderFunc, setMaterialUniforms);
+    }
+
+    if (m_disableDepthWrite)
     {
       gl.depthMask(GL_TRUE);
     }
+
     m_vertexArray->cleanup(gl, shader.program());
+  }
+}
+
+void FaceRenderer::renderTransparentItems(
+  RenderContext& context,
+  gl::MaterialRenderFunc& renderFunc,
+  const std::function<void(const gl::Material*)>& setMaterialUniforms)
+{
+  auto& gl = context.gl();
+
+  // Correct back-to-front blending requires draw order to follow distance to the
+  // camera, which is fundamentally incompatible with batching by material -- so unlike
+  // renderOpaqueItems, this draws one item at a time in sorted order instead of one
+  // whole material buffer at a time.
+  //
+  // Sort a reused array of pointers into m_sortedDrawItems rather than a copy of the
+  // items themselves -- the camera (and therefore the sort order) can change every
+  // frame, but the items themselves only change when BrushRenderer::validate() reruns.
+  m_transparentDrawOrder.resize(m_sortedDrawItems->size());
+  std::ranges::transform(
+    *m_sortedDrawItems, m_transparentDrawOrder.begin(), [](const auto& item) {
+      return &item;
+    });
+  std::ranges::sort(m_transparentDrawOrder, [&](const auto* lhs, const auto* rhs) {
+    return vm::squared_distance(lhs->sortPosition, context.camera().position())
+           > vm::squared_distance(rhs->sortPosition, context.camera().position());
+  });
+
+  for (const auto* item : m_transparentDrawOrder)
+  {
+    if (const auto it = m_indexArrayMap->find(item->material);
+        it != m_indexArrayMap->end())
+    {
+      const auto& brushIndexHolderPtr = it->second;
+
+      setMaterialUniforms(item->material);
+
+      renderFunc.before(gl, item->material);
+      brushIndexHolderPtr->setup(gl);
+      brushIndexHolderPtr->render(
+        gl, gl::PrimType::Triangles, item->indexPos, item->indexCount);
+      brushIndexHolderPtr->cleanup(gl);
+      renderFunc.after(gl, item->material);
+    }
+  }
+}
+
+void FaceRenderer::renderOpaqueItems(
+  RenderContext& context,
+  gl::MaterialRenderFunc& renderFunc,
+  const std::function<void(const gl::Material*)>& setMaterialUniforms) const
+{
+  auto& gl = context.gl();
+
+  for (const auto& [material, brushIndexHolderPtr] : *m_indexArrayMap)
+  {
+    if (brushIndexHolderPtr->hasValidIndices())
+    {
+      setMaterialUniforms(material);
+
+      renderFunc.before(gl, material);
+      brushIndexHolderPtr->setup(gl);
+      brushIndexHolderPtr->render(gl, gl::PrimType::Triangles);
+      brushIndexHolderPtr->cleanup(gl);
+      renderFunc.after(gl, material);
+    }
   }
 }
 

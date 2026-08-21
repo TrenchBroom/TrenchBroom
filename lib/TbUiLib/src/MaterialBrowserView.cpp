@@ -30,6 +30,7 @@
 #include "gl/Material.h"
 #include "gl/MaterialCollection.h"
 #include "gl/MaterialManager.h"
+#include "gl/MaterialRenderFunc.h"
 #include "gl/PrimType.h"
 #include "gl/ResourceId.h"
 #include "gl/Shaders.h"
@@ -415,6 +416,7 @@ void MaterialBrowserView::renderMaterials(
               Vertex{{bounds.right(), height - (bounds.top() - y)}, {1, 0}},
             });
 
+            gl::setAlphaFuncUniforms(shader, &material);
             material.activate(
               gl,
               pref(Preferences::TextureMinFilter),

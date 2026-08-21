@@ -26,14 +26,54 @@
 #include "kd/path_utils.h"
 #include "kd/string_compare.h"
 #include "kd/string_format.h"
+#include "kd/string_utils.h"
 
 #include <filesystem>
+#include <optional>
 #include <string>
 
 namespace tb::mdl
 {
 namespace
 {
+
+// Real in-game alphaFunc only supports these three fixed presets.
+std::optional<gl::MaterialAlphaFunc> parseAlphaFuncValue(const std::string_view value)
+{
+  if (kdl::ci::str_is_equal(value, "GE128"))
+  {
+    return gl::MaterialAlphaFunc{gl::MaterialAlphaFunc::Compare::GreaterEqual, 0.5f};
+  }
+  if (kdl::ci::str_is_equal(value, "LT128"))
+  {
+    return gl::MaterialAlphaFunc{gl::MaterialAlphaFunc::Compare::Less, 0.5f};
+  }
+  if (kdl::ci::str_is_equal(value, "GT0"))
+  {
+    return gl::MaterialAlphaFunc{gl::MaterialAlphaFunc::Compare::Greater, 0.0f};
+  }
+  return std::nullopt;
+}
+
+// qer_alphaFunc is an editor-only hint with an arbitrary comparison and threshold;
+// only the comparisons representable by gl::MaterialAlphaFunc::Compare are supported.
+std::optional<gl::MaterialAlphaFunc::Compare> parseQerAlphaFuncOp(
+  const std::string_view op)
+{
+  if (kdl::ci::str_is_equal(op, "gequal"))
+  {
+    return gl::MaterialAlphaFunc::Compare::GreaterEqual;
+  }
+  if (kdl::ci::str_is_equal(op, "less"))
+  {
+    return gl::MaterialAlphaFunc::Compare::Less;
+  }
+  if (kdl::ci::str_is_equal(op, "greater"))
+  {
+    return gl::MaterialAlphaFunc::Compare::Greater;
+  }
+  return std::nullopt;
+}
 
 auto tokenNames()
 {
@@ -219,7 +259,7 @@ void Quake3ShaderParser::parseTexture(Quake3Shader& shader, ParserStatus& /* sta
   }
 }
 
-void Quake3ShaderParser::parseBodyEntry(Quake3Shader& shader, ParserStatus& /* status */)
+void Quake3ShaderParser::parseBodyEntry(Quake3Shader& shader, ParserStatus& status)
 {
   auto token =
     m_tokenizer.skipAndNextToken(Quake3ShaderToken::Eol, Quake3ShaderToken::String);
@@ -239,6 +279,29 @@ void Quake3ShaderParser::parseBodyEntry(Quake3Shader& shader, ParserStatus& /* s
   {
     token = m_tokenizer.nextToken(Quake3ShaderToken::String);
     shader.surfaceParms.insert(token.data());
+  }
+  else if (kdl::ci::str_is_equal(key, "qer_alphaFunc"))
+  {
+    token = m_tokenizer.nextToken(Quake3ShaderToken::String);
+    const auto op = token.data();
+    const auto opLocation = token.location();
+
+    token = m_tokenizer.nextToken(Quake3ShaderToken::Number);
+    const auto threshold = kdl::str_to_float(token.data());
+
+    if (const auto compare = parseQerAlphaFuncOp(op); compare && threshold)
+    {
+      shader.qerAlphaFunc = gl::MaterialAlphaFunc{*compare, *threshold};
+    }
+    else if (!compare)
+    {
+      status.warn(opLocation, "Unsupported qer_alphaFunc comparison '" + op + "'");
+    }
+    else
+    {
+      status.warn(
+        token.location(), "Invalid qer_alphaFunc threshold '" + token.data() + "'");
+    }
   }
   else if (kdl::ci::str_is_equal(key, "cull"))
   {
@@ -329,6 +392,19 @@ void Quake3ShaderParser::parseStageEntry(Quake3ShaderStage& stage, ParserStatus&
       {
         status.warn(param1Location, "Unknown blendFunc name '" + param1 + "'");
       }
+    }
+  }
+  else if (kdl::ci::str_is_equal(key, "alphaFunc"))
+  {
+    token = m_tokenizer.nextToken(Quake3ShaderToken::String);
+    const auto alphaFuncStr = token.data();
+    if (const auto alphaFunc = parseAlphaFuncValue(alphaFuncStr))
+    {
+      stage.alphaFunc = *alphaFunc;
+    }
+    else
+    {
+      status.warn(token.location(), "Unknown alphaFunc value '" + alphaFuncStr + "'");
     }
   }
   else

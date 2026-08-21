@@ -204,7 +204,7 @@ void EntityRenderer::setShowHiddenEntities(const bool showHiddenEntities)
   m_showHiddenEntities = showHiddenEntities;
 }
 
-void EntityRenderer::render(RenderContext& renderContext, RenderBatch& renderBatch)
+void EntityRenderer::renderOpaque(RenderContext& renderContext, RenderBatch& renderBatch)
 {
   if (!m_entities.empty())
   {
@@ -212,6 +212,15 @@ void EntityRenderer::render(RenderContext& renderContext, RenderBatch& renderBat
     renderModels(renderContext, renderBatch);
     renderClassnames(renderContext, renderBatch);
     renderAngles(renderContext, renderBatch);
+  }
+}
+
+void EntityRenderer::renderTransparent(
+  RenderContext& renderContext, RenderBatch& renderBatch)
+{
+  if (!m_entities.empty())
+  {
+    renderTransparentModels(renderContext, renderBatch);
   }
 }
 
@@ -278,7 +287,21 @@ void EntityRenderer::renderModels(RenderContext& renderContext, RenderBatch& ren
     m_modelRenderer.setApplyTinting(m_tint);
     m_modelRenderer.setTintColor(m_tintColor);
     m_modelRenderer.setShowHiddenEntities(m_showHiddenEntities);
-    m_modelRenderer.render(renderBatch);
+    m_modelRenderer.renderOpaque(renderBatch);
+  }
+}
+
+void EntityRenderer::renderTransparentModels(
+  RenderContext& renderContext, RenderBatch& renderBatch)
+{
+  if (
+    m_showHiddenEntities
+    || (renderContext.showPointEntities() && renderContext.showPointEntityModels()))
+  {
+    m_modelRenderer.setApplyTinting(m_tint);
+    m_modelRenderer.setTintColor(m_tintColor);
+    m_modelRenderer.setShowHiddenEntities(m_showHiddenEntities);
+    m_modelRenderer.renderTransparent(renderBatch);
   }
 }
 

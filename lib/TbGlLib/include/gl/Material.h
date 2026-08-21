@@ -27,23 +27,13 @@
 #include <atomic>
 #include <filesystem>
 #include <memory>
+#include <optional>
 #include <set>
 #include <string>
 
 namespace tb::gl
 {
 class Gl;
-
-enum class TextureType
-{
-  Opaque,
-  /**
-   * Modifies texture uploading to support mask textures.
-   */
-  Masked
-};
-
-std::ostream& operator<<(std::ostream& lhs, const TextureType& rhs);
 
 enum class MaterialCulling
 {
@@ -83,6 +73,28 @@ struct MaterialBlendFunc
 
 std::ostream& operator<<(std::ostream& lhs, const MaterialBlendFunc::Enable& rhs);
 
+/**
+ * A hard alpha-test cutout: keep the fragment when its alpha compares to `threshold`
+ * according to `compare`, discard it otherwise. Mirrors Quake 3's alphaFunc directive
+ * (GE128/LT128/GT0), which is independent of (and combinable with) blendFunc.
+ */
+struct MaterialAlphaFunc
+{
+  enum class Compare
+  {
+    GreaterEqual,
+    Less,
+    Greater,
+  };
+
+  Compare compare;
+  float threshold;
+
+  kdl_reflect_decl(MaterialAlphaFunc, compare, threshold);
+};
+
+std::ostream& operator<<(std::ostream& lhs, const MaterialAlphaFunc::Compare& rhs);
+
 class Material
 {
 private:
@@ -106,6 +118,12 @@ private:
   MaterialBlendFunc m_blendFunc = {
     MaterialBlendFunc::Enable::UseDefault, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA};
 
+  // Explicit alpha-test (hard cutout) override. When unset, effectiveAlphaFunc() and
+  // effectiveBlendFunc() fall back to the texture's ImageAlphaDomain, since some
+  // formats can only classify their alpha channel once the pixel data is decoded, which
+  // may happen after this material is constructed.
+  std::optional<MaterialAlphaFunc> m_alphaFunc;
+
   kdl_reflect_decl(
     Material,
     m_name,
@@ -116,7 +134,8 @@ private:
     m_usageCount,
     m_surfaceParms,
     m_culling,
-    m_blendFunc);
+    m_blendFunc,
+    m_alphaFunc);
 
 public:
   Material(std::string name, std::shared_ptr<TextureResource> textureResource);
@@ -159,6 +178,11 @@ public:
 
   void setBlendFunc(GLenum srcFactor, GLenum destFactor);
   void disableBlend();
+
+  void setAlphaFunc(MaterialAlphaFunc::Compare compare, float threshold);
+
+  std::optional<MaterialAlphaFunc> effectiveAlphaFunc() const;
+  MaterialBlendFunc effectiveBlendFunc() const;
 
   size_t usageCount() const;
   void incUsageCount() const;

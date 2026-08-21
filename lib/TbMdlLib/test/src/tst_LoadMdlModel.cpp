@@ -58,6 +58,18 @@ TEST_CASE("loadMdlModel")
           const auto& surface = surfaces.front();
           CHECK(surface.skinCount() == 3u);
           CHECK(surface.frameCount() == 1u);
+
+          // armor.mdl has no MF_HOLEY skins, so every skin's texture should be
+          // classified as Opaque; the MF_HOLEY (mask == On -> Binary) branch shares
+          // its logic with readMipTexture(), which is covered directly in
+          // tst_LoadMipTexture.cpp.
+          for (size_t i = 0; i < surface.skinCount(); ++i)
+          {
+            const auto* skin = surface.skin(i);
+            REQUIRE(skin != nullptr);
+            REQUIRE(skin->texture() != nullptr);
+            CHECK(skin->texture()->alphaDomain() == img::ImageAlphaDomain::Opaque);
+          }
         })
       | kdl::transform_error([](const auto& e) { FAIL(e); });
   }

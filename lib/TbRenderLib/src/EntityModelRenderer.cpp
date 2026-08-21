@@ -24,6 +24,7 @@
 #include "gl/ActiveShader.h"
 #include "gl/Camera.h"
 #include "gl/GlInterface.h"
+#include "gl/Material.h"
 #include "gl/MaterialIndexRangeRenderer.h"
 #include "gl/MaterialRenderFunc.h"
 #include "gl/Shaders.h"
@@ -39,11 +40,60 @@
 #include "render/Transformation.h"
 
 #include "vm/mat.h"
+#include "vm/vec.h"
 
+#include <algorithm>
+#include <ranges>
 #include <vector>
 
 namespace tb::render
 {
+
+namespace
+{
+
+bool hasTranslucentSkin(const mdl::EntityModelData& modelData)
+{
+  auto materials =
+    modelData.surfaces() | std::views::transform([](const auto& surface) {
+      return std::views::iota(0u, surface.skinCount())
+             | std::views::transform([&](const auto i) { return surface.skin(i); });
+    })
+    | std::views::join
+    | std::views::filter([](const auto* material) { return material != nullptr; })
+    | std::views::transform(
+      [](const auto* material) -> const gl::Material& { return *material; });
+
+  return std::ranges::any_of(materials, [](const auto& material) {
+    return material.effectiveBlendFunc().enable
+           == gl::MaterialBlendFunc::Enable::UseFactors;
+  });
+}
+
+bool isTransparentEntity(const mdl::EntityNode& entityNode)
+{
+  const auto* model = entityNode.entity().model();
+  const auto* modelData = model ? model->data() : nullptr;
+  return modelData && hasTranslucentSkin(*modelData);
+}
+
+} // namespace
+
+EntityModelRenderer::Pass::Pass(EntityModelRenderer& owner, const bool transparent)
+  : m_owner{owner}
+  , m_transparent{transparent}
+{
+}
+
+void EntityModelRenderer::Pass::prepare(gl::Gl& gl, gl::VboManager& vboManager)
+{
+  m_owner.m_entityModelManager.prepare(gl, vboManager);
+}
+
+void EntityModelRenderer::Pass::render(RenderContext& context)
+{
+  m_owner.renderPass(context, m_transparent);
+}
 
 EntityModelRenderer::EntityModelRenderer(
   Logger& logger,
@@ -52,6 +102,8 @@ EntityModelRenderer::EntityModelRenderer(
   : m_logger{logger}
   , m_entityModelManager{entityModelManager}
   , m_editorContext{editorContext}
+  , m_opaquePass{*this, false}
+  , m_transparentPass{*this, true}
 {
 }
 
@@ -146,75 +198,116 @@ void EntityModelRenderer::setShowHiddenEntities(const bool showHiddenEntities)
   m_showHiddenEntities = showHiddenEntities;
 }
 
-void EntityModelRenderer::render(RenderBatch& renderBatch)
+void EntityModelRenderer::renderOpaque(RenderBatch& renderBatch)
 {
-  renderBatch.add(this);
+  renderBatch.add(&m_opaquePass);
 }
 
-void EntityModelRenderer::prepare(gl::Gl& gl, gl::VboManager& vboManager)
+void EntityModelRenderer::renderTransparent(RenderBatch& renderBatch)
 {
-  m_entityModelManager.prepare(gl, vboManager);
+  renderBatch.add(&m_transparentPass);
 }
 
-void EntityModelRenderer::render(RenderContext& renderContext)
+void EntityModelRenderer::renderPass(RenderContext& renderContext, const bool transparent)
 {
-  if (!m_entities.empty())
+  if (m_entities.empty())
   {
-    auto& gl = renderContext.gl();
+    return;
+  }
 
-    gl.enable(GL_TEXTURE_2D);
-    gl.activeTexture(GL_TEXTURE0);
+  auto& gl = renderContext.gl();
 
-    auto& prefs = PreferenceManager::instance();
-    auto shader =
-      gl::ActiveShader{gl, renderContext.shaderManager(), gl::Shaders::EntityModelShader};
-    shader.set("Brightness", prefs.get(Preferences::Brightness));
-    shader.set("ApplyTinting", m_applyTinting);
-    shader.set("TintColor", m_tintColor);
-    shader.set("GrayScale", false);
-    shader.set("Material", 0);
-    shader.set("ShowSoftMapBounds", !renderContext.softMapBounds().is_empty());
-    shader.set("SoftMapBoundsMin", renderContext.softMapBounds().min);
-    shader.set("SoftMapBoundsMax", renderContext.softMapBounds().max);
-    shader.set(
-      "SoftMapBoundsColor",
-      RgbaF{prefs.get(Preferences::SoftMapBoundsColor).to<RgbF>(), 0.1f});
+  gl.enable(GL_TEXTURE_2D);
+  gl.activeTexture(GL_TEXTURE0);
 
-    shader.set("CameraPosition", renderContext.camera().position());
-    shader.set("CameraDirection", renderContext.camera().direction());
-    shader.set("CameraRight", renderContext.camera().right());
-    shader.set("CameraUp", renderContext.camera().up());
-    shader.set("ViewMatrix", renderContext.camera().viewMatrix());
+  auto& prefs = PreferenceManager::instance();
+  auto shader =
+    gl::ActiveShader{gl, renderContext.shaderManager(), gl::Shaders::EntityModelShader};
+  shader.set("Brightness", prefs.get(Preferences::Brightness));
+  shader.set("ApplyTinting", m_applyTinting);
+  shader.set("TintColor", m_tintColor);
+  shader.set("GrayScale", false);
+  shader.set("Material", 0);
+  shader.set("EnableMasked", false);
+  shader.set("AlphaFuncCompare", size_t{0});
+  shader.set("AlphaFuncThreshold", 0.5f);
+  shader.set("ShowSoftMapBounds", !renderContext.softMapBounds().is_empty());
+  shader.set("SoftMapBoundsMin", renderContext.softMapBounds().min);
+  shader.set("SoftMapBoundsMax", renderContext.softMapBounds().max);
+  shader.set(
+    "SoftMapBoundsColor",
+    RgbaF{prefs.get(Preferences::SoftMapBoundsColor).to<RgbF>(), 0.1f});
 
-    const auto& propertyConfig = m_entities.begin()->first->entityPropertyConfig();
-    const auto& defaultModelScaleExpression = propertyConfig.defaultModelScaleExpression;
+  shader.set("CameraPosition", renderContext.camera().position());
+  shader.set("CameraDirection", renderContext.camera().direction());
+  shader.set("CameraRight", renderContext.camera().right());
+  shader.set("CameraUp", renderContext.camera().up());
+  shader.set("ViewMatrix", renderContext.camera().viewMatrix());
 
-    for (const auto& [entityNode, renderer] : m_entities)
-    {
-      if (!m_showHiddenEntities && !m_editorContext.visible(*entityNode))
+  const auto& propertyConfig = m_entities.begin()->first->entityPropertyConfig();
+  const auto& defaultModelScaleExpression = propertyConfig.defaultModelScaleExpression;
+
+  const auto renderEntity =
+    [&](const mdl::EntityNode& entityNode, gl::MaterialRenderer& renderer) {
+      if (!m_showHiddenEntities && !m_editorContext.visible(entityNode))
       {
-        continue;
+        return;
       }
 
-      const auto* model = entityNode->entity().model();
+      const auto* model = entityNode.entity().model();
       const auto* modelData = model ? model->data() : nullptr;
       if (!modelData)
       {
-        continue;
+        return;
       }
 
       shader.set("Orientation", static_cast<int>(modelData->orientation()));
 
-      const auto transformation = vm::mat4x4f{
-        entityNode->entity().modelTransformation(defaultModelScaleExpression)};
+      const auto transformation =
+        vm::mat4x4f{entityNode.entity().modelTransformation(defaultModelScaleExpression)};
       const auto multMatrix =
         MultiplyModelMatrix{renderContext.transformation(), transformation};
 
       shader.set("ModelMatrix", transformation);
 
-      auto renderFunc = gl::DefaultMaterialRenderFunc{
-        renderContext.minFilterMode(), renderContext.magFilterMode()};
-      renderer->render(gl, shader.program(), renderFunc);
+      auto renderFunc = gl::AlphaTestedMaterialRenderFunc{
+        shader, renderContext.minFilterMode(), renderContext.magFilterMode()};
+      renderer.render(gl, shader.program(), renderFunc);
+    };
+
+  if (transparent)
+  {
+    // Correct back-to-front blending requires draw order to follow distance to the
+    // camera, which can change every frame, so the entities are re-sorted each time
+    // rather than once when m_entities changes.
+    m_transparentDrawOrder.clear();
+    for (const auto& [entityNode, renderer] : m_entities)
+    {
+      if (isTransparentEntity(*entityNode))
+      {
+        m_transparentDrawOrder.push_back(entityNode);
+      }
+    }
+
+    const auto cameraPosition = renderContext.camera().position();
+    std::ranges::sort(m_transparentDrawOrder, [&](const auto* lhs, const auto* rhs) {
+      return vm::squared_distance(vm::vec3f{lhs->entity().origin()}, cameraPosition)
+             > vm::squared_distance(vm::vec3f{rhs->entity().origin()}, cameraPosition);
+    });
+
+    for (const auto* entityNode : m_transparentDrawOrder)
+    {
+      renderEntity(*entityNode, *m_entities.at(entityNode));
+    }
+  }
+  else
+  {
+    for (const auto& [entityNode, renderer] : m_entities)
+    {
+      if (!isTransparentEntity(*entityNode))
+      {
+        renderEntity(*entityNode, *renderer);
+      }
     }
   }
 }

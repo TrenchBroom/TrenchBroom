@@ -408,8 +408,10 @@ void EntityBrowserView::renderModels(
               const auto multMatrix =
                 render::MultiplyModelMatrix{transformation, itemTrans};
 
-              auto renderFunc = gl::DefaultMaterialRenderFunc{
-                pref(Preferences::TextureMinFilter), pref(Preferences::TextureMagFilter)};
+              auto renderFunc = gl::AlphaTestedMaterialRenderFunc{
+                shader,
+                pref(Preferences::TextureMinFilter),
+                pref(Preferences::TextureMagFilter)};
               modelRenderer->render(gl, shader.program(), renderFunc);
             }
           }

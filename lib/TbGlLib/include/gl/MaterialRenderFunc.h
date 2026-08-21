@@ -21,6 +21,7 @@
 
 namespace tb::gl
 {
+class ActiveShader;
 class Gl;
 class Material;
 
@@ -43,6 +44,28 @@ public:
 
   void before(Gl& gl, const Material* material) override;
   void after(Gl& gl, const Material* material) override;
+};
+
+/**
+ * Sets the EnableMasked/AlphaFuncCompare/AlphaFuncThreshold uniforms on shader from
+ * material's effectiveAlphaFunc(), so the shader's alpha-test cutout matches the
+ * material's derived or overridden alpha-test state. material may be null.
+ */
+void setAlphaFuncUniforms(ActiveShader& shader, const Material* material);
+
+/**
+ * Like DefaultMaterialRenderFunc, but also sets the alpha-test uniforms via
+ * setAlphaFuncUniforms(), for shaders that support alpha-test cutout.
+ */
+class AlphaTestedMaterialRenderFunc : public DefaultMaterialRenderFunc
+{
+private:
+  ActiveShader& m_shader;
+
+public:
+  AlphaTestedMaterialRenderFunc(ActiveShader& shader, int minFilter, int magFilter);
+
+  void before(Gl& gl, const Material* material) override;
 };
 
 } // namespace tb::gl

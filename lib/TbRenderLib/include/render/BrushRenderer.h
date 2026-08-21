@@ -27,6 +27,8 @@
 #include "render/EdgeRenderer.h"
 #include "render/FaceRenderer.h"
 
+#include "vm/vec.h"
+
 #include <memory>
 #include <tuple>
 #include <unordered_map>
@@ -140,14 +142,25 @@ public:
 private:
   std::unique_ptr<Filter> m_filter;
 
+  /**
+   * A (brush, material) group of transparent face indices, plus a world-space position
+   * used to sort this group against every other transparent group by distance to the
+   * camera. See FaceRenderer's sorted-draw mode.
+   */
+  struct TransparentFaceIndicesKey
+  {
+    const gl::Material* material;
+    AllocationTracker::Block* block;
+    vm::vec3f sortPosition;
+  };
+
   struct BrushInfo
   {
     AllocationTracker::Block* vertexHolderKey;
     AllocationTracker::Block* edgeIndicesKey;
     std::vector<std::pair<const gl::Material*, AllocationTracker::Block*>>
       opaqueFaceIndicesKeys;
-    std::vector<std::pair<const gl::Material*, AllocationTracker::Block*>>
-      transparentFaceIndicesKeys;
+    std::vector<TransparentFaceIndicesKey> transparentFaceIndicesKeys;
   };
   /**
    * Tracks all brushes that are stored in the VBO, with the information necessary to
@@ -309,8 +322,17 @@ public:
 
 private:
   bool shouldDrawFaceInTransparentPass(
-    const mdl::BrushNode& brushNode, const mdl::BrushFace& face) const;
+    const mdl::BrushNode& brushNode,
+    const mdl::BrushFace& face,
+    const gl::Material* material) const;
   void validateBrush(const mdl::BrushNode& brushNode);
+
+  /**
+   * Flattens every live transparent (brush, material) group across m_brushInfo into a
+   * single list for FaceRenderer's sorted-draw mode. Only needs recomputing when brush
+   * geometry changes (i.e. here, after validate()), not every frame.
+   */
+  std::shared_ptr<std::vector<TransparentDrawItem>> collectTransparentDrawItems() const;
 
 public:
   /**

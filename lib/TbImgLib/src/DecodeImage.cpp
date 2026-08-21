@@ -23,10 +23,13 @@
 #include "InitFreeImage.h"
 
 #include "kd/contracts.h"
+#include "kd/ranges/stride_view.h"
 #include "kd/resource.h"
 
 #include <fmt/format.h>
 
+#include <algorithm>
+#include <ranges>
 #include <stdexcept>
 #include <utility>
 
@@ -137,7 +140,15 @@ Result<Image> decodeImage(const unsigned char* begin, const size_t size)
       }
     }
 
-    return Image{width, height, std::move(pixels), hasTransparency};
+    auto alphas = pixels | std::views::drop(3) | kdl::views::stride(4);
+    const auto hasIntermediateAlpha = std::ranges::any_of(
+      alphas, [](const auto alpha) { return alpha > 0 && alpha < 255; });
+
+    const auto alphaDomain = !hasTransparency       ? ImageAlphaDomain::Opaque
+                             : hasIntermediateAlpha ? ImageAlphaDomain::Graduated
+                                                    : ImageAlphaDomain::Binary;
+
+    return Image{width, height, std::move(pixels), alphaDomain};
   }
   catch (const std::exception& e)
   {

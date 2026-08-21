@@ -205,6 +205,15 @@ void BrushIndexArray::render(gl::Gl& gl, const gl::PrimType primType) const
   m_indexHolder.render(gl, primType, 0, m_indexHolder.size());
 }
 
+void BrushIndexArray::render(
+  gl::Gl& gl, const gl::PrimType primType, const size_t offset, const size_t count) const
+{
+  contract_pre(m_indexHolder.prepared());
+  contract_pre(offset + count <= m_indexHolder.size());
+
+  m_indexHolder.render(gl, primType, offset, count);
+}
+
 // BrushVertexArray
 
 BrushVertexArray::BrushVertexArray() = default;

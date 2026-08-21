@@ -23,6 +23,7 @@
 #include "fs/ReaderException.h"
 #include "gl/Texture.h"
 
+#include "kd/path_utils.h"
 #include "kd/ranges/to.h"
 
 #include <ranges>
@@ -50,6 +51,11 @@ std::vector<size_t> readSizeVec(const size_t count, fs::Reader& reader)
 
 } // namespace
 
+bool isM32Texture(const std::filesystem::path& path)
+{
+  return kdl::path_to_lower(path.extension()) == ".m32";
+}
+
 Result<gl::Texture> loadM32Texture(fs::Reader& reader)
 {
   try
@@ -70,6 +76,7 @@ Result<gl::Texture> loadM32Texture(fs::Reader& reader)
 
     auto mip0AverageColor = Color{RgbaF{}};
     auto hasTransparency = false;
+    auto hasIntermediateAlpha = false;
     auto buffers = gl::TextureBufferList{};
 
     for (size_t mipLevel = 0; mipLevel < M32Layout::MipLevels; mipLevel++)
@@ -105,7 +112,10 @@ Result<gl::Texture> loadM32Texture(fs::Reader& reader)
           colorSum[0] += static_cast<uint32_t>(rgbaData[(i * 4) + 0]);
           colorSum[1] += static_cast<uint32_t>(rgbaData[(i * 4) + 1]);
           colorSum[2] += static_cast<uint32_t>(rgbaData[(i * 4) + 2]);
-          hasTransparency = hasTransparency || rgbaData[(i * 4) + 3] != 255;
+
+          const auto alpha = rgbaData[(i * 4) + 3];
+          hasTransparency = hasTransparency || alpha != 255;
+          hasIntermediateAlpha = hasIntermediateAlpha || (alpha != 0 && alpha != 255);
         }
 
         mip0AverageColor = RgbaF{
@@ -116,14 +126,19 @@ Result<gl::Texture> loadM32Texture(fs::Reader& reader)
       }
     }
 
-    return gl::Texture{
+    const auto alphaDomain = !hasTransparency       ? img::ImageAlphaDomain::Opaque
+                             : hasIntermediateAlpha ? img::ImageAlphaDomain::Graduated
+                                                    : img::ImageAlphaDomain::Binary;
+
+    auto texture = gl::Texture{
       widths[0],
       heights[0],
       mip0AverageColor,
       GL_RGBA,
-      hasTransparency ? gl::TextureMask::On : gl::TextureMask::Off,
       gl::NoEmbeddedDefaults{},
       std::move(buffers)};
+    texture.setAlphaDomain(alphaDomain);
+    return texture;
   }
   catch (const fs::ReaderException& e)
   {

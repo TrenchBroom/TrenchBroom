@@ -27,6 +27,7 @@
 #include "mdl/MaterialUtils.h"
 #include "mdl/Palette.h"
 
+#include "kd/path_utils.h"
 #include "kd/result.h"
 
 #include <fmt/format.h>
@@ -63,7 +64,7 @@ Result<Palette> readHlMipPalette(fs::Reader& reader)
 }
 
 Result<gl::Texture> readMipTexture(
-  fs::Reader& reader, const GetMipPalette& getMipPalette, const gl::TextureMask mask)
+  fs::Reader& reader, const GetMipPalette& getMipPalette, const bool isMasked)
 {
   static const auto MipLevels = size_t(4);
 
@@ -90,9 +91,8 @@ Result<gl::Texture> readMipTexture(
       offset[i] = reader.readSize<int32_t>();
     }
 
-    const auto transparency = mask == gl::TextureMask::On
-                                ? PaletteTransparency::Index255Transparent
-                                : PaletteTransparency::Opaque;
+    const auto transparency =
+      isMasked ? PaletteTransparency::Index255Transparent : PaletteTransparency::Opaque;
 
     setMipBufferSize(buffers, MipLevels, width, height, GL_RGBA);
     return getMipPalette(reader) | kdl::transform([&](const auto& palette) {
@@ -109,14 +109,16 @@ Result<gl::Texture> readMipTexture(
                }
              }
 
-             return gl::Texture{
+             auto texture = gl::Texture{
                width,
                height,
                averageColor,
                GL_RGBA,
-               mask,
                gl::NoEmbeddedDefaults{},
                std::move(buffers)};
+             texture.setAlphaDomain(
+               isMasked ? img::ImageAlphaDomain::Binary : img::ImageAlphaDomain::Opaque);
+             return texture;
            });
   }
   catch (const fs::ReaderException& e)
@@ -140,15 +142,30 @@ std::string readMipTextureName(fs::Reader& reader)
   }
 }
 
-Result<gl::Texture> loadIdMipTexture(
-  fs::Reader& reader, const Palette& palette, const gl::TextureMask mask)
+bool isIdMipTexture(const std::filesystem::path& path)
 {
-  return readMipTexture(reader, [&](fs::Reader&) { return palette; }, mask);
+  return kdl::path_to_lower(path.extension()) == ".d";
 }
 
-Result<gl::Texture> loadHlMipTexture(fs::Reader& reader, const gl::TextureMask mask)
+bool isHlMipTexture(const std::filesystem::path& path)
 {
-  return readMipTexture(reader, readHlMipPalette, mask);
+  return kdl::path_to_lower(path.extension()) == ".c";
+}
+
+bool isMipTexture(const std::filesystem::path& path)
+{
+  return isIdMipTexture(path) || isHlMipTexture(path);
+}
+
+Result<gl::Texture> loadIdMipTexture(
+  fs::Reader& reader, const Palette& palette, const bool isMasked)
+{
+  return readMipTexture(reader, [&](fs::Reader&) { return palette; }, isMasked);
+}
+
+Result<gl::Texture> loadHlMipTexture(fs::Reader& reader, const bool isMasked)
+{
+  return readMipTexture(reader, readHlMipPalette, isMasked);
 }
 
 } // namespace tb::mdl

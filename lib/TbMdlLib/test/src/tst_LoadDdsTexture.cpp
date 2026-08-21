@@ -49,25 +49,56 @@ auto loadTexture(const std::string& name)
 }
 
 void assertTexture(
-  const std::string& name, const size_t width, const size_t height, const GLenum format)
+  const std::string& name,
+  const size_t width,
+  const size_t height,
+  const GLenum format,
+  const img::ImageAlphaDomain alphaDomain)
 {
   const auto texture = loadTexture(name);
 
   CHECK(texture.width() == width);
   CHECK(texture.height() == height);
   CHECK(texture.format() == format);
-  CHECK(texture.mask() == gl::TextureMask::Off);
+  CHECK(texture.alphaDomain() == alphaDomain);
 }
 
 } // namespace
 
 TEST_CASE("loadDdsTexture")
 {
-  assertTexture("dds_rgb.dds", 128, 128, GL_BGR);
-  assertTexture("dds_rgba.dds", 128, 128, GL_BGRA);
-  assertTexture("dds_bc1.dds", 128, 128, GL_COMPRESSED_RGBA_S3TC_DXT1_EXT);
-  assertTexture("dds_bc2.dds", 128, 128, GL_COMPRESSED_RGBA_S3TC_DXT3_EXT);
-  assertTexture("dds_bc3.dds", 128, 128, GL_COMPRESSED_RGBA_S3TC_DXT5_EXT);
+  SECTION("isDdsTexture")
+  {
+    CHECK(isDdsTexture("texture.dds"));
+    CHECK(isDdsTexture("texture.DDS"));
+    CHECK(isDdsTexture("path/to/texture.dds"));
+    CHECK(!isDdsTexture("texture.d"));
+    CHECK(!isDdsTexture("texture"));
+  }
+
+  assertTexture("dds_rgb.dds", 128, 128, GL_BGR, img::ImageAlphaDomain::Opaque);
+  // dds_rgba.dds has genuine per-pixel alpha (verified by inspecting its pixel data).
+  assertTexture("dds_rgba.dds", 128, 128, GL_BGRA, img::ImageAlphaDomain::Graduated);
+  // DXT1 is treated as Opaque and DXT3/DXT5 as Graduated without decoding compressed
+  // blocks -- see the comment on classifyDdsAlphaDomain in LoadDdsTexture.cpp.
+  assertTexture(
+    "dds_bc1.dds",
+    128,
+    128,
+    GL_COMPRESSED_RGBA_S3TC_DXT1_EXT,
+    img::ImageAlphaDomain::Opaque);
+  assertTexture(
+    "dds_bc2.dds",
+    128,
+    128,
+    GL_COMPRESSED_RGBA_S3TC_DXT3_EXT,
+    img::ImageAlphaDomain::Graduated);
+  assertTexture(
+    "dds_bc3.dds",
+    128,
+    128,
+    GL_COMPRESSED_RGBA_S3TC_DXT5_EXT,
+    img::ImageAlphaDomain::Graduated);
 }
 
 } // namespace tb::mdl

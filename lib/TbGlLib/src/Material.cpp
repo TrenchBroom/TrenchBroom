@@ -31,21 +31,6 @@
 namespace tb::gl
 {
 
-std::ostream& operator<<(std::ostream& lhs, const TextureType& rhs)
-{
-  switch (rhs)
-  {
-  case TextureType::Opaque:
-    lhs << "Opaque";
-    break;
-  case TextureType::Masked:
-    lhs << "Masked";
-    break;
-    switchDefault();
-  }
-  return lhs;
-}
-
 std::ostream& operator<<(std::ostream& lhs, const MaterialCulling& rhs)
 {
   switch (rhs)
@@ -90,6 +75,26 @@ std::ostream& operator<<(std::ostream& lhs, const MaterialBlendFunc::Enable& rhs
   return lhs;
 }
 
+kdl_reflect_impl(MaterialAlphaFunc);
+
+std::ostream& operator<<(std::ostream& lhs, const MaterialAlphaFunc::Compare& rhs)
+{
+  switch (rhs)
+  {
+  case MaterialAlphaFunc::Compare::GreaterEqual:
+    lhs << "GreaterEqual";
+    break;
+  case MaterialAlphaFunc::Compare::Less:
+    lhs << "Less";
+    break;
+  case MaterialAlphaFunc::Compare::Greater:
+    lhs << "Greater";
+    break;
+    switchDefault();
+  }
+  return lhs;
+}
+
 kdl_reflect_impl(Material);
 
 Material::Material(std::string name, std::shared_ptr<TextureResource> textureResource)
@@ -110,6 +115,7 @@ Material::Material(Material&& other)
   , m_surfaceParms{std::move(other.m_surfaceParms)}
   , m_culling{std::move(other.m_culling)}
   , m_blendFunc{std::move(other.m_blendFunc)}
+  , m_alphaFunc{std::move(other.m_alphaFunc)}
 {
 }
 
@@ -124,6 +130,7 @@ Material& Material::operator=(Material&& other)
   m_surfaceParms = std::move(other.m_surfaceParms);
   m_culling = std::move(other.m_culling);
   m_blendFunc = std::move(other.m_blendFunc);
+  m_alphaFunc = std::move(other.m_alphaFunc);
   return *this;
 }
 
@@ -209,6 +216,46 @@ void Material::disableBlend()
   m_blendFunc.enable = MaterialBlendFunc::Enable::DisableBlend;
 }
 
+void Material::setAlphaFunc(
+  const MaterialAlphaFunc::Compare compare, const float threshold)
+{
+  m_alphaFunc = MaterialAlphaFunc{compare, threshold};
+}
+
+std::optional<MaterialAlphaFunc> Material::effectiveAlphaFunc() const
+{
+  if (m_alphaFunc)
+  {
+    return m_alphaFunc;
+  }
+
+  if (const auto* texture = this->texture();
+      texture && texture->alphaDomain() == img::ImageAlphaDomain::Binary)
+  {
+    return MaterialAlphaFunc{MaterialAlphaFunc::Compare::GreaterEqual, 0.5f};
+  }
+
+  return std::nullopt;
+}
+
+MaterialBlendFunc Material::effectiveBlendFunc() const
+{
+  if (m_blendFunc.enable != MaterialBlendFunc::Enable::UseDefault || m_alphaFunc)
+  {
+    return m_blendFunc;
+  }
+
+
+  if (const auto* texture = this->texture();
+      texture && texture->alphaDomain() == img::ImageAlphaDomain::Graduated)
+  {
+    return MaterialBlendFunc{
+      MaterialBlendFunc::Enable::UseFactors, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA};
+  }
+
+  return m_blendFunc;
+}
+
 size_t Material::usageCount() const
 {
   return static_cast<size_t>(m_usageCount);
@@ -246,16 +293,22 @@ void Material::activate(Gl& gl, const int minFilter, const int magFilter) const
       break;
     }
 
-    if (m_blendFunc.enable != MaterialBlendFunc::Enable::UseDefault)
+    if (const auto blendFunc = effectiveBlendFunc();
+        blendFunc.enable != MaterialBlendFunc::Enable::UseDefault)
     {
-      gl.pushAttrib(GL_COLOR_BUFFER_BIT);
-      if (m_blendFunc.enable == MaterialBlendFunc::Enable::UseFactors)
+      if (blendFunc.enable == MaterialBlendFunc::Enable::UseFactors)
       {
-        gl.blendFunc(m_blendFunc.srcFactor, m_blendFunc.destFactor);
+        // A material with real per-pixel blending must not write depth: otherwise its
+        // fully or partially transparent fragments would still pass the depth test and
+        // occlude geometry drawn behind them.
+        gl.pushAttrib(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        gl.blendFunc(blendFunc.srcFactor, blendFunc.destFactor);
+        gl.depthMask(GL_FALSE);
       }
       else
       {
-        contract_assert(m_blendFunc.enable == MaterialBlendFunc::Enable::DisableBlend);
+        contract_assert(blendFunc.enable == MaterialBlendFunc::Enable::DisableBlend);
+        gl.pushAttrib(GL_COLOR_BUFFER_BIT);
         gl.disable(GL_BLEND);
       }
     }
@@ -266,7 +319,7 @@ void Material::deactivate(Gl& gl) const
 {
   if (const auto* texture = m_textureResource->get(); texture && texture->deactivate(gl))
   {
-    if (m_blendFunc.enable != MaterialBlendFunc::Enable::UseDefault)
+    if (effectiveBlendFunc().enable != MaterialBlendFunc::Enable::UseDefault)
     {
       gl.popAttrib();
     }

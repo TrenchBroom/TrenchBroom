@@ -39,6 +39,7 @@ varying vec4 faceColor;
 float gridLine(float coord, float stripeSize, float isMajor);
 vec3 adaptiveGridColor(vec3 background);
 float texturedGridAlpha(float alpha);
+bool passesAlphaFunc(float alpha);
 
 float getSoftStripes(float coord, float gridDivider, float gridSize, float stripeSize)
 {
@@ -92,8 +93,16 @@ void main()
     gl_FragColor = faceColor;
   }
 
+  // Discard fully-cutout pixels for alpha-tested (masked) materials -- this preview
+  // relies purely on GL_BLEND otherwise, which some materials (e.g. a Quake 3 shader
+  // stage with alphaFunc but no blendFunc) explicitly disable via Material::activate().
+  if (!passesAlphaFunc(gl_FragColor.a))
+  {
+    discard;
+  }
+
   gl_FragColor = vec4(vec3(Brightness / 2.0 * gl_FragColor), gl_FragColor.a);
-  gl_FragColor = clamp(2.0 * gl_FragColor, 0.0, 1.0);
+  gl_FragColor = vec4(clamp(2.0 * gl_FragColor.rgb, 0.0, 1.0), gl_FragColor.a);
 
   if (RenderGrid)
   {

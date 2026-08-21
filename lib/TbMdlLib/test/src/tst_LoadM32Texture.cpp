@@ -30,20 +30,54 @@ namespace tb::mdl
 
 TEST_CASE("loadM32Texture")
 {
+  SECTION("isM32Texture")
+  {
+    CHECK(isM32Texture("texture.m32"));
+    CHECK(isM32Texture("texture.M32"));
+    CHECK(isM32Texture("path/to/texture.m32"));
+    CHECK(!isM32Texture("texture.m8"));
+    CHECK(!isM32Texture("texture"));
+  }
+
   const auto fs = fs::DiskFileSystem{getFixtureRoot()};
-  const auto file = fs.openFile("test/mdl/LoadM32Texture/test.m32") | kdl::value();
 
-  auto reader = file->reader().buffer();
-  const auto texture = loadM32Texture(reader) | kdl::value();
+  SECTION("graduated alpha")
+  {
+    const auto file = fs.openFile("test/mdl/LoadM32Texture/test.m32") | kdl::value();
 
-  CHECK(texture.width() == 2);
-  CHECK(texture.height() == 2);
-  CHECK(texture.mask() == gl::TextureMask::On);
+    auto reader = file->reader().buffer();
+    const auto texture = loadM32Texture(reader) | kdl::value();
 
-  checkColor(texture, 0, 0, 255, 0, 0, 255);
-  checkColor(texture, 1, 0, 0, 255, 0, 180);
-  checkColor(texture, 0, 1, 0, 0, 255, 90);
-  checkColor(texture, 1, 1, 255, 255, 255, 0);
+    CHECK(texture.width() == 2);
+    CHECK(texture.height() == 2);
+    // pixels (1,0) and (0,1) have alpha values (180, 90) that are neither fully
+    // transparent nor fully opaque
+    CHECK(texture.alphaDomain() == img::ImageAlphaDomain::Graduated);
+
+    checkColor(texture, 0, 0, 255, 0, 0, 255);
+    checkColor(texture, 1, 0, 0, 255, 0, 180);
+    checkColor(texture, 0, 1, 0, 0, 255, 90);
+    checkColor(texture, 1, 1, 255, 255, 255, 0);
+  }
+
+  SECTION("binary alpha")
+  {
+    const auto file =
+      fs.openFile("test/mdl/LoadM32Texture/testBinaryAlpha.m32") | kdl::value();
+
+    auto reader = file->reader().buffer();
+    const auto texture = loadM32Texture(reader) | kdl::value();
+
+    CHECK(texture.width() == 2);
+    CHECK(texture.height() == 2);
+    // every pixel is either fully transparent or fully opaque
+    CHECK(texture.alphaDomain() == img::ImageAlphaDomain::Binary);
+
+    checkColor(texture, 0, 0, 255, 0, 0, 255);
+    checkColor(texture, 1, 0, 0, 255, 0, 0);
+    checkColor(texture, 0, 1, 0, 0, 255, 255);
+    checkColor(texture, 1, 1, 255, 255, 255, 0);
+  }
 }
 
 } // namespace tb::mdl

@@ -19,7 +19,6 @@
 
 #include "gl/Texture.h"
 
-#include "base/Macros.h"
 #include "gl/GlInterface.h"
 
 #include "kd/contracts.h"
@@ -62,7 +61,7 @@ auto makeTextureLoadedState(
 auto uploadTexture(
   Gl& gl,
   const GLenum format,
-  const TextureMask mask,
+  const bool disableMipMaps,
   const std::vector<TextureBuffer>& buffers,
   const size_t width,
   const size_t height)
@@ -84,7 +83,7 @@ auto uploadTexture(
   gl.texParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
   gl.texParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
-  if (mask == TextureMask::On)
+  if (disableMipMaps)
   {
     // masked textures don't work well with automatic mipmaps, so we force
     // GL_NEAREST filtering
@@ -98,7 +97,7 @@ auto uploadTexture(
   }
 
   // Upload only the first mipmap for masked textures.
-  const auto mipmapsToUpload = (mask == TextureMask::On) ? 1u : buffers.size();
+  const auto mipmapsToUpload = disableMipMaps ? 1u : buffers.size();
 
   for (size_t j = 0; j < mipmapsToUpload; ++j)
   {
@@ -159,21 +158,6 @@ auto textureFilterMode(const int filter, const bool useMipmap)
 
 } // namespace
 
-std::ostream& operator<<(std::ostream& lhs, const TextureMask& rhs)
-{
-  switch (rhs)
-  {
-  case TextureMask::On:
-    lhs << "On";
-    break;
-  case TextureMask::Off:
-    lhs << "Off";
-    break;
-    switchDefault();
-  }
-  return lhs;
-}
-
 std::ostream& operator<<(std::ostream& lhs, const EmbeddedDefaults& rhs)
 {
   std::visit([&](const auto& x) { lhs << x; }, rhs);
@@ -194,14 +178,12 @@ Texture::Texture(
   const size_t height,
   const Color averageColor,
   const GLenum format,
-  const TextureMask mask,
   EmbeddedDefaults embeddedDefaults,
   std::vector<TextureBuffer> buffers)
   : m_width{width}
   , m_height{height}
   , m_averageColor{averageColor}
   , m_format{format}
-  , m_mask{mask}
   , m_embeddedDefaults{std::move(embeddedDefaults)}
   , m_state{makeTextureLoadedState(m_width, m_height, m_format, std::move(buffers))}
 {
@@ -214,7 +196,6 @@ Texture::Texture(
   const size_t height,
   const Color averageColor,
   const GLenum format,
-  const TextureMask mask,
   EmbeddedDefaults embeddedDefaults,
   TextureBuffer buffer)
   : Texture{
@@ -222,7 +203,6 @@ Texture::Texture(
       height,
       averageColor,
       format,
-      mask,
       std::move(embeddedDefaults),
       kdl::vec_from(std::move(buffer))}
 {
@@ -230,13 +210,7 @@ Texture::Texture(
 
 Texture::Texture(size_t width, size_t height)
   : Texture{
-      width,
-      height,
-      RgbaF{},
-      GL_RGBA,
-      TextureMask::Off,
-      NoEmbeddedDefaults{},
-      std::vector<TextureBuffer>{}}
+      width, height, RgbaF{}, GL_RGBA, NoEmbeddedDefaults{}, std::vector<TextureBuffer>{}}
 {
 }
 
@@ -265,14 +239,14 @@ GLenum Texture::format() const
   return m_format;
 }
 
-TextureMask Texture::mask() const
+img::ImageAlphaDomain Texture::alphaDomain() const
 {
-  return m_mask;
+  return m_alphaDomain;
 }
 
-void Texture::setMask(const TextureMask mask)
+void Texture::setAlphaDomain(const img::ImageAlphaDomain alphaDomain)
 {
-  m_mask = mask;
+  m_alphaDomain = alphaDomain;
 }
 
 const EmbeddedDefaults& Texture::embeddedDefaults() const
@@ -315,8 +289,11 @@ void Texture::upload(Gl& gl)
   m_state = std::visit(
     kdl::overload(
       [&](const TextureLoadedState& textureLoadedState) -> TextureState {
+        // Skip mipmaps and force GL_NEAREST filtering for a hard alpha cutout, to
+        // avoid it blurring into a semi-transparent fringe.
+        const auto disableMipMaps = m_alphaDomain == img::ImageAlphaDomain::Binary;
         const auto [textureId, useMipmap] = uploadTexture(
-          gl, m_format, m_mask, textureLoadedState.buffers, m_width, m_height);
+          gl, m_format, disableMipMaps, textureLoadedState.buffers, m_width, m_height);
         return TextureReadyState{textureId, useMipmap};
       },
       [](TextureReadyState textureReadyState) -> TextureState {
@@ -356,13 +333,13 @@ const std::vector<TextureBuffer>& Texture::buffersIfLoaded() const
     m_state);
 }
 
-
 void Texture::setFilterMode(
   Gl& gl, const int minFilter, const int magFilter, const bool useMipmap) const
 {
-  if (m_mask == TextureMask::On)
+  if (m_alphaDomain == img::ImageAlphaDomain::Binary)
   {
-    // Force GL_NEAREST filtering for masked textures.
+    // Force GL_NEAREST filtering for a hard alpha cutout, to avoid it blurring into a
+    // semi-transparent fringe.
     gl.texParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     gl.texParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
   }
