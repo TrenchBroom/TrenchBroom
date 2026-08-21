@@ -4,6 +4,7 @@ FetchContent_Declare(
   GIT_REPOSITORY https://github.com/freetype/freetype
   GIT_TAG        534ad3456055ee1f65ecde3bcf22a656a31514d1 # VER-2-13-3
   SYSTEM
+  EXCLUDE_FROM_ALL
 )
 
 # TrenchBroom only rasterizes TrueType fonts, so build a minimal freetype

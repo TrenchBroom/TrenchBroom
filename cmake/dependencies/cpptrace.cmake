@@ -4,6 +4,7 @@ FetchContent_Declare(
   GIT_REPOSITORY https://github.com/jeremy-rifkin/cpptrace
   GIT_TAG        3db8da80111171c219ab5839905771386bee06b3 # v1.0.4
   SYSTEM
+  EXCLUDE_FROM_ALL
   PATCH_COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_LIST_DIR}/patches/cpptrace-strip-msvc-flags.cmake
 )
 

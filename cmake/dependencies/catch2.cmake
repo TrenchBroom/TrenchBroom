@@ -4,10 +4,9 @@ FetchContent_Declare(
   GIT_REPOSITORY https://github.com/catchorg/Catch2
   GIT_TAG        5af20cabb990f36f1671a6a95aef0e6a4cb2573d # v3.10.0
   SYSTEM
+  EXCLUDE_FROM_ALL
 )
 
-set(CATCH_INSTALL_DOCS OFF)
-set(CATCH_INSTALL_EXTRAS OFF)
 # Catch2 forces default symbol visibility and warns when a hidden visibility
 # preset is set globally (as this project does). Set it to default around Catch2
 # to avoid the warning; the resulting visibility is identical.

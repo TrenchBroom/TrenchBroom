@@ -4,11 +4,12 @@ FetchContent_Declare(
   GIT_REPOSITORY https://github.com/assimp/assimp
   GIT_TAG        fb375dd8c0a032106a2122815fb18dffe0283721 # v6.0.2
   SYSTEM
+  EXCLUDE_FROM_ALL
   PATCH_COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_LIST_DIR}/patches/assimp-strip-msvc-flags.cmake
 )
 
-# We only import models, so skip exporters, tests, tools and samples, and don't
-# install anything. Disable warnings-as-errors so assimp builds under CMake 4.
+# We only import models, so skip exporters, tests, tools and samples. Disable
+# warnings-as-errors so assimp builds under CMake 4.
 set(ASSIMP_NO_EXPORT ON)
 # Use the system zlib (assimp's bundled copy is too old to compile against
 # recent SDKs), but force assimp's bundled minizip/unzip. Otherwise assimp's
@@ -18,7 +19,6 @@ set(ASSIMP_BUILD_MINIZIP ON)
 set(ASSIMP_BUILD_TESTS OFF)
 set(ASSIMP_BUILD_ASSIMP_TOOLS OFF)
 set(ASSIMP_BUILD_SAMPLES OFF)
-set(ASSIMP_INSTALL OFF)
 set(ASSIMP_WARNINGS_AS_ERRORS OFF)
 # assimp otherwise appends "/Zi" to CMAKE_CXX_FLAGS_RELEASE for MSVC to build
 # its own PDBs, which conflicts with the debug-info format this project

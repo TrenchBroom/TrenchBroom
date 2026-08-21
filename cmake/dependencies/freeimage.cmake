@@ -4,6 +4,7 @@ FetchContent_Declare(
   GIT_REPOSITORY https://github.com/danoli3/FreeImage
   GIT_TAG        625117b48e18a82f3f68e9be3514ae584ebfcf7b # 3.19.11
   SYSTEM
+  EXCLUDE_FROM_ALL
 )
 
 # This fork builds all of FreeImage's bundled codecs (zlib, libpng, libjpeg,
