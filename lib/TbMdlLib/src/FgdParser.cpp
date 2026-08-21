@@ -989,13 +989,15 @@ std::optional<float> FgdParser::parseDefaultFloatValue(ParserStatus& status)
   if (token.type() == FgdToken::Colon)
   {
     m_tokenizer.nextToken();
-    // the default value should have quotes around it, but sometimes they're missing
+    // the default value should have quotes around it unless it is a whole number with no
+    // decimal point in base10 standard notation
+    // see https://developer.valvesoftware.com/wiki/FGD
     token = m_tokenizer.peekToken(
       FgdToken::String | FgdToken::Decimal | FgdToken::Integer | FgdToken::Colon);
     if (token.type() != FgdToken::Colon)
     {
       token = m_tokenizer.nextToken();
-      if (token.type() != FgdToken::String)
+      if (!token.hasType(FgdToken::String | FgdToken::Integer))
       {
         status.warn(
           token.location(), fmt::format("Unquoted float default value {}", token.data()));
