@@ -757,6 +757,7 @@ TEST_CASE("FgdParser")
       [
          test(float) : "Some test propertyDefinition" : : "Longer description 1"
          test2(float) : "Some test propertyDefinition with default" : "2.7" : "Longer description 2"
+         test3(float) : "Some test propertyDefinition with integer default" : 2 : "Longer description 3"
       ]
   )";
 
@@ -779,10 +780,15 @@ TEST_CASE("FgdParser")
                mdl::PropertyValueTypes::Float{2.7f},
                "Some test propertyDefinition with default",
                "Longer description 2"},
+              {"test3",
+               mdl::PropertyValueTypes::Float{2.0f},
+               "Some test propertyDefinition with integer default",
+               "Longer description 3"},
             },
             mdl::PointEntityDefinition{{{-8, -8, -8}, {8, 8, 8}}, {}, {}},
           },
         });
+      CHECK(status.messages(LogLevel::Warn) == std::vector<std::string>{});
     }
 
     SECTION("parseChoicePropertyDefinition")
