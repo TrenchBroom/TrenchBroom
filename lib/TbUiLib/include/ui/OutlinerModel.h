@@ -41,8 +41,18 @@ class MapDocument;
  * This model wraps the live mdl::Node tree directly (nodes are used as the internal
  * pointer for QModelIndex) rather than mirroring it into a parallel structure. It rebuilds
  * itself on structural notifiers (nodes added/removed, document loaded) and emits
- * lightweight dataChanged signals for visibility/lock toggles, so that expand/collapse
- * state survives everything except an actual structural change.
+ * lightweight, per-node dataChanged signals for content changes (renames, visibility/lock
+ * toggles), so that expand/collapse state survives everything except an actual structural
+ * change.
+ *
+ * Deliberately not connected: MapDocument::documentDidChangeNotifier. It fires on every
+ * transaction, including pure geometry edits (e.g. once per mouse-move while dragging a
+ * brush face), and carries no information about which nodes changed. Refreshing from it
+ * previously meant walking and emitting dataChanged for every row in the entire tree on
+ * every such notification, which is wasted work (the outliner only shows name/type/
+ * visibility/lock, none of which a geometry edit touches) and, on large maps, made
+ * dragging dramatically slower. nodesDidChangeNotifier carries the changed nodes directly,
+ * so refreshDataForNodes can update just those rows.
  */
 class OutlinerModel : public QAbstractItemModel
 {
@@ -92,13 +102,11 @@ private:
   void connectObservers();
 
   void reload();
-  void refreshAllData();
   void refreshDataForNodes(const std::vector<mdl::Node*>& nodes);
 
   std::vector<mdl::Node*> topLevelNodes() const;
 
   static mdl::Node* toNode(const QModelIndex& index);
-  void emitDataChangedRecursive(const QModelIndex& parent);
 };
 
 } // namespace tb::ui

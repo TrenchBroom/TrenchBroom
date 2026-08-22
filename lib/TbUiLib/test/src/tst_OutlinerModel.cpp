@@ -28,6 +28,7 @@
 #include "mdl/Layer.h"
 #include "mdl/LayerNode.h"
 #include "mdl/Map.h"
+#include "mdl/Map_Layers.h"
 #include "mdl/Map_NodeLocking.h"
 #include "mdl/Map_NodeVisibility.h"
 #include "mdl/Map_Nodes.h"
@@ -202,6 +203,45 @@ TEST_CASE("OutlinerModel")
 
     CHECK_FALSE(resetSpy.isEmpty());
     CHECK(model.rowCount({}) == 2);
+  }
+
+  SECTION("renaming a layer updates data without resetting the model")
+  {
+    auto* customLayerNode = new mdl::LayerNode{mdl::Layer{"custom layer"}};
+    mdl::addNodes(map, {{&map.worldNode(), {customLayerNode}}});
+
+    const auto index = model.indexForNode(customLayerNode);
+    REQUIRE(index.isValid());
+
+    auto resetSpy = QSignalSpy{&model, &QAbstractItemModel::modelReset};
+    auto dataChangedSpy = QSignalSpy{&model, &QAbstractItemModel::dataChanged};
+
+    mdl::renameLayer(map, customLayerNode, "renamed layer");
+
+    CHECK(resetSpy.isEmpty());
+    CHECK_FALSE(dataChangedSpy.isEmpty());
+    CHECK(model.data(index, Qt::DisplayRole).toString() == "renamed layer");
+  }
+
+  SECTION("a pure geometry edit (nodesDidChangeNotifier with no name/visibility/lock "
+          "change) does not reset the model")
+  {
+    auto* customLayerNode = new mdl::LayerNode{mdl::Layer{"custom layer"}};
+    mdl::addNodes(map, {{&map.worldNode(), {customLayerNode}}});
+
+    auto* brushNode = mdl::createBrushNode(map);
+    mdl::addNodes(map, {{customLayerNode, {brushNode}}});
+
+    auto resetSpy = QSignalSpy{&model, &QAbstractItemModel::modelReset};
+
+    // Simulates what dragging a brush face does: nodesDidChangeNotifier fires for the
+    // brush being dragged, once per mouse-move, without ever touching the whole tree.
+    const auto changedNodes = std::vector<mdl::Node*>{static_cast<mdl::Node*>(brushNode)};
+    document.nodesDidChangeNotifier(changedNodes);
+    document.nodesDidChangeNotifier(changedNodes);
+
+    CHECK(resetSpy.isEmpty());
+    CHECK(model.data(findByName(model, "brush"), Qt::DisplayRole).toString() == "brush");
   }
 }
 

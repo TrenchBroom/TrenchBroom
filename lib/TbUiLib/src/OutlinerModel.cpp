@@ -289,9 +289,8 @@ void OutlinerModel::connectObservers()
     m_document.nodesWillBeRemovedNotifier.connect([&](const std::vector<mdl::Node*>&) {
       reload();
     });
-  m_notifierConnection += m_document.documentDidChangeNotifier.connect([&] {
-    refreshAllData();
-  });
+  m_notifierConnection += m_document.nodesDidChangeNotifier.connect(
+    [&](const std::vector<mdl::Node*>& nodes) { refreshDataForNodes(nodes); });
   m_notifierConnection += m_document.nodeVisibilityDidChangeNotifier.connect(
     [&](const std::vector<mdl::Node*>& nodes) { refreshDataForNodes(nodes); });
   m_notifierConnection += m_document.nodeLockingDidChangeNotifier.connect(
@@ -302,27 +301,6 @@ void OutlinerModel::reload()
 {
   beginResetModel();
   endResetModel();
-}
-
-void OutlinerModel::refreshAllData()
-{
-  emitDataChangedRecursive({});
-}
-
-void OutlinerModel::emitDataChangedRecursive(const QModelIndex& parent)
-{
-  const auto rc = rowCount(parent);
-  if (rc == 0)
-  {
-    return;
-  }
-
-  emit dataChanged(index(0, 0, parent), index(rc - 1, ColumnCount - 1, parent));
-
-  for (int row = 0; row < rc; ++row)
-  {
-    emitDataChangedRecursive(index(row, 0, parent));
-  }
 }
 
 void OutlinerModel::refreshDataForNodes(const std::vector<mdl::Node*>& nodes)
