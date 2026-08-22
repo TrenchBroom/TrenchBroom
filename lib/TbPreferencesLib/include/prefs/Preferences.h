@@ -308,4 +308,12 @@ std::vector<Preference<Color>*> colorPreferences();
 
 std::vector<Preference<std::vector<KeySequence>>*> keyPreferences();
 
+// Map hooks: run a user-configured shell command on save and/or on change, e.g. to push
+// edits into a running external game engine.
+inline auto MapHookRunOnSave = Preference<bool>{"Hooks/Run command on save", false};
+inline auto MapHookRunOnChange = Preference<bool>{"Hooks/Run command on change", false};
+inline auto MapHookDebounceMs =
+  Preference<int>{"Hooks/Run on change debounce interval", 250};
+inline auto MapHookCommand = Preference<std::string>{"Hooks/Command", std::string{}};
+
 } // namespace tb::Preferences

@@ -77,6 +77,7 @@ class InfoPanel;
 class Inspector;
 enum class InspectorPage;
 class MapDocument;
+class MapHookRunner;
 class MapViewBase;
 class MapViewToolBox;
 class ObjExportDialog;
@@ -108,6 +109,7 @@ private:
   InfoPanel* m_infoPanel = nullptr;
   Console* m_console = nullptr;
   Inspector* m_inspector = nullptr;
+  MapHookRunner* m_mapHookRunner = nullptr;
 
   QComboBox* m_gridChoice = nullptr;
   QLabel* m_statusBarLabel = nullptr;

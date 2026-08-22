@@ -90,6 +90,7 @@
 #include "ui/FaceTool.h"
 #include "ui/InfoPanel.h"
 #include "ui/Inspector.h"
+#include "ui/MapHookRunner.h"
 #include "ui/LaunchGameEngineDialog.h"
 #include "ui/MapDocument.h"
 #include "ui/MapView2D.h"
@@ -443,6 +444,11 @@ void MapWindow::createGui()
   m_inspector->setObjectName("Inspector");
 
   m_mapView->connectTopWidgets(m_inspector);
+
+  // Runs a user-configured shell command on save and/or on change (both off by default,
+  // see MapHookPreferencePane). Tied to this window's lifetime since it just wraps
+  // notifiers on this window's document.
+  m_mapHookRunner = new MapHookRunner{document(), this};
 
   // Add widgets to splitters
   m_vSplitter->addWidget(m_mapView);
