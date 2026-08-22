@@ -28,6 +28,7 @@ class QTreeView;
 class QSortFilterProxyModel;
 class QItemSelection;
 class QModelIndex;
+class QPoint;
 
 namespace tb::mdl
 {
@@ -75,6 +76,7 @@ private:
   void updateSelectionFromDocument();
   void treeSelectionChanged();
   void itemDoubleClicked(const QModelIndex& proxyIndex);
+  void showContextMenu(const QPoint& pos);
 
   std::vector<mdl::Node*> selectedNodesInTree() const;
 };

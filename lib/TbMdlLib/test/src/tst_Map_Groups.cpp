@@ -1144,6 +1144,180 @@ TEST_CASE("Map_Groups")
     CHECK(!groupNode1->hasPendingChanges());
     CHECK(groupNode2->hasPendingChanges());
   }
+
+  SECTION("openAncestorGroupsAndSelectNode")
+  {
+    auto* outerGroupNode = new GroupNode{Group{"outer"}};
+    addNodes(map, {{&parentForNodes(map), {outerGroupNode}}});
+
+    auto* innerGroupNode = new GroupNode{Group{"inner"}};
+    addNodes(map, {{outerGroupNode, {innerGroupNode}}});
+
+    auto* brushNode = createBrushNode(map);
+    addNodes(map, {{innerGroupNode, {brushNode}}});
+
+    REQUIRE(outerGroupNode->closed());
+    REQUIRE(innerGroupNode->closed());
+    REQUIRE(!map.editorContext().selectable(*brushNode));
+
+    SECTION("Selecting a node nested two groups deep opens both ancestors")
+    {
+      openAncestorGroupsAndSelectNode(map, brushNode);
+
+      CHECK(outerGroupNode->hasOpenedDescendant());
+      CHECK(innerGroupNode->opened());
+      CHECK(map.editorContext().currentGroup() == innerGroupNode);
+      CHECK(brushNode->selected());
+      CHECK(map.selection().nodes == std::vector<Node*>{brushNode});
+    }
+
+    SECTION("Does nothing for a null node")
+    {
+      openAncestorGroupsAndSelectNode(map, nullptr);
+      CHECK(map.selection().nodes.empty());
+    }
+
+    SECTION("An unrelated previously open group is closed first")
+    {
+      auto* otherGroupNode = new GroupNode{Group{"other"}};
+      addNodes(map, {{&parentForNodes(map), {otherGroupNode}}});
+      openGroup(map, *otherGroupNode);
+      REQUIRE(otherGroupNode->opened());
+
+      openAncestorGroupsAndSelectNode(map, brushNode);
+
+      CHECK(otherGroupNode->closed());
+      CHECK(innerGroupNode->opened());
+      CHECK(brushNode->selected());
+    }
+
+    SECTION("One undo restores the previous selection and group state")
+    {
+      selectNodes(map, {outerGroupNode});
+      REQUIRE(outerGroupNode->selected());
+
+      openAncestorGroupsAndSelectNode(map, brushNode);
+      REQUIRE(brushNode->selected());
+
+      map.undoCommand();
+
+      CHECK(outerGroupNode->closed());
+      CHECK(innerGroupNode->closed());
+      CHECK(outerGroupNode->selected());
+      CHECK(!brushNode->selected());
+    }
+  }
+
+  SECTION("flattenGroup")
+  {
+    auto* customLayerNode = new LayerNode{Layer{"custom layer"}};
+    addNodes(map, {{&map.worldNode(), {customLayerNode}}});
+
+    auto* outerGroupNode = new GroupNode{Group{"outer"}};
+    addNodes(map, {{customLayerNode, {outerGroupNode}}});
+
+    auto* innerGroupNode = new GroupNode{Group{"inner"}};
+    addNodes(map, {{outerGroupNode, {innerGroupNode}}});
+
+    auto* brushNode = createBrushNode(map);
+    auto* entityNode = new EntityNode{Entity{}};
+    addNodes(map, {{innerGroupNode, {brushNode, entityNode}}});
+
+    auto* entityBrushNode = createBrushNode(map);
+    addNodes(map, {{entityNode, {entityBrushNode}}});
+
+    auto* siblingBrushNode = createBrushNode(map);
+    addNodes(map, {{outerGroupNode, {siblingBrushNode}}});
+
+    REQUIRE(findContainingLayer(brushNode) == customLayerNode);
+
+    SECTION("Flattening the outer group removes it and every nested group")
+    {
+      CHECK(flattenGroup(map, *outerGroupNode));
+
+      CHECK(customLayerNode->childCount() == 3u);
+      CHECK(collectGroups(customLayerNode->children()).empty());
+
+      CHECK(brushNode->parent() == customLayerNode);
+      CHECK(siblingBrushNode->parent() == customLayerNode);
+      CHECK(entityNode->parent() == customLayerNode);
+
+      // The entity's own brush is untouched: only group nodes are removed.
+      CHECK(entityBrushNode->parent() == entityNode);
+
+      CHECK(findContainingLayer(brushNode) == customLayerNode);
+
+      SECTION("One undo restores the full hierarchy")
+      {
+        map.undoCommand();
+
+        CHECK(outerGroupNode->parent() == customLayerNode);
+        CHECK(innerGroupNode->parent() == outerGroupNode);
+        CHECK(brushNode->parent() == innerGroupNode);
+        CHECK(entityNode->parent() == innerGroupNode);
+        CHECK(siblingBrushNode->parent() == outerGroupNode);
+        CHECK(entityBrushNode->parent() == entityNode);
+      }
+    }
+  }
+
+  SECTION("flattenAllGroups")
+  {
+    SECTION("Does nothing when the map has no groups")
+    {
+      CHECK(!flattenAllGroups(map));
+    }
+
+    SECTION("Flattens every group on every layer, several levels deep")
+    {
+      auto* layerA = new LayerNode{Layer{"layer A"}};
+      addNodes(map, {{&map.worldNode(), {layerA}}});
+
+      auto* groupA1 = new GroupNode{Group{"A1"}};
+      addNodes(map, {{layerA, {groupA1}}});
+
+      auto* groupA2 = new GroupNode{Group{"A2"}};
+      addNodes(map, {{groupA1, {groupA2}}});
+
+      auto* brushA = createBrushNode(map);
+      addNodes(map, {{groupA2, {brushA}}});
+
+      auto* layerB = new LayerNode{Layer{"layer B"}};
+      addNodes(map, {{&map.worldNode(), {layerB}}});
+
+      auto* ungroupedEntityB = new EntityNode{Entity{}};
+      addNodes(map, {{layerB, {ungroupedEntityB}}});
+
+      auto* groupB1 = new GroupNode{Group{"B1"}};
+      addNodes(map, {{layerB, {groupB1}}});
+
+      auto* brushB = createBrushNode(map);
+      addNodes(map, {{groupB1, {brushB}}});
+
+      REQUIRE(!collectGroups({&map.worldNode()}).empty());
+
+      CHECK(flattenAllGroups(map));
+
+      CHECK(collectGroups({&map.worldNode()}).empty());
+
+      // Objects keep their layer membership and geometry; only groups disappear.
+      CHECK(brushA->parent() == layerA);
+      CHECK(brushB->parent() == layerB);
+      CHECK(ungroupedEntityB->parent() == layerB);
+
+      SECTION("One undo restores the full hierarchy")
+      {
+        map.undoCommand();
+
+        CHECK(groupA1->parent() == layerA);
+        CHECK(groupA2->parent() == groupA1);
+        CHECK(brushA->parent() == groupA2);
+        CHECK(groupB1->parent() == layerB);
+        CHECK(brushB->parent() == groupB1);
+        CHECK(ungroupedEntityB->parent() == layerB);
+      }
+    }
+  }
 }
 
 } // namespace tb::mdl

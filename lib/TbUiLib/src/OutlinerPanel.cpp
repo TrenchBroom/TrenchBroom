@@ -22,11 +22,15 @@
 #include <QHeaderView>
 #include <QItemSelectionModel>
 #include <QLineEdit>
+#include <QMenu>
+#include <QMessageBox>
 #include <QSortFilterProxyModel>
 #include <QTreeView>
 #include <QVBoxLayout>
 
+#include "mdl/GroupNode.h"
 #include "mdl/Map.h"
+#include "mdl/Map_Groups.h"
 #include "mdl/Map_Selection.h"
 #include "mdl/Node.h"
 #include "mdl/Selection.h"
@@ -74,14 +78,20 @@ void OutlinerPanel::createGui()
   m_treeView->setSelectionBehavior(QAbstractItemView::SelectRows);
   m_treeView->setUniformRowHeights(true);
   m_treeView->setAllColumnsShowFocus(true);
-  m_treeView->header()->setSectionResizeMode(
-    OutlinerModel::NameColumn, QHeaderView::Stretch);
-  m_treeView->header()->setSectionResizeMode(
-    OutlinerModel::TypeColumn, QHeaderView::ResizeToContents);
-  m_treeView->header()->setSectionResizeMode(
-    OutlinerModel::VisibleColumn, QHeaderView::ResizeToContents);
-  m_treeView->header()->setSectionResizeMode(
-    OutlinerModel::LockedColumn, QHeaderView::ResizeToContents);
+
+  // All columns are user-resizable (Interactive), including Name: with Name in Stretch
+  // mode instead, its right edge cannot be dragged at all, which is exactly what made
+  // long, deeply-indented group names impossible to read in full (there is no scrollbar
+  // to fall back on either). Type/Visible/Locked get narrow, fixed-ish default widths;
+  // Name gets whatever space is left over by default, and can be resized independently
+  // of the others afterwards.
+  auto* header = m_treeView->header();
+  header->setSectionResizeMode(QHeaderView::Interactive);
+  header->setStretchLastSection(false);
+  header->resizeSection(OutlinerModel::TypeColumn, 70);
+  header->resizeSection(OutlinerModel::VisibleColumn, 56);
+  header->resizeSection(OutlinerModel::LockedColumn, 56);
+  header->resizeSection(OutlinerModel::NameColumn, 260);
 
   m_filterBox = createSearchBox();
   m_filterBox->setObjectName("OutlinerPanel_FilterBox");
@@ -104,6 +114,13 @@ void OutlinerPanel::createGui()
   connect(m_treeView, &QTreeView::doubleClicked, this, [&](const QModelIndex& index) {
     itemDoubleClicked(index);
   });
+
+  m_treeView->setContextMenuPolicy(Qt::CustomContextMenu);
+  connect(
+    m_treeView,
+    &QWidget::customContextMenuRequested,
+    this,
+    [&](const QPoint& pos) { showContextMenu(pos); });
 
   auto* layout = new QVBoxLayout{};
   layout->setContentsMargins(0, 0, 0, 0);
@@ -201,14 +218,60 @@ void OutlinerPanel::itemDoubleClicked(const QModelIndex& proxyIndex)
     return;
   }
 
-  auto& map = m_document.map();
-  mdl::deselectAll(map);
-  mdl::selectNodes(map, {node});
+  // Opens every closed group the node is nested inside (outermost first) before
+  // selecting it, so a brush found via the Outliner can be reached and selected
+  // regardless of how many levels of closed groups sit between it and the world -
+  // normally each level needs its own double-click in the 3D view.
+  mdl::openAncestorGroupsAndSelectNode(m_document.map(), node);
 
   if (auto* mapWindow = m_appController.mapWindowManager().topMapWindow())
   {
     mapWindow->focusCameraOnSelection();
   }
+}
+
+void OutlinerPanel::showContextMenu(const QPoint& pos)
+{
+  const auto proxyIndex = m_treeView->indexAt(pos);
+  auto* node = proxyIndex.isValid()
+                 ? m_model->nodeForIndex(m_proxyModel->mapToSource(proxyIndex))
+                 : nullptr;
+  auto* groupNode = dynamic_cast<mdl::GroupNode*>(node);
+
+  auto* popupMenu = new QMenu{this};
+
+  if (groupNode)
+  {
+    popupMenu->addAction(tr("Flatten Group"), this, [&, groupNode]() {
+      const auto question = tr(
+                               R"(This removes "%1" and every group nested inside it, )"
+                               R"(keeping its contents in place. This can only be )"
+                               R"(undone with Undo. Continue?)")
+                               .arg(QString::fromStdString(groupNode->group().name()));
+      if (
+        QMessageBox::question(this, tr("Flatten Group"), question)
+        == QMessageBox::Yes)
+      {
+        mdl::flattenGroup(m_document.map(), *groupNode);
+      }
+    });
+    popupMenu->addSeparator();
+  }
+
+  popupMenu->addAction(tr("Flatten All Groups"), this, [&]() {
+    const auto question = tr(
+      R"(This removes every group at every nesting level in the entire map, keeping )"
+      R"(all brushes, entities and patches in place on their layers. This can only be )"
+      R"(undone with Undo. Continue?)");
+    if (
+      QMessageBox::question(this, tr("Flatten All Groups"), question)
+      == QMessageBox::Yes)
+    {
+      mdl::flattenAllGroups(m_document.map());
+    }
+  });
+
+  popupMenu->popup(m_treeView->viewport()->mapToGlobal(pos));
 }
 
 } // namespace tb::ui
