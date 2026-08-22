@@ -27,6 +27,7 @@
 #include <initializer_list>
 #include <iterator>
 #include <type_traits>
+#include <utility>
 
 namespace kdl
 {
@@ -91,9 +92,10 @@ private:
 };
 
 /**
- * A circular list that stores its links inside of the list items. The list takes
- * ownership of the items added to it, and therefore the items are deleted when the list
- * is destroyed.
+ * A circular list that stores its links inside of the list items. This list is purely a
+ * structural container: it maintains the ordering between its items, but does not own
+ * them. It never allocates or deletes an item, so managing the memory of the items it
+ * contains, if any is required, is entirely the caller's responsibility.
  *
  * As this is an intrusive list, the list item type T must have an intrusive_circular_link
  * member. GetLink is a functor you must provide that describes how to access the
@@ -235,9 +237,10 @@ public:
   }
 
   /**
-   * Destroys this list and its items.
+   * Destroys this list. This does not affect its items in any way; the list only
+   * forgets about them.
    */
-  ~intrusive_circular_list() { clear(); }
+  ~intrusive_circular_list() { release(); }
 
   // since items can belong to at most one list, copy is not allowed
   intrusive_circular_list(const intrusive_circular_list&) = delete;
@@ -251,15 +254,22 @@ public:
     other.release();
   }
 
-  // move assignment, cannot be noexcept because we might delete our items, and delete
-  // might throw
-  intrusive_circular_list& operator=(intrusive_circular_list&& other)
+  // move assignment
+  intrusive_circular_list& operator=(intrusive_circular_list&& other) noexcept
   {
-    clear();
-    m_head = other.m_head;
-    m_size = other.m_size;
-    other.release();
+    auto tmp = intrusive_circular_list{std::move(other)};
+    swap(*this, tmp);
     return *this;
+  }
+
+  /**
+   * Exchanges the contents of the two given lists.
+   */
+  friend void swap(intrusive_circular_list& lhs, intrusive_circular_list& rhs) noexcept
+  {
+    using std::swap;
+    swap(lhs.m_head, rhs.m_head);
+    swap(lhs.m_size, rhs.m_size);
   }
 
   /**
@@ -412,7 +422,8 @@ public:
   }
 
   /**
-   * Returns the given item from this list and returns a list containing the removed item.
+   * Removes the given item from this list, without affecting it in any way, and returns
+   * a list containing the removed item.
    *
    * @param item the item to remove, must not be null
    * @return a list containing the removed item
@@ -423,8 +434,8 @@ public:
   }
 
   /**
-   * Removes the items in the range [first, last) from this list and returns a list
-   * containing the removed items.
+   * Removes the items in the range [first, last) from this list, without affecting them
+   * in any way, and returns a list containing the removed items.
    *
    * @param first start of the range of items to remove
    * @param last end of the range of items to remove
@@ -447,7 +458,8 @@ public:
   }
 
   /**
-   * Removes the in the range [first, last) from this list without deleting them.
+   * Removes the items in the range [first, last) from this list, without affecting them
+   * in any way.
    *
    * @param first start of the range of items to release
    * @param last end of the range of items to release
@@ -479,22 +491,6 @@ public:
     }
 
     assert(check_invariant());
-  }
-
-  /**
-   * Creates a new instance of U and adds it to the back of this list.
-   *
-   * @tparam U the actual type to instantiate, U* must be convertible to T*
-   * @tparam Args the types of the arguments to forward to U's constructor
-   * @param args the arguments to forward to U's constructor
-   * @return a pointer to the newly created instance of U
-   */
-  template <typename U = T, typename... Args>
-  U* emplace_back(Args&&... args)
-  {
-    U* item = new U(std::forward<Args>(args)...);
-    push_back(item);
-    return item;
   }
 
   /**
@@ -664,31 +660,13 @@ public:
   }
 
   /**
-   * Clears this list without deleting its items.
+   * Empties this list. The items are not affected in any way; they simply cease to be
+   * part of this list.
    */
   void release()
   {
     m_head = nullptr;
     m_size = 0u;
-  }
-
-  /**
-   * Clears this list and deletes all items.
-   */
-  void clear()
-  {
-    if (!empty())
-    {
-      const auto& get_link = GetLink();
-      T* cur = m_head;
-      do
-      {
-        T* next = get_link(cur).next();
-        delete cur;
-        cur = next;
-      } while (cur != m_head);
-      m_size = 0u;
-    }
   }
 
 private: // helpers

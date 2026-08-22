@@ -274,10 +274,10 @@ typename Polyhedron<T, FP, VP>::Edge* Polyhedron<T, FP, VP>::insertVertex(
 
   // create new vertices and new half edges originating from it
   // the caller is responsible for storing the newly created vertex!
-  auto* newVertex = new Vertex{position};
-  auto* newFirstEdge = new HalfEdge{newVertex};
+  auto* newVertex = &m_vertexPool.emplace(position);
+  auto* newFirstEdge = &m_halfEdgePool.emplace(newVertex);
   auto* oldFirstEdge = edge->firstEdge();
-  auto* newSecondEdge = new HalfEdge{newVertex};
+  auto* newSecondEdge = &m_halfEdgePool.emplace(newVertex);
   auto* oldSecondEdge = edge->secondEdge();
 
   // insert the new half edges into the corresponding faces
@@ -293,7 +293,7 @@ typename Polyhedron<T, FP, VP>::Edge* Polyhedron<T, FP, VP>::insertVertex(
   // and replace it with new2nd
   edge->setSecondEdge(newSecondEdge);
 
-  return new Edge{newFirstEdge, oldSecondEdge};
+  return &m_edgePool.emplace(newFirstEdge, oldSecondEdge);
 }
 
 template <typename T, typename FP, typename VP>

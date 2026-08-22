@@ -20,6 +20,7 @@
 #pragma once
 
 #include "kd/intrusive_circular_list.h"
+#include "kd/stable_pool.h"
 
 #include "vm/bbox.h"
 #include "vm/plane.h"
@@ -50,6 +51,23 @@ template <typename T, typename FP, typename VP>
 class Polyhedron_HalfEdge;
 template <typename T, typename FP, typename VP>
 class Polyhedron_Face;
+
+/**
+ * The pools that own the memory of a polyhedron's vertices, edges, half edges and faces.
+ * This is the only place where the page size of each pool is specified.
+ *
+ * These page sizes were chosen by measuring the high water mark of each pool across
+ * ~150k brushes from a range of real maps: a page size covers a single page for at least
+ * 99% of brushes, with the remainder needing at most one extra page.
+ */
+template <typename T, typename FP, typename VP>
+using Polyhedron_VertexPool = kdl::stable_pool<Polyhedron_Vertex<T, FP, VP>, 16u>;
+template <typename T, typename FP, typename VP>
+using Polyhedron_EdgePool = kdl::stable_pool<Polyhedron_Edge<T, FP, VP>, 32u>;
+template <typename T, typename FP, typename VP>
+using Polyhedron_HalfEdgePool = kdl::stable_pool<Polyhedron_HalfEdge<T, FP, VP>, 64u>;
+template <typename T, typename FP, typename VP>
+using Polyhedron_FacePool = kdl::stable_pool<Polyhedron_Face<T, FP, VP>, 16u>;
 
 /* ====================== Implementation in Polyhedron_Vertex.h ====================== */
 
@@ -86,6 +104,7 @@ private:
   friend class Polyhedron_HalfEdge<T, FP, VP>;
   friend class Polyhedron_Face<T, FP, VP>;
   friend struct Polyhedron_GetVertexLink<T, FP, VP>;
+  friend Polyhedron_VertexPool<T, FP, VP>;
 
   using Vertex = Polyhedron_Vertex<T, FP, VP>;
   using HalfEdge = Polyhedron_HalfEdge<T, FP, VP>;
@@ -241,6 +260,7 @@ private:
   friend class Polyhedron_HalfEdge<T, FP, VP>;
   friend class Polyhedron_Face<T, FP, VP>;
   friend struct Polyhedron_GetEdgeLink<T, FP, VP>;
+  friend Polyhedron_EdgePool<T, FP, VP>;
 
   using Vertex = Polyhedron_Vertex<T, FP, VP>;
   using Edge = Polyhedron_Edge<T, FP, VP>;
@@ -507,6 +527,7 @@ private:
   friend class Polyhedron_Edge<T, FP, VP>;
   friend class Polyhedron_Face<T, FP, VP>;
   friend struct Polyhedron_GetHalfEdgeLink<T, FP, VP>;
+  friend Polyhedron_HalfEdgePool<T, FP, VP>;
 
   using Vertex = Polyhedron_Vertex<T, FP, VP>;
   using Edge = Polyhedron_Edge<T, FP, VP>;
@@ -732,6 +753,7 @@ private:
   friend class Polyhedron_Edge<T, FP, VP>;
   friend class Polyhedron_HalfEdge<T, FP, VP>;
   friend struct Polyhedron_GetFaceLink<T, FP, VP>;
+  friend Polyhedron_FacePool<T, FP, VP>;
 
   using Vertex = Polyhedron_Vertex<T, FP, VP>;
   using Edge = Polyhedron_Edge<T, FP, VP>;
@@ -1101,6 +1123,11 @@ private:
   using HalfEdgeLink = kdl::intrusive_circular_link<HalfEdge>;
   using FaceLink = kdl::intrusive_circular_link<Face>;
 
+  using VertexPool = Polyhedron_VertexPool<T, FP, VP>;
+  using EdgePool = Polyhedron_EdgePool<T, FP, VP>;
+  using HalfEdgePool = Polyhedron_HalfEdgePool<T, FP, VP>;
+  using FacePool = Polyhedron_FacePool<T, FP, VP>;
+
 public:
   using VertexList = Polyhedron_VertexList<T, FP, VP>;
   using EdgeList = Polyhedron_EdgeList<T, FP, VP>;
@@ -1145,17 +1172,27 @@ public:
 
 private:
   /**
-   * The vertices of this polyhedron, stored in a circular list that owns them.
+   * The pools that own the memory of this polyhedron's vertices, edges, half edges and
+   * faces. The circular lists below only establish the ordering between the elements
+   * they contain; they do not own them.
+   */
+  VertexPool m_vertexPool;
+  EdgePool m_edgePool;
+  HalfEdgePool m_halfEdgePool;
+  FacePool m_facePool;
+
+  /**
+   * The vertices of this polyhedron, stored in a circular list.
    */
   VertexList m_vertices;
 
   /**
-   * The edges of this polyhedron, stored in a circular list that owns them.
+   * The edges of this polyhedron, stored in a circular list.
    */
   EdgeList m_edges;
 
   /**
-   * The faces of this polyhedron, stored in a circular list that owns them.
+   * The faces of this polyhedron, stored in a circular list.
    */
   FaceList m_faces;
 
@@ -1164,52 +1201,65 @@ private:
    */
   vm::bbox<T, 3> m_bounds;
 
-private: // erasure helpers
+private: // pool management helpers
   /**
-   * Erases the given vertex from this polyhedron's vertex list. The given vertex must
-   * belong to this polyhedron's vertex list.
+   * Removes the given vertex from this polyhedron's vertex list and erases it from its
+   * pool. The given vertex must belong to this polyhedron's vertex list.
    */
   void eraseVertex(Vertex* vertex);
 
   /**
-   * Erases the given edge from this polyhedron's edge list. The given edge must belong to
-   * this polyhedron's edge list.
+   * Removes the given edge from this polyhedron's edge list and erases it from its pool.
+   * The given edge must belong to this polyhedron's edge list.
    */
   void eraseEdge(Edge* edge);
 
   /**
-   * Erases the given face, along with every half edge in its boundary. The given face
-   * must belong to this polyhedron's face list.
+   * Removes the given face from this polyhedron's face list and erases it, along with
+   * every half edge in its boundary, from their respective pools. The given face must
+   * belong to this polyhedron's face list.
    */
   void eraseFace(Face* face);
 
   /**
-   * Erases every vertex in the given list and empties the given list without deleting it.
-   * The given list must be a fragment that has already been detached from this
-   * polyhedron's vertex list.
+   * Erases the given face, along with every half edge in its boundary, from their
+   * respective pools. This does not touch any list; the caller is responsible for
+   * detaching the given face from whichever list contains it, if any, before calling
+   * this.
+   */
+  void eraseFaceContents(Face* face);
+
+  /**
+   * Erases every vertex in the given list from this polyhedron's vertex pool and empties
+   * the given list. The given list must not be linked into any other list.
    */
   void eraseVertices(VertexList& fragment);
 
   /**
-   * Erases every edge in the given list and empties the given list without deleting it.
-   * The given list must be a fragment that has already been detached from this
-   * polyhedron's edge list.
+   * Erases every edge in the given list from this polyhedron's edge pool and empties the
+   * given list. The given list must not be linked into any other list.
    */
   void eraseEdges(EdgeList& fragment);
 
   /**
    * Erases every face in the given list, along with every half edge in each face's
-   * boundary, and empties the given list without deleting it. The given list must be a
-   * fragment that has already been detached from this polyhedron's face list.
+   * boundary, from their respective pools, and empties the given list. The given list
+   * must not be linked into any other list.
    */
   void eraseFaces(FaceList& fragment);
 
   /**
-   * Erases every half edge in the given list and empties the given list without deleting
-   * it. The given list must be a fragment that has already been detached from a face's
-   * boundary.
+   * Erases every half edge in the given list from this polyhedron's half edge pool and
+   * empties the given list. The given list must not be linked into any other list.
    */
   void eraseHalfEdges(HalfEdgeList& fragment);
+
+  /**
+   * Erases all of this polyhedron's vertices, edges and faces, leaving its bounds
+   * untouched. Used by clear() (which additionally updates the bounds) and by the
+   * destructor (which does not need to, since the polyhedron is being torn down).
+   */
+  void eraseElements();
 
   /* ====================== Implementation in Polyhedron_Misc.h ====================== */
 public: // Constructors
@@ -1255,6 +1305,12 @@ public: // Constructors
    */
   Polyhedron(Polyhedron<T, FP, VP>&& other) noexcept;
 
+  /**
+   * Destructor. Erases all vertices, edges, half edges and faces from their owning
+   * pools.
+   */
+  ~Polyhedron();
+
 public: // copy and move assignment
   /**
    * Copy assignment operator.
@@ -1273,6 +1329,10 @@ public: // swap function, must be implemented here because it's a public templat
   friend void swap(Polyhedron<T, FP, VP>& first, Polyhedron<T, FP, VP>& second)
   {
     using std::swap;
+    swap(first.m_vertexPool, second.m_vertexPool);
+    swap(first.m_edgePool, second.m_edgePool);
+    swap(first.m_halfEdgePool, second.m_halfEdgePool);
+    swap(first.m_facePool, second.m_facePool);
     swap(first.m_vertices, second.m_vertices);
     swap(first.m_edges, second.m_edges);
     swap(first.m_faces, second.m_faces);
@@ -1990,9 +2050,14 @@ private:
    * @param visitedFaces the faces that have already been visited by this function in
    * previous calls
    * @param verticesToDelete the vertices that should be deleted later
+   * @param facesToDelete the faces that should be deleted later
    */
   template <typename FaceSet>
-  void deleteFaces(HalfEdge* first, FaceSet& visitedFaces, VertexList& verticesToDelete);
+  void deleteFaces(
+    HalfEdge* first,
+    FaceSet& visitedFaces,
+    VertexList& verticesToDelete,
+    FaceList& facesToDelete);
 
   /**
    * Waves a new cap onto this polyhedron. The new cap will be a single polygon, so this
@@ -2046,7 +2111,7 @@ private:
    * @return the components of the newly created cone or an empty optional if the
    * operation fails
    */
-  static std::optional<WeaveConeResult> weaveCone(
+  std::optional<WeaveConeResult> weaveCone(
     const Seam& seam, const vm::vec<T, 3>& position);
 
   /**
