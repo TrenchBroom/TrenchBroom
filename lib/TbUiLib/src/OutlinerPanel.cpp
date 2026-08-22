@@ -28,13 +28,18 @@
 #include <QTreeView>
 #include <QVBoxLayout>
 
+#include "mdl/BrushNode.h"
+#include "mdl/EntityNode.h"
 #include "mdl/GroupNode.h"
+#include "mdl/LayerNode.h"
 #include "mdl/Map.h"
 #include "mdl/Map_Groups.h"
 #include "mdl/Map_Selection.h"
 #include "mdl/Node.h"
+#include "mdl/PatchNode.h"
 #include "mdl/Selection.h"
 #include "mdl/SelectionChange.h"
+#include "mdl/WorldNode.h"
 #include "ui/AppController.h"
 #include "ui/MapDocument.h"
 #include "ui/MapWindow.h"
@@ -43,6 +48,7 @@
 #include "ui/SearchBox.h"
 #include "ui/ViewConstants.h"
 
+#include "kd/overload.h"
 #include "kd/ranges/to.h"
 #include "kd/set_temp.h"
 
@@ -51,6 +57,40 @@
 
 namespace tb::ui
 {
+namespace
+{
+
+/**
+ * Whether a node may be put into the document's selection.
+ *
+ * The world and its layers are containers rather than objects. No other part of
+ * TrenchBroom can select one -- the layer editor tracks a *current* layer,
+ * which is a separate concept -- so the rest of the model is written assuming
+ * it never happens, and nothing stops us: SelectionCommand's own selectability
+ * check is commented out upstream so that issue objects stay selectable.
+ *
+ * The Outliner is the first view to show layers as ordinary clickable rows, so
+ * it is the first that has to say no. Selecting one is not merely useless; it
+ * is actively destructive. Duplicating a selected layer asks parentForNodes()
+ * where the copy should go, findContainingLayer() answers with the layer
+ * itself, LayerNode rejects a LayerNode child, and the failed canAddChild()
+ * precondition takes the whole process down. Short of that, a selected layer
+ * still leaves the document permanently non-empty: selection-dependent tools
+ * arm themselves and steal the drag that would otherwise create a brush.
+ */
+bool isSelectableInDocument(const mdl::Node& node)
+{
+  return node.accept(kdl::overload(
+    [](const mdl::WorldNode&) { return false; },
+    [](const mdl::LayerNode&) { return false; },
+    [](const mdl::GroupNode&) { return true; },
+    [](const mdl::EntityNode&) { return true; },
+    [](const mdl::BrushNode&) { return true; },
+    [](const mdl::PatchNode&) { return true; }));
+}
+
+} // namespace
+
 
 OutlinerPanel::OutlinerPanel(
   AppController& appController, MapDocument& document, QWidget* parent)
@@ -182,7 +222,8 @@ std::vector<mdl::Node*> OutlinerPanel::selectedNodesInTree() const
            const auto sourceIndex = m_proxyModel->mapToSource(proxyIndex);
            return m_model->nodeForIndex(sourceIndex);
          })
-         | std::views::filter([](auto* node) { return node != nullptr; })
+         | std::views::filter(
+           [](auto* node) { return node && isSelectableInDocument(*node); })
          | kdl::ranges::to<std::vector>();
 }
 
@@ -213,8 +254,9 @@ void OutlinerPanel::itemDoubleClicked(const QModelIndex& proxyIndex)
   }
 
   auto* node = m_model->nodeForIndex(m_proxyModel->mapToSource(proxyIndex));
-  if (!node)
+  if (!node || !isSelectableInDocument(*node))
   {
+    // Double-clicking a layer row expands it, which QTreeView has already done.
     return;
   }
 
