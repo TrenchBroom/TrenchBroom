@@ -17,6 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Matchers.h"
 #include "mdl/Brush.h"
 #include "mdl/BrushBuilder.h"
 #include "mdl/BrushFace.h"
@@ -543,6 +544,44 @@ TEST_CASE("BrushBuilder")
         CHECK(cuboid.fullySpecified());
         CHECK(cuboid.bounds() == bounds);
       }) | kdl::transform_error([](const auto& e) { FAIL(e); });
+    }
+
+    SECTION("from bounds near the raised world bounds limit")
+    {
+      // Regression coverage for raising MapDocument::DefaultWorldBounds from
+      // +/-32768 to +/-524288 (see MapDocument.cpp) to fit converted EverQuest
+      // zones. Builds the same cuboid both at the origin and translated out near
+      // the new limit and checks the results agree up to the translation, i.e.
+      // that construction is not less precise near the new limit.
+      const auto worldBoundsNearLimit = vm::bbox3d{524288.0};
+      auto builderNearLimit = BrushBuilder{MapFormat::Standard, worldBoundsNearLimit};
+
+      // well inside the new limit (524288) but far outside the old one (32768)
+      const auto offset = vm::vec3d{300000, -300000, 200000};
+
+      const auto boundsAtOrigin = vm::bbox3d{{-16, -32, -64}, {32, 64, 128}};
+      const auto boundsNearLimit =
+        vm::bbox3d{boundsAtOrigin.min + offset, boundsAtOrigin.max + offset};
+
+      const auto cuboidAtOrigin =
+        builder.createCuboid(boundsAtOrigin, "someName") | kdl::value();
+      const auto cuboidNearLimit =
+        builderNearLimit.createCuboid(boundsNearLimit, "someName") | kdl::value();
+
+      REQUIRE(cuboidNearLimit.fullySpecified());
+      CHECK(cuboidNearLimit.bounds() == boundsNearLimit);
+      CHECK(cuboidNearLimit.vertexCount() == cuboidAtOrigin.vertexCount());
+
+      auto originVertexPositions = cuboidAtOrigin.vertexPositions();
+      auto translatedBackVertexPositions = cuboidNearLimit.vertexPositions();
+      for (auto& position : translatedBackVertexPositions)
+      {
+        position = position - offset;
+      }
+
+      CHECK_THAT(
+        translatedBackVertexPositions,
+        UnorderedApproxVecMatches(originVertexPositions, 0.0001));
     }
 
     SECTION("with a material per face")

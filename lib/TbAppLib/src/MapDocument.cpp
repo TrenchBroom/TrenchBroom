@@ -62,7 +62,12 @@
 namespace tb::ui
 {
 
-const vm::bbox3d MapDocument::DefaultWorldBounds(-32768.0, 32768.0);
+// Raised from the historical Quake-era limit of +/-32768 so that converted maps from
+// games with larger playable areas (e.g. EverQuest zones scaled to Quake units) fit
+// within the hard world bounds. 524288 (2^19) is exactly representable as a float32,
+// which avoids introducing new precision loss where world bounds are ever narrowed to
+// single precision (e.g. GridRenderer).
+const vm::bbox3d MapDocument::DefaultWorldBounds(-524288.0, 524288.0);
 
 MapDocument::MapDocument(
   kdl::task_manager& taskManager, gl::ResourceManager& resourceManager)

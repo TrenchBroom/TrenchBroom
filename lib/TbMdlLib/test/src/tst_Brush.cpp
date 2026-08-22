@@ -401,6 +401,78 @@ TEST_CASE("Brush")
     CHECK(!brush.findFace(right.boundary()));
   }
 
+  SECTION("clip near the raised world bounds limit")
+  {
+    // Regression coverage for raising MapDocument::DefaultWorldBounds from +/-32768 to
+    // +/-524288 (see MapDocument.cpp) to fit converted EverQuest zones. Builds and clips
+    // the exact same 16-unit cube both at the origin and translated far out towards the
+    // new limit, and checks that the clip produces geometrically identical results
+    // (up to the translation), i.e. that operating near the new limit does not lose
+    // precision relative to operating near the origin.
+    const auto worldBoundsAtOrigin = vm::bbox3d{4096.0};
+    const auto worldBoundsNearLimit = vm::bbox3d{524288.0};
+
+    // well inside the new limit (524288) but far outside the old one (32768)
+    const auto offset = vm::vec3d{300000, -300000, 200000};
+
+    const auto buildAndClip =
+      [](const vm::bbox3d& worldBounds, const vm::vec3d& translation) {
+        const auto left = createParaxial(
+          translation + vm::vec3d{0, 0, 0},
+          translation + vm::vec3d{0, 1, 0},
+          translation + vm::vec3d{0, 0, 1});
+        const auto right = createParaxial(
+          translation + vm::vec3d{16, 0, 0},
+          translation + vm::vec3d{16, 0, 1},
+          translation + vm::vec3d{16, 1, 0});
+        const auto front = createParaxial(
+          translation + vm::vec3d{0, 0, 0},
+          translation + vm::vec3d{0, 0, 1},
+          translation + vm::vec3d{1, 0, 0});
+        const auto back = createParaxial(
+          translation + vm::vec3d{0, 16, 0},
+          translation + vm::vec3d{1, 16, 0},
+          translation + vm::vec3d{0, 16, 1});
+        const auto top = createParaxial(
+          translation + vm::vec3d{0, 0, 16},
+          translation + vm::vec3d{0, 1, 16},
+          translation + vm::vec3d{1, 0, 16});
+        const auto bottom = createParaxial(
+          translation + vm::vec3d{0, 0, 0},
+          translation + vm::vec3d{1, 0, 0},
+          translation + vm::vec3d{0, 1, 0});
+
+        auto brush = Brush::create(worldBounds, {left, right, front, back, top, bottom})
+                     | kdl::value();
+
+        const auto clip = createParaxial(
+          translation + vm::vec3d{8, 0, 0},
+          translation + vm::vec3d{8, 0, 1},
+          translation + vm::vec3d{8, 1, 0});
+        REQUIRE(brush.clip(worldBounds, clip));
+
+        return brush;
+      };
+
+    const auto brushAtOrigin = buildAndClip(worldBoundsAtOrigin, vm::vec3d{0, 0, 0});
+    const auto brushNearLimit = buildAndClip(worldBoundsNearLimit, offset);
+
+    REQUIRE(brushAtOrigin.faceCount() == 6u);
+    CHECK(brushNearLimit.faceCount() == brushAtOrigin.faceCount());
+    CHECK(brushNearLimit.vertexCount() == brushAtOrigin.vertexCount());
+
+    auto originVertexPositions = brushAtOrigin.vertexPositions();
+    auto translatedBackVertexPositions = brushNearLimit.vertexPositions();
+    for (auto& position : translatedBackVertexPositions)
+    {
+      position = position - offset;
+    }
+
+    CHECK_THAT(
+      translatedBackVertexPositions,
+      UnorderedApproxVecMatches(originVertexPositions, 0.0001));
+  }
+
   SECTION("moveBoundary")
   {
     SECTION("Move faces successfully")
@@ -600,6 +672,47 @@ TEST_CASE("Brush")
       assertMaterial("back", brush, p3, p4, p8, p7);
       assertMaterial("top", brush, p2, p6, p8, p4);
       assertMaterial("bottom", brush, p1, p3, p7, p5);
+    }
+
+    SECTION("Move vertex near the raised world bounds limit")
+    {
+      // Regression coverage for raising MapDocument::DefaultWorldBounds from +/-32768
+      // to +/-524288 (see MapDocument.cpp). Repeats "Move vertex onto adjacent vertex
+      // and back" translated out near the new limit, to confirm vertex transformation
+      // is not less precise there than near the origin.
+      const auto worldBounds = vm::bbox3d{524288.0};
+
+      // well inside the new limit (524288) but far outside the old one (32768)
+      const auto offset = vm::vec3d{300000, -300000, 200000};
+
+      auto builder = BrushBuilder{MapFormat::Standard, worldBounds};
+      auto brush = builder.createCuboid(
+                     vm::bbox3d{
+                       offset - vm::vec3d{32, 32, 32}, offset + vm::vec3d{32, 32, 32}},
+                     "material")
+                   | kdl::value();
+
+      const auto p8 = offset + vm::vec3d{+32, +32, +32};
+      const auto p9 = offset + vm::vec3d{+16, +16, +32};
+
+      auto oldVertexPositions = std::vector<vm::vec3d>{p8};
+      const auto transform = vm::translation_matrix(p9 - p8);
+      const auto inverse = vm::translation_matrix(p8 - p9);
+
+      REQUIRE(brush.hasVertex(p8, 0.0001));
+      CHECK(brush.transformVertices(worldBounds, oldVertexPositions, transform));
+
+      auto newVertexPositions =
+        brush.findClosestVertexPositions(transform * oldVertexPositions);
+      CHECK(newVertexPositions.size() == 1u);
+      CHECK(newVertexPositions[0] == vm::approx{p9, 0.0001});
+
+      oldVertexPositions = std::move(newVertexPositions);
+      CHECK(brush.transformVertices(worldBounds, oldVertexPositions, inverse));
+
+      newVertexPositions = brush.findClosestVertexPositions(inverse * oldVertexPositions);
+      CHECK(newVertexPositions.size() == 1u);
+      CHECK(newVertexPositions[0] == vm::approx{p8, 0.0001});
     }
 
     SECTION("Move a vertx of a tetrahedron onto the opposing side")
