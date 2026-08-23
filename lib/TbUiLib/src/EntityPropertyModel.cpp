@@ -1156,8 +1156,21 @@ bool EntityPropertyModel::updateProperty(
   {
     if (const auto* oldValue = node->entity().property(key))
     {
-      // this should be guaranteed by the PropertyRow constructor
-      contract_assert(isPropertyValueMutable(node->entity(), key));
+      // Refuse rather than abort. This was a contract_assert on the grounds
+      // that the PropertyRow constructor already guarantees it, and the row
+      // state does -- but the guarantee is about what the table OFFERS, not
+      // about what reaches this function, and a commit can arrive for a key
+      // the table has since decided is immutable.
+      //
+      // `wad` is the reachable case. It is locked on worldspawn because the
+      // Wad Files panel owns it, so typing the key into the property table by
+      // hand and then touching the panel lands here with an immutable key and
+      // takes the whole editor down, losing the session. Skipping one property
+      // edit is a far smaller thing to get wrong than that.
+      if (!isPropertyValueMutable(node->entity(), key))
+      {
+        continue;
+      }
 
       if (*oldValue != newValue)
       {
