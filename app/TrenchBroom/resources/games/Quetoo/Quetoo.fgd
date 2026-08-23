@@ -717,7 +717,7 @@
 
 @SolidClass base(trigger_once) = trigger_multiple : "Triggers multiple targets at fixed intervals."
 [
-	wait(float) : "Interval in seconds between activations" : "0.2"
+	wait(float) : "Interval in seconds between activations; 0 activates for as long as it is touched, give it a value to debounce" : "0"
 ]
 
 @SolidClass base(Target, Targetname) = trigger_once : "Triggers multiple targets once."
