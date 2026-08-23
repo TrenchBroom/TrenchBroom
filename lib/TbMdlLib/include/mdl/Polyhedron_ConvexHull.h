@@ -333,18 +333,18 @@ typename Polyhedron<T, FP, VP>::Vertex* Polyhedron<T, FP, VP>::addPointToPolygon
   auto* e2 = new Edge{h2};
 
   // delete the visible vertices and edges.
-  // the visible half edges are deleted when visibleEdges goes out of scope
   for (auto* curEdge : visibleEdges)
   {
     auto* edge = curEdge->edge();
-    m_edges.remove(edge);
+    eraseEdge(edge);
 
     if (curEdge != visibleEdges.front())
     {
       auto* vertex = curEdge->origin();
-      m_vertices.remove(vertex);
+      eraseVertex(vertex);
     }
   }
+  eraseHalfEdges(visibleEdges);
 
   m_edges.push_back(e1);
   m_edges.push_back(e2);
@@ -714,9 +714,10 @@ void Polyhedron<T, FP, VP>::split(const Seam& seam)
   // recursion.
   auto visitedFaces = std::unordered_set<Face*>{};
 
-  // Will automatically delete the vertices when it falls out of scope
   auto verticesToDelete = VertexList{};
   deleteFaces(first, visitedFaces, verticesToDelete);
+
+  eraseVertices(verticesToDelete);
 }
 
 template <typename T, typename FP, typename VP>
@@ -763,7 +764,7 @@ void Polyhedron<T, FP, VP>::deleteFaces(
         // deleted or that it will be deleted by one of our callers. This means that we
         // can safely unset the edge and delete it.
         current->unsetEdge();
-        m_edges.remove(edge);
+        eraseEdge(edge);
       }
     }
 
@@ -777,7 +778,7 @@ void Polyhedron<T, FP, VP>::deleteFaces(
     current = current->next();
   } while (current != first);
 
-  m_faces.remove(face);
+  eraseFace(face);
 }
 
 template <typename T, typename FP, typename VP>

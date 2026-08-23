@@ -541,10 +541,52 @@ bool Polyhedron<T, FP, VP>::closed() const
 template <typename T, typename FP, typename VP>
 void Polyhedron<T, FP, VP>::clear()
 {
-  m_faces.clear();
-  m_edges.clear();
-  m_vertices.clear();
+  eraseFaces(m_faces);
+  eraseEdges(m_edges);
+  eraseVertices(m_vertices);
   updateBounds();
+}
+
+template <typename T, typename FP, typename VP>
+void Polyhedron<T, FP, VP>::eraseVertex(Vertex* vertex)
+{
+  m_vertices.remove(vertex);
+}
+
+template <typename T, typename FP, typename VP>
+void Polyhedron<T, FP, VP>::eraseEdge(Edge* edge)
+{
+  m_edges.remove(edge);
+}
+
+template <typename T, typename FP, typename VP>
+void Polyhedron<T, FP, VP>::eraseFace(Face* face)
+{
+  m_faces.remove(face);
+}
+
+template <typename T, typename FP, typename VP>
+void Polyhedron<T, FP, VP>::eraseVertices(VertexList& fragment)
+{
+  fragment.clear();
+}
+
+template <typename T, typename FP, typename VP>
+void Polyhedron<T, FP, VP>::eraseEdges(EdgeList& fragment)
+{
+  fragment.clear();
+}
+
+template <typename T, typename FP, typename VP>
+void Polyhedron<T, FP, VP>::eraseFaces(FaceList& fragment)
+{
+  fragment.clear();
+}
+
+template <typename T, typename FP, typename VP>
+void Polyhedron<T, FP, VP>::eraseHalfEdges(HalfEdgeList& fragment)
+{
+  fragment.clear();
 }
 
 template <typename T, typename FP, typename VP>
@@ -884,17 +926,19 @@ typename Polyhedron<T, FP, VP>::Edge* Polyhedron<T, FP, VP>::removeEdge(Edge* ed
       auto* h1 = edge->firstEdge();
       auto* n = h1->next();
       v1->setLeaving(h1->previous()->twin());
-      f1->removeFromBoundary(h1);
+      auto removedH1 = f1->removeFromBoundary(h1);
+      eraseHalfEdges(removedH1);
       n->setOrigin(v1);
 
       // Remove the edges's second edge from its second face
       auto* f2 = edge->secondFace();
       auto* h2 = edge->secondEdge();
-      f2->removeFromBoundary(h2);
+      auto removedH2 = f2->removeFromBoundary(h2);
+      eraseHalfEdges(removedH2);
 
       // Finally, remove v2 and e
-      m_vertices.remove(v2);
-      m_edges.remove(edge);
+      eraseVertex(v2);
+      eraseEdge(edge);
     }
   }
 
@@ -939,11 +983,12 @@ bool Polyhedron<T, FP, VP>::mergeNeighbours(HalfEdge* borderFirst, Edge*& validE
   auto remainingEdges = neighbour->removeFromBoundary(remainingFirst, remainingLast);
   contract_assert(neighbour->boundary().empty());
 
-  // the replaced edges are deleted
-  face->replaceBoundary(borderFirst, borderLast, std::move(remainingEdges));
+  // the replaced edges are erased
+  auto replacedEdges =
+    face->replaceBoundary(borderFirst, borderLast, std::move(remainingEdges));
+  eraseHalfEdges(replacedEdges);
 
   // now delete any remaining vertices and edges
-  // edgesToRemove are deleted when the container falls out of scope
   auto* firstEdge = edgesToRemove.front();
   auto* curEdge = firstEdge;
   do
@@ -957,18 +1002,19 @@ bool Polyhedron<T, FP, VP>::mergeNeighbours(HalfEdge* borderFirst, Edge*& validE
       validEdge = validEdge->next();
     }
 
-    m_edges.remove(edge);
+    eraseEdge(edge);
 
     // don't delete the origin of the first twin edge!
     if (curEdge != twinFirst)
     {
-      m_vertices.remove(origin);
+      eraseVertex(origin);
     }
 
     curEdge = next;
   } while (curEdge != firstEdge);
+  eraseHalfEdges(edgesToRemove);
 
-  m_faces.remove(neighbour);
+  eraseFace(neighbour);
 
   // Fix topological errors
   const auto fixTopologicalErrors = [&](auto* vertex) {
@@ -1061,14 +1107,17 @@ void Polyhedron<T, FP, VP>::mergeIncidentEdges(Vertex* vertex)
 
   auto* edgeToRemove = leaving->edge();
 
-  face2->removeFromBoundary(leaving->twin(), leaving->twin());
-  face1->removeFromBoundary(leaving, leaving);
+  auto removedLeavingTwin = face2->removeFromBoundary(leaving->twin(), leaving->twin());
+  eraseHalfEdges(removedLeavingTwin);
+
+  auto removedLeaving = face1->removeFromBoundary(leaving, leaving);
+  eraseHalfEdges(removedLeaving);
 
   arriving->twin()->setOrigin(next);
   next->setLeaving(arriving->twin());
 
-  m_edges.remove(edgeToRemove);
-  m_vertices.remove(vertex);
+  eraseEdge(edgeToRemove);
+  eraseVertex(vertex);
 }
 
 template <typename T, typename FP, typename VP>

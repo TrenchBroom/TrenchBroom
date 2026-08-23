@@ -1164,6 +1164,53 @@ private:
    */
   vm::bbox<T, 3> m_bounds;
 
+private: // erasure helpers
+  /**
+   * Erases the given vertex from this polyhedron's vertex list. The given vertex must
+   * belong to this polyhedron's vertex list.
+   */
+  void eraseVertex(Vertex* vertex);
+
+  /**
+   * Erases the given edge from this polyhedron's edge list. The given edge must belong to
+   * this polyhedron's edge list.
+   */
+  void eraseEdge(Edge* edge);
+
+  /**
+   * Erases the given face, along with every half edge in its boundary. The given face
+   * must belong to this polyhedron's face list.
+   */
+  void eraseFace(Face* face);
+
+  /**
+   * Erases every vertex in the given list and empties the given list without deleting it.
+   * The given list must be a fragment that has already been detached from this
+   * polyhedron's vertex list.
+   */
+  void eraseVertices(VertexList& fragment);
+
+  /**
+   * Erases every edge in the given list and empties the given list without deleting it.
+   * The given list must be a fragment that has already been detached from this
+   * polyhedron's edge list.
+   */
+  void eraseEdges(EdgeList& fragment);
+
+  /**
+   * Erases every face in the given list, along with every half edge in each face's
+   * boundary, and empties the given list without deleting it. The given list must be a
+   * fragment that has already been detached from this polyhedron's face list.
+   */
+  void eraseFaces(FaceList& fragment);
+
+  /**
+   * Erases every half edge in the given list and empties the given list without deleting
+   * it. The given list must be a fragment that has already been detached from a face's
+   * boundary.
+   */
+  void eraseHalfEdges(HalfEdgeList& fragment);
+
   /* ====================== Implementation in Polyhedron_Misc.h ====================== */
 public: // Constructors
   /**
