@@ -255,13 +255,6 @@
 
 @PointClass base(Targetname) color(0 180 0) size(-4 -4 -4, 4 4 4) = info_null : "A positional target for other entities, etc. These are inhibited in the game and are only useful to the editor and BSP compiler." []
 @PointClass base(Targetname) color(0 180 180) size(-4 -4 -4, 4 4 4) = info_notnull : "A positional target for other entities. Unlike info_null, these are available in the game and can be targeted by other entities (e.g. info_player_intermission)." []
-@PointClass color(255 0 0) size(-1 -1 -1, 1 1 1) = info_luxel : "A luxel origin, for debugging lightmap compilation. These are inhibited in the game and are only useful to the editor and BSP compiler."
-[
-	face(integer) : "The face number"
-	normal(string) : "The normal vector"
-	s(integer) : "The s coordinate"
-	t(integer) : "The t coordinate"
-]
 
 @BaseClass size(-16 -16 -24, 16 16 32) = Spawn [
 	angle(integer) : "The angle at which the player will face when spawned"
