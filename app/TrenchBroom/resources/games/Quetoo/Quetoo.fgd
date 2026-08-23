@@ -19,6 +19,7 @@
 		1 : "triggered" : 0
 		2 : "no_touch" : 0
 		4 : "hover" : 0
+		8 : "hazard_respawn" : 0
 	]
 	team(string) : "The team name for alternating item spawns"
 ]
@@ -43,6 +44,8 @@
 @PointClass base(Item) color(20 180 180) studio("") = item_quad : "Quad damage" []
 @PointClass base(Item) color(204 26 26) studio("") = item_invulnerability : "Invulnerability. Grants full invulnerability for 30 seconds." []
 @PointClass base(Item) color(51 51 102) studio("") = item_invisibility : "Invisibility. Makes the player nearly invisible for 30 seconds." []
+@PointClass base(Item) color(204 26 26) studio("") = item_quake_pentagram : "Pentagram of Protection. Grants full invulnerability for 30 seconds." []
+@PointClass base(Item) color(51 51 102) studio("") = item_quake_shadows : "Ring of Shadows. Makes the player nearly invisible for 30 seconds." []
 
 @BaseClass base(Item) size(-8 -8 -24, 8 8 32) studio("") = TeamFlag []
 @PointClass base(TeamFlag) color(255 0 0) = item_flag_team1 : "Red flag" []
@@ -83,6 +86,21 @@
 @PointClass base(Ammo) color(153 153 26) studio("") = ammo_quake_nails : "Nails for the Quake Nailgun and Super Nailgun." []
 @PointClass base(Ammo) color(204 51 51) studio("") = ammo_quake_rockets : "Rockets for the Quake Grenade Launcher and Rocket Launcher." []
 @PointClass base(Ammo) color(153 153 26) studio("") = ammo_quake_shells : "Shells for the Quake Super Shotgun." []
+
+@SolidClass base(Phong, Targetname) color(0 255 255) = func_bob : "A solid brush that bobs continuously back and forth along a vector. Unlike func_train, no path_corners or triggers are required, making it cheap to place in quantity (e.g. an array of small ambient platforms)."
+[
+	spawnflags(Flags) =
+	[
+		1 : "The entity starts motionless and waits to be triggered" : 0
+	]
+	velocity(string) : "The direction and distance to travel from the spawn origin, e.g. '0 0 32'"
+	speed(integer) : "The peak speed reached at the midpoint of travel. Motion eases from 0 up to this and back down to 0 at each end, like a pendulum or a floating object bobbing." : 100
+	compression(float) : "Shapes the ease curve. Greater than 1 narrows the peak and adds 'hang time' at each end; less than 1 flattens/widens the peak. If unset, auto-derived from how long the leg takes to traverse (velocity's distance divided by speed) so legs far from a ~1 second sweet spot in either direction - too short (stutters) or too long (a slow crawl before the entity gets moving) - get a flatter curve instead of always defaulting to a pure sine; set explicitly to override."
+	wait(integer) : "Seconds to pause at each end before reversing (0 = continuous bobbing)" : 0
+	drift(float) : "Multiplier (0 = no startup delay) on the entity's own natural cycle length, used to pick a random startup delay so multiple func_bobs with identical keys don't move in lockstep - set this on an array of identical func_bobs to desync them. 1 spans one full cycle; raise it for extra margin, lower it to allow more visible clustering." : "0"
+	dmg(integer) : "The damage inflicted on players who block the entity" : 2
+	sound(string) : "The looping sound to play while moving"
+]
 
 @SolidClass base(Phong, Target, Targetname) color(0 255 255) = func_button : "When a button is touched by a player, it moves in the direction set by the 'angle' key, triggers all its targets, stays pressed by the amount of time set by the 'wait' key, then returns to its original position where it can be operated again."
 [
@@ -126,9 +144,9 @@
 [
 	spawnflags(Flags) =
 	[
-		1 : "The door to moves to its destination when spawned, and operates in reverse" : 0
-		2 : "The door will rotate in the opposite (negative) direction along its axis" : 0
-		4 : "The door will wait in both the start and end states for a trigger event" : 0
+		1 : "The door moves to its destination when spawned, and operates in reverse" : 0
+		2 : "The door will wait in both the start and end states for a trigger event" : 0
+		4 : "The door will rotate in the opposite (negative) direction along its axis" : 0
 		8 : "The door will rotate along its X axis" : 0
 		16 : "The door will rotate along its Y axis" : 0
 	]
@@ -154,6 +172,7 @@
 	health(integer) : "If set, door must take damage to open"
 	speed(integer) : "The speed with which the door opens" : 100
 	wait(integer) : "Wait before returning (-1 = never return)" : 3
+	lip(integer) : "The lip remaining at end of move" : 8
 	dmg(integer) : "The damage inflicted on players who block the door as it closes" : 2
 	sounds(integer) : "The sound set for the door (0 default, 1 stone, -1 silent)" : 0
 ]
@@ -199,7 +218,7 @@
 	delay(integer) : "Additional delay before the first firing when start_on" : 0
 ]
 
-@SolidClass base(Phong, Targetname) color(0 255 255) = func_train : "Trains are moving solids that players can ride along a series of path_corners. The origin of each corner specifies the lower bounding point of the train at that corner. If the train is the target of a button or trigger, it will not begin moving until activated."
+@SolidClass base(Phong, Target, Targetname) color(0 255 255) = func_train : "Trains are moving solids that players can ride along a series of path_corners. Target the first path_corner of the route. If the train is the target of a button or trigger, it will not begin moving until activated. Given a common/origin brush, each corner specifies the train's own origin and the train rotates about it, turning and pitching to face each leg of its route; without one, each corner specifies the train's lower bounding point and the train cannot rotate."
 [
 	spawnflags(Flags) =
 	[
@@ -208,7 +227,7 @@
 		4 : "The train will stop when blocked, and inflict no damage" : 0
 	]
 	dmg(integer) : "The damage inflicted on players who block the train" : 2
-	speed(integer) : "The speed with which the train moves" : 100
+	speed(integer) : "The speed with which the train moves, and the default for corners that omit it" : 100
 	sound(string) : "The looping sound to play while the train is in motion"
 ]
 
@@ -355,7 +374,7 @@
 	target(target_source) : "The name of the entity to target to resolve the sparks direction."
 ]
 
-@PointClass color(120 120 200) size(-24 -24 -24, 24 24 24) = misc_sprite : "Highly configurable client-side emission of sprites. These are useful for light volumes, blood dripping from walls, or anything else you can think of. If two instances of this entity are teamed, the game will emit randomized instances that mix the properties of both teammates."
+@PointClass color(120 120 200) size(-24 -24 -24, 24 24 24) = misc_sprite : "Highly configurable client-side emission of sprites. These are useful for light volumes, blood dripping from walls, or anything else you can think of. Team two or more instances via the same team key to chain them: each entity mixes its emitted sprite properties with the next misc_sprite sharing that team key (in map file order), not the whole group at once. The last entity in the chain has no successor, so it emits unmixed."
 [
 	acceleration(string) : "The sprite acceleration" : "0 0 0"
 	color(string) : "The sprite HSVA color as 4 decimal values" : "0 0 1 1"
@@ -375,7 +394,7 @@
 	size_acceleration(float) : "Rate of change of size_velocity in world units per second squared. Use negative values to slow growth or speed shrinking" : "0"
 	softness(float) : "The sprite softness scalar" : "1"
 	sprite(string) : "The sprite image name" : "particle1"
-	team(string) : "The team name, for emitting randomized sprites that mix properties"
+	team(string) : "The team name. Mixes this entity's sprite properties with the next misc_sprite sharing the same team key (chain order, not a full group). The last entity in the chain has no successor and emits unmixed."
 	velocity(string) : "The sprite velocity" : "0 0 0"
 	width(float) : "The sprite width. Setting this will cause size to be ignored" : "0"
 ]
@@ -413,17 +432,261 @@
 	hz(string) : "Spawn rate in Hz" : "5"
 ]
 
-@PointClass base(Target, Targetname) color(128 76 0) size(-8 -8 -8, 8 8 8) = path_corner : "Path corner for func_trains."
+@PointClass base(Target, Targetname) color(128 76 0) size(-8 -8 -8, 8 8 8) = path_corner : "Path corner for func_trains. To loop a train back to its start, point the last corner of the route at the first corner, and set both spawnflags on that first corner. Riders are not carried through the jump, and the mapper is responsible for hiding both corners from view."
 [
 	spawnflags(Flags) =
 	[
-		1 : "The path corner teleports the train as soon as it is selected" : 0
-		2 : "Suppress the default teleport effects" : 0
+		1 : "The train jumps to this corner instead of travelling to it, then carries on to this corner's target" : 0
+		2 : "Suppress the teleport effect" : 0
 	]
 	target(target_destination) : "The next corner in the path"
 	pathtarget(target_destination) : "An entity to be used by this path corner when targeted"
+	wait(float) : "Seconds to wait here before moving on; -1 with the train's toggle flag parks it here until triggered" : "0"
+	speed(integer) : "The speed the train is doing on arriving here, blended from the speed of the corner it departed. Defaults to the train's own speed. Avoid exceeding 2400, above which the client stops smoothing the train's motion"
+	angles(string) : "The orientation the train holds on arriving here, rotating into it over the leg. Requires the train to have an origin brush. Omit to have the train face its direction of travel"
 ]
 
+// Ballistics and turret entities: one classname per weapon, so that the weapon cannot be
+// set to an invalid combination and so that editors group them by prefix.
+
+@BaseClass base(Target, Targetname) size(-8 -8 -8, 8 8 8) color(255 77 77) = Ballistics
+[
+	spawnflags(Flags) =
+	[
+		1 : "Fires on its own from level start, without being used" : 0
+		2 : "Using this entity toggles it on and off, rather than firing one shot" : 0
+	]
+	angle(integer) : "The direction fired in (up = -1, down = -2)"
+	dmg(integer) : "The damage inflicted per projectile, defaulting to the weapon's own balance"
+	knockback(integer) : "The knockback applied per projectile, defaulting to the weapon's balance"
+	spread(float) : "The cone of fire, from 0.0 for pinpoint to 1.0 for wild" : "0"
+	delay(float) : "The delay in seconds between being used and firing" : "0"
+	random(float) : "Random time variance in seconds added to wait" : "0"
+]
+
+@PointClass base(Ballistics) = ballistics_blaster : "Fires blaster bolts at an interval, or each time it is used. Place it in open air, in front of the brushwork that represents it, not embedded within it. It does not spare whoever triggered it; for a version players can aim and take credit for, use the turret."
+[
+	speed(integer) : "The projectile speed in units per second, defaulting to the weapon's balance"
+	wait(float) : "The interval in seconds between shots" : "1.0"
+]
+
+@PointClass base(Ballistics) = ballistics_shotgun : "Fires a spread of shotgun pellets at an interval, or each time it is used. Place it in open air, in front of the brushwork that represents it, not embedded within it. It does not spare whoever triggered it; for a version players can aim and take credit for, use the turret."
+[
+	wait(float) : "The interval in seconds between shots" : "1.0"
+]
+
+@PointClass base(Ballistics) = ballistics_supershotgun : "Fires a wide spread of pellets at an interval, or each time it is used. Place it in open air, in front of the brushwork that represents it, not embedded within it. It does not spare whoever triggered it; for a version players can aim and take credit for, use the turret."
+[
+	wait(float) : "The interval in seconds between shots" : "1.0"
+]
+
+@PointClass base(Ballistics) = ballistics_machinegun : "Fires bullets at an interval, or each time it is used. Place it in open air, in front of the brushwork that represents it, not embedded within it. It does not spare whoever triggered it; for a version players can aim and take credit for, use the turret."
+[
+	wait(float) : "The interval in seconds between shots" : "1.0"
+]
+
+@PointClass base(Ballistics) = ballistics_grenadelauncher : "Fires bouncing grenades at an interval, or each time it is used. Place it in open air, in front of the brushwork that represents it, not embedded within it. It does not spare whoever triggered it; for a version players can aim and take credit for, use the turret."
+[
+	speed(integer) : "The projectile speed in units per second, defaulting to the weapon's balance"
+	wait(float) : "The interval in seconds between shots" : "1.0"
+]
+
+@PointClass base(Ballistics) = ballistics_rocketlauncher : "Fires rockets at an interval, or each time it is used. Place it in open air, in front of the brushwork that represents it, not embedded within it. It does not spare whoever triggered it; for a version players can aim and take credit for, use the turret."
+[
+	speed(integer) : "The projectile speed in units per second, defaulting to the weapon's balance"
+	wait(float) : "The interval in seconds between shots" : "1.0"
+]
+
+@PointClass base(Ballistics) = ballistics_hyperblaster : "Fires hyperblaster bolts at an interval, or each time it is used. Place it in open air, in front of the brushwork that represents it, not embedded within it. It does not spare whoever triggered it; for a version players can aim and take credit for, use the turret."
+[
+	speed(integer) : "The projectile speed in units per second, defaulting to the weapon's balance"
+	wait(float) : "The interval in seconds between shots" : "1.0"
+]
+
+@PointClass base(Ballistics) = ballistics_lightning : "Emits a lightning beam that burns whatever it crosses, for as long as it is on. Give it start_on or toggle. Place it in open air, in front of the brushwork that represents it, not embedded within it."
+[
+	color(string) : "The beam color" : "1 1 1"
+	wait(float) : "The interval in seconds between damage" : "1.0"
+]
+
+@PointClass base(Ballistics) = ballistics_railgun : "Fires railgun slugs at an interval, or each time it is used. Place it in open air, in front of the brushwork that represents it, not embedded within it. It does not spare whoever triggered it; for a version players can aim and take credit for, use the turret."
+[
+	wait(float) : "The interval in seconds between shots" : "1.0"
+]
+
+@PointClass base(Ballistics) = ballistics_bfg : "Fires BFG orbs at an interval, or each time it is used. Place it in open air, in front of the brushwork that represents it, not embedded within it. It does not spare whoever triggered it; for a version players can aim and take credit for, use the turret."
+[
+	speed(integer) : "The projectile speed in units per second, defaulting to the weapon's balance"
+	wait(float) : "The interval in seconds between shots" : "1.0"
+]
+
+@PointClass base(Ballistics) = ballistics_quake_shotgun : "Fires Quake buckshot at an interval, or each time it is used. Place it in open air, in front of the brushwork that represents it, not embedded within it. It does not spare whoever triggered it; for a version players can aim and take credit for, use the turret."
+[
+	wait(float) : "The interval in seconds between shots" : "1.0"
+]
+
+@PointClass base(Ballistics) = ballistics_quake_supershotgun : "Fires a double load of Quake buckshot at an interval, or each time it is used. Place it in open air, in front of the brushwork that represents it, not embedded within it. It does not spare whoever triggered it; for a version players can aim and take credit for, use the turret."
+[
+	wait(float) : "The interval in seconds between shots" : "1.0"
+]
+
+@PointClass base(Ballistics) = ballistics_quake_nailgun : "Fires Quake nails at an interval, or each time it is used. Place it in open air, in front of the brushwork that represents it, not embedded within it. It does not spare whoever triggered it; for a version players can aim and take credit for, use the turret."
+[
+	speed(integer) : "The projectile speed in units per second, defaulting to the weapon's balance"
+	wait(float) : "The interval in seconds between shots" : "1.0"
+]
+
+@PointClass base(Ballistics) = ballistics_quake_supernailgun : "Fires Quake nails, harder and faster at an interval, or each time it is used. Place it in open air, in front of the brushwork that represents it, not embedded within it. It does not spare whoever triggered it; for a version players can aim and take credit for, use the turret."
+[
+	speed(integer) : "The projectile speed in units per second, defaulting to the weapon's balance"
+	wait(float) : "The interval in seconds between shots" : "1.0"
+]
+
+@PointClass base(Ballistics) = ballistics_quake_grenadelauncher : "Fires Quake grenades at an interval, or each time it is used. Place it in open air, in front of the brushwork that represents it, not embedded within it. It does not spare whoever triggered it; for a version players can aim and take credit for, use the turret."
+[
+	speed(integer) : "The projectile speed in units per second, defaulting to the weapon's balance"
+	wait(float) : "The interval in seconds between shots" : "1.0"
+]
+
+@PointClass base(Ballistics) = ballistics_quake_rocketlauncher : "Fires Quake rockets at an interval, or each time it is used. Place it in open air, in front of the brushwork that represents it, not embedded within it. It does not spare whoever triggered it; for a version players can aim and take credit for, use the turret."
+[
+	speed(integer) : "The projectile speed in units per second, defaulting to the weapon's balance"
+	wait(float) : "The interval in seconds between shots" : "1.0"
+]
+
+@PointClass base(Ballistics) = ballistics_quake_thunderbolt : "Emits a Quake thunderbolt beam that burns whatever it crosses, for as long as it is on. Give it start_on or toggle. Place it in open air, in front of the brushwork that represents it, not embedded within it."
+[
+	color(string) : "The beam color" : "1 1 1"
+	wait(float) : "The interval in seconds between damage" : "1.0"
+]
+
+@PointClass base(Ballistics) = ballistics_laser : "Emits a laser beam that burns whatever it crosses, for as long as it is on. Give it start_on or toggle. Place it in open air, in front of the brushwork that represents it, not embedded within it."
+[
+	color(string) : "The beam color" : "1 1 1"
+	wait(float) : "The interval in seconds between damage" : "1.0"
+]
+
+@PointClass base(Ballistics) = ballistics_giblets : "Fires giblets at an interval, or each time it is used. Place it in open air, in front of the brushwork that represents it, not embedded within it. It does not spare whoever triggered it; for a version players can aim and take credit for, use the turret."
+[
+	speed(integer) : "The projectile speed in units per second, defaulting to the weapon's balance"
+	wait(float) : "The interval in seconds between shots" : "1.0"
+]
+
+@BaseClass base(Target, Targetname) size(-8 -8 -8, 8 8 8) color(255 153 51) = Turret
+[
+	angle(integer) : "The direction fired in (up = -1, down = -2)"
+	dmg(integer) : "The damage inflicted per projectile, defaulting to the weapon's own balance"
+	knockback(integer) : "The knockback applied per projectile, defaulting to the weapon's balance"
+	spread(float) : "The cone of fire, from 0.0 for pinpoint to 1.0 for wild" : "0"
+]
+
+@PointClass base(Turret) = turret_blaster : "Fires blaster bolts along the view of whoever uses it, and credits them with the kill. Surround it with a trigger_multiple that targets it, and players who step in behind it will operate it."
+[
+	speed(integer) : "The projectile speed in units per second, defaulting to the weapon's balance"
+	wait(float) : "The minimum interval in seconds between shots" : "1.0"
+]
+
+@PointClass base(Turret) = turret_shotgun : "Fires a spread of shotgun pellets along the view of whoever uses it, and credits them with the kill. Surround it with a trigger_multiple that targets it, and players who step in behind it will operate it."
+[
+	wait(float) : "The minimum interval in seconds between shots" : "1.0"
+]
+
+@PointClass base(Turret) = turret_supershotgun : "Fires a wide spread of pellets along the view of whoever uses it, and credits them with the kill. Surround it with a trigger_multiple that targets it, and players who step in behind it will operate it."
+[
+	wait(float) : "The minimum interval in seconds between shots" : "1.0"
+]
+
+@PointClass base(Turret) = turret_machinegun : "Fires bullets along the view of whoever uses it, and credits them with the kill. Surround it with a trigger_multiple that targets it, and players who step in behind it will operate it."
+[
+	wait(float) : "The minimum interval in seconds between shots" : "1.0"
+]
+
+@PointClass base(Turret) = turret_grenadelauncher : "Fires bouncing grenades along the view of whoever uses it, and credits them with the kill. Surround it with a trigger_multiple that targets it, and players who step in behind it will operate it."
+[
+	speed(integer) : "The projectile speed in units per second, defaulting to the weapon's balance"
+	wait(float) : "The minimum interval in seconds between shots" : "1.0"
+]
+
+@PointClass base(Turret) = turret_rocketlauncher : "Fires rockets along the view of whoever uses it, and credits them with the kill. Surround it with a trigger_multiple that targets it, and players who step in behind it will operate it."
+[
+	speed(integer) : "The projectile speed in units per second, defaulting to the weapon's balance"
+	wait(float) : "The minimum interval in seconds between shots" : "1.0"
+]
+
+@PointClass base(Turret) = turret_hyperblaster : "Fires hyperblaster bolts along the view of whoever uses it, and credits them with the kill. Surround it with a trigger_multiple that targets it, and players who step in behind it will operate it."
+[
+	speed(integer) : "The projectile speed in units per second, defaulting to the weapon's balance"
+	wait(float) : "The minimum interval in seconds between shots" : "1.0"
+]
+
+@PointClass base(Turret) = turret_lightning : "Emits a lightning beam along the view of whoever uses it, crediting them with any kill. The beam lasts as long as it is being used, so give the trigger_multiple behind it a short wait."
+[
+	color(string) : "The beam color" : "1 1 1"
+	wait(float) : "The interval in seconds between damage" : "1.0"
+]
+
+@PointClass base(Turret) = turret_railgun : "Fires railgun slugs along the view of whoever uses it, and credits them with the kill. Surround it with a trigger_multiple that targets it, and players who step in behind it will operate it."
+[
+	wait(float) : "The minimum interval in seconds between shots" : "1.0"
+]
+
+@PointClass base(Turret) = turret_bfg : "Fires BFG orbs along the view of whoever uses it, and credits them with the kill. Surround it with a trigger_multiple that targets it, and players who step in behind it will operate it."
+[
+	speed(integer) : "The projectile speed in units per second, defaulting to the weapon's balance"
+	wait(float) : "The minimum interval in seconds between shots" : "1.0"
+]
+
+@PointClass base(Turret) = turret_quake_shotgun : "Fires Quake buckshot along the view of whoever uses it, and credits them with the kill. Surround it with a trigger_multiple that targets it, and players who step in behind it will operate it."
+[
+	wait(float) : "The minimum interval in seconds between shots" : "1.0"
+]
+
+@PointClass base(Turret) = turret_quake_supershotgun : "Fires a double load of Quake buckshot along the view of whoever uses it, and credits them with the kill. Surround it with a trigger_multiple that targets it, and players who step in behind it will operate it."
+[
+	wait(float) : "The minimum interval in seconds between shots" : "1.0"
+]
+
+@PointClass base(Turret) = turret_quake_nailgun : "Fires Quake nails along the view of whoever uses it, and credits them with the kill. Surround it with a trigger_multiple that targets it, and players who step in behind it will operate it."
+[
+	speed(integer) : "The projectile speed in units per second, defaulting to the weapon's balance"
+	wait(float) : "The minimum interval in seconds between shots" : "1.0"
+]
+
+@PointClass base(Turret) = turret_quake_supernailgun : "Fires Quake nails, harder and faster along the view of whoever uses it, and credits them with the kill. Surround it with a trigger_multiple that targets it, and players who step in behind it will operate it."
+[
+	speed(integer) : "The projectile speed in units per second, defaulting to the weapon's balance"
+	wait(float) : "The minimum interval in seconds between shots" : "1.0"
+]
+
+@PointClass base(Turret) = turret_quake_grenadelauncher : "Fires Quake grenades along the view of whoever uses it, and credits them with the kill. Surround it with a trigger_multiple that targets it, and players who step in behind it will operate it."
+[
+	speed(integer) : "The projectile speed in units per second, defaulting to the weapon's balance"
+	wait(float) : "The minimum interval in seconds between shots" : "1.0"
+]
+
+@PointClass base(Turret) = turret_quake_rocketlauncher : "Fires Quake rockets along the view of whoever uses it, and credits them with the kill. Surround it with a trigger_multiple that targets it, and players who step in behind it will operate it."
+[
+	speed(integer) : "The projectile speed in units per second, defaulting to the weapon's balance"
+	wait(float) : "The minimum interval in seconds between shots" : "1.0"
+]
+
+@PointClass base(Turret) = turret_quake_thunderbolt : "Emits a Quake thunderbolt beam along the view of whoever uses it, crediting them with any kill. The beam lasts as long as it is being used, so give the trigger_multiple behind it a short wait."
+[
+	color(string) : "The beam color" : "1 1 1"
+	wait(float) : "The interval in seconds between damage" : "1.0"
+]
+
+@PointClass base(Turret) = turret_laser : "Emits a laser beam along the view of whoever uses it, crediting them with any kill. The beam lasts as long as it is being used, so give the trigger_multiple behind it a short wait."
+[
+	color(string) : "The beam color" : "1 1 1"
+	wait(float) : "The interval in seconds between damage" : "1.0"
+]
+
+@PointClass base(Turret) = turret_giblets : "Fires giblets along the view of whoever uses it, and credits them with the kill. Surround it with a trigger_multiple that targets it, and players who step in behind it will operate it."
+[
+	speed(integer) : "The projectile speed in units per second, defaulting to the weapon's balance"
+	wait(float) : "The minimum interval in seconds between shots" : "1.0"
+]
 @PointClass base(Targetname) color(255 255 80) size(-8 -8 -8, 8 8 8) = target_light : "Emits a user-defined light when used. Lights can be chained with teams. Use this entity to add switched lights. Use the wait key to synchronize color cycles with other entities."
 [
 	spawnflags(Flags) =
@@ -454,7 +717,7 @@
 
 @SolidClass base(trigger_once) = trigger_multiple : "Triggers multiple targets at fixed intervals."
 [
-	wait(float) : "Interval in seconds between activations" : "0.2"
+	wait(float) : "Interval in seconds between activations; 0 activates for as long as it is touched, give it a value to debounce" : "0"
 ]
 
 @SolidClass base(Target, Targetname) = trigger_once : "Triggers multiple targets once."
@@ -495,19 +758,21 @@
 	dmg(integer) : "The damage this trigger inflicts per activation" : 2
 ]
 
-@PointClass base(Target) color(128 128 128) = trigger_exec : "Executes a console command or script file when activated."
+@SolidClass color(128 128 128) = trigger_exec : "Executes a console command or script file when activated."
 [
 	command(string) : "The console command(s) to execute."
 	script(string) : "The script file (.cfg) to execute."
 	delay(integer) : "The delay in seconds between activation and execution of the commands."
 ]
 
-@SolidClass base(Phong) color(180 120 64) = trigger_push : "Pushes the player in any direction. These are commonly used to make jump pads to send the player upwards. Using the angles key, you can project the player in any direction using 'pitch yaw roll.'"
+@SolidClass base(Phong, Targetname) color(180 120 64) = trigger_push : "Pushes the player in any direction. These are commonly used to make jump pads to send the player upwards. Using the angles key, you can project the player in any direction using 'pitch yaw roll.'"
 [
 	spawnflags(Flags) =
 	[
 		1 : "The pusher is freed after it is used once" : 0
 		2 : "The pusher emits sprite effects to indicate its location" : 0
+		4 : "The entity must be activated before it will push players" : 0
+		8 : "The entity is toggled each time it is activated" : 0
 	]
 	angles(string) : "The direction to push the player in" : "0 0 0"
 	sound(string) : "The sound effect to play when the player is pushed" : "common/jumppad"
