@@ -408,56 +408,6 @@ public:
 
 private:
   /**
-   * Splits this edge by inserting a new vertex at the position where this edge intersects
-   the given plane.
-   *
-   * The newly created vertices' position will be the point at which the line segment
-   defined by
-   * this edge's vertices' positions intersects the given plane.
-
-   * This function assumes that the vertices of this edge are on opposite sides of the
-   given plane.
-   *
-   * @param plane the plane at which to split this edge
-   * @param epsilon the epsilon value to use for point status checks
-   * @return the newly created edge
-   */
-  Edge* split(const vm::plane<T, 3>& plane, T epsilon);
-
-  /**
-   * Inserts a new vertex at the given position into this edge, creating two new half
-   * edges, and a new edge. The newly created half edges are added to the boundaries of
-   * the corresponding faces, but the newly created vertex and edge must be stored in
-   * their respective containing circular lists.
-   *
-   * The newly created vertex will be the origin of the newly created edge's first half
-   * edge.
-   *
-   * The following diagram illustrates the effects of this function
-   *
-   * Before calling this function, this edge looks as follows
-   *
-   * /\------------old1st----------->/\
-   * \/<-----------old2nd------------\/
-   * |                               |
-   * 1st vertex                      2nd vertex
-   *
-   * Suppose that the given plane intersects this edge at its center, then the result will
-   * look as follows.
-   *
-   *   |-this edge--|  |--new edge--|
-   *   |            |  |            |
-   * /\----old1st--->/\----new1st--->/\
-   * \/<---new2nd----\/----old2nd----\/
-   * |               |               |
-   * 1st vertex      new vertex      2nd vertex
-   *
-   * @param position the positition of the newly created vertex
-   * @return the newly created edge
-   */
-  Edge* insertVertex(const vm::vec<T, 3>& position);
-
-  /**
    * Flips this edge by swapping its first and second half edges.
    */
   void flip();
@@ -1609,6 +1559,57 @@ public: // Vertex correction and edge healing
   bool healEdges(T minLength = MinEdgeLength);
 
 private:
+  /**
+   * Splits the given edge by inserting a new vertex at the position where it intersects
+   * the given plane.
+   *
+   * The newly created vertices' position will be the point at which the line segment
+   * defined by the given edge's vertices' positions intersects the given plane.
+   *
+   * This function assumes that the vertices of the given edge are on opposite sides of
+   * the given plane.
+   *
+   * @param edge the edge to split
+   * @param plane the plane at which to split the given edge
+   * @param epsilon the epsilon value to use for point status checks
+   * @return the newly created edge
+   */
+  Edge* split(Edge* edge, const vm::plane<T, 3>& plane, T epsilon);
+
+  /**
+   * Inserts a new vertex at the given position into the given edge, creating two new half
+   * edges, and a new edge. The newly created half edges are added to the boundaries of
+   * the corresponding faces, but the newly created vertex and edge must be stored in
+   * their respective containing circular lists.
+   *
+   * The newly created vertex will be the origin of the newly created edge's first half
+   * edge.
+   *
+   * The following diagram illustrates the effects of this function
+   *
+   * Before calling this function, the given edge looks as follows
+   *
+   * /\------------old1st----------->/\
+   * \/<-----------old2nd------------\/
+   * |                               |
+   * 1st vertex                      2nd vertex
+   *
+   * Suppose that the given plane intersects the given edge at its center, then the result
+   * will look as follows.
+   *
+   *   |-this edge--|  |--new edge--|
+   *   |            |  |            |
+   * /\----old1st--->/\----new1st--->/\
+   * \/<---new2nd----\/----old2nd----\/
+   * |               |               |
+   * 1st vertex      new vertex      2nd vertex
+   *
+   * @param edge the edge to insert the new vertex into
+   * @param position the positition of the newly created vertex
+   * @return the newly created edge
+   */
+  Edge* insertVertex(Edge* edge, const vm::vec<T, 3>& position);
+
   /**
    * Removes the given edge from this polyhedron. The incident faces are updated
    * accordingly, and they are removed if they become degenerate. This operation can fail

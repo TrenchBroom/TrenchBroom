@@ -394,7 +394,7 @@ std::tuple<typename Polyhedron<T, FP, VP>::HalfEdge*, bool> Polyhedron<T, FP, VP
       // We have to split the edge and insert a new vertex, which will become the origin
       // or destination of the new seam edge.
       auto* currentEdge = currentBoundaryEdge->edge();
-      auto* newEdge = currentEdge->split(plane, vm::constants<T>::point_status_epsilon());
+      auto* newEdge = split(currentEdge, plane, vm::constants<T>::point_status_epsilon());
       m_edges.push_back(newEdge);
 
       currentBoundaryEdge = currentBoundaryEdge->next();
