@@ -25,6 +25,12 @@
 namespace tb::mdl
 {
 
+extern template class Polyhedron_Vertex<double, BrushFacePayload, BrushVertexPayload>;
+extern template class Polyhedron_Edge<double, BrushFacePayload, BrushVertexPayload>;
+extern template class Polyhedron_HalfEdge<double, BrushFacePayload, BrushVertexPayload>;
+extern template class Polyhedron_Face<double, BrushFacePayload, BrushVertexPayload>;
+extern template class Polyhedron<double, BrushFacePayload, BrushVertexPayload>;
+
 using BrushGeometry = Polyhedron<double, BrushFacePayload, BrushVertexPayload>;
 
 using BrushVertex = Polyhedron_Vertex<double, BrushFacePayload, BrushVertexPayload>;

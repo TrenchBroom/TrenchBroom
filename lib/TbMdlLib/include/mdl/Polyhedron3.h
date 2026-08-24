@@ -25,7 +25,28 @@
 namespace tb::mdl
 {
 
+extern template class Polyhedron_Vertex<
+  double,
+  DefaultPolyhedronPayload,
+  DefaultPolyhedronPayload>;
+extern template class Polyhedron_Edge<
+  double,
+  DefaultPolyhedronPayload,
+  DefaultPolyhedronPayload>;
+extern template class Polyhedron_HalfEdge<
+  double,
+  DefaultPolyhedronPayload,
+  DefaultPolyhedronPayload>;
+extern template class Polyhedron_Face<
+  double,
+  DefaultPolyhedronPayload,
+  DefaultPolyhedronPayload>;
+extern template class Polyhedron<
+  double,
+  DefaultPolyhedronPayload,
+  DefaultPolyhedronPayload>;
+
 using Polyhedron3 =
   Polyhedron<double, DefaultPolyhedronPayload, DefaultPolyhedronPayload>;
 
-}
+} // namespace tb::mdl
