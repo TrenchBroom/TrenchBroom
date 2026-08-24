@@ -50,7 +50,11 @@ cmake .. \
   -DCMAKE_INSTALL_PREFIX=/usr \
   || exit 1
 
-cmake --build . --config Release --parallel || exit 1
+# Capped at 2 (rather than the full core count) because a handful of heavy
+# third-party translation units (e.g. assimp's IFC importer) each need well
+# over 2-3 GB to compile; 4-way parallel compilation reliably OOMs the
+# 16 GB GitHub-hosted runner before TrenchBroom's own code is even reached.
+cmake --build . --config Release --parallel 2 || exit 1
 
 # Run tests
 
