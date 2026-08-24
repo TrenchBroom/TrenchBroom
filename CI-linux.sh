@@ -46,7 +46,7 @@ cmake .. \
   -DCMAKE_EXE_LINKER_FLAGS="-Wl,--fatal-warnings" \
   -DTB_ENABLE_CCACHE=1 \
   -DTB_ENABLE_PCH=0 \
-  -DTB_ENABLE_LTO=1 \
+  -DTB_ENABLE_LTO="${TB_ENABLE_LTO:-0}" \
   -DCMAKE_INSTALL_PREFIX=/usr \
   || exit 1
 

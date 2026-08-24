@@ -15,6 +15,7 @@ jobs:
       TB_LINUX_CONTAINER_IMAGE: tb-linux-ci:ubuntu22-gcc13
       TB_BUILD_TYPE: release
       TB_ARCH: default-arch
+      TB_ENABLE_LTO: ${{ startsWith(github.ref, 'refs/tags/') && '1' || '0' }}
 
     steps:
       - name: Checkout code
@@ -65,6 +66,7 @@ jobs:
             -e CCACHE_COMPILERCHECK=content \
             -e CC=gcc-13 \
             -e CXX=g++-13 \
+            -e TB_ENABLE_LTO="${{ env.TB_ENABLE_LTO }}" \
             -v "${{ github.workspace }}:${{ github.workspace }}" \
             -v "${QT_ROOT_DIR}:${QT_ROOT_DIR}:ro" \
             -w "${{ github.workspace }}" \

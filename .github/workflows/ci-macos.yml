@@ -23,6 +23,7 @@ jobs:
 
     env:
       TB_PULL_REQUEST_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+      TB_ENABLE_LTO: ${{ startsWith(github.ref, 'refs/tags/') && '1' || '0' }}
 
     steps:
       - name: Checkout code

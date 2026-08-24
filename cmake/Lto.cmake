@@ -2,8 +2,10 @@
 # only (this file is included after cmake/Dependencies.cmake, so it does not affect how
 # third-party dependencies are built).
 #
-# LTO is opt-in via TB_ENABLE_LTO, since it slows down the link step considerably. It is
-# set for all CI builds.
+# LTO is opt-in via TB_ENABLE_LTO, since it slows down the link step considerably. CI only
+# sets it for release-tag builds (see CI-*.sh/.bat); PR and master builds skip it, since
+# the link-time cost isn't worth paying on every commit for a benefit that only matters
+# for the binaries we actually ship.
 if(TB_ENABLE_LTO)
   # GCC's LTO miscompiles our code: whole-program IPA analysis across ActionManager's
   # constructor and QApplication's construction corrupts QCoreApplication::self, causing
