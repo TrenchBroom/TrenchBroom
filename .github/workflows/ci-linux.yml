@@ -5,6 +5,7 @@ on:
 permissions:
   packages: write
   contents: write
+  actions: write
 
 jobs:
   linux:
