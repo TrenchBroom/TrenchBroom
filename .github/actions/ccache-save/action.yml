@@ -13,6 +13,20 @@ inputs:
 runs:
   using: composite
   steps:
+    # We only ever save from master builds, and restores always want the newest
+    # cache for this key, so there is no reason to keep older generations around
+    # racking up storage against the repository's total cache quota.
+    - name: Delete previous ccache generations
+      shell: bash
+      env:
+        GH_TOKEN: ${{ github.token }}
+      run: |
+        gh cache list \
+          --key "${{ env.CCACHE_CACHE_KEY_PREFIX }}-${{ inputs.os }}-${{ inputs.build-type }}-${{ inputs.arch }}-" \
+          --json id --jq '.[].id' \
+        | xargs -r -n1 gh cache delete
+      continue-on-error: true
+
     - name: Save ccache
       uses: actions/cache/save@v4
       with:

@@ -5,6 +5,7 @@ on:
 permissions:
   packages: write
   contents: write
+  actions: write
 
 jobs:
   linux:
@@ -48,7 +49,7 @@ jobs:
             -v "${{ github.workspace }}:${{ github.workspace }}" \
             -w "${{ github.workspace }}" \
             "${{ env.TB_LINUX_CONTAINER_IMAGE }}" \
-            bash -lc 'mkdir -p "${CCACHE_DIR}" && ccache --set-config=max_size=1G && ccache --zero-stats'
+            bash -lc 'mkdir -p "${CCACHE_DIR}" && ccache --set-config=max_size=2G && ccache --zero-stats'
 
       - name: Build in container
         env:
