@@ -51,7 +51,7 @@ jobs:
         shell: pwsh
         run: |
           New-Item -ItemType Directory -Path "$env:CCACHE_DIR" -Force | Out-Null
-          ccache --set-config=max_size=1G
+          ccache --set-config=max_size=2G
           ccache --zero-stats
 
       - name: Build
