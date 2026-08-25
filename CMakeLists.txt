@@ -33,6 +33,11 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+# TrenchBroom doesn't use C++20 modules. With Ninja and a scanning-capable compiler,
+# CMake defaults this to ON for C++20+, adding a "Scanning ... for CXX dependencies"
+# compiler invocation per translation unit that ccache cannot cache.
+set(CMAKE_CXX_SCAN_FOR_MODULES OFF)
+
 project(TrenchBroom C CXX)
 
 include(CTest)
