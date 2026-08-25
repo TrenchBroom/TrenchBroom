@@ -383,22 +383,30 @@ DrawShapeToolArchShapeExtensionPage::DrawShapeToolArchShapeExtensionPage(
   : DrawShapeToolCircularShapeExtensionPage{parameters, parent}
   , m_parameters{parameters}
 {
+  auto* spandrelCheckBox = new QCheckBox{tr("Spandrel")};
+
   auto* thicknessLabel = new QLabel{tr("Thickness: ")};
   auto* thicknessBox = new QDoubleSpinBox{};
   thicknessBox->setRange(1, 1024);
 
+  connect(spandrelCheckBox, &QCheckBox::toggled, this, [&](const auto createSpandrel) {
+    m_parameters.setCreateSpandrel(createSpandrel);
+  });
   connect(
     thicknessBox,
     QOverload<double>::of(&QDoubleSpinBox::valueChanged),
     this,
     [&](const auto thickness) { m_parameters.setThickness(thickness); });
 
+  addWidget(spandrelCheckBox);
   addWidget(thicknessLabel);
   addWidget(thicknessBox);
   addApplyButton(document);
 
-  m_notifierConnection += m_parameters.parametersDidChangeNotifier.connect(
-    [=, this]() { thicknessBox->setValue(m_parameters.thickness()); });
+  m_notifierConnection += m_parameters.parametersDidChangeNotifier.connect([=, this]() {
+    spandrelCheckBox->setChecked(m_parameters.createSpandrel());
+    thicknessBox->setValue(m_parameters.thickness());
+  });
 }
 
 std::vector<DrawShapeToolExtensionPage*> createDrawShapeToolExtensionPages(

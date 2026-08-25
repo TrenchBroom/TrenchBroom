@@ -28,6 +28,7 @@
 #include "ui/DrawShapeToolParameters.h"
 #include "ui/MapDocument.h"
 
+#include "kd/ranges/concat_view.h"
 #include "kd/ranges/to.h"
 #include "kd/result_fold.h"
 
@@ -346,12 +347,25 @@ Result<std::vector<mdl::Brush>> DrawShapeToolArchExtension::createBrushes(
     map.gameInfo().gameConfig.faceAttribsConfig.defaultUvAttributes,
     map.gameInfo().gameConfig.faceAttribsConfig.defaultSurfaceAttributes};
 
-  return builder.createArch(
-    bounds,
-    parameters.thickness(),
-    parameters.circleShape(),
-    parameters.axis(),
-    map.currentMaterialName());
+  const auto materialName = map.currentMaterialName();
+  const auto thickness = parameters.thickness();
+  const auto& circleShape = parameters.circleShape();
+  const auto axis = parameters.axis();
+
+  return builder.createArch(bounds, thickness, circleShape, axis, materialName)
+         | kdl::and_then([&](auto archBrushes) -> Result<std::vector<mdl::Brush>> {
+             if (!parameters.createSpandrel())
+             {
+               return archBrushes;
+             }
+
+             return builder.createSpandrelForArch(
+                      bounds, thickness, circleShape, axis, materialName)
+                    | kdl::transform([&](const auto& spandrelBrushes) {
+                        return kdl::views::concat(archBrushes, spandrelBrushes)
+                               | kdl::ranges::to<std::vector>();
+                      });
+           });
 }
 
 std::vector<std::unique_ptr<DrawShapeToolExtension>> createDrawShapeToolExtensions(

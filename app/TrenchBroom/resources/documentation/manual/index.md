@@ -489,7 +489,7 @@ This hollow cylinder is scalable because its vertices are all aligned on the gri
 
 If you create an asymmetric scalable shape, it will not be scaled to fit the bounding box drawn with the mouse like the other shapes. Rather, only the middle portion of it will be elongated so that the vertices remain on the grid. This even applies to cones and UV spheres so that the different shapes still fit together.
 
-The arch is created as the top half of a hollow cylinder. The axis is the direction the arch runs through, like a tunnel. Sides, thickness and circle mode work just like the cylinder, so an arch and a cylinder built with the same values will line up. When using scalable circle mode, drawing the bounds taller than a semicircle will extend the sides straight down, acting as "supports" for the arch. 
+The arch is created as the top half of a hollow cylinder. The axis is the direction the arch runs through, like a tunnel. Sides, thickness and circle mode work just like the cylinder, so an arch and a cylinder built with the same values will line up. When using scalable circle mode, drawing the bounds taller than a semicircle will extend the sides straight down, acting as "supports" for the arch. Checking _Spandrel_ fills the gaps between the arch and its bounding box with extra brushes. 
 
 ### Creating Complex Shapes
 
