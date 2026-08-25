@@ -19,6 +19,8 @@
 
 #pragma once
 
+#include "mdl/BrushOptimization.h"
+
 #include "kd/reflection_decl.h"
 
 #include "vm/bbox.h"
@@ -76,6 +78,38 @@ bool csgConvexMerge(Map& map);
 bool csgSubtract(Map& map);
 bool csgIntersect(Map& map);
 bool csgHollow(Map& map);
+
+bool canOptimizeSelectedBrushes(const Map& map);
+std::vector<BrushOptimizationCandidate> createSelectedBrushOptimizationCandidates(
+  const Map& map);
+bool applyBrushOptimizationCandidate(
+  Map& map, const BrushOptimizationCandidate& candidate);
+
+enum class BridgeSurfaceDirection
+{
+  Below,
+  Above,
+  Centered,
+};
+
+bool canBridgeSelectedEdgeChains(const Map& map);
+bool bridgeSelectedEdgeChains(
+  Map& map,
+  double thickness,
+  BridgeSurfaceDirection direction,
+  const std::string& materialName);
+
+bool canCreateVolumeToPlane(const Map& map);
+bool createVolumeToPlane(
+  Map& map, vm::axis::type axis, double coordinate, const std::string& materialName);
+
+bool canCreateEqWater(const Map& map);
+bool createEqWater(
+  Map& map,
+  double surfaceHeight,
+  double surfaceThickness,
+  const std::string& waterMaterialName,
+  const std::string& surfaceMaterialName);
 
 bool extrudeBrushes(
   Map& map, const std::vector<vm::polygon3d>& faces, const vm::vec3d& delta);

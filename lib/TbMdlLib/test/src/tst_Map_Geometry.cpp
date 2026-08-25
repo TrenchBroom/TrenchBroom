@@ -39,6 +39,7 @@
 #include "mdl/NodeHandles.h"
 #include "mdl/TestFactory.h"
 #include "mdl/TestUtils.h"
+#include "mdl/TransactionScope.h"
 #include "mdl/UvCoordSystem.h"
 #include "mdl/WorldNode.h"
 
@@ -1091,6 +1092,292 @@ TEST_CASE("Map_Geometry")
         CHECK(!snapVertices(map, 16));
       }
     }
+  }
+
+  SECTION("optimize selected brushes")
+  {
+    auto& map = fixture.create();
+    const auto builder = BrushBuilder{map.worldNode().mapFormat(), map.worldBounds()};
+
+    auto* brushNode1 = new BrushNode{
+      builder.createCuboid(vm::bbox3d{{0, 0, 0}, {32, 64, 64}}, "material")
+      | kdl::value()};
+    auto* brushNode2 = new BrushNode{
+      builder.createCuboid(vm::bbox3d{{32, 0, 0}, {64, 64, 64}}, "material")
+      | kdl::value()};
+    auto& parent = parentForNodes(map);
+    addNodes(map, {{&parent, {brushNode1, brushNode2}}});
+    selectNodes(map, {brushNode1, brushNode2});
+
+    REQUIRE(canOptimizeSelectedBrushes(map));
+    const auto candidates = createSelectedBrushOptimizationCandidates(map);
+    REQUIRE(candidates.size() == 1u);
+
+    map.startTransaction("Optimize Brushwork", TransactionScope::LongRunning);
+    REQUIRE(applyBrushOptimizationCandidate(map, candidates.front()));
+    REQUIRE(map.selection().brushes.size() == 1u);
+    CHECK(
+      map.selection().brushes.front()->brush().bounds()
+      == vm::bbox3d{{0, 0, 0}, {64, 64, 64}});
+
+    map.rollbackTransaction();
+    CHECK(map.selection().brushes.size() == 2u);
+    CHECK(map.selection().brushes[0] == brushNode1);
+    CHECK(map.selection().brushes[1] == brushNode2);
+
+    REQUIRE(applyBrushOptimizationCandidate(map, candidates.front()));
+    REQUIRE(map.commitTransaction());
+    CHECK(map.selection().brushes.size() == 1u);
+
+    map.undoCommand();
+    CHECK(map.selection().brushes.size() == 2u);
+    CHECK(map.selection().brushes[0] == brushNode1);
+    CHECK(map.selection().brushes[1] == brushNode2);
+  }
+
+  SECTION("brush optimization preserves visible material seams")
+  {
+    auto& map = fixture.create();
+    const auto builder = BrushBuilder{map.worldNode().mapFormat(), map.worldBounds()};
+
+    auto* brushNode1 = new BrushNode{
+      builder.createCuboid(
+        vm::bbox3d{{0, 0, 0}, {32, 64, 64}},
+        "material",
+        "material",
+        "material",
+        "material",
+        "top1",
+        "material")
+      | kdl::value()};
+    auto* brushNode2 = new BrushNode{
+      builder.createCuboid(
+        vm::bbox3d{{32, 0, 0}, {64, 64, 64}},
+        "material",
+        "material",
+        "material",
+        "material",
+        "top2",
+        "material")
+      | kdl::value()};
+    auto& parent = parentForNodes(map);
+    addNodes(map, {{&parent, {brushNode1, brushNode2}}});
+    selectNodes(map, {brushNode1, brushNode2});
+
+    CHECK(createSelectedBrushOptimizationCandidates(map).empty());
+  }
+
+  SECTION("brush optimization ignores hidden material seams")
+  {
+    auto& map = fixture.create();
+    const auto builder = BrushBuilder{map.worldNode().mapFormat(), map.worldBounds()};
+
+    auto* brushNode1 = new BrushNode{
+      builder.createCuboid(
+        vm::bbox3d{{0, 0, 0}, {32, 64, 64}},
+        "material",
+        "hidden1",
+        "material",
+        "material",
+        "material",
+        "material")
+      | kdl::value()};
+    auto* brushNode2 = new BrushNode{
+      builder.createCuboid(
+        vm::bbox3d{{32, 0, 0}, {64, 64, 64}},
+        "hidden2",
+        "material",
+        "material",
+        "material",
+        "material",
+        "material")
+      | kdl::value()};
+    auto& parent = parentForNodes(map);
+    addNodes(map, {{&parent, {brushNode1, brushNode2}}});
+    selectNodes(map, {brushNode1, brushNode2});
+
+    CHECK(createSelectedBrushOptimizationCandidates(map).size() == 1u);
+  }
+
+  SECTION("brush optimization preserves visible UV seams")
+  {
+    auto& map = fixture.create();
+    const auto builder = BrushBuilder{map.worldNode().mapFormat(), map.worldBounds()};
+
+    auto* brushNode1 = new BrushNode{
+      builder.createCuboid(vm::bbox3d{{0, 0, 0}, {32, 64, 64}}, "material")
+      | kdl::value()};
+    auto brush2 = builder.createCuboid(vm::bbox3d{{32, 0, 0}, {64, 64, 64}}, "material")
+                  | kdl::value();
+    const auto topFaceIndex = brush2.findFace(vm::vec3d{0, 0, 1});
+    REQUIRE(topFaceIndex.has_value());
+    brush2.face(*topFaceIndex)
+      .setUvAttributes(UvAttributes{
+        .offset = {8, 0},
+      });
+    auto* brushNode2 = new BrushNode{std::move(brush2)};
+
+    auto& parent = parentForNodes(map);
+    addNodes(map, {{&parent, {brushNode1, brushNode2}}});
+    selectNodes(map, {brushNode1, brushNode2});
+
+    CHECK(createSelectedBrushOptimizationCandidates(map).empty());
+  }
+
+  SECTION("bridge edge chains with different segment counts")
+  {
+    auto& map = fixture.create();
+    const auto builder = BrushBuilder{map.worldNode().mapFormat(), map.worldBounds()};
+
+    auto* leftBank1 = new BrushNode{
+      builder.createCuboid(vm::bbox3d{{-64, 0, 0}, {-32, 32, 64}}, "bank")
+      | kdl::value()};
+    auto* leftBank2 = new BrushNode{
+      builder.createCuboid(vm::bbox3d{{-64, 32, 0}, {-32, 64, 64}}, "bank")
+      | kdl::value()};
+    auto* rightBank = new BrushNode{
+      builder.createCuboid(vm::bbox3d{{32, 0, 0}, {64, 64, 64}}, "bank") | kdl::value()};
+    addNodes(map, {{&parentForNodes(map), {leftBank1, leftBank2, rightBank}}});
+    selectNodes(map, {leftBank1, leftBank2, rightBank});
+
+    auto& edgeHandles = map.nodeHandles();
+    edgeHandles.addHandles<EdgeHandle>(*leftBank1);
+    edgeHandles.addHandles<EdgeHandle>(*leftBank2);
+    edgeHandles.addHandles<EdgeHandle>(*rightBank);
+    edgeHandles.selectHandles<EdgeHandle>(std::vector<EdgeHandle>{
+      {vm::segment3d{{-32, 0, 0}, {-32, 32, 0}}},
+      {vm::segment3d{{-32, 32, 0}, {-32, 64, 0}}},
+      {vm::segment3d{{32, 0, 0}, {32, 64, 0}}},
+    });
+
+    REQUIRE(canBridgeSelectedEdgeChains(map));
+    REQUIRE(bridgeSelectedEdgeChains(map, 8.0, BridgeSurfaceDirection::Below, "floor"));
+    REQUIRE(map.selection().brushes.size() == 2u);
+    CHECK(
+      map.selection().brushes[0]->brush().bounds()
+      == vm::bbox3d{{-32, 0, -8}, {32, 32, 0}});
+    CHECK(
+      map.selection().brushes[1]->brush().bounds()
+      == vm::bbox3d{{-32, 32, -8}, {32, 64, 0}});
+  }
+
+  SECTION("create a volume to an absolute plane")
+  {
+    auto& map = fixture.create();
+    const auto builder = BrushBuilder{map.worldNode().mapFormat(), map.worldBounds()};
+    auto* source = new BrushNode{
+      builder.createCuboid(vm::bbox3d{{0, 0, 0}, {32, 32, 32}}, "source") | kdl::value()};
+    addNodes(map, {{&parentForNodes(map), {source}}});
+    selectNodes(map, {source});
+
+    REQUIRE(canCreateVolumeToPlane(map));
+    REQUIRE(createVolumeToPlane(map, vm::axis::z, 64.0, "volume"));
+    REQUIRE(map.selection().brushes.size() == 1u);
+    const auto* volume = map.selection().brushes.front();
+    CHECK(volume->brush().bounds() == vm::bbox3d{{0, 0, 32}, {32, 32, 64}});
+    CHECK(std::ranges::all_of(volume->brush().faces(), [](const auto& face) {
+      return face.materialName() == "volume";
+    }));
+
+    map.undoCommand();
+    REQUIRE(map.selection().brushes.size() == 1u);
+    CHECK(map.selection().brushes.front() == source);
+  }
+
+  SECTION("create a volume from a selected face to an absolute plane")
+  {
+    auto& map = fixture.create();
+    const auto builder = BrushBuilder{map.worldNode().mapFormat(), map.worldBounds()};
+    auto* source = new BrushNode{
+      builder.createCuboid(vm::bbox3d{{0, 0, 0}, {32, 32, 32}}, "source") | kdl::value()};
+    addNodes(map, {{&parentForNodes(map), {source}}});
+
+    const auto topFace = source->brush().findFace(vm::vec3d{0, 0, 1});
+    REQUIRE(topFace.has_value());
+    selectBrushFaces(map, {BrushFaceHandle{source, *topFace}});
+
+    REQUIRE(canCreateVolumeToPlane(map));
+    REQUIRE(createVolumeToPlane(map, vm::axis::z, 48.0, "volume"));
+    REQUIRE(map.selection().brushes.size() == 1u);
+    CHECK(
+      map.selection().brushes.front()->brush().bounds()
+      == vm::bbox3d{{0, 0, 32}, {32, 32, 48}});
+  }
+
+  SECTION("create an EQ riverbed and water volume")
+  {
+    auto& map = fixture.create();
+    const auto builder = BrushBuilder{map.worldNode().mapFormat(), map.worldBounds()};
+
+    auto* leftBank = new BrushNode{
+      builder.createCuboid(vm::bbox3d{{-64, 0, 0}, {-32, 64, 64}}, "bank")
+      | kdl::value()};
+    auto* rightBank = new BrushNode{
+      builder.createCuboid(vm::bbox3d{{32, 0, 0}, {64, 64, 64}}, "bank") | kdl::value()};
+    auto& parent = parentForNodes(map);
+    addNodes(map, {{&parent, {leftBank, rightBank}}});
+    selectNodes(map, {leftBank, rightBank});
+
+    auto& edgeHandles = map.nodeHandles();
+    edgeHandles.addHandles<EdgeHandle>(*leftBank);
+    edgeHandles.addHandles<EdgeHandle>(*rightBank);
+    edgeHandles.selectHandles<EdgeHandle>(std::vector<EdgeHandle>{
+      {vm::segment3d{{-32, 0, 0}, {-32, 64, 0}}},
+      {vm::segment3d{{32, 0, 0}, {32, 64, 0}}},
+    });
+
+    REQUIRE(canBridgeSelectedEdgeChains(map));
+    REQUIRE(bridgeSelectedEdgeChains(
+      map, 8.0, BridgeSurfaceDirection::Below, "unrest/d_m0003"));
+    REQUIRE(map.selection().brushes.size() == 1u);
+    auto* riverbed = map.selection().brushes.front();
+    CHECK(riverbed->brush().bounds() == vm::bbox3d{{-32, 0, -8}, {32, 64, 0}});
+    CHECK(std::ranges::all_of(riverbed->brush().faces(), [](const auto& face) {
+      return face.materialName() == "unrest/d_m0003";
+    }));
+
+    REQUIRE(canCreateEqWater(map));
+    REQUIRE(createEqWater(map, 32.0, 8.0, "unrest/eq_water", "unrest/t50_agua1"));
+    REQUIRE(map.selection().brushes.size() == 2u);
+    CHECK(!canCreateEqWater(map));
+
+    const auto waterIt =
+      std::ranges::find_if(map.selection().brushes, [](const auto* brushNode) {
+        return brushNode->brush().faces().front().materialName() == "unrest/eq_water";
+      });
+    const auto surfaceIt =
+      std::ranges::find_if(map.selection().brushes, [](const auto* brushNode) {
+        return brushNode->brush().faces().front().materialName() == "unrest/t50_agua1";
+      });
+    REQUIRE(waterIt != map.selection().brushes.end());
+    REQUIRE(surfaceIt != map.selection().brushes.end());
+    const auto* water = *waterIt;
+    const auto* surface = *surfaceIt;
+    CHECK(water->brush().bounds() == vm::bbox3d{{-32, 0, 0}, {32, 64, 32}});
+    CHECK(surface->brush().bounds() == vm::bbox3d{{-32, 0, 24}, {32, 64, 32}});
+    CHECK(water->entity()->entity().classname() == "eq_water");
+    REQUIRE(water->entity()->entity().property("types") != nullptr);
+    CHECK(*water->entity()->entity().property("types") == "Water");
+    CHECK(surface->entity() == &map.worldNode());
+
+    for (const auto& face : water->brush().faces())
+    {
+      const auto expectedFlags = face.normal().z() > 0.9    ? 1
+                                 : face.normal().z() < -0.9 ? 4
+                                                            : 2;
+      CHECK(face.surfaceAttributes().flags == expectedFlags);
+    }
+    for (const auto& face : surface->brush().faces())
+    {
+      const auto expectedFlags = face.normal().z() > 0.9    ? 33
+                                 : face.normal().z() < -0.9 ? 36
+                                                            : 34;
+      CHECK(face.surfaceAttributes().flags == expectedFlags);
+    }
+
+    map.undoCommand();
+    REQUIRE(map.selection().brushes.size() == 1u);
+    CHECK(map.selection().brushes.front() == riverbed);
   }
 
   SECTION("csgConvexMerge")

@@ -25,8 +25,10 @@
 #include "mdl/BrushBuilder.h"
 #include "mdl/BrushFace.h"
 #include "mdl/BrushNode.h"
+#include "mdl/BrushOptimization.h"
 #include "mdl/BrushVertexCommands.h"
 #include "mdl/EditorContext.h"
+#include "mdl/Entity.h"
 #include "mdl/EntityNode.h"
 #include "mdl/GameConfig.h"
 #include "mdl/GameInfo.h"
@@ -57,7 +59,11 @@
 #include "kd/task_manager.h"
 #include "kd/vector_utils.h"
 
+#include <array>
+#include <optional>
 #include <ranges>
+#include <tuple>
+#include <utility>
 
 namespace tb::mdl
 {
@@ -680,6 +686,835 @@ bool csgConvexMerge(Map& map)
          | kdl::if_error(
            [&](auto e) { map.logger().error() << "Could not create brush: " << e.msg; })
          | kdl::is_success();
+}
+
+namespace
+{
+
+double overlapLength(
+  const double lhsMin, const double lhsMax, const double rhsMin, const double rhsMax)
+{
+  return std::max(0.0, std::min(lhsMax, rhsMax) - std::max(lhsMin, rhsMin));
+}
+
+double faceOverlapArea(const vm::bbox3d& lhs, const vm::bbox3d& rhs, const size_t axis)
+{
+  const auto uAxis = (axis + 1u) % 3u;
+  const auto vAxis = (axis + 2u) % 3u;
+  return overlapLength(lhs.min[uAxis], lhs.max[uAxis], rhs.min[uAxis], rhs.max[uAxis])
+         * overlapLength(lhs.min[vAxis], lhs.max[vAxis], rhs.min[vAxis], rhs.max[vAxis]);
+}
+
+bool candidateFaceIsInternal(
+  const BrushOptimizationCandidate& candidate,
+  const size_t boxIndex,
+  const size_t axis,
+  const bool positive)
+{
+  const auto& bounds = candidate.bounds[boxIndex];
+  const auto plane = positive ? bounds.max[axis] : bounds.min[axis];
+  const auto uAxis = (axis + 1u) % 3u;
+  const auto vAxis = (axis + 2u) % 3u;
+  const auto faceArea = bounds.size()[uAxis] * bounds.size()[vAxis];
+
+  auto coveredArea = 0.0;
+  for (size_t otherIndex = 0u; otherIndex < candidate.bounds.size(); ++otherIndex)
+  {
+    if (otherIndex == boxIndex)
+    {
+      continue;
+    }
+
+    const auto& other = candidate.bounds[otherIndex];
+    const auto otherPlane = positive ? other.min[axis] : other.max[axis];
+    if (vm::is_equal(plane, otherPlane, vm::Cd::almost_zero()))
+    {
+      coveredArea += faceOverlapArea(bounds, other, axis);
+    }
+  }
+  return vm::is_equal(faceArea, coveredArea, vm::Cd::almost_zero());
+}
+
+bool compatibleVisibleFaceAttributes(const BrushFace& lhs, const BrushFace& rhs)
+{
+  return lhs.materialName() == rhs.materialName()
+         && lhs.surfaceAttributes() == rhs.surfaceAttributes()
+         && lhs.uvAttributes() == rhs.uvAttributes()
+         && vm::is_equal(lhs.uAxis(), rhs.uAxis(), vm::Cd::almost_zero())
+         && vm::is_equal(lhs.vAxis(), rhs.vAxis(), vm::Cd::almost_zero());
+}
+
+bool preservesVisibleFaceAttributes(
+  const Map& map, const BrushOptimizationCandidate& candidate)
+{
+  for (size_t boxIndex = 0u; boxIndex < candidate.bounds.size(); ++boxIndex)
+  {
+    const auto& bounds = candidate.bounds[boxIndex];
+    for (size_t axis = 0u; axis < 3u; ++axis)
+    {
+      for (const auto positive : {false, true})
+      {
+        if (candidateFaceIsInternal(candidate, boxIndex, axis, positive))
+        {
+          continue;
+        }
+
+        const auto normal =
+          (positive ? 1.0 : -1.0) * vm::vec3d::axis(vm::axis::type(axis));
+        const auto plane = positive ? bounds.max[axis] : bounds.min[axis];
+        const BrushFace* referenceFace = nullptr;
+        for (const auto* sourceNode : map.selection().brushes)
+        {
+          const auto& sourceBrush = sourceNode->brush();
+          const auto sourcePlane =
+            positive ? sourceBrush.bounds().max[axis] : sourceBrush.bounds().min[axis];
+          if (
+            !vm::is_equal(plane, sourcePlane, vm::Cd::almost_zero())
+            || faceOverlapArea(bounds, sourceBrush.bounds(), axis)
+                 <= vm::Cd::almost_zero())
+          {
+            continue;
+          }
+
+          const auto faceIndex = sourceBrush.findFace(normal);
+          contract_assert(faceIndex.has_value());
+          const auto& sourceFace = sourceBrush.face(*faceIndex);
+          if (referenceFace == nullptr)
+          {
+            referenceFace = &sourceFace;
+          }
+          else if (!compatibleVisibleFaceAttributes(*referenceFace, sourceFace))
+          {
+            return false;
+          }
+        }
+
+        if (referenceFace == nullptr)
+        {
+          return false;
+        }
+      }
+    }
+  }
+  return true;
+}
+
+} // namespace
+
+bool canOptimizeSelectedBrushes(const Map& map)
+{
+  const auto& selection = map.selection();
+  if (!selection.hasOnlyBrushes() || selection.brushes.size() < 2u)
+  {
+    return false;
+  }
+
+  const auto* parent = selection.brushes.front()->parent();
+  return std::ranges::all_of(selection.brushes, [&](const auto* brushNode) {
+    return brushNode->parent() == parent && isAxisAlignedCuboid(brushNode->brush());
+  });
+}
+
+std::vector<BrushOptimizationCandidate> createSelectedBrushOptimizationCandidates(
+  const Map& map)
+{
+  if (!canOptimizeSelectedBrushes(map))
+  {
+    return {};
+  }
+
+  const auto inputBounds = map.selection().brushes
+                           | std::views::transform([](const auto* brushNode) {
+                               return brushNode->brush().bounds();
+                             })
+                           | kdl::ranges::to<std::vector>();
+  auto candidates = createBrushOptimizationCandidates(inputBounds);
+  std::erase_if(candidates, [&](const auto& candidate) {
+    return !preservesVisibleFaceAttributes(map, candidate);
+  });
+  return candidates;
+}
+
+bool applyBrushOptimizationCandidate(
+  Map& map, const BrushOptimizationCandidate& candidate)
+{
+  if (!canOptimizeSelectedBrushes(map) || candidate.bounds.empty())
+  {
+    return false;
+  }
+
+  const auto sourceNodes = std::vector<BrushNode*>{map.selection().brushes};
+  const auto sourceBrushes =
+    sourceNodes
+    | std::views::transform([](const auto* brushNode) { return &brushNode->brush(); })
+    | kdl::ranges::to<std::vector>();
+
+  const auto builder = BrushBuilder{
+    map.worldNode().mapFormat(),
+    map.worldBounds(),
+    map.gameInfo().gameConfig.faceAttribsConfig.defaultUvAttributes,
+    map.gameInfo().gameConfig.faceAttribsConfig.defaultSurfaceAttributes};
+  auto brushes = std::vector<Brush>{};
+  brushes.reserve(candidate.bounds.size());
+  for (const auto& bounds : candidate.bounds)
+  {
+    const auto createSuccess = builder.createCuboid(bounds, map.currentMaterialName())
+                               | kdl::transform([&](auto brush) {
+                                   brush.cloneFaceAttributesFrom(sourceBrushes);
+                                   brushes.push_back(std::move(brush));
+                                 })
+                               | kdl::transform_error([&](const auto& e) {
+                                   map.logger().error()
+                                     << "Could not create optimized brush: " << e.msg;
+                                 })
+                               | kdl::is_success();
+    if (!createSuccess)
+    {
+      return false;
+    }
+  }
+
+  auto nodesToAdd = brushes | std::views::transform([](auto&& brush) -> Node* {
+                      return new BrushNode{std::move(brush)};
+                    })
+                    | kdl::ranges::to<std::vector>();
+  auto& parent = *sourceNodes.front()->parent();
+
+  deselectAll(map);
+  const auto addedNodes = addNodes(map, {{&parent, nodesToAdd}});
+  if (addedNodes.size() != nodesToAdd.size())
+  {
+    return false;
+  }
+  removeNodes(map, kdl::vec_static_cast<Node*>(sourceNodes));
+  selectNodes(map, addedNodes);
+  return true;
+}
+
+namespace
+{
+
+constexpr auto GeneratedGeometryEpsilon = 0.01;
+
+using EdgeChain = std::vector<vm::vec3d>;
+
+size_t findOrAddVertex(std::vector<vm::vec3d>& vertices, const vm::vec3d& vertex)
+{
+  const auto it = std::ranges::find_if(vertices, [&](const auto& existing) {
+    return vm::squared_distance(existing, vertex)
+           <= GeneratedGeometryEpsilon * GeneratedGeometryEpsilon;
+  });
+  if (it != vertices.end())
+  {
+    return static_cast<size_t>(std::distance(vertices.begin(), it));
+  }
+
+  vertices.push_back(vertex);
+  return vertices.size() - 1u;
+}
+
+std::optional<std::array<EdgeChain, 2u>> selectedEdgeChains(const Map& map)
+{
+  const auto edgePositions =
+    EdgeHandle::getPositions(map.nodeHandles().selectedHandles<EdgeHandle>());
+  if (edgePositions.size() < 2u)
+  {
+    return std::nullopt;
+  }
+
+  auto vertices = std::vector<vm::vec3d>{};
+  auto edges = std::vector<std::array<size_t, 2u>>{};
+  for (const auto& edge : edgePositions)
+  {
+    const auto start = findOrAddVertex(vertices, edge.start());
+    const auto end = findOrAddVertex(vertices, edge.end());
+    if (start == end)
+    {
+      return std::nullopt;
+    }
+    edges.push_back({start, end});
+  }
+
+  auto adjacency = std::vector<std::vector<size_t>>(vertices.size());
+  for (const auto& [start, end] : edges)
+  {
+    adjacency[start].push_back(end);
+    adjacency[end].push_back(start);
+  }
+
+  auto chains = std::vector<EdgeChain>{};
+  auto visited = std::vector<bool>(vertices.size(), false);
+  for (size_t seed = 0u; seed < vertices.size(); ++seed)
+  {
+    if (visited[seed] || adjacency[seed].empty())
+    {
+      continue;
+    }
+
+    auto component = std::vector<size_t>{};
+    auto stack = std::vector<size_t>{seed};
+    visited[seed] = true;
+    while (!stack.empty())
+    {
+      const auto vertex = stack.back();
+      stack.pop_back();
+      component.push_back(vertex);
+      for (const auto neighbor : adjacency[vertex])
+      {
+        if (!visited[neighbor])
+        {
+          visited[neighbor] = true;
+          stack.push_back(neighbor);
+        }
+      }
+    }
+
+    const auto endpoints = component | std::views::filter([&](const auto vertex) {
+                             return adjacency[vertex].size() == 1u;
+                           })
+                           | kdl::ranges::to<std::vector>();
+    if (endpoints.size() != 2u || std::ranges::any_of(component, [&](const auto vertex) {
+          return adjacency[vertex].size() > 2u;
+        }))
+    {
+      return std::nullopt;
+    }
+
+    auto current = std::min(endpoints[0], endpoints[1]);
+    auto previous = vertices.size();
+    auto chain = EdgeChain{};
+    while (true)
+    {
+      chain.push_back(vertices[current]);
+      const auto next = std::ranges::find_if(
+        adjacency[current], [&](const auto neighbor) { return neighbor != previous; });
+      if (next == adjacency[current].end())
+      {
+        break;
+      }
+      previous = std::exchange(current, *next);
+    }
+    if (chain.size() != component.size())
+    {
+      return std::nullopt;
+    }
+    chains.push_back(std::move(chain));
+  }
+
+  if (chains.size() != 2u)
+  {
+    return std::nullopt;
+  }
+
+  const auto forwardDistance = vm::squared_distance(chains[0].front(), chains[1].front())
+                               + vm::squared_distance(chains[0].back(), chains[1].back());
+  const auto reversedDistance =
+    vm::squared_distance(chains[0].front(), chains[1].back())
+    + vm::squared_distance(chains[0].back(), chains[1].front());
+  if (reversedDistance < forwardDistance)
+  {
+    std::ranges::reverse(chains[1]);
+  }
+
+  return std::array<EdgeChain, 2u>{std::move(chains[0]), std::move(chains[1])};
+}
+
+std::optional<vm::vec3d> canonicalPlaneNormal(const std::array<EdgeChain, 2u>& chains)
+{
+  auto points = chains | std::views::join | kdl::ranges::to<std::vector>();
+  const auto& origin = points.front();
+  for (size_t i = 1u; i < points.size(); ++i)
+  {
+    for (size_t j = i + 1u; j < points.size(); ++j)
+    {
+      auto normal = vm::cross(points[i] - origin, points[j] - origin);
+      if (vm::squared_length(normal) <= GeneratedGeometryEpsilon)
+      {
+        continue;
+      }
+
+      normal = vm::normalize(normal);
+      const auto dominantAxis = vm::find_abs_max_component(normal);
+      if (normal[dominantAxis] < 0.0)
+      {
+        normal = -normal;
+      }
+      if (std::ranges::all_of(points, [&](const auto& point) {
+            return std::abs(vm::dot(point - origin, normal)) <= GeneratedGeometryEpsilon;
+          }))
+      {
+        return normal;
+      }
+      return std::nullopt;
+    }
+  }
+  return std::nullopt;
+}
+
+std::vector<double> chainParameters(const EdgeChain& chain)
+{
+  auto parameters = std::vector<double>(chain.size(), 0.0);
+  for (size_t i = 1u; i < chain.size(); ++i)
+  {
+    parameters[i] = parameters[i - 1u] + vm::distance(chain[i - 1u], chain[i]);
+  }
+  const auto totalLength = parameters.back();
+  if (totalLength > 0.0)
+  {
+    for (auto& parameter : parameters)
+    {
+      parameter /= totalLength;
+    }
+  }
+  return parameters;
+}
+
+vm::vec3d pointAtChainParameter(
+  const EdgeChain& chain, const std::vector<double>& parameters, const double parameter)
+{
+  const auto upper = std::ranges::upper_bound(parameters, parameter);
+  if (upper == parameters.begin())
+  {
+    return chain.front();
+  }
+  if (upper == parameters.end())
+  {
+    return chain.back();
+  }
+
+  const auto upperIndex = static_cast<size_t>(std::distance(parameters.begin(), upper));
+  const auto lowerIndex = upperIndex - 1u;
+  const auto fraction = (parameter - parameters[lowerIndex])
+                        / (parameters[upperIndex] - parameters[lowerIndex]);
+  return chain[lowerIndex] + fraction * (chain[upperIndex] - chain[lowerIndex]);
+}
+
+double polygonAreaOnPlane(const std::vector<vm::vec3d>& vertices, const vm::vec3d& normal)
+{
+  auto areaVector = vm::vec3d::zero();
+  for (size_t i = 0u; i < vertices.size(); ++i)
+  {
+    areaVector =
+      areaVector + vm::cross(vertices[i], vertices[(i + 1u) % vertices.size()]);
+  }
+  return std::abs(vm::dot(areaVector, normal)) / 2.0;
+}
+
+double triangleAreaOnPlane(
+  const vm::vec3d& p1, const vm::vec3d& p2, const vm::vec3d& p3, const vm::vec3d& normal)
+{
+  return std::abs(vm::dot(vm::cross(p2 - p1, p3 - p1), normal)) / 2.0;
+}
+
+void appendConvexBridgeSpan(
+  std::vector<std::vector<vm::vec3d>>& result,
+  std::vector<vm::vec3d> footprint,
+  const vm::vec3d& normal)
+{
+  if (footprint.size() == 3u || Polyhedron3{footprint}.vertexCount() == footprint.size())
+  {
+    result.push_back(std::move(footprint));
+    return;
+  }
+
+  contract_assert(footprint.size() == 4u);
+  const auto polygonArea = polygonAreaOnPlane(footprint, normal);
+  const auto diagonal02Area =
+    triangleAreaOnPlane(footprint[0], footprint[1], footprint[2], normal)
+    + triangleAreaOnPlane(footprint[0], footprint[2], footprint[3], normal);
+  const auto diagonal13Area =
+    triangleAreaOnPlane(footprint[0], footprint[1], footprint[3], normal)
+    + triangleAreaOnPlane(footprint[1], footprint[2], footprint[3], normal);
+
+  if (std::abs(diagonal02Area - polygonArea) <= GeneratedGeometryEpsilon)
+  {
+    result.push_back({footprint[0], footprint[1], footprint[2]});
+    result.push_back({footprint[0], footprint[2], footprint[3]});
+  }
+  else if (std::abs(diagonal13Area - polygonArea) <= GeneratedGeometryEpsilon)
+  {
+    result.push_back({footprint[0], footprint[1], footprint[3]});
+    result.push_back({footprint[1], footprint[2], footprint[3]});
+  }
+}
+
+std::vector<std::vector<vm::vec3d>> bridgeSpans(
+  const std::array<EdgeChain, 2u>& chains, const vm::vec3d& normal)
+{
+  const auto firstParameters = chainParameters(chains[0]);
+  const auto secondParameters = chainParameters(chains[1]);
+  auto parameters = firstParameters;
+  kdl::vec_append(parameters, secondParameters);
+  std::ranges::sort(parameters);
+  parameters.erase(
+    std::unique(
+      parameters.begin(),
+      parameters.end(),
+      [](const auto lhs, const auto rhs) {
+        return std::abs(lhs - rhs) <= vm::Cd::almost_zero();
+      }),
+    parameters.end());
+
+  auto result = std::vector<std::vector<vm::vec3d>>{};
+  result.reserve(parameters.size() - 1u);
+  for (size_t i = 1u; i < parameters.size(); ++i)
+  {
+    const auto lower = parameters[i - 1u];
+    const auto upper = parameters[i];
+    auto footprint = std::vector<vm::vec3d>{
+      pointAtChainParameter(chains[0], firstParameters, lower),
+      pointAtChainParameter(chains[0], firstParameters, upper),
+      pointAtChainParameter(chains[1], secondParameters, upper),
+      pointAtChainParameter(chains[1], secondParameters, lower),
+    };
+    auto uniqueFootprint = std::vector<vm::vec3d>{};
+    for (const auto& point : footprint)
+    {
+      if (std::ranges::none_of(uniqueFootprint, [&](const auto& existing) {
+            return vm::squared_distance(point, existing)
+                   <= GeneratedGeometryEpsilon * GeneratedGeometryEpsilon;
+          }))
+      {
+        uniqueFootprint.push_back(point);
+      }
+    }
+    if (uniqueFootprint.size() >= 3u)
+    {
+      appendConvexBridgeSpan(result, std::move(uniqueFootprint), normal);
+    }
+  }
+  return result;
+}
+
+std::optional<std::vector<vm::vec3d>> extremeFaceFootprint(
+  const Brush& brush, const vm::axis::type axis, const bool positive)
+{
+  const auto normal = (positive ? 1.0 : -1.0) * vm::vec3d::axis(axis);
+  const auto faceIndex = brush.findFace(normal);
+  return faceIndex ? std::optional{brush.face(*faceIndex).vertexPositions()}
+                   : std::nullopt;
+}
+
+void setEqSurfaceFlags(Brush& brush, const int materialFlags)
+{
+  for (auto& face : brush.faces())
+  {
+    const auto orientationFlags = face.normal().z() >= 1.0 - GeneratedGeometryEpsilon ? 1
+                                  : face.normal().z() <= -1.0 + GeneratedGeometryEpsilon
+                                    ? 4
+                                    : 2;
+    face.setSurfaceAttributes(
+      {.contents = 0, .flags = materialFlags | orientationFlags, .value = 0.0f});
+  }
+}
+
+Result<Brush> createOffsetPrism(
+  const BrushBuilder& builder,
+  const std::vector<vm::vec3d>& footprint,
+  const vm::vec3d& offset1,
+  const vm::vec3d& offset2,
+  const std::string& materialName,
+  const std::optional<int> materialFlags = std::nullopt)
+{
+  auto points = std::vector<vm::vec3d>{};
+  points.reserve(footprint.size() * 2u);
+  for (const auto& point : footprint)
+  {
+    points.push_back(point + offset1);
+    points.push_back(point + offset2);
+  }
+
+  return builder.createBrush(points, materialName) | kdl::transform([&](auto brush) {
+           if (materialFlags)
+           {
+             setEqSurfaceFlags(brush, *materialFlags);
+           }
+           return brush;
+         });
+}
+
+Result<Brush> createAxisPrism(
+  const BrushBuilder& builder,
+  const std::vector<vm::vec3d>& footprint,
+  const vm::axis::type axis,
+  const double targetCoordinate,
+  const std::string& materialName,
+  const std::optional<int> materialFlags = std::nullopt)
+{
+  const auto sourceCoordinate = footprint.front()[axis];
+  const auto offset = (targetCoordinate - sourceCoordinate) * vm::vec3d::axis(axis);
+  return createOffsetPrism(
+    builder, footprint, vm::vec3d::zero(), offset, materialName, materialFlags);
+}
+
+BrushBuilder geometryBrushBuilder(const Map& map)
+{
+  return BrushBuilder{
+    map.worldNode().mapFormat(),
+    map.worldBounds(),
+    map.gameInfo().gameConfig.faceAttribsConfig.defaultUvAttributes,
+    map.gameInfo().gameConfig.faceAttribsConfig.defaultSurfaceAttributes};
+}
+
+} // namespace
+
+bool canBridgeSelectedEdgeChains(const Map& map)
+{
+  const auto chains = selectedEdgeChains(map);
+  return chains && canonicalPlaneNormal(*chains).has_value();
+}
+
+bool bridgeSelectedEdgeChains(
+  Map& map,
+  const double thickness,
+  const BridgeSurfaceDirection direction,
+  const std::string& materialName)
+{
+  const auto chains = selectedEdgeChains(map);
+  if (!chains || thickness <= 0.0)
+  {
+    return false;
+  }
+  const auto normal = canonicalPlaneNormal(*chains);
+  if (!normal)
+  {
+    return false;
+  }
+
+  const auto [offset1, offset2] = [&]() {
+    switch (direction)
+    {
+    case BridgeSurfaceDirection::Below:
+      return std::tuple{-thickness * *normal, vm::vec3d::zero()};
+    case BridgeSurfaceDirection::Above:
+      return std::tuple{vm::vec3d::zero(), thickness * *normal};
+    case BridgeSurfaceDirection::Centered:
+      return std::tuple{-0.5 * thickness * *normal, 0.5 * thickness * *normal};
+    }
+    switchDefault();
+  }();
+
+  auto brushes = std::vector<Brush>{};
+  for (const auto& footprint : bridgeSpans(*chains, *normal))
+  {
+    const auto createSuccess =
+      createOffsetPrism(
+        geometryBrushBuilder(map), footprint, offset1, offset2, materialName)
+      | kdl::transform([&](auto brush) { brushes.push_back(std::move(brush)); })
+      | kdl::transform_error([&](const auto& e) {
+          map.logger().error() << "Could not bridge edge chains: " << e.msg;
+        })
+      | kdl::is_success();
+    if (!createSuccess)
+    {
+      return false;
+    }
+  }
+  if (brushes.empty())
+  {
+    return false;
+  }
+
+  auto nodes = brushes | kdl::views::as_rvalue
+               | std::views::transform(
+                 [](auto&& brush) -> Node* { return new BrushNode{std::move(brush)}; })
+               | kdl::ranges::to<std::vector>();
+  auto& parent = parentForNodes(map, map.selection().nodes);
+  auto transaction = Transaction{map, "Bridge Edge Chains"};
+  deselectAll(map);
+  if (addNodes(map, {{&parent, nodes}}).size() != nodes.size())
+  {
+    transaction.cancel();
+    return false;
+  }
+  selectNodes(map, nodes);
+  return transaction.commit();
+}
+
+bool canCreateVolumeToPlane(const Map& map)
+{
+  return map.selection().hasBrushFaces() || map.selection().hasOnlyBrushes();
+}
+
+bool createVolumeToPlane(
+  Map& map,
+  const vm::axis::type axis,
+  const double coordinate,
+  const std::string& materialName)
+{
+  if (!canCreateVolumeToPlane(map))
+  {
+    return false;
+  }
+
+  auto footprints = std::vector<std::vector<vm::vec3d>>{};
+  auto referenceNodes = std::vector<Node*>{};
+  if (map.selection().hasBrushFaces())
+  {
+    for (const auto& handle : map.selection().brushFaces)
+    {
+      const auto& face = handle.face();
+      const auto delta = coordinate - face.center()[axis];
+      if (
+        std::abs(std::abs(face.normal()[axis]) - 1.0) > GeneratedGeometryEpsilon
+        || delta * face.normal()[axis] <= GeneratedGeometryEpsilon)
+      {
+        return false;
+      }
+      footprints.push_back(face.vertexPositions());
+      referenceNodes.push_back(handle.node());
+    }
+  }
+  else
+  {
+    for (auto* brushNode : map.selection().brushes)
+    {
+      const auto& bounds = brushNode->brush().bounds();
+      const auto positive = coordinate > bounds.max[axis] + GeneratedGeometryEpsilon;
+      const auto negative = coordinate < bounds.min[axis] - GeneratedGeometryEpsilon;
+      if (!positive && !negative)
+      {
+        return false;
+      }
+      const auto footprint = extremeFaceFootprint(brushNode->brush(), axis, positive);
+      if (!footprint)
+      {
+        return false;
+      }
+      footprints.push_back(*footprint);
+      referenceNodes.push_back(brushNode);
+    }
+  }
+
+  auto brushes = std::vector<Brush>{};
+  for (const auto& footprint : footprints)
+  {
+    const auto createSuccess =
+      createAxisPrism(
+        geometryBrushBuilder(map), footprint, axis, coordinate, materialName)
+      | kdl::transform([&](auto brush) { brushes.push_back(std::move(brush)); })
+      | kdl::transform_error([&](const auto& e) {
+          map.logger().error() << "Could not create volume to plane: " << e.msg;
+        })
+      | kdl::is_success();
+    if (!createSuccess)
+    {
+      return false;
+    }
+  }
+
+  auto nodes = brushes | kdl::views::as_rvalue
+               | std::views::transform(
+                 [](auto&& brush) -> Node* { return new BrushNode{std::move(brush)}; })
+               | kdl::ranges::to<std::vector>();
+  auto& parent = parentForNodes(map, referenceNodes);
+  auto transaction = Transaction{map, "Create Volume to Plane"};
+  deselectAll(map);
+  if (addNodes(map, {{&parent, nodes}}).size() != nodes.size())
+  {
+    transaction.cancel();
+    return false;
+  }
+  selectNodes(map, nodes);
+  return transaction.commit();
+}
+
+bool canCreateEqWater(const Map& map)
+{
+  const auto& selection = map.selection();
+  return selection.hasOnlyBrushes() && !selection.brushes.empty()
+         && std::ranges::all_of(selection.brushes, [&](const auto* brushNode) {
+              return brushNode->entity() == &map.worldNode()
+                     && extremeFaceFootprint(brushNode->brush(), vm::axis::z, true)
+                          .has_value();
+            });
+}
+
+bool createEqWater(
+  Map& map,
+  const double surfaceHeight,
+  const double surfaceThickness,
+  const std::string& waterMaterialName,
+  const std::string& surfaceMaterialName)
+{
+  if (!canCreateEqWater(map) || surfaceThickness <= 0.0)
+  {
+    return false;
+  }
+
+  const auto sourceNodes = std::vector<BrushNode*>{map.selection().brushes};
+  const auto builder = geometryBrushBuilder(map);
+  auto waterBrushes = std::vector<Brush>{};
+  auto surfaceBrushes = std::vector<Brush>{};
+  waterBrushes.reserve(sourceNodes.size());
+  surfaceBrushes.reserve(sourceNodes.size());
+
+  for (const auto* sourceNode : sourceNodes)
+  {
+    const auto footprint = extremeFaceFootprint(sourceNode->brush(), vm::axis::z, true);
+    contract_assert(footprint.has_value());
+    const auto bottomHeight = footprint->front().z();
+    if (surfaceHeight <= bottomHeight + GeneratedGeometryEpsilon)
+    {
+      return false;
+    }
+
+    const auto waterSuccess =
+      createAxisPrism(
+        builder, *footprint, vm::axis::z, surfaceHeight, waterMaterialName, 0)
+      | kdl::transform([&](auto brush) { waterBrushes.push_back(std::move(brush)); })
+      | kdl::is_success();
+    const auto surfaceSuccess =
+      createOffsetPrism(
+        builder,
+        *footprint,
+        (std::max(bottomHeight, surfaceHeight - surfaceThickness) - bottomHeight)
+          * vm::vec3d::axis(vm::axis::z),
+        (surfaceHeight - bottomHeight) * vm::vec3d::axis(vm::axis::z),
+        surfaceMaterialName,
+        32)
+      | kdl::transform([&](auto brush) { surfaceBrushes.push_back(std::move(brush)); })
+      | kdl::is_success();
+    if (!waterSuccess || !surfaceSuccess)
+    {
+      map.logger().error() << "Could not create EQ water geometry";
+      return false;
+    }
+  }
+
+  auto* entityNode = new EntityNode{Entity{{
+    {EntityPropertyKeys::Classname, "eq_water"},
+    {"types", "Water"},
+  }}};
+  auto waterNodes = waterBrushes | kdl::views::as_rvalue
+                    | std::views::transform([](auto&& brush) -> Node* {
+                        return new BrushNode{std::move(brush)};
+                      })
+                    | kdl::ranges::to<std::vector>();
+  auto surfaceNodes = surfaceBrushes | kdl::views::as_rvalue
+                      | std::views::transform([](auto&& brush) -> Node* {
+                          return new BrushNode{std::move(brush)};
+                        })
+                      | kdl::ranges::to<std::vector>();
+
+  auto& parent = parentForNodes(map, kdl::vec_static_cast<Node*>(sourceNodes));
+  auto transaction = Transaction{map, "Create EQ Water"};
+  deselectAll(map);
+  if (addNodes(map, {{&parent, {entityNode}}}).empty())
+  {
+    transaction.cancel();
+    return false;
+  }
+  if (addNodes(map, {{entityNode, waterNodes}, {&parent, surfaceNodes}}).empty())
+  {
+    transaction.cancel();
+    return false;
+  }
+
+  auto selectedNodes = waterNodes;
+  kdl::vec_append(selectedNodes, surfaceNodes);
+  selectNodes(map, selectedNodes);
+  return transaction.commit();
 }
 
 bool csgSubtract(Map& map)

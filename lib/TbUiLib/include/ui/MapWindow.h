@@ -300,6 +300,18 @@ public:
   void csgConvexMerge();
   bool canDoCsgConvexMerge() const;
 
+  void optimizeBrushwork();
+  bool canOptimizeBrushwork() const;
+
+  void bridgeEdgeChains();
+  bool canBridgeEdgeChains() const;
+
+  void createVolumeToPlane();
+  bool canCreateVolumeToPlane() const;
+
+  void createEqWater();
+  bool canCreateEqWater() const;
+
   void csgSubtract();
   bool canDoCsgSubtract() const;
 

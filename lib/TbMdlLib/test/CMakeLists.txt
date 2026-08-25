@@ -9,6 +9,7 @@ target_sources(TbMdlLibTest PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_BrushBuilder.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_BrushFace.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_BrushNode.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_BrushOptimization.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_CommandProcessor.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_CompareHits.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_CompilationConfig.cpp

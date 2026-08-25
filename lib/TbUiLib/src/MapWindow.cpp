@@ -23,13 +23,19 @@
 #include <QChildEvent>
 #include <QClipboard>
 #include <QComboBox>
+#include <QDialog>
+#include <QDialogButtonBox>
+#include <QDoubleSpinBox>
 #include <QFileDialog>
+#include <QFormLayout>
+#include <QHBoxLayout>
 #include <QInputDialog>
 #include <QLabel>
 #include <QMessageBox>
 #include <QMimeData>
 #include <QPushButton>
 #include <QSettings>
+#include <QShortcut>
 #include <QStatusBar>
 #include <QString>
 #include <QStringList>
@@ -71,6 +77,7 @@
 #include "mdl/Node.h"
 #include "mdl/PasteType.h"
 #include "mdl/PatchNode.h"
+#include "mdl/TransactionScope.h"
 #include "mdl/VisualEffect.h"
 #include "mdl/WorldNode.h"
 #include "prefs/Preferences.h"
@@ -90,9 +97,9 @@
 #include "ui/FaceTool.h"
 #include "ui/InfoPanel.h"
 #include "ui/Inspector.h"
-#include "ui/MapHookRunner.h"
 #include "ui/LaunchGameEngineDialog.h"
 #include "ui/MapDocument.h"
+#include "ui/MapHookRunner.h"
 #include "ui/MapView2D.h"
 #include "ui/MapViewBase.h"
 #include "ui/MapViewToolBox.h"
@@ -130,6 +137,7 @@
 
 #include <algorithm>
 #include <chrono>
+#include <functional>
 #include <iterator>
 #include <stdexcept>
 #include <string>
@@ -141,6 +149,256 @@ namespace tb::ui
 {
 namespace
 {
+
+class BrushOptimizationDialog : public QDialog
+{
+private:
+  const std::vector<mdl::BrushOptimizationCandidate>& m_candidates;
+  const size_t m_originalBrushCount;
+  std::function<bool(size_t)> m_applyCandidate;
+  std::function<void()> m_showOriginal;
+
+  size_t m_currentCandidate = 0u;
+  bool m_showingOriginal = false;
+  QLabel* m_candidateLabel = nullptr;
+  QPushButton* m_originalButton = nullptr;
+  QPushButton* m_applyButton = nullptr;
+
+public:
+  BrushOptimizationDialog(
+    const std::vector<mdl::BrushOptimizationCandidate>& candidates,
+    const size_t originalBrushCount,
+    std::function<bool(size_t)> applyCandidate,
+    std::function<void()> showOriginal,
+    QWidget* parent)
+    : QDialog{parent}
+    , m_candidates{candidates}
+    , m_originalBrushCount{originalBrushCount}
+    , m_applyCandidate{std::move(applyCandidate)}
+    , m_showOriginal{std::move(showOriginal)}
+  {
+    setWindowTitle(tr("Optimize Brushwork"));
+    setModal(true);
+
+    auto* explanation = new QLabel{
+      tr("Each option preserves the exact occupied volume. Visible face materials and "
+         "texture alignment are copied from the selected brushes."),
+      this};
+    explanation->setWordWrap(true);
+
+    m_candidateLabel = new QLabel{this};
+
+    m_originalButton = new QPushButton{tr("Show Original"), this};
+    auto* previousButton = new QPushButton{tr("Previous"), this};
+    auto* nextButton = new QPushButton{tr("Next"), this};
+    previousButton->setEnabled(m_candidates.size() > 1u);
+    nextButton->setEnabled(m_candidates.size() > 1u);
+
+    connect(previousButton, &QAbstractButton::clicked, this, [this]() {
+      showCandidate(
+        m_showingOriginal
+          ? m_candidates.size() - 1u
+          : (m_currentCandidate + m_candidates.size() - 1u) % m_candidates.size());
+    });
+    connect(nextButton, &QAbstractButton::clicked, this, [this]() {
+      showCandidate(
+        m_showingOriginal ? 0u : (m_currentCandidate + 1u) % m_candidates.size());
+    });
+    connect(m_originalButton, &QAbstractButton::clicked, this, [this]() {
+      if (!m_showingOriginal)
+      {
+        m_showOriginal();
+        m_showingOriginal = true;
+        updateCandidateLabel();
+      }
+    });
+
+    auto* previousShortcut = new QShortcut{QKeySequence{"["}, this};
+    auto* nextShortcut = new QShortcut{QKeySequence{"]"}, this};
+    auto* originalShortcut = new QShortcut{QKeySequence{"O"}, this};
+    connect(previousShortcut, &QShortcut::activated, previousButton, &QPushButton::click);
+    connect(nextShortcut, &QShortcut::activated, nextButton, &QPushButton::click);
+    connect(
+      originalShortcut, &QShortcut::activated, m_originalButton, &QPushButton::click);
+
+    auto* cycleLayout = new QHBoxLayout{};
+    cycleLayout->addWidget(m_originalButton);
+    cycleLayout->addWidget(previousButton);
+    cycleLayout->addWidget(m_candidateLabel, 1, Qt::AlignCenter);
+    cycleLayout->addWidget(nextButton);
+
+    auto* buttonBox =
+      new QDialogButtonBox{QDialogButtonBox::Ok | QDialogButtonBox::Cancel, this};
+    m_applyButton = buttonBox->button(QDialogButtonBox::Ok);
+    m_applyButton->setText(tr("Apply"));
+    connect(buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
+    connect(buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
+
+    auto* layout = new QVBoxLayout{};
+    layout->addWidget(explanation);
+    layout->addLayout(cycleLayout);
+    layout->addWidget(buttonBox);
+    setLayout(layout);
+
+    updateCandidateLabel();
+  }
+
+private:
+  void showCandidate(const size_t index)
+  {
+    if (!m_showingOriginal && index == m_currentCandidate)
+    {
+      return;
+    }
+
+    if (!m_applyCandidate(index))
+    {
+      reject();
+      return;
+    }
+
+    m_currentCandidate = index;
+    m_showingOriginal = false;
+    updateCandidateLabel();
+  }
+
+  void updateCandidateLabel()
+  {
+    m_originalButton->setEnabled(!m_showingOriginal);
+    m_applyButton->setEnabled(!m_showingOriginal);
+    if (m_showingOriginal)
+    {
+      m_candidateLabel->setText(tr("Original — %1 brushes").arg(m_originalBrushCount));
+      return;
+    }
+
+    const auto brushCount = m_candidates[m_currentCandidate].bounds.size();
+    const auto reduction = m_originalBrushCount - brushCount;
+    const auto countDescription =
+      reduction > 0u ? tr("%1 fewer").arg(reduction) : tr("same count");
+    const auto internalFaceArea =
+      QString::number(m_candidates[m_currentCandidate].internalFaceArea, 'g', 8);
+    m_candidateLabel->setText(tr("Option %1 of %2 — %3 %4 (%5) — internal seams: %6 u²")
+                                .arg(m_currentCandidate + 1u)
+                                .arg(m_candidates.size())
+                                .arg(brushCount)
+                                .arg(brushCount == 1u ? tr("brush") : tr("brushes"))
+                                .arg(countDescription)
+                                .arg(internalFaceArea));
+  }
+};
+
+class BridgeEdgeChainsDialog : public QDialog
+{
+private:
+  QDoubleSpinBox* m_thickness = nullptr;
+  QComboBox* m_direction = nullptr;
+
+public:
+  explicit BridgeEdgeChainsDialog(QWidget* parent)
+    : QDialog{parent}
+  {
+    setWindowTitle(tr("Bridge Edge Chains"));
+
+    m_thickness = new QDoubleSpinBox{this};
+    m_thickness->setRange(0.01, 65536.0);
+    m_thickness->setDecimals(2);
+    m_thickness->setValue(8.0);
+
+    m_direction = new QComboBox{this};
+    m_direction->addItem(tr("Below selected surface"));
+    m_direction->addItem(tr("Above selected surface"));
+    m_direction->addItem(tr("Centered on selected surface"));
+
+    auto* form = new QFormLayout{};
+    form->addRow(tr("Thickness:"), m_thickness);
+    form->addRow(tr("Placement:"), m_direction);
+
+    auto* explanation = new QLabel{
+      tr("The selected edges must form exactly two connected, coplanar, open chains. "
+         "The current material is applied to the generated brushes."),
+      this};
+    explanation->setWordWrap(true);
+
+    auto* buttons =
+      new QDialogButtonBox{QDialogButtonBox::Ok | QDialogButtonBox::Cancel, this};
+    connect(buttons, &QDialogButtonBox::accepted, this, &QDialog::accept);
+    connect(buttons, &QDialogButtonBox::rejected, this, &QDialog::reject);
+
+    auto* layout = new QVBoxLayout{};
+    layout->addWidget(explanation);
+    layout->addLayout(form);
+    layout->addWidget(buttons);
+    setLayout(layout);
+  }
+
+  double thickness() const { return m_thickness->value(); }
+
+  mdl::BridgeSurfaceDirection direction() const
+  {
+    switch (m_direction->currentIndex())
+    {
+    case 0:
+      return mdl::BridgeSurfaceDirection::Below;
+    case 1:
+      return mdl::BridgeSurfaceDirection::Above;
+    case 2:
+      return mdl::BridgeSurfaceDirection::Centered;
+    default:
+      return mdl::BridgeSurfaceDirection::Below;
+    }
+  }
+};
+
+class VolumeToPlaneDialog : public QDialog
+{
+private:
+  QComboBox* m_axis = nullptr;
+  QDoubleSpinBox* m_coordinate = nullptr;
+
+public:
+  VolumeToPlaneDialog(
+    const vm::bbox3d& worldBounds, const double initialCoordinate, QWidget* parent)
+    : QDialog{parent}
+  {
+    setWindowTitle(tr("Create Volume to Plane"));
+
+    m_axis = new QComboBox{this};
+    m_axis->addItems({tr("X"), tr("Y"), tr("Z")});
+    m_axis->setCurrentIndex(2);
+
+    m_coordinate = new QDoubleSpinBox{this};
+    m_coordinate->setRange(
+      std::min({worldBounds.min.x(), worldBounds.min.y(), worldBounds.min.z()}),
+      std::max({worldBounds.max.x(), worldBounds.max.y(), worldBounds.max.z()}));
+    m_coordinate->setDecimals(2);
+    m_coordinate->setValue(initialCoordinate);
+
+    auto* form = new QFormLayout{};
+    form->addRow(tr("Plane axis:"), m_axis);
+    form->addRow(tr("Plane coordinate:"), m_coordinate);
+
+    auto* explanation = new QLabel{
+      tr("Creates new brushes from the selected brush faces—or the outward side of "
+         "selected brushes—to the absolute plane. The current material is used."),
+      this};
+    explanation->setWordWrap(true);
+
+    auto* buttons =
+      new QDialogButtonBox{QDialogButtonBox::Ok | QDialogButtonBox::Cancel, this};
+    connect(buttons, &QDialogButtonBox::accepted, this, &QDialog::accept);
+    connect(buttons, &QDialogButtonBox::rejected, this, &QDialog::reject);
+
+    auto* layout = new QVBoxLayout{};
+    layout->addWidget(explanation);
+    layout->addLayout(form);
+    layout->addWidget(buttons);
+    setLayout(layout);
+  }
+
+  vm::axis::type axis() const { return vm::axis::type(m_axis->currentIndex()); }
+  double coordinate() const { return m_coordinate->value(); }
+};
 
 void showModelessDialog(QDialog* dialog)
 {
@@ -1776,6 +2034,184 @@ void MapWindow::csgConvexMerge()
       mdl::csgConvexMerge(m_document->map());
     }
   }
+}
+
+void MapWindow::optimizeBrushwork()
+{
+  if (!canOptimizeBrushwork())
+  {
+    return;
+  }
+
+  auto& map = m_document->map();
+  const auto originalBrushCount = map.selection().brushes.size();
+  const auto candidates = mdl::createSelectedBrushOptimizationCandidates(map);
+  if (candidates.empty())
+  {
+    QMessageBox::information(
+      this,
+      tr("Optimize Brushwork"),
+      tr("No alternative rectangular decomposition can improve this selection while "
+         "preserving its visible materials and texture alignment."));
+    return;
+  }
+
+  map.startTransaction("Optimize Brushwork", mdl::TransactionScope::LongRunning);
+  auto applyCandidate = [&](const size_t index) {
+    map.rollbackTransaction();
+    if (!mdl::applyBrushOptimizationCandidate(map, candidates[index]))
+    {
+      QMessageBox::warning(
+        this, tr("Optimize Brushwork"), tr("Could not preview this option."));
+      return false;
+    }
+    return true;
+  };
+  const auto showOriginal = [&]() { map.rollbackTransaction(); };
+
+  if (!applyCandidate(0u))
+  {
+    map.cancelTransaction();
+    return;
+  }
+
+  auto dialog = BrushOptimizationDialog{
+    candidates, originalBrushCount, applyCandidate, showOriginal, this};
+  if (dialog.exec() == QDialog::Accepted)
+  {
+    if (!map.commitTransaction())
+    {
+      QMessageBox::warning(
+        this, tr("Optimize Brushwork"), tr("Could not apply the selected option."));
+    }
+  }
+  else
+  {
+    map.cancelTransaction();
+  }
+}
+
+bool MapWindow::canOptimizeBrushwork() const
+{
+  return !m_mapView->toolBox().anyModalToolActive()
+         && mdl::canOptimizeSelectedBrushes(m_document->map());
+}
+
+void MapWindow::bridgeEdgeChains()
+{
+  if (!canBridgeEdgeChains())
+  {
+    return;
+  }
+
+  auto dialog = BridgeEdgeChainsDialog{this};
+  if (dialog.exec() == QDialog::Accepted)
+  {
+    auto& map = m_document->map();
+    if (!mdl::bridgeSelectedEdgeChains(
+          map, dialog.thickness(), dialog.direction(), map.currentMaterialName()))
+    {
+      QMessageBox::warning(
+        this,
+        tr("Bridge Edge Chains"),
+        tr("Could not bridge the selected edges. Select exactly two connected, "
+           "coplanar, open edge chains."));
+    }
+  }
+}
+
+bool MapWindow::canBridgeEdgeChains() const
+{
+  return m_mapView->toolBox().edgeToolActive()
+         && mdl::canBridgeSelectedEdgeChains(m_document->map());
+}
+
+void MapWindow::createVolumeToPlane()
+{
+  if (!canCreateVolumeToPlane())
+  {
+    return;
+  }
+
+  auto& map = m_document->map();
+  const auto selectionBounds = map.selectionBounds();
+  const auto initialCoordinate =
+    selectionBounds ? std::min(selectionBounds->max.z() + 64.0, map.worldBounds().max.z())
+                    : 0.0;
+  auto dialog = VolumeToPlaneDialog{map.worldBounds(), initialCoordinate, this};
+  if (
+    dialog.exec() == QDialog::Accepted
+    && !mdl::createVolumeToPlane(
+      map, dialog.axis(), dialog.coordinate(), map.currentMaterialName()))
+  {
+    QMessageBox::warning(
+      this,
+      tr("Create Volume to Plane"),
+      tr("The target plane must lie outside every selected brush, or outward from every "
+         "selected axis-aligned face."));
+  }
+}
+
+bool MapWindow::canCreateVolumeToPlane() const
+{
+  return !m_mapView->toolBox().anyModalToolActive()
+         && mdl::canCreateVolumeToPlane(m_document->map());
+}
+
+void MapWindow::createEqWater()
+{
+  if (!canCreateEqWater())
+  {
+    return;
+  }
+
+  auto& map = m_document->map();
+  const auto* zone = map.worldNode().entity().property("zone");
+  if (zone == nullptr || zone->empty())
+  {
+    QMessageBox::warning(
+      this,
+      tr("Create EQ Water"),
+      tr("The worldspawn needs a non-empty 'zone' property to select the EQ materials."));
+    return;
+  }
+
+  const auto& brushes = map.selection().brushes;
+  const auto bedHeight =
+    std::ranges::max(
+      brushes,
+      {},
+      [](const auto* brushNode) { return brushNode->brush().bounds().max.z(); })
+      ->brush()
+      .bounds()
+      .max.z();
+  auto ok = false;
+  const auto surfaceHeight = QInputDialog::getDouble(
+    this,
+    tr("Create EQ Water"),
+    tr("Water surface Z:"),
+    bedHeight + 64.0,
+    bedHeight + 0.01,
+    map.worldBounds().max.z(),
+    2,
+    &ok);
+  if (
+    ok
+    && !mdl::createEqWater(
+      map, surfaceHeight, 8.0, *zone + "/eq_water", *zone + "/t50_agua1"))
+  {
+    QMessageBox::warning(
+      this,
+      tr("Create EQ Water"),
+      tr("Could not create water. Select riverbed brushes with a horizontal top face, "
+         "and choose a surface above every selected brush."));
+  }
+}
+
+bool MapWindow::canCreateEqWater() const
+{
+  return !m_mapView->toolBox().anyModalToolActive()
+         && mdl::canCreateEqWater(m_document->map());
 }
 
 bool MapWindow::canDoCsgConvexMerge() const
