@@ -38,6 +38,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <optional>
 #include <ranges>
 #include <string>
 #include <utility>
@@ -318,6 +319,106 @@ vm::vec2d crossingAtV(const vm::vec2d& a, const vm::vec2d& b, const double v)
 {
   const auto t = (v - a.y()) / (b.y() - a.y());
   return vm::vec2d{a.x() + (b.x() - a.x()) * t, v};
+}
+
+// Indices of the contiguous run of circle vertices at or above the springing line.
+std::vector<size_t> archUpperRun(const std::vector<vm::vec2d>& circle, const double vMin)
+{
+  const auto n = circle.size();
+  const auto isUpper = [&](const size_t i) { return circle[i].y() >= vMin; };
+
+  // Start of the contiguous upper run: an upper vertex whose predecessor is below.
+  const auto firstUpper = kdl::index_of(std::views::iota(0u, n), [&](const auto i) {
+    return isUpper(i) && !isUpper((i + n - 1) % n);
+  });
+
+  if (!firstUpper)
+  {
+    return {};
+  }
+
+  return std::views::iota(0u, n)
+         | std::views::transform([&](const auto i) { return (*firstUpper + i) % n; })
+         | std::views::take_while(isUpper) | kdl::ranges::to<std::vector>();
+}
+
+// Walks the given run along the given circle, capping both ends with a foot on the
+// springing line so that the arch sits flat.
+std::vector<vm::vec2d> archBoundary(
+  const std::vector<vm::vec2d>& circle,
+  const std::vector<size_t>& upper,
+  const double vMin)
+{
+  const auto n = circle.size();
+  const auto first = upper.front();
+  const auto last = upper.back();
+  const auto beforeFirst = (first + n - 1) % n;
+  const auto afterLast = (last + 1) % n;
+
+  auto boundary = std::vector<vm::vec2d>{};
+  boundary.reserve(upper.size() + 2);
+  boundary.push_back(crossingAtV(circle[beforeFirst], circle[first], vMin));
+  for (const auto i : upper)
+  {
+    boundary.emplace_back(circle[i].x(), std::max(circle[i].y(), vMin));
+  }
+  boundary.push_back(crossingAtV(circle[last], circle[afterLast], vMin));
+  return boundary;
+}
+
+// The cross-section an arch is built from: the axes it is laid out on, the circle its
+// band follows and the boundary of its outside, running from one foot to the other.
+struct ArchCrossSection
+{
+  ArchAxes axes;
+  vm::bbox2d circleBounds;
+  std::vector<vm::vec2d> circle;
+  std::vector<size_t> upper;
+  std::vector<vm::vec2d> outerBoundary;
+};
+
+std::optional<ArchCrossSection> makeArchCrossSection(
+  const vm::bbox3d& bounds, const CircleShape& circleShape, const vm::axis::type axis)
+{
+  const auto axes = archAxes(axis);
+
+  const auto sMin = bounds.min[axes.span];
+  const auto sMax = bounds.max[axes.span];
+  const auto vMin = bounds.min[axes.vertical];
+  const auto vMax = bounds.max[axes.vertical];
+  const auto height = vMax - vMin;
+  const auto span = sMax - sMin;
+
+  // The bounds are often degenerate mid-drag; emit no brushes rather than erroring.
+  if (height <= 0.0 || span <= 0.0)
+  {
+    return std::nullopt;
+  }
+
+  // Upper half of an ellipse whose diameter lies on the springing line (v == vMin). Build
+  // the full ellipse in a bounds doubled downwards, then keep only the upper half,
+  // reusing the cylinder circle-mode machinery.
+  const auto circleBounds = vm::bbox2d{{sMin, vMin - height}, {sMax, vMax}};
+
+  auto circle = makeCircle(circleShape, circleBounds);
+  auto upper = archUpperRun(circle, vMin);
+  if (upper.empty())
+  {
+    return std::nullopt;
+  }
+
+  auto outerBoundary = archBoundary(circle, upper, vMin);
+  return ArchCrossSection{
+    axes, circleBounds, std::move(circle), std::move(upper), std::move(outerBoundary)};
+}
+
+vm::vec3d archPoint(const ArchAxes& axes, const vm::vec2d& p, const double w)
+{
+  auto result = vm::vec3d{};
+  result[axes.span] = p.x();
+  result[axes.vertical] = p.y();
+  result[axes.tunnel] = w;
+  return result;
 }
 
 auto setZ(const std::vector<vm::vec2d>& vertices, const double z)
@@ -692,83 +793,24 @@ Result<std::vector<Brush>> BrushBuilder::createArch(
   const vm::axis::type axis,
   const std::string& textureName) const
 {
-  const auto axes = archAxes(axis);
-
-  const auto sMin = bounds.min[axes.span];
-  const auto sMax = bounds.max[axes.span];
-  const auto vMin = bounds.min[axes.vertical];
-  const auto vMax = bounds.max[axes.vertical];
-  const auto wMin = bounds.min[axes.tunnel];
-  const auto wMax = bounds.max[axes.tunnel];
-  const auto height = vMax - vMin;
-  const auto span = sMax - sMin;
-
-  // The bounds are often degenerate mid-drag; emit no brushes rather than erroring.
-  if (height <= 0.0 || span <= 0.0)
+  const auto section = makeArchCrossSection(bounds, circleShape, axis);
+  if (!section)
   {
     return Result<std::vector<Brush>>{std::vector<Brush>{}};
   }
 
-  // Upper half of an ellipse whose diameter lies on the springing line (v == vMin). Build
-  // the full ellipse in a bounds doubled downwards, then keep only the upper half,
-  // reusing the cylinder circle-mode machinery.
-  const auto circleBounds = vm::bbox2d{{sMin, vMin - height}, {sMax, vMax}};
+  const auto& axes = section->axes;
+  const auto vMin = bounds.min[axes.vertical];
+  const auto wMin = bounds.min[axes.tunnel];
+  const auto wMax = bounds.max[axes.tunnel];
 
-  const auto outer = makeCircle(circleShape, circleBounds);
+  return makeHollowCylinderInnerCircle(
+           section->circle, thickness, circleShape, section->circleBounds)
+         | kdl::and_then([&](const auto& inner) {
+             contract_assert(inner.size() == section->circle.size());
 
-  return makeHollowCylinderInnerCircle(outer, thickness, circleShape, circleBounds)
-         | kdl::transform([&](const auto& inner) {
-             contract_assert(inner.size() == outer.size());
-             const auto n = outer.size();
-
-             const auto isUpper = [&](const size_t i) { return outer[i].y() >= vMin; };
-
-             // Start of the contiguous upper run: an upper vertex whose predecessor is
-             // below.
-             const auto firstUpper = kdl::index_of(
-               std::views::iota(0u, n),
-               [&](const auto i) { return isUpper(i) && !isUpper((i + n - 1) % n); });
-
-             if (!firstUpper)
-             {
-               return std::vector<Brush>{};
-             }
-
-             const auto upper =
-               std::views::iota(0u, n) | std::views::transform([&](const auto i) {
-                 return (*firstUpper + i) % n;
-               })
-               | std::views::take_while(isUpper) | kdl::ranges::to<std::vector>();
-
-             // Cap both ends with a foot on the springing line so the arch sits flat.
-             const auto first = upper.front();
-             const auto last = upper.back();
-             const auto beforeFirst = (first + n - 1) % n;
-             const auto afterLast = (last + 1) % n;
-
-             const auto clampToSpring = [&](const auto p) {
-               return vm::vec2d{p.x(), std::max(p.y(), vMin)};
-             };
-
-             auto outerBoundary = std::vector<vm::vec2d>{};
-             auto innerBoundary = std::vector<vm::vec2d>{};
-             outerBoundary.push_back(crossingAtV(outer[beforeFirst], outer[first], vMin));
-             innerBoundary.push_back(crossingAtV(inner[beforeFirst], inner[first], vMin));
-             for (const auto i : upper)
-             {
-               outerBoundary.push_back(outer[i]);
-               innerBoundary.push_back(clampToSpring(inner[i]));
-             }
-             outerBoundary.push_back(crossingAtV(outer[last], outer[afterLast], vMin));
-             innerBoundary.push_back(crossingAtV(inner[last], inner[afterLast], vMin));
-
-             const auto toPoint = [&](const vm::vec2d& p, const double w) {
-               auto result = vm::vec3d{};
-               result[axes.span] = p.x();
-               result[axes.vertical] = p.y();
-               result[axes.tunnel] = w;
-               return result;
-             };
+             const auto& outerBoundary = section->outerBoundary;
+             const auto innerBoundary = archBoundary(inner, section->upper, vMin);
 
              // Build each voussoir independently, skipping any that are degenerate
              // mid-drag.
@@ -780,14 +822,14 @@ Result<std::vector<Brush>> BrushBuilder::createArch(
                         const auto& i1 = innerBoundary[j + 1];
 
                         return Polyhedron3{
-                          toPoint(o0, wMin),
-                          toPoint(o0, wMax),
-                          toPoint(o1, wMin),
-                          toPoint(o1, wMax),
-                          toPoint(i0, wMin),
-                          toPoint(i0, wMax),
-                          toPoint(i1, wMin),
-                          toPoint(i1, wMax),
+                          archPoint(axes, o0, wMin),
+                          archPoint(axes, o0, wMax),
+                          archPoint(axes, o1, wMin),
+                          archPoint(axes, o1, wMax),
+                          archPoint(axes, i0, wMin),
+                          archPoint(axes, i0, wMax),
+                          archPoint(axes, i1, wMin),
+                          archPoint(axes, i1, wMax),
                         };
                       })
                     | std::views::filter([](const auto& p) { return p.polyhedron(); })
