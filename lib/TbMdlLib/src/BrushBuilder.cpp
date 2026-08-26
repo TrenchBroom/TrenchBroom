@@ -779,7 +779,7 @@ Result<std::vector<Brush>> BrushBuilder::createArch(
                         const auto& i0 = innerBoundary[j];
                         const auto& i1 = innerBoundary[j + 1];
 
-                        const auto vertices = std::vector{
+                        return Polyhedron3{
                           toPoint(o0, wMin),
                           toPoint(o0, wMax),
                           toPoint(o1, wMin),
@@ -789,10 +789,12 @@ Result<std::vector<Brush>> BrushBuilder::createArch(
                           toPoint(i1, wMin),
                           toPoint(i1, wMax),
                         };
-
-                        return createBrush(vertices, textureName);
                       })
-                    | kdl::values();
+                    | std::views::filter([](const auto& p) { return p.polyhedron(); })
+                    | std::views::transform([&](const auto& polyhedron) {
+                        return createBrush(polyhedron, textureName);
+                      })
+                    | kdl::fold;
            });
 }
 
