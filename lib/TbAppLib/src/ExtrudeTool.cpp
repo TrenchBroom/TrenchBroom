@@ -133,6 +133,7 @@ std::vector<mdl::BrushFaceHandle> collectCoincidentFaces(
   const auto& referenceFace = faceHandle.face();
   const auto referencePlane =
     normalSign ? referenceFace.boundary() : referenceFace.boundary().flip();
+  const auto referencePolygon = referenceFace.polygon();
 
   for (auto* node : nodes)
   {
@@ -147,6 +148,18 @@ std::vector<mdl::BrushFaceHandle> collectCoincidentFaces(
         {
           const auto& face = brush.face(i);
           if (!face.coplanarWith(referencePlane))
+          {
+            continue;
+          }
+
+          // Same-normal coplanar faces may belong to the same logical surface even when
+          // they don't overlap (e.g. two brushes forming a floor, touching edge to edge).
+          // Opposing-normal faces are only a genuine touching seam if their polygons
+          // actually overlap in space -- otherwise they just happen to share a plane.
+          if (
+            !normalSign
+            && !vm::polygons_overlap(
+              referencePolygon, face.polygon(), referenceFace.boundary().normal))
           {
             continue;
           }

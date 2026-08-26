@@ -373,7 +373,6 @@ TEST_CASE("ExtrudeTool")
 
     // only brushNode1's top face is a drag handle; brushNode2's far-away bottom face
     // must not be linked in
-    /* EXPECTED:
     CHECK_THAT(
       tool.proposedDragHandles()
         | std::views::transform([](const auto& h) { return h.faceHandle.node(); }),
@@ -384,17 +383,6 @@ TEST_CASE("ExtrudeTool")
         return h.faceAtDragStart().normal();
       }),
       RangeEquals(std::vector<vm::vec3d>{{0, 0, 1}}));
-    ACTUAL: */
-    CHECK_THAT(
-      tool.proposedDragHandles()
-        | std::views::transform([](const auto& h) { return h.faceHandle.node(); }),
-      UnorderedRangeEquals(std::vector<mdl::BrushNode*>{brushNode1, brushNode2}));
-
-    CHECK_THAT(
-      tool.proposedDragHandles() | std::views::transform([](const auto& h) {
-        return h.faceAtDragStart().normal();
-      }),
-      UnorderedRangeEquals(std::vector<vm::vec3d>{{0, 0, 1}, {0, 0, -1}}));
   }
 
   SECTION("Pick a horizon edge handle directly")
