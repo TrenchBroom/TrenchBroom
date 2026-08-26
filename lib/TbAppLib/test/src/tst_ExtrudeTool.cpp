@@ -343,6 +343,60 @@ TEST_CASE("ExtrudeTool")
       UnorderedRangeEquals(std::vector<vm::vec3d>{{0, 0, 1}, {0, 0, -1}}));
   }
 
+  SECTION("Does not pick opposing coplanar faces that don't overlap")
+  {
+    auto& document = fixture.create();
+    auto& map = document.map();
+
+    auto tool = ExtrudeTool{document};
+
+    auto builder = mdl::BrushBuilder{map.worldNode().mapFormat(), map.worldBounds()};
+
+    // brushNode1's top face (+Z) and brushNode2's bottom face (-Z) are coplanar at
+    // z = 16 and face in opposite directions, but their footprints are disjoint in X
+    // (brushNode1: x in [-16, 16], brushNode2: x in [64, 96]), so they don't actually
+    // touch. They must NOT be linked as opposing drag handles.
+    auto* brushNode1 = new mdl::BrushNode{
+      builder.createCuboid(vm::bbox3d{{-16, -16, -16}, {16, 16, 16}}, "material")
+      | kdl::value()};
+    auto* brushNode2 = new mdl::BrushNode{
+      builder.createCuboid(vm::bbox3d{{64, -16, 16}, {96, 16, 48}}, "material")
+      | kdl::value()};
+
+    addNodes(map, {{map.editorContext().currentLayer(), {brushNode1, brushNode2}}});
+    selectNodes(map, {brushNode1, brushNode2});
+
+    // shoot straight down onto brushNode1's top face
+    const auto pickRay = vm::ray3d{{0, 0, 32}, {0, 0, -1}};
+
+    const auto pickResult = performPick(map, tool, pickRay);
+
+    // only brushNode1's top face is a drag handle; brushNode2's far-away bottom face
+    // must not be linked in
+    /* EXPECTED:
+    CHECK_THAT(
+      tool.proposedDragHandles()
+        | std::views::transform([](const auto& h) { return h.faceHandle.node(); }),
+      RangeEquals(std::vector<mdl::BrushNode*>{brushNode1}));
+
+    CHECK_THAT(
+      tool.proposedDragHandles() | std::views::transform([](const auto& h) {
+        return h.faceAtDragStart().normal();
+      }),
+      RangeEquals(std::vector<vm::vec3d>{{0, 0, 1}}));
+    ACTUAL: */
+    CHECK_THAT(
+      tool.proposedDragHandles()
+        | std::views::transform([](const auto& h) { return h.faceHandle.node(); }),
+      UnorderedRangeEquals(std::vector<mdl::BrushNode*>{brushNode1, brushNode2}));
+
+    CHECK_THAT(
+      tool.proposedDragHandles() | std::views::transform([](const auto& h) {
+        return h.faceAtDragStart().normal();
+      }),
+      UnorderedRangeEquals(std::vector<vm::vec3d>{{0, 0, 1}, {0, 0, -1}}));
+  }
+
   SECTION("Pick a horizon edge handle directly")
   {
     using namespace mdl::HitFilters;
