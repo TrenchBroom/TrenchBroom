@@ -23,6 +23,7 @@
 #include "render/Renderable.h"
 
 #include <unordered_map>
+#include <vector>
 
 namespace tb
 {
@@ -45,15 +46,39 @@ namespace render
 class RenderBatch;
 struct ShaderConfig;
 
-class EntityModelRenderer : public DirectRenderable
+class EntityModelRenderer
 {
 private:
+  /**
+   * Draws either the opaque or the transparent subset of m_entities as an independent
+   * batch entry, so the two subsets can be interleaved with other objects'
+   * opaque/transparent passes rather than always drawn together. The transparent pass is
+   * additionally sorted back-to-front by distance to the camera each frame.
+   */
+  class Pass : public DirectRenderable
+  {
+  private:
+    EntityModelRenderer& m_owner;
+    bool m_transparent;
+
+  public:
+    Pass(EntityModelRenderer& owner, bool transparent);
+
+  private:
+    void prepare(gl::Gl& gl, gl::VboManager& vboManager) override;
+    void render(RenderContext& context) override;
+  };
+
   Logger& m_logger;
 
   mdl::EntityModelManager& m_entityModelManager;
   const mdl::EditorContext& m_editorContext;
 
   std::unordered_map<const mdl::EntityNode*, gl::MaterialRenderer*> m_entities;
+  std::vector<const mdl::EntityNode*> m_transparentDrawOrder;
+
+  Pass m_opaquePass;
+  Pass m_transparentPass;
 
   bool m_applyTinting = false;
   Color m_tintColor;
@@ -65,7 +90,7 @@ public:
     Logger& logger,
     mdl::EntityModelManager& entityModelManager,
     const mdl::EditorContext& editorContext);
-  ~EntityModelRenderer() override;
+  ~EntityModelRenderer();
 
   template <typename I>
   void setEntities(I cur, I end)
@@ -107,11 +132,11 @@ public:
   bool showHiddenEntities() const;
   void setShowHiddenEntities(bool showHiddenEntities);
 
-  void render(RenderBatch& renderBatch);
+  void renderOpaque(RenderBatch& renderBatch);
+  void renderTransparent(RenderBatch& renderBatch);
 
 private:
-  void prepare(gl::Gl& gl, gl::VboManager& vboManager) override;
-  void render(RenderContext& renderContext) override;
+  void renderPass(RenderContext& renderContext, bool transparent);
 };
 
 } // namespace render

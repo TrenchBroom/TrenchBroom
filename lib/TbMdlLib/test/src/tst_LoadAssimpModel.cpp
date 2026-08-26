@@ -120,6 +120,25 @@ TEST_CASE("loadAssimpModel")
 
     CHECK(hasTransparentPixel);
     CHECK(hasOpaquePixel);
+
+    // aiTexel carries real per-texel alpha alongside the chroma-key mask, so classify the
+    // actual resulting buffer rather than assuming a binary cutout
+    const auto hasIntermediateAlpha =
+      std::ranges::any_of(alphas, [](const auto a) { return a != 0 && a != 255; });
+
+    const auto* skin = modelData.value().surface(0).skin(0);
+    if (hasIntermediateAlpha)
+    {
+      CHECK(texture->alphaDomain() == img::ImageAlphaDomain::Graduated);
+      CHECK(!skin->effectiveAlphaFunc());
+      CHECK(
+        skin->effectiveBlendFunc().enable == gl::MaterialBlendFunc::Enable::UseFactors);
+    }
+    else
+    {
+      CHECK(texture->alphaDomain() == img::ImageAlphaDomain::Binary);
+      CHECK(skin->effectiveAlphaFunc());
+    }
   }
 
   SECTION("non ascii diffuse texture path")

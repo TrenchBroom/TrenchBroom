@@ -26,6 +26,7 @@
 #include "gl/TextureBuffer.h"
 #include "mdl/Palette.h"
 
+#include "kd/path_utils.h"
 #include "kd/result.h"
 
 #include <string>
@@ -41,6 +42,10 @@ constexpr size_t MipLevels = 16;
 constexpr size_t PaletteSize = 768;
 } // namespace M8Layout
 
+bool isM8Texture(const std::filesystem::path& path)
+{
+  return kdl::path_to_lower(path.extension()) == ".m8";
+}
 
 Result<gl::Texture> loadM8Texture(fs::Reader& reader)
 {
@@ -118,7 +123,6 @@ Result<gl::Texture> loadM8Texture(fs::Reader& reader)
                  heights[0],
                  mip0AverageColor,
                  GL_RGBA,
-                 gl::TextureMask::Off,
                  gl::NoEmbeddedDefaults{},
                  std::move(buffers)};
              });

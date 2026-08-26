@@ -41,6 +41,37 @@ namespace tb::mdl
 
 TEST_CASE("LoadMipTexture")
 {
+  SECTION("isIdMipTexture")
+  {
+    CHECK(isIdMipTexture("texture.d"));
+    CHECK(isIdMipTexture("texture.D"));
+    CHECK(isIdMipTexture("path/to/texture.d"));
+    CHECK(!isIdMipTexture("texture.c"));
+    CHECK(!isIdMipTexture("texture.wal"));
+    CHECK(!isIdMipTexture("texture"));
+  }
+
+  SECTION("isHlMipTexture")
+  {
+    CHECK(isHlMipTexture("texture.c"));
+    CHECK(isHlMipTexture("texture.C"));
+    CHECK(isHlMipTexture("path/to/texture.c"));
+    CHECK(!isHlMipTexture("texture.d"));
+    CHECK(!isHlMipTexture("texture.wal"));
+    CHECK(!isHlMipTexture("texture"));
+  }
+
+  SECTION("isMipTexture")
+  {
+    CHECK(isMipTexture("texture.d"));
+    CHECK(isMipTexture("texture.D"));
+    CHECK(isMipTexture("texture.c"));
+    CHECK(isMipTexture("texture.C"));
+    CHECK(isMipTexture("path/to/texture.d"));
+    CHECK(!isMipTexture("texture.wal"));
+    CHECK(!isMipTexture("texture"));
+  }
+
   SECTION("loadIdMipTexture")
   {
     using TexInfo = std::tuple<std::string, size_t, size_t>;
@@ -85,11 +116,40 @@ TEST_CASE("LoadMipTexture")
                }))
              | kdl::and_then([](auto textureFile, auto palette) {
                  auto reader = textureFile->reader().buffer();
-                 return loadIdMipTexture(reader, palette, gl::TextureMask::Off);
+                 return loadIdMipTexture(reader, palette, false);
                })
              | kdl::transform([&](auto texture) {
                  CHECK(texture.width() == width);
                  CHECK(texture.height() == height);
+               });
+    }) | kdl::transform_error([](const auto& e) { FAIL(e); });
+  }
+
+  SECTION("loadIdMipTexture sets alphaDomain from the mask")
+  {
+    const auto isMasked = GENERATE(true, false);
+    CAPTURE(isMasked);
+
+    const auto palettePath = getFixtureRoot() / "test/mdl/LoadMipTexture/palette.lmp";
+    const auto wadPath = getFixtureRoot() / "test/mdl/LoadMipTexture/cr8_czg.wad";
+
+    fs::Disk::openFile(wadPath) | kdl::transform([&](auto wadFile) {
+      return fs::WadFileSystem{wadFile};
+    }) | kdl::and_then([&](auto wadFS) {
+      REQUIRE(wadFS.reload());
+      return wadFS.openFile("cr8_czg_1.D")
+             | kdl::join(
+               fs::Disk::openFile(palettePath) | kdl::and_then([&](auto paletteFile) {
+                 return mdl::loadPalette(*paletteFile, palettePath);
+               }))
+             | kdl::and_then([&](auto textureFile, auto palette) {
+                 auto reader = textureFile->reader().buffer();
+                 return loadIdMipTexture(reader, palette, isMasked);
+               })
+             | kdl::transform([&](auto texture) {
+                 CHECK(
+                   texture.alphaDomain()
+                   == (isMasked ? img::ImageAlphaDomain::Binary : img::ImageAlphaDomain::Opaque));
                });
     }) | kdl::transform_error([](const auto& e) { FAIL(e); });
   }
@@ -115,12 +175,30 @@ TEST_CASE("LoadMipTexture")
 
     const auto file = wadFS.openFile(textureName + ".C") | kdl::value();
     auto reader = file->reader().buffer();
-    const auto texture = loadHlMipTexture(reader, gl::TextureMask::Off) | kdl::value();
+    const auto texture = loadHlMipTexture(reader, false) | kdl::value();
 
     CHECK(logger.countMessages(LogLevel::Error) == 0);
     CHECK(logger.countMessages(LogLevel::Warn) == 0);
     CHECK(texture.width() == width);
     CHECK(texture.height() == height);
+  }
+
+  SECTION("loadHlMipTexture sets alphaDomain from the mask")
+  {
+    const auto isMasked = GENERATE(true, false);
+    CAPTURE(isMasked);
+
+    const auto wadPath = getFixtureRoot() / "test/mdl/LoadMipTexture/hl.wad";
+    auto wadFS = fs::WadFileSystem{fs::Disk::openFile(wadPath) | kdl::value()};
+    REQUIRE(wadFS.reload());
+
+    const auto file = wadFS.openFile("bongs2.C") | kdl::value();
+    auto reader = file->reader().buffer();
+    const auto texture = loadHlMipTexture(reader, isMasked) | kdl::value();
+
+    CHECK(
+      texture.alphaDomain()
+      == (isMasked ? img::ImageAlphaDomain::Binary : img::ImageAlphaDomain::Opaque));
   }
 }
 

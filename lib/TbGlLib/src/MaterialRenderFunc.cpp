@@ -19,6 +19,7 @@
 
 #include "gl/MaterialRenderFunc.h"
 
+#include "gl/ActiveShader.h"
 #include "gl/Material.h"
 #include "gl/Texture.h"
 
@@ -50,6 +51,31 @@ void DefaultMaterialRenderFunc::after(Gl& gl, const Material* material)
   {
     material->deactivate(gl);
   }
+}
+
+void setAlphaFuncUniforms(ActiveShader& shader, const Material* material)
+{
+  const auto alphaFunc =
+    material ? material->effectiveAlphaFunc() : std::optional<MaterialAlphaFunc>{};
+  shader.set("EnableMasked", alphaFunc.has_value());
+  if (alphaFunc)
+  {
+    shader.set("AlphaFuncCompare", static_cast<size_t>(alphaFunc->compare));
+    shader.set("AlphaFuncThreshold", alphaFunc->threshold);
+  }
+}
+
+AlphaTestedMaterialRenderFunc::AlphaTestedMaterialRenderFunc(
+  ActiveShader& shader, const int minFilter, const int magFilter)
+  : DefaultMaterialRenderFunc{minFilter, magFilter}
+  , m_shader{shader}
+{
+}
+
+void AlphaTestedMaterialRenderFunc::before(Gl& gl, const Material* material)
+{
+  DefaultMaterialRenderFunc::before(gl, material);
+  setAlphaFuncUniforms(m_shader, material);
 }
 
 } // namespace tb::gl

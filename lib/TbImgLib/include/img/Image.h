@@ -19,6 +19,8 @@
 
 #pragma once
 
+#include "img/ImageAlphaDomain.h"
+
 #include "kd/reflection_decl.h"
 
 #include <vector>
@@ -31,9 +33,9 @@ struct Image
   size_t width = 0;
   size_t height = 0;
   std::vector<unsigned char> pixels; // RGBA8, 4 bytes/pixel, row-major, tightly packed
-  bool hasTransparency = false;      // true if any pixel has alpha < 255
+  ImageAlphaDomain alphaDomain = ImageAlphaDomain::Opaque;
 
-  kdl_reflect_decl(Image, width, height, pixels, hasTransparency);
+  kdl_reflect_decl(Image, width, height, pixels, alphaDomain);
 };
 
 } // namespace tb::img

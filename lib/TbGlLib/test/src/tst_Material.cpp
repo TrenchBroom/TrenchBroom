@@ -201,6 +201,9 @@ TEST_CASE("Material")
       auto poppedAttribCount = 0;
       gl.onPopAttrib = [&]() { ++poppedAttribCount; };
 
+      auto depthMaskCalls = std::vector<GLboolean>{};
+      gl.onDepthMask = [&](const GLboolean flag) { depthMaskCalls.push_back(flag); };
+
       SECTION("UseFactors")
       {
         material.setBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -214,6 +217,11 @@ TEST_CASE("Material")
         CHECK(
           capturedBlendFunc
           == std::pair<GLenum, GLenum>{GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA});
+        // A material with real per-pixel blending must not write depth.
+        CHECK(depthMaskCalls == std::vector<GLboolean>{GL_FALSE});
+        REQUIRE(
+          pushedAttribs
+          == std::vector<GLbitfield>{GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT});
       }
 
       SECTION("DisableBlend")
@@ -225,12 +233,127 @@ TEST_CASE("Material")
 
         material.activate(gl, GL_LINEAR, GL_LINEAR);
         CHECK(disabledCaps == std::vector<GLenum>{GL_BLEND});
+        CHECK(depthMaskCalls.empty());
+        REQUIRE(pushedAttribs == std::vector<GLbitfield>{GL_COLOR_BUFFER_BIT});
       }
-
-      REQUIRE(pushedAttribs == std::vector<GLbitfield>{GL_COLOR_BUFFER_BIT});
 
       material.deactivate(gl);
       CHECK(poppedAttribCount == 1);
+    }
+
+    SECTION(
+      "apply the blend func implicitly derived from a graduated texture's alpha domain")
+    {
+      auto texture = Texture{4, 4};
+      texture.setAlphaDomain(img::ImageAlphaDomain::Graduated);
+      texture.upload(gl);
+      auto material =
+        Material{"some material", createTextureResource(std::move(texture))};
+
+      auto pushedAttribs = std::vector<GLbitfield>{};
+      gl.onPushAttrib = [&](const GLbitfield mask) { pushedAttribs.push_back(mask); };
+
+      auto poppedAttribCount = 0;
+      gl.onPopAttrib = [&]() { ++poppedAttribCount; };
+
+      auto depthMaskCalls = std::vector<GLboolean>{};
+      gl.onDepthMask = [&](const GLboolean flag) { depthMaskCalls.push_back(flag); };
+
+      auto capturedBlendFunc = std::pair<GLenum, GLenum>{0, 0};
+      gl.onBlendFunc = [&](const GLenum src, const GLenum dst) {
+        capturedBlendFunc = {src, dst};
+      };
+
+      material.activate(gl, GL_LINEAR, GL_LINEAR);
+      CHECK(
+        capturedBlendFunc
+        == std::pair<GLenum, GLenum>{GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA});
+      // A material with real per-pixel blending must not write depth.
+      CHECK(depthMaskCalls == std::vector<GLboolean>{GL_FALSE});
+      REQUIRE(
+        pushedAttribs
+        == std::vector<GLbitfield>{GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT});
+
+      material.deactivate(gl);
+      CHECK(poppedAttribCount == 1);
+    }
+  }
+
+  SECTION("effectiveAlphaFunc and effectiveBlendFunc")
+  {
+    auto makeMaterial = [](const img::ImageAlphaDomain alphaDomain) {
+      auto texture = Texture{4, 4};
+      texture.setAlphaDomain(alphaDomain);
+      return Material{"some material", createTextureResource(std::move(texture))};
+    };
+
+    SECTION("no explicit override falls back to the texture's alpha domain")
+    {
+      // clang-format off
+      const auto
+      [alphaDomain,                      expectAlphaFunc, expectedBlendEnable] = GENERATE(table<img::ImageAlphaDomain, bool, MaterialBlendFunc::Enable>({
+      {img::ImageAlphaDomain::Opaque,    false,            MaterialBlendFunc::Enable::UseDefault},
+      {img::ImageAlphaDomain::Binary,    true,             MaterialBlendFunc::Enable::UseDefault},
+      {img::ImageAlphaDomain::Graduated, false,            MaterialBlendFunc::Enable::UseFactors},
+        }));
+      // clang-format on
+
+      CAPTURE(alphaDomain);
+
+      const auto material = makeMaterial(alphaDomain);
+      const auto alphaFunc = material.effectiveAlphaFunc();
+      CHECK(alphaFunc.has_value() == expectAlphaFunc);
+      if (expectAlphaFunc)
+      {
+        CHECK(alphaFunc->compare == MaterialAlphaFunc::Compare::GreaterEqual);
+        CHECK(alphaFunc->threshold == 0.5f);
+      }
+      CHECK(material.effectiveBlendFunc().enable == expectedBlendEnable);
+      if (expectedBlendEnable == MaterialBlendFunc::Enable::UseFactors)
+      {
+        CHECK(material.effectiveBlendFunc().srcFactor == GL_SRC_ALPHA);
+        CHECK(material.effectiveBlendFunc().destFactor == GL_ONE_MINUS_SRC_ALPHA);
+      }
+    }
+
+    SECTION("an explicit setAlphaFunc override wins over the texture's alpha domain")
+    {
+      auto material = makeMaterial(img::ImageAlphaDomain::Opaque);
+      material.setAlphaFunc(MaterialAlphaFunc::Compare::Less, 0.25f);
+
+      const auto alphaFunc = material.effectiveAlphaFunc();
+      REQUIRE(alphaFunc.has_value());
+      CHECK(alphaFunc->compare == MaterialAlphaFunc::Compare::Less);
+      CHECK(alphaFunc->threshold == 0.25f);
+    }
+
+    SECTION(
+      "an explicit setAlphaFunc override suppresses the implicit blend derived from a "
+      "graduated texture")
+    {
+      auto material = makeMaterial(img::ImageAlphaDomain::Graduated);
+      material.setAlphaFunc(MaterialAlphaFunc::Compare::GreaterEqual, 0.5f);
+
+      CHECK(material.effectiveAlphaFunc().has_value());
+      CHECK(
+        material.effectiveBlendFunc().enable == MaterialBlendFunc::Enable::UseDefault);
+    }
+
+    SECTION(
+      "an explicit setBlendFunc/disableBlend override wins over the texture's "
+      "alpha domain")
+    {
+      auto material = makeMaterial(img::ImageAlphaDomain::Opaque);
+
+      material.setBlendFunc(GL_ONE, GL_ONE);
+      CHECK(
+        material.effectiveBlendFunc().enable == MaterialBlendFunc::Enable::UseFactors);
+      CHECK(material.effectiveBlendFunc().srcFactor == GL_ONE);
+      CHECK(material.effectiveBlendFunc().destFactor == GL_ONE);
+
+      material.disableBlend();
+      CHECK(
+        material.effectiveBlendFunc().enable == MaterialBlendFunc::Enable::DisableBlend);
     }
   }
 

@@ -26,6 +26,8 @@
 #include "gl/TextureBuffer.h"
 #include "mdl/MaterialUtils.h"
 
+#include "kd/path_utils.h"
+
 #include <fmt/format.h>
 
 namespace tb::mdl
@@ -125,7 +127,55 @@ void readDdsMips(fs::Reader& reader, gl::TextureBufferList& buffers)
   }
 }
 
+// Alpha is always the last of the 4 bytes per pixel for both GL_RGBA and GL_BGRA here,
+// since both are only recognized when ddpfABitMask == 0xFF000000.
+img::ImageAlphaDomain classifyRgbaAlphaDomain(const gl::TextureBuffer& mip0)
+{
+  auto hasTransparency = false;
+  auto hasIntermediateAlpha = false;
+
+  const auto* data = mip0.data();
+  for (size_t i = 3; i < mip0.size(); i += 4)
+  {
+    const auto alpha = data[i];
+    hasTransparency |= alpha != 255;
+    hasIntermediateAlpha |= alpha != 0 && alpha != 255;
+  }
+
+  return !hasTransparency       ? img::ImageAlphaDomain::Opaque
+         : hasIntermediateAlpha ? img::ImageAlphaDomain::Graduated
+                                : img::ImageAlphaDomain::Binary;
+}
+
+img::ImageAlphaDomain classifyDdsAlphaDomain(
+  const GLenum format, const gl::TextureBuffer& mip0)
+{
+  switch (format)
+  {
+  case GL_RGBA:
+  case GL_BGRA:
+    return classifyRgbaAlphaDomain(mip0);
+  case GL_COMPRESSED_RGBA_S3TC_DXT3_EXT:
+  case GL_COMPRESSED_RGBA_S3TC_DXT5_EXT:
+    // DXT3/DXT5 always carry an explicit alpha channel, but classifying it precisely
+    // would require decoding compressed blocks. Conservatively assume real alpha so
+    // alpha-bearing textures don't render fully opaque -- a genuinely opaque DXT3/DXT5
+    // texture just pays a harmless no-op blend.
+    return img::ImageAlphaDomain::Graduated;
+  default:
+    // GL_RGB/GL_BGR have no alpha channel, and GL_COMPRESSED_RGBA_S3TC_DXT1_EXT only
+    // supports 1-bit punch-through alpha that isn't worth decoding compressed blocks
+    // for -- treat both as Opaque.
+    return img::ImageAlphaDomain::Opaque;
+  }
+}
+
 } // namespace
+
+bool isDdsTexture(const std::filesystem::path& path)
+{
+  return kdl::path_to_lower(path.extension()) == ".dds";
+}
 
 Result<gl::Texture> loadDdsTexture(fs::Reader& reader)
 {
@@ -249,14 +299,12 @@ Result<gl::Texture> loadDdsTexture(fs::Reader& reader)
     setMipBufferSize(buffers, numMips, width, height, format);
     readDdsMips(reader, buffers);
 
-    return gl::Texture{
-      width,
-      height,
-      RgbaF{},
-      format,
-      gl::TextureMask::Off,
-      gl::NoEmbeddedDefaults{},
-      std::move(buffers)};
+    const auto alphaDomain = classifyDdsAlphaDomain(format, buffers.at(0));
+
+    auto texture = gl::Texture{
+      width, height, RgbaF{}, format, gl::NoEmbeddedDefaults{}, std::move(buffers)};
+    texture.setAlphaDomain(alphaDomain);
+    return texture;
   }
   catch (const fs::ReaderException& e)
   {

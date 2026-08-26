@@ -22,6 +22,8 @@
 #include "fs/DiskFileSystem.h"
 #include "fs/DiskIO.h"
 #include "fs/Reader.h"
+#include "gl/Material.h"
+#include "gl/Texture.h"
 #include "mdl/CatchConfig.h"
 #include "mdl/EntityModel.h"
 #include "mdl/LoadSpriteModel.h"
@@ -133,6 +135,46 @@ TEST_CASE("loadSpriteModel")
 
       // regression check: the mesh must not be billboarded in the local z=0 plane
       CHECK(frame.intersect(vm::ray3f{{0, 0, 1000}, {0, 0, -1}}) == std::nullopt);
+    }) | kdl::transform_error([](const auto& e) { FAIL(e); });
+  }
+
+  SECTION("Quake1 sprites use a hard alpha-test cutout")
+  {
+    loadFixture("ViewPlaneParallelUpright") | kdl::transform([&](const auto& modelData) {
+      const auto* skin = modelData.surfaces().front().skin(0u);
+      REQUIRE(skin != nullptr);
+      REQUIRE(skin->texture() != nullptr);
+
+      CHECK(skin->texture()->alphaDomain() == img::ImageAlphaDomain::Binary);
+      CHECK(skin->effectiveAlphaFunc());
+    }) | kdl::transform_error([](const auto& e) { FAIL(e); });
+  }
+
+  SECTION("Half-Life sprites derive transparency handling from their render mode")
+  {
+    const auto [fixtureName, expectedAlphaDomain] =
+      GENERATE(table<std::string, img::ImageAlphaDomain>({
+        {"RenderModeNormal", img::ImageAlphaDomain::Opaque},
+        {"RenderModeAlphaTest", img::ImageAlphaDomain::Binary},
+        {"RenderModeAdditive", img::ImageAlphaDomain::Graduated},
+        {"RenderModeIndexAlpha", img::ImageAlphaDomain::Graduated},
+      }));
+
+    loadFixture(fixtureName) | kdl::transform([&](const auto& modelData) {
+      const auto* skin = modelData.surfaces().front().skin(0u);
+      REQUIRE(skin != nullptr);
+      REQUIRE(skin->texture() != nullptr);
+
+      CHECK(skin->texture()->alphaDomain() == expectedAlphaDomain);
+
+      // Binary alpha gets a hard cutout; Graduated alpha gets real blending instead;
+      // Opaque needs neither.
+      CHECK(
+        skin->effectiveAlphaFunc().has_value()
+        == (expectedAlphaDomain == img::ImageAlphaDomain::Binary));
+      CHECK(
+        (skin->effectiveBlendFunc().enable == gl::MaterialBlendFunc::Enable::UseFactors)
+        == (expectedAlphaDomain == img::ImageAlphaDomain::Graduated));
     }) | kdl::transform_error([](const auto& e) { FAIL(e); });
   }
 }

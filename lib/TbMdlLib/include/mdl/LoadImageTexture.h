@@ -47,7 +47,7 @@ Result<gl::Texture> loadImageTextureFromMemory(const uint8_t* begin, size_t size
 
 Result<gl::Texture> loadImageTexture(fs::Reader& reader);
 
-bool isSupportedImageExtension(const std::filesystem::path& extension);
+bool isImageTexture(const std::filesystem::path& path);
 
 } // namespace mdl
 } // namespace tb

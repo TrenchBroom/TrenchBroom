@@ -84,7 +84,7 @@ void createFrame(EntityModelData& modelData)
 
 bool canLoadImageSpriteModel(const std::filesystem::path& path)
 {
-  return isSupportedImageExtension(path.extension());
+  return isImageTexture(path);
 }
 
 Result<EntityModelData> loadImageSpriteModel(

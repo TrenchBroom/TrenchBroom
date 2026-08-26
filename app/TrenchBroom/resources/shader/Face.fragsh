@@ -21,7 +21,6 @@
 
 uniform float Brightness;
 uniform float Alpha;
-uniform bool EnableMasked;
 uniform bool ApplyMaterial;
 uniform sampler2D Material;
 uniform bool ApplyTinting;
@@ -43,6 +42,7 @@ float grid(
 vec3 applySoftMapBoundsTint(vec3 inputFragColor, vec3 worldCoords);
 vec3 adaptiveGridColor(vec3 background);
 float texturedGridAlpha(float alpha);
+bool passesAlphaFunc(float alpha);
 
 void main()
 {
@@ -55,16 +55,20 @@ void main()
     gl_FragColor = faceColor;
   }
 
-  // Assume alpha masked or opaque.
-  // TODO: Make this optional if we gain support for translucent textures
-  if (EnableMasked && gl_FragColor.a < 0.5)
+  // Discard fully-cutout pixels for alpha-tested (masked) materials.
+  if (!passesAlphaFunc(gl_FragColor.a))
   {
     discard;
   }
 
   gl_FragColor = vec4(vec3(Brightness / 2.0 * gl_FragColor), gl_FragColor.a);
-  gl_FragColor = clamp(2.0 * gl_FragColor, 0.0, 1.0);
-  gl_FragColor.a = Alpha;
+  gl_FragColor = vec4(clamp(2.0 * gl_FragColor.rgb, 0.0, 1.0), gl_FragColor.a);
+
+  // Preserve the texture's real alpha (needed for translucent materials) rather than
+  // overwriting it -- opaque/alpha-tested materials always have alpha 1.0 at this point,
+  // so this is a no-op for them. Alpha is still the whole-object fade used for X-ray/
+  // hidden-brush preview.
+  gl_FragColor.a = gl_FragColor.a * Alpha;
 
   if (GrayScale)
   {

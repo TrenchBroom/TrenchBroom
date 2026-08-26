@@ -210,8 +210,8 @@ void ObjectRenderer::setShowHiddenObjects(const bool showHiddenObjects)
 void ObjectRenderer::renderOpaque(RenderContext& renderContext, RenderBatch& renderBatch)
 {
   m_brushRenderer.renderOpaque(renderContext, renderBatch);
-  m_patchRenderer.render(renderContext, renderBatch);
-  m_entityRenderer.render(renderContext, renderBatch);
+  m_patchRenderer.renderOpaque(renderContext, renderBatch);
+  m_entityRenderer.renderOpaque(renderContext, renderBatch);
   m_groupRenderer.render(renderContext, renderBatch);
 }
 
@@ -219,6 +219,8 @@ void ObjectRenderer::renderTransparent(
   RenderContext& renderContext, RenderBatch& renderBatch)
 {
   m_brushRenderer.renderTransparent(renderContext, renderBatch);
+  m_patchRenderer.renderTransparent(renderContext, renderBatch);
+  m_entityRenderer.renderTransparent(renderContext, renderBatch);
 }
 
 } // namespace tb::render

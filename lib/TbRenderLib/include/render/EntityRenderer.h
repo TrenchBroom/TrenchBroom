@@ -130,7 +130,8 @@ public:
   void setShowHiddenEntities(bool showHiddenEntities);
 
 public: // rendering
-  void render(RenderContext& renderContext, RenderBatch& renderBatch);
+  void renderOpaque(RenderContext& renderContext, RenderBatch& renderBatch);
+  void renderTransparent(RenderContext& renderContext, RenderBatch& renderBatch);
 
 private:
   void renderBounds(RenderContext& renderContext, RenderBatch& renderBatch);
@@ -138,6 +139,7 @@ private:
   void renderBrushEntityWireframeBounds(RenderBatch& renderBatch);
   void renderSolidBounds(RenderBatch& renderBatch);
   void renderModels(RenderContext& renderContext, RenderBatch& renderBatch);
+  void renderTransparentModels(RenderContext& renderContext, RenderBatch& renderBatch);
   void renderClassnames(RenderContext& renderContext, RenderBatch& renderBatch);
   void renderAngles(RenderContext& renderContext, RenderBatch& renderBatch);
   std::vector<vm::vec3f> arrowHead(float length, float width) const;

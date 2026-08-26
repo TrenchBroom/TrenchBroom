@@ -30,6 +30,7 @@
 #include "gl/TextureResource.h"
 #include "mdl/GameConfig.h"
 #include "mdl/LoadImageTexture.h"
+#include "mdl/LoadMipTexture.h"
 #include "mdl/LoadShaders.h"
 #include "mdl/LoadTexture.h"
 #include "mdl/MaterialUtils.h"
@@ -199,10 +200,7 @@ Result<gl::Material> loadShaderMaterial(
            return [&, path = std::move(path_)]() {
              return fs.openFile(path) | kdl::and_then([&](auto file) {
                       auto reader = file->reader().buffer();
-                      return loadImageTexture(reader).transform([](auto texture) {
-                        texture.setMask(gl::TextureMask::Off);
-                        return texture;
-                      });
+                      return loadImageTexture(reader);
                     });
            };
          })
@@ -244,6 +242,15 @@ Result<gl::Material> loadShaderMaterial(
                {
                  material.disableBlend();
                }
+             }
+
+             const auto& alphaFunc =
+               !shader.stages.empty() && shader.stages.front().alphaFunc
+                 ? shader.stages.front().alphaFunc
+                 : shader.qerAlphaFunc;
+             if (alphaFunc)
+             {
+               material.setAlphaFunc(alphaFunc->compare, alphaFunc->threshold);
              }
 
              return material;
@@ -294,7 +301,18 @@ Result<gl::Material> loadTextureMaterial(
   auto textureLoader =
     makeTextureResourceLoader(texturePath, name, materialConfig.extensions, fs, palette);
   auto textureResource = createResource(std::move(textureLoader));
-  return gl::Material{std::move(name), std::move(textureResource)};
+
+  // For the classic id-tech miptex formats, the `{`-prefixed fence-texture naming
+  // convention is known from the name alone, so the alpha-test decision can be set here
+  // rather than waiting for the (lazily loaded) texture to become ready.
+  const auto isMasked = isMipTexture(texturePath) && isMaskedTextureName(name);
+
+  auto material = gl::Material{std::move(name), std::move(textureResource)};
+  if (isMasked)
+  {
+    material.setAlphaFunc(gl::MaterialAlphaFunc::Compare::GreaterEqual, 0.5f);
+  }
+  return material;
 }
 
 std::string materialCollectionName(

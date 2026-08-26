@@ -101,18 +101,17 @@ Result<gl::Texture> loadImageTextureFromMemory(const uint8_t* begin, const size_
                decodedImage.pixels.data(),
                decodedImage.pixels.size());
 
-             const auto textureMask =
-               decodedImage.hasTransparency ? gl::TextureMask::On : gl::TextureMask::Off;
              const auto averageColor = getAverageColor(buffers.at(0), format);
 
-             return gl::Texture{
+             auto texture = gl::Texture{
                decodedImage.width,
                decodedImage.height,
                averageColor,
                format,
-               textureMask,
                gl::NoEmbeddedDefaults{},
                std::move(buffers)};
+             texture.setAlphaDomain(decodedImage.alphaDomain);
+             return texture;
            });
 }
 
@@ -127,9 +126,9 @@ Result<gl::Texture> loadImageTexture(fs::Reader& reader)
   return loadImageTextureFromMemory(imageBegin, imageSize);
 }
 
-bool isSupportedImageExtension(const std::filesystem::path& extension)
+bool isImageTexture(const std::filesystem::path& path)
 {
-  return img::isSupportedExtension(extension);
+  return img::isSupportedExtension(path.extension());
 }
 
 } // namespace tb::mdl

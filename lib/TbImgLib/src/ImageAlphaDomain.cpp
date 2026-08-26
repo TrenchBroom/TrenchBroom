@@ -1,6 +1,5 @@
 /*
- Copyright (C) 2023 iOrange
- Copyright (C) 2023 Kristian Duske
+ Copyright (C) 2026 Kristian Duske
 
  This file is part of TrenchBroom.
 
@@ -18,30 +17,29 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#pragma once
+#include "img/ImageAlphaDomain.h"
 
-#include "base/Result.h"
+#include "base/Macros.h"
 
-#include <filesystem>
-
-namespace tb
+namespace tb::img
 {
-namespace gl
+
+std::ostream& operator<<(std::ostream& lhs, const ImageAlphaDomain& rhs)
 {
-class Texture;
+  switch (rhs)
+  {
+  case ImageAlphaDomain::Opaque:
+    lhs << "Opaque";
+    break;
+  case ImageAlphaDomain::Binary:
+    lhs << "Binary";
+    break;
+  case ImageAlphaDomain::Graduated:
+    lhs << "Graduated";
+    break;
+    switchDefault();
+  }
+  return lhs;
 }
 
-namespace fs
-{
-class Reader;
-} // namespace fs
-
-namespace mdl
-{
-
-bool isDdsTexture(const std::filesystem::path& path);
-
-Result<gl::Texture> loadDdsTexture(fs::Reader& reader);
-
-} // namespace mdl
-} // namespace tb
+} // namespace tb::img

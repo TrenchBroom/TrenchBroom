@@ -49,7 +49,6 @@ TEST_CASE("Texture")
       4,
       RgbaF{1.0f, 0.0f, 0.0f, 1.0f},
       GL_RGBA,
-      TextureMask::On,
       Q2EmbeddedDefaults{1, 2, 3},
       std::move(buffers)};
 
@@ -58,22 +57,27 @@ TEST_CASE("Texture")
     CHECK(texture.sizef() == vm::vec2f{4.0f, 4.0f});
     CHECK(texture.averageColor() == Color{RgbaF{1.0f, 0.0f, 0.0f, 1.0f}});
     CHECK(texture.format() == GL_RGBA);
-    CHECK(texture.mask() == TextureMask::On);
+    CHECK(texture.alphaDomain() == img::ImageAlphaDomain::Opaque);
     CHECK(texture.embeddedDefaults() == EmbeddedDefaults{Q2EmbeddedDefaults{1, 2, 3}});
     CHECK(texture.buffersIfLoaded().size() == 1u);
     CHECK(!texture.isReady());
   }
 
+  SECTION("alphaDomain defaults to Opaque and round-trips through setAlphaDomain")
+  {
+    auto texture =
+      Texture{4, 4, RgbaF{}, GL_RGBA, NoEmbeddedDefaults{}, std::move(buffers)};
+
+    CHECK(texture.alphaDomain() == img::ImageAlphaDomain::Opaque);
+
+    texture.setAlphaDomain(img::ImageAlphaDomain::Binary);
+    CHECK(texture.alphaDomain() == img::ImageAlphaDomain::Binary);
+  }
+
   SECTION("constructor with a single buffer")
   {
-    const auto texture = Texture{
-      4,
-      4,
-      RgbaF{},
-      GL_RGBA,
-      TextureMask::Off,
-      NoEmbeddedDefaults{},
-      std::move(buffers.front())};
+    const auto texture =
+      Texture{4, 4, RgbaF{}, GL_RGBA, NoEmbeddedDefaults{}, std::move(buffers.front())};
 
     CHECK(texture.width() == 4u);
     CHECK(texture.buffersIfLoaded().size() == 1u);
@@ -86,7 +90,7 @@ TEST_CASE("Texture")
     CHECK(texture.width() == 8u);
     CHECK(texture.height() == 4u);
     CHECK(texture.format() == GL_RGBA);
-    CHECK(texture.mask() == TextureMask::Off);
+    CHECK(texture.alphaDomain() == img::ImageAlphaDomain::Opaque);
     CHECK(texture.buffersIfLoaded().empty());
   }
 
@@ -95,8 +99,8 @@ TEST_CASE("Texture")
     auto gl = MockGl{};
     installTextureUploadSupport(gl);
 
-    auto texture = Texture{
-      4, 4, RgbaF{}, GL_RGBA, TextureMask::Off, NoEmbeddedDefaults{}, std::move(buffers)};
+    auto texture =
+      Texture{4, 4, RgbaF{}, GL_RGBA, NoEmbeddedDefaults{}, std::move(buffers)};
 
     CHECK(!texture.isReady());
     CHECK(!texture.activate(gl, GL_LINEAR, GL_LINEAR));
@@ -155,13 +159,7 @@ TEST_CASE("Texture")
       setMipBufferSize(multiLevelBuffers, 2, 4, 4, GL_RGBA);
 
       auto texture = Texture{
-        4,
-        4,
-        RgbaF{},
-        GL_RGBA,
-        TextureMask::Off,
-        NoEmbeddedDefaults{},
-        std::move(multiLevelBuffers)};
+        4, 4, RgbaF{}, GL_RGBA, NoEmbeddedDefaults{}, std::move(multiLevelBuffers)};
 
       texture.upload(gl);
       // upload() itself may already have written filter params (e.g. for a masked
@@ -178,14 +176,8 @@ TEST_CASE("Texture")
 
     SECTION("falls back to the non-mipmap filter for a single-level texture")
     {
-      auto texture = Texture{
-        4,
-        4,
-        RgbaF{},
-        GL_RGBA,
-        TextureMask::Off,
-        NoEmbeddedDefaults{},
-        std::move(buffers)};
+      auto texture =
+        Texture{4, 4, RgbaF{}, GL_RGBA, NoEmbeddedDefaults{}, std::move(buffers)};
 
       texture.upload(gl);
       filterParams.clear();
@@ -201,14 +193,9 @@ TEST_CASE("Texture")
 
     SECTION("forces nearest filtering for a masked texture")
     {
-      auto texture = Texture{
-        4,
-        4,
-        RgbaF{},
-        GL_RGBA,
-        TextureMask::On,
-        NoEmbeddedDefaults{},
-        std::move(buffers)};
+      auto texture =
+        Texture{4, 4, RgbaF{}, GL_RGBA, NoEmbeddedDefaults{}, std::move(buffers)};
+      texture.setAlphaDomain(img::ImageAlphaDomain::Binary);
 
       texture.upload(gl);
       filterParams.clear();
@@ -246,7 +233,6 @@ TEST_CASE("Texture")
       4,
       RgbaF{},
       GL_COMPRESSED_RGBA_S3TC_DXT1_EXT,
-      TextureMask::Off,
       NoEmbeddedDefaults{},
       std::move(compressedBuffers)};
 

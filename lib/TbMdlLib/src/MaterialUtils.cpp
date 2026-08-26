@@ -102,9 +102,9 @@ size_t mipSize(const size_t width, const size_t height, const size_t mipLevel)
 
 kdl_reflect_impl(ReadMaterialError);
 
-gl::TextureMask getTextureMaskFromName(std::string_view name)
+bool isMaskedTextureName(std::string_view name)
 {
-  return kdl::cs::str_is_prefix(name, "{") ? gl::TextureMask::On : gl::TextureMask::Off;
+  return kdl::cs::str_is_prefix(name, "{");
 }
 
 gl::Texture loadDefaultTexture(const fs::FileSystem& fs, Logger& logger)

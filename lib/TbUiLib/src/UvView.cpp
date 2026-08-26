@@ -24,6 +24,7 @@
 #include "gl/Camera.h"
 #include "gl/GlInterface.h"
 #include "gl/Material.h"
+#include "gl/MaterialRenderFunc.h"
 #include "gl/PrimType.h"
 #include "gl/Shaders.h"
 #include "gl/Texture.h"
@@ -136,6 +137,8 @@ private:
     shader.set("GridDivider", vm::vec2f{m_helper.subDivisions()});
     shader.set("CameraZoom", m_helper.camera().zoom());
     shader.set("Material", 0);
+
+    gl::setAlphaFuncUniforms(shader, material);
 
     if (m_vertexArray.setup(gl, shader.program()))
     {

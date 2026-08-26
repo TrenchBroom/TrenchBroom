@@ -21,6 +21,7 @@
 
 #include "base/Result.h"
 
+#include <filesystem>
 #include <string>
 
 namespace tb
@@ -28,7 +29,6 @@ namespace tb
 namespace gl
 {
 class Texture;
-enum class TextureMask;
 } // namespace gl
 
 namespace fs
@@ -42,10 +42,14 @@ class Palette;
 
 std::string readMipTextureName(fs::Reader& reader);
 
-Result<gl::Texture> loadIdMipTexture(
-  fs::Reader& reader, const Palette& palette, gl::TextureMask mask);
+bool isIdMipTexture(const std::filesystem::path& path);
+bool isHlMipTexture(const std::filesystem::path& path);
+bool isMipTexture(const std::filesystem::path& path);
 
-Result<gl::Texture> loadHlMipTexture(fs::Reader& reader, gl::TextureMask mask);
+Result<gl::Texture> loadIdMipTexture(
+  fs::Reader& reader, const Palette& palette, bool isMasked);
+
+Result<gl::Texture> loadHlMipTexture(fs::Reader& reader, bool isMasked);
 
 } // namespace mdl
 } // namespace tb
