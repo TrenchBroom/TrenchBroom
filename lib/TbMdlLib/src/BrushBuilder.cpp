@@ -321,6 +321,14 @@ vm::vec2d crossingAtV(const vm::vec2d& a, const vm::vec2d& b, const double v)
   return vm::vec2d{a.x() + (b.x() - a.x()) * t, v};
 }
 
+// Returns the normal of segment a->b that points away from the given center.
+vm::vec2d outwardNormal(const vm::vec2d& a, const vm::vec2d& b, const vm::vec2d& center)
+{
+  const auto d = b - a;
+  const auto normal = vm::vec2d{-d.y(), d.x()};
+  return vm::dot(normal, (a + b) / 2.0 - center) < 0.0 ? -normal : normal;
+}
+
 // Indices of the contiguous run of circle vertices at or above the springing line.
 std::vector<size_t> archUpperRun(const std::vector<vm::vec2d>& circle, const double vMin)
 {
@@ -838,6 +846,55 @@ Result<std::vector<Brush>> BrushBuilder::createArch(
                       })
                     | kdl::fold;
            });
+}
+
+Result<std::vector<Brush>> BrushBuilder::createSpandrelForArch(
+  const vm::bbox3d& bounds,
+  const double,
+  const CircleShape& circleShape,
+  const vm::axis::type axis,
+  const std::string& textureName) const
+{
+  const auto section = makeArchCrossSection(bounds, circleShape, axis);
+  if (!section)
+  {
+    return Result<std::vector<Brush>>{std::vector<Brush>{}};
+  }
+
+  const auto& axes = section->axes;
+  const auto sMin = bounds.min[axes.span];
+  const auto sMax = bounds.max[axes.span];
+  const auto vMin = bounds.min[axes.vertical];
+  const auto vMax = bounds.max[axes.vertical];
+  const auto wMin = bounds.min[axes.tunnel];
+  const auto wMax = bounds.max[axes.tunnel];
+
+  const auto& outerBoundary = section->outerBoundary;
+  const auto center = vm::vec2d{(sMin + sMax) / 2.0, vMin};
+
+  // The outer boundary is convex and touches the top of the bounds, so fanning its
+  // segments to the corner they face tiles the gap exactly. Segments that lie on the
+  // bounds themselves fan into a degenerate brush and drop out.
+  return std::views::iota(0u, outerBoundary.size() - 1)
+         | std::views::transform([&](const auto j) {
+             const auto& o0 = outerBoundary[j];
+             const auto& o1 = outerBoundary[j + 1];
+             const auto corner =
+               vm::vec2d{outwardNormal(o0, o1, center).x() < 0.0 ? sMin : sMax, vMax};
+
+             return Polyhedron3{
+               archPoint(axes, o0, wMin),
+               archPoint(axes, o0, wMax),
+               archPoint(axes, o1, wMin),
+               archPoint(axes, o1, wMax),
+               archPoint(axes, corner, wMin),
+               archPoint(axes, corner, wMax),
+             };
+           })
+         | std::views::filter([](const auto& p) { return p.polyhedron(); })
+         | std::views::transform(
+           [&](const auto& polyhedron) { return createBrush(polyhedron, textureName); })
+         | kdl::fold;
 }
 
 Result<Brush> BrushBuilder::createCone(

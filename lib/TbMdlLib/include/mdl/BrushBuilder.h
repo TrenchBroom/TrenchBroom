@@ -119,6 +119,18 @@ public:
     vm::axis::type axis,
     const std::string& textureName) const;
 
+  /**
+   * Creates the spandrels of the arch that `createArch` creates for the same parameters,
+   * that is, the brushes that fill the gap between the outside of the arch and its
+   * bounds.
+   */
+  Result<std::vector<Brush>> createSpandrelForArch(
+    const vm::bbox3d& bounds,
+    double thickness,
+    const CircleShape& circleShape,
+    vm::axis::type axis,
+    const std::string& textureName) const;
+
   Result<Brush> createCone(
     const vm::bbox3d& bounds,
     const CircleShape& circleShape,
