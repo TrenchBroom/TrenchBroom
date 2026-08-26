@@ -25,6 +25,7 @@
 #include "vm/line.h"
 #include "vm/mat.h"
 #include "vm/plane.h"
+#include "vm/polygon.h"
 #include "vm/ray.h"
 #include "vm/scalar.h"
 #include "vm/segment.h"
@@ -766,6 +767,51 @@ constexpr std::vector<vec<T, 3>> polygon_clip_by_plane(
   }
 
   return result;
+}
+
+/**
+ * Checks whether the given coplanar convex polygons overlap by more than a shared edge or
+ * vertex, i.e. their intersection has a nonzero area.
+ *
+ * @tparam T the component type
+ * @param lhs the first polygon
+ * @param rhs the second polygon
+ * @param normal the normal of the plane both polygons lie in
+ * @return true if the polygons' intersection has a nonzero area, false otherwise
+ */
+template <typename T>
+bool polygons_overlap(
+  const polygon<T, 3>& lhs, const polygon<T, 3>& rhs, const vec<T, 3>& normal)
+{
+  const auto& lhsVertices = lhs.vertices();
+  assert(lhsVertices.size() >= 3);
+  const auto center = lhs.center();
+
+  auto clipped = rhs.vertices();
+  for (size_t i = 0; i < lhsVertices.size(); ++i)
+  {
+    const auto& v0 = lhsVertices[i];
+    const auto& v1 = lhsVertices[succ(i, lhsVertices.size())];
+
+    auto edgeNormal = cross(normal, v1 - v0);
+    if (dot(edgeNormal, center - v0) > T(0))
+    {
+      edgeNormal = -edgeNormal;
+    }
+
+    const auto edgePlane = plane<T, 3>{v0, normalize(edgeNormal)};
+    clipped = polygon_clip_by_plane(edgePlane, std::begin(clipped), std::end(clipped));
+    // Once the clipped vertex count drops below 3, the remaining intersection area is
+    // provably zero (a convex region's area can only shrink, never grow, as it is
+    // intersected against further half-planes), so bail out early -- this also avoids
+    // violating polygon_clip_by_plane's precondition of >= 3 input vertices.
+    if (clipped.size() < 3)
+    {
+      return false;
+    }
+  }
+
+  return true;
 }
 
 /**
