@@ -494,6 +494,42 @@ TEST_CASE("intersection")
     }
   }
 
+  SECTION("polygons_overlap")
+  {
+    constexpr auto normal = vec3d{0, 0, 1};
+    constexpr auto squareVertices = square();
+    const auto lhs =
+      polygon3d{std::vector<vec3d>(squareVertices.begin(), squareVertices.end())};
+
+    SECTION("disjoint squares")
+    {
+      CHECK(!polygons_overlap(lhs, lhs.translate({10, 0, 0}), normal));
+    }
+
+    SECTION("squares sharing only an edge")
+    {
+      CHECK(!polygons_overlap(lhs, lhs.translate({2, 0, 0}), normal));
+    }
+
+    SECTION("squares sharing only a corner vertex")
+    {
+      CHECK(!polygons_overlap(lhs, lhs.translate({2, 2, 0}), normal));
+    }
+
+    SECTION("overlapping squares")
+    {
+      CHECK(polygons_overlap(lhs, lhs.translate({1, 0, 0}), normal));
+    }
+
+    SECTION("one square fully containing another")
+    {
+      const auto rhs = polygon3d{std::vector<vec3d>{
+        {-0.5, -0.5, 0}, {-0.5, 0.5, 0}, {0.5, 0.5, 0}, {0.5, -0.5, 0}}};
+      CHECK(polygons_overlap(lhs, rhs, normal));
+      CHECK(polygons_overlap(rhs, lhs, normal)); // symmetric
+    }
+  }
+
   SECTION("intersect_bbox_polygon")
   {
     constexpr auto poly = square();
