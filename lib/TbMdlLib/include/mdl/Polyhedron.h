@@ -20,6 +20,7 @@
 #pragma once
 
 #include "kd/intrusive_circular_list.h"
+#include "kd/stable_pool.h"
 
 #include "vm/bbox.h"
 #include "vm/plane.h"
@@ -50,6 +51,23 @@ template <typename T, typename FP, typename VP>
 class Polyhedron_HalfEdge;
 template <typename T, typename FP, typename VP>
 class Polyhedron_Face;
+
+/**
+ * The pools that own the memory of a polyhedron's vertices, edges, half edges and faces.
+ * This is the only place where the page size of each pool is specified.
+ *
+ * These page sizes were chosen by measuring the high water mark of each pool across
+ * ~150k brushes from a range of real maps: a page size covers a single page for at least
+ * 99% of brushes, with the remainder needing at most one extra page.
+ */
+template <typename T, typename FP, typename VP>
+using Polyhedron_VertexPool = kdl::stable_pool<Polyhedron_Vertex<T, FP, VP>, 16u>;
+template <typename T, typename FP, typename VP>
+using Polyhedron_EdgePool = kdl::stable_pool<Polyhedron_Edge<T, FP, VP>, 32u>;
+template <typename T, typename FP, typename VP>
+using Polyhedron_HalfEdgePool = kdl::stable_pool<Polyhedron_HalfEdge<T, FP, VP>, 64u>;
+template <typename T, typename FP, typename VP>
+using Polyhedron_FacePool = kdl::stable_pool<Polyhedron_Face<T, FP, VP>, 16u>;
 
 /* ====================== Implementation in Polyhedron_Vertex.h ====================== */
 
@@ -86,6 +104,7 @@ private:
   friend class Polyhedron_HalfEdge<T, FP, VP>;
   friend class Polyhedron_Face<T, FP, VP>;
   friend struct Polyhedron_GetVertexLink<T, FP, VP>;
+  friend Polyhedron_VertexPool<T, FP, VP>;
 
   using Vertex = Polyhedron_Vertex<T, FP, VP>;
   using HalfEdge = Polyhedron_HalfEdge<T, FP, VP>;
@@ -241,6 +260,7 @@ private:
   friend class Polyhedron_HalfEdge<T, FP, VP>;
   friend class Polyhedron_Face<T, FP, VP>;
   friend struct Polyhedron_GetEdgeLink<T, FP, VP>;
+  friend Polyhedron_EdgePool<T, FP, VP>;
 
   using Vertex = Polyhedron_Vertex<T, FP, VP>;
   using Edge = Polyhedron_Edge<T, FP, VP>;
@@ -408,56 +428,6 @@ public:
 
 private:
   /**
-   * Splits this edge by inserting a new vertex at the position where this edge intersects
-   the given plane.
-   *
-   * The newly created vertices' position will be the point at which the line segment
-   defined by
-   * this edge's vertices' positions intersects the given plane.
-
-   * This function assumes that the vertices of this edge are on opposite sides of the
-   given plane.
-   *
-   * @param plane the plane at which to split this edge
-   * @param epsilon the epsilon value to use for point status checks
-   * @return the newly created edge
-   */
-  Edge* split(const vm::plane<T, 3>& plane, T epsilon);
-
-  /**
-   * Inserts a new vertex at the given position into this edge, creating two new half
-   * edges, and a new edge. The newly created half edges are added to the boundaries of
-   * the corresponding faces, but the newly created vertex and edge must be stored in
-   * their respective containing circular lists.
-   *
-   * The newly created vertex will be the origin of the newly created edge's first half
-   * edge.
-   *
-   * The following diagram illustrates the effects of this function
-   *
-   * Before calling this function, this edge looks as follows
-   *
-   * /\------------old1st----------->/\
-   * \/<-----------old2nd------------\/
-   * |                               |
-   * 1st vertex                      2nd vertex
-   *
-   * Suppose that the given plane intersects this edge at its center, then the result will
-   * look as follows.
-   *
-   *   |-this edge--|  |--new edge--|
-   *   |            |  |            |
-   * /\----old1st--->/\----new1st--->/\
-   * \/<---new2nd----\/----old2nd----\/
-   * |               |               |
-   * 1st vertex      new vertex      2nd vertex
-   *
-   * @param position the positition of the newly created vertex
-   * @return the newly created edge
-   */
-  Edge* insertVertex(const vm::vec<T, 3>& position);
-
-  /**
    * Flips this edge by swapping its first and second half edges.
    */
   void flip();
@@ -557,6 +527,7 @@ private:
   friend class Polyhedron_Edge<T, FP, VP>;
   friend class Polyhedron_Face<T, FP, VP>;
   friend struct Polyhedron_GetHalfEdgeLink<T, FP, VP>;
+  friend Polyhedron_HalfEdgePool<T, FP, VP>;
 
   using Vertex = Polyhedron_Vertex<T, FP, VP>;
   using Edge = Polyhedron_Edge<T, FP, VP>;
@@ -782,6 +753,7 @@ private:
   friend class Polyhedron_Edge<T, FP, VP>;
   friend class Polyhedron_HalfEdge<T, FP, VP>;
   friend struct Polyhedron_GetFaceLink<T, FP, VP>;
+  friend Polyhedron_FacePool<T, FP, VP>;
 
   using Vertex = Polyhedron_Vertex<T, FP, VP>;
   using Edge = Polyhedron_Edge<T, FP, VP>;
@@ -1151,6 +1123,11 @@ private:
   using HalfEdgeLink = kdl::intrusive_circular_link<HalfEdge>;
   using FaceLink = kdl::intrusive_circular_link<Face>;
 
+  using VertexPool = Polyhedron_VertexPool<T, FP, VP>;
+  using EdgePool = Polyhedron_EdgePool<T, FP, VP>;
+  using HalfEdgePool = Polyhedron_HalfEdgePool<T, FP, VP>;
+  using FacePool = Polyhedron_FacePool<T, FP, VP>;
+
 public:
   using VertexList = Polyhedron_VertexList<T, FP, VP>;
   using EdgeList = Polyhedron_EdgeList<T, FP, VP>;
@@ -1195,17 +1172,27 @@ public:
 
 private:
   /**
-   * The vertices of this polyhedron, stored in a circular list that owns them.
+   * The pools that own the memory of this polyhedron's vertices, edges, half edges and
+   * faces. The circular lists below only establish the ordering between the elements
+   * they contain; they do not own them.
+   */
+  VertexPool m_vertexPool;
+  EdgePool m_edgePool;
+  HalfEdgePool m_halfEdgePool;
+  FacePool m_facePool;
+
+  /**
+   * The vertices of this polyhedron, stored in a circular list.
    */
   VertexList m_vertices;
 
   /**
-   * The edges of this polyhedron, stored in a circular list that owns them.
+   * The edges of this polyhedron, stored in a circular list.
    */
   EdgeList m_edges;
 
   /**
-   * The faces of this polyhedron, stored in a circular list that owns them.
+   * The faces of this polyhedron, stored in a circular list.
    */
   FaceList m_faces;
 
@@ -1213,6 +1200,66 @@ private:
    * The bounds of this polyhedron.
    */
   vm::bbox<T, 3> m_bounds;
+
+private: // pool management helpers
+  /**
+   * Removes the given vertex from this polyhedron's vertex list and erases it from its
+   * pool. The given vertex must belong to this polyhedron's vertex list.
+   */
+  void eraseVertex(Vertex* vertex);
+
+  /**
+   * Removes the given edge from this polyhedron's edge list and erases it from its pool.
+   * The given edge must belong to this polyhedron's edge list.
+   */
+  void eraseEdge(Edge* edge);
+
+  /**
+   * Removes the given face from this polyhedron's face list and erases it, along with
+   * every half edge in its boundary, from their respective pools. The given face must
+   * belong to this polyhedron's face list.
+   */
+  void eraseFace(Face* face);
+
+  /**
+   * Erases the given face, along with every half edge in its boundary, from their
+   * respective pools. This does not touch any list; the caller is responsible for
+   * detaching the given face from whichever list contains it, if any, before calling
+   * this.
+   */
+  void eraseFaceContents(Face* face);
+
+  /**
+   * Erases every vertex in the given list from this polyhedron's vertex pool and empties
+   * the given list. The given list must not be linked into any other list.
+   */
+  void eraseVertices(VertexList& fragment);
+
+  /**
+   * Erases every edge in the given list from this polyhedron's edge pool and empties the
+   * given list. The given list must not be linked into any other list.
+   */
+  void eraseEdges(EdgeList& fragment);
+
+  /**
+   * Erases every face in the given list, along with every half edge in each face's
+   * boundary, from their respective pools, and empties the given list. The given list
+   * must not be linked into any other list.
+   */
+  void eraseFaces(FaceList& fragment);
+
+  /**
+   * Erases every half edge in the given list from this polyhedron's half edge pool and
+   * empties the given list. The given list must not be linked into any other list.
+   */
+  void eraseHalfEdges(HalfEdgeList& fragment);
+
+  /**
+   * Erases all of this polyhedron's vertices, edges and faces, leaving its bounds
+   * untouched. Used by clear() (which additionally updates the bounds) and by the
+   * destructor (which does not need to, since the polyhedron is being torn down).
+   */
+  void eraseElements();
 
   /* ====================== Implementation in Polyhedron_Misc.h ====================== */
 public: // Constructors
@@ -1258,6 +1305,12 @@ public: // Constructors
    */
   Polyhedron(Polyhedron<T, FP, VP>&& other) noexcept;
 
+  /**
+   * Destructor. Erases all vertices, edges, half edges and faces from their owning
+   * pools.
+   */
+  ~Polyhedron();
+
 public: // copy and move assignment
   /**
    * Copy assignment operator.
@@ -1276,6 +1329,10 @@ public: // swap function, must be implemented here because it's a public templat
   friend void swap(Polyhedron<T, FP, VP>& first, Polyhedron<T, FP, VP>& second)
   {
     using std::swap;
+    swap(first.m_vertexPool, second.m_vertexPool);
+    swap(first.m_edgePool, second.m_edgePool);
+    swap(first.m_halfEdgePool, second.m_halfEdgePool);
+    swap(first.m_facePool, second.m_facePool);
     swap(first.m_vertices, second.m_vertices);
     swap(first.m_edges, second.m_edges);
     swap(first.m_faces, second.m_faces);
@@ -1610,6 +1667,57 @@ public: // Vertex correction and edge healing
 
 private:
   /**
+   * Splits the given edge by inserting a new vertex at the position where it intersects
+   * the given plane.
+   *
+   * The newly created vertices' position will be the point at which the line segment
+   * defined by the given edge's vertices' positions intersects the given plane.
+   *
+   * This function assumes that the vertices of the given edge are on opposite sides of
+   * the given plane.
+   *
+   * @param edge the edge to split
+   * @param plane the plane at which to split the given edge
+   * @param epsilon the epsilon value to use for point status checks
+   * @return the newly created edge
+   */
+  Edge* split(Edge* edge, const vm::plane<T, 3>& plane, T epsilon);
+
+  /**
+   * Inserts a new vertex at the given position into the given edge, creating two new half
+   * edges, and a new edge. The newly created half edges are added to the boundaries of
+   * the corresponding faces, but the newly created vertex and edge must be stored in
+   * their respective containing circular lists.
+   *
+   * The newly created vertex will be the origin of the newly created edge's first half
+   * edge.
+   *
+   * The following diagram illustrates the effects of this function
+   *
+   * Before calling this function, the given edge looks as follows
+   *
+   * /\------------old1st----------->/\
+   * \/<-----------old2nd------------\/
+   * |                               |
+   * 1st vertex                      2nd vertex
+   *
+   * Suppose that the given plane intersects the given edge at its center, then the result
+   * will look as follows.
+   *
+   *   |-this edge--|  |--new edge--|
+   *   |            |  |            |
+   * /\----old1st--->/\----new1st--->/\
+   * \/<---new2nd----\/----old2nd----\/
+   * |               |               |
+   * 1st vertex      new vertex      2nd vertex
+   *
+   * @param edge the edge to insert the new vertex into
+   * @param position the positition of the newly created vertex
+   * @return the newly created edge
+   */
+  Edge* insertVertex(Edge* edge, const vm::vec<T, 3>& position);
+
+  /**
    * Removes the given edge from this polyhedron. The incident faces are updated
    * accordingly, and they are removed if they become degenerate. This operation can fail
    * if it results in a non polyhedron.
@@ -1942,9 +2050,14 @@ private:
    * @param visitedFaces the faces that have already been visited by this function in
    * previous calls
    * @param verticesToDelete the vertices that should be deleted later
+   * @param facesToDelete the faces that should be deleted later
    */
   template <typename FaceSet>
-  void deleteFaces(HalfEdge* first, FaceSet& visitedFaces, VertexList& verticesToDelete);
+  void deleteFaces(
+    HalfEdge* first,
+    FaceSet& visitedFaces,
+    VertexList& verticesToDelete,
+    FaceList& facesToDelete);
 
   /**
    * Waves a new cap onto this polyhedron. The new cap will be a single polygon, so this
@@ -1998,7 +2111,7 @@ private:
    * @return the components of the newly created cone or an empty optional if the
    * operation fails
    */
-  static std::optional<WeaveConeResult> weaveCone(
+  std::optional<WeaveConeResult> weaveCone(
     const Seam& seam, const vm::vec<T, 3>& position);
 
   /**

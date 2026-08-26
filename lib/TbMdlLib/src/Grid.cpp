@@ -21,7 +21,6 @@
 
 #include "mdl/BrushFace.h"
 #include "mdl/BrushGeometry.h"
-#include "mdl/Polyhedron.h"
 
 #include "kd/contracts.h"
 

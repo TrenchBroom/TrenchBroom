@@ -22,7 +22,6 @@
 #include "mdl/BrushFace.h"
 #include "mdl/BrushGeometry.h"
 #include "mdl/MapFormat.h"
-#include "mdl/Polyhedron.h"
 #include "mdl/Polyhedron_Matcher.h"
 #include "mdl/UvCoordSystem.h"
 

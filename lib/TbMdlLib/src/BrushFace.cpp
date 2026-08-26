@@ -21,10 +21,10 @@
 
 #include "gl/Material.h"
 #include "gl/Texture.h"
+#include "mdl/BrushGeometry.h"
 #include "mdl/MapFormat.h"
 #include "mdl/ParallelUvCoordSystem.h"
 #include "mdl/ParaxialUvCoordSystem.h"
-#include "mdl/Polyhedron.h"
 #include "mdl/TagMatcher.h"
 #include "mdl/TagVisitor.h"
 #include "mdl/UvCoordSystem.h"

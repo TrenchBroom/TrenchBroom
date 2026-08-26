@@ -26,7 +26,7 @@
 #include "mdl/GameConfig.h"
 #include "mdl/GameInfo.h"
 #include "mdl/Map.h"
-#include "mdl/Polyhedron.h"
+#include "mdl/Polyhedron3.h"
 #include "mdl/WorldNode.h"
 #include "ui/MapDocument.h"
 

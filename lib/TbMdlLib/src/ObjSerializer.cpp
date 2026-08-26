@@ -21,10 +21,10 @@
 
 #include "gl/Material.h"
 #include "mdl/BrushFace.h"
+#include "mdl/BrushGeometry.h"
 #include "mdl/BrushNode.h"
 #include "mdl/ExportOptions.h"
 #include "mdl/PatchNode.h"
-#include "mdl/Polyhedron.h"
 
 #include "kd/contracts.h"
 #include "kd/overload.h"

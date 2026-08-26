@@ -35,7 +35,6 @@
 #include "mdl/Map_Selection.h"
 #include "mdl/NodeContents.h"
 #include "mdl/PickResult.h"
-#include "mdl/Polyhedron.h"
 #include "mdl/TransactionScope.h"
 #include "mdl/WorldNode.h"
 #include "prefs/Preferences.h"

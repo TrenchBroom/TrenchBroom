@@ -102,71 +102,77 @@ Polyhedron<T, FP, VP>::Polyhedron(const vm::bbox<T, 3>& bounds)
   const auto p7 = vm::vec<T, 3>{m_bounds.max.x(), m_bounds.max.y(), m_bounds.min.z()};
   const auto p8 = vm::vec<T, 3>{m_bounds.max.x(), m_bounds.max.y(), m_bounds.max.z()};
 
-  auto* v1 = new Vertex{p1};
-  auto* v2 = new Vertex{p2};
-  auto* v3 = new Vertex{p3};
-  auto* v4 = new Vertex{p4};
-  auto* v5 = new Vertex{p5};
-  auto* v6 = new Vertex{p6};
-  auto* v7 = new Vertex{p7};
-  auto* v8 = new Vertex{p8};
+  auto* v1 = &m_vertexPool.emplace(p1);
+  auto* v2 = &m_vertexPool.emplace(p2);
+  auto* v3 = &m_vertexPool.emplace(p3);
+  auto* v4 = &m_vertexPool.emplace(p4);
+  auto* v5 = &m_vertexPool.emplace(p5);
+  auto* v6 = &m_vertexPool.emplace(p6);
+  auto* v7 = &m_vertexPool.emplace(p7);
+  auto* v8 = &m_vertexPool.emplace(p8);
 
   m_vertices = VertexList{v1, v2, v3, v4, v5, v6, v7, v8};
 
   // Front face
-  auto* f1h1 = new HalfEdge{v1};
-  auto* f1h2 = new HalfEdge{v5};
-  auto* f1h3 = new HalfEdge{v6};
-  auto* f1h4 = new HalfEdge{v2};
-  m_faces.push_back(new Face{HalfEdgeList{f1h1, f1h2, f1h3, f1h4}, {p1, {0, -1, 0}}});
+  auto* f1h1 = &m_halfEdgePool.emplace(v1);
+  auto* f1h2 = &m_halfEdgePool.emplace(v5);
+  auto* f1h3 = &m_halfEdgePool.emplace(v6);
+  auto* f1h4 = &m_halfEdgePool.emplace(v2);
+  m_faces.push_back(&m_facePool.emplace(
+    HalfEdgeList{f1h1, f1h2, f1h3, f1h4}, vm::plane<T, 3>{p1, {0, -1, 0}}));
 
   // Left face
-  auto* f2h1 = new HalfEdge{v1};
-  auto* f2h2 = new HalfEdge{v2};
-  auto* f2h3 = new HalfEdge{v4};
-  auto* f2h4 = new HalfEdge{v3};
-  m_faces.push_back(new Face{HalfEdgeList{f2h1, f2h2, f2h3, f2h4}, {p1, {-1, 0, 0}}});
+  auto* f2h1 = &m_halfEdgePool.emplace(v1);
+  auto* f2h2 = &m_halfEdgePool.emplace(v2);
+  auto* f2h3 = &m_halfEdgePool.emplace(v4);
+  auto* f2h4 = &m_halfEdgePool.emplace(v3);
+  m_faces.push_back(&m_facePool.emplace(
+    HalfEdgeList{f2h1, f2h2, f2h3, f2h4}, vm::plane<T, 3>{p1, {-1, 0, 0}}));
 
   // Bottom face
-  auto* f3h1 = new HalfEdge{v1};
-  auto* f3h2 = new HalfEdge{v3};
-  auto* f3h3 = new HalfEdge{v7};
-  auto* f3h4 = new HalfEdge{v5};
-  m_faces.push_back(new Face{HalfEdgeList{f3h1, f3h2, f3h3, f3h4}, {p1, {0, 0, -1}}});
+  auto* f3h1 = &m_halfEdgePool.emplace(v1);
+  auto* f3h2 = &m_halfEdgePool.emplace(v3);
+  auto* f3h3 = &m_halfEdgePool.emplace(v7);
+  auto* f3h4 = &m_halfEdgePool.emplace(v5);
+  m_faces.push_back(&m_facePool.emplace(
+    HalfEdgeList{f3h1, f3h2, f3h3, f3h4}, vm::plane<T, 3>{p1, {0, 0, -1}}));
 
   // Top face
-  auto* f4h1 = new HalfEdge{v2};
-  auto* f4h2 = new HalfEdge{v6};
-  auto* f4h3 = new HalfEdge{v8};
-  auto* f4h4 = new HalfEdge{v4};
-  m_faces.push_back(new Face{HalfEdgeList{f4h1, f4h2, f4h3, f4h4}, {p8, {0, 0, 1}}});
+  auto* f4h1 = &m_halfEdgePool.emplace(v2);
+  auto* f4h2 = &m_halfEdgePool.emplace(v6);
+  auto* f4h3 = &m_halfEdgePool.emplace(v8);
+  auto* f4h4 = &m_halfEdgePool.emplace(v4);
+  m_faces.push_back(&m_facePool.emplace(
+    HalfEdgeList{f4h1, f4h2, f4h3, f4h4}, vm::plane<T, 3>{p8, {0, 0, 1}}));
 
   // Back face
-  auto* f5h1 = new HalfEdge{v3};
-  auto* f5h2 = new HalfEdge{v4};
-  auto* f5h3 = new HalfEdge{v8};
-  auto* f5h4 = new HalfEdge{v7};
-  m_faces.push_back(new Face{HalfEdgeList{f5h1, f5h2, f5h3, f5h4}, {p8, {0, 1, 0}}});
+  auto* f5h1 = &m_halfEdgePool.emplace(v3);
+  auto* f5h2 = &m_halfEdgePool.emplace(v4);
+  auto* f5h3 = &m_halfEdgePool.emplace(v8);
+  auto* f5h4 = &m_halfEdgePool.emplace(v7);
+  m_faces.push_back(&m_facePool.emplace(
+    HalfEdgeList{f5h1, f5h2, f5h3, f5h4}, vm::plane<T, 3>{p8, {0, 1, 0}}));
 
   // Right face
-  auto* f6h1 = new HalfEdge{v5};
-  auto* f6h2 = new HalfEdge{v7};
-  auto* f6h3 = new HalfEdge{v8};
-  auto* f6h4 = new HalfEdge{v6};
-  m_faces.push_back(new Face{HalfEdgeList{f6h1, f6h2, f6h3, f6h4}, {p8, {1, 0, 0}}});
+  auto* f6h1 = &m_halfEdgePool.emplace(v5);
+  auto* f6h2 = &m_halfEdgePool.emplace(v7);
+  auto* f6h3 = &m_halfEdgePool.emplace(v8);
+  auto* f6h4 = &m_halfEdgePool.emplace(v6);
+  m_faces.push_back(&m_facePool.emplace(
+    HalfEdgeList{f6h1, f6h2, f6h3, f6h4}, vm::plane<T, 3>{p8, {1, 0, 0}}));
 
-  m_edges.push_back(new Edge{f1h4, f2h1}); // v1, v2
-  m_edges.push_back(new Edge{f2h4, f3h1}); // v1, v3
-  m_edges.push_back(new Edge{f1h1, f3h4}); // v1, v5
-  m_edges.push_back(new Edge{f2h2, f4h4}); // v2, v4
-  m_edges.push_back(new Edge{f4h1, f1h3}); // v2, v6
-  m_edges.push_back(new Edge{f2h3, f5h1}); // v3, v4
-  m_edges.push_back(new Edge{f3h2, f5h4}); // v3, v7
-  m_edges.push_back(new Edge{f4h3, f5h2}); // v4, v8
-  m_edges.push_back(new Edge{f1h2, f6h4}); // v5, v6
-  m_edges.push_back(new Edge{f6h1, f3h3}); // v5, v7
-  m_edges.push_back(new Edge{f6h3, f4h2}); // v6, v8
-  m_edges.push_back(new Edge{f6h2, f5h3}); // v7, v8
+  m_edges.push_back(&m_edgePool.emplace(f1h4, f2h1)); // v1, v2
+  m_edges.push_back(&m_edgePool.emplace(f2h4, f3h1)); // v1, v3
+  m_edges.push_back(&m_edgePool.emplace(f1h1, f3h4)); // v1, v5
+  m_edges.push_back(&m_edgePool.emplace(f2h2, f4h4)); // v2, v4
+  m_edges.push_back(&m_edgePool.emplace(f4h1, f1h3)); // v2, v6
+  m_edges.push_back(&m_edgePool.emplace(f2h3, f5h1)); // v3, v4
+  m_edges.push_back(&m_edgePool.emplace(f3h2, f5h4)); // v3, v7
+  m_edges.push_back(&m_edgePool.emplace(f4h3, f5h2)); // v4, v8
+  m_edges.push_back(&m_edgePool.emplace(f1h2, f6h4)); // v5, v6
+  m_edges.push_back(&m_edgePool.emplace(f6h1, f3h3)); // v5, v7
+  m_edges.push_back(&m_edgePool.emplace(f6h3, f4h2)); // v6, v8
+  m_edges.push_back(&m_edgePool.emplace(f6h2, f5h3)); // v7, v8
 }
 
 template <typename T, typename FP, typename VP>
@@ -190,11 +196,21 @@ Polyhedron<T, FP, VP>::Polyhedron(
 
 template <typename T, typename FP, typename VP>
 Polyhedron<T, FP, VP>::Polyhedron(Polyhedron<T, FP, VP>&& other) noexcept
-  : m_vertices{std::move(other.m_vertices)}
+  : m_vertexPool{std::move(other.m_vertexPool)}
+  , m_edgePool{std::move(other.m_edgePool)}
+  , m_halfEdgePool{std::move(other.m_halfEdgePool)}
+  , m_facePool{std::move(other.m_facePool)}
+  , m_vertices{std::move(other.m_vertices)}
   , m_edges{std::move(other.m_edges)}
   , m_faces{std::move(other.m_faces)}
   , m_bounds{std::move(other.m_bounds)}
 {
+}
+
+template <typename T, typename FP, typename VP>
+Polyhedron<T, FP, VP>::~Polyhedron()
+{
+  eraseElements();
 }
 
 template <typename T, typename FP, typename VP>
@@ -207,8 +223,11 @@ Polyhedron<T, FP, VP>& Polyhedron<T, FP, VP>::operator=(
 }
 
 template <typename T, typename FP, typename VP>
-Polyhedron<T, FP, VP>& Polyhedron<T, FP, VP>::operator=(Polyhedron<T, FP, VP>&& other) =
-  default;
+Polyhedron<T, FP, VP>& Polyhedron<T, FP, VP>::operator=(Polyhedron<T, FP, VP>&& other)
+{
+  swap(*this, other);
+  return *this;
+}
 
 /**
  * Copies a polyhedron.
@@ -273,18 +292,44 @@ public:
     const CopyCallback& callback)
     : m_destination{destination}
   {
-    copyVertices(originalVertices, callback);
-    copyFaces(originalFaces, callback);
-    copyEdges(originalEdges);
-    swapContents();
+    // A constructor's own destructor never runs if the constructor body exits via
+    // exception, so this try/catch is the only chance to erase whatever was already
+    // copied before construction was interrupted.
+    try
+    {
+      copyVertices(originalVertices, callback);
+      copyFaces(originalFaces, callback);
+      copyEdges(originalEdges);
+      swapContents();
+    }
+    catch (...)
+    {
+      eraseRemaining();
+      throw;
+    }
   }
 
+  /**
+   * Erases whatever is left in m_vertices, m_edges and m_faces through the destination's
+   * pools rather than letting the (delete-based) list destructors run. After a successful
+   * swapContents(), these lists only hold the destination's previous, empty contents, so
+   * this is a no-op.
+   */
+  ~Copy() { eraseRemaining(); }
+
 private:
+  void eraseRemaining()
+  {
+    m_destination.eraseFaces(m_faces);
+    m_destination.eraseEdges(m_edges);
+    m_destination.eraseVertices(m_vertices);
+  }
+
   void copyVertices(const VertexList& originalVertices, const CopyCallback& callback)
   {
     for (const auto* currentVertex : originalVertices)
     {
-      auto* copy = new Vertex{currentVertex->position()};
+      auto* copy = &m_destination.m_vertexPool.emplace(currentVertex->position());
       callback.vertexWasCopied(currentVertex, copy);
       assert(m_vertexMap.count(currentVertex) == 0u);
 
@@ -310,7 +355,8 @@ private:
       myBoundary.push_back(copyHalfEdge(currentHalfEdge));
     }
 
-    auto* copy = new Face{std::move(myBoundary), originalFace->plane()};
+    auto* copy =
+      &m_destination.m_facePool.emplace(std::move(myBoundary), originalFace->plane());
     callback.faceWasCopied(originalFace, copy);
     m_faces.push_back(copy);
   }
@@ -320,7 +366,7 @@ private:
     const auto* originalOrigin = original->origin();
 
     auto* myOrigin = findVertex(originalOrigin);
-    auto* copy = new HalfEdge{myOrigin};
+    auto* copy = &m_destination.m_halfEdgePool.emplace(myOrigin);
     assert(m_halfEdgeMap.count(original) == 0u);
     m_halfEdgeMap.emplace(original, copy);
     return copy;
@@ -347,11 +393,11 @@ private:
     auto* myFirst = findOrCopyHalfEdge(original->firstEdge());
     if (!original->fullySpecified())
     {
-      return new Edge{myFirst};
+      return &m_destination.m_edgePool.emplace(myFirst);
     }
 
     auto* mySecond = findOrCopyHalfEdge(original->secondEdge());
-    return new Edge{myFirst, mySecond};
+    return &m_destination.m_edgePool.emplace(myFirst, mySecond);
   }
 
   HalfEdge* findOrCopyHalfEdge(const HalfEdge* original)
@@ -363,7 +409,7 @@ private:
 
     const auto* originalOrigin = original->origin();
     auto* myOrigin = findVertex(originalOrigin);
-    auto* copy = new HalfEdge{myOrigin};
+    auto* copy = &m_destination.m_halfEdgePool.emplace(myOrigin);
     m_halfEdgeMap.emplace(original, copy);
     return copy;
   }
@@ -541,10 +587,94 @@ bool Polyhedron<T, FP, VP>::closed() const
 template <typename T, typename FP, typename VP>
 void Polyhedron<T, FP, VP>::clear()
 {
-  m_faces.clear();
-  m_edges.clear();
-  m_vertices.clear();
+  eraseElements();
   updateBounds();
+}
+
+template <typename T, typename FP, typename VP>
+void Polyhedron<T, FP, VP>::eraseElements()
+{
+  eraseFaces(m_faces);
+  eraseEdges(m_edges);
+  eraseVertices(m_vertices);
+}
+
+namespace detail
+{
+
+// Erases every item in the given list using the given function, then empties the list.
+// The next item is read before the current one is erased, so this needs no auxiliary
+// storage to avoid reading a link that has already been destroyed.
+template <typename List, typename Erase>
+void eraseAll(List& fragment, Erase&& erase)
+{
+  for (auto it = fragment.begin(), end = fragment.end(); it != end;)
+  {
+    erase(*it++);
+  }
+  fragment.release();
+}
+
+// Erases every item in the given list by returning it to the given pool, then empties
+// the list.
+template <typename List, typename Pool>
+void erasePool(List& fragment, Pool& pool)
+{
+  eraseAll(fragment, [&](auto* item) { pool.erase(*item); });
+}
+
+} // namespace detail
+
+template <typename T, typename FP, typename VP>
+void Polyhedron<T, FP, VP>::eraseVertex(Vertex* vertex)
+{
+  auto fragment = m_vertices.remove(vertex);
+  eraseVertices(fragment);
+}
+
+template <typename T, typename FP, typename VP>
+void Polyhedron<T, FP, VP>::eraseEdge(Edge* edge)
+{
+  auto fragment = m_edges.remove(edge);
+  eraseEdges(fragment);
+}
+
+template <typename T, typename FP, typename VP>
+void Polyhedron<T, FP, VP>::eraseFace(Face* face)
+{
+  auto fragment = m_faces.remove(face);
+  eraseFaces(fragment);
+}
+
+template <typename T, typename FP, typename VP>
+void Polyhedron<T, FP, VP>::eraseFaceContents(Face* face)
+{
+  eraseHalfEdges(face->boundary());
+  m_facePool.erase(*face);
+}
+
+template <typename T, typename FP, typename VP>
+void Polyhedron<T, FP, VP>::eraseVertices(VertexList& fragment)
+{
+  detail::erasePool(fragment, m_vertexPool);
+}
+
+template <typename T, typename FP, typename VP>
+void Polyhedron<T, FP, VP>::eraseEdges(EdgeList& fragment)
+{
+  detail::erasePool(fragment, m_edgePool);
+}
+
+template <typename T, typename FP, typename VP>
+void Polyhedron<T, FP, VP>::eraseFaces(FaceList& fragment)
+{
+  detail::eraseAll(fragment, [&](Face* face) { eraseFaceContents(face); });
+}
+
+template <typename T, typename FP, typename VP>
+void Polyhedron<T, FP, VP>::eraseHalfEdges(HalfEdgeList& fragment)
+{
+  detail::erasePool(fragment, m_halfEdgePool);
 }
 
 template <typename T, typename FP, typename VP>
@@ -884,17 +1014,19 @@ typename Polyhedron<T, FP, VP>::Edge* Polyhedron<T, FP, VP>::removeEdge(Edge* ed
       auto* h1 = edge->firstEdge();
       auto* n = h1->next();
       v1->setLeaving(h1->previous()->twin());
-      f1->removeFromBoundary(h1);
+      auto removedH1 = f1->removeFromBoundary(h1);
+      eraseHalfEdges(removedH1);
       n->setOrigin(v1);
 
       // Remove the edges's second edge from its second face
       auto* f2 = edge->secondFace();
       auto* h2 = edge->secondEdge();
-      f2->removeFromBoundary(h2);
+      auto removedH2 = f2->removeFromBoundary(h2);
+      eraseHalfEdges(removedH2);
 
       // Finally, remove v2 and e
-      m_vertices.remove(v2);
-      m_edges.remove(edge);
+      eraseVertex(v2);
+      eraseEdge(edge);
     }
   }
 
@@ -939,11 +1071,12 @@ bool Polyhedron<T, FP, VP>::mergeNeighbours(HalfEdge* borderFirst, Edge*& validE
   auto remainingEdges = neighbour->removeFromBoundary(remainingFirst, remainingLast);
   contract_assert(neighbour->boundary().empty());
 
-  // the replaced edges are deleted
-  face->replaceBoundary(borderFirst, borderLast, std::move(remainingEdges));
+  // the replaced edges are erased
+  auto replacedEdges =
+    face->replaceBoundary(borderFirst, borderLast, std::move(remainingEdges));
+  eraseHalfEdges(replacedEdges);
 
   // now delete any remaining vertices and edges
-  // edgesToRemove are deleted when the container falls out of scope
   auto* firstEdge = edgesToRemove.front();
   auto* curEdge = firstEdge;
   do
@@ -957,18 +1090,19 @@ bool Polyhedron<T, FP, VP>::mergeNeighbours(HalfEdge* borderFirst, Edge*& validE
       validEdge = validEdge->next();
     }
 
-    m_edges.remove(edge);
+    eraseEdge(edge);
 
     // don't delete the origin of the first twin edge!
     if (curEdge != twinFirst)
     {
-      m_vertices.remove(origin);
+      eraseVertex(origin);
     }
 
     curEdge = next;
   } while (curEdge != firstEdge);
+  eraseHalfEdges(edgesToRemove);
 
-  m_faces.remove(neighbour);
+  eraseFace(neighbour);
 
   // Fix topological errors
   const auto fixTopologicalErrors = [&](auto* vertex) {
@@ -1061,14 +1195,17 @@ void Polyhedron<T, FP, VP>::mergeIncidentEdges(Vertex* vertex)
 
   auto* edgeToRemove = leaving->edge();
 
-  face2->removeFromBoundary(leaving->twin(), leaving->twin());
-  face1->removeFromBoundary(leaving, leaving);
+  auto removedLeavingTwin = face2->removeFromBoundary(leaving->twin(), leaving->twin());
+  eraseHalfEdges(removedLeavingTwin);
+
+  auto removedLeaving = face1->removeFromBoundary(leaving, leaving);
+  eraseHalfEdges(removedLeaving);
 
   arriving->twin()->setOrigin(next);
   next->setLeaving(arriving->twin());
 
-  m_edges.remove(edgeToRemove);
-  m_vertices.remove(vertex);
+  eraseEdge(edgeToRemove);
+  eraseVertex(vertex);
 }
 
 template <typename T, typename FP, typename VP>

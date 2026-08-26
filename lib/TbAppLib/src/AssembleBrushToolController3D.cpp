@@ -28,7 +28,6 @@
 #include "mdl/HitAdapter.h"
 #include "mdl/HitFilter.h"
 #include "mdl/PickResult.h"
-#include "mdl/Polyhedron.h"
 #include "mdl/Polyhedron3.h"
 #include "prefs/Preferences.h"
 #include "render/RenderService.h"

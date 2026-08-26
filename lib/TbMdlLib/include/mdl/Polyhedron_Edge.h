@@ -218,16 +218,16 @@ Polyhedron_Edge<T, FP, VP>* Polyhedron_Edge<T, FP, VP>::previous() const
 }
 
 template <typename T, typename FP, typename VP>
-Polyhedron_Edge<T, FP, VP>* Polyhedron_Edge<T, FP, VP>::split(
-  const vm::plane<T, 3>& plane, const T epsilon)
+typename Polyhedron<T, FP, VP>::Edge* Polyhedron<T, FP, VP>::split(
+  Edge* edge, const vm::plane<T, 3>& plane, const T epsilon)
 {
   contract_pre(epsilon >= T(0));
 
-  // Assumes that the start and the end vertex of this edge are on opposite sides of
+  // Assumes that the start and the end vertex of the given edge are on opposite sides of
   // the given plane (precondition).
 
-  const vm::vec<T, 3>& startPos = firstVertex()->position();
-  const vm::vec<T, 3>& endPos = secondVertex()->position();
+  const vm::vec<T, 3>& startPos = edge->firstVertex()->position();
+  const vm::vec<T, 3>& endPos = edge->secondVertex()->position();
 
   const auto startDist = plane.point_distance(startPos);
   const auto endDist = plane.point_distance(endPos);
@@ -246,12 +246,12 @@ Polyhedron_Edge<T, FP, VP>* Polyhedron_Edge<T, FP, VP>::split(
   contract_assert(dot > T(0) && dot < T(1));
 
   const auto position = startPos + dot * (endPos - startPos);
-  return insertVertex(position);
+  return insertVertex(edge, position);
 }
 
 template <typename T, typename FP, typename VP>
-Polyhedron_Edge<T, FP, VP>* Polyhedron_Edge<T, FP, VP>::insertVertex(
-  const vm::vec<T, 3>& position)
+typename Polyhedron<T, FP, VP>::Edge* Polyhedron<T, FP, VP>::insertVertex(
+  Edge* edge, const vm::vec<T, 3>& position)
 {
   /*
    before:
@@ -272,30 +272,28 @@ Polyhedron_Edge<T, FP, VP>* Polyhedron_Edge<T, FP, VP>::insertVertex(
 
    */
 
-  using HalfEdgeList = Polyhedron_HalfEdgeList<T, FP, VP>;
-
   // create new vertices and new half edges originating from it
   // the caller is responsible for storing the newly created vertex!
-  auto* newVertex = new Vertex{position};
-  auto* newFirstEdge = new HalfEdge{newVertex};
-  auto* oldFirstEdge = firstEdge();
-  auto* newSecondEdge = new HalfEdge{newVertex};
-  auto* oldSecondEdge = secondEdge();
+  auto* newVertex = &m_vertexPool.emplace(position);
+  auto* newFirstEdge = &m_halfEdgePool.emplace(newVertex);
+  auto* oldFirstEdge = edge->firstEdge();
+  auto* newSecondEdge = &m_halfEdgePool.emplace(newVertex);
+  auto* oldSecondEdge = edge->secondEdge();
 
   // insert the new half edges into the corresponding faces
-  firstFace()->insertIntoBoundaryAfter(oldFirstEdge, HalfEdgeList{newFirstEdge});
-  secondFace()->insertIntoBoundaryAfter(oldSecondEdge, HalfEdgeList{newSecondEdge});
+  edge->firstFace()->insertIntoBoundaryAfter(oldFirstEdge, HalfEdgeList{newFirstEdge});
+  edge->secondFace()->insertIntoBoundaryAfter(oldSecondEdge, HalfEdgeList{newSecondEdge});
 
   // make old1st the leaving edge of its origin vertex
-  setFirstAsLeaving();
+  edge->setFirstAsLeaving();
 
   // unset old2nd from this edge
-  unsetSecondEdge();
+  edge->unsetSecondEdge();
 
   // and replace it with new2nd
-  setSecondEdge(newSecondEdge);
+  edge->setSecondEdge(newSecondEdge);
 
-  return new Edge{newFirstEdge, oldSecondEdge};
+  return &m_edgePool.emplace(newFirstEdge, oldSecondEdge);
 }
 
 template <typename T, typename FP, typename VP>

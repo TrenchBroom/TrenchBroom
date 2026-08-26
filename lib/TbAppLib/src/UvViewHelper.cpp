@@ -23,8 +23,8 @@
 #include "gl/OrthographicCamera.h"
 #include "gl/Texture.h"
 #include "mdl/BrushFace.h"
+#include "mdl/BrushGeometry.h"
 #include "mdl/PickResult.h"
-#include "mdl/Polyhedron.h"
 #include "mdl/UvUtils.h"
 
 #include "kd/contracts.h"

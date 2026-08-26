@@ -394,7 +394,7 @@ std::tuple<typename Polyhedron<T, FP, VP>::HalfEdge*, bool> Polyhedron<T, FP, VP
       // We have to split the edge and insert a new vertex, which will become the origin
       // or destination of the new seam edge.
       auto* currentEdge = currentBoundaryEdge->edge();
-      auto* newEdge = currentEdge->split(plane, vm::constants<T>::point_status_epsilon());
+      auto* newEdge = split(currentEdge, plane, vm::constants<T>::point_status_epsilon());
       m_edges.push_back(newEdge);
 
       currentBoundaryEdge = currentBoundaryEdge->next();
@@ -459,16 +459,16 @@ void Polyhedron<T, FP, VP>::intersectWithPlane(
 {
   auto* newBoundaryLast = oldBoundaryFirst->previous();
 
-  auto* oldBoundarySplitter = new HalfEdge{newBoundaryFirst->origin()};
-  auto* newBoundarySplitter = new HalfEdge{oldBoundaryFirst->origin()};
+  auto* oldBoundarySplitter = &m_halfEdgePool.emplace(newBoundaryFirst->origin());
+  auto* newBoundarySplitter = &m_halfEdgePool.emplace(oldBoundaryFirst->origin());
 
   auto* oldFace = oldBoundaryFirst->face();
   oldFace->insertIntoBoundaryAfter(newBoundaryLast, HalfEdgeList({newBoundarySplitter}));
   auto newBoundary = oldFace->replaceBoundary(
     newBoundaryFirst, newBoundarySplitter, HalfEdgeList({oldBoundarySplitter}));
 
-  auto* newFace = new Face{std::move(newBoundary), oldFace->plane()};
-  auto* newEdge = new Edge{oldBoundarySplitter, newBoundarySplitter};
+  auto* newFace = &m_facePool.emplace(std::move(newBoundary), oldFace->plane());
+  auto* newEdge = &m_edgePool.emplace(oldBoundarySplitter, newBoundarySplitter);
 
   m_edges.push_back(newEdge);
   m_faces.push_back(newFace);

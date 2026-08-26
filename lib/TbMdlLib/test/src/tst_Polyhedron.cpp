@@ -19,9 +19,9 @@
 
 #include "mdl/CatchConfig.h"
 #include "mdl/Polyhedron.h"
+#include "mdl/Polyhedron3.h"
 #include "mdl/Polyhedron_DefaultPayload.h"
 #include "mdl/Polyhedron_IO.h" // IWYU pragma: keep
-#include "mdl/Polyhedron_Instantiation.h"
 
 #include "vm/approx.h"
 #include "vm/ray.h"

@@ -30,7 +30,6 @@
 #include "mdl/HitAdapter.h"
 #include "mdl/HitFilter.h"
 #include "mdl/PickResult.h"
-#include "mdl/Polyhedron.h"
 #include "render/RenderContext.h"
 #include "ui/ClipTool.h"
 #include "ui/HandleDragTracker.h"
