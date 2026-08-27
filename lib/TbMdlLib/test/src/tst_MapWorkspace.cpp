@@ -22,6 +22,7 @@
 
 #include <algorithm>
 #include <memory>
+#include <stdexcept>
 
 #include <catch2/catch_test_macros.hpp>
 
@@ -98,6 +99,216 @@ TEST_CASE("MapWorkspace")
     CHECK(workspace.baseNode(*id) != &entity);
     CHECK(workspace.changes().empty());
     CHECK(workspace.planMerge(source.world).canApply());
+  }
+
+  SECTION("reconstructs a detached branch from exported durable identities")
+  {
+    auto source = SourceTree{};
+    auto base = cloneWorld(source.world);
+    auto branch = cloneWorld(source.world);
+    auto original = MapWorkspace{source.world, *branch, WorldBounds};
+    auto& entity = branchEntity(original);
+    const auto entityId = *original.nodeId(entity);
+    setProperty(entity, "style", "2");
+
+    const auto identities = original.exportNodeIdentities();
+    auto restored = MapWorkspace{*base, *branch, WorldBounds, identities};
+
+    CHECK_FALSE(restored.hasAttachedSource());
+    CHECK(restored.sourceNode(entityId) == nullptr);
+    const auto detachedPlan = restored.planMerge(source.world);
+    REQUIRE_FALSE(detachedPlan.canApply());
+    REQUIRE(detachedPlan.conflicts.size() == 1u);
+    CHECK(
+      detachedPlan.conflicts.front().kind
+      == WorkspaceMergeConflictKind::UnattachedLiveSource);
+
+    restored.attachSource(source.world);
+    CHECK(restored.hasAttachedSource());
+    CHECK(restored.sourceNode(entityId) == source.entity);
+    const auto plan = restored.planMerge(source.world);
+    REQUIRE(plan.canApply());
+    REQUIRE(plan.operations.size() == 1u);
+    CHECK(plan.operations.front().kind == WorkspaceMergeOperationKind::Replace);
+    CHECK(plan.operations.front().nodeId == entityId);
+  }
+
+  SECTION("retains reparenting and branch-only descendants across reconstruction")
+  {
+    auto source = SourceTree{};
+    auto base = cloneWorld(source.world);
+    auto branch = cloneWorld(source.world);
+    auto original = MapWorkspace{source.world, *branch, WorldBounds};
+    auto* firstGroup = static_cast<GroupNode*>(branch->defaultLayer()->children()[0]);
+    auto* secondGroup = static_cast<GroupNode*>(branch->defaultLayer()->children()[1]);
+    auto* entity = firstGroup->children().front();
+    const auto entityId = *original.nodeId(*entity);
+    firstGroup->removeChild(entity);
+    secondGroup->addChild(entity);
+    secondGroup->addChild(new EntityNode{Entity{{{"classname", "info_player_start"}}}});
+
+    auto restored =
+      MapWorkspace{*base, *branch, WorldBounds, original.exportNodeIdentities()};
+    restored.attachSource(source.world);
+    const auto plan = restored.planMerge(source.world);
+
+    REQUIRE(plan.canApply());
+    CHECK(
+      std::count_if(
+        plan.operations.begin(),
+        plan.operations.end(),
+        [&](const auto& operation) {
+          return operation.kind == WorkspaceMergeOperationKind::Reparent
+                 && operation.nodeId == entityId;
+        })
+      == 1u);
+    CHECK(
+      std::count_if(
+        plan.operations.begin(),
+        plan.operations.end(),
+        [](const auto& operation) {
+          return operation.kind == WorkspaceMergeOperationKind::Add;
+        })
+      == 1u);
+  }
+
+  SECTION("validates imported identity tables and refuses unsafe source topology")
+  {
+    auto source = SourceTree{};
+    auto base = cloneWorld(source.world);
+    auto branch = cloneWorld(source.world);
+    const auto original = MapWorkspace{source.world, *branch, WorldBounds};
+    const auto identities = original.exportNodeIdentities();
+
+    auto duplicateIds = identities;
+    duplicateIds.push_back(duplicateIds.back());
+    CHECK_THROWS_AS(
+      (MapWorkspace{*base, *branch, WorldBounds, std::move(duplicateIds)}),
+      std::invalid_argument);
+
+    auto staleBranchPath = identities;
+    staleBranchPath.back().branchPath = WorkspaceNodePath{999u};
+    CHECK_THROWS_AS(
+      (MapWorkspace{*base, *branch, WorldBounds, std::move(staleBranchPath)}),
+      std::invalid_argument);
+
+    auto restored = MapWorkspace{*base, *branch, WorldBounds, identities};
+    auto changedSource = cloneWorld(source.world);
+    auto* firstGroup =
+      static_cast<GroupNode*>(changedSource->defaultLayer()->children()[0]);
+    auto* secondGroup =
+      static_cast<GroupNode*>(changedSource->defaultLayer()->children()[1]);
+    auto* entity = firstGroup->children().front();
+    firstGroup->removeChild(entity);
+    secondGroup->addChild(entity);
+
+    CHECK_THROWS_AS(restored.attachSource(*changedSource), std::invalid_argument);
+    CHECK_FALSE(restored.hasAttachedSource());
+  }
+
+  SECTION("allows independent source-only contents edits after explicit attachment")
+  {
+    auto source = SourceTree{};
+    auto base = cloneWorld(source.world);
+    auto branch = cloneWorld(source.world);
+    const auto original = MapWorkspace{source.world, *branch, WorldBounds};
+    auto restored =
+      MapWorkspace{*base, *branch, WorldBounds, original.exportNodeIdentities()};
+    auto secondGroup = source.secondGroup->group();
+    secondGroup.setName("source-only");
+    source.secondGroup->setGroup(std::move(secondGroup));
+
+    restored.attachSource(source.world);
+    const auto plan = restored.planMerge(source.world);
+    CHECK(plan.canApply());
+    CHECK(plan.operations.empty());
+    CHECK(restored.planMerge(source.world).operations.empty());
+  }
+
+  SECTION("retains three-way conflict behavior after reconstruction")
+  {
+    SECTION("merges compatible independent branch and source edits repeatedly")
+    {
+      auto source = SourceTree{};
+      auto base = cloneWorld(source.world);
+      auto branch = cloneWorld(source.world);
+      auto original = MapWorkspace{source.world, *branch, WorldBounds};
+      auto& entity = branchEntity(original);
+      const auto entityId = *original.nodeId(entity);
+      setProperty(entity, "style", "2");
+
+      auto secondGroup = source.secondGroup->group();
+      secondGroup.setName("source-only");
+      source.secondGroup->setGroup(std::move(secondGroup));
+
+      auto restored =
+        MapWorkspace{*base, *branch, WorldBounds, original.exportNodeIdentities()};
+      restored.attachSource(source.world);
+      const auto firstPlan = restored.planMerge(source.world);
+      const auto secondPlan = restored.planMerge(source.world);
+
+      REQUIRE(firstPlan.canApply());
+      REQUIRE(secondPlan.canApply());
+      REQUIRE(firstPlan.operations.size() == 1u);
+      REQUIRE(secondPlan.operations.size() == firstPlan.operations.size());
+      CHECK(firstPlan.operations.front().kind == WorkspaceMergeOperationKind::Replace);
+      CHECK(firstPlan.operations.front().nodeId == entityId);
+      CHECK(secondPlan.operations.front().kind == firstPlan.operations.front().kind);
+      CHECK(secondPlan.operations.front().nodeId == firstPlan.operations.front().nodeId);
+    }
+
+    SECTION("detects divergent contents edits")
+    {
+      auto source = SourceTree{};
+      auto base = cloneWorld(source.world);
+      auto branch = cloneWorld(source.world);
+      auto original = MapWorkspace{source.world, *branch, WorldBounds};
+      auto& entity = branchEntity(original);
+      const auto entityId = *original.nodeId(entity);
+      setProperty(entity, "style", "2");
+      setProperty(*source.entity, "style", "3");
+
+      auto restored =
+        MapWorkspace{*base, *branch, WorldBounds, original.exportNodeIdentities()};
+      restored.attachSource(source.world);
+      const auto plan = restored.planMerge(source.world);
+
+      REQUIRE_FALSE(plan.canApply());
+      REQUIRE(plan.conflicts.size() == 1u);
+      CHECK(plan.conflicts.front().kind == WorkspaceMergeConflictKind::LiveNodeChanged);
+      CHECK(plan.conflicts.front().nodeId == entityId);
+    }
+
+    SECTION("detects a live edit when the branch deleted its node")
+    {
+      auto source = SourceTree{};
+      auto base = cloneWorld(source.world);
+      auto branch = cloneWorld(source.world);
+      auto original = MapWorkspace{source.world, *branch, WorldBounds};
+      auto* firstGroup = static_cast<GroupNode*>(branch->defaultLayer()->children()[0]);
+      auto* entity = firstGroup->children().front();
+      const auto entityId = *original.nodeId(*entity);
+      firstGroup->removeChild(entity);
+      const auto removedEntity = std::unique_ptr<Node>{entity};
+      setProperty(*source.entity, "style", "3");
+
+      auto restored =
+        MapWorkspace{*base, *branch, WorldBounds, original.exportNodeIdentities()};
+      restored.attachSource(source.world);
+      const auto plan = restored.planMerge(source.world);
+
+      REQUIRE(removedEntity);
+      REQUIRE_FALSE(plan.canApply());
+      CHECK(
+        std::count_if(
+          plan.conflicts.begin(),
+          plan.conflicts.end(),
+          [&](const auto& conflict) {
+            return conflict.kind == WorkspaceMergeConflictKind::LiveNodeChanged
+                   && conflict.nodeId == entityId;
+          })
+        == 1u);
+    }
   }
 
   SECTION("reports direct content, reparenting, and an added subtree root")

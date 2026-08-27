@@ -16,6 +16,7 @@
 #include <cstddef>
 #include <memory>
 #include <optional>
+#include <string>
 #include <vector>
 
 namespace tb::mdl
@@ -31,6 +32,27 @@ class WorldNode;
  * retain their existing semantics; a workspace identity only lives as long as its branch.
  */
 using WorkspaceNodeId = std::size_t;
+
+/**
+ * A process-independent path from a world node to one of its descendants. Each value is
+ * a child index at one level of the tree. An empty path denotes the world node itself.
+ */
+using WorkspaceNodePath = std::vector<std::size_t>;
+
+/**
+ * The durable identity of a node that existed at workspace fork time.
+ *
+ * This value contains no node addresses. It is suitable for a workspace manifest and
+ * can recreate the base/branch association after both maps have been loaded again.
+ */
+struct WorkspaceNodeIdentity
+{
+  WorkspaceNodeId id = 0u;
+  std::string type;
+  WorkspaceNodePath basePath;
+  WorkspaceNodeId baseParentId = 0u;
+  std::optional<WorkspaceNodePath> branchPath;
+};
 
 enum class WorkspaceChangeKind
 {
@@ -75,6 +97,8 @@ struct WorkspaceMergeOperation
 
 enum class WorkspaceMergeConflictKind
 {
+  /** A reconstructed workspace has no validated attachment to the requested source. */
+  UnattachedLiveSource,
   /** The node that was present at fork time no longer occurs in the live tree. */
   MissingLiveNode,
   /** Both the live map and the workspace changed the node's own contents. */
@@ -118,6 +142,7 @@ private:
   std::unique_ptr<WorldNode> m_baseWorld;
   std::unique_ptr<WorldNode> m_ownedBranchWorld;
   WorldNode* m_branchWorld;
+  const WorldNode* m_sourceWorld = nullptr;
   vm::bbox3d m_worldBounds;
   std::vector<NodeRecord> m_nodes;
 
@@ -133,6 +158,16 @@ public:
    */
   MapWorkspace(
     const WorldNode& sourceWorld, WorldNode& branchWorld, vm::bbox3d worldBounds);
+  /**
+   * Reconstructs a detached workspace from its immutable base map, loaded branch map,
+   * and a previously exported fork identity table. The table is validated before the
+   * workspace is constructed. Call attachSource before planning a three-way merge.
+   */
+  MapWorkspace(
+    const WorldNode& baseWorld,
+    WorldNode& branchWorld,
+    vm::bbox3d worldBounds,
+    std::vector<WorkspaceNodeIdentity> nodeIdentities);
   ~MapWorkspace();
 
   MapWorkspace(MapWorkspace&&) noexcept;
@@ -149,6 +184,21 @@ public:
   std::optional<WorkspaceNodeId> nodeId(const Node& branchNode) const;
   const Node* baseNode(WorkspaceNodeId nodeId) const;
   const Node* sourceNode(WorkspaceNodeId nodeId) const;
+
+  /** Returns the manifest-ready identity table, including current removed branch nodes.
+   */
+  std::vector<WorkspaceNodeIdentity> exportNodeIdentities() const;
+
+  /**
+   * Explicitly attaches a current source map to a reconstructed workspace.
+   *
+   * The attachment rejects any changed or ambiguous fork topology. Content-only source
+   * edits are allowed and are later surfaced by planMerge as three-way conflicts.
+   * Throws std::invalid_argument when the source cannot be proven to match the fork
+   * identity table, or when a different source was already attached.
+   */
+  void attachSource(const WorldNode& sourceWorld);
+  bool hasAttachedSource() const;
 
   std::vector<WorkspaceChange> changes() const;
 

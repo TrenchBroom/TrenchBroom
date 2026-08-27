@@ -21,6 +21,7 @@
 #include "mdl/WorldNode.h"
 
 #include <algorithm>
+#include <map>
 #include <stdexcept>
 #include <unordered_map>
 #include <unordered_set>
@@ -134,6 +135,45 @@ bool sameNodeType(const Node& lhs, const Node& rhs)
               == (dynamic_cast<const PatchNode*>(&rhs) != nullptr);
 }
 
+std::string nodeTypeName(const Node& node)
+{
+  if (dynamic_cast<const WorldNode*>(&node) != nullptr)
+  {
+    return "world";
+  }
+  if (dynamic_cast<const LayerNode*>(&node) != nullptr)
+  {
+    return "layer";
+  }
+  if (dynamic_cast<const GroupNode*>(&node) != nullptr)
+  {
+    return "group";
+  }
+  if (dynamic_cast<const EntityNode*>(&node) != nullptr)
+  {
+    return "entity";
+  }
+  if (dynamic_cast<const BrushNode*>(&node) != nullptr)
+  {
+    return "brush";
+  }
+  if (dynamic_cast<const PatchNode*>(&node) != nullptr)
+  {
+    return "patch";
+  }
+  throw std::invalid_argument{"Unsupported map node type"};
+}
+
+WorkspaceNodePath nodePath(const Node& node, const WorldNode& world)
+{
+  return node.pathFrom(world).indices;
+}
+
+const Node* resolvePath(const WorldNode& world, const WorkspaceNodePath& path)
+{
+  return world.resolvePath(NodePath{path});
+}
+
 } // namespace
 
 struct MapWorkspace::NodeRecord
@@ -154,6 +194,7 @@ MapWorkspace::MapWorkspace(const WorldNode& sourceWorld, const vm::bbox3d worldB
   : m_baseWorld{static_cast<WorldNode*>(sourceWorld.cloneRecursively(worldBounds))}
   , m_ownedBranchWorld{static_cast<WorldNode*>(sourceWorld.cloneRecursively(worldBounds))}
   , m_branchWorld{m_ownedBranchWorld.get()}
+  , m_sourceWorld{&sourceWorld}
   , m_worldBounds{worldBounds}
 {
   auto sourceNodes = std::vector<const Node*>{};
@@ -182,6 +223,7 @@ MapWorkspace::MapWorkspace(
   const WorldNode& sourceWorld, WorldNode& branchWorld, const vm::bbox3d worldBounds)
   : m_baseWorld{static_cast<WorldNode*>(sourceWorld.cloneRecursively(worldBounds))}
   , m_branchWorld{&branchWorld}
+  , m_sourceWorld{&sourceWorld}
   , m_worldBounds{worldBounds}
 {
   auto sourceNodes = std::vector<const Node*>{};
@@ -215,6 +257,102 @@ MapWorkspace::MapWorkspace(
                             : std::optional<WorkspaceNodeId>{static_cast<WorkspaceNodeId>(
                                 std::distance(sourceNodes.begin(), parentIt) + 1u)};
     m_nodes.push_back({i + 1u, sourceNodes[i], baseNodes[i], branchNodes[i], parentId});
+  }
+}
+
+MapWorkspace::MapWorkspace(
+  const WorldNode& baseWorld,
+  WorldNode& branchWorld,
+  const vm::bbox3d worldBounds,
+  std::vector<WorkspaceNodeIdentity> nodeIdentities)
+  : m_baseWorld{static_cast<WorldNode*>(baseWorld.cloneRecursively(worldBounds))}
+  , m_branchWorld{&branchWorld}
+  , m_worldBounds{worldBounds}
+{
+  auto baseNodes = std::vector<const Node*>{};
+  collectNodes(*m_baseWorld, baseNodes);
+
+  if (nodeIdentities.size() != baseNodes.size())
+  {
+    throw std::invalid_argument{
+      "The workspace identity table must describe every node in the base world"};
+  }
+
+  auto identitiesById = std::map<WorkspaceNodeId, WorkspaceNodeIdentity>{};
+  for (auto& identity : nodeIdentities)
+  {
+    if (
+      identity.id == 0u
+      || !identitiesById.emplace(identity.id, std::move(identity)).second)
+    {
+      throw std::invalid_argument{"The workspace identity table contains duplicate IDs"};
+    }
+  }
+
+  for (WorkspaceNodeId id = 1u; id <= identitiesById.size(); ++id)
+  {
+    if (!identitiesById.contains(id))
+    {
+      throw std::invalid_argument{"The workspace identity table IDs must be contiguous"};
+    }
+  }
+
+  auto baseNodesById = std::vector<const Node*>(identitiesById.size() + 1u, nullptr);
+  auto baseIdsByNode = std::unordered_map<const Node*, WorkspaceNodeId>{};
+  for (const auto& [id, identity] : identitiesById)
+  {
+    const auto* node = resolvePath(*m_baseWorld, identity.basePath);
+    if (
+      node == nullptr || nodeTypeName(*node) != identity.type
+      || baseIdsByNode.contains(node))
+    {
+      throw std::invalid_argument{
+        "The workspace identity table has an invalid base path"};
+    }
+    baseNodesById[id] = node;
+    baseIdsByNode.emplace(node, id);
+  }
+  if (baseIdsByNode.size() != baseNodes.size())
+  {
+    throw std::invalid_argument{"The workspace identity table has incomplete base paths"};
+  }
+
+  auto branchIdsByNode = std::unordered_map<const Node*, WorkspaceNodeId>{};
+  m_nodes.reserve(identitiesById.size());
+  for (const auto& [id, identity] : identitiesById)
+  {
+    const auto* baseNode = baseNodesById[id];
+    const auto* baseParent = baseNode->parent();
+    const auto expectedParentId =
+      baseParent == nullptr ? WorkspaceNodeId{0u} : baseIdsByNode.at(baseParent);
+    if (identity.baseParentId != expectedParentId)
+    {
+      throw std::invalid_argument{
+        "The workspace identity table has an invalid base parent"};
+    }
+
+    const auto* branchNode =
+      identity.branchPath ? resolvePath(branchWorld, *identity.branchPath) : nullptr;
+    if (
+      branchNode != nullptr
+      && (nodeTypeName(*branchNode) != identity.type
+          || !branchIdsByNode.emplace(branchNode, id).second))
+    {
+      throw std::invalid_argument{
+        "The workspace identity table has an invalid branch path"};
+    }
+    if (identity.branchPath && branchNode == nullptr)
+    {
+      throw std::invalid_argument{"The workspace identity table has a stale branch path"};
+    }
+    m_nodes.push_back(
+      {id,
+       nullptr,
+       baseNode,
+       branchNode,
+       identity.baseParentId == 0u
+         ? std::optional<WorkspaceNodeId>{}
+         : std::optional<WorkspaceNodeId>{identity.baseParentId}});
   }
 }
 
@@ -257,6 +395,94 @@ const Node* MapWorkspace::sourceNode(const WorkspaceNodeId nodeId) const
 {
   const auto it = std::ranges::find(m_nodes, nodeId, &NodeRecord::id);
   return it == m_nodes.end() ? nullptr : it->sourceNode;
+}
+
+std::vector<WorkspaceNodeIdentity> MapWorkspace::exportNodeIdentities() const
+{
+  auto branchNodes = std::vector<const Node*>{};
+  collectNodes(*m_branchWorld, branchNodes);
+  const auto branchSet =
+    std::unordered_set<const Node*>{branchNodes.begin(), branchNodes.end()};
+
+  auto result = std::vector<WorkspaceNodeIdentity>{};
+  result.reserve(m_nodes.size());
+  for (const auto& record : m_nodes)
+  {
+    result.push_back(
+      {record.id,
+       nodeTypeName(*record.baseNode),
+       nodePath(*record.baseNode, *m_baseWorld),
+       record.baseParentId.value_or(0u),
+       branchSet.contains(record.branchNode)
+         ? std::optional<WorkspaceNodePath>{nodePath(*record.branchNode, *m_branchWorld)}
+         : std::nullopt});
+  }
+  return result;
+}
+
+void MapWorkspace::attachSource(const WorldNode& sourceWorld)
+{
+  if (m_sourceWorld != nullptr)
+  {
+    if (m_sourceWorld != &sourceWorld)
+    {
+      throw std::invalid_argument{"A different source world is already attached"};
+    }
+    return;
+  }
+
+  auto sourceNodes = std::vector<const Node*>{};
+  collectNodes(sourceWorld, sourceNodes);
+  if (sourceNodes.size() != m_nodes.size())
+  {
+    throw std::invalid_argument{
+      "The source world topology does not match the workspace fork identity table"};
+  }
+
+  auto sourceById = std::vector<const Node*>{m_nodes.size() + 1u, nullptr};
+  auto sourceIdsByNode = std::unordered_map<const Node*, WorkspaceNodeId>{};
+  for (const auto& record : m_nodes)
+  {
+    const auto path = nodePath(*record.baseNode, *m_baseWorld);
+    const auto* sourceNode = resolvePath(sourceWorld, path);
+    if (
+      sourceNode == nullptr || nodeTypeName(*sourceNode) != nodeTypeName(*record.baseNode)
+      || sourceIdsByNode.contains(sourceNode))
+    {
+      throw std::invalid_argument{
+        "The source world has an unsafe topology for workspace attachment"};
+    }
+    sourceById[record.id] = sourceNode;
+    sourceIdsByNode.emplace(sourceNode, record.id);
+  }
+  if (sourceIdsByNode.size() != sourceNodes.size())
+  {
+    throw std::invalid_argument{
+      "The source world has an ambiguous topology for workspace attachment"};
+  }
+
+  for (const auto& record : m_nodes)
+  {
+    const auto* sourceParent = sourceById[record.id]->parent();
+    const auto sourceParentId =
+      sourceParent == nullptr ? WorkspaceNodeId{0u} : sourceIdsByNode.at(sourceParent);
+    if (sourceParentId != record.baseParentId.value_or(0u))
+    {
+      throw std::invalid_argument{
+        "The source world has an unsafe parent topology for workspace attachment"};
+    }
+  }
+
+  for (auto& record : m_nodes)
+  {
+    record.sourceNode = sourceById[record.id];
+  }
+  m_sourceWorld = &sourceWorld;
+}
+
+bool MapWorkspace::hasAttachedSource() const
+{
+  return m_sourceWorld != nullptr;
 }
 
 std::vector<WorkspaceChange> MapWorkspace::rawChanges() const
@@ -426,6 +652,11 @@ std::vector<WorkspaceChange> MapWorkspace::changes() const
 WorkspaceMergePlan MapWorkspace::planMerge(const WorldNode& liveWorld) const
 {
   auto plan = WorkspaceMergePlan{};
+  if (m_sourceWorld != &liveWorld)
+  {
+    plan.conflicts.push_back({WorkspaceMergeConflictKind::UnattachedLiveSource, 0u});
+    return plan;
+  }
   auto liveNodes = std::vector<const Node*>{};
   collectNodes(liveWorld, liveNodes);
   const auto liveSet =
