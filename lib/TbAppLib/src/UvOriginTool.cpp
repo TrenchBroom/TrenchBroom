@@ -21,6 +21,7 @@
 
 #include "base/PreferenceManager.h"
 #include "gl/ActiveShader.h"
+#include "gl/Material.h"
 #include "gl/OrthographicCamera.h"
 #include "gl/PrimType.h"
 #include "gl/Shaders.h"
@@ -136,7 +137,7 @@ vm::vec2f snapDelta(const UvViewHelper& helper, const vm::vec2f& delta)
   }
 
   // and to the UV grid
-  if (helper.face()->material())
+  if (gl::getTexture(helper.material()))
   {
     distanceInUvCoords = vm::abs_min(
       distanceInUvCoords,
