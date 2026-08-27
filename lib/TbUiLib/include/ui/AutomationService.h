@@ -14,15 +14,31 @@
 #include <QObject>
 #include <QString>
 
+#include "ui/AcceptanceMapGeometry.h"
+#include "ui/AcceptanceVirtualCaptureAdapter.h"
+#include "ui/AutomationCameraHandleService.h"
+#include "ui/AutomationDocumentRegistry.h"
+#include "ui/AutomationRenderRpcAdapter.h"
+#include "ui/AutomationViewRegistry.h"
 #include "ui/AutomationWorkspaceManager.h"
 #include "ui/LocalJsonRpcServer.h"
 
 #include <filesystem>
+#include <optional>
 
 namespace tb::ui
 {
 class AppController;
 class MapWindow;
+class MapViewBase;
+
+struct AutomationResolvedMapView
+{
+  MapWindow* window = nullptr;
+  MapViewBase* view = nullptr;
+  QString documentId;
+  QString viewId;
+};
 
 /**
  * Publishes TrenchBroom's local automation API.
@@ -36,7 +52,17 @@ class AutomationService : public QObject, public JsonRpcRequestHandler
 private:
   AppController& m_appController;
   LocalJsonRpcServer m_server;
+  mutable AutomationDocumentRegistry m_documentRegistry;
+  mutable AutomationViewRegistry m_viewRegistry;
+  AutomationRegistryCameraDocumentResolver m_cameraDocumentResolver;
+  AutomationCameraHandleRegistry m_cameraHandles;
+  AutomationVirtualCameraCapture m_cameraCapture;
+  AutomationCameraHandleService m_cameraService;
   AutomationWorkspaceManager m_workspaceManager;
+  AutomationRenderRpcAdapter m_renderRpcAdapter;
+  AcceptanceVirtualCaptureAdapter m_acceptanceCapture;
+  AcceptanceAutomationMapResolver m_acceptanceMapResolver;
+  AcceptanceMapGeometryProvider m_acceptanceGeometry;
   QString m_serverName;
   std::filesystem::path m_discoveryPath;
 
@@ -58,9 +84,14 @@ private:
   JsonRpcResponse handleGeometryRequest(const QString& method, const QJsonObject& params);
   JsonRpcResponse handleWorkspaceRequest(
     const QString& method, const QJsonObject& params);
+  JsonRpcResponse handleAcceptanceRequest(
+    const QString& method, const QJsonObject& params);
 
   QString documentId(const MapWindow& window) const;
   MapWindow* findWindow(const QJsonObject& params) const;
+  std::optional<AutomationResolvedMapView> resolveMapView(
+    const QJsonObject& params, QString* error = nullptr) const;
+  void registerMapViews(const MapWindow& window) const;
 
   bool start();
   void removeDiscoveryFile();

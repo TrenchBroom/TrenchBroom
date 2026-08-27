@@ -1,5 +1,8 @@
 # Persistent, recoverable workspaces
 
+**Status:** Implemented on 2026-08-27. The work packages below remain as the design and
+ownership record for future extensions.
+
 ## Goal
 
 A copied-map workspace remains a coherent base/source/branch relationship across
@@ -9,15 +12,15 @@ opened, diffed, merged, or abandoned without depending on live `MapWindow` point
 This is not session restoration. A workspace is durable project state with an explicit
 lifecycle.
 
-## Current limitation
+## Prior limitation
 
-`AutomationWorkspaceManager` creates `base.map` and `branch.map`, but its workspace ID,
+`AutomationWorkspaceManager` created `base.map` and `branch.map`, but its workspace ID,
 source-window association, merge model, and merged flag are held in memory. A restart
 leaves useful map files but loses the object that knows how to diff and merge them.
 
-The current manager also makes an open branch window part of workspace identity. The
-durable record should instead own paths and metadata, with live windows attached only
-when present.
+The old manager also made an open branch window part of workspace identity. The
+implemented durable record instead owns paths and metadata, with a hidden live window
+attached only while a session is recovered.
 
 ## Persisted layout and schema
 
@@ -47,6 +50,14 @@ Version 1 manifest:
     "fingerprintAtFork": "sha256:...",
     "revisionAtFork": 50
   },
+  "mapMetadata": {
+    "gameName": "Quake",
+    "mapFormat": "Valve",
+    "worldBounds": {
+      "min": [-8192, -8192, -8192],
+      "max": [8192, 8192, 8192]
+    }
+  },
   "base": {"path": "base.map", "fingerprint": "sha256:..."},
   "branch": {
     "path": "snapshots/12/branch.map",
@@ -69,6 +80,8 @@ Rules:
 - Relative base/branch paths resolve beneath the manifest directory and may not escape
   it.
 - The source path is absolute in version 1. Recovery may update it atomically.
+- `mapMetadata` records the game configuration, map format, and world bounds used to
+  load hidden base/branch documents. It is optional only for old version 1 manifests.
 - `fingerprintAtFork` is a content fingerprint, not the in-process map revision.
 - `nodeIdentities` records fork-time node identity independently of process pointers.
   Removed branch nodes have a null `branchPath`; branch additions do not need a
@@ -116,6 +129,11 @@ source attachment validates the live source against the fork-time identity table
 Opening or attaching must fail diagnostically if identity reconstruction is unsafe; it
 must not silently guess or downgrade to a two-way merge.
 
+New manifests persist the source game name, map format, and world bounds, allowing a
+hidden branch to recover after restart from its `workspaceId` alone. Metadata-free
+version 1 manifests remain readable; recovering one requires an explicit open-document
+context until it is replaced by a newly forked workspace.
+
 ## RPC contract
 
 ### `workspace.list`
@@ -141,13 +159,13 @@ binding a live source.
 
 ```json
 {
-  "workspaceId": "...",
-  "showWindow": false
+  "workspaceId": "..."
 }
 ```
 
-It returns a process-lifetime branch document ID when loaded. `showWindow` defaults to
-`false` for automation.
+It returns a process-lifetime branch document ID when loaded. Recovery is always hidden
+and non-activating. Current manifests need only `workspaceId`; an older metadata-free
+version 1 manifest must additionally provide `documentId` as its loading context.
 
 ### `workspace.attachSource`
 

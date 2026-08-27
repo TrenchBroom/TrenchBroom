@@ -1,6 +1,7 @@
 # Automation reliability and visual QA roadmap
 
-Status: design plan for the TrenchBroom automation fork.
+Status: core roadmap implementation complete; opt-in external macOS gates and the
+explicitly deferred structural buffers/UI remain follow-up work.
 
 This roadmap records the three infrastructure changes that would most improve
 agent-assisted map reconstruction:

@@ -13,7 +13,22 @@ target_sources(TbUiLib
     ${CMAKE_CURRENT_SOURCE_DIR}/src/AnimationManager.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/AppController.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/AppInfoPanel.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/AcceptanceAutomationService.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/AcceptanceAssertions.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/AcceptanceComparisonAlignment.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/AcceptanceImageComparison.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/AcceptanceMapGeometry.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/AcceptanceComparisonRunner.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/AcceptanceSuiteRunner.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/AcceptanceView.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/AcceptanceViewStore.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/AcceptanceVirtualCaptureAdapter.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/AutomationJson.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/AutomationCameraHandleService.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/AutomationDocumentRegistry.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/AutomationOffscreenRenderer.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/AutomationRenderRpcAdapter.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/AutomationRenderRequest.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/AutomationService.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/AutomationService_Brushes.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/AutomationService_Documents.cpp
@@ -23,7 +38,12 @@ target_sources(TbUiLib
     ${CMAKE_CURRENT_SOURCE_DIR}/src/AutomationService_Server.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/AutomationService_View.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/AutomationService_Workspaces.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/AutomationViewRegistry.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/AutomationVirtualRenderService.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/AutomationVirtualPickService.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/AutomationWorkspaceManifest.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/AutomationWorkspaceManager.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/AutomationWorkspaceStore.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/AutoSizeTableRows.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/BitmapButton.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/BorderLine.cpp
@@ -212,10 +232,30 @@ target_sources(TbUiLib
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/ActionManager.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/ActionMenu.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/AnimationManager.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/AcceptanceAutomationService.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/AcceptanceAssertions.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/AcceptanceComparisonAlignment.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/AcceptanceImageComparison.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/AcceptanceMapGeometry.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/AcceptanceComparisonRunner.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/AcceptanceSuiteRunner.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/AcceptanceView.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/AcceptanceViewStore.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/AcceptanceVirtualCaptureAdapter.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/AppController.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/AppInfoPanel.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/AutomationDocumentRegistry.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/AutomationCameraHandleService.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/AutomationOffscreenRenderer.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/AutomationRenderRpcAdapter.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/AutomationRenderRequest.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/AutomationService.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/AutomationViewRegistry.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/AutomationVirtualRenderService.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/AutomationVirtualPickService.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/AutomationWorkspaceManifest.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/AutomationWorkspaceManager.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/AutomationWorkspaceStore.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/AutoSizeTableRows.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/BitmapButton.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/BorderLine.h

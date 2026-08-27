@@ -117,7 +117,8 @@ Result<MapWindow*> MapWindowManager::loadDocumentInNewWindow(
   const mdl::GameInfo& gameInfo,
   const mdl::MapFormat mapFormat,
   const vm::bbox3d& worldBounds,
-  std::filesystem::path path)
+  std::filesystem::path path,
+  const bool showWindow)
 {
   return MapDocument::loadDocument(
            m_appController.environmentConfig(),
@@ -127,8 +128,9 @@ Result<MapWindow*> MapWindowManager::loadDocumentInNewWindow(
            std::move(path),
            m_appController.taskManager(),
            m_appController.glManager().resourceManager())
-         | kdl::transform(
-           [&](auto document) { return createMapWindow(std::move(document), false); });
+         | kdl::transform([&](auto document) {
+             return createMapWindow(std::move(document), false, showWindow);
+           });
 }
 
 bool MapWindowManager::allMapWindowsClosed() const

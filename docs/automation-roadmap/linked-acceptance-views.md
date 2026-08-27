@@ -1,5 +1,10 @@
 # Linked cameras, named acceptance views, and visual QA
 
+**Status:** The AV0-AV6 foundation is implemented with color, linear-depth, silhouette,
+sightline, bounds-visibility, and opening-clearance evaluation. Landmark solving,
+edge/object/material buffers, the Unrest seed suite, and the optional UI remain scoped
+follow-ups rather than silently approximated features.
+
 ## Goal
 
 Map reconstruction gains repeatable, reviewable visual acceptance tests. A named view

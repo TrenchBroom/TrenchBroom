@@ -68,12 +68,54 @@ QJsonArray conflictsToJson(const mdl::WorkspaceMergePlan& plan)
   auto result = QJsonArray{};
   for (const auto& conflict : plan.conflicts)
   {
-    result.push_back(QJsonObject{
-      {"kind", static_cast<int>(conflict.kind)},
-      {"nodeId", static_cast<qint64>(conflict.nodeId)},
-    });
+    result.push_back(
+      QJsonObject{
+        {"kind", static_cast<int>(conflict.kind)},
+        {"nodeId", static_cast<qint64>(conflict.nodeId)},
+      });
   }
   return result;
+}
+
+JsonRpcResponse workspaceFailure(const QString& workspaceId, const QString& reason)
+{
+  return JsonRpcResponse::error(
+    {-32020,
+     "Workspace operation failed",
+     QJsonObject{{"workspaceId", workspaceId}, {"reason", reason}}});
+}
+
+QJsonArray diagnosticsToJson(
+  const std::vector<AutomationWorkspaceStoreDiagnostic>& diagnostics)
+{
+  auto result = QJsonArray{};
+  for (const auto& diagnostic : diagnostics)
+  {
+    result.push_back(
+      QJsonObject{
+        {"kind", static_cast<int>(diagnostic.kind)},
+        {"message", diagnostic.message},
+        {"path", pathAsQString(diagnostic.path)},
+      });
+  }
+  return result;
+}
+
+QJsonObject workspaceToJson(const AutomationWorkspaceInfo& workspace)
+{
+  return {
+    {"workspaceId", workspace.id},
+    {"name", workspace.manifest.name},
+    {"state", automationWorkspaceLifecycleStateName(workspace.manifest.state)},
+    {"runtimeStatus", automationWorkspaceRuntimeStatusName(workspace.runtimeStatus)},
+    {"sourcePath", pathAsQString(workspace.manifest.source.path)},
+    {"sourceChanged", workspace.sourceChanged},
+    {"mergeable", workspace.manifest.state == AutomationWorkspaceLifecycleState::Active},
+    {"checkpointGeneration",
+     static_cast<qint64>(workspace.manifest.checkpointGeneration)},
+    {"directory", pathAsQString(workspace.directory)},
+    {"diagnostics", diagnosticsToJson(workspace.diagnostics)},
+  };
 }
 
 } // namespace
@@ -81,26 +123,43 @@ QJsonArray conflictsToJson(const mdl::WorkspaceMergePlan& plan)
 JsonRpcResponse AutomationService::handleWorkspaceRequest(
   const QString& method, const QJsonObject& params)
 {
+  const auto requireWorkspaceId = [&]() -> std::optional<QString> {
+    const auto workspaceId = params.value("workspaceId").toString();
+    return workspaceId.isEmpty() ? std::nullopt : std::optional{workspaceId};
+  };
+  const auto explicitWindow = [&](const QString& parameterName) -> MapWindow* {
+    const auto documentId = params.value(parameterName).toString();
+    if (documentId.isEmpty())
+    {
+      return nullptr;
+    }
+    return findWindow(QJsonObject{{"documentId", documentId}});
+  };
+  const auto resultToJson = [&](const AutomationWorkspaceInfo& workspace) {
+    auto result = workspaceToJson(workspace);
+    result.insert(
+      "sourceDocumentId",
+      workspace.sourceWindow ? documentId(*workspace.sourceWindow) : QString{});
+    result.insert(
+      "branchDocumentId",
+      workspace.branchWindow ? documentId(*workspace.branchWindow) : QString{});
+    return result;
+  };
+
   if (method == "workspace.fork")
   {
-    auto* sourceWindow = findWindow(params);
+    auto* sourceWindow = explicitWindow("documentId");
     if (sourceWindow == nullptr)
     {
-      return automation::invalidParams("Unknown documentId or no map document is open");
+      return automation::invalidParams("workspace.fork requires a known documentId");
     }
     const auto result =
       m_workspaceManager.fork(*sourceWindow, params.value("name").toString());
     if (!result)
     {
-      return JsonRpcResponse::error(
-        {JsonRpcError::InternalError, QString::fromStdString(result.error)});
+      return workspaceFailure({}, QString::fromStdString(result.error));
     }
-    return JsonRpcResponse::success(QJsonObject{
-      {"workspaceId", result.workspace->id},
-      {"sourceDocumentId", documentId(*result.workspace->sourceWindow)},
-      {"branchDocumentId", documentId(*result.workspace->branchWindow)},
-      {"directory", pathAsQString(result.workspace->directory)},
-    });
+    return JsonRpcResponse::success(resultToJson(*result.workspace));
   }
 
   if (method == "workspace.list")
@@ -108,37 +167,148 @@ JsonRpcResponse AutomationService::handleWorkspaceRequest(
     auto workspaces = QJsonArray{};
     for (const auto* workspace : m_workspaceManager.workspaces())
     {
-      workspaces.push_back(QJsonObject{
-        {"workspaceId", workspace->id},
-        {"sourceDocumentId",
-         workspace->sourceWindow ? documentId(*workspace->sourceWindow) : QString{}},
-        {"branchDocumentId",
-         workspace->branchWindow ? documentId(*workspace->branchWindow) : QString{}},
-        {"directory", pathAsQString(workspace->directory)},
-      });
+      workspaces.push_back(resultToJson(*workspace));
     }
     return JsonRpcResponse::success(workspaces);
   }
 
+  if (method == "workspace.status")
+  {
+    const auto workspaceId = requireWorkspaceId();
+    if (!workspaceId)
+    {
+      return automation::invalidParams("workspace.status requires workspaceId");
+    }
+    const auto* workspace = m_workspaceManager.find(*workspaceId);
+    if (workspace == nullptr)
+    {
+      return workspaceFailure(*workspaceId, "Unknown workspace");
+    }
+    return JsonRpcResponse::success(resultToJson(*workspace));
+  }
+
+  if (method == "workspace.recover")
+  {
+    const auto workspaceId = requireWorkspaceId();
+    if (!workspaceId)
+    {
+      return automation::invalidParams("workspace.recover requires workspaceId");
+    }
+    auto* contextWindow = static_cast<MapWindow*>(nullptr);
+    if (params.contains("documentId"))
+    {
+      contextWindow = explicitWindow("documentId");
+      if (contextWindow == nullptr)
+      {
+        return automation::invalidParams("workspace.recover requires a known documentId");
+      }
+    }
+    const auto result = contextWindow != nullptr
+                          ? m_workspaceManager.recover(*workspaceId, *contextWindow)
+                          : m_workspaceManager.recover(*workspaceId);
+    if (!result)
+    {
+      return workspaceFailure(*workspaceId, QString::fromStdString(result.error));
+    }
+    return JsonRpcResponse::success(resultToJson(*result.workspace));
+  }
+
+  if (method == "workspace.attachSource")
+  {
+    const auto workspaceId = requireWorkspaceId();
+    if (!workspaceId)
+    {
+      return automation::invalidParams("workspace.attachSource requires workspaceId");
+    }
+    auto* sourceWindow = explicitWindow("documentId");
+    if (sourceWindow == nullptr)
+    {
+      return automation::invalidParams(
+        "workspace.attachSource requires a known documentId");
+    }
+    const auto result = m_workspaceManager.attachSource(*workspaceId, *sourceWindow);
+    if (!result)
+    {
+      return workspaceFailure(*workspaceId, QString::fromStdString(result.error));
+    }
+    return JsonRpcResponse::success(resultToJson(*result.workspace));
+  }
+
+  if (method == "workspace.checkpoint" || method == "workspace.close")
+  {
+    const auto workspaceId = requireWorkspaceId();
+    if (!workspaceId)
+    {
+      return automation::invalidParams(method + " requires workspaceId");
+    }
+    const auto result = method == "workspace.checkpoint"
+                          ? m_workspaceManager.checkpoint(*workspaceId)
+                          : m_workspaceManager.close(*workspaceId);
+    if (!result)
+    {
+      return workspaceFailure(*workspaceId, QString::fromStdString(result.error));
+    }
+    return JsonRpcResponse::success(resultToJson(*result.workspace));
+  }
+
+  if (method == "workspace.rename")
+  {
+    const auto workspaceId = requireWorkspaceId();
+    if (!workspaceId)
+    {
+      return automation::invalidParams("workspace.rename requires workspaceId");
+    }
+    const auto name = params.value("name");
+    if (!name.isString() || name.toString().trimmed().isEmpty())
+    {
+      return automation::invalidParams("workspace.rename requires a non-empty name");
+    }
+    const auto result = m_workspaceManager.rename(*workspaceId, name.toString());
+    if (!result)
+    {
+      return workspaceFailure(*workspaceId, QString::fromStdString(result.error));
+    }
+    return JsonRpcResponse::success(resultToJson(*result.workspace));
+  }
+
+  if (method == "workspace.abandon")
+  {
+    const auto workspaceId = requireWorkspaceId();
+    if (!workspaceId)
+    {
+      return automation::invalidParams("workspace.abandon requires workspaceId");
+    }
+    const auto result = m_workspaceManager.abandon(*workspaceId);
+    if (!result)
+    {
+      return workspaceFailure(*workspaceId, QString::fromStdString(result.error));
+    }
+    return JsonRpcResponse::success(resultToJson(*result.workspace));
+  }
+
   if (method == "workspace.diff" || method == "workspace.merge")
   {
-    const auto workspaceId = params.value("workspaceId").toString();
+    const auto workspaceId = requireWorkspaceId();
+    if (!workspaceId)
+    {
+      return automation::invalidParams(method + " requires workspaceId");
+    }
     const auto mergeResult =
-      m_workspaceManager.merge(workspaceId, method == "workspace.merge");
+      m_workspaceManager.merge(*workspaceId, method == "workspace.merge");
     if (!mergeResult.error.empty())
     {
-      return JsonRpcResponse::error(
-        {JsonRpcError::InternalError, QString::fromStdString(mergeResult.error)});
+      return workspaceFailure(*workspaceId, QString::fromStdString(mergeResult.error));
     }
 
-    const auto* model = m_workspaceManager.model(workspaceId);
-    return JsonRpcResponse::success(QJsonObject{
-      {"workspaceId", workspaceId},
-      {"changes", model != nullptr ? changesToJson(*model) : QJsonArray{}},
-      {"operationCount", static_cast<qint64>(mergeResult.plan.operations.size())},
-      {"conflicts", conflictsToJson(mergeResult.plan)},
-      {"applied", mergeResult.applied},
-    });
+    const auto* model = m_workspaceManager.model(*workspaceId);
+    return JsonRpcResponse::success(
+      QJsonObject{
+        {"workspaceId", *workspaceId},
+        {"changes", model != nullptr ? changesToJson(*model) : QJsonArray{}},
+        {"operationCount", static_cast<qint64>(mergeResult.plan.operations.size())},
+        {"conflicts", conflictsToJson(mergeResult.plan)},
+        {"applied", mergeResult.applied},
+      });
   }
 
   return JsonRpcResponse::error({JsonRpcError::MethodNotFound, "Method not found"});

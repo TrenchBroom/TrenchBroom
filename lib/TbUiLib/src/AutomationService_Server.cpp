@@ -41,8 +41,10 @@ bool AutomationService::start()
     return false;
   }
 
-  m_discoveryPath =
-    discoveryDirectory / (std::to_string(QCoreApplication::applicationPid()) + ".json");
+  m_discoveryPath = discoveryDirectory
+                   / (std::to_string(QCoreApplication::applicationPid()) + "-"
+                      + QUuid::createUuid().toString(QUuid::WithoutBraces).toStdString()
+                      + ".json");
   auto file = QSaveFile{pathAsQString(m_discoveryPath)};
   if (!file.open(QIODevice::WriteOnly))
   {

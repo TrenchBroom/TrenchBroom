@@ -141,6 +141,7 @@
 #include <iterator>
 #include <stdexcept>
 #include <string>
+#include <utility>
 #include <variant>
 #include <vector>
 
@@ -1423,6 +1424,17 @@ bool MapWindow::confirmOrDiscardChanges()
     return saveDocument();
   }
   return result == QMessageBox::No;
+}
+
+bool MapWindow::closeWithoutSaving()
+{
+  if (isVisible())
+  {
+    return false;
+  }
+
+  m_closeWithoutSaving = true;
+  return close();
 }
 
 /**
@@ -2876,6 +2888,12 @@ MapViewBase* MapWindow::currentMapViewBase()
   return m_currentMapView;
 }
 
+std::vector<MapViewBase*> MapWindow::mapViewBases() const
+{
+  const auto views = m_mapView->findChildren<MapViewBase*>();
+  return {views.cbegin(), views.cend()};
+}
+
 bool MapWindow::canCompile() const
 {
   const auto& map = m_document->map();
@@ -2938,7 +2956,10 @@ void MapWindow::changeEvent(QEvent*)
 
 void MapWindow::closeEvent(QCloseEvent* event)
 {
-  if (!closeCompileDialog() || !confirmOrDiscardChanges())
+  const auto closeWithoutSaving = std::exchange(m_closeWithoutSaving, false);
+  if (
+    (!closeWithoutSaving && !closeCompileDialog())
+    || (!closeWithoutSaving && !confirmOrDiscardChanges()))
   {
     event->ignore();
     return;
@@ -2946,12 +2967,15 @@ void MapWindow::closeEvent(QCloseEvent* event)
 
   disconnect(qApp, &QApplication::focusChanged, this, &MapWindow::focusChange);
 
-  saveWidgetGeometry(this);
-  saveWidgetState(this);
-  saveWidgetState(m_hSplitter);
-  saveWidgetState(m_vSplitter);
-  saveWidgetState(m_inspector);
-  saveWidgetState(m_infoPanel);
+  if (!closeWithoutSaving)
+  {
+    saveWidgetGeometry(this);
+    saveWidgetState(this);
+    saveWidgetState(m_hSplitter);
+    saveWidgetState(m_vSplitter);
+    saveWidgetState(m_inspector);
+    saveWidgetState(m_infoPanel);
+  }
 
   m_appController.mapWindowManager().removeMapWindow(this);
   event->accept();

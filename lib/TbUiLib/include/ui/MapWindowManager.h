@@ -84,7 +84,8 @@ public:
     const mdl::GameInfo& gameInfo,
     mdl::MapFormat mapFormat,
     const vm::bbox3d& worldBounds,
-    std::filesystem::path path);
+    std::filesystem::path path,
+    bool showWindow = true);
 
   std::vector<MapWindow*> mapWindows() const;
   MapWindow* topMapWindow() const;

@@ -5,7 +5,7 @@ for agent-assisted editing, batch tools, and experiments which need the editor's
 in-memory document, renderer, selection, and undo system instead of modifying a saved
 map behind the editor's back.
 
-The service writes a discovery file to `automation/<pid>.json` below TrenchBroom's user
+The service writes a discovery file to `automation/<pid>-<instance>.json` below TrenchBroom's user
 data directory. `tbctl` finds the newest discovery file automatically; `--socket` and
 `--discovery` override this when several instances are running.
 
@@ -74,6 +74,90 @@ meantime.
 - `document.reload` — reload a persistent document without activating its window;
   modified documents require explicit `discardChanges: true`
 - `reference.open` — open another map with the source document's game configuration
+
+## Stable documents, views, and virtual cameras
+
+`documents.list` returns a process-lifetime `id` for each open document. These IDs are
+random, never pointer-derived, never reused, and become permanently stale when their
+document closes. Persist paths or workspace IDs between TrenchBroom launches; do not
+persist document or view IDs.
+
+- `views.list` requires `documentId` and returns every real editor pane with an opaque
+  `viewId` and semantic view type.
+- Real-view operations require both `documentId` and `viewId`; a missing ID or a view
+  owned by another document is rejected. They never resolve the current pane.
+- `render.context`, `render.capture`, and `render.pick` require an explicit
+  `documentId` plus an immutable camera/size request. They do not inspect or move a GUI
+  pane. Capture renders through an application-owned offscreen context and returns a
+  unique PNG path; pick constructs the matching model ray without OpenGL. Set
+  `outputs.depth: true` to receive a matching linear depth buffer.
+- `cameras.create/get/update/delete/capture` provide optional session camera handles.
+  A handle is permanently bound to one live document ID, invalidates when that document
+  closes, and never changes a real pane.
+
+Perspective virtual requests use `verticalFov`; orthographic requests use `zoom`. Both
+use explicit `position`, `direction`, `up`, `near`, `far`, `size`, `renderMode`, and
+`overlays`. For example:
+
+```sh
+tbctl --method render.capture --params \
+  '{"documentId":"document-...","camera":{"projection":"perspective","position":[0,-128,64],"direction":[0,1,0],"up":[0,0,1],"verticalFov":75,"near":1,"far":65536},"size":[1280,720],"renderMode":"textured","overlays":{"brushEdges":false,"selection":false,"grid":false},"outputs":{"depth":true}}' --pretty
+```
+
+Depth is returned as little-endian float32 grayscale PFM (`Pf`). Samples are linear
+camera-forward distances in map units; positive infinity denotes uncovered background.
+PFM stores scanlines bottom-to-top, while TrenchBroom's decoded in-memory convention is
+top-left origin matching the color PNG.
+
+## Durable branch workspaces
+
+Automation workspaces persist a manifest, immutable base map, identity table, and
+hash-validated branch checkpoint generations beneath the automation workspace root.
+They survive branch-window closure and TrenchBroom restart. A recovered branch uses a
+hidden, non-activating editor window so all normal editing and undo commands remain
+available without changing the user's foreground document.
+
+- `workspace.fork` requires an explicit source `documentId`.
+- `workspace.list` and `workspace.status` inspect attached and dormant records without
+  opening them.
+- `workspace.recover` reconstructs the latest valid base/branch model from its
+  `workspaceId` alone. Older metadata-free version 1 records additionally require an
+  explicit live `documentId` solely for game/map-format context.
+- `workspace.attachSource` conservatively validates and binds one explicit source
+  document; it never searches the active window.
+- `workspace.checkpoint`, `workspace.close`, `workspace.rename`, `workspace.diff`, and
+  `workspace.merge` operate by durable `workspaceId`.
+- `workspace.abandon` is terminal but retains every artifact. There is intentionally no
+  one-step destructive discard method.
+
+Checkpoint publication is atomic. A torn newest generation is ignored in favor of the
+last complete, fingerprint-valid generation. Closing a checkpointed workspace marks
+the hidden branch clean and must not display a save dialog.
+
+## Named acceptance views and suites
+
+Acceptance data lives in a caller-chosen project JSON file; every `acceptance.*`
+request requires its explicit `projectPath`. Document references inside that file are
+portable paths relative to the project file. Store mutations use `expectedRevision`
+and commit atomically.
+
+- `acceptance.views.list/create/update/delete`
+- `acceptance.comparisons.list/create/update/delete`
+- `acceptance.suites.list/create/update/delete`
+- `acceptance.capture` with `comparisonId`
+- `acceptance.run` with `suiteId`, optional `comparisonIds`, and optional bounded
+  `maxCpuConcurrency`
+- `acceptance.assertions.evaluate` for a one-shot assertion against an explicit live or
+  acceptance-owned hidden `documentId`
+
+Paired capture loads an exact live path when one is registered, otherwise it owns a
+hidden `MapDocument` with no `MapWindow`. Reports echo paths, non-reusable document IDs,
+map revisions, normalized cameras, renderer version, image diagnostics, and geometric
+assertions. CPU sightline and opening checks resolve only the captured document ID; they
+never fall back to the active map. Color metrics compare RGBA; depth metrics compare
+finite linear depth; silhouette metrics compare finite-depth coverage. These metric
+types are deliberately separate, so an RGB difference is never mislabeled as a
+structural depth or silhouette result.
 
 Node paths are arrays of child indices rooted at the world node. They are deliberately
 revision-scoped instead of exposing process pointers or writing automation IDs into map

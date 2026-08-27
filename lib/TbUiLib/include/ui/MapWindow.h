@@ -116,6 +116,7 @@ private:
 
   QPointer<CompilationDialog> m_compilationDialog;
   QPointer<ObjExportDialog> m_objExportDialog;
+  bool m_closeWithoutSaving = false;
 
   std::optional<std::string> m_lastCompilationProfileName;
 
@@ -214,6 +215,11 @@ public:
   bool saveDocument();
   bool saveDocumentAs();
   void revertDocument();
+  /**
+   * Closes an application-owned hidden window while discarding unsaved changes.
+   * Interactive windows are deliberately rejected.
+   */
+  bool closeWithoutSaving();
   bool exportDocumentAsObj();
   bool exportDocumentAsMap();
   bool exportDocument(const mdl::ExportOptions& options);
@@ -402,6 +408,8 @@ public:
   void focusChange(QWidget* oldFocus, QWidget* newFocus);
 
   MapViewBase* currentMapViewBase();
+  /** Returns every currently live editor pane in this window. */
+  std::vector<MapViewBase*> mapViewBases() const;
 
 private:
   const mdl::CompilationProfile* lastCompilationProfile() const;

@@ -10,6 +10,7 @@
  */
 
 #include <QDir>
+#include <QJsonArray>
 #include <QUuid>
 
 #include "AutomationJson.h"
@@ -23,28 +24,82 @@
 
 namespace tb::ui
 {
+namespace
+{
+
+QString viewTypeName(const MapViewType type)
+{
+  switch (type)
+  {
+  case MapViewType::ThreeD:
+    return "3d";
+  case MapViewType::XY:
+    return "xy";
+  case MapViewType::XZ:
+    return "xz";
+  case MapViewType::YZ:
+    return "yz";
+  }
+  return "unknown";
+}
+
+} // namespace
 
 JsonRpcResponse AutomationService::handleViewRequest(
   const QString& method, const QJsonObject& params)
 {
   if (
     method != "context.capture" && method != "view.pick" && method != "view.camera.set"
-    && method != "view.frame")
+    && method != "view.frame" && method != "views.list")
   {
     return JsonRpcResponse::error({JsonRpcError::MethodNotFound, "Method not found"});
   }
 
-  auto* window = findWindow(params);
-  if (window == nullptr)
+  if (method == "views.list")
   {
-    return automation::invalidParams("Unknown documentId or no map document is open");
+    const auto requestedDocumentId = params.value("documentId").toString();
+    if (requestedDocumentId.isEmpty())
+    {
+      return automation::invalidParams("documentId is required");
+    }
+    auto* window = findWindow(params);
+    if (window == nullptr)
+    {
+      return automation::invalidParams("Unknown documentId");
+    }
+
+    registerMapViews(*window);
+    auto result = QJsonArray{};
+    for (const auto& descriptor : m_viewRegistry.views(requestedDocumentId))
+    {
+      result.push_back(
+        QJsonObject{
+          {"id", descriptor.id},
+          {"viewId", descriptor.id},
+          {"documentId", descriptor.documentId},
+          {"type", viewTypeName(descriptor.type)},
+          {"revision", static_cast<qint64>(window->document().map().modificationCount())},
+        });
+    }
+    return JsonRpcResponse::success(result);
   }
-  auto* view = window->currentMapViewBase();
+
+  auto resolveError = QString{};
+  const auto resolved = resolveMapView(params, &resolveError);
+  if (!resolved)
+  {
+    return automation::invalidParams(resolveError);
+  }
+  auto* window = resolved->window;
+  auto* view = resolved->view;
 
   if (method == "context.capture")
   {
     auto result = automation::contextToJson(view->captureContext());
-    result.insert("documentId", documentId(*window));
+    result.insert("documentId", resolved->documentId);
+    result.insert("viewId", resolved->viewId);
+    result.insert(
+      "revision", static_cast<qint64>(window->document().map().modificationCount()));
 
     if (params.value("screenshot").toBool(true))
     {
@@ -74,7 +129,8 @@ JsonRpcResponse AutomationService::handleViewRequest(
     auto result = automation::pickToJson(view->pickAt(
       static_cast<float>(params.value("x").toDouble()),
       static_cast<float>(params.value("y").toDouble())));
-    result.insert("documentId", documentId(*window));
+    result.insert("documentId", resolved->documentId);
+    result.insert("viewId", resolved->viewId);
     result.insert(
       "revision", static_cast<qint64>(window->document().map().modificationCount()));
     return JsonRpcResponse::success(result);
@@ -94,7 +150,12 @@ JsonRpcResponse AutomationService::handleViewRequest(
         "documentId and valid position, direction, and up vectors are required");
     }
     return JsonRpcResponse::success(
-      automation::contextToJson(view->captureContext()).value("camera"));
+      QJsonObject{
+        {"documentId", resolved->documentId},
+        {"viewId", resolved->viewId},
+        {"revision", static_cast<qint64>(window->document().map().modificationCount())},
+        {"camera", automation::contextToJson(view->captureContext()).value("camera")},
+      });
   }
 
   if (method == "view.frame")
@@ -115,7 +176,12 @@ JsonRpcResponse AutomationService::handleViewRequest(
       return automation::invalidParams("The document has no selected nodes to frame");
     }
     return JsonRpcResponse::success(
-      automation::contextToJson(view->captureContext()).value("camera"));
+      QJsonObject{
+        {"documentId", resolved->documentId},
+        {"viewId", resolved->viewId},
+        {"revision", static_cast<qint64>(window->document().map().modificationCount())},
+        {"camera", automation::contextToJson(view->captureContext()).value("camera")},
+      });
   }
 
   return JsonRpcResponse::error({JsonRpcError::MethodNotFound, "Method not found"});

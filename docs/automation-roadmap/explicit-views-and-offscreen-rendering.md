@@ -1,5 +1,9 @@
 # Explicit view identities and focus-neutral rendering
 
+**Status:** EV0-EV5 and linear-depth EV6 are implemented. The EV7 driver is present
+and defaults to a no-launch dry run; the opt-in external run and additional structural
+buffers remain explicit follow-up gates.
+
 ## Goal
 
 Automation can either target one real editor viewport by ID or render/pick through a

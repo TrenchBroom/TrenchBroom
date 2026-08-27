@@ -11,11 +11,15 @@
 
 #include "ui/AutomationService.h"
 
+#include "ui/AcceptanceAutomationService.h"
+#include "ui/AcceptanceViewStore.h"
 #include "ui/AppController.h"
+#include "ui/MapDocument.h"
 #include "ui/MapWindow.h"
 #include "ui/MapWindowManager.h"
+#include "ui/QPathUtils.h"
 
-#include <cstdint>
+#include <variant>
 
 namespace tb::ui
 {
@@ -24,7 +28,22 @@ AutomationService::AutomationService(AppController& appController, QObject* pare
   : QObject{parent}
   , m_appController{appController}
   , m_server{this, this}
+  , m_documentRegistry{}
+  , m_viewRegistry{}
+  , m_cameraDocumentResolver{m_documentRegistry}
+  , m_cameraHandles{m_cameraDocumentResolver}
+  , m_cameraCapture{appController, m_documentRegistry}
+  , m_cameraService{m_cameraHandles, m_cameraCapture}
   , m_workspaceManager{appController}
+  , m_renderRpcAdapter{appController}
+  , m_acceptanceCapture{appController, m_documentRegistry}
+  , m_acceptanceMapResolver{
+      m_documentRegistry,
+      [this](const std::string_view documentId) {
+        auto* document = m_acceptanceCapture.findDocument(documentId);
+        return document != nullptr ? &document->map() : nullptr;
+      }}
+  , m_acceptanceGeometry{m_acceptanceMapResolver}
 {
   start();
 }
@@ -62,9 +81,43 @@ JsonRpcResponse AutomationService::handleRequest(
   {
     return handleDocumentRequest(method, params);
   }
-  if (method.startsWith("context.") || method.startsWith("view."))
+  if (
+    method.startsWith("context.") || method.startsWith("view.") || method == "views.list")
   {
     return handleViewRequest(method, params);
+  }
+  if (method.startsWith("render."))
+  {
+    return m_renderRpcAdapter.handle(method, params, m_documentRegistry);
+  }
+  if (method.startsWith("cameras."))
+  {
+    const auto result = m_cameraService.handle(method, params);
+    if (result.is_success())
+    {
+      return JsonRpcResponse::success(result.value());
+    }
+    const auto failure = std::get<AutomationCameraHandleError>(result.error());
+    switch (failure.code)
+    {
+    case AutomationCameraHandleErrorCode::InvalidRequest:
+      return JsonRpcResponse::error(
+        {JsonRpcError::InvalidParams, QString::fromStdString(failure.message)});
+    case AutomationCameraHandleErrorCode::MethodNotFound:
+      return JsonRpcResponse::error(
+        {JsonRpcError::MethodNotFound, QString::fromStdString(failure.message)});
+    case AutomationCameraHandleErrorCode::UnknownDocument:
+    case AutomationCameraHandleErrorCode::UnknownHandle:
+      return JsonRpcResponse::error(
+        {-32032,
+         "Camera target is unavailable",
+         QString::fromStdString(failure.message)});
+    case AutomationCameraHandleErrorCode::CaptureFailed:
+      return JsonRpcResponse::error(
+        {-32033, "Camera capture failed", QString::fromStdString(failure.message)});
+    }
+    return JsonRpcResponse::error(
+      {JsonRpcError::InternalError, "Unknown camera automation error"});
   }
   if (method.startsWith("document.") || method.startsWith("nodes."))
   {
@@ -86,13 +139,58 @@ JsonRpcResponse AutomationService::handleRequest(
   {
     return handleWorkspaceRequest(method, params);
   }
+  if (method.startsWith("acceptance."))
+  {
+    return handleAcceptanceRequest(method, params);
+  }
   return JsonRpcResponse::error({JsonRpcError::MethodNotFound, "Method not found"});
+}
+
+JsonRpcResponse AutomationService::handleAcceptanceRequest(
+  const QString& method, const QJsonObject& params)
+{
+  const auto projectPathValue = params.value("projectPath");
+  if (!projectPathValue.isString() || projectPathValue.toString().isEmpty())
+  {
+    return JsonRpcResponse::error(
+      {JsonRpcError::InvalidParams,
+       "Acceptance operations require an explicit projectPath"});
+  }
+
+  auto store = AcceptanceViewStore{pathFromQString(projectPathValue.toString())};
+  auto service =
+    AcceptanceAutomationService{store, m_acceptanceCapture, m_acceptanceGeometry};
+  const auto result = service.handle(method, params);
+  if (result.is_success())
+  {
+    return JsonRpcResponse::success(result.value());
+  }
+
+  const auto failure = std::get<AcceptanceAutomationError>(result.error());
+  switch (failure.code)
+  {
+  case AcceptanceAutomationErrorCode::MethodNotFound:
+    return JsonRpcResponse::error(
+      {JsonRpcError::MethodNotFound, QString::fromStdString(failure.message)});
+  case AcceptanceAutomationErrorCode::InvalidParameters:
+    return JsonRpcResponse::error(
+      {JsonRpcError::InvalidParams, QString::fromStdString(failure.message)});
+  case AcceptanceAutomationErrorCode::StoreFailed:
+    return JsonRpcResponse::error(
+      {-32030,
+       "Acceptance store operation failed",
+       QString::fromStdString(failure.message)});
+  case AcceptanceAutomationErrorCode::CaptureFailed:
+    return JsonRpcResponse::error(
+      {-32031, "Acceptance capture failed", QString::fromStdString(failure.message)});
+  }
+  return JsonRpcResponse::error(
+    {JsonRpcError::InternalError, "Unknown acceptance error"});
 }
 
 QString AutomationService::documentId(const MapWindow& window) const
 {
-  return QString{"document-%1"}.arg(
-    static_cast<qulonglong>(reinterpret_cast<std::uintptr_t>(&window)), 0, 16);
+  return m_documentRegistry.registerDocument(const_cast<MapWindow&>(window));
 }
 
 MapWindow* AutomationService::findWindow(const QJsonObject& params) const
@@ -103,14 +201,64 @@ MapWindow* AutomationService::findWindow(const QJsonObject& params) const
     return m_appController.mapWindowManager().topMapWindow();
   }
 
-  for (auto* window : m_appController.mapWindowManager().mapWindows())
+  return m_documentRegistry.findWindow(requestedId);
+}
+
+void AutomationService::registerMapViews(const MapWindow& window) const
+{
+  const auto id = documentId(window);
+  for (auto* view : window.mapViewBases())
   {
-    if (documentId(*window) == requestedId)
-    {
-      return window;
-    }
+    m_viewRegistry.registerView(id, *view);
   }
-  return nullptr;
+}
+
+std::optional<AutomationResolvedMapView> AutomationService::resolveMapView(
+  const QJsonObject& params, QString* error) const
+{
+  const auto requestedDocumentId = params.value("documentId").toString();
+  const auto requestedViewId = params.value("viewId").toString();
+  if (requestedDocumentId.isEmpty() || requestedViewId.isEmpty())
+  {
+    if (error != nullptr)
+    {
+      *error = "documentId and viewId are required";
+    }
+    return std::nullopt;
+  }
+
+  auto* window = m_documentRegistry.findWindow(requestedDocumentId);
+  if (window == nullptr)
+  {
+    if (error != nullptr)
+    {
+      *error = "Unknown documentId";
+    }
+    return std::nullopt;
+  }
+
+  const auto resolvedDocumentId = documentId(*window);
+  registerMapViews(*window);
+  auto* view = m_viewRegistry.findView(resolvedDocumentId, requestedViewId);
+  if (view == nullptr)
+  {
+    if (error != nullptr)
+    {
+      *error = "Unknown viewId for the requested documentId";
+    }
+    return std::nullopt;
+  }
+
+  const auto resolvedViewId = m_viewRegistry.viewId(*view);
+  if (resolvedViewId.isEmpty())
+  {
+    if (error != nullptr)
+    {
+      *error = "The requested view is no longer available";
+    }
+    return std::nullopt;
+  }
+  return AutomationResolvedMapView{window, view, resolvedDocumentId, resolvedViewId};
 }
 
 } // namespace tb::ui
