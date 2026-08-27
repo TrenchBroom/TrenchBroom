@@ -553,7 +553,7 @@ std::vector<BrushOptimizationCandidate> createBrushOptimizationCandidates(
 
     const auto internalFaceArea =
       std::max(0.0, (surfaceArea(candidateBounds) - unionExteriorArea) / 2.0);
-    candidates.push_back({std::move(candidateBounds), internalFaceArea});
+    candidates.push_back({std::move(candidateBounds), internalFaceArea, {}});
   };
 
   for (const auto& axisOrder : AxisOrders)

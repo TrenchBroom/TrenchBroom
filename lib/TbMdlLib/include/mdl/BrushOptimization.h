@@ -19,6 +19,8 @@
 
 #pragma once
 
+#include "mdl/Brush.h"
+
 #include "vm/bbox.h"
 
 #include <vector>
@@ -32,6 +34,14 @@ struct BrushOptimizationCandidate
   std::vector<vm::bbox3d> bounds;
   /** Area of the coincident faces between the candidate's brushes. */
   double internalFaceArea = 0.0;
+  /**
+   * Prebuilt non-cuboid brushes for generalized optimization candidates. Cuboid
+   * candidates continue to use `bounds` so that the rectangular decomposition
+   * algorithm remains independent of map format and face attributes.
+   */
+  std::vector<Brush> brushes;
+
+  size_t brushCount() const { return brushes.empty() ? bounds.size() : brushes.size(); }
 };
 
 /**

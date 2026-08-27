@@ -47,6 +47,7 @@
 #include "kd/vector_utils.h"
 
 #include <algorithm>
+#include <memory>
 #include <ranges>
 
 namespace tb::mdl
@@ -248,6 +249,30 @@ Node* currentGroupOrWorld(Map& map)
 {
   Node* result = map.editorContext().currentGroup();
   return result ? result : &map.worldNode();
+}
+
+GroupNode* createGroup(Map& map, Node& parent, const std::string& name)
+{
+  auto group = std::make_unique<GroupNode>(Group{name});
+  if (!parent.canAddChild(*group))
+  {
+    return nullptr;
+  }
+
+  auto transaction = Transaction{map, "Create Group"};
+  auto* const result = group.get();
+  if (addNodes(map, {{&parent, {result}}}).empty())
+  {
+    transaction.cancel();
+    return nullptr;
+  }
+  group.release();
+
+  if (!transaction.commit())
+  {
+    return nullptr;
+  }
+  return result;
 }
 
 void openGroup(Map& map, GroupNode& groupNode)

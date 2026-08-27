@@ -105,6 +105,47 @@ TEST_CASE("Map_Groups")
     }
   }
 
+  SECTION("createGroup")
+  {
+    SECTION("creates an empty group under a layer")
+    {
+      auto* const group = createGroup(map, *map.worldNode().defaultLayer(), "garden");
+
+      REQUIRE(group != nullptr);
+      CHECK(group->group().name() == "garden");
+      CHECK(group->parent() == map.worldNode().defaultLayer());
+      CHECK(group->children().empty());
+      REQUIRE(map.undoCommandName() != nullptr);
+      CHECK(*map.undoCommandName() == "Create Group");
+
+      map.undoCommand();
+      CHECK(map.worldNode().defaultLayer()->children().empty());
+      map.redoCommand();
+      CHECK(map.worldNode().defaultLayer()->children().size() == 1u);
+    }
+
+    SECTION("creates a nested group")
+    {
+      auto* const outerGroup =
+        createGroup(map, *map.worldNode().defaultLayer(), "garden");
+      REQUIRE(outerGroup != nullptr);
+
+      auto* const innerGroup = createGroup(map, *outerGroup, "hedges");
+
+      REQUIRE(innerGroup != nullptr);
+      CHECK(innerGroup->parent() == outerGroup);
+    }
+
+    SECTION("does not create a group below an entity")
+    {
+      auto* const entity = new EntityNode{Entity{}};
+      REQUIRE_FALSE(addNodes(map, {{map.worldNode().defaultLayer(), {entity}}}).empty());
+
+      CHECK(createGroup(map, *entity, "invalid") == nullptr);
+      CHECK(entity->children().empty());
+    }
+  }
+
   SECTION("openGroup")
   {
     auto* entityNode1 = new EntityNode{Entity{}};

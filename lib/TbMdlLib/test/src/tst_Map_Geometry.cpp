@@ -87,6 +87,23 @@ bool checkBrushIntegral(const auto* brush)
          && checkBoundsIntegral(brush);
 }
 
+Brush createZPrism(
+  const BrushBuilder& builder,
+  const std::vector<vm::vec2d>& footprint,
+  const double minZ,
+  const double maxZ,
+  const std::string& materialName)
+{
+  auto points = std::vector<vm::vec3d>{};
+  points.reserve(footprint.size() * 2u);
+  for (const auto& point : footprint)
+  {
+    points.emplace_back(point.x(), point.y(), minZ);
+    points.emplace_back(point.x(), point.y(), maxZ);
+  }
+  return builder.createBrush(points, materialName) | kdl::value();
+}
+
 void checkTransformation(
   const Node& node, const Node& original, const vm::mat4x4d& transformation)
 {
@@ -546,18 +563,19 @@ TEST_CASE("Map_Geometry")
 
       CHECK_THAT(
         brushNode->brush().vertexPositions(),
-        UnorderedEquals(std::vector<vm::vec3d>{
-          // bottom face
-          {100, 100, 100},
-          {200, 100, 100},
-          {200, 200, 100},
-          {100, 200, 100},
-          // top face
-          {100, 100, 200},
-          {200, 100, 200},
-          {200, 200, 200},
-          {100, 200, 200},
-        }));
+        UnorderedEquals(
+          std::vector<vm::vec3d>{
+            // bottom face
+            {100, 100, 100},
+            {200, 100, 100},
+            {200, 200, 100},
+            {100, 200, 100},
+            // top face
+            {100, 100, 200},
+            {200, 100, 200},
+            {200, 200, 200},
+            {100, 200, 200},
+          }));
 
       // Shear the -Y face by (50, 0, 0). That means the verts with Y=100 will get
       // sheared.
@@ -565,18 +583,19 @@ TEST_CASE("Map_Geometry")
 
       CHECK_THAT(
         brushNode->brush().vertexPositions(),
-        UnorderedEquals(std::vector<vm::vec3d>{
-          // bottom face
-          {150, 100, 100},
-          {250, 100, 100},
-          {200, 200, 100},
-          {100, 200, 100},
-          // top face
-          {150, 100, 200},
-          {250, 100, 200},
-          {200, 200, 200},
-          {100, 200, 200},
-        }));
+        UnorderedEquals(
+          std::vector<vm::vec3d>{
+            // bottom face
+            {150, 100, 100},
+            {250, 100, 100},
+            {200, 200, 100},
+            {100, 200, 100},
+            // top face
+            {150, 100, 200},
+            {250, 100, 200},
+            {200, 200, 200},
+            {100, 200, 200},
+          }));
     }
 
     SECTION("pillar")
@@ -591,18 +610,19 @@ TEST_CASE("Map_Geometry")
 
       CHECK_THAT(
         brushNode->brush().vertexPositions(),
-        UnorderedEquals(std::vector<vm::vec3d>{
-          // bottom face
-          {0, 0, 0},
-          {100, 0, 0},
-          {100, 100, 0},
-          {0, 100, 0},
-          // top face
-          {0, 0, 400},
-          {100, 0, 400},
-          {100, 100, 400},
-          {0, 100, 400},
-        }));
+        UnorderedEquals(
+          std::vector<vm::vec3d>{
+            // bottom face
+            {0, 0, 0},
+            {100, 0, 0},
+            {100, 100, 0},
+            {0, 100, 0},
+            // top face
+            {0, 0, 400},
+            {100, 0, 400},
+            {100, 100, 400},
+            {0, 100, 400},
+          }));
 
       // Shear the +Z face by (50, 0, 0). That means the verts with Z=400 will get
       // sheared.
@@ -610,18 +630,19 @@ TEST_CASE("Map_Geometry")
 
       CHECK_THAT(
         brushNode->brush().vertexPositions(),
-        UnorderedEquals(std::vector<vm::vec3d>{
-          // bottom face
-          {0, 0, 0},
-          {100, 0, 0},
-          {100, 100, 0},
-          {0, 100, 0},
-          // top face
-          {50, 0, 400},
-          {150, 0, 400},
-          {150, 100, 400},
-          {50, 100, 400},
-        }));
+        UnorderedEquals(
+          std::vector<vm::vec3d>{
+            // bottom face
+            {0, 0, 0},
+            {100, 0, 0},
+            {100, 100, 0},
+            {0, 100, 0},
+            // top face
+            {50, 0, 400},
+            {150, 0, 400},
+            {150, 100, 400},
+            {50, 100, 400},
+          }));
     }
   }
 
@@ -1212,9 +1233,10 @@ TEST_CASE("Map_Geometry")
     const auto topFaceIndex = brush2.findFace(vm::vec3d{0, 0, 1});
     REQUIRE(topFaceIndex.has_value());
     brush2.face(*topFaceIndex)
-      .setUvAttributes(UvAttributes{
-        .offset = {8, 0},
-      });
+      .setUvAttributes(
+        UvAttributes{
+          .offset = {8, 0},
+        });
     auto* brushNode2 = new BrushNode{std::move(brush2)};
 
     auto& parent = parentForNodes(map);
@@ -1222,6 +1244,114 @@ TEST_CASE("Map_Geometry")
     selectNodes(map, {brushNode1, brushNode2});
 
     CHECK(createSelectedBrushOptimizationCandidates(map).empty());
+  }
+
+  SECTION("optimize coplanar triangular prisms")
+  {
+    auto& map = fixture.create();
+    const auto builder = BrushBuilder{map.worldNode().mapFormat(), map.worldBounds()};
+
+    auto* brushNode1 = new BrushNode{
+      createZPrism(builder, {{0, 0}, {32, 0}, {32, 32}}, 0.0, 8.0, "material")};
+    auto* brushNode2 = new BrushNode{
+      createZPrism(builder, {{0, 0}, {32, 32}, {0, 32}}, 0.0, 8.0, "material")};
+    auto& parent = parentForNodes(map);
+    addNodes(map, {{&parent, {brushNode1, brushNode2}}});
+
+    const auto sourceNodes = std::vector{brushNode1, brushNode2};
+    REQUIRE(canOptimizeBrushes(sourceNodes));
+    const auto candidates = createBrushOptimizationCandidates(map, sourceNodes);
+    REQUIRE(candidates.size() == 1u);
+    CHECK(candidates.front().brushCount() == 1u);
+    CHECK(candidates.front().bounds.empty());
+    REQUIRE(candidates.front().brushes.size() == 1u);
+    CHECK(
+      candidates.front().brushes.front().bounds() == vm::bbox3d{{0, 0, 0}, {32, 32, 8}});
+
+    map.startTransaction("Optimize Brushwork", TransactionScope::LongRunning);
+    REQUIRE(applyBrushOptimizationCandidate(map, sourceNodes, candidates.front()));
+    REQUIRE(map.commitTransaction());
+    REQUIRE(map.selection().brushes.size() == 1u);
+    CHECK(
+      map.selection().brushes.front()->brush().bounds()
+      == vm::bbox3d{{0, 0, 0}, {32, 32, 8}});
+  }
+
+  SECTION("coplanar prism optimization preserves concave outlines")
+  {
+    auto& map = fixture.create();
+    const auto builder = BrushBuilder{map.worldNode().mapFormat(), map.worldBounds()};
+    const auto addTriangulatedSquare =
+      [&](const vm::vec2d& min, std::vector<BrushNode*>& nodes) {
+        const auto max = min + vm::vec2d{32, 32};
+        nodes.push_back(new BrushNode{
+          createZPrism(builder, {min, {max.x(), min.y()}, max}, 0.0, 8.0, "material")});
+        nodes.push_back(new BrushNode{
+          createZPrism(builder, {min, max, {min.x(), max.y()}}, 0.0, 8.0, "material")});
+      };
+
+    auto sourceNodes = std::vector<BrushNode*>{};
+    addTriangulatedSquare({0, 0}, sourceNodes);
+    addTriangulatedSquare({32, 0}, sourceNodes);
+    addTriangulatedSquare({0, 32}, sourceNodes);
+    addNodes(map, {{&parentForNodes(map), kdl::vec_static_cast<Node*>(sourceNodes)}});
+
+    const auto candidates = createBrushOptimizationCandidates(map, sourceNodes);
+    REQUIRE_FALSE(candidates.empty());
+    CHECK(candidates.front().brushCount() == 2u);
+    CHECK(std::ranges::none_of(candidates.front().brushes, [](const auto& brush) {
+      return brush.containsPoint({48, 48, 4});
+    }));
+    CHECK(std::ranges::all_of(candidates.front().brushes, [](const auto& brush) {
+      return brush.bounds().min.z() == 0.0 && brush.bounds().max.z() == 8.0;
+    }));
+  }
+
+  SECTION("coplanar prism optimization preserves visible material seams")
+  {
+    auto& map = fixture.create();
+    const auto builder = BrushBuilder{map.worldNode().mapFormat(), map.worldBounds()};
+
+    auto brush1 =
+      createZPrism(builder, {{0, 0}, {32, 0}, {32, 32}}, 0.0, 8.0, "material");
+    auto brush2 =
+      createZPrism(builder, {{0, 0}, {32, 32}, {0, 32}}, 0.0, 8.0, "material");
+    const auto topFace1 = brush1.findFace(vm::vec3d{0, 0, 1});
+    const auto topFace2 = brush2.findFace(vm::vec3d{0, 0, 1});
+    REQUIRE(topFace1.has_value());
+    REQUIRE(topFace2.has_value());
+    brush1.face(*topFace1).setMaterialName("top1");
+    brush2.face(*topFace2).setMaterialName("top2");
+    auto* brushNode1 = new BrushNode{std::move(brush1)};
+    auto* brushNode2 = new BrushNode{std::move(brush2)};
+    addNodes(map, {{&parentForNodes(map), {brushNode1, brushNode2}}});
+
+    CHECK(createBrushOptimizationCandidates(map, std::vector{brushNode1, brushNode2})
+            .empty());
+  }
+
+  SECTION("find independent brush optimization cohorts")
+  {
+    auto& map = fixture.create();
+    const auto builder = BrushBuilder{map.worldNode().mapFormat(), map.worldBounds()};
+    auto* first1 = new BrushNode{
+      createZPrism(builder, {{0, 0}, {32, 0}, {32, 32}}, 0.0, 8.0, "material")};
+    auto* first2 = new BrushNode{
+      createZPrism(builder, {{0, 0}, {32, 32}, {0, 32}}, 0.0, 8.0, "material")};
+    auto* second1 = new BrushNode{
+      createZPrism(builder, {{128, 0}, {160, 0}, {160, 32}}, 0.0, 8.0, "material")};
+    auto* second2 = new BrushNode{
+      createZPrism(builder, {{128, 0}, {160, 32}, {128, 32}}, 0.0, 8.0, "material")};
+    auto* unoptimizable = new BrushNode{
+      createZPrism(builder, {{256, 0}, {288, 0}, {288, 32}}, 0.0, 8.0, "material")};
+    auto& parent = parentForNodes(map);
+    addNodes(map, {{&parent, {first1, first2, second1, second2, unoptimizable}}});
+
+    const auto cohorts = findBrushOptimizationCohorts(
+      map, std::vector{first1, first2, second1, second2, unoptimizable});
+    REQUIRE(cohorts.size() == 2u);
+    CHECK(cohorts[0] == std::vector{first1, first2});
+    CHECK(cohorts[1] == std::vector{second1, second2});
   }
 
   SECTION("bridge edge chains with different segment counts")
@@ -1282,6 +1412,254 @@ TEST_CASE("Map_Geometry")
     map.undoCommand();
     REQUIRE(map.selection().brushes.size() == 1u);
     CHECK(map.selection().brushes.front() == source);
+  }
+
+  SECTION("create explicit brushes atomically below a parent")
+  {
+    auto& map = fixture.create();
+    const auto cuboidPoints = [](const vm::vec3d& min, const vm::vec3d& max) {
+      return std::vector<vm::vec3d>{
+        {min.x(), min.y(), min.z()},
+        {max.x(), min.y(), min.z()},
+        {max.x(), max.y(), min.z()},
+        {min.x(), max.y(), min.z()},
+        {min.x(), min.y(), max.z()},
+        {max.x(), min.y(), max.z()},
+        {max.x(), max.y(), max.z()},
+        {min.x(), max.y(), max.z()},
+      };
+    };
+    const auto specs = std::vector<BrushCreationSpec>{
+      {cuboidPoints({0, 0, 0}, {32, 32, 64}), "wall"},
+      {cuboidPoints({32, 0, 0}, {64, 32, 64}), "tower"},
+    };
+
+    auto& parent = parentForNodes(map);
+    auto created = std::vector<BrushNode*>{};
+    REQUIRE(createBrushes(map, parent, specs, created));
+    REQUIRE(created.size() == 2u);
+    CHECK(created[0]->brush().bounds() == vm::bbox3d{{0, 0, 0}, {32, 32, 64}});
+    CHECK(created[1]->brush().bounds() == vm::bbox3d{{32, 0, 0}, {64, 32, 64}});
+    CHECK(std::ranges::all_of(created[0]->brush().faces(), [](const auto& face) {
+      return face.materialName() == "wall";
+    }));
+    CHECK(std::ranges::all_of(created[1]->brush().faces(), [](const auto& face) {
+      return face.materialName() == "tower";
+    }));
+
+    map.undoCommand();
+    CHECK(parent.childCount() == 0u);
+
+    const auto invalidSpecs = std::vector<BrushCreationSpec>{
+      specs.front(),
+      {{{0, 0, 0}, {16, 0, 0}, {0, 16, 0}}, "invalid"},
+    };
+    created.clear();
+    CHECK_FALSE(createBrushes(map, parent, invalidSpecs, created));
+    CHECK(created.empty());
+    CHECK(parent.childCount() == 0u);
+    CHECK_FALSE(createBrushes(map, map.worldNode(), specs, created));
+    CHECK(created.empty());
+  }
+
+  SECTION("create deterministic, gap-free planar path-sweep prism specifications")
+  {
+    auto& map = fixture.create();
+    const auto spec = PlanarPathSweepSpec{
+      .chains = {{{0, 0}, {64, 0}, {128, 0}, {128, 64}}},
+      .bottom = 0.0,
+      .top = 128.0,
+      .thickness = 16.0,
+      .materialName = "wall",
+    };
+    const auto specs = createPlanarPathSweepBrushSpecs(spec);
+
+    REQUIRE(specs);
+    // The final horizontal continuation is coalesced, while the 90-degree join
+    // becomes matching mitered faces on the two remaining convex prisms.
+    REQUIRE(specs->size() == 2u);
+    CHECK((*specs)[0].points.size() == 8u);
+    CHECK((*specs)[1].points.size() == 8u);
+    CHECK((*specs)[0].points[7] == vm::vec3d{120, 8, 128});
+    CHECK((*specs)[1].points[0] == vm::vec3d{120, 8, 0});
+    CHECK((*specs)[0].materialName == "wall");
+
+    auto created = std::vector<BrushNode*>{};
+    REQUIRE(createBrushes(map, parentForNodes(map), *specs, created));
+    CHECK(created.size() == 2u);
+    CHECK(created[0]->brush().bounds() == vm::bbox3d{{0, -8, 0}, {136, 8, 128}});
+    CHECK(created[1]->brush().bounds() == vm::bbox3d{{120, -8, 0}, {136, 64, 128}});
+
+    auto acute = spec;
+    acute.chains = {{{0, 0}, {64, 0}, {0, 8}}};
+    CHECK_FALSE(createPlanarPathSweepBrushSpecs(acute));
+  }
+
+  SECTION("create mitered, convex planar profile bands and a triangulated core")
+  {
+    auto& map = fixture.create();
+    const auto spec = PlanarProfileSpec{
+      .contour = {{0, 0}, {256, 0}, {256, 256}, {128, 256}, {128, 128}, {0, 128}},
+      .bands =
+        {
+          {.inset = 16.0,
+           .bottom = 0.0,
+           .top = 16.0,
+           .materialName = "curb",
+           .role = "curb"},
+          {.inset = 32.0,
+           .bottom = -16.0,
+           .top = 0.0,
+           .materialName = "basin",
+           .role = "basin"},
+        },
+      .core = std::optional<PlanarProfileCore>{PlanarProfileCore{
+        .bottom = -32.0, .top = -16.0, .materialName = "floor", .role = "core"}},
+    };
+    const auto specs = createPlanarProfileBrushSpecs(spec);
+
+    REQUIRE(specs);
+    // Each mitered ring uses one convex quad per contour edge; the six-sided concave
+    // core is decomposed deterministically into four convex triangular prisms.
+    REQUIRE(specs->size() == 16u);
+    CHECK((*specs)[0].role == "curb");
+    CHECK((*specs)[6].role == "basin");
+    CHECK((*specs)[12].role == "core");
+    CHECK((*specs)[0].brush.points.size() == 8u);
+    CHECK((*specs)[12].brush.points.size() == 6u);
+
+    auto created = std::vector<BrushNode*>{};
+    REQUIRE(createBrushes(
+      map,
+      parentForNodes(map),
+      [&]() {
+        auto brushes = std::vector<BrushCreationSpec>{};
+        for (const auto& profileBrush : *specs)
+        {
+          brushes.push_back(profileBrush.brush);
+        }
+        return brushes;
+      }(),
+      created));
+    CHECK(created.size() == specs->size());
+
+    auto selfIntersecting = spec;
+    selfIntersecting.contour = {{0, 0}, {128, 128}, {0, 128}, {128, 0}};
+    CHECK_FALSE(createPlanarProfileBrushSpecs(selfIntersecting));
+
+    auto collapsed = spec;
+    collapsed.bands[0].inset = 96.0;
+    CHECK_FALSE(createPlanarProfileBrushSpecs(collapsed));
+  }
+
+  SECTION("snap mitered planar profile vertices to the requested grid")
+  {
+    const auto spec = PlanarProfileSpec{
+      .contour =
+        {{0, 96},
+         {96, 0},
+         {256, 0},
+         {352, 96},
+         {352, 256},
+         {256, 352},
+         {96, 352},
+         {0, 256}},
+      .bands =
+        {{.inset = 64.0,
+          .bottom = 0.0,
+          .top = 32.0,
+          .materialName = "stone",
+          .role = "border"}},
+      .core = std::optional<PlanarProfileCore>{PlanarProfileCore{
+        .bottom = -32.0, .top = 0.0, .materialName = "paving", .role = "core"}},
+      .gridSize = 1.0,
+    };
+    const auto preview = createPlanarProfileBrushSpecs(spec);
+    const auto apply = createPlanarProfileBrushSpecs(spec);
+
+    REQUIRE(preview);
+    REQUIRE(apply);
+    REQUIRE(preview->size() == apply->size());
+    for (auto i = size_t{0u}; i < preview->size(); ++i)
+    {
+      CHECK((*preview)[i].brush.points == (*apply)[i].brush.points);
+      for (const auto& point : (*preview)[i].brush.points)
+      {
+        CHECK(point.x() == std::round(point.x()));
+        CHECK(point.y() == std::round(point.y()));
+        CHECK(point.z() == std::round(point.z()));
+      }
+    }
+  }
+
+  SECTION("create profile extrusions on all principal planes")
+  {
+    const auto xz = ProfileExtrusionSpec{
+      .plane = ProfileExtrusionPlane::XZ,
+      .profile = {{0, 0}, {128, 0}, {128, 128}, {0, 128}},
+      .minimum = -32.0,
+      .maximum = 32.0,
+      .gridSize = 16.0,
+      .materialName = "stone",
+      .role = "gable",
+    };
+    const auto xzSpecs = createProfileExtrusionBrushSpecs(xz);
+    REQUIRE(xzSpecs);
+    REQUIRE(xzSpecs->size() == 1u);
+    CHECK((*xzSpecs)[0].role == "gable");
+    CHECK(
+      (*xzSpecs)[0].brush.points
+      == std::vector<vm::vec3d>{
+        {0, -32, 0},
+        {128, -32, 0},
+        {128, -32, 128},
+        {0, -32, 128},
+        {0, 32, 0},
+        {128, 32, 0},
+        {128, 32, 128},
+        {0, 32, 128}});
+
+    auto yz = xz;
+    yz.plane = ProfileExtrusionPlane::YZ;
+    const auto yzSpecs = createProfileExtrusionBrushSpecs(yz);
+    REQUIRE(yzSpecs);
+    CHECK((*yzSpecs)[0].brush.points[0] == vm::vec3d{-32, 0, 0});
+    CHECK((*yzSpecs)[0].brush.points[6] == vm::vec3d{32, 128, 128});
+
+    auto xy = xz;
+    xy.plane = ProfileExtrusionPlane::XY;
+    const auto xySpecs = createProfileExtrusionBrushSpecs(xy);
+    REQUIRE(xySpecs);
+    CHECK((*xySpecs)[0].brush.points[0] == vm::vec3d{0, 0, -32});
+    CHECK((*xySpecs)[0].brush.points[6] == vm::vec3d{128, 128, 32});
+  }
+
+  SECTION("triangulate concave profile extrusions and reject invalid profiles")
+  {
+    auto spec = ProfileExtrusionSpec{
+      .plane = ProfileExtrusionPlane::XY,
+      .profile = {{0, 0}, {128, 0}, {128, 128}, {64, 64}, {0, 128}},
+      .minimum = 0.0,
+      .maximum = 64.0,
+      .gridSize = 1.0,
+      .materialName = "stone",
+      .role = "pediment",
+    };
+    const auto specs = createProfileExtrusionBrushSpecs(spec);
+    REQUIRE(specs);
+    REQUIRE(specs->size() == 3u);
+    for (const auto& generated : *specs)
+    {
+      CHECK(generated.brush.points.size() == 6u);
+      CHECK(generated.role == "pediment");
+    }
+
+    spec.profile = {{0, 0}, {128, 128}, {0, 128}, {128, 0}};
+    CHECK_FALSE(createProfileExtrusionBrushSpecs(spec));
+    spec.profile = {{0, 0}, {128, 0}, {128, 128}, {0, 128}};
+    spec.maximum = 0.4;
+    spec.gridSize = 1.0;
+    CHECK_FALSE(createProfileExtrusionBrushSpecs(spec));
   }
 
   SECTION("create a volume from a selected face to an absolute plane")
@@ -1541,6 +1919,98 @@ TEST_CASE("Map_Geometry")
 
       CHECK(remainderNode1->logicalBounds() == expectedBBox1);
       CHECK(remainderNode2->logicalBounds() == expectedBBox2);
+    }
+
+    SECTION("Subtract exactly the requested targets")
+    {
+      auto& map = fixture.create();
+      const auto builder = BrushBuilder{map.worldNode().mapFormat(), map.worldBounds()};
+
+      auto* entityNode = new EntityNode{Entity{}};
+      addNodes(map, {{&parentForNodes(map), {entityNode}}});
+
+      auto* targetNode = new BrushNode{
+        builder.createCuboid(
+          vm::bbox3d{vm::vec3d{0, 0, 0}, vm::vec3d{128, 64, 64}}, "material")
+        | kdl::value()};
+      auto* cutterNode = new BrushNode{
+        builder.createCuboid(
+          vm::bbox3d{vm::vec3d{32, 0, 0}, vm::vec3d{64, 64, 64}}, "material")
+        | kdl::value()};
+      // This brush overlaps the cutter, but is deliberately not a subtraction target.
+      auto* untouchedWallNode = new BrushNode{
+        builder.createCuboid(
+          vm::bbox3d{vm::vec3d{32, 0, 0}, vm::vec3d{64, 64, 64}}, "wall")
+        | kdl::value()};
+      addNodes(map, {{entityNode, {targetNode, cutterNode, untouchedWallNode}}});
+
+      auto replacementNodes = std::vector<BrushNode*>{};
+      CHECK(csgSubtract(map, {cutterNode}, {targetNode}, replacementNodes));
+
+      CHECK(entityNode->children().size() == 3u);
+      CHECK(replacementNodes.size() == 2u);
+      CHECK(
+        std::ranges::find(entityNode->children(), untouchedWallNode)
+        != entityNode->children().end());
+      CHECK(
+        untouchedWallNode->logicalBounds()
+        == vm::bbox3d{vm::vec3d{32, 0, 0}, vm::vec3d{64, 64, 64}});
+      CHECK_THAT(
+        replacementNodes | std::views::transform([](const auto* node) {
+          return node->logicalBounds();
+        }) | kdl::ranges::to<std::vector>(),
+        UnorderedEquals(
+          std::vector<vm::bbox3d>{
+            {{0, 0, 0}, {32, 64, 64}},
+            {{64, 0, 0}, {128, 64, 64}},
+          }));
+
+      map.undoCommand();
+      CHECK(entityNode->children().size() == 3u);
+      CHECK(
+        std::ranges::find(entityNode->children(), targetNode)
+        != entityNode->children().end());
+      CHECK(
+        std::ranges::find(entityNode->children(), cutterNode)
+        != entityNode->children().end());
+      CHECK(
+        std::ranges::find(entityNode->children(), untouchedWallNode)
+        != entityNode->children().end());
+    }
+
+    SECTION("Reject invalid targeted subtraction without changing the map")
+    {
+      auto& map = fixture.create();
+      const auto builder = BrushBuilder{map.worldNode().mapFormat(), map.worldBounds()};
+
+      auto* entityNode = new EntityNode{Entity{}};
+      addNodes(map, {{&parentForNodes(map), {entityNode}}});
+      auto* brushNode = new BrushNode{
+        builder.createCuboid(
+          vm::bbox3d{vm::vec3d{0, 0, 0}, vm::vec3d{64, 64, 64}}, "material")
+        | kdl::value()};
+      auto* otherBrushNode = new BrushNode{
+        builder.createCuboid(
+          vm::bbox3d{vm::vec3d{64, 0, 0}, vm::vec3d{128, 64, 64}}, "material")
+        | kdl::value()};
+      addNodes(map, {{entityNode, {brushNode, otherBrushNode}}});
+      selectNodes(map, {brushNode});
+
+      auto replacementNodes = std::vector<BrushNode*>{};
+      CHECK_FALSE(
+        csgSubtract(map, {brushNode, brushNode}, {brushNode}, replacementNodes));
+      CHECK_FALSE(
+        csgSubtract(map, {brushNode}, {brushNode, otherBrushNode}, replacementNodes));
+
+      CHECK(entityNode->children().size() == 2u);
+      CHECK(
+        std::ranges::find(entityNode->children(), brushNode)
+        != entityNode->children().end());
+      CHECK(
+        std::ranges::find(entityNode->children(), otherBrushNode)
+        != entityNode->children().end());
+      CHECK_THAT(map.selection().brushes, Equals(std::vector<BrushNode*>{brushNode}));
+      CHECK(replacementNodes.empty());
     }
 
     SECTION("Undo restores selection")

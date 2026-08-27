@@ -30,6 +30,14 @@ class Node;
 
 Node* currentGroupOrWorld(Map& map);
 
+/**
+ * Creates an empty group named \p name below \p parent.
+ *
+ * Returns null without changing the map when the parent cannot contain a group or when
+ * the transaction cannot be committed.
+ */
+GroupNode* createGroup(Map& map, Node& parent, const std::string& name);
+
 void openGroup(Map& map, GroupNode& groupNode);
 void closeGroup(Map& map);
 

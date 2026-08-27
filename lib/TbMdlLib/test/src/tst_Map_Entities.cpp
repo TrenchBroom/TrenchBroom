@@ -103,6 +103,54 @@ TEST_CASE("Map_Entities")
 
   const auto builder = BrushBuilder{map.worldNode().mapFormat(), map.worldBounds()};
 
+  SECTION("createEmptyEntity")
+  {
+    auto* selectedBrush = createBrushNode(map, "some_material");
+    addNodes(map, {{&parentForNodes(map), {selectedBrush}}});
+    selectNodes(map, {selectedBrush});
+    map.setCurrentMaterialName("some_material");
+
+    auto pointEntity = Entity{{
+      {EntityPropertyKeys::Classname, pointEntityDefinition->name},
+      {"targetname", "automation_point"},
+    }};
+    auto* pointEntityNode =
+      createEmptyEntity(map, *map.worldNode().defaultLayer(), std::move(pointEntity));
+
+    REQUIRE(pointEntityNode != nullptr);
+    CHECK(pointEntityNode->entity().definition() == pointEntityDefinition);
+    CHECK(pointEntityNode->entity().pointEntity());
+    CHECK(pointEntityNode->entity().hasProperty("targetname", "automation_point"));
+    CHECK(map.selection().nodes == std::vector<Node*>{selectedBrush});
+    CHECK(map.currentMaterialName() == "some_material");
+
+    auto brushEntity = Entity{{
+      {EntityPropertyKeys::Classname, brushEntityDefinition->name},
+      {"targetname", "automation_brush"},
+    }};
+    brushEntity.setPointEntity(false);
+    auto* brushEntityNode =
+      createEmptyEntity(map, *map.worldNode().defaultLayer(), std::move(brushEntity));
+
+    REQUIRE(brushEntityNode != nullptr);
+    CHECK(brushEntityNode->entity().definition() == brushEntityDefinition);
+    CHECK_FALSE(brushEntityNode->entity().pointEntity());
+    CHECK(brushEntityNode->children().empty());
+    CHECK(map.selection().nodes == std::vector<Node*>{selectedBrush});
+    CHECK(map.currentMaterialName() == "some_material");
+
+    SECTION("undoes as one insertion")
+    {
+      map.undoCommand();
+      CHECK(brushEntityNode->parent() == nullptr);
+      CHECK(pointEntityNode->parent() == map.worldNode().defaultLayer());
+
+      map.redoCommand();
+      CHECK(brushEntityNode->parent() == map.worldNode().defaultLayer());
+      CHECK(brushEntityNode->entity().definition() == brushEntityDefinition);
+    }
+  }
+
   SECTION("createPointEntity")
   {
     SECTION("Point entity is created and selected")
