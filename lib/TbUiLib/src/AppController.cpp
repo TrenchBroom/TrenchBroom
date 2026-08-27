@@ -321,6 +321,15 @@ ActionManager& AppController::actionManager()
   return *m_actionManager;
 }
 
+bool AppController::automaticUpdatesEnabledForBuild()
+{
+#if defined(TB_ENABLE_UPDATE_CHECKS)
+  return true;
+#else
+  return false;
+#endif
+}
+
 AutomationOffscreenContextResult AppController::withAutomationOffscreenContext(
   const AutomationOffscreenContextCallback& callback)
 {
@@ -408,7 +417,13 @@ AutomationOffscreenContextResult AppController::withAutomationOffscreenContext(
       }
     };
     auto processContext = tb::gl::ProcessContext{gl, errorHandler};
-    m_glManager->resourceManager().process(taskRunner, processContext, 20ms);
+    auto& resourceManager = m_glManager->resourceManager();
+    const auto resourceDeadline = std::chrono::steady_clock::now() + 5s;
+    while (resourceManager.needsProcessing()
+           && std::chrono::steady_clock::now() < resourceDeadline)
+    {
+      resourceManager.process(taskRunner, processContext, 20ms);
+    }
     m_glManager->vboManager().destroyPendingVbos(gl);
     m_glManager->fontManager().destroyPendingFonts(gl);
   }
@@ -438,7 +453,7 @@ AutomationOffscreenContextResult AppController::withAutomationOffscreenContext(
 
 void AppController::askForAutoUpdates()
 {
-  if (pref(Preferences::AskForAutoUpdates))
+  if (automaticUpdatesEnabledForBuild() && pref(Preferences::AskForAutoUpdates))
   {
     auto& prefs = PreferenceManager::instance();
 
@@ -459,7 +474,7 @@ void AppController::askForAutoUpdates()
 
 void AppController::triggerAutoUpdateCheck()
 {
-  if (pref(Preferences::AutoCheckForUpdates))
+  if (automaticUpdatesEnabledForBuild() && pref(Preferences::AutoCheckForUpdates))
   {
     m_updater->checkForUpdates();
   }

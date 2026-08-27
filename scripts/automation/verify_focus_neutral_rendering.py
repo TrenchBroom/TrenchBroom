@@ -146,6 +146,22 @@ def document_id(documents: Any, path: Path) -> str:
     raise VerificationError(f"documents.list did not contain {path}")
 
 
+def wait_for_document(
+    instance: Instance, tbctl: Path, path: Path, timeout_seconds: float = 20.0
+) -> str:
+    """Wait until command-line document opening catches up with service discovery."""
+    deadline = time.monotonic() + timeout_seconds
+    last_error: VerificationError | None = None
+    while time.monotonic() < deadline:
+        try:
+            return document_id(run_tbctl(instance, tbctl, "documents.list", {}), path)
+        except VerificationError as error:
+            last_error = error
+            time.sleep(0.1)
+    detail = f": {last_error}" if last_error is not None else ""
+    raise VerificationError(f"timed out waiting for the isolated target document{detail}")
+
+
 def active_document_id(documents: Any) -> str:
     require(isinstance(documents, list), "documents.list: result is not an array")
     active = [item for item in documents if isinstance(item, dict) and item.get("active")]
@@ -247,9 +263,7 @@ def verify_run(app: Path, tbctl: Path, source_map: Path, keep_artifacts: bool) -
         shutil.copy2(source_map, foreground_path)
         instance = launch(private_app, target_path)
 
-        target_document = document_id(
-            run_tbctl(instance, tbctl, "documents.list", {}), target_path
-        )
+        target_document = wait_for_document(instance, tbctl, target_path)
         target_view = three_d_view_id(
             run_tbctl(instance, tbctl, "views.list", {"documentId": target_document}),
             target_document,

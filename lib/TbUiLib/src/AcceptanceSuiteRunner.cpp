@@ -68,6 +68,31 @@ AcceptanceRunStatus aggregate(const std::vector<AcceptanceAssertionRunReport>& a
   return AcceptanceRunStatus::Passed;
 }
 
+AcceptanceRunStatus aggregate(
+  const AcceptanceRunStatus lhs, const AcceptanceRunStatus rhs)
+{
+  const auto priority = [](const AcceptanceRunStatus status) {
+    switch (status)
+    {
+    case AcceptanceRunStatus::Passed:
+      return 0;
+    case AcceptanceRunStatus::Failed:
+      return 1;
+    case AcceptanceRunStatus::Error:
+      return 2;
+    case AcceptanceRunStatus::Cancelled:
+      return 3;
+    }
+    return 2;
+  };
+  return priority(lhs) >= priority(rhs) ? lhs : rhs;
+}
+
+bool imageComparisonPassed(const AcceptanceImageComparisonReport& report)
+{
+  return std::ranges::all_of(report.metrics, &AcceptanceImageMetricReport::passed);
+}
+
 } // namespace
 
 QJsonObject acceptanceSuiteRunReportToJson(const AcceptanceSuiteRunReport& report)
@@ -93,6 +118,9 @@ QJsonObject acceptanceSuiteRunReportToJson(const AcceptanceSuiteRunReport& repor
       {"assertions", assertions}};
     if (comparison.capture)
     {
+      value.insert(
+        "imageComparison",
+        acceptanceImageComparisonReportToJson(comparison.capture->imageComparison));
       value.insert(
         "referenceRevision",
         static_cast<qint64>(comparison.capture->reference.document.revision));
@@ -181,8 +209,10 @@ AcceptanceSuiteRunReport AcceptanceSuiteRunner::run(
         {id, AcceptanceRunStatus::Error, std::nullopt, {}, resultError(capture).message});
       continue;
     }
-    result.comparisons.push_back(
-      {id, AcceptanceRunStatus::Passed, capture.value(), {}, {}});
+    const auto captureStatus = imageComparisonPassed(capture.value().imageComparison)
+                                 ? AcceptanceRunStatus::Passed
+                                 : AcceptanceRunStatus::Failed;
+    result.comparisons.push_back({id, captureStatus, capture.value(), {}, {}});
     const auto current = m_store.load();
     if (current.is_error() || current.value().revision != result.storeRevision)
     {
@@ -210,12 +240,14 @@ AcceptanceSuiteRunReport AcceptanceSuiteRunner::run(
     futures.erase(futures.begin());
     auto& report = result.comparisons[entry.first];
     report.assertions = entry.second.get();
-    report.status = aggregate(report.assertions);
+    report.status = aggregate(report.status, aggregate(report.assertions));
   };
   for (size_t index = 0u; index < result.comparisons.size(); ++index)
   {
     auto& report = result.comparisons[index];
-    if (report.status != AcceptanceRunStatus::Passed || !report.capture)
+    if (
+      !report.capture || report.status == AcceptanceRunStatus::Error
+      || report.status == AcceptanceRunStatus::Cancelled)
       continue;
     if (options.cancelled && options.cancelled())
     {

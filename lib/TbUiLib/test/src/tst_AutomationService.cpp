@@ -262,6 +262,15 @@ TEST_CASE("AutomationService entity creation")
   std::filesystem::remove(savedMapPath);
 }
 
+TEST_CASE("AppController automatic update policy follows the build configuration")
+{
+#if defined(TB_ENABLE_UPDATE_CHECKS)
+  CHECK(AppController::automaticUpdatesEnabledForBuild());
+#else
+  CHECK_FALSE(AppController::automaticUpdatesEnabledForBuild());
+#endif
+}
+
 TEST_CASE("AutomationService profile extrusion")
 {
   auto fixture = AppControllerFixture{};

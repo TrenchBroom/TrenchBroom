@@ -155,6 +155,9 @@ public:
 
   ActionManager& actionManager();
 
+  /** Release packages enable update opt-in/check UI; development builds do not. */
+  static bool automaticUpdatesEnabledForBuild();
+
   /**
    * Runs one bounded, GUI-thread-only callback using the application-owned shared
    * offscreen OpenGL context. Pending resources are processed first; callers must

@@ -60,6 +60,24 @@ def source_document_id(documents: Any, source_map: Path) -> str:
     raise VerificationError(f"documents.list did not contain the isolated source map {source_map}")
 
 
+def wait_for_source_document(
+    tbctl: Path, discovery_file: Path, source_map: Path, timeout_seconds: float = 20.0
+) -> str:
+    """Wait until command-line document opening catches up with service discovery."""
+    deadline = time.monotonic() + timeout_seconds
+    last_error: VerificationError | None = None
+    while time.monotonic() < deadline:
+        try:
+            return source_document_id(
+                run_tbctl(tbctl, discovery_file, "documents.list", {}), source_map
+            )
+        except VerificationError as error:
+            last_error = error
+            time.sleep(0.1)
+    detail = f": {last_error}" if last_error is not None else ""
+    raise VerificationError(f"timed out waiting for the isolated source document{detail}")
+
+
 def workspace_by_id(workspaces: Any, workspace_id: str) -> dict[str, Any]:
     require(isinstance(workspaces, list), "workspace.list: result is not an array")
     for workspace in workspaces:
@@ -179,8 +197,8 @@ def verify_run(app: Path, tbctl: Path, source_map: Path, keep_artifacts: bool) -
         shutil.copy2(source_map, private_source)
 
         first = launch(private_app, private_source)
-        first_source_id = source_document_id(
-            run_tbctl(tbctl, first.discovery_file, "documents.list", {}), private_source
+        first_source_id = wait_for_source_document(
+            tbctl, first.discovery_file, private_source
         )
         forked = run_tbctl(
             tbctl,
@@ -204,8 +222,8 @@ def verify_run(app: Path, tbctl: Path, source_map: Path, keep_artifacts: bool) -
         first = None
 
         second = launch(private_app, private_source)
-        second_source_id = source_document_id(
-            run_tbctl(tbctl, second.discovery_file, "documents.list", {}), private_source
+        second_source_id = wait_for_source_document(
+            tbctl, second.discovery_file, private_source
         )
         discovered = workspace_by_id(
             run_tbctl(tbctl, second.discovery_file, "workspace.list", {}), workspace_id

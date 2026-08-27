@@ -1,5 +1,10 @@
 add_library(TbUiLib STATIC)
 
+# Development builds are frequently launched by automation with fresh preference
+# directories. Keep startup non-interactive there; release packages retain the normal
+# update opt-in and automatic check behavior.
+target_compile_definitions(TbUiLib PUBLIC "$<$<CONFIG:Release>:TB_ENABLE_UPDATE_CHECKS>")
+
 target_sources(TbUiLib
   PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src/AboutDialog.cpp

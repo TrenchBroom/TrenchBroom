@@ -9,6 +9,7 @@
  (at your option) any later version.
  */
 
+#include <QImage>
 #include <QJsonArray>
 #include <QTemporaryDir>
 
@@ -74,6 +75,7 @@ class Capture : public AcceptanceVirtualCapture
 {
 public:
   std::vector<AcceptanceVirtualCaptureRequest> requests;
+  std::vector<std::filesystem::path> colorPaths;
   std::function<void()> onSecondCapture;
 
   Result<AcceptanceVirtualCaptureResult, AcceptanceVirtualCaptureError> capture(
@@ -82,14 +84,17 @@ public:
     requests.push_back(request);
     if (requests.size() == 2u && onSecondCapture)
       onSecondCapture();
+    const auto colorPath = colorPaths.empty()
+                             ? std::filesystem::path{"/tmp"}
+                                 / ("capture-" + std::to_string(requests.size()) + ".png")
+                             : colorPaths.at(requests.size() - 1u);
     return AcceptanceVirtualCaptureResult{
       {request.documentPath,
        "document-" + std::to_string(requests.size()),
        requests.size() - 1u},
       request.camera,
       request.size,
-      std::filesystem::path{"/tmp"}
-        / ("capture-" + std::to_string(requests.size()) + ".png"),
+      colorPath,
       std::nullopt,
       "renderer-v1",
     };
@@ -180,6 +185,57 @@ TEST_CASE("AcceptanceSuiteRunner")
     REQUIRE(report.comparisons.size() == 2u);
     CHECK(report.comparisons[0].status == AcceptanceRunStatus::Cancelled);
     CHECK(report.comparisons[1].status == AcceptanceRunStatus::Cancelled);
+  }
+
+  SECTION("fails a comparison when an image metric fails and still runs assertions")
+  {
+    auto project = makeProject();
+    const auto comparison =
+      std::ranges::find(project.comparisons, "a", &AcceptanceComparison::id);
+    REQUIRE(comparison != project.comparisons.end());
+    comparison->metrics = {
+      {"color",
+       AcceptanceMetricType::Color,
+       std::nullopt,
+       {{"absoluteError", 0.0}, {"relativeError", 0.0}, {"maxChangedFraction", 0.0}}}};
+    REQUIRE(store.replace(project, 1u).is_success());
+
+    const auto referencePath =
+      std::filesystem::path{directory.path().toStdString()} / "reference.png";
+    const auto targetPath =
+      std::filesystem::path{directory.path().toStdString()} / "target.png";
+    auto image = QImage{2, 2, QImage::Format_RGBA8888};
+    image.fill(Qt::black);
+    REQUIRE(image.save(QString::fromStdString(referencePath.string())));
+    image.fill(Qt::white);
+    REQUIRE(image.save(QString::fromStdString(targetPath.string())));
+
+    auto capture = Capture{};
+    capture.colorPaths = {referencePath, targetPath};
+    auto geometry = Geometry{};
+    auto comparisons = AcceptanceComparisonRunner{projectPath, capture};
+    auto options = AcceptanceSuiteRunOptions{};
+    options.comparisonFilter = {"a"};
+    const auto report =
+      AcceptanceSuiteRunner{store, comparisons, geometry}.run("suite", options);
+
+    CHECK(report.status == AcceptanceRunStatus::Failed);
+    REQUIRE(report.comparisons.size() == 1u);
+    CHECK(report.comparisons.front().status == AcceptanceRunStatus::Failed);
+    REQUIRE(report.comparisons.front().assertions.size() == 1u);
+    CHECK(
+      report.comparisons.front().assertions.front().status
+      == AcceptanceRunStatus::Passed);
+    const auto json = acceptanceSuiteRunReportToJson(report);
+    CHECK(
+      json.value("comparisons")
+        .toArray()
+        .at(0)
+        .toObject()
+        .value("imageComparison")
+        .toObject()
+        .value("passed")
+      == false);
   }
 
   SECTION("propagates a store revision change after serialized capture")
