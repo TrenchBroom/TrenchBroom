@@ -70,9 +70,17 @@ public:
   Result<void> createDocument(
     const mdl::GameInfo& gameInfo,
     mdl::MapFormat mapFormat,
-    const vm::bbox3d& worldBounds);
+    const vm::bbox3d& worldBounds,
+    bool showWindow = true);
 
   Result<void> loadDocument(
+    const mdl::GameInfo& gameInfo,
+    mdl::MapFormat mapFormat,
+    const vm::bbox3d& worldBounds,
+    std::filesystem::path path);
+
+  /** Loads a document in a new window even when the platform normally uses SDI. */
+  Result<MapWindow*> loadDocumentInNewWindow(
     const mdl::GameInfo& gameInfo,
     mdl::MapFormat mapFormat,
     const vm::bbox3d& worldBounds,
@@ -86,7 +94,8 @@ private:
   void onFocusChange(QWidget* old, QWidget* now);
 
   bool shouldCreateWindowForDocument() const;
-  MapWindow* createMapWindow(std::unique_ptr<MapDocument> document);
+  MapWindow* createMapWindow(
+    std::unique_ptr<MapDocument> document, bool activate = true, bool showWindow = true);
   void removeMapWindow(MapWindow* mapWindow);
 
   friend class MapWindow;

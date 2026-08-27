@@ -110,6 +110,7 @@ private: // implement MapView interface
 
 private: // implement MapViewBase interface
   gl::Camera& camera() override;
+  MapViewType viewType() const override;
 
   vm::vec3d moveDirection(vm::direction direction) const override;
   size_t flipAxis(vm::direction direction) const override;
@@ -128,6 +129,8 @@ private: // implement MapViewBase interface
     MapViewToolBox& toolBox,
     render::RenderContext& renderContext,
     render::RenderBatch& renderBatch) override;
+
+  void doFrameBounds(const vm::bbox3d& bounds) override;
 
   void beforePopupMenu() override;
 

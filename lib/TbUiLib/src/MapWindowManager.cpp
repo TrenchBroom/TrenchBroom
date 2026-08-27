@@ -57,7 +57,10 @@ MapWindow* MapWindowManager::topMapWindow() const
 }
 
 Result<void> MapWindowManager::createDocument(
-  const mdl::GameInfo& gameInfo, mdl::MapFormat mapFormat, const vm::bbox3d& worldBounds)
+  const mdl::GameInfo& gameInfo,
+  mdl::MapFormat mapFormat,
+  const vm::bbox3d& worldBounds,
+  const bool showWindow)
 {
   if (shouldCreateWindowForDocument())
   {
@@ -68,7 +71,9 @@ Result<void> MapWindowManager::createDocument(
              worldBounds,
              m_appController.taskManager(),
              m_appController.glManager().resourceManager())
-           | kdl::transform([&](auto document) { createMapWindow(std::move(document)); });
+           | kdl::transform([&](auto document) {
+               createMapWindow(std::move(document), true, showWindow);
+             });
   }
 
   auto* mapWindow = topMapWindow();
@@ -108,6 +113,24 @@ Result<void> MapWindowManager::loadDocument(
     std::move(path));
 }
 
+Result<MapWindow*> MapWindowManager::loadDocumentInNewWindow(
+  const mdl::GameInfo& gameInfo,
+  const mdl::MapFormat mapFormat,
+  const vm::bbox3d& worldBounds,
+  std::filesystem::path path)
+{
+  return MapDocument::loadDocument(
+           m_appController.environmentConfig(),
+           gameInfo,
+           mapFormat,
+           worldBounds,
+           std::move(path),
+           m_appController.taskManager(),
+           m_appController.glManager().resourceManager())
+         | kdl::transform(
+           [&](auto document) { return createMapWindow(std::move(document), false); });
+}
+
 bool MapWindowManager::allMapWindowsClosed() const
 {
   return m_mapWindows.empty();
@@ -135,16 +158,30 @@ bool MapWindowManager::shouldCreateWindowForDocument() const
   return !m_singleMapWindow || m_mapWindows.empty();
 }
 
-MapWindow* MapWindowManager::createMapWindow(std::unique_ptr<MapDocument> document)
+MapWindow* MapWindowManager::createMapWindow(
+  std::unique_ptr<MapDocument> document, const bool activate, const bool showWindow)
 {
   contract_pre(document != nullptr);
 
   auto* mapWindow = new MapWindow{m_appController, std::move(document)};
   mapWindow->positionOnScreen(topMapWindow());
-  m_mapWindows.insert(m_mapWindows.begin(), mapWindow);
+  if (activate || m_mapWindows.empty())
+  {
+    m_mapWindows.insert(m_mapWindows.begin(), mapWindow);
+  }
+  else
+  {
+    m_mapWindows.push_back(mapWindow);
+  }
 
-  mapWindow->show();
-  mapWindow->activateWindow();
+  if (showWindow)
+  {
+    mapWindow->show();
+    if (activate)
+    {
+      mapWindow->activateWindow();
+    }
+  }
   return mapWindow;
 }
 

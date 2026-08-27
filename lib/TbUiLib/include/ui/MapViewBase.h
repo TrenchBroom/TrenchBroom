@@ -24,6 +24,7 @@
 #include "ui/CameraLinkHelper.h"
 #include "ui/MapDocumentActionCache.h"
 #include "ui/MapView.h"
+#include "ui/MapViewContext.h"
 #include "ui/RenderView.h"
 #include "ui/ToolBoxConnector.h"
 
@@ -32,6 +33,7 @@
 #include <vector>
 
 class QMenu;
+class QImage;
 class QShortcut;
 class QString;
 class QAction;
@@ -138,6 +140,46 @@ public:
   void setIsCurrent(bool isCurrent);
 
   virtual gl::Camera& camera() = 0;
+
+  /**
+   * Captures this view's semantic state without changing its selection, camera, or
+   * focus. The returned revision makes the result safe to associate with a later
+   * workspace operation.
+   */
+  MapViewContext captureContext();
+
+  /**
+   * Performs a model pick for a screen position without changing the interactive pick
+   * state used by tools.
+   */
+  MapViewPickResult pickAt(float x, float y);
+
+  /**
+   * Captures the already-rendered framebuffer of this view. This does not focus or
+   * activate the widget, so it can be used on a separate preview map window.
+   */
+  QImage captureImage();
+
+  /**
+   * Sets this view's camera without interacting with QWidget focus or activation. The
+   * direction and up vectors are normalized before they are applied. Returns false if
+   * either vector is zero.
+   */
+  bool setCameraState(
+    const vm::vec3f& position, const vm::vec3f& direction, const vm::vec3f& up);
+
+  /**
+   * Frames the current node selection in this view without focusing or activating it.
+   * Returns false when there is no node selection to frame.
+   */
+  bool frameSelection();
+
+  /**
+   * Frames the supplied bounds in this view without focusing or activating it.
+   */
+  void frameBounds(const vm::bbox3d& bounds);
+
+  virtual MapViewType viewType() const = 0;
 
 private:
   void bindEvents();
@@ -336,6 +378,8 @@ private: // implement RenderView interface
     MapViewToolBox& toolBox,
     render::RenderContext& renderContext,
     render::RenderBatch& renderBatch) = 0;
+
+  virtual void doFrameBounds(const vm::bbox3d& bounds) = 0;
 
   void setupGL(render::RenderContext& renderContext);
   void renderCoordinateSystem(

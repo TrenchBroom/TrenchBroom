@@ -181,8 +181,9 @@ public:
     setModal(true);
 
     auto* explanation = new QLabel{
-      tr("Each option preserves the exact occupied volume. Visible face materials and "
-         "texture alignment are copied from the selected brushes."),
+      tr(
+        "Each option preserves the exact occupied volume. Visible face materials and "
+        "texture alignment are copied from the selected brushes."),
       this};
     explanation->setWordWrap(true);
 
@@ -272,7 +273,7 @@ private:
       return;
     }
 
-    const auto brushCount = m_candidates[m_currentCandidate].bounds.size();
+    const auto brushCount = m_candidates[m_currentCandidate].brushCount();
     const auto reduction = m_originalBrushCount - brushCount;
     const auto countDescription =
       reduction > 0u ? tr("%1 fewer").arg(reduction) : tr("same count");
@@ -315,8 +316,9 @@ public:
     form->addRow(tr("Placement:"), m_direction);
 
     auto* explanation = new QLabel{
-      tr("The selected edges must form exactly two connected, coplanar, open chains. "
-         "The current material is applied to the generated brushes."),
+      tr(
+        "The selected edges must form exactly two connected, coplanar, open chains. "
+        "The current material is applied to the generated brushes."),
       this};
     explanation->setWordWrap(true);
 
@@ -379,8 +381,9 @@ public:
     form->addRow(tr("Plane coordinate:"), m_coordinate);
 
     auto* explanation = new QLabel{
-      tr("Creates new brushes from the selected brush faces—or the outward side of "
-         "selected brushes—to the absolute plane. The current material is used."),
+      tr(
+        "Creates new brushes from the selected brush faces—or the outward side of "
+        "selected brushes—to the absolute plane. The current material is used."),
       this};
     explanation->setWordWrap(true);
 
@@ -937,10 +940,10 @@ QString describeSelection(const mdl::Map& map)
   // now, turn `tokens` into a comma-separated string
   if (!tokens.empty())
   {
-    pipeSeparatedSections << QObject::tr("%1%2 selected")
-                               .arg(QString::fromStdString(
-                                 kdl::str_join(tokens, ", ", ", and ", " and ")))
-                               .arg(layersDescription);
+    pipeSeparatedSections
+      << QObject::tr("%1%2 selected")
+           .arg(QString::fromStdString(kdl::str_join(tokens, ", ", ", and ", " and ")))
+           .arg(layersDescription);
   }
 
   // count hidden objects
@@ -949,39 +952,40 @@ QString describeSelection(const mdl::Map& map)
   size_t hiddenBrushes = 0u;
   size_t hiddenPatches = 0u;
 
-  map.worldNode().accept(kdl::overload(
-    [](auto&& thisLambda, const mdl::WorldNode& worldNode) {
-      worldNode.visitChildren(thisLambda);
-    },
-    [](auto&& thisLambda, const mdl::LayerNode& layerNode) {
-      layerNode.visitChildren(thisLambda);
-    },
-    [&](auto&& thisLambda, const mdl::GroupNode& groupNode) {
-      if (!editorContext.visible(groupNode))
-      {
-        ++hiddenGroups;
-      }
-      groupNode.visitChildren(thisLambda);
-    },
-    [&](auto&& thisLambda, const mdl::EntityNode& entityNode) {
-      if (!editorContext.visible(entityNode))
-      {
-        ++hiddenEntities;
-      }
-      entityNode.visitChildren(thisLambda);
-    },
-    [&](const mdl::BrushNode& brushNode) {
-      if (!editorContext.visible(brushNode))
-      {
-        ++hiddenBrushes;
-      }
-    },
-    [&](const mdl::PatchNode& patchNode) {
-      if (!editorContext.visible(patchNode))
-      {
-        ++hiddenPatches;
-      }
-    }));
+  map.worldNode().accept(
+    kdl::overload(
+      [](auto&& thisLambda, const mdl::WorldNode& worldNode) {
+        worldNode.visitChildren(thisLambda);
+      },
+      [](auto&& thisLambda, const mdl::LayerNode& layerNode) {
+        layerNode.visitChildren(thisLambda);
+      },
+      [&](auto&& thisLambda, const mdl::GroupNode& groupNode) {
+        if (!editorContext.visible(groupNode))
+        {
+          ++hiddenGroups;
+        }
+        groupNode.visitChildren(thisLambda);
+      },
+      [&](auto&& thisLambda, const mdl::EntityNode& entityNode) {
+        if (!editorContext.visible(entityNode))
+        {
+          ++hiddenEntities;
+        }
+        entityNode.visitChildren(thisLambda);
+      },
+      [&](const mdl::BrushNode& brushNode) {
+        if (!editorContext.visible(brushNode))
+        {
+          ++hiddenBrushes;
+        }
+      },
+      [&](const mdl::PatchNode& patchNode) {
+        if (!editorContext.visible(patchNode))
+        {
+          ++hiddenPatches;
+        }
+      }));
 
   // print hidden objects
   if (hiddenGroups > 0 || hiddenEntities > 0 || hiddenBrushes > 0)
@@ -1006,8 +1010,10 @@ QString describeSelection(const mdl::Map& map)
     }
 
     pipeSeparatedSections << QObject::tr("%1 hidden")
-                               .arg(QString::fromStdString(kdl::str_join(
-                                 hiddenDescriptors, ", ", ", and ", " and ")));
+                               .arg(
+                                 QString::fromStdString(
+                                   kdl::str_join(
+                                     hiddenDescriptors, ", ", ", and ", " and ")));
   }
 
   return QString::fromLatin1("   ")
@@ -1375,9 +1381,10 @@ bool MapWindow::exportDocument(const mdl::ExportOptions& options)
     QMessageBox::critical(
       this,
       "",
-      tr("You can't overwrite the current document.\nPlease choose a different file name "
-         "to export "
-         "to."));
+      tr(
+        "You can't overwrite the current document.\nPlease choose a different file name "
+        "to export "
+        "to."));
     return false;
   }
 
@@ -2051,8 +2058,9 @@ void MapWindow::optimizeBrushwork()
     QMessageBox::information(
       this,
       tr("Optimize Brushwork"),
-      tr("No alternative rectangular decomposition can improve this selection while "
-         "preserving its visible materials and texture alignment."));
+      tr(
+        "No alternative convex decomposition can improve this selection while "
+        "preserving its visible materials and texture alignment."));
     return;
   }
 
@@ -2114,8 +2122,9 @@ void MapWindow::bridgeEdgeChains()
       QMessageBox::warning(
         this,
         tr("Bridge Edge Chains"),
-        tr("Could not bridge the selected edges. Select exactly two connected, "
-           "coplanar, open edge chains."));
+        tr(
+          "Could not bridge the selected edges. Select exactly two connected, "
+          "coplanar, open edge chains."));
     }
   }
 }
@@ -2147,8 +2156,9 @@ void MapWindow::createVolumeToPlane()
     QMessageBox::warning(
       this,
       tr("Create Volume to Plane"),
-      tr("The target plane must lie outside every selected brush, or outward from every "
-         "selected axis-aligned face."));
+      tr(
+        "The target plane must lie outside every selected brush, or outward from every "
+        "selected axis-aligned face."));
   }
 }
 
@@ -2203,8 +2213,9 @@ void MapWindow::createEqWater()
     QMessageBox::warning(
       this,
       tr("Create EQ Water"),
-      tr("Could not create water. Select riverbed brushes with a horizontal top face, "
-         "and choose a surface above every selected brush."));
+      tr(
+        "Could not create water. Select riverbed brushes with a horizontal top face, "
+        "and choose a surface above every selected brush."));
   }
 }
 
@@ -2840,7 +2851,8 @@ void MapWindow::debugShowPalette()
 
 void MapWindow::focusChange(QWidget* /* oldFocus */, QWidget* newFocus)
 {
-  if (auto* newMapView = dynamic_cast<MapViewBase*>(newFocus))
+  if (auto* newMapView = dynamic_cast<MapViewBase*>(newFocus);
+      newMapView != nullptr && m_mapView->isAncestorOf(newMapView))
   {
     m_currentMapView = newMapView;
   }
@@ -2851,9 +2863,11 @@ void MapWindow::focusChange(QWidget* /* oldFocus */, QWidget* newFocus)
 
 MapViewBase* MapWindow::currentMapViewBase()
 {
-  if (!m_currentMapView)
+  if (!m_currentMapView || !m_mapView->isAncestorOf(m_currentMapView))
   {
-    // This happens when the current map view is deleted (e.g. 4-pane to 1-pane layout)
+    // This happens when the current map view is deleted (e.g. 4-pane to 1-pane
+    // layout). The ownership check also prevents a view belonging to another
+    // MapWindow from leaking in through QApplication's global focusChanged signal.
     m_currentMapView = m_mapView->firstMapViewBase();
 
     // SwitchableMapViewContainer should have constructed a MapViewBase

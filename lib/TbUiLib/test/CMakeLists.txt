@@ -7,6 +7,8 @@ target_sources(TbUiLibTest
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_ActionContext.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_ActionInfo.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Actions.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_AutomationJson.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_AutomationService.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_CompilationDialog.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_CompilationProfileManager.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_CompilationRunner.cpp
@@ -24,7 +26,10 @@ target_sources(TbUiLibTest
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_RecentDocuments.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_KeyboardShortcutUtils.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_LayerListBox.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_LocalJsonRpcServer.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_MapHookRunner.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_MapViewCamera.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_MapViewContext.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_OutlinerModel.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_OutlinerModelBenchmark.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_SystemPaths.cpp
@@ -36,6 +41,8 @@ target_sources(TbUiLibTest
 )
 
 add_compile_definitions(CATCH_CONFIG_ENABLE_ALL_STRINGMAKERS=1)
+
+target_include_directories(TbUiLibTest PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../src)
 
 target_link_libraries(TbUiLibTest PRIVATE 
   CompilerConfig

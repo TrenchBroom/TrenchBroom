@@ -13,6 +13,17 @@ target_sources(TbUiLib
     ${CMAKE_CURRENT_SOURCE_DIR}/src/AnimationManager.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/AppController.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/AppInfoPanel.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/AutomationJson.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/AutomationService.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/AutomationService_Brushes.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/AutomationService_Documents.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/AutomationService_Faces.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/AutomationService_Geometry.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/AutomationService_Nodes.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/AutomationService_Server.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/AutomationService_View.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/AutomationService_Workspaces.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/AutomationWorkspaceManager.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/AutoSizeTableRows.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/BitmapButton.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/BorderLine.cpp
@@ -99,6 +110,7 @@ target_sources(TbUiLib
     ${CMAKE_CURRENT_SOURCE_DIR}/src/LayerEditor.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/LayerListBox.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/LimitedKeySequenceEdit.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/LocalJsonRpcServer.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/MapDocumentActionCache.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/MapHookPreferencePane.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/MapHookRunner.cpp
@@ -109,6 +121,7 @@ target_sources(TbUiLib
     ${CMAKE_CURRENT_SOURCE_DIR}/src/MapViewActivationTracker.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/MapViewBar.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/MapViewBase.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/MapViewContext.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/MapViewContainer.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/MapViewToolBox.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/MapWindow.cpp
@@ -201,6 +214,8 @@ target_sources(TbUiLib
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/AnimationManager.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/AppController.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/AppInfoPanel.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/AutomationService.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/AutomationWorkspaceManager.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/AutoSizeTableRows.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/BitmapButton.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/BorderLine.h
@@ -287,6 +302,7 @@ target_sources(TbUiLib
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/LayerEditor.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/LayerListBox.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/LimitedKeySequenceEdit.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/LocalJsonRpcServer.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/MapDocumentActionCache.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/MapHookPreferencePane.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/MapHookRunner.h
@@ -297,6 +313,7 @@ target_sources(TbUiLib
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/MapViewActivationTracker.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/MapViewBar.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/MapViewBase.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/MapViewContext.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/MapViewContainer.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/MapViewLayout.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/MapViewToolBox.h

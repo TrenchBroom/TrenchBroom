@@ -22,6 +22,7 @@
 #include <QApplication>
 #include <QClipboard>
 #include <QDebug>
+#include <QImage>
 #include <QMenu>
 #include <QMimeData>
 #include <QShortcut>
@@ -141,6 +142,52 @@ MapViewBase::~MapViewBase()
 void MapViewBase::setIsCurrent(const bool isCurrent)
 {
   m_isCurrent = isCurrent;
+}
+
+MapViewContext MapViewBase::captureContext()
+{
+  return captureMapViewContext(m_document.map(), camera(), viewType());
+}
+
+MapViewPickResult MapViewBase::pickAt(const float x, const float y)
+{
+  return pickMapView(m_document.map(), camera(), x, y);
+}
+
+QImage MapViewBase::captureImage()
+{
+  return grabFramebuffer();
+}
+
+bool MapViewBase::setCameraState(
+  const vm::vec3f& position, const vm::vec3f& direction, const vm::vec3f& up)
+{
+  if (
+    vm::is_zero(direction, vm::Cf::almost_zero())
+    || vm::is_zero(up, vm::Cf::almost_zero()))
+  {
+    return false;
+  }
+
+  auto& viewCamera = camera();
+  viewCamera.moveTo(position);
+  viewCamera.setDirection(vm::normalize(direction), vm::normalize(up));
+  return true;
+}
+
+bool MapViewBase::frameSelection()
+{
+  if (const auto& bounds = m_document.map().selectionBounds())
+  {
+    frameBounds(*bounds);
+    return true;
+  }
+  return false;
+}
+
+void MapViewBase::frameBounds(const vm::bbox3d& bounds)
+{
+  doFrameBounds(bounds);
 }
 
 void MapViewBase::bindEvents()
@@ -1265,8 +1312,9 @@ void MapViewBase::showPopupMenuLater()
   }
 
   const auto moveSelectionToItems = moveSelectionTo->actions();
-  moveSelectionTo->setEnabled(std::ranges::any_of(
-    moveSelectionToItems, [](QAction* action) { return action->isEnabled(); }));
+  moveSelectionTo->setEnabled(
+    std::ranges::any_of(
+      moveSelectionToItems, [](QAction* action) { return action->isEnabled(); }));
 
   if (selectedObjectLayers.size() == 1u)
   {
@@ -1318,13 +1366,14 @@ void MapViewBase::showPopupMenuLater()
       menu.addAction(tr("Make Structural"), this, &MapViewBase::makeSelectionStructural);
     moveToWorldAction->setEnabled(canMakeSelectionStructural());
 
-    const auto isEntity = newNodeParent.accept(kdl::overload(
-      [](const mdl::WorldNode&) { return false; },
-      [](const mdl::LayerNode&) { return false; },
-      [](const mdl::GroupNode&) { return false; },
-      [](const mdl::EntityNode&) { return true; },
-      [](const mdl::BrushNode&) { return false; },
-      [](const mdl::PatchNode&) { return false; }));
+    const auto isEntity = newNodeParent.accept(
+      kdl::overload(
+        [](const mdl::WorldNode&) { return false; },
+        [](const mdl::LayerNode&) { return false; },
+        [](const mdl::GroupNode&) { return false; },
+        [](const mdl::EntityNode&) { return true; },
+        [](const mdl::BrushNode&) { return false; },
+        [](const mdl::PatchNode&) { return false; }));
 
     if (isEntity)
     {

@@ -66,6 +66,10 @@
 
 #include "vm/util.h"
 
+#include <algorithm>
+#include <cmath>
+#include <limits>
+
 namespace tb::ui
 {
 
@@ -75,6 +79,7 @@ MapView2D::MapView2D(
   MapViewToolBox& toolBox,
   ViewPlane viewPlane)
   : MapViewBase{appController, document, toolBox}
+  , m_viewPlane{viewPlane}
   , m_camera{std::make_unique<gl::OrthographicCamera>()}
 {
   connectObservers();
@@ -247,6 +252,43 @@ void MapView2D::focusCameraOnSelection(const bool animate)
   moveCameraToPosition(m_camera->position() + delta, animate);
 }
 
+void MapView2D::doFrameBounds(const vm::bbox3d& bounds)
+{
+  const auto center = vm::vec3f{bounds.center()};
+  auto halfWidth = 0.0f;
+  auto halfHeight = 0.0f;
+  bounds.for_each_vertex([&](const auto& point) {
+    const auto offset = vm::vec3f{point} - center;
+    halfWidth = std::max(halfWidth, std::abs(vm::dot(offset, m_camera->right())));
+    halfHeight = std::max(halfHeight, std::abs(vm::dot(offset, m_camera->up())));
+  });
+
+  const auto& viewport = m_camera->viewport();
+  constexpr auto margin = 64.0f;
+  const auto availableWidth = std::max(1.0f, static_cast<float>(viewport.width) - margin);
+  const auto availableHeight =
+    std::max(1.0f, static_cast<float>(viewport.height) - margin);
+  auto zoom = std::numeric_limits<float>::max();
+  if (halfWidth > 0.0f)
+  {
+    zoom = availableWidth / (2.0f * halfWidth);
+  }
+  if (halfHeight > 0.0f)
+  {
+    zoom = std::min(zoom, availableHeight / (2.0f * halfHeight));
+  }
+  if (zoom != std::numeric_limits<float>::max())
+  {
+    m_camera->setZoom(zoom);
+  }
+
+  const auto position =
+    vm::dot(center, m_camera->up()) * m_camera->up()
+    + vm::dot(center, m_camera->right()) * m_camera->right()
+    + vm::dot(m_camera->position(), m_camera->direction()) * m_camera->direction();
+  m_camera->moveTo(position);
+}
+
 void MapView2D::moveCameraToPosition(const vm::vec3f& position, const bool animate)
 {
   if (animate)
@@ -289,6 +331,20 @@ void MapView2D::moveCameraToCurrentTracePoint()
 gl::Camera& MapView2D::camera()
 {
   return *m_camera;
+}
+
+MapViewType MapView2D::viewType() const
+{
+  switch (m_viewPlane)
+  {
+  case ViewPlane::XY:
+    return MapViewType::XY;
+  case ViewPlane::XZ:
+    return MapViewType::XZ;
+  case ViewPlane::YZ:
+    return MapViewType::YZ;
+    switchDefault();
+  }
 }
 
 vm::vec3d MapView2D::moveDirection(const vm::direction direction) const

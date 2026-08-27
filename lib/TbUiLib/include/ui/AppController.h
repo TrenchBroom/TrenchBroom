@@ -61,6 +61,7 @@ namespace ui
 {
 class AboutDialog;
 class ActionManager;
+class AutomationService;
 class MapWindowManager;
 class RecentDocuments;
 class WelcomeWindow;
@@ -88,6 +89,7 @@ private:
   MapWindowManager* m_mapWindowManager = nullptr;
   RecentDocuments* m_recentDocuments = nullptr;
   std::unique_ptr<ActionManager> m_actionManager;
+  std::unique_ptr<AutomationService> m_automationService;
   std::unique_ptr<WelcomeWindow> m_welcomeWindow;
   std::unique_ptr<AboutDialog> m_aboutDialog;
 

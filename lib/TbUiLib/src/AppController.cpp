@@ -43,6 +43,7 @@
 #include "prefs/Preferences.h"
 #include "ui/AboutDialog.h"
 #include "ui/ActionManager.h"
+#include "ui/AutomationService.h"
 #include "ui/CrashDialog.h"
 #include "ui/FileDialogDefaultDir.h"
 #include "ui/GameDialog.h"
@@ -187,6 +188,7 @@ AppController::AppController(
   , m_mapWindowManager{createMapWindowManager(*this)}
   , m_recentDocuments{createRecentDocuments(this)}
   , m_actionManager{std::make_unique<ActionManager>()}
+  , m_automationService{std::make_unique<AutomationService>(*this)}
   , m_welcomeWindow{std::make_unique<WelcomeWindow>(*this)}
   , m_aboutDialog{std::make_unique<AboutDialog>(*this)}
 {
