@@ -4,6 +4,8 @@ Thumbs.db
 .vscode
 .zed
 .cache
+__pycache__/
+*.py[cod]
 
 /cmake-build-*
 /build*
@@ -20,4 +22,3 @@ Thumbs.db
 /coverity
 
 app/resources/documentation/help/index.html
-
