@@ -93,6 +93,8 @@ std::optional<AcceptanceAssertionType> assertionType(const QString& value)
     return AcceptanceAssertionType::ClearSightline;
   if (value == "openingClearance")
     return AcceptanceAssertionType::OpeningClearance;
+  if (value == "playerClearance")
+    return AcceptanceAssertionType::PlayerClearance;
   if (value == "materialCoverage")
     return AcceptanceAssertionType::MaterialCoverage;
   if (value == "depthRange")
@@ -486,6 +488,87 @@ AcceptanceAssertionResult opening(
     measuredHeight,
     "opening clearance evaluated"};
 }
+
+AcceptanceAssertionResult playerClearance(
+  const AcceptanceGeometryQuery& geometry,
+  const AcceptanceAssertion& assertion,
+  const AcceptanceAssertionContext& context)
+{
+  const auto& config = assertion.configuration;
+  const auto startValue = vec(config.value("start"), "start");
+  const auto endValue =
+    config.contains("end") ? vec(config.value("end"), "end") : startValue;
+  const auto radius = number(config, "radius");
+  const auto height = number(config, "height");
+  const auto maxStep =
+    number(config, "maxStep", radius.is_success() ? radius.value() : 0.0);
+  if (
+    startValue.is_error() || endValue.is_error() || radius.is_error() || height.is_error()
+    || maxStep.is_error())
+  {
+    return error(
+      AcceptanceAssertionErrorCode::InvalidConfiguration,
+      "Player clearance requires finite start, optional end, radius, height, and "
+      "maxStep");
+  }
+  if (radius.value() <= 0.0 || height.value() <= 0.0 || maxStep.value() <= 0.0)
+  {
+    return error(
+      AcceptanceAssertionErrorCode::InvalidConfiguration,
+      "Player clearance radius, height, and maxStep must be positive");
+  }
+
+  const auto start = transform(context, startValue.value(), true);
+  const auto end = transform(context, endValue.value(), true);
+  if (start.is_error())
+    return std::get<AcceptanceAssertionError>(start.error());
+  if (end.is_error())
+    return std::get<AcceptanceAssertionError>(end.error());
+
+  const auto delta = end.value() - start.value();
+  const auto length = vm::length(delta);
+  const auto intervals = std::ceil(length / maxStep.value());
+  constexpr auto MaxPlayerClearanceSamples = 4096.0;
+  if (!std::isfinite(intervals) || intervals + 1.0 > MaxPlayerClearanceSamples)
+  {
+    return error(
+      AcceptanceAssertionErrorCode::InvalidConfiguration,
+      "Player clearance segment exceeds the 4096-sample limit");
+  }
+  const auto sampleCount = static_cast<size_t>(intervals) + 1u;
+  auto clearCount = size_t{0u};
+  for (size_t index = 0u; index < sampleCount; ++index)
+  {
+    const auto fraction = sampleCount == 1u ? 0.0
+                                            : static_cast<double>(index)
+                                                / static_cast<double>(sampleCount - 1u);
+    const auto position = start.value() + delta * fraction;
+    const auto skin =
+      std::min(context.tolerance, std::min(radius.value(), height.value()) / 2.0);
+    const auto bounds = vm::bbox3d{
+      {position.x() - radius.value() + skin,
+       position.y() - radius.value() + skin,
+       position.z() + skin},
+      {position.x() + radius.value() - skin,
+       position.y() + radius.value() - skin,
+       position.z() + height.value() - skin}};
+    const auto blocked = geometry.intersects(bounds);
+    if (blocked.is_error())
+      return queryError(blocked);
+    if (!blocked.value())
+      ++clearCount;
+  }
+
+  const auto passed = clearCount == sampleCount;
+  return AcceptanceAssertionReport{
+    passed,
+    sampleCount,
+    clearCount,
+    static_cast<double>(clearCount) / static_cast<double>(sampleCount),
+    radius.value() * 2.0,
+    height.value(),
+    passed ? "player volume clear" : "player volume blocked"};
+}
 } // namespace
 
 std::ostream& operator<<(std::ostream& lhs, const AcceptanceAssertionError& rhs)
@@ -634,6 +717,8 @@ AcceptanceAssertionResult AcceptanceAssertionEvaluator::evaluate(
     return boundsVisibility(m_geometry, assertion, context);
   case AcceptanceAssertionType::OpeningClearance:
     return opening(m_geometry, assertion, context);
+  case AcceptanceAssertionType::PlayerClearance:
+    return playerClearance(m_geometry, assertion, context);
   default:
     return error(
       AcceptanceAssertionErrorCode::UnsupportedType,

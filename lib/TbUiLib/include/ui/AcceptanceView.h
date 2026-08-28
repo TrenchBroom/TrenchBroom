@@ -176,6 +176,7 @@ enum class AcceptanceAssertionType
   BoundsNotVisible,
   ClearSightline,
   OpeningClearance,
+  PlayerClearance,
   MaterialCoverage,
   DepthRange,
 };

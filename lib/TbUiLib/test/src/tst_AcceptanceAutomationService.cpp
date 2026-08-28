@@ -97,6 +97,11 @@ public:
   {
     return std::vector<AcceptanceGeometryHit>{};
   }
+
+  Result<bool, AcceptanceGeometryError> intersects(const vm::bbox3d&) const override
+  {
+    return false;
+  }
 };
 
 class Geometry : public AcceptanceGeometryProvider
@@ -449,6 +454,36 @@ TEST_CASE("AcceptanceAutomationService")
     CHECK(
       std::get<AcceptanceAutomationError>(missingIdentity.error()).code
       == AcceptanceAutomationErrorCode::InvalidParameters);
+  }
+
+  SECTION("evaluates player clearance without a view or active-document fallback")
+  {
+    const auto evaluated = service.handle(
+      "acceptance.assertions.evaluate",
+      {{"document",
+        QJsonObject{
+          {"path", "/maps/hidden-candidate.map"},
+          {"documentId", "hidden-branch-9"},
+          {"revision", 11}}},
+       {"assertion",
+        QJsonObject{
+          {"id", "entry-clearance"},
+          {"type", "playerClearance"},
+          {"configuration",
+           QJsonObject{
+             {"start", QJsonArray{0.0, 0.0, 0.0}},
+             {"radius", 16.0},
+             {"height", 56.0}}}}}});
+
+    REQUIRE(evaluated.is_success());
+    CHECK(evaluated.value().value("status") == "passed");
+    CHECK(
+      evaluated.value().value("document").toObject().value("documentId")
+      == "hidden-branch-9");
+    CHECK(evaluated.value().value("document").toObject().value("revision") == 11);
+    REQUIRE(geometry.lastDocument);
+    CHECK(geometry.lastDocument->documentId == "hidden-branch-9");
+    CHECK(geometry.lastDocument->revision == 11u);
   }
 }
 

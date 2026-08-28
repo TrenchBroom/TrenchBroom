@@ -37,7 +37,12 @@ AcceptanceProject makeProject()
     {},
     {{"portal", 0.1, 0.2, 0.5, 0.4}},
     {{"silhouette", AcceptanceMetricType::Silhouette, "portal", {}}},
-    {{"visible", AcceptanceAssertionType::BoundsVisible, "portal", std::nullopt, {}}},
+    {{"visible", AcceptanceAssertionType::BoundsVisible, "portal", std::nullopt, {}},
+     {"entry-clearance",
+      AcceptanceAssertionType::PlayerClearance,
+      std::nullopt,
+      std::nullopt,
+      {{"start", QJsonArray{0.0, 0.0, 0.0}}, {"radius", 16.0}, {"height", 56.0}}}},
   }};
   project.suites = {
     {AcceptanceSchemaVersion, "front-gardens", "Front gardens", {"entry"}}};

@@ -12,7 +12,9 @@ policy. `acceptance.evidence.run` publishes an immutable, hashed bundle containi
 acceptance project, exact captured map revisions, normalized cameras, render settings,
 color/depth images, renderer version, and the full suite report. Persisted policy,
 adaptive sampling, material/content classification, and player connectivity remain
-follow-ups.
+follow-ups. `playerClearance` is intentionally narrower than connectivity: it verifies
+an upright player-sized AABB at a point or along a sampled segment using exact
+brush-volume intersection, without inferring a route through the map.
 
 ## Goal
 
@@ -156,6 +158,9 @@ judgments. Initial types:
 - `boundsNotVisible`: occluder/hidden-region check.
 - `clearSightline`: one ray or a sampled ray corridor reaches the intended target.
 - `openingClearance`: projected or world-space opening exceeds width/height bounds.
+- `playerClearance`: an upright AABB with the configured `radius` and `height` is clear
+  at `start`, or at every sample along `start` to optional `end`; `maxStep` bounds the
+  segment sampling interval and defaults to `radius`.
 - `materialCoverage`: a material appears within a region at an expected coverage.
 - `depthRange`: visible geometry in a mask lies within an expected range.
 

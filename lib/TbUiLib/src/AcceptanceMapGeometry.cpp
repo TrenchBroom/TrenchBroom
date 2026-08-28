@@ -11,9 +11,11 @@
 
 #include "ui/AcceptanceMapGeometry.h"
 
+#include "mdl/BrushBuilder.h"
 #include "mdl/BrushNode.h"
 #include "mdl/Map.h"
 #include "mdl/Map_Picking.h"
+#include "mdl/NodeQueries.h"
 #include "mdl/PatchNode.h"
 #include "mdl/PickResult.h"
 #include "ui/AutomationDocumentRegistry.h"
@@ -80,6 +82,33 @@ AcceptanceMapGeometryQuery::cast(const AcceptanceStructuralRay& ray) const
   }
   std::ranges::sort(hits, {}, &AcceptanceGeometryHit::distance);
   return hits;
+}
+
+Result<bool, AcceptanceGeometryError> AcceptanceMapGeometryQuery::intersects(
+  const vm::bbox3d& bounds) const
+{
+  if (
+    !std::isfinite(bounds.min.x()) || !std::isfinite(bounds.min.y())
+    || !std::isfinite(bounds.min.z()) || !std::isfinite(bounds.max.x())
+    || !std::isfinite(bounds.max.y()) || !std::isfinite(bounds.max.z())
+    || !bounds.is_valid() || bounds.is_empty())
+  {
+    return error("Structural volume must have finite, nonempty bounds");
+  }
+
+  const auto probe =
+    mdl::BrushBuilder{m_map.worldNode().mapFormat(), m_map.worldBounds()}.createCuboid(
+      bounds, "__acceptance_player_probe__");
+  if (probe.is_error())
+    return error("Could not construct player clearance probe");
+
+  const auto nodes = mdl::collectNodesAndDescendants(
+    std::vector<mdl::Node*>{&m_map.worldNode()},
+    [](const mdl::BrushNode&) { return true; });
+  return std::ranges::any_of(nodes, [&](const auto* node) {
+    const auto* brush = dynamic_cast<const mdl::BrushNode*>(node);
+    return brush != nullptr && brush->brush().intersects(probe.value());
+  });
 }
 
 AcceptanceMapGeometryProvider::AcceptanceMapGeometryProvider(

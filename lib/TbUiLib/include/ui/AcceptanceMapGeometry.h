@@ -34,6 +34,9 @@ public:
   Result<std::vector<AcceptanceGeometryHit>, AcceptanceGeometryError> cast(
     const AcceptanceStructuralRay& ray) const override;
 
+  Result<bool, AcceptanceGeometryError> intersects(
+    const vm::bbox3d& bounds) const override;
+
 private:
   mdl::Map& m_map;
 };

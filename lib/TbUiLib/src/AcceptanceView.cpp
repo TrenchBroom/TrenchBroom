@@ -293,6 +293,8 @@ std::optional<AcceptanceAssertionType> enumFromString(const QString& value)
     return AcceptanceAssertionType::ClearSightline;
   if (value == "openingClearance")
     return AcceptanceAssertionType::OpeningClearance;
+  if (value == "playerClearance")
+    return AcceptanceAssertionType::PlayerClearance;
   if (value == "materialCoverage")
     return AcceptanceAssertionType::MaterialCoverage;
   if (value == "depthRange")
@@ -348,6 +350,8 @@ QString toString(const AcceptanceAssertionType type)
     return "clearSightline";
   case AcceptanceAssertionType::OpeningClearance:
     return "openingClearance";
+  case AcceptanceAssertionType::PlayerClearance:
+    return "playerClearance";
   case AcceptanceAssertionType::MaterialCoverage:
     return "materialCoverage";
   case AcceptanceAssertionType::DepthRange:

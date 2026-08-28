@@ -9,6 +9,8 @@
  (at your option) any later version.
  */
 
+#include <QJsonArray>
+
 #include "mdl/BrushBuilder.h"
 #include "mdl/BrushNode.h"
 #include "mdl/Map.h"
@@ -79,6 +81,50 @@ TEST_CASE("AcceptanceMapGeometry")
     REQUIRE(hits.is_success());
     REQUIRE_FALSE(hits.value().empty());
     CHECK(hits.value().front().distance == 0.0);
+  }
+
+  SECTION("uses exact brush-volume intersection for player clearance probes")
+  {
+    const auto clear = query.intersects({{-5.0, -5.0, -5.0}, {5.0, 5.0, 5.0}});
+    REQUIRE(clear.is_success());
+    CHECK_FALSE(clear.value());
+
+    const auto blocked = query.intersects({{15.0, -1.0, -1.0}, {16.0, 1.0, 1.0}});
+    REQUIRE(blocked.is_success());
+    CHECK(blocked.value());
+  }
+
+  SECTION("detects player body, headroom, and a narrow opening")
+  {
+    const auto player = [](const vm::vec3d& start) {
+      auto assertion = AcceptanceAssertion{};
+      assertion.type = AcceptanceAssertionType::PlayerClearance;
+      assertion.configuration = {
+        {"start", QJsonArray{start.x(), start.y(), start.z()}},
+        {"radius", 4.0},
+        {"height", 10.0}};
+      return assertion;
+    };
+    const auto evaluator = AcceptanceAssertionEvaluator{query};
+
+    const auto clear = evaluator.evaluate(player({0.0, 0.0, 0.0}));
+    REQUIRE(clear.is_success());
+    CHECK(clear.value().passed);
+
+    const auto body = evaluator.evaluate(player({15.0, 0.0, 0.0}));
+    REQUIRE(body.is_success());
+    CHECK_FALSE(body.value().passed);
+
+    addCuboid(map, {{-5.0, -5.0, 8.0}, {5.0, 5.0, 12.0}});
+    const auto headroom = evaluator.evaluate(player({0.0, 0.0, 0.0}));
+    REQUIRE(headroom.is_success());
+    CHECK_FALSE(headroom.value().passed);
+
+    addCuboid(map, {{-5.0, -5.0, -30.0}, {5.0, -3.0, -10.0}});
+    addCuboid(map, {{-5.0, 3.0, -30.0}, {5.0, 5.0, -10.0}});
+    const auto narrowOpening = evaluator.evaluate(player({0.0, 0.0, -20.0}));
+    REQUIRE(narrowOpening.is_success());
+    CHECK_FALSE(narrowOpening.value().passed);
   }
 
   SECTION("requires an exact document identity through the injected resolver")

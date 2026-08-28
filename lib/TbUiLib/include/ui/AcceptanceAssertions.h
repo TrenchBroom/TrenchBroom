@@ -3,6 +3,8 @@
 
 #include "ui/AcceptanceView.h"
 
+#include "vm/bbox.h"
+
 #include <optional>
 #include <string>
 
@@ -32,6 +34,12 @@ public:
   virtual ~AcceptanceGeometryQuery() = default;
   virtual Result<std::vector<AcceptanceGeometryHit>, AcceptanceGeometryError> cast(
     const AcceptanceStructuralRay& ray) const = 0;
+
+  /** Tests an explicit volume without consulting selection, a view, or GUI focus. */
+  virtual Result<bool, AcceptanceGeometryError> intersects(const vm::bbox3d&) const
+  {
+    return AcceptanceGeometryError{"Structural volume intersection is not available"};
+  }
 };
 
 enum class AcceptanceAssertionSpace

@@ -22,13 +22,22 @@ class Query : public AcceptanceGeometryQuery
 {
 public:
   std::function<std::vector<AcceptanceGeometryHit>(const AcceptanceStructuralRay&)> hits;
+  std::function<bool(const vm::bbox3d&)> volumeIntersects;
   mutable std::vector<AcceptanceStructuralRay> rays;
+  mutable std::vector<vm::bbox3d> volumes;
 
   Result<std::vector<AcceptanceGeometryHit>, AcceptanceGeometryError> cast(
     const AcceptanceStructuralRay& ray) const override
   {
     rays.push_back(ray);
     return hits ? hits(ray) : std::vector<AcceptanceGeometryHit>{};
+  }
+
+  Result<bool, AcceptanceGeometryError> intersects(
+    const vm::bbox3d& bounds) const override
+  {
+    volumes.push_back(bounds);
+    return volumeIntersects ? volumeIntersects(bounds) : false;
   }
 };
 
@@ -42,6 +51,23 @@ AcceptanceAssertion sightlineAssertion(const double minimumClearFraction = 1.0)
     {"corridorWidth", 2.0},
     {"grid", 3},
     {"minimumClearFraction", minimumClearFraction}};
+  return assertion;
+}
+
+AcceptanceAssertion playerClearanceAssertion(
+  const vm::vec3d& start = {0.0, 0.0, 0.0},
+  const std::optional<vm::vec3d>& end = std::nullopt)
+{
+  auto configuration = QJsonObject{
+    {"start", vector(start.x(), start.y(), start.z())},
+    {"radius", 16.0},
+    {"height", 56.0},
+    {"maxStep", 8.0}};
+  if (end)
+    configuration.insert("end", vector(end->x(), end->y(), end->z()));
+  auto assertion = AcceptanceAssertion{};
+  assertion.type = AcceptanceAssertionType::PlayerClearance;
+  assertion.configuration = configuration;
   return assertion;
 }
 
@@ -125,6 +151,46 @@ TEST_CASE("AcceptanceAssertions")
     REQUIRE(clearance.is_success());
     CHECK(clearance.value().passed);
     CHECK(clearance.value().measuredWidth == 6.0);
+  }
+
+  SECTION("tests a player-sized upright volume at a point and along a segment")
+  {
+    auto query = Query{};
+    const auto clear =
+      AcceptanceAssertionEvaluator{query}.evaluate(playerClearanceAssertion());
+    REQUIRE(clear.is_success());
+    CHECK(clear.value().passed);
+    CHECK(clear.value().totalRays == 1u);
+    CHECK(clear.value().measuredWidth == 32.0);
+    CHECK(clear.value().measuredHeight == 56.0);
+
+    query.volumeIntersects = [](const auto&) { return true; };
+    const auto blocked =
+      AcceptanceAssertionEvaluator{query}.evaluate(playerClearanceAssertion());
+    REQUIRE(blocked.is_success());
+    CHECK_FALSE(blocked.value().passed);
+    CHECK(blocked.value().clearRays == 0u);
+
+    query.volumeIntersects = [](const auto& bounds) { return bounds.max.z() > 48.0; };
+    const auto headroom =
+      AcceptanceAssertionEvaluator{query}.evaluate(playerClearanceAssertion());
+    REQUIRE(headroom.is_success());
+    CHECK_FALSE(headroom.value().passed);
+
+    query.volumeIntersects = [](const auto& bounds) {
+      return bounds.min.y() < -12.0 && bounds.max.y() > 12.0;
+    };
+    const auto narrowOpening =
+      AcceptanceAssertionEvaluator{query}.evaluate(playerClearanceAssertion());
+    REQUIRE(narrowOpening.is_success());
+    CHECK_FALSE(narrowOpening.value().passed);
+
+    query.volumeIntersects = [](const auto&) { return false; };
+    const auto segment = AcceptanceAssertionEvaluator{query}.evaluate(
+      playerClearanceAssertion({0.0, 0.0, 0.0}, vm::vec3d{20.0, 0.0, 0.0}));
+    REQUIRE(segment.is_success());
+    CHECK(segment.value().passed);
+    CHECK(segment.value().totalRays == 4u);
   }
 }
 
