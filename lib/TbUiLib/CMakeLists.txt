@@ -151,6 +151,7 @@ target_sources(TbUiLib
     ${CMAKE_CURRENT_SOURCE_DIR}/src/MapViewActivationTracker.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/MapViewBar.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/MapViewBase.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/MapProvenance.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/MapViewContext.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/MapViewContainer.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/MapViewToolBox.cpp

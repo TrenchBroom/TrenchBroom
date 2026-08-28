@@ -1,0 +1,92 @@
+{
+  "schema": "eqexport-map-provenance-fixture-v1",
+  "purpose": "Normative cross-language examples for fingerprints derived from post-two-decimal Valve-220 values. Hash SHA-256 over UTF-8 preimages. Quantize with sign(x) * floor(abs(x) * scale + 0.5), converting negative zero to zero.",
+  "quantization": {
+    "unitNormal": 1000000,
+    "planeDistance": 10000,
+    "solvedVertex": 10000,
+    "effectiveAxis": 1000000,
+    "offset": 10000,
+    "rawInformation": 1000000,
+    "value": 1000000,
+    "rgba": 1000000,
+    "scaleRule": "First round only scale to IEEE-754 binary32. Reject a scale when non-finite or abs(scale32) <= float32(0.001)."
+  },
+  "preimageGrammar": {
+    "plane": "n:<qx>,<qy>,<qz>;d:<qd>, where (normal,distance) is divided once by normal Euclidean length before quantization.",
+    "brush": "eqexport:brush-geometry:v1\\nplanes:<lexicographically sorted unique canonical-plane values joined by |>\\n",
+    "face": "eqexport:face-geometry:v1\\nbrush:<brush sha256 fingerprint>\\nplane:<canonical-plane>\\npolygon:<canonical vertex triples joined by |>\\n",
+    "presentation": "eqexport:presentation:v1\\nmaterial:<NFC UTF-8 byte length>:<NFC UTF-8 bytes>\\ncontents:<absent|i:decimal>\\nflags:<absent|i:decimal>\\nvalue:<absent|q:decimal>\\ncolor:<absent|q:r,g,b,a>\\nu:q:ux,uy,uz,uOffset\\nv:q:vx,vy,vz,vOffset\\n"
+  },
+  "geometry": {
+    "planes": [
+      { "normal": [1, 0, 0], "distance": 1 },
+      { "normal": [-1, 0, 0], "distance": 0 },
+      { "normal": [0, 1, 0], "distance": 1 },
+      { "normal": [0, -1, 0], "distance": 0 },
+      { "normal": [0, 0, 1], "distance": 1 },
+      { "normal": [0, 0, -1], "distance": 0 }
+    ],
+    "face": {
+      "plane": { "normal": [0, 0, 4], "distance": 4 },
+      "polygon": [[1, 0, 1], [1, 1, 1], [0, 1, 1], [0, 0, 1]]
+    },
+    "expected": {
+      "brushFingerprint": "sha256:eddea700fbc08ec082931723dd0cff161fd59a052abf35fd83f2bd329128925f",
+      "brushId": "brush:v1:sha256:eddea700fbc08ec082931723dd0cff161fd59a052abf35fd83f2bd329128925f",
+      "faceFingerprint": "sha256:b5a92a10ce931197ad0d3b23d3edd397275a066d25128e1932eb15442b6779af",
+      "faceId": "face:v1:sha256:b5a92a10ce931197ad0d3b23d3edd397275a066d25128e1932eb15442b6779af",
+      "canonicalFacePolygon": "0,0,10000|10000,0,10000|10000,10000,10000|0,10000,10000",
+      "canonicalPlanes": [
+        "n:-1000000,0,0;d:0",
+        "n:0,-1000000,0;d:0",
+        "n:0,0,-1000000;d:0",
+        "n:0,0,1000000;d:10000",
+        "n:0,1000000,0;d:10000",
+        "n:1000000,0,0;d:10000"
+      ],
+      "brushPreimage": "eqexport:brush-geometry:v1\nplanes:n:-1000000,0,0;d:0|n:0,-1000000,0;d:0|n:0,0,-1000000;d:0|n:0,0,1000000;d:10000|n:0,1000000,0;d:10000|n:1000000,0,0;d:10000\n",
+      "facePreimage": "eqexport:face-geometry:v1\nbrush:sha256:eddea700fbc08ec082931723dd0cff161fd59a052abf35fd83f2bd329128925f\nplane:n:0,0,1000000;d:10000\npolygon:0,0,10000|10000,0,10000|10000,10000,10000|0,10000,10000\n"
+    }
+  },
+  "presentation": {
+    "base": {
+      "material": "textures/Stone_Path",
+      "contents": 0,
+      "flags": 4,
+      "value": 0.25,
+      "color": [1, 0.5, 0, 1],
+      "u": { "axis": [2, 0, 0], "offset": 4, "scale": 2, "rotation": 90 },
+      "v": { "axis": [0, 3, 0], "offset": -2, "scale": 3, "rotation": 90 }
+    },
+    "equivalentEffectiveAffine": {
+      "material": "textures/Stone_Path",
+      "contents": 0,
+      "flags": 4,
+      "value": 0.25,
+      "color": [1, 0.5, 0, 1],
+      "u": { "axis": [1, 0, 0], "offset": 4, "scale": 1, "rotation": 0 },
+      "v": { "axis": [0, 1, 0], "offset": -2, "scale": 1, "rotation": 0 }
+    },
+    "expected": {
+      "fingerprint": "sha256:f5a51e88a2b592f3296cc6bad32ec712d8c22b56feefca58773e53201b47503b",
+      "id": "presentation:v1:sha256:f5a51e88a2b592f3296cc6bad32ec712d8c22b56feefca58773e53201b47503b",
+      "preimage": "eqexport:presentation:v1\nmaterial:19:textures/Stone_Path\ncontents:i:0\nflags:i:4\nvalue:q:250000\ncolor:q:1000000,500000,0,1000000\nu:q:1000000,0,0,40000\nv:q:0,1000000,0,-20000\n"
+    }
+  },
+  "scaleBoundaries": [
+    { "label": "positive-zero", "input": 0, "accepted": false },
+    { "label": "negative-zero", "input": -0.0, "accepted": false },
+    { "label": "positive-below", "input": 0.0009999999310821295, "accepted": false },
+    { "label": "negative-below", "input": -0.0009999999310821295, "accepted": false },
+    { "label": "positive-exact-threshold", "input": 0.001, "accepted": false },
+    { "label": "negative-exact-threshold", "input": -0.001, "accepted": false },
+    { "label": "positive-next-float32", "input": 0.0010000001639127731, "accepted": true },
+    { "label": "negative-next-float32", "input": -0.0010000001639127731, "accepted": true }
+  ],
+  "notes": [
+    "Geometry preimages use only outward unit planes and solved polygons. Material, Valve axes, offsets, scales, flags and colours are excluded.",
+    "Presentation material is NFC UTF-8, otherwise exact: do not trim, case-fold, or normalize paths. Its length is UTF-8 bytes.",
+    "Identical duplicate geometry intentionally has the same content-addressed IDs. Consumers report ambiguity from sidecar occurrence/source lists rather than appending an order-derived suffix."
+  ]
+}
