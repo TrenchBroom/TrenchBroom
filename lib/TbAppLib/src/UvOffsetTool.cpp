@@ -19,6 +19,7 @@
 
 #include "ui/UvOffsetTool.h"
 
+#include "gl/Material.h"
 #include "mdl/BrushFace.h"
 #include "mdl/Map.h"
 #include "mdl/Map_Brushes.h"
@@ -57,7 +58,7 @@ vm::vec2f snapDelta(const UvViewHelper& helper, const vm::vec2f& delta)
 {
   contract_pre(helper.valid());
 
-  if (helper.material())
+  if (gl::getTexture(helper.material()))
   {
     const auto transform = helper.face()->toUvCoordSystemMatrix(
       helper.face()->uvAttributes().offset - delta, helper.face()->uvAttributes().scale);
