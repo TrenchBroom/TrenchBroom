@@ -157,10 +157,22 @@ JsonRpcResponse AutomationService::handleAcceptanceRequest(
        "Acceptance operations require an explicit projectPath"});
   }
 
+  // Context roles are path-based and must resolve an already open document even when
+  // this is the first automation request of the session. Registration is identity-only:
+  // it does not activate, focus, or otherwise mutate any map window.
+  for (auto* window : m_appController.mapWindowManager().mapWindows())
+  {
+    if (window != nullptr)
+      documentId(*window);
+  }
+
   auto store = AcceptanceViewStore{pathFromQString(projectPathValue.toString())};
-  auto service =
-    AcceptanceAutomationService{
-      store, m_acceptanceCapture, m_acceptanceGeometry, m_acceptanceCapture};
+  auto service = AcceptanceAutomationService{
+    store,
+    m_acceptanceCapture,
+    m_acceptanceGeometry,
+    m_acceptanceCapture,
+    m_acceptanceCapture};
   const auto result = service.handle(method, params);
   if (result.is_success())
   {
@@ -188,6 +200,11 @@ JsonRpcResponse AutomationService::handleAcceptanceRequest(
     return JsonRpcResponse::error(
       {-32034,
        "Acceptance geometry comparison failed",
+       QString::fromStdString(failure.message)});
+  case AcceptanceAutomationErrorCode::EvidenceFailed:
+    return JsonRpcResponse::error(
+      {-32035,
+       "Acceptance evidence run failed",
        QString::fromStdString(failure.message)});
   }
   return JsonRpcResponse::error(

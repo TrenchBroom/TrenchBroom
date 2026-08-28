@@ -23,6 +23,7 @@ target_sources(TbUiLib
     ${CMAKE_CURRENT_SOURCE_DIR}/src/AcceptanceComparisonAlignment.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/AcceptanceComparisonContextResolver.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/AcceptanceDivergencePolicy.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/AcceptanceEvidence.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/AcceptanceImageComparison.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/AcceptanceMapGeometry.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/AcceptanceSolidSpace.cpp
@@ -246,6 +247,7 @@ target_sources(TbUiLib
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/AcceptanceComparisonAlignment.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/AcceptanceComparisonContextResolver.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/AcceptanceDivergencePolicy.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/AcceptanceEvidence.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/AcceptanceImageComparison.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/AcceptanceMapGeometry.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/AcceptanceSolidSpace.h

@@ -72,6 +72,47 @@ std::optional<size_t> expectedRevision(const QJsonObject& params)
   return static_cast<size_t>(value.toDouble());
 }
 
+Result<AcceptanceSuiteRunOptions, AcceptanceAutomationError> suiteRunOptions(
+  const QJsonObject& params)
+{
+  auto options = AcceptanceSuiteRunOptions{};
+  if (params.contains("comparisonIds"))
+  {
+    const auto values = params.value("comparisonIds");
+    if (!values.isArray())
+    {
+      return error(
+        AcceptanceAutomationErrorCode::InvalidParameters,
+        "comparisonIds must be an array of strings");
+    }
+    for (const auto& value : values.toArray())
+    {
+      if (!value.isString())
+      {
+        return error(
+          AcceptanceAutomationErrorCode::InvalidParameters,
+          "comparisonIds must be an array of strings");
+      }
+      options.comparisonFilter.push_back(value.toString().toStdString());
+    }
+  }
+  if (params.contains("maxCpuConcurrency"))
+  {
+    const auto concurrency = params.value("maxCpuConcurrency");
+    if (
+      !concurrency.isDouble() || concurrency.toDouble() < 1.0
+      || std::floor(concurrency.toDouble()) != concurrency.toDouble()
+      || concurrency.toDouble() > static_cast<double>(std::numeric_limits<size_t>::max()))
+    {
+      return error(
+        AcceptanceAutomationErrorCode::InvalidParameters,
+        "maxCpuConcurrency must be a positive integer");
+    }
+    options.maxCpuConcurrency = static_cast<size_t>(concurrency.toDouble());
+  }
+  return options;
+}
+
 QJsonObject metadata(const AcceptanceViewStore& store, const AcceptanceProject& project)
 {
   return {
@@ -234,6 +275,20 @@ QJsonObject discrepancyToJson(
   auto result = QJsonObject{{"cellCount", static_cast<qint64>(discrepancy.cellCount)}};
   if (discrepancy.bounds)
     result.insert("bounds", solidSpaceBoundsToJson(*discrepancy.bounds));
+  auto regions = QJsonArray{};
+  const auto regionCount = std::min(reportLimit, discrepancy.regions.size());
+  for (size_t i = 0u; i < regionCount; ++i)
+  {
+    regions.push_back(
+      QJsonObject{
+        {"cellCount", static_cast<qint64>(discrepancy.regions[i].cellCount)},
+        {"bounds", solidSpaceBoundsToJson(discrepancy.regions[i].bounds)},
+      });
+  }
+  result.insert("regionCount", static_cast<qint64>(discrepancy.regions.size()));
+  result.insert("regions", regions);
+  result.insert(
+    "regionsTruncated", static_cast<qint64>(discrepancy.regions.size() - regionCount));
   if (includeCells)
   {
     auto cells = QJsonArray{};
@@ -307,12 +362,14 @@ AcceptanceAutomationService::AcceptanceAutomationService(
   AcceptanceViewStore& store,
   AcceptanceVirtualCapture& capture,
   AcceptanceGeometryProvider& geometry,
-  AcceptanceSolidSpaceProvider& solidSpace)
+  AcceptanceSolidSpaceProvider& solidSpace,
+  AcceptanceDocumentSnapshotProvider& snapshots)
   : m_store{store}
   , m_comparisons{store.projectPath(), capture}
   , m_suites{store, m_comparisons, geometry}
   , m_geometry{geometry}
   , m_solidSpace{solidSpace}
+  , m_snapshots{snapshots}
 {
 }
 
@@ -342,6 +399,8 @@ AcceptanceAutomationResult AcceptanceAutomationService::handle(
     return capture(params);
   if (method == "acceptance.run")
     return run(params);
+  if (method == "acceptance.evidence.run")
+    return runEvidence(params);
   if (method == "acceptance.assertions.evaluate")
     return evaluateAssertion(params);
   if (method == "acceptance.geometry.compare")
@@ -508,46 +567,53 @@ AcceptanceAutomationResult AcceptanceAutomationService::run(
     return error(
       AcceptanceAutomationErrorCode::InvalidParameters, "Run requires suiteId");
 
-  auto options = AcceptanceSuiteRunOptions{};
-  if (params.contains("comparisonIds"))
-  {
-    const auto values = params.value("comparisonIds");
-    if (!values.isArray())
-    {
-      return error(
-        AcceptanceAutomationErrorCode::InvalidParameters,
-        "comparisonIds must be an array of strings");
-    }
-    for (const auto& value : values.toArray())
-    {
-      if (!value.isString())
-      {
-        return error(
-          AcceptanceAutomationErrorCode::InvalidParameters,
-          "comparisonIds must be an array of strings");
-      }
-      options.comparisonFilter.push_back(value.toString().toStdString());
-    }
-  }
-  if (params.contains("maxCpuConcurrency"))
-  {
-    const auto concurrency = params.value("maxCpuConcurrency");
-    if (
-      !concurrency.isDouble() || concurrency.toDouble() < 1.0
-      || std::floor(concurrency.toDouble()) != concurrency.toDouble()
-      || concurrency.toDouble() > static_cast<double>(std::numeric_limits<size_t>::max()))
-    {
-      return error(
-        AcceptanceAutomationErrorCode::InvalidParameters,
-        "maxCpuConcurrency must be a positive integer");
-    }
-    options.maxCpuConcurrency = static_cast<size_t>(concurrency.toDouble());
-  }
-  const auto report = m_suites.run(id.toString().toStdString(), options);
+  const auto options = suiteRunOptions(params);
+  if (options.is_error())
+    return std::get<AcceptanceAutomationError>(options.error());
+  const auto report = m_suites.run(id.toString().toStdString(), options.value());
   auto result = QJsonObject{
     {"projectPath", QString::fromStdString(m_store.projectPath().generic_string())},
     {"report", acceptanceSuiteRunReportToJson(report)}};
   return result;
+}
+
+AcceptanceAutomationResult AcceptanceAutomationService::runEvidence(
+  const QJsonObject& params) const
+{
+  const auto id = params.value("suiteId");
+  const auto outputDirectory = params.value("outputDirectory");
+  if (
+    !id.isString() || id.toString().isEmpty() || !outputDirectory.isString()
+    || outputDirectory.toString().isEmpty())
+  {
+    return error(
+      AcceptanceAutomationErrorCode::InvalidParameters,
+      "Evidence run requires suiteId and outputDirectory");
+  }
+  const auto options = suiteRunOptions(params);
+  if (options.is_error())
+    return std::get<AcceptanceAutomationError>(options.error());
+
+  const auto report = m_suites.run(id.toString().toStdString(), options.value());
+  const auto bundle = writeAcceptanceEvidenceBundle(
+    m_store.projectPath(),
+    report,
+    pathFromQString(outputDirectory.toString()),
+    m_snapshots);
+  if (bundle.is_error())
+  {
+    return error(
+      AcceptanceAutomationErrorCode::EvidenceFailed,
+      std::get<AcceptanceEvidenceError>(bundle.error()).message);
+  }
+  return QJsonObject{
+    {"projectPath", QString::fromStdString(m_store.projectPath().generic_string())},
+    {"outputDirectory", QString::fromStdString(bundle.value().path.generic_string())},
+    {"manifestPath",
+     QString::fromStdString(bundle.value().manifestPath.generic_string())},
+    {"manifestSha256", QString::fromStdString(bundle.value().manifestSha256)},
+    {"report", acceptanceSuiteRunReportToJson(report)},
+  };
 }
 
 AcceptanceAutomationResult AcceptanceAutomationService::evaluateAssertion(

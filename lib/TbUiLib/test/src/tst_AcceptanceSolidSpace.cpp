@@ -87,8 +87,11 @@ TEST_CASE("AcceptanceSolidSpace")
     CHECK((report.newlySolid.bounds->max == vm::vec3d{12.0, 4.0, 4.0}));
     REQUIRE(report.newlySolid.cells.size() == 1u);
     CHECK((report.newlySolid.cells.front().min == vm::vec3d{8.0, 0.0, 0.0}));
+    REQUIRE(report.newlySolid.regions.size() == 1u);
+    CHECK(report.newlySolid.regions.front().cellCount == 1u);
     CHECK(report.newlyEmpty.cellCount == 0u);
     CHECK_FALSE(report.newlyEmpty.bounds);
+    CHECK(report.newlyEmpty.regions.empty());
   }
 
   SECTION("reports candidate removals and combines their spatial bounds")
@@ -106,6 +109,27 @@ TEST_CASE("AcceptanceSolidSpace")
     REQUIRE(result.value().newlyEmpty.bounds);
     CHECK((result.value().newlyEmpty.bounds->min == vm::vec3d{0.0, 0.0, 0.0}));
     CHECK((result.value().newlyEmpty.bounds->max == vm::vec3d{12.0, 4.0, 4.0}));
+    REQUIRE(result.value().newlyEmpty.regions.size() == 2u);
+    CHECK(result.value().newlyEmpty.regions[0].cellCount == 1u);
+    CHECK(result.value().newlyEmpty.regions[1].cellCount == 1u);
+  }
+
+  SECTION("clusters face-connected discrepancy cells")
+  {
+    auto connected = options();
+    connected.bounds = {{0.0, 0.0, 0.0}, {16.0, 4.0, 4.0}};
+    const auto empty = PredicateQuery{[](const vm::vec3d&) { return false; }};
+    const auto candidate = PredicateQuery{
+      [](const vm::vec3d& point) { return point.x() < 8.0 || point.x() >= 12.0; }};
+
+    const auto result =
+      AcceptanceSolidSpaceComparison{}.compare(empty, candidate, connected);
+
+    REQUIRE(result.is_success());
+    REQUIRE(result.value().newlySolid.regions.size() == 2u);
+    CHECK(result.value().newlySolid.regions[0].cellCount == 2u);
+    CHECK((result.value().newlySolid.regions[0].bounds.max == vm::vec3d{8.0, 4.0, 4.0}));
+    CHECK(result.value().newlySolid.regions[1].cellCount == 1u);
   }
 
   SECTION("uses a partial high-edge cell and keeps its reported bounds within the region")

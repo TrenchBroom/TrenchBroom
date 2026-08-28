@@ -1,6 +1,7 @@
 # Automation reliability and visual QA roadmap
 
-Status: core roadmap implementation complete; opt-in external macOS gates and the
+Status: core roadmap implementation complete, including immutable acceptance evidence
+bundles and clustered solid-space reports; opt-in external macOS gates and the
 explicitly deferred structural buffers/UI remain follow-up work.
 
 This roadmap records the three infrastructure changes that would most improve

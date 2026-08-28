@@ -12,6 +12,7 @@
 #pragma once
 
 #include "ui/AcceptanceComparisonRunner.h"
+#include "ui/AcceptanceEvidence.h"
 #include "ui/AcceptanceSolidSpace.h"
 
 #include <filesystem>
@@ -38,6 +39,7 @@ struct AcceptanceVirtualCaptureDocument
  * path is loaded into an adapter-owned MapDocument and never a MapWindow.
  */
 class AcceptanceVirtualCaptureAdapter : public AcceptanceVirtualCapture,
+                                        public AcceptanceDocumentSnapshotProvider,
                                         public AcceptanceSolidSpaceProvider
 {
 private:
@@ -68,6 +70,10 @@ public:
 
   Result<AcceptanceSolidSpaceDocument, AcceptanceSolidSpaceError> queryFor(
     const std::filesystem::path& path) override;
+
+  Result<void, AcceptanceEvidenceError> snapshot(
+    const AcceptanceCaptureDocumentIdentity& document,
+    const std::filesystem::path& outputPath) override;
 
   /**
    * Returns a non-owning document pointer only for this adapter's registered live or

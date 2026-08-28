@@ -264,6 +264,29 @@ AcceptanceVirtualCaptureAdapter::queryFor(const std::filesystem::path& path)
     resolved.value().document->map().modificationCount()};
 }
 
+Result<void, AcceptanceEvidenceError> AcceptanceVirtualCaptureAdapter::snapshot(
+  const AcceptanceCaptureDocumentIdentity& identity,
+  const std::filesystem::path& outputPath)
+{
+  auto* document = findDocument(identity.documentId);
+  if (document == nullptr)
+    return AcceptanceEvidenceError{"Acceptance snapshot document is unavailable"};
+  auto& map = document->map();
+  if (map.modificationCount() != identity.revision)
+  {
+    return AcceptanceEvidenceError{
+      "Acceptance snapshot document revision changed after capture"};
+  }
+  if (map.saveTo(outputPath).is_error())
+    return AcceptanceEvidenceError{"Could not serialize acceptance map snapshot"};
+  if (map.modificationCount() != identity.revision)
+  {
+    return AcceptanceEvidenceError{
+      "Acceptance snapshot document revision changed while serializing"};
+  }
+  return {};
+}
+
 Result<AcceptanceVirtualCaptureResult, AcceptanceVirtualCaptureError>
 AcceptanceVirtualCaptureAdapter::capture(const AcceptanceVirtualCaptureRequest& request)
 {

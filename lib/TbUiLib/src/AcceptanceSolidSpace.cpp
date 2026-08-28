@@ -16,8 +16,11 @@
 #include "mdl/Map_Picking.h"
 
 #include <algorithm>
+#include <array>
 #include <cmath>
 #include <limits>
+#include <map>
+#include <queue>
 #include <ranges>
 #include <utility>
 
@@ -80,6 +83,69 @@ void addDiscrepancy(
   discrepancy.bounds =
     discrepancy.bounds ? vm::merge(*discrepancy.bounds, bounds) : bounds;
   discrepancy.cells.push_back(bounds);
+}
+
+void findRegions(
+  AcceptanceSolidSpaceDiscrepancy& discrepancy,
+  const vm::vec3d& origin,
+  const double cellSize)
+{
+  using Cell = std::array<long long, 3u>;
+  auto cells = std::map<Cell, size_t>{};
+  for (size_t i = 0u; i < discrepancy.cells.size(); ++i)
+  {
+    const auto& min = discrepancy.cells[i].min;
+    cells.emplace(
+      Cell{
+        std::llround((min.x() - origin.x()) / cellSize),
+        std::llround((min.y() - origin.y()) / cellSize),
+        std::llround((min.z() - origin.z()) / cellSize)},
+      i);
+  }
+
+  constexpr auto Neighbors = std::array{
+    Cell{-1, 0, 0},
+    Cell{1, 0, 0},
+    Cell{0, -1, 0},
+    Cell{0, 1, 0},
+    Cell{0, 0, -1},
+    Cell{0, 0, 1}};
+  auto visited = std::vector<bool>(discrepancy.cells.size(), false);
+  for (const auto& [startCell, startIndex] : cells)
+  {
+    if (visited[startIndex])
+      continue;
+    auto region =
+      AcceptanceSolidSpaceDiscrepancy::Region{0u, discrepancy.cells[startIndex]};
+    auto pending = std::queue<Cell>{};
+    pending.push(startCell);
+    visited[startIndex] = true;
+    while (!pending.empty())
+    {
+      const auto cell = pending.front();
+      pending.pop();
+      const auto index = cells.at(cell);
+      ++region.cellCount;
+      region.bounds = vm::merge(region.bounds, discrepancy.cells[index]);
+      for (const auto& offset : Neighbors)
+      {
+        const auto neighbor =
+          Cell{cell[0] + offset[0], cell[1] + offset[1], cell[2] + offset[2]};
+        const auto found = cells.find(neighbor);
+        if (found != cells.end() && !visited[found->second])
+        {
+          visited[found->second] = true;
+          pending.push(neighbor);
+        }
+      }
+    }
+    discrepancy.regions.push_back(std::move(region));
+  }
+  std::ranges::sort(discrepancy.regions, [](const auto& lhs, const auto& rhs) {
+    if (lhs.cellCount != rhs.cellCount)
+      return lhs.cellCount > rhs.cellCount;
+    return lhs.bounds.min < rhs.bounds.min;
+  });
 }
 
 } // namespace
@@ -145,6 +211,8 @@ AcceptanceSolidSpaceComparison::compare(
         if (options.cancelled && options.cancelled())
         {
           report.status = AcceptanceSolidSpaceComparisonStatus::Cancelled;
+          findRegions(report.newlySolid, options.bounds.min, options.cellSize);
+          findRegions(report.newlyEmpty, options.bounds.min, options.cellSize);
           return report;
         }
         const auto bounds = cellBounds(options.bounds, options.cellSize, x, y, z);
@@ -164,6 +232,8 @@ AcceptanceSolidSpaceComparison::compare(
       }
     }
   }
+  findRegions(report.newlySolid, options.bounds.min, options.cellSize);
+  findRegions(report.newlyEmpty, options.bounds.min, options.cellSize);
   return report;
 }
 

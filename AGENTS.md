@@ -104,7 +104,8 @@ The high-value RPC families are:
   `workspace.close`, `workspace.abandon`.
 - Visual QA: `acceptance.views.*`, `acceptance.comparisons.*`,
   `acceptance.suites.*`, `acceptance.capture`, `acceptance.run`, and
-  `acceptance.assertions.evaluate`.
+  `acceptance.evidence.run`, `acceptance.assertions.evaluate`, and
+  `acceptance.geometry.compare`.
 
 This is an orientation map, not a substitute for the actual schema. Before using an
 unfamiliar method, inspect its handler and the corresponding `tst_AutomationService.cpp`
@@ -193,6 +194,12 @@ Prefer preview/apply pairs such as `geometry.*.preview` / `geometry.*.apply` and
 warnings, and material effects before applying. Create a checkpoint before broad CSG,
 optimization, or generated-geometry operations.
 
+Brush optimization preview/apply responses declare their guarantees. The current
+optimizer preserves exact occupied volume and every externally visible face's material,
+surface flags, UV attributes, and texture axes. Treat that declaration as a tested
+contract, but still capture structure views: removing internal coplanar seams is often
+the intended visible editor improvement.
+
 ### Visual acceptance projects
 
 Acceptance projects make reconstruction work repeatable. Every `acceptance.*` request
@@ -209,12 +216,22 @@ A normal flow is:
 3. Create a suite containing the comparison IDs.
 4. Use `acceptance.capture` while authoring and `acceptance.run` for the repeatable
    gate.
+5. Before merge or handoff, use `acceptance.evidence.run` with a new absolute output
+   directory. Retain the manifest hash and inspect every failed metric; a failed suite
+   can be useful evidence, but it is not approval.
 
 Use exact depth and silhouette checks when geometry should match. Give color a stated
 tolerance when the reconstruction intentionally improves materials instead of cloning
 the export. Suite status includes both image metrics and structural assertions; inspect
-the per-metric diagnostics even when the aggregate passes. Captured image and depth
-paths are temporary artifacts, while the acceptance project itself is durable.
+the per-metric diagnostics even when the aggregate passes. Ordinary capture paths are
+temporary; an evidence run snapshots the exact maps and publishes immutable, hashed
+artifacts with the project and report.
+
+Use `acceptance.geometry.compare` for occupancy checks across a context. Prefer its
+face-connected `regions` summary over requesting thousands of raw cells. Findings are
+deliberately named `referenceOnly` and `candidateOnly`: the exported reference may be
+wrong. A divergence is accepted only through explicit evidence-backed policy, not by
+assuming either role is ground truth.
 
 ### Map reconstruction principles
 

@@ -20,6 +20,7 @@
 
 #include "base/PreferenceManager.h"
 #include "gl/GlManager.h"
+#include "mdl/BrushBuilder.h"
 #include "mdl/BrushNode.h"
 #include "mdl/EntityDefinition.h"
 #include "mdl/EntityDefinitionManager.h"
@@ -260,6 +261,55 @@ TEST_CASE("AutomationService entity creation")
   appController.mapWindowManager().topMapWindow()->close();
   QCoreApplication::sendPostedEvents(nullptr, QEvent::DeferredDelete);
   std::filesystem::remove(savedMapPath);
+}
+
+TEST_CASE("AutomationService brush optimization guarantees")
+{
+  auto fixture = AppControllerFixture{};
+  auto& appController = fixture.appController();
+  REQUIRE(appController.mapWindowManager()
+            .createDocument(
+              mdl::QuakeGameInfo, mdl::MapFormat::Valve, vm::bbox3d{8192.0}, false)
+            .is_success());
+  auto& map = appController.mapWindowManager().topMapWindow()->document().map();
+  const auto builder = mdl::BrushBuilder{map.worldNode().mapFormat(), map.worldBounds()};
+  auto* left = new mdl::BrushNode{
+    builder.createCuboid(vm::bbox3d{{0, 0, 0}, {32, 64, 64}}, "material") | kdl::value()};
+  auto* right = new mdl::BrushNode{
+    builder.createCuboid(vm::bbox3d{{32, 0, 0}, {64, 64, 64}}, "material")
+    | kdl::value()};
+  mdl::addNodes(map, {{&mdl::parentForNodes(map), {left, right}}});
+
+  const auto pathJson = [&](const mdl::BrushNode& node) {
+    auto result = QJsonArray{};
+    for (const auto index : node.pathFrom(map.worldNode()).indices)
+      result.push_back(static_cast<qint64>(index));
+    return result;
+  };
+  const auto paths = QJsonArray{pathJson(*left), pathJson(*right)};
+
+  auto service = AutomationService{appController};
+  auto client = connectClient(service.serverName());
+  const auto preview =
+    sendRequest(*client, "brushes.optimize.batch.preview", {{"paths", paths}});
+  REQUIRE(preview.contains("result"));
+  const auto guarantees =
+    preview.value("result").toObject().value("guarantees").toObject();
+  CHECK(guarantees.value("exactVolume") == true);
+  const auto surfaces = guarantees.value("visibleSurfaceAttributes").toObject();
+  CHECK(surfaces.value("materials") == true);
+  CHECK(surfaces.value("surfaceFlags") == true);
+  CHECK(surfaces.value("uvAttributes") == true);
+  CHECK(surfaces.value("textureAxes") == true);
+
+  const auto applied = sendRequest(
+    *client,
+    "brushes.optimize.batch.apply",
+    {{"paths", paths},
+     {"expectedRevision", preview.value("result").toObject().value("revision")}});
+  REQUIRE(applied.contains("result"));
+  CHECK(applied.value("result").toObject().value("brushCount") == 1);
+  CHECK(applied.value("result").toObject().value("guarantees") == guarantees);
 }
 
 TEST_CASE("AppController automatic update policy follows the build configuration")
@@ -824,6 +874,9 @@ TEST_CASE("AutomationService headless acceptance capture RPC")
   auto copyError = std::error_code{};
   std::filesystem::copy_file(sourcePath, targetPath, {}, copyError);
   REQUIRE_FALSE(copyError);
+  const auto liveTarget = appController.mapWindowManager().loadDocumentInNewWindow(
+    mdl::QuakeGameInfo, mdl::MapFormat::Valve, vm::bbox3d{8192.0}, targetPath, false);
+  REQUIRE(liveTarget.is_success());
 
   auto project = AcceptanceProject{};
   project.views = {
@@ -927,7 +980,7 @@ TEST_CASE("AutomationService headless acceptance capture RPC")
           .toObject()
           .value("id")
           .toString()
-          .startsWith("hidden-"));
+          .startsWith("document-"));
   CHECK(
     geometryReport.value("referenceDocument").toObject().value("id")
     != geometryReport.value("candidateDocument").toObject().value("id"));
@@ -941,6 +994,13 @@ TEST_CASE("AutomationService headless acceptance capture RPC")
           .value("documentId")
           .toString()
           .startsWith("hidden-"));
+  CHECK(capture.value("target")
+          .toObject()
+          .value("document")
+          .toObject()
+          .value("documentId")
+          .toString()
+          .startsWith("document-"));
   CHECK(QApplication::focusWidget() == focusBefore);
   CHECK(appController.mapWindowManager().mapWindows().size() == windowCountBefore);
 }

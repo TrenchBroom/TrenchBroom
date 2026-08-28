@@ -9,14 +9,17 @@
  (at your option) any later version.
  */
 
+#include <QFile>
 #include <QImage>
 #include <QJsonArray>
+#include <QJsonDocument>
 #include <QTemporaryDir>
 
 #include "ui/AcceptanceAutomationService.h"
 #include "ui/AcceptanceDivergencePolicy.h"
 #include "ui/CatchConfig.h"
 
+#include <fstream>
 #include <variant>
 
 #include <catch2/catch_test_macros.hpp>
@@ -50,7 +53,7 @@ AcceptanceProject makeProject()
   return project;
 }
 
-class Capture : public AcceptanceVirtualCapture
+class Capture : public AcceptanceVirtualCapture, public AcceptanceDocumentSnapshotProvider
 {
 public:
   std::vector<AcceptanceVirtualCaptureRequest> requests;
@@ -72,6 +75,17 @@ public:
       std::nullopt,
       "renderer-v1",
     };
+  }
+
+  Result<void, AcceptanceEvidenceError> snapshot(
+    const AcceptanceCaptureDocumentIdentity& document,
+    const std::filesystem::path& outputPath) override
+  {
+    auto stream = std::ofstream{outputPath, std::ios::binary};
+    stream << document.documentId << ':' << document.revision;
+    if (!stream)
+      return AcceptanceEvidenceError{"Could not write fake snapshot"};
+    return {};
   }
 };
 
@@ -149,7 +163,8 @@ TEST_CASE("AcceptanceAutomationService")
   auto capture = Capture{};
   auto geometry = Geometry{};
   auto solidSpace = SolidSpace{};
-  auto service = AcceptanceAutomationService{store, capture, geometry, solidSpace};
+  auto service =
+    AcceptanceAutomationService{store, capture, geometry, solidSpace, capture};
   const auto project = makeProject();
 
   SECTION("routes optimistic CRUD and reports the explicit store path")
@@ -275,6 +290,53 @@ TEST_CASE("AcceptanceAutomationService")
     REQUIRE(run.is_success());
     CHECK(run.value().value("report").toObject().value("status") == "passed");
 
+    const auto evidenceDirectory =
+      std::filesystem::path{directory.path().toStdString()} / "evidence";
+    const auto evidence = service.handle(
+      "acceptance.evidence.run",
+      {{"suiteId", "suite"},
+       {"outputDirectory", QString::fromStdString(evidenceDirectory.string())}});
+    REQUIRE(evidence.is_success());
+    CHECK(evidence.value().value("report").toObject().value("status") == "passed");
+    CHECK(std::filesystem::is_regular_file(evidenceDirectory / "manifest.json"));
+    CHECK(
+      std::filesystem::is_regular_file(
+        evidenceDirectory / "comparisons" / "comparison" / "reference.map"));
+    CHECK(
+      std::filesystem::is_regular_file(
+        evidenceDirectory / "comparisons" / "comparison" / "candidate.png"));
+    CHECK(evidence.value().value("manifestSha256").toString().size() == 64);
+    auto manifestFile =
+      QFile{QString::fromStdString((evidenceDirectory / "manifest.json").string())};
+    REQUIRE(manifestFile.open(QIODevice::ReadOnly));
+    const auto manifest = QJsonDocument::fromJson(manifestFile.readAll()).object();
+    const auto captures = manifest.value("captures").toArray();
+    REQUIRE(captures.size() == 1);
+    const auto reference = captures[0].toObject().value("reference").toObject();
+    CHECK(reference.value("camera").toObject().value("projection") == "perspective");
+    CHECK(reference.value("size").toObject().value("width") == 800);
+    CHECK(reference.value("renderMode") == "textured");
+    CHECK(reference.value("overlays").toObject().value("brushEdges") == false);
+    CHECK(reference.value("map").toObject().value("sha256").toString().size() == 64);
+    CHECK(reference.value("color").toObject().value("sha256").toString().size() == 64);
+    const auto reportComparison =
+      manifest.value("report").toObject().value("comparisons").toArray()[0].toObject();
+    CHECK(
+      reportComparison.value("imageComparison").toObject().value("referencePath")
+      == "comparisons/comparison/reference.png");
+    CHECK(
+      reportComparison.value("imageComparison").toObject().value("targetPath")
+      == "comparisons/comparison/candidate.png");
+
+    const auto cannotOverwrite = service.handle(
+      "acceptance.evidence.run",
+      {{"suiteId", "suite"},
+       {"outputDirectory", QString::fromStdString(evidenceDirectory.string())}});
+    REQUIRE(cannotOverwrite.is_error());
+    CHECK(
+      std::get<AcceptanceAutomationError>(cannotOverwrite.error()).code
+      == AcceptanceAutomationErrorCode::EvidenceFailed);
+
     const auto unsupported = service.handle("acceptance.nope", {});
     REQUIRE(unsupported.is_error());
     CHECK(
@@ -323,6 +385,15 @@ TEST_CASE("AcceptanceAutomationService")
     CHECK(comparison.value("candidateDocument").toObject().value("revision") == 7);
     CHECK(comparison.value("referenceOnly").toObject().value("cellCount") == 1);
     CHECK(comparison.value("candidateOnly").toObject().value("cellCount") == 1);
+    CHECK(comparison.value("referenceOnly").toObject().value("regionCount") == 1);
+    CHECK(
+      comparison.value("candidateOnly")
+        .toObject()
+        .value("regions")
+        .toArray()[0]
+        .toObject()
+        .value("cellCount")
+      == 1);
     CHECK(
       comparison.value("referenceOnly").toObject().value("cells").toArray().size() == 1);
     const auto policyReport = comparison.value("policy").toObject();

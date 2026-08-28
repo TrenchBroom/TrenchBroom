@@ -7,9 +7,12 @@ follow-ups rather than silently approximated features.
 
 Comparison contexts now also support `acceptance.geometry.compare`, a bounded,
 reference-space brush-volume sampler with neutral `referenceOnly` / `candidateOnly`
-findings and an optional evidence-backed divergence policy. This is the first solid-space
-milestone; persisted policy, adaptive sampling, material/content classification, and
-player connectivity remain follow-ups.
+findings, face-connected discrepancy regions, and an optional evidence-backed divergence
+policy. `acceptance.evidence.run` publishes an immutable, hashed bundle containing the
+acceptance project, exact captured map revisions, normalized cameras, render settings,
+color/depth images, renderer version, and the full suite report. Persisted policy,
+adaptive sampling, material/content classification, and player connectivity remain
+follow-ups.
 
 ## Goal
 
@@ -169,21 +172,47 @@ For the Unrest entrance, a suite should include at least:
 
 ## RPC contract
 
-Proposed methods:
+Implemented methods:
 
 - `acceptance.contexts.list/create/update/delete`
-- `acceptance.views.list/create/update/delete/capture`
-- `acceptance.comparisons.list/create/update/delete/capture`
-- `acceptance.suites.list/run`
+- `acceptance.views.list/create/update/delete`
+- `acceptance.comparisons.list/create/update/delete`
+- `acceptance.suites.list/create/update/delete`
+- `acceptance.capture`
+- `acceptance.run`
+- `acceptance.evidence.run`
 - `acceptance.assertions.evaluate`
 - `acceptance.geometry.compare`
 
 Create/update/delete methods require an expected store revision and are atomic. Capture
 and run methods are read-only with respect to maps, views, and the persisted suite.
 
-`acceptance.suites.run` supports a comparison filter and bounded concurrency. GPU
-captures may serialize on the render service even when CPU metrics and assertion
-evaluation run concurrently.
+`acceptance.run` and `acceptance.evidence.run` support a comparison filter and bounded
+concurrency. GPU captures may serialize on the render service even when CPU metrics and
+assertion evaluation run concurrently.
+
+Use `acceptance.evidence.run` when a result must survive the process:
+
+```json
+{
+  "projectPath": "/absolute/path/unrest-acceptance.json",
+  "suiteId": "unrest-rebuild",
+  "comparisonIds": ["mansion-close-reference"],
+  "outputDirectory": "/absolute/nonexistent/path/evidence-run-2026-08-28",
+  "maxCpuConcurrency": 4
+}
+```
+
+The output directory must not exist. The service snapshots the exact in-memory document
+revision used by each capture, hashes every artifact, writes through a sibling staging
+directory, and atomically publishes the bundle. A failed suite is still valid evidence;
+its manifest records the failure and diagnostics. Never overwrite an older evidence run.
+
+`acceptance.geometry.compare` always reports neutral `referenceOnly` and `candidateOnly`
+occupancy. Each side includes compact face-connected `regions`, largest first, even when
+raw `cells` are omitted. Use `includeCells: true` only when a downstream operation needs
+the individual sampling cells. Treat regions as leads for investigation, not proof that
+the candidate or reference is correct.
 
 ## Work packages
 

@@ -13,6 +13,7 @@
 
 #include <QJsonObject>
 
+#include "ui/AcceptanceEvidence.h"
 #include "ui/AcceptanceSolidSpace.h"
 #include "ui/AcceptanceSuiteRunner.h"
 
@@ -26,6 +27,7 @@ enum class AcceptanceAutomationErrorCode
   StoreFailed,
   CaptureFailed,
   GeometryFailed,
+  EvidenceFailed,
 };
 
 struct AcceptanceAutomationError
@@ -48,7 +50,8 @@ public:
     AcceptanceViewStore& store,
     AcceptanceVirtualCapture& capture,
     AcceptanceGeometryProvider& geometry,
-    AcceptanceSolidSpaceProvider& solidSpace);
+    AcceptanceSolidSpaceProvider& solidSpace,
+    AcceptanceDocumentSnapshotProvider& snapshots);
 
   const std::filesystem::path& projectPath() const;
 
@@ -61,6 +64,7 @@ private:
   AcceptanceAutomationResult erase(const QString& kind, const QJsonObject& params);
   AcceptanceAutomationResult capture(const QJsonObject& params) const;
   AcceptanceAutomationResult run(const QJsonObject& params) const;
+  AcceptanceAutomationResult runEvidence(const QJsonObject& params) const;
   AcceptanceAutomationResult evaluateAssertion(const QJsonObject& params) const;
   AcceptanceAutomationResult compareSolidSpace(const QJsonObject& params) const;
 
@@ -69,6 +73,7 @@ private:
   AcceptanceSuiteRunner m_suites;
   AcceptanceGeometryProvider& m_geometry;
   AcceptanceSolidSpaceProvider& m_solidSpace;
+  AcceptanceDocumentSnapshotProvider& m_snapshots;
 };
 
 } // namespace tb::ui

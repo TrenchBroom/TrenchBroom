@@ -92,6 +92,13 @@ struct AcceptanceSolidSpaceDiscrepancy
   size_t cellCount = 0u;
   std::optional<vm::bbox3d> bounds;
   std::vector<vm::bbox3d> cells;
+  /** Face-connected components, largest first, independent of brush decomposition. */
+  struct Region
+  {
+    size_t cellCount = 0u;
+    vm::bbox3d bounds;
+  };
+  std::vector<Region> regions;
 };
 
 enum class AcceptanceSolidSpaceComparisonStatus
@@ -119,9 +126,9 @@ struct AcceptanceSolidSpaceComparisonReport
   size_t totalCells = 0u;
   size_t sampledCells = 0u;
   AcceptanceSolidSpaceDiscrepancy newlySolid{
-    AcceptanceSolidSpaceDifference::NewlySolid, 0u, std::nullopt, {}};
+    AcceptanceSolidSpaceDifference::NewlySolid, 0u, std::nullopt, {}, {}};
   AcceptanceSolidSpaceDiscrepancy newlyEmpty{
-    AcceptanceSolidSpaceDifference::NewlyEmpty, 0u, std::nullopt, {}};
+    AcceptanceSolidSpaceDifference::NewlyEmpty, 0u, std::nullopt, {}, {}};
 };
 
 /**

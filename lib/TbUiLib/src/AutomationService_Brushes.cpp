@@ -30,7 +30,8 @@ namespace
 
 bool expectedRevisionMatches(const mdl::Map& map, const QJsonObject& params)
 {
-  const auto expectedRevision = automation::sizeFromJson(params.value("expectedRevision"));
+  const auto expectedRevision =
+    automation::sizeFromJson(params.value("expectedRevision"));
   return expectedRevision && *expectedRevision == map.modificationCount();
 }
 
@@ -73,6 +74,20 @@ struct CohortPreview
   std::vector<mdl::BrushOptimizationCandidate> candidates;
 };
 
+QJsonObject optimizationGuarantees()
+{
+  return {
+    {"exactVolume", true},
+    {"visibleSurfaceAttributes",
+     QJsonObject{
+       {"materials", true},
+       {"surfaceFlags", true},
+       {"uvAttributes", true},
+       {"textureAxes", true},
+     }},
+  };
+}
+
 std::vector<CohortPreview> createCohortPreviews(
   const mdl::Map& map, const std::vector<mdl::BrushNode*>& brushNodes)
 {
@@ -107,6 +122,7 @@ QJsonObject cohortToJson(
     {"reduction", static_cast<qint64>(cohort.brushNodes.size() - best.brushCount())},
     {"internalFaceArea", best.internalFaceArea},
     {"kind", best.brushes.empty() ? "axisAlignedCuboids" : "coplanarPrisms"},
+    {"guarantees", optimizationGuarantees()},
   };
 }
 
@@ -154,6 +170,7 @@ JsonRpcResponse AutomationService::handleBrushRequest(
         {"optimizableBrushCount", static_cast<qint64>(sourceBrushCount)},
         {"optimizedBrushCount", static_cast<qint64>(optimizedBrushCount)},
         {"reduction", static_cast<qint64>(sourceBrushCount - optimizedBrushCount)},
+        {"guarantees", optimizationGuarantees()},
         {"cohorts", cohortsJson},
         {"revision", static_cast<qint64>(map.modificationCount())},
       });
@@ -198,6 +215,7 @@ JsonRpcResponse AutomationService::handleBrushRequest(
       {"sourceBrushCount", static_cast<qint64>(sourceBrushCount)},
       {"brushCount", static_cast<qint64>(optimizedBrushCount)},
       {"reduction", static_cast<qint64>(sourceBrushCount - optimizedBrushCount)},
+      {"guarantees", optimizationGuarantees()},
       {"revision", static_cast<qint64>(map.modificationCount())},
     });
 }
