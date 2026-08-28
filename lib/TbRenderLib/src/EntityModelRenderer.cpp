@@ -67,10 +67,11 @@ void EntityModelRenderer::addEntity(const mdl::EntityNode& entityNode)
       return entityNode.entity().modelSpecification();
     });
 
-  auto* renderer = m_entityModelManager.renderer(modelSpec);
-  if (renderer != nullptr)
+  if (!modelSpec.path.empty())
   {
-    m_entities.emplace(&entityNode, renderer);
+    // Keep entities whose model is still loading. Otherwise the renderer loses track of
+    // them until an unrelated edit (such as selecting the entity) adds them again.
+    m_entities.emplace(&entityNode, m_entityModelManager.renderer(modelSpec));
   }
 }
 
@@ -86,25 +87,25 @@ void EntityModelRenderer::updateEntity(const mdl::EntityNode& entityNode)
       return entityNode.entity().modelSpecification();
     });
 
-  auto* renderer = m_entityModelManager.renderer(modelSpec);
   auto it = m_entities.find(&entityNode);
 
-  if (renderer == nullptr && it == std::end(m_entities))
+  if (modelSpec.path.empty())
   {
+    if (it != std::end(m_entities))
+    {
+      m_entities.erase(it);
+    }
     return;
   }
 
+  auto* renderer = m_entityModelManager.renderer(modelSpec);
   if (it == std::end(m_entities))
   {
     m_entities.emplace(&entityNode, renderer);
   }
   else
   {
-    if (renderer == nullptr)
-    {
-      m_entities.erase(it);
-    }
-    else if (it->second != renderer)
+    if (it->second != renderer)
     {
       it->second = renderer;
     }
@@ -148,6 +149,17 @@ void EntityModelRenderer::setShowHiddenEntities(const bool showHiddenEntities)
 
 void EntityModelRenderer::render(RenderBatch& renderBatch)
 {
+  for (auto& [entityNode, renderer] : m_entities)
+  {
+    if (renderer == nullptr)
+    {
+      const auto modelSpec =
+        mdl::safeGetModelSpecification(m_logger, entityNode->entity().classname(), [&]() {
+          return entityNode->entity().modelSpecification();
+        });
+      renderer = m_entityModelManager.renderer(modelSpec);
+    }
+  }
   renderBatch.add(this);
 }
 
@@ -191,6 +203,11 @@ void EntityModelRenderer::render(RenderContext& renderContext)
 
     for (const auto& [entityNode, renderer] : m_entities)
     {
+      if (renderer == nullptr)
+      {
+        continue;
+      }
+
       if (!m_showHiddenEntities && !m_editorContext.visible(*entityNode))
       {
         continue;

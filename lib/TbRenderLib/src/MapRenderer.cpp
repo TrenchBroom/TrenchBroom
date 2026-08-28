@@ -152,11 +152,6 @@ public:
       return renderNothing();
     }
 
-    if (hasBrushEntityModel(brushNode))
-    {
-      return renderNothing();
-    }
-
     const auto& brush = brushNode.brush();
 
     auto anyFaceVisible = false;
