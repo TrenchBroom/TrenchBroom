@@ -54,6 +54,7 @@ struct EntityDefinition
   std::vector<PropertyDefinition> propertyDefinitions;
   std::optional<PointEntityDefinition> pointEntityDefinition = std::nullopt;
   size_t index = 0;
+  std::optional<ModelDefinition> brushEntityModelDefinition = std::nullopt;
 
   size_t usageCount() const;
   void incUsageCount() const;
@@ -66,7 +67,8 @@ struct EntityDefinition
     color,
     description,
     propertyDefinitions,
-    pointEntityDefinition);
+    pointEntityDefinition,
+    brushEntityModelDefinition);
 
   // Use a shared pointer to enable copying
   std::shared_ptr<std::atomic<size_t>> m_usageCount =

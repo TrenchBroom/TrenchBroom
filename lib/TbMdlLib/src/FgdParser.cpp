@@ -338,11 +338,6 @@ EntityDefinitionClassInfo FgdParser::parseSolidClassInfo(ParserStatus& status)
   {
     status.warn(classInfo.location, "Solid entity definition must not have a size");
   }
-  if (classInfo.modelDefinition)
-  {
-    status.warn(
-      classInfo.location, "Solid entity definition must not have model definitions");
-  }
   if (classInfo.decalDefinition)
   {
     status.warn(

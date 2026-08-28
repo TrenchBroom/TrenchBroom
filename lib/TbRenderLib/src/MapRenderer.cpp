@@ -57,6 +57,13 @@ namespace tb::render
 namespace
 {
 
+bool hasBrushEntityModel(const mdl::BrushNode& brushNode)
+{
+  const auto* entityNode = dynamic_cast<const mdl::EntityNode*>(brushNode.parent());
+  return entityNode && !entityNode->entity().pointEntity()
+         && entityNode->entity().modelFrame();
+}
+
 class SelectedBrushRendererFilter : public BrushRenderer::DefaultFilter
 {
 public:
@@ -77,6 +84,10 @@ public:
     for (const auto& face : brush.faces())
     {
       face.setMarked(brushSelected || selected(brushNode, face));
+    }
+    if (hasBrushEntityModel(brushNode))
+    {
+      return {FaceRenderPolicy::RenderNone, EdgeRenderPolicy::RenderAll};
     }
     return {FaceRenderPolicy::RenderMarked, EdgeRenderPolicy::RenderIfEitherFaceMarked};
   }
@@ -111,6 +122,11 @@ public:
       return renderNothing();
     }
 
+    if (hasBrushEntityModel(brushNode))
+    {
+      return {FaceRenderPolicy::RenderNone, EdgeRenderPolicy::RenderAll};
+    }
+
     return {FaceRenderPolicy::RenderMarked, EdgeRenderPolicy::RenderAll};
   }
 };
@@ -132,6 +148,11 @@ public:
     auto renderEdges = (brushVisible && !selected(brushNode));
 
     if (!renderFaces && !renderEdges)
+    {
+      return renderNothing();
+    }
+
+    if (hasBrushEntityModel(brushNode))
     {
       return renderNothing();
     }

@@ -2416,7 +2416,9 @@ You can use these backups to go back to previous versions of your map if problem
 
 ## Display Models for Entities
 
-TrenchBroom can show models for point entities in the 3D and 2D viewports. For this to work, the display models have to be set up in the [entity definition](#entity_definitions) file, and the game path has to be set up correctly in the [game configuration](#game_configuration). For most of the included entity definition files, the models have already been set up for you, but if you wish to create an entity definition file for a mod that works well in TrenchBroom, you have to add these model definitions yourself. You will learn how to do this for FGD and DEF files in this section.
+TrenchBroom can show models for entities in the 3D and 2D viewports. For this to work, the display models have to be set up in the [entity definition](#entity_definitions) file, and the game path has to be set up correctly in the [game configuration](#game_configuration). For most of the included entity definition files, the models have already been set up for you, but if you wish to create an entity definition file for a mod that works well in TrenchBroom, you have to add these model definitions yourself. You will learn how to do this for FGD and DEF files in this section.
+
+FGD solid classes may also declare a display model. This is useful when an entity needs brush geometry for editing, picking, collision, or map export, but has a more faithful visual model in the game. When the model loads successfully, TrenchBroom displays it in place of the brush faces; selecting the entity still shows the brush edges so that the proxy remains editable. If the model cannot be loaded, the brush remains visible as a fallback.
 
 ### General Model Syntax
 
@@ -2593,6 +2595,15 @@ An example from an FGD file might look as follows.
         0 : "Flying"
         1 : "On ground"
       ]
+    ]
+
+A model-backed solid class uses the same syntax. Its instances need the usual `origin` and rotation properties to place the display model, while their brushes remain the editable and exported representation.
+
+    @SolidClass model({ "path": modelpath }) = func_model
+    [
+      modelpath(string) : "Display model"
+      origin(string) : "Model origin"
+      angle(float) : "Model yaw"
     ]
 
 To improve compatibility to other editors, the model definition can also be named _studio_ or _studioprop_ in FGD files.

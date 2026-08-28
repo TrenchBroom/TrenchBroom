@@ -209,6 +209,23 @@ TEST_CASE("EntityTest")
 
     entity.addOrUpdateProperty(EntityPropertyKeys::Spawnflags, "1");
     CHECK(entity.modelSpecification() == ModelSpecification{"maps/b_shell1.bsp", 0, 0});
+
+    SECTION("brush entity definition")
+    {
+      const auto brushDefinition = EntityDefinition{
+        "some_brush",
+        Color{},
+        "",
+        {},
+        std::nullopt,
+        0,
+        ModelDefinition{modelExpression},
+      };
+
+      entity.setDefinition(&brushDefinition);
+      entity.setPointEntity(false);
+      CHECK(entity.modelSpecification() == ModelSpecification{"maps/b_shell1.bsp", 0, 0});
+    }
   }
 
   SECTION("decalSpecification")

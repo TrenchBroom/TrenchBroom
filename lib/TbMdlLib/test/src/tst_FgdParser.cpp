@@ -24,6 +24,7 @@
 #include "fs/Reader.h"
 #include "fs/TraversalMode.h"
 #include "mdl/CatchConfig.h"
+#include "mdl/Entity.h"
 #include "mdl/EntityDefinition.h"
 #include "mdl/EntityDefinitionTestUtils.h"
 #include "mdl/FgdParser.h"
@@ -1133,6 +1134,27 @@ TEST_CASE("FgdParser")
       R"(@PointClass model(${MODEL}) = item_shells : "Shells" [])";
 
     using mdl::getModelSpecification;
+
+    SECTION("parseBrushEntityModelDefinition")
+    {
+      const auto file = R"(
+@SolidClass model({ "path": modelpath }) = func_model
+[
+  modelpath(string) : "Preview model"
+])";
+
+      auto parser = FgdParser{file, RgbaF{1.0f, 1.0f, 1.0f, 1.0f}};
+      auto status = TestParserStatus{};
+      const auto definitions = parser.parseDefinitions(status) | kdl::value();
+
+      REQUIRE(definitions.size() == 1u);
+      REQUIRE(definitions[0].brushEntityModelDefinition);
+      auto entity = Entity{{{"modelpath", "models/door.obj"}}};
+      entity.setDefinition(&definitions[0]);
+      CHECK(entity.modelSpecification() == ModelSpecification{"models/door.obj", 0, 0});
+      CHECK(status.countStatus(LogLevel::Warn) == 0u);
+      CHECK(status.countStatus(LogLevel::Error) == 0u);
+    }
 
     SECTION("parseLegacyStaticModelDefinition")
     {
