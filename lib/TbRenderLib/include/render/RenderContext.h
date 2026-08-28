@@ -87,7 +87,7 @@ private:
   float m_dpiScale = 1.0;
 
   bool m_hideSelection = false;
-  bool m_tintSelection = false;
+  bool m_tintSelection = true;
 
   ShowSelectionGuide m_showSelectionGuide = ShowSelectionGuide::Hide;
   vm::bbox3f m_softMapBounds;

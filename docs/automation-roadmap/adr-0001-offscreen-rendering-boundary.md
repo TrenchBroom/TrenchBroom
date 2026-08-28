@@ -45,7 +45,7 @@ The renderer has no `QWidget`, `MapWindow`, `MapViewBase`, tool, active-window, 
 current-view dependency. It temporarily makes only its injected context current and
 restores the previous Qt context on return. It returns `DocumentChanged` if the map
 revision changes during capture. Its initial scope is the EV0 textured mode, brush
-edges, selection visibility, and the orthographic grid; visible-editor-only overlays
+edges, selection highlighting, and the orthographic grid; visible-editor-only overlays
 (tools, FPS, compass, axes, and portal diagnostics) are deliberately excluded.
 
 `AutomationOffscreenRenderer` is registered in CMake and reachable through the strict

@@ -97,6 +97,12 @@ The response echoes the normalized camera, document revision, size, render mode,
 output paths. A repeated request against the same revision and renderer version should
 be deterministic.
 
+`overlays.selection` controls selection highlighting, not object visibility. When it
+is false, selected objects render with their ordinary material and edge style. This is
+important for automation because modeling operations select newly created brushes; an
+immediate unhighlighted capture must still contain the changed geometry without
+mutating or clearing the document selection.
+
 Initial render mode is `textured`. Planned structural modes are `flat`, `wireframe`,
 `depth`, `surfaceNormals`, `materialId`, and `objectId`.
 
@@ -136,6 +142,7 @@ thread; it requires independence from active widgets and GUI state.
 - Virtual operations never call `MapWindow::currentMapViewBase()`.
 - Virtual capture does not change GUI camera, focus, selection, current material, layer,
   grid, or pane layout.
+- Disabling the selection overlay never removes selected geometry from the image.
 - Real-view capture observes GUI state but does not mutate it.
 - Output filenames are unique and written beneath the configured automation temporary
   directory.

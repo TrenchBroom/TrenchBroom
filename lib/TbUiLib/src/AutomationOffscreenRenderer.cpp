@@ -134,7 +134,7 @@ void configureContext(
   context.setSoftMapBounds({});
   if (!request.overlays.selection)
   {
-    context.setHideSelection();
+    context.clearTintSelection();
   }
 }
 

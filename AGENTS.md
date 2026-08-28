@@ -152,6 +152,14 @@ the task. Do not open a reference map in a visible window just to render it; acc
 captures can load an explicit saved reference path into an automation-owned hidden
 document.
 
+In virtual render requests, `overlays.selection: false` suppresses selection
+highlighting; it does not hide selected geometry. Modeling RPCs commonly select the
+brushes they create, so a capture taken immediately after a mutation must still show
+those brushes. Treat a revision increase with an unchanged image as a defect to
+investigate, not as a reason to save/reload the branch. Saving, reloading, closing, or
+recovering a workspace solely to refresh a render masks state bugs and can invalidate
+process-lifetime document identities.
+
 ### Make changes in a durable workspace
 
 For nontrivial or visual map edits, use this workflow:
@@ -219,6 +227,38 @@ Rebuild intended forms with clear, maintainable construction:
 
 The goal is not byte-for-byte parity with exported brushwork. The goal is a cleaner map
 that preserves the important visual and gameplay relationships.
+
+### Complete-surface visual QA
+
+Do not declare a textured structure complete from one frontal or distant comparison.
+Before editing, make a coverage matrix of every exposed surface family. For a symmetric
+building this normally includes front, back, both outer returns, both inward returns,
+upper and lower bands, roof transitions, and any player-visible underside. Symmetry is
+not evidence: validate both sides independently.
+
+Use this gate for material or facade work:
+
+1. Inspect the source material bitmap at native resolution. Determine whether a pale
+   block, diagonal, pilaster, shadow, or trim line is baked into the bitmap before
+   changing UVs or geometry.
+2. Use `render.pick` and bounded `nodes.query` / `nodes.describe` results to identify
+   the actual exposed planes and bounds. Do not infer a return plane from a nearby
+   facade coordinate.
+3. Add a close named acceptance view for every exposed surface family, including
+   inward-facing and mirrored returns. Keep separate player-distance views for
+   silhouette and composition.
+4. Capture the exact branch `documentId` and confirm the response revision matches the
+   mutation under review. Compare all close views after each material pass.
+5. Check seams and transitions as well as broad faces: corners, band boundaries, roof
+   trim, and intersections with adjacent wings often reveal a bad material or an
+   over-wide repair veneer.
+6. Record all views in the acceptance project before merging. A clean hero view is not
+   a substitute for complete close-view coverage.
+
+For a repair that uses thin facade veneers, derive each veneer from picked surface
+bounds, split it at intentional material bands, keep it behind preserved trim, and
+inspect both adjoining corners. Prefer correcting the underlying faces when practical;
+when a veneer is the maintainable choice, group and name it by architectural purpose.
 
 ### Verify RPC and focus-neutral changes
 

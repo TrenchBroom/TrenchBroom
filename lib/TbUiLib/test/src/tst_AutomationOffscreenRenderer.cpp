@@ -21,6 +21,7 @@
 #include "mdl/Map.h"
 #include "mdl/MapFormat.h"
 #include "mdl/Map_Nodes.h"
+#include "mdl/Map_Selection.h"
 #include "mdl/WorldNode.h"
 #include "ui/AppControllerFixture.h"
 #include "ui/AutomationOffscreenRenderer.h"
@@ -67,12 +68,13 @@ automation::AutomationRenderRequest makeRequest()
   };
 }
 
-void addCuboid(mdl::Map& map, const vm::bbox3d& bounds)
+mdl::BrushNode* addCuboid(mdl::Map& map, const vm::bbox3d& bounds)
 {
   const auto builder = mdl::BrushBuilder{map.worldNode().mapFormat(), map.worldBounds()};
   const auto brush = builder.createCuboid(bounds, "automation/test") | kdl::value();
   auto* node = new mdl::BrushNode{std::move(brush)};
   mdl::addNodes(map, {{&mdl::parentForNodes(map), {node}}});
+  return node;
 }
 
 } // namespace
@@ -146,6 +148,42 @@ TEST_CASE("Automation offscreen renderer depth output")
   const auto center = result.depth->values[24u * 64u + 32u];
   CHECK(center == Catch::Approx(10.0f).margin(0.02f));
   CHECK(std::isinf(result.depth->values[0]));
+}
+
+TEST_CASE("Automation offscreen renderer shows selected changes without highlighting")
+{
+  auto fixture = AppControllerFixture{};
+  auto& appController = fixture.appController();
+  auto document = makeDocument(appController);
+
+  auto surface = QOffscreenSurface{};
+  surface.setFormat(QSurfaceFormat::defaultFormat());
+  surface.create();
+  auto context = QOpenGLContext{};
+  context.setFormat(surface.format());
+  context.setShareContext(QOpenGLContext::globalShareContext());
+  context.create();
+  REQUIRE(surface.isValid());
+  REQUIRE(context.isValid());
+
+  auto renderer =
+    AutomationOffscreenRenderer{context, surface, appController.glManager()};
+  const auto request = makeRequest();
+  const auto before = renderer.capture(*document, request);
+  REQUIRE(before);
+
+  auto& map = document->map();
+  auto* cuboid = addCuboid(map, {{-24.0, -8.0, 40.0}, {24.0, 8.0, 88.0}});
+  mdl::selectNodes(map, {cuboid});
+  const auto changedRevision = document->map().modificationCount();
+  const auto after = renderer.capture(*document, request);
+
+  INFO(after.message.toStdString());
+  REQUIRE(after);
+  CHECK(after.revision == changedRevision);
+  CHECK(after.image != before.image);
+  CHECK(cuboid->selected());
+  CHECK(map.modificationCount() == changedRevision);
 }
 
 } // namespace tb::ui

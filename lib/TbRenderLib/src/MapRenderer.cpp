@@ -198,6 +198,7 @@ MapRenderer::MapRenderer(mdl::Map& map)
   : m_map{map}
   , m_defaultRenderer{createDefaultRenderer(m_map)}
   , m_selectionRenderer{createSelectionRenderer(m_map)}
+  , m_unhighlightedSelectionRenderer{createSelectionRenderer(m_map)}
   , m_lockedRenderer{createLockRenderer(m_map)}
   , m_entityDecalRenderer{createEntityDecalRenderer(m_map)}
   , m_entityLinkRenderer{std::make_unique<EntityLinkRenderer>(m_map)}
@@ -284,7 +285,9 @@ void MapRenderer::renderSelectionOpaque(
 {
   if (!renderContext.hideSelection())
   {
-    m_selectionRenderer->renderOpaque(renderContext, renderBatch);
+    auto& renderer = renderContext.tintSelection() ? *m_selectionRenderer
+                                                   : *m_unhighlightedSelectionRenderer;
+    renderer.renderOpaque(renderContext, renderBatch);
   }
 }
 
@@ -293,7 +296,9 @@ void MapRenderer::renderSelectionTransparent(
 {
   if (!renderContext.hideSelection())
   {
-    m_selectionRenderer->renderTransparent(renderContext, renderBatch);
+    auto& renderer = renderContext.tintSelection() ? *m_selectionRenderer
+                                                   : *m_unhighlightedSelectionRenderer;
+    renderer.renderTransparent(renderContext, renderBatch);
   }
 }
 
@@ -336,6 +341,7 @@ void MapRenderer::setupRenderers()
 {
   setupDefaultRenderer(*m_defaultRenderer);
   setupSelectionRenderer(*m_selectionRenderer);
+  setupDefaultRenderer(*m_unhighlightedSelectionRenderer);
   setupLockedRenderer(*m_lockedRenderer);
 }
 
@@ -508,6 +514,7 @@ void MapRenderer::updateAndInvalidateNode(mdl::Node& node)
 
   updateForRenderer(Renderer::Default, m_defaultRenderer.get());
   updateForRenderer(Renderer::Selection, m_selectionRenderer.get());
+  updateForRenderer(Renderer::Selection, m_unhighlightedSelectionRenderer.get());
   updateForRenderer(Renderer::Locked, m_lockedRenderer.get());
 
   // Update the metadata to reflect the changes that we made above
@@ -559,6 +566,7 @@ void MapRenderer::removeNode(mdl::Node& node)
     if (renderers & int(Renderer::Selection))
     {
       m_selectionRenderer->removeNode(node);
+      m_unhighlightedSelectionRenderer->removeNode(node);
     }
     if (renderers & int(Renderer::Locked))
     {
@@ -617,6 +625,7 @@ void MapRenderer::invalidateRenderers(const Renderer renderers)
   if (int(renderers) & int(Renderer::Selection))
   {
     m_selectionRenderer->invalidate();
+    m_unhighlightedSelectionRenderer->invalidate();
   }
   if (int(renderers) & int(Renderer::Locked))
   {
@@ -643,6 +652,7 @@ void MapRenderer::reloadEntityModels()
 {
   m_defaultRenderer->reloadModels();
   m_selectionRenderer->reloadModels();
+  m_unhighlightedSelectionRenderer->reloadModels();
   m_lockedRenderer->reloadModels();
 }
 
@@ -780,6 +790,7 @@ void MapRenderer::resourcesWereProcessed(const std::vector<gl::ResourceId>& reso
 
   m_defaultRenderer->invalidateMaterials(materials);
   m_selectionRenderer->invalidateMaterials(materials);
+  m_unhighlightedSelectionRenderer->invalidateMaterials(materials);
   m_lockedRenderer->invalidateMaterials(materials);
   m_entityDecalRenderer->invalidateMaterials(materials);
 
@@ -788,6 +799,7 @@ void MapRenderer::resourcesWereProcessed(const std::vector<gl::ResourceId>& reso
     entityModelManager.findEntityModelsByTextureResourceId(resourceIds);
   m_defaultRenderer->invalidateEntityModels(entityModels);
   m_selectionRenderer->invalidateEntityModels(entityModels);
+  m_unhighlightedSelectionRenderer->invalidateEntityModels(entityModels);
   m_lockedRenderer->invalidateEntityModels(entityModels);
 }
 
