@@ -29,31 +29,34 @@
 namespace tb::mdl
 {
 
-TEST_CASE("computeCameraAxesForFaceNormal")
+TEST_CASE("UvUtils")
 {
-  CHECK(
-    computeCameraAxesForFaceNormal(vm::vec3d{0, 0, 1})
-    == std::tuple{vm::vec3d{0, 1, 0}, vm::vec3d{1, 0, 0}});
-
-  CHECK(
-    computeCameraAxesForFaceNormal(vm::vec3d{0, 0, -1})
-    == std::tuple{vm::vec3d{0, -1, 0}, vm::vec3d{1, 0, 0}});
-
-  CHECK(
-    computeCameraAxesForFaceNormal(vm::vec3d{1, 0, 0})
-    == std::tuple{vm::vec3d{0, 0, 1}, vm::vec3d{0, 1, 0}});
-
-  SECTION("returns normalized up axis orthogonal to normal")
+  SECTION("computeCameraAxesForFaceNormal")
   {
-    const auto normal = vm::normalize(vm::vec3d{1, 2, 3});
-    const auto [upAxis, rightAxis] = computeCameraAxesForFaceNormal(normal);
+    CHECK(
+      computeCameraAxesForFaceNormal(vm::vec3d{0, 0, 1})
+      == std::tuple{vm::vec3d{0, 1, 0}, vm::vec3d{1, 0, 0}});
 
-    CHECK(vm::length(upAxis) == vm::approx{1.0});
-    CHECK(vm::length(rightAxis) == vm::approx{1.0});
-    CHECK(vm::dot(normal, upAxis) == vm::approx{0.0});
-    CHECK(vm::dot(normal, rightAxis) == vm::approx{0.0});
-    CHECK(vm::dot(upAxis, rightAxis) == vm::approx{0.0});
-    CHECK(vm::cross(rightAxis, upAxis) == vm::approx(normal));
+    CHECK(
+      computeCameraAxesForFaceNormal(vm::vec3d{0, 0, -1})
+      == std::tuple{vm::vec3d{0, -1, 0}, vm::vec3d{1, 0, 0}});
+
+    CHECK(
+      computeCameraAxesForFaceNormal(vm::vec3d{1, 0, 0})
+      == std::tuple{vm::vec3d{0, 0, 1}, vm::vec3d{0, 1, 0}});
+
+    SECTION("returns normalized up axis orthogonal to normal")
+    {
+      const auto normal = vm::normalize(vm::vec3d{1, 2, 3});
+      const auto [upAxis, rightAxis] = computeCameraAxesForFaceNormal(normal);
+
+      CHECK(vm::length(upAxis) == vm::approx{1.0});
+      CHECK(vm::length(rightAxis) == vm::approx{1.0});
+      CHECK(vm::dot(normal, upAxis) == vm::approx{0.0});
+      CHECK(vm::dot(normal, rightAxis) == vm::approx{0.0});
+      CHECK(vm::dot(upAxis, rightAxis) == vm::approx{0.0});
+      CHECK(vm::cross(rightAxis, upAxis) == vm::approx(normal));
+    }
   }
 }
 
