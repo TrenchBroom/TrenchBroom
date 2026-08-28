@@ -170,20 +170,19 @@ Result<AcceptanceCaptureDocumentIdentity, AcceptanceAutomationError> documentFro
   }
   const auto revision = object.value("revision");
   if (
-    !revision.isUndefined()
-    && (!revision.isDouble() || revision.toDouble() < 0.0
-        || std::floor(revision.toDouble()) != revision.toDouble()
-        || revision.toDouble() > static_cast<double>(std::numeric_limits<size_t>::max())))
+    !revision.isDouble() || revision.toDouble() < 0.0
+    || std::floor(revision.toDouble()) != revision.toDouble()
+    || revision.toDouble() > static_cast<double>(std::numeric_limits<size_t>::max()))
   {
     return error(
       AcceptanceAutomationErrorCode::InvalidParameters,
-      "document.revision must be a non-negative integer when supplied");
+      "document.revision must be a non-negative integer");
   }
   return AcceptanceCaptureDocumentIdentity{
     object.contains("path") ? pathFromQString(object.value("path").toString())
                             : std::filesystem::path{},
     id.toString().toStdString(),
-    revision.isUndefined() ? 0u : static_cast<size_t>(revision.toDouble())};
+    static_cast<size_t>(revision.toDouble())};
 }
 
 QJsonObject documentToJson(const AcceptanceCaptureDocumentIdentity& document)

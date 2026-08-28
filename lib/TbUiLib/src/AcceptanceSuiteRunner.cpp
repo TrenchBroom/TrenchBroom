@@ -276,38 +276,43 @@ AcceptanceSuiteRunReport AcceptanceSuiteRunner::run(
       report.capture->target.normalizedCamera,
       0.01};
     const auto query = geometry.value();
-    futures.emplace_back(
-      index,
-      std::async(
-        std::launch::async,
-        [assertions, context, query, cancelled = options.cancelled]() {
-          auto reports = std::vector<AcceptanceAssertionRunReport>{};
-          AcceptanceAssertionEvaluator evaluator{*query};
-          for (const auto& assertion : assertions)
-          {
-            if (cancelled && cancelled())
-            {
-              reports.push_back(
-                {assertion.id, AcceptanceRunStatus::Cancelled, std::nullopt, {}});
-              break;
-            }
-            const auto value = evaluator.evaluate(assertion, context);
-            if (value.is_error())
-              reports.push_back(
-                {assertion.id,
-                 AcceptanceRunStatus::Error,
-                 std::nullopt,
-                 resultError(value).message});
-            else
-              reports.push_back(
-                {assertion.id,
-                 value.value().passed ? AcceptanceRunStatus::Passed
-                                      : AcceptanceRunStatus::Failed,
-                 value.value(),
-                 {}});
-          }
-          return reports;
-        }));
+    const auto evaluate = [assertions, context, query, cancelled = options.cancelled]() {
+      auto reports = std::vector<AcceptanceAssertionRunReport>{};
+      AcceptanceAssertionEvaluator evaluator{*query};
+      for (const auto& assertion : assertions)
+      {
+        if (cancelled && cancelled())
+        {
+          reports.push_back(
+            {assertion.id, AcceptanceRunStatus::Cancelled, std::nullopt, {}});
+          break;
+        }
+        const auto value = evaluator.evaluate(assertion, context);
+        if (value.is_error())
+          reports.push_back(
+            {assertion.id,
+             AcceptanceRunStatus::Error,
+             std::nullopt,
+             resultError(value).message});
+        else
+          reports.push_back(
+            {assertion.id,
+             value.value().passed ? AcceptanceRunStatus::Passed
+                                  : AcceptanceRunStatus::Failed,
+             value.value(),
+             {}});
+      }
+      return reports;
+    };
+    if (query->isThreadSafe())
+    {
+      futures.emplace_back(index, std::async(std::launch::async, evaluate));
+    }
+    else
+    {
+      report.assertions = evaluate();
+      report.status = aggregate(report.status, aggregate(report.assertions));
+    }
     if (futures.size() >= workers)
       collect();
   }

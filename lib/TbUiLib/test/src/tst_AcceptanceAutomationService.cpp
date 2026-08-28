@@ -454,6 +454,23 @@ TEST_CASE("AcceptanceAutomationService")
     CHECK(
       std::get<AcceptanceAutomationError>(missingIdentity.error()).code
       == AcceptanceAutomationErrorCode::InvalidParameters);
+
+    const auto missingRevision = service.handle(
+      "acceptance.assertions.evaluate",
+      {{"document", QJsonObject{{"documentId", "captured-42"}}},
+       {"assertion",
+        QJsonObject{
+          {"id", "clear"},
+          {"type", "clearSightline"},
+          {"configuration",
+           QJsonObject{
+             {"origin", QJsonArray{0.0, 0.0, 0.0}},
+             {"target", QJsonArray{0.0, 64.0, 0.0}},
+           }}}}});
+    REQUIRE(missingRevision.is_error());
+    CHECK(
+      std::get<AcceptanceAutomationError>(missingRevision.error()).code
+      == AcceptanceAutomationErrorCode::InvalidParameters);
   }
 
   SECTION("evaluates player clearance without a view or active-document fallback")

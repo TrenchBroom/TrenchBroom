@@ -39,14 +39,23 @@ AcceptanceGeometryError error(std::string message)
 
 } // namespace
 
-AcceptanceMapGeometryQuery::AcceptanceMapGeometryQuery(mdl::Map& map)
+AcceptanceMapGeometryQuery::AcceptanceMapGeometryQuery(
+  mdl::Map& map, const size_t revision)
   : m_map{map}
+  , m_revision{revision}
 {
+}
+
+bool AcceptanceMapGeometryQuery::isThreadSafe() const
+{
+  return false;
 }
 
 Result<std::vector<AcceptanceGeometryHit>, AcceptanceGeometryError>
 AcceptanceMapGeometryQuery::cast(const AcceptanceStructuralRay& ray) const
 {
+  if (m_map.modificationCount() != m_revision)
+    return error("Acceptance geometry document revision changed");
   if (
     !std::isfinite(ray.maxDistance) || ray.maxDistance <= 0.0
     || !std::isfinite(ray.origin.x()) || !std::isfinite(ray.origin.y())
@@ -81,12 +90,16 @@ AcceptanceMapGeometryQuery::cast(const AcceptanceStructuralRay& ray) const
     }
   }
   std::ranges::sort(hits, {}, &AcceptanceGeometryHit::distance);
+  if (m_map.modificationCount() != m_revision)
+    return error("Acceptance geometry document revision changed");
   return hits;
 }
 
 Result<bool, AcceptanceGeometryError> AcceptanceMapGeometryQuery::intersects(
   const vm::bbox3d& bounds) const
 {
+  if (m_map.modificationCount() != m_revision)
+    return error("Acceptance geometry document revision changed");
   if (
     !std::isfinite(bounds.min.x()) || !std::isfinite(bounds.min.y())
     || !std::isfinite(bounds.min.z()) || !std::isfinite(bounds.max.x())
@@ -105,10 +118,13 @@ Result<bool, AcceptanceGeometryError> AcceptanceMapGeometryQuery::intersects(
   const auto nodes = mdl::collectNodesAndDescendants(
     std::vector<mdl::Node*>{&m_map.worldNode()},
     [](const mdl::BrushNode&) { return true; });
-  return std::ranges::any_of(nodes, [&](const auto* node) {
+  const auto intersects = std::ranges::any_of(nodes, [&](const auto* node) {
     const auto* brush = dynamic_cast<const mdl::BrushNode*>(node);
     return brush != nullptr && brush->brush().intersects(probe.value());
   });
+  if (m_map.modificationCount() != m_revision)
+    return error("Acceptance geometry document revision changed");
+  return intersects;
 }
 
 AcceptanceMapGeometryProvider::AcceptanceMapGeometryProvider(
@@ -128,7 +144,9 @@ AcceptanceMapGeometryProvider::geometryFor(
     return std::get<AcceptanceGeometryError>(map.error());
   if (map.value() == nullptr)
     return error("Acceptance geometry resolver returned no map for documentId");
-  return std::make_shared<AcceptanceMapGeometryQuery>(*map.value());
+  if (map.value()->modificationCount() != document.revision)
+    return error("Acceptance geometry document revision changed");
+  return std::make_shared<AcceptanceMapGeometryQuery>(*map.value(), document.revision);
 }
 
 AcceptanceAutomationMapResolver::AcceptanceAutomationMapResolver(

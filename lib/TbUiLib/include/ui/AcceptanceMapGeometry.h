@@ -29,7 +29,7 @@ class AutomationDocumentRegistry;
 class AcceptanceMapGeometryQuery : public AcceptanceGeometryQuery
 {
 public:
-  explicit AcceptanceMapGeometryQuery(mdl::Map& map);
+  AcceptanceMapGeometryQuery(mdl::Map& map, size_t revision);
 
   Result<std::vector<AcceptanceGeometryHit>, AcceptanceGeometryError> cast(
     const AcceptanceStructuralRay& ray) const override;
@@ -37,8 +37,11 @@ public:
   Result<bool, AcceptanceGeometryError> intersects(
     const vm::bbox3d& bounds) const override;
 
+  bool isThreadSafe() const override;
+
 private:
   mdl::Map& m_map;
+  size_t m_revision;
 };
 
 /**

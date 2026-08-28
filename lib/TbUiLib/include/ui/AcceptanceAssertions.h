@@ -40,6 +40,12 @@ public:
   {
     return AcceptanceGeometryError{"Structural volume intersection is not available"};
   }
+
+  /**
+   * Whether the query can be evaluated on a worker thread. Queries over a live editor
+   * map must return false so that the map cannot race a UI-thread mutation.
+   */
+  virtual bool isThreadSafe() const { return true; }
 };
 
 enum class AcceptanceAssertionSpace

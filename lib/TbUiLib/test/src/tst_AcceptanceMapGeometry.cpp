@@ -38,6 +38,14 @@ void addCuboid(mdl::Map& map, const vm::bbox3d& bounds)
   mdl::addNodes(map, {{&mdl::parentForNodes(map), {node}}});
 }
 
+void addBrush(mdl::Map& map, const std::vector<vm::vec3d>& vertices)
+{
+  const auto builder = mdl::BrushBuilder{map.worldNode().mapFormat(), map.worldBounds()};
+  auto brush = builder.createBrush(vertices, "acceptance/test") | kdl::value();
+  auto* node = new mdl::BrushNode{std::move(brush)};
+  mdl::addNodes(map, {{&mdl::parentForNodes(map), {node}}});
+}
+
 class Resolver : public AcceptanceMapResolver
 {
 public:
@@ -61,7 +69,7 @@ TEST_CASE("AcceptanceMapGeometry")
   auto fixture = mdl::MapFixture{};
   auto& map = fixture.create();
   addCuboid(map, {{10.0, -2.0, -2.0}, {20.0, 2.0, 2.0}});
-  auto query = AcceptanceMapGeometryQuery{map};
+  auto query = AcceptanceMapGeometryQuery{map, map.modificationCount()};
 
   SECTION("returns structural brush hits bounded by the requested ray range")
   {
@@ -85,6 +93,7 @@ TEST_CASE("AcceptanceMapGeometry")
 
   SECTION("uses exact brush-volume intersection for player clearance probes")
   {
+    CHECK_FALSE(query.isThreadSafe());
     const auto clear = query.intersects({{-5.0, -5.0, -5.0}, {5.0, 5.0, 5.0}});
     REQUIRE(clear.is_success());
     CHECK_FALSE(clear.value());
@@ -92,6 +101,17 @@ TEST_CASE("AcceptanceMapGeometry")
     const auto blocked = query.intersects({{15.0, -1.0, -1.0}, {16.0, 1.0, 1.0}});
     REQUIRE(blocked.is_success());
     CHECK(blocked.value());
+
+    addBrush(
+      map,
+      {{10.0, -10.0, -10.0},
+       {20.0, -10.0, -10.0},
+       {10.0, 10.0, -10.0},
+       {10.0, -10.0, 10.0}});
+    const auto wedgeQuery = AcceptanceMapGeometryQuery{map, map.modificationCount()};
+    const auto outsideWedge = wedgeQuery.intersects({{18.0, 8.0, 8.0}, {19.0, 9.0, 9.0}});
+    REQUIRE(outsideWedge.is_success());
+    CHECK_FALSE(outsideWedge.value());
   }
 
   SECTION("detects player body, headroom, and a narrow opening")
@@ -105,26 +125,62 @@ TEST_CASE("AcceptanceMapGeometry")
         {"height", 10.0}};
       return assertion;
     };
-    const auto evaluator = AcceptanceAssertionEvaluator{query};
-
-    const auto clear = evaluator.evaluate(player({0.0, 0.0, 0.0}));
+    const auto clear =
+      AcceptanceAssertionEvaluator{query}.evaluate(player({0.0, 0.0, 0.0}));
     REQUIRE(clear.is_success());
     CHECK(clear.value().passed);
 
-    const auto body = evaluator.evaluate(player({15.0, 0.0, 0.0}));
+    const auto body =
+      AcceptanceAssertionEvaluator{query}.evaluate(player({15.0, 0.0, 0.0}));
     REQUIRE(body.is_success());
     CHECK_FALSE(body.value().passed);
 
     addCuboid(map, {{-5.0, -5.0, 8.0}, {5.0, 5.0, 12.0}});
-    const auto headroom = evaluator.evaluate(player({0.0, 0.0, 0.0}));
+    const auto headroomQuery = AcceptanceMapGeometryQuery{map, map.modificationCount()};
+    const auto headroom =
+      AcceptanceAssertionEvaluator{headroomQuery}.evaluate(player({0.0, 0.0, 0.0}));
     REQUIRE(headroom.is_success());
     CHECK_FALSE(headroom.value().passed);
 
     addCuboid(map, {{-5.0, -5.0, -30.0}, {5.0, -3.0, -10.0}});
     addCuboid(map, {{-5.0, 3.0, -30.0}, {5.0, 5.0, -10.0}});
-    const auto narrowOpening = evaluator.evaluate(player({0.0, 0.0, -20.0}));
+    const auto narrowOpeningQuery =
+      AcceptanceMapGeometryQuery{map, map.modificationCount()};
+    const auto narrowOpening = AcceptanceAssertionEvaluator{narrowOpeningQuery}.evaluate(
+      player({0.0, 0.0, -20.0}));
     REQUIRE(narrowOpening.is_success());
     CHECK_FALSE(narrowOpening.value().passed);
+  }
+
+  SECTION("uses the player-clearance skin only for contact tolerance")
+  {
+    const auto player = []() {
+      auto assertion = AcceptanceAssertion{};
+      assertion.type = AcceptanceAssertionType::PlayerClearance;
+      assertion.configuration = {
+        {"start", QJsonArray{0.0, 0.0, 0.0}}, {"radius", 4.0}, {"height", 10.0}};
+      return assertion;
+    };
+
+    addCuboid(map, {{-5.0, -5.0, -2.0}, {5.0, 5.0, 0.0}});
+    const auto floorQuery = AcceptanceMapGeometryQuery{map, map.modificationCount()};
+    const auto floorContact = AcceptanceAssertionEvaluator{floorQuery}.evaluate(player());
+    REQUIRE(floorContact.is_success());
+    CHECK(floorContact.value().passed);
+
+    addCuboid(map, {{-5.0, -5.0, 10.0}, {5.0, 5.0, 12.0}});
+    const auto ceilingQuery = AcceptanceMapGeometryQuery{map, map.modificationCount()};
+    const auto ceilingContact =
+      AcceptanceAssertionEvaluator{ceilingQuery}.evaluate(player());
+    REQUIRE(ceilingContact.is_success());
+    CHECK(ceilingContact.value().passed);
+
+    addCuboid(map, {{-5.0, -5.0, 9.98}, {5.0, 5.0, 12.0}});
+    const auto lowCeilingQuery = AcceptanceMapGeometryQuery{map, map.modificationCount()};
+    const auto lowCeiling =
+      AcceptanceAssertionEvaluator{lowCeilingQuery}.evaluate(player());
+    REQUIRE(lowCeiling.is_success());
+    CHECK_FALSE(lowCeiling.value().passed);
   }
 
   SECTION("requires an exact document identity through the injected resolver")
@@ -132,17 +188,35 @@ TEST_CASE("AcceptanceMapGeometry")
     auto resolver = Resolver{};
     resolver.map = &map;
     auto provider = AcceptanceMapGeometryProvider{resolver};
+    const auto revision = map.modificationCount();
 
-    const auto exact = provider.geometryFor({"map.map", "exact", 7u});
+    const auto exact = provider.geometryFor({"map.map", "exact", revision});
     REQUIRE(exact.is_success());
     CHECK(resolver.documentIds == std::vector<std::string>{"exact"});
     const auto hits = exact.value()->cast({{0.0, 0.0, 0.0}, {1.0, 0.0, 0.0}, 30.0});
     REQUIRE(hits.is_success());
     CHECK(hits.value().front().distance == 10.0);
 
-    const auto missing = provider.geometryFor({"map.map", "", 7u});
+    const auto stale = provider.geometryFor({"map.map", "exact", revision + 1u});
+    REQUIRE(stale.is_error());
+    CHECK(
+      std::get<AcceptanceGeometryError>(stale.error()).message
+      == "Acceptance geometry document revision changed");
+
+    const auto missing = provider.geometryFor({"map.map", "", revision});
     REQUIRE(missing.is_error());
-    CHECK(resolver.documentIds == std::vector<std::string>{"exact"});
+    CHECK(resolver.documentIds == std::vector<std::string>{"exact", "exact"});
+  }
+
+  SECTION("rejects a query when the identified map revision changes")
+  {
+    auto stale = AcceptanceMapGeometryQuery{map, map.modificationCount()};
+    addCuboid(map, {{30.0, -2.0, -2.0}, {40.0, 2.0, 2.0}});
+    const auto result = stale.intersects({{-5.0, -5.0, -5.0}, {5.0, 5.0, 5.0}});
+    REQUIRE(result.is_error());
+    CHECK(
+      std::get<AcceptanceGeometryError>(result.error()).message
+      == "Acceptance geometry document revision changed");
   }
 
   SECTION("consults an injected hidden-document map only after live lookup")

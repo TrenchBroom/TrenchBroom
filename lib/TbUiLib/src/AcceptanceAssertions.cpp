@@ -518,6 +518,29 @@ AcceptanceAssertionResult playerClearance(
       "Player clearance radius, height, and maxStep must be positive");
   }
 
+  if (
+    context.geometrySpace == AcceptanceAssertionSpace::Target
+    && context.alignment.type == AcceptanceAlignmentType::Matrix)
+  {
+    const auto& m = context.alignment.matrix;
+    const auto x = vm::vec3d{m[0], m[4], m[8]};
+    const auto y = vm::vec3d{m[1], m[5], m[9]};
+    const auto z = vm::vec3d{m[2], m[6], m[10]};
+    constexpr auto RigidTransformTolerance = 0.000001;
+    if (
+      std::abs(vm::length(x) - 1.0) > RigidTransformTolerance
+      || std::abs(vm::length(y) - 1.0) > RigidTransformTolerance
+      || std::abs(vm::length(z) - 1.0) > RigidTransformTolerance
+      || std::abs(vm::dot(x, y)) > RigidTransformTolerance
+      || std::abs(vm::dot(x, z)) > RigidTransformTolerance
+      || std::abs(vm::dot(y, z)) > RigidTransformTolerance)
+    {
+      return error(
+        AcceptanceAssertionErrorCode::UnsupportedTransformation,
+        "Player clearance requires identity or rigid unit-scale matrix alignment");
+    }
+  }
+
   const auto start = transform(context, startValue.value(), true);
   const auto end = transform(context, endValue.value(), true);
   if (start.is_error())

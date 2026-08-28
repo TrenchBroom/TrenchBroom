@@ -192,6 +192,70 @@ TEST_CASE("AcceptanceAssertions")
     CHECK(segment.value().passed);
     CHECK(segment.value().totalRays == 4u);
   }
+
+  SECTION("uses a tolerance skin without changing the reported player dimensions")
+  {
+    auto query = Query{};
+    auto context = AcceptanceAssertionContext{};
+    context.tolerance = 0.5;
+    const auto result =
+      AcceptanceAssertionEvaluator{query}.evaluate(playerClearanceAssertion(), context);
+    REQUIRE(result.is_success());
+    REQUIRE(query.volumes.size() == 1u);
+    CHECK(query.volumes.front().min == vm::vec3d{-15.5, -15.5, 0.5});
+    CHECK(query.volumes.front().max == vm::vec3d{15.5, 15.5, 55.5});
+    CHECK(result.value().measuredWidth == 32.0);
+    CHECK(result.value().measuredHeight == 56.0);
+  }
+
+  SECTION("caps player-clearance segment samples inclusively at 4096")
+  {
+    auto query = Query{};
+    const auto evaluate = [&](const double length) {
+      auto assertion =
+        playerClearanceAssertion({0.0, 0.0, 0.0}, vm::vec3d{length, 0.0, 0.0});
+      assertion.configuration.insert("maxStep", 1.0);
+      return AcceptanceAssertionEvaluator{query}.evaluate(assertion);
+    };
+
+    const auto belowLimit = evaluate(4094.0);
+    REQUIRE(belowLimit.is_success());
+    CHECK(belowLimit.value().totalRays == 4095u);
+
+    const auto atLimit = evaluate(4095.0);
+    REQUIRE(atLimit.is_success());
+    CHECK(atLimit.value().totalRays == 4096u);
+
+    const auto overLimit = evaluate(4096.0);
+    REQUIRE(overLimit.is_error());
+    CHECK(
+      std::get<AcceptanceAssertionError>(overLimit.error()).code
+      == AcceptanceAssertionErrorCode::InvalidConfiguration);
+  }
+
+  SECTION("rejects scaled or sheared player-clearance target alignments")
+  {
+    auto query = Query{};
+    auto context = AcceptanceAssertionContext{};
+    context.geometrySpace = AcceptanceAssertionSpace::Target;
+    context.alignment.type = AcceptanceAlignmentType::Matrix;
+    context.alignment.matrix = {2, 0, 0, 0, 0, 2, 0, 0, 0, 0, 2, 0, 0, 0, 0, 1};
+
+    const auto scaled =
+      AcceptanceAssertionEvaluator{query}.evaluate(playerClearanceAssertion(), context);
+    REQUIRE(scaled.is_error());
+    CHECK(
+      std::get<AcceptanceAssertionError>(scaled.error()).code
+      == AcceptanceAssertionErrorCode::UnsupportedTransformation);
+
+    context.alignment.matrix = {1, 0.5, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1};
+    const auto sheared =
+      AcceptanceAssertionEvaluator{query}.evaluate(playerClearanceAssertion(), context);
+    REQUIRE(sheared.is_error());
+    CHECK(
+      std::get<AcceptanceAssertionError>(sheared.error()).code
+      == AcceptanceAssertionErrorCode::UnsupportedTransformation);
+  }
 }
 
 } // namespace tb::ui
