@@ -213,6 +213,13 @@ void EntityModelRenderer::render(RenderContext& renderContext)
         continue;
       }
 
+      if (
+        !m_showHiddenEntities && entityNode->entity().pointEntity()
+        && !(renderContext.showPointEntities() && renderContext.showPointEntityModels()))
+      {
+        continue;
+      }
+
       const auto* model = entityNode->entity().model();
       const auto* modelData = model ? model->data() : nullptr;
       if (!modelData)

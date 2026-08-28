@@ -2418,7 +2418,7 @@ You can use these backups to go back to previous versions of your map if problem
 
 TrenchBroom can show models for entities in the 3D and 2D viewports. For this to work, the display models have to be set up in the [entity definition](#entity_definitions) file, and the game path has to be set up correctly in the [game configuration](#game_configuration). For most of the included entity definition files, the models have already been set up for you, but if you wish to create an entity definition file for a mod that works well in TrenchBroom, you have to add these model definitions yourself. You will learn how to do this for FGD and DEF files in this section.
 
-FGD solid classes may also declare a display model. This is useful when an entity needs brush geometry for editing, picking, collision, or map export, but has a more faithful visual model in the game. TrenchBroom keeps the textured brush proxy visible in the normal view so that asynchronously loading or unavailable models never make the entity disappear. When selected, the display model is shown with the brush edges so that the proxy remains editable.
+FGD solid classes may also declare a display model. This is useful when an entity needs brush geometry for editing, picking, collision, or map export, but has a more faithful visual model in the game. TrenchBroom keeps the textured brush proxy visible while the model loads or if it is unavailable, then replaces the proxy faces with the loaded display model. When selected, the display model is shown with the brush edges so that the authoritative proxy remains editable and can be compared with a state preview. Solid-class display models remain visible independently of the point-entity model visibility setting.
 
 ### General Model Syntax
 

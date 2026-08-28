@@ -1138,9 +1138,11 @@ TEST_CASE("FgdParser")
     SECTION("parseBrushEntityModelDefinition")
     {
       const auto file = R"(
-@SolidClass model({ "path": modelpath }) = func_model
+@SolidClass model({ "path": modelpath, "yaw": (+openangle) * (+previewopen) * 57.29577951308232 }) = func_model
 [
   modelpath(string) : "Preview model"
+  openangle(float) : "Open angle"
+  previewopen(choices) : "Preview state" = [ 0 : "Closed" 0.5 : "Half" 1 : "Open" ]
 ])";
 
       auto parser = FgdParser{file, RgbaF{1.0f, 1.0f, 1.0f, 1.0f}};
@@ -1149,9 +1151,16 @@ TEST_CASE("FgdParser")
 
       REQUIRE(definitions.size() == 1u);
       REQUIRE(definitions[0].brushEntityModelDefinition);
-      auto entity = Entity{{{"modelpath", "models/door.obj"}}};
+      auto entity = Entity{{
+        {"modelpath", "models/door.obj"},
+        {"openangle", "-1.5708"},
+        {"previewopen", "0.5"},
+      }};
       entity.setDefinition(&definitions[0]);
       CHECK(entity.modelSpecification() == ModelSpecification{"models/door.obj", 0, 0});
+      CHECK(
+        entity.modelTransformation(std::nullopt)
+        == vm::rotation_matrix(vm::vec3d{0, 0, 1}, vm::to_radians(-45.00010522957485)));
       CHECK(status.countStatus(LogLevel::Warn) == 0u);
       CHECK(status.countStatus(LogLevel::Error) == 0u);
     }

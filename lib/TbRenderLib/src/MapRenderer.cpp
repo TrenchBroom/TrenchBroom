@@ -152,6 +152,11 @@ public:
       return renderNothing();
     }
 
+    if (hasBrushEntityModel(brushNode))
+    {
+      return renderNothing();
+    }
+
     const auto& brush = brushNode.brush();
 
     auto anyFaceVisible = false;
@@ -817,6 +822,15 @@ void MapRenderer::resourcesWereProcessed(const std::vector<gl::ResourceId>& reso
   m_selectionRenderer->invalidateEntityModels(entityModels);
   m_unhighlightedSelectionRenderer->invalidateEntityModels(entityModels);
   m_lockedRenderer->invalidateEntityModels(entityModels);
+
+  // Brush entities keep rendering their textured brush as a fallback until the
+  // configured display model is ready. Revalidate brush filters at that transition so
+  // the loaded model replaces the fallback instead of being permanently hidden behind
+  // it.
+  if (!entityModels.empty())
+  {
+    invalidateRenderers(Renderer::All);
+  }
 }
 
 void MapRenderer::materialCollectionsWillChange()

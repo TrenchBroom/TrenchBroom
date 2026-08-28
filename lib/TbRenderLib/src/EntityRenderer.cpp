@@ -271,15 +271,10 @@ void EntityRenderer::renderSolidBounds(RenderBatch& renderBatch)
 
 void EntityRenderer::renderModels(RenderContext& renderContext, RenderBatch& renderBatch)
 {
-  if (
-    m_showHiddenEntities
-    || (renderContext.showPointEntities() && renderContext.showPointEntityModels()))
-  {
-    m_modelRenderer.setApplyTinting(m_tint);
-    m_modelRenderer.setTintColor(m_tintColor);
-    m_modelRenderer.setShowHiddenEntities(m_showHiddenEntities);
-    m_modelRenderer.render(renderBatch);
-  }
+  m_modelRenderer.setApplyTinting(m_tint);
+  m_modelRenderer.setTintColor(m_tintColor);
+  m_modelRenderer.setShowHiddenEntities(m_showHiddenEntities);
+  m_modelRenderer.render(renderBatch);
 }
 
 void EntityRenderer::renderClassnames(
