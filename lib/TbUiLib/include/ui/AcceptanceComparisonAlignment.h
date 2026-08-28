@@ -35,6 +35,7 @@ struct AcceptanceAlignmentError
 std::ostream& operator<<(std::ostream& lhs, const AcceptanceAlignmentError& rhs);
 
 using AcceptanceAlignedCameraResult = Result<AcceptanceCamera, AcceptanceAlignmentError>;
+using AcceptanceAlignedPointResult = Result<vm::vec3d, AcceptanceAlignmentError>;
 
 /**
  * Produces the target camera for a comparison. Matrix values are row-major affine
@@ -45,5 +46,12 @@ AcceptanceAlignedCameraResult alignAcceptanceTargetCamera(
   const AcceptanceAlignment& alignment,
   const AcceptanceCamera& referenceCamera,
   const AcceptanceCamera& authoredTargetCamera);
+
+/**
+ * Maps a reference-world point into candidate-world coordinates. Independent and
+ * landmark alignments cannot define a single point transform.
+ */
+AcceptanceAlignedPointResult alignAcceptanceTargetPoint(
+  const AcceptanceAlignment& alignment, const vm::vec3d& referencePoint);
 
 } // namespace tb::ui

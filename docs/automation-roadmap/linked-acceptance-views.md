@@ -5,6 +5,12 @@ sightline, bounds-visibility, and opening-clearance evaluation. Landmark solving
 edge/object/material buffers, the Unrest seed suite, and the optional UI remain scoped
 follow-ups rather than silently approximated features.
 
+Comparison contexts now also support `acceptance.geometry.compare`, a bounded,
+reference-space brush-volume sampler with neutral `referenceOnly` / `candidateOnly`
+findings and an optional evidence-backed divergence policy. This is the first solid-space
+milestone; persisted policy, adaptive sampling, material/content classification, and
+player connectivity remain follow-ups.
+
 ## Goal
 
 Map reconstruction gains repeatable, reviewable visual acceptance tests. A named view
@@ -33,8 +39,10 @@ A durable project-level assignment of reference and candidate roles:
 
 The alignment maps reference coordinates into candidate coordinates. Context-bound
 operations treat the reference as read-only and never resolve either role from the
-active GUI document. See
-[ADR 0002](adr-0002-first-class-comparison-contexts.md).
+active GUI document. Read-only does not mean infallible: raw comparison is neutral and
+accepted repairs require evidence-backed policy. See
+[ADR 0002](adr-0002-first-class-comparison-contexts.md) and
+[ADR 0003](adr-0003-reference-is-evidence.md).
 
 ### Named view
 
@@ -168,6 +176,7 @@ Proposed methods:
 - `acceptance.comparisons.list/create/update/delete/capture`
 - `acceptance.suites.list/run`
 - `acceptance.assertions.evaluate`
+- `acceptance.geometry.compare`
 
 Create/update/delete methods require an expected store revision and are atomic. Capture
 and run methods are read-only with respect to maps, views, and the persisted suite.

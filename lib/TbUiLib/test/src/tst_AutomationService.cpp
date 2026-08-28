@@ -839,6 +839,14 @@ TEST_CASE("AutomationService headless acceptance capture RPC")
     {},
     {{"pixels", AcceptanceMetricType::Silhouette, std::nullopt, {}}},
     {},
+    "headless-pair",
+  }};
+  project.contexts = {{
+    "headless-pair",
+    "Headless reference and candidate",
+    "source.map",
+    "target.map",
+    {},
   }};
   const auto projectJson = acceptanceProjectToJson(project);
 
@@ -849,6 +857,15 @@ TEST_CASE("AutomationService headless acceptance capture RPC")
   const auto pathParam = pathAsQString(projectPath);
 
   auto revision = 0;
+  const auto createdContext = sendRequest(
+    *client,
+    "acceptance.contexts.create",
+    QJsonObject{
+      {"projectPath", pathParam},
+      {"expectedRevision", revision++},
+      {"context", projectJson.value("contexts").toArray().at(0)},
+    });
+  REQUIRE(createdContext.contains("result"));
   for (const auto& view : projectJson.value("views").toArray())
   {
     const auto response = sendRequest(
@@ -883,6 +900,40 @@ TEST_CASE("AutomationService headless acceptance capture RPC")
   const auto metricReports = imageComparison.value("metrics").toArray();
   REQUIRE(metricReports.size() == 1);
   CHECK(metricReports.at(0).toObject().value("passed") == true);
+
+  const auto geometryComparison = sendRequest(
+    *client,
+    "acceptance.geometry.compare",
+    QJsonObject{
+      {"projectPath", pathParam},
+      {"contextId", "headless-pair"},
+      {"bounds",
+       QJsonObject{
+         {"min", QJsonArray{-1.0, -1.0, -1.0}},
+         {"max", QJsonArray{1.0, 1.0, 1.0}},
+       }},
+      {"cellSize", 1.0},
+    });
+  REQUIRE(geometryComparison.contains("result"));
+  const auto geometryReport =
+    geometryComparison.value("result").toObject().value("comparison").toObject();
+  CHECK(geometryReport.value("occupancyModel") == "brushVolumesV1");
+  CHECK(geometryReport.value("referenceDocument")
+          .toObject()
+          .value("id")
+          .toString()
+          .startsWith("hidden-"));
+  CHECK(geometryReport.value("candidateDocument")
+          .toObject()
+          .value("id")
+          .toString()
+          .startsWith("hidden-"));
+  CHECK(
+    geometryReport.value("referenceDocument").toObject().value("id")
+    != geometryReport.value("candidateDocument").toObject().value("id"));
+  CHECK(geometryReport.value("totalCells") == 8);
+  CHECK(geometryReport.value("referenceOnly").toObject().value("cellCount") == 0);
+  CHECK(geometryReport.value("candidateOnly").toObject().value("cellCount") == 0);
   CHECK(capture.value("reference")
           .toObject()
           .value("document")

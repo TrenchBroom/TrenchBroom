@@ -10,7 +10,7 @@ The acceptance model currently binds a reference document, a target document, an
 alignment independently on every saved comparison. Workspaces separately distinguish a
 source map from editing branches, while low-level automation correctly requires an
 explicit document ID. None of these concepts says, once and durably, that one document
-is the read-only oracle and another is the candidate being changed.
+is the read-only reference and another is the candidate being changed.
 
 Repeating this relationship has practical costs:
 
@@ -39,6 +39,12 @@ The roles are semantic and asymmetric. Context-aware mutation may target the can
 but must reject the reference. This does not weaken low-level RPC rules: low-level
 operations continue to require explicit document IDs and never infer a target from GUI
 focus.
+
+The role name does not imply correctness. A reference is evidence and a stable baseline,
+not an oracle. Export defects, legacy-data ambiguity, or an intentional repair can make
+the candidate preferable in a particular region. Measurement therefore remains
+symmetric and role-relative; policy classifies reviewed differences separately. See
+[ADR 0003](adr-0003-reference-is-evidence.md).
 
 A saved comparison may either:
 

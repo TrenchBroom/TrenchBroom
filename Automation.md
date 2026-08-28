@@ -150,6 +150,8 @@ and commit atomically.
   `maxCpuConcurrency`
 - `acceptance.assertions.evaluate` for a one-shot assertion against an explicit live or
   acceptance-owned hidden `documentId`
+- `acceptance.geometry.compare` for a symmetric, sampled brush-volume comparison over
+  an explicit region in a comparison context
 
 A comparison context persistently assigns asymmetric reference and candidate roles to
 two project-relative document paths and owns their reference-to-candidate alignment.
@@ -157,6 +159,10 @@ Context-bound comparisons store only `contextId` and their two named-view IDs, s
 context path or alignment update applies atomically to every linked comparison. The
 reference role is read-only for context-aware operations; low-level mutation RPCs still
 require an explicit document ID and never infer a target from the context or GUI focus.
+`Reference` means stable baseline, not presumed truth. In particular, an exported map
+may contain exporter defects. Comparison methods report neutral `referenceOnly` and
+`candidateOnly` findings; a separate, evidence-backed policy can classify reviewed
+findings as intended changes, accepted repairs, or waivers.
 
 ```json
 {
@@ -176,6 +182,42 @@ never fall back to the active map. Color metrics compare RGBA; depth metrics com
 finite linear depth; silhouette metrics compare finite-depth coverage. These metric
 types are deliberately separate, so an RGB difference is never mislabeled as a
 structural depth or silhouette result.
+
+### `acceptance.geometry.compare`
+
+This read-only method resolves both paths and their alignment from `contextId`. It uses
+an exact live document when available and otherwise loads an acceptance-owned hidden
+document without creating a window or changing focus. Bounds and reported cell bounds
+are in reference coordinates. The report records the actual reference/candidate
+document IDs and revisions used. Hidden inputs are content-fingerprinted and reloaded
+with a new non-reusable ID when their files change.
+
+```sh
+tbctl --method acceptance.geometry.compare --params '{
+  "projectPath":"/maps/unrest.acceptance.json",
+  "contextId":"unrest-rebuild",
+  "bounds":{"min":[-512,-512,-64],"max":[512,512,256]},
+  "cellSize":16,
+  "includeCells":true,
+  "maxSamples":250000,
+  "maxReportedFindings":1000
+}' --pretty
+```
+
+The response's `occupancyModel` is `brushVolumesV1`: a point is occupied when it lies
+inside any brush, regardless of how the brushes are decomposed or overlap. It does not
+yet distinguish collision brushes from water or other brush contents, and it does not
+include patches. Sampling occurs at cell centers, so features thinner than `cellSize`
+can be missed. Use a cell size appropriate to the feature under review. Requests are
+rejected above one million samples; the default is 250,000.
+
+An optional inline `policy` classifies individual difference cells after measurement.
+Rules use `domain: "solidSpace"`, an optional `direction`, optional reference-space
+`scope`, and a `disposition`. Every non-review disposition must include
+`sourceReference`; every rule must include a rationale. Measurement counts and bounds
+remain present even when a policy accepts a repair to a broken reference. The report
+echoes the complete policy definition so each classification's `ruleId` resolves to its
+provenance, evidence, and rationale without relying on caller state.
 
 Node paths are arrays of child indices rooted at the world node. They are deliberately
 revision-scoped instead of exposing process pointers or writing automation IDs into map

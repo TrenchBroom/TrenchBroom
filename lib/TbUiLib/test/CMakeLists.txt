@@ -9,9 +9,13 @@ target_sources(TbUiLibTest
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Actions.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_AcceptanceAutomationService.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_AcceptanceAssertions.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_AcceptanceComparisonAlignment.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_AcceptanceComparisonRunner.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_AcceptanceComparisonContextResolver.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_AcceptanceDivergencePolicy.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_AcceptanceImageComparison.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_AcceptanceMapGeometry.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_AcceptanceSolidSpace.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_AcceptanceSuiteRunner.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_AcceptanceView.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_AcceptanceViewStore.cpp

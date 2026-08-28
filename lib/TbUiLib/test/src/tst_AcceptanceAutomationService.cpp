@@ -14,6 +14,7 @@
 #include <QTemporaryDir>
 
 #include "ui/AcceptanceAutomationService.h"
+#include "ui/AcceptanceDivergencePolicy.h"
 #include "ui/CatchConfig.h"
 
 #include <variant>
@@ -97,6 +98,40 @@ public:
   }
 };
 
+class SolidSpaceQuery : public AcceptanceSolidSpaceQuery
+{
+public:
+  explicit SolidSpaceQuery(const bool reference)
+    : m_reference{reference}
+  {
+  }
+
+  Result<bool, AcceptanceSolidSpaceError> isSolid(const vm::vec3d& point) const override
+  {
+    return m_reference ? point.x() < 1.0 : point.x() >= 1.0;
+  }
+
+private:
+  bool m_reference;
+};
+
+class SolidSpace : public AcceptanceSolidSpaceProvider
+{
+public:
+  std::vector<std::filesystem::path> paths;
+
+  Result<AcceptanceSolidSpaceDocument, AcceptanceSolidSpaceError> queryFor(
+    const std::filesystem::path& path) override
+  {
+    paths.push_back(path);
+    const auto reference = path.filename() == "source.map";
+    return AcceptanceSolidSpaceDocument{
+      std::make_shared<SolidSpaceQuery>(reference),
+      reference ? "source-document" : "target-document",
+      reference ? 3u : 7u};
+  }
+};
+
 QJsonObject item(const AcceptanceProject& project, const char* kind, const auto index)
 {
   return acceptanceProjectToJson(project).value(kind).toArray()[index].toObject();
@@ -113,7 +148,8 @@ TEST_CASE("AcceptanceAutomationService")
   auto store = AcceptanceViewStore{projectPath};
   auto capture = Capture{};
   auto geometry = Geometry{};
-  auto service = AcceptanceAutomationService{store, capture, geometry};
+  auto solidSpace = SolidSpace{};
+  auto service = AcceptanceAutomationService{store, capture, geometry, solidSpace};
   const auto project = makeProject();
 
   SECTION("routes optimistic CRUD and reports the explicit store path")
@@ -244,6 +280,57 @@ TEST_CASE("AcceptanceAutomationService")
     CHECK(
       std::get<AcceptanceAutomationError>(unsupported.error()).code
       == AcceptanceAutomationErrorCode::MethodNotFound);
+  }
+
+  SECTION("compares context solid space and classifies an accepted reference repair")
+  {
+    REQUIRE(store.replace(project, 0u).is_success());
+    auto policy = AcceptanceDivergencePolicy{};
+    policy.rules = {{
+      "export-repair",
+      "Known exporter defect",
+      AcceptanceDivergenceDomain::SolidSpace,
+      AcceptanceDivergenceDirection::CandidateOnly,
+      vm::bbox3d{{1.0, 0.0, 0.0}, {2.0, 1.0, 1.0}},
+      AcceptanceDivergenceDisposition::AcceptedRepair,
+      AcceptanceDivergenceProvenance::ExportDefect,
+      "unrest-export-audit.md#repair",
+      "The candidate restores solid geometry omitted by the exporter.",
+    }};
+
+    const auto compared = service.handle(
+      "acceptance.geometry.compare",
+      {{"contextId", "unrest-rebuild"},
+       {"bounds",
+        QJsonObject{
+          {"min", QJsonArray{0.0, 0.0, 0.0}},
+          {"max", QJsonArray{2.0, 1.0, 1.0}},
+        }},
+       {"cellSize", 1.0},
+       {"includeCells", true},
+       {"policy", acceptanceDivergencePolicyToJson(policy)}});
+
+    REQUIRE(compared.is_success());
+    REQUIRE(solidSpace.paths.size() == 2u);
+    const auto comparison = compared.value().value("comparison").toObject();
+    CHECK(comparison.value("coordinateSpace") == "reference");
+    CHECK(comparison.value("occupancyModel") == "brushVolumesV1");
+    CHECK(
+      comparison.value("referenceDocument").toObject().value("id") == "source-document");
+    CHECK(comparison.value("referenceDocument").toObject().value("revision") == 3);
+    CHECK(
+      comparison.value("candidateDocument").toObject().value("id") == "target-document");
+    CHECK(comparison.value("candidateDocument").toObject().value("revision") == 7);
+    CHECK(comparison.value("referenceOnly").toObject().value("cellCount") == 1);
+    CHECK(comparison.value("candidateOnly").toObject().value("cellCount") == 1);
+    CHECK(
+      comparison.value("referenceOnly").toObject().value("cells").toArray().size() == 1);
+    const auto policyReport = comparison.value("policy").toObject();
+    CHECK(
+      policyReport.value("definition").toObject().value("rules").toArray().size() == 1);
+    CHECK(policyReport.value("total") == 2);
+    CHECK(policyReport.value("dispositions").toObject().value("acceptedRepair") == 1);
+    CHECK(policyReport.value("dispositions").toObject().value("review") == 1);
   }
 
   SECTION("evaluates a one-shot assertion against only its explicit document identity")

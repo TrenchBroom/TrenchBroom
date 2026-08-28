@@ -13,10 +13,15 @@
 
 #include <QJsonArray>
 
+#include "AutomationJson.h"
+#include "ui/AcceptanceComparisonAlignment.h"
+#include "ui/AcceptanceComparisonContextResolver.h"
+#include "ui/AcceptanceDivergencePolicy.h"
 #include "ui/QPathUtils.h"
 
 #include <cmath>
 #include <limits>
+#include <memory>
 #include <ranges>
 #include <utility>
 #include <variant>
@@ -149,16 +154,165 @@ QJsonObject documentToJson(const AcceptanceCaptureDocumentIdentity& document)
   };
 }
 
+constexpr auto DefaultSolidSpaceMaxSamples = size_t{250000u};
+constexpr auto MaximumSolidSpaceMaxSamples = size_t{1000000u};
+constexpr auto DefaultSolidSpaceReportLimit = size_t{1000u};
+constexpr auto MaximumSolidSpaceReportLimit = size_t{10000u};
+
+std::optional<size_t> boundedSize(
+  const QJsonObject& params,
+  const char* key,
+  const size_t defaultValue,
+  const size_t maximum)
+{
+  if (!params.contains(key))
+    return defaultValue;
+  const auto value = params.value(key);
+  if (
+    !value.isDouble() || value.toDouble() < 1.0
+    || std::floor(value.toDouble()) != value.toDouble()
+    || value.toDouble() > static_cast<double>(maximum))
+  {
+    return std::nullopt;
+  }
+  return static_cast<size_t>(value.toDouble());
+}
+
+std::optional<vm::bbox3d> solidSpaceBounds(const QJsonValue& value)
+{
+  if (!value.isObject())
+    return std::nullopt;
+  const auto object = value.toObject();
+  const auto min = automation::vec3FromJson(object.value("min"));
+  const auto max = automation::vec3FromJson(object.value("max"));
+  if (!min || !max)
+    return std::nullopt;
+  const auto result = vm::bbox3d{*min, *max};
+  return result.is_valid() && !result.is_empty() ? std::optional{result} : std::nullopt;
+}
+
+QJsonObject solidSpaceBoundsToJson(const vm::bbox3d& bounds)
+{
+  return {
+    {"min", QJsonArray{bounds.min.x(), bounds.min.y(), bounds.min.z()}},
+    {"max", QJsonArray{bounds.max.x(), bounds.max.y(), bounds.max.z()}},
+  };
+}
+
+class AlignedSolidSpaceQuery : public AcceptanceSolidSpaceQuery
+{
+public:
+  AlignedSolidSpaceQuery(
+    std::shared_ptr<const AcceptanceSolidSpaceQuery> query, AcceptanceAlignment alignment)
+    : m_query{std::move(query)}
+    , m_alignment{std::move(alignment)}
+  {
+  }
+
+  Result<bool, AcceptanceSolidSpaceError> isSolid(
+    const vm::vec3d& referencePoint) const override
+  {
+    const auto candidatePoint = alignAcceptanceTargetPoint(m_alignment, referencePoint);
+    if (candidatePoint.is_error())
+    {
+      return AcceptanceSolidSpaceError{
+        std::get<AcceptanceAlignmentError>(candidatePoint.error()).message};
+    }
+    return m_query->isSolid(candidatePoint.value());
+  }
+
+private:
+  std::shared_ptr<const AcceptanceSolidSpaceQuery> m_query;
+  AcceptanceAlignment m_alignment;
+};
+
+QJsonObject discrepancyToJson(
+  const AcceptanceSolidSpaceDiscrepancy& discrepancy,
+  const bool includeCells,
+  const size_t reportLimit)
+{
+  auto result = QJsonObject{{"cellCount", static_cast<qint64>(discrepancy.cellCount)}};
+  if (discrepancy.bounds)
+    result.insert("bounds", solidSpaceBoundsToJson(*discrepancy.bounds));
+  if (includeCells)
+  {
+    auto cells = QJsonArray{};
+    const auto count = std::min(reportLimit, discrepancy.cells.size());
+    for (size_t i = 0u; i < count; ++i)
+      cells.push_back(solidSpaceBoundsToJson(discrepancy.cells[i]));
+    result.insert("cells", cells);
+    result.insert(
+      "cellsTruncated", static_cast<qint64>(discrepancy.cells.size() - count));
+  }
+  return result;
+}
+
+void incrementJsonCount(QJsonObject& counts, const QString& key)
+{
+  counts.insert(key, counts.value(key).toInteger() + 1);
+}
+
+QJsonObject classifySolidSpaceReport(
+  const AcceptanceSolidSpaceComparisonReport& report,
+  const AcceptanceDivergencePolicy& policy,
+  const size_t reportLimit)
+{
+  auto findings = std::vector<AcceptanceDivergenceFinding>{};
+  findings.reserve(report.newlyEmpty.cells.size() + report.newlySolid.cells.size());
+  for (size_t i = 0u; i < report.newlyEmpty.cells.size(); ++i)
+  {
+    findings.push_back(
+      {"reference-only-" + std::to_string(i),
+       AcceptanceDivergenceDomain::SolidSpace,
+       AcceptanceDivergenceDirection::ReferenceOnly,
+       1u,
+       report.newlyEmpty.cells[i]});
+  }
+  for (size_t i = 0u; i < report.newlySolid.cells.size(); ++i)
+  {
+    findings.push_back(
+      {"candidate-only-" + std::to_string(i),
+       AcceptanceDivergenceDomain::SolidSpace,
+       AcceptanceDivergenceDirection::CandidateOnly,
+       1u,
+       report.newlySolid.cells[i]});
+  }
+
+  const auto classifications = classifyAcceptanceDivergences(policy, std::move(findings));
+  auto reported = QJsonArray{};
+  auto dispositionCounts = QJsonObject{};
+  auto severityCounts = QJsonObject{};
+  for (size_t i = 0u; i < classifications.size(); ++i)
+  {
+    const auto json = acceptanceDivergenceClassificationToJson(classifications[i]);
+    incrementJsonCount(dispositionCounts, json.value("disposition").toString());
+    incrementJsonCount(severityCounts, json.value("severity").toString());
+    if (i < reportLimit)
+      reported.push_back(json);
+  }
+  return {
+    {"definition", acceptanceDivergencePolicyToJson(policy)},
+    {"total", static_cast<qint64>(classifications.size())},
+    {"reported", reported},
+    {"reportedTruncated",
+     static_cast<qint64>(classifications.size() - static_cast<size_t>(reported.size()))},
+    {"dispositions", dispositionCounts},
+    {"severities", severityCounts},
+  };
+}
+
 } // namespace
 
 AcceptanceAutomationService::AcceptanceAutomationService(
   AcceptanceViewStore& store,
   AcceptanceVirtualCapture& capture,
-  AcceptanceGeometryProvider& geometry)
+  AcceptanceGeometryProvider& geometry,
+  AcceptanceSolidSpaceProvider& solidSpace)
   : m_store{store}
   , m_comparisons{store.projectPath(), capture}
   , m_suites{store, m_comparisons, geometry}
   , m_geometry{geometry}
+  , m_solidSpace{solidSpace}
 {
 }
 
@@ -190,6 +344,8 @@ AcceptanceAutomationResult AcceptanceAutomationService::handle(
     return run(params);
   if (method == "acceptance.assertions.evaluate")
     return evaluateAssertion(params);
+  if (method == "acceptance.geometry.compare")
+    return compareSolidSpace(params);
   return error(
     AcceptanceAutomationErrorCode::MethodNotFound, "Unknown acceptance method");
 }
@@ -457,6 +613,137 @@ AcceptanceAutomationResult AcceptanceAutomationService::evaluateAssertion(
   }
   result.insert("status", evaluation.value().passed ? "passed" : "failed");
   result.insert("report", acceptanceAssertionReportToJson(evaluation.value()));
+  return result;
+}
+
+AcceptanceAutomationResult AcceptanceAutomationService::compareSolidSpace(
+  const QJsonObject& params) const
+{
+  const auto contextId = params.value("contextId");
+  const auto bounds = solidSpaceBounds(params.value("bounds"));
+  const auto cellSize = params.value("cellSize");
+  const auto maxSamples = boundedSize(
+    params, "maxSamples", DefaultSolidSpaceMaxSamples, MaximumSolidSpaceMaxSamples);
+  const auto reportLimit = boundedSize(
+    params,
+    "maxReportedFindings",
+    DefaultSolidSpaceReportLimit,
+    MaximumSolidSpaceReportLimit);
+  const auto includeCellsValue = params.value("includeCells");
+  if (
+    !contextId.isString() || contextId.toString().isEmpty() || !bounds
+    || !cellSize.isDouble() || !std::isfinite(cellSize.toDouble())
+    || cellSize.toDouble() <= 0.0 || !maxSamples || !reportLimit
+    || (!includeCellsValue.isUndefined() && !includeCellsValue.isBool()))
+  {
+    return error(
+      AcceptanceAutomationErrorCode::InvalidParameters,
+      "Solid-space comparison requires contextId, finite nonempty bounds, a positive "
+      "cellSize, and valid optional limits/includeCells");
+  }
+
+  auto policy = std::optional<AcceptanceDivergencePolicy>{};
+  if (params.contains("policy"))
+  {
+    if (!params.value("policy").isObject())
+    {
+      return error(
+        AcceptanceAutomationErrorCode::InvalidParameters,
+        "Solid-space comparison policy must be an object");
+    }
+    const auto parsed =
+      acceptanceDivergencePolicyFromJson(params.value("policy").toObject());
+    if (parsed.is_error())
+    {
+      return error(
+        AcceptanceAutomationErrorCode::InvalidParameters,
+        std::get<AcceptanceDivergenceError>(parsed.error()).message);
+    }
+    policy = parsed.value();
+  }
+
+  const auto project = m_store.load();
+  if (project.is_error())
+    return storeError(project);
+  const auto context = resolveAcceptanceComparisonContext(
+    m_store.projectPath(), project.value(), contextId.toString().toStdString());
+  if (context.is_error())
+    return storeError(context);
+
+  const auto alignedProbe =
+    alignAcceptanceTargetPoint(context.value().alignment, bounds->center());
+  if (alignedProbe.is_error())
+  {
+    return error(
+      AcceptanceAutomationErrorCode::InvalidParameters,
+      std::get<AcceptanceAlignmentError>(alignedProbe.error()).message);
+  }
+
+  const auto reference = m_solidSpace.queryFor(context.value().referencePath);
+  if (reference.is_error())
+  {
+    return error(
+      AcceptanceAutomationErrorCode::GeometryFailed,
+      std::get<AcceptanceSolidSpaceError>(reference.error()).message);
+  }
+  const auto candidate = m_solidSpace.queryFor(context.value().candidatePath);
+  if (candidate.is_error())
+  {
+    return error(
+      AcceptanceAutomationErrorCode::GeometryFailed,
+      std::get<AcceptanceSolidSpaceError>(candidate.error()).message);
+  }
+
+  const auto alignedCandidate =
+    AlignedSolidSpaceQuery{candidate.value().query, context.value().alignment};
+  const auto compared = AcceptanceSolidSpaceComparison{}.compare(
+    *reference.value().query,
+    alignedCandidate,
+    {*bounds, cellSize.toDouble(), *maxSamples, {}});
+  if (compared.is_error())
+  {
+    return error(
+      AcceptanceAutomationErrorCode::GeometryFailed,
+      std::get<AcceptanceSolidSpaceError>(compared.error()).message);
+  }
+
+  const auto includeCells = includeCellsValue.toBool(false);
+  const auto& report = compared.value();
+  auto comparison = QJsonObject{
+    {"status",
+     report.status == AcceptanceSolidSpaceComparisonStatus::Complete ? "complete"
+                                                                     : "cancelled"},
+    {"coordinateSpace", "reference"},
+    {"occupancyModel", "brushVolumesV1"},
+    {"referenceDocument",
+     QJsonObject{
+       {"id", QString::fromStdString(reference.value().documentId)},
+       {"revision", static_cast<qint64>(reference.value().revision)}}},
+    {"candidateDocument",
+     QJsonObject{
+       {"id", QString::fromStdString(candidate.value().documentId)},
+       {"revision", static_cast<qint64>(candidate.value().revision)}}},
+    {"bounds", solidSpaceBoundsToJson(*bounds)},
+    {"cellSize", cellSize.toDouble()},
+    {"totalCells", static_cast<qint64>(report.totalCells)},
+    {"sampledCells", static_cast<qint64>(report.sampledCells)},
+    {"referenceOnly", discrepancyToJson(report.newlyEmpty, includeCells, *reportLimit)},
+    {"candidateOnly", discrepancyToJson(report.newlySolid, includeCells, *reportLimit)},
+  };
+  if (policy)
+  {
+    comparison.insert("policy", classifySolidSpaceReport(report, *policy, *reportLimit));
+  }
+
+  auto result = metadata(m_store, project.value());
+  result.insert("contextId", contextId);
+  result.insert(
+    "referencePath",
+    QString::fromStdString(context.value().referencePath.generic_string()));
+  result.insert(
+    "candidatePath",
+    QString::fromStdString(context.value().candidatePath.generic_string()));
+  result.insert("comparison", comparison);
   return result;
 }
 

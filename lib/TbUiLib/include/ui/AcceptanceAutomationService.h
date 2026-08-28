@@ -13,6 +13,7 @@
 
 #include <QJsonObject>
 
+#include "ui/AcceptanceSolidSpace.h"
 #include "ui/AcceptanceSuiteRunner.h"
 
 namespace tb::ui
@@ -24,6 +25,7 @@ enum class AcceptanceAutomationErrorCode
   InvalidParameters,
   StoreFailed,
   CaptureFailed,
+  GeometryFailed,
 };
 
 struct AcceptanceAutomationError
@@ -45,7 +47,8 @@ public:
   AcceptanceAutomationService(
     AcceptanceViewStore& store,
     AcceptanceVirtualCapture& capture,
-    AcceptanceGeometryProvider& geometry);
+    AcceptanceGeometryProvider& geometry,
+    AcceptanceSolidSpaceProvider& solidSpace);
 
   const std::filesystem::path& projectPath() const;
 
@@ -59,11 +62,13 @@ private:
   AcceptanceAutomationResult capture(const QJsonObject& params) const;
   AcceptanceAutomationResult run(const QJsonObject& params) const;
   AcceptanceAutomationResult evaluateAssertion(const QJsonObject& params) const;
+  AcceptanceAutomationResult compareSolidSpace(const QJsonObject& params) const;
 
   AcceptanceViewStore& m_store;
   AcceptanceComparisonRunner m_comparisons;
   AcceptanceSuiteRunner m_suites;
   AcceptanceGeometryProvider& m_geometry;
+  AcceptanceSolidSpaceProvider& m_solidSpace;
 };
 
 } // namespace tb::ui

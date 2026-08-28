@@ -11,6 +11,9 @@
 
 #include "ui/AcceptanceVirtualCaptureAdapter.h"
 
+#include <QCryptographicHash>
+#include <QFile>
+
 #include "fs/DiskIO.h"
 #include "gl/GlManager.h"
 #include "mdl/GameInfo.h"
@@ -22,6 +25,7 @@
 #include "ui/AutomationVirtualRenderService.h"
 #include "ui/MapDocument.h"
 #include "ui/MapWindow.h"
+#include "ui/QPathUtils.h"
 
 #include "kd/result.h"
 
@@ -48,14 +52,36 @@ AcceptanceVirtualCaptureError error(const std::string& message)
 std::filesystem::path normalizedPath(const std::filesystem::path& path)
 {
   auto errorCode = std::error_code{};
+  const auto canonical = std::filesystem::weakly_canonical(path, errorCode);
+  if (!errorCode)
+    return canonical;
+  errorCode.clear();
   const auto absolute = std::filesystem::absolute(path, errorCode);
   return (errorCode ? path : absolute).lexically_normal();
 }
 
-std::string hiddenDocumentId(const std::filesystem::path& path)
+std::optional<std::string> fileFingerprint(const std::filesystem::path& path)
+{
+  auto file = QFile{pathAsQString(path)};
+  if (!file.open(QIODevice::ReadOnly))
+    return std::nullopt;
+  auto hash = QCryptographicHash{QCryptographicHash::Sha256};
+  while (!file.atEnd())
+  {
+    const auto chunk = file.read(64 * 1024);
+    if (chunk.isEmpty() && file.error() != QFile::NoError)
+      return std::nullopt;
+    hash.addData(chunk);
+  }
+  return hash.result().toHex().toStdString();
+}
+
+std::string hiddenDocumentId(
+  const std::filesystem::path& path, const std::string_view fingerprint)
 {
   auto hash = uint64_t{14695981039346656037ull};
-  for (const auto character : path.generic_string())
+  const auto input = path.generic_string() + ":" + std::string{fingerprint};
+  for (const auto character : input)
   {
     hash ^= static_cast<unsigned char>(character);
     hash *= 1099511628211ull;
@@ -141,18 +167,13 @@ MapDocument* AcceptanceVirtualCaptureAdapter::findDocument(
   return nullptr;
 }
 
-Result<AcceptanceVirtualCaptureResult, AcceptanceVirtualCaptureError>
-AcceptanceVirtualCaptureAdapter::capture(const AcceptanceVirtualCaptureRequest& request)
+Result<AcceptanceVirtualCaptureDocument, AcceptanceVirtualCaptureError>
+AcceptanceVirtualCaptureAdapter::documentFor(const std::filesystem::path& requestedPath)
 {
-  const auto convertedRequest = renderRequest(request);
-  if (!convertedRequest)
-  {
-    return error("Acceptance capture request is not a valid textured virtual render");
-  }
-
-  const auto path = normalizedPath(request.documentPath);
+  const auto path = normalizedPath(requestedPath);
   auto* document = static_cast<MapDocument*>(nullptr);
   auto documentId = std::string{};
+  auto keepAlive = std::shared_ptr<MapDocument>{};
   for (const auto& descriptor : m_documentRegistry.documents())
   {
     if (
@@ -165,13 +186,20 @@ AcceptanceVirtualCaptureAdapter::capture(const AcceptanceVirtualCaptureRequest& 
       }
       document = &descriptor.window->document();
       documentId = descriptor.id.toStdString();
-      break;
     }
   }
 
   if (document == nullptr)
   {
+    const auto fingerprint = fileFingerprint(path);
+    if (!fingerprint)
+      return error("Could not fingerprint the acceptance map");
     auto hidden = m_hiddenDocuments.find(path);
+    if (hidden != m_hiddenDocuments.end() && hidden->second.fingerprint != *fingerprint)
+    {
+      m_hiddenDocuments.erase(hidden);
+      hidden = m_hiddenDocuments.end();
+    }
     if (hidden == m_hiddenDocuments.end())
     {
       const auto header = fs::Disk::withInputStream(path, mdl::readMapHeader);
@@ -202,18 +230,56 @@ AcceptanceVirtualCaptureAdapter::capture(const AcceptanceVirtualCaptureRequest& 
       {
         return error("Could not load the acceptance map without opening a window");
       }
-      hidden =
-        m_hiddenDocuments
-          .emplace(
-            path, HiddenDocument{std::move(loaded).value(), hiddenDocumentId(path)})
-          .first;
+      hidden = m_hiddenDocuments
+                 .emplace(
+                   path,
+                   HiddenDocument{
+                     std::move(loaded).value(),
+                     hiddenDocumentId(path, *fingerprint),
+                     *fingerprint})
+                 .first;
     }
     document = hidden->second.document.get();
     documentId = hidden->second.id;
+    keepAlive = hidden->second.document;
   }
 
+  return AcceptanceVirtualCaptureDocument{
+    document, std::move(documentId), std::move(keepAlive)};
+}
+
+Result<AcceptanceSolidSpaceDocument, AcceptanceSolidSpaceError>
+AcceptanceVirtualCaptureAdapter::queryFor(const std::filesystem::path& path)
+{
+  const auto resolved = documentFor(path);
+  if (resolved.is_error())
+  {
+    return AcceptanceSolidSpaceError{
+      std::get<AcceptanceVirtualCaptureError>(resolved.error()).message};
+  }
+  return AcceptanceSolidSpaceDocument{
+    std::make_shared<AcceptanceMapSolidSpaceQuery>(
+      resolved.value().document->map(), resolved.value().keepAlive),
+    resolved.value().documentId,
+    resolved.value().document->map().modificationCount()};
+}
+
+Result<AcceptanceVirtualCaptureResult, AcceptanceVirtualCaptureError>
+AcceptanceVirtualCaptureAdapter::capture(const AcceptanceVirtualCaptureRequest& request)
+{
+  const auto convertedRequest = renderRequest(request);
+  if (!convertedRequest)
+  {
+    return error("Acceptance capture request is not a valid textured virtual render");
+  }
+
+  auto resolved = documentFor(request.documentPath);
+  if (resolved.is_error())
+    return std::get<AcceptanceVirtualCaptureError>(resolved.error());
+  const auto resolvedDocument = std::move(resolved).value();
+
   auto renderer = AutomationVirtualRenderService{m_appController};
-  const auto captured = renderer.capture(*document, *convertedRequest);
+  const auto captured = renderer.capture(*resolvedDocument.document, *convertedRequest);
   if (!captured)
   {
     return error(captured.message.toStdString());
@@ -224,7 +290,7 @@ AcceptanceVirtualCaptureAdapter::capture(const AcceptanceVirtualCaptureRequest& 
   }
 
   return AcceptanceVirtualCaptureResult{
-    {request.documentPath, std::move(documentId), captured.revision},
+    {request.documentPath, resolvedDocument.documentId, captured.revision},
     AcceptanceCamera{
       request.camera.projection,
       captured.request.camera.position,

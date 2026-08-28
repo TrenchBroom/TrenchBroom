@@ -15,6 +15,7 @@
 #include <cmath>
 #include <ostream>
 #include <ranges>
+#include <variant>
 
 namespace tb::ui
 {
@@ -45,6 +46,24 @@ double determinant(const std::array<double, 16u>& matrix)
   return matrix[0u] * (matrix[5u] * matrix[10u] - matrix[6u] * matrix[9u])
          - matrix[1u] * (matrix[4u] * matrix[10u] - matrix[6u] * matrix[8u])
          + matrix[2u] * (matrix[4u] * matrix[9u] - matrix[5u] * matrix[8u]);
+}
+
+Result<void, AcceptanceAlignmentError> validateMatrix(
+  const std::array<double, 16u>& matrix)
+{
+  if (!validAffineMatrix(matrix))
+  {
+    return error(
+      AcceptanceAlignmentErrorCode::InvalidMatrix,
+      "Alignment matrix must be finite row-major affine matrix");
+  }
+  if (std::abs(determinant(matrix)) < 0.000000001)
+  {
+    return error(
+      AcceptanceAlignmentErrorCode::NonInvertibleMatrix,
+      "Alignment matrix must have an invertible linear component");
+  }
+  return {};
 }
 
 vm::vec3d transformPoint(const std::array<double, 16u>& matrix, const vm::vec3d& point)
@@ -92,18 +111,9 @@ AcceptanceAlignedCameraResult alignAcceptanceTargetCamera(
     break;
   }
 
-  if (!validAffineMatrix(alignment.matrix))
-  {
-    return error(
-      AcceptanceAlignmentErrorCode::InvalidMatrix,
-      "Alignment matrix must be finite row-major affine matrix");
-  }
-  if (std::abs(determinant(alignment.matrix)) < 0.000000001)
-  {
-    return error(
-      AcceptanceAlignmentErrorCode::NonInvertibleMatrix,
-      "Alignment matrix must have an invertible linear component");
-  }
+  const auto matrixValidation = validateMatrix(alignment.matrix);
+  if (matrixValidation.is_error())
+    return std::get<AcceptanceAlignmentError>(matrixValidation.error());
 
   auto targetCamera = referenceCamera;
   targetCamera.position = transformPoint(alignment.matrix, referenceCamera.position);
@@ -118,6 +128,31 @@ AcceptanceAlignedCameraResult alignAcceptanceTargetCamera(
   targetCamera.direction = vm::normalize(direction);
   targetCamera.up = vm::normalize(up);
   return targetCamera;
+}
+
+AcceptanceAlignedPointResult alignAcceptanceTargetPoint(
+  const AcceptanceAlignment& alignment, const vm::vec3d& referencePoint)
+{
+  switch (alignment.type)
+  {
+  case AcceptanceAlignmentType::Identity:
+    return referencePoint;
+  case AcceptanceAlignmentType::Independent:
+    return error(
+      AcceptanceAlignmentErrorCode::UnsupportedAlignment,
+      "Independent alignment does not define a reference-to-candidate point transform");
+  case AcceptanceAlignmentType::Landmarks:
+    return error(
+      AcceptanceAlignmentErrorCode::UnsupportedAlignment,
+      "Landmark alignment does not define a reference-to-candidate point transform");
+  case AcceptanceAlignmentType::Matrix:
+    break;
+  }
+
+  const auto matrixValidation = validateMatrix(alignment.matrix);
+  if (matrixValidation.is_error())
+    return std::get<AcceptanceAlignmentError>(matrixValidation.error());
+  return transformPoint(alignment.matrix, referencePoint);
 }
 
 } // namespace tb::ui

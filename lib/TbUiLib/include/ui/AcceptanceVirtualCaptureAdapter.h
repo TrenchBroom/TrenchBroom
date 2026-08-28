@@ -12,6 +12,7 @@
 #pragma once
 
 #include "ui/AcceptanceComparisonRunner.h"
+#include "ui/AcceptanceSolidSpace.h"
 
 #include <filesystem>
 #include <map>
@@ -25,17 +26,26 @@ class AppController;
 class AutomationDocumentRegistry;
 class MapDocument;
 
+struct AcceptanceVirtualCaptureDocument
+{
+  MapDocument* document = nullptr;
+  std::string documentId;
+  std::shared_ptr<MapDocument> keepAlive;
+};
+
 /**
  * Production AV-to-EV bridge. Exact registered live paths are reused; every other
  * path is loaded into an adapter-owned MapDocument and never a MapWindow.
  */
-class AcceptanceVirtualCaptureAdapter : public AcceptanceVirtualCapture
+class AcceptanceVirtualCaptureAdapter : public AcceptanceVirtualCapture,
+                                        public AcceptanceSolidSpaceProvider
 {
 private:
   struct HiddenDocument
   {
-    std::unique_ptr<MapDocument> document;
+    std::shared_ptr<MapDocument> document;
     std::string id;
+    std::string fingerprint;
   };
 
   AppController& m_appController;
@@ -48,6 +58,16 @@ public:
 
   Result<AcceptanceVirtualCaptureResult, AcceptanceVirtualCaptureError> capture(
     const AcceptanceVirtualCaptureRequest& request) override;
+
+  /**
+   * Resolves an exact registered live path or loads and caches an adapter-owned hidden
+   * document. This never opens or focuses a MapWindow.
+   */
+  Result<AcceptanceVirtualCaptureDocument, AcceptanceVirtualCaptureError> documentFor(
+    const std::filesystem::path& path);
+
+  Result<AcceptanceSolidSpaceDocument, AcceptanceSolidSpaceError> queryFor(
+    const std::filesystem::path& path) override;
 
   /**
    * Returns a non-owning document pointer only for this adapter's registered live or

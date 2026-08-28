@@ -10,6 +10,7 @@
  */
 
 #include <QApplication>
+#include <QFile>
 #include <QTemporaryDir>
 
 #include "mdl/GameConfigFixture.h"
@@ -121,6 +122,54 @@ TEST_CASE("Acceptance virtual capture adapter")
     std::filesystem::remove(result.value().colorPath);
   }
 
+  SECTION("uses the exact registered live map for solid-space queries")
+  {
+    const auto query = adapter.queryFor(livePath);
+    const auto document = adapter.documentFor(livePath);
+
+    REQUIRE(query.is_success());
+    REQUIRE(document.is_success());
+    CHECK(document.value().document == &window->document());
+    CHECK(document.value().documentId == liveDocumentId.toStdString());
+    CHECK(QApplication::focusWidget() == focusBefore);
+    CHECK(windowManager.topMapWindow() == topWindowBefore);
+    CHECK(windowManager.mapWindows().size() == windowCountBefore);
+  }
+
+  SECTION("canonicalizes a symlinked live map path")
+  {
+    const auto aliasPath = pathFromQString(directory.filePath("live-alias.map"));
+    auto symlinkError = std::error_code{};
+    std::filesystem::create_symlink(livePath, aliasPath, symlinkError);
+    REQUIRE_FALSE(symlinkError);
+
+    const auto document = adapter.documentFor(aliasPath);
+
+    REQUIRE(document.is_success());
+    CHECK(document.value().document == &window->document());
+    CHECK(document.value().documentId == liveDocumentId.toStdString());
+  }
+
+  SECTION("rejects ambiguous duplicate live map paths")
+  {
+    REQUIRE(windowManager
+              .createDocument(
+                mdl::QuakeGameInfo, mdl::MapFormat::Valve, vm::bbox3d{8192.0}, false)
+              .is_success());
+    auto* duplicate = windowManager.topMapWindow();
+    REQUIRE(duplicate != nullptr);
+    REQUIRE(duplicate != window);
+    REQUIRE(duplicate->document().map().saveAs(livePath).is_success());
+    documents.registerDocument(*duplicate);
+
+    const auto result = adapter.documentFor(livePath);
+
+    REQUIRE(result.is_error());
+    CHECK(
+      std::get<AcceptanceVirtualCaptureError>(result.error()).message
+      == "Multiple registered live documents match the acceptance map path");
+  }
+
   SECTION("returns the requested EV6 depth buffer without changing UI state")
   {
     auto request = requestFor(livePath);
@@ -160,7 +209,9 @@ TEST_CASE("Acceptance virtual capture adapter")
     const auto* hidden = adapter.findDocument(first.value().document.documentId);
     REQUIRE(hidden != nullptr);
     CHECK(hidden != &window->document());
-    CHECK(hidden->map().path() == hiddenPath);
+    CHECK(
+      std::filesystem::weakly_canonical(hidden->map().path())
+      == std::filesystem::weakly_canonical(hiddenPath));
     CHECK(std::filesystem::is_regular_file(first.value().colorPath));
     CHECK(std::filesystem::is_regular_file(second.value().colorPath));
     CHECK(QApplication::focusWidget() == focusBefore);
@@ -168,6 +219,49 @@ TEST_CASE("Acceptance virtual capture adapter")
     CHECK(windowManager.mapWindows().size() == windowCountBefore);
     std::filesystem::remove(first.value().colorPath);
     std::filesystem::remove(second.value().colorPath);
+  }
+
+  SECTION("provides and reuses hidden map solid-space queries without rendering")
+  {
+    const auto first = adapter.queryFor(hiddenPath);
+    const auto firstDocument = adapter.documentFor(hiddenPath);
+    const auto second = adapter.queryFor(hiddenPath);
+    const auto secondDocument = adapter.documentFor(hiddenPath);
+
+    REQUIRE(first.is_success());
+    REQUIRE(firstDocument.is_success());
+    REQUIRE(second.is_success());
+    REQUIRE(secondDocument.is_success());
+    CHECK(firstDocument.value().document != &window->document());
+    CHECK(firstDocument.value().document == secondDocument.value().document);
+    CHECK(firstDocument.value().documentId == secondDocument.value().documentId);
+    CHECK(firstDocument.value().documentId.starts_with("hidden-"));
+    const auto firstSolid = first.value().query->isSolid({0.0, 0.0, 0.0});
+    const auto secondSolid = second.value().query->isSolid({0.0, 0.0, 0.0});
+    REQUIRE(firstSolid.is_success());
+    REQUIRE(secondSolid.is_success());
+    CHECK_FALSE(firstSolid.value());
+    CHECK_FALSE(secondSolid.value());
+    CHECK(QApplication::focusWidget() == focusBefore);
+    CHECK(windowManager.topMapWindow() == topWindowBefore);
+    CHECK(windowManager.mapWindows().size() == windowCountBefore);
+  }
+
+  SECTION("reloads a hidden map after its file changes without invalidating old queries")
+  {
+    const auto first = adapter.queryFor(hiddenPath);
+    REQUIRE(first.is_success());
+
+    auto file = QFile{pathAsQString(hiddenPath)};
+    REQUIRE(file.open(QIODevice::Append));
+    REQUIRE(file.write("\n// changed on disk\n") > 0);
+    file.close();
+
+    const auto second = adapter.queryFor(hiddenPath);
+    REQUIRE(second.is_success());
+    CHECK(first.value().documentId != second.value().documentId);
+    CHECK(first.value().query->isSolid({0.0, 0.0, 0.0}).is_success());
+    CHECK(second.value().query->isSolid({0.0, 0.0, 0.0}).is_success());
   }
 }
 

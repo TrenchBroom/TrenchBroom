@@ -159,7 +159,8 @@ JsonRpcResponse AutomationService::handleAcceptanceRequest(
 
   auto store = AcceptanceViewStore{pathFromQString(projectPathValue.toString())};
   auto service =
-    AcceptanceAutomationService{store, m_acceptanceCapture, m_acceptanceGeometry};
+    AcceptanceAutomationService{
+      store, m_acceptanceCapture, m_acceptanceGeometry, m_acceptanceCapture};
   const auto result = service.handle(method, params);
   if (result.is_success())
   {
@@ -183,6 +184,11 @@ JsonRpcResponse AutomationService::handleAcceptanceRequest(
   case AcceptanceAutomationErrorCode::CaptureFailed:
     return JsonRpcResponse::error(
       {-32031, "Acceptance capture failed", QString::fromStdString(failure.message)});
+  case AcceptanceAutomationErrorCode::GeometryFailed:
+    return JsonRpcResponse::error(
+      {-32034,
+       "Acceptance geometry comparison failed",
+       QString::fromStdString(failure.message)});
   }
   return JsonRpcResponse::error(
     {JsonRpcError::InternalError, "Unknown acceptance error"});

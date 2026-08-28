@@ -21,8 +21,11 @@ target_sources(TbUiLib
     ${CMAKE_CURRENT_SOURCE_DIR}/src/AcceptanceAutomationService.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/AcceptanceAssertions.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/AcceptanceComparisonAlignment.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/AcceptanceComparisonContextResolver.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/AcceptanceDivergencePolicy.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/AcceptanceImageComparison.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/AcceptanceMapGeometry.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/AcceptanceSolidSpace.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/AcceptanceComparisonRunner.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/AcceptanceSuiteRunner.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/AcceptanceView.cpp
@@ -241,8 +244,11 @@ target_sources(TbUiLib
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/AcceptanceAutomationService.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/AcceptanceAssertions.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/AcceptanceComparisonAlignment.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/AcceptanceComparisonContextResolver.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/AcceptanceDivergencePolicy.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/AcceptanceImageComparison.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/AcceptanceMapGeometry.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/AcceptanceSolidSpace.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/AcceptanceComparisonRunner.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/AcceptanceSuiteRunner.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/AcceptanceView.h
