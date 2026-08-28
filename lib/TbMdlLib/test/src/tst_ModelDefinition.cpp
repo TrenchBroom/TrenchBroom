@@ -164,6 +164,26 @@ TEST_CASE("ModelDefinition")
 
     CHECK(modelDefinition.scale(variables, defaultScaleExpression) == expectedScale);
   }
+
+  SECTION("yaw")
+  {
+    const auto variables = el::VariableTable{{
+      {"openAngle", el::Value{90.0}},
+      {"previewFraction", el::Value{0.5}},
+    }};
+
+    CHECK(makeModelDefinition(R"("model.obj")").yaw(variables) == 0.0);
+    CHECK(
+      makeModelDefinition(R"({ path: "model.obj", yaw: 90 })").yaw(variables) == 90.0);
+    CHECK(
+      makeModelDefinition(R"({ path: "model.obj", yaw: openAngle * previewFraction })")
+        .yaw(variables)
+      == 45.0);
+    CHECK(
+      makeModelDefinition(R"({ path: "model.obj", yaw: "-30" })").yaw(variables)
+      == -30.0);
+    CHECK(makeModelDefinition(R"({ path: "model.obj", yaw: "" })").yaw(variables) == 0.0);
+  }
 }
 
 } // namespace tb::mdl

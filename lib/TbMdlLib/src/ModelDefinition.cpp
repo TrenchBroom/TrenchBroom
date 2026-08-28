@@ -139,6 +139,15 @@ std::optional<vm::vec3d> convertToScale(
   return scaleValue(context, value);
 }
 
+std::optional<double> convertToYaw(el::EvaluationContext& context, const el::Value& value)
+{
+  if (!value.convertibleTo(el::ValueType::Number))
+  {
+    return std::nullopt;
+  }
+  return value.convertTo(context, el::ValueType::Number).numberValue(context);
+}
+
 } // namespace
 
 ModelDefinition::ModelDefinition()
@@ -230,6 +239,25 @@ Result<vm::vec3d> ModelDefinition::scale(
     variableStore);
 }
 
+Result<double> ModelDefinition::yaw(const el::VariableStore& variableStore) const
+{
+  return el::withEvaluationContext(
+    [&](auto& context) {
+      const auto value = m_expression.evaluate(context);
+      if (value.type() == el::ValueType::Map)
+      {
+        if (
+          const auto yaw = convertToYaw(
+            context, value.atOrDefault(context, ModelSpecificationKeys::Yaw)))
+        {
+          return *yaw;
+        }
+      }
+      return 0.0;
+    },
+    variableStore);
+}
+
 kdl_reflect_impl(ModelDefinition);
 
 vm::vec3d safeGetModelScale(
@@ -239,6 +267,12 @@ vm::vec3d safeGetModelScale(
 {
   return definition.scale(variableStore, defaultScaleExpression)
     .value_or(vm::vec3d{1, 1, 1});
+}
+
+double safeGetModelYaw(
+  const ModelDefinition& definition, const el::VariableStore& variableStore)
+{
+  return definition.yaw(variableStore).value_or(0.0);
 }
 
 } // namespace tb::mdl

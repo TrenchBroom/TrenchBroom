@@ -219,8 +219,11 @@ const vm::mat4x4d& Entity::modelTransformation(
       const auto variableStore = EntityPropertiesVariableStore{*this};
       const auto scale =
         safeGetModelScale(*modelDefinition, variableStore, defaultModelScaleExpression);
+      const auto yaw = safeGetModelYaw(*modelDefinition, variableStore);
       m_cachedModelTransformation =
-        vm::translation_matrix(origin()) * rotation() * vm::scaling_matrix(scale);
+        vm::translation_matrix(origin()) * rotation()
+        * vm::rotation_matrix(vm::vec3d{0, 0, 1}, vm::to_radians(yaw))
+        * vm::scaling_matrix(scale);
     }
     else
     {
