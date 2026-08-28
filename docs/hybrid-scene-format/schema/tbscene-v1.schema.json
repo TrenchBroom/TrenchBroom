@@ -1,0 +1,71 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://trenchbroom.github.io/schema/tbscene-v1.schema.json",
+  "title": "TrenchBroom Hybrid Scene v1 manifest",
+  "type": "object",
+  "required": ["format", "version", "documentId", "coordinateSystem", "entries", "integrity"],
+  "additionalProperties": false,
+  "properties": {
+    "format": {"const": "org.trenchbroom.tbscene"},
+    "version": {"const": 1},
+    "documentId": {"$ref": "#/$defs/id"},
+    "coordinateSystem": {
+      "type": "object",
+      "required": ["handedness", "up", "unit", "metresPerUnit"],
+      "additionalProperties": false,
+      "properties": {
+        "handedness": {"const": "right"},
+        "up": {"const": "z"},
+        "unit": {"type": "string", "minLength": 1},
+        "metresPerUnit": {"type": "number", "exclusiveMinimum": 0}
+      }
+    },
+    "entries": {"type": "array", "items": {"$ref": "#/$defs/entry"}},
+    "requiredExtensions": {"$ref": "#/$defs/extensions"},
+    "extensions": {"$ref": "#/$defs/extensions"},
+    "integrity": {
+      "type": "object",
+      "required": ["algorithm", "document", "entries"],
+      "additionalProperties": false,
+      "properties": {
+        "algorithm": {"const": "sha256"},
+        "document": {"$ref": "#/$defs/hash"},
+        "entries": {
+          "type": "object",
+          "additionalProperties": {"$ref": "#/$defs/hash"}
+        }
+      }
+    }
+  },
+  "$defs": {
+    "id": {"type": "string", "pattern": "^(urn:uuid:[0-9a-fA-F-]{36}|sha256:[0-9a-f]{64})$"},
+    "hash": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+    "path": {"type": "string", "pattern": "^(?!/)(?!.*(^|/)\\.{1,2}(/|$))[A-Za-z0-9._/-]+$"},
+    "extensions": {
+      "type": "object",
+      "propertyNames": {"pattern": "^[a-z0-9]+(\\.[a-z0-9-]+)+$"},
+      "additionalProperties": true
+    },
+    "transform": {
+      "type": "array",
+      "minItems": 16,
+      "maxItems": 16,
+      "items": {"type": "number"}
+    },
+    "entry": {
+      "type": "object",
+      "required": ["id", "kind", "path", "offset", "length", "sha256"],
+      "additionalProperties": false,
+      "properties": {
+        "id": {"$ref": "#/$defs/id"},
+        "kind": {"enum": ["scene", "mesh", "solid", "entity", "component", "asset", "provenance", "referenceContext", "acceptance", "material", "surfaceAttributes"]},
+        "path": {"$ref": "#/$defs/path"},
+        "offset": {"type": "integer", "minimum": 0},
+        "length": {"type": "integer", "minimum": 0},
+        "sha256": {"$ref": "#/$defs/hash"},
+        "transform": {"$ref": "#/$defs/transform"},
+        "extensions": {"$ref": "#/$defs/extensions"}
+      }
+    }
+  }
+}
