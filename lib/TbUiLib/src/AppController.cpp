@@ -26,7 +26,9 @@
 #include <QOffscreenSurface>
 #include <QOpenGLContext>
 #include <QOpenGLFunctions_2_1>
+#include <QSurface>
 #include <QSurfaceFormat>
+#include <QThread>
 #include <QTimer>
 
 #include "base/Logger.h"
@@ -43,6 +45,7 @@
 #include "prefs/Preferences.h"
 #include "ui/AboutDialog.h"
 #include "ui/ActionManager.h"
+#include "ui/AutomationService.h"
 #include "ui/CrashDialog.h"
 #include "ui/FileDialogDefaultDir.h"
 #include "ui/GameDialog.h"
@@ -71,11 +74,66 @@
 #include <fmt/std.h>
 
 #include <chrono>
+#include <exception>
 
 namespace tb::ui
 {
 namespace
 {
+
+class CurrentContextGuard
+{
+private:
+  QOpenGLContext& m_context;
+  QOpenGLContext* m_previousContext;
+  QSurface* m_previousSurface;
+  bool m_current = false;
+
+public:
+  CurrentContextGuard(QOpenGLContext& context, QOffscreenSurface& surface)
+    : m_context{context}
+    , m_previousContext{QOpenGLContext::currentContext()}
+    , m_previousSurface{m_previousContext != nullptr ? m_previousContext->surface() : nullptr}
+    , m_current{context.makeCurrent(&surface)}
+  {
+  }
+
+  ~CurrentContextGuard()
+  {
+    if (!m_current)
+    {
+      return;
+    }
+    m_context.doneCurrent();
+    if (m_previousContext != nullptr && m_previousSurface != nullptr)
+    {
+      m_previousContext->makeCurrent(m_previousSurface);
+    }
+  }
+
+  bool current() const { return m_current; }
+};
+
+class BoolGuard
+{
+private:
+  bool& m_value;
+
+public:
+  explicit BoolGuard(bool& value)
+    : m_value{value}
+  {
+    m_value = true;
+  }
+
+  ~BoolGuard() { m_value = false; }
+};
+
+AutomationOffscreenContextResult offscreenContextFailure(
+  const AutomationOffscreenContextError error, const QString& message)
+{
+  return {error, message};
+}
 
 auto createEnvironmentConfig()
 {
@@ -187,6 +245,7 @@ AppController::AppController(
   , m_mapWindowManager{createMapWindowManager(*this)}
   , m_recentDocuments{createRecentDocuments(this)}
   , m_actionManager{std::make_unique<ActionManager>()}
+  , m_automationService{std::make_unique<AutomationService>(*this)}
   , m_welcomeWindow{std::make_unique<WelcomeWindow>(*this)}
   , m_aboutDialog{std::make_unique<AboutDialog>(*this)}
 {
@@ -262,9 +321,139 @@ ActionManager& AppController::actionManager()
   return *m_actionManager;
 }
 
+bool AppController::automaticUpdatesEnabledForBuild()
+{
+#if defined(TB_ENABLE_UPDATE_CHECKS)
+  return true;
+#else
+  return false;
+#endif
+}
+
+AutomationOffscreenContextResult AppController::withAutomationOffscreenContext(
+  const AutomationOffscreenContextCallback& callback)
+{
+  using namespace std::chrono_literals;
+
+  if (QThread::currentThread() != thread())
+  {
+    return offscreenContextFailure(
+      AutomationOffscreenContextError::WrongThread,
+      "Automation offscreen rendering must run on the AppController's Qt thread");
+  }
+  if (!callback)
+  {
+    return offscreenContextFailure(
+      AutomationOffscreenContextError::CallbackFailed,
+      "Automation offscreen rendering requires a callback");
+  }
+  if (m_automationOffscreenContextActive)
+  {
+    return offscreenContextFailure(
+      AutomationOffscreenContextError::Busy,
+      "Automation offscreen context is already in use");
+  }
+  auto activeGuard = BoolGuard{m_automationOffscreenContextActive};
+
+  auto* shareContext = QOpenGLContext::globalShareContext();
+  const auto offscreenFormat =
+    shareContext != nullptr ? shareContext->format() : QSurfaceFormat::defaultFormat();
+
+  if (m_offscreenSurface == nullptr || !m_offscreenSurface->isValid())
+  {
+    delete m_offscreenSurface;
+    m_offscreenSurface = new QOffscreenSurface{nullptr, this};
+    m_offscreenSurface->setFormat(offscreenFormat);
+    m_offscreenSurface->create();
+  }
+  if (m_glContext == nullptr || !m_glContext->isValid())
+  {
+    delete m_glContext;
+    m_glContext = new QOpenGLContext{this};
+    m_glContext->setFormat(offscreenFormat);
+    m_glContext->setShareContext(shareContext);
+    m_glContext->create();
+  }
+  if (
+    m_offscreenSurface == nullptr || !m_offscreenSurface->isValid()
+    || m_glContext == nullptr || !m_glContext->isValid())
+  {
+    return offscreenContextFailure(
+      AutomationOffscreenContextError::ContextUnavailable,
+      "Could not create the automation offscreen OpenGL context");
+  }
+
+  auto currentContext = CurrentContextGuard{*m_glContext, *m_offscreenSurface};
+  if (!currentContext.current())
+  {
+    return offscreenContextFailure(
+      AutomationOffscreenContextError::ContextUnavailable,
+      "Could not make the automation offscreen OpenGL context current");
+  }
+
+  auto gl =
+    GlQt{getGlFunctions("AppController::withAutomationOffscreenContext", m_glContext)};
+  if (!m_glManager->initialized())
+  {
+    try
+    {
+      m_glManager->initialize(gl);
+    }
+    catch (const std::exception& error)
+    {
+      return offscreenContextFailure(
+        AutomationOffscreenContextError::InitializationFailed,
+        QString::fromUtf8(error.what()));
+    }
+  }
+
+  try
+  {
+    auto taskRunner = [&](auto task) { return taskManager().run_task(std::move(task)); };
+    auto errorHandler = [&](const auto&, const auto& error) {
+      if (auto* topWindow = mapWindowManager().topMapWindow())
+      {
+        topWindow->logger().error() << error;
+      }
+    };
+    auto processContext = tb::gl::ProcessContext{gl, errorHandler};
+    auto& resourceManager = m_glManager->resourceManager();
+    const auto resourceDeadline = std::chrono::steady_clock::now() + 5s;
+    while (resourceManager.needsProcessing()
+           && std::chrono::steady_clock::now() < resourceDeadline)
+    {
+      resourceManager.process(taskRunner, processContext, 20ms);
+    }
+    m_glManager->vboManager().destroyPendingVbos(gl);
+    m_glManager->fontManager().destroyPendingFonts(gl);
+  }
+  catch (const std::exception& error)
+  {
+    return offscreenContextFailure(
+      AutomationOffscreenContextError::ResourceNotReady, QString::fromUtf8(error.what()));
+  }
+  if (m_glManager->resourceManager().needsProcessing())
+  {
+    return offscreenContextFailure(
+      AutomationOffscreenContextError::ResourceNotReady,
+      "OpenGL resources are pending processing");
+  }
+
+  try
+  {
+    callback(*m_glContext, *m_offscreenSurface, *m_glManager);
+  }
+  catch (const std::exception& error)
+  {
+    return offscreenContextFailure(
+      AutomationOffscreenContextError::CallbackFailed, QString::fromUtf8(error.what()));
+  }
+  return {};
+}
+
 void AppController::askForAutoUpdates()
 {
-  if (pref(Preferences::AskForAutoUpdates))
+  if (automaticUpdatesEnabledForBuild() && pref(Preferences::AskForAutoUpdates))
   {
     auto& prefs = PreferenceManager::instance();
 
@@ -285,7 +474,7 @@ void AppController::askForAutoUpdates()
 
 void AppController::triggerAutoUpdateCheck()
 {
-  if (pref(Preferences::AutoCheckForUpdates))
+  if (automaticUpdatesEnabledForBuild() && pref(Preferences::AutoCheckForUpdates))
   {
     m_updater->checkForUpdates();
   }
@@ -434,51 +623,9 @@ void AppController::connectObservers()
 
 void AppController::processGlResources()
 {
-  using namespace std::chrono_literals;
-
   if (m_glManager->initialized())
   {
-    auto taskRunner = [&](auto task) { return taskManager().run_task(std::move(task)); };
-
-    auto errorHandler = [&](const auto&, const auto& error) {
-      if (auto* topWindow = mapWindowManager().topMapWindow())
-      {
-        topWindow->logger().error() << error;
-      }
-    };
-
-    const auto* shareContext = QOpenGLContext::globalShareContext();
-    const auto offscreenFormat =
-      shareContext != nullptr ? shareContext->format() : QSurfaceFormat::defaultFormat();
-
-    if (!m_offscreenSurface)
-    {
-      m_offscreenSurface = new QOffscreenSurface{nullptr, this};
-      m_offscreenSurface->setFormat(offscreenFormat);
-      m_offscreenSurface->create();
-    }
-
-    if (!m_glContext)
-    {
-      m_glContext = new QOpenGLContext{this};
-      m_glContext->setFormat(offscreenFormat);
-      m_glContext->setShareContext(QOpenGLContext::globalShareContext());
-      m_glContext->create();
-    }
-
-    contract_assert(m_offscreenSurface != nullptr);
-    contract_assert(m_glContext != nullptr);
-    m_glContext->makeCurrent(m_offscreenSurface);
-    auto& glFunctions = getGlFunctions("AppController::processGlResources", m_glContext);
-
-    auto gl = GlQt{glFunctions};
-    auto processContext = tb::gl::ProcessContext{gl, errorHandler};
-
-    m_glManager->resourceManager().process(taskRunner, processContext, 20ms);
-    m_glManager->vboManager().destroyPendingVbos(gl);
-    m_glManager->fontManager().destroyPendingFonts(gl);
-
-    m_glContext->doneCurrent();
+    withAutomationOffscreenContext([](auto&, auto&, auto&) {});
   }
 }
 

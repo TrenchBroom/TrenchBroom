@@ -41,6 +41,7 @@
 #include "render/MapRenderer.h"
 #include "render/RenderBatch.h"
 #include "render/RenderContext.h"
+#include "render/SceneLighting.h"
 #include "render/SelectionBoundsRenderer.h"
 #include "ui/AnimationManager.h"
 #include "ui/AssembleBrushToolController3D.h"
@@ -53,6 +54,7 @@
 #include "ui/DrawShapeToolController3D.h"
 #include "ui/EdgeTool.h"
 #include "ui/EdgeToolController.h"
+#include "ui/EqScenePreview.h"
 #include "ui/ExtrudeToolController.h"
 #include "ui/FaceTool.h" // IWYU pragma: keep
 #include "ui/FaceToolController.h"
@@ -74,8 +76,26 @@
 
 #include "vm/util.h"
 
+#include <algorithm>
+#include <array>
+#include <limits>
+
 namespace tb::ui
 {
+
+const Color& MapView3D::getBackgroundColor()
+{
+  if (pref(Preferences::EqScenePreview))
+  {
+    const auto profile = render::sceneLightingProfile(
+      playerVisionFromName(pref(Preferences::EqScenePreviewVision)),
+      pref(Preferences::EqScenePreviewTimeOfDay));
+    m_scenePreviewBackground =
+      Color{RgbF{profile.skyColor.x(), profile.skyColor.y(), profile.skyColor.z()}};
+    return m_scenePreviewBackground;
+  }
+  return pref(Preferences::BackgroundColor);
+}
 
 MapView3D::MapView3D(
   AppController& appController, MapDocument& document, MapViewToolBox& toolBox)
@@ -413,6 +433,31 @@ float computeCameraOffset(const gl::Camera& camera, const std::vector<mdl::Node*
   return offset;
 }
 
+float computeCameraOffset(
+  const gl::Camera& camera, const vm::vec3f& position, const vm::bbox3d& bounds)
+{
+  auto frustumPlanes = std::array<vm::plane3f, 4>{};
+  camera.frustumPlanes(
+    frustumPlanes[0], frustumPlanes[1], frustumPlanes[2], frustumPlanes[3]);
+
+  auto offset = std::numeric_limits<float>::min();
+  bounds.for_each_vertex([&](const auto& point) {
+    for (const auto& plane : frustumPlanes)
+    {
+      const auto ray = vm::ray3f{position, -camera.direction()};
+      const auto offsetPlane =
+        vm::plane3f{vm::vec3f{point} + 64.0f * plane.normal, plane.normal};
+      if (const auto distance = vm::intersect_ray_plane(ray, offsetPlane);
+          distance && *distance > 0.0f)
+      {
+        offset = std::max(offset, *distance);
+      }
+    }
+  });
+
+  return offset;
+}
+
 } // namespace
 
 vm::vec3f MapView3D::focusCameraOnObjectsPosition(const std::vector<mdl::Node*>& nodes)
@@ -428,6 +473,13 @@ vm::vec3f MapView3D::focusCameraOnObjectsPosition(const std::vector<mdl::Node*>&
   // jump back
   m_camera->moveTo(oldPosition);
   return newPosition - m_camera->direction() * offset;
+}
+
+void MapView3D::doFrameBounds(const vm::bbox3d& bounds)
+{
+  const auto center = vm::vec3f{bounds.center()};
+  const auto offset = computeCameraOffset(*m_camera, center, bounds);
+  m_camera->moveTo(center - m_camera->direction() * offset);
 }
 
 void MapView3D::moveCameraToPosition(const vm::vec3f& position, const bool animate)
@@ -469,6 +521,11 @@ void MapView3D::moveCameraToCurrentTracePoint()
 gl::Camera& MapView3D::camera()
 {
   return *m_camera;
+}
+
+MapViewType MapView3D::viewType() const
+{
+  return MapViewType::ThreeD;
 }
 
 vm::vec3d MapView3D::moveDirection(const vm::direction direction) const

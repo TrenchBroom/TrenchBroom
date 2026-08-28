@@ -14,6 +14,7 @@ target_sources(TbMdlLib
     ${CMAKE_CURRENT_SOURCE_DIR}/src/BrushFaceReader.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/BrushFaceReference.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/BrushNode.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/BrushOptimization.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/BrushRendererBrushCache.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/CircleShape.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/ColorRange.cpp
@@ -115,6 +116,7 @@ target_sources(TbMdlLib
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Map_Patches.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Map_Picking.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Map_Selection.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/MapWorkspace.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Map_World.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Map.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/MapFileSerializer.cpp

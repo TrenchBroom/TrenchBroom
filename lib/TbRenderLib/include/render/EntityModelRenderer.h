@@ -136,6 +136,7 @@ public:
   void renderTransparent(RenderBatch& renderBatch);
 
 private:
+  void updateRenderers();
   void renderPass(RenderContext& renderContext, bool transparent);
 };
 

@@ -2416,7 +2416,9 @@ You can use these backups to go back to previous versions of your map if problem
 
 ## Display Models for Entities
 
-TrenchBroom can show models for point entities in the 3D and 2D viewports. For this to work, the display models have to be set up in the [entity definition](#entity_definitions) file, and the game path has to be set up correctly in the [game configuration](#game_configuration). For most of the included entity definition files, the models have already been set up for you, but if you wish to create an entity definition file for a mod that works well in TrenchBroom, you have to add these model definitions yourself. You will learn how to do this for FGD and DEF files in this section.
+TrenchBroom can show models for entities in the 3D and 2D viewports. For this to work, the display models have to be set up in the [entity definition](#entity_definitions) file, and the game path has to be set up correctly in the [game configuration](#game_configuration). For most of the included entity definition files, the models have already been set up for you, but if you wish to create an entity definition file for a mod that works well in TrenchBroom, you have to add these model definitions yourself. You will learn how to do this for FGD and DEF files in this section.
+
+FGD solid classes may also declare a display model. This is useful when an entity needs brush geometry for editing, picking, collision, or map export, but has a more faithful visual model in the game. TrenchBroom keeps the textured brush proxy visible while the model loads or if it is unavailable, then replaces the proxy faces with the loaded display model. When selected, the display model is shown with the brush edges so that the authoritative proxy remains editable and can be compared with a state preview. Solid-class display models remain visible independently of the point-entity model visibility setting.
 
 ### General Model Syntax
 
@@ -2434,17 +2436,19 @@ Thereby, the ellipsis contains the actual information about the model to display
       "path" : MODEL,
       "skin" : SKIN,
       "frame": FRAME,
-        "scale": SCALE_EXPRESSION
+      "scale": SCALE_EXPRESSION,
+      "yaw": YAW_EXPRESSION
     }
 
-The placeholders `MODEL`, `SKIN`, `FRAME` and `SCALE_EXPRESSION` have the following meaning
+The placeholders `MODEL`, `SKIN`, `FRAME`, `SCALE_EXPRESSION`, and `YAW_EXPRESSION` have the following meaning
 
 Placeholder         Description
 -----------         -----------
 `MODEL`             The path to the model file relative to the game path, with an optional colon at the beginning. Mandatory.
 `SKIN`              The 0-based index of the skin to display. Optional, defaults to 0.
 `FRAME`             The 0-based index of the frame to display. Optional, defaults to 0.
-`SCALE_EXPRESSION`  An expression that is evaluated against an entities' properties to determine the model scale.
+`SCALE_EXPRESSION`  An expression that is evaluated against an entity's properties to determine the model scale.
+`YAW_EXPRESSION`    An expression that is evaluated against an entity's properties to determine an additional model-local yaw in degrees. Optional, defaults to 0. This is useful for editor-only state previews such as a door swing.
 
 If the expression evaluates to a value of type string, then that is interpreted as a map containing only a `path` key with the string as its value. In other words, if the expression evaluates to a string, then that value is interpreted as the path to a model. Think of such expressions as shorthands that allow you to define a simple model like so:
 
@@ -2593,6 +2597,15 @@ An example from an FGD file might look as follows.
         0 : "Flying"
         1 : "On ground"
       ]
+    ]
+
+A model-backed solid class uses the same syntax. Its instances need the usual `origin` and rotation properties to place the display model, while their brushes remain the editable and exported representation. A `yaw` expression rotates only the display model around its local Z axis and does not alter the entity's gameplay rotation properties.
+
+    @SolidClass model({ "path": modelpath }) = func_model
+    [
+      modelpath(string) : "Display model"
+      origin(string) : "Model origin"
+      angle(float) : "Model yaw"
     ]
 
 To improve compatibility to other editors, the model definition can also be named _studio_ or _studioprop_ in FGD files.

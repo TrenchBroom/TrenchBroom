@@ -34,6 +34,7 @@ class QRadioButton;
 
 namespace tb::ui
 {
+class AppController;
 class CollapsibleTitledPanel;
 class MapDocument;
 
@@ -45,11 +46,13 @@ private:
   CollapsibleTitledPanel* m_modEditor = nullptr;
 
 public:
-  explicit MapInspector(MapDocument& document, QWidget* parent = nullptr);
+  explicit MapInspector(
+    AppController& appController, MapDocument& document, QWidget* parent = nullptr);
   ~MapInspector() override;
 
 private:
-  void createGui(MapDocument& document);
+  void createGui(AppController& appController, MapDocument& document);
+  QWidget* createOutliner(AppController& appController, MapDocument& document);
   QWidget* createLayerEditor(MapDocument& document);
   CollapsibleTitledPanel* createMapPropertiesEditor(MapDocument& document);
   CollapsibleTitledPanel* createModEditor(MapDocument& document);

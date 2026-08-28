@@ -291,6 +291,14 @@ inline auto ShadeFaces = Preference<bool>{"Map view/Shade faces", true};
 inline auto ShowFog = Preference<bool>{"Map view/Show fog", false};
 inline auto ShowEdges = Preference<bool>{"Map view/Show edges", true};
 
+inline auto EqScenePreview = Preference<bool>{"Map view/EQ scene preview", false};
+inline auto EqScenePreviewVision =
+  Preference<std::string>{"Map view/EQ scene preview vision", "human"};
+inline auto EqScenePreviewTimeOfDay =
+  Preference<float>{"Map view/EQ scene preview time of day", 12.0f};
+inline auto EqScenePreviewEntityLights =
+  Preference<bool>{"Map view/EQ scene preview entity lights", true};
+
 inline auto ShowSoftMapBounds = Preference<bool>{"Map view/Show soft map bounds", true};
 
 inline auto ShowPointEntities = Preference<bool>{"Map view/Show point entities", true};
@@ -307,5 +315,13 @@ inline auto EntityLinkMode =
 std::vector<Preference<Color>*> colorPreferences();
 
 std::vector<Preference<std::vector<KeySequence>>*> keyPreferences();
+
+// Map hooks: run a user-configured shell command on save and/or on change, e.g. to push
+// edits into a running external game engine.
+inline auto MapHookRunOnSave = Preference<bool>{"Hooks/Run command on save", false};
+inline auto MapHookRunOnChange = Preference<bool>{"Hooks/Run command on change", false};
+inline auto MapHookDebounceMs =
+  Preference<int>{"Hooks/Run on change debounce interval", 250};
+inline auto MapHookCommand = Preference<std::string>{"Hooks/Command", std::string{}};
 
 } // namespace tb::Preferences

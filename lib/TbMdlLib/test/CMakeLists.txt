@@ -9,6 +9,7 @@ target_sources(TbMdlLibTest PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_BrushBuilder.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_BrushFace.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_BrushNode.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_BrushOptimization.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_CommandProcessor.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_CompareHits.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_CompilationConfig.cpp
@@ -74,6 +75,7 @@ target_sources(TbMdlLibTest PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Map_Picking.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Map_Persistence.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Map_Selection.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_MapWorkspace.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Map_TagManagement.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Map_World.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Map.cpp

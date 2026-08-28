@@ -209,6 +209,59 @@ TEST_CASE("EntityTest")
 
     entity.addOrUpdateProperty(EntityPropertyKeys::Spawnflags, "1");
     CHECK(entity.modelSpecification() == ModelSpecification{"maps/b_shell1.bsp", 0, 0});
+
+    SECTION("brush entity definition")
+    {
+      const auto brushDefinition = EntityDefinition{
+        "some_brush",
+        Color{},
+        "",
+        {},
+        std::nullopt,
+        0,
+        ModelDefinition{modelExpression},
+      };
+
+      entity.setDefinition(&brushDefinition);
+      entity.setPointEntity(false);
+      CHECK(entity.modelSpecification() == ModelSpecification{"maps/b_shell1.bsp", 0, 0});
+    }
+  }
+
+  SECTION("modelTransformation applies model-local yaw")
+  {
+    const auto modelExpression =
+      el::parseExpression(
+        el::ParseMode::Strict, R"({ path: modelpath, yaw: previewyaw })")
+        .value();
+    const auto definition = EntityDefinition{
+      "some_brush",
+      Color{},
+      "",
+      {},
+      std::nullopt,
+      0,
+      ModelDefinition{modelExpression},
+    };
+
+    auto entity = Entity{{
+      {"modelpath", "model.obj"},
+      {"previewyaw", "90"},
+      {EntityPropertyKeys::Origin, "1 2 3"},
+    }};
+    entity.setPointEntity(false);
+    entity.setDefinition(&definition);
+
+    CHECK(
+      entity.modelTransformation(std::nullopt)
+      == vm::translation_matrix(vm::vec3d{1, 2, 3})
+           * vm::rotation_matrix(vm::vec3d{0, 0, 1}, vm::to_radians(90.0)));
+
+    entity.addOrUpdateProperty("previewyaw", "45");
+    CHECK(
+      entity.modelTransformation(std::nullopt)
+      == vm::translation_matrix(vm::vec3d{1, 2, 3})
+           * vm::rotation_matrix(vm::vec3d{0, 0, 1}, vm::to_radians(45.0)));
   }
 
   SECTION("decalSpecification")

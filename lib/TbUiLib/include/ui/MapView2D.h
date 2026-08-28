@@ -60,6 +60,7 @@ public:
   };
 
 private:
+  ViewPlane m_viewPlane;
   std::unique_ptr<gl::OrthographicCamera> m_camera;
 
   NotifierConnection m_notifierConnection;
@@ -109,6 +110,7 @@ private: // implement MapView interface
 
 public: // implement MapViewBase interface
   gl::Camera& camera() override;
+  MapViewType viewType() const override;
 
   vm::vec3d moveDirection(vm::direction direction) const override;
   size_t flipAxis(vm::direction direction) const override;
@@ -131,6 +133,8 @@ private:
     render::RenderBatch& renderBatch) override;
   void renderSoftWorldBounds(
     render::RenderContext& renderContext, render::RenderBatch& renderBatch) override;
+
+  void doFrameBounds(const vm::bbox3d& bounds) override;
 
 public: // implement CameraLinkableView interface
   void linkCamera(CameraLinkHelper& linkHelper) override;

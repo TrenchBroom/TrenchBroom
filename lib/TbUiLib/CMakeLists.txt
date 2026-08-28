@@ -1,5 +1,10 @@
 add_library(TbUiLib STATIC)
 
+# Development builds are frequently launched by automation with fresh preference
+# directories. Keep startup non-interactive there; release packages retain the normal
+# update opt-in and automatic check behavior.
+target_compile_definitions(TbUiLib PUBLIC "$<$<CONFIG:Release>:TB_ENABLE_UPDATE_CHECKS>")
+
 target_sources(TbUiLib
   PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src/AboutDialog.cpp
@@ -13,6 +18,37 @@ target_sources(TbUiLib
     ${CMAKE_CURRENT_SOURCE_DIR}/src/AnimationManager.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/AppController.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/AppInfoPanel.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/AcceptanceAutomationService.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/AcceptanceAssertions.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/AcceptanceComparisonAlignment.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/AcceptanceImageComparison.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/AcceptanceMapGeometry.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/AcceptanceComparisonRunner.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/AcceptanceSuiteRunner.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/AcceptanceView.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/AcceptanceViewStore.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/AcceptanceVirtualCaptureAdapter.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/AutomationJson.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/AutomationCameraHandleService.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/AutomationDocumentRegistry.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/AutomationOffscreenRenderer.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/AutomationRenderRpcAdapter.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/AutomationRenderRequest.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/AutomationService.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/AutomationService_Brushes.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/AutomationService_Documents.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/AutomationService_Faces.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/AutomationService_Geometry.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/AutomationService_Nodes.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/AutomationService_Server.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/AutomationService_View.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/AutomationService_Workspaces.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/AutomationViewRegistry.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/AutomationVirtualRenderService.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/AutomationVirtualPickService.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/AutomationWorkspaceManifest.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/AutomationWorkspaceManager.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/AutomationWorkspaceStore.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/AutoSizeTableRows.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/BitmapButton.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/BorderLine.cpp
@@ -61,6 +97,7 @@ target_sources(TbUiLib
     ${CMAKE_CURRENT_SOURCE_DIR}/src/EntityPropertyItemDelegate.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/EntityPropertyModel.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/EntityPropertyTable.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/EqScenePreview.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/FaceAttribsEditor.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/FaceInspector.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/FileDialogDefaultDir.cpp
@@ -99,7 +136,10 @@ target_sources(TbUiLib
     ${CMAKE_CURRENT_SOURCE_DIR}/src/LayerEditor.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/LayerListBox.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/LimitedKeySequenceEdit.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/LocalJsonRpcServer.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/MapDocumentActionCache.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/MapHookPreferencePane.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/MapHookRunner.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/MapInspector.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/MapView.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/MapView2D.cpp
@@ -107,6 +147,7 @@ target_sources(TbUiLib
     ${CMAKE_CURRENT_SOURCE_DIR}/src/MapViewActivationTracker.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/MapViewBar.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/MapViewBase.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/MapViewContext.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/MapViewContainer.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/MapViewToolBox.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/MapWindow.cpp
@@ -121,6 +162,8 @@ target_sources(TbUiLib
     ${CMAKE_CURRENT_SOURCE_DIR}/src/MultiPaneMapView.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/ObjExportDialog.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/OnePaneMapView.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/OutlinerModel.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/OutlinerPanel.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/PopupButton.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/PopupWindow.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/PreferenceDialog.cpp
@@ -195,8 +238,30 @@ target_sources(TbUiLib
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/ActionManager.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/ActionMenu.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/AnimationManager.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/AcceptanceAutomationService.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/AcceptanceAssertions.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/AcceptanceComparisonAlignment.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/AcceptanceImageComparison.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/AcceptanceMapGeometry.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/AcceptanceComparisonRunner.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/AcceptanceSuiteRunner.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/AcceptanceView.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/AcceptanceViewStore.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/AcceptanceVirtualCaptureAdapter.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/AppController.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/AppInfoPanel.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/AutomationDocumentRegistry.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/AutomationCameraHandleService.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/AutomationOffscreenRenderer.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/AutomationRenderRpcAdapter.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/AutomationRenderRequest.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/AutomationService.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/AutomationViewRegistry.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/AutomationVirtualRenderService.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/AutomationVirtualPickService.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/AutomationWorkspaceManifest.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/AutomationWorkspaceManager.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/AutomationWorkspaceStore.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/AutoSizeTableRows.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/BitmapButton.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/BorderLine.h
@@ -283,7 +348,10 @@ target_sources(TbUiLib
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/LayerEditor.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/LayerListBox.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/LimitedKeySequenceEdit.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/LocalJsonRpcServer.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/MapDocumentActionCache.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/MapHookPreferencePane.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/MapHookRunner.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/MapInspector.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/MapView.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/MapView2D.h
@@ -291,6 +359,7 @@ target_sources(TbUiLib
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/MapViewActivationTracker.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/MapViewBar.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/MapViewBase.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/MapViewContext.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/MapViewContainer.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/MapViewLayout.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/MapViewToolBox.h
@@ -306,6 +375,8 @@ target_sources(TbUiLib
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/MultiPaneMapView.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/ObjExportDialog.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/OnePaneMapView.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/OutlinerModel.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/OutlinerPanel.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/PopupButton.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/PopupWindow.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/PreferenceDialog.h

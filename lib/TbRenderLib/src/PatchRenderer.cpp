@@ -36,6 +36,7 @@
 #include "prefs/Preferences.h"
 #include "render/RenderBatch.h"
 #include "render/RenderContext.h"
+#include "render/SceneLighting.h"
 
 #include "kd/contracts.h"
 #include "kd/ranges/to.h"
@@ -459,6 +460,7 @@ void PatchRenderer::renderMesh(
   shader.set("CameraPosition", context.camera().position());
   shader.set("ShadeFaces", shadeFaces);
   shader.set("ShowFog", showFog);
+  setSceneLightingUniforms(shader, context.sceneLighting());
   shader.set("Alpha", 1.0f);
   shader.set("EnableMasked", false);
   shader.set("AlphaFuncCompare", size_t{0});

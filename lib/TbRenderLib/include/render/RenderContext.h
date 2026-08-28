@@ -21,6 +21,7 @@
 
 #include "base/Macros.h"
 #include "gl/GlUtils.h"
+#include "render/SceneLighting.h"
 #include "render/Transformation.h"
 
 #include "vm/bbox.h"
@@ -82,12 +83,14 @@ private:
 
   bool m_showFog = false;
 
+  SceneLighting m_sceneLighting;
+
   bool m_showGrid = true;
   double m_gridSize = 4;
   float m_dpiScale = 1.0;
 
   bool m_hideSelection = false;
-  bool m_tintSelection = false;
+  bool m_tintSelection = true;
 
   ShowSelectionGuide m_showSelectionGuide = ShowSelectionGuide::Hide;
   vm::bbox3f m_softMapBounds;
@@ -148,6 +151,9 @@ public:
 
   bool showFog() const;
   void setShowFog(bool showFog);
+
+  const SceneLighting& sceneLighting() const;
+  void setSceneLighting(SceneLighting sceneLighting);
 
   bool showGrid() const;
   void setShowGrid(bool showGrid);

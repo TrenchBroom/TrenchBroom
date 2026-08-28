@@ -30,6 +30,14 @@ class Node;
 
 Node* currentGroupOrWorld(Map& map);
 
+/**
+ * Creates an empty group named \p name below \p parent.
+ *
+ * Returns null without changing the map when the parent cannot contain a group or when
+ * the transaction cannot be committed.
+ */
+GroupNode* createGroup(Map& map, Node& parent, const std::string& name);
+
 void openGroup(Map& map, GroupNode& groupNode);
 void closeGroup(Map& map);
 
@@ -72,5 +80,39 @@ bool canUpdateLinkedGroups(const std::vector<Node*>& nodes);
 
 void setHasPendingChanges(
   const std::vector<GroupNode*>& groupNodes, bool hasPendingChanges);
+
+/**
+ * Opens every closed group in `node`'s ancestor chain, outermost first, then selects
+ * `node`. Whatever group chain was previously open is closed first, since a group can
+ * only be opened while its own immediate parent group (if any) is the currently open
+ * one.
+ *
+ * This lets a node reachable only by name (e.g. found via the Outliner) be selected
+ * regardless of how many levels of closed groups it is nested inside, without the user
+ * having to double-click through each level in the 3D view. Does nothing if `node` is
+ * null. The whole operation is a single undoable transaction.
+ */
+void openAncestorGroupsAndSelectNode(Map& map, Node* node);
+
+/**
+ * Recursively removes `groupNode` and every group nested inside it, reparenting all
+ * entities, brushes and patches found anywhere in its subtree directly onto
+ * `groupNode`'s former parent. Layer membership and geometry are unaffected; only the
+ * group nodes themselves disappear.
+ *
+ * Returns false without changing anything if the group's subtree contains no objects to
+ * keep (which should not normally happen, since groups are removed once emptied).
+ */
+bool flattenGroup(Map& map, GroupNode& groupNode);
+
+/**
+ * Applies flattenGroup's logic to every top-level group on every layer, i.e. removes
+ * every group at every nesting level in the whole map, reparenting entities, brushes and
+ * patches directly onto the layer that used to contain their (possibly deeply nested)
+ * group. Objects keep their layer membership and geometry; only group nodes disappear.
+ *
+ * Returns false without changing anything if the map contains no groups.
+ */
+bool flattenAllGroups(Map& map);
 
 } // namespace tb::mdl

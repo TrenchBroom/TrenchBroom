@@ -181,6 +181,29 @@ EntityNode* createBrushEntity(Map& map, const EntityDefinition& definition)
   return entityNode;
 }
 
+EntityNode* createEmptyEntity(Map& map, Node& parent, Entity entity)
+{
+  auto* entityNode = new EntityNode{std::move(entity)};
+  if (!parent.canAddChild(*entityNode))
+  {
+    delete entityNode;
+    return nullptr;
+  }
+
+  auto transaction = Transaction{map, "Create Entity"};
+  if (addNodes(map, {{&parent, {entityNode}}}).empty())
+  {
+    transaction.cancel();
+    return nullptr;
+  }
+  if (!transaction.commit())
+  {
+    return nullptr;
+  }
+
+  return entityNode;
+}
+
 bool setEntityProperty(
   Map& map,
   const std::string& key,

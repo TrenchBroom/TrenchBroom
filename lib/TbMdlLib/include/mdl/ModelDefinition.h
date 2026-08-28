@@ -42,6 +42,7 @@ constexpr auto Path = "path";
 constexpr auto Skin = "skin";
 constexpr auto Frame = "frame";
 constexpr auto Scale = "scale";
+constexpr auto Yaw = "yaw";
 } // namespace ModelSpecificationKeys
 
 class ModelDefinition
@@ -86,6 +87,12 @@ public:
     const el::VariableStore& variableStore,
     const std::optional<el::ExpressionNode>& defaultScaleExpression) const;
 
+  /**
+   * Evaluates the model expression using the given variable store and returns the
+   * configured model-local yaw offset in degrees.
+   */
+  Result<double> yaw(const el::VariableStore& variableStore) const;
+
   kdl_reflect_decl(ModelDefinition, m_expression);
 };
 
@@ -97,6 +104,10 @@ vm::vec3d safeGetModelScale(
   const ModelDefinition& definition,
   const el::VariableStore& variableStore,
   const std::optional<el::ExpressionNode>& defaultScaleExpression);
+
+/** Returns the model-local yaw offset in degrees, or 0 if evaluation fails. */
+double safeGetModelYaw(
+  const ModelDefinition& definition, const el::VariableStore& variableStore);
 
 } // namespace mdl
 } // namespace tb

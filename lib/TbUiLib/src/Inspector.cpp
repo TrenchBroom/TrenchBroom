@@ -41,7 +41,7 @@ Inspector::Inspector(AppController& appController, MapDocument& document, QWidge
   m_tabBook = new TabBook{};
   m_tabBook->setObjectName("Inspector_TabBook");
 
-  m_mapInspector = new MapInspector{document};
+  m_mapInspector = new MapInspector{appController, document};
   m_entityInspector = new EntityInspector{appController, document};
   m_faceInspector = new FaceInspector{appController, document};
 

@@ -36,6 +36,7 @@
 #include "ui/LayerEditor.h"
 #include "ui/MapDocument.h"
 #include "ui/ModEditor.h"
+#include "ui/OutlinerPanel.h"
 #include "ui/QStyleUtils.h"
 #include "ui/QVecUtils.h"
 #include "ui/TitledPanel.h"
@@ -84,10 +85,10 @@ QString formatVec(const std::optional<vm::bbox3d>& bbox, const bool max)
 
 // MapInspector
 
-MapInspector::MapInspector(MapDocument& document, QWidget* parent)
+MapInspector::MapInspector(AppController& appController, MapDocument& document, QWidget* parent)
   : TabBookPage{parent}
 {
-  createGui(document);
+  createGui(appController, document);
 }
 
 MapInspector::~MapInspector()
@@ -96,7 +97,7 @@ MapInspector::~MapInspector()
   saveWidgetState(m_modEditor);
 }
 
-void MapInspector::createGui(MapDocument& document)
+void MapInspector::createGui(AppController& appController, MapDocument& document)
 {
   m_mapPropertiesEditor = createMapPropertiesEditor(document);
   m_modEditor = createModEditor(document);
@@ -105,12 +106,27 @@ void MapInspector::createGui(MapDocument& document)
   sizer->setContentsMargins(0, 0, 0, 0);
   sizer->setSpacing(0);
 
+  sizer->addWidget(createOutliner(appController, document), 2);
+  sizer->addWidget(new BorderLine{}, 0);
   sizer->addWidget(createLayerEditor(document), 1);
   sizer->addWidget(new BorderLine{}, 0);
   sizer->addWidget(m_mapPropertiesEditor, 0);
   sizer->addWidget(new BorderLine{}, 0);
   sizer->addWidget(m_modEditor, 0);
   setLayout(sizer);
+}
+
+QWidget* MapInspector::createOutliner(AppController& appController, MapDocument& document)
+{
+  auto* titledPanel = new TitledPanel{tr("Outliner")};
+  auto* outlinerPanel = new OutlinerPanel{appController, document};
+
+  auto* sizer = new QVBoxLayout{};
+  sizer->setContentsMargins(0, 0, 0, 0);
+  sizer->addWidget(outlinerPanel, 1);
+  titledPanel->getPanel()->setLayout(sizer);
+
+  return titledPanel;
 }
 
 QWidget* MapInspector::createLayerEditor(MapDocument& document)

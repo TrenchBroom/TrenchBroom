@@ -198,6 +198,7 @@ TEST_CASE("RenderContext")
 
   SECTION("tintSelection and clearTintSelection")
   {
+    CHECK(context.tintSelection());
     context.clearTintSelection();
     CHECK(!context.tintSelection()); // can only be cleared, never set
   }

@@ -20,11 +20,13 @@
 #pragma once
 
 #include <QObject>
+#include <QString>
 #include <QtSystemDetection>
 
 #include "base/Result.h"
 
 #include <filesystem>
+#include <functional>
 #include <memory>
 
 class QMenu;
@@ -61,9 +63,35 @@ namespace ui
 {
 class AboutDialog;
 class ActionManager;
+class AutomationService;
 class MapWindowManager;
 class RecentDocuments;
 class WelcomeWindow;
+
+enum class AutomationOffscreenContextError
+{
+  None,
+  WrongThread,
+  Busy,
+  ContextUnavailable,
+  InitializationFailed,
+  ResourceNotReady,
+  CallbackFailed,
+};
+
+struct AutomationOffscreenContextResult
+{
+  AutomationOffscreenContextError error = AutomationOffscreenContextError::None;
+  QString message;
+
+  explicit operator bool() const
+  {
+    return error == AutomationOffscreenContextError::None;
+  }
+};
+
+using AutomationOffscreenContextCallback =
+  std::function<void(QOpenGLContext&, QOffscreenSurface&, gl::GlManager&)>;
 
 class AppController : public QObject
 {
@@ -77,6 +105,7 @@ private:
 
   QOpenGLContext* m_glContext = nullptr;
   QOffscreenSurface* m_offscreenSurface = nullptr;
+  bool m_automationOffscreenContextActive = false;
 
   QNetworkAccessManager* m_networkManager = nullptr;
   QTimer* m_reloadRecentDocumentsTimer = nullptr;
@@ -88,6 +117,7 @@ private:
   MapWindowManager* m_mapWindowManager = nullptr;
   RecentDocuments* m_recentDocuments = nullptr;
   std::unique_ptr<ActionManager> m_actionManager;
+  std::unique_ptr<AutomationService> m_automationService;
   std::unique_ptr<WelcomeWindow> m_welcomeWindow;
   std::unique_ptr<AboutDialog> m_aboutDialog;
 
@@ -124,6 +154,18 @@ public:
   RecentDocuments& recentDocuments();
 
   ActionManager& actionManager();
+
+  /** Release packages enable update opt-in/check UI; development builds do not. */
+  static bool automaticUpdatesEnabledForBuild();
+
+  /**
+   * Runs one bounded, GUI-thread-only callback using the application-owned shared
+   * offscreen OpenGL context. Pending resources are processed first; callers must
+   * retry when ResourceNotReady is returned. The prior Qt context is restored before
+   * this method returns.
+   */
+  AutomationOffscreenContextResult withAutomationOffscreenContext(
+    const AutomationOffscreenContextCallback& callback);
 
   void askForAutoUpdates();
   void triggerAutoUpdateCheck();

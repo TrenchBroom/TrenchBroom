@@ -22,6 +22,7 @@
 #include <QApplication>
 #include <QClipboard>
 #include <QDebug>
+#include <QImage>
 #include <QMenu>
 #include <QMimeData>
 #include <QShortcut>
@@ -78,6 +79,7 @@
 #include "ui/AnimationManager.h"
 #include "ui/AppController.h"
 #include "ui/EnableDisableTagCallback.h"
+#include "ui/EqScenePreview.h"
 #include "ui/FlashSelectionAnimation.h"
 #include "ui/MapDocument.h"
 #include "ui/MapViewActivationTracker.h"
@@ -141,6 +143,52 @@ MapViewBase::~MapViewBase()
 void MapViewBase::setIsCurrent(const bool isCurrent)
 {
   m_isCurrent = isCurrent;
+}
+
+MapViewContext MapViewBase::captureContext()
+{
+  return captureMapViewContext(m_document.map(), camera(), viewType());
+}
+
+MapViewPickResult MapViewBase::pickAt(const float x, const float y)
+{
+  return pickMapView(m_document.map(), camera(), x, y);
+}
+
+QImage MapViewBase::captureImage()
+{
+  return grabFramebuffer();
+}
+
+bool MapViewBase::setCameraState(
+  const vm::vec3f& position, const vm::vec3f& direction, const vm::vec3f& up)
+{
+  if (
+    vm::is_zero(direction, vm::Cf::almost_zero())
+    || vm::is_zero(up, vm::Cf::almost_zero()))
+  {
+    return false;
+  }
+
+  auto& viewCamera = camera();
+  viewCamera.moveTo(position);
+  viewCamera.setDirection(vm::normalize(direction), vm::normalize(up));
+  return true;
+}
+
+bool MapViewBase::frameSelection()
+{
+  if (const auto& bounds = m_document.map().selectionBounds())
+  {
+    frameBounds(*bounds);
+    return true;
+  }
+  return false;
+}
+
+void MapViewBase::frameBounds(const vm::bbox3d& bounds)
+{
+  doFrameBounds(bounds);
 }
 
 void MapViewBase::bindEvents()
@@ -1016,6 +1064,13 @@ void MapViewBase::renderContents(gl::Gl& gl)
   renderContext.setShowBrushEntityBounds(pref(Preferences::ShowBrushEntityBounds));
   renderContext.setShowPointEntityBounds(pref(Preferences::ShowPointEntityBounds));
   renderContext.setShowFog(pref(Preferences::ShowFog));
+  renderContext.setSceneLighting(buildEqSceneLighting(
+    m_document.map(),
+    {renderContext.render3D() && pref(Preferences::EqScenePreview),
+     playerVisionFromName(pref(Preferences::EqScenePreviewVision)),
+     pref(Preferences::EqScenePreviewTimeOfDay),
+     pref(Preferences::EqScenePreviewEntityLights)},
+    camera().position()));
   renderContext.setShowGrid(grid.visible());
   renderContext.setGridSize(grid.actualSize());
   renderContext.setDpiScale(static_cast<float>(window()->devicePixelRatioF()));

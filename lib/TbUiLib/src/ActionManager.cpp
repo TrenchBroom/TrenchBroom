@@ -1147,6 +1147,48 @@ void ActionManager::createEditMenu()
     },
   }));
   csgMenu.addItem(addAction(Action{
+    "Menu/Edit/CSG/Optimize Brushwork",
+    "Optimize Brushwork...",
+    ActionContext::Any,
+    KeySequence{},
+    [](auto& context) { context.mapWindow().optimizeBrushwork(); },
+    [](const auto& context) {
+      return context.hasDocument() && context.mapWindow().canOptimizeBrushwork();
+    },
+  }));
+  csgMenu.addSeparator();
+  csgMenu.addItem(addAction(Action{
+    "Menu/Edit/CSG/Bridge Edge Chains",
+    "Bridge Edge Chains...",
+    ActionContext::Any,
+    KeySequence{},
+    [](auto& context) { context.mapWindow().bridgeEdgeChains(); },
+    [](const auto& context) {
+      return context.hasDocument() && context.mapWindow().canBridgeEdgeChains();
+    },
+  }));
+  csgMenu.addItem(addAction(Action{
+    "Menu/Edit/CSG/Create Volume to Plane",
+    "Create Volume to Plane...",
+    ActionContext::Any,
+    KeySequence{},
+    [](auto& context) { context.mapWindow().createVolumeToPlane(); },
+    [](const auto& context) {
+      return context.hasDocument() && context.mapWindow().canCreateVolumeToPlane();
+    },
+  }));
+  csgMenu.addItem(addAction(Action{
+    "Menu/Edit/CSG/Create EQ Water",
+    "Create EQ Water...",
+    ActionContext::Any,
+    KeySequence{},
+    [](auto& context) { context.mapWindow().createEqWater(); },
+    [](const auto& context) {
+      return context.hasDocument() && context.mapWindow().canCreateEqWater();
+    },
+  }));
+  csgMenu.addSeparator();
+  csgMenu.addItem(addAction(Action{
     "Menu/Edit/CSG/Subtract",
     "Subtract",
     ActionContext::Any,

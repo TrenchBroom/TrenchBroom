@@ -996,4 +996,92 @@ TEST_CASE("BrushFace")
   }
 }
 
+TEST_CASE("BrushFace attribute copy")
+{
+  const auto worldBounds = vm::bbox3d{4096.0};
+  const auto builder = BrushBuilder{MapFormat::Valve, worldBounds};
+  auto sourceBrush =
+    builder.createCuboid(vm::bbox3d{{0, 0, 0}, {64, 64, 64}}, "source") | kdl::value();
+  auto targetBrush =
+    builder.createCuboid(vm::bbox3d{{128, 0, 0}, {192, 64, 64}}, "target") | kdl::value();
+  auto& source = sourceBrush.face(*sourceBrush.findFace(vm::vec3d{0, 0, 1}));
+  auto& target = targetBrush.face(*targetBrush.findFace(vm::vec3d{0, 0, 1}));
+
+  source.setMaterialName("copied");
+  source.setUvAttributes(
+    UvAttributes{.offset = {12, 24}, .scale = {2, 4}, .rotation = 45});
+  source.setSurfaceAttributes(
+    SurfaceAttributes{
+      .contents = 1,
+      .flags = 2,
+      .value = 3.0f,
+      .color = RgbaF{0.25f, 0.5f, 0.75f, 1.0f},
+    });
+  source.restoreUvCoordSystemSnapshot(
+    UvCoordSystemSnapshot{vm::vec3d{0, 1, 0}, vm::vec3d{-1, 0, 0}});
+  const auto sourceAxes = source.takeUvCoordSystemSnapshot();
+  REQUIRE(sourceAxes);
+
+  const auto targetBoundary = target.boundary();
+  const auto targetPoints = target.points();
+  target.copyAttributes(source);
+  target.restoreUvCoordSystemSnapshot(*sourceAxes);
+
+  CHECK(target.materialName() == source.materialName());
+  CHECK(target.uvAttributes() == source.uvAttributes());
+  CHECK(target.uAxis() == source.uAxis());
+  CHECK(target.vAxis() == source.vAxis());
+  CHECK(target.surfaceAttributes() == source.surfaceAttributes());
+  CHECK(target.boundary() == targetBoundary);
+  CHECK(target.points() == targetPoints);
+}
+
+TEST_CASE("BrushFace attribute copy does not fabricate parallel UV axes")
+{
+  const auto worldBounds = vm::bbox3d{4096.0};
+  const auto sourceBuilder = BrushBuilder{MapFormat::Standard, worldBounds};
+  const auto targetBuilder = BrushBuilder{MapFormat::Valve, worldBounds};
+  auto sourceBrush =
+    sourceBuilder.createCuboid(vm::bbox3d{{0, 0, 0}, {64, 64, 64}}, "source")
+    | kdl::value();
+  auto targetBrush =
+    targetBuilder.createCuboid(vm::bbox3d{{128, 0, 0}, {192, 64, 64}}, "target")
+    | kdl::value();
+  auto& source = sourceBrush.face(*sourceBrush.findFace(vm::vec3d{0, 0, 1}));
+  auto& target = targetBrush.face(*targetBrush.findFace(vm::vec3d{0, 0, 1}));
+
+  source.setMaterialName("copied");
+  source.setUvAttributes(
+    UvAttributes{.offset = {12, 24}, .scale = {2, 4}, .rotation = 45});
+  source.setSurfaceAttributes(
+    SurfaceAttributes{
+      .contents = 1,
+      .flags = 2,
+      .value = 3.0f,
+      .color = RgbaF{0.25f, 0.5f, 0.75f, 1.0f},
+    });
+  target.restoreUvCoordSystemSnapshot(
+    UvCoordSystemSnapshot{vm::vec3d{0, -1, 0}, vm::vec3d{1, 0, 0}});
+
+  const auto targetAxes = target.takeUvCoordSystemSnapshot();
+  const auto targetBoundary = target.boundary();
+  const auto targetPoints = target.points();
+  const auto sourceAxes = source.takeUvCoordSystemSnapshot();
+  REQUIRE_FALSE(sourceAxes);
+  REQUIRE(targetAxes);
+
+  target.copyAttributes(source);
+  if (sourceAxes)
+  {
+    target.restoreUvCoordSystemSnapshot(*sourceAxes);
+  }
+
+  CHECK(target.materialName() == source.materialName());
+  CHECK(target.uvAttributes() == source.uvAttributes());
+  CHECK(target.surfaceAttributes() == source.surfaceAttributes());
+  CHECK(target.takeUvCoordSystemSnapshot() == targetAxes);
+  CHECK(target.boundary() == targetBoundary);
+  CHECK(target.points() == targetPoints);
+}
+
 } // namespace tb::mdl

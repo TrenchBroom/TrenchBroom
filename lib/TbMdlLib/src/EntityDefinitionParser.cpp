@@ -441,6 +441,9 @@ std::optional<EntityDefinition> createDefinition(
       color,
       std::move(description),
       std::move(propertyDefinitions),
+      std::nullopt,
+      0,
+      std::move(classInfo.modelDefinition),
     };
   case EntityDefinitionClassType::BaseClass:
     return std::nullopt;

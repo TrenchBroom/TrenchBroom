@@ -28,7 +28,9 @@
 namespace tb::mdl
 {
 class EntityNode;
+class Entity;
 class Map;
+class Node;
 
 enum class SetDefaultPropertyMode;
 
@@ -38,6 +40,12 @@ struct EntityDefinition;
 EntityNode* createPointEntity(
   Map& map, const EntityDefinition& definition, const vm::vec3d& delta);
 EntityNode* createBrushEntity(Map& map, const EntityDefinition& definition);
+
+/**
+ * Adds an already configured, empty entity below parent as one undoable map operation.
+ * Unlike the interactive entity creation helpers, this does not alter the selection.
+ */
+EntityNode* createEmptyEntity(Map& map, Node& parent, Entity entity);
 
 bool setEntityProperty(
   Map& map,

@@ -30,6 +30,7 @@ uniform vec3 CameraUp;
 uniform int Orientation;
 
 varying vec4 worldCoordinates;
+varying vec3 worldNormal;
 
 mat4 getScaleMatrix()
 {
@@ -148,7 +149,9 @@ mat4 getModelMatrix()
 
 void main(void)
 {
-  gl_Position = gl_ProjectionMatrix * ViewMatrix * getModelMatrix() * gl_Vertex;
-  worldCoordinates = ModelMatrix * gl_Vertex;
+  mat4 modelMatrix = getModelMatrix();
+  gl_Position = gl_ProjectionMatrix * ViewMatrix * modelMatrix * gl_Vertex;
+  worldCoordinates = modelMatrix * gl_Vertex;
+  worldNormal = normalize(mat3(modelMatrix) * gl_Normal);
   gl_TexCoord[0] = gl_MultiTexCoord0;
 }

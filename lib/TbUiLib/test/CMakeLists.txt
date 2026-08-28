@@ -7,6 +7,26 @@ target_sources(TbUiLibTest
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_ActionContext.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_ActionInfo.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Actions.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_AcceptanceAutomationService.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_AcceptanceAssertions.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_AcceptanceComparisonRunner.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_AcceptanceImageComparison.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_AcceptanceMapGeometry.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_AcceptanceSuiteRunner.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_AcceptanceView.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_AcceptanceViewStore.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_AcceptanceVirtualCaptureAdapter.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_AutomationJson.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_AutomationCameraHandleService.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_AutomationIdentityRegistry.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_AutomationOffscreenRenderer.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_AutomationRenderRpcAdapter.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_AutomationRenderRequest.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_AutomationService.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_AutomationVirtualRenderService.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_AutomationVirtualPickService.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_AutomationWorkspaceManager.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_AutomationWorkspaceStore.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_CompilationDialog.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_CompilationProfileManager.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_CompilationRunner.cpp
@@ -24,6 +44,12 @@ target_sources(TbUiLibTest
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_RecentDocuments.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_KeyboardShortcutUtils.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_LayerListBox.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_LocalJsonRpcServer.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_MapHookRunner.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_MapViewCamera.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_MapViewContext.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_OutlinerModel.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_OutlinerModelBenchmark.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_SystemPaths.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_TextOutputAdapter.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_UpdateVersion.cpp
@@ -33,6 +59,8 @@ target_sources(TbUiLibTest
 )
 
 add_compile_definitions(CATCH_CONFIG_ENABLE_ALL_STRINGMAKERS=1)
+
+target_include_directories(TbUiLibTest PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../src)
 
 target_link_libraries(TbUiLibTest PRIVATE 
   CompilerConfig
@@ -75,6 +103,7 @@ add_custom_command(TARGET TbUiLibTest POST_BUILD
   COMMAND ${CMAKE_COMMAND} -E copy_directory "${TB_RESOURCE_DIR}/games" "${TEST_FIXTURE_DEST_DIR}/games"
   COMMAND ${CMAKE_COMMAND} -E copy_directory "${TB_RESOURCE_DIR}/games-testing" "${TEST_FIXTURE_DEST_DIR}/games"
   COMMAND ${CMAKE_COMMAND} -E copy_directory "${TB_RESOURCE_DIR}/graphics/images" "$<TARGET_FILE_DIR:TbUiLibTest>/images"
+  COMMAND ${CMAKE_COMMAND} -E copy_directory "${TB_RESOURCE_DIR}/shader" "$<TARGET_FILE_DIR:TbUiLibTest>/shader"
 )
 
 include(Catch)

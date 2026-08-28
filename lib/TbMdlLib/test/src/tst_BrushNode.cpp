@@ -290,6 +290,72 @@ TEST_CASE("BrushNode")
     CHECK(hits2.empty());
   }
 
+  SECTION("pick near the raised world bounds limit")
+  {
+    // Regression coverage for raising MapDocument::DefaultWorldBounds from +/-32768 to
+    // +/-524288 (see MapDocument.cpp). Repeats the "pick" test above translated out
+    // near the new limit, to confirm ray/face picking (which is done entirely in
+    // double precision, see BrushFace::intersectWithRay) is not less accurate there
+    // than near the origin.
+    const auto worldBounds = vm::bbox3d{524288.0};
+    const auto editorContext = EditorContext{};
+
+    // well inside the new limit (524288) but far outside the old one (32768)
+    const auto offset = vm::vec3d{300000, -300000, 200000};
+
+    // build a cube with length 16, translated out near the new world bounds limit
+    auto brush = BrushNode{
+      Brush::create(
+        worldBounds,
+        {
+          // left
+          createParaxial(
+            offset + vm::vec3d{0, 0, 0},
+            offset + vm::vec3d{0, 1, 0},
+            offset + vm::vec3d{0, 0, 1}),
+          // right
+          createParaxial(
+            offset + vm::vec3d{16, 0, 0},
+            offset + vm::vec3d{16, 0, 1},
+            offset + vm::vec3d{16, 1, 0}),
+          // front
+          createParaxial(
+            offset + vm::vec3d{0, 0, 0},
+            offset + vm::vec3d{0, 0, 1},
+            offset + vm::vec3d{1, 0, 0}),
+          // back
+          createParaxial(
+            offset + vm::vec3d{0, 16, 0},
+            offset + vm::vec3d{1, 16, 0},
+            offset + vm::vec3d{0, 16, 1}),
+          // top
+          createParaxial(
+            offset + vm::vec3d{0, 0, 16},
+            offset + vm::vec3d{0, 1, 16},
+            offset + vm::vec3d{1, 0, 16}),
+          // bottom
+          createParaxial(
+            offset + vm::vec3d{0, 0, 0},
+            offset + vm::vec3d{1, 0, 0},
+            offset + vm::vec3d{0, 1, 0}),
+        })
+      | kdl::value()};
+
+    auto hits1 = PickResult{};
+    brush.pick(
+      editorContext, vm::ray3d(offset + vm::vec3d{8, -8, 8}, {0, 1, 0}), hits1);
+    CHECK(hits1.size() == 1u);
+
+    auto hit1 = hits1.all().front();
+    CHECK(hit1.distance() == vm::approx(8.0, 0.0001));
+    CHECK(hitToFaceHandle(hit1)->face().boundary().normal == vm::vec3d{0, -1, 0});
+
+    auto hits2 = PickResult{};
+    brush.pick(
+      editorContext, vm::ray3d(offset + vm::vec3d{8, -8, 8}, {0, -1, 0}), hits2);
+    CHECK(hits2.empty());
+  }
+
   SECTION("doGetProjectedArea")
   {
     const auto worldBounds = vm::bbox3d{4096.0};

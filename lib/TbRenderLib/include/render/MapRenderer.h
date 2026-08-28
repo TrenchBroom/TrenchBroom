@@ -62,6 +62,7 @@ private:
 
   std::unique_ptr<ObjectRenderer> m_defaultRenderer;
   std::unique_ptr<ObjectRenderer> m_selectionRenderer;
+  std::unique_ptr<ObjectRenderer> m_unhighlightedSelectionRenderer;
   std::unique_ptr<ObjectRenderer> m_lockedRenderer;
   std::unique_ptr<EntityDecalRenderer> m_entityDecalRenderer;
   std::unique_ptr<EntityLinkRenderer> m_entityLinkRenderer;

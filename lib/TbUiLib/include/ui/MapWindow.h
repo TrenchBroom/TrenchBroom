@@ -77,6 +77,7 @@ class InfoPanel;
 class Inspector;
 enum class InspectorPage;
 class MapDocument;
+class MapHookRunner;
 class MapViewBase;
 class MapViewToolBox;
 class ObjExportDialog;
@@ -108,12 +109,14 @@ private:
   InfoPanel* m_infoPanel = nullptr;
   Console* m_console = nullptr;
   Inspector* m_inspector = nullptr;
+  MapHookRunner* m_mapHookRunner = nullptr;
 
   QComboBox* m_gridChoice = nullptr;
   QLabel* m_statusBarLabel = nullptr;
 
   QPointer<CompilationDialog> m_compilationDialog;
   QPointer<ObjExportDialog> m_objExportDialog;
+  bool m_closeWithoutSaving = false;
 
   std::optional<std::string> m_lastCompilationProfileName;
 
@@ -212,6 +215,11 @@ public:
   bool saveDocument();
   bool saveDocumentAs();
   void revertDocument();
+  /**
+   * Closes an application-owned hidden window while discarding unsaved changes.
+   * Interactive windows are deliberately rejected.
+   */
+  bool closeWithoutSaving();
   bool exportDocumentAsObj();
   bool exportDocumentAsMap();
   bool exportDocument(const mdl::ExportOptions& options);
@@ -297,6 +305,18 @@ public:
 
   void csgConvexMerge();
   bool canDoCsgConvexMerge() const;
+
+  void optimizeBrushwork();
+  bool canOptimizeBrushwork() const;
+
+  void bridgeEdgeChains();
+  bool canBridgeEdgeChains() const;
+
+  void createVolumeToPlane();
+  bool canCreateVolumeToPlane() const;
+
+  void createEqWater();
+  bool canCreateEqWater() const;
 
   void csgSubtract();
   bool canDoCsgSubtract() const;
@@ -388,6 +408,8 @@ public:
   void focusChange(QWidget* oldFocus, QWidget* newFocus);
 
   MapViewBase* currentMapViewBase();
+  /** Returns every currently live editor pane in this window. */
+  std::vector<MapViewBase*> mapViewBases() const;
 
 private:
   const mdl::CompilationProfile* lastCompilationProfile() const;

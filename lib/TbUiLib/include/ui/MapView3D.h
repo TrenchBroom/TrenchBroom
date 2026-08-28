@@ -19,6 +19,7 @@
 
 #pragma once
 
+#include "base/Color.h"
 #include "base/NotifierConnection.h"
 #include "ui/MapViewBase.h"
 
@@ -45,6 +46,7 @@ private:
   std::unique_ptr<gl::PerspectiveCamera> m_camera;
   std::unique_ptr<FlyModeHelper> m_flyModeHelper;
   bool m_ignoreCameraChangeEvents = false;
+  Color m_scenePreviewBackground = Color{RgbF{}};
 
   NotifierConnection m_notifierConnection;
 
@@ -84,6 +86,7 @@ private: // implement ToolBoxConnector interface
   mdl::PickResult pick(const vm::ray3d& pickRay) const override;
 
 private: // implement RenderView interface
+  const Color& getBackgroundColor() override;
   void updateViewport(int x, int y, int width, int height) override;
 
 private: // implement MapView interface
@@ -110,6 +113,7 @@ private: // implement MapView interface
 
 private: // implement MapViewBase interface
   gl::Camera& camera() override;
+  MapViewType viewType() const override;
 
   vm::vec3d moveDirection(vm::direction direction) const override;
   size_t flipAxis(vm::direction direction) const override;
@@ -128,6 +132,8 @@ private: // implement MapViewBase interface
     MapViewToolBox& toolBox,
     render::RenderContext& renderContext,
     render::RenderBatch& renderBatch) override;
+
+  void doFrameBounds(const vm::bbox3d& bounds) override;
 
   void beforePopupMenu() override;
 

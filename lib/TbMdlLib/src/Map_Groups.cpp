@@ -47,6 +47,7 @@
 #include "kd/vector_utils.h"
 
 #include <algorithm>
+#include <memory>
 #include <ranges>
 
 namespace tb::mdl
@@ -79,6 +80,29 @@ std::vector<Node*> collectGroupableNodes(
       [&](auto&& thisLambda, BrushNode& brushNode) { addNode(thisLambda, brushNode); },
       [&](auto&& thisLambda, PatchNode& patchNode) { addNode(thisLambda, patchNode); }));
   return kdl::col_stable_remove_duplicates(std::move(result));
+}
+
+/**
+ * Collects every entity, brush and patch node in `node`'s subtree, treating nested group
+ * nodes as transparent (their contents are collected too, recursively) and entities as
+ * opaque leaves (their own brush children are left attached and not pulled out). `node`
+ * itself is not included.
+ */
+std::vector<Node*> collectFlattenedContent(Node& node)
+{
+  auto result = std::vector<Node*>{};
+  Node::visitAll(
+    node.children(),
+    kdl::overload(
+      [](WorldNode&) {},
+      [](LayerNode&) {},
+      [&](auto&& thisLambda, GroupNode& groupNode) {
+        groupNode.visitChildren(thisLambda);
+      },
+      [&](EntityNode& entityNode) { result.push_back(&entityNode); },
+      [&](BrushNode& brushNode) { result.push_back(&brushNode); },
+      [&](PatchNode& patchNode) { result.push_back(&patchNode); }));
+  return result;
 }
 
 std::vector<Node*> collectNodesToUnlink(const std::vector<GroupNode*>& groupNodes)
@@ -225,6 +249,30 @@ Node* currentGroupOrWorld(Map& map)
 {
   Node* result = map.editorContext().currentGroup();
   return result ? result : &map.worldNode();
+}
+
+GroupNode* createGroup(Map& map, Node& parent, const std::string& name)
+{
+  auto group = std::make_unique<GroupNode>(Group{name});
+  if (!parent.canAddChild(*group))
+  {
+    return nullptr;
+  }
+
+  auto transaction = Transaction{map, "Create Group"};
+  auto* const result = group.get();
+  if (addNodes(map, {{&parent, {result}}}).empty())
+  {
+    transaction.cancel();
+    return nullptr;
+  }
+  group.release();
+
+  if (!transaction.commit())
+  {
+    return nullptr;
+  }
+  return result;
 }
 
 void openGroup(Map& map, GroupNode& groupNode)
@@ -637,6 +685,110 @@ void setHasPendingChanges(
   {
     groupNode->setHasPendingChanges(hasPendingChanges);
   }
+}
+
+void openAncestorGroupsAndSelectNode(Map& map, Node* node)
+{
+  if (!node)
+  {
+    return;
+  }
+
+  // Collect the ancestor groups, outermost first: pushGroup() requires that a group's
+  // own immediate parent group (if any) already be the current group, so they must be
+  // opened one level at a time, in order.
+  auto ancestorGroups = std::vector<GroupNode*>{};
+  for (auto* group = findContainingGroup(node); group; group = findContainingGroup(group))
+  {
+    ancestorGroups.push_back(group);
+  }
+  std::reverse(ancestorGroups.begin(), ancestorGroups.end());
+
+  auto transaction = Transaction{map, "Reveal Node"};
+
+  // Whatever group chain was previously open may be unrelated to node's ancestor chain,
+  // so close it out completely first; this always leaves us free to open any chain from
+  // the top.
+  while (map.editorContext().currentGroup())
+  {
+    closeGroup(map);
+  }
+
+  for (auto* group : ancestorGroups)
+  {
+    if (group->closed())
+    {
+      openGroup(map, *group);
+    }
+  }
+
+  deselectAll(map);
+  selectNodes(map, {node});
+
+  transaction.commit();
+}
+
+bool flattenGroup(Map& map, GroupNode& groupNode)
+{
+  auto* parent = groupNode.parent();
+  contract_assert(parent != nullptr);
+
+  const auto content = collectFlattenedContent(groupNode);
+  if (content.empty())
+  {
+    return false;
+  }
+
+  auto transaction = Transaction{map, "Flatten Group"};
+  deselectAll(map);
+
+  if (!reparentNodes(map, {{parent, content}}))
+  {
+    transaction.cancel();
+    return false;
+  }
+
+  selectNodes(map, content);
+  return transaction.commit();
+}
+
+bool flattenAllGroups(Map& map)
+{
+  const auto layers = map.worldNode().allLayersUserSorted();
+
+  auto contentByLayer = std::vector<std::pair<LayerNode*, std::vector<Node*>>>{};
+  for (auto* layerNode : layers)
+  {
+    if (auto content = collectFlattenedContent(*layerNode); !content.empty())
+    {
+      contentByLayer.emplace_back(layerNode, std::move(content));
+    }
+  }
+
+  if (contentByLayer.empty())
+  {
+    return false;
+  }
+
+  auto transaction = Transaction{map, "Flatten All Groups"};
+  deselectAll(map);
+
+  auto allContent = std::vector<Node*>{};
+  auto success = true;
+  for (auto& [layerNode, content] : contentByLayer)
+  {
+    success = success && reparentNodes(map, {{static_cast<Node*>(layerNode), content}});
+    kdl::vec_append(allContent, content);
+  }
+
+  if (!success)
+  {
+    transaction.cancel();
+    return false;
+  }
+
+  selectNodes(map, allContent);
+  return transaction.commit();
 }
 
 } // namespace tb::mdl
