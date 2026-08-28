@@ -474,6 +474,19 @@ TEST_CASE("DrawShapeToolArchExtension")
         })
       | kdl::transform_error([](const auto& e) { FAIL(e); });
   }
+
+  SECTION("createBrushes wires createSpandrel to the brush builder")
+  {
+    const auto bounds = vm::bbox3d{{-128, -64, 0}, {128, 64, 64}};
+    parameters.setAxis(vm::axis::y);
+    parameters.setCircleShape(mdl::EdgeAlignedCircle{8});
+    parameters.setThickness(16.0);
+    parameters.setCreateSpandrel(true);
+
+    extension.createBrushes(bounds, parameters)
+      | kdl::transform([&](const auto& brushes) { CHECK(brushes.size() == 7u); })
+      | kdl::transform_error([](const auto& e) { FAIL(e); });
+  }
 }
 
 TEST_CASE("DrawShapeToolParameters")
@@ -485,6 +498,7 @@ TEST_CASE("DrawShapeToolParameters")
     REQUIRE(parameters.axis() == vm::axis::z);
     REQUIRE(parameters.hollow() == false);
     REQUIRE(parameters.thickness() == 16.0);
+    REQUIRE(parameters.createSpandrel() == false);
     REQUIRE(parameters.numRings() == 8);
     REQUIRE(parameters.accuracy() == 1);
     REQUIRE(parameters.stepHeight() == 16.0);
@@ -547,6 +561,27 @@ TEST_CASE("DrawShapeToolParameters")
 
     parameters.setThickness(8.0);
     REQUIRE(parameters.thickness() == 8.0);
+    CHECK(parametersDidChange.notifications.size() == 2u);
+  }
+
+  SECTION("CreateSpandrel modifications")
+  {
+    auto parametersDidChange = Observer<>{parameters.parametersDidChangeNotifier};
+
+    REQUIRE(parameters.createSpandrel() == false);
+
+    parameters.setCreateSpandrel(false);
+    CHECK(parametersDidChange.notifications.empty());
+
+    parameters.setCreateSpandrel(true);
+    REQUIRE(parameters.createSpandrel() == true);
+    CHECK(parametersDidChange.notifications.size() == 1u);
+
+    parameters.setCreateSpandrel(true);
+    CHECK(parametersDidChange.notifications.size() == 1u);
+
+    parameters.setCreateSpandrel(false);
+    REQUIRE(parameters.createSpandrel() == false);
     CHECK(parametersDidChange.notifications.size() == 2u);
   }
 

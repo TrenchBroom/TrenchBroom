@@ -38,12 +38,552 @@
 
 #include <algorithm>
 #include <cmath>
+#include <optional>
 #include <ranges>
 #include <string>
 #include <utility>
 
 namespace tb::mdl
 {
+namespace
+{
+
+auto makeEdgeAlignedCircle(const size_t numSides, const vm::bbox2d& bounds)
+{
+  contract_pre(numSides > 2);
+
+  const auto transform = vm::translation_matrix(bounds.min)
+                         * vm::scaling_matrix(bounds.size())
+                         * vm::translation_matrix(vm::vec2d{0.5, 0.5})
+                         * vm::scaling_matrix(vm::vec2d{0.5, 0.5});
+
+  auto vertices = std::vector<vm::vec2d>{};
+  for (size_t i = 0; i < numSides; ++i)
+  {
+    const auto angle =
+      (double(i) + 0.5) * vm::Cd::two_pi() / double(numSides) - vm::Cd::half_pi();
+    const auto a = vm::Cd::pi() / double(numSides); // Half angle
+    const auto ca = std::cos(a);
+    const auto x = std::cos(angle) / ca;
+    const auto y = std::sin(angle) / ca;
+    vertices.emplace_back(x, y);
+  }
+  return transform * vertices;
+}
+
+auto makeVertexAlignedCircle(const size_t numSides, const vm::bbox2d& bounds)
+{
+  contract_pre(numSides > 2);
+
+  const auto transform = vm::translation_matrix(bounds.min)
+                         * vm::scaling_matrix(bounds.size())
+                         * vm::translation_matrix(vm::vec2d{0.5, 0.5})
+                         * vm::scaling_matrix(vm::vec2d{0.5, 0.5});
+
+  auto vertices = std::vector<vm::vec2d>{};
+  for (size_t i = 0; i < numSides; ++i)
+  {
+    const auto angle =
+      double(i) * vm::Cd::two_pi() / double(numSides) - vm::Cd::half_pi();
+    const auto x = std::cos(angle);
+    const auto y = std::sin(angle);
+    vertices.emplace_back(x, y);
+  }
+  return transform * vertices;
+}
+
+auto makeScalableCircle(const size_t precision, const vm::bbox2d& bounds)
+{
+  auto vertices = std::vector<vm::vec2d>{
+    {-0.25, +1.00},
+    {-0.75, +0.75},
+    {-1.00, +0.25},
+    {-1.00, -0.25},
+    {-0.75, -0.75},
+    {-0.25, -1.00},
+    {+0.25, -1.00},
+    {+0.75, -0.75},
+    {+1.00, -0.25},
+    {+1.00, +0.25},
+    {+0.75, +0.75},
+    {+0.25, +1.00},
+  };
+
+  // Clip off each corner to get a scalable unit circle with double the vertices
+  for (size_t i = 0; i < precision; ++i)
+  {
+
+    const auto previousVertices = std::exchange(vertices, std::vector<vm::vec2d>{});
+    const auto count = previousVertices.size();
+    for (size_t j = 0; j < previousVertices.size(); ++j)
+    {
+      const auto prev = previousVertices[(j + count - 1) % count];
+      const auto cur = previousVertices[j];
+      const auto next = previousVertices[(j + 1) % count];
+
+      vertices.push_back(prev + (cur - prev) * 0.75);
+      vertices.push_back(cur + (next - cur) * 0.25);
+    }
+  }
+
+  const auto size = bounds.size();
+  const auto minSize = vm::min(size.x(), size.y());
+  const auto squareSize = vm::vec2d::fill(minSize);
+
+  vertices = vm::scaling_matrix(squareSize) * vm::translation_matrix(vm::vec2d{0.5, 0.5})
+             * vm::scaling_matrix(vm::vec2d{0.5, 0.5}) * vertices;
+
+  // Stretch the circle to fit the bounds by moving the right half and the top half
+  // instead of uniformly scaling all vertices
+  const auto offset = vm::vec2d{
+    vm::max(size.x() - size.y(), 0.0),
+    vm::max(size.y() - size.x(), 0.0),
+  };
+
+  for (auto& v : vertices)
+  {
+    if (v.x() > minSize / 2.0)
+    {
+      v = vm::vec2d{v.x() + offset.x(), v.y()};
+    }
+    if (v.y() > minSize / 2.0)
+    {
+      v = vm::vec2d{v.x(), v.y() + offset.y()};
+    }
+  }
+
+  return vm::translation_matrix(bounds.min) * vertices;
+}
+
+auto makeCircle(const CircleShape& circleShape, const vm::bbox2d& bounds)
+{
+
+  return std::visit(
+    kdl::overload(
+      [&](const EdgeAlignedCircle& edgeAligned) {
+        return makeEdgeAlignedCircle(edgeAligned.numSides, bounds);
+      },
+      [&](const VertexAlignedCircle& vertexAligned) {
+        return makeVertexAlignedCircle(vertexAligned.numSides, bounds);
+      },
+      [&](const ScalableCircle& scalable) {
+        return makeScalableCircle(scalable.precision, bounds);
+      }),
+    circleShape);
+}
+
+auto makeCylinder(const CircleShape& circleShape, const vm::bbox3d& boundsXY)
+{
+  auto vertices = std::vector<vm::vec3d>{};
+  for (const auto& v : makeCircle(circleShape, boundsXY.xy()))
+  {
+    vertices.emplace_back(v.x(), v.y(), boundsXY.min.z());
+    vertices.emplace_back(v.x(), v.y(), boundsXY.max.z());
+  }
+  return vertices;
+}
+
+auto makeVerticesForWedges(
+  const std::vector<vm::vec2d>& outerCircle, const vm::bbox2d& bounds)
+{
+  // The bounds are too small to create an inner circle, but we can still create
+  // wedges for the hollow cylinder.
+  // Generate four points (here called corners) where the wedges should meet.
+  // If the bounds are square, all corners coincide. If the bounds are
+  // rectangular, two pairs of corners coincide.
+  // Then map each vertex of the outer circle to the closest corner.
+  const auto offset = vm::min(bounds.size().x(), bounds.size().y()) / 2.0;
+  const auto corners = std::vector<vm::vec2d>{
+    {bounds.min.x() + offset, bounds.min.y() + offset},
+    {bounds.min.x() + offset, bounds.max.y() - offset},
+    {bounds.max.x() - offset, bounds.min.y() + offset},
+    {bounds.max.x() - offset, bounds.max.y() - offset},
+  };
+  return outerCircle | std::views::transform([&](const auto& v) {
+           return *std::ranges::min_element(corners, [&](const auto& a, const auto& b) {
+             return vm::squared_distance(v, a) < vm::squared_distance(v, b);
+           });
+         })
+         | kdl::ranges::to<std::vector>();
+}
+
+auto makeHollowCylinderInnerCircle(
+  const std::vector<vm::vec2d>& outerCircle,
+  const double thickness,
+  const CircleShape& circleShape,
+  const vm::bbox2d& bounds)
+{
+  if (bounds.size().x() <= thickness * 2.0 || bounds.size().y() <= thickness * 2.0)
+  {
+    return Result<std::vector<vm::vec2d>>{makeVerticesForWedges(outerCircle, bounds)};
+  }
+
+  return std::visit(
+    kdl::overload(
+      [&](const ScalableCircle& scalable) -> Result<std::vector<vm::vec2d>> {
+        const auto delta = vm::vec2d{thickness, thickness};
+        const auto innerBounds = vm::bbox2d{bounds.min + delta, bounds.max - delta};
+        return makeScalableCircle(scalable.precision, innerBounds);
+      },
+      [&](const auto& axisOrVertexAligned) -> Result<std::vector<vm::vec2d>> {
+        const auto numSides = axisOrVertexAligned.numSides;
+        auto outerLines = std::vector<vm::line2d>{};
+        outerLines.reserve(numSides);
+        for (size_t i = 0; i < numSides; ++i)
+        {
+          const auto p1 = outerCircle[i];
+          const auto p2 = outerCircle[(i + 1) % numSides];
+          outerLines.emplace_back(p1, vm::normalize(p2 - p1));
+        }
+
+        const auto innerLines =
+          outerLines | std::views::transform([&](const auto& l) {
+            const auto offsetDir = vm::vec2d{-l.direction.y(), l.direction.x()};
+            return vm::line2d{l.point + offsetDir * thickness, l.direction};
+          })
+          | kdl::ranges::to<std::vector>();
+
+        auto innerCircle = std::vector<vm::vec2d>{};
+        innerCircle.reserve(numSides);
+        for (size_t i = 0; i < numSides; ++i)
+        {
+          const auto l1 = innerLines[(i + numSides - 1) % numSides];
+          const auto l2 = innerLines[i];
+          const auto d = vm::intersect_line_line(l1, l2);
+          if (!d)
+          {
+            return Error{"Failed to intersect lines"};
+          }
+
+          innerCircle.push_back(vm::point_at_distance(l1, *d));
+        }
+
+        return innerCircle;
+      }),
+    circleShape);
+}
+
+auto makeHollowCylinderFragmentVertices(
+  const std::vector<vm::vec2d>& outerCircle,
+  const std::vector<vm::vec2d>& innerCircle,
+  const size_t i,
+  const vm::bbox3d& boundsXY)
+{
+  contract_pre(outerCircle.size() == innerCircle.size());
+
+  const auto numSides = outerCircle.size();
+
+  const auto po = outerCircle[(i + 0) % numSides];
+  const auto pi = innerCircle[(i + 0) % numSides];
+  const auto no = outerCircle[(i + 1) % numSides];
+  const auto ni = innerCircle[(i + 1) % numSides];
+
+  const auto brushVertices = std::vector<vm::vec3d>{
+    {po, boundsXY.min.z()},
+    {po, boundsXY.max.z()},
+    {pi, boundsXY.min.z()},
+    {pi, boundsXY.max.z()},
+    {no, boundsXY.min.z()},
+    {no, boundsXY.max.z()},
+    {ni, boundsXY.min.z()},
+    {ni, boundsXY.max.z()},
+  };
+
+  return brushVertices;
+}
+
+// Maps the tunnel (extrusion) axis to the span and vertical axes of the arch's
+// cross-section. Arches rise along world Z where possible so they stand upright.
+struct ArchAxes
+{
+  size_t tunnel;
+  size_t span;
+  size_t vertical;
+};
+
+ArchAxes archAxes(const vm::axis::type axis)
+{
+  switch (axis)
+  {
+  case vm::axis::x:
+    return {vm::axis::x, vm::axis::y, vm::axis::z};
+  case vm::axis::y:
+    return {vm::axis::y, vm::axis::x, vm::axis::z};
+  default: // vm::axis::z
+    return {vm::axis::z, vm::axis::x, vm::axis::y};
+  }
+}
+
+// Interpolates the point on segment a->b at vertical coordinate v.
+vm::vec2d crossingAtV(const vm::vec2d& a, const vm::vec2d& b, const double v)
+{
+  const auto t = (v - a.y()) / (b.y() - a.y());
+  return vm::vec2d{a.x() + (b.x() - a.x()) * t, v};
+}
+
+// Returns the normal of segment a->b that points away from the given center.
+vm::vec2d outwardNormal(const vm::vec2d& a, const vm::vec2d& b, const vm::vec2d& center)
+{
+  const auto d = b - a;
+  const auto normal = vm::vec2d{-d.y(), d.x()};
+  return vm::dot(normal, (a + b) / 2.0 - center) < 0.0 ? -normal : normal;
+}
+
+// Indices of the contiguous run of circle vertices at or above the springing line.
+std::vector<size_t> archUpperRun(const std::vector<vm::vec2d>& circle, const double vMin)
+{
+  const auto n = circle.size();
+  const auto isUpper = [&](const size_t i) { return circle[i].y() >= vMin; };
+
+  // Start of the contiguous upper run: an upper vertex whose predecessor is below.
+  const auto firstUpper = kdl::index_of(std::views::iota(0u, n), [&](const auto i) {
+    return isUpper(i) && !isUpper((i + n - 1) % n);
+  });
+
+  if (!firstUpper)
+  {
+    return {};
+  }
+
+  return std::views::iota(0u, n)
+         | std::views::transform([&](const auto i) { return (*firstUpper + i) % n; })
+         | std::views::take_while(isUpper) | kdl::ranges::to<std::vector>();
+}
+
+// Walks the given run along the given circle, capping both ends with a foot on the
+// springing line so that the arch sits flat.
+std::vector<vm::vec2d> archBoundary(
+  const std::vector<vm::vec2d>& circle,
+  const std::vector<size_t>& upper,
+  const double vMin)
+{
+  const auto n = circle.size();
+  const auto first = upper.front();
+  const auto last = upper.back();
+  const auto beforeFirst = (first + n - 1) % n;
+  const auto afterLast = (last + 1) % n;
+
+  auto boundary = std::vector<vm::vec2d>{};
+  boundary.reserve(upper.size() + 2);
+  boundary.push_back(crossingAtV(circle[beforeFirst], circle[first], vMin));
+  for (const auto i : upper)
+  {
+    boundary.emplace_back(circle[i].x(), std::max(circle[i].y(), vMin));
+  }
+  boundary.push_back(crossingAtV(circle[last], circle[afterLast], vMin));
+  return boundary;
+}
+
+// The cross-section an arch is built from: the axes it is laid out on, the circle its
+// band follows and the boundary of its outside, running from one foot to the other.
+struct ArchCrossSection
+{
+  ArchAxes axes;
+  vm::bbox2d circleBounds;
+  std::vector<vm::vec2d> circle;
+  std::vector<size_t> upper;
+  std::vector<vm::vec2d> outerBoundary;
+};
+
+std::optional<ArchCrossSection> makeArchCrossSection(
+  const vm::bbox3d& bounds, const CircleShape& circleShape, const vm::axis::type axis)
+{
+  const auto axes = archAxes(axis);
+
+  const auto sMin = bounds.min[axes.span];
+  const auto sMax = bounds.max[axes.span];
+  const auto vMin = bounds.min[axes.vertical];
+  const auto vMax = bounds.max[axes.vertical];
+  const auto height = vMax - vMin;
+  const auto span = sMax - sMin;
+
+  // The bounds are often degenerate mid-drag; emit no brushes rather than erroring.
+  if (height <= 0.0 || span <= 0.0)
+  {
+    return std::nullopt;
+  }
+
+  // Upper half of an ellipse whose diameter lies on the springing line (v == vMin). Build
+  // the full ellipse in a bounds doubled downwards, then keep only the upper half,
+  // reusing the cylinder circle-mode machinery.
+  const auto circleBounds = vm::bbox2d{{sMin, vMin - height}, {sMax, vMax}};
+
+  auto circle = makeCircle(circleShape, circleBounds);
+  auto upper = archUpperRun(circle, vMin);
+  if (upper.empty())
+  {
+    return std::nullopt;
+  }
+
+  auto outerBoundary = archBoundary(circle, upper, vMin);
+  return ArchCrossSection{
+    axes, circleBounds, std::move(circle), std::move(upper), std::move(outerBoundary)};
+}
+
+vm::vec3d archPoint(const ArchAxes& axes, const vm::vec2d& p, const double w)
+{
+  auto result = vm::vec3d{};
+  result[axes.span] = p.x();
+  result[axes.vertical] = p.y();
+  result[axes.tunnel] = w;
+  return result;
+}
+
+auto setZ(const std::vector<vm::vec2d>& vertices, const double z)
+{
+  return vertices | std::views::transform([&](const auto& v) { return vm::vec3d{v, z}; })
+         | kdl::ranges::to<std::vector>();
+}
+
+/** If a scalable cone is stretched, it doesn't have one vertex as the tip. Instead,
+ * the tip is an edge.
+ */
+auto makeScalableConeTip(const vm::bbox3d& boundsXY)
+{
+  const auto offset = vm::min(boundsXY.xy().size().x(), boundsXY.xy().size().y()) / 2.0;
+  return kdl::vec_sort_and_remove_duplicates(std::vector<vm::vec2d>{
+    {boundsXY.xy().min.x() + offset, boundsXY.xy().min.y() + offset},
+    {boundsXY.xy().min.x() + offset, boundsXY.xy().max.y() - offset},
+    {boundsXY.xy().max.x() - offset, boundsXY.xy().min.y() + offset},
+    {boundsXY.xy().max.x() - offset, boundsXY.xy().max.y() - offset},
+  });
+}
+
+auto makeCone(const CircleShape& circleShape, const vm::bbox3d& boundsXY)
+{
+  return std::visit(
+    kdl::overload(
+      [&](const ScalableCircle& scalableCircle) {
+        return kdl::views::concat(
+                 setZ(
+                   makeScalableCircle(scalableCircle.precision, boundsXY.xy()),
+                   boundsXY.min.z()),
+                 setZ(makeScalableConeTip(boundsXY), boundsXY.max.z()))
+               | kdl::ranges::to<std::vector>();
+      },
+      [&](const auto&) {
+        return kdl::vec_push_back(
+          setZ(makeCircle(circleShape, boundsXY.xy()), boundsXY.min.z()),
+          vm::vec3d{boundsXY.xy().center(), boundsXY.max.z()});
+      }),
+    circleShape);
+}
+
+auto subDivideRatios(const std::vector<double>& ratios)
+{
+  auto newRatios = std::vector<double>{};
+  newRatios.push_back(ratios.front());
+  for (size_t j = 1; j < ratios.size(); ++j)
+  {
+    const auto previousSize = ratios[j - 1];
+    const auto currentSize = ratios[j];
+    newRatios.push_back((previousSize + currentSize) / 2.0);
+  }
+  newRatios.push_back(ratios.back());
+  return newRatios;
+}
+
+auto makeSizeRatiosPerRing(const size_t precision)
+{
+  auto sizeRatios = std::vector<double>{0.0, 1.0 / 2.0, 7.0 / 8.0, 1.0};
+  for (size_t i = 0; i < precision; ++i)
+  {
+    sizeRatios = subDivideRatios(sizeRatios);
+  }
+
+  const auto n = sizeRatios.size();
+  for (size_t i = 0; i < n - 1; ++i)
+  {
+    sizeRatios.push_back(sizeRatios[n - i - 2]);
+  }
+
+  return sizeRatios;
+}
+
+auto makeZRatiosPerRing(const size_t precision)
+{
+  auto zRatios = std::vector<double>{1.0, 7.0 / 8.0, 1.0 / 2.0, 0.0};
+  for (size_t i = 0; i < precision; ++i)
+  {
+    zRatios = subDivideRatios(zRatios);
+  }
+
+  const auto n = zRatios.size();
+  for (size_t i = 0; i < n - 1; ++i)
+  {
+    zRatios.push_back(-zRatios[n - i - 2]);
+  }
+
+  return zRatios;
+}
+
+auto makeScalableUvSphere(const vm::bbox3d& boundsXY, const size_t precision)
+{
+  const auto zRatios = makeZRatiosPerRing(precision);
+  const auto getZ = [&](const size_t i) {
+    const auto center = boundsXY.center();
+    const auto size = boundsXY.size() / 2.0;
+    return center.z() + size.z() * zRatios[i];
+  };
+
+  const auto sizeRatios = makeSizeRatiosPerRing(precision);
+  const auto getBounds = [&](const size_t i) {
+    const auto s = vm::min(boundsXY.size().x(), boundsXY.size().y()) / 2.0;
+    return boundsXY.xy().expand(-s * (1 - sizeRatios[i]));
+  };
+
+  const auto numRings = size_t(std::pow(2, precision)) * 12 / 2 - 1;
+
+  auto vertices = std::vector<vm::vec3d>{};
+  kdl::vec_append(vertices, setZ(makeScalableConeTip(boundsXY), getZ(0)));
+  for (size_t i = 1; i <= numRings; ++i)
+  {
+    kdl::vec_append(vertices, setZ(makeScalableCircle(precision, getBounds(i)), getZ(i)));
+  }
+  kdl::vec_append(vertices, setZ(makeScalableConeTip(boundsXY), getZ(numRings + 1)));
+
+  return vertices;
+}
+
+auto makeRing(
+  const double angle, const CircleShape& circleShape, const vm::bbox3d& boundsXY)
+{
+  const auto r = std::sin(angle);
+  const auto z = boundsXY.center().z() + std::cos(angle) * boundsXY.size().z() / 2.0;
+  const auto t = vm::translation_matrix(boundsXY.xy().center())
+                 * vm::scaling_matrix(vm::vec2d{r, r})
+                 * vm::translation_matrix(-boundsXY.xy().center());
+  const auto circle = t * makeCircle(circleShape, boundsXY.xy());
+  return circle | std::views::transform([&](const auto& v) { return vm::vec3d{v, z}; })
+         | kdl::ranges::to<std::vector>();
+}
+
+auto makeAlignedUvSphere(
+  const vm::bbox3d& boundsXY, const CircleShape& circleShape, const size_t numRings)
+{
+  const auto angleDelta = vm::Cd::pi() / (double(numRings) + 1.0);
+
+  auto vertices = std::vector<vm::vec3d>{};
+  vertices.emplace_back(boundsXY.xy().center(), boundsXY.max.z());
+
+  for (size_t i = 0; i < numRings; ++i)
+  {
+    kdl::vec_append(vertices, makeRing(double(i) * angleDelta, circleShape, boundsXY));
+  }
+
+  vertices.emplace_back(boundsXY.xy().center(), boundsXY.min.z());
+
+  // ensure that the sphere fills the bounds when number of rings is equal
+  const auto centerRingRadius = std::sin(angleDelta * double(numRings / 2));
+  const auto extraScale = numRings % 2 == 0 ? 1.0 / centerRingRadius : 1.0;
+  const auto transform = vm::translation_matrix(boundsXY.center())
+                         * vm::scaling_matrix(vm::vec3d{extraScale, extraScale, 1.0})
+                         * vm::translation_matrix(-boundsXY.center());
+
+  return transform * vertices;
+}
+
+} // namespace
 
 BrushBuilder::BrushBuilder(const MapFormat mapFormat, const vm::bbox3d& worldBounds)
   : m_mapFormat{mapFormat}
@@ -206,145 +746,6 @@ Result<Brush> BrushBuilder::createCuboid(
            });
 }
 
-namespace
-{
-auto makeEdgeAlignedCircle(const size_t numSides, const vm::bbox2d& bounds)
-{
-  contract_pre(numSides > 2);
-
-  const auto transform = vm::translation_matrix(bounds.min)
-                         * vm::scaling_matrix(bounds.size())
-                         * vm::translation_matrix(vm::vec2d{0.5, 0.5})
-                         * vm::scaling_matrix(vm::vec2d{0.5, 0.5});
-
-  auto vertices = std::vector<vm::vec2d>{};
-  for (size_t i = 0; i < numSides; ++i)
-  {
-    const auto angle =
-      (double(i) + 0.5) * vm::Cd::two_pi() / double(numSides) - vm::Cd::half_pi();
-    const auto a = vm::Cd::pi() / double(numSides); // Half angle
-    const auto ca = std::cos(a);
-    const auto x = std::cos(angle) / ca;
-    const auto y = std::sin(angle) / ca;
-    vertices.emplace_back(x, y);
-  }
-  return transform * vertices;
-}
-
-auto makeVertexAlignedCircle(const size_t numSides, const vm::bbox2d& bounds)
-{
-  contract_pre(numSides > 2);
-
-  const auto transform = vm::translation_matrix(bounds.min)
-                         * vm::scaling_matrix(bounds.size())
-                         * vm::translation_matrix(vm::vec2d{0.5, 0.5})
-                         * vm::scaling_matrix(vm::vec2d{0.5, 0.5});
-
-  auto vertices = std::vector<vm::vec2d>{};
-  for (size_t i = 0; i < numSides; ++i)
-  {
-    const auto angle =
-      double(i) * vm::Cd::two_pi() / double(numSides) - vm::Cd::half_pi();
-    const auto x = std::cos(angle);
-    const auto y = std::sin(angle);
-    vertices.emplace_back(x, y);
-  }
-  return transform * vertices;
-}
-
-auto makeScalableCircle(const size_t precision, const vm::bbox2d& bounds)
-{
-  auto vertices = std::vector<vm::vec2d>{
-    {-0.25, +1.00},
-    {-0.75, +0.75},
-    {-1.00, +0.25},
-    {-1.00, -0.25},
-    {-0.75, -0.75},
-    {-0.25, -1.00},
-    {+0.25, -1.00},
-    {+0.75, -0.75},
-    {+1.00, -0.25},
-    {+1.00, +0.25},
-    {+0.75, +0.75},
-    {+0.25, +1.00},
-  };
-
-  // Clip off each corner to get a scalable unit circle with double the vertices
-  for (size_t i = 0; i < precision; ++i)
-  {
-
-    const auto previousVertices = std::exchange(vertices, std::vector<vm::vec2d>{});
-    const auto count = previousVertices.size();
-    for (size_t j = 0; j < previousVertices.size(); ++j)
-    {
-      const auto prev = previousVertices[(j + count - 1) % count];
-      const auto cur = previousVertices[j];
-      const auto next = previousVertices[(j + 1) % count];
-
-      vertices.push_back(prev + (cur - prev) * 0.75);
-      vertices.push_back(cur + (next - cur) * 0.25);
-    }
-  }
-
-  const auto size = bounds.size();
-  const auto minSize = vm::min(size.x(), size.y());
-  const auto squareSize = vm::vec2d::fill(minSize);
-
-  vertices = vm::scaling_matrix(squareSize) * vm::translation_matrix(vm::vec2d{0.5, 0.5})
-             * vm::scaling_matrix(vm::vec2d{0.5, 0.5}) * vertices;
-
-  // Stretch the circle to fit the bounds by moving the right half and the top half
-  // instead of uniformly scaling all vertices
-  const auto offset = vm::vec2d{
-    vm::max(size.x() - size.y(), 0.0),
-    vm::max(size.y() - size.x(), 0.0),
-  };
-
-  for (auto& v : vertices)
-  {
-    if (v.x() > minSize / 2.0)
-    {
-      v = vm::vec2d{v.x() + offset.x(), v.y()};
-    }
-    if (v.y() > minSize / 2.0)
-    {
-      v = vm::vec2d{v.x(), v.y() + offset.y()};
-    }
-  }
-
-  return vm::translation_matrix(bounds.min) * vertices;
-}
-
-auto makeCircle(const CircleShape& circleShape, const vm::bbox2d& bounds)
-{
-
-  return std::visit(
-    kdl::overload(
-      [&](const EdgeAlignedCircle& edgeAligned) {
-        return makeEdgeAlignedCircle(edgeAligned.numSides, bounds);
-      },
-      [&](const VertexAlignedCircle& vertexAligned) {
-        return makeVertexAlignedCircle(vertexAligned.numSides, bounds);
-      },
-      [&](const ScalableCircle& scalable) {
-        return makeScalableCircle(scalable.precision, bounds);
-      }),
-    circleShape);
-}
-
-auto makeCylinder(const CircleShape& circleShape, const vm::bbox3d& boundsXY)
-{
-  auto vertices = std::vector<vm::vec3d>{};
-  for (const auto& v : makeCircle(circleShape, boundsXY.xy()))
-  {
-    vertices.emplace_back(v.x(), v.y(), boundsXY.min.z());
-    vertices.emplace_back(v.x(), v.y(), boundsXY.max.z());
-  }
-  return vertices;
-}
-
-} // namespace
-
 Result<Brush> BrushBuilder::createCylinder(
   const vm::bbox3d& bounds,
   const CircleShape& circleShape,
@@ -357,120 +758,6 @@ Result<Brush> BrushBuilder::createCylinder(
   const auto cylinder = makeCylinder(circleShape, bounds.transform(toXY));
   return createBrush(fromXY * cylinder, textureName);
 }
-
-namespace
-{
-
-auto makeVerticesForWedges(
-  const std::vector<vm::vec2d>& outerCircle, const vm::bbox2d& bounds)
-{
-  // The bounds are too small to create an inner circle, but we can still create
-  // wedges for the hollow cylinder.
-  // Generate four points (here called corners) where the wedges should meet.
-  // If the bounds are square, all corners coincide. If the bounds are
-  // rectangular, two pairs of corners coincide.
-  // Then map each vertex of the outer circle to the closest corner.
-  const auto offset = vm::min(bounds.size().x(), bounds.size().y()) / 2.0;
-  const auto corners = std::vector<vm::vec2d>{
-    {bounds.min.x() + offset, bounds.min.y() + offset},
-    {bounds.min.x() + offset, bounds.max.y() - offset},
-    {bounds.max.x() - offset, bounds.min.y() + offset},
-    {bounds.max.x() - offset, bounds.max.y() - offset},
-  };
-  return outerCircle | std::views::transform([&](const auto& v) {
-           return *std::ranges::min_element(corners, [&](const auto& a, const auto& b) {
-             return vm::squared_distance(v, a) < vm::squared_distance(v, b);
-           });
-         })
-         | kdl::ranges::to<std::vector>();
-}
-
-auto makeHollowCylinderInnerCircle(
-  const std::vector<vm::vec2d>& outerCircle,
-  const double thickness,
-  const CircleShape& circleShape,
-  const vm::bbox2d& bounds)
-{
-  if (bounds.size().x() <= thickness * 2.0 || bounds.size().y() <= thickness * 2.0)
-  {
-    return Result<std::vector<vm::vec2d>>{makeVerticesForWedges(outerCircle, bounds)};
-  }
-
-  return std::visit(
-    kdl::overload(
-      [&](const ScalableCircle& scalable) -> Result<std::vector<vm::vec2d>> {
-        const auto delta = vm::vec2d{thickness, thickness};
-        const auto innerBounds = vm::bbox2d{bounds.min + delta, bounds.max - delta};
-        return makeScalableCircle(scalable.precision, innerBounds);
-      },
-      [&](const auto& axisOrVertexAligned) -> Result<std::vector<vm::vec2d>> {
-        const auto numSides = axisOrVertexAligned.numSides;
-        auto outerLines = std::vector<vm::line2d>{};
-        outerLines.reserve(numSides);
-        for (size_t i = 0; i < numSides; ++i)
-        {
-          const auto p1 = outerCircle[i];
-          const auto p2 = outerCircle[(i + 1) % numSides];
-          outerLines.emplace_back(p1, vm::normalize(p2 - p1));
-        }
-
-        const auto innerLines =
-          outerLines | std::views::transform([&](const auto& l) {
-            const auto offsetDir = vm::vec2d{-l.direction.y(), l.direction.x()};
-            return vm::line2d{l.point + offsetDir * thickness, l.direction};
-          })
-          | kdl::ranges::to<std::vector>();
-
-        auto innerCircle = std::vector<vm::vec2d>{};
-        innerCircle.reserve(numSides);
-        for (size_t i = 0; i < numSides; ++i)
-        {
-          const auto l1 = innerLines[(i + numSides - 1) % numSides];
-          const auto l2 = innerLines[i];
-          const auto d = vm::intersect_line_line(l1, l2);
-          if (!d)
-          {
-            return Error{"Failed to intersect lines"};
-          }
-
-          innerCircle.push_back(vm::point_at_distance(l1, *d));
-        }
-
-        return innerCircle;
-      }),
-    circleShape);
-}
-
-auto makeHollowCylinderFragmentVertices(
-  const std::vector<vm::vec2d>& outerCircle,
-  const std::vector<vm::vec2d>& innerCircle,
-  const size_t i,
-  const vm::bbox3d& boundsXY)
-{
-  contract_pre(outerCircle.size() == innerCircle.size());
-
-  const auto numSides = outerCircle.size();
-
-  const auto po = outerCircle[(i + 0) % numSides];
-  const auto pi = innerCircle[(i + 0) % numSides];
-  const auto no = outerCircle[(i + 1) % numSides];
-  const auto ni = innerCircle[(i + 1) % numSides];
-
-  const auto brushVertices = std::vector<vm::vec3d>{
-    {po, boundsXY.min.z()},
-    {po, boundsXY.max.z()},
-    {pi, boundsXY.min.z()},
-    {pi, boundsXY.max.z()},
-    {no, boundsXY.min.z()},
-    {no, boundsXY.max.z()},
-    {ni, boundsXY.min.z()},
-    {ni, boundsXY.max.z()},
-  };
-
-  return brushVertices;
-}
-
-} // namespace
 
 Result<std::vector<Brush>> BrushBuilder::createHollowCylinder(
   const vm::bbox3d& bounds,
@@ -507,40 +794,6 @@ Result<std::vector<Brush>> BrushBuilder::createHollowCylinder(
     });
 }
 
-namespace
-{
-
-// Maps the tunnel (extrusion) axis to the span and vertical axes of the arch's
-// cross-section. Arches rise along world Z where possible so they stand upright.
-struct ArchAxes
-{
-  size_t tunnel;
-  size_t span;
-  size_t vertical;
-};
-
-ArchAxes archAxes(const vm::axis::type axis)
-{
-  switch (axis)
-  {
-  case vm::axis::x:
-    return {vm::axis::x, vm::axis::y, vm::axis::z};
-  case vm::axis::y:
-    return {vm::axis::y, vm::axis::x, vm::axis::z};
-  default: // vm::axis::z
-    return {vm::axis::z, vm::axis::x, vm::axis::y};
-  }
-}
-
-// Interpolates the point on segment a->b at vertical coordinate v.
-vm::vec2d crossingAtV(const vm::vec2d& a, const vm::vec2d& b, const double v)
-{
-  const auto t = (v - a.y()) / (b.y() - a.y());
-  return vm::vec2d{a.x() + (b.x() - a.x()) * t, v};
-}
-
-} // namespace
-
 Result<std::vector<Brush>> BrushBuilder::createArch(
   const vm::bbox3d& bounds,
   const double thickness,
@@ -548,83 +801,24 @@ Result<std::vector<Brush>> BrushBuilder::createArch(
   const vm::axis::type axis,
   const std::string& textureName) const
 {
-  const auto axes = archAxes(axis);
-
-  const auto sMin = bounds.min[axes.span];
-  const auto sMax = bounds.max[axes.span];
-  const auto vMin = bounds.min[axes.vertical];
-  const auto vMax = bounds.max[axes.vertical];
-  const auto wMin = bounds.min[axes.tunnel];
-  const auto wMax = bounds.max[axes.tunnel];
-  const auto height = vMax - vMin;
-  const auto span = sMax - sMin;
-
-  // The bounds are often degenerate mid-drag; emit no brushes rather than erroring.
-  if (height <= 0.0 || span <= 0.0)
+  const auto section = makeArchCrossSection(bounds, circleShape, axis);
+  if (!section)
   {
     return Result<std::vector<Brush>>{std::vector<Brush>{}};
   }
 
-  // Upper half of an ellipse whose diameter lies on the springing line (v == vMin). Build
-  // the full ellipse in a bounds doubled downwards, then keep only the upper half,
-  // reusing the cylinder circle-mode machinery.
-  const auto circleBounds = vm::bbox2d{{sMin, vMin - height}, {sMax, vMax}};
+  const auto& axes = section->axes;
+  const auto vMin = bounds.min[axes.vertical];
+  const auto wMin = bounds.min[axes.tunnel];
+  const auto wMax = bounds.max[axes.tunnel];
 
-  const auto outer = makeCircle(circleShape, circleBounds);
+  return makeHollowCylinderInnerCircle(
+           section->circle, thickness, circleShape, section->circleBounds)
+         | kdl::and_then([&](const auto& inner) {
+             contract_assert(inner.size() == section->circle.size());
 
-  return makeHollowCylinderInnerCircle(outer, thickness, circleShape, circleBounds)
-         | kdl::transform([&](const auto& inner) {
-             contract_assert(inner.size() == outer.size());
-             const auto n = outer.size();
-
-             const auto isUpper = [&](const size_t i) { return outer[i].y() >= vMin; };
-
-             // Start of the contiguous upper run: an upper vertex whose predecessor is
-             // below.
-             const auto firstUpper = kdl::index_of(
-               std::views::iota(0u, n),
-               [&](const auto i) { return isUpper(i) && !isUpper((i + n - 1) % n); });
-
-             if (!firstUpper)
-             {
-               return std::vector<Brush>{};
-             }
-
-             const auto upper =
-               std::views::iota(0u, n) | std::views::transform([&](const auto i) {
-                 return (*firstUpper + i) % n;
-               })
-               | std::views::take_while(isUpper) | kdl::ranges::to<std::vector>();
-
-             // Cap both ends with a foot on the springing line so the arch sits flat.
-             const auto first = upper.front();
-             const auto last = upper.back();
-             const auto beforeFirst = (first + n - 1) % n;
-             const auto afterLast = (last + 1) % n;
-
-             const auto clampToSpring = [&](const auto p) {
-               return vm::vec2d{p.x(), std::max(p.y(), vMin)};
-             };
-
-             auto outerBoundary = std::vector<vm::vec2d>{};
-             auto innerBoundary = std::vector<vm::vec2d>{};
-             outerBoundary.push_back(crossingAtV(outer[beforeFirst], outer[first], vMin));
-             innerBoundary.push_back(crossingAtV(inner[beforeFirst], inner[first], vMin));
-             for (const auto i : upper)
-             {
-               outerBoundary.push_back(outer[i]);
-               innerBoundary.push_back(clampToSpring(inner[i]));
-             }
-             outerBoundary.push_back(crossingAtV(outer[last], outer[afterLast], vMin));
-             innerBoundary.push_back(crossingAtV(inner[last], inner[afterLast], vMin));
-
-             const auto toPoint = [&](const vm::vec2d& p, const double w) {
-               auto result = vm::vec3d{};
-               result[axes.span] = p.x();
-               result[axes.vertical] = p.y();
-               result[axes.tunnel] = w;
-               return result;
-             };
+             const auto& outerBoundary = section->outerBoundary;
+             const auto innerBoundary = archBoundary(inner, section->upper, vMin);
 
              // Build each voussoir independently, skipping any that are degenerate
              // mid-drag.
@@ -635,65 +829,73 @@ Result<std::vector<Brush>> BrushBuilder::createArch(
                         const auto& i0 = innerBoundary[j];
                         const auto& i1 = innerBoundary[j + 1];
 
-                        const auto vertices = std::vector{
-                          toPoint(o0, wMin),
-                          toPoint(o0, wMax),
-                          toPoint(o1, wMin),
-                          toPoint(o1, wMax),
-                          toPoint(i0, wMin),
-                          toPoint(i0, wMax),
-                          toPoint(i1, wMin),
-                          toPoint(i1, wMax),
+                        return Polyhedron3{
+                          archPoint(axes, o0, wMin),
+                          archPoint(axes, o0, wMax),
+                          archPoint(axes, o1, wMin),
+                          archPoint(axes, o1, wMax),
+                          archPoint(axes, i0, wMin),
+                          archPoint(axes, i0, wMax),
+                          archPoint(axes, i1, wMin),
+                          archPoint(axes, i1, wMax),
                         };
-
-                        return createBrush(vertices, textureName);
                       })
-                    | kdl::values();
+                    | std::views::filter([](const auto& p) { return p.polyhedron(); })
+                    | std::views::transform([&](const auto& polyhedron) {
+                        return createBrush(polyhedron, textureName);
+                      })
+                    | kdl::fold;
            });
 }
 
-namespace
+Result<std::vector<Brush>> BrushBuilder::createSpandrelForArch(
+  const vm::bbox3d& bounds,
+  const double,
+  const CircleShape& circleShape,
+  const vm::axis::type axis,
+  const std::string& textureName) const
 {
-auto setZ(const std::vector<vm::vec2d>& vertices, const double z)
-{
-  return vertices | std::views::transform([&](const auto& v) { return vm::vec3d{v, z}; })
-         | kdl::ranges::to<std::vector>();
-}
+  const auto section = makeArchCrossSection(bounds, circleShape, axis);
+  if (!section)
+  {
+    return Result<std::vector<Brush>>{std::vector<Brush>{}};
+  }
 
-/** If a scalable cone is stretched, it doesn't have one vertex as the tip. Instead,
- * the tip is an edge.
- */
-auto makeScalableConeTip(const vm::bbox3d& boundsXY)
-{
-  const auto offset = vm::min(boundsXY.xy().size().x(), boundsXY.xy().size().y()) / 2.0;
-  return kdl::vec_sort_and_remove_duplicates(std::vector<vm::vec2d>{
-    {boundsXY.xy().min.x() + offset, boundsXY.xy().min.y() + offset},
-    {boundsXY.xy().min.x() + offset, boundsXY.xy().max.y() - offset},
-    {boundsXY.xy().max.x() - offset, boundsXY.xy().min.y() + offset},
-    {boundsXY.xy().max.x() - offset, boundsXY.xy().max.y() - offset},
-  });
-}
+  const auto& axes = section->axes;
+  const auto sMin = bounds.min[axes.span];
+  const auto sMax = bounds.max[axes.span];
+  const auto vMin = bounds.min[axes.vertical];
+  const auto vMax = bounds.max[axes.vertical];
+  const auto wMin = bounds.min[axes.tunnel];
+  const auto wMax = bounds.max[axes.tunnel];
 
-auto makeCone(const CircleShape& circleShape, const vm::bbox3d& boundsXY)
-{
-  return std::visit(
-    kdl::overload(
-      [&](const ScalableCircle& scalableCircle) {
-        return kdl::views::concat(
-                 setZ(
-                   makeScalableCircle(scalableCircle.precision, boundsXY.xy()),
-                   boundsXY.min.z()),
-                 setZ(makeScalableConeTip(boundsXY), boundsXY.max.z()))
-               | kdl::ranges::to<std::vector>();
-      },
-      [&](const auto&) {
-        return kdl::vec_push_back(
-          setZ(makeCircle(circleShape, boundsXY.xy()), boundsXY.min.z()),
-          vm::vec3d{boundsXY.xy().center(), boundsXY.max.z()});
-      }),
-    circleShape);
+  const auto& outerBoundary = section->outerBoundary;
+  const auto center = vm::vec2d{(sMin + sMax) / 2.0, vMin};
+
+  // The outer boundary is convex and touches the top of the bounds, so fanning its
+  // segments to the corner they face tiles the gap exactly. Segments that lie on the
+  // bounds themselves fan into a degenerate brush and drop out.
+  return std::views::iota(0u, outerBoundary.size() - 1)
+         | std::views::transform([&](const auto j) {
+             const auto& o0 = outerBoundary[j];
+             const auto& o1 = outerBoundary[j + 1];
+             const auto corner =
+               vm::vec2d{outwardNormal(o0, o1, center).x() < 0.0 ? sMin : sMax, vMax};
+
+             return Polyhedron3{
+               archPoint(axes, o0, wMin),
+               archPoint(axes, o0, wMax),
+               archPoint(axes, o1, wMin),
+               archPoint(axes, o1, wMax),
+               archPoint(axes, corner, wMin),
+               archPoint(axes, corner, wMax),
+             };
+           })
+         | std::views::filter([](const auto& p) { return p.polyhedron(); })
+         | std::views::transform(
+           [&](const auto& polyhedron) { return createBrush(polyhedron, textureName); })
+         | kdl::fold;
 }
-} // namespace
 
 Result<Brush> BrushBuilder::createCone(
   const vm::bbox3d& bounds,
@@ -708,124 +910,6 @@ Result<Brush> BrushBuilder::createCone(
   const auto cone = makeCone(circleShape, boundsXY);
   return createBrush(fromXY * cone, textureName);
 }
-
-namespace
-{
-auto subDivideRatios(const std::vector<double>& ratios)
-{
-  auto newRatios = std::vector<double>{};
-  newRatios.push_back(ratios.front());
-  for (size_t j = 1; j < ratios.size(); ++j)
-  {
-    const auto previousSize = ratios[j - 1];
-    const auto currentSize = ratios[j];
-    newRatios.push_back((previousSize + currentSize) / 2.0);
-  }
-  newRatios.push_back(ratios.back());
-  return newRatios;
-}
-
-auto makeSizeRatiosPerRing(const size_t precision)
-{
-  auto sizeRatios = std::vector<double>{0.0, 1.0 / 2.0, 7.0 / 8.0, 1.0};
-  for (size_t i = 0; i < precision; ++i)
-  {
-    sizeRatios = subDivideRatios(sizeRatios);
-  }
-
-  const auto n = sizeRatios.size();
-  for (size_t i = 0; i < n - 1; ++i)
-  {
-    sizeRatios.push_back(sizeRatios[n - i - 2]);
-  }
-
-  return sizeRatios;
-}
-
-auto makeZRatiosPerRing(const size_t precision)
-{
-  auto zRatios = std::vector<double>{1.0, 7.0 / 8.0, 1.0 / 2.0, 0.0};
-  for (size_t i = 0; i < precision; ++i)
-  {
-    zRatios = subDivideRatios(zRatios);
-  }
-
-  const auto n = zRatios.size();
-  for (size_t i = 0; i < n - 1; ++i)
-  {
-    zRatios.push_back(-zRatios[n - i - 2]);
-  }
-
-  return zRatios;
-}
-
-auto makeScalableUvSphere(const vm::bbox3d& boundsXY, const size_t precision)
-{
-  const auto zRatios = makeZRatiosPerRing(precision);
-  const auto getZ = [&](const size_t i) {
-    const auto center = boundsXY.center();
-    const auto size = boundsXY.size() / 2.0;
-    return center.z() + size.z() * zRatios[i];
-  };
-
-  const auto sizeRatios = makeSizeRatiosPerRing(precision);
-  const auto getBounds = [&](const size_t i) {
-    const auto s = vm::min(boundsXY.size().x(), boundsXY.size().y()) / 2.0;
-    return boundsXY.xy().expand(-s * (1 - sizeRatios[i]));
-  };
-
-  const auto numRings = size_t(std::pow(2, precision)) * 12 / 2 - 1;
-
-  auto vertices = std::vector<vm::vec3d>{};
-  kdl::vec_append(vertices, setZ(makeScalableConeTip(boundsXY), getZ(0)));
-  for (size_t i = 1; i <= numRings; ++i)
-  {
-    kdl::vec_append(vertices, setZ(makeScalableCircle(precision, getBounds(i)), getZ(i)));
-  }
-  kdl::vec_append(vertices, setZ(makeScalableConeTip(boundsXY), getZ(numRings + 1)));
-
-  return vertices;
-}
-
-auto makeRing(
-  const double angle, const CircleShape& circleShape, const vm::bbox3d& boundsXY)
-{
-  const auto r = std::sin(angle);
-  const auto z = boundsXY.center().z() + std::cos(angle) * boundsXY.size().z() / 2.0;
-  const auto t = vm::translation_matrix(boundsXY.xy().center())
-                 * vm::scaling_matrix(vm::vec2d{r, r})
-                 * vm::translation_matrix(-boundsXY.xy().center());
-  const auto circle = t * makeCircle(circleShape, boundsXY.xy());
-  return circle | std::views::transform([&](const auto& v) { return vm::vec3d{v, z}; })
-         | kdl::ranges::to<std::vector>();
-}
-
-auto makeAlignedUvSphere(
-  const vm::bbox3d& boundsXY, const CircleShape& circleShape, const size_t numRings)
-{
-  const auto angleDelta = vm::Cd::pi() / (double(numRings) + 1.0);
-
-  auto vertices = std::vector<vm::vec3d>{};
-  vertices.emplace_back(boundsXY.xy().center(), boundsXY.max.z());
-
-  for (size_t i = 0; i < numRings; ++i)
-  {
-    kdl::vec_append(vertices, makeRing(double(i) * angleDelta, circleShape, boundsXY));
-  }
-
-  vertices.emplace_back(boundsXY.xy().center(), boundsXY.min.z());
-
-  // ensure that the sphere fills the bounds when number of rings is equal
-  const auto centerRingRadius = std::sin(angleDelta * double(numRings / 2));
-  const auto extraScale = numRings % 2 == 0 ? 1.0 / centerRingRadius : 1.0;
-  const auto transform = vm::translation_matrix(boundsXY.center())
-                         * vm::scaling_matrix(vm::vec3d{extraScale, extraScale, 1.0})
-                         * vm::translation_matrix(-boundsXY.center());
-
-  return transform * vertices;
-}
-
-} // namespace
 
 Result<Brush> BrushBuilder::createUvSphere(
   const vm::bbox3d& bounds,

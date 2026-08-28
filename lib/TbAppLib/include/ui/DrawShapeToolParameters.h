@@ -47,6 +47,9 @@ private:
   bool m_hollow = false;
   double m_thickness = 16.0;
 
+  // For arch shapes
+  bool m_createSpandrel = false;
+
   // For UV sphere
   size_t m_numRings = 8;
 
@@ -71,6 +74,9 @@ public:
 
   double thickness() const;
   void setThickness(double thickness);
+
+  bool createSpandrel() const;
+  void setCreateSpandrel(bool createSpandrel);
 
   size_t numRings() const;
   void setNumRings(size_t numRings);

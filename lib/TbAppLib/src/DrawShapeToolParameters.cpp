@@ -78,6 +78,20 @@ void DrawShapeToolParameters::setThickness(const double thickness)
   }
 }
 
+bool DrawShapeToolParameters::createSpandrel() const
+{
+  return m_createSpandrel;
+}
+
+void DrawShapeToolParameters::setCreateSpandrel(const bool createSpandrel)
+{
+  if (createSpandrel != m_createSpandrel)
+  {
+    m_createSpandrel = createSpandrel;
+    parametersDidChangeNotifier();
+  }
+}
+
 size_t DrawShapeToolParameters::numRings() const
 {
   return m_numRings;

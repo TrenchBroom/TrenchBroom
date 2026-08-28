@@ -515,6 +515,89 @@ TEST_CASE("BrushBuilder")
     }
   }
 
+  SECTION("createSpandrelForArch")
+  {
+    auto builder = BrushBuilder{MapFormat::Standard, worldBounds};
+
+    SECTION("Edge aligned")
+    {
+      const auto bounds = vm::bbox3d{{-128, -64, 0}, {128, 64, 64}};
+      builder.createSpandrelForArch(
+        bounds, 16.0, EdgeAlignedCircle{16}, vm::axis::y, "someName")
+        | kdl::transform([&](const auto& brushes) {
+            REQUIRE(brushes.size() == 6u);
+
+            // Check only one brush to avoid clutter.
+            const auto expectedBrush = makeBrush({
+              {{128, 64, 64},
+               {108.51316032288942, -64, 36.253087830433365},
+               {108.51316032288942, 64, 36.253087830433365}},
+              {{128, 64, 12.730391512298111},
+               {108.51316032288942, -64, 36.253087830433365},
+               {128, -64, 12.730391512298111}},
+              {{128, -64, 64},
+               {128, -64, 12.730391512298111},
+               {108.51316032288942, -64, 36.253087830433365}},
+              {{128, 64, 64},
+               {108.51316032288942, 64, 36.253087830433365},
+               {128, 64, 12.730391512298111}},
+              {{128, 64, 64}, {128, -64, 12.730391512298111}, {128, -64, 64}},
+            });
+
+            CHECK_THAT(
+              brushes, Contains(MatchesBrushVertices(expectedBrush, vertexEpsilon)));
+          })
+        | kdl::transform_error([](const auto& e) { FAIL(e); });
+    }
+
+    SECTION("Scalable")
+    {
+      const auto bounds = vm::bbox3d{{-128, -64, 0}, {128, 64, 64}};
+      builder.createSpandrelForArch(
+        bounds, 16.0, ScalableCircle{0}, vm::axis::y, "someName")
+        | kdl::transform([&](const auto& brushes) {
+            REQUIRE(brushes.size() == 4u);
+
+            // Check only one brush to avoid clutter.
+            const auto expectedBrush = makeBrush({
+              {{128, 64, 16}, {112, -64, 48}, {128, -64, 16}},
+              {{128, 64, 64}, {112, -64, 48}, {112, 64, 48}},
+              {{128, -64, 64}, {128, -64, 16}, {112, -64, 48}},
+              {{128, 64, 64}, {112, 64, 48}, {128, 64, 16}},
+              {{128, 64, 64}, {128, -64, 16}, {128, -64, 64}},
+            });
+
+            CHECK_THAT(
+              brushes, Contains(MatchesBrushVertices(expectedBrush, vertexEpsilon)));
+          })
+        | kdl::transform_error([](const auto& e) { FAIL(e); });
+    }
+
+    SECTION("Along each axis")
+    {
+      const auto bounds = vm::bbox3d{-64.0, 64.0};
+      const auto axis = GENERATE(vm::axis::x, vm::axis::y, vm::axis::z);
+      CAPTURE(axis);
+
+      builder.createSpandrelForArch(bounds, 16.0, EdgeAlignedCircle{8}, axis, "someName")
+        | kdl::transform([&](const auto& brushes) { CHECK(brushes.size() == 2u); })
+        | kdl::transform_error([](const auto& e) { FAIL(e); });
+    }
+
+    SECTION("Degenerate bounds do not error")
+    {
+      const auto bounds = GENERATE(
+        vm::bbox3d{{-128, -64, 0}, {128, 64, 0}},
+        vm::bbox3d{{-128, 0, 0}, {128, 0, 64}},
+        vm::bbox3d{{0, -64, 0}, {0, 64, 64}});
+
+      CHECK(
+        builder.createSpandrelForArch(
+          bounds, 16.0, EdgeAlignedCircle{12}, vm::axis::x, "someName")
+        == Result<std::vector<Brush>>{std::vector<Brush>{}});
+    }
+  }
+
   SECTION("createCuboid")
   {
     auto builder = BrushBuilder{MapFormat::Standard, worldBounds};
