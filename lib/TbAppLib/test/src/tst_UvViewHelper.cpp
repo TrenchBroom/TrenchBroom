@@ -31,6 +31,7 @@
 #include "mdl/HitType.h"
 #include "mdl/MapFormat.h"
 #include "mdl/PickResult.h"
+#include "mdl/TestUtils.h"
 #include "ui/UvViewHelper.h"
 
 #include "kd/result.h"
@@ -38,6 +39,7 @@
 #include "vm/approx.h"
 
 #include <memory>
+#include <optional>
 
 #include <catch2/catch_test_macros.hpp>
 
@@ -68,6 +70,18 @@ TEST_CASE("UvViewHelper")
     vm::vec3f{0, 1, 0}};
 
   auto helper = UvViewHelper{camera};
+
+  // uAxis and vAxis are parallel, so the resulting face's UV matrix is not invertible;
+  // sets the helper's face to one and keeps it alive for the calling section
+  const auto setDegenerateFaceHandle = [&](std::unique_ptr<mdl::BrushNode>& owner) {
+    auto degenerateBrush =
+      mdl::createCubeWithTopUvAxes(vm::vec3d{1, 0, 0}, vm::vec3d{1, 0, 0}, "material");
+    const auto degenerateTopFaceIndex = *degenerateBrush.findFace(vm::vec3d{0, 0, 1});
+    degenerateBrush.face(degenerateTopFaceIndex).setMaterial(&material);
+
+    owner = std::make_unique<mdl::BrushNode>(std::move(degenerateBrush));
+    helper.setFaceHandle(mdl::BrushFaceHandle{owner.get(), degenerateTopFaceIndex});
+  };
 
   SECTION("valid, face and material before a face is set")
   {
@@ -137,6 +151,18 @@ TEST_CASE("UvViewHelper")
 
     helper.setOriginInFaceCoords(vm::vec2f{10, 20});
     CHECK(vm::vec2f{helper.originInFaceCoords()} == vm::vec2f{10, 20});
+
+    SECTION(
+      "setOriginInFaceCoords is a no-op for a non-invertible UV coordinate "
+      "system")
+    {
+      auto degenerateBrushNode = std::unique_ptr<mdl::BrushNode>{};
+      setDegenerateFaceHandle(degenerateBrushNode);
+
+      const auto originBefore = helper.origin();
+      helper.setOriginInFaceCoords(vm::vec2f{30, 40});
+      CHECK(helper.origin() == originBefore);
+    }
   }
 
   SECTION("computeDistanceFromUvGrid snaps to the nearest stripe corner")
@@ -198,12 +224,41 @@ TEST_CASE("UvViewHelper")
 
       CHECK(pickResult.all().size() == 2u);
     }
+
+    SECTION("no hit for a non-invertible UV coordinate system")
+    {
+      auto degenerateBrushNode = std::unique_ptr<mdl::BrushNode>{};
+      setDegenerateFaceHandle(degenerateBrushNode);
+
+      const auto ray = vm::ray3d{{0, 0, 100}, {0, 0, -1}};
+      auto pickResult = mdl::PickResult{};
+      helper.pickUvGrid(ray, hitTypes, pickResult);
+
+      CHECK(pickResult.empty());
+    }
   }
 
   SECTION("originInUvCoords")
   {
     helper.setFaceHandle(faceHandle);
     CHECK(!vm::is_nan(vm::vec2d{helper.originInUvCoords()}));
+  }
+
+  SECTION("uvToViewCoords")
+  {
+    SECTION("returns the projected view coordinates")
+    {
+      helper.setFaceHandle(faceHandle);
+      CHECK(helper.uvToViewCoords(vm::vec2f{0, 0}));
+    }
+
+    SECTION("returns std::nullopt for a non-invertible UV coordinate system")
+    {
+      auto degenerateBrushNode = std::unique_ptr<mdl::BrushNode>{};
+      setDegenerateFaceHandle(degenerateBrushNode);
+
+      CHECK(helper.uvToViewCoords(vm::vec2f{0, 0}) == std::nullopt);
+    }
   }
 
   SECTION("computeOriginHandleVertices and computeScaleHandleVertices")
@@ -225,6 +280,15 @@ TEST_CASE("UvViewHelper")
     CHECK(!vm::is_nan(x2));
     CHECK(!vm::is_nan(y1));
     CHECK(!vm::is_nan(y2));
+
+    SECTION("both return false for a non-invertible UV coordinate system")
+    {
+      auto degenerateBrushNode = std::unique_ptr<mdl::BrushNode>{};
+      setDegenerateFaceHandle(degenerateBrushNode);
+
+      CHECK(!helper.computeOriginHandleVertices(x1, x2, y1, y2));
+      CHECK(!helper.computeScaleHandleVertices(vm::vec2d{10, 20}, x1, x2, y1, y2));
+    }
   }
 
   SECTION("cameraViewportChanged resets the zoom once the viewport becomes valid")

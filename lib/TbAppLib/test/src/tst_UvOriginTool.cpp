@@ -31,6 +31,7 @@
 #include "mdl/HitFilter.h"
 #include "mdl/MapFormat.h"
 #include "mdl/PickResult.h"
+#include "mdl/TestUtils.h"
 #include "ui/GestureTracker.h"
 #include "ui/InputState.h"
 #include "ui/PickRequest.h"
@@ -88,6 +89,18 @@ TEST_CASE("UvOriginTool")
     controller.pick(inputState, pickResult);
     inputState.setPickResult(std::move(pickResult));
     return inputState;
+  };
+
+  // uAxis and vAxis are parallel, so the resulting face's UV matrix is not invertible;
+  // sets the helper's face to one and keeps it alive for the calling section
+  const auto setDegenerateFaceHandle = [&](std::unique_ptr<mdl::BrushNode>& owner) {
+    auto degenerateBrush =
+      mdl::createCubeWithTopUvAxes(vm::vec3d{1, 0, 0}, vm::vec3d{1, 0, 0}, "material");
+    const auto degenerateTopFaceIndex = *degenerateBrush.findFace(vm::vec3d{0, 0, 1});
+    degenerateBrush.face(degenerateTopFaceIndex).setMaterial(&material);
+
+    owner = std::make_unique<mdl::BrushNode>(std::move(degenerateBrush));
+    helper.setFaceHandle(mdl::BrushFaceHandle{owner.get(), degenerateTopFaceIndex});
   };
 
   SECTION("cancel always returns false")
@@ -166,6 +179,16 @@ TEST_CASE("UvOriginTool")
 
       CHECK(inputState.pickResult().empty());
     }
+
+    SECTION("does not add a hit for a non-invertible UV coordinate system")
+    {
+      auto degenerateBrushNode = std::unique_ptr<mdl::BrushNode>{};
+      setDegenerateFaceHandle(degenerateBrushNode);
+
+      const auto inputState = inputStateFor(rayAt(helper.origin()));
+
+      CHECK(inputState.pickResult().empty());
+    }
   }
 
   SECTION("acceptMouseDrag")
@@ -237,6 +260,17 @@ TEST_CASE("UvOriginTool")
       CHECK(tracker->update(dragInputState));
 
       CHECK(helper.originInFaceCoords() != originBefore);
+    }
+
+    SECTION("returns nullptr for a non-invertible UV coordinate system")
+    {
+      auto degenerateBrushNode = std::unique_ptr<mdl::BrushNode>{};
+      setDegenerateFaceHandle(degenerateBrushNode);
+
+      auto inputState = inputStateFor(rayAt(helper.origin()));
+      inputState.mouseDown(MouseButtons::Left);
+
+      CHECK(controller.acceptMouseDrag(inputState) == nullptr);
     }
   }
 }

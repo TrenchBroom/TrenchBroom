@@ -297,7 +297,7 @@ vm::mat4x4d UvCoordSystem::toMatrix(const vm::vec2f& offset, const vm::vec2f& sc
   return computeWorldToUvMatrix(uAxis(), vAxis(), normal(), offset, scale);
 }
 
-vm::mat4x4d UvCoordSystem::fromMatrix(
+std::optional<vm::mat4x4d> UvCoordSystem::fromMatrix(
   const vm::vec2f& offset, const vm::vec2f& scale) const
 {
   return computeUvToWorldMatrix(uAxis(), vAxis(), normal(), offset, scale);

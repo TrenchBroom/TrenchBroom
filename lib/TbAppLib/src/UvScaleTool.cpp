@@ -89,15 +89,17 @@ vm::vec2f getScaledTranslatedHandlePos(const UvViewHelper& helper, const vm::vec
   return vm::vec2f{handle} * vm::vec2f{helper.stripeSize()};
 }
 
-vm::vec2f getHandlePos(const UvViewHelper& helper, const vm::vec2i handle)
+std::optional<vm::vec2f> getHandlePos(const UvViewHelper& helper, const vm::vec2i handle)
 {
-  const auto toWorld = helper.face()->fromUvCoordSystemMatrix(
-    helper.face()->uvAttributes().offset, helper.face()->uvAttributes().scale);
   const auto toTex =
     helper.face()->toUvCoordSystemMatrix(vm::vec2f{0, 0}, vm::vec2f{1, 1});
 
-  return vm::vec2f{
-    toTex * toWorld * vm::vec3d{getScaledTranslatedHandlePos(helper, handle)}};
+  return helper.face()->fromUvCoordSystemMatrix(
+           helper.face()->uvAttributes().offset, helper.face()->uvAttributes().scale)
+         | kdl::optional_transform([&](const auto& toWorld) {
+             return vm::vec2f{
+               toTex * toWorld * vm::vec3d{getScaledTranslatedHandlePos(helper, handle)}};
+           });
 }
 
 vm::vec2f snap(const UvViewHelper& helper, const vm::vec2f& position)
@@ -128,14 +130,17 @@ vm::vec2f snap(const UvViewHelper& helper, const vm::vec2f& position)
 
 using EdgeVertex = gl::VertexTypes::P3::Vertex;
 
-std::vector<EdgeVertex> getHandleVertices(
+std::optional<std::vector<EdgeVertex>> getHandleVertices(
   const UvViewHelper& helper, const vm::vec2i& handle, const vm::vec2b& selector)
 {
   const auto stripeSize = helper.stripeSize();
   const auto pos = stripeSize * vm::vec2d{handle};
 
   vm::vec3d h1, h2, v1, v2;
-  helper.computeScaleHandleVertices(pos, v1, v2, h1, h2);
+  if (!helper.computeScaleHandleVertices(pos, v1, v2, h1, h2))
+  {
+    return std::nullopt;
+  }
 
   auto vertices = std::vector<EdgeVertex>{};
   vertices.reserve(4);
@@ -163,10 +168,12 @@ void renderHighlight(
 {
   static const auto color = RgbaF{1.0f, 0.0f, 0.0f, 1.0f};
 
-  auto handleRenderer = render::DirectEdgeRenderer{
-    gl::VertexArray::move(getHandleVertices(helper, handle, selector)),
-    gl::PrimType::Lines};
-  handleRenderer.render(renderBatch, color, 1.0f);
+  if (auto vertices = getHandleVertices(helper, handle, selector))
+  {
+    auto handleRenderer = render::DirectEdgeRenderer{
+      gl::VertexArray::move(std::move(*vertices)), gl::PrimType::Lines};
+    handleRenderer.render(renderBatch, color, 1.0f);
+  }
 }
 
 class UvScaleDragTracker : public GestureTracker
@@ -203,9 +210,14 @@ public:
 
     const auto dragDeltaFaceCoords = *curPoint - m_lastHitPoint;
 
+    const auto handlePos = getHandlePos(m_helper, m_handle);
+    if (!handlePos)
+    {
+      return true;
+    }
+
     const auto curHandlePosUvCoords = getScaledTranslatedHandlePos(m_helper, m_handle);
-    const auto newHandlePosFaceCoords =
-      getHandlePos(m_helper, m_handle) + dragDeltaFaceCoords;
+    const auto newHandlePosFaceCoords = *handlePos + dragDeltaFaceCoords;
     const auto newHandlePosSnapped = !inputState.modifierKeysDown(ModifierKeys::CtrlCmd)
                                        ? snap(m_helper, newHandlePosFaceCoords)
                                        : newHandlePosFaceCoords;

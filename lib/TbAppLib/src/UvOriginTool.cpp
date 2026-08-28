@@ -50,6 +50,7 @@
 #include "vm/mat_ext.h"
 #include "vm/vec.h"
 
+#include <optional>
 #include <vector>
 
 namespace tb::ui
@@ -57,17 +58,22 @@ namespace tb::ui
 namespace
 {
 
-std::tuple<vm::line3d, vm::line3d> computeOriginHandles(const UvViewHelper& helper)
+std::optional<std::tuple<vm::line3d, vm::line3d>> computeOriginHandles(
+  const UvViewHelper& helper)
 {
   const auto toWorld =
     helper.face()->fromUvCoordSystemMatrix(vm::vec2f{0, 0}, vm::vec2f{1, 1});
+  if (!toWorld)
+  {
+    return std::nullopt;
+  }
 
   const auto origin = vm::vec3d{helper.originInFaceCoords()};
-  const auto linePoint = toWorld * origin;
-  return {
+  const auto linePoint = *toWorld * origin;
+  return std::tuple{
     vm::line3d{
-      linePoint, vm::normalize(toWorld * (origin + vm::vec3d{0, 1, 0}) - linePoint)},
-    vm::line3d{linePoint, (toWorld * (origin + vm::vec3d{1, 0, 0}) - linePoint)},
+      linePoint, vm::normalize(*toWorld * (origin + vm::vec3d{0, 1, 0}) - linePoint)},
+    vm::line3d{linePoint, (*toWorld * (origin + vm::vec3d{1, 0, 0}) - linePoint)},
   };
 }
 
@@ -94,7 +100,7 @@ vm::vec2f computeHitPoint(const UvViewHelper& helper, const vm::ray3d& ray)
   return vm::vec2f{transform * hitPoint};
 }
 
-vm::vec2f snapDelta(const UvViewHelper& helper, const vm::vec2f& delta)
+std::optional<vm::vec2f> snapDelta(const UvViewHelper& helper, const vm::vec2f& delta)
 {
   contract_pre(helper.valid());
 
@@ -117,8 +123,13 @@ vm::vec2f snapDelta(const UvViewHelper& helper, const vm::vec2f& delta)
     helper.face()->fromUvCoordSystemMatrix(vm::vec2f{0, 0}, vm::vec2f{1, 1});
   const auto t2wTransform = helper.face()->fromUvCoordSystemMatrix(
     helper.face()->uvAttributes().offset, helper.face()->uvAttributes().scale);
-  const auto f2tTransform = w2tTransform * f2wTransform;
-  const auto t2fTransform = w2fTransform * t2wTransform;
+  if (!f2wTransform || !t2wTransform)
+  {
+    return std::nullopt;
+  }
+
+  const auto f2tTransform = w2tTransform * *f2wTransform;
+  const auto t2fTransform = w2fTransform * *t2wTransform;
 
   const auto newOriginInFaceCoords = helper.originInFaceCoords() + delta;
   const auto newOriginInUvCoords =
@@ -158,7 +169,7 @@ vm::vec2f snapDelta(const UvViewHelper& helper, const vm::vec2f& delta)
 
 using EdgeVertex = gl::VertexTypes::P3C4::Vertex;
 
-std::vector<EdgeVertex> getHandleVertices(
+std::optional<std::vector<EdgeVertex>> getHandleVertices(
   const UvViewHelper& helper, const vm::vec2b& highlightHandle)
 {
   const auto xColor =
@@ -167,9 +178,12 @@ std::vector<EdgeVertex> getHandleVertices(
     highlightHandle.y() ? RgbaF{1.0f, 0.0f, 0.0f, 1.0f} : RgbaF{0.7f, 0.0f, 0.0f, 1.0f};
 
   vm::vec3d x1, x2, y1, y2;
-  helper.computeOriginHandleVertices(x1, x2, y1, y2);
+  if (!helper.computeOriginHandleVertices(x1, x2, y1, y2))
+  {
+    return std::nullopt;
+  }
 
-  return {
+  return std::vector<EdgeVertex>{
     EdgeVertex{vm::vec3f{x1}, xColor.toVec()},
     EdgeVertex{vm::vec3f{x2}, xColor.toVec()},
     EdgeVertex{vm::vec3f{y1}, yColor.toVec()},
@@ -181,10 +195,12 @@ void renderLineHandles(
   const vm::vec2b& highlightHandles,
   render::RenderBatch& renderBatch)
 {
-  auto edgeRenderer = render::DirectEdgeRenderer{
-    gl::VertexArray::move(getHandleVertices(helper, highlightHandles)),
-    gl::PrimType::Lines};
-  edgeRenderer.renderOnTop(renderBatch, 0.5f);
+  if (auto vertices = getHandleVertices(helper, highlightHandles))
+  {
+    auto edgeRenderer = render::DirectEdgeRenderer{
+      gl::VertexArray::move(std::move(*vertices)), gl::PrimType::Lines};
+    edgeRenderer.renderOnTop(renderBatch, 0.5f);
+  }
 }
 
 class RenderOrigin : public render::DirectRenderable
@@ -224,12 +240,16 @@ private:
 
     const auto fromFace =
       m_helper.face()->fromUvCoordSystemMatrix(vm::vec2f{0, 0}, vm::vec2f{1, 1});
+    if (!fromFace)
+    {
+      return;
+    }
 
     const auto& boundary = m_helper.face()->boundary();
     const auto toPlane = vm::plane_projection_matrix(boundary.distance, boundary.normal);
     const auto fromPlane = vm::invert(toPlane);
     const auto originPosition(
-      toPlane * fromFace * vm::vec3d{m_helper.originInFaceCoords()});
+      toPlane * *fromFace * vm::vec3d{m_helper.originInFaceCoords()});
 
     const auto& handleColor = pref(Preferences::HandleColor);
     const auto& highlightColor = pref(Preferences::SelectedHandleColor);
@@ -276,14 +296,14 @@ public:
 
     const auto snapped = !inputState.modifierKeysDown(ModifierKeys::CtrlCmd)
                            ? snapDelta(m_helper, delta * m_selector)
-                           : delta * m_selector;
-    if (vm::is_zero(snapped, vm::Cf::almost_zero()))
+                           : std::optional{delta * m_selector};
+    if (!snapped || vm::is_zero(*snapped, vm::Cf::almost_zero()))
     {
       return true;
     }
 
-    m_helper.setOriginInFaceCoords(m_helper.originInFaceCoords() + snapped);
-    m_lastPoint = m_lastPoint + snapped;
+    m_helper.setOriginInFaceCoords(m_helper.originInFaceCoords() + *snapped);
+    m_lastPoint = m_lastPoint + *snapped;
 
     return true;
   }
@@ -327,13 +347,18 @@ const Tool& UvOriginTool::tool() const
 
 void UvOriginTool::pick(const InputState& inputState, mdl::PickResult& pickResult)
 {
-  if (m_helper.valid())
+  if (!m_helper.valid())
   {
-    const auto [xHandle, yHandle] = computeOriginHandles(m_helper);
+    return;
+  }
 
-    const auto fromTex =
-      m_helper.face()->fromUvCoordSystemMatrix(vm::vec2f{0, 0}, vm::vec2f{1, 1});
-    const auto origin = fromTex * vm::vec3d{m_helper.originInFaceCoords()};
+  const auto handles = computeOriginHandles(m_helper);
+  const auto fromTex =
+    m_helper.face()->fromUvCoordSystemMatrix(vm::vec2f{0, 0}, vm::vec2f{1, 1});
+  if (handles && fromTex)
+  {
+    const auto& [xHandle, yHandle] = *handles;
+    const auto origin = *fromTex * vm::vec3d{m_helper.originInFaceCoords()};
 
     const auto& pickRay = inputState.pickRay();
     const auto oDistance = vm::distance(pickRay, origin);

@@ -32,9 +32,11 @@
 #include "mdl/Hit.h"
 #include "mdl/LayerNode.h" // IWYU pragma: keep
 #include "mdl/Map.h"
+#include "mdl/Map_Brushes.h"
 #include "mdl/Map_Nodes.h"
 #include "mdl/Map_Selection.h"
 #include "mdl/PickResult.h"
+#include "mdl/UpdateBrushFaceAttributes.h"
 #include "mdl/UvAttributes.h"
 #include "mdl/WorldNode.h"
 #include "ui/GestureTracker.h"
@@ -215,6 +217,31 @@ TEST_CASE("UvScaleTool")
         CHECK(faceHandle.face().uvAttributes().scale == vm::vec2f{1, 1});
         CHECK(faceHandle.face().uvAttributes().offset == vm::vec2f{0, 0});
       }
+    }
+
+    SECTION("becoming non-invertible mid-drag does not crash")
+    {
+      auto inputState = inputStateFor(vm::ray3d{{0, 0, 100}, {0, 0, -1}});
+      inputState.mouseDown(MouseButtons::Left);
+
+      auto tracker = controller.acceptMouseDrag(inputState);
+      REQUIRE(tracker != nullptr);
+
+      // an extreme scale (reachable by typing a large value into the Face Attributes
+      // panel) shrinks the UV axes until the face's UV matrix is no longer invertible
+      REQUIRE(mdl::setBrushFaceAttributes(
+        map,
+        {
+          .xScale = mdl::SetValue{1e20f},
+          .yScale = mdl::SetValue{1e20f},
+        }));
+
+      const auto dragInputState = inputStateFor(vm::ray3d{{32, 0, 100}, {0, 0, -1}});
+      CHECK(tracker->update(dragInputState));
+
+      // the drag update was skipped rather than crashing, so the extreme scale is
+      // left untouched
+      CHECK(faceHandle.face().uvAttributes().scale == vm::vec2f{1e20f, 1e20f});
     }
   }
 }

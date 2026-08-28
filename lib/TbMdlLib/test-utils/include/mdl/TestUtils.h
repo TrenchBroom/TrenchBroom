@@ -60,6 +60,27 @@ BrushFace createParaxial(
   const vm::vec3d& point2,
   const std::string& materialName = "");
 
+/**
+ * Creates a face with a parallel UV coordinate system using the given, possibly
+ * degenerate (e.g. parallel to each other or to the face normal), UV axes.
+ */
+BrushFace createParallel(
+  const vm::vec3d& point0,
+  const vm::vec3d& point1,
+  const vm::vec3d& point2,
+  const vm::vec3d& uAxis,
+  const vm::vec3d& vAxis,
+  const std::string& materialName = "");
+
+/**
+ * Creates a 16-unit cube at the origin whose "top" face (normal {0, 0, 1}) has the
+ * given, possibly degenerate, UV axes, and whose other faces have ordinary paraxial UV
+ * coordinate systems. Useful for testing that code handles a face whose UV coordinate
+ * system cannot be inverted without crashing.
+ */
+Brush createCubeWithTopUvAxes(
+  const vm::vec3d& uAxis, const vm::vec3d& vAxis, const std::string& materialName = "");
+
 std::vector<vm::vec3d> asVertexList(const std::vector<vm::segment3d>& edges);
 std::vector<vm::vec3d> asVertexList(const std::vector<vm::polygon3d>& faces);
 

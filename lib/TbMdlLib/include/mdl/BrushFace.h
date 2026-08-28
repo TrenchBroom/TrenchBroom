@@ -261,7 +261,7 @@ public:
   void translateUv(const vm::vec3d& up, const vm::vec3d& right, const vm::vec2f& offset);
   void rotateUv(float angle);
   void shearUv(const vm::vec2f& factors);
-  void flipUv(
+  bool flipUv(
     const vm::vec3d& cameraUp,
     const vm::vec3d& cameraRight,
     vm::direction cameraRelativeFlipDirection);
@@ -271,10 +271,10 @@ public:
 
   Result<void> updatePointsFromVertices();
 
-  vm::mat4x4d projectToBoundaryMatrix() const;
+  std::optional<vm::mat4x4d> projectToBoundaryMatrix() const;
   vm::mat4x4d toUvCoordSystemMatrix(
     const vm::vec2f& offset, const vm::vec2f& scale) const;
-  vm::mat4x4d fromUvCoordSystemMatrix(
+  std::optional<vm::mat4x4d> fromUvCoordSystemMatrix(
     const vm::vec2f& offset, const vm::vec2f& scale) const;
   float measureUvAngle(const vm::vec2f& center, const vm::vec2f& point) const;
 

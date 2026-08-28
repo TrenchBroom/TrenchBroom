@@ -603,7 +603,10 @@ void MapViewBase::flipUv(const vm::direction direction)
   auto& map = m_document.map();
   if (map.selection().hasBrushFaces())
   {
-    mdl::flipUv(map, camera().up(), camera().right(), direction);
+    if (!mdl::flipUv(map, camera().up(), camera().right(), direction))
+    {
+      map.logger().error() << "Could not flip UVs";
+    }
   }
 }
 

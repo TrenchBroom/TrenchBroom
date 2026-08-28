@@ -45,6 +45,7 @@
 #include "vm/vec.h"
 #include "vm/vec_io.h" // IWYU pragma: keep
 
+#include <optional>
 #include <vector>
 
 #include <catch2/catch_test_macros.hpp>
@@ -992,6 +993,71 @@ TEST_CASE("BrushFace")
         face.flipUv(cameraUp, cameraRight, vm::direction::up);
         CHECK(face.uvAttributes().scale == vm::vec2f{-1, 1});
       }
+    }
+
+    SECTION(
+      "returns false and leaves the face unchanged for a non-invertible UV "
+      "coordinate system")
+    {
+      // uAxis and vAxis are parallel, so the world-to-UV matrix is not invertible;
+      // this can happen with a hand-edited or corrupted Valve format map file
+      auto degenerateFace = createParallel(
+        vm::vec3d{0, 0, 4},
+        vm::vec3d{1, 0, 4},
+        vm::vec3d{0, -1, 4},
+        vm::vec3d{1, 0, 0},
+        vm::vec3d{1, 0, 0},
+        "material");
+
+      const auto uvAttributesBefore = degenerateFace.uvAttributes();
+      CHECK(!degenerateFace.flipUv(
+        vm::vec3d{0, 1, 0}, vm::vec3d{1, 0, 0}, vm::direction::left));
+      CHECK(degenerateFace.uvAttributes() == uvAttributesBefore);
+    }
+  }
+
+  SECTION("projectToBoundaryMatrix")
+  {
+    const auto p0 = vm::vec3d{0, 0, 4};
+    const auto p1 = vm::vec3d{1, 0, 4};
+    const auto p2 = vm::vec3d{0, -1, 4};
+
+    SECTION("returns the projection matrix for independent axes")
+    {
+      auto face =
+        createParallel(p0, p1, p2, vm::vec3d{1, 0, 0}, vm::vec3d{0, 1, 0}, "material");
+      CHECK(face.projectToBoundaryMatrix());
+    }
+
+    SECTION("returns std::nullopt for a non-invertible UV coordinate system")
+    {
+      // uAxis and vAxis are parallel, so the world-to-UV matrix is not invertible
+      auto face =
+        createParallel(p0, p1, p2, vm::vec3d{1, 0, 0}, vm::vec3d{1, 0, 0}, "material");
+      CHECK(face.projectToBoundaryMatrix() == std::nullopt);
+    }
+  }
+
+  SECTION("fromUvCoordSystemMatrix")
+  {
+    const auto p0 = vm::vec3d{0, 0, 4};
+    const auto p1 = vm::vec3d{1, 0, 4};
+    const auto p2 = vm::vec3d{0, -1, 4};
+
+    SECTION("returns the transformation matrix for independent axes")
+    {
+      auto face =
+        createParallel(p0, p1, p2, vm::vec3d{1, 0, 0}, vm::vec3d{0, 1, 0}, "material");
+      CHECK(face.fromUvCoordSystemMatrix(vm::vec2f{0, 0}, vm::vec2f{1, 1}));
+    }
+
+    SECTION("returns std::nullopt for a non-invertible UV coordinate system")
+    {
+      // uAxis and vAxis are parallel, so the world-to-UV matrix is not invertible
+      auto face =
+        createParallel(p0, p1, p2, vm::vec3d{1, 0, 0}, vm::vec3d{1, 0, 0}, "material");
+      CHECK(
+        face.fromUvCoordSystemMatrix(vm::vec2f{0, 0}, vm::vec2f{1, 1}) == std::nullopt);
     }
   }
 }

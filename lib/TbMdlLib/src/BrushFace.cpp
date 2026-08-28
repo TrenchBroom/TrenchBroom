@@ -30,6 +30,7 @@
 #include "mdl/UvCoordSystem.h"
 
 #include "kd/contracts.h"
+#include "kd/optional_utils.h"
 #include "kd/reflection_impl.h"
 #include "kd/result.h"
 
@@ -610,15 +611,19 @@ void BrushFace::shearUv(const vm::vec2f& factors)
   m_uvCoordSystem.shear(m_boundary.normal, factors);
 }
 
-void BrushFace::flipUv(
+bool BrushFace::flipUv(
   const vm::vec3d& /* cameraUp */,
   const vm::vec3d& cameraRight,
   const vm::direction cameraRelativeFlipDirection)
 {
   const auto texToWorld = m_uvCoordSystem.fromMatrix(vm::vec2f{0, 0}, vm::vec2f{1, 1});
+  if (!texToWorld)
+  {
+    return false;
+  }
 
-  const auto texUAxisInWorld = vm::normalize((texToWorld * vm::vec4d(1, 0, 0, 0)).xyz());
-  const auto texVAxisInWorld = vm::normalize((texToWorld * vm::vec4d(0, 1, 0, 0)).xyz());
+  const auto texUAxisInWorld = vm::normalize((*texToWorld * vm::vec4d(1, 0, 0, 0)).xyz());
+  const auto texVAxisInWorld = vm::normalize((*texToWorld * vm::vec4d(0, 1, 0, 0)).xyz());
 
   // Get the cos(angle) between cameraRight and the texUAxisInWorld _line_ (so, take the
   // smaller of the angles among -texUAxisInWorld and texUAxisInWorld). Note that larger
@@ -653,6 +658,7 @@ void BrushFace::flipUv(
     newUvAttributes.scale[1] = -newUvAttributes.scale.y();
   }
   m_uvCoordSystem.copyUvAttributes(newUvAttributes);
+  return true;
 }
 
 Result<void> BrushFace::transform(const vm::mat4x4d& transform, const bool lockAlignment)
@@ -729,14 +735,20 @@ Result<void> BrushFace::updatePointsFromVertices()
            });
 }
 
-vm::mat4x4d BrushFace::projectToBoundaryMatrix() const
+std::optional<vm::mat4x4d> BrushFace::projectToBoundaryMatrix() const
 {
-  const auto texZAxis =
-    m_uvCoordSystem.fromMatrix(vm::vec2f{0, 0}, vm::vec2f{1, 1}) * vm::vec3d{0, 0, 1};
-  const auto worldToPlaneMatrix =
-    vm::plane_projection_matrix(m_boundary.distance, m_boundary.normal, texZAxis);
-  const auto planeToWorldMatrix = vm::invert(worldToPlaneMatrix);
-  return *planeToWorldMatrix * vm::mat4x4d::zero_out<2>() * worldToPlaneMatrix;
+  return m_uvCoordSystem.fromMatrix(vm::vec2f{0, 0}, vm::vec2f{1, 1})
+         | kdl::optional_and_then(
+           [&](const auto& fromMatrix) -> std::optional<vm::mat4x4d> {
+             const auto texZAxis = fromMatrix * vm::vec3d{0, 0, 1};
+             const auto worldToPlaneMatrix = vm::plane_projection_matrix(
+               m_boundary.distance, m_boundary.normal, texZAxis);
+             return vm::invert(worldToPlaneMatrix)
+                    | kdl::optional_transform([&](const auto& planeToWorldMatrix) {
+                        return planeToWorldMatrix * vm::mat4x4d::zero_out<2>()
+                               * worldToPlaneMatrix;
+                      });
+           });
 }
 
 vm::mat4x4d BrushFace::toUvCoordSystemMatrix(
@@ -745,10 +757,16 @@ vm::mat4x4d BrushFace::toUvCoordSystemMatrix(
   return vm::mat4x4d::zero_out<2>() * m_uvCoordSystem.toMatrix(offset, scale);
 }
 
-vm::mat4x4d BrushFace::fromUvCoordSystemMatrix(
+std::optional<vm::mat4x4d> BrushFace::fromUvCoordSystemMatrix(
   const vm::vec2f& offset, const vm::vec2f& scale) const
 {
-  return projectToBoundaryMatrix() * m_uvCoordSystem.fromMatrix(offset, scale);
+  return projectToBoundaryMatrix()
+         | kdl::optional_and_then(
+           [&](const auto& projectMatrix) -> std::optional<vm::mat4x4d> {
+             return m_uvCoordSystem.fromMatrix(offset, scale)
+                    | kdl::optional_transform(
+                      [&](const auto& fromMatrix) { return projectMatrix * fromMatrix; });
+           });
 }
 
 float BrushFace::measureUvAngle(const vm::vec2f& center, const vm::vec2f& point) const

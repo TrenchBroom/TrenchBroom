@@ -779,6 +779,29 @@ TEST_CASE("Map_Brushes")
         getFace(*brushNode, *otherFaceIndex),
         MatchesBrushFaceAttributes(originalOtherFace));
     }
+
+    SECTION("does nothing and returns false for a non-invertible UV coordinate system")
+    {
+      auto* degenerateBrushNode =
+        new BrushNode{createCubeWithTopUvAxes(vm::vec3d{1, 0, 0}, vm::vec3d{1, 0, 0})};
+      addNodes(map, {{&parentForNodes(map), {degenerateBrushNode}}});
+
+      const auto degenerateFaceIndex =
+        degenerateBrushNode->brush().findFace(vm::vec3d{0, 0, 1});
+      REQUIRE(degenerateFaceIndex);
+
+      deselectAll(map);
+      selectBrushFaces(map, {{degenerateBrushNode, *degenerateFaceIndex}});
+
+      const auto uvAttributesBefore =
+        getFace(*degenerateBrushNode, *degenerateFaceIndex).uvAttributes();
+
+      CHECK(!flipUv(map, cameraUp, cameraRight, flipDirection));
+
+      CHECK(
+        getFace(*degenerateBrushNode, *degenerateFaceIndex).uvAttributes()
+        == uvAttributesBefore);
+    }
   }
 
   SECTION("alignUv")

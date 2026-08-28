@@ -122,6 +122,23 @@ TEST_CASE("UvCoordSystem")
       CHECK(system.uvAttributes().offset == vm::vec2f{2, 3});
     }
   }
+
+  SECTION("fromMatrix")
+  {
+    SECTION("returns the inverse of toMatrix for independent axes")
+    {
+      const auto system = UvCoordSystem{
+        ParallelUvCoordSystem{vm::vec3d{1, 0, 0}, vm::vec3d{0, 1, 0}, UvAttributes{}}};
+      REQUIRE(system.fromMatrix(vm::vec2f{0, 0}, vm::vec2f{1, 1}));
+    }
+
+    SECTION("returns std::nullopt if the UV axes are not linearly independent")
+    {
+      const auto system = UvCoordSystem{
+        ParallelUvCoordSystem{vm::vec3d{1, 0, 0}, vm::vec3d{1, 0, 0}, UvAttributes{}}};
+      CHECK(system.fromMatrix(vm::vec2f{0, 0}, vm::vec2f{1, 1}) == std::nullopt);
+    }
+  }
 }
 
 } // namespace tb::mdl

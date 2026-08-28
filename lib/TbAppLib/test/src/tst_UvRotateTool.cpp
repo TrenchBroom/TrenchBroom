@@ -35,6 +35,7 @@
 #include "mdl/Map_Nodes.h"
 #include "mdl/Map_Selection.h"
 #include "mdl/PickResult.h"
+#include "mdl/TestUtils.h"
 #include "mdl/UvAttributes.h"
 #include "mdl/WorldNode.h"
 #include "ui/GestureTracker.h"
@@ -117,6 +118,18 @@ TEST_CASE("UvRotateTool")
     return inputState;
   };
 
+  // uAxis and vAxis are parallel, so the resulting face's UV matrix is not invertible
+  const auto setDegenerateFaceHandle = [&] {
+    auto* degenerateBrushNode = new mdl::BrushNode{
+      mdl::createCubeWithTopUvAxes(vm::vec3d{1, 0, 0}, vm::vec3d{1, 0, 0}, "material")};
+    mdl::addNodes(map, {{map.editorContext().currentLayer(), {degenerateBrushNode}}});
+
+    const auto degenerateTopFaceIndex =
+      *degenerateBrushNode->brush().findFace(vm::vec3d{0, 0, 1});
+    helper.setFaceHandle(
+      mdl::BrushFaceHandle{degenerateBrushNode, degenerateTopFaceIndex});
+  };
+
   SECTION("cancel always returns false")
   {
     CHECK(!controller.cancel());
@@ -172,6 +185,17 @@ TEST_CASE("UvRotateTool")
       controller.pick(inputState, pickResult);
 
       CHECK(pickResult.empty());
+    }
+
+    SECTION("does not hit for a non-invertible UV coordinate system")
+    {
+      setDegenerateFaceHandle();
+
+      const auto inputState = inputStateFor(rayAt(pointOnRing()));
+
+      CHECK(!inputState.pickResult()
+               .first(mdl::HitFilters::type(UvRotateTool::AngleHandleHitType))
+               .isMatch());
     }
   }
 
@@ -250,6 +274,16 @@ TEST_CASE("UvRotateTool")
         tracker->cancel();
         CHECK(faceHandle.face().uvAttributes().rotation == 0.0f);
       }
+    }
+
+    SECTION("returns nullptr for a non-invertible UV coordinate system")
+    {
+      setDegenerateFaceHandle();
+
+      auto inputState = inputStateFor(rayAt(pointOnRing()));
+      inputState.mouseDown(MouseButtons::Left);
+
+      CHECK(controller.acceptMouseDrag(inputState) == nullptr);
     }
   }
 }

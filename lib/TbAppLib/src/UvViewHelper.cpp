@@ -128,8 +128,12 @@ const vm::vec2f UvViewHelper::originInUvCoords() const
 
 void UvViewHelper::setOriginInFaceCoords(const vm::vec2f& originInFaceCoords)
 {
-  const auto fromFace = face()->fromUvCoordSystemMatrix(vm::vec2f{0, 0}, vm::vec2f{1, 1});
-  m_origin = fromFace * vm::vec3d{originInFaceCoords};
+  if (
+    const auto fromFace =
+      face()->fromUvCoordSystemMatrix(vm::vec2f{0, 0}, vm::vec2f{1, 1}))
+  {
+    m_origin = *fromFace * vm::vec3d{originInFaceCoords};
+  }
 }
 
 const gl::OrthographicCamera& UvViewHelper::camera() const
@@ -155,6 +159,10 @@ void UvViewHelper::pickUvGrid(
           face()->uvAttributes().offset, face()->uvAttributes().scale)
         * hitPointInWorldCoords};
       const auto hitPointInViewCoords = uvToViewCoords(hitPointInUvCoords);
+      if (!hitPointInViewCoords)
+      {
+        return;
+      }
 
       // X and Y distance in texels to the closest grid intersection.
       // (i.e. so the X component is the distance to the closest vertical gridline, and
@@ -172,9 +180,11 @@ void UvViewHelper::pickUvGrid(
       // FIXME: should be measured in points so the grid isn't harder to hit with high-DPI
       const float distToClosestGridInViewCoords[2] = {
         vm::distance(
-          hitPointInViewCoords, uvToViewCoords(closestPointsOnGridInUvCoords[0])),
+          *hitPointInViewCoords,
+          uvToViewCoords(closestPointsOnGridInUvCoords[0]).value()),
         vm::distance(
-          hitPointInViewCoords, uvToViewCoords(closestPointsOnGridInUvCoords[1]))};
+          *hitPointInViewCoords,
+          uvToViewCoords(closestPointsOnGridInUvCoords[1]).value())};
 
       // FIXME: factor out and share with other tools
       constexpr auto maxDistance = 5.0f;
@@ -217,17 +227,22 @@ vm::vec2f UvViewHelper::computeDistanceFromUvGrid(const vm::vec3d& position) con
   return vm::vec2f{closest - position.xy()};
 }
 
-void UvViewHelper::computeOriginHandleVertices(
+bool UvViewHelper::computeOriginHandleVertices(
   vm::vec3d& x1, vm::vec3d& x2, vm::vec3d& y1, vm::vec3d& y2) const
 {
   contract_pre(valid());
 
   const auto toTex = face()->toUvCoordSystemMatrix(vm::vec2f{0, 0}, vm::vec2f{1, 1});
   const auto toWorld = face()->fromUvCoordSystemMatrix(vm::vec2f{0, 0}, vm::vec2f{1, 1});
-  computeLineVertices(vm::vec2d{originInFaceCoords()}, x1, x2, y1, y2, toTex, toWorld);
+  if (!toWorld)
+  {
+    return false;
+  }
+  computeLineVertices(vm::vec2d{originInFaceCoords()}, x1, x2, y1, y2, toTex, *toWorld);
+  return true;
 }
 
-void UvViewHelper::computeScaleHandleVertices(
+bool UvViewHelper::computeScaleHandleVertices(
   const vm::vec2d& pos, vm::vec3d& x1, vm::vec3d& x2, vm::vec3d& y1, vm::vec3d& y2) const
 {
   contract_pre(valid());
@@ -236,7 +251,12 @@ void UvViewHelper::computeScaleHandleVertices(
     face()->uvAttributes().offset, face()->uvAttributes().scale);
   const auto toWorld = face()->fromUvCoordSystemMatrix(
     face()->uvAttributes().offset, face()->uvAttributes().scale);
-  computeLineVertices(pos, x1, x2, y1, y2, toTex, toWorld);
+  if (!toWorld)
+  {
+    return false;
+  }
+  computeLineVertices(pos, x1, x2, y1, y2, toTex, *toWorld);
+  return true;
 }
 
 void UvViewHelper::computeLineVertices(
@@ -260,12 +280,16 @@ void UvViewHelper::computeLineVertices(
   y2 = toWorld * vm::vec3d{max.x(), pos.y(), 0.0};
 }
 
-vm::vec2f UvViewHelper::uvToViewCoords(const vm::vec2f& pos) const
+std::optional<vm::vec2f> UvViewHelper::uvToViewCoords(const vm::vec2f& pos) const
 {
-  const auto posInWorldCoords =
-    face()->fromUvCoordSystemMatrix(
-      face()->uvAttributes().offset, face()->uvAttributes().scale)
-    * vm::vec3d{pos, 0.0};
+  const auto fromFace = face()->fromUvCoordSystemMatrix(
+    face()->uvAttributes().offset, face()->uvAttributes().scale);
+  if (!fromFace)
+  {
+    return std::nullopt;
+  }
+
+  const auto posInWorldCoords = *fromFace * vm::vec3d{pos, 0.0};
   return m_camera.project(vm::vec3f(posInWorldCoords)).xy();
 }
 

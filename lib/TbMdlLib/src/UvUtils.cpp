@@ -19,8 +19,6 @@
 
 #include "mdl/UvUtils.h"
 
-#include "kd/contracts.h"
-
 #include "vm/mat_ext.h"
 
 namespace tb::mdl
@@ -75,17 +73,14 @@ vm::mat4x4d computeWorldToUvMatrix(
     1.0};
 }
 
-vm::mat4x4d computeUvToWorldMatrix(
+std::optional<vm::mat4x4d> computeUvToWorldMatrix(
   const vm::vec3d& uAxis,
   const vm::vec3d& vAxis,
   const vm::vec3d& normal,
   const vm::vec2f& offset,
   const vm::vec2f& scale)
 {
-  const auto result = invert(computeWorldToUvMatrix(uAxis, vAxis, normal, offset, scale));
-  contract_assert(result);
-
-  return *result;
+  return invert(computeWorldToUvMatrix(uAxis, vAxis, normal, offset, scale));
 }
 
 } // namespace tb::mdl

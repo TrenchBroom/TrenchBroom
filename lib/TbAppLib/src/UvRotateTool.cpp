@@ -147,13 +147,17 @@ public:
 
     const auto fromFace =
       m_helper.face()->fromUvCoordSystemMatrix(vm::vec2f{0, 0}, vm::vec2f{1, 1});
+    if (!fromFace)
+    {
+      return;
+    }
 
     const auto& boundary = m_helper.face()->boundary();
     const auto toPlane = vm::plane_projection_matrix(boundary.distance, boundary.normal);
     const auto fromPlane = vm::invert(toPlane);
 
     const auto originPosition =
-      toPlane * fromFace * vm::vec3d{m_helper.originInFaceCoords()};
+      toPlane * *fromFace * vm::vec3d{m_helper.originInFaceCoords()};
     const auto faceCenterPosition = toPlane * m_helper.face()->boundsCenter();
 
     const auto& handleColor = pref(Preferences::HandleColor);
@@ -211,6 +215,10 @@ public:
       m_helper.face()->toUvCoordSystemMatrix(vm::vec2f{0, 0}, vm::vec2f{1, 1});
     const auto toWorld =
       m_helper.face()->fromUvCoordSystemMatrix(vm::vec2f{0, 0}, vm::vec2f{1, 1});
+    if (!toWorld)
+    {
+      return true;
+    }
 
     const auto curPointInFaceCoords = vm::vec2f{toFaceOld * curPoint};
     const auto curAngle = measureAngle(m_helper, curPointInFaceCoords);
@@ -224,7 +232,7 @@ public:
       0.0f);
 
     const auto oldCenterInFaceCoords = m_helper.originInFaceCoords();
-    const auto oldCenterInWorldCoords = toWorld * vm::vec3d{oldCenterInFaceCoords};
+    const auto oldCenterInWorldCoords = *toWorld * vm::vec3d{oldCenterInFaceCoords};
 
     setBrushFaceAttributes(m_map, {.rotation = mdl::SetValue{snappedAngle}});
 
@@ -337,10 +345,14 @@ void UvRotateTool::pick(const InputState& inputState, mdl::PickResult& pickResul
 
     const auto fromFace =
       m_helper.face()->fromUvCoordSystemMatrix(vm::vec2f{0, 0}, vm::vec2f{1, 1});
+    if (!fromFace)
+    {
+      return;
+    }
     const auto toPlane = vm::plane_projection_matrix(boundary.distance, boundary.normal);
 
     const auto originOnPlane =
-      toPlane * fromFace * vm::vec3d{m_helper.originInFaceCoords()};
+      toPlane * *fromFace * vm::vec3d{m_helper.originInFaceCoords()};
     const auto hitPointOnPlane = toPlane * hitPoint;
 
     const auto zoom = double(m_helper.camera().zoom());

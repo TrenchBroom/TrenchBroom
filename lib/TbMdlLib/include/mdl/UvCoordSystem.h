@@ -137,7 +137,8 @@ public:
   void shear(const vm::vec3d& normal, const vm::vec2f& factors);
 
   vm::mat4x4d toMatrix(const vm::vec2f& offset, const vm::vec2f& scale) const;
-  vm::mat4x4d fromMatrix(const vm::vec2f& offset, const vm::vec2f& scale) const;
+  std::optional<vm::mat4x4d> fromMatrix(
+    const vm::vec2f& offset, const vm::vec2f& scale) const;
 
   float measureAngle(const vm::vec2f& center, const vm::vec2f& point) const;
 

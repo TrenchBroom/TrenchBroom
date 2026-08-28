@@ -95,9 +95,13 @@ public:
   vm::vec2f snapDelta(const vm::vec2f& delta, const vm::vec2f& distance) const;
   vm::vec2f computeDistanceFromUvGrid(const vm::vec3d& position) const;
 
-  void computeOriginHandleVertices(
+  /**
+   * Computes the handle vertices, or returns false if the face's UV coordinate system
+   * cannot currently be inverted (e.g. degenerate or extreme scale/rotation values).
+   */
+  bool computeOriginHandleVertices(
     vm::vec3d& x1, vm::vec3d& x2, vm::vec3d& y1, vm::vec3d& y2) const;
-  void computeScaleHandleVertices(
+  bool computeScaleHandleVertices(
     const vm::vec2d& pos,
     vm::vec3d& x1,
     vm::vec3d& x2,
@@ -113,9 +117,10 @@ public:
     const vm::mat4x4d& toWorld) const;
 
   /**
-   * Converts UV space to view space (pixels in the UV viewport).
+   * Converts UV space to view space (pixels in the UV viewport), or returns std::nullopt
+   * if the face's UV coordinate system cannot currently be inverted.
    */
-  vm::vec2f uvToViewCoords(const vm::vec2f& pos) const;
+  std::optional<vm::vec2f> uvToViewCoords(const vm::vec2f& pos) const;
 
 private:
   void resetOrigin();

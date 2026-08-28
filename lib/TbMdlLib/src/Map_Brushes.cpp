@@ -269,9 +269,8 @@ bool flipUv(
     isHFlip ? "Flip UV Horizontally" : "Flip UV Vertically",
     map.selection().allBrushFaces(),
     [&](auto& face) {
-      face.flipUv(
+      return face.flipUv(
         vm::vec3d{cameraUp}, vm::vec3d{cameraRight}, cameraRelativeFlipDirection);
-      return true;
     });
 }
 

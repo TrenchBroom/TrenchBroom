@@ -24,6 +24,7 @@
 #include "vm/scalar.h"
 #include "vm/vec.h"
 
+#include <optional>
 #include <tuple>
 
 namespace tb::mdl
@@ -76,9 +77,10 @@ vm::mat4x4d computeWorldToUvMatrix(
   const vm::vec2f& scale);
 
 /**
- * Returns the inverse of computeWorldToUvMatrix.
+ * Returns the inverse of computeWorldToUvMatrix, or std::nullopt if the axes and normal
+ * do not form an invertible matrix (e.g. degenerate or extreme scale/rotation values).
  */
-vm::mat4x4d computeUvToWorldMatrix(
+std::optional<vm::mat4x4d> computeUvToWorldMatrix(
   const vm::vec3d& uAxis,
   const vm::vec3d& vAxis,
   const vm::vec3d& normal,

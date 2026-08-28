@@ -22,6 +22,7 @@
 #include "gl/Material.h"
 #include "gl/Texture.h"
 #include "mdl/BezierPatch.h"
+#include "mdl/Brush.h"
 #include "mdl/BrushFace.h"
 #include "mdl/BrushNode.h"
 #include "mdl/CatchConfig.h"
@@ -172,6 +173,58 @@ BrushFace createParaxial(
            materialName,
            UvCoordSystem{ParaxialUvCoordSystem{point0, point1, point2, UvAttributes{}}},
            SurfaceAttributes{})
+         | kdl::value();
+}
+
+BrushFace createParallel(
+  const vm::vec3d& point0,
+  const vm::vec3d& point1,
+  const vm::vec3d& point2,
+  const vm::vec3d& uAxis,
+  const vm::vec3d& vAxis,
+  const std::string& materialName)
+{
+  return BrushFace::create(
+           point0,
+           point1,
+           point2,
+           materialName,
+           UvCoordSystem{ParallelUvCoordSystem{uAxis, vAxis, UvAttributes{}}},
+           SurfaceAttributes{})
+         | kdl::value();
+}
+
+Brush createCubeWithTopUvAxes(
+  const vm::vec3d& uAxis, const vm::vec3d& vAxis, const std::string& materialName)
+{
+  auto left = createParaxial(
+    vm::vec3d{0, 0, 0}, vm::vec3d{0, 1, 0}, vm::vec3d{0, 0, 1}, materialName);
+  auto right = createParaxial(
+    vm::vec3d{16, 0, 0}, vm::vec3d{16, 0, 1}, vm::vec3d{16, 1, 0}, materialName);
+  auto front = createParaxial(
+    vm::vec3d{0, 0, 0}, vm::vec3d{0, 0, 1}, vm::vec3d{1, 0, 0}, materialName);
+  auto back = createParaxial(
+    vm::vec3d{0, 16, 0}, vm::vec3d{1, 16, 0}, vm::vec3d{0, 16, 1}, materialName);
+  auto top = createParallel(
+    vm::vec3d{0, 0, 16},
+    vm::vec3d{0, 1, 16},
+    vm::vec3d{1, 0, 16},
+    uAxis,
+    vAxis,
+    materialName);
+  auto bottom = createParaxial(
+    vm::vec3d{0, 0, 0}, vm::vec3d{1, 0, 0}, vm::vec3d{0, 1, 0}, materialName);
+
+  return Brush::create(
+           vm::bbox3d{4096.0},
+           {
+             std::move(left),
+             std::move(right),
+             std::move(front),
+             std::move(back),
+             std::move(top),
+             std::move(bottom),
+           })
          | kdl::value();
 }
 
