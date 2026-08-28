@@ -195,6 +195,16 @@ bool RenderContext::showFog() const
   return m_showFog;
 }
 
+const SceneLighting& RenderContext::sceneLighting() const
+{
+  return m_sceneLighting;
+}
+
+void RenderContext::setSceneLighting(SceneLighting sceneLighting)
+{
+  m_sceneLighting = std::move(sceneLighting);
+}
+
 void RenderContext::setShowFog(const bool showFog)
 {
   m_showFog = showFog;

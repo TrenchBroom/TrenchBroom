@@ -36,6 +36,7 @@
 #include "prefs/Preferences.h"
 #include "render/RenderBatch.h"
 #include "render/RenderContext.h"
+#include "render/SceneLighting.h"
 #include "render/Transformation.h"
 
 #include "vm/mat.h"
@@ -184,6 +185,7 @@ void EntityModelRenderer::render(RenderContext& renderContext)
     shader.set("ApplyTinting", m_applyTinting);
     shader.set("TintColor", m_tintColor);
     shader.set("GrayScale", false);
+    setSceneLightingUniforms(shader, renderContext.sceneLighting());
     shader.set("Material", 0);
     shader.set("ShowSoftMapBounds", !renderContext.softMapBounds().is_empty());
     shader.set("SoftMapBoundsMin", renderContext.softMapBounds().min);

@@ -107,7 +107,8 @@ std::optional<automation::AutomationRenderRequest> renderRequest(
     {request.size.width, request.size.height},
     automation::AutomationRenderMode::Textured,
     {request.overlays.brushEdges, request.overlays.selection, request.overlays.grid},
-    {request.depth}};
+    {request.depth},
+    std::nullopt};
 }
 
 } // namespace

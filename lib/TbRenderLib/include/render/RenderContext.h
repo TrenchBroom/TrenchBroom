@@ -21,6 +21,7 @@
 
 #include "base/Macros.h"
 #include "gl/GlUtils.h"
+#include "render/SceneLighting.h"
 #include "render/Transformation.h"
 
 #include "vm/bbox.h"
@@ -81,6 +82,8 @@ private:
   bool m_showPointEntityBounds = true;
 
   bool m_showFog = false;
+
+  SceneLighting m_sceneLighting;
 
   bool m_showGrid = true;
   double m_gridSize = 4;
@@ -148,6 +151,9 @@ public:
 
   bool showFog() const;
   void setShowFog(bool showFog);
+
+  const SceneLighting& sceneLighting() const;
+  void setSceneLighting(SceneLighting sceneLighting);
 
   bool showGrid() const;
   void setShowGrid(bool showGrid);

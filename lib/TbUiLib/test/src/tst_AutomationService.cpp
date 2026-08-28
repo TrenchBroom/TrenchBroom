@@ -168,8 +168,8 @@ TEST_CASE("AutomationService entity creation")
     const auto result = response.value("result").toObject();
     const auto path = result.value("path").toArray();
     REQUIRE(path.size() == 2);
-    auto* entity = dynamic_cast<mdl::EntityNode*>(map.worldNode().resolvePath(
-      mdl::NodePath{
+    auto* entity =
+      dynamic_cast<mdl::EntityNode*>(map.worldNode().resolvePath(mdl::NodePath{
         {static_cast<size_t>(path[0].toInteger()),
          static_cast<size_t>(path[1].toInteger())}}));
     REQUIRE(entity != nullptr);
@@ -216,8 +216,8 @@ TEST_CASE("AutomationService entity creation")
     REQUIRE(response.contains("result"));
     const auto result = response.value("result").toObject();
     const auto path = result.value("path").toArray();
-    auto* entity = dynamic_cast<mdl::EntityNode*>(map.worldNode().resolvePath(
-      mdl::NodePath{
+    auto* entity =
+      dynamic_cast<mdl::EntityNode*>(map.worldNode().resolvePath(mdl::NodePath{
         {static_cast<size_t>(path[0].toInteger()),
          static_cast<size_t>(path[1].toInteger())}}));
     REQUIRE(entity != nullptr);
@@ -531,7 +531,9 @@ TEST_CASE("AutomationService explicit document view isolation")
      65536.0},
     {64, 48},
     automation::AutomationRenderMode::Textured,
-    {}};
+    {},
+    {},
+    std::nullopt};
   const auto cameraCreated = sendRequest(
     *client,
     "cameras.create",

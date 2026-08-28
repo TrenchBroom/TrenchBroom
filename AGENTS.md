@@ -160,6 +160,12 @@ investigate, not as a reason to save/reload the branch. Saving, reloading, closi
 recovering a workspace solely to refresh a render masks state bugs and can invalidate
 process-lifetime document identities.
 
+For EverQuest player-view QA, `render.capture` accepts an optional deterministic
+`scenePreview` object with `vision` (`human`, `infravision`, or `ultravision`),
+`timeOfDay` in `[0, 24)`, and `entityLights`. Prefer a matrix of captures from one camera
+and one revision when checking night readability or fixture placement. See
+`docs/eq-scene-preview.md`; do not substitute GUI brightness changes for this mode.
+
 ### Make changes in a durable workspace
 
 For nontrivial or visual map edits, use this workflow:

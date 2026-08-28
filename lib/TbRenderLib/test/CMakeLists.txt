@@ -17,6 +17,7 @@ target_sources(TbRenderLibTest PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_PointGuideRenderer.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_RenderBatch.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_RenderContext.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_SceneLighting.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_SelectionBoundsRenderer.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_SpikeGuideRenderer.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_TextAnchor.cpp

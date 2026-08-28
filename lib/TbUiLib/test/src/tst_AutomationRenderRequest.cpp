@@ -161,6 +161,37 @@ TEST_CASE("Automation render request JSON")
     json.insert("outputs", QJsonObject{{"depth", "yes"}});
     CHECK_FALSE(renderRequestFromJson(json));
   }
+
+  SECTION("round trips an EQ scene preview")
+  {
+    auto json = perspectiveRequest();
+    json.insert(
+      "scenePreview",
+      QJsonObject{
+        {"vision", "ultravision"},
+        {"timeOfDay", 23.5},
+        {"entityLights", true},
+      });
+
+    const auto request = renderRequestFromJson(json);
+    REQUIRE(request);
+    REQUIRE(request->scenePreview);
+    CHECK(request->scenePreview->vision == render::PlayerVision::Ultravision);
+    CHECK(request->scenePreview->timeOfDay == 23.5);
+    CHECK(request->scenePreview->entityLights);
+    CHECK(renderRequestToJson(*request) == json);
+  }
+
+  SECTION("rejects malformed EQ scene previews")
+  {
+    auto json = perspectiveRequest();
+    json.insert(
+      "scenePreview", QJsonObject{{"vision", "darkvision"}, {"timeOfDay", 12.0}});
+    CHECK_FALSE(renderRequestFromJson(json));
+
+    json.insert("scenePreview", QJsonObject{{"vision", "human"}, {"timeOfDay", 24.0}});
+    CHECK_FALSE(renderRequestFromJson(json));
+  }
 }
 
 } // namespace tb::ui::automation

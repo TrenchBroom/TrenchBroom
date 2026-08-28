@@ -11,6 +11,8 @@
 
 #pragma once
 
+#include "render/SceneLighting.h"
+
 #include "vm/vec.h"
 
 #include <filesystem>
@@ -58,6 +60,13 @@ struct AutomationOutputOptions
   bool depth = false;
 };
 
+struct AutomationScenePreviewOptions
+{
+  render::PlayerVision vision = render::PlayerVision::Human;
+  double timeOfDay = 12.0;
+  bool entityLights = true;
+};
+
 /**
  * A normalized, widget-independent camera. Perspective cameras use verticalFov;
  * orthographic cameras use zoom. The unused optional is always empty.
@@ -81,6 +90,7 @@ struct AutomationRenderRequest
   AutomationRenderMode renderMode = AutomationRenderMode::Textured;
   AutomationOverlayOptions overlays;
   AutomationOutputOptions outputs = {};
+  std::optional<AutomationScenePreviewOptions> scenePreview;
 };
 
 /**

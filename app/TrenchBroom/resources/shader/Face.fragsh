@@ -32,6 +32,21 @@ uniform float GridSize;
 uniform float GridAlpha;
 uniform bool ShadeFaces;
 uniform bool ShowFog;
+uniform bool ApplySceneLighting;
+uniform vec3 SceneAmbientColor;
+uniform vec3 SceneSunDirection;
+uniform vec3 SceneSunColor;
+uniform vec3 SceneVisionTint;
+uniform int ScenePointLightCount;
+
+struct ScenePointLight
+{
+  vec3 position;
+  vec3 color;
+  float radius;
+};
+
+uniform ScenePointLight ScenePointLights[16];
 
 varying vec4 modelCoordinates;
 varying vec3 modelNormal;
@@ -43,6 +58,27 @@ float grid(
 vec3 applySoftMapBoundsTint(vec3 inputFragColor, vec3 worldCoords);
 vec3 adaptiveGridColor(vec3 background);
 float texturedGridAlpha(float alpha);
+
+vec3 sceneLightAt(vec3 position, vec3 normal)
+{
+  vec3 result = SceneAmbientColor;
+  result += SceneSunColor * max(dot(normal, SceneSunDirection), 0.0);
+  for (int i = 0; i < 16; ++i)
+  {
+    if (i >= ScenePointLightCount)
+    {
+      break;
+    }
+    vec3 offset = ScenePointLights[i].position - position;
+    float distanceToLight = length(offset);
+    float falloff = max(1.0 - distanceToLight / ScenePointLights[i].radius, 0.0);
+    vec3 lightDirection =
+      distanceToLight > 0.001 ? offset / distanceToLight : normal;
+    float diffuse = 0.25 + 0.75 * max(dot(normal, lightDirection), 0.0);
+    result += ScenePointLights[i].color * falloff * falloff * diffuse * 1.8;
+  }
+  return result;
+}
 
 void main()
 {
@@ -80,7 +116,13 @@ void main()
     gl_FragColor = clamp(brightnessCorrection * gl_FragColor, 0.0, 1.0);
   }
 
-  if (ShadeFaces)
+  if (ApplySceneLighting)
+  {
+    gl_FragColor.rgb *=
+      sceneLightAt(modelCoordinates.xyz, normalize(modelNormal)) * SceneVisionTint;
+    gl_FragColor.rgb = clamp(gl_FragColor.rgb, 0.0, 1.0);
+  }
+  else if (ShadeFaces)
   {
     // angular dimming ( can be controlled with dimStrength )
     // TODO: make view option

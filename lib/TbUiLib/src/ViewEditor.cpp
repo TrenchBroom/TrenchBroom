@@ -21,6 +21,9 @@
 
 #include <QButtonGroup>
 #include <QCheckBox>
+#include <QComboBox>
+#include <QDoubleSpinBox>
+#include <QFormLayout>
 #include <QGridLayout>
 #include <QLabel>
 #include <QPushButton>
@@ -526,6 +529,17 @@ QWidget* ViewEditor::createRendererPanel(QWidget* parent)
   m_showFogCheckBox = new QCheckBox{tr("Use fog")};
   m_showEdgesCheckBox = new QCheckBox{tr("Show edges")};
 
+  m_eqScenePreviewCheckBox = new QCheckBox{tr("Preview EQ player lighting")};
+  m_eqVisionComboBox = new QComboBox{};
+  m_eqVisionComboBox->addItem(tr("Human / Barbarian"), "human");
+  m_eqVisionComboBox->addItem(tr("Infravision"), "infravision");
+  m_eqVisionComboBox->addItem(tr("Ultravision"), "ultravision");
+  m_eqTimeOfDaySpinBox = new QDoubleSpinBox{};
+  m_eqTimeOfDaySpinBox->setRange(0.0, 23.99);
+  m_eqTimeOfDaySpinBox->setDecimals(2);
+  m_eqTimeOfDaySpinBox->setSingleStep(0.25);
+  m_eqTimeOfDaySpinBox->setSuffix(tr(" h"));
+  m_eqEntityLightsCheckBox = new QCheckBox{tr("Use placed lights")};
 
   const auto EntityLinkModes = std::vector<std::tuple<QString, QString>>{
     {"Show all entity links", QString::fromStdString(Preferences::EntityLinkModeAll)},
@@ -560,6 +574,26 @@ QWidget* ViewEditor::createRendererPanel(QWidget* parent)
     m_showFogCheckBox, &QAbstractButton::clicked, this, &ViewEditor::showFogChanged);
   connect(
     m_showEdgesCheckBox, &QAbstractButton::clicked, this, &ViewEditor::showEdgesChanged);
+  connect(
+    m_eqScenePreviewCheckBox,
+    &QAbstractButton::clicked,
+    this,
+    &ViewEditor::eqScenePreviewChanged);
+  connect(
+    m_eqVisionComboBox,
+    QOverload<int>::of(&QComboBox::activated),
+    this,
+    &ViewEditor::eqVisionChanged);
+  connect(
+    m_eqTimeOfDaySpinBox,
+    &QDoubleSpinBox::editingFinished,
+    this,
+    &ViewEditor::eqTimeOfDayChanged);
+  connect(
+    m_eqEntityLightsCheckBox,
+    &QAbstractButton::clicked,
+    this,
+    &ViewEditor::eqEntityLightsChanged);
 
   connect(
     m_renderModeRadioGroup,
@@ -595,6 +629,15 @@ QWidget* ViewEditor::createRendererPanel(QWidget* parent)
   layout->addWidget(m_shadeFacesCheckBox);
   layout->addWidget(m_showFogCheckBox);
   layout->addWidget(m_showEdgesCheckBox);
+
+  layout->addSpacing(LayoutConstants::MediumVMargin);
+  layout->addWidget(m_eqScenePreviewCheckBox);
+  auto* eqPreviewForm = new QFormLayout{};
+  eqPreviewForm->setContentsMargins(LayoutConstants::MediumHMargin, 0, 0, 0);
+  eqPreviewForm->addRow(tr("Vision"), m_eqVisionComboBox);
+  eqPreviewForm->addRow(tr("Time"), m_eqTimeOfDaySpinBox);
+  eqPreviewForm->addRow(QString{}, m_eqEntityLightsCheckBox);
+  layout->addLayout(eqPreviewForm);
 
   for (auto* button : m_entityLinkRadioGroup->buttons())
   {
@@ -665,6 +708,16 @@ void ViewEditor::refreshRendererPanel()
   m_shadeFacesCheckBox->setChecked(pref(Preferences::ShadeFaces));
   m_showFogCheckBox->setChecked(pref(Preferences::ShowFog));
   m_showEdgesCheckBox->setChecked(pref(Preferences::ShowEdges));
+  const auto eqPreviewEnabled = pref(Preferences::EqScenePreview);
+  m_eqScenePreviewCheckBox->setChecked(eqPreviewEnabled);
+  const auto vision = QString::fromStdString(pref(Preferences::EqScenePreviewVision));
+  const auto visionIndex = m_eqVisionComboBox->findData(vision);
+  m_eqVisionComboBox->setCurrentIndex(visionIndex >= 0 ? visionIndex : 0);
+  m_eqTimeOfDaySpinBox->setValue(pref(Preferences::EqScenePreviewTimeOfDay));
+  m_eqEntityLightsCheckBox->setChecked(pref(Preferences::EqScenePreviewEntityLights));
+  m_eqVisionComboBox->setEnabled(eqPreviewEnabled);
+  m_eqTimeOfDaySpinBox->setEnabled(eqPreviewEnabled);
+  m_eqEntityLightsCheckBox->setEnabled(eqPreviewEnabled);
   checkButtonInGroup(
     m_entityLinkRadioGroup,
     QString::fromStdString(pref(Preferences::EntityLinkMode)),
@@ -763,6 +816,30 @@ void ViewEditor::showEdgesChanged(const bool checked)
   setPref(Preferences::ShowEdges, checked);
 }
 
+void ViewEditor::eqScenePreviewChanged(const bool checked)
+{
+  setPref(Preferences::EqScenePreview, checked);
+}
+
+void ViewEditor::eqVisionChanged(const int index)
+{
+  setPref(
+    Preferences::EqScenePreviewVision,
+    m_eqVisionComboBox->itemData(index).toString().toStdString());
+}
+
+void ViewEditor::eqTimeOfDayChanged()
+{
+  setPref(
+    Preferences::EqScenePreviewTimeOfDay,
+    static_cast<float>(m_eqTimeOfDaySpinBox->value()));
+}
+
+void ViewEditor::eqEntityLightsChanged(const bool checked)
+{
+  setPref(Preferences::EqScenePreviewEntityLights, checked);
+}
+
 void ViewEditor::entityLinkModeChanged(const int id)
 {
   switch (id)
@@ -799,6 +876,10 @@ void ViewEditor::restoreDefaultsClicked()
   prefs.resetToDefault(Preferences::ShadeFaces);
   prefs.resetToDefault(Preferences::ShowFog);
   prefs.resetToDefault(Preferences::ShowEdges);
+  prefs.resetToDefault(Preferences::EqScenePreview);
+  prefs.resetToDefault(Preferences::EqScenePreviewVision);
+  prefs.resetToDefault(Preferences::EqScenePreviewTimeOfDay);
+  prefs.resetToDefault(Preferences::EqScenePreviewEntityLights);
   prefs.resetToDefault(Preferences::ShowSoftMapBounds);
   prefs.resetToDefault(Preferences::ShowPointEntities);
   prefs.resetToDefault(Preferences::ShowBrushes);

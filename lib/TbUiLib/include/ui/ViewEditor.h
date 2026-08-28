@@ -27,8 +27,10 @@
 #include <filesystem>
 #include <vector>
 
-class QCheckBox;
 class QButtonGroup;
+class QCheckBox;
+class QComboBox;
+class QDoubleSpinBox;
 
 namespace tb
 {
@@ -102,6 +104,10 @@ private:
   QCheckBox* m_shadeFacesCheckBox = nullptr;
   QCheckBox* m_showFogCheckBox = nullptr;
   QCheckBox* m_showEdgesCheckBox = nullptr;
+  QCheckBox* m_eqScenePreviewCheckBox = nullptr;
+  QComboBox* m_eqVisionComboBox = nullptr;
+  QDoubleSpinBox* m_eqTimeOfDaySpinBox = nullptr;
+  QCheckBox* m_eqEntityLightsCheckBox = nullptr;
 
   QButtonGroup* m_entityLinkRadioGroup = nullptr;
 
@@ -152,6 +158,10 @@ private:
   void shadeFacesChanged(bool checked);
   void showFogChanged(bool checked);
   void showEdgesChanged(bool checked);
+  void eqScenePreviewChanged(bool checked);
+  void eqVisionChanged(int index);
+  void eqTimeOfDayChanged();
+  void eqEntityLightsChanged(bool checked);
   void entityLinkModeChanged(int id);
   void showSoftMapBoundsChanged(bool checked);
   void restoreDefaultsClicked();

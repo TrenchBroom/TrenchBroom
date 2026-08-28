@@ -83,6 +83,11 @@ Virtual operations use explicit camera and render options:
     "brushEdges": true,
     "selection": false,
     "grid": false
+  },
+  "scenePreview": {
+    "vision": "human",
+    "timeOfDay": 20.0,
+    "entityLights": true
   }
 }
 ```

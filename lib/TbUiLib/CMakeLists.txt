@@ -97,6 +97,7 @@ target_sources(TbUiLib
     ${CMAKE_CURRENT_SOURCE_DIR}/src/EntityPropertyItemDelegate.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/EntityPropertyModel.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/EntityPropertyTable.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/EqScenePreview.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/FaceAttribsEditor.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/FaceInspector.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/FileDialogDefaultDir.cpp

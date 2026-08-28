@@ -32,6 +32,7 @@
 #include "render/BrushRendererArrays.h"
 #include "render/RenderBatch.h"
 #include "render/RenderContext.h"
+#include "render/SceneLighting.h"
 
 namespace tb::render
 {
@@ -168,6 +169,7 @@ void FaceRenderer::render(RenderContext& context)
     shader.set("CameraPosition", context.camera().position());
     shader.set("ShadeFaces", shadeFaces);
     shader.set("ShowFog", showFog);
+    setSceneLightingUniforms(shader, context.sceneLighting());
     shader.set("Alpha", m_alpha);
     shader.set("EnableMasked", false);
     shader.set("ShowSoftMapBounds", !context.softMapBounds().is_empty());

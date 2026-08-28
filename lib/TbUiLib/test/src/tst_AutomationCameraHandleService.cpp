@@ -57,7 +57,9 @@ automation::AutomationRenderRequest request()
      4096.0},
     {320, 200},
     automation::AutomationRenderMode::Textured,
-    {}};
+    {},
+    {},
+    std::nullopt};
 }
 
 } // namespace

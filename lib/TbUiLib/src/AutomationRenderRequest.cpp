@@ -180,6 +180,63 @@ QJsonObject outputsToJson(const AutomationOutputOptions& outputs)
   return {{"depth", outputs.depth}};
 }
 
+std::optional<std::optional<AutomationScenePreviewOptions>> scenePreviewFromJson(
+  const QJsonValue& value)
+{
+  if (value.isUndefined())
+  {
+    return std::optional<AutomationScenePreviewOptions>{};
+  }
+  if (!value.isObject())
+  {
+    return std::nullopt;
+  }
+  const auto object = value.toObject();
+  const auto visionValue = object.value("vision");
+  const auto timeValue = object.value("timeOfDay");
+  const auto lightsValue = object.value("entityLights");
+  if (
+    !visionValue.isString() || !timeValue.isDouble()
+    || (!lightsValue.isUndefined() && !lightsValue.isBool()))
+  {
+    return std::nullopt;
+  }
+
+  const auto visionName = visionValue.toString();
+  const auto vision =
+    visionName == "human"         ? std::optional{render::PlayerVision::Human}
+    : visionName == "infravision" ? std::optional{render::PlayerVision::Infravision}
+    : visionName == "ultravision" ? std::optional{render::PlayerVision::Ultravision}
+                                  : std::nullopt;
+  const auto timeOfDay = timeValue.toDouble();
+  if (!vision || !std::isfinite(timeOfDay) || timeOfDay < 0.0 || timeOfDay >= 24.0)
+  {
+    return std::nullopt;
+  }
+  return AutomationScenePreviewOptions{*vision, timeOfDay, lightsValue.toBool(true)};
+}
+
+QJsonObject scenePreviewToJson(const AutomationScenePreviewOptions& options)
+{
+  const auto vision = [&]() -> QString {
+    switch (options.vision)
+    {
+    case render::PlayerVision::Human:
+      return "human";
+    case render::PlayerVision::Infravision:
+      return "infravision";
+    case render::PlayerVision::Ultravision:
+      return "ultravision";
+    }
+    return "human";
+  }();
+  return {
+    {"vision", vision},
+    {"timeOfDay", options.timeOfDay},
+    {"entityLights", options.entityLights},
+  };
+}
+
 std::optional<double> finitePositiveDouble(const QJsonValue& value)
 {
   if (!value.isDouble())
@@ -207,7 +264,10 @@ std::optional<AutomationRenderRequest> renderRequestFromJson(const QJsonObject& 
   const auto renderMode = renderModeFromJson(json.value("renderMode"));
   const auto overlays = overlaysFromJson(json.value("overlays"));
   const auto outputs = outputsFromJson(json.value("outputs"));
-  if (!cameraObject.isObject() || !size || !renderMode || !overlays || !outputs)
+  const auto scenePreview = scenePreviewFromJson(json.value("scenePreview"));
+  if (
+    !cameraObject.isObject() || !size || !renderMode || !overlays || !outputs
+    || !scenePreview)
   {
     return std::nullopt;
   }
@@ -264,7 +324,8 @@ std::optional<AutomationRenderRequest> renderRequestFromJson(const QJsonObject& 
     camera.zoom = *zoom;
   }
 
-  return AutomationRenderRequest{camera, *size, *renderMode, *overlays, *outputs};
+  return AutomationRenderRequest{
+    camera, *size, *renderMode, *overlays, *outputs, *scenePreview};
 }
 
 QJsonObject renderRequestToJson(const AutomationRenderRequest& request)
@@ -288,13 +349,18 @@ QJsonObject renderRequestToJson(const AutomationRenderRequest& request)
   {
     camera.insert("zoom", *request.camera.zoom);
   }
-  return {
+  auto result = QJsonObject{
     {"camera", camera},
     {"size", imageSizeToJson(request.size)},
     {"renderMode", renderModeToJson(request.renderMode)},
     {"overlays", overlaysToJson(request.overlays)},
     {"outputs", outputsToJson(request.outputs)},
   };
+  if (request.scenePreview)
+  {
+    result.insert("scenePreview", scenePreviewToJson(*request.scenePreview));
+  }
+  return result;
 }
 
 QJsonObject renderOutputToJson(const AutomationRenderOutput& output)

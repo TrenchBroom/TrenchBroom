@@ -41,6 +41,7 @@
 #include "render/MapRenderer.h"
 #include "render/RenderBatch.h"
 #include "render/RenderContext.h"
+#include "render/SceneLighting.h"
 #include "render/SelectionBoundsRenderer.h"
 #include "ui/AnimationManager.h"
 #include "ui/AssembleBrushToolController3D.h"
@@ -53,6 +54,7 @@
 #include "ui/DrawShapeToolController3D.h"
 #include "ui/EdgeTool.h"
 #include "ui/EdgeToolController.h"
+#include "ui/EqScenePreview.h"
 #include "ui/ExtrudeToolController.h"
 #include "ui/FaceTool.h" // IWYU pragma: keep
 #include "ui/FaceToolController.h"
@@ -80,6 +82,20 @@
 
 namespace tb::ui
 {
+
+const Color& MapView3D::getBackgroundColor()
+{
+  if (pref(Preferences::EqScenePreview))
+  {
+    const auto profile = render::sceneLightingProfile(
+      playerVisionFromName(pref(Preferences::EqScenePreviewVision)),
+      pref(Preferences::EqScenePreviewTimeOfDay));
+    m_scenePreviewBackground =
+      Color{RgbF{profile.skyColor.x(), profile.skyColor.y(), profile.skyColor.z()}};
+    return m_scenePreviewBackground;
+  }
+  return pref(Preferences::BackgroundColor);
+}
 
 MapView3D::MapView3D(
   AppController& appController, MapDocument& document, MapViewToolBox& toolBox)

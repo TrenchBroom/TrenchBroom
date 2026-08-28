@@ -32,7 +32,9 @@
 #include "render/MapRenderer.h"
 #include "render/RenderBatch.h"
 #include "render/RenderContext.h"
+#include "render/SceneLighting.h"
 #include "ui/AutomationRenderRequest.h"
+#include "ui/EqScenePreview.h"
 #include "ui/GlFunctions.h"
 #include "ui/GlQt.h"
 #include "ui/MapDocument.h"
@@ -112,7 +114,7 @@ bool validRequest(const automation::AutomationRenderRequest& request)
 
 void configureContext(
   render::RenderContext& context,
-  const mdl::Map& map,
+  mdl::Map& map,
   const automation::AutomationRenderRequest& request)
 {
   context.setFilterMode(
@@ -128,6 +130,16 @@ void configureContext(
   context.setShowBrushEntityBounds(pref(Preferences::ShowBrushEntityBounds));
   context.setShowPointEntityBounds(pref(Preferences::ShowPointEntityBounds));
   context.setShowFog(pref(Preferences::ShowFog));
+  if (request.scenePreview)
+  {
+    context.setSceneLighting(buildEqSceneLighting(
+      map,
+      {true,
+       request.scenePreview->vision,
+       static_cast<float>(request.scenePreview->timeOfDay),
+       request.scenePreview->entityLights},
+      vm::vec3f{request.camera.position}));
+  }
   context.setShowGrid(request.overlays.grid);
   context.setGridSize(map.grid().actualSize());
   context.setDpiScale(1.0f);
@@ -246,11 +258,21 @@ FramebufferOutput renderToFramebuffer(
   QOpenGLFramebufferObject& framebuffer)
 {
   framebuffer.bind();
-  const auto background = pref(Preferences::BackgroundColor).to<RgbaF>();
+  const RgbaF background = [&]() -> RgbaF {
+    if (request.scenePreview)
+    {
+      const auto profile = render::sceneLightingProfile(
+        request.scenePreview->vision,
+        static_cast<float>(request.scenePreview->timeOfDay));
+      return RgbaF{
+        profile.skyColor.x(), profile.skyColor.y(), profile.skyColor.z(), 1.0f};
+    }
+    return pref(Preferences::BackgroundColor).to<RgbaF>();
+  }();
   gl.clearColor(
-    background.get<ColorChannel::r>(),
-    background.get<ColorChannel::g>(),
-    background.get<ColorChannel::b>(),
+    background.template get<ColorChannel::r>(),
+    background.template get<ColorChannel::g>(),
+    background.template get<ColorChannel::b>(),
     1.0f);
   gl.clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 

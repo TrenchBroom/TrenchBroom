@@ -79,6 +79,7 @@
 #include "ui/AnimationManager.h"
 #include "ui/AppController.h"
 #include "ui/EnableDisableTagCallback.h"
+#include "ui/EqScenePreview.h"
 #include "ui/FlashSelectionAnimation.h"
 #include "ui/MapDocument.h"
 #include "ui/MapViewActivationTracker.h"
@@ -1063,6 +1064,13 @@ void MapViewBase::renderContents(gl::Gl& gl)
   renderContext.setShowBrushEntityBounds(pref(Preferences::ShowBrushEntityBounds));
   renderContext.setShowPointEntityBounds(pref(Preferences::ShowPointEntityBounds));
   renderContext.setShowFog(pref(Preferences::ShowFog));
+  renderContext.setSceneLighting(buildEqSceneLighting(
+    m_document.map(),
+    {renderContext.render3D() && pref(Preferences::EqScenePreview),
+     playerVisionFromName(pref(Preferences::EqScenePreviewVision)),
+     pref(Preferences::EqScenePreviewTimeOfDay),
+     pref(Preferences::EqScenePreviewEntityLights)},
+    camera().position()));
   renderContext.setShowGrid(grid.visible());
   renderContext.setGridSize(grid.actualSize());
   renderContext.setDpiScale(static_cast<float>(window()->devicePixelRatioF()));
@@ -1312,9 +1320,8 @@ void MapViewBase::showPopupMenuLater()
   }
 
   const auto moveSelectionToItems = moveSelectionTo->actions();
-  moveSelectionTo->setEnabled(
-    std::ranges::any_of(
-      moveSelectionToItems, [](QAction* action) { return action->isEnabled(); }));
+  moveSelectionTo->setEnabled(std::ranges::any_of(
+    moveSelectionToItems, [](QAction* action) { return action->isEnabled(); }));
 
   if (selectedObjectLayers.size() == 1u)
   {
@@ -1366,14 +1373,13 @@ void MapViewBase::showPopupMenuLater()
       menu.addAction(tr("Make Structural"), this, &MapViewBase::makeSelectionStructural);
     moveToWorldAction->setEnabled(canMakeSelectionStructural());
 
-    const auto isEntity = newNodeParent.accept(
-      kdl::overload(
-        [](const mdl::WorldNode&) { return false; },
-        [](const mdl::LayerNode&) { return false; },
-        [](const mdl::GroupNode&) { return false; },
-        [](const mdl::EntityNode&) { return true; },
-        [](const mdl::BrushNode&) { return false; },
-        [](const mdl::PatchNode&) { return false; }));
+    const auto isEntity = newNodeParent.accept(kdl::overload(
+      [](const mdl::WorldNode&) { return false; },
+      [](const mdl::LayerNode&) { return false; },
+      [](const mdl::GroupNode&) { return false; },
+      [](const mdl::EntityNode&) { return true; },
+      [](const mdl::BrushNode&) { return false; },
+      [](const mdl::PatchNode&) { return false; }));
 
     if (isEntity)
     {

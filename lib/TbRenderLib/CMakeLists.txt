@@ -31,6 +31,7 @@ target_sources(TbRenderLib
     ${CMAKE_CURRENT_SOURCE_DIR}/src/RenderService.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Renderable.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/SelectionBoundsRenderer.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/SceneLighting.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/SpikeGuideRenderer.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/TextAnchor.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/TextRenderer.cpp
