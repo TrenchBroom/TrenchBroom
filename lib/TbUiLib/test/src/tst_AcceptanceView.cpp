@@ -44,11 +44,25 @@ AcceptanceProject makeProject()
   return project;
 }
 
+AcceptanceProject makeContextProject()
+{
+  auto project = makeProject();
+  project.contexts = {{
+    "unrest-rebuild",
+    "Unrest rebuild",
+    "../maps/source.map",
+    "../maps/target.map",
+    {},
+  }};
+  project.comparisons.front().contextId = "unrest-rebuild";
+  return project;
+}
+
 } // namespace
 
 TEST_CASE("AcceptanceView")
 {
-  SECTION("round trips a complete schema-v1 project deterministically")
+  SECTION("round trips a complete schema-v2 project deterministically")
   {
     const auto project = makeProject();
     REQUIRE(validateAcceptanceProject(project).is_success());
@@ -64,6 +78,48 @@ TEST_CASE("AcceptanceView")
       QJsonDocument{json}.toJson(QJsonDocument::Compact)
       == QJsonDocument{acceptanceProjectToJson(parsed.value())}.toJson(
         QJsonDocument::Compact));
+  }
+
+  SECTION("persists a reusable context without duplicating its binding in comparisons")
+  {
+    const auto project = makeContextProject();
+    REQUIRE(validateAcceptanceProject(project).is_success());
+
+    const auto json = acceptanceProjectToJson(project);
+    REQUIRE(json.value("contexts").toArray().size() == 1);
+    const auto comparison = json.value("comparisons").toArray().first().toObject();
+    CHECK(comparison.value("contextId") == "unrest-rebuild");
+    CHECK_FALSE(comparison.value("reference").toObject().contains("documentPath"));
+    CHECK_FALSE(comparison.value("target").toObject().contains("documentPath"));
+    CHECK_FALSE(comparison.contains("alignment"));
+
+    const auto parsed = acceptanceProjectFromJson(json);
+    REQUIRE(parsed.is_success());
+    REQUIRE(parsed.value().comparisons.front().contextId);
+    CHECK(*parsed.value().comparisons.front().contextId == "unrest-rebuild");
+    CHECK(parsed.value().comparisons.front().reference.path == "../maps/source.map");
+    CHECK(parsed.value().comparisons.front().target.path == "../maps/target.map");
+  }
+
+  SECTION("migrates a schema-v1 project to standalone schema-v2 comparisons")
+  {
+    auto json = acceptanceProjectToJson(makeProject());
+    json.insert("schemaVersion", static_cast<qint64>(LegacyAcceptanceSchemaVersion));
+    json.remove("contexts");
+    auto suites = json.value("suites").toArray();
+    auto suite = suites.first().toObject();
+    suite.insert("schemaVersion", static_cast<qint64>(LegacyAcceptanceSchemaVersion));
+    suites.replace(0, suite);
+    json.insert("suites", suites);
+
+    const auto parsed = acceptanceProjectFromJson(json);
+    REQUIRE(parsed.is_success());
+    CHECK(parsed.value().schemaVersion == AcceptanceSchemaVersion);
+    CHECK(parsed.value().contexts.empty());
+    CHECK_FALSE(parsed.value().comparisons.front().contextId);
+    CHECK(
+      acceptanceProjectToJson(parsed.value()).value("schemaVersion")
+      == static_cast<qint64>(AcceptanceSchemaVersion));
   }
 
   SECTION("rejects unsupported schema and types")
@@ -89,6 +145,14 @@ TEST_CASE("AcceptanceView")
 
     project = makeProject();
     project.comparisons.front().reference.path = "/absolute/source.map";
+    CHECK(validateAcceptanceProject(project).is_error());
+
+    project = makeContextProject();
+    project.contexts.front().candidatePath = project.contexts.front().referencePath;
+    CHECK(validateAcceptanceProject(project).is_error());
+
+    project = makeContextProject();
+    project.comparisons.front().target.path = "../maps/drifted.map";
     CHECK(validateAcceptanceProject(project).is_error());
   }
 

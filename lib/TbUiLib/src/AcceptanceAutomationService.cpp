@@ -42,6 +42,8 @@ AcceptanceAutomationError storeError(const Result<Value, AcceptanceError>& resul
 
 QString singularKind(const QString& kind)
 {
+  if (kind == "contexts")
+    return "context";
   if (kind == "views")
     return "view";
   if (kind == "comparisons")
@@ -168,8 +170,8 @@ const std::filesystem::path& AcceptanceAutomationService::projectPath() const
 AcceptanceAutomationResult AcceptanceAutomationService::handle(
   const QString& method, const QJsonObject& params)
 {
-  static const auto kinds =
-    std::array{QString{"views"}, QString{"comparisons"}, QString{"suites"}};
+  static const auto kinds = std::array{
+    QString{"contexts"}, QString{"views"}, QString{"comparisons"}, QString{"suites"}};
   for (const auto& kind : kinds)
   {
     const auto prefix = "acceptance." + kind + ".";

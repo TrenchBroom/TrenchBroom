@@ -29,7 +29,8 @@
 namespace tb::ui
 {
 
-inline constexpr size_t AcceptanceSchemaVersion = 1u;
+inline constexpr size_t AcceptanceSchemaVersion = 2u;
+inline constexpr size_t LegacyAcceptanceSchemaVersion = 1u;
 
 enum class AcceptanceErrorCode
 {
@@ -127,6 +128,20 @@ struct AcceptanceAlignment
   std::vector<AcceptanceLandmark> landmarks;
 };
 
+/**
+ * A durable, asymmetric document pairing shared by many comparisons. Paths are
+ * project-relative; alignment maps reference coordinates into candidate coordinates.
+ * The reference role is read-only for context-aware operations.
+ */
+struct AcceptanceComparisonContext
+{
+  std::string id;
+  std::string name;
+  std::filesystem::path referencePath;
+  std::filesystem::path candidatePath;
+  AcceptanceAlignment alignment;
+};
+
 /** A normalized rectangle in [0, 1] image coordinates. */
 struct AcceptanceMask
 {
@@ -194,6 +209,7 @@ struct AcceptanceComparison
   std::vector<AcceptanceMask> masks;
   std::vector<AcceptanceMetric> metrics;
   std::vector<AcceptanceAssertion> assertions;
+  std::optional<std::string> contextId = std::nullopt;
 };
 
 struct AcceptanceSuite
@@ -212,6 +228,7 @@ struct AcceptanceProject
   std::vector<AcceptanceNamedView> views;
   std::vector<AcceptanceComparison> comparisons;
   std::vector<AcceptanceSuite> suites;
+  std::vector<AcceptanceComparisonContext> contexts;
 };
 
 using AcceptanceProjectResult = Result<AcceptanceProject, AcceptanceError>;

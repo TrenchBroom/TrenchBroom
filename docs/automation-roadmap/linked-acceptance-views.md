@@ -17,6 +17,25 @@ captures the active GUI viewport implicitly.
 
 ## Persisted concepts
 
+### Comparison context
+
+A durable project-level assignment of reference and candidate roles:
+
+```json
+{
+  "id": "unrest-rebuild",
+  "name": "Unrest rebuild",
+  "reference": {"documentPath": "../maps/unrest.map"},
+  "candidate": {"documentPath": "../maps/unrest_rebuilt.map"},
+  "alignment": {"type": "identity"}
+}
+```
+
+The alignment maps reference coordinates into candidate coordinates. Context-bound
+operations treat the reference as read-only and never resolve either role from the
+active GUI document. See
+[ADR 0002](adr-0002-first-class-comparison-contexts.md).
+
 ### Named view
 
 A durable camera and render configuration:
@@ -46,21 +65,15 @@ camera pose/profile, never the session camera handle.
 
 ### Comparison
 
-A pairing of reference and target documents/views plus alignment and masks:
+A pairing of named views, normally bound to a reusable comparison context:
 
 ```json
 {
   "id": "comparison-entry-reveal",
   "name": "Entry mansion reveal",
-  "reference": {
-    "documentPath": "/.../unrest.map",
-    "viewId": "view-entry-mansion-reveal-source"
-  },
-  "target": {
-    "documentPath": "/.../unrest_rebuilt.map",
-    "viewId": "view-entry-mansion-reveal-target"
-  },
-  "alignment": {"type": "identity"},
+  "contextId": "unrest-rebuild",
+  "reference": {"viewId": "view-entry-mansion-reveal-source"},
+  "target": {"viewId": "view-entry-mansion-reveal-target"},
   "metrics": ["depth", "silhouette"],
   "assertions": []
 }
@@ -79,7 +92,7 @@ A versioned collection of comparisons and assertions:
 
 ```json
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "suiteId": "front-gardens",
   "name": "Front gardens",
   "comparisons": [
@@ -150,6 +163,7 @@ For the Unrest entrance, a suite should include at least:
 
 Proposed methods:
 
+- `acceptance.contexts.list/create/update/delete`
 - `acceptance.views.list/create/update/delete/capture`
 - `acceptance.comparisons.list/create/update/delete/capture`
 - `acceptance.suites.list/run`

@@ -41,8 +41,11 @@ AcceptanceProject makeProject()
     {},
     {},
     {},
+    "unrest-rebuild",
   }};
   project.suites = {{AcceptanceSchemaVersion, "suite", "Suite", {"comparison"}}};
+  project.contexts = {
+    {"unrest-rebuild", "Unrest rebuild", "source.map", "target.map", {}}};
   return project;
 }
 
@@ -115,60 +118,82 @@ TEST_CASE("AcceptanceAutomationService")
 
   SECTION("routes optimistic CRUD and reports the explicit store path")
   {
+    const auto context = service.handle(
+      "acceptance.contexts.create",
+      {{"expectedRevision", 0}, {"context", item(project, "contexts", 0)}});
+    REQUIRE(context.is_success());
+    CHECK(context.value().value("revision") == 1);
+    CHECK(
+      context.value().value("projectPath")
+      == QString::fromStdString(projectPath.generic_string()));
+
     const auto source = service.handle(
       "acceptance.views.create",
-      {{"expectedRevision", 0}, {"view", item(project, "views", 0)}});
+      {{"expectedRevision", 1}, {"view", item(project, "views", 0)}});
     REQUIRE(source.is_success());
-    CHECK(source.value().value("revision") == 1);
-    CHECK(
-      source.value().value("projectPath")
-      == QString::fromStdString(projectPath.generic_string()));
+    CHECK(source.value().value("revision") == 2);
 
     REQUIRE(service
               .handle(
                 "acceptance.views.create",
-                {{"expectedRevision", 1}, {"view", item(project, "views", 1)}})
+                {{"expectedRevision", 2}, {"view", item(project, "views", 1)}})
               .is_success());
     REQUIRE(
       service
         .handle(
           "acceptance.comparisons.create",
-          {{"expectedRevision", 2}, {"comparison", item(project, "comparisons", 0)}})
+          {{"expectedRevision", 3}, {"comparison", item(project, "comparisons", 0)}})
         .is_success());
     REQUIRE(service
               .handle(
                 "acceptance.suites.create",
-                {{"expectedRevision", 3}, {"suite", item(project, "suites", 0)}})
+                {{"expectedRevision", 4}, {"suite", item(project, "suites", 0)}})
               .is_success());
 
     const auto views = service.handle("acceptance.views.list", {});
     REQUIRE(views.is_success());
     CHECK(views.value().value("items").toArray().size() == 2);
 
-    auto updated = item(project, "views", 0);
-    updated.insert("name", "Updated Source");
+    const auto contexts = service.handle("acceptance.contexts.list", {});
+    REQUIRE(contexts.is_success());
+    CHECK(contexts.value().value("items").toArray().size() == 1);
+
+    auto updated = item(project, "contexts", 0);
+    updated.insert("candidate", QJsonObject{{"documentPath", "updated-target.map"}});
     const auto update = service.handle(
-      "acceptance.views.update",
-      {{"id", "source"}, {"expectedRevision", 4}, {"view", updated}});
+      "acceptance.contexts.update",
+      {{"id", "unrest-rebuild"}, {"expectedRevision", 5}, {"context", updated}});
     REQUIRE(update.is_success());
-    CHECK(update.value().value("revision") == 5);
+    CHECK(update.value().value("revision") == 6);
+    const auto loaded = store.load();
+    REQUIRE(loaded.is_success());
+    CHECK(loaded.value().comparisons.front().target.path == "updated-target.map");
 
     const auto stale = service.handle(
-      "acceptance.views.update",
-      {{"id", "source"}, {"expectedRevision", 4}, {"view", updated}});
+      "acceptance.contexts.update",
+      {{"id", "unrest-rebuild"}, {"expectedRevision", 5}, {"context", updated}});
     REQUIRE(stale.is_error());
     CHECK(
       std::get<AcceptanceAutomationError>(stale.error()).code
       == AcceptanceAutomationErrorCode::StoreFailed);
 
+    const auto referencedContext = service.handle(
+      "acceptance.contexts.delete", {{"id", "unrest-rebuild"}, {"expectedRevision", 6}});
+    REQUIRE(referencedContext.is_error());
+
     REQUIRE(
       service
-        .handle("acceptance.suites.delete", {{"id", "suite"}, {"expectedRevision", 5}})
+        .handle("acceptance.suites.delete", {{"id", "suite"}, {"expectedRevision", 6}})
         .is_success());
     REQUIRE(service
               .handle(
                 "acceptance.comparisons.delete",
-                {{"id", "comparison"}, {"expectedRevision", 6}})
+                {{"id", "comparison"}, {"expectedRevision", 7}})
+              .is_success());
+    REQUIRE(service
+              .handle(
+                "acceptance.contexts.delete",
+                {{"id", "unrest-rebuild"}, {"expectedRevision", 8}})
               .is_success());
   }
 

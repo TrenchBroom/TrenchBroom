@@ -142,6 +142,7 @@ portable paths relative to the project file. Store mutations use `expectedRevisi
 and commit atomically.
 
 - `acceptance.views.list/create/update/delete`
+- `acceptance.contexts.list/create/update/delete`
 - `acceptance.comparisons.list/create/update/delete`
 - `acceptance.suites.list/create/update/delete`
 - `acceptance.capture` with `comparisonId`
@@ -149,6 +150,23 @@ and commit atomically.
   `maxCpuConcurrency`
 - `acceptance.assertions.evaluate` for a one-shot assertion against an explicit live or
   acceptance-owned hidden `documentId`
+
+A comparison context persistently assigns asymmetric reference and candidate roles to
+two project-relative document paths and owns their reference-to-candidate alignment.
+Context-bound comparisons store only `contextId` and their two named-view IDs, so a
+context path or alignment update applies atomically to every linked comparison. The
+reference role is read-only for context-aware operations; low-level mutation RPCs still
+require an explicit document ID and never infer a target from the context or GUI focus.
+
+```json
+{
+  "id": "unrest-rebuild",
+  "name": "Unrest rebuild",
+  "reference": {"documentPath": "../maps/unrest.map"},
+  "candidate": {"documentPath": "../maps/unrest_rebuilt.map"},
+  "alignment": {"type": "identity"}
+}
+```
 
 Paired capture loads an exact live path when one is registered, otherwise it owns a
 hidden `MapDocument` with no `MapWindow`. Reports echo paths, non-reusable document IDs,

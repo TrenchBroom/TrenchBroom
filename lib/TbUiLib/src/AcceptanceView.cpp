@@ -540,6 +540,107 @@ Result<AcceptanceDocumentReference, AcceptanceError> documentReferenceFromJson(
   };
 }
 
+QJsonObject contextDocumentToJson(const std::filesystem::path& path)
+{
+  return {{"documentPath", pathAsGenericQString(path)}};
+}
+
+Result<std::filesystem::path, AcceptanceError> contextDocumentFromJson(
+  const QJsonValue& value, const char* role)
+{
+  if (!value.isObject() || !value.toObject().value("documentPath").isString())
+  {
+    return error(
+      AcceptanceErrorCode::InvalidJson,
+      std::string{"Context "} + role + " needs a documentPath string");
+  }
+  return pathFromQString(value.toObject().value("documentPath").toString());
+}
+
+QJsonObject comparisonContextToJson(const AcceptanceComparisonContext& context)
+{
+  return {
+    {"id", QString::fromStdString(context.id)},
+    {"name", QString::fromStdString(context.name)},
+    {"reference", contextDocumentToJson(context.referencePath)},
+    {"candidate", contextDocumentToJson(context.candidatePath)},
+    {"alignment", alignmentToJson(context.alignment)},
+  };
+}
+
+Result<AcceptanceComparisonContext, AcceptanceError> comparisonContextFromJson(
+  const QJsonValue& value)
+{
+  if (!value.isObject())
+    return error(AcceptanceErrorCode::InvalidJson, "Each context must be an object");
+  const auto object = value.toObject();
+  if (!object.value("id").isString() || !object.value("name").isString())
+  {
+    return error(AcceptanceErrorCode::InvalidJson, "Context needs id and name strings");
+  }
+  const auto reference = contextDocumentFromJson(object.value("reference"), "reference");
+  const auto candidate = contextDocumentFromJson(object.value("candidate"), "candidate");
+  const auto alignment = alignmentFromJson(object.value("alignment"));
+  if (reference.is_error())
+    return resultError(reference);
+  if (candidate.is_error())
+    return resultError(candidate);
+  if (alignment.is_error())
+    return resultError(alignment);
+  return AcceptanceComparisonContext{
+    object.value("id").toString().toStdString(),
+    object.value("name").toString().toStdString(),
+    reference.value(),
+    candidate.value(),
+    alignment.value(),
+  };
+}
+
+QJsonObject contextViewReferenceToJson(const std::string& viewId)
+{
+  return {{"viewId", QString::fromStdString(viewId)}};
+}
+
+Result<std::string, AcceptanceError> contextViewReferenceFromJson(
+  const QJsonValue& value, const char* role)
+{
+  if (!value.isObject() || !value.toObject().value("viewId").isString())
+  {
+    return error(
+      AcceptanceErrorCode::InvalidJson,
+      std::string{"Context-bound comparison "} + role + " needs a viewId string");
+  }
+  return value.toObject().value("viewId").toString().toStdString();
+}
+
+AcceptanceValidationResult validateAlignment(const AcceptanceAlignment& alignment)
+{
+  if (
+    alignment.type == AcceptanceAlignmentType::Landmarks
+    && alignment.landmarks.size() < 3u)
+  {
+    return error(
+      AcceptanceErrorCode::InvalidValue,
+      "Landmark alignment requires at least three landmarks");
+  }
+  if (
+    alignment.type == AcceptanceAlignmentType::Matrix
+    && !std::ranges::all_of(
+      alignment.matrix, [](const auto value) { return finite(value); }))
+  {
+    return error(AcceptanceErrorCode::InvalidValue, "Matrix alignment must be finite");
+  }
+  if (
+    alignment.type == AcceptanceAlignmentType::Landmarks
+    && !std::ranges::all_of(alignment.landmarks, [](const auto& landmark) {
+         return finite(landmark.reference) && finite(landmark.target);
+       }))
+  {
+    return error(AcceptanceErrorCode::InvalidValue, "Landmarks must be finite");
+  }
+  return {};
+}
+
 QJsonObject maskToJson(const AcceptanceMask& mask)
 {
   return {
@@ -729,12 +830,63 @@ AcceptanceValidationResult validateAcceptanceProject(const AcceptanceProject& pr
         "View camera projection parameters are invalid");
   }
 
+  auto contextIds = std::set<std::string>{};
+  for (const auto& context : project.contexts)
+  {
+    if (!validId(context.id) || !contextIds.insert(context.id).second)
+    {
+      return error(
+        AcceptanceErrorCode::InvalidValue, "Context ids must be unique portable ids");
+    }
+    if (
+      context.name.empty() || !validRelativePath(context.referencePath)
+      || !validRelativePath(context.candidatePath))
+    {
+      return error(
+        AcceptanceErrorCode::InvalidValue,
+        "Context needs a name and portable reference/candidate paths");
+    }
+    if (
+      context.referencePath.lexically_normal()
+      == context.candidatePath.lexically_normal())
+    {
+      return error(
+        AcceptanceErrorCode::InvalidValue,
+        "Context reference and candidate paths must be different");
+    }
+    const auto alignment = validateAlignment(context.alignment);
+    if (alignment.is_error())
+      return resultError(alignment);
+  }
+
   auto comparisonIds = std::set<std::string>{};
   for (const auto& comparison : project.comparisons)
   {
     if (!validId(comparison.id) || !comparisonIds.insert(comparison.id).second)
       return error(
         AcceptanceErrorCode::InvalidValue, "Comparison ids must be unique portable ids");
+    if (comparison.contextId)
+    {
+      const auto context = std::ranges::find(
+        project.contexts, *comparison.contextId, &AcceptanceComparisonContext::id);
+      if (context == project.contexts.end())
+      {
+        return error(
+          AcceptanceErrorCode::BrokenReference,
+          "Comparison references a missing context");
+      }
+      if (
+        comparison.reference.path.lexically_normal()
+          != context->referencePath.lexically_normal()
+        || comparison.target.path.lexically_normal()
+             != context->candidatePath.lexically_normal()
+        || alignmentToJson(comparison.alignment) != alignmentToJson(context->alignment))
+      {
+        return error(
+          AcceptanceErrorCode::BrokenReference,
+          "Context-bound comparison document paths or alignment have drifted");
+      }
+    }
     for (const auto& endpoint :
          {std::cref(comparison.reference), std::cref(comparison.target)})
     {
@@ -779,23 +931,9 @@ AcceptanceValidationResult validateAcceptanceProject(const AcceptanceProject& pr
         return error(
           AcceptanceErrorCode::InvalidValue, "Assertion bounds min must not exceed max");
     }
-    if (
-      comparison.alignment.type == AcceptanceAlignmentType::Landmarks
-      && comparison.alignment.landmarks.size() < 3u)
-      return error(
-        AcceptanceErrorCode::InvalidValue,
-        "Landmark alignment requires at least three landmarks");
-    if (
-      comparison.alignment.type == AcceptanceAlignmentType::Matrix
-      && !std::ranges::all_of(
-        comparison.alignment.matrix, [](const auto value) { return finite(value); }))
-      return error(AcceptanceErrorCode::InvalidValue, "Matrix alignment must be finite");
-    if (
-      comparison.alignment.type == AcceptanceAlignmentType::Landmarks
-      && !std::ranges::all_of(comparison.alignment.landmarks, [](const auto& landmark) {
-           return finite(landmark.reference) && finite(landmark.target);
-         }))
-      return error(AcceptanceErrorCode::InvalidValue, "Landmarks must be finite");
+    const auto alignment = validateAlignment(comparison.alignment);
+    if (alignment.is_error())
+      return resultError(alignment);
   }
 
   auto suiteIds = std::set<std::string>{};
@@ -821,12 +959,16 @@ AcceptanceValidationResult validateAcceptanceProject(const AcceptanceProject& pr
 QJsonObject acceptanceProjectToJson(const AcceptanceProject& project)
 {
   auto canonical = project;
+  sortById(canonical.contexts);
   sortById(canonical.views);
   sortById(canonical.comparisons);
   std::ranges::sort(canonical.suites, {}, &AcceptanceSuite::suiteId);
   auto views = QJsonArray{};
   for (const auto& view : canonical.views)
     views.push_back(namedViewToJson(view));
+  auto contexts = QJsonArray{};
+  for (const auto& context : canonical.contexts)
+    contexts.push_back(comparisonContextToJson(context));
   auto comparisons = QJsonArray{};
   for (auto comparison : canonical.comparisons)
   {
@@ -842,17 +984,26 @@ QJsonObject acceptanceProjectToJson(const AcceptanceProject& project)
     auto assertions = QJsonArray{};
     for (const auto& assertion : comparison.assertions)
       assertions.push_back(assertionToJson(assertion));
-    comparisons.push_back(
-      QJsonObject{
-        {"id", QString::fromStdString(comparison.id)},
-        {"name", QString::fromStdString(comparison.name)},
-        {"reference", documentReferenceToJson(comparison.reference)},
-        {"target", documentReferenceToJson(comparison.target)},
-        {"alignment", alignmentToJson(comparison.alignment)},
-        {"masks", masks},
-        {"metrics", metrics},
-        {"assertions", assertions},
-      });
+    auto object = QJsonObject{
+      {"id", QString::fromStdString(comparison.id)},
+      {"name", QString::fromStdString(comparison.name)},
+      {"masks", masks},
+      {"metrics", metrics},
+      {"assertions", assertions},
+    };
+    if (comparison.contextId)
+    {
+      object.insert("contextId", QString::fromStdString(*comparison.contextId));
+      object.insert("reference", contextViewReferenceToJson(comparison.reference.viewId));
+      object.insert("target", contextViewReferenceToJson(comparison.target.viewId));
+    }
+    else
+    {
+      object.insert("reference", documentReferenceToJson(comparison.reference));
+      object.insert("target", documentReferenceToJson(comparison.target));
+      object.insert("alignment", alignmentToJson(comparison.alignment));
+    }
+    comparisons.push_back(object);
   }
   auto suites = QJsonArray{};
   for (auto suite : canonical.suites)
@@ -871,6 +1022,7 @@ QJsonObject acceptanceProjectToJson(const AcceptanceProject& project)
   return {
     {"schemaVersion", static_cast<qint64>(canonical.schemaVersion)},
     {"revision", static_cast<qint64>(canonical.revision)},
+    {"contexts", contexts},
     {"views", views},
     {"comparisons", comparisons},
     {"suites", suites}};
@@ -882,18 +1034,28 @@ AcceptanceProjectResult acceptanceProjectFromJson(const QJsonObject& json)
   const auto revision = json.value("revision");
   if (
     !schemaVersion.isDouble() || !revision.isDouble()
-    || schemaVersion.toDouble() != AcceptanceSchemaVersion || revision.toDouble() < 0.0
+    || (schemaVersion.toDouble() != AcceptanceSchemaVersion && schemaVersion.toDouble() != LegacyAcceptanceSchemaVersion)
+    || revision.toDouble() < 0.0
     || revision.toDouble() != std::floor(revision.toDouble()))
     return error(
       AcceptanceErrorCode::UnsupportedSchemaVersion,
       "Unsupported or missing acceptance schema version/revision");
+  const auto sourceSchemaVersion = static_cast<size_t>(schemaVersion.toDouble());
   auto project = AcceptanceProject{};
-  project.schemaVersion = static_cast<size_t>(schemaVersion.toDouble());
+  project.schemaVersion = AcceptanceSchemaVersion;
   project.revision = static_cast<size_t>(revision.toDouble());
   const auto views = parseArray<AcceptanceNamedView>(json, "views", namedViewFromJson);
   if (views.is_error())
     return resultError(views);
   project.views = views.value();
+  if (sourceSchemaVersion >= AcceptanceSchemaVersion)
+  {
+    const auto contexts = parseArray<AcceptanceComparisonContext>(
+      json, "contexts", comparisonContextFromJson);
+    if (contexts.is_error())
+      return resultError(contexts);
+    project.contexts = contexts.value();
+  }
   const auto comparisonValues = json.value("comparisons");
   if (!comparisonValues.isArray())
     return error(AcceptanceErrorCode::InvalidJson, "'comparisons' must be an array");
@@ -904,9 +1066,50 @@ AcceptanceProjectResult acceptanceProjectFromJson(const QJsonObject& json)
     const auto object = value.toObject();
     if (!object.value("id").isString() || !object.value("name").isString())
       return error(AcceptanceErrorCode::InvalidJson, "Comparison needs id and name");
-    const auto reference = documentReferenceFromJson(object.value("reference"));
-    const auto target = documentReferenceFromJson(object.value("target"));
-    const auto alignment = alignmentFromJson(object.value("alignment"));
+    if (object.contains("contextId") && !object.value("contextId").isString())
+    {
+      return error(
+        AcceptanceErrorCode::InvalidJson,
+        "Comparison contextId must be a string when supplied");
+    }
+    const auto contextId =
+      object.contains("contextId")
+        ? std::optional{object.value("contextId").toString().toStdString()}
+        : std::nullopt;
+    auto reference =
+      Result<AcceptanceDocumentReference, AcceptanceError>{AcceptanceDocumentReference{}};
+    auto target =
+      Result<AcceptanceDocumentReference, AcceptanceError>{AcceptanceDocumentReference{}};
+    auto alignment = Result<AcceptanceAlignment, AcceptanceError>{AcceptanceAlignment{}};
+    if (contextId)
+    {
+      const auto context =
+        std::ranges::find(project.contexts, *contextId, &AcceptanceComparisonContext::id);
+      if (context == project.contexts.end())
+      {
+        return error(
+          AcceptanceErrorCode::BrokenReference,
+          "Comparison references a missing context");
+      }
+      const auto referenceView =
+        contextViewReferenceFromJson(object.value("reference"), "reference");
+      const auto targetView =
+        contextViewReferenceFromJson(object.value("target"), "target");
+      if (referenceView.is_error())
+        return resultError(referenceView);
+      if (targetView.is_error())
+        return resultError(targetView);
+      reference =
+        AcceptanceDocumentReference{context->referencePath, referenceView.value()};
+      target = AcceptanceDocumentReference{context->candidatePath, targetView.value()};
+      alignment = context->alignment;
+    }
+    else
+    {
+      reference = documentReferenceFromJson(object.value("reference"));
+      target = documentReferenceFromJson(object.value("target"));
+      alignment = alignmentFromJson(object.value("alignment"));
+    }
     const auto masks = parseArray<AcceptanceMask>(object, "masks", maskFromJson);
     const auto metrics = parseArray<AcceptanceMetric>(object, "metrics", metricFromJson);
     const auto assertions =
@@ -931,7 +1134,8 @@ AcceptanceProjectResult acceptanceProjectFromJson(const QJsonObject& json)
        alignment.value(),
        masks.value(),
        metrics.value(),
-       assertions.value()});
+       assertions.value(),
+       contextId});
   }
   const auto suiteValues = json.value("suites");
   if (!suiteValues.isArray())
@@ -945,6 +1149,15 @@ AcceptanceProjectResult acceptanceProjectFromJson(const QJsonObject& json)
       !object.value("schemaVersion").isDouble() || !object.value("suiteId").isString()
       || !object.value("name").isString() || !object.value("comparisons").isArray())
       return error(AcceptanceErrorCode::InvalidJson, "Suite fields are invalid");
+    const auto suiteSchemaVersion = object.value("schemaVersion").toDouble();
+    if (
+      suiteSchemaVersion != AcceptanceSchemaVersion
+      && suiteSchemaVersion != LegacyAcceptanceSchemaVersion)
+    {
+      return error(
+        AcceptanceErrorCode::UnsupportedSchemaVersion,
+        "Unsupported acceptance suite schema version");
+    }
     auto ids = std::vector<std::string>{};
     for (const auto& id : object.value("comparisons").toArray())
     {
@@ -954,7 +1167,7 @@ AcceptanceProjectResult acceptanceProjectFromJson(const QJsonObject& json)
       ids.push_back(id.toString().toStdString());
     }
     project.suites.push_back(
-      {static_cast<size_t>(object.value("schemaVersion").toDouble()),
+      {AcceptanceSchemaVersion,
        object.value("suiteId").toString().toStdString(),
        object.value("name").toString().toStdString(),
        std::move(ids)});

@@ -168,8 +168,8 @@ TEST_CASE("AutomationService entity creation")
     const auto result = response.value("result").toObject();
     const auto path = result.value("path").toArray();
     REQUIRE(path.size() == 2);
-    auto* entity =
-      dynamic_cast<mdl::EntityNode*>(map.worldNode().resolvePath(mdl::NodePath{
+    auto* entity = dynamic_cast<mdl::EntityNode*>(map.worldNode().resolvePath(
+      mdl::NodePath{
         {static_cast<size_t>(path[0].toInteger()),
          static_cast<size_t>(path[1].toInteger())}}));
     REQUIRE(entity != nullptr);
@@ -216,8 +216,8 @@ TEST_CASE("AutomationService entity creation")
     REQUIRE(response.contains("result"));
     const auto result = response.value("result").toObject();
     const auto path = result.value("path").toArray();
-    auto* entity =
-      dynamic_cast<mdl::EntityNode*>(map.worldNode().resolvePath(mdl::NodePath{
+    auto* entity = dynamic_cast<mdl::EntityNode*>(map.worldNode().resolvePath(
+      mdl::NodePath{
         {static_cast<size_t>(path[0].toInteger()),
          static_cast<size_t>(path[1].toInteger())}}));
     REQUIRE(entity != nullptr);
@@ -694,6 +694,32 @@ TEST_CASE("AutomationService acceptance RPC requires an explicit project")
   CHECK(result.value("projectPath") == projectPath);
   CHECK(result.value("revision") == 0);
   CHECK(result.value("items").toArray().isEmpty());
+
+  const auto context = QJsonObject{
+    {"id", "unrest-rebuild"},
+    {"name", "Unrest rebuild"},
+    {"reference", QJsonObject{{"documentPath", "unrest.map"}}},
+    {"candidate", QJsonObject{{"documentPath", "unrest_rebuilt.map"}}},
+    {"alignment", QJsonObject{{"type", "identity"}}},
+  };
+  const auto createdContext = sendRequest(
+    *client,
+    "acceptance.contexts.create",
+    QJsonObject{
+      {"projectPath", projectPath},
+      {"expectedRevision", 0},
+      {"context", context},
+    });
+  REQUIRE(createdContext.contains("result"));
+  CHECK(createdContext.value("result").toObject().value("revision") == 1);
+
+  const auto listedContexts = sendRequest(
+    *client, "acceptance.contexts.list", QJsonObject{{"projectPath", projectPath}});
+  REQUIRE(listedContexts.contains("result"));
+  const auto contexts =
+    listedContexts.value("result").toObject().value("items").toArray();
+  REQUIRE(contexts.size() == 1);
+  CHECK(contexts.at(0).toObject().value("id") == "unrest-rebuild");
 
   const auto unknown =
     sendRequest(*client, "acceptance.unknown", QJsonObject{{"projectPath", projectPath}});
