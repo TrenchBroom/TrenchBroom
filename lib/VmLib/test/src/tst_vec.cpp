@@ -702,6 +702,15 @@ TEST_CASE("vec")
     CER_CHECK_FALSE(is_nan(vec3f{1, 0, 0}));
   }
 
+  SECTION("is_finite")
+  {
+    constexpr auto inf = std::numeric_limits<float>::infinity();
+    CER_CHECK(is_finite(vec3f{1, 0, 0}));
+    CER_CHECK_FALSE(is_finite(vec3f::nan()));
+    CER_CHECK_FALSE(is_finite(vec3f{inf, 0, 0}));
+    CER_CHECK_FALSE(is_finite(vec3f{0, -inf, 0}));
+  }
+
   SECTION("is_integral")
   {
     CER_CHECK(is_integral(vec3f{1, 0, 0}));
