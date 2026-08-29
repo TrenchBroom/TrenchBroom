@@ -19,6 +19,7 @@
 
 #pragma once
 
+#include "base/Result.h"
 #include "mdl/UvAttributes.h"
 
 #include "kd/reflection_decl.h"
@@ -53,6 +54,25 @@ public:
     const vm::vec3d& point2,
     const UvAttributes& uvAttributes);
   ParaxialUvCoordSystem(const vm::vec3d& normal, const UvAttributes& uvAttributes);
+
+  /**
+   * Creates a UV coordinate system snapped to the axis plane which best matches the
+   * plane defined by the given points.
+   *
+   * Returns an error if the given points do not define a plane.
+   */
+  static Result<ParaxialUvCoordSystem> createFromPoints(
+    const vm::vec3d& point0,
+    const vm::vec3d& point1,
+    const vm::vec3d& point2,
+    const UvAttributes& uvAttributes);
+
+  /**
+   * Creates a UV coordinate system snapped to the axis plane which best matches the
+   * given normal.
+   */
+  static Result<ParaxialUvCoordSystem> createFromNormal(
+    const vm::vec3d& normal, const UvAttributes& uvAttributes);
 
   static ParaxialUvCoordSystem createFromParallel(
     const vm::vec3d& point0,

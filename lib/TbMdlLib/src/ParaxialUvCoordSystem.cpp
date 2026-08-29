@@ -495,6 +495,25 @@ ParaxialUvCoordSystem ParaxialUvCoordSystem::createFromParallel(
   return ParaxialUvCoordSystem{point0, point1, point2, newUvAttributes};
 }
 
+Result<ParaxialUvCoordSystem> ParaxialUvCoordSystem::createFromPoints(
+  const vm::vec3d& point0,
+  const vm::vec3d& point1,
+  const vm::vec3d& point2,
+  const UvAttributes& uvAttributes)
+{
+  if (const auto normal = vm::plane_normal(point0, point1, point2))
+  {
+    return createFromNormal(*normal, uvAttributes);
+  }
+  return Error{"Face points do not define a plane"};
+}
+
+Result<ParaxialUvCoordSystem> ParaxialUvCoordSystem::createFromNormal(
+  const vm::vec3d& normal, const UvAttributes& uvAttributes)
+{
+  return ParaxialUvCoordSystem{normal, uvAttributes};
+}
+
 size_t ParaxialUvCoordSystem::planeNormalIndex(const vm::vec3d& normal)
 {
   size_t bestIndex = 0;

@@ -27,6 +27,7 @@
 
 #include "vm/mat.h"
 #include "vm/mat_ext.h"
+#include "vm/plane.h"
 #include "vm/vec.h"
 #include "vm/vec_io.h" // IWYU pragma: keep
 
@@ -98,6 +99,30 @@ ParallelUvCoordSystem::ParallelUvCoordSystem(
   , m_vAxis{vAxis}
   , m_uvAttributes{uvAttributes}
 {
+}
+
+Result<ParallelUvCoordSystem> ParallelUvCoordSystem::createFromPoints(
+  const vm::vec3d& point0,
+  const vm::vec3d& point1,
+  const vm::vec3d& point2,
+  const UvAttributes& uvAttributes)
+{
+  const auto normal = vm::plane_normal(point0, point1, point2);
+  if (!normal)
+  {
+    return Error{"Face points do not define a plane"};
+  }
+
+  auto [uAxis, vAxis] = computeInitialAxes(*normal);
+  std::tie(uAxis, vAxis) =
+    applyRotation(uAxis, vAxis, *normal, double(uvAttributes.rotation));
+  return createFromAxes(uAxis, vAxis, uvAttributes);
+}
+
+Result<ParallelUvCoordSystem> ParallelUvCoordSystem::createFromAxes(
+  const vm::vec3d& uAxis, const vm::vec3d& vAxis, const UvAttributes& uvAttributes)
+{
+  return ParallelUvCoordSystem{uAxis, vAxis, uvAttributes};
 }
 
 ParallelUvCoordSystem ParallelUvCoordSystem::createFromParaxial(

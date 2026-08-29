@@ -17,6 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "base/Result.h"
 #include "mdl/CatchConfig.h"
 #include "mdl/ParallelUvCoordSystem.h"
 #include "mdl/ParaxialUvCoordSystem.h"
@@ -120,6 +121,110 @@ TEST_CASE("UvCoordSystem")
         vm::vec3d{1, 0, 0}, vm::vec3d{0, 1, 0}, UvAttributes{{}, {-1, -1}, 0.0f}}};
       system.translate(normal, vm::vec3d{0, 1, 0}, vm::vec3d{1, 0, 0}, offset);
       CHECK(system.uvAttributes().offset == vm::vec2f{2, 3});
+    }
+  }
+}
+
+TEST_CASE("ParallelUvCoordSystem")
+{
+  SECTION("createFromPoints")
+  {
+    const auto uvAttributes = UvAttributes{{1, 2}, {3, 4}, 45.0f};
+
+    const auto point0 = vm::vec3d{0, 0, 0};
+    const auto point1 = vm::vec3d{1, 0, 0};
+    const auto point2 = vm::vec3d{0, 1, 0};
+
+    SECTION("returns the same axes and attributes as the constructor")
+    {
+      const auto expected = ParallelUvCoordSystem{point0, point1, point2, uvAttributes};
+
+      const auto actual =
+        ParallelUvCoordSystem::createFromPoints(point0, point1, point2, uvAttributes);
+      REQUIRE(actual);
+      CHECK(actual.value().uAxis() == expected.uAxis());
+      CHECK(actual.value().vAxis() == expected.vAxis());
+      CHECK(actual.value().uvAttributes() == expected.uvAttributes());
+    }
+
+    SECTION("returns an error if the points do not define a plane")
+    {
+      const auto degeneratePoint2 = vm::vec3d{2, 0, 0};
+      CHECK(
+        ParallelUvCoordSystem::createFromPoints(
+          point0, point1, degeneratePoint2, uvAttributes)
+        == Result<ParallelUvCoordSystem>{Error{"Face points do not define a plane"}});
+    }
+  }
+
+  SECTION("createFromAxes")
+  {
+    const auto uvAttributes = UvAttributes{{1, 2}, {3, 4}, 45.0f};
+
+    const auto uAxis = vm::vec3d{1, 0, 0};
+    const auto vAxis = vm::vec3d{0, 1, 0};
+
+    SECTION("returns the same axes and attributes as the constructor")
+    {
+      const auto expected = ParallelUvCoordSystem{uAxis, vAxis, uvAttributes};
+
+      const auto actual =
+        ParallelUvCoordSystem::createFromAxes(uAxis, vAxis, uvAttributes);
+      REQUIRE(actual);
+      CHECK(actual.value().uAxis() == expected.uAxis());
+      CHECK(actual.value().vAxis() == expected.vAxis());
+      CHECK(actual.value().uvAttributes() == expected.uvAttributes());
+    }
+  }
+}
+
+TEST_CASE("ParaxialUvCoordSystem")
+{
+  SECTION("createFromPoints")
+  {
+    const auto uvAttributes = UvAttributes{{1, 2}, {3, 4}, 45.0f};
+
+    const auto point0 = vm::vec3d{0, 0, 0};
+    const auto point1 = vm::vec3d{1, 0, 0};
+    const auto point2 = vm::vec3d{0, 1, 0};
+
+    SECTION("returns the same axes and attributes as the constructor")
+    {
+      const auto expected = ParaxialUvCoordSystem{point0, point1, point2, uvAttributes};
+
+      const auto actual =
+        ParaxialUvCoordSystem::createFromPoints(point0, point1, point2, uvAttributes);
+      REQUIRE(actual);
+      CHECK(actual.value().uAxis() == expected.uAxis());
+      CHECK(actual.value().vAxis() == expected.vAxis());
+      CHECK(actual.value().uvAttributes() == expected.uvAttributes());
+    }
+
+    SECTION("returns an error if the points do not define a plane")
+    {
+      const auto degeneratePoint2 = vm::vec3d{2, 0, 0};
+      CHECK(
+        ParaxialUvCoordSystem::createFromPoints(
+          point0, point1, degeneratePoint2, uvAttributes)
+        == Result<ParaxialUvCoordSystem>{Error{"Face points do not define a plane"}});
+    }
+  }
+
+  SECTION("createFromNormal")
+  {
+    const auto uvAttributes = UvAttributes{{1, 2}, {3, 4}, 45.0f};
+
+    const auto normal = vm::vec3d{0, 0, 1};
+
+    SECTION("returns the same axes and attributes as the constructor")
+    {
+      const auto expected = ParaxialUvCoordSystem{normal, uvAttributes};
+
+      const auto actual = ParaxialUvCoordSystem::createFromNormal(normal, uvAttributes);
+      REQUIRE(actual);
+      CHECK(actual.value().uAxis() == expected.uAxis());
+      CHECK(actual.value().vAxis() == expected.vAxis());
+      CHECK(actual.value().uvAttributes() == expected.uvAttributes());
     }
   }
 }
