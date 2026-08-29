@@ -601,7 +601,7 @@ TEST_CASE("Map_Brushes")
     const auto originalOtherFace = getFace(*brushNode, *otherFaceIndex);
 
     auto expectedBrush = brushNode->brush();
-    expectedBrush.face(*faceIndex).rotateUv(15.0f);
+    REQUIRE(expectedBrush.face(*faceIndex).rotateUv(15.0f).is_success());
     const auto expectedFaceCopy = expectedBrush.face(*faceIndex);
     const auto expectedUAxis = expectedBrush.face(*faceIndex).uAxis();
     const auto expectedVAxis = expectedBrush.face(*faceIndex).vAxis();

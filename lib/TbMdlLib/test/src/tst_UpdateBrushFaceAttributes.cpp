@@ -199,10 +199,11 @@ TEST_CASE("UpdateBrushFaceAttributes")
       const auto update = UpdateBrushFaceAttributes{.xOffset = valueOp};
 
       {
-        brushFace.setUvAttributes({.offset = {originalValue, 0.0f}});
+        REQUIRE(
+          brushFace.setUvAttributes({.offset = {originalValue, 0.0f}}).is_success());
       }
 
-      evaluate(update, brushFace);
+      REQUIRE(evaluate(update, brushFace).is_success());
 
       CHECK(brushFace.uvAttributes().offset.x() == expectedValue);
     }
@@ -229,7 +230,7 @@ TEST_CASE("UpdateBrushFaceAttributes")
         brushFace.setSurfaceAttributes({.flags = originalFlags});
       }
 
-      evaluate(update, brushFace);
+      REQUIRE(evaluate(update, brushFace).is_success());
 
       CHECK(brushFace.surfaceAttributes().flags == expectedFlags);
     }
@@ -261,7 +262,7 @@ TEST_CASE("UpdateBrushFaceAttributes")
         .color = RgbaB{1, 2, 3, 4},
       };
 
-      evaluate(update, brushFace);
+      REQUIRE(evaluate(update, brushFace).is_success());
 
       CHECK(brushFace.materialName() == "other_material");
       CHECK(brushFace.uvAttributes() == expectedUvAttributes);
@@ -287,7 +288,7 @@ TEST_CASE("UpdateBrushFaceAttributes")
       const auto expectedUvAttributes = brushFace.uvAttributes();
       const auto expectedSurfaceAttributes = brushFace.surfaceAttributes();
 
-      evaluate(update, brushFace);
+      REQUIRE(evaluate(update, brushFace).is_success());
 
       CHECK(brushFace.materialName() == expectedMaterialName);
       CHECK(brushFace.uvAttributes() == expectedUvAttributes);

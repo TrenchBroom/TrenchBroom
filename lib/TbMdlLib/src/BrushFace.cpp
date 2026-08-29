@@ -452,9 +452,9 @@ UvAttributes BrushFace::uvAttributes() const
   return m_uvCoordSystem.uvAttributes();
 }
 
-void BrushFace::setUvAttributes(const UvAttributes& uvAttributes)
+Result<void> BrushFace::setUvAttributes(const UvAttributes& uvAttributes)
 {
-  m_uvCoordSystem.setUvAttributes(m_boundary.normal, uvAttributes);
+  return m_uvCoordSystem.setUvAttributes(m_boundary.normal, uvAttributes);
 }
 
 const SurfaceAttributes& BrushFace::surfaceAttributes() const
@@ -622,9 +622,9 @@ void BrushFace::translateUv(
   m_uvCoordSystem.translate(m_boundary.normal, up, right, offset);
 }
 
-void BrushFace::rotateUv(const float angle)
+Result<void> BrushFace::rotateUv(const float angle)
 {
-  m_uvCoordSystem.rotate(m_boundary.normal, angle);
+  return m_uvCoordSystem.rotate(m_boundary.normal, angle);
 }
 
 void BrushFace::shearUv(const vm::vec2f& factors)

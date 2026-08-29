@@ -79,12 +79,13 @@ UvAttributes UvCoordSystem::uvAttributes() const
   return std::visit([](const auto& system) { return system.uvAttributes(); }, m_system);
 }
 
-void UvCoordSystem::setUvAttributes(
+Result<void> UvCoordSystem::setUvAttributes(
   const vm::vec3d& normal, const UvAttributes& uvAttributes)
 {
   const auto oldRotation = this->uvAttributes().rotation;
   copyUvAttributes(uvAttributes);
   setRotation(normal, oldRotation, uvAttributes.rotation);
+  return kdl::void_success;
 }
 
 void UvCoordSystem::copyUvAttributes(const UvAttributes& uvAttributes)
@@ -279,13 +280,13 @@ void UvCoordSystem::translate(
   copyUvAttributes(uvAttributes);
 }
 
-void UvCoordSystem::rotate(const vm::vec3d& normal, const float angle)
+Result<void> UvCoordSystem::rotate(const vm::vec3d& normal, const float angle)
 {
   const auto actualAngle = isRotationInverted(normal) ? -angle : angle;
 
   auto uvAttributes = this->uvAttributes();
   uvAttributes.rotation = uvAttributes.rotation + actualAngle;
-  setUvAttributes(normal, uvAttributes);
+  return setUvAttributes(normal, uvAttributes);
 }
 
 void UvCoordSystem::shear(const vm::vec3d& normal, const vm::vec2f& factors)

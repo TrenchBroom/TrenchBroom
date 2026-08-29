@@ -222,7 +222,7 @@ public:
   bool setMaterialName(std::string materialName);
 
   UvAttributes uvAttributes() const;
-  void setUvAttributes(const UvAttributes& uvAttributes);
+  Result<void> setUvAttributes(const UvAttributes& uvAttributes);
 
   const SurfaceAttributes& surfaceAttributes() const;
   void setSurfaceAttributes(const SurfaceAttributes& surfaceAttributes);
@@ -259,7 +259,7 @@ public:
   Result<void> convertToParallel();
 
   void translateUv(const vm::vec3d& up, const vm::vec3d& right, const vm::vec2f& offset);
-  void rotateUv(float angle);
+  Result<void> rotateUv(float angle);
   void shearUv(const vm::vec2f& factors);
   void flipUv(
     const vm::vec3d& cameraUp,

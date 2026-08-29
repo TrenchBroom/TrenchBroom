@@ -71,7 +71,7 @@ void getFaceVertsAndUvCoords(
 
 void resetFaceUvAlignment(BrushFace& face)
 {
-  face.setUvAttributes({});
+  REQUIRE(face.setUvAttributes({}).is_success());
   face.resetUvAxes();
 }
 
@@ -660,7 +660,7 @@ TEST_CASE("BrushFace")
     const auto newXAxis = vm::vec3d{rot45 * face.uAxis()};
     const auto newYAxis = vm::vec3d{rot45 * face.vAxis()};
 
-    face.setUvAttributes({.rotation = -45.0f});
+    REQUIRE(face.setUvAttributes({.rotation = -45.0f}).is_success());
 
     CHECK(face.uAxis() == vm::approx{newXAxis});
     CHECK(face.vAxis() == vm::approx{newYAxis});
@@ -761,7 +761,7 @@ TEST_CASE("BrushFace")
 
     // Rotate by 45 degrees CCW
     CHECK(negXFace->uvAttributes().rotation == vm::approx{0.0f});
-    negXFace->rotateUv(45.0);
+    REQUIRE(negXFace->rotateUv(45.0).is_success());
     CHECK(negXFace->uvAttributes().rotation == vm::approx{45.0f});
 
     CHECK(negXFace->uAxis() == vm::approx{newXAxis});

@@ -96,7 +96,7 @@ public:
   /**
    * Sets the given UV attributes and updates the UV axes to match their rotation.
    */
-  void setUvAttributes(const vm::vec3d& normal, const UvAttributes& uvAttributes);
+  Result<void> setUvAttributes(const vm::vec3d& normal, const UvAttributes& uvAttributes);
 
   /**
    * Sets the given UV attributes without updating the UV axes.
@@ -138,7 +138,7 @@ public:
     const vm::vec3d& up,
     const vm::vec3d& right,
     const vm::vec2f& offset);
-  void rotate(const vm::vec3d& normal, float angle);
+  Result<void> rotate(const vm::vec3d& normal, float angle);
   void shear(const vm::vec3d& normal, const vm::vec2f& factors);
 
   vm::mat4x4d toMatrix(const vm::vec2f& offset, const vm::vec2f& scale) const;

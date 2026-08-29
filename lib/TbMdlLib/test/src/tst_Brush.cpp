@@ -358,7 +358,7 @@ TEST_CASE("Brush")
 
     auto& topFace = brush.face(*topFaceIndex);
 
-    topFace.setUvAttributes({.offset = {64.0f, -48.0f}});
+    REQUIRE(topFace.setUvAttributes({.offset = {64.0f, -48.0f}}).is_success());
 
     auto newBrush = brush;
     newBrush.cloneFaceAttributesFrom(brush);

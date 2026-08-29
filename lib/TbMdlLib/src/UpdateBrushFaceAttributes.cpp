@@ -25,6 +25,7 @@
 
 #include "kd/optional_utils.h"
 #include "kd/reflection_impl.h"
+#include "kd/result.h"
 
 #include "vm/scalar.h"
 #include "vm/vec_io.h" // IWYU pragma: keep
@@ -179,7 +180,7 @@ UpdateBrushFaceAttributes resetAllToParaxial(const UvAttributes& defaultUvAttrib
   };
 }
 
-void evaluate(const UpdateBrushFaceAttributes& update, BrushFace& brushFace)
+Result<void> evaluate(const UpdateBrushFaceAttributes& update, BrushFace& brushFace)
 {
   if (update.materialName)
   {
@@ -187,44 +188,46 @@ void evaluate(const UpdateBrushFaceAttributes& update, BrushFace& brushFace)
   }
 
   const auto& uvAttributes = brushFace.uvAttributes();
-  brushFace.setUvAttributes(UvAttributes{
-    .offset =
-      {*evaluate(update.xOffset, uvAttributes.offset.x()),
-       *evaluate(update.yOffset, uvAttributes.offset.y())},
-    .scale =
-      {*evaluate(update.xScale, uvAttributes.scale.x()),
-       *evaluate(update.yScale, uvAttributes.scale.y())},
-    .rotation = vm::normalize_degrees(*evaluate(update.rotation, uvAttributes.rotation)),
-  });
+  return brushFace.setUvAttributes(UvAttributes{
+           .offset =
+             {*evaluate(update.xOffset, uvAttributes.offset.x()),
+              *evaluate(update.yOffset, uvAttributes.offset.y())},
+           .scale =
+             {*evaluate(update.xScale, uvAttributes.scale.x()),
+              *evaluate(update.yScale, uvAttributes.scale.y())},
+           .rotation =
+             vm::normalize_degrees(*evaluate(update.rotation, uvAttributes.rotation)),
+         })
+         | kdl::transform([&]() {
+             auto surfaceAttributes = brushFace.surfaceAttributes();
 
-  auto surfaceAttributes = brushFace.surfaceAttributes();
+             if (update.surfaceFlags)
+             {
+               surfaceAttributes.flags =
+                 evaluate(update.surfaceFlags, brushFace.resolvedSurfaceFlags());
+             }
 
-  if (update.surfaceFlags)
-  {
-    surfaceAttributes.flags =
-      evaluate(update.surfaceFlags, brushFace.resolvedSurfaceFlags());
-  }
+             if (update.surfaceContents)
+             {
+               surfaceAttributes.contents =
+                 evaluate(update.surfaceContents, brushFace.resolvedSurfaceContents());
+             }
 
-  if (update.surfaceContents)
-  {
-    surfaceAttributes.contents =
-      evaluate(update.surfaceContents, brushFace.resolvedSurfaceContents());
-  }
+             if (update.surfaceValue)
+             {
+               surfaceAttributes.value =
+                 evaluate(update.surfaceValue, brushFace.resolvedSurfaceValue());
+             }
 
-  if (update.surfaceValue)
-  {
-    surfaceAttributes.value =
-      evaluate(update.surfaceValue, brushFace.resolvedSurfaceValue());
-  }
+             if (update.color)
+             {
+               surfaceAttributes.color = *update.color;
+             }
 
-  if (update.color)
-  {
-    surfaceAttributes.color = *update.color;
-  }
+             brushFace.setSurfaceAttributes(surfaceAttributes);
 
-  brushFace.setSurfaceAttributes(surfaceAttributes);
-
-  evaluate(update.axis, brushFace);
+             evaluate(update.axis, brushFace);
+           });
 }
 
 } // namespace tb::mdl
