@@ -44,7 +44,7 @@ private:
 
   kdl_reflect_decl(ParallelUvCoordSystem, m_uAxis, m_vAxis, m_uvAttributes);
 
-public:
+private:
   ParallelUvCoordSystem(
     const vm::vec3d& point0,
     const vm::vec3d& point1,
@@ -53,6 +53,7 @@ public:
   ParallelUvCoordSystem(
     const vm::vec3d& uAxis, const vm::vec3d& vAxis, const UvAttributes& uvAttributes);
 
+public:
   /**
    * Creates a UV coordinate system projected from the plane defined by the given points,
    * with its axes rotated by the rotation of the given UV attributes.
@@ -72,7 +73,13 @@ public:
   static Result<ParallelUvCoordSystem> createFromAxes(
     const vm::vec3d& uAxis, const vm::vec3d& vAxis, const UvAttributes& uvAttributes);
 
-  static ParallelUvCoordSystem createFromParaxial(
+  /**
+   * Creates a parallel UV coordinate system with axes matching the given paraxial UV
+   * coordinate system.
+   *
+   * Returns an error if the given points do not define a plane.
+   */
+  static Result<ParallelUvCoordSystem> createFromParaxial(
     const vm::vec3d& point0,
     const vm::vec3d& point1,
     const vm::vec3d& point2,

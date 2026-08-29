@@ -24,6 +24,7 @@
 
 #include "kd/contracts.h"
 #include "kd/reflection_impl.h"
+#include "kd/result.h"
 
 #include "vm/mat.h"
 #include "vm/mat_ext.h"
@@ -125,14 +126,16 @@ Result<ParallelUvCoordSystem> ParallelUvCoordSystem::createFromAxes(
   return ParallelUvCoordSystem{uAxis, vAxis, uvAttributes};
 }
 
-ParallelUvCoordSystem ParallelUvCoordSystem::createFromParaxial(
+Result<ParallelUvCoordSystem> ParallelUvCoordSystem::createFromParaxial(
   const vm::vec3d& point0,
   const vm::vec3d& point1,
   const vm::vec3d& point2,
   const UvAttributes& uvAttributes)
 {
-  const auto tempParaxial = ParaxialUvCoordSystem{point0, point1, point2, uvAttributes};
-  return ParallelUvCoordSystem{tempParaxial.uAxis(), tempParaxial.vAxis(), uvAttributes};
+  return ParaxialUvCoordSystem::createFromPoints(point0, point1, point2, uvAttributes)
+         | kdl::and_then([&](const auto& paraxial) {
+             return createFromAxes(paraxial.uAxis(), paraxial.vAxis(), uvAttributes);
+           });
 }
 
 const UvAttributes& ParallelUvCoordSystem::uvAttributes() const

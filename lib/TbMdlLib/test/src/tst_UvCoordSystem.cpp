@@ -24,6 +24,8 @@
 #include "mdl/UvAttributes.h"
 #include "mdl/UvCoordSystem.h"
 
+#include "kd/result.h"
+
 #include "vm/vec_io.h" // IWYU pragma: keep
 
 #include <optional>
@@ -32,6 +34,21 @@
 
 namespace tb::mdl
 {
+namespace
+{
+
+auto createParaxial(const vm::vec3d& normal, const UvAttributes& uvAttributes = {})
+{
+  return ParaxialUvCoordSystem::createFromNormal(normal, uvAttributes) | kdl::value();
+}
+
+auto createParallel(
+  const vm::vec3d& uAxis, const vm::vec3d& vAxis, const UvAttributes& uvAttributes = {})
+{
+  return ParallelUvCoordSystem::createFromAxes(uAxis, vAxis, uvAttributes) | kdl::value();
+}
+
+} // namespace
 
 TEST_CASE("UvCoordSystem")
 {
@@ -39,15 +56,14 @@ TEST_CASE("UvCoordSystem")
   {
     SECTION("paraxial UV axes cannot be snapshotted")
     {
-      const auto paraxial =
-        UvCoordSystem{ParaxialUvCoordSystem{vm::vec3d{0, 0, 1}, UvAttributes{}}};
+      const auto paraxial = UvCoordSystem{createParaxial(vm::vec3d{0, 0, 1})};
       CHECK(paraxial.takeSnapshot() == std::nullopt);
     }
 
     SECTION("parallel UV axes can be snapshotted and restored")
     {
-      auto parallel = UvCoordSystem{
-        ParallelUvCoordSystem{vm::vec3d{0, 1, 0}, vm::vec3d{1, 0, 0}, UvAttributes{}}};
+      auto parallel =
+        UvCoordSystem{createParallel(vm::vec3d{0, 1, 0}, vm::vec3d{1, 0, 0})};
       const auto snapshot = parallel.takeSnapshot();
       REQUIRE(
         snapshot
@@ -69,16 +85,14 @@ TEST_CASE("UvCoordSystem")
 
     SECTION("uses the U axis as horizontal if it is closer to the right axis")
     {
-      auto system = UvCoordSystem{
-        ParallelUvCoordSystem{vm::vec3d{1, 0, 0}, vm::vec3d{0, 1, 0}, UvAttributes{}}};
+      auto system = UvCoordSystem{createParallel(vm::vec3d{1, 0, 0}, vm::vec3d{0, 1, 0})};
       system.translate(normal, vm::vec3d{0, 1, 0}, vm::vec3d{1, 0, 0}, offset);
       CHECK(system.uvAttributes().offset == vm::vec2f{-2, -3});
     }
 
     SECTION("uses the V axis as horizontal if it is closer to the right axis")
     {
-      auto system = UvCoordSystem{
-        ParallelUvCoordSystem{vm::vec3d{0, 1, 0}, vm::vec3d{1, 0, 0}, UvAttributes{}}};
+      auto system = UvCoordSystem{createParallel(vm::vec3d{0, 1, 0}, vm::vec3d{1, 0, 0})};
       system.translate(normal, vm::vec3d{0, 1, 0}, vm::vec3d{1, 0, 0}, offset);
       CHECK(system.uvAttributes().offset == vm::vec2f{-3, -2});
     }
@@ -91,24 +105,24 @@ TEST_CASE("UvCoordSystem")
 
       SECTION("uses the V axis as horizontal if the U axis is closer to the up axis")
       {
-        auto system = UvCoordSystem{
-          ParallelUvCoordSystem{vm::vec3d{1, 0, 0}, vm::vec3d{0, 1, 0}, UvAttributes{}}};
+        auto system =
+          UvCoordSystem{createParallel(vm::vec3d{1, 0, 0}, vm::vec3d{0, 1, 0})};
         system.translate(normal, vm::vec3d{1, 0, 0}, right, offset);
         CHECK(system.uvAttributes().offset == vm::vec2f{-3, -2});
       }
 
       SECTION("uses the U axis as horizontal if the V axis is closer to the up axis")
       {
-        auto system = UvCoordSystem{
-          ParallelUvCoordSystem{vm::vec3d{1, 0, 0}, vm::vec3d{0, 1, 0}, UvAttributes{}}};
+        auto system =
+          UvCoordSystem{createParallel(vm::vec3d{1, 0, 0}, vm::vec3d{0, 1, 0})};
         system.translate(normal, vm::vec3d{0, 1, 0}, right, offset);
         CHECK(system.uvAttributes().offset == vm::vec2f{-2, -3});
       }
 
       SECTION("does nothing if neither axis can be clearly chosen")
       {
-        auto system = UvCoordSystem{
-          ParallelUvCoordSystem{vm::vec3d{1, 0, 0}, vm::vec3d{0, 1, 0}, UvAttributes{}}};
+        auto system =
+          UvCoordSystem{createParallel(vm::vec3d{1, 0, 0}, vm::vec3d{0, 1, 0})};
         const auto up = vm::normalize(vm::vec3d{1, -1, 0});
         system.translate(normal, up, right, offset);
         CHECK(system.uvAttributes().offset == vm::vec2f{0, 0});
@@ -117,8 +131,8 @@ TEST_CASE("UvCoordSystem")
 
     SECTION("flips the offset direction for a negative scale")
     {
-      auto system = UvCoordSystem{ParallelUvCoordSystem{
-        vm::vec3d{1, 0, 0}, vm::vec3d{0, 1, 0}, UvAttributes{{}, {-1, -1}, 0.0f}}};
+      auto system = UvCoordSystem{createParallel(
+        vm::vec3d{1, 0, 0}, vm::vec3d{0, 1, 0}, UvAttributes{{}, {-1, -1}, 0.0f})};
       system.translate(normal, vm::vec3d{0, 1, 0}, vm::vec3d{1, 0, 0}, offset);
       CHECK(system.uvAttributes().offset == vm::vec2f{2, 3});
     }
@@ -135,16 +149,20 @@ TEST_CASE("ParallelUvCoordSystem")
     const auto point1 = vm::vec3d{1, 0, 0};
     const auto point2 = vm::vec3d{0, 1, 0};
 
-    SECTION("returns the same axes and attributes as the constructor")
+    SECTION("returns an orthonormal UV coordinate system with the given attributes")
     {
-      const auto expected = ParallelUvCoordSystem{point0, point1, point2, uvAttributes};
-
       const auto actual =
         ParallelUvCoordSystem::createFromPoints(point0, point1, point2, uvAttributes);
       REQUIRE(actual);
-      CHECK(actual.value().uAxis() == expected.uAxis());
-      CHECK(actual.value().vAxis() == expected.vAxis());
-      CHECK(actual.value().uvAttributes() == expected.uvAttributes());
+      CHECK(actual.value().uvAttributes() == uvAttributes);
+      CHECK(vm::is_unit(actual.value().uAxis(), vm::Cd::almost_zero()));
+      CHECK(vm::is_unit(actual.value().vAxis(), vm::Cd::almost_zero()));
+      CHECK(vm::is_zero(
+        vm::dot(actual.value().uAxis(), actual.value().vAxis()), vm::Cd::almost_zero()));
+      CHECK(vm::is_zero(
+        vm::dot(actual.value().uAxis(), actual.value().normal()), vm::Cd::almost_zero()));
+      CHECK(vm::is_zero(
+        vm::dot(actual.value().vAxis(), actual.value().normal()), vm::Cd::almost_zero()));
     }
 
     SECTION("returns an error if the points do not define a plane")
@@ -164,16 +182,14 @@ TEST_CASE("ParallelUvCoordSystem")
     const auto uAxis = vm::vec3d{1, 0, 0};
     const auto vAxis = vm::vec3d{0, 1, 0};
 
-    SECTION("returns the same axes and attributes as the constructor")
+    SECTION("returns the given axes and attributes unchanged")
     {
-      const auto expected = ParallelUvCoordSystem{uAxis, vAxis, uvAttributes};
-
       const auto actual =
         ParallelUvCoordSystem::createFromAxes(uAxis, vAxis, uvAttributes);
       REQUIRE(actual);
-      CHECK(actual.value().uAxis() == expected.uAxis());
-      CHECK(actual.value().vAxis() == expected.vAxis());
-      CHECK(actual.value().uvAttributes() == expected.uvAttributes());
+      CHECK(actual.value().uAxis() == uAxis);
+      CHECK(actual.value().vAxis() == vAxis);
+      CHECK(actual.value().uvAttributes() == uvAttributes);
     }
   }
 }
@@ -188,16 +204,16 @@ TEST_CASE("ParaxialUvCoordSystem")
     const auto point1 = vm::vec3d{1, 0, 0};
     const auto point2 = vm::vec3d{0, 1, 0};
 
-    SECTION("returns the same axes and attributes as the constructor")
+    SECTION("returns an orthonormal UV coordinate system with the given attributes")
     {
-      const auto expected = ParaxialUvCoordSystem{point0, point1, point2, uvAttributes};
-
       const auto actual =
         ParaxialUvCoordSystem::createFromPoints(point0, point1, point2, uvAttributes);
       REQUIRE(actual);
-      CHECK(actual.value().uAxis() == expected.uAxis());
-      CHECK(actual.value().vAxis() == expected.vAxis());
-      CHECK(actual.value().uvAttributes() == expected.uvAttributes());
+      CHECK(actual.value().uvAttributes() == uvAttributes);
+      CHECK(vm::is_unit(actual.value().uAxis(), vm::Cd::almost_zero()));
+      CHECK(vm::is_unit(actual.value().vAxis(), vm::Cd::almost_zero()));
+      CHECK(vm::is_zero(
+        vm::dot(actual.value().uAxis(), actual.value().vAxis()), vm::Cd::almost_zero()));
     }
 
     SECTION("returns an error if the points do not define a plane")
@@ -216,15 +232,15 @@ TEST_CASE("ParaxialUvCoordSystem")
 
     const auto normal = vm::vec3d{0, 0, 1};
 
-    SECTION("returns the same axes and attributes as the constructor")
+    SECTION("returns an orthonormal UV coordinate system with the given attributes")
     {
-      const auto expected = ParaxialUvCoordSystem{normal, uvAttributes};
-
       const auto actual = ParaxialUvCoordSystem::createFromNormal(normal, uvAttributes);
       REQUIRE(actual);
-      CHECK(actual.value().uAxis() == expected.uAxis());
-      CHECK(actual.value().vAxis() == expected.vAxis());
-      CHECK(actual.value().uvAttributes() == expected.uvAttributes());
+      CHECK(actual.value().uvAttributes() == uvAttributes);
+      CHECK(vm::is_unit(actual.value().uAxis(), vm::Cd::almost_zero()));
+      CHECK(vm::is_unit(actual.value().vAxis(), vm::Cd::almost_zero()));
+      CHECK(vm::is_zero(
+        vm::dot(actual.value().uAxis(), actual.value().vAxis()), vm::Cd::almost_zero()));
     }
   }
 }

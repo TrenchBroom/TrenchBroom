@@ -255,8 +255,8 @@ public:
   void resetUvAxes();
   void resetUvAxesToParaxial();
 
-  void convertToParaxial();
-  void convertToParallel();
+  Result<void> convertToParaxial();
+  Result<void> convertToParallel();
 
   void translateUv(const vm::vec3d& up, const vm::vec3d& right, const vm::vec2f& offset);
   void rotateUv(float angle);

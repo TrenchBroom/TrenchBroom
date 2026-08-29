@@ -19,6 +19,7 @@
 
 #pragma once
 
+#include "base/Result.h"
 #include "mdl/ParallelUvCoordSystem.h"
 #include "mdl/ParaxialUvCoordSystem.h"
 #include "mdl/UvAttributes.h"
@@ -69,6 +70,10 @@ private:
 public:
   explicit UvCoordSystem(ParaxialUvCoordSystem system);
   explicit UvCoordSystem(ParallelUvCoordSystem system);
+
+  static constexpr auto wrap = [](auto uvCoordSystem) {
+    return UvCoordSystem{std::move(uvCoordSystem)};
+  };
 
   /**
    * Indicates whether this is a UV coordinate system of the given type.
@@ -141,9 +146,9 @@ public:
 
   float measureAngle(const vm::vec2f& center, const vm::vec2f& point) const;
 
-  UvCoordSystem toParallel(
+  Result<UvCoordSystem> toParallel(
     const vm::vec3d& point0, const vm::vec3d& point1, const vm::vec3d& point2) const;
-  UvCoordSystem toParaxial(
+  Result<UvCoordSystem> toParaxial(
     const vm::vec3d& point0, const vm::vec3d& point1, const vm::vec3d& point2) const;
 
 private:

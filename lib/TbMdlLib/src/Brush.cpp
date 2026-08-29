@@ -1275,24 +1275,20 @@ Result<Brush> Brush::createBrush(
            });
 }
 
-Brush Brush::convertToParaxial() const
+Result<Brush> Brush::convertToParaxial() const
 {
   auto result = Brush{*this};
-  for (auto& face : result.m_faces)
-  {
-    face.convertToParaxial();
-  }
-  return result;
+  return result.m_faces
+         | std::views::transform([](auto& face) { return face.convertToParaxial(); })
+         | kdl::fold | kdl::transform([&]() { return std::move(result); });
 }
 
-Brush Brush::convertToParallel() const
+Result<Brush> Brush::convertToParallel() const
 {
   auto result = Brush{*this};
-  for (auto& face : result.m_faces)
-  {
-    face.convertToParallel();
-  }
-  return result;
+  return result.m_faces
+         | std::views::transform([](auto& face) { return face.convertToParallel(); })
+         | kdl::fold | kdl::transform([&]() { return std::move(result); });
 }
 
 bool Brush::checkFaceLinks() const

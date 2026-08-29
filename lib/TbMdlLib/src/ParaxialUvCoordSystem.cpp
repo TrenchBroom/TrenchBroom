@@ -136,20 +136,23 @@ float mat2x2_extract_rotation_degrees(const vm::mat2x2f& m)
   return vm::to_degrees(rotation);
 }
 
+std::tuple<vm::vec3d, vm::vec3d> rotatedBaseAxes(const size_t index, const float rotation)
+{
+  auto uAxis = vm::vec3d{};
+  auto vAxis = vm::vec3d{};
+  std::tie(uAxis, vAxis, std::ignore) = ParaxialUvCoordSystem::axes(index);
+  return rotateAxes(uAxis, vAxis, vm::to_radians(double(rotation)), index);
+}
+
 vm::vec2f getUvCoordsAtPoint(
   const ParaxialAttribs& paraxialAttribs,
   const vm::plane3d& facePlane,
   const vm::vec3d& point)
 {
-  const auto uvAttributes = UvAttributes{
-    .offset = paraxialAttribs.offset,
-    .scale = paraxialAttribs.scale,
-    .rotation = paraxialAttribs.rotation,
-  };
-
-  const auto temp = ParaxialUvCoordSystem{facePlane.normal, uvAttributes};
-  return computeUvCoords(point, temp.uAxis(), temp.vAxis(), uvAttributes.scale)
-         + uvAttributes.offset;
+  const auto index = ParaxialUvCoordSystem::planeNormalIndex(facePlane.normal);
+  const auto [uAxis, vAxis] = rotatedBaseAxes(index, paraxialAttribs.rotation);
+  return computeUvCoords(point, uAxis, vAxis, paraxialAttribs.scale)
+         + paraxialAttribs.offset;
 }
 
 ParaxialAttribs appendOffset(
@@ -466,7 +469,7 @@ ParaxialUvCoordSystem::ParaxialUvCoordSystem(
   setRotation(normal, 0.0f, uvAttributes.rotation);
 }
 
-ParaxialUvCoordSystem ParaxialUvCoordSystem::createFromParallel(
+Result<ParaxialUvCoordSystem> ParaxialUvCoordSystem::createFromParallel(
   const vm::vec3d& point0,
   const vm::vec3d& point1,
   const vm::vec3d& point2,
@@ -475,6 +478,11 @@ ParaxialUvCoordSystem ParaxialUvCoordSystem::createFromParallel(
   const vm::vec3d& vAxis)
 {
   const auto facePlane = vm::from_points(point0, point1, point2);
+  if (!facePlane)
+  {
+    return Error{"Face points do not define a plane"};
+  }
+
   const auto worldToTexSpace = valveTo4x4Matrix(*facePlane, uvAttributes, uAxis, vAxis);
   const auto facePoints = std::array<vm::vec3f, 3>{
     vm::vec3f{point0},
@@ -492,7 +500,7 @@ ParaxialUvCoordSystem ParaxialUvCoordSystem::createFromParallel(
                                              }
                                            : UvAttributes{};
 
-  return ParaxialUvCoordSystem{point0, point1, point2, newUvAttributes};
+  return createFromNormal(facePlane->normal, newUvAttributes);
 }
 
 Result<ParaxialUvCoordSystem> ParaxialUvCoordSystem::createFromPoints(

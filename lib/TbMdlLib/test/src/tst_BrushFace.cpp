@@ -475,7 +475,9 @@ TEST_CASE("BrushFace")
                     p1,
                     p2,
                     "",
-                    UvCoordSystem{ParaxialUvCoordSystem{p0, p1, p2, UvAttributes{}}},
+                    UvCoordSystem{
+                      ParaxialUvCoordSystem::createFromPoints(p0, p1, p2, UvAttributes{})
+                      | kdl::value()},
                     SurfaceAttributes{})
                   | kdl::value();
       CHECK(face.points()[0] == vm::approx{p0});
@@ -491,12 +493,16 @@ TEST_CASE("BrushFace")
       const auto p1 = vm::vec3d{1, 0, 4};
       const auto p2 = vm::vec3d{2, 0, 4};
 
+      // the UV coordinate system's own axes are independent of the (colinear) face
+      // points here -- this exercises BrushFace::create's own plane-degeneracy check
       CHECK(!BrushFace::create(
         p0,
         p1,
         p2,
         "",
-        UvCoordSystem{ParaxialUvCoordSystem{p0, p1, p2, UvAttributes{}}},
+        UvCoordSystem{
+          ParaxialUvCoordSystem::createFromNormal(vm::vec3d{0, 0, 1}, UvAttributes{})
+          | kdl::value()},
         SurfaceAttributes{}));
     }
   }
@@ -521,7 +527,9 @@ TEST_CASE("BrushFace")
                     p1,
                     p2,
                     "",
-                    UvCoordSystem{ParaxialUvCoordSystem{p0, p1, p2, UvAttributes{}}},
+                    UvCoordSystem{
+                      ParaxialUvCoordSystem::createFromPoints(p0, p1, p2, UvAttributes{})
+                      | kdl::value()},
                     SurfaceAttributes{})
                   | kdl::value();
       CHECK(material.usageCount() == 0u);
@@ -908,11 +916,15 @@ TEST_CASE("BrushFace")
       REQUIRE(standardCube.transform(worldBounds, transform, true));
       CHECK(standardCube.face(0).uvCoordSystem().is<ParaxialUvCoordSystem>());
 
-      const auto valveCube = standardCube.convertToParallel();
+      const auto valveCubeResult = standardCube.convertToParallel();
+      REQUIRE(valveCubeResult);
+      const auto& valveCube = valveCubeResult.value();
       CHECK(valveCube.face(0).uvCoordSystem().is<ParallelUvCoordSystem>());
       checkBrushUvsEqual(standardCube, valveCube);
 
-      const auto standardCubeRoundTrip = valveCube.convertToParaxial();
+      const auto standardCubeRoundTripResult = valveCube.convertToParaxial();
+      REQUIRE(standardCubeRoundTripResult);
+      const auto& standardCubeRoundTrip = standardCubeRoundTripResult.value();
       CHECK(standardCubeRoundTrip.face(0).uvCoordSystem().is<ParaxialUvCoordSystem>());
       checkBrushUvsEqual(standardCube, standardCubeRoundTrip);
     };

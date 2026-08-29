@@ -24,6 +24,7 @@
 #include "kd/contracts.h"
 #include "kd/overload.h"
 #include "kd/reflection_impl.h"
+#include "kd/result.h"
 
 #include "vm/mat.h"
 #include "vm/mat_ext.h"
@@ -309,34 +310,41 @@ float UvCoordSystem::measureAngle(const vm::vec2f& center, const vm::vec2f& poin
     [&](const auto& system) { return system.measureAngle(center, point); }, m_system);
 }
 
-UvCoordSystem UvCoordSystem::toParallel(
+Result<UvCoordSystem> UvCoordSystem::toParallel(
   const vm::vec3d& point0, const vm::vec3d& point1, const vm::vec3d& point2) const
 {
   return std::visit(
     kdl::overload(
-      [&](const ParaxialUvCoordSystem& system) {
-        return UvCoordSystem{ParallelUvCoordSystem::createFromParaxial(
-          point0, point1, point2, system.uvAttributes())};
+      [&](const ParaxialUvCoordSystem& paraxialUvCoordSystem) {
+        return ParallelUvCoordSystem::createFromParaxial(
+                 point0, point1, point2, paraxialUvCoordSystem.uvAttributes())
+               | kdl::transform(UvCoordSystem::wrap);
       },
-      [&](const ParallelUvCoordSystem& system) {
+      [&](const ParallelUvCoordSystem& parallelUvCoordSystem) -> Result<UvCoordSystem> {
         // Already in the requested format
-        return UvCoordSystem{system};
+        return UvCoordSystem{parallelUvCoordSystem};
       }),
     m_system);
 }
 
-UvCoordSystem UvCoordSystem::toParaxial(
+Result<UvCoordSystem> UvCoordSystem::toParaxial(
   const vm::vec3d& point0, const vm::vec3d& point1, const vm::vec3d& point2) const
 {
   return std::visit(
     kdl::overload(
-      [&](const ParaxialUvCoordSystem& system) {
+      [&](const ParaxialUvCoordSystem& paraxialUvCoordSystem) -> Result<UvCoordSystem> {
         // Already in the requested format
-        return UvCoordSystem{system};
+        return UvCoordSystem{paraxialUvCoordSystem};
       },
-      [&](const ParallelUvCoordSystem& system) {
-        return UvCoordSystem{ParaxialUvCoordSystem::createFromParallel(
-          point0, point1, point2, system.uvAttributes(), system.uAxis(), system.vAxis())};
+      [&](const ParallelUvCoordSystem& parallelUvCoordSystem) {
+        return ParaxialUvCoordSystem::createFromParallel(
+                 point0,
+                 point1,
+                 point2,
+                 parallelUvCoordSystem.uvAttributes(),
+                 parallelUvCoordSystem.uAxis(),
+                 parallelUvCoordSystem.vAxis())
+               | kdl::transform(UvCoordSystem::wrap);
       }),
     m_system);
 }
