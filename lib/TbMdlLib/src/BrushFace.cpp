@@ -159,7 +159,7 @@ Result<BrushFace> BrushFace::createFromStandard(
   // Converting paraxial to parallel preserves the UV attributes
   auto uvCoordSystem =
     isParallelUvCoordSystem(mapFormat)
-      ? UvCoordSystem{ParallelUvCoordSystem::fromParaxial(
+      ? UvCoordSystem{ParallelUvCoordSystem::createFromParaxial(
           point0, point1, point2, uvAttributes)}
       : UvCoordSystem{ParaxialUvCoordSystem{point0, point1, point2, uvAttributes}};
 
@@ -203,7 +203,7 @@ Result<BrushFace> BrushFace::createFromValve(
     point2,
     point3,
     std::move(materialName),
-    UvCoordSystem{ParaxialUvCoordSystem::fromParallel(
+    UvCoordSystem{ParaxialUvCoordSystem::createFromParallel(
       point1, point2, point3, uvAttributes, uAxis, vAxis)},
     surfaceAttributes);
 }

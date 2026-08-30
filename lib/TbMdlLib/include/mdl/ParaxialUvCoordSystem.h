@@ -54,7 +54,7 @@ public:
     const UvAttributes& uvAttributes);
   ParaxialUvCoordSystem(const vm::vec3d& normal, const UvAttributes& uvAttributes);
 
-  static ParaxialUvCoordSystem fromParallel(
+  static ParaxialUvCoordSystem createFromParallel(
     const vm::vec3d& point0,
     const vm::vec3d& point1,
     const vm::vec3d& point2,

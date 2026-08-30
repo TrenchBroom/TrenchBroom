@@ -100,7 +100,7 @@ ParallelUvCoordSystem::ParallelUvCoordSystem(
 {
 }
 
-ParallelUvCoordSystem ParallelUvCoordSystem::fromParaxial(
+ParallelUvCoordSystem ParallelUvCoordSystem::createFromParaxial(
   const vm::vec3d& point0,
   const vm::vec3d& point1,
   const vm::vec3d& point2,

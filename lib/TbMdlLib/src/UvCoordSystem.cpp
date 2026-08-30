@@ -315,7 +315,7 @@ UvCoordSystem UvCoordSystem::toParallel(
   return std::visit(
     kdl::overload(
       [&](const ParaxialUvCoordSystem& system) {
-        return UvCoordSystem{ParallelUvCoordSystem::fromParaxial(
+        return UvCoordSystem{ParallelUvCoordSystem::createFromParaxial(
           point0, point1, point2, system.uvAttributes())};
       },
       [&](const ParallelUvCoordSystem& system) {
@@ -335,7 +335,7 @@ UvCoordSystem UvCoordSystem::toParaxial(
         return UvCoordSystem{system};
       },
       [&](const ParallelUvCoordSystem& system) {
-        return UvCoordSystem{ParaxialUvCoordSystem::fromParallel(
+        return UvCoordSystem{ParaxialUvCoordSystem::createFromParallel(
           point0, point1, point2, system.uvAttributes(), system.uAxis(), system.vAxis())};
       }),
     m_system);

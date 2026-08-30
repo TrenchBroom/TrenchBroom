@@ -466,7 +466,7 @@ ParaxialUvCoordSystem::ParaxialUvCoordSystem(
   setRotation(normal, 0.0f, uvAttributes.rotation);
 }
 
-ParaxialUvCoordSystem ParaxialUvCoordSystem::fromParallel(
+ParaxialUvCoordSystem ParaxialUvCoordSystem::createFromParallel(
   const vm::vec3d& point0,
   const vm::vec3d& point1,
   const vm::vec3d& point2,
