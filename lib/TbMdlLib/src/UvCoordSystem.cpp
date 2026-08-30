@@ -82,10 +82,20 @@ UvAttributes UvCoordSystem::uvAttributes() const
 Result<void> UvCoordSystem::setUvAttributes(
   const vm::vec3d& normal, const UvAttributes& uvAttributes)
 {
-  const auto oldRotation = this->uvAttributes().rotation;
-  copyUvAttributes(uvAttributes);
-  setRotation(normal, oldRotation, uvAttributes.rotation);
-  return kdl::void_success;
+  if (!validateUvAttributes(
+        uvAttributes.offset, uvAttributes.scale, uvAttributes.rotation))
+  {
+    return Error{"UV attributes are invalid"};
+  }
+
+  auto candidate = *this;
+  const auto oldRotation = candidate.uvAttributes().rotation;
+  candidate.copyUvAttributes(uvAttributes);
+  candidate.setRotation(normal, oldRotation, uvAttributes.rotation);
+
+  return validateUvCoordSystem(
+           candidate.uAxis(), candidate.vAxis(), candidate.normal(), uvAttributes)
+         | kdl::transform([&]() { *this = std::move(candidate); });
 }
 
 void UvCoordSystem::copyUvAttributes(const UvAttributes& uvAttributes)

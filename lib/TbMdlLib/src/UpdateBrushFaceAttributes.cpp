@@ -182,11 +182,8 @@ UpdateBrushFaceAttributes resetAllToParaxial(const UvAttributes& defaultUvAttrib
 
 Result<void> evaluate(const UpdateBrushFaceAttributes& update, BrushFace& brushFace)
 {
-  if (update.materialName)
-  {
-    brushFace.setMaterialName(*update.materialName);
-  }
-
+  // validate the (possibly invalid) UV update before touching anything else, so that a
+  // rejected update leaves the whole face -- not just its UV attributes -- unchanged
   const auto& uvAttributes = brushFace.uvAttributes();
   return brushFace.setUvAttributes(UvAttributes{
            .offset =
@@ -199,6 +196,11 @@ Result<void> evaluate(const UpdateBrushFaceAttributes& update, BrushFace& brushF
              vm::normalize_degrees(*evaluate(update.rotation, uvAttributes.rotation)),
          })
          | kdl::transform([&]() {
+             if (update.materialName)
+             {
+               brushFace.setMaterialName(*update.materialName);
+             }
+
              auto surfaceAttributes = brushFace.surfaceAttributes();
 
              if (update.surfaceFlags)

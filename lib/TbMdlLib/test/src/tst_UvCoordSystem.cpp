@@ -81,6 +81,62 @@ TEST_CASE("UvCoordSystem")
     }
   }
 
+  SECTION("setUvAttributes")
+  {
+    const auto normal = vm::vec3d{0, 0, 1};
+
+    SECTION("updates the UV attributes and axes")
+    {
+      auto system = UvCoordSystem{createParallel(vm::vec3d{1, 0, 0}, vm::vec3d{0, 1, 0})};
+      REQUIRE(
+        system.setUvAttributes(normal, UvAttributes{{1, 2}, {3, 4}, 45.0f}).is_success());
+      CHECK(system.uvAttributes() == UvAttributes{{1, 2}, {3, 4}, 45.0f});
+    }
+
+    SECTION("leaves the system unchanged if the given attributes are invalid")
+    {
+      auto system = UvCoordSystem{createParallel(vm::vec3d{1, 0, 0}, vm::vec3d{0, 1, 0})};
+      const auto before = system;
+
+      const auto nan = std::numeric_limits<float>::quiet_NaN();
+      CHECK(
+        system.setUvAttributes(normal, UvAttributes{{0, 0}, {1, 1}, nan})
+        == Result<void>{Error{"UV attributes are invalid"}});
+      CHECK(system == before);
+    }
+
+    SECTION("leaves the system unchanged if the resulting matrix is not invertible")
+    {
+      auto system = UvCoordSystem{createParallel(vm::vec3d{1, 0, 0}, vm::vec3d{0, 1, 0})};
+      const auto before = system;
+
+      const auto extremeScale = UvAttributes{{0, 0}, {1e30f, 1e30f}, 0.0f};
+      CHECK(
+        system.setUvAttributes(normal, extremeScale)
+        == Result<void>{Error{"UV coordinate system is not invertible"}});
+      CHECK(system == before);
+    }
+  }
+
+  SECTION("rotate")
+  {
+    const auto normal = vm::vec3d{0, 0, 1};
+
+    SECTION("leaves the system unchanged if the resulting rotation overflows")
+    {
+      const auto max = std::numeric_limits<float>::max();
+      auto system = UvCoordSystem{createParallel(
+        vm::vec3d{1, 0, 0}, vm::vec3d{0, 1, 0}, UvAttributes{{}, {1, 1}, max})};
+      const auto before = system;
+
+      // rotating by another huge angle overflows the resulting rotation to infinity --
+      // this is the original crash this branch set out to fix
+      CHECK(
+        system.rotate(normal, max) == Result<void>{Error{"UV attributes are invalid"}});
+      CHECK(system == before);
+    }
+  }
+
   SECTION("translate")
   {
     const auto normal = vm::vec3d{0, 0, 1};

@@ -30,6 +30,8 @@
 
 #include "kd/k.h"
 
+#include <limits>
+
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/generators/catch_generators.hpp>
 
@@ -267,6 +269,70 @@ TEST_CASE("UpdateBrushFaceAttributes")
       CHECK(brushFace.materialName() == "other_material");
       CHECK(brushFace.uvAttributes() == expectedUvAttributes);
       CHECK(brushFace.surfaceAttributes() == expectedSurfaceAttributes);
+    }
+
+    SECTION("rejects an extreme rotation and leaves the face unchanged")
+    {
+      const auto max = std::numeric_limits<float>::max();
+      REQUIRE(brushFace.setUvAttributes({.rotation = max}).is_success());
+
+      const auto expectedMaterialName = brushFace.materialName();
+      const auto expectedUvAttributes = brushFace.uvAttributes();
+      const auto expectedSurfaceAttributes = brushFace.surfaceAttributes();
+
+      // adding another huge delta overflows the rotation to infinity -- this is the
+      // original crash this branch set out to fix
+      const auto update = UpdateBrushFaceAttributes{
+        .materialName = "other_material",
+        .rotation = AddValue{max},
+      };
+      CHECK(!evaluate(update, brushFace));
+
+      CHECK(brushFace.materialName() == expectedMaterialName);
+      CHECK(brushFace.uvAttributes() == expectedUvAttributes);
+      CHECK(brushFace.surfaceAttributes() == expectedSurfaceAttributes);
+    }
+
+    SECTION("rejects an extreme negative rotation without hanging")
+    {
+      const auto lowest = std::numeric_limits<float>::lowest();
+      REQUIRE(brushFace.setUvAttributes({.rotation = lowest}).is_success());
+
+      // adding another huge negative delta overflows the rotation to -infinity; this is
+      // a regression guard for the normalize_degrees hang this branch also fixed
+      const auto update = UpdateBrushFaceAttributes{.rotation = AddValue{lowest}};
+      CHECK(!evaluate(update, brushFace));
+    }
+
+    SECTION("rejects an extreme scale via SetValue")
+    {
+      const auto expectedUvAttributes = brushFace.uvAttributes();
+
+      const auto update =
+        UpdateBrushFaceAttributes{.xScale = SetValue{1e30f}, .yScale = SetValue{1e30f}};
+      CHECK(!evaluate(update, brushFace));
+      CHECK(brushFace.uvAttributes() == expectedUvAttributes);
+    }
+
+    SECTION("rejects an extreme scale accumulated via repeated MultiplyValue")
+    {
+      REQUIRE(brushFace.setUvAttributes({.scale = {1e15f, 1e15f}}).is_success());
+      const auto expectedUvAttributes = brushFace.uvAttributes();
+
+      const auto update = UpdateBrushFaceAttributes{
+        .xScale = MultiplyValue{1e15f}, .yScale = MultiplyValue{1e15f}};
+      CHECK(!evaluate(update, brushFace));
+      CHECK(brushFace.uvAttributes() == expectedUvAttributes);
+    }
+
+    SECTION("accepts a scale of 0")
+    {
+      // InvalidUvScaleValidator relies on zero-scale faces being able to load and be
+      // edited so it can flag and fix them
+      const auto update =
+        UpdateBrushFaceAttributes{.xScale = SetValue{0.0f}, .yScale = SetValue{0.0f}};
+      REQUIRE(evaluate(update, brushFace).is_success());
+      CHECK(brushFace.uvAttributes().scale == vm::vec2f{0, 0});
     }
 
     SECTION("No evaluation")
