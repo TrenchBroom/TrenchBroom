@@ -45,6 +45,7 @@
 #include "vm/vec.h"
 #include "vm/vec_io.h" // IWYU pragma: keep
 
+#include <limits>
 #include <vector>
 
 #include <catch2/catch_test_macros.hpp>
@@ -504,6 +505,55 @@ TEST_CASE("BrushFace")
           ParaxialUvCoordSystem::createFromNormal(vm::vec3d{0, 0, 1}, UvAttributes{})
           | kdl::value()},
         SurfaceAttributes{}));
+    }
+
+    SECTION("with an invalid UV attribute")
+    {
+      const auto p0 = vm::vec3d{0, 0, 4};
+      const auto p1 = vm::vec3d{1, 0, 4};
+      const auto p2 = vm::vec3d{0, -1, 4};
+      const auto nan = std::numeric_limits<float>::quiet_NaN();
+      const auto invalidUvAttributes = UvAttributes{{0, 0}, {1, 1}, nan};
+
+      // Standard format goes through ParaxialUvCoordSystem
+      CHECK(!BrushFace::create(
+        p0, p1, p2, "", invalidUvAttributes, SurfaceAttributes{}, MapFormat::Standard));
+
+      // Valve format goes through ParallelUvCoordSystem
+      CHECK(!BrushFace::create(
+        p0, p1, p2, "", invalidUvAttributes, SurfaceAttributes{}, MapFormat::Valve));
+    }
+
+    SECTION("with degenerate Valve axes")
+    {
+      const auto p0 = vm::vec3d{0, 0, 4};
+      const auto p1 = vm::vec3d{1, 0, 4};
+      const auto p2 = vm::vec3d{0, -1, 4};
+      const auto uAxis = vm::vec3d{1, 0, 0};
+
+      // Valve format passes the axes through to ParallelUvCoordSystem unchanged
+      CHECK(!BrushFace::createFromValve(
+        p0,
+        p1,
+        p2,
+        "",
+        UvAttributes{},
+        SurfaceAttributes{},
+        uAxis,
+        uAxis,
+        MapFormat::Valve));
+    }
+
+    SECTION("createFromStandard with an extreme scale")
+    {
+      const auto p0 = vm::vec3d{0, 0, 4};
+      const auto p1 = vm::vec3d{1, 0, 4};
+      const auto p2 = vm::vec3d{0, -1, 4};
+      const auto extremeUvAttributes = UvAttributes{{0, 0}, {1e30f, 1e30f}, 0.0f};
+
+      // converting from Paraxial to Parallel preserves the (here, extreme) UV attributes
+      CHECK(!BrushFace::createFromStandard(
+        p0, p1, p2, "", extremeUvAttributes, SurfaceAttributes{}, MapFormat::Valve));
     }
   }
 

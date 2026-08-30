@@ -137,6 +137,80 @@ TEST_CASE("NodeReader")
       == std::vector<std::string>{"At line 4, column 1: Brush is incomplete"});
   }
 
+  SECTION("skipsAndLogsFaceWithInvalidUvAttributes")
+  {
+    // brush 0's last face has a scale so large that its UV coordinate system matrix
+    // isn't invertible; the face gets skipped, which leaves the brush incomplete (this
+    // is otherwise the same brush geometry as reportsBrushErrorsWithLocation). brush 1
+    // is unaffected and should still load.
+    const auto data = R"(
+{
+"classname" "worldspawn"
+{
+( -64 -64 -16 ) ( -64 -63 -16 ) ( -64 -64 -15 ) __TB_empty 0 0 0 1 1
+( -64 -64 -16 ) ( -64 -64 -15 ) ( -63 -64 -16 ) __TB_empty 0 0 0 1 1
+( -64 -64 -16 ) ( -63 -64 -16 ) ( -64 -63 -16 ) __TB_empty 0 0 0 1 1
+( 64 64 16 ) ( 64 65 16 ) ( 65 64 16 ) __TB_empty 0 0 0 1 1
+( 64 64 16 ) ( 65 64 16 ) ( 64 64 17 ) __TB_empty 0 0 0 1 1
+( 64 64 16 ) ( 64 64 17 ) ( 64 65 16 ) __TB_empty 0 0 0 1e30 1e30
+}
+{
+( -256 -256 -256 ) ( -256 -255 -256 ) ( -256 -256 -255 ) __TB_empty 0 0 0 1 1
+( -256 -256 -256 ) ( -256 -256 -255 ) ( -255 -256 -256 ) __TB_empty 0 0 0 1 1
+( -256 -256 -256 ) ( -255 -256 -256 ) ( -256 -255 -256 ) __TB_empty 0 0 0 1 1
+( 256 256 256 ) ( 256 257 256 ) ( 257 256 256 ) __TB_empty 0 0 0 1 1
+( 256 256 256 ) ( 257 256 256 ) ( 256 256 257 ) __TB_empty 0 0 0 1 1
+( 256 256 256 ) ( 256 256 257 ) ( 256 257 256 ) __TB_empty 0 0 0 1 1
+}
+}
+)";
+
+    auto nodes =
+      NodeReader::read(data, MapFormat::Standard, worldBounds, {}, status, taskManager);
+    REQUIRE(nodes);
+
+    CHECK(
+      status.messages(LogLevel::Error)
+      == std::vector<std::string>{
+        "At line 9, column 60: Skipping face: UV coordinate system is not invertible",
+        "At line 4, column 1: Brush is incomplete",
+      });
+
+    const auto& children = nodes.value().at(0)->children();
+    REQUIRE(children.size() == 1u);
+
+    auto* brushNode = dynamic_cast<BrushNode*>(children.at(0));
+    REQUIRE(brushNode != nullptr);
+    CHECK(brushNode->brush().bounds() == vm::bbox3d{{-256, -256, -256}, {256, 256, 256}});
+  }
+
+  SECTION("loadsFaceWithZeroUvScale")
+  {
+    // a scale of 0 is invalid for editing (InvalidUvScaleValidator flags it and offers a
+    // quick fix), but it must still load rather than being rejected outright
+    const auto data = R"(
+{
+"classname" "worldspawn"
+{
+( -64 -64 -16 ) ( -64 -63 -16 ) ( -64 -64 -15 ) __TB_empty 0 0 0 1 1
+( -64 -64 -16 ) ( -64 -64 -15 ) ( -63 -64 -16 ) __TB_empty 0 0 0 1 1
+( -64 -64 -16 ) ( -63 -64 -16 ) ( -64 -63 -16 ) __TB_empty 0 0 0 1 1
+( 64 64 16 ) ( 64 65 16 ) ( 65 64 16 ) __TB_empty 0 0 0 1 1
+( 64 64 16 ) ( 65 64 16 ) ( 64 64 17 ) __TB_empty 0 0 0 1 1
+( 64 64 16 ) ( 64 64 17 ) ( 64 65 16 ) __TB_empty 0 0 0 0 0
+}
+}
+)";
+
+    auto nodes =
+      NodeReader::read(data, MapFormat::Standard, worldBounds, {}, status, taskManager);
+    REQUIRE(nodes);
+    CHECK(status.messages(LogLevel::Error).empty());
+
+    auto* brushNode = dynamic_cast<BrushNode*>(nodes.value().at(0)->children().at(0));
+    REQUIRE(brushNode != nullptr);
+  }
+
   SECTION("readScientificNotation")
   {
     // https://github.com/TrenchBroom/TrenchBroom/issues/4270

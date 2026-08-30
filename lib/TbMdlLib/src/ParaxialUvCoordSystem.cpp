@@ -23,6 +23,7 @@
 
 #include "kd/contracts.h"
 #include "kd/reflection_impl.h"
+#include "kd/result.h"
 
 #include "vm/plane.h"
 #include "vm/quat.h"
@@ -519,7 +520,16 @@ Result<ParaxialUvCoordSystem> ParaxialUvCoordSystem::createFromPoints(
 Result<ParaxialUvCoordSystem> ParaxialUvCoordSystem::createFromNormal(
   const vm::vec3d& normal, const UvAttributes& uvAttributes)
 {
-  return ParaxialUvCoordSystem{normal, uvAttributes};
+  if (!validateUvAttributes(
+        uvAttributes.offset, uvAttributes.scale, uvAttributes.rotation))
+  {
+    return Error{"UV attributes are invalid"};
+  }
+
+  auto system = ParaxialUvCoordSystem{normal, uvAttributes};
+  return validateUvCoordSystem(
+           system.uAxis(), system.vAxis(), system.normal(), uvAttributes)
+         | kdl::transform([&]() { return system; });
 }
 
 size_t ParaxialUvCoordSystem::planeNormalIndex(const vm::vec3d& normal)

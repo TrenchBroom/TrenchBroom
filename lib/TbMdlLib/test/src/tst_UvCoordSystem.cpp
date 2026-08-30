@@ -28,9 +28,12 @@
 
 #include "vm/vec_io.h" // IWYU pragma: keep
 
+#include <limits>
 #include <optional>
+#include <tuple>
 
 #include <catch2/catch_test_macros.hpp>
+#include <catch2/generators/catch_generators.hpp>
 
 namespace tb::mdl
 {
@@ -191,6 +194,49 @@ TEST_CASE("ParallelUvCoordSystem")
       CHECK(actual.value().vAxis() == vAxis);
       CHECK(actual.value().uvAttributes() == uvAttributes);
     }
+
+    SECTION("accepts a scale of 0")
+    {
+      const auto zeroScale = UvAttributes{{0, 0}, {0, 0}, 0.0f};
+      CHECK(ParallelUvCoordSystem::createFromAxes(uAxis, vAxis, zeroScale).is_success());
+    }
+
+    SECTION("rejects invalid input")
+    {
+      const auto nan = std::numeric_limits<float>::quiet_NaN();
+
+      using T = std::tuple<vm::vec3d, vm::vec3d, UvAttributes, Error>;
+
+      const auto [testUAxis, testVAxis, testUvAttributes, expectedError] =
+        GENERATE_COPY(values<T>({
+          // non-finite rotation
+          {uAxis,
+           vAxis,
+           UvAttributes{{0, 0}, {1, 1}, nan},
+           Error{"UV attributes are invalid"}},
+          // parallel axes
+          {uAxis,
+           uAxis,
+           uvAttributes,
+           Error{"UV axes do not form an invertible coordinate system"}},
+          // a zero axis
+          {vm::vec3d{0, 0, 0},
+           vAxis,
+           uvAttributes,
+           Error{"UV axes do not form an invertible coordinate system"}},
+          // otherwise-fine axes, but a scale this large makes the resulting matrix
+          // look singular under the fixed pivot threshold used to invert it
+          {uAxis,
+           vAxis,
+           UvAttributes{{0, 0}, {1e30f, 1e30f}, 0.0f},
+           Error{"UV coordinate system is not invertible"}},
+        }));
+
+      CAPTURE(testUAxis, testVAxis, testUvAttributes);
+      CHECK(
+        ParallelUvCoordSystem::createFromAxes(testUAxis, testVAxis, testUvAttributes)
+        == Result<ParallelUvCoordSystem>{expectedError});
+    }
   }
 }
 
@@ -241,6 +287,34 @@ TEST_CASE("ParaxialUvCoordSystem")
       CHECK(vm::is_unit(actual.value().vAxis(), vm::Cd::almost_zero()));
       CHECK(vm::is_zero(
         vm::dot(actual.value().uAxis(), actual.value().vAxis()), vm::Cd::almost_zero()));
+    }
+
+    SECTION("accepts a scale of 0")
+    {
+      const auto zeroScale = UvAttributes{{0, 0}, {0, 0}, 0.0f};
+      CHECK(ParaxialUvCoordSystem::createFromNormal(normal, zeroScale).is_success());
+    }
+
+    SECTION("rejects invalid input")
+    {
+      const auto nan = std::numeric_limits<float>::quiet_NaN();
+
+      using T = std::tuple<UvAttributes, Error>;
+
+      const auto [testUvAttributes, expectedError] = GENERATE_COPY(values<T>({
+        // non-finite offset
+        {UvAttributes{{nan, 0}, {1, 1}, 0.0f}, Error{"UV attributes are invalid"}},
+        // otherwise-fine axes (Paraxial axes are always orthonormal), but a scale this
+        // large makes the resulting matrix look singular under the fixed pivot
+        // threshold used to invert it
+        {UvAttributes{{0, 0}, {1e30f, 1e30f}, 0.0f},
+         Error{"UV coordinate system is not invertible"}},
+      }));
+
+      CAPTURE(testUvAttributes);
+      CHECK(
+        ParaxialUvCoordSystem::createFromNormal(normal, testUvAttributes)
+        == Result<ParaxialUvCoordSystem>{expectedError});
     }
   }
 }

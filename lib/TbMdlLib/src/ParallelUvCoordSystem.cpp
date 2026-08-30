@@ -123,7 +123,16 @@ Result<ParallelUvCoordSystem> ParallelUvCoordSystem::createFromPoints(
 Result<ParallelUvCoordSystem> ParallelUvCoordSystem::createFromAxes(
   const vm::vec3d& uAxis, const vm::vec3d& vAxis, const UvAttributes& uvAttributes)
 {
-  return ParallelUvCoordSystem{uAxis, vAxis, uvAttributes};
+  if (!validateUvAttributes(
+        uvAttributes.offset, uvAttributes.scale, uvAttributes.rotation))
+  {
+    return Error{"UV attributes are invalid"};
+  }
+
+  const auto normal = vm::normalize(vm::cross(uAxis, vAxis));
+  return validateUvCoordSystem(uAxis, vAxis, normal, uvAttributes)
+         | kdl::transform(
+           [&]() { return ParallelUvCoordSystem{uAxis, vAxis, uvAttributes}; });
 }
 
 Result<ParallelUvCoordSystem> ParallelUvCoordSystem::createFromParaxial(
