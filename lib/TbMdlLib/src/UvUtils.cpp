@@ -24,8 +24,6 @@
 #include "kd/contracts.h"
 #include "kd/result.h"
 
-#include "vm/mat_ext.h"
-
 namespace tb::mdl
 {
 
