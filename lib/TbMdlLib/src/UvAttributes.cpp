@@ -22,6 +22,7 @@
 #include "kd/reflection_impl.h"
 
 #include "vm/scalar.h"
+#include "vm/vec.h"
 #include "vm/vec_io.h" // IWYU pragma: keep
 
 namespace tb::mdl
@@ -29,9 +30,16 @@ namespace tb::mdl
 
 kdl_reflect_impl(UvAttributes);
 
+bool validateUvAttributes(
+  const vm::vec2f& offset, const vm::vec2f& scale, const float rotation)
+{
+  return vm::is_finite(offset) && vm::is_finite(scale) && vm::is_finite(rotation);
+}
+
 bool UvAttributes::valid() const
 {
-  return !vm::is_zero(scale.x(), vm::Cf::almost_zero())
+  return validateUvAttributes(offset, scale, rotation)
+         && !vm::is_zero(scale.x(), vm::Cf::almost_zero())
          && !vm::is_zero(scale.y(), vm::Cf::almost_zero());
 }
 

@@ -109,6 +109,7 @@ target_sources(TbMdlLibTest PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_UvAlignment.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_UpdateLinkedGroupsCommand.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_UpdateLinkedGroupsHelper.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_UvAttributes.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_UvCoordSystem.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_UvUtils.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Validation.cpp

@@ -19,6 +19,8 @@
 
 #pragma once
 
+#include "base/Result.h"
+
 #include "vm/constants.h"
 #include "vm/mat.h"
 #include "vm/scalar.h"
@@ -29,10 +31,24 @@
 namespace tb::mdl
 {
 
+struct UvAttributes;
+
 /**
  * Return the up and right axes for a camera that looks at the given face.
  */
 std::tuple<vm::vec3d, vm::vec3d> computeCameraAxesForFaceNormal(const vm::vec3d& normal);
+
+/**
+ * Checks that the given UV axes are finite and that they produce an invertible UV
+ * coordinate system matrix, both with a neutral offset/scale and with the given
+ * uvAttributes' actual offset/scale -- a finite but extreme scale can make an otherwise
+ * fine pair of axes non-invertible even though the axes alone would be fine.
+ */
+Result<void> validateUvCoordSystem(
+  const vm::vec3d& uAxis,
+  const vm::vec3d& vAxis,
+  const vm::vec3d& normal,
+  const UvAttributes& uvAttributes);
 
 /**
  * Returns the given scaling factor, or 1 if it is 0.

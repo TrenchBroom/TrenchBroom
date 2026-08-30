@@ -36,6 +36,8 @@
 #include "mdl/UvAlignment.h"
 #include "mdl/UvCoordSystem.h"
 
+#include "kd/result.h"
+
 #include "vm/approx.h"
 
 #include <catch2/catch_test_macros.hpp>
@@ -808,7 +810,8 @@ TEST_CASE("Map_Brushes")
     auto expectedBrush = brushNode->brush();
     evaluate(
       align(expectedBrush.face(*faceIndex), UvPolicy::next),
-      expectedBrush.face(*faceIndex));
+      expectedBrush.face(*faceIndex))
+      | kdl::ignore();
     const auto expectedFaceCopy = expectedBrush.face(*faceIndex);
     const auto expectedUAxis = expectedBrush.face(*faceIndex).uAxis();
     const auto expectedVAxis = expectedBrush.face(*faceIndex).vAxis();
@@ -881,7 +884,8 @@ TEST_CASE("Map_Brushes")
     auto expectedBrush = brushNode->brush();
     evaluate(
       justify(expectedBrush.face(*faceIndex), UvAxis::u, UvSign::plus, UvPolicy::best),
-      expectedBrush.face(*faceIndex));
+      expectedBrush.face(*faceIndex))
+      | kdl::ignore();
     const auto expectedFaceCopy = expectedBrush.face(*faceIndex);
     const auto expectedUAxis = expectedBrush.face(*faceIndex).uAxis();
     const auto expectedVAxis = expectedBrush.face(*faceIndex).vAxis();
@@ -962,7 +966,8 @@ TEST_CASE("Map_Brushes")
       * invariantVertex};
 
     evaluate(
-      fit(expectedFace, UvAxis::u, UvPolicy::next, UvFitMode::fitToFace), expectedFace);
+      fit(expectedFace, UvAxis::u, UvPolicy::next, UvFitMode::fitToFace), expectedFace)
+      | kdl::ignore();
 
     const auto newUvCoords = vm::vec2f{
       expectedFace.toUvCoordSystemMatrix(
@@ -975,7 +980,8 @@ TEST_CASE("Map_Brushes")
         .xOffset = AddValue{delta.x()},
         .yOffset = AddValue{delta.y()},
       },
-      expectedFace);
+      expectedFace)
+      | kdl::ignore();
 
     const auto expectedUAxis = expectedFace.uAxis();
     const auto expectedVAxis = expectedFace.vAxis();
