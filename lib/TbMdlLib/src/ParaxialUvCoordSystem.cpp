@@ -744,8 +744,6 @@ void ParaxialUvCoordSystem::transform(
     contract_assert(!vm::is_nan(newOffset));
     contract_assert(!vm::is_nan(newScale));
     contract_assert(!vm::is_nan(newRotation));
-    contract_assert(!vm::is_zero(newScale.x(), vm::Cf::almost_zero()));
-    contract_assert(!vm::is_zero(newScale.y(), vm::Cf::almost_zero()));
 
     m_uvAttributes = UvAttributes{
       .offset = newOffset,

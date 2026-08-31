@@ -26,6 +26,9 @@
 
 #include "kd/result.h"
 
+#include "vm/mat_ext.h"
+#include "vm/plane.h"
+#include "vm/scalar.h"
 #include "vm/vec_io.h" // IWYU pragma: keep
 
 #include <limits>
@@ -371,6 +374,32 @@ TEST_CASE("ParaxialUvCoordSystem")
       CHECK(
         ParaxialUvCoordSystem::createFromNormal(normal, testUvAttributes)
         == Result<ParaxialUvCoordSystem>{expectedError});
+    }
+  }
+
+  SECTION("transform")
+  {
+    SECTION("does not produce a zero scale for a lock-textured translation")
+    {
+      // this face's UV attributes already carry pathological offset/scale magnitudes;
+      // translating it further reunds the resulting V scale down to exactly 0
+      auto system = createParaxial(
+        vm::vec3d{0, 1, 0},
+        UvAttributes{
+          {-43460.609375f, -11065997.0f},
+          {0.018230000510811806f, -0.00062000000616535544f},
+          97.126823425292969f});
+
+      const auto oldBoundary = vm::plane3d{-1960.0, vm::vec3d{0, 1, 0}};
+      const auto newBoundary = vm::plane3d{-1960.0, vm::vec3d{0, 1, 0}};
+      const auto transformation = vm::translation_matrix(vm::vec3d{16, 0, 0});
+      const auto invariant = vm::vec3d{-6887.666666666667, -1960.0, -59.333333333333336};
+
+      system.transform(
+        oldBoundary, newBoundary, transformation, vm::vec2f{1, 1}, true, invariant);
+
+      CHECK(!vm::is_zero(system.uvAttributes().scale.x(), vm::Cf::almost_zero()));
+      CHECK(vm::is_zero(system.uvAttributes().scale.y(), vm::Cf::almost_zero()));
     }
   }
 }
