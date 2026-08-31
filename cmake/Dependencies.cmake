@@ -1,4 +1,4 @@
-include(FetchContent)
+include(cmake/CPM.cmake)
 
 include(cmake/dependencies/CompilerConfig.cmake)
 

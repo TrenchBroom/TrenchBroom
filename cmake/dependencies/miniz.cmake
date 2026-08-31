@@ -1,16 +1,9 @@
-message(STATUS "Fetching miniz...")
-FetchContent_Declare(
-  miniz
-  GIT_REPOSITORY https://github.com/richgel999/miniz
-  GIT_TAG        174573d60290f447c13a2b1b3405de2b96e27d6c # 3.1.0
-  SYSTEM
-  EXCLUDE_FROM_ALL
-  PATCH_COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_LIST_DIR}/patches/miniz-strip-msvc-flags.cmake
-)
-
 # miniz's BUILD_EXAMPLES/BUILD_TESTS options already default to off when miniz
 # is built as a subproject, so no configuration is needed.
-FetchContent_MakeAvailable(miniz)
+CPMAddPackage(
+  URI "gh:richgel999/miniz#3.1.0"
+  PATCHES "patches/miniz-strip-msvc-flags.patch"
+)
 
 suppress_dependency_warnings(miniz)
 apply_sanitizer_options(miniz)

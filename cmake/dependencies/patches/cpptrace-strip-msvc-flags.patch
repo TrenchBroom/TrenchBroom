@@ -1,0 +1,13 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index d7bc6bc..bf3738a 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -189,7 +189,7 @@ set(
+   warning_options
+   $<$<NOT:$<OR:$<CXX_COMPILER_ID:MSVC>,$<STREQUAL:${IS_CLANG_CL},1>>>:-Wall -Wextra -Werror=return-type -Wundef>
+   $<$<CXX_COMPILER_ID:GNU>:-Wuseless-cast -Wmaybe-uninitialized>
+-  $<$<CXX_COMPILER_ID:MSVC>:/W4 /permissive->
++  $<$<CXX_COMPILER_ID:MSVC>:/permissive->
+ )
+ 
+ if(CPPTRACE_WERROR_BUILD)
