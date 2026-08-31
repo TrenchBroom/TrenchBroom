@@ -14,9 +14,11 @@ git clone https://github.com/TrenchBroom/TrenchBroom.git
 
 ## Dependencies
 
-### FetchContent
+### CPM.cmake
 
-TrenchBroom uses CMake's [FetchContent](https://cmake.org/cmake/help/latest/module/FetchContent.html) to manage build dependencies except for Qt. The dependencies are declared in `cmake/dependencies/` and are downloaded and built automatically during cmake's configure and build phases. This is an automatic process, but it can take a little while when it happens for the first time.
+TrenchBroom uses [CPM.cmake](https://github.com/cpm-cmake/cpm.cmake) to manage build dependencies except for Qt. The dependencies are declared in `cmake/dependencies/` and are downloaded and built automatically during cmake's configure and build phases. This is an automatic process, but it can take a little while when it happens for the first time.
+
+To avoid re-downloading dependencies across build directories, set the `CPM_SOURCE_CACHE` environment variable to a directory of your choice, e.g. `export CPM_SOURCE_CACHE=$HOME/.cache/CPM`. Subsequent builds, even from a fresh build directory, will reuse the cached sources instead of re-cloning them.
 
 ### Qt
 

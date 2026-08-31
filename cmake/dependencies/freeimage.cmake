@@ -1,23 +1,14 @@
-message(STATUS "Fetching FreeImage...")
-FetchContent_Declare(
-  FreeImage
-  GIT_REPOSITORY https://github.com/danoli3/FreeImage
-  GIT_TAG        625117b48e18a82f3f68e9be3514ae584ebfcf7b # 3.19.11
-  SYSTEM
-  EXCLUDE_FROM_ALL
-)
-
 # This fork builds all of FreeImage's bundled codecs (zlib, libpng, libjpeg,
 # libtiff, webp), so no external image libraries are needed.
 set(CMAKE_POLICY_VERSION_MINIMUM 3.10)
-FetchContent_MakeAvailable(FreeImage)
+CPMAddPackage("gh:danoli3/FreeImage#3.19.11")
 unset(CMAKE_POLICY_VERSION_MINIMUM)
 
 suppress_dependency_warnings(FreeImage)
 apply_sanitizer_options(FreeImage)
 
 # The fork's FreeImage target does not expose its public header directory.
-target_include_directories(FreeImage SYSTEM INTERFACE $<BUILD_INTERFACE:${freeimage_SOURCE_DIR}/Source>)
+target_include_directories(FreeImage SYSTEM INTERFACE $<BUILD_INTERFACE:${FreeImage_SOURCE_DIR}/Source>)
 
 # FreeImage's own CMakeLists defines FREEIMAGE_LIB for itself via
 # add_definitions() when built static, which is directory-scoped and doesn't
