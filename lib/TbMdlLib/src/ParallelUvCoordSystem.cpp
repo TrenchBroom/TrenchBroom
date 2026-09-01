@@ -24,9 +24,11 @@
 
 #include "kd/contracts.h"
 #include "kd/reflection_impl.h"
+#include "kd/result.h"
 
 #include "vm/mat.h"
 #include "vm/mat_ext.h"
+#include "vm/plane.h"
 #include "vm/vec.h"
 #include "vm/vec_io.h" // IWYU pragma: keep
 
@@ -100,14 +102,49 @@ ParallelUvCoordSystem::ParallelUvCoordSystem(
 {
 }
 
-ParallelUvCoordSystem ParallelUvCoordSystem::fromParaxial(
+Result<ParallelUvCoordSystem> ParallelUvCoordSystem::createFromPoints(
   const vm::vec3d& point0,
   const vm::vec3d& point1,
   const vm::vec3d& point2,
   const UvAttributes& uvAttributes)
 {
-  const auto tempParaxial = ParaxialUvCoordSystem{point0, point1, point2, uvAttributes};
-  return ParallelUvCoordSystem{tempParaxial.uAxis(), tempParaxial.vAxis(), uvAttributes};
+  const auto normal = vm::plane_normal(point0, point1, point2);
+  if (!normal)
+  {
+    return Error{"Face points do not define a plane"};
+  }
+
+  auto [uAxis, vAxis] = computeInitialAxes(*normal);
+  std::tie(uAxis, vAxis) =
+    applyRotation(uAxis, vAxis, *normal, double(uvAttributes.rotation));
+  return createFromAxes(uAxis, vAxis, uvAttributes);
+}
+
+Result<ParallelUvCoordSystem> ParallelUvCoordSystem::createFromAxes(
+  const vm::vec3d& uAxis, const vm::vec3d& vAxis, const UvAttributes& uvAttributes)
+{
+  if (!validateUvAttributes(
+        uvAttributes.offset, uvAttributes.scale, uvAttributes.rotation))
+  {
+    return Error{"UV attributes are invalid"};
+  }
+
+  const auto normal = vm::normalize(vm::cross(uAxis, vAxis));
+  return validateUvCoordSystem(uAxis, vAxis, normal, uvAttributes)
+         | kdl::transform(
+           [&]() { return ParallelUvCoordSystem{uAxis, vAxis, uvAttributes}; });
+}
+
+Result<ParallelUvCoordSystem> ParallelUvCoordSystem::createFromParaxial(
+  const vm::vec3d& point0,
+  const vm::vec3d& point1,
+  const vm::vec3d& point2,
+  const UvAttributes& uvAttributes)
+{
+  return ParaxialUvCoordSystem::createFromPoints(point0, point1, point2, uvAttributes)
+         | kdl::and_then([&](const auto& paraxial) {
+             return createFromAxes(paraxial.uAxis(), paraxial.vAxis(), uvAttributes);
+           });
 }
 
 const UvAttributes& ParallelUvCoordSystem::uvAttributes() const

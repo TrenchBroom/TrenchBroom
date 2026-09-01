@@ -24,6 +24,7 @@
 #include "kd/contracts.h"
 #include "kd/overload.h"
 #include "kd/reflection_impl.h"
+#include "kd/result.h"
 
 #include "vm/mat.h"
 #include "vm/mat_ext.h"
@@ -78,12 +79,23 @@ UvAttributes UvCoordSystem::uvAttributes() const
   return std::visit([](const auto& system) { return system.uvAttributes(); }, m_system);
 }
 
-void UvCoordSystem::setUvAttributes(
+Result<void> UvCoordSystem::setUvAttributes(
   const vm::vec3d& normal, const UvAttributes& uvAttributes)
 {
-  const auto oldRotation = this->uvAttributes().rotation;
-  copyUvAttributes(uvAttributes);
-  setRotation(normal, oldRotation, uvAttributes.rotation);
+  if (!validateUvAttributes(
+        uvAttributes.offset, uvAttributes.scale, uvAttributes.rotation))
+  {
+    return Error{"UV attributes are invalid"};
+  }
+
+  auto candidate = *this;
+  const auto oldRotation = candidate.uvAttributes().rotation;
+  candidate.copyUvAttributes(uvAttributes);
+  candidate.setRotation(normal, oldRotation, uvAttributes.rotation);
+
+  return validateUvCoordSystem(
+           candidate.uAxis(), candidate.vAxis(), candidate.normal(), uvAttributes)
+         | kdl::transform([&]() { *this = std::move(candidate); });
 }
 
 void UvCoordSystem::copyUvAttributes(const UvAttributes& uvAttributes)
@@ -278,13 +290,13 @@ void UvCoordSystem::translate(
   copyUvAttributes(uvAttributes);
 }
 
-void UvCoordSystem::rotate(const vm::vec3d& normal, const float angle)
+Result<void> UvCoordSystem::rotate(const vm::vec3d& normal, const float angle)
 {
   const auto actualAngle = isRotationInverted(normal) ? -angle : angle;
 
   auto uvAttributes = this->uvAttributes();
   uvAttributes.rotation = uvAttributes.rotation + actualAngle;
-  setUvAttributes(normal, uvAttributes);
+  return setUvAttributes(normal, uvAttributes);
 }
 
 void UvCoordSystem::shear(const vm::vec3d& normal, const vm::vec2f& factors)
@@ -309,34 +321,41 @@ float UvCoordSystem::measureAngle(const vm::vec2f& center, const vm::vec2f& poin
     [&](const auto& system) { return system.measureAngle(center, point); }, m_system);
 }
 
-UvCoordSystem UvCoordSystem::toParallel(
+Result<UvCoordSystem> UvCoordSystem::toParallel(
   const vm::vec3d& point0, const vm::vec3d& point1, const vm::vec3d& point2) const
 {
   return std::visit(
     kdl::overload(
-      [&](const ParaxialUvCoordSystem& system) {
-        return UvCoordSystem{ParallelUvCoordSystem::fromParaxial(
-          point0, point1, point2, system.uvAttributes())};
+      [&](const ParaxialUvCoordSystem& paraxialUvCoordSystem) {
+        return ParallelUvCoordSystem::createFromParaxial(
+                 point0, point1, point2, paraxialUvCoordSystem.uvAttributes())
+               | kdl::transform(UvCoordSystem::wrap);
       },
-      [&](const ParallelUvCoordSystem& system) {
+      [&](const ParallelUvCoordSystem& parallelUvCoordSystem) -> Result<UvCoordSystem> {
         // Already in the requested format
-        return UvCoordSystem{system};
+        return UvCoordSystem{parallelUvCoordSystem};
       }),
     m_system);
 }
 
-UvCoordSystem UvCoordSystem::toParaxial(
+Result<UvCoordSystem> UvCoordSystem::toParaxial(
   const vm::vec3d& point0, const vm::vec3d& point1, const vm::vec3d& point2) const
 {
   return std::visit(
     kdl::overload(
-      [&](const ParaxialUvCoordSystem& system) {
+      [&](const ParaxialUvCoordSystem& paraxialUvCoordSystem) -> Result<UvCoordSystem> {
         // Already in the requested format
-        return UvCoordSystem{system};
+        return UvCoordSystem{paraxialUvCoordSystem};
       },
-      [&](const ParallelUvCoordSystem& system) {
-        return UvCoordSystem{ParaxialUvCoordSystem::fromParallel(
-          point0, point1, point2, system.uvAttributes(), system.uAxis(), system.vAxis())};
+      [&](const ParallelUvCoordSystem& parallelUvCoordSystem) {
+        return ParaxialUvCoordSystem::createFromParallel(
+                 point0,
+                 point1,
+                 point2,
+                 parallelUvCoordSystem.uvAttributes(),
+                 parallelUvCoordSystem.uAxis(),
+                 parallelUvCoordSystem.vAxis())
+               | kdl::transform(UvCoordSystem::wrap);
       }),
     m_system);
 }

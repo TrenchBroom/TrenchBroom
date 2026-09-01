@@ -20,6 +20,7 @@
 #pragma once
 
 #include "base/Color.h"
+#include "base/Result.h"
 
 #include "kd/reflection_decl.h"
 
@@ -137,7 +138,7 @@ UpdateBrushFaceAttributes copyAllExceptContentFlags(const BrushFace& brushFace);
 UpdateBrushFaceAttributes resetAll(const UvAttributes& defaultUvAttributes);
 UpdateBrushFaceAttributes resetAllToParaxial(const UvAttributes& defaultUvAttributes);
 
-void evaluate(
+Result<void> evaluate(
   const UpdateBrushFaceAttributes& updateBrushFaceAttributes, BrushFace& brushFace);
 
 } // namespace tb::mdl

@@ -19,9 +19,10 @@
 
 #include "mdl/UvUtils.h"
 
-#include "kd/contracts.h"
+#include "mdl/UvAttributes.h"
 
-#include "vm/mat_ext.h"
+#include "kd/contracts.h"
+#include "kd/result.h"
 
 namespace tb::mdl
 {
@@ -86,6 +87,34 @@ vm::mat4x4d computeUvToWorldMatrix(
   contract_assert(result);
 
   return *result;
+}
+
+Result<void> validateUvCoordSystem(
+  const vm::vec3d& uAxis,
+  const vm::vec3d& vAxis,
+  const vm::vec3d& normal,
+  const UvAttributes& uvAttributes)
+{
+  if (!vm::is_finite(uAxis) || !vm::is_finite(vAxis))
+  {
+    return Error{"UV axes are invalid"};
+  }
+
+  const auto neutralMatrix =
+    computeWorldToUvMatrix(uAxis, vAxis, normal, vm::vec2f{0, 0}, vm::vec2f{1, 1});
+  if (!vm::invert(neutralMatrix))
+  {
+    return Error{"UV axes do not form an invertible coordinate system"};
+  }
+
+  const auto actualMatrix =
+    computeWorldToUvMatrix(uAxis, vAxis, normal, uvAttributes.offset, uvAttributes.scale);
+  if (!vm::invert(actualMatrix))
+  {
+    return Error{"UV coordinate system is not invertible"};
+  }
+
+  return kdl::void_success;
 }
 
 } // namespace tb::mdl

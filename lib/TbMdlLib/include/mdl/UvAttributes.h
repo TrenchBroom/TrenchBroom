@@ -37,6 +37,13 @@ struct UvAttributes
   bool valid() const;
 };
 
+/**
+ * Checks that offset, scale and rotation are all finite. A scale of 0 is allowed -- use
+ * UvAttributes::valid() to also reject that.
+ */
+bool validateUvAttributes(
+  const vm::vec2f& offset, const vm::vec2f& scale, float rotation);
+
 vm::vec2f modOffset(const vm::vec2f& offset, const vm::vec2f& size);
 
 } // namespace tb::mdl

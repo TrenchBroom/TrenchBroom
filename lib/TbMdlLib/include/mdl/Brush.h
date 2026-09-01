@@ -354,8 +354,8 @@ private:
     const std::vector<const Brush*>& subtrahends) const;
 
 public: // UV format conversion
-  Brush convertToParaxial() const;
-  Brush convertToParallel() const;
+  Result<Brush> convertToParaxial() const;
+  Result<Brush> convertToParallel() const;
 
 private:
   bool checkFaceLinks() const;

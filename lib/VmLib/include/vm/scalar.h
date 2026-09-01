@@ -76,6 +76,21 @@ constexpr bool is_inf(const T f)
 }
 
 /**
+ * Checks whether the given float is finite, i.e. neither NaN nor positive or negative
+ * infinity.
+ *
+ * @tparam T the argument type, which must be a floating point type
+ * @param f the float to check
+ * @return true if the given float is finite
+ */
+template <typename T>
+constexpr bool is_finite(const T f)
+{
+  static_assert(std::is_floating_point_v<T>, "T must be a floating point type");
+  return !is_nan(f) && !is_inf(f);
+}
+
+/**
  * Returns a floating point value that represents NaN.
  *
  * @tparam T the result type, which must be a floating point type
@@ -818,11 +833,8 @@ constexpr T normalize_radians(T angle)
   static_assert(std::is_floating_point_v<T>, "T must be a floating point type");
   constexpr T z = static_cast<T>(0.0);
   constexpr T o = constants<T>::two_pi();
-  while (angle < z)
-  {
-    angle += o;
-  }
-  return mod(angle, o);
+  const auto result = mod(angle, o);
+  return result < z ? result + o : result;
 }
 
 /**
@@ -838,11 +850,8 @@ constexpr T normalize_degrees(T angle)
   static_assert(std::is_floating_point_v<T>, "T must be a floating point type");
   constexpr T z = static_cast<T>(0.0);
   constexpr T o = static_cast<T>(360.0);
-  while (angle < z)
-  {
-    angle += o;
-  }
-  return mod(angle, o);
+  const auto result = mod(angle, o);
+  return result < z ? result + o : result;
 }
 
 /**

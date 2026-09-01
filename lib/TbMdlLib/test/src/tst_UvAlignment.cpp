@@ -75,17 +75,18 @@ TEST_CASE("UvAlignment")
     SECTION("uses preferred sign when currently justified")
     {
       withFrontFace([&](auto& frontFace) {
-        evaluate(
-          UpdateBrushFaceAttributes{
-            .xOffset = SetValue{0.0f},
-            .yOffset = SetValue{0.0f},
-            .rotation = SetValue{0.0f},
-            .xScale = SetValue{1.2f},
-            .yScale = SetValue{0.9f},
-          },
-          frontFace);
+        REQUIRE(evaluate(
+                  UpdateBrushFaceAttributes{
+                    .xOffset = SetValue{0.0f},
+                    .yOffset = SetValue{0.0f},
+                    .rotation = SetValue{0.0f},
+                    .xScale = SetValue{1.2f},
+                    .yScale = SetValue{0.9f},
+                  },
+                  frontFace)
+                  .is_success());
 
-        evaluate(justify(frontFace, UvU, UvPls, UvBest), frontFace);
+        REQUIRE(evaluate(justify(frontFace, UvU, UvPls, UvBest), frontFace).is_success());
 
         CHECK(anchorVertex(frontFace, UvU, UvPls) == vm::vec3d{32, -32, 32});
       });
@@ -94,17 +95,18 @@ TEST_CASE("UvAlignment")
     SECTION("falls back to opposite sign when preferred sign is not justified")
     {
       withFrontFace([&](auto& frontFace) {
-        evaluate(
-          UpdateBrushFaceAttributes{
-            .xOffset = SetValue{0.0f},
-            .yOffset = SetValue{0.0f},
-            .rotation = SetValue{0.0f},
-            .xScale = SetValue{1.2f},
-            .yScale = SetValue{0.9f},
-          },
-          frontFace);
+        REQUIRE(evaluate(
+                  UpdateBrushFaceAttributes{
+                    .xOffset = SetValue{0.0f},
+                    .yOffset = SetValue{0.0f},
+                    .rotation = SetValue{0.0f},
+                    .xScale = SetValue{1.2f},
+                    .yScale = SetValue{0.9f},
+                  },
+                  frontFace)
+                  .is_success());
 
-        evaluate(justify(frontFace, UvU, UvMns, UvBest), frontFace);
+        REQUIRE(evaluate(justify(frontFace, UvU, UvMns, UvBest), frontFace).is_success());
 
         CHECK(anchorVertex(frontFace, UvU, UvPls) == vm::vec3d{-32, -32, 32});
       });
@@ -113,15 +115,16 @@ TEST_CASE("UvAlignment")
     SECTION("uses preferred sign when neither sign is justified")
     {
       withFrontFace([&](auto& frontFace) {
-        evaluate(
-          UpdateBrushFaceAttributes{
-            .xOffset = SetValue{7.0f},
-            .yOffset = SetValue{11.0f},
-            .rotation = SetValue{0.0f},
-            .xScale = SetValue{1.2f},
-            .yScale = SetValue{0.9f},
-          },
-          frontFace);
+        REQUIRE(evaluate(
+                  UpdateBrushFaceAttributes{
+                    .xOffset = SetValue{7.0f},
+                    .yOffset = SetValue{11.0f},
+                    .rotation = SetValue{0.0f},
+                    .xScale = SetValue{1.2f},
+                    .yScale = SetValue{0.9f},
+                  },
+                  frontFace)
+                  .is_success());
 
         CHECK(anchorVertex(frontFace, UvU, UvPls) == vm::vec3d{32, -32, 32});
       });
@@ -157,11 +160,12 @@ TEST_CASE("UvAlignment")
             REQUIRE(frontFaceIndex);
 
             auto& frontFace = brush.face(*frontFaceIndex);
-            evaluate(
-              UpdateBrushFaceAttributes{
-                .rotation = SetValue{initialRotation},
-              },
-              frontFace);
+            REQUIRE(evaluate(
+                      UpdateBrushFaceAttributes{
+                        .rotation = SetValue{initialRotation},
+                      },
+                      frontFace)
+                      .is_success());
 
             CHECK(isAligned(frontFace) == expectedAligned);
           })
@@ -204,11 +208,12 @@ TEST_CASE("UvAlignment")
             REQUIRE(topFaceIndex);
 
             auto& topFace = brush.face(*topFaceIndex);
-            evaluate(
-              UpdateBrushFaceAttributes{
-                .rotation = SetValue{initialRotation},
-              },
-              topFace);
+            REQUIRE(evaluate(
+                      UpdateBrushFaceAttributes{
+                        .rotation = SetValue{initialRotation},
+                      },
+                      topFace)
+                      .is_success());
 
             CHECK(isAligned(topFace) == expectedAligned);
           })
@@ -251,11 +256,12 @@ TEST_CASE("UvAlignment")
             REQUIRE(topFaceIndex);
 
             auto& topFace = brush.face(*topFaceIndex);
-            evaluate(
-              UpdateBrushFaceAttributes{
-                .rotation = SetValue{initialRotation},
-              },
-              topFace);
+            REQUIRE(evaluate(
+                      UpdateBrushFaceAttributes{
+                        .rotation = SetValue{initialRotation},
+                      },
+                      topFace)
+                      .is_success());
 
             CHECK(isAligned(topFace) == expectedAligned);
           })
@@ -334,15 +340,16 @@ TEST_CASE("UvAlignment")
         auto& frontFace = brush.face(*frontFaceIndex);
         frontFace.setMaterial(&material);
 
-        evaluate(
-          UpdateBrushFaceAttributes{
-            .xOffset = SetValue{float(initialOffset.x())},
-            .yOffset = SetValue{float(initialOffset.y())},
-            .rotation = SetValue{float(initialRotation)},
-            .xScale = SetValue{float(initialScale.x())},
-            .yScale = SetValue{float(initialScale.y())},
-          },
-          frontFace);
+        REQUIRE(evaluate(
+                  UpdateBrushFaceAttributes{
+                    .xOffset = SetValue{float(initialOffset.x())},
+                    .yOffset = SetValue{float(initialOffset.y())},
+                    .rotation = SetValue{float(initialRotation)},
+                    .xScale = SetValue{float(initialScale.x())},
+                    .yScale = SetValue{float(initialScale.y())},
+                  },
+                  frontFace)
+                  .is_success());
 
         CHECK(isJustified(frontFace, axis, sign) == expectedJustified);
       }) | kdl::transform_error([](const auto e) { FAIL(e); });
@@ -402,15 +409,16 @@ TEST_CASE("UvAlignment")
         auto& frontFace = brush.face(*frontFaceIndex);
         frontFace.setMaterial(&material);
 
-        evaluate(
-          UpdateBrushFaceAttributes{
-            .xOffset = SetValue{float(initialOffset.x())},
-            .yOffset = SetValue{float(initialOffset.y())},
-            .rotation = SetValue{float(initialRotation)},
-            .xScale = SetValue{float(initialScale.x())},
-            .yScale = SetValue{float(initialScale.y())},
-          },
-          frontFace);
+        REQUIRE(evaluate(
+                  UpdateBrushFaceAttributes{
+                    .xOffset = SetValue{float(initialOffset.x())},
+                    .yOffset = SetValue{float(initialOffset.y())},
+                    .rotation = SetValue{float(initialRotation)},
+                    .xScale = SetValue{float(initialScale.x())},
+                    .yScale = SetValue{float(initialScale.y())},
+                  },
+                  frontFace)
+                  .is_success());
 
         CHECK(isFitted(frontFace, axis) == expectedFitted);
       }) | kdl::transform_error([](const auto e) { FAIL(e); });
@@ -484,15 +492,16 @@ TEST_CASE("UvAlignment")
             REQUIRE(frontFaceIndex);
 
             auto& frontFace = brush.face(*frontFaceIndex);
-            evaluate(
-              UpdateBrushFaceAttributes{
-                .xOffset = SetValue{initialOffset.x()},
-                .yOffset = SetValue{initialOffset.y()},
-                .rotation = SetValue{initialRotation},
-                .xScale = SetValue{initialScale.x()},
-                .yScale = SetValue{initialScale.y()},
-              },
-              frontFace);
+            REQUIRE(evaluate(
+                      UpdateBrushFaceAttributes{
+                        .xOffset = SetValue{initialOffset.x()},
+                        .yOffset = SetValue{initialOffset.y()},
+                        .rotation = SetValue{initialRotation},
+                        .xScale = SetValue{initialScale.x()},
+                        .yScale = SetValue{initialScale.y()},
+                      },
+                      frontFace)
+                      .is_success());
 
             CHECK_THAT(
               align(frontFace, policy),
@@ -568,15 +577,16 @@ TEST_CASE("UvAlignment")
             REQUIRE(topFaceIndex);
 
             auto& topFace = brush.face(*topFaceIndex);
-            evaluate(
-              UpdateBrushFaceAttributes{
-                .xOffset = SetValue{initialOffset.x()},
-                .yOffset = SetValue{initialOffset.y()},
-                .rotation = SetValue{initialRotation},
-                .xScale = SetValue{initialScale.x()},
-                .yScale = SetValue{initialScale.y()},
-              },
-              topFace);
+            REQUIRE(evaluate(
+                      UpdateBrushFaceAttributes{
+                        .xOffset = SetValue{initialOffset.x()},
+                        .yOffset = SetValue{initialOffset.y()},
+                        .rotation = SetValue{initialRotation},
+                        .xScale = SetValue{initialScale.x()},
+                        .yScale = SetValue{initialScale.y()},
+                      },
+                      topFace)
+                      .is_success());
 
             CHECK_THAT(
               align(topFace, policy),
@@ -644,15 +654,16 @@ TEST_CASE("UvAlignment")
             REQUIRE(topFaceIndex);
 
             auto& topFace = brush.face(*topFaceIndex);
-            evaluate(
-              UpdateBrushFaceAttributes{
-                .xOffset = SetValue{initialOffset.x()},
-                .yOffset = SetValue{initialOffset.y()},
-                .rotation = SetValue{initialRotation},
-                .xScale = SetValue{initialScale.x()},
-                .yScale = SetValue{initialScale.y()},
-              },
-              topFace);
+            REQUIRE(evaluate(
+                      UpdateBrushFaceAttributes{
+                        .xOffset = SetValue{initialOffset.x()},
+                        .yOffset = SetValue{initialOffset.y()},
+                        .rotation = SetValue{initialRotation},
+                        .xScale = SetValue{initialScale.x()},
+                        .yScale = SetValue{initialScale.y()},
+                      },
+                      topFace)
+                      .is_success());
 
             CHECK_THAT(
               align(topFace, policy),
@@ -777,15 +788,16 @@ TEST_CASE("UvAlignment")
         auto& frontFace = brush.face(*frontFaceIndex);
         frontFace.setMaterial(&material);
 
-        evaluate(
-          UpdateBrushFaceAttributes{
-            .xOffset = SetValue{float(initialOffset.x())},
-            .yOffset = SetValue{float(initialOffset.y())},
-            .rotation = SetValue{float(initialRotation)},
-            .xScale = SetValue{float(initialScale.x())},
-            .yScale = SetValue{float(initialScale.y())},
-          },
-          frontFace);
+        REQUIRE(evaluate(
+                  UpdateBrushFaceAttributes{
+                    .xOffset = SetValue{float(initialOffset.x())},
+                    .yOffset = SetValue{float(initialOffset.y())},
+                    .rotation = SetValue{float(initialRotation)},
+                    .xScale = SetValue{float(initialScale.x())},
+                    .yScale = SetValue{float(initialScale.y())},
+                  },
+                  frontFace)
+                  .is_success());
 
         CHECK_THAT(
           justify(frontFace, axis, sign, policy),
@@ -917,15 +929,16 @@ TEST_CASE("UvAlignment")
         auto& frontFace = brush.face(*frontFaceIndex);
         frontFace.setMaterial(&material);
 
-        evaluate(
-          UpdateBrushFaceAttributes{
-            .xOffset = SetValue{float(initialOffset.x())},
-            .yOffset = SetValue{float(initialOffset.y())},
-            .rotation = SetValue{float(initialRotation)},
-            .xScale = SetValue{float(initialScale.x())},
-            .yScale = SetValue{float(initialScale.y())},
-          },
-          frontFace);
+        REQUIRE(evaluate(
+                  UpdateBrushFaceAttributes{
+                    .xOffset = SetValue{float(initialOffset.x())},
+                    .yOffset = SetValue{float(initialOffset.y())},
+                    .rotation = SetValue{float(initialRotation)},
+                    .xScale = SetValue{float(initialScale.x())},
+                    .yScale = SetValue{float(initialScale.y())},
+                  },
+                  frontFace)
+                  .is_success());
 
         CHECK_THAT(
           fit(frontFace, axis, policy, fitMode),

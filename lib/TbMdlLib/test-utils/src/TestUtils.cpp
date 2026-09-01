@@ -170,7 +170,10 @@ BrushFace createParaxial(
            point1,
            point2,
            materialName,
-           UvCoordSystem{ParaxialUvCoordSystem{point0, point1, point2, UvAttributes{}}},
+           UvCoordSystem{
+             ParaxialUvCoordSystem::createFromPoints(
+               point0, point1, point2, UvAttributes{})
+             | kdl::value()},
            SurfaceAttributes{})
          | kdl::value();
 }

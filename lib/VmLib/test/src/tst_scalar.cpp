@@ -121,6 +121,15 @@ TEST_CASE("scalar")
     CER_CHECK_FALSE(is_inf(0.0f));
   }
 
+  SECTION("is_finite")
+  {
+    CER_CHECK(is_finite(0.0));
+    CER_CHECK(is_finite(1.0f));
+    CER_CHECK_FALSE(is_finite(std::numeric_limits<double>::quiet_NaN()));
+    CER_CHECK_FALSE(is_finite(+std::numeric_limits<double>::infinity()));
+    CER_CHECK_FALSE(is_finite(-std::numeric_limits<double>::infinity()));
+  }
+
   SECTION("nan")
   {
     CER_CHECK(is_nan(nan<double>()));
@@ -643,6 +652,12 @@ TEST_CASE("scalar")
     CER_CHECK(normalize_radians(c::half_pi()) == c::half_pi());
     CER_CHECK(normalize_radians(-c::half_pi()) == c::three_half_pi());
     CER_CHECK(normalize_radians(c::half_pi() + c::two_pi()) == c::half_pi());
+
+    CER_CHECK(normalize_radians(-1.0e15) >= 0.0);
+    CER_CHECK(normalize_radians(-1.0e15) < c::two_pi());
+
+    // an angle that has overflowed to infinity cannot be normalized to a finite angle,
+    CHECK(is_nan(normalize_radians(std::numeric_limits<double>::infinity())));
   }
 
   SECTION("normalize_degrees")
@@ -652,6 +667,15 @@ TEST_CASE("scalar")
     CER_CHECK(normalize_degrees(90.0) == 90.0);
     CER_CHECK(normalize_degrees(-90.0) == 270.0);
     CER_CHECK(normalize_degrees(360.0 + 90.0) == 90.0);
+
+    // a naive "while (angle < 0) angle += 360;" loop would never terminate for a value
+    // this large
+    CER_CHECK(normalize_degrees(-1.0e15) >= 0.0);
+    CER_CHECK(normalize_degrees(-1.0e15) < 360.0);
+
+    // an extreme angle that has overflowed to infinity cannot be normalized to a finite
+    // angle, but must not hang either
+    CHECK(is_nan(normalize_degrees(std::numeric_limits<double>::infinity())));
   }
 
   SECTION("succ")

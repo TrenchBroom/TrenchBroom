@@ -45,6 +45,7 @@
 #include "vm/vec.h"
 #include "vm/vec_io.h" // IWYU pragma: keep
 
+#include <limits>
 #include <vector>
 
 #include <catch2/catch_test_macros.hpp>
@@ -71,7 +72,7 @@ void getFaceVertsAndUvCoords(
 
 void resetFaceUvAlignment(BrushFace& face)
 {
-  face.setUvAttributes({});
+  REQUIRE(face.setUvAttributes({}).is_success());
   face.resetUvAxes();
 }
 
@@ -475,7 +476,9 @@ TEST_CASE("BrushFace")
                     p1,
                     p2,
                     "",
-                    UvCoordSystem{ParaxialUvCoordSystem{p0, p1, p2, UvAttributes{}}},
+                    UvCoordSystem{
+                      ParaxialUvCoordSystem::createFromPoints(p0, p1, p2, UvAttributes{})
+                      | kdl::value()},
                     SurfaceAttributes{})
                   | kdl::value();
       CHECK(face.points()[0] == vm::approx{p0});
@@ -491,13 +494,66 @@ TEST_CASE("BrushFace")
       const auto p1 = vm::vec3d{1, 0, 4};
       const auto p2 = vm::vec3d{2, 0, 4};
 
+      // the UV coordinate system's own axes are independent of the (colinear) face
+      // points here -- this exercises BrushFace::create's own plane-degeneracy check
       CHECK(!BrushFace::create(
         p0,
         p1,
         p2,
         "",
-        UvCoordSystem{ParaxialUvCoordSystem{p0, p1, p2, UvAttributes{}}},
+        UvCoordSystem{
+          ParaxialUvCoordSystem::createFromNormal(vm::vec3d{0, 0, 1}, UvAttributes{})
+          | kdl::value()},
         SurfaceAttributes{}));
+    }
+
+    SECTION("with an invalid UV attribute")
+    {
+      const auto p0 = vm::vec3d{0, 0, 4};
+      const auto p1 = vm::vec3d{1, 0, 4};
+      const auto p2 = vm::vec3d{0, -1, 4};
+      const auto nan = std::numeric_limits<float>::quiet_NaN();
+      const auto invalidUvAttributes = UvAttributes{{0, 0}, {1, 1}, nan};
+
+      // Standard format goes through ParaxialUvCoordSystem
+      CHECK(!BrushFace::create(
+        p0, p1, p2, "", invalidUvAttributes, SurfaceAttributes{}, MapFormat::Standard));
+
+      // Valve format goes through ParallelUvCoordSystem
+      CHECK(!BrushFace::create(
+        p0, p1, p2, "", invalidUvAttributes, SurfaceAttributes{}, MapFormat::Valve));
+    }
+
+    SECTION("with degenerate Valve axes")
+    {
+      const auto p0 = vm::vec3d{0, 0, 4};
+      const auto p1 = vm::vec3d{1, 0, 4};
+      const auto p2 = vm::vec3d{0, -1, 4};
+      const auto uAxis = vm::vec3d{1, 0, 0};
+
+      // Valve format passes the axes through to ParallelUvCoordSystem unchanged
+      CHECK(!BrushFace::createFromValve(
+        p0,
+        p1,
+        p2,
+        "",
+        UvAttributes{},
+        SurfaceAttributes{},
+        uAxis,
+        uAxis,
+        MapFormat::Valve));
+    }
+
+    SECTION("createFromStandard with an extreme scale")
+    {
+      const auto p0 = vm::vec3d{0, 0, 4};
+      const auto p1 = vm::vec3d{1, 0, 4};
+      const auto p2 = vm::vec3d{0, -1, 4};
+      const auto extremeUvAttributes = UvAttributes{{0, 0}, {1e30f, 1e30f}, 0.0f};
+
+      // converting from Paraxial to Parallel preserves the (here, extreme) UV attributes
+      CHECK(!BrushFace::createFromStandard(
+        p0, p1, p2, "", extremeUvAttributes, SurfaceAttributes{}, MapFormat::Valve));
     }
   }
 
@@ -521,7 +577,9 @@ TEST_CASE("BrushFace")
                     p1,
                     p2,
                     "",
-                    UvCoordSystem{ParaxialUvCoordSystem{p0, p1, p2, UvAttributes{}}},
+                    UvCoordSystem{
+                      ParaxialUvCoordSystem::createFromPoints(p0, p1, p2, UvAttributes{})
+                      | kdl::value()},
                     SurfaceAttributes{})
                   | kdl::value();
       CHECK(material.usageCount() == 0u);
@@ -652,7 +710,7 @@ TEST_CASE("BrushFace")
     const auto newXAxis = vm::vec3d{rot45 * face.uAxis()};
     const auto newYAxis = vm::vec3d{rot45 * face.vAxis()};
 
-    face.setUvAttributes({.rotation = -45.0f});
+    REQUIRE(face.setUvAttributes({.rotation = -45.0f}).is_success());
 
     CHECK(face.uAxis() == vm::approx{newXAxis});
     CHECK(face.vAxis() == vm::approx{newYAxis});
@@ -753,7 +811,7 @@ TEST_CASE("BrushFace")
 
     // Rotate by 45 degrees CCW
     CHECK(negXFace->uvAttributes().rotation == vm::approx{0.0f});
-    negXFace->rotateUv(45.0);
+    REQUIRE(negXFace->rotateUv(45.0).is_success());
     CHECK(negXFace->uvAttributes().rotation == vm::approx{45.0f});
 
     CHECK(negXFace->uAxis() == vm::approx{newXAxis});
@@ -908,11 +966,15 @@ TEST_CASE("BrushFace")
       REQUIRE(standardCube.transform(worldBounds, transform, true));
       CHECK(standardCube.face(0).uvCoordSystem().is<ParaxialUvCoordSystem>());
 
-      const auto valveCube = standardCube.convertToParallel();
+      const auto valveCubeResult = standardCube.convertToParallel();
+      REQUIRE(valveCubeResult);
+      const auto& valveCube = valveCubeResult.value();
       CHECK(valveCube.face(0).uvCoordSystem().is<ParallelUvCoordSystem>());
       checkBrushUvsEqual(standardCube, valveCube);
 
-      const auto standardCubeRoundTrip = valveCube.convertToParaxial();
+      const auto standardCubeRoundTripResult = valveCube.convertToParaxial();
+      REQUIRE(standardCubeRoundTripResult);
+      const auto& standardCubeRoundTrip = standardCubeRoundTripResult.value();
       CHECK(standardCubeRoundTrip.face(0).uvCoordSystem().is<ParaxialUvCoordSystem>());
       checkBrushUvsEqual(standardCube, standardCubeRoundTrip);
     };

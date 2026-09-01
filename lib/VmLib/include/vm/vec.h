@@ -1324,6 +1324,28 @@ constexpr bool is_nan(const vec<T, S>& v)
 }
 
 /**
+ * Checks whether every component of the given vector is finite, i.e. none of them is NaN
+ * or positive or negative infinity.
+ *
+ * @tparam T the component type
+ * @tparam S the number of components
+ * @param v the vector to check
+ * @return true if every component of the given vector is finite
+ */
+template <typename T, std::size_t S>
+constexpr bool is_finite(const vec<T, S>& v)
+{
+  for (size_t i = 0; i < S; ++i)
+  {
+    if (!is_finite(v[i]))
+    {
+      return false;
+    }
+  }
+  return true;
+}
+
+/**
  * Checks whether each component of the given vector is within a distance of epsilon
  * around an integral value.
  *

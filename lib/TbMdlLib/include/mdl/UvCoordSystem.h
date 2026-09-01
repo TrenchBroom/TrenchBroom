@@ -19,6 +19,7 @@
 
 #pragma once
 
+#include "base/Result.h"
 #include "mdl/ParallelUvCoordSystem.h"
 #include "mdl/ParaxialUvCoordSystem.h"
 #include "mdl/UvAttributes.h"
@@ -70,6 +71,10 @@ public:
   explicit UvCoordSystem(ParaxialUvCoordSystem system);
   explicit UvCoordSystem(ParallelUvCoordSystem system);
 
+  static constexpr auto wrap = [](auto uvCoordSystem) {
+    return UvCoordSystem{std::move(uvCoordSystem)};
+  };
+
   /**
    * Indicates whether this is a UV coordinate system of the given type.
    */
@@ -91,7 +96,7 @@ public:
   /**
    * Sets the given UV attributes and updates the UV axes to match their rotation.
    */
-  void setUvAttributes(const vm::vec3d& normal, const UvAttributes& uvAttributes);
+  Result<void> setUvAttributes(const vm::vec3d& normal, const UvAttributes& uvAttributes);
 
   /**
    * Sets the given UV attributes without updating the UV axes.
@@ -133,7 +138,7 @@ public:
     const vm::vec3d& up,
     const vm::vec3d& right,
     const vm::vec2f& offset);
-  void rotate(const vm::vec3d& normal, float angle);
+  Result<void> rotate(const vm::vec3d& normal, float angle);
   void shear(const vm::vec3d& normal, const vm::vec2f& factors);
 
   vm::mat4x4d toMatrix(const vm::vec2f& offset, const vm::vec2f& scale) const;
@@ -141,9 +146,9 @@ public:
 
   float measureAngle(const vm::vec2f& center, const vm::vec2f& point) const;
 
-  UvCoordSystem toParallel(
+  Result<UvCoordSystem> toParallel(
     const vm::vec3d& point0, const vm::vec3d& point1, const vm::vec3d& point2) const;
-  UvCoordSystem toParaxial(
+  Result<UvCoordSystem> toParaxial(
     const vm::vec3d& point0, const vm::vec3d& point1, const vm::vec3d& point2) const;
 
 private:

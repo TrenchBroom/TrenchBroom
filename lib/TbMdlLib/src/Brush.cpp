@@ -335,7 +335,7 @@ void Brush::cloneFaceAttributesFrom(const Brush& brush)
     {
       const auto& source = brush.face(*sourceIndex);
       destination.setMaterialName(source.materialName());
-      destination.setUvAttributes(source.uvAttributes());
+      destination.setUvAttributes(source.uvAttributes()) | kdl::ignore();
       destination.setSurfaceAttributes(source.surfaceAttributes());
 
       if (auto snapshot = source.takeUvCoordSystemSnapshot())
@@ -363,7 +363,7 @@ void Brush::cloneFaceAttributesFrom(const std::vector<const Brush*>& brushes)
     if (const auto* bestMatch = findBestMatchingFace(face, candidates))
     {
       face.setMaterialName(bestMatch->materialName());
-      face.setUvAttributes(bestMatch->uvAttributes());
+      face.setUvAttributes(bestMatch->uvAttributes()) | kdl::ignore();
       face.setSurfaceAttributes(bestMatch->surfaceAttributes());
 
       if (auto snapshot = bestMatch->takeUvCoordSystemSnapshot())
@@ -384,7 +384,7 @@ void Brush::cloneInvertedFaceAttributesFrom(const Brush& brush)
       const auto& source = brush.face(*sourceIndex);
       // Todo: invert the face attributes?
       destination.setMaterialName(source.materialName());
-      destination.setUvAttributes(source.uvAttributes());
+      destination.setUvAttributes(source.uvAttributes()) | kdl::ignore();
       destination.setSurfaceAttributes(source.surfaceAttributes());
 
       if (auto snapshot = source.takeUvCoordSystemSnapshot())
@@ -1087,7 +1087,7 @@ void Brush::applyUvLock(
     auto leftClone = BrushFace{leftFace};
     leftClone.transform(*M, true) | kdl::transform([&]() {
       const auto snapshot = leftClone.takeUvCoordSystemSnapshot();
-      rightFace.setUvAttributes(leftClone.uvAttributes());
+      rightFace.setUvAttributes(leftClone.uvAttributes()) | kdl::ignore();
       rightFace.setSurfaceAttributes(leftClone.surfaceAttributes());
       if (snapshot)
       {
@@ -1275,24 +1275,20 @@ Result<Brush> Brush::createBrush(
            });
 }
 
-Brush Brush::convertToParaxial() const
+Result<Brush> Brush::convertToParaxial() const
 {
   auto result = Brush{*this};
-  for (auto& face : result.m_faces)
-  {
-    face.convertToParaxial();
-  }
-  return result;
+  return result.m_faces
+         | std::views::transform([](auto& face) { return face.convertToParaxial(); })
+         | kdl::fold | kdl::transform([&]() { return std::move(result); });
 }
 
-Brush Brush::convertToParallel() const
+Result<Brush> Brush::convertToParallel() const
 {
   auto result = Brush{*this};
-  for (auto& face : result.m_faces)
-  {
-    face.convertToParallel();
-  }
-  return result;
+  return result.m_faces
+         | std::views::transform([](auto& face) { return face.convertToParallel(); })
+         | kdl::fold | kdl::transform([&]() { return std::move(result); });
 }
 
 bool Brush::checkFaceLinks() const
