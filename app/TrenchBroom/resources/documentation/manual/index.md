@@ -2097,6 +2097,15 @@ Like arrays, maps can contain other subscriptable values such as strings, arrays
     map["some map"]["key2"]       // "asdf"
     map["some map"]["key2"][1..3] // "ey2"
 
+#### Subscripting Undefined and Null
+
+Subscripting a value of type `Undefined` yields `undefined`, regardless of the index. This is useful when accessing nested elements of maps because a missing key does not cause an error further down the chain (see [Null and Undefined](#el_null_and_undefined)).
+
+    map["missing key"]["key"] // undefined
+    map["missing key"][0]     // undefined
+
+Conversely, using an `undefined` value as an index is an error, and so is subscripting a value of type `Null`.
+
 ### Unary Operator Terms
 
 A unary operator is an operator that applies to a single operand. In TrenchBroom's expression language, there are four unary operators: unary plus, unary minus, logical negation, and binary negation.
