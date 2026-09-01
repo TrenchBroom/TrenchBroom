@@ -1182,12 +1182,28 @@ TEST_CASE("Expression")
     {"'asdf'['a']",                      Error{R"(At line 1, column 7: Cannot evaluate expression '"asdf"["a"]': '"a"' is not a compatible index for '"asdf"')"}},
     {"{a: 1}[0]",                        Error{R"(At line 1, column 7: Cannot evaluate expression '{ "a": 1 }[0]': '0' is not a compatible index for '{ "a": 1 }')"}},
 
+    // Subscripting Undefined
+    {"undefined[0]",                     Error{"At line 1, column 10: Cannot evaluate expression 'undefined[0]': '0' is not a compatible index for 'undefined'"}},
+    {"undefined['key']",                 Error{R"(At line 1, column 10: Cannot evaluate expression 'undefined["key"]': '"key"' is not a compatible index for 'undefined')"}},
+
     }));
     // clang-format on
 
     CAPTURE(expression);
 
     CHECK(evaluate(expression) == expectedResult);
+  }
+
+  SECTION("Subscript of a Range")
+  {
+    // Range is one of the left-operand types that isn't String/Array/Map and so is
+    // expected to keep throwing when subscripted, unlike Undefined.
+    const auto variables = MapType{{"r", Value{RangeType{BoundedRange{1, 3}}}}};
+
+    CHECK(
+      evaluate("r[0]", variables)
+      == Error{"At line 1, column 2: Cannot evaluate expression 'r[0]': '0' is not a "
+               "compatible index for '[1..3]'"});
   }
 
   SECTION("Switch")
