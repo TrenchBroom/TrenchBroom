@@ -1108,11 +1108,12 @@ Value evaluateSubscript(
       break;
     }
     break;
+  case ValueType::Undefined:
+    return Value::Undefined;
   case ValueType::Boolean:
   case ValueType::Number:
   case ValueType::Range:
   case ValueType::Null:
-  case ValueType::Undefined:
     break;
   }
 
