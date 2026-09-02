@@ -1170,6 +1170,74 @@ TEST_CASE("Expression")
     }
   }
 
+  SECTION("BBox")
+  {
+    // bbox(min, max) constructs a BBox value directly, normalizing corners
+    // component-wise so argument order doesn't matter.
+    SECTION("Subscript")
+    {
+      CHECK(
+        evaluate("bbox(vec(1, 2, 3), vec(4, 5, 6)).min")
+        == Value{Vec3Type{1.0, 2.0, 3.0}});
+      CHECK(
+        evaluate("bbox(vec(1, 2, 3), vec(4, 5, 6)).max")
+        == Value{Vec3Type{4.0, 5.0, 6.0}});
+      CHECK(
+        evaluate(R"(bbox(vec(1, 2, 3), vec(4, 5, 6))["min"])")
+        == Value{Vec3Type{1.0, 2.0, 3.0}});
+      CHECK(
+        evaluate(R"(bbox(vec(1, 2, 3), vec(4, 5, 6))["max"])")
+        == Value{Vec3Type{4.0, 5.0, 6.0}});
+      // an unrecognized key is safely undefined, same as a missing Map key
+      CHECK(evaluate(R"(bbox(vec(1, 2, 3), vec(4, 5, 6))["w"])") == Value::Undefined);
+      CHECK(evaluate("bbox(vec(1, 2, 3), vec(4, 5, 6)).w") == Value::Undefined);
+
+      // corners are normalized component-wise, so argument order doesn't matter
+      CHECK(
+        evaluate("bbox(vec(4, 5, 6), vec(1, 2, 3)).min")
+        == Value{Vec3Type{1.0, 2.0, 3.0}});
+      CHECK(
+        evaluate("bbox(vec(4, 5, 6), vec(1, 2, 3)).max")
+        == Value{Vec3Type{4.0, 5.0, 6.0}});
+    }
+
+    SECTION("Unary operators")
+    {
+      CHECK(
+        evaluate("!bbox(vec(1, 2, 3), vec(4, 5, 6))")
+        == Error{"At line 1, column 1: Cannot evaluate expression "
+                 "'!bbox(vec(1, 2, 3), vec(4, 5, 6))': Invalid type BBox"});
+    }
+
+    SECTION("Arithmetic")
+    {
+      CHECK(
+        evaluate("bbox(vec(1, 2, 3), vec(4, 5, 6)) + bbox(vec(1, 2, 3), vec(4, 5, 6))")
+        == Error{"At line 1, column 34: Cannot evaluate expression "
+                 "'bbox(vec(1, 2, 3), vec(4, 5, 6)) + bbox(vec(1, 2, 3), vec(4, 5, "
+                 "6))': Invalid operand types BBox and BBox"});
+    }
+
+    SECTION("Comparison")
+    {
+      CHECK(
+        evaluate("bbox(vec(1, 2, 3), vec(4, 5, 6)) == bbox(vec(1, 2, 3), vec(4, 5, 6))")
+        == Value{true});
+      CHECK(
+        evaluate("bbox(vec(1, 2, 3), vec(4, 5, 6)) == bbox(vec(0, 0, 0), vec(1, 1, 1))")
+        == Value{false});
+      CHECK(
+        evaluate("bbox(vec(1, 2, 3), vec(4, 5, 6)) != bbox(vec(0, 0, 0), vec(1, 1, 1))")
+        == Value{true});
+
+      CHECK(
+        evaluate("bbox(vec(1, 2, 3), vec(4, 5, 6)) == 1")
+        == Error{"At line 1, column 34: Cannot evaluate expression "
+                 "'bbox(vec(1, 2, 3), vec(4, 5, 6)) == 1': Invalid operand types "
+                 "BBox and Number"});
+    }
+  }
+
   SECTION("Subscript")
   {
     using T = std::tuple<std::string, Result<Value>>;
@@ -1354,6 +1422,32 @@ TEST_CASE("Expression")
         evaluate("vec(1, 2, 3, 4)")
         == Error{"At line 1, column 1: Cannot evaluate expression 'vec(1, 2, 3, 4)': "
                  "vec() expects 3 arguments, but got 4"});
+    }
+
+    SECTION("bbox")
+    {
+      CHECK(
+        evaluate("bbox(vec(1, 2, 3), vec(4, 5, 6))")
+        == Value{BBoxType{Vec3Type{1.0, 2.0, 3.0}, Vec3Type{4.0, 5.0, 6.0}}});
+
+      // corners are normalized component-wise, so argument order doesn't matter
+      CHECK(
+        evaluate("bbox(vec(4, 5, 6), vec(1, 2, 3))")
+        == Value{BBoxType{Vec3Type{1.0, 2.0, 3.0}, Vec3Type{4.0, 5.0, 6.0}}});
+
+      CHECK(
+        evaluate("bbox()")
+        == Error{"At line 1, column 1: Cannot evaluate expression 'bbox()': bbox() "
+                 "expects 2 arguments, but got 0"});
+      CHECK(
+        evaluate("bbox(vec(1, 2, 3))")
+        == Error{"At line 1, column 1: Cannot evaluate expression "
+                 "'bbox(vec(1, 2, 3))': bbox() expects 2 arguments, but got 1"});
+      CHECK(
+        evaluate("bbox(vec(1, 2, 3), vec(4, 5, 6), vec(7, 8, 9))")
+        == Error{"At line 1, column 1: Cannot evaluate expression "
+                 "'bbox(vec(1, 2, 3), vec(4, 5, 6), vec(7, 8, 9))': bbox() expects 2 "
+                 "arguments, but got 3"});
     }
   }
 
@@ -1588,6 +1682,9 @@ TEST_CASE("Expression")
     {"f(1)",             "f(1)"},
     {"f(1, 2)",          "f(1, 2)"},
     {"f(g())",           "f(g())"},
+
+    // A constructed BBox round-trips through its own construction syntax
+    {"bbox(vec(1, 2, 3), vec(4, 5, 6))", "bbox(vec(1, 2, 3), vec(4, 5, 6))"},
     }));
     // clang-format on
 
