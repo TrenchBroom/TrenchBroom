@@ -22,12 +22,14 @@
 #include "base/Result.h"
 #include "mdl/CircleShape.h"
 #include "mdl/Polyhedron3.h"
+#include "mdl/RockFormation.h"
 #include "mdl/SurfaceAttributes.h"
 #include "mdl/UvAttributes.h"
 
 #include "vm/bbox.h"
 #include "vm/util.h"
 
+#include <cstdint>
 #include <string>
 #include <vector>
 
@@ -146,6 +148,21 @@ public:
 
   Result<Brush> createIcoSphere(
     const vm::bbox3d& bounds, size_t iterations, const std::string& textureName) const;
+
+  /**
+   * Creates a rock formation of the given type as one or more convex brushes that
+   * collectively fill the bounds. `detail` (0-1) makes the formation simpler or more
+   * complex in a type-specific way, for example by the number of boulder faces, strata
+   * layers or crystal shards. Larger bounds make the formation more complex at the same
+   * detail. All vertices are snapped to the integer grid, except for those of the slanted
+   * tops of columns and basalt.
+   */
+  Result<std::vector<Brush>> createRockFormation(
+    const vm::bbox3d& bounds,
+    RockType type,
+    double detail,
+    uint32_t seed,
+    const std::string& textureName) const;
 
   Result<Brush> createBrush(
     const std::vector<vm::vec3d>& points, const std::string& materialName) const;
