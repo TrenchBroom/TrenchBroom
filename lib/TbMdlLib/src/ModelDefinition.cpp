@@ -78,6 +78,7 @@ ModelSpecification convertToModel(el::EvaluationContext& context, const el::Valu
   case el::ValueType::Number:
   case el::ValueType::Array:
   case el::ValueType::Range:
+  case el::ValueType::Vec3:
   case el::ValueType::Null:
   case el::ValueType::Undefined:
     break;
@@ -89,6 +90,11 @@ ModelSpecification convertToModel(el::EvaluationContext& context, const el::Valu
 std::optional<vm::vec3d> scaleValue(
   el::EvaluationContext& context, const el::Value& value)
 {
+  if (value.type() == el::ValueType::Vec3)
+  {
+    return value.vec3Value(context);
+  }
+
   if (value.type() == el::ValueType::Number)
   {
     const auto scale = value.numberValue(context);
@@ -208,6 +214,8 @@ Result<vm::vec3d> ModelDefinition::scale(
       case el::ValueType::Array:
         [[fallthrough]];
       case el::ValueType::Range:
+        [[fallthrough]];
+      case el::ValueType::Vec3:
         [[fallthrough]];
       case el::ValueType::Null:
         [[fallthrough]];
