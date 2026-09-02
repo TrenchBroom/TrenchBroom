@@ -108,6 +108,13 @@ std::vector<std::string> preorderVisit(const std::string& str)
         result.push_back(fmt::format("{}", fmt::streamed(dotExpression)));
         dotExpression.operand.accept(thisLambda);
       },
+      [&](const auto& thisLambda, const CallExpression& callExpression) {
+        result.push_back(fmt::format("{}", fmt::streamed(callExpression)));
+        for (const auto& argument : callExpression.arguments)
+        {
+          argument.accept(thisLambda);
+        }
+      },
       [&](const auto& thisLambda, const SwitchExpression& switchExpression) {
         result.push_back(fmt::format("{}", fmt::streamed(switchExpression)));
         for (const auto& caseExpression : switchExpression.cases)
@@ -1227,6 +1234,25 @@ TEST_CASE("Expression")
     CHECK(evaluate("m.m.b", nested) == Value{2});
   }
 
+  SECTION("Function calls")
+  {
+    CHECK(
+      evaluate("f()")
+      == Error{"At line 1, column 1: Cannot evaluate expression 'f()': Unknown "
+               "function: 'f'"});
+    CHECK(
+      evaluate("f(1, 2)")
+      == Error{"At line 1, column 1: Cannot evaluate expression 'f(1, 2)': Unknown "
+               "function: 'f'"});
+
+    // arguments are still evaluated (and can themselves error) before the "unknown
+    // function" check happens
+    CHECK(
+      evaluate("f([] + true)")
+      == Error{"At line 1, column 6: Cannot evaluate expression '[] + true': Invalid "
+               "operand types Array and Boolean"});
+  }
+
   SECTION("Switch")
   {
     using T = std::tuple<std::string, Result<Value>>;
@@ -1452,6 +1478,12 @@ TEST_CASE("Expression")
     {"x.y",              "x.y"},
     {"x.y.z",            "x.y.z"},
     {"x.y[0]",           "x.y[0]"},
+
+    // Function calls
+    {"f()",              "f()"},
+    {"f(1)",             "f(1)"},
+    {"f(1, 2)",          "f(1, 2)"},
+    {"f(g())",           "f(g())"},
     }));
     // clang-format on
 

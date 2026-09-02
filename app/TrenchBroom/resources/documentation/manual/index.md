@@ -2115,6 +2115,14 @@ Note that dot access only works with names, that is, keys that begin with an alp
 
     { "some key": 1 }["some key"] // 1, dot access cannot be used here because of the space
 
+### Function Calls
+
+The expression language allows calling a small, fixed set of built-in functions using the following syntax.
+
+    Call = Name "(" [ Expression { "," Expression } ] ")"
+
+A function call consists of the function's name, followed by a comma-separated list of argument expressions enclosed in parentheses. If a function does not take any arguments, the argument list is simply left empty. Note that the expression language does not support user defined functions. The available functions are listed in the following sections.
+
 ### Unary Operator Terms
 
 A unary operator is an operator that applies to a single operand. In TrenchBroom's expression language, there are four unary operators: unary plus, unary minus, logical negation, and binary negation.
