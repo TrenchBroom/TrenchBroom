@@ -37,6 +37,7 @@
 #include "vm/mat_ext.h"
 
 #include <algorithm>
+#include <array>
 #include <cmath>
 #include <optional>
 #include <ranges>
@@ -966,6 +967,23 @@ Result<Brush> BrushBuilder::createIcoSphere(
              return b.transform(m_worldBounds, transform, false)
                     | kdl::transform([&]() { return std::move(b); });
            });
+}
+
+Result<std::vector<Brush>> BrushBuilder::createRockFormation(
+  const vm::bbox3d& bounds,
+  const RockType type,
+  const size_t resolution,
+  const double baseFlattening,
+  const double form,
+  const uint32_t seed,
+  const std::string& textureName) const
+{
+  const auto formation =
+    makeRockFormation(bounds, type, resolution, baseFlattening, form, seed);
+  return formation | std::views::transform([&](const auto& points) {
+           return createBrush(points, textureName);
+         })
+         | kdl::fold;
 }
 
 Result<Brush> BrushBuilder::createBrush(
