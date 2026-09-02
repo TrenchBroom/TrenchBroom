@@ -25,6 +25,8 @@
 #include <QComboBox>
 #include <QDoubleSpinBox>
 #include <QLabel>
+#include <QPushButton>
+#include <QRandomGenerator>
 #include <QSpinBox>
 #include <QStackedWidget>
 #include <QToolButton>
@@ -39,6 +41,8 @@
 
 #include <algorithm>
 #include <array>
+#include <cmath>
+#include <limits>
 #include <ranges>
 
 namespace tb::ui
@@ -48,6 +52,26 @@ namespace
 {
 
 using StairDirection = DrawShapeToolParameters::StairDirection;
+using RockType = mdl::RockType;
+
+size_t rockTypeToIndex(const RockType type)
+{
+  return size_t(type);
+}
+
+RockType indexToRockType(const size_t index)
+{
+  static constexpr auto types = std::array{
+    RockType::Boulder,
+    RockType::Shelf,
+    RockType::Strata,
+    RockType::Crag,
+    RockType::Crystal,
+    RockType::Columns,
+    RockType::Basalt,
+    RockType::Cluster};
+  return types[std::min(index, types.size() - 1u)];
+}
 
 size_t stairDirectionToIndex(const StairDirection direction)
 {
@@ -98,6 +122,8 @@ DrawShapeToolExtensionPage* createExtensionPage(
     return new DrawShapeToolUvSphereShapeExtensionPage{document, parameters, parent};
   case DrawShapeToolExtensionKind::IcoSphere:
     return new DrawShapeToolIcoSphereShapeExtensionPage{document, parameters, parent};
+  case DrawShapeToolExtensionKind::Rock:
+    return new DrawShapeToolRockShapeExtensionPage{document, parameters, parent};
   }
 
   return nullptr;
@@ -406,6 +432,126 @@ DrawShapeToolArchShapeExtensionPage::DrawShapeToolArchShapeExtensionPage(
   m_notifierConnection += m_parameters.parametersDidChangeNotifier.connect([=, this]() {
     spandrelCheckBox->setChecked(m_parameters.createSpandrel());
     thicknessBox->setValue(m_parameters.thickness());
+  });
+}
+
+DrawShapeToolRockShapeExtensionPage::DrawShapeToolRockShapeExtensionPage(
+  MapDocument& document, DrawShapeToolParameters& parameters, QWidget* parent)
+  : DrawShapeToolExtensionPage{parent}
+  , m_parameters{parameters}
+{
+  auto* typeLabel = new QLabel{tr("Type: ")};
+  auto* typeBox = new QComboBox{};
+  typeBox->addItems(
+    {tr("Boulder"),
+     tr("Shelf"),
+     tr("Strata"),
+     tr("Crag"),
+     tr("Crystal"),
+     tr("Columns"),
+     tr("Basalt"),
+     tr("Cluster")});
+
+  auto* baseFlatteningLabel = new QLabel{tr("Flatten: ")};
+  auto* baseFlatteningBox = new QSpinBox{};
+  baseFlatteningBox->setRange(0, 50);
+  baseFlatteningBox->setSuffix(tr("%"));
+
+  auto* formLabel = new QLabel{};
+  auto* formBox = new QSpinBox{};
+  formBox->setRange(0, 100);
+  formBox->setSuffix(tr("%"));
+  formBox->setToolTip(formLabel->toolTip());
+
+  auto* seedLabel = new QLabel{tr("Seed: ")};
+  auto* seedBox = new QSpinBox{};
+  seedBox->setRange(0, std::numeric_limits<int>::max());
+  auto* randomSeedButton = new QPushButton{tr("Random")};
+
+  const auto updateFormLabel = [=](const RockType type) {
+    switch (type)
+    {
+    case RockType::Boulder:
+      formLabel->setText(tr("Asymmetry: "));
+      formBox->setToolTip(tr("Controls silhouette asymmetry."));
+      break;
+    case RockType::Shelf:
+      formLabel->setText(tr("Top Size: "));
+      formBox->setToolTip(tr("Controls the size of the shelf's top face."));
+      break;
+    case RockType::Strata:
+      formLabel->setText(tr("Taper: "));
+      formBox->setToolTip(tr("Controls how strongly upper layers taper."));
+      break;
+    case RockType::Crag:
+      formLabel->setText(tr("Peak: "));
+      formBox->setToolTip(tr("Controls peak taper and angularity."));
+      break;
+    case RockType::Crystal:
+      formLabel->setText(tr("Splay: "));
+      formBox->setToolTip(tr("Controls how far crystal shards fan outward."));
+      break;
+    case RockType::Columns:
+      formLabel->setText(tr("Scatter: "));
+      formBox->setToolTip(tr("Controls spacing between columns."));
+      break;
+    case RockType::Basalt:
+      formLabel->setText(tr("Height Variation: "));
+      formBox->setToolTip(
+        tr("Controls height differences between packed hexagonal columns."));
+      break;
+    case RockType::Cluster:
+      formLabel->setText(tr("Spread: "));
+      formBox->setToolTip(tr("Controls spacing between clustered boulders."));
+      break;
+    }
+    formLabel->setToolTip(formBox->toolTip());
+  };
+  updateFormLabel(m_parameters.rockType());
+
+  connect(
+    typeBox,
+    QOverload<int>::of(&QComboBox::currentIndexChanged),
+    this,
+    [&](const auto index) { m_parameters.setRockType(indexToRockType(size_t(index))); });
+  connect(
+    baseFlatteningBox,
+    QOverload<int>::of(&QSpinBox::valueChanged),
+    this,
+    [&](const auto baseFlattening) {
+      m_parameters.setRockBaseFlattening(double(baseFlattening) / 100.0);
+    });
+  connect(
+    formBox, QOverload<int>::of(&QSpinBox::valueChanged), this, [&](const auto form) {
+      m_parameters.setRockForm(double(form) / 100.0);
+    });
+  connect(
+    seedBox, QOverload<int>::of(&QSpinBox::valueChanged), this, [&](const auto seed) {
+      m_parameters.setRockSeed(uint32_t(seed));
+    });
+  connect(randomSeedButton, &QPushButton::clicked, this, [&]() {
+    m_parameters.setRockSeed(
+      QRandomGenerator::global()->bounded(quint32(std::numeric_limits<int>::max())));
+  });
+
+  addWidget(typeLabel);
+  addWidget(typeBox);
+  addWidget(baseFlatteningLabel);
+  addWidget(baseFlatteningBox);
+  addWidget(formLabel);
+  addWidget(formBox);
+  addWidget(seedLabel);
+  addWidget(seedBox);
+  addWidget(randomSeedButton);
+  addApplyButton(document);
+
+  m_notifierConnection += m_parameters.parametersDidChangeNotifier.connect([=, this]() {
+    typeBox->setCurrentIndex(int(rockTypeToIndex(m_parameters.rockType())));
+    updateFormLabel(m_parameters.rockType());
+    baseFlatteningBox->setValue(
+      int(std::lround(m_parameters.rockBaseFlattening() * 100.0)));
+    formBox->setValue(int(std::lround(m_parameters.rockForm() * 100.0)));
+    seedBox->setValue(int(m_parameters.rockSeed()));
   });
 }
 

@@ -60,6 +60,12 @@ private:
   double m_stepHeight = 16.0;
   StairDirection m_stairDirection = StairDirection::PosX;
 
+  // For rock shapes
+  mdl::RockType m_rockType = mdl::RockType::Boulder;
+  double m_rockBaseFlattening = 0.15;
+  double m_rockForm = 0.5;
+  uint32_t m_rockSeed = 0;
+
 public:
   Notifier<> parametersDidChangeNotifier;
 
@@ -89,6 +95,18 @@ public:
 
   StairDirection stairDirection() const;
   void setStairDirection(StairDirection stairDirection);
+
+  mdl::RockType rockType() const;
+  void setRockType(mdl::RockType rockType);
+
+  double rockBaseFlattening() const;
+  void setRockBaseFlattening(double rockBaseFlattening);
+
+  double rockForm() const;
+  void setRockForm(double rockForm);
+
+  uint32_t rockSeed() const;
+  void setRockSeed(uint32_t rockSeed);
 };
 
 } // namespace tb::ui

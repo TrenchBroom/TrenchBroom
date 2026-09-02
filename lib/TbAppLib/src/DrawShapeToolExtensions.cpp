@@ -44,6 +44,8 @@ namespace
 
 using StairDirection = DrawShapeToolParameters::StairDirection;
 
+constexpr auto RockResolution = size_t{3};
+
 vm::axis::type stairDirectionToAxis(const StairDirection direction)
 {
   return direction == StairDirection::PosY || direction == StairDirection::NegY
@@ -75,6 +77,8 @@ std::unique_ptr<DrawShapeToolExtension> createExtension(
     return std::make_unique<DrawShapeToolUvSphereExtension>(document);
   case DrawShapeToolExtensionKind::IcoSphere:
     return std::make_unique<DrawShapeToolIcoSphereExtension>(document);
+  case DrawShapeToolExtensionKind::Rock:
+    return std::make_unique<DrawShapeToolRockExtension>(document);
   }
 
   return nullptr;
@@ -366,6 +370,44 @@ Result<std::vector<mdl::Brush>> DrawShapeToolArchExtension::createBrushes(
                                | kdl::ranges::to<std::vector>();
                       });
            });
+}
+
+DrawShapeToolRockExtension::DrawShapeToolRockExtension(MapDocument& document)
+  : DrawShapeToolExtension{document}
+{
+}
+
+const std::string& DrawShapeToolRockExtension::name() const
+{
+  static const auto name = std::string{"Rock"};
+  return name;
+}
+
+const std::filesystem::path& DrawShapeToolRockExtension::iconPath() const
+{
+  static const auto path = std::filesystem::path{"ShapeTool_Rock.svg"};
+  return path;
+}
+
+Result<std::vector<mdl::Brush>> DrawShapeToolRockExtension::createBrushes(
+  const vm::bbox3d& bounds, const DrawShapeToolParameters& parameters) const
+{
+  auto& map = m_document.map();
+
+  const auto builder = mdl::BrushBuilder{
+    map.worldNode().mapFormat(),
+    map.worldBounds(),
+    map.gameInfo().gameConfig.faceAttribsConfig.defaultUvAttributes,
+    map.gameInfo().gameConfig.faceAttribsConfig.defaultSurfaceAttributes};
+
+  return builder.createRockFormation(
+    bounds,
+    parameters.rockType(),
+    RockResolution,
+    parameters.rockBaseFlattening(),
+    parameters.rockForm(),
+    parameters.rockSeed(),
+    map.currentMaterialName());
 }
 
 std::vector<std::unique_ptr<DrawShapeToolExtension>> createDrawShapeToolExtensions(
