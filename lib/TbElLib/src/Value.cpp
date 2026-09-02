@@ -29,6 +29,8 @@
 #include "kd/string_utils.h"
 #include "kd/vector_utils.h"
 
+#include "vm/vec_io.h"
+
 #include <cmath>
 #include <iterator>
 #include <ranges>
@@ -37,6 +39,26 @@
 
 namespace tb::el
 {
+namespace
+{
+
+void appendNumber(std::ostream& str, const NumberType n)
+{
+  static constexpr auto RoundingThreshold = 0.00001;
+  if (std::abs(n - std::round(n)) < RoundingThreshold)
+  {
+    str.precision(0);
+    str.setf(std::ios::fixed);
+  }
+  else
+  {
+    str.precision(17);
+    str.unsetf(std::ios::fixed);
+  }
+  str << n;
+}
+
+} // namespace
 
 NullType::NullType() = default;
 const NullType NullType::Value = NullType{};
@@ -102,6 +124,11 @@ Value::Value(RangeType value)
 {
 }
 
+Value::Value(Vec3Type value)
+  : m_value{std::make_shared<VariantType>(value)}
+{
+}
+
 Value::Value(NullType value)
   : m_value{std::make_shared<VariantType>(value)}
 {
@@ -122,6 +149,7 @@ ValueType Value::type() const
       [](const ArrayType&) { return ValueType::Array; },
       [](const MapType&) { return ValueType::Map; },
       [](const RangeType&) { return ValueType::Range; },
+      [](const Vec3Type&) { return ValueType::Vec3; },
       [](const NullType&) { return ValueType::Null; },
       [](const UndefinedType&) { return ValueType::Undefined; }),
     *m_value);
@@ -239,6 +267,18 @@ const RangeType& Value::rangeValue(const EvaluationContext& context) const
     *m_value);
 }
 
+const Vec3Type& Value::vec3Value(const EvaluationContext& context) const
+{
+  return std::visit(
+    kdl::overload(
+      [&](const Vec3Type& v) -> const Vec3Type& { return v; },
+      [&](const auto&) -> const Vec3Type& {
+        throw DereferenceError{
+          context.location(*this), describe(), type(), ValueType::Vec3};
+      }),
+    *m_value);
+}
+
 std::vector<std::string> Value::asStringList(const EvaluationContext& context) const
 {
   return arrayValue(context) | std::views::transform([&](const auto& entry) {
@@ -262,6 +302,7 @@ size_t Value::length() const
       [](const ArrayType& a) -> size_t { return a.size(); },
       [](const MapType& m) -> size_t { return m.size(); },
       [](const RangeType&) -> size_t { return 2u; },
+      [](const Vec3Type&) -> size_t { return 3u; },
       [](const NullType&) -> size_t { return 0u; },
       [](const UndefinedType&) -> size_t { return 0u; }),
     *m_value);
@@ -281,6 +322,7 @@ bool Value::convertibleTo(const ValueType toType) const
         case ValueType::Array:
         case ValueType::Map:
         case ValueType::Range:
+        case ValueType::Vec3:
         case ValueType::Undefined:
         case ValueType::Null:
           break;
@@ -296,6 +338,8 @@ bool Value::convertibleTo(const ValueType toType) const
           return true;
         case ValueType::Number:
           return kdl::str_is_blank(s) || kdl::str_to_double(s) != std::nullopt;
+        case ValueType::Vec3:
+          return vm::parse<double, 3>(s).has_value();
         case ValueType::Array:
         case ValueType::Map:
         case ValueType::Range:
@@ -316,6 +360,7 @@ bool Value::convertibleTo(const ValueType toType) const
         case ValueType::Array:
         case ValueType::Map:
         case ValueType::Range:
+        case ValueType::Vec3:
         case ValueType::Null:
         case ValueType::Undefined:
           break;
@@ -333,6 +378,7 @@ bool Value::convertibleTo(const ValueType toType) const
         case ValueType::Number:
         case ValueType::Map:
         case ValueType::Range:
+        case ValueType::Vec3:
         case ValueType::Null:
         case ValueType::Undefined:
           break;
@@ -350,6 +396,7 @@ bool Value::convertibleTo(const ValueType toType) const
         case ValueType::Number:
         case ValueType::Array:
         case ValueType::Range:
+        case ValueType::Vec3:
         case ValueType::Null:
         case ValueType::Undefined:
           break;
@@ -367,6 +414,25 @@ bool Value::convertibleTo(const ValueType toType) const
         case ValueType::Number:
         case ValueType::Array:
         case ValueType::Map:
+        case ValueType::Vec3:
+        case ValueType::Null:
+        case ValueType::Undefined:
+          break;
+        }
+
+        return false;
+      },
+      [&](const Vec3Type&) {
+        switch (toType)
+        {
+        case ValueType::Vec3:
+        case ValueType::String:
+          return true;
+        case ValueType::Boolean:
+        case ValueType::Number:
+        case ValueType::Array:
+        case ValueType::Map:
+        case ValueType::Range:
         case ValueType::Null:
         case ValueType::Undefined:
           break;
@@ -385,6 +451,7 @@ bool Value::convertibleTo(const ValueType toType) const
         case ValueType::Map:
           return true;
         case ValueType::Range:
+        case ValueType::Vec3:
         case ValueType::Undefined:
           break;
         }
@@ -402,6 +469,7 @@ bool Value::convertibleTo(const ValueType toType) const
         case ValueType::Array:
         case ValueType::Map:
         case ValueType::Range:
+        case ValueType::Vec3:
         case ValueType::Null:
           break;
         }
@@ -427,6 +495,7 @@ Value Value::convertTo(EvaluationContext& context, const ValueType toType) const
         case ValueType::Array:
         case ValueType::Map:
         case ValueType::Range:
+        case ValueType::Vec3:
         case ValueType::Undefined:
         case ValueType::Null:
           break;
@@ -453,6 +522,13 @@ Value Value::convertTo(EvaluationContext& context, const ValueType toType) const
           }
           throw ConversionError{context.location(*this), describe(), type(), toType};
         }
+        case ValueType::Vec3: {
+          if (const auto v = vm::parse<double, 3>(s))
+          {
+            return context.trace(Value{*v}, *this);
+          }
+          throw ConversionError{context.location(*this), describe(), type(), toType};
+        }
         case ValueType::Array:
         case ValueType::Map:
         case ValueType::Range:
@@ -475,6 +551,7 @@ Value Value::convertTo(EvaluationContext& context, const ValueType toType) const
         case ValueType::Array:
         case ValueType::Map:
         case ValueType::Range:
+        case ValueType::Vec3:
         case ValueType::Null:
         case ValueType::Undefined:
           break;
@@ -492,6 +569,7 @@ Value Value::convertTo(EvaluationContext& context, const ValueType toType) const
         case ValueType::Number:
         case ValueType::Map:
         case ValueType::Range:
+        case ValueType::Vec3:
         case ValueType::Null:
         case ValueType::Undefined:
           break;
@@ -509,6 +587,7 @@ Value Value::convertTo(EvaluationContext& context, const ValueType toType) const
         case ValueType::Number:
         case ValueType::Array:
         case ValueType::Range:
+        case ValueType::Vec3:
         case ValueType::Null:
         case ValueType::Undefined:
           break;
@@ -526,6 +605,29 @@ Value Value::convertTo(EvaluationContext& context, const ValueType toType) const
         case ValueType::Number:
         case ValueType::Array:
         case ValueType::Map:
+        case ValueType::Vec3:
+        case ValueType::Null:
+        case ValueType::Undefined:
+          break;
+        }
+
+        throw ConversionError{context.location(*this), describe(), type(), toType};
+      },
+      [&](const Vec3Type& v) -> Value {
+        switch (toType)
+        {
+        case ValueType::Vec3:
+          return *this;
+        case ValueType::String: {
+          auto str = std::ostringstream{};
+          str << v;
+          return context.trace(Value{str.str()}, *this);
+        }
+        case ValueType::Boolean:
+        case ValueType::Number:
+        case ValueType::Array:
+        case ValueType::Map:
+        case ValueType::Range:
         case ValueType::Null:
         case ValueType::Undefined:
           break;
@@ -549,6 +651,7 @@ Value Value::convertTo(EvaluationContext& context, const ValueType toType) const
         case ValueType::Map:
           return context.trace(Value{MapType{}}, *this);
         case ValueType::Range:
+        case ValueType::Vec3:
         case ValueType::Undefined:
           break;
         }
@@ -566,6 +669,7 @@ Value Value::convertTo(EvaluationContext& context, const ValueType toType) const
         case ValueType::Array:
         case ValueType::Map:
         case ValueType::Range:
+        case ValueType::Vec3:
         case ValueType::Null:
           break;
         }
@@ -605,20 +709,7 @@ void Value::appendToStream(
         // Unescaping happens in Parser::parseLiteral
         str << "\"" << kdl::str_escape(s, "\\\"") << "\"";
       },
-      [&](const NumberType& n) {
-        static constexpr auto RoundingThreshold = 0.00001;
-        if (std::abs(n - std::round(n)) < RoundingThreshold)
-        {
-          str.precision(0);
-          str.setf(std::ios::fixed);
-        }
-        else
-        {
-          str.precision(17);
-          str.unsetf(std::ios::fixed);
-        }
-        str << n;
-      },
+      [&](const NumberType& n) { appendNumber(str, n); },
       [&](const ArrayType& a) {
         if (a.empty())
         {
@@ -714,6 +805,15 @@ void Value::appendToStream(
           r);
         str << "]";
       },
+      [&](const Vec3Type& v) {
+        str << "vec(";
+        appendNumber(str, v.x());
+        str << ", ";
+        appendNumber(str, v.y());
+        str << ", ";
+        appendNumber(str, v.z());
+        str << ")";
+      },
       [&](const NullType&) { str << "null"; },
       [&](const UndefinedType&) { str << "undefined"; }),
     *m_value);
@@ -730,6 +830,7 @@ bool Value::contains(const EvaluationContext&, const size_t index) const
   case ValueType::Boolean:
   case ValueType::Number:
   case ValueType::Range:
+  case ValueType::Vec3:
   case ValueType::Null:
   case ValueType::Undefined:
     break;
@@ -773,6 +874,7 @@ Value Value::at(const EvaluationContext& context, const size_t index) const
   case ValueType::Boolean:
   case ValueType::Number:
   case ValueType::Range:
+  case ValueType::Vec3:
   case ValueType::Null:
   case ValueType::Undefined:
     break;
@@ -806,6 +908,7 @@ Value Value::atOrDefault(
   case ValueType::Boolean:
   case ValueType::Number:
   case ValueType::Range:
+  case ValueType::Vec3:
   case ValueType::Null:
   case ValueType::Undefined:
     break;
@@ -831,6 +934,7 @@ Value Value::at(const EvaluationContext& context, const std::string& key) const
   case ValueType::Boolean:
   case ValueType::Number:
   case ValueType::Range:
+  case ValueType::Vec3:
   case ValueType::Null:
   case ValueType::Undefined:
     break;
@@ -857,6 +961,7 @@ Value Value::atOrDefault(
   case ValueType::Boolean:
   case ValueType::Number:
   case ValueType::Range:
+  case ValueType::Vec3:
   case ValueType::Null:
   case ValueType::Undefined:
     break;
@@ -886,6 +991,9 @@ bool operator==(const Value& lhs, const Value& rhs)
                const MapType& lhsMap, const MapType& rhsMap) { return lhsMap == rhsMap; },
              [](const RangeType& lhsRange, const RangeType& rhsRange) {
                return lhsRange == rhsRange;
+             },
+             [](const Vec3Type& lhsVec3, const Vec3Type& rhsVec3) {
+               return lhsVec3 == rhsVec3;
              },
              [](const NullType&, const NullType&) { return true; },
              [](const UndefinedType&, const UndefinedType&) { return true; },

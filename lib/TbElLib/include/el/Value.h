@@ -66,6 +66,7 @@ private:
     ArrayType,
     MapType,
     RangeType,
+    Vec3Type,
     NullType,
     UndefinedType>;
   std::shared_ptr<VariantType> m_value;
@@ -86,6 +87,7 @@ public:
   explicit Value(ArrayType value);
   explicit Value(MapType value);
   explicit Value(RangeType value);
+  explicit Value(Vec3Type value);
   explicit Value(NullType value);
   explicit Value(UndefinedType value);
 
@@ -109,6 +111,7 @@ public:
   const ArrayType& arrayValue(const EvaluationContext& context) const;
   const MapType& mapValue(const EvaluationContext& context) const;
   const RangeType& rangeValue(const EvaluationContext& context) const;
+  const Vec3Type& vec3Value(const EvaluationContext& context) const;
 
   std::vector<std::string> asStringList(const EvaluationContext& context) const;
   std::vector<std::string> asStringSet(const EvaluationContext& context) const;
