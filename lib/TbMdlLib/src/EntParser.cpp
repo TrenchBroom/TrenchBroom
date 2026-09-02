@@ -34,6 +34,7 @@
 #include "mdl/PropertyDefinition.h"
 
 #include "kd/string_compare.h"
+#include "kd/string_format.h"
 #include "kd/string_utils.h"
 
 #include "vm/vec_io.h"
@@ -697,6 +698,32 @@ void parsePropertyDefinitions(
   }
 }
 
+Result<el::ExpressionNode> parseModelExpression(
+  const std::string& model, const size_t lineNum)
+{
+  auto asLiteralPath = [&]() {
+    return el::ExpressionNode{
+      el::LiteralExpression{el::Value{el::MapType{{
+        {ModelSpecificationKeys::Path, el::Value{model}},
+      }}}},
+      FileLocation{lineNum}};
+  };
+
+  // Only attempt to parse the model string as an EL expression if it actually looks like
+  // one (a map or switch literal, the only two forms a model definition is written as).
+  // Otherwise treat it as a literal path straight away -- a plain path like
+  // "models/foo.mdl" can itself be valid (if nonsensical) EL syntax, e.g. as a chain of
+  // divisions, so a successful EL parse isn't a reliable signal that the string was meant
+  // as an expression.
+  if (kdl::cs::str_is_prefix(kdl::str_trim(model), "{"))
+  {
+    return el::parseExpression(el::ParseMode::Lenient, model)
+           | kdl::transform_error([&](auto) { return asLiteralPath(); });
+  }
+
+  return Result<el::ExpressionNode>{asLiteralPath()};
+}
+
 ModelDefinition parseModel(const tinyxml2::XMLElement& element)
 {
   if (!hasAttribute(element, "model"))
@@ -705,18 +732,11 @@ ModelDefinition parseModel(const tinyxml2::XMLElement& element)
   }
 
   const auto model = parseString(element, "model");
+  const auto lineNum = static_cast<size_t>(element.GetLineNum());
 
-  return el::parseExpression(el::ParseMode::Lenient, model)
-         | kdl::transform_error([&](auto) {
-             const auto lineNum = static_cast<size_t>(element.GetLineNum());
-             return el::ExpressionNode{
-               el::LiteralExpression{el::Value{el::MapType{{
-                 {ModelSpecificationKeys::Path, el::Value{model}},
-               }}}},
-               FileLocation{lineNum}};
-           })
-         | kdl::and_then(optimizeModelExpression) | kdl::transform([](auto expression) {
-             return ModelDefinition{std::move(expression)};
+  return parseModelExpression(model, lineNum) | kdl::and_then(optimizeModelExpression)
+         | kdl::transform([](auto optimizedExpression) {
+             return ModelDefinition{std::move(optimizedExpression)};
            })
          | kdl::if_error([](const auto& e) { throw ParserException{e.msg}; })
          | kdl::value();
