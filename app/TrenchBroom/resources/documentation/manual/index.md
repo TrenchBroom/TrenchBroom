@@ -1860,13 +1860,14 @@ Number     A floating point number.
 Array      An array is a list of values.
 Map        A map is a list of key-value pairs. Synonyms: dictionary, table.
 Vec3       A three-dimensional vector with `x`, `y`, and `z` components; see below.
+BBox       An axis-aligned bounding box with `min` and `max` corners; see below.
 Range      The range type is only used internally.
 Null       The type of `null` values.
 Undefined  The type of undefined values.
 
 #### Type Conversion {#el_type_conversion}
 
-The following matrix describes the possible type conversions between these types. The first column contains the source type, while the following columns describe how a type conversion takes place, or if the result is an error. Note that the columns for types `Vec3`, `Range`, `Null`, and `Undefined` are omitted because no type can be converted to these types, except for the trivial conversion and, for `Vec3`, its conversion to and from `String` described below. Converting a value of a some type `X` to the same type is called _trivial_.
+The following matrix describes the possible type conversions between these types. The first column contains the source type, while the following columns describe how a type conversion takes place, or if the result is an error. Note that the columns for types `Vec3`, `BBox`, `Range`, `Null`, and `Undefined` are omitted because no type can be converted to these types, except for the trivial conversion and, for `Vec3`, its conversion to and from `String` described below. Converting a value of a some type `X` to the same type is called _trivial_.
 
 -----------------------------------------------------------------------------------------------------------------------------
             `Boolean`                     `String`               `Number`                      `Array`     `Map`
@@ -1885,6 +1886,8 @@ The following matrix describes the possible type conversions between these types
 `Map`       error                         error                  error                         error       _trivial_
 
 `Range`     error                         error                  error                         error       error
+
+`BBox`      error                         error                  error                         error       error
 
 `Null`      `false`                       `""` (empty string)    `0.0`                         empty array empty map
 
@@ -2156,6 +2159,25 @@ Two vectors can be compared for equality, and, since vectors are ordered lexicog
     vec(1, 2, 3) < vec(4, 5, 6)  // true
 
 See [Type Conversion](#el_type_conversion) above for how a `Vec3` can be converted to and from a `String`.
+
+### BBox
+
+A `BBox` value represents an axis-aligned bounding box with a minimum and a maximum corner, each of which is a `Vec3`. Boxes are constructed using the `bbox` function.
+
+    bbox(min, max)
+
+For example, `bbox(vec(0, 0, 0), vec(1, 1, 1))` constructs a box with `min` equal to `vec(0, 0, 0)` and `max` equal to `vec(1, 1, 1)`. The two arguments are normalized component-wise so that `min` never exceeds `max`, regardless of the order in which they were given; `bbox(vec(1, 1, 1), vec(0, 0, 0))` therefore constructs the very same box.
+
+The two corners of a box can be accessed using a string subscript or dot access. Unlike vectors, boxes do not support numeric subscripts.
+
+    bbox(vec(0, 0, 0), vec(1, 1, 1))["min"] // vec(0, 0, 0)
+    bbox(vec(0, 0, 0), vec(1, 1, 1)).max    // vec(1, 1, 1)
+
+Two boxes can be compared for equality.
+
+    bbox(vec(0, 0, 0), vec(1, 1, 1)) == bbox(vec(0, 0, 0), vec(1, 1, 1)) // true
+
+Boxes can also be ordered using `<`, `<=`, `>`, and `>=`, which compare the boxes' corners lexicographically (`min` first, then `max`), though this ordering has no particular geometric meaning and is rarely useful on its own. Boxes do not support any arithmetic or unary operators; using any of them results in an error.
 
 ### Unary Operator Terms
 
