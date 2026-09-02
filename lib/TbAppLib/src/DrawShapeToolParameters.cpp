@@ -148,4 +148,60 @@ void DrawShapeToolParameters::setStairDirection(const StairDirection stairDirect
   }
 }
 
+mdl::RockType DrawShapeToolParameters::rockType() const
+{
+  return m_rockType;
+}
+
+void DrawShapeToolParameters::setRockType(const mdl::RockType rockType)
+{
+  if (rockType != m_rockType)
+  {
+    m_rockType = rockType;
+    parametersDidChangeNotifier();
+  }
+}
+
+double DrawShapeToolParameters::rockDetail() const
+{
+  return m_rockDetail;
+}
+
+void DrawShapeToolParameters::setRockDetail(const double rockDetail)
+{
+  if (rockDetail != m_rockDetail)
+  {
+    m_rockDetail = rockDetail;
+    parametersDidChangeNotifier();
+  }
+}
+
+uint32_t DrawShapeToolParameters::rockSeed() const
+{
+  return m_rockSeed;
+}
+
+void DrawShapeToolParameters::setRockSeed(const uint32_t rockSeed)
+{
+  if (rockSeed != m_rockSeed)
+  {
+    m_rockSeed = rockSeed;
+    parametersDidChangeNotifier();
+  }
+}
+
+bool DrawShapeToolParameters::incrementRockSeed() const
+{
+  return m_incrementRockSeed;
+}
+
+void DrawShapeToolParameters::setIncrementRockSeed(const bool incrementRockSeed)
+{
+  if (incrementRockSeed != m_incrementRockSeed)
+  {
+    m_incrementRockSeed = incrementRockSeed;
+    parametersDidChangeNotifier();
+  }
+}
+
 } // namespace tb::ui
