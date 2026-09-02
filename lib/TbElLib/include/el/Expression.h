@@ -149,6 +149,18 @@ bool operator!=(const SubscriptExpression& lhs, const SubscriptExpression& rhs);
 std::ostream& operator<<(std::ostream& lhs, const SubscriptExpression& rhs);
 
 
+struct DotExpression
+{
+  ExpressionNode operand;
+  std::string fieldName;
+};
+
+bool operator==(const DotExpression& lhs, const DotExpression& rhs);
+bool operator!=(const DotExpression& lhs, const DotExpression& rhs);
+
+std::ostream& operator<<(std::ostream& lhs, const DotExpression& rhs);
+
+
 struct SwitchExpression
 {
   std::vector<ExpressionNode> cases;

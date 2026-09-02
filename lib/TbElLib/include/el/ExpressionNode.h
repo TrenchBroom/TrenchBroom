@@ -38,6 +38,7 @@ struct MapExpression;
 struct UnaryExpression;
 struct BinaryExpression;
 struct SubscriptExpression;
+struct DotExpression;
 struct SwitchExpression;
 
 using Expression = std::variant<
@@ -48,6 +49,7 @@ using Expression = std::variant<
   UnaryExpression,
   BinaryExpression,
   SubscriptExpression,
+  DotExpression,
   SwitchExpression>;
 
 template <typename Visitor, typename Enable = void>
