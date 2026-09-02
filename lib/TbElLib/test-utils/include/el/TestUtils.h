@@ -71,6 +71,7 @@ ExpressionNode bRng(ExpressionNode leftOperand, ExpressionNode rightOperand);
 ExpressionNode cs(ExpressionNode leftOperand, ExpressionNode rightOperand);
 
 ExpressionNode scr(ExpressionNode leftOperand, ExpressionNode rightOperand);
+ExpressionNode dot(ExpressionNode operand, std::string fieldName);
 
 ExpressionNode swt(std::vector<ExpressionNode> cases);
 

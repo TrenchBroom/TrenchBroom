@@ -2121,6 +2121,24 @@ Subscripting a value of type `Undefined` yields `undefined`, regardless of the i
 
 Conversely, using an `undefined` value as an index is an error, and so is subscripting a value of type `Null`.
 
+#### Dot Access
+
+Since accessing a map by a string key that happens to be a valid name is very common, the expression language provides a shorthand for it using the dot operator.
+
+    DotAccess = SimpleTerm "." Name
+
+The expression `a.b` is exactly equivalent to `a["b"]`; dot access is simply a more convenient way to write such a subscript. Just like a regular subscript, it evaluates to `undefined` if the given key is not present in the map being accessed, and it can be chained, or combined with regular subscript expressions.
+
+    { some_key: 1 }.some_key    // 1
+    { some_key: 1 }.missing_key // undefined
+
+    { a: { b: 1 } }.a.b     // 1
+    { a: [ 1, 2, 3 ] }.a[1] // 2
+
+Note that dot access only works with names, that is, keys that begin with an alphabetic character or an underscore and contain only alphanumeric characters and underscores. If the key you want to access contains other characters or whitespace, or if it needs to be computed dynamically, you must use the regular subscript syntax with a string instead.
+
+    { "some key": 1 }["some key"] // 1, dot access cannot be used here because of the space
+
 ### Unary Operator Terms
 
 A unary operator is an operator that applies to a single operand. In TrenchBroom's expression language, there are four unary operators: unary plus, unary minus, logical negation, and binary negation.

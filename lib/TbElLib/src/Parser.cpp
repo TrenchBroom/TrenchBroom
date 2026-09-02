@@ -79,6 +79,7 @@ auto tokenNames()
     {DoubleCBrace, "'}}'"},
     {Null, "'null'"},
     {Eof, "end of file"},
+    {Dot, "'.'"},
   };
 }
 } // namespace
@@ -247,6 +248,11 @@ Tokenizer::Token Tokenizer::emitToken()
           advance(2);
           return Token{ElToken::Range, c, c + 2, offset(c), line, column};
         }
+        if (!isDigit(lookAhead()))
+        {
+          advance();
+          return Token{ElToken::Dot, c, c + 1, offset(c), line, column};
+        }
         break;
       case '=':
         if (lookAhead() == '=')
@@ -377,18 +383,18 @@ ExpressionNode Parser::parseSimpleTermOrSwitch()
   const auto token = m_tokenizer.peekToken(ElToken::SimpleTerm | ElToken::DoubleOBrace);
   if (token.hasType(ElToken::SimpleTerm))
   {
-    return parseSimpleTermOrSubscript();
+    return parseSimpleTermOrSubscriptOrDotAccess();
   }
   return parseSwitch();
 }
 
-ExpressionNode Parser::parseSimpleTermOrSubscript()
+ExpressionNode Parser::parseSimpleTermOrSubscriptOrDotAccess()
 {
   auto term = parseSimpleTerm();
 
-  while (m_tokenizer.peekToken().hasType(ElToken::OBracket))
+  while (m_tokenizer.peekToken().hasType(ElToken::OBracket | ElToken::Dot))
   {
-    term = parseSubscript(std::move(term));
+    term = parseSubscriptOrDotAccess(std::move(term));
   }
 
   return term;
@@ -410,6 +416,13 @@ ExpressionNode Parser::parseSimpleTerm()
     return parseVariable();
   }
   return parseLiteral();
+}
+
+ExpressionNode Parser::parseSubscriptOrDotAccess(ExpressionNode lhs)
+{
+  return m_tokenizer.peekToken().hasType(ElToken::OBracket)
+           ? parseSubscript(std::move(lhs))
+           : parseDotAccess(std::move(lhs));
 }
 
 ExpressionNode Parser::parseSubscript(ExpressionNode lhs)
@@ -435,6 +448,15 @@ ExpressionNode Parser::parseSubscript(ExpressionNode lhs)
                ? std::move(elements.front())
                : ExpressionNode{ArrayExpression{std::move(elements)}, location};
   return ExpressionNode{SubscriptExpression{std::move(lhs), std::move(rhs)}, location};
+}
+
+ExpressionNode Parser::parseDotAccess(ExpressionNode lhs)
+{
+  const auto dotToken = m_tokenizer.nextToken(ElToken::Dot);
+  const auto nameToken = m_tokenizer.nextToken(ElToken::Name);
+
+  return ExpressionNode{
+    DotExpression{std::move(lhs), nameToken.data()}, dotToken.location()};
 }
 
 ExpressionNode Parser::parseVariable()
