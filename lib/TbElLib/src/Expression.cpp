@@ -23,6 +23,7 @@
 #include "el/Exceptions.h"
 #include "el/Value.h"
 
+#include "kd/flat_map.h"
 #include "kd/map_utils.h"
 #include "kd/overload.h"
 #include "kd/ranges/concat_view.h"
@@ -31,6 +32,7 @@
 
 #include <fmt/format.h>
 
+#include <functional>
 #include <ranges>
 #include <sstream>
 
@@ -1152,6 +1154,41 @@ Value evaluate(
     expressionNode);
 }
 
+using BuiltinFunction = std::function<Value(
+  EvaluationContext&, const std::vector<Value>&, const ExpressionNode&)>;
+
+const auto builtinFunctions = kdl::flat_map<std::string, BuiltinFunction>{};
+
+Value evaluateCall(
+  EvaluationContext& context,
+  const std::string& name,
+  const std::vector<Value>& arguments,
+  const ExpressionNode& expressionNode)
+{
+  if (const auto it = builtinFunctions.find(name); it != builtinFunctions.end())
+  {
+    return it->second(context, arguments, expressionNode);
+  }
+
+  throw EvaluationError{expressionNode, fmt::format("Unknown function: '{}'", name)};
+}
+
+template <typename Evaluator>
+Value evaluate(
+  EvaluationContext& context,
+  const Evaluator& evaluator,
+  const CallExpression& expression,
+  const ExpressionNode& expressionNode)
+{
+  const auto arguments = expression.arguments
+                         | std::views::transform([&](const auto& argument) {
+                             return argument.accept(evaluator);
+                           })
+                         | kdl::ranges::to<std::vector>();
+
+  return evaluateCall(context, expression.name, arguments, expressionNode);
+}
+
 template <typename Evaluator>
 Value evaluate(
   EvaluationContext&,
@@ -1327,6 +1364,35 @@ Expression optimize(
   }
 
   return DotExpression{std::move(optimizedOperand), expression.fieldName};
+}
+
+Expression optimize(
+  EvaluationContext& context,
+  const CallExpression& expression,
+  const ExpressionNode& expressionNode)
+{
+  auto optimizedArguments = expression.arguments
+                            | std::views::transform([&](const auto& argument) {
+                                return argument.optimize(context);
+                              })
+                            | kdl::ranges::to<std::vector>();
+
+  const auto allLiteral =
+    std::ranges::all_of(optimizedArguments, &ExpressionNode::isLiteral);
+
+  if (allLiteral)
+  {
+    const auto values = optimizedArguments
+                        | std::views::transform([&](const auto& argument) {
+                            return argument.evaluate(context);
+                          })
+                        | kdl::ranges::to<std::vector>();
+
+    return LiteralExpression{
+      evaluateCall(context, expression.name, values, expressionNode)};
+  }
+
+  return CallExpression{expression.name, std::move(optimizedArguments)};
 }
 
 Expression optimize(
@@ -1804,6 +1870,31 @@ bool operator!=(const DotExpression& lhs, const DotExpression& rhs)
 std::ostream& operator<<(std::ostream& lhs, const DotExpression& rhs)
 {
   return lhs << rhs.operand << "." << rhs.fieldName;
+}
+
+
+bool operator==(const CallExpression& lhs, const CallExpression& rhs)
+{
+  return lhs.name == rhs.name && lhs.arguments == rhs.arguments;
+}
+
+bool operator!=(const CallExpression& lhs, const CallExpression& rhs)
+{
+  return !(lhs == rhs);
+}
+
+std::ostream& operator<<(std::ostream& lhs, const CallExpression& rhs)
+{
+  lhs << rhs.name << "(";
+  for (size_t i = 0; i < rhs.arguments.size(); ++i)
+  {
+    lhs << rhs.arguments[i];
+    if (i < rhs.arguments.size() - 1)
+    {
+      lhs << ", ";
+    }
+  }
+  return lhs << ")";
 }
 
 
