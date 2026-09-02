@@ -23,6 +23,7 @@
 #include "Value.h"
 
 #include <map>
+#include <optional>
 #include <string>
 #include <variant>
 #include <vector>
@@ -150,6 +151,23 @@ struct DotExpression
 bool operator==(const DotExpression& lhs, const DotExpression& rhs);
 
 std::ostream& operator<<(std::ostream& lhs, const DotExpression& rhs);
+
+
+struct CallExpression
+{
+  std::string name;
+  std::vector<ExpressionNode> arguments;
+};
+
+bool operator==(const CallExpression& lhs, const CallExpression& rhs);
+
+std::ostream& operator<<(std::ostream& lhs, const CallExpression& rhs);
+
+/**
+ * Returns the number of arguments of the built-in function with the given name, or
+ * nothing if there is no such function.
+ */
+std::optional<size_t> builtinFunctionArity(const std::string& name);
 
 
 struct SwitchExpression
