@@ -23,6 +23,7 @@ target_link_libraries(TbElLib
   PUBLIC
     KdLib
     TbBaseLib
+    VmLib
     fmt::fmt-header-only
 )
 

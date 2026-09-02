@@ -1859,13 +1859,14 @@ String     A string of characters.
 Number     A floating point number.
 Array      An array is a list of values.
 Map        A map is a list of key-value pairs. Synonyms: dictionary, table.
+Vec3       A three-dimensional vector with `x`, `y`, and `z` components; see below.
 Range      The range type is only used internally.
 Null       The type of `null` values.
 Undefined  The type of undefined values.
 
 #### Type Conversion {#el_type_conversion}
 
-The following matrix describes the possible type conversions between these types. The first column contains the source type, while the following columns describe how a type conversion takes place, or if the result is an error. Note that the columns for types `Range`, `Null`, and `Undefined` are omitted because not type can be converted to these types (except for the trivial conversions). Converting a value of a some type `X` to the same type is called _trivial_.
+The following matrix describes the possible type conversions between these types. The first column contains the source type, while the following columns describe how a type conversion takes place, or if the result is an error. Note that the columns for types `Vec3`, `Range`, `Null`, and `Undefined` are omitted because no type can be converted to these types, except for the trivial conversion and, for `Vec3`, its conversion to and from `String` described below. Converting a value of a some type `X` to the same type is called _trivial_.
 
 -----------------------------------------------------------------------------------------------------------------------------
             `Boolean`                     `String`               `Number`                      `Array`     `Map`
@@ -1891,6 +1892,8 @@ The following matrix describes the possible type conversions between these types
 -----------------------------------------------------------------------------------------------------------------------------
 
 A string value can be converted to a number value if and only if the string is a number literal (see below). Conversely, any number can always be converted to a string value, and the number is formatted as follows. If the number is integer, then only the decimal part and no fractional part will be added to the string. If the number is not integer, the fractional part will be formatted with a precision of 17 places.
+
+A `Vec3` (see below) can be converted to a `String`, which produces a string containing its three components separated by spaces, e.g. `"1 2 3"`. Conversely, a `String` consisting of three numbers separated by whitespace can be converted to a `Vec3`. This is the format used by some entity properties, such as an entity's `origin` property.
 
 ### Expressions and Terms
 
@@ -2122,6 +2125,37 @@ The expression language allows calling a small, fixed set of built-in functions 
     Call = Name "(" [ Expression { "," Expression } ] ")"
 
 A function call consists of the function's name, followed by a comma-separated list of argument expressions enclosed in parentheses. If a function does not take any arguments, the argument list is simply left empty. Note that the expression language does not support user defined functions. The available functions are listed in the following sections.
+
+### Vec3
+
+A `Vec3` value represents a three-dimensional vector with `x`, `y`, and `z` components. Vectors are constructed using the `vec` function.
+
+    vec(x, y, z)
+
+For example, `vec(1, 2, 3)` constructs a vector with `x` equal to `1`, `y` equal to `2`, and `z` equal to `3`.
+
+The individual components of a vector can be accessed using a numeric subscript, a string subscript, or dot access.
+
+    vec(1, 2, 3)[0]   // 1
+    vec(1, 2, 3)["y"] // 2
+    vec(1, 2, 3).z    // 3
+
+Vectors support the following arithmetic operators. Two vectors can be added or subtracted component-wise, and a vector can be multiplied or divided by a number, or by another vector component-wise. Unary plus and unary minus are also supported; unary minus negates each component of the vector.
+
+    vec(1, 2, 3) + vec(4, 5, 6) // vec(5, 7, 9)
+    vec(4, 5, 6) - vec(1, 2, 3) // vec(3, 3, 3)
+    vec(1, 2, 3) * 2            // vec(2, 4, 6)
+    vec(1, 2, 3) * vec(4, 5, 6) // vec(4, 10, 18)
+    -vec(1, 2, 3)               // vec(-1, -2, -3)
+
+Note that unary logical negation (`!`), unary bitwise negation (`~`), and the modulus operator (`%`) are not supported for vectors and result in an error, since there is no natural definition of these operations for a three-dimensional vector.
+
+Two vectors can be compared for equality, and, since vectors are ordered lexicographically by their components, using the operators `<`, `<=`, `>`, and `>=`.
+
+    vec(1, 2, 3) == vec(1, 2, 3) // true
+    vec(1, 2, 3) < vec(4, 5, 6)  // true
+
+See [Type Conversion](#el_type_conversion) above for how a `Vec3` can be converted to and from a `String`.
 
 ### Unary Operator Terms
 
@@ -2913,6 +2947,7 @@ Example                                   Description
 -------                                   -----------
 `"scale": 2`                              A fixed uniform scale factor of `2`.
 `"scale": "1 2 3"`                        A fixed non-uniform scale factor scaling X by 1, Y by 2 and Z by 3.
+`"scale": vec(1, 2, 3)`                   A fixed non-uniform scale factor scaling X by 1, Y by 2 and Z by 3, using a `Vec3` value directly.
 `"scale": modelscale`                     Use the value of the entities' `modelscale` property.
 `"scale": [ modelscale, modelscale_vec ]` Try the individual values in the array until we find one that doesn't evaluate to `Undefined` or `Null`.
 

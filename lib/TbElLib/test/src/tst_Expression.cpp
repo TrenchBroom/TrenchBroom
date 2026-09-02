@@ -1088,6 +1088,88 @@ TEST_CASE("Expression")
                "operand types Range and Number"});
   }
 
+  SECTION("Vec3")
+  {
+    // vec(x, y, z) constructs a Vec3 value directly, so there's no need to reach
+    // it via a bound variable, unlike Range above.
+    SECTION("Subscript")
+    {
+      CHECK(evaluate("vec(1, 2, 3)[0]") == Value{1.0});
+      CHECK(evaluate("vec(1, 2, 3)[1]") == Value{2.0});
+      CHECK(evaluate("vec(1, 2, 3)[2]") == Value{3.0});
+      CHECK(evaluate("vec(1, 2, 3)[-1]") == Value{3.0});
+      CHECK(
+        evaluate("vec(1, 2, 3)[3]")
+        == Error{"At line 1, column 13: Cannot evaluate expression 'vec(1, 2, 3)[3]': "
+                 "3 is out of bounds for 'vec(1, 2, 3)'"});
+
+      CHECK(evaluate(R"(vec(1, 2, 3)["x"])") == Value{1.0});
+      CHECK(evaluate(R"(vec(1, 2, 3)["y"])") == Value{2.0});
+      CHECK(evaluate(R"(vec(1, 2, 3)["z"])") == Value{3.0});
+      // an unrecognized key is safely undefined, same as a missing Map key
+      CHECK(evaluate(R"(vec(1, 2, 3)["w"])") == Value::Undefined);
+
+      // dot-access is sugar for the same string-keyed subscript
+      CHECK(evaluate("vec(1, 2, 3).x") == Value{1.0});
+      CHECK(evaluate("vec(1, 2, 3).y") == Value{2.0});
+      CHECK(evaluate("vec(1, 2, 3).z") == Value{3.0});
+      CHECK(evaluate("vec(1, 2, 3).w") == Value::Undefined);
+    }
+
+    SECTION("Unary operators")
+    {
+      CHECK(evaluate("+vec(1, 2, 3)") == Value{Vec3Type{1, 2, 3}});
+      CHECK(evaluate("-vec(1, 2, 3)") == Value{Vec3Type{-1, -2, -3}});
+      CHECK(
+        evaluate("!vec(1, 2, 3)")
+        == Error{"At line 1, column 1: Cannot evaluate expression '!vec(1, 2, 3)': "
+                 "Invalid type Vec3"});
+      CHECK(
+        evaluate("~vec(1, 2, 3)")
+        == Error{"At line 1, column 1: Cannot evaluate expression '~vec(1, 2, 3)': "
+                 "Invalid type Vec3"});
+    }
+
+    SECTION("Arithmetic")
+    {
+      CHECK(evaluate("vec(1, 2, 3) + vec(4, 5, 6)") == Value{Vec3Type{5, 7, 9}});
+      CHECK(evaluate("vec(4, 5, 6) - vec(1, 2, 3)") == Value{Vec3Type{3, 3, 3}});
+      CHECK(evaluate("vec(1, 2, 3) * 2") == Value{Vec3Type{2, 4, 6}});
+      CHECK(evaluate("2 * vec(1, 2, 3)") == Value{Vec3Type{2, 4, 6}});
+      CHECK(evaluate("vec(1, 2, 3) / 2") == Value{Vec3Type{0.5, 1.0, 1.5}});
+
+      // component-wise vec*vec and vec/vec, and scalar/vec, matching every
+      // arithmetic operator vm::vec3d itself supports
+      CHECK(evaluate("vec(1, 2, 3) * vec(4, 5, 6)") == Value{Vec3Type{4, 10, 18}});
+      CHECK(evaluate("vec(1, 2, 3) / vec(4, 5, 6)") == Value{Vec3Type{0.25, 0.4, 0.5}});
+      CHECK(evaluate("12 / vec(4, 5, 6)") == Value{Vec3Type{3.0, 2.4, 2.0}});
+
+      // undefined-safe, like every other arithmetic operator
+      CHECK(evaluate("vec(1, 2, 3) + undefined") == Value::Undefined);
+      CHECK(evaluate("undefined + vec(1, 2, 3)") == Value::Undefined);
+
+      // no vec.h equivalent for modulus, so it's still an error
+      CHECK(
+        evaluate("vec(1, 2, 3) % vec(4, 5, 6)")
+        == Error{"At line 1, column 14: Cannot evaluate expression 'vec(1, 2, 3) % "
+                 "vec(4, 5, 6)': Invalid operand types Vec3 and Vec3"});
+    }
+
+    SECTION("Comparison")
+    {
+      CHECK(evaluate("vec(1, 2, 3) == vec(1, 2, 3)") == Value{true});
+      CHECK(evaluate("vec(1, 2, 3) == vec(4, 5, 6)") == Value{false});
+      CHECK(evaluate("vec(1, 2, 3) != vec(4, 5, 6)") == Value{true});
+      CHECK(evaluate("vec(1, 2, 3) < vec(4, 5, 6)") == Value{true});
+      CHECK(evaluate("vec(4, 5, 6) > vec(1, 2, 3)") == Value{true});
+
+      CHECK(
+        evaluate("vec(1, 2, 3) == 1")
+        == Error{"At line 1, column 14: Cannot evaluate expression 'vec(1, 2, 3) == "
+                 "1': Invalid operand types Vec3 and Number"});
+    }
+  }
+
   SECTION("Subscript")
   {
     using T = std::tuple<std::string, Result<Value>>;
@@ -1251,6 +1333,28 @@ TEST_CASE("Expression")
       evaluate("f([] + true)")
       == Error{"At line 1, column 6: Cannot evaluate expression '[] + true': Invalid "
                "operand types Array and Boolean"});
+
+    SECTION("vec")
+    {
+      CHECK(evaluate("vec(1, 2, 3)") == Value{Vec3Type{1, 2, 3}});
+      CHECK(evaluate("vec(1.5, -2, 0)") == Value{Vec3Type{1.5, -2.0, 0.0}});
+
+      // arguments don't have to be literals
+      CHECK(evaluate("vec(1 + 1, 2 * 2, 3 - 1)") == Value{Vec3Type{2, 4, 2}});
+
+      CHECK(
+        evaluate("vec()")
+        == Error{"At line 1, column 1: Cannot evaluate expression 'vec()': vec() "
+                 "expects 3 arguments, but got 0"});
+      CHECK(
+        evaluate("vec(1, 2)")
+        == Error{"At line 1, column 1: Cannot evaluate expression 'vec(1, 2)': vec() "
+                 "expects 3 arguments, but got 2"});
+      CHECK(
+        evaluate("vec(1, 2, 3, 4)")
+        == Error{"At line 1, column 1: Cannot evaluate expression 'vec(1, 2, 3, 4)': "
+                 "vec() expects 3 arguments, but got 4"});
+    }
   }
 
   SECTION("Switch")

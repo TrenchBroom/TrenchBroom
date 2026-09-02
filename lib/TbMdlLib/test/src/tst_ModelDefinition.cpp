@@ -143,6 +143,8 @@ TEST_CASE("ModelDefinition")
     {R"({ path: "maps/b_shell0.bsp", skin: 1, frame: 2, scale: modelscale })",                   std::nullopt,             vm::vec3d{4, 4, 4}},
     {R"({ path: "maps/b_shell0.bsp", skin: 1, frame: 2, scale: [modelscale, modelscale_vec] })", std::nullopt,             vm::vec3d{4, 4, 4}},
     {R"({ path: "maps/b_shell0.bsp", skin: 1, frame: 2, scale: [modelscale_vec, modelscale] })", std::nullopt,             vm::vec3d{5, 6, 7}},
+    {R"({ path: "maps/b_shell0.bsp", skin: 1, frame: 2, scale: vec(1, 2, 3) })",                 std::nullopt,             vm::vec3d{1, 2, 3}},
+    {R"("maps/b_shell0.bsp")",                                                                   R"(vec(2, 3, 4))",        vm::vec3d{2, 3, 4}},
     }));
     // clang-format on
 
