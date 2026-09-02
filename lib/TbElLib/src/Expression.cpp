@@ -113,6 +113,8 @@ Value evaluateUnaryPlus(const Value& v, const ExpressionNode& expressionNode)
   case ValueType::Boolean:
   case ValueType::Number:
     return Value{v.convertTo(ValueType::Number).numberValue()};
+  case ValueType::Vec3:
+    return Value{+v.vec3Value()};
   case ValueType::String:
     if (const auto result = v.tryConvertTo(ValueType::Number))
     {
@@ -141,6 +143,8 @@ Value evaluateUnaryMinus(const Value& v, const ExpressionNode& expressionNode)
     [[fallthrough]];
   case ValueType::Number:
     return Value{-v.convertTo(ValueType::Number).numberValue()};
+  case ValueType::Vec3:
+    return Value{-v.vec3Value()};
   case ValueType::String:
     if (const auto result = v.tryConvertTo(ValueType::Number))
     {
@@ -177,6 +181,8 @@ Value evaluateLogicalNegation(const Value& v, const ExpressionNode& expressionNo
     [[fallthrough]];
   case ValueType::Range:
     [[fallthrough]];
+  case ValueType::Vec3:
+    [[fallthrough]];
   case ValueType::Null:
     [[fallthrough]];
   case ValueType::Undefined:
@@ -204,6 +210,8 @@ Value evaluateBitwiseNegation(const Value& v, const ExpressionNode& expressionNo
   case ValueType::Map:
     [[fallthrough]];
   case ValueType::Range:
+    [[fallthrough]];
+  case ValueType::Vec3:
     [[fallthrough]];
   case ValueType::Null:
     [[fallthrough]];
@@ -304,6 +312,66 @@ std::optional<Value> tryEvaluateAlgebraicOperator(
   return std::nullopt;
 }
 
+std::optional<Vec3Type> tryConvertToVec3(const Value& value)
+{
+  const auto vec3 = value.tryConvertTo(ValueType::Vec3);
+  return vec3 ? std::optional{vec3->vec3Value()} : std::nullopt;
+}
+
+std::optional<NumberType> tryConvertToScalar(const Value& value)
+{
+  if (value.hasType(ValueType::Boolean, ValueType::Number, ValueType::String))
+  {
+    if (const auto number = value.tryConvertTo(ValueType::Number))
+    {
+      return number->numberValue();
+    }
+  }
+
+  return std::nullopt;
+}
+
+// a string is only converted to a vector if the other operand is a vector
+template <typename Eval>
+std::optional<Value> tryEvaluateVec3Operator(
+  const Value& lhs, const Value& rhs, const Eval& eval)
+{
+  if (lhs.hasType(ValueType::Vec3) || rhs.hasType(ValueType::Vec3))
+  {
+    const auto lhsVec3 = tryConvertToVec3(lhs);
+    const auto rhsVec3 = tryConvertToVec3(rhs);
+    if (lhsVec3 && rhsVec3)
+    {
+      return Value{eval(*lhsVec3, *rhsVec3)};
+    }
+  }
+
+  return std::nullopt;
+}
+
+template <typename Eval>
+std::optional<Value> tryEvaluateScalarVec3Operator(
+  const Value& lhs, const Value& rhs, const Eval& eval)
+{
+  if (lhs.hasType(ValueType::Vec3))
+  {
+    if (const auto rhsScalar = tryConvertToScalar(rhs))
+    {
+      return Value{eval(lhs.vec3Value(), *rhsScalar)};
+    }
+  }
+
+  if (rhs.hasType(ValueType::Vec3))
+  {
+    if (const auto lhsScalar = tryConvertToScalar(lhs))
+    {
+      return Value{eval(*lhsScalar, rhs.vec3Value())};
+    }
+  }
+
+  return std::nullopt;
+}
+
 Value evaluateAddition(
   const Value& lhs, const Value& rhs, const ExpressionNode& expressionNode)
 {
@@ -335,6 +403,15 @@ Value evaluateAddition(
     return Value{kdl::map_union(lhs.mapValue(), rhs.mapValue())};
   }
 
+  if (
+    const auto result =
+      tryEvaluateVec3Operator(lhs, rhs, [](const auto& lhsVec3, const auto& rhsVec3) {
+        return lhsVec3 + rhsVec3;
+      }))
+  {
+    return *result;
+  }
+
   throw EvaluationError{
     expressionNode,
     fmt::format("Invalid operand types {} and {}", lhs.typeName(), rhs.typeName())};
@@ -347,6 +424,15 @@ Value evaluateSubtraction(
     const auto result = tryEvaluateAlgebraicOperator(
       lhs, rhs, [&](const auto& lhsNumber, const auto& rhsNumber) {
         return lhsNumber.numberValue() - rhsNumber.numberValue();
+      }))
+  {
+    return *result;
+  }
+
+  if (
+    const auto result =
+      tryEvaluateVec3Operator(lhs, rhs, [](const auto& lhsVec3, const auto& rhsVec3) {
+        return lhsVec3 - rhsVec3;
       }))
   {
     return *result;
@@ -369,6 +455,20 @@ Value evaluateMultiplication(
     return *result;
   }
 
+  const auto multiply = [](const auto& lhsValue, const auto& rhsValue) {
+    return lhsValue * rhsValue;
+  };
+
+  if (const auto result = tryEvaluateVec3Operator(lhs, rhs, multiply))
+  {
+    return *result;
+  }
+
+  if (const auto result = tryEvaluateScalarVec3Operator(lhs, rhs, multiply))
+  {
+    return *result;
+  }
+
   throw EvaluationError{
     expressionNode,
     fmt::format("Invalid operand types {} and {}", lhs.typeName(), rhs.typeName())};
@@ -382,6 +482,20 @@ Value evaluateDivision(
       lhs, rhs, [&](const auto& lhsNumber, const auto& rhsNumber) {
         return lhsNumber.numberValue() / rhsNumber.numberValue();
       }))
+  {
+    return *result;
+  }
+
+  const auto divide = [](const auto& lhsValue, const auto& rhsValue) {
+    return lhsValue / rhsValue;
+  };
+
+  if (const auto result = tryEvaluateVec3Operator(lhs, rhs, divide))
+  {
+    return *result;
+  }
+
+  if (const auto result = tryEvaluateScalarVec3Operator(lhs, rhs, divide))
   {
     return *result;
   }
@@ -613,6 +727,13 @@ int compareAsNumbers(const Value& lhs, const Value& rhs)
   return diff < 0.0 ? -1 : diff > 0.0 ? 1 : 0;
 }
 
+int compareAsVec3s(const Value& lhs, const Value& rhs)
+{
+  const auto ordering = lhs.convertTo(ValueType::Vec3).vec3Value()
+                        <=> rhs.convertTo(ValueType::Vec3).vec3Value();
+  return ordering < 0 ? -1 : ordering > 0 ? 1 : 0;
+}
+
 int evaluateCompare(
   const Value& lhs, const Value& rhs, const ExpressionNode& expressionNode)
 {
@@ -633,6 +754,7 @@ int evaluateCompare(
       case ValueType::Array:
       case ValueType::Map:
       case ValueType::Range:
+      case ValueType::Vec3:
         break;
       }
       break;
@@ -650,6 +772,7 @@ int evaluateCompare(
       case ValueType::Array:
       case ValueType::Map:
       case ValueType::Range:
+      case ValueType::Vec3:
         break;
       }
       break;
@@ -662,6 +785,8 @@ int evaluateCompare(
         return compareAsNumbers(lhs, rhs);
       case ValueType::String:
         return lhs.stringValue().compare(rhs.convertTo(ValueType::String).stringValue());
+      case ValueType::Vec3:
+        return compareAsVec3s(lhs, rhs);
       case ValueType::Null:
       case ValueType::Undefined:
         return 1;
@@ -694,6 +819,7 @@ int evaluateCompare(
       case ValueType::String:
       case ValueType::Map:
       case ValueType::Range:
+      case ValueType::Vec3:
         break;
       }
       break;
@@ -713,6 +839,7 @@ int evaluateCompare(
       case ValueType::String:
       case ValueType::Array:
       case ValueType::Range:
+      case ValueType::Vec3:
         break;
       }
       break;
@@ -725,6 +852,24 @@ int evaluateCompare(
       case ValueType::Boolean:
       case ValueType::Number:
       case ValueType::String:
+      case ValueType::Array:
+      case ValueType::Map:
+      case ValueType::Range:
+      case ValueType::Vec3:
+        break;
+      }
+      break;
+    case ValueType::Vec3:
+      switch (rhs.type())
+      {
+      case ValueType::Vec3:
+      case ValueType::String:
+        return compareAsVec3s(lhs, rhs);
+      case ValueType::Null:
+      case ValueType::Undefined:
+        return 1;
+      case ValueType::Boolean:
+      case ValueType::Number:
       case ValueType::Array:
       case ValueType::Map:
       case ValueType::Range:
@@ -895,6 +1040,7 @@ void computeIndexArray(
   case ValueType::Number:
   case ValueType::String:
   case ValueType::Map:
+  case ValueType::Vec3:
   case ValueType::Null:
   case ValueType::Undefined:
     result.push_back(toIndex(indexValue));
@@ -944,6 +1090,7 @@ Value evaluateSubscript(
     }
     case ValueType::String:
     case ValueType::Map:
+    case ValueType::Vec3:
     case ValueType::Null:
     case ValueType::Undefined:
       break;
@@ -983,6 +1130,7 @@ Value evaluateSubscript(
     }
     case ValueType::String:
     case ValueType::Map:
+    case ValueType::Vec3:
     case ValueType::Null:
     case ValueType::Undefined:
       break;
@@ -1026,6 +1174,47 @@ Value evaluateSubscript(
     case ValueType::Number:
     case ValueType::Map:
     case ValueType::Range:
+    case ValueType::Vec3:
+    case ValueType::Null:
+    case ValueType::Undefined:
+      break;
+    }
+    break;
+  case ValueType::Vec3:
+    switch (rhs.type())
+    {
+    case ValueType::Boolean:
+    case ValueType::Number: {
+      const auto& v = lhs.vec3Value();
+      const auto index = toIndex(rhs);
+      const auto componentIndex = computeIndex(index, 3u);
+      if (!componentIndex)
+      {
+        throw IndexOutOfBoundsError{expressionNode, lhs, index};
+      }
+      return Value{v[*componentIndex]};
+    }
+    case ValueType::String: {
+      const auto& v = lhs.vec3Value();
+      const auto& key = rhs.stringValue();
+      if (key == "x")
+      {
+        return Value{v.x()};
+      }
+      if (key == "y")
+      {
+        return Value{v.y()};
+      }
+      if (key == "z")
+      {
+        return Value{v.z()};
+      }
+      return Value::Undefined;
+    }
+    case ValueType::Array:
+    case ValueType::Map:
+    case ValueType::Range:
+    case ValueType::Vec3:
     case ValueType::Null:
     case ValueType::Undefined:
       break;
@@ -1075,7 +1264,28 @@ struct BuiltinFunction
     evaluate;
 };
 
-const auto builtinFunctions = kdl::flat_map<std::string, BuiltinFunction>{};
+bool hasUndefinedArgument(const std::vector<Value>& arguments)
+{
+  return std::ranges::any_of(arguments, [](const auto& argument) {
+    return argument.hasType(ValueType::Undefined);
+  });
+}
+
+const auto builtinFunctions = kdl::flat_map<std::string, BuiltinFunction>{
+  {"vec",
+   {3,
+    [](auto&, const auto& arguments, const auto&) {
+      if (hasUndefinedArgument(arguments))
+      {
+        return Value::Undefined;
+      }
+      return Value{Vec3Type{
+        arguments[0].convertTo(ValueType::Number).numberValue(),
+        arguments[1].convertTo(ValueType::Number).numberValue(),
+        arguments[2].convertTo(ValueType::Number).numberValue(),
+      }};
+    }}},
+};
 
 Value evaluateCall(
   EvaluationContext& context,
@@ -1097,7 +1307,18 @@ Value evaluateCall(
           arguments.size())};
     }
 
-    return function.evaluate(context, arguments, expressionNode);
+    try
+    {
+      return function.evaluate(context, arguments, expressionNode);
+    }
+    catch (const ConversionError& e)
+    {
+      throw EvaluationError{expressionNode, e.what()};
+    }
+    catch (const DereferenceError& e)
+    {
+      throw EvaluationError{expressionNode, e.what()};
+    }
   }
 
   throw EvaluationError{expressionNode, fmt::format("Unknown function: '{}'", name)};

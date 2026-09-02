@@ -57,6 +57,9 @@ TEST_CASE("Interpolate")
         == " asdfasdf asdf AND  sdf ");
       CHECK(interpolate(variables, " ${ true } ") == " true ");
       CHECK(
+        interpolate(variables, " ${ vec(1234567.5, 0.125, -4) } ")
+        == " 1234567.5 0.125 -4 ");
+      CHECK(
         interpolate(variables, " ${ 'this'+' and ' }${'that'} ") == " this and that ");
     }
 

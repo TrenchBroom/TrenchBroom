@@ -1098,6 +1098,116 @@ TEST_CASE("Expression")
                "operand types Range and Number"});
   }
 
+  SECTION("Vec3")
+  {
+    SECTION("Subscript")
+    {
+      CHECK(evaluate("vec(1, 2, 3)[0]") == Value{1.0});
+      CHECK(evaluate("vec(1, 2, 3)[1]") == Value{2.0});
+      CHECK(evaluate("vec(1, 2, 3)[2]") == Value{3.0});
+      CHECK(evaluate("vec(1, 2, 3)[-1]") == Value{3.0});
+      CHECK(
+        evaluate("vec(1, 2, 3)[3]")
+        == Error{"At line 1, column 13: Cannot evaluate expression 'vec(1, 2, 3)[3]': "
+                 "Index 3 is out of bounds for 'vec(1, 2, 3)'"});
+
+      CHECK(evaluate(R"(vec(1, 2, 3)["x"])") == Value{1.0});
+      CHECK(evaluate(R"(vec(1, 2, 3)["y"])") == Value{2.0});
+      CHECK(evaluate(R"(vec(1, 2, 3)["z"])") == Value{3.0});
+      CHECK(evaluate(R"(vec(1, 2, 3)["w"])") == Value::Undefined);
+
+      CHECK(evaluate("vec(1, 2, 3).x") == Value{1.0});
+      CHECK(evaluate("vec(1, 2, 3).y") == Value{2.0});
+      CHECK(evaluate("vec(1, 2, 3).z") == Value{3.0});
+      CHECK(evaluate("vec(1, 2, 3).w") == Value::Undefined);
+    }
+
+    SECTION("Unary operators")
+    {
+      CHECK(evaluate("+vec(1, 2, 3)") == Value{Vec3Type{1, 2, 3}});
+      CHECK(evaluate("-vec(1, 2, 3)") == Value{Vec3Type{-1, -2, -3}});
+      CHECK(
+        evaluate("!vec(1, 2, 3)")
+        == Error{"At line 1, column 1: Cannot evaluate expression '!vec(1, 2, 3)': "
+                 "Invalid type Vec3"});
+      CHECK(
+        evaluate("~vec(1, 2, 3)")
+        == Error{"At line 1, column 1: Cannot evaluate expression '~vec(1, 2, 3)': "
+                 "Invalid type Vec3"});
+    }
+
+    SECTION("Arithmetic")
+    {
+      CHECK(evaluate("vec(1, 2, 3) + vec(4, 5, 6)") == Value{Vec3Type{5, 7, 9}});
+      CHECK(evaluate("vec(4, 5, 6) - vec(1, 2, 3)") == Value{Vec3Type{3, 3, 3}});
+      CHECK(evaluate("vec(1, 2, 3) * 2") == Value{Vec3Type{2, 4, 6}});
+      CHECK(evaluate("2 * vec(1, 2, 3)") == Value{Vec3Type{2, 4, 6}});
+      CHECK(evaluate("vec(1, 2, 3) / 2") == Value{Vec3Type{0.5, 1.0, 1.5}});
+
+      CHECK(evaluate("vec(1, 2, 3) * vec(4, 5, 6)") == Value{Vec3Type{4, 10, 18}});
+      CHECK(evaluate("vec(1, 2, 3) / vec(4, 5, 6)") == Value{Vec3Type{0.25, 0.4, 0.5}});
+      CHECK(evaluate("12 / vec(4, 5, 6)") == Value{Vec3Type{3.0, 2.4, 2.0}});
+
+      // a string operand is converted to a vector, or to a number to scale a vector by
+      CHECK(evaluate(R"("1 2 3" + vec(1, 1, 1))") == Value{Vec3Type{2, 3, 4}});
+      CHECK(evaluate(R"(vec(1, 1, 1) - "1 2 3")") == Value{Vec3Type{0, -1, -2}});
+      CHECK(evaluate(R"("1 2 3" * vec(2, 2, 2))") == Value{Vec3Type{2, 4, 6}});
+      CHECK(evaluate(R"("1 2 3" / vec(2, 2, 2))") == Value{Vec3Type{0.5, 1, 1.5}});
+      CHECK(evaluate(R"(vec(1, 2, 3) * "2")") == Value{Vec3Type{2, 4, 6}});
+      CHECK(evaluate(R"("2" * vec(1, 2, 3))") == Value{Vec3Type{2, 4, 6}});
+      CHECK(evaluate(R"(vec(2, 4, 6) / "2")") == Value{Vec3Type{1, 2, 3}});
+      CHECK(evaluate("vec(1, 2, 3) * true") == Value{Vec3Type{1, 2, 3}});
+
+      // two strings are never converted to vectors
+      CHECK(evaluate(R"("1 2 3" + "1 2 3")") == Value{"1 2 31 2 3"});
+
+      CHECK(evaluate("vec(1, 2, 3) + undefined") == Value::Undefined);
+      CHECK(evaluate("undefined + vec(1, 2, 3)") == Value::Undefined);
+
+      CHECK(
+        evaluate("vec(1, 2, 3) % vec(4, 5, 6)")
+        == Error{"At line 1, column 14: Cannot evaluate expression 'vec(1, 2, 3) % "
+                 "vec(4, 5, 6)': Invalid operand types Vec3 and Vec3"});
+      CHECK(
+        evaluate("vec(1, 2, 3) + 2")
+        == Error{"At line 1, column 14: Cannot evaluate expression 'vec(1, 2, 3) + "
+                 "2': Invalid operand types Vec3 and Number"});
+      CHECK(
+        evaluate(R"(vec(1, 2, 3) * "a")")
+        == Error{"At line 1, column 14: Cannot evaluate expression 'vec(1, 2, 3) * "
+                 "\"a\"': Invalid operand types Vec3 and String"});
+      CHECK(
+        evaluate("vec(1, 2, 3) * null")
+        == Error{"At line 1, column 14: Cannot evaluate expression 'vec(1, 2, 3) * "
+                 "null': Invalid operand types Vec3 and Null"});
+    }
+
+    SECTION("Comparison")
+    {
+      CHECK(evaluate("vec(1, 2, 3) == vec(1, 2, 3)") == Value{true});
+      CHECK(evaluate("vec(1, 2, 3) == vec(4, 5, 6)") == Value{false});
+      CHECK(evaluate("vec(1, 2, 3) != vec(4, 5, 6)") == Value{true});
+      CHECK(evaluate("vec(1, 2, 3) < vec(4, 5, 6)") == Value{true});
+      CHECK(evaluate("vec(4, 5, 6) > vec(1, 2, 3)") == Value{true});
+
+      // a string is converted to a vector
+      CHECK(evaluate(R"(vec(1, 2, 3) == "1 2 3")") == Value{true});
+      CHECK(evaluate(R"("1 2 3" == vec(1, 2, 3))") == Value{true});
+      CHECK(evaluate(R"(vec(1, 2, 3) != "1 2 4")") == Value{true});
+      CHECK(evaluate(R"("1 2 3" < vec(1, 2, 4))") == Value{true});
+
+      CHECK(
+        evaluate("vec(1, 2, 3) == 1")
+        == Error{"At line 1, column 14: Cannot evaluate expression 'vec(1, 2, 3) == "
+                 "1': Invalid operand types Vec3 and Number"});
+      CHECK(
+        evaluate(R"(vec(1, 2, 3) == "a")")
+        == Error{"At line 1, column 14: Cannot evaluate expression 'vec(1, 2, 3) == "
+                 "\"a\"': At line 1, column 17: Cannot convert value '\"a\"' of type "
+                 "'String' to type 'Vec3'"});
+    }
+  }
+
   SECTION("Subscript")
   {
     using T = std::tuple<std::string, Result<Value>>;
@@ -1259,6 +1369,37 @@ TEST_CASE("Expression")
       evaluate("f([] + true)")
       == Error{"At line 1, column 6: Cannot evaluate expression '[] + true': Invalid "
                "operand types Array and Boolean"});
+
+    SECTION("vec")
+    {
+      CHECK(evaluate("vec(1, 2, 3)") == Value{Vec3Type{1, 2, 3}});
+      CHECK(evaluate("vec(1.5, -2, 0)") == Value{Vec3Type{1.5, -2.0, 0.0}});
+
+      // arguments don't have to be literals
+      CHECK(evaluate("vec(1 + 1, 2 * 2, 3 - 1)") == Value{Vec3Type{2, 4, 2}});
+
+      // arguments are converted to numbers, and an undefined argument yields undefined
+      CHECK(evaluate(R"(vec("2", "2", true))") == Value{Vec3Type{2, 2, 1}});
+      CHECK(evaluate("vec(undefined, 2, 3)") == Value::Undefined);
+      CHECK(
+        evaluate(R"(vec("a", 2, 3))")
+        == Error{"At line 1, column 1: Cannot evaluate expression 'vec(\"a\", 2, 3)': "
+                 "At line 1, column 5: Cannot convert value '\"a\"' of type 'String' to "
+                 "type 'Number'"});
+
+      CHECK(
+        evaluate("vec()")
+        == Error{"At line 1, column 1: Cannot evaluate expression 'vec()': vec() "
+                 "expects 3 arguments, but got 0"});
+      CHECK(
+        evaluate("vec(1, 2)")
+        == Error{"At line 1, column 1: Cannot evaluate expression 'vec(1, 2)': vec() "
+                 "expects 3 arguments, but got 2"});
+      CHECK(
+        evaluate("vec(1, 2, 3, 4)")
+        == Error{"At line 1, column 1: Cannot evaluate expression 'vec(1, 2, 3, 4)': "
+                 "vec() expects 3 arguments, but got 4"});
+    }
   }
 
   SECTION("Switch")
@@ -1370,6 +1511,7 @@ TEST_CASE("Expression")
     {"[1 + 'a', 2]",       {},                  Value{ArrayType{Value::Undefined, Value{2.0}}}},
     {"{a: 1 + 'a'}",       {},                  Value{MapType{{"a", Value::Undefined}}}},
     {"1[0]",               {},                  Value::Undefined},
+    {"vec('a', 2, 3)",     {},                  Value::Undefined},
     }));
     // clang-format on
 
@@ -1423,6 +1565,10 @@ TEST_CASE("Expression")
     // Dot access expressions
     {"{a:1}.a",                 lit(1)},
     {"x.a",                     dot(var("x"), "a")},
+
+    // Function calls
+    {"vec(1, 2, 3)",            lit(Vec3Type{1, 2, 3})},
+    {"vec(x, 2, 3)",            call("vec", {var("x"), lit(2), lit(3)})},
 
     // An operand that isn't constant is never evaluated, so an operation that fails for
     // an undefined operand doesn't prevent the expression from being optimized
