@@ -118,6 +118,8 @@ private:
   ExpressionNode parseSubscriptOrDotAccess(ExpressionNode lhs);
   ExpressionNode parseSubscript(ExpressionNode lhs);
   ExpressionNode parseDotAccess(ExpressionNode lhs);
+  ExpressionNode parseCallOrVariable();
+  ExpressionNode parseCall(const Token& nameToken);
   ExpressionNode parseVariable();
   ExpressionNode parseLiteral();
   ExpressionNode parseArray();

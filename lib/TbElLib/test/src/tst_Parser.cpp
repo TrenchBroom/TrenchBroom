@@ -309,6 +309,35 @@ asdf)")
     CHECK(parse("1.5 + a.b") == add(lit(1.5), dot(var("a"), "b")));
   }
 
+  SECTION("Function calls")
+  {
+    CHECK(parse("f()") == call("f"));
+    CHECK(parse("f(1)") == call("f", {lit(1)}));
+    CHECK(parse("f(1, 2, 3)") == call("f", {lit(1), lit(2), lit(3)}));
+    CHECK(parse("f(1 + 2)") == call("f", {add(lit(1), lit(2))}));
+
+    // nested calls
+    CHECK(parse("f(g())") == call("f", {call("g")}));
+    CHECK(parse("f(g(1), 2)") == call("f", {call("g", {lit(1)}), lit(2)}));
+
+    // composes with dot-access and bracket subscript
+    CHECK(parse("f().x") == dot(call("f"), "x"));
+    CHECK(parse("f()[0]") == scr(call("f"), lit(0)));
+    CHECK(parse("f(a.b)") == call("f", {dot(var("a"), "b")}));
+
+    // whitespace between the name and '(' doesn't change anything
+    CHECK(parse("f (1)") == call("f", {lit(1)}));
+
+    // a Name NOT followed by '(' is still a plain variable, unaffected by any of this
+    CHECK(parse("f") == var("f"));
+    CHECK(parse("f + 1") == add(var("f"), lit(1)));
+
+    // malformed call syntax is still a parse error
+    CHECK(parse("f(").is_error());
+    CHECK(parse("f(1,)").is_error());
+    CHECK(parse("f(,1)").is_error());
+  }
+
   SECTION("Switch")
   {
     CHECK(parse("{{}}") == swt({}));

@@ -413,7 +413,7 @@ ExpressionNode Parser::parseSimpleTerm()
   }
   if (token.hasType(ElToken::Name))
   {
-    return parseVariable();
+    return parseCallOrVariable();
   }
   return parseLiteral();
 }
@@ -457,6 +457,41 @@ ExpressionNode Parser::parseDotAccess(ExpressionNode lhs)
 
   return ExpressionNode{
     DotExpression{std::move(lhs), nameToken.data()}, dotToken.location()};
+}
+
+ExpressionNode Parser::parseCallOrVariable()
+{
+  const auto snapshot = m_tokenizer.snapshot();
+  const auto nameToken = m_tokenizer.nextToken(ElToken::Name);
+  if (m_tokenizer.peekToken().hasType(ElToken::OParen))
+  {
+    return parseCall(nameToken);
+  }
+  m_tokenizer.restore(snapshot);
+
+  return parseVariable();
+}
+
+ExpressionNode Parser::parseCall(const Token& nameToken)
+{
+  m_tokenizer.nextToken(ElToken::OParen);
+
+  auto arguments = std::vector<ExpressionNode>{};
+  if (!m_tokenizer.peekToken().hasType(ElToken::CParen))
+  {
+    do
+    {
+      arguments.push_back(parseTerm());
+    } while (
+      m_tokenizer.nextToken(ElToken::Comma | ElToken::CParen).hasType(ElToken::Comma));
+  }
+  else
+  {
+    m_tokenizer.nextToken();
+  }
+
+  return ExpressionNode{
+    CallExpression{nameToken.data(), std::move(arguments)}, nameToken.location()};
 }
 
 ExpressionNode Parser::parseVariable()
