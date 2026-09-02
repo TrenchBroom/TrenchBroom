@@ -2479,6 +2479,8 @@ In ENT files, the model definitions are given as XML attribute values of the `<p
 
     <point model="..." />
 
+ENT files often give a plain model path without quotes, such as `<point model="progs/armor.mdl" />`. Therefore, TrenchBroom only interprets the attribute value as an expression if it starts with a brace or a quote. Any other value is used as the model path as is.
+
 Thereby, the ellipsis contains the actual information about the model to display. You can use TrenchBroom's [expression language](#expression_language) to define the actual models. Each entity definition should contain only one model definition, and the expression in the model definition should evaluate either to a value of type string or to a value of type map. If the expression evaluates to a map, it must have the following structure:
 
     {
