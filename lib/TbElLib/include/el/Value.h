@@ -44,6 +44,7 @@ private:
     MapType,
     RangeType,
     Vec3Type,
+    BBoxType,
     NullType,
     UndefinedType>;
   std::shared_ptr<VariantType> m_value;
@@ -68,6 +69,7 @@ public:
   explicit Value(MapType value);
   explicit Value(RangeType value);
   explicit Value(Vec3Type value);
+  explicit Value(BBoxType value);
   explicit Value(NullType value);
   explicit Value(UndefinedType value);
 
@@ -92,6 +94,7 @@ public:
   const MapType& mapValue() const;
   const RangeType& rangeValue() const;
   const Vec3Type& vec3Value() const;
+  const BBoxType& bboxValue() const;
 
   std::vector<std::string> asStringList() const;
   std::vector<std::string> asStringSet() const;
