@@ -40,6 +40,7 @@ const auto allTypes = std::vector{
   ValueType::Array,
   ValueType::Map,
   ValueType::Range,
+  ValueType::Vec3,
   ValueType::Null,
   ValueType::Undefined,
 };
@@ -60,6 +61,7 @@ std::vector<ValueType> convertibleTypes(const Value& value)
 const auto boundedRange = Value{RangeType{BoundedRange{1, 3}}};
 const auto leftBoundedRange = Value{RangeType{LeftBoundedRange{2}}};
 const auto rightBoundedRange = Value{RangeType{RightBoundedRange{5}}};
+const auto vec3 = Value{Vec3Type{1, 2, 3}};
 
 } // namespace
 
@@ -79,6 +81,7 @@ TEST_CASE("Value")
     CHECK(Value{ArrayType{}}.type() == ValueType::Array);
     CHECK(Value{MapType{}}.type() == ValueType::Map);
     CHECK(Value{RangeType{BoundedRange{1, 3}}}.type() == ValueType::Range);
+    CHECK(Value{Vec3Type{1, 2, 3}}.type() == ValueType::Vec3);
     CHECK(Value{NullType::Value}.type() == ValueType::Null);
     CHECK(Value{UndefinedType::Value}.type() == ValueType::Undefined);
 
@@ -208,6 +211,7 @@ TEST_CASE("Value")
       CHECK_THROWS_AS(Value{1.0}.arrayValue(), DereferenceError);
       CHECK_THROWS_AS(Value{MapType{}}.arrayValue(), DereferenceError);
       CHECK_THROWS_AS(boundedRange.arrayValue(), DereferenceError);
+      CHECK_THROWS_AS(vec3.arrayValue(), DereferenceError);
       CHECK_THROWS_AS(Value::Undefined.arrayValue(), DereferenceError);
     }).ignore();
 
@@ -229,6 +233,7 @@ TEST_CASE("Value")
       CHECK_THROWS_AS(Value{1.0}.mapValue(), DereferenceError);
       CHECK_THROWS_AS(Value{ArrayType{}}.mapValue(), DereferenceError);
       CHECK_THROWS_AS(boundedRange.mapValue(), DereferenceError);
+      CHECK_THROWS_AS(vec3.mapValue(), DereferenceError);
       CHECK_THROWS_AS(Value::Undefined.mapValue(), DereferenceError);
     }).ignore();
 
@@ -250,6 +255,7 @@ TEST_CASE("Value")
       CHECK_THROWS_AS(Value{1.0}.rangeValue(), DereferenceError);
       CHECK_THROWS_AS(Value{ArrayType{}}.rangeValue(), DereferenceError);
       CHECK_THROWS_AS(Value{MapType{}}.rangeValue(), DereferenceError);
+      CHECK_THROWS_AS(vec3.rangeValue(), DereferenceError);
 
       // unlike the other accessors, a range cannot be dereferenced from null
       CHECK_THROWS_AS(Value::Null.rangeValue(), DereferenceError);
@@ -260,6 +266,28 @@ TEST_CASE("Value")
       withEvaluationContext([](auto&) { Value{"test"}.rangeValue(); })
       == Result<void>{Error{
         R"(At unknown location: Cannot dereference value '"test"' of type 'String' as type 'Range')"}});
+  }
+
+  SECTION("vec3Value")
+  {
+    withEvaluationContext([](auto&) {
+      CHECK(vec3.vec3Value() == Vec3Type{1, 2, 3});
+
+      CHECK_THROWS_AS(Value{true}.vec3Value(), DereferenceError);
+      CHECK_THROWS_AS(Value{"test"}.vec3Value(), DereferenceError);
+      CHECK_THROWS_AS(Value{1.0}.vec3Value(), DereferenceError);
+      CHECK_THROWS_AS(Value{ArrayType{}}.vec3Value(), DereferenceError);
+      CHECK_THROWS_AS(Value{MapType{}}.vec3Value(), DereferenceError);
+      CHECK_THROWS_AS(boundedRange.vec3Value(), DereferenceError);
+
+      CHECK_THROWS_AS(Value::Null.vec3Value(), DereferenceError);
+      CHECK_THROWS_AS(Value::Undefined.vec3Value(), DereferenceError);
+    }).ignore();
+
+    CHECK(
+      withEvaluationContext([](auto&) { Value{"test"}.vec3Value(); })
+      == Result<void>{Error{
+        R"(At unknown location: Cannot dereference value '"test"' of type 'String' as type 'Vec3')"}});
   }
 
   SECTION("asStringList")
@@ -299,6 +327,7 @@ TEST_CASE("Value")
     CHECK(Value{MapType{}}.length() == 0u);
     CHECK(Value{MapType{{"key", Value{1.0}}}}.length() == 1u);
     CHECK(boundedRange.length() == 2u);
+    CHECK(vec3.length() == 3u);
     CHECK(Value::Null.length() == 0u);
     CHECK(Value::Undefined.length() == 0u);
   }
@@ -311,10 +340,12 @@ TEST_CASE("Value")
     CHECK(convertibleTypes(Value{"test"}) == std::vector{Boolean, String});
     CHECK(convertibleTypes(Value{"2.0"}) == std::vector{Boolean, String, Number});
     CHECK(convertibleTypes(Value{" "}) == std::vector{Boolean, String, Number});
+    CHECK(convertibleTypes(Value{"1 2 3"}) == std::vector{Boolean, String, Number, Vec3});
     CHECK(convertibleTypes(Value{1.0}) == std::vector{Boolean, String, Number});
     CHECK(convertibleTypes(Value{ArrayType{}}) == std::vector{Array});
     CHECK(convertibleTypes(Value{MapType{}}) == std::vector{Map});
     CHECK(convertibleTypes(boundedRange) == std::vector{Range});
+    CHECK(convertibleTypes(vec3) == std::vector{String, Vec3});
     CHECK(
       convertibleTypes(Value::Null)
       == std::vector{Boolean, String, Number, Array, Map, Null});
@@ -333,6 +364,7 @@ TEST_CASE("Value")
       CHECK_THROWS_AS(Value{true}.convertTo(ValueType::Array), ConversionError);
       CHECK_THROWS_AS(Value{true}.convertTo(ValueType::Map), ConversionError);
       CHECK_THROWS_AS(Value{true}.convertTo(ValueType::Range), ConversionError);
+      CHECK_THROWS_AS(Value{true}.convertTo(ValueType::Vec3), ConversionError);
       CHECK_THROWS_AS(Value{true}.convertTo(ValueType::Null), ConversionError);
       CHECK_THROWS_AS(Value{true}.convertTo(ValueType::Undefined), ConversionError);
 
@@ -343,10 +375,16 @@ TEST_CASE("Value")
       CHECK(Value{"2"}.convertTo(ValueType::Number) == Value{2});
       CHECK(Value{"-2.0"}.convertTo(ValueType::Number) == Value{-2});
       CHECK(Value{" "}.convertTo(ValueType::Number) == Value{0});
+      // "1.2 3 4", the format entity properties like "origin" use
+      CHECK(Value{"1 2 3"}.convertTo(ValueType::Vec3) == Value{Vec3Type{1, 2, 3}});
+      CHECK(
+        Value{"1.2 3 4"}.convertTo(ValueType::Vec3) == Value{Vec3Type{1.2, 3.0, 4.0}});
+      CHECK_THROWS_AS(Value{"1 2"}.convertTo(ValueType::Vec3), ConversionError);
       CHECK_THROWS_AS(Value{"asdf"}.convertTo(ValueType::Number), ConversionError);
       CHECK_THROWS_AS(Value{"asdf"}.convertTo(ValueType::Array), ConversionError);
       CHECK_THROWS_AS(Value{"asfd"}.convertTo(ValueType::Map), ConversionError);
       CHECK_THROWS_AS(Value{"asdf"}.convertTo(ValueType::Range), ConversionError);
+      CHECK_THROWS_AS(Value{"asdf"}.convertTo(ValueType::Vec3), ConversionError);
       CHECK_THROWS_AS(Value{"asdf"}.convertTo(ValueType::Null), ConversionError);
       CHECK_THROWS_AS(Value{"asdf"}.convertTo(ValueType::Undefined), ConversionError);
 
@@ -363,6 +401,7 @@ TEST_CASE("Value")
       CHECK_THROWS_AS(Value{1}.convertTo(ValueType::Array), ConversionError);
       CHECK_THROWS_AS(Value{2}.convertTo(ValueType::Map), ConversionError);
       CHECK_THROWS_AS(Value{3}.convertTo(ValueType::Range), ConversionError);
+      CHECK_THROWS_AS(Value{6}.convertTo(ValueType::Vec3), ConversionError);
       CHECK_THROWS_AS(Value{4}.convertTo(ValueType::Null), ConversionError);
       CHECK_THROWS_AS(Value{5}.convertTo(ValueType::Undefined), ConversionError);
 
@@ -372,6 +411,7 @@ TEST_CASE("Value")
       CHECK(Value{ArrayType{}}.convertTo(ValueType::Array) == Value{ArrayType{}});
       CHECK_THROWS_AS(Value{ArrayType{}}.convertTo(ValueType::Map), ConversionError);
       CHECK_THROWS_AS(Value{ArrayType{}}.convertTo(ValueType::Range), ConversionError);
+      CHECK_THROWS_AS(Value{ArrayType{}}.convertTo(ValueType::Vec3), ConversionError);
       CHECK_THROWS_AS(Value{ArrayType{}}.convertTo(ValueType::Null), ConversionError);
       CHECK_THROWS_AS(
         Value{ArrayType{}}.convertTo(ValueType::Undefined), ConversionError);
@@ -382,6 +422,7 @@ TEST_CASE("Value")
       CHECK_THROWS_AS(Value{MapType{}}.convertTo(ValueType::Array), ConversionError);
       CHECK(Value{MapType{}}.convertTo(ValueType::Map) == Value{MapType{}});
       CHECK_THROWS_AS(Value{MapType{}}.convertTo(ValueType::Range), ConversionError);
+      CHECK_THROWS_AS(Value{MapType{}}.convertTo(ValueType::Vec3), ConversionError);
       CHECK_THROWS_AS(Value{MapType{}}.convertTo(ValueType::Null), ConversionError);
       CHECK_THROWS_AS(Value{MapType{}}.convertTo(ValueType::Undefined), ConversionError);
 
@@ -391,8 +432,20 @@ TEST_CASE("Value")
       CHECK_THROWS_AS(boundedRange.convertTo(ValueType::Array), ConversionError);
       CHECK_THROWS_AS(boundedRange.convertTo(ValueType::Map), ConversionError);
       CHECK(boundedRange.convertTo(ValueType::Range) == boundedRange);
+      CHECK_THROWS_AS(boundedRange.convertTo(ValueType::Vec3), ConversionError);
       CHECK_THROWS_AS(boundedRange.convertTo(ValueType::Null), ConversionError);
       CHECK_THROWS_AS(boundedRange.convertTo(ValueType::Undefined), ConversionError);
+
+      CHECK_THROWS_AS(vec3.convertTo(ValueType::Boolean), ConversionError);
+      // "1.2 3 4", the format entity properties like "origin" use
+      CHECK(vec3.convertTo(ValueType::String) == Value{"1 2 3"});
+      CHECK_THROWS_AS(vec3.convertTo(ValueType::Number), ConversionError);
+      CHECK_THROWS_AS(vec3.convertTo(ValueType::Array), ConversionError);
+      CHECK_THROWS_AS(vec3.convertTo(ValueType::Map), ConversionError);
+      CHECK_THROWS_AS(vec3.convertTo(ValueType::Range), ConversionError);
+      CHECK(vec3.convertTo(ValueType::Vec3) == vec3);
+      CHECK_THROWS_AS(vec3.convertTo(ValueType::Null), ConversionError);
+      CHECK_THROWS_AS(vec3.convertTo(ValueType::Undefined), ConversionError);
 
       CHECK(Value::Null.convertTo(ValueType::Boolean) == Value{false});
       CHECK(Value::Null.convertTo(ValueType::String) == Value{""});
@@ -400,6 +453,7 @@ TEST_CASE("Value")
       CHECK(Value::Null.convertTo(ValueType::Array) == Value{ArrayType{}});
       CHECK(Value::Null.convertTo(ValueType::Map) == Value{MapType{}});
       CHECK_THROWS_AS(Value::Null.convertTo(ValueType::Range), ConversionError);
+      CHECK_THROWS_AS(Value::Null.convertTo(ValueType::Vec3), ConversionError);
       CHECK(Value::Null.convertTo(ValueType::Null) == Value::Null);
       CHECK_THROWS_AS(Value::Null.convertTo(ValueType::Undefined), ConversionError);
 
@@ -409,6 +463,7 @@ TEST_CASE("Value")
       CHECK_THROWS_AS(Value::Undefined.convertTo(ValueType::Array), ConversionError);
       CHECK_THROWS_AS(Value::Undefined.convertTo(ValueType::Map), ConversionError);
       CHECK_THROWS_AS(Value::Undefined.convertTo(ValueType::Range), ConversionError);
+      CHECK_THROWS_AS(Value::Undefined.convertTo(ValueType::Vec3), ConversionError);
       CHECK_THROWS_AS(Value::Undefined.convertTo(ValueType::Null), ConversionError);
       CHECK(Value::Undefined.convertTo(ValueType::Undefined) == Value::Undefined);
     }).ignore();
@@ -451,6 +506,7 @@ TEST_CASE("Value")
       CHECK(boundedRange.asString() == "[1..3]");
       CHECK(leftBoundedRange.asString() == "[2..]");
       CHECK(rightBoundedRange.asString() == "[..5]");
+      CHECK(vec3.asString() == "vec(1, 2, 3)");
       CHECK(Value::Null.asString() == "null");
       CHECK(Value::Undefined.asString() == "undefined");
     }
@@ -501,6 +557,7 @@ TEST_CASE("Value")
         CHECK(!Value{true}.contains(0));
         CHECK(!Value{1.0}.contains(0));
         CHECK(!boundedRange.contains(0));
+        CHECK(!vec3.contains(0));
         CHECK(!Value::Null.contains(0));
         CHECK(!Value::Undefined.contains(0));
       }).ignore();
@@ -552,6 +609,7 @@ TEST_CASE("Value")
         CHECK_THROWS_AS(Value{true}.at(0), IndexError);
         CHECK_THROWS_AS(Value{1.0}.at(0), IndexError);
         CHECK_THROWS_AS(boundedRange.at(0), IndexError);
+        CHECK_THROWS_AS(vec3.at(0), IndexError);
         CHECK_THROWS_AS(Value::Null.at(0), IndexError);
         CHECK_THROWS_AS(Value::Undefined.at(0), IndexError);
       }).ignore();
@@ -569,6 +627,7 @@ TEST_CASE("Value")
         CHECK_THROWS_AS(Value{true}.at("a"), IndexError);
         CHECK_THROWS_AS(Value{1.0}.at("a"), IndexError);
         CHECK_THROWS_AS(boundedRange.at("a"), IndexError);
+        CHECK_THROWS_AS(vec3.at("a"), IndexError);
         CHECK_THROWS_AS(Value::Null.at("a"), IndexError);
         CHECK_THROWS_AS(Value::Undefined.at("a"), IndexError);
       }).ignore();
@@ -594,6 +653,7 @@ TEST_CASE("Value")
         CHECK_THROWS_AS(Value{true}.atOrDefault(0), IndexError);
         CHECK_THROWS_AS(Value{1.0}.atOrDefault(0), IndexError);
         CHECK_THROWS_AS(boundedRange.atOrDefault(0), IndexError);
+        CHECK_THROWS_AS(vec3.atOrDefault(0), IndexError);
         CHECK_THROWS_AS(Value::Null.atOrDefault(0), IndexError);
         CHECK_THROWS_AS(Value::Undefined.atOrDefault(0), IndexError);
       }).ignore();
@@ -612,6 +672,7 @@ TEST_CASE("Value")
         CHECK_THROWS_AS(Value{true}.atOrDefault("a"), IndexError);
         CHECK_THROWS_AS(Value{1.0}.atOrDefault("a"), IndexError);
         CHECK_THROWS_AS(boundedRange.atOrDefault("a"), IndexError);
+        CHECK_THROWS_AS(vec3.atOrDefault("a"), IndexError);
         CHECK_THROWS_AS(Value::Null.atOrDefault("a"), IndexError);
         CHECK_THROWS_AS(Value::Undefined.atOrDefault("a"), IndexError);
       }).ignore();
@@ -632,6 +693,8 @@ TEST_CASE("Value")
     CHECK_FALSE(Value{MapType{{"a", Value{1.0}}}} == Value{MapType{}});
     CHECK(boundedRange == Value{RangeType{BoundedRange{1, 3}}});
     CHECK_FALSE(boundedRange == leftBoundedRange);
+    CHECK(vec3 == Value{Vec3Type{1, 2, 3}});
+    CHECK_FALSE(vec3 == Value{Vec3Type{1, 2, 4}});
     CHECK(Value::Null == Value{});
     CHECK(Value::Undefined == Value{UndefinedType::Value});
 
