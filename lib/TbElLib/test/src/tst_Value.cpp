@@ -43,6 +43,7 @@ const auto allTypes = std::vector{
   ValueType::Map,
   ValueType::Range,
   ValueType::Vec3,
+  ValueType::BBox,
   ValueType::Null,
   ValueType::Undefined,
 };
@@ -64,6 +65,7 @@ const auto boundedRange = Value{RangeType{BoundedRange{1, 3}}};
 const auto leftBoundedRange = Value{RangeType{LeftBoundedRange{2}}};
 const auto rightBoundedRange = Value{RangeType{RightBoundedRange{5}}};
 const auto vec3 = Value{Vec3Type{1, 2, 3}};
+const auto bbox = Value{BBoxType{Vec3Type{1, 2, 3}, Vec3Type{4, 5, 6}}};
 
 } // namespace
 
@@ -84,6 +86,8 @@ TEST_CASE("Value")
     CHECK(Value{MapType{}}.type() == ValueType::Map);
     CHECK(Value{RangeType{BoundedRange{1, 3}}}.type() == ValueType::Range);
     CHECK(Value{Vec3Type{1, 2, 3}}.type() == ValueType::Vec3);
+    CHECK(
+      Value{BBoxType{Vec3Type{1, 2, 3}, Vec3Type{4, 5, 6}}}.type() == ValueType::BBox);
     CHECK(Value{NullType::Value}.type() == ValueType::Null);
     CHECK(Value{UndefinedType::Value}.type() == ValueType::Undefined);
 
@@ -205,6 +209,7 @@ TEST_CASE("Value")
     CHECK_THROWS_AS(Value{MapType{}}.arrayValue(), DereferenceError);
     CHECK_THROWS_AS(boundedRange.arrayValue(), DereferenceError);
     CHECK_THROWS_AS(vec3.arrayValue(), DereferenceError);
+    CHECK_THROWS_AS(bbox.arrayValue(), DereferenceError);
     CHECK_THROWS_AS(Value::Undefined.arrayValue(), DereferenceError);
 
     CHECK(
@@ -224,6 +229,7 @@ TEST_CASE("Value")
     CHECK_THROWS_AS(Value{ArrayType{}}.mapValue(), DereferenceError);
     CHECK_THROWS_AS(boundedRange.mapValue(), DereferenceError);
     CHECK_THROWS_AS(vec3.mapValue(), DereferenceError);
+    CHECK_THROWS_AS(bbox.mapValue(), DereferenceError);
     CHECK_THROWS_AS(Value::Undefined.mapValue(), DereferenceError);
 
     CHECK(
@@ -244,6 +250,7 @@ TEST_CASE("Value")
     CHECK_THROWS_AS(Value{ArrayType{}}.rangeValue(), DereferenceError);
     CHECK_THROWS_AS(Value{MapType{}}.rangeValue(), DereferenceError);
     CHECK_THROWS_AS(vec3.rangeValue(), DereferenceError);
+    CHECK_THROWS_AS(bbox.rangeValue(), DereferenceError);
 
     // unlike the other accessors, a range cannot be dereferenced from null
     CHECK_THROWS_AS(Value::Null.rangeValue(), DereferenceError);
@@ -265,6 +272,7 @@ TEST_CASE("Value")
     CHECK_THROWS_AS(Value{ArrayType{}}.vec3Value(), DereferenceError);
     CHECK_THROWS_AS(Value{MapType{}}.vec3Value(), DereferenceError);
     CHECK_THROWS_AS(boundedRange.vec3Value(), DereferenceError);
+    CHECK_THROWS_AS(bbox.vec3Value(), DereferenceError);
 
     CHECK_THROWS_AS(Value::Null.vec3Value(), DereferenceError);
     CHECK_THROWS_AS(Value::Undefined.vec3Value(), DereferenceError);
@@ -273,6 +281,27 @@ TEST_CASE("Value")
       withEvaluationContext([](auto&) { Value{"test"}.vec3Value(); })
       == Result<void>{Error{
         R"(At unknown location: Cannot dereference value '"test"' of type 'String' as type 'Vec3')"}});
+  }
+
+  SECTION("bboxValue")
+  {
+    CHECK(bbox.bboxValue() == BBoxType{Vec3Type{1, 2, 3}, Vec3Type{4, 5, 6}});
+
+    CHECK_THROWS_AS(Value{true}.bboxValue(), DereferenceError);
+    CHECK_THROWS_AS(Value{"test"}.bboxValue(), DereferenceError);
+    CHECK_THROWS_AS(Value{1.0}.bboxValue(), DereferenceError);
+    CHECK_THROWS_AS(Value{ArrayType{}}.bboxValue(), DereferenceError);
+    CHECK_THROWS_AS(Value{MapType{}}.bboxValue(), DereferenceError);
+    CHECK_THROWS_AS(boundedRange.bboxValue(), DereferenceError);
+    CHECK_THROWS_AS(vec3.bboxValue(), DereferenceError);
+
+    CHECK_THROWS_AS(Value::Null.bboxValue(), DereferenceError);
+    CHECK_THROWS_AS(Value::Undefined.bboxValue(), DereferenceError);
+
+    CHECK(
+      withEvaluationContext([](auto&) { Value{"test"}.bboxValue(); })
+      == Result<void>{Error{
+        R"(At unknown location: Cannot dereference value '"test"' of type 'String' as type 'BBox')"}});
   }
 
   SECTION("asStringList")
@@ -309,6 +338,7 @@ TEST_CASE("Value")
     CHECK(Value{MapType{{"key", Value{1.0}}}}.length() == 1u);
     CHECK(boundedRange.length() == 2u);
     CHECK(vec3.length() == 3u);
+    CHECK(bbox.length() == 2u);
     CHECK(Value::Null.length() == 0u);
     CHECK(Value::Undefined.length() == 0u);
   }
@@ -329,6 +359,7 @@ TEST_CASE("Value")
     CHECK(convertibleTypes(Value{MapType{}}) == std::vector{Map});
     CHECK(convertibleTypes(boundedRange) == std::vector{Range});
     CHECK(convertibleTypes(vec3) == std::vector{String, Vec3});
+    CHECK(convertibleTypes(bbox) == std::vector{BBox});
     CHECK(
       convertibleTypes(Value::Null)
       == std::vector{Boolean, String, Number, Array, Map, Null});
@@ -347,6 +378,7 @@ TEST_CASE("Value")
     CHECK_THROWS_AS(Value{true}.convertTo(ValueType::Map), ConversionError);
     CHECK_THROWS_AS(Value{true}.convertTo(ValueType::Range), ConversionError);
     CHECK_THROWS_AS(Value{true}.convertTo(ValueType::Vec3), ConversionError);
+    CHECK_THROWS_AS(Value{true}.convertTo(ValueType::BBox), ConversionError);
     CHECK_THROWS_AS(Value{true}.convertTo(ValueType::Null), ConversionError);
     CHECK_THROWS_AS(Value{true}.convertTo(ValueType::Undefined), ConversionError);
 
@@ -370,6 +402,7 @@ TEST_CASE("Value")
     CHECK_THROWS_AS(Value{"asfd"}.convertTo(ValueType::Map), ConversionError);
     CHECK_THROWS_AS(Value{"asdf"}.convertTo(ValueType::Range), ConversionError);
     CHECK_THROWS_AS(Value{"asdf"}.convertTo(ValueType::Vec3), ConversionError);
+    CHECK_THROWS_AS(Value{"asdf"}.convertTo(ValueType::BBox), ConversionError);
     CHECK_THROWS_AS(Value{"asdf"}.convertTo(ValueType::Null), ConversionError);
     CHECK_THROWS_AS(Value{"asdf"}.convertTo(ValueType::Undefined), ConversionError);
 
@@ -387,6 +420,7 @@ TEST_CASE("Value")
     CHECK_THROWS_AS(Value{2}.convertTo(ValueType::Map), ConversionError);
     CHECK_THROWS_AS(Value{3}.convertTo(ValueType::Range), ConversionError);
     CHECK_THROWS_AS(Value{6}.convertTo(ValueType::Vec3), ConversionError);
+    CHECK_THROWS_AS(Value{7}.convertTo(ValueType::BBox), ConversionError);
     CHECK_THROWS_AS(Value{4}.convertTo(ValueType::Null), ConversionError);
     CHECK_THROWS_AS(Value{5}.convertTo(ValueType::Undefined), ConversionError);
 
@@ -397,6 +431,7 @@ TEST_CASE("Value")
     CHECK_THROWS_AS(Value{ArrayType{}}.convertTo(ValueType::Map), ConversionError);
     CHECK_THROWS_AS(Value{ArrayType{}}.convertTo(ValueType::Range), ConversionError);
     CHECK_THROWS_AS(Value{ArrayType{}}.convertTo(ValueType::Vec3), ConversionError);
+    CHECK_THROWS_AS(Value{ArrayType{}}.convertTo(ValueType::BBox), ConversionError);
     CHECK_THROWS_AS(Value{ArrayType{}}.convertTo(ValueType::Null), ConversionError);
     CHECK_THROWS_AS(Value{ArrayType{}}.convertTo(ValueType::Undefined), ConversionError);
 
@@ -407,6 +442,7 @@ TEST_CASE("Value")
     CHECK(Value{MapType{}}.convertTo(ValueType::Map) == Value{MapType{}});
     CHECK_THROWS_AS(Value{MapType{}}.convertTo(ValueType::Range), ConversionError);
     CHECK_THROWS_AS(Value{MapType{}}.convertTo(ValueType::Vec3), ConversionError);
+    CHECK_THROWS_AS(Value{MapType{}}.convertTo(ValueType::BBox), ConversionError);
     CHECK_THROWS_AS(Value{MapType{}}.convertTo(ValueType::Null), ConversionError);
     CHECK_THROWS_AS(Value{MapType{}}.convertTo(ValueType::Undefined), ConversionError);
 
@@ -417,6 +453,7 @@ TEST_CASE("Value")
     CHECK_THROWS_AS(boundedRange.convertTo(ValueType::Map), ConversionError);
     CHECK(boundedRange.convertTo(ValueType::Range) == boundedRange);
     CHECK_THROWS_AS(boundedRange.convertTo(ValueType::Vec3), ConversionError);
+    CHECK_THROWS_AS(boundedRange.convertTo(ValueType::BBox), ConversionError);
     CHECK_THROWS_AS(boundedRange.convertTo(ValueType::Null), ConversionError);
     CHECK_THROWS_AS(boundedRange.convertTo(ValueType::Undefined), ConversionError);
 
@@ -432,8 +469,20 @@ TEST_CASE("Value")
     CHECK_THROWS_AS(vec3.convertTo(ValueType::Map), ConversionError);
     CHECK_THROWS_AS(vec3.convertTo(ValueType::Range), ConversionError);
     CHECK(vec3.convertTo(ValueType::Vec3) == vec3);
+    CHECK_THROWS_AS(vec3.convertTo(ValueType::BBox), ConversionError);
     CHECK_THROWS_AS(vec3.convertTo(ValueType::Null), ConversionError);
     CHECK_THROWS_AS(vec3.convertTo(ValueType::Undefined), ConversionError);
+
+    CHECK_THROWS_AS(bbox.convertTo(ValueType::Boolean), ConversionError);
+    CHECK_THROWS_AS(bbox.convertTo(ValueType::String), ConversionError);
+    CHECK_THROWS_AS(bbox.convertTo(ValueType::Number), ConversionError);
+    CHECK_THROWS_AS(bbox.convertTo(ValueType::Array), ConversionError);
+    CHECK_THROWS_AS(bbox.convertTo(ValueType::Map), ConversionError);
+    CHECK_THROWS_AS(bbox.convertTo(ValueType::Range), ConversionError);
+    CHECK_THROWS_AS(bbox.convertTo(ValueType::Vec3), ConversionError);
+    CHECK(bbox.convertTo(ValueType::BBox) == bbox);
+    CHECK_THROWS_AS(bbox.convertTo(ValueType::Null), ConversionError);
+    CHECK_THROWS_AS(bbox.convertTo(ValueType::Undefined), ConversionError);
 
     CHECK(Value::Null.convertTo(ValueType::Boolean) == Value{false});
     CHECK(Value::Null.convertTo(ValueType::String) == Value{""});
@@ -442,6 +491,7 @@ TEST_CASE("Value")
     CHECK(Value::Null.convertTo(ValueType::Map) == Value{MapType{}});
     CHECK_THROWS_AS(Value::Null.convertTo(ValueType::Range), ConversionError);
     CHECK_THROWS_AS(Value::Null.convertTo(ValueType::Vec3), ConversionError);
+    CHECK_THROWS_AS(Value::Null.convertTo(ValueType::BBox), ConversionError);
     CHECK(Value::Null.convertTo(ValueType::Null) == Value::Null);
     CHECK_THROWS_AS(Value::Null.convertTo(ValueType::Undefined), ConversionError);
 
@@ -452,6 +502,7 @@ TEST_CASE("Value")
     CHECK_THROWS_AS(Value::Undefined.convertTo(ValueType::Map), ConversionError);
     CHECK_THROWS_AS(Value::Undefined.convertTo(ValueType::Range), ConversionError);
     CHECK_THROWS_AS(Value::Undefined.convertTo(ValueType::Vec3), ConversionError);
+    CHECK_THROWS_AS(Value::Undefined.convertTo(ValueType::BBox), ConversionError);
     CHECK_THROWS_AS(Value::Undefined.convertTo(ValueType::Null), ConversionError);
     CHECK(Value::Undefined.convertTo(ValueType::Undefined) == Value::Undefined);
   }
@@ -492,6 +543,7 @@ TEST_CASE("Value")
       CHECK(leftBoundedRange.asString() == "[2..]");
       CHECK(rightBoundedRange.asString() == "[..5]");
       CHECK(vec3.asString() == "vec(1, 2, 3)");
+      CHECK(bbox.asString() == "bbox(vec(1, 2, 3), vec(4, 5, 6))");
       CHECK(Value::Null.asString() == "null");
       CHECK(Value::Undefined.asString() == "undefined");
     }
@@ -542,6 +594,7 @@ TEST_CASE("Value")
       CHECK(!Value{1.0}.contains(0));
       CHECK(!boundedRange.contains(0));
       CHECK(!vec3.contains(0));
+      CHECK(!bbox.contains(0));
       CHECK(!Value::Null.contains(0));
       CHECK(!Value::Undefined.contains(0));
     }
@@ -588,6 +641,7 @@ TEST_CASE("Value")
       CHECK_THROWS_AS(Value{1.0}.at(0), IndexError);
       CHECK_THROWS_AS(boundedRange.at(0), IndexError);
       CHECK_THROWS_AS(vec3.at(0), IndexError);
+      CHECK_THROWS_AS(bbox.at(0), IndexError);
       CHECK_THROWS_AS(Value::Null.at(0), IndexError);
       CHECK_THROWS_AS(Value::Undefined.at(0), IndexError);
     }
@@ -604,6 +658,7 @@ TEST_CASE("Value")
       CHECK_THROWS_AS(Value{1.0}.at("a"), IndexError);
       CHECK_THROWS_AS(boundedRange.at("a"), IndexError);
       CHECK_THROWS_AS(vec3.at("a"), IndexError);
+      CHECK_THROWS_AS(bbox.at("a"), IndexError);
       CHECK_THROWS_AS(Value::Null.at("a"), IndexError);
       CHECK_THROWS_AS(Value::Undefined.at("a"), IndexError);
     }
@@ -628,6 +683,7 @@ TEST_CASE("Value")
       CHECK_THROWS_AS(Value{1.0}.atOrDefault(0), IndexError);
       CHECK_THROWS_AS(boundedRange.atOrDefault(0), IndexError);
       CHECK_THROWS_AS(vec3.atOrDefault(0), IndexError);
+      CHECK_THROWS_AS(bbox.atOrDefault(0), IndexError);
       CHECK_THROWS_AS(Value::Null.atOrDefault(0), IndexError);
       CHECK_THROWS_AS(Value::Undefined.atOrDefault(0), IndexError);
     }
@@ -645,6 +701,7 @@ TEST_CASE("Value")
       CHECK_THROWS_AS(Value{1.0}.atOrDefault("a"), IndexError);
       CHECK_THROWS_AS(boundedRange.atOrDefault("a"), IndexError);
       CHECK_THROWS_AS(vec3.atOrDefault("a"), IndexError);
+      CHECK_THROWS_AS(bbox.atOrDefault("a"), IndexError);
       CHECK_THROWS_AS(Value::Null.atOrDefault("a"), IndexError);
       CHECK_THROWS_AS(Value::Undefined.atOrDefault("a"), IndexError);
     }
@@ -740,6 +797,8 @@ TEST_CASE("Value")
     CHECK_FALSE(boundedRange == leftBoundedRange);
     CHECK(vec3 == Value{Vec3Type{1, 2, 3}});
     CHECK_FALSE(vec3 == Value{Vec3Type{1, 2, 4}});
+    CHECK(bbox == Value{BBoxType{Vec3Type{1, 2, 3}, Vec3Type{4, 5, 6}}});
+    CHECK_FALSE(bbox == Value{BBoxType{Vec3Type{1, 2, 3}, Vec3Type{4, 5, 7}}});
     CHECK(Value::Null == Value{});
     CHECK(Value::Undefined == Value{UndefinedType::Value});
 

@@ -127,6 +127,8 @@ Value evaluateUnaryPlus(const Value& v, const ExpressionNode& expressionNode)
     [[fallthrough]];
   case ValueType::Range:
     [[fallthrough]];
+  case ValueType::BBox:
+    [[fallthrough]];
   case ValueType::Null:
     [[fallthrough]];
   case ValueType::Undefined:
@@ -157,6 +159,8 @@ Value evaluateUnaryMinus(const Value& v, const ExpressionNode& expressionNode)
     [[fallthrough]];
   case ValueType::Range:
     [[fallthrough]];
+  case ValueType::BBox:
+    [[fallthrough]];
   case ValueType::Null:
     [[fallthrough]];
   case ValueType::Undefined:
@@ -182,6 +186,8 @@ Value evaluateLogicalNegation(const Value& v, const ExpressionNode& expressionNo
   case ValueType::Range:
     [[fallthrough]];
   case ValueType::Vec3:
+    [[fallthrough]];
+  case ValueType::BBox:
     [[fallthrough]];
   case ValueType::Null:
     [[fallthrough]];
@@ -212,6 +218,8 @@ Value evaluateBitwiseNegation(const Value& v, const ExpressionNode& expressionNo
   case ValueType::Range:
     [[fallthrough]];
   case ValueType::Vec3:
+    [[fallthrough]];
+  case ValueType::BBox:
     [[fallthrough]];
   case ValueType::Null:
     [[fallthrough]];
@@ -734,6 +742,18 @@ int compareAsVec3s(const Value& lhs, const Value& rhs)
   return ordering < 0 ? -1 : ordering > 0 ? 1 : 0;
 }
 
+int compareAsBBoxes(const Value& lhs, const Value& rhs)
+{
+  const auto& lhsBBox = lhs.bboxValue();
+  const auto& rhsBBox = rhs.bboxValue();
+  if (const auto ordering = lhsBBox.min <=> rhsBBox.min; ordering != 0)
+  {
+    return ordering < 0 ? -1 : 1;
+  }
+  const auto ordering = lhsBBox.max <=> rhsBBox.max;
+  return ordering < 0 ? -1 : ordering > 0 ? 1 : 0;
+}
+
 int evaluateCompare(
   const Value& lhs, const Value& rhs, const ExpressionNode& expressionNode)
 {
@@ -755,6 +775,7 @@ int evaluateCompare(
       case ValueType::Map:
       case ValueType::Range:
       case ValueType::Vec3:
+      case ValueType::BBox:
         break;
       }
       break;
@@ -773,6 +794,7 @@ int evaluateCompare(
       case ValueType::Map:
       case ValueType::Range:
       case ValueType::Vec3:
+      case ValueType::BBox:
         break;
       }
       break;
@@ -793,6 +815,7 @@ int evaluateCompare(
       case ValueType::Array:
       case ValueType::Map:
       case ValueType::Range:
+      case ValueType::BBox:
         break;
       }
       break;
@@ -820,6 +843,7 @@ int evaluateCompare(
       case ValueType::Map:
       case ValueType::Range:
       case ValueType::Vec3:
+      case ValueType::BBox:
         break;
       }
       break;
@@ -840,6 +864,7 @@ int evaluateCompare(
       case ValueType::Array:
       case ValueType::Range:
       case ValueType::Vec3:
+      case ValueType::BBox:
         break;
       }
       break;
@@ -856,6 +881,7 @@ int evaluateCompare(
       case ValueType::Map:
       case ValueType::Range:
       case ValueType::Vec3:
+      case ValueType::BBox:
         break;
       }
       break;
@@ -873,6 +899,25 @@ int evaluateCompare(
       case ValueType::Array:
       case ValueType::Map:
       case ValueType::Range:
+      case ValueType::BBox:
+        break;
+      }
+      break;
+    case ValueType::BBox:
+      switch (rhs.type())
+      {
+      case ValueType::BBox:
+        return compareAsBBoxes(lhs, rhs);
+      case ValueType::Null:
+      case ValueType::Undefined:
+        return 1;
+      case ValueType::Boolean:
+      case ValueType::Number:
+      case ValueType::String:
+      case ValueType::Array:
+      case ValueType::Map:
+      case ValueType::Range:
+      case ValueType::Vec3:
         break;
       }
       break;
@@ -1041,6 +1086,7 @@ void computeIndexArray(
   case ValueType::String:
   case ValueType::Map:
   case ValueType::Vec3:
+  case ValueType::BBox:
   case ValueType::Null:
   case ValueType::Undefined:
     result.push_back(toIndex(indexValue));
@@ -1091,6 +1137,7 @@ Value evaluateSubscript(
     case ValueType::String:
     case ValueType::Map:
     case ValueType::Vec3:
+    case ValueType::BBox:
     case ValueType::Null:
     case ValueType::Undefined:
       break;
@@ -1131,6 +1178,7 @@ Value evaluateSubscript(
     case ValueType::String:
     case ValueType::Map:
     case ValueType::Vec3:
+    case ValueType::BBox:
     case ValueType::Null:
     case ValueType::Undefined:
       break;
@@ -1175,6 +1223,7 @@ Value evaluateSubscript(
     case ValueType::Map:
     case ValueType::Range:
     case ValueType::Vec3:
+    case ValueType::BBox:
     case ValueType::Null:
     case ValueType::Undefined:
       break;
@@ -1215,6 +1264,35 @@ Value evaluateSubscript(
     case ValueType::Map:
     case ValueType::Range:
     case ValueType::Vec3:
+    case ValueType::BBox:
+    case ValueType::Null:
+    case ValueType::Undefined:
+      break;
+    }
+    break;
+  case ValueType::BBox:
+    switch (rhs.type())
+    {
+    case ValueType::String: {
+      const auto& b = lhs.bboxValue();
+      const auto& key = rhs.stringValue();
+      if (key == "min")
+      {
+        return Value{b.min};
+      }
+      if (key == "max")
+      {
+        return Value{b.max};
+      }
+      return Value::Undefined;
+    }
+    case ValueType::Boolean:
+    case ValueType::Number:
+    case ValueType::Array:
+    case ValueType::Map:
+    case ValueType::Range:
+    case ValueType::Vec3:
+    case ValueType::BBox:
     case ValueType::Null:
     case ValueType::Undefined:
       break;
@@ -1284,6 +1362,17 @@ const auto builtinFunctions = kdl::flat_map<std::string, BuiltinFunction>{
         arguments[1].convertTo(ValueType::Number).numberValue(),
         arguments[2].convertTo(ValueType::Number).numberValue(),
       }};
+    }}},
+  {"bbox",
+   {2,
+    [](auto&, const auto& arguments, const auto&) {
+      if (hasUndefinedArgument(arguments))
+      {
+        return Value::Undefined;
+      }
+      const auto a = arguments[0].convertTo(ValueType::Vec3).vec3Value();
+      const auto b = arguments[1].convertTo(ValueType::Vec3).vec3Value();
+      return Value{BBoxType{vm::min(a, b), vm::max(a, b)}};
     }}},
 };
 

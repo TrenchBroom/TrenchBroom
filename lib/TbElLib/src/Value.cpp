@@ -130,6 +130,11 @@ Value::Value(Vec3Type value)
 {
 }
 
+Value::Value(BBoxType value)
+  : m_value{std::make_shared<VariantType>(value)}
+{
+}
+
 Value::Value(NullType value)
   : m_value{std::make_shared<VariantType>(value)}
 {
@@ -151,6 +156,7 @@ ValueType Value::type() const
       [](const MapType&) { return ValueType::Map; },
       [](const RangeType&) { return ValueType::Range; },
       [](const Vec3Type&) { return ValueType::Vec3; },
+      [](const BBoxType&) { return ValueType::BBox; },
       [](const NullType&) { return ValueType::Null; },
       [](const UndefinedType&) { return ValueType::Undefined; }),
     *m_value);
@@ -273,6 +279,17 @@ const Vec3Type& Value::vec3Value() const
     *m_value);
 }
 
+const BBoxType& Value::bboxValue() const
+{
+  return std::visit(
+    kdl::overload(
+      [&](const BBoxType& b) -> const BBoxType& { return b; },
+      [&](const auto&) -> const BBoxType& {
+        throw DereferenceError{location(), describe(), type(), ValueType::BBox};
+      }),
+    *m_value);
+}
+
 std::vector<std::string> Value::asStringList() const
 {
   return arrayValue()
@@ -296,6 +313,7 @@ size_t Value::length() const
       [](const MapType& m) -> size_t { return m.size(); },
       [](const RangeType&) -> size_t { return 2u; },
       [](const Vec3Type&) -> size_t { return 3u; },
+      [](const BBoxType&) -> size_t { return 2u; },
       [](const NullType&) -> size_t { return 0u; },
       [](const UndefinedType&) -> size_t { return 0u; }),
     *m_value);
@@ -316,6 +334,7 @@ bool Value::convertibleTo(const ValueType toType) const
         case ValueType::Map:
         case ValueType::Range:
         case ValueType::Vec3:
+        case ValueType::BBox:
         case ValueType::Undefined:
         case ValueType::Null:
           break;
@@ -336,6 +355,7 @@ bool Value::convertibleTo(const ValueType toType) const
         case ValueType::Array:
         case ValueType::Map:
         case ValueType::Range:
+        case ValueType::BBox:
         case ValueType::Null:
         case ValueType::Undefined:
           break;
@@ -354,6 +374,7 @@ bool Value::convertibleTo(const ValueType toType) const
         case ValueType::Map:
         case ValueType::Range:
         case ValueType::Vec3:
+        case ValueType::BBox:
         case ValueType::Null:
         case ValueType::Undefined:
           break;
@@ -372,6 +393,7 @@ bool Value::convertibleTo(const ValueType toType) const
         case ValueType::Map:
         case ValueType::Range:
         case ValueType::Vec3:
+        case ValueType::BBox:
         case ValueType::Null:
         case ValueType::Undefined:
           break;
@@ -390,6 +412,7 @@ bool Value::convertibleTo(const ValueType toType) const
         case ValueType::Array:
         case ValueType::Range:
         case ValueType::Vec3:
+        case ValueType::BBox:
         case ValueType::Null:
         case ValueType::Undefined:
           break;
@@ -408,6 +431,7 @@ bool Value::convertibleTo(const ValueType toType) const
         case ValueType::Array:
         case ValueType::Map:
         case ValueType::Vec3:
+        case ValueType::BBox:
         case ValueType::Null:
         case ValueType::Undefined:
           break;
@@ -426,6 +450,26 @@ bool Value::convertibleTo(const ValueType toType) const
         case ValueType::Array:
         case ValueType::Map:
         case ValueType::Range:
+        case ValueType::BBox:
+        case ValueType::Null:
+        case ValueType::Undefined:
+          break;
+        }
+
+        return false;
+      },
+      [&](const BBoxType&) {
+        switch (toType)
+        {
+        case ValueType::BBox:
+          return true;
+        case ValueType::Boolean:
+        case ValueType::Number:
+        case ValueType::String:
+        case ValueType::Array:
+        case ValueType::Map:
+        case ValueType::Range:
+        case ValueType::Vec3:
         case ValueType::Null:
         case ValueType::Undefined:
           break;
@@ -445,6 +489,7 @@ bool Value::convertibleTo(const ValueType toType) const
           return true;
         case ValueType::Range:
         case ValueType::Vec3:
+        case ValueType::BBox:
         case ValueType::Undefined:
           break;
         }
@@ -463,6 +508,7 @@ bool Value::convertibleTo(const ValueType toType) const
         case ValueType::Map:
         case ValueType::Range:
         case ValueType::Vec3:
+        case ValueType::BBox:
         case ValueType::Null:
           break;
         }
@@ -489,6 +535,7 @@ Value Value::convertTo(const ValueType toType) const
         case ValueType::Map:
         case ValueType::Range:
         case ValueType::Vec3:
+        case ValueType::BBox:
         case ValueType::Undefined:
         case ValueType::Null:
           break;
@@ -525,6 +572,7 @@ Value Value::convertTo(const ValueType toType) const
         case ValueType::Array:
         case ValueType::Map:
         case ValueType::Range:
+        case ValueType::BBox:
         case ValueType::Null:
         case ValueType::Undefined:
           break;
@@ -545,6 +593,7 @@ Value Value::convertTo(const ValueType toType) const
         case ValueType::Map:
         case ValueType::Range:
         case ValueType::Vec3:
+        case ValueType::BBox:
         case ValueType::Null:
         case ValueType::Undefined:
           break;
@@ -563,6 +612,7 @@ Value Value::convertTo(const ValueType toType) const
         case ValueType::Map:
         case ValueType::Range:
         case ValueType::Vec3:
+        case ValueType::BBox:
         case ValueType::Null:
         case ValueType::Undefined:
           break;
@@ -581,6 +631,7 @@ Value Value::convertTo(const ValueType toType) const
         case ValueType::Array:
         case ValueType::Range:
         case ValueType::Vec3:
+        case ValueType::BBox:
         case ValueType::Null:
         case ValueType::Undefined:
           break;
@@ -599,6 +650,7 @@ Value Value::convertTo(const ValueType toType) const
         case ValueType::Array:
         case ValueType::Map:
         case ValueType::Vec3:
+        case ValueType::BBox:
         case ValueType::Null:
         case ValueType::Undefined:
           break;
@@ -625,6 +677,26 @@ Value Value::convertTo(const ValueType toType) const
         case ValueType::Array:
         case ValueType::Map:
         case ValueType::Range:
+        case ValueType::BBox:
+        case ValueType::Null:
+        case ValueType::Undefined:
+          break;
+        }
+
+        throw ConversionError{location(), describe(), type(), toType};
+      },
+      [&](const BBoxType&) -> Value {
+        switch (toType)
+        {
+        case ValueType::BBox:
+          return *this;
+        case ValueType::Boolean:
+        case ValueType::Number:
+        case ValueType::String:
+        case ValueType::Array:
+        case ValueType::Map:
+        case ValueType::Range:
+        case ValueType::Vec3:
         case ValueType::Null:
         case ValueType::Undefined:
           break;
@@ -649,6 +721,7 @@ Value Value::convertTo(const ValueType toType) const
           return Value{MapType{}}.producedBy(*this);
         case ValueType::Range:
         case ValueType::Vec3:
+        case ValueType::BBox:
         case ValueType::Undefined:
           break;
         }
@@ -667,6 +740,7 @@ Value Value::convertTo(const ValueType toType) const
         case ValueType::Map:
         case ValueType::Range:
         case ValueType::Vec3:
+        case ValueType::BBox:
         case ValueType::Null:
           break;
         }
@@ -810,6 +884,13 @@ void Value::appendToStream(
         appendNumber(str, v.z());
         str << ")";
       },
+      [&](const BBoxType& b) {
+        str << "bbox(";
+        Value{b.min}.appendToStream(str, multiline, indent);
+        str << ", ";
+        Value{b.max}.appendToStream(str, multiline, indent);
+        str << ")";
+      },
       [&](const NullType&) { str << "null"; },
       [&](const UndefinedType&) { str << "undefined"; }),
     *m_value);
@@ -827,6 +908,7 @@ bool Value::contains(const size_t index) const
   case ValueType::Number:
   case ValueType::Range:
   case ValueType::Vec3:
+  case ValueType::BBox:
   case ValueType::Null:
   case ValueType::Undefined:
     break;
@@ -871,6 +953,7 @@ Value Value::at(const size_t index) const
   case ValueType::Number:
   case ValueType::Range:
   case ValueType::Vec3:
+  case ValueType::BBox:
   case ValueType::Null:
   case ValueType::Undefined:
     break;
@@ -904,6 +987,7 @@ Value Value::atOrDefault(const size_t index, Value defaultValue) const
   case ValueType::Number:
   case ValueType::Range:
   case ValueType::Vec3:
+  case ValueType::BBox:
   case ValueType::Null:
   case ValueType::Undefined:
     break;
@@ -930,6 +1014,7 @@ Value Value::at(const std::string& key) const
   case ValueType::Number:
   case ValueType::Range:
   case ValueType::Vec3:
+  case ValueType::BBox:
   case ValueType::Null:
   case ValueType::Undefined:
     break;
@@ -956,6 +1041,7 @@ Value Value::atOrDefault(const std::string& key, Value defaultValue) const
   case ValueType::Number:
   case ValueType::Range:
   case ValueType::Vec3:
+  case ValueType::BBox:
   case ValueType::Null:
   case ValueType::Undefined:
     break;
@@ -1026,6 +1112,9 @@ bool operator==(const Value& lhs, const Value& rhs)
              },
              [](const Vec3Type& lhsVec3, const Vec3Type& rhsVec3) {
                return lhsVec3 == rhsVec3;
+             },
+             [](const BBoxType& lhsBBox, const BBoxType& rhsBBox) {
+               return lhsBBox == rhsBBox;
              },
              [](const NullType&, const NullType&) { return true; },
              [](const UndefinedType&, const UndefinedType&) { return true; },
