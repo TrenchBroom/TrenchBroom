@@ -1136,6 +1136,20 @@ Value evaluate(
 
 template <typename Evaluator>
 Value evaluate(
+  EvaluationContext& context,
+  const Evaluator& evaluator,
+  const DotExpression& expression,
+  const ExpressionNode& expressionNode)
+{
+  return evaluateSubscript(
+    context,
+    expression.operand.accept(evaluator),
+    Value{expression.fieldName},
+    expressionNode);
+}
+
+template <typename Evaluator>
+Value evaluate(
   EvaluationContext&,
   const Evaluator& evaluator,
   const SwitchExpression& expression,
@@ -1288,6 +1302,23 @@ Expression optimize(
 
   return SubscriptExpression{
     std::move(optimizedLeftOperand), std::move(optimizedRightOperand)};
+}
+
+Expression optimize(
+  EvaluationContext& context,
+  const DotExpression& expression,
+  const ExpressionNode& expressionNode)
+{
+  auto optimizedOperand = expression.operand.optimize(context);
+
+  if (optimizedOperand.isLiteral())
+  {
+    const auto operandValue = optimizedOperand.evaluate(context);
+    return LiteralExpression{evaluateSubscript(
+      context, operandValue, Value{expression.fieldName}, expressionNode)};
+  }
+
+  return DotExpression{std::move(optimizedOperand), expression.fieldName};
 }
 
 Expression optimize(
@@ -1749,6 +1780,22 @@ bool operator!=(const SubscriptExpression& lhs, const SubscriptExpression& rhs)
 std::ostream& operator<<(std::ostream& lhs, const SubscriptExpression& rhs)
 {
   return lhs << rhs.leftOperand << "[" << rhs.rightOperand << "]";
+}
+
+
+bool operator==(const DotExpression& lhs, const DotExpression& rhs)
+{
+  return lhs.operand == rhs.operand && lhs.fieldName == rhs.fieldName;
+}
+
+bool operator!=(const DotExpression& lhs, const DotExpression& rhs)
+{
+  return !(lhs == rhs);
+}
+
+std::ostream& operator<<(std::ostream& lhs, const DotExpression& rhs)
+{
+  return lhs << rhs.operand << "." << rhs.fieldName;
 }
 
 

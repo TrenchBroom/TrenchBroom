@@ -296,6 +296,19 @@ asdf)")
     }
   }
 
+  SECTION("Dot access")
+  {
+    CHECK(parse("a.b") == dot(var("a"), "b"));
+    CHECK(parse(R"({ "b": 1 }.b)") == dot(map({{"b", lit(1.0)}}), "b"));
+
+    CHECK(parse("a.b.c") == dot(dot(var("a"), "b"), "c"));
+    CHECK(parse("a.b[0]") == scr(dot(var("a"), "b"), lit(0)));
+    CHECK(parse("a[0].b") == dot(scr(var("a"), lit(0)), "b"));
+
+    CHECK(parse("1.5") == lit(1.5));
+    CHECK(parse("1.5 + a.b") == add(lit(1.5), dot(var("a"), "b")));
+  }
+
   SECTION("Switch")
   {
     CHECK(parse("{{}}") == swt({}));

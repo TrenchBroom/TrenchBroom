@@ -207,6 +207,11 @@ ExpressionNode scr(ExpressionNode leftOperand, ExpressionNode rightOperand)
     SubscriptExpression{std::move(leftOperand), std::move(rightOperand)}};
 }
 
+ExpressionNode dot(ExpressionNode operand, std::string fieldName)
+{
+  return ExpressionNode{DotExpression{std::move(operand), std::move(fieldName)}};
+}
+
 ExpressionNode swt(std::vector<ExpressionNode> cases)
 {
   return ExpressionNode{SwitchExpression{std::move(cases)}};

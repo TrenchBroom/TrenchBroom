@@ -104,6 +104,10 @@ std::vector<std::string> preorderVisit(const std::string& str)
         subscriptExpression.leftOperand.accept(thisLambda);
         subscriptExpression.rightOperand.accept(thisLambda);
       },
+      [&](const auto& thisLambda, const DotExpression& dotExpression) {
+        result.push_back(fmt::format("{}", fmt::streamed(dotExpression)));
+        dotExpression.operand.accept(thisLambda);
+      },
       [&](const auto& thisLambda, const SwitchExpression& switchExpression) {
         result.push_back(fmt::format("{}", fmt::streamed(switchExpression)));
         for (const auto& caseExpression : switchExpression.cases)
@@ -1206,6 +1210,23 @@ TEST_CASE("Expression")
                "compatible index for '[1..3]'"});
   }
 
+  SECTION("Dot access")
+  {
+    // a.b evaluates identically to a["b"], for a bound Map variable
+    const auto variables = MapType{{"m", Value{MapType{{"b", Value{1}}}}}};
+
+    CHECK(evaluate("m.b", variables) == evaluate("m[\"b\"]", variables));
+    CHECK(evaluate("m.b", variables) == Value{1});
+
+    // A missing key is Undefined via dot access too, same as via bracket subscript
+    CHECK(evaluate("m.missing", variables) == Value::Undefined);
+
+    // Chains
+    const auto nested =
+      MapType{{"m", Value{MapType{{"m", Value{MapType{{"b", Value{2}}}}}}}}};
+    CHECK(evaluate("m.m.b", nested) == Value{2});
+  }
+
   SECTION("Switch")
   {
     using T = std::tuple<std::string, Result<Value>>;
@@ -1426,6 +1447,11 @@ TEST_CASE("Expression")
     {"[1, 2]",           "[1, 2]"},
     {"{a: 1}",           R"({ "a": 1 })"},
     {"{{ x -> 1, 2 }}",  "{{ x -> 1, 2 }}"},
+
+    // Dot access round-trips as dot access, not as the equivalent bracket subscript
+    {"x.y",              "x.y"},
+    {"x.y.z",            "x.y.z"},
+    {"x.y[0]",           "x.y[0]"},
     }));
     // clang-format on
 
