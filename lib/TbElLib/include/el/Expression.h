@@ -161,6 +161,23 @@ bool operator!=(const DotExpression& lhs, const DotExpression& rhs);
 std::ostream& operator<<(std::ostream& lhs, const DotExpression& rhs);
 
 
+struct CallExpression
+{
+  std::string name;
+  std::vector<ExpressionNode> arguments;
+};
+
+bool operator==(const CallExpression& lhs, const CallExpression& rhs);
+bool operator!=(const CallExpression& lhs, const CallExpression& rhs);
+
+std::ostream& operator<<(std::ostream& lhs, const CallExpression& rhs);
+
+/**
+ * Returns whether `name` is the name of a built-in function.
+ */
+bool isBuiltinFunction(const std::string& name);
+
+
 struct SwitchExpression
 {
   std::vector<ExpressionNode> cases;
