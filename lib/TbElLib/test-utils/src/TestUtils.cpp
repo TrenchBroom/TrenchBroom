@@ -212,6 +212,11 @@ ExpressionNode dot(ExpressionNode operand, std::string fieldName)
   return ExpressionNode{DotExpression{std::move(operand), std::move(fieldName)}};
 }
 
+ExpressionNode call(std::string name, std::vector<ExpressionNode> arguments)
+{
+  return ExpressionNode{CallExpression{std::move(name), std::move(arguments)}};
+}
+
 ExpressionNode swt(std::vector<ExpressionNode> cases)
 {
   return ExpressionNode{SwitchExpression{std::move(cases)}};

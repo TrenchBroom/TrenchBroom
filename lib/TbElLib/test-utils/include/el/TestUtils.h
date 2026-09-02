@@ -72,6 +72,7 @@ ExpressionNode cs(ExpressionNode leftOperand, ExpressionNode rightOperand);
 
 ExpressionNode scr(ExpressionNode leftOperand, ExpressionNode rightOperand);
 ExpressionNode dot(ExpressionNode operand, std::string fieldName);
+ExpressionNode call(std::string name, std::vector<ExpressionNode> arguments = {});
 
 ExpressionNode swt(std::vector<ExpressionNode> cases);
 
