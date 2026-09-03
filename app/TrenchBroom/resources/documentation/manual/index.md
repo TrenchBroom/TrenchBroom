@@ -2155,6 +2155,16 @@ The expression language allows calling a small, fixed set of built-in functions 
 
 A function call consists of the function's name, followed by a comma-separated list of argument expressions enclosed in parentheses. If a function does not take any arguments, the argument list is simply left empty. Note that the expression language does not support user defined functions. The available functions are listed in the following sections.
 
+#### Infix Notation
+
+Any function that takes exactly two arguments can also be called using infix notation, in which the function's name is placed between its two arguments instead of in front of them, and the parentheses are omitted.
+
+    InfixCall = SimpleTerm Name SimpleTerm
+
+The expression `a f b` is exactly equivalent to `f(a, b)`, provided that `f` is the name of a built-in function that takes two arguments. A name that isn't the name of a built-in function is not treated as an infix call, so `a f b` is a syntax error unless `f` is a built-in function.
+
+An infix function call always binds more tightly than any other binary operator; see Binary Operator Precedence below.
+
 ### Vec3
 
 A `Vec3` value represents a three-dimensional vector with `x`, `y`, and `z` components. Vectors are constructed using the `vec` function.
@@ -2184,11 +2194,12 @@ Two vectors can be compared for equality, and, since vectors are ordered lexicog
     vec(1, 2, 3) == vec(1, 2, 3) // true
     vec(1, 2, 3) < vec(4, 5, 6)  // true
 
-The Euclidean distance between two vectors can be computed using the `distanceTo` function.
+The Euclidean distance between two vectors can be computed using the `distanceTo` function. Since it takes exactly two arguments, it can also be called using infix notation (see Infix Notation above).
 
     distanceTo(a, b)
+    a distanceTo b
 
-For example, `distanceTo(vec(0, 0, 0), vec(3, 4, 0))` evaluates to `5`.
+For example, `vec(0, 0, 0) distanceTo vec(3, 4, 0)` evaluates to `5`.
 
 See [Type Conversion](#el_type_conversion) above for how a `Vec3` can be converted to and from a `String`.
 
@@ -2211,11 +2222,12 @@ Two boxes can be compared for equality.
 
 Boxes can also be ordered using `<`, `<=`, `>`, and `>=`, which compare the boxes' corners lexicographically (`min` first, then `max`), though this ordering has no particular geometric meaning and is rarely useful on its own. Boxes do not support any arithmetic or unary operators; using any of them results in an error.
 
-Whether two boxes overlap can be tested using the `intersects` function.
+Whether two boxes overlap can be tested using the `intersects` function. Since it takes exactly two arguments, it can also be called using infix notation (see Infix Notation above).
 
     intersects(a, b)
+    a intersects b
 
-For example, `intersects(bbox(vec(0, 0, 0), vec(2, 2, 2)), bbox(vec(1, 1, 1), vec(3, 3, 3)))` evaluates to `true`, since the two boxes overlap. Note that `intersects` only tests for overlap; it evaluates to `true` even if neither box fully contains the other.
+For example, `bbox(vec(0, 0, 0), vec(2, 2, 2)) intersects bbox(vec(1, 1, 1), vec(3, 3, 3))` evaluates to `true`, since the two boxes overlap. Note that `intersects` only tests for overlap; it evaluates to `true` even if neither box fully contains the other.
 
 ### Unary Operator Terms
 
@@ -2528,7 +2540,7 @@ Operator Name                Precedence
 `||`     Logical or          3
 `..`     Range               2
 `->`     Case                1
-` `      Other operators     13
+`name`   Infix function call 13
 
 Some examples:
 

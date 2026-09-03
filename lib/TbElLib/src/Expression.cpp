@@ -934,6 +934,12 @@ Value evaluateCase(
   return Value::Undefined;
 }
 
+Value evaluateCall(
+  EvaluationContext& context,
+  const std::string& name,
+  const std::vector<Value>& arguments,
+  const ExpressionNode& expressionNode);
+
 template <typename EvalualateLhs, typename EvaluateRhs>
 Value evaluateBinaryExpression(
   EvaluationContext& context,
@@ -1010,8 +1016,13 @@ Value evaluateBinaryExpression(
       [&](const binop::BoundedRange&) {
         return Value{evaluateBoundedRange(context, evaluateLhs(), evaluateRhs())};
       },
-      [&](const binop::Case&) {
-        return evaluateCase(context, evaluateLhs, evaluateRhs);
+      [&](const binop::Case&) { return evaluateCase(context, evaluateLhs, evaluateRhs); },
+      [&](const binop::InfixCall& infixCall) {
+        return evaluateCall(
+          context,
+          infixCall.functionName,
+          {evaluateLhs(), evaluateRhs()},
+          expressionNode);
       }),
     operator_);
 }
@@ -1996,6 +2007,7 @@ kdl_reflect_impl(LogicalAnd);
 kdl_reflect_impl(LogicalOr);
 kdl_reflect_impl(BoundedRange);
 kdl_reflect_impl(Case);
+kdl_reflect_impl(InfixCall);
 } // namespace binop
 
 
@@ -2063,7 +2075,11 @@ std::ostream& operator<<(std::ostream& lhs, const BinaryExpression& rhs)
       [&](const binop::BoundedRange&) {
         lhs << rhs.leftOperand << ".." << rhs.rightOperand;
       },
-      [&](const binop::Case&) { lhs << rhs.leftOperand << " -> " << rhs.rightOperand; }),
+      [&](const binop::Case&) { lhs << rhs.leftOperand << " -> " << rhs.rightOperand; },
+      [&](const binop::InfixCall& infixCall) {
+        lhs << rhs.leftOperand << " " << infixCall.functionName << " "
+            << rhs.rightOperand;
+      }),
     rhs.operation);
 
   return lhs;
