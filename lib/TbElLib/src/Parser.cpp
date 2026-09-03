@@ -566,8 +566,7 @@ ExpressionNode Parser::parseExpressionOrBoundedRange()
   {
     auto token = m_tokenizer.nextToken();
     expression = ExpressionNode{
-      BinaryExpression{
-        BinaryOperation::BoundedRange, std::move(expression), parseExpression()},
+      BinaryExpression{binop::BoundedRange{}, std::move(expression), parseExpression()},
       token.location()};
   }
 
@@ -594,7 +593,7 @@ ExpressionNode Parser::parseExpressionOrAnyRange()
       {
         expression = ExpressionNode{
           BinaryExpression{
-            BinaryOperation::BoundedRange, std::move(*expression), parseExpression()},
+            binop::BoundedRange{}, std::move(*expression), parseExpression()},
           token.location()};
       }
       else
@@ -685,26 +684,26 @@ ExpressionNode Parser::parseSwitch()
 ExpressionNode Parser::parseCompoundTerm(ExpressionNode lhs)
 {
   static const auto TokenMap = std::unordered_map<ElToken::Type, BinaryOperation>{
-    {ElToken::Addition, BinaryOperation::Addition},
-    {ElToken::Subtraction, BinaryOperation::Subtraction},
-    {ElToken::Multiplication, BinaryOperation::Multiplication},
-    {ElToken::Division, BinaryOperation::Division},
-    {ElToken::Modulus, BinaryOperation::Modulus},
-    {ElToken::LogicalAnd, BinaryOperation::LogicalAnd},
-    {ElToken::LogicalOr, BinaryOperation::LogicalOr},
-    {ElToken::BitwiseAnd, BinaryOperation::BitwiseAnd},
-    {ElToken::BitwiseXOr, BinaryOperation::BitwiseXOr},
-    {ElToken::BitwiseOr, BinaryOperation::BitwiseOr},
-    {ElToken::BitwiseShiftLeft, BinaryOperation::BitwiseShiftLeft},
-    {ElToken::BitwiseShiftRight, BinaryOperation::BitwiseShiftRight},
-    {ElToken::Less, BinaryOperation::Less},
-    {ElToken::LessOrEqual, BinaryOperation::LessOrEqual},
-    {ElToken::Greater, BinaryOperation::Greater},
-    {ElToken::GreaterOrEqual, BinaryOperation::GreaterOrEqual},
-    {ElToken::Equal, BinaryOperation::Equal},
-    {ElToken::NotEqual, BinaryOperation::NotEqual},
-    {ElToken::Range, BinaryOperation::BoundedRange},
-    {ElToken::Case, BinaryOperation::Case},
+    {ElToken::Addition, binop::Addition{}},
+    {ElToken::Subtraction, binop::Subtraction{}},
+    {ElToken::Multiplication, binop::Multiplication{}},
+    {ElToken::Division, binop::Division{}},
+    {ElToken::Modulus, binop::Modulus{}},
+    {ElToken::LogicalAnd, binop::LogicalAnd{}},
+    {ElToken::LogicalOr, binop::LogicalOr{}},
+    {ElToken::BitwiseAnd, binop::BitwiseAnd{}},
+    {ElToken::BitwiseXOr, binop::BitwiseXOr{}},
+    {ElToken::BitwiseOr, binop::BitwiseOr{}},
+    {ElToken::BitwiseShiftLeft, binop::BitwiseShiftLeft{}},
+    {ElToken::BitwiseShiftRight, binop::BitwiseShiftRight{}},
+    {ElToken::Less, binop::Less{}},
+    {ElToken::LessOrEqual, binop::LessOrEqual{}},
+    {ElToken::Greater, binop::Greater{}},
+    {ElToken::GreaterOrEqual, binop::GreaterOrEqual{}},
+    {ElToken::Equal, binop::Equal{}},
+    {ElToken::NotEqual, binop::NotEqual{}},
+    {ElToken::Range, binop::BoundedRange{}},
+    {ElToken::Case, binop::Case{}},
   };
 
   while (m_tokenizer.peekToken().hasType(ElToken::CompoundTerm))

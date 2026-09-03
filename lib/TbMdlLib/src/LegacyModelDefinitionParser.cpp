@@ -226,16 +226,12 @@ el::ExpressionNode LegacyModelDefinitionParser::parseStaticModelDefinition()
         el::LiteralExpression{el::Value{std::move(attributeValue)}}, token.location()};
       auto premiseExpression = el::ExpressionNode{
         el::BinaryExpression{
-          el::BinaryOperation::Equal,
-          std::move(keyExpression),
-          std::move(valueExpression)},
+          el::binop::Equal{}, std::move(keyExpression), std::move(valueExpression)},
         location};
 
       return el::ExpressionNode{
         el::BinaryExpression{
-          el::BinaryOperation::Case,
-          std::move(premiseExpression),
-          std::move(modelExpression)},
+          el::binop::Case{}, std::move(premiseExpression), std::move(modelExpression)},
         startLocation};
     }
     const auto flagValue = token.toInteger<int>();
@@ -243,14 +239,12 @@ el::ExpressionNode LegacyModelDefinitionParser::parseStaticModelDefinition()
       el::ExpressionNode{el::LiteralExpression{el::Value{flagValue}}, token.location()};
     auto premiseExpression = el::ExpressionNode{
       el::BinaryExpression{
-        el::BinaryOperation::Equal, std::move(keyExpression), std::move(valueExpression)},
+        el::binop::Equal{}, std::move(keyExpression), std::move(valueExpression)},
       location};
 
     return el::ExpressionNode{
       el::BinaryExpression{
-        el::BinaryOperation::Case,
-        std::move(premiseExpression),
-        std::move(modelExpression)},
+        el::binop::Case{}, std::move(premiseExpression), std::move(modelExpression)},
       startLocation};
   }
 
