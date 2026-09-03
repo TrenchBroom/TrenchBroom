@@ -137,6 +137,7 @@ target_sources(TbMdlLib
     ${CMAKE_CURRENT_SOURCE_DIR}/src/NodeIndex.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/NodeReader.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/NodeSerializer.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/NodeVariableStore.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/NodeVisitor.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/NodeWriter.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/NonIntegerVerticesValidator.cpp

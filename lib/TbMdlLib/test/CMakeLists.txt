@@ -88,6 +88,7 @@ target_sources(TbMdlLibTest PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_NodeIndex.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_NodeQueries.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_NodeReader.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_NodeVariableStore.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_NodeWriter.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_ObjSerializer.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Octree.cpp
