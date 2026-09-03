@@ -104,6 +104,7 @@ target_sources(TbMdlLibTest PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Polyhedron.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_PortalFile.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Quake3ShaderParser.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_QueryDomainInference.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Selection.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Tagging.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Transaction.cpp

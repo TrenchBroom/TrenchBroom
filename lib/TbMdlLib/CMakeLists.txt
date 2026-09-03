@@ -165,6 +165,7 @@ target_sources(TbMdlLib
     ${CMAKE_CURRENT_SOURCE_DIR}/src/PushSelection.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Quake3Shader.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Quake3ShaderParser.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/QueryDomainInference.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/QueryVariableValues.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/ReparentNodesCommand.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/RepeatStack.cpp
