@@ -79,7 +79,7 @@ constexpr auto SimpleTerm = Name | Literal | OParen | OBracket | OBrace | UnaryO
 constexpr auto CompoundTerm =
   Addition | Subtraction | Multiplication | Division | Modulus | LogicalAnd | LogicalOr
   | Less | LessOrEqual | Equal | NotEqual | GreaterOrEqual | Greater | Case | BitwiseAnd
-  | BitwiseXOr | BitwiseOr | BitwiseShiftLeft | BitwiseShiftRight;
+  | BitwiseXOr | BitwiseOr | BitwiseShiftLeft | BitwiseShiftRight | Name;
 } // namespace ElToken
 
 class Tokenizer : public tb::Tokenizer<ElToken::Type>

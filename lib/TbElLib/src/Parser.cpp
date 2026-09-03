@@ -706,10 +706,24 @@ ExpressionNode Parser::parseCompoundTerm(ExpressionNode lhs)
     {ElToken::Case, binop::Case{}},
   };
 
-  while (m_tokenizer.peekToken().hasType(ElToken::CompoundTerm))
+  // a name only continues the term as an infix call if it names a built-in function, so
+  // in `a b c`, the term ends before `b` unless `b` is a built-in function
+  const auto continuesTerm = [](const auto& token) {
+    return token.hasType(ElToken::CompoundTerm)
+           && (!token.hasType(ElToken::Name) || isBuiltinFunction(token.data()));
+  };
+
+  while (continuesTerm(m_tokenizer.peekToken()))
   {
     const auto token = m_tokenizer.nextToken(ElToken::CompoundTerm);
-    if (const auto it = TokenMap.find(token.type()); it != TokenMap.end())
+    if (token.hasType(ElToken::Name))
+    {
+      lhs = ExpressionNode{
+        BinaryExpression{
+          binop::InfixCall{token.data()}, std::move(lhs), parseSimpleTermOrSwitch()},
+        token.location()};
+    }
+    else if (const auto it = TokenMap.find(token.type()); it != TokenMap.end())
     {
       const auto op = it->second;
       lhs = ExpressionNode{
