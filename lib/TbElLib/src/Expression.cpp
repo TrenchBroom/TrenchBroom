@@ -29,10 +29,12 @@
 #include "kd/ranges/concat_view.h"
 #include "kd/ranges/to.h"
 #include "kd/reflection_impl.h"
+#include "kd/string_compare.h"
 #include "kd/unpack.h"
 
 #include <fmt/format.h>
 
+#include <algorithm>
 #include <functional>
 #include <ranges>
 #include <sstream>
@@ -1365,6 +1367,134 @@ Value evaluate(
     expressionNode);
 }
 
+// whether the pattern contains a wildcard that isn't escaped
+bool isGlobPattern(const std::string& pattern)
+{
+  for (size_t i = 0u; i < pattern.size(); ++i)
+  {
+    if (pattern[i] == '\\')
+    {
+      ++i;
+    }
+    else if (pattern[i] == '?' || pattern[i] == '*' || pattern[i] == '%')
+    {
+      return true;
+    }
+  }
+  return false;
+}
+
+Value evaluateLike(EvaluationContext&, const Value& lhs, const Value& rhs)
+{
+  if (lhs.hasType(ValueType::Undefined) || rhs.hasType(ValueType::Undefined))
+  {
+    return Value{false};
+  }
+
+  if (!rhs.hasType(ValueType::String))
+  {
+    return Value{false};
+  }
+
+  // a pattern with no glob metacharacters at all matches as a substring
+  const auto& rawPattern = rhs.stringValue();
+  const auto pattern = isGlobPattern(rawPattern) ? rawPattern : "*" + rawPattern + "*";
+
+  if (lhs.hasType(ValueType::String))
+  {
+    return Value{kdl::ci::str_matches_glob(lhs.stringValue(), pattern)};
+  }
+
+  if (lhs.hasType(ValueType::Array))
+  {
+    const auto& array = lhs.arrayValue();
+    return Value{std::ranges::any_of(array, [&](const auto& element) {
+      return element.hasType(ValueType::String)
+             && kdl::ci::str_matches_glob(element.stringValue(), pattern);
+    })};
+  }
+
+  return Value{false};
+}
+
+// like `==`, but values that can't be compared are not equal instead of an error
+bool evaluateEqual(
+  EvaluationContext& context,
+  const Value& lhs,
+  const Value& rhs,
+  const ExpressionNode& expressionNode)
+{
+  try
+  {
+    return evaluateCompare(context, lhs, rhs, expressionNode) == 0;
+  }
+  catch (const EvaluationError&)
+  {
+    return false;
+  }
+}
+
+Value evaluateContains(
+  EvaluationContext& context,
+  const Value& lhs,
+  const Value& rhs,
+  const ExpressionNode& expressionNode)
+{
+  if (lhs.hasType(ValueType::Undefined) || rhs.hasType(ValueType::Undefined))
+  {
+    return Value{false};
+  }
+
+  switch (lhs.type())
+  {
+  case ValueType::Array: {
+    const auto& array = lhs.arrayValue();
+    return Value{std::ranges::any_of(array, [&](const auto& element) {
+      return evaluateEqual(context, element, rhs, expressionNode);
+    })};
+  }
+  case ValueType::Map:
+    return Value{rhs.hasType(ValueType::String) && lhs.contains(rhs.stringValue())};
+  case ValueType::Range:
+    if (
+      const auto number = rhs.hasType(ValueType::Number, ValueType::String)
+                            ? rhs.tryConvertTo(ValueType::Number)
+                            : std::nullopt)
+    {
+      const auto n = number->numberValue();
+      return Value{std::visit(
+        kdl::overload(
+          [&](const LeftBoundedRange& r) { return n >= static_cast<double>(r.first); },
+          [&](const RightBoundedRange& r) { return n <= static_cast<double>(r.last); },
+          [&](const BoundedRange& r) {
+            const auto lo = static_cast<double>(std::min(r.first, r.last));
+            const auto hi = static_cast<double>(std::max(r.first, r.last));
+            return n >= lo && n <= hi;
+          }),
+        lhs.rangeValue())};
+    }
+    return Value{false};
+  case ValueType::BBox:
+    if (rhs.hasType(ValueType::Vec3))
+    {
+      return Value{lhs.bboxValue().contains(rhs.vec3Value())};
+    }
+    if (rhs.hasType(ValueType::BBox))
+    {
+      return Value{lhs.bboxValue().contains(rhs.bboxValue())};
+    }
+    return Value{false};
+  case ValueType::Boolean:
+  case ValueType::String:
+  case ValueType::Number:
+  case ValueType::Vec3:
+  case ValueType::Null:
+  case ValueType::Undefined:
+    return Value{false};
+    switchDefault();
+  }
+}
+
 using BuiltinFunction = std::function<Value(
   EvaluationContext&, const std::vector<Value>&, const ExpressionNode&)>;
 
@@ -1418,6 +1548,26 @@ const auto builtinFunctions = kdl::flat_map<std::string, BuiltinFunction>{
      const auto& a = arguments[0].bboxValue();
      const auto& b = arguments[1].bboxValue();
      return Value{a.intersects(b)};
+   }},
+  {"like",
+   [](auto& context, const auto& arguments, const auto& expressionNode) {
+     if (arguments.size() != 2)
+     {
+       throw EvaluationError{
+         expressionNode,
+         fmt::format("like() expects 2 arguments, but got {}", arguments.size())};
+     }
+     return evaluateLike(context, arguments[0], arguments[1]);
+   }},
+  {"contains",
+   [](auto& context, const auto& arguments, const auto& expressionNode) {
+     if (arguments.size() != 2)
+     {
+       throw EvaluationError{
+         expressionNode,
+         fmt::format("contains() expects 2 arguments, but got {}", arguments.size())};
+     }
+     return evaluateContains(context, arguments[0], arguments[1], expressionNode);
    }},
 };
 
