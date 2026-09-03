@@ -1451,6 +1451,29 @@ TEST_CASE("Expression")
     }
   }
 
+  SECTION("Infix calls")
+  {
+    CHECK(
+      evaluate("vec(0, 0, 0) distanceTo vec(3, 4, 0)")
+      == evaluate("distanceTo(vec(0, 0, 0), vec(3, 4, 0))"));
+    CHECK(evaluate("vec(0, 0, 0) distanceTo vec(3, 4, 0)") == Value{5.0});
+
+    CHECK(
+      evaluate("1 foo 2")
+      == Error{"At line 1, column 3: Cannot evaluate expression '1 foo 2': Unknown "
+               "function: 'foo'"});
+
+    CHECK(
+      evaluate(
+        "vec(0, 0, 0) distanceTo vec(3, 4, 0) == vec(0, 0, 0) distanceTo vec(6, 8, 0)")
+      == evaluate("distanceTo(vec(0, 0, 0), vec(3, 4, 0)) == "
+                  "distanceTo(vec(0, 0, 0), vec(6, 8, 0))"));
+    CHECK(
+      evaluate(
+        "vec(0, 0, 0) distanceTo vec(3, 4, 0) == vec(0, 0, 0) distanceTo vec(6, 8, 0)")
+      == Value{false});
+  }
+
   SECTION("Switch")
   {
     using T = std::tuple<std::string, Result<Value>>;
@@ -1685,6 +1708,10 @@ TEST_CASE("Expression")
 
     // A constructed BBox round-trips through its own construction syntax
     {"bbox(vec(1, 2, 3), vec(4, 5, 6))", "bbox(vec(1, 2, 3), vec(4, 5, 6))"},
+
+    // Infix calls round-trip as infix, not as the equivalent prefix call
+    {"a like b",         "a like b"},
+    {"a like b like c",  "a like b like c"},
     }));
     // clang-format on
 

@@ -2129,6 +2129,16 @@ The expression language allows calling a small, fixed set of built-in functions 
 
 A function call consists of the function's name, followed by a comma-separated list of argument expressions enclosed in parentheses. If a function does not take any arguments, the argument list is simply left empty. Note that the expression language does not support user defined functions. The available functions are listed in the following sections.
 
+#### Infix Notation
+
+Any function that takes exactly two arguments can also be called using infix notation, in which the function's name is placed between its two arguments instead of in front of them, and the parentheses are omitted.
+
+    InfixCall = SimpleTerm Name SimpleTerm
+
+The expression `a f b` is exactly equivalent to `f(a, b)`, provided that `f` is the name of a function that takes two arguments. If `f` is not the name of a known function, an error is thrown when the expression is evaluated, just as it would be for a regular function call.
+
+An infix function call always binds more tightly than any other binary operator; see Binary Operator Precedence below.
+
 ### Vec3
 
 A `Vec3` value represents a three-dimensional vector with `x`, `y`, and `z` components. Vectors are constructed using the `vec` function.
@@ -2465,7 +2475,7 @@ Operator Name                Precedence
 `||`     Logical or          3
 `..`     Range               2
 `->`     Case                1
-` `      Other operators     13
+`name`   Infix function call 13
 
 Some examples:
 

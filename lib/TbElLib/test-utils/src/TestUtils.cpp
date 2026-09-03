@@ -201,6 +201,13 @@ ExpressionNode cs(ExpressionNode leftOperand, ExpressionNode rightOperand)
     BinaryExpression{binop::Case{}, std::move(leftOperand), std::move(rightOperand)}};
 }
 
+ExpressionNode infixCall(
+  std::string name, ExpressionNode leftOperand, ExpressionNode rightOperand)
+{
+  return ExpressionNode{BinaryExpression{
+    binop::InfixCall{std::move(name)}, std::move(leftOperand), std::move(rightOperand)}};
+}
+
 ExpressionNode scr(ExpressionNode leftOperand, ExpressionNode rightOperand)
 {
   return ExpressionNode{
