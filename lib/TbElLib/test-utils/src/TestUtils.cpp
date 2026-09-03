@@ -83,122 +83,122 @@ ExpressionNode rbRng(ExpressionNode operand)
 
 ExpressionNode add(ExpressionNode leftOperand, ExpressionNode rightOperand)
 {
-  return ExpressionNode{BinaryExpression{
-    BinaryOperation::Addition, std::move(leftOperand), std::move(rightOperand)}};
+  return ExpressionNode{
+    BinaryExpression{binop::Addition{}, std::move(leftOperand), std::move(rightOperand)}};
 }
 
 ExpressionNode sub(ExpressionNode leftOperand, ExpressionNode rightOperand)
 {
   return ExpressionNode{BinaryExpression{
-    BinaryOperation::Subtraction, std::move(leftOperand), std::move(rightOperand)}};
+    binop::Subtraction{}, std::move(leftOperand), std::move(rightOperand)}};
 }
 
 ExpressionNode mul(ExpressionNode leftOperand, ExpressionNode rightOperand)
 {
   return ExpressionNode{BinaryExpression{
-    BinaryOperation::Multiplication, std::move(leftOperand), std::move(rightOperand)}};
+    binop::Multiplication{}, std::move(leftOperand), std::move(rightOperand)}};
 }
 
 ExpressionNode div(ExpressionNode leftOperand, ExpressionNode rightOperand)
 {
-  return ExpressionNode{BinaryExpression{
-    BinaryOperation::Division, std::move(leftOperand), std::move(rightOperand)}};
+  return ExpressionNode{
+    BinaryExpression{binop::Division{}, std::move(leftOperand), std::move(rightOperand)}};
 }
 
 ExpressionNode mod(ExpressionNode leftOperand, ExpressionNode rightOperand)
 {
-  return ExpressionNode{BinaryExpression{
-    BinaryOperation::Modulus, std::move(leftOperand), std::move(rightOperand)}};
+  return ExpressionNode{
+    BinaryExpression{binop::Modulus{}, std::move(leftOperand), std::move(rightOperand)}};
 }
 
 ExpressionNode logAnd(ExpressionNode leftOperand, ExpressionNode rightOperand)
 {
   return ExpressionNode{BinaryExpression{
-    BinaryOperation::LogicalAnd, std::move(leftOperand), std::move(rightOperand)}};
+    binop::LogicalAnd{}, std::move(leftOperand), std::move(rightOperand)}};
 }
 
 ExpressionNode logOr(ExpressionNode leftOperand, ExpressionNode rightOperand)
 {
   return ExpressionNode{BinaryExpression{
-    BinaryOperation::LogicalOr, std::move(leftOperand), std::move(rightOperand)}};
+    binop::LogicalOr{}, std::move(leftOperand), std::move(rightOperand)}};
 }
 
 ExpressionNode bitAnd(ExpressionNode leftOperand, ExpressionNode rightOperand)
 {
   return ExpressionNode{BinaryExpression{
-    BinaryOperation::BitwiseAnd, std::move(leftOperand), std::move(rightOperand)}};
+    binop::BitwiseAnd{}, std::move(leftOperand), std::move(rightOperand)}};
 }
 
 ExpressionNode bitOr(ExpressionNode leftOperand, ExpressionNode rightOperand)
 {
   return ExpressionNode{BinaryExpression{
-    BinaryOperation::BitwiseOr, std::move(leftOperand), std::move(rightOperand)}};
+    binop::BitwiseOr{}, std::move(leftOperand), std::move(rightOperand)}};
 }
 
 ExpressionNode bitXOr(ExpressionNode leftOperand, ExpressionNode rightOperand)
 {
   return ExpressionNode{BinaryExpression{
-    BinaryOperation::BitwiseXOr, std::move(leftOperand), std::move(rightOperand)}};
+    binop::BitwiseXOr{}, std::move(leftOperand), std::move(rightOperand)}};
 }
 
 ExpressionNode bitShL(ExpressionNode leftOperand, ExpressionNode rightOperand)
 {
   return ExpressionNode{BinaryExpression{
-    BinaryOperation::BitwiseShiftLeft, std::move(leftOperand), std::move(rightOperand)}};
+    binop::BitwiseShiftLeft{}, std::move(leftOperand), std::move(rightOperand)}};
 }
 
 ExpressionNode bitShR(ExpressionNode leftOperand, ExpressionNode rightOperand)
 {
   return ExpressionNode{BinaryExpression{
-    BinaryOperation::BitwiseShiftRight, std::move(leftOperand), std::move(rightOperand)}};
+    binop::BitwiseShiftRight{}, std::move(leftOperand), std::move(rightOperand)}};
 }
 
 ExpressionNode ls(ExpressionNode leftOperand, ExpressionNode rightOperand)
 {
-  return ExpressionNode{BinaryExpression{
-    BinaryOperation::Less, std::move(leftOperand), std::move(rightOperand)}};
+  return ExpressionNode{
+    BinaryExpression{binop::Less{}, std::move(leftOperand), std::move(rightOperand)}};
 }
 
 ExpressionNode lsEq(ExpressionNode leftOperand, ExpressionNode rightOperand)
 {
   return ExpressionNode{BinaryExpression{
-    BinaryOperation::LessOrEqual, std::move(leftOperand), std::move(rightOperand)}};
+    binop::LessOrEqual{}, std::move(leftOperand), std::move(rightOperand)}};
 }
 
 ExpressionNode gr(ExpressionNode leftOperand, ExpressionNode rightOperand)
 {
-  return ExpressionNode{BinaryExpression{
-    BinaryOperation::Greater, std::move(leftOperand), std::move(rightOperand)}};
+  return ExpressionNode{
+    BinaryExpression{binop::Greater{}, std::move(leftOperand), std::move(rightOperand)}};
 }
 
 ExpressionNode grEq(ExpressionNode leftOperand, ExpressionNode rightOperand)
 {
   return ExpressionNode{BinaryExpression{
-    BinaryOperation::GreaterOrEqual, std::move(leftOperand), std::move(rightOperand)}};
+    binop::GreaterOrEqual{}, std::move(leftOperand), std::move(rightOperand)}};
 }
 
 ExpressionNode eq(ExpressionNode leftOperand, ExpressionNode rightOperand)
 {
-  return ExpressionNode{BinaryExpression{
-    BinaryOperation::Equal, std::move(leftOperand), std::move(rightOperand)}};
+  return ExpressionNode{
+    BinaryExpression{binop::Equal{}, std::move(leftOperand), std::move(rightOperand)}};
 }
 
 ExpressionNode neq(ExpressionNode leftOperand, ExpressionNode rightOperand)
 {
-  return ExpressionNode{BinaryExpression{
-    BinaryOperation::NotEqual, std::move(leftOperand), std::move(rightOperand)}};
+  return ExpressionNode{
+    BinaryExpression{binop::NotEqual{}, std::move(leftOperand), std::move(rightOperand)}};
 }
 
 ExpressionNode bRng(ExpressionNode leftOperand, ExpressionNode rightOperand)
 {
   return ExpressionNode{BinaryExpression{
-    BinaryOperation::BoundedRange, std::move(leftOperand), std::move(rightOperand)}};
+    binop::BoundedRange{}, std::move(leftOperand), std::move(rightOperand)}};
 }
 
 ExpressionNode cs(ExpressionNode leftOperand, ExpressionNode rightOperand)
 {
-  return ExpressionNode{BinaryExpression{
-    BinaryOperation::Case, std::move(leftOperand), std::move(rightOperand)}};
+  return ExpressionNode{
+    BinaryExpression{binop::Case{}, std::move(leftOperand), std::move(rightOperand)}};
 }
 
 ExpressionNode scr(ExpressionNode leftOperand, ExpressionNode rightOperand)
