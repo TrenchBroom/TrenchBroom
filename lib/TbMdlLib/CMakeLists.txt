@@ -52,6 +52,7 @@ target_sources(TbMdlLib
     ${CMAKE_CURRENT_SOURCE_DIR}/src/EntParser.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/EnvironmentConfig.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/ExportOptions.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/FaceVariableStore.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/FgdParser.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/GameConfig.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/GameEngineConfig.cpp
@@ -164,6 +165,7 @@ target_sources(TbMdlLib
     ${CMAKE_CURRENT_SOURCE_DIR}/src/PushSelection.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Quake3Shader.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Quake3ShaderParser.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/QueryVariableValues.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/ReparentNodesCommand.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/RepeatStack.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Selection.cpp
