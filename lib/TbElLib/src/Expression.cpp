@@ -947,63 +947,83 @@ Value evaluateCase(
 template <typename EvalualateLhs, typename EvaluateRhs>
 Value evaluateBinaryExpression(
   EvaluationContext& context,
-  const BinaryOperation operator_,
+  const BinaryOperation& operator_,
   const EvalualateLhs& evaluateLhs,
   const EvaluateRhs& evaluateRhs,
   const ExpressionNode& expressionNode)
 {
-  switch (operator_)
-  {
-  case BinaryOperation::Addition:
-    return evaluateAddition(context, evaluateLhs(), evaluateRhs(), expressionNode);
-  case BinaryOperation::Subtraction:
-    return evaluateSubtraction(context, evaluateLhs(), evaluateRhs(), expressionNode);
-  case BinaryOperation::Multiplication:
-    return evaluateMultiplication(context, evaluateLhs(), evaluateRhs(), expressionNode);
-  case BinaryOperation::Division:
-    return evaluateDivision(context, evaluateLhs(), evaluateRhs(), expressionNode);
-  case BinaryOperation::Modulus:
-    return evaluateModulus(context, evaluateLhs(), evaluateRhs(), expressionNode);
-  case BinaryOperation::LogicalAnd:
-    return evaluateLogicalAnd(context, evaluateLhs, evaluateRhs, expressionNode);
-  case BinaryOperation::LogicalOr:
-    return evaluateLogicalOr(context, evaluateLhs, evaluateRhs, expressionNode);
-  case BinaryOperation::BitwiseAnd:
-    return evaluateBitwiseAnd(context, evaluateLhs(), evaluateRhs(), expressionNode);
-  case BinaryOperation::BitwiseXOr:
-    return evaluateBitwiseXOr(context, evaluateLhs(), evaluateRhs(), expressionNode);
-  case BinaryOperation::BitwiseOr:
-    return evaluateBitwiseOr(context, evaluateLhs(), evaluateRhs(), expressionNode);
-  case BinaryOperation::BitwiseShiftLeft:
-    return evaluateBitwiseShiftLeft(
-      context, evaluateLhs(), evaluateRhs(), expressionNode);
-  case BinaryOperation::BitwiseShiftRight:
-    return evaluateBitwiseShiftRight(
-      context, evaluateLhs(), evaluateRhs(), expressionNode);
-  case BinaryOperation::Less:
-    return Value{
-      evaluateCompare(context, evaluateLhs(), evaluateRhs(), expressionNode) < 0};
-  case BinaryOperation::LessOrEqual:
-    return Value{
-      evaluateCompare(context, evaluateLhs(), evaluateRhs(), expressionNode) <= 0};
-  case BinaryOperation::Greater:
-    return Value{
-      evaluateCompare(context, evaluateLhs(), evaluateRhs(), expressionNode) > 0};
-  case BinaryOperation::GreaterOrEqual:
-    return Value{
-      evaluateCompare(context, evaluateLhs(), evaluateRhs(), expressionNode) >= 0};
-  case BinaryOperation::Equal:
-    return Value{
-      evaluateCompare(context, evaluateLhs(), evaluateRhs(), expressionNode) == 0};
-  case BinaryOperation::NotEqual:
-    return Value{
-      evaluateCompare(context, evaluateLhs(), evaluateRhs(), expressionNode) != 0};
-  case BinaryOperation::BoundedRange:
-    return Value{evaluateBoundedRange(context, evaluateLhs(), evaluateRhs())};
-  case BinaryOperation::Case:
-    return evaluateCase(context, evaluateLhs, evaluateRhs);
-    switchDefault();
-  };
+  return std::visit(
+    kdl::overload(
+      [&](const binop::Addition&) {
+        return evaluateAddition(context, evaluateLhs(), evaluateRhs(), expressionNode);
+      },
+      [&](const binop::Subtraction&) {
+        return evaluateSubtraction(context, evaluateLhs(), evaluateRhs(), expressionNode);
+      },
+      [&](const binop::Multiplication&) {
+        return evaluateMultiplication(
+          context, evaluateLhs(), evaluateRhs(), expressionNode);
+      },
+      [&](const binop::Division&) {
+        return evaluateDivision(context, evaluateLhs(), evaluateRhs(), expressionNode);
+      },
+      [&](const binop::Modulus&) {
+        return evaluateModulus(context, evaluateLhs(), evaluateRhs(), expressionNode);
+      },
+      [&](const binop::LogicalAnd&) {
+        return evaluateLogicalAnd(context, evaluateLhs, evaluateRhs, expressionNode);
+      },
+      [&](const binop::LogicalOr&) {
+        return evaluateLogicalOr(context, evaluateLhs, evaluateRhs, expressionNode);
+      },
+      [&](const binop::BitwiseAnd&) {
+        return evaluateBitwiseAnd(context, evaluateLhs(), evaluateRhs(), expressionNode);
+      },
+      [&](const binop::BitwiseXOr&) {
+        return evaluateBitwiseXOr(context, evaluateLhs(), evaluateRhs(), expressionNode);
+      },
+      [&](const binop::BitwiseOr&) {
+        return evaluateBitwiseOr(context, evaluateLhs(), evaluateRhs(), expressionNode);
+      },
+      [&](const binop::BitwiseShiftLeft&) {
+        return evaluateBitwiseShiftLeft(
+          context, evaluateLhs(), evaluateRhs(), expressionNode);
+      },
+      [&](const binop::BitwiseShiftRight&) {
+        return evaluateBitwiseShiftRight(
+          context, evaluateLhs(), evaluateRhs(), expressionNode);
+      },
+      [&](const binop::Less&) {
+        return Value{
+          evaluateCompare(context, evaluateLhs(), evaluateRhs(), expressionNode) < 0};
+      },
+      [&](const binop::LessOrEqual&) {
+        return Value{
+          evaluateCompare(context, evaluateLhs(), evaluateRhs(), expressionNode) <= 0};
+      },
+      [&](const binop::Greater&) {
+        return Value{
+          evaluateCompare(context, evaluateLhs(), evaluateRhs(), expressionNode) > 0};
+      },
+      [&](const binop::GreaterOrEqual&) {
+        return Value{
+          evaluateCompare(context, evaluateLhs(), evaluateRhs(), expressionNode) >= 0};
+      },
+      [&](const binop::Equal&) {
+        return Value{
+          evaluateCompare(context, evaluateLhs(), evaluateRhs(), expressionNode) == 0};
+      },
+      [&](const binop::NotEqual&) {
+        return Value{
+          evaluateCompare(context, evaluateLhs(), evaluateRhs(), expressionNode) != 0};
+      },
+      [&](const binop::BoundedRange&) {
+        return Value{evaluateBoundedRange(context, evaluateLhs(), evaluateRhs())};
+      },
+      [&](const binop::Case&) {
+        return evaluateCase(context, evaluateLhs, evaluateRhs);
+      }),
+    operator_);
 }
 
 template <typename Evaluator>
@@ -1646,44 +1666,9 @@ Expression optimizeExpression(
 }
 
 
-size_t precedence(const BinaryOperation operation)
+size_t precedence(const BinaryOperation& operation)
 {
-  switch (operation)
-  {
-  case BinaryOperation::Multiplication:
-  case BinaryOperation::Division:
-  case BinaryOperation::Modulus:
-    return 12;
-  case BinaryOperation::Addition:
-  case BinaryOperation::Subtraction:
-    return 11;
-  case BinaryOperation::BitwiseShiftLeft:
-  case BinaryOperation::BitwiseShiftRight:
-    return 10;
-  case BinaryOperation::Less:
-  case BinaryOperation::LessOrEqual:
-  case BinaryOperation::Greater:
-  case BinaryOperation::GreaterOrEqual:
-    return 9;
-  case BinaryOperation::Equal:
-  case BinaryOperation::NotEqual:
-    return 8;
-  case BinaryOperation::BitwiseAnd:
-    return 7;
-  case BinaryOperation::BitwiseXOr:
-    return 6;
-  case BinaryOperation::BitwiseOr:
-    return 5;
-  case BinaryOperation::LogicalAnd:
-    return 4;
-  case BinaryOperation::LogicalOr:
-    return 3;
-  case BinaryOperation::BoundedRange:
-    return 2;
-  case BinaryOperation::Case:
-    return 1;
-    switchDefault();
-  };
+  return std::visit([](const auto& op) { return op.precedence; }, operation);
 }
 
 size_t precedence(const Expression& expression)
@@ -1989,70 +1974,59 @@ bool operator!=(const BinaryExpression& lhs, const BinaryExpression& rhs)
 
 std::ostream& operator<<(std::ostream& lhs, const BinaryExpression& rhs)
 {
-  switch (rhs.operation)
-  {
-  case BinaryOperation::Addition:
-    lhs << rhs.leftOperand << " + " << rhs.rightOperand;
-    break;
-  case BinaryOperation::Subtraction:
-    lhs << rhs.leftOperand << " - " << rhs.rightOperand;
-    break;
-  case BinaryOperation::Multiplication:
-    lhs << rhs.leftOperand << " * " << rhs.rightOperand;
-    break;
-  case BinaryOperation::Division:
-    lhs << rhs.leftOperand << " / " << rhs.rightOperand;
-    break;
-  case BinaryOperation::Modulus:
-    lhs << rhs.leftOperand << " % " << rhs.rightOperand;
-    break;
-  case BinaryOperation::LogicalAnd:
-    lhs << rhs.leftOperand << " && " << rhs.rightOperand;
-    break;
-  case BinaryOperation::LogicalOr:
-    lhs << rhs.leftOperand << " || " << rhs.rightOperand;
-    break;
-  case BinaryOperation::BitwiseAnd:
-    lhs << rhs.leftOperand << " & " << rhs.rightOperand;
-    break;
-  case BinaryOperation::BitwiseXOr:
-    lhs << rhs.leftOperand << " ^ " << rhs.rightOperand;
-    break;
-  case BinaryOperation::BitwiseOr:
-    lhs << rhs.leftOperand << " | " << rhs.rightOperand;
-    break;
-  case BinaryOperation::BitwiseShiftLeft:
-    lhs << rhs.leftOperand << " << " << rhs.rightOperand;
-    break;
-  case BinaryOperation::BitwiseShiftRight:
-    lhs << rhs.leftOperand << " >> " << rhs.rightOperand;
-    break;
-  case BinaryOperation::Less:
-    lhs << rhs.leftOperand << " < " << rhs.rightOperand;
-    break;
-  case BinaryOperation::LessOrEqual:
-    lhs << rhs.leftOperand << " <= " << rhs.rightOperand;
-    break;
-  case BinaryOperation::Greater:
-    lhs << rhs.leftOperand << " > " << rhs.rightOperand;
-    break;
-  case BinaryOperation::GreaterOrEqual:
-    lhs << rhs.leftOperand << " >= " << rhs.rightOperand;
-    break;
-  case BinaryOperation::Equal:
-    lhs << rhs.leftOperand << " == " << rhs.rightOperand;
-    break;
-  case BinaryOperation::NotEqual:
-    lhs << rhs.leftOperand << " != " << rhs.rightOperand;
-    break;
-  case BinaryOperation::BoundedRange:
-    lhs << rhs.leftOperand << ".." << rhs.rightOperand;
-    break;
-  case BinaryOperation::Case:
-    lhs << rhs.leftOperand << " -> " << rhs.rightOperand;
-    break;
-    switchDefault();
-  };
+  std::visit(
+    kdl::overload(
+      [&](const binop::Addition&) {
+        lhs << rhs.leftOperand << " + " << rhs.rightOperand;
+      },
+      [&](const binop::Subtraction&) {
+        lhs << rhs.leftOperand << " - " << rhs.rightOperand;
+      },
+      [&](const binop::Multiplication&) {
+        lhs << rhs.leftOperand << " * " << rhs.rightOperand;
+      },
+      [&](const binop::Division&) {
+        lhs << rhs.leftOperand << " / " << rhs.rightOperand;
+      },
+      [&](const binop::Modulus&) { lhs << rhs.leftOperand << " % " << rhs.rightOperand; },
+      [&](const binop::LogicalAnd&) {
+        lhs << rhs.leftOperand << " && " << rhs.rightOperand;
+      },
+      [&](const binop::LogicalOr&) {
+        lhs << rhs.leftOperand << " || " << rhs.rightOperand;
+      },
+      [&](const binop::BitwiseAnd&) {
+        lhs << rhs.leftOperand << " & " << rhs.rightOperand;
+      },
+      [&](const binop::BitwiseXOr&) {
+        lhs << rhs.leftOperand << " ^ " << rhs.rightOperand;
+      },
+      [&](const binop::BitwiseOr&) {
+        lhs << rhs.leftOperand << " | " << rhs.rightOperand;
+      },
+      [&](const binop::BitwiseShiftLeft&) {
+        lhs << rhs.leftOperand << " << " << rhs.rightOperand;
+      },
+      [&](const binop::BitwiseShiftRight&) {
+        lhs << rhs.leftOperand << " >> " << rhs.rightOperand;
+      },
+      [&](const binop::Less&) { lhs << rhs.leftOperand << " < " << rhs.rightOperand; },
+      [&](const binop::LessOrEqual&) {
+        lhs << rhs.leftOperand << " <= " << rhs.rightOperand;
+      },
+      [&](const binop::Greater&) { lhs << rhs.leftOperand << " > " << rhs.rightOperand; },
+      [&](const binop::GreaterOrEqual&) {
+        lhs << rhs.leftOperand << " >= " << rhs.rightOperand;
+      },
+      [&](const binop::Equal&) { lhs << rhs.leftOperand << " == " << rhs.rightOperand; },
+      [&](const binop::NotEqual&) {
+        lhs << rhs.leftOperand << " != " << rhs.rightOperand;
+      },
+      [&](const binop::BoundedRange&) {
+        lhs << rhs.leftOperand << ".." << rhs.rightOperand;
+      },
+      [&](const binop::Case&) { lhs << rhs.leftOperand << " -> " << rhs.rightOperand; }),
+    rhs.operation);
 
   return lhs;
 }

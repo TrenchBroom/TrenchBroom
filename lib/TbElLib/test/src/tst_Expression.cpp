@@ -1708,8 +1708,8 @@ TEST_CASE("Expression")
       UnaryExpression{UnaryOperation::Minus, lit(1)}
       != UnaryExpression{UnaryOperation::Plus, lit(1)});
     CHECK(
-      BinaryExpression{BinaryOperation::Addition, lit(1), lit(2)}
-      != BinaryExpression{BinaryOperation::Subtraction, lit(1), lit(2)});
+      BinaryExpression{binop::Addition{}, lit(1), lit(2)}
+      != BinaryExpression{binop::Subtraction{}, lit(1), lit(2)});
     CHECK(
       SubscriptExpression{lit("ab"), lit(0)} != SubscriptExpression{lit("ab"), lit(1)});
     CHECK(SwitchExpression{{lit(1)}} != SwitchExpression{{lit(2)}});
@@ -1719,11 +1719,11 @@ TEST_CASE("Expression")
       UnaryExpression{UnaryOperation::Minus, lit(1)}
       != UnaryExpression{UnaryOperation::Minus, lit(2)});
     CHECK(
-      BinaryExpression{BinaryOperation::Addition, lit(1), lit(2)}
-      != BinaryExpression{BinaryOperation::Addition, lit(3), lit(2)});
+      BinaryExpression{binop::Addition{}, lit(1), lit(2)}
+      != BinaryExpression{binop::Addition{}, lit(3), lit(2)});
     CHECK(
-      BinaryExpression{BinaryOperation::Addition, lit(1), lit(2)}
-      != BinaryExpression{BinaryOperation::Addition, lit(1), lit(3)});
+      BinaryExpression{binop::Addition{}, lit(1), lit(2)}
+      != BinaryExpression{binop::Addition{}, lit(1), lit(3)});
     CHECK(
       SubscriptExpression{lit("ab"), lit(0)} != SubscriptExpression{lit("cd"), lit(0)});
   }

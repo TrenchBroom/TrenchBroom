@@ -23,6 +23,8 @@
 #include "Value.h"
 #include "base/FileLocation.h"
 
+#include "kd/reflection_impl.h"
+
 #include <memory>
 #include <optional>
 #include <string>
@@ -205,29 +207,152 @@ bool operator!=(const UnaryExpression& lhs, const UnaryExpression& rhs);
 std::ostream& operator<<(std::ostream& lhs, const UnaryExpression& rhs);
 
 
-enum class BinaryOperation
+namespace binop
 {
-  Addition,
-  Subtraction,
-  Multiplication,
-  Division,
-  Modulus,
-  LogicalAnd,
-  LogicalOr,
-  BitwiseAnd,
-  BitwiseXOr,
-  BitwiseOr,
-  BitwiseShiftLeft,
-  BitwiseShiftRight,
-  Less,
-  LessOrEqual,
-  Greater,
-  GreaterOrEqual,
-  Equal,
-  NotEqual,
-  BoundedRange,
-  Case,
+
+struct Multiplication
+{
+  static constexpr size_t precedence = 12;
+  kdl_reflect_inline_empty(Multiplication);
 };
+
+struct Division
+{
+  static constexpr size_t precedence = 12;
+  kdl_reflect_inline_empty(Division);
+};
+
+struct Modulus
+{
+  static constexpr size_t precedence = 12;
+  kdl_reflect_inline_empty(Modulus);
+};
+
+struct Addition
+{
+  static constexpr size_t precedence = 11;
+  kdl_reflect_inline_empty(Addition);
+};
+
+struct Subtraction
+{
+  static constexpr size_t precedence = 11;
+  kdl_reflect_inline_empty(Subtraction);
+};
+
+struct BitwiseShiftLeft
+{
+  static constexpr size_t precedence = 10;
+  kdl_reflect_inline_empty(BitwiseShiftLeft);
+};
+
+struct BitwiseShiftRight
+{
+  static constexpr size_t precedence = 10;
+  kdl_reflect_inline_empty(BitwiseShiftRight);
+};
+
+struct Less
+{
+  static constexpr size_t precedence = 9;
+  kdl_reflect_inline_empty(Less);
+};
+
+struct LessOrEqual
+{
+  static constexpr size_t precedence = 9;
+  kdl_reflect_inline_empty(LessOrEqual);
+};
+
+struct Greater
+{
+  static constexpr size_t precedence = 9;
+  kdl_reflect_inline_empty(Greater);
+};
+
+struct GreaterOrEqual
+{
+  static constexpr size_t precedence = 9;
+  kdl_reflect_inline_empty(GreaterOrEqual);
+};
+
+struct Equal
+{
+  static constexpr size_t precedence = 8;
+  kdl_reflect_inline_empty(Equal);
+};
+
+struct NotEqual
+{
+  static constexpr size_t precedence = 8;
+  kdl_reflect_inline_empty(NotEqual);
+};
+
+struct BitwiseAnd
+{
+  static constexpr size_t precedence = 7;
+  kdl_reflect_inline_empty(BitwiseAnd);
+};
+
+struct BitwiseXOr
+{
+  static constexpr size_t precedence = 6;
+  kdl_reflect_inline_empty(BitwiseXOr);
+};
+
+struct BitwiseOr
+{
+  static constexpr size_t precedence = 5;
+  kdl_reflect_inline_empty(BitwiseOr);
+};
+
+struct LogicalAnd
+{
+  static constexpr size_t precedence = 4;
+  kdl_reflect_inline_empty(LogicalAnd);
+};
+
+struct LogicalOr
+{
+  static constexpr size_t precedence = 3;
+  kdl_reflect_inline_empty(LogicalOr);
+};
+
+struct BoundedRange
+{
+  static constexpr size_t precedence = 2;
+  kdl_reflect_inline_empty(BoundedRange);
+};
+
+struct Case
+{
+  static constexpr size_t precedence = 1;
+  kdl_reflect_inline_empty(Case);
+};
+
+} // namespace binop
+
+using BinaryOperation = std::variant<
+  binop::Addition,
+  binop::Subtraction,
+  binop::Multiplication,
+  binop::Division,
+  binop::Modulus,
+  binop::LogicalAnd,
+  binop::LogicalOr,
+  binop::BitwiseAnd,
+  binop::BitwiseXOr,
+  binop::BitwiseOr,
+  binop::BitwiseShiftLeft,
+  binop::BitwiseShiftRight,
+  binop::Less,
+  binop::LessOrEqual,
+  binop::Greater,
+  binop::GreaterOrEqual,
+  binop::Equal,
+  binop::NotEqual,
+  binop::BoundedRange,
+  binop::Case>;
 
 struct BinaryExpression
 {
