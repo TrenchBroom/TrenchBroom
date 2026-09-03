@@ -27,9 +27,11 @@
 #include "kd/overload.h"
 #include "kd/ranges/concat_view.h"
 #include "kd/ranges/to.h"
+#include "kd/string_compare.h"
 
 #include <fmt/format.h>
 
+#include <algorithm>
 #include <functional>
 #include <ranges>
 #include <sstream>
@@ -1379,6 +1381,98 @@ Value evaluate(
     expressionNode);
 }
 
+bool isGlobPattern(const std::string& pattern)
+{
+  return pattern.find_first_of("?*%\\") != std::string::npos;
+}
+
+Value evaluateLike(EvaluationContext& context, const Value& lhs, const Value& rhs)
+{
+  if (lhs.hasType(ValueType::Undefined) || rhs.hasType(ValueType::Undefined))
+  {
+    return Value{false};
+  }
+
+  if (!rhs.hasType(ValueType::String))
+  {
+    return Value{false};
+  }
+
+  // a pattern with no glob metacharacters at all matches as a substring
+  const auto& rawPattern = rhs.stringValue(context);
+  const auto pattern = isGlobPattern(rawPattern) ? rawPattern : "*" + rawPattern + "*";
+
+  if (lhs.hasType(ValueType::String))
+  {
+    return Value{kdl::ci::str_matches_glob(lhs.stringValue(context), pattern)};
+  }
+
+  if (lhs.hasType(ValueType::Array))
+  {
+    const auto& array = lhs.arrayValue(context);
+    return Value{std::ranges::any_of(array, [&](const auto& element) {
+      return element.hasType(ValueType::String)
+             && kdl::ci::str_matches_glob(element.stringValue(context), pattern);
+    })};
+  }
+
+  return Value{false};
+}
+
+Value evaluateContains(EvaluationContext& context, const Value& lhs, const Value& rhs)
+{
+  if (lhs.hasType(ValueType::Undefined) || rhs.hasType(ValueType::Undefined))
+  {
+    return Value{false};
+  }
+
+  switch (lhs.type())
+  {
+  case ValueType::Array: {
+    const auto& array = lhs.arrayValue(context);
+    return Value{
+      std::ranges::any_of(array, [&](const auto& element) { return element == rhs; })};
+  }
+  case ValueType::Map:
+    return Value{
+      rhs.hasType(ValueType::String) && lhs.contains(context, rhs.stringValue(context))};
+  case ValueType::Range:
+    if (rhs.hasType(ValueType::Number))
+    {
+      const auto n = rhs.numberValue(context);
+      return Value{std::visit(
+        kdl::overload(
+          [&](const LeftBoundedRange& r) { return n >= static_cast<double>(r.first); },
+          [&](const RightBoundedRange& r) { return n <= static_cast<double>(r.last); },
+          [&](const BoundedRange& r) {
+            const auto lo = static_cast<double>(std::min(r.first, r.last));
+            const auto hi = static_cast<double>(std::max(r.first, r.last));
+            return n >= lo && n <= hi;
+          }),
+        lhs.rangeValue(context))};
+    }
+    return Value{false};
+  case ValueType::BBox:
+    if (rhs.hasType(ValueType::Vec3))
+    {
+      return Value{lhs.bboxValue(context).contains(rhs.vec3Value(context))};
+    }
+    if (rhs.hasType(ValueType::BBox))
+    {
+      return Value{lhs.bboxValue(context).contains(rhs.bboxValue(context))};
+    }
+    return Value{false};
+  case ValueType::Boolean:
+  case ValueType::String:
+  case ValueType::Number:
+  case ValueType::Vec3:
+  case ValueType::Null:
+  case ValueType::Undefined:
+    return Value{false};
+    switchDefault();
+  }
+}
+
 using BuiltinFunction = std::function<Value(
   EvaluationContext&, const std::vector<Value>&, const ExpressionNode&)>;
 
@@ -1432,6 +1526,26 @@ const auto builtinFunctions = std::unordered_map<std::string, BuiltinFunction>{
      const auto& a = arguments[0].bboxValue(context);
      const auto& b = arguments[1].bboxValue(context);
      return Value{a.intersects(b)};
+   }},
+  {"like",
+   [](auto& context, const auto& arguments, const auto& expressionNode) {
+     if (arguments.size() != 2)
+     {
+       throw EvaluationError{
+         expressionNode,
+         fmt::format("like() expects 2 arguments, but got {}", arguments.size())};
+     }
+     return evaluateLike(context, arguments[0], arguments[1]);
+   }},
+  {"contains",
+   [](auto& context, const auto& arguments, const auto& expressionNode) {
+     if (arguments.size() != 2)
+     {
+       throw EvaluationError{
+         expressionNode,
+         fmt::format("contains() expects 2 arguments, but got {}", arguments.size())};
+     }
+     return evaluateContains(context, arguments[0], arguments[1]);
    }},
 };
 

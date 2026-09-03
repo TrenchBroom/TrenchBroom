@@ -2203,6 +2203,63 @@ Whether two boxes overlap can be tested using the `intersects` function. Since i
 
 For example, `bbox(vec(0, 0, 0), vec(2, 2, 2)) intersects bbox(vec(1, 1, 1), vec(3, 3, 3))` evaluates to `true`, since the two boxes overlap. Note that `intersects` only tests for overlap; it evaluates to `true` even if neither box fully contains the other.
 
+### Pattern Matching
+
+Strings, and arrays of strings, can be matched against a glob pattern using the `like` function. Since it takes exactly two arguments, it can also be called using infix notation (see Infix Notation above).
+
+    like(value, pattern)
+    value like pattern
+
+The match is case insensitive. The pattern may contain the following special characters.
+
+Character  Effect
+---------  ------
+`?`        Matches any single character.
+`*`        Matches any sequence of characters, including none.
+`%`        Matches any single digit.
+`%*`       Matches any sequence of digits, including none.
+`\?`       Matches a literal `?` character.
+`\*`       Matches a literal `*` character.
+`\%`       Matches a literal `%` character.
+`\\`       Matches a literal `\` character.
+
+If the pattern does not contain any of the characters `?`, `*`, or `%`, it is matched as a substring of `value` instead of requiring an exact match.
+
+    "Hello World" like "hello*"      // true
+    "Hello World" like "*world"      // true
+    "Hello World" like "h?llo*"      // true
+    "func_detail" like "detail"      // true, matched as a substring
+    "func_detail" like "func_detail" // true
+
+If `value` is an `Array`, `like` evaluates to `true` if any of its `String` elements matches the pattern; elements of any other type are simply ignored.
+
+    ["a", "b", "trigger_once"] like "*trigger*" // true
+
+`like` never throws an error. If `value` or `pattern` is `undefined`, if `value` is of a type other than `String` or `Array`, or if `pattern` is not a `String`, the result is simply `false`.
+
+### Membership Testing
+
+Whether a container value contains a given value can be tested using the `contains` function. Since it takes exactly two arguments, it can also be called using infix notation (see Infix Notation above).
+
+    contains(container, value)
+    container contains value
+
+The following table explains the supported combinations of container and value types.
+
+Container   Value     Effect
+---------   -----     ------
+`Array`     any type  `true` if the array contains an element equal to `value`.
+`Map`       `String`  `true` if the map contains a key equal to `value`.
+`BBox`      `Vec3`    `true` if the box contains the point.
+`BBox`      `BBox`    `true` if the box fully contains the other box.
+
+    [1, 2, 3] contains 2                                                // true
+    { a: 1, b: 2 } contains "a"                                         // true
+    bbox(vec(0, 0, 0), vec(2, 2, 2)) contains vec(1, 1, 1)              // true
+    bbox(vec(0, 0, 0), vec(3, 3, 3)) contains bbox(vec(1, 1, 1), vec(2, 2, 2)) // true
+
+`contains` never throws an error. If `container` or `value` is `undefined`, or if their combination of types is not one of those listed above, the result is simply `false`.
+
 ### Unary Operator Terms
 
 A unary operator is an operator that applies to a single operand. In TrenchBroom's expression language, there are four unary operators: unary plus, unary minus, logical negation, and binary negation.
