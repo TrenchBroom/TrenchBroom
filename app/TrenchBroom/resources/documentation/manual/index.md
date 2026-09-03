@@ -2168,6 +2168,13 @@ Two vectors can be compared for equality, and, since vectors are ordered lexicog
     vec(1, 2, 3) == vec(1, 2, 3) // true
     vec(1, 2, 3) < vec(4, 5, 6)  // true
 
+The Euclidean distance between two vectors can be computed using the `distanceTo` function. Since it takes exactly two arguments, it can also be called using infix notation (see Infix Notation above).
+
+    distanceTo(a, b)
+    a distanceTo b
+
+For example, `vec(0, 0, 0) distanceTo vec(3, 4, 0)` evaluates to `5`.
+
 See [Type Conversion](#el_type_conversion) above for how a `Vec3` can be converted to and from a `String`.
 
 ### BBox
@@ -2188,6 +2195,13 @@ Two boxes can be compared for equality.
     bbox(vec(0, 0, 0), vec(1, 1, 1)) == bbox(vec(0, 0, 0), vec(1, 1, 1)) // true
 
 Boxes can also be ordered using `<`, `<=`, `>`, and `>=`, which compare the boxes' corners lexicographically (`min` first, then `max`), though this ordering has no particular geometric meaning and is rarely useful on its own. Boxes do not support any arithmetic or unary operators; using any of them results in an error.
+
+Whether two boxes overlap can be tested using the `intersects` function. Since it takes exactly two arguments, it can also be called using infix notation (see Infix Notation above).
+
+    intersects(a, b)
+    a intersects b
+
+For example, `bbox(vec(0, 0, 0), vec(2, 2, 2)) intersects bbox(vec(1, 1, 1), vec(3, 3, 3))` evaluates to `true`, since the two boxes overlap. Note that `intersects` only tests for overlap; it evaluates to `true` even if neither box fully contains the other.
 
 ### Unary Operator Terms
 
