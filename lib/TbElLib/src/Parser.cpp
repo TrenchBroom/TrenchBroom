@@ -709,7 +709,14 @@ ExpressionNode Parser::parseCompoundTerm(ExpressionNode lhs)
   while (m_tokenizer.peekToken().hasType(ElToken::CompoundTerm))
   {
     const auto token = m_tokenizer.nextToken(ElToken::CompoundTerm);
-    if (const auto it = TokenMap.find(token.type()); it != TokenMap.end())
+    if (token.hasType(ElToken::Name))
+    {
+      lhs = ExpressionNode{
+        BinaryExpression{
+          binop::InfixCall{token.data()}, std::move(lhs), parseSimpleTermOrSwitch()},
+        token.location()};
+    }
+    else if (const auto it = TokenMap.find(token.type()); it != TokenMap.end())
     {
       const auto op = it->second;
       lhs = ExpressionNode{
