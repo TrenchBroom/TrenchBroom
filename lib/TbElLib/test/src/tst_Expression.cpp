@@ -1743,10 +1743,13 @@ TEST_CASE("Expression")
     // Function calls
     {"vec(1, 2, 3)",            lit(Vec3Type{1, 2, 3})},
     {"vec(x, 2, 3)",            call("vec", {var("x"), lit(2), lit(3)})},
+    {"vec(1, 2, 3) distanceTo vec(1, 2, 3)", lit(0)},
+    {"x distanceTo vec(1, 2, 3)", inf("distanceTo", var("x"), lit(Vec3Type{1, 2, 3}))},
 
     // An operand that isn't constant is never evaluated, so an operation that fails for
     // an undefined operand doesn't prevent the expression from being optimized
     {"distanceTo(x, vec(0, 0, 0)) < 1", ls(call("distanceTo", {var("x"), lit(Vec3Type{0, 0, 0})}), lit(1))},
+    {"x intersects y",          inf("intersects", var("x"), var("y"))},
     {"{a:1}[x] == 1",           eq(scr(lit(MapType{{"a", Value{1}}}), var("x")), lit(1))},
 
     // A map with a non constant element cannot be folded

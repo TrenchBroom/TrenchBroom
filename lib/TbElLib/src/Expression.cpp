@@ -962,8 +962,15 @@ Value evaluateCase(const EvaluateLhs& evaluateLhs, const EvaluateRhs& evaluateRh
   return Value::Undefined;
 }
 
+Value evaluateCall(
+  EvaluationContext& context,
+  const std::string& name,
+  const std::vector<Value>& arguments,
+  const ExpressionNode& expressionNode);
+
 template <typename EvalualateLhs, typename EvaluateRhs>
 Value evaluateBinaryExpression(
+  EvaluationContext& context,
   const BinaryOperation& operator_,
   const EvalualateLhs& evaluateLhs,
   const EvaluateRhs& evaluateRhs,
@@ -1028,18 +1035,26 @@ Value evaluateBinaryExpression(
       [&](const binop::BoundedRange&) {
         return Value{evaluateBoundedRange(evaluateLhs(), evaluateRhs())};
       },
-      [&](const binop::Case&) { return evaluateCase(evaluateLhs, evaluateRhs); }),
+      [&](const binop::Case&) { return evaluateCase(evaluateLhs, evaluateRhs); },
+      [&](const binop::InfixCall& infixCall) {
+        return evaluateCall(
+          context,
+          infixCall.functionName,
+          {evaluateLhs(), evaluateRhs()},
+          expressionNode);
+      }),
     operator_);
 }
 
 template <typename Evaluator>
 Value evaluate(
-  EvaluationContext&,
+  EvaluationContext& context,
   const Evaluator& evaluator,
   const BinaryExpression& expression,
   const ExpressionNode& expressionNode)
 {
   return evaluateBinaryExpression(
+    context,
     expression.operation,
     [&] { return expression.leftOperand.accept(evaluator); },
     [&] { return expression.rightOperand.accept(evaluator); },
@@ -1580,6 +1595,7 @@ Expression optimize(
   if (isLiteral)
   {
     return LiteralExpression{evaluateBinaryExpression(
+      context,
       expression.operation,
       [&] { return optimizedLeftOperand.evaluate(context); },
       [&] { return optimizedRightOperand.evaluate(context); },
@@ -1990,6 +2006,7 @@ kdl_reflect_impl(LogicalAnd);
 kdl_reflect_impl(LogicalOr);
 kdl_reflect_impl(BoundedRange);
 kdl_reflect_impl(Case);
+kdl_reflect_impl(InfixCall);
 } // namespace binop
 
 
@@ -2052,7 +2069,11 @@ std::ostream& operator<<(std::ostream& lhs, const BinaryExpression& rhs)
       [&](const binop::BoundedRange&) {
         lhs << rhs.leftOperand << ".." << rhs.rightOperand;
       },
-      [&](const binop::Case&) { lhs << rhs.leftOperand << " -> " << rhs.rightOperand; }),
+      [&](const binop::Case&) { lhs << rhs.leftOperand << " -> " << rhs.rightOperand; },
+      [&](const binop::InfixCall& infixCall) {
+        lhs << rhs.leftOperand << " " << infixCall.functionName << " "
+            << rhs.rightOperand;
+      }),
     rhs.operation);
 
   return lhs;

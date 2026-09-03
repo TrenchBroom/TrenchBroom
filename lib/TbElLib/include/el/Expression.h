@@ -220,6 +220,15 @@ struct Case
   kdl_reflect_decl_empty(Case);
 };
 
+struct InfixCall
+{
+  static constexpr size_t precedence = 13;
+
+  std::string functionName;
+
+  kdl_reflect_decl(InfixCall, functionName);
+};
+
 } // namespace binop
 
 using BinaryOperation = std::variant<
@@ -242,7 +251,8 @@ using BinaryOperation = std::variant<
   binop::Equal,
   binop::NotEqual,
   binop::BoundedRange,
-  binop::Case>;
+  binop::Case,
+  binop::InfixCall>;
 
 struct BinaryExpression
 {
