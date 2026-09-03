@@ -1449,6 +1449,59 @@ TEST_CASE("Expression")
                  "'bbox(vec(1, 2, 3), vec(4, 5, 6), vec(7, 8, 9))': bbox() expects 2 "
                  "arguments, but got 3"});
     }
+
+    SECTION("distanceTo")
+    {
+      CHECK(evaluate("distanceTo(vec(0, 0, 0), vec(3, 4, 0))") == Value{5.0});
+      CHECK(evaluate("distanceTo(vec(1, 2, 3), vec(1, 2, 3))") == Value{0.0});
+
+      CHECK(
+        evaluate("distanceTo(vec(3, 4, 0), vec(0, 0, 0))")
+        == evaluate("distanceTo(vec(0, 0, 0), vec(3, 4, 0))"));
+
+      CHECK(
+        evaluate("distanceTo(vec(0, 0, 0))")
+        == Error{"At line 1, column 1: Cannot evaluate expression "
+                 "'distanceTo(vec(0, 0, 0))': distanceTo() expects 2 arguments, but got "
+                 "1"});
+      CHECK(
+        evaluate("distanceTo()")
+        == Error{"At line 1, column 1: Cannot evaluate expression 'distanceTo()': "
+                 "distanceTo() expects 2 arguments, but got 0"});
+      CHECK(
+        evaluate("distanceTo(vec(0, 0, 0), vec(1, 1, 1), vec(2, 2, 2))")
+        == Error{"At line 1, column 1: Cannot evaluate expression "
+                 "'distanceTo(vec(0, 0, 0), vec(1, 1, 1), vec(2, 2, 2))': distanceTo() "
+                 "expects 2 arguments, but got 3"});
+    }
+
+    SECTION("intersects")
+    {
+      CHECK(
+        evaluate("intersects(bbox(vec(0, 0, 0), vec(2, 2, 2)), "
+                 "bbox(vec(1, 1, 1), vec(3, 3, 3)))")
+        == Value{true});
+
+      CHECK(
+        evaluate("intersects(bbox(vec(0, 0, 0), vec(1, 1, 1)), "
+                 "bbox(vec(2, 2, 2), vec(3, 3, 3)))")
+        == Value{false});
+
+      CHECK(
+        evaluate("intersects(bbox(vec(1, 1, 1), vec(3, 3, 3)), "
+                 "bbox(vec(0, 0, 0), vec(2, 2, 2)))")
+        == Value{true});
+
+      CHECK(
+        evaluate("intersects(bbox(vec(0, 0, 0), vec(1, 1, 1)))")
+        == Error{"At line 1, column 1: Cannot evaluate expression "
+                 "'intersects(bbox(vec(0, 0, 0), vec(1, 1, 1)))': intersects() "
+                 "expects 2 arguments, but got 1"});
+      CHECK(
+        evaluate("intersects()")
+        == Error{"At line 1, column 1: Cannot evaluate expression 'intersects()': "
+                 "intersects() expects 2 arguments, but got 0"});
+    }
   }
 
   SECTION("Infix calls")
