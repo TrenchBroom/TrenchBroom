@@ -1573,6 +1573,130 @@ TEST_CASE("Expression")
         == Error{"At line 1, column 1: Cannot evaluate expression 'intersects()': "
                  "intersects() expects 2 arguments, but got 0"});
     }
+
+    SECTION("like")
+    {
+      // String like String: case-insensitive glob, and prefix/infix forms agree
+      CHECK(evaluate(R"(like("Hello World", "hello*"))") == Value{true});
+      CHECK(evaluate(R"("Hello World" like "hello*")") == Value{true});
+      CHECK(evaluate(R"("Hello World" like "*world")") == Value{true});
+      CHECK(evaluate(R"("Hello World" like "h?llo*")") == Value{true});
+      CHECK(evaluate(R"("Hello World" like "goodbye*")") == Value{false});
+
+      // a pattern with no glob metacharacters matches as a substring, not exactly
+      CHECK(evaluate(R"("func_detail" like "detail")") == Value{true});
+      CHECK(evaluate(R"("func_detail" like "func_detail")") == Value{true});
+      CHECK(evaluate(R"("detail" like "func_detail")") == Value{false});
+
+      // an escaped wildcard is matched literally and doesn't prevent substring matching
+      const auto patterns = MapType{
+        {"path", Value{R"(C:\quake\id1\gfx.wad)"}},
+        {"escapedBackslash", Value{R"(id1\\gfx)"}},
+        {"escapedStar", Value{R"(\*)"}},
+        {"escapedStarThenStar", Value{R"(a\**)"}},
+        {"trailingBackslash", Value{R"(quake\)"}},
+        {"escapedTrailingBackslash", Value{R"(quake\\)"}},
+      };
+      CHECK(evaluate("path like escapedBackslash", patterns) == Value{true});
+      CHECK(evaluate(R"("a*b" like escapedStar)", patterns) == Value{true});
+      CHECK(evaluate(R"("a*bc" like escapedStarThenStar)", patterns) == Value{true});
+      CHECK(evaluate(R"("xa*bc" like escapedStarThenStar)", patterns) == Value{false});
+
+      // a trailing backslash that doesn't escape anything matches a literal backslash
+      CHECK(evaluate("path like trailingBackslash", patterns) == Value{true});
+      CHECK(evaluate(R"("quake*" like trailingBackslash)", patterns) == Value{false});
+      CHECK(evaluate("path like escapedTrailingBackslash", patterns) == Value{true});
+
+      // Array like String: true if any element matches
+      CHECK(evaluate(R"(["a", "b", "trigger_once"] like "*trigger*")") == Value{true});
+      CHECK(evaluate(R"(["a", "b", "c"] like "*trigger*")") == Value{false});
+      // non-String elements are simply skipped, not an error
+      CHECK(evaluate(R"([1, "trigger_once"] like "*trigger*")") == Value{true});
+
+      // Map like String: true if any key or String value matches
+      CHECK(evaluate(R"({target: "door1"} like "target")") == Value{true});
+      CHECK(evaluate(R"({target: "door1"} like "door*")") == Value{true});
+      CHECK(evaluate(R"({target: "door1"} like "light*")") == Value{false});
+      // non-String values are simply skipped, not an error
+      CHECK(evaluate(R"({a: 1} like "a")") == Value{true});
+      CHECK(evaluate(R"({a: 1} like "1")") == Value{false});
+
+      // never throws -- Undefined on either side, or an unsupported type combination,
+      // just fails to match
+      CHECK(evaluate(R"(undefined like "x")") == Value{false});
+      CHECK(evaluate(R"("x" like undefined)") == Value{false});
+      CHECK(evaluate(R"(1 like "1")") == Value{false});
+      CHECK(evaluate(R"("x" like 1)") == Value{false});
+
+      CHECK(
+        evaluate(R"(like("a"))")
+        == Error{"At line 1, column 1: Cannot evaluate expression 'like(\"a\")': "
+                 "like() expects 2 arguments, but got 1"});
+      CHECK(
+        evaluate("like()")
+        == Error{"At line 1, column 1: Cannot evaluate expression 'like()': like() "
+                 "expects 2 arguments, but got 0"});
+    }
+
+    SECTION("contains")
+    {
+      // Array contains X: element membership, prefix/infix forms agree
+      CHECK(evaluate(R"(contains([1, 2, 3], 2))") == Value{true});
+      CHECK(evaluate(R"([1, 2, 3] contains 2)") == Value{true});
+      CHECK(evaluate(R"([1, 2, 3] contains 4)") == Value{false});
+      CHECK(evaluate(R"(["Detail", "Trigger"] contains "Detail")") == Value{true});
+
+      // elements are compared like `==`, which converts strings to numbers, and an
+      // element that can't be compared to the value doesn't match
+      CHECK(evaluate(R"([1, 2, 3] contains "2")") == Value{true});
+      CHECK(evaluate(R"(["1", "2"] contains 2)") == Value{true});
+      CHECK(evaluate(R"(["a", 2] contains 2)") == Value{true});
+      CHECK(evaluate(R"([vec(1, 1, 1)] contains "a")") == Value{false});
+      CHECK(evaluate(R"(["1 2 3"] contains vec(1, 2, 3))") == Value{true});
+
+      // Map contains String: key membership
+      CHECK(evaluate(R"({a: 1, b: 2} contains "a")") == Value{true});
+      CHECK(evaluate(R"({a: 1, b: 2} contains "c")") == Value{false});
+      // a non-String rhs against a Map is simply false, not an error
+      CHECK(evaluate(R"({a: 1, b: 2} contains 1)") == Value{false});
+
+      // BBox contains Vec3: point containment
+      CHECK(
+        evaluate("bbox(vec(0, 0, 0), vec(2, 2, 2)) contains vec(1, 1, 1)")
+        == Value{true});
+      CHECK(
+        evaluate("bbox(vec(0, 0, 0), vec(2, 2, 2)) contains vec(3, 3, 3)")
+        == Value{false});
+
+      // BBox contains BBox: full containment
+      CHECK(
+        evaluate(
+          "bbox(vec(0, 0, 0), vec(3, 3, 3)) contains bbox(vec(1, 1, 1), vec(2, 2, 2))")
+        == Value{true});
+      CHECK(
+        evaluate(
+          "bbox(vec(0, 0, 0), vec(3, 3, 3)) contains bbox(vec(0, 0, 0), vec(3, 3, 3))")
+        == Value{true});
+      CHECK(
+        evaluate(
+          "bbox(vec(0, 0, 0), vec(3, 3, 3)) contains bbox(vec(1, 1, 1), vec(4, 4, 4))")
+        == Value{false});
+
+      // never throws -- Undefined on either side, or an unsupported type combination,
+      // just fails to match
+      CHECK(evaluate("[1, 2, 3] contains undefined") == Value{false});
+      CHECK(evaluate("undefined contains 1") == Value{false});
+      CHECK(evaluate(R"({a: 1} contains vec(1, 1, 1))") == Value{false});
+
+      CHECK(
+        evaluate("contains(1)")
+        == Error{"At line 1, column 1: Cannot evaluate expression 'contains(1)': "
+                 "contains() expects 2 arguments, but got 1"});
+      CHECK(
+        evaluate("contains()")
+        == Error{"At line 1, column 1: Cannot evaluate expression 'contains()': "
+                 "contains() expects 2 arguments, but got 0"});
+    }
   }
 
   SECTION("Switch")

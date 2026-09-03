@@ -30,10 +30,12 @@
 #include "kd/ranges/concat_view.h"
 #include "kd/ranges/to.h"
 #include "kd/reflection_impl.h"
+#include "kd/string_compare.h"
 #include "kd/unpack.h"
 
 #include <fmt/format.h>
 
+#include <algorithm>
 #include <functional>
 #include <ranges>
 #include <sstream>
@@ -1367,6 +1369,131 @@ Value evaluate(
     expression.operand.accept(evaluator), Value{expression.fieldName}, expressionNode);
 }
 
+// whether the pattern contains a wildcard that isn't escaped
+bool isGlobPattern(const std::string& pattern)
+{
+  for (size_t i = 0u; i < pattern.size(); ++i)
+  {
+    if (pattern[i] == '\\')
+    {
+      ++i;
+    }
+    else if (pattern[i] == '?' || pattern[i] == '*' || pattern[i] == '%')
+    {
+      return true;
+    }
+  }
+  return false;
+}
+
+// a trailing backslash that doesn't escape anything is escaped so that it doesn't escape
+// the appended wildcard
+std::string makeSubstringPattern(const std::string& pattern)
+{
+  const auto trailingBackslashes = std::ranges::distance(
+    pattern | std::views::reverse
+    | std::views::take_while([](const auto c) { return c == '\\'; }));
+  return "*" + pattern + (trailingBackslashes % 2 == 1 ? "\\" : "") + "*";
+}
+
+Value evaluateLike(const Value& lhs, const Value& rhs)
+{
+  if (lhs.hasType(ValueType::Undefined) || rhs.hasType(ValueType::Undefined))
+  {
+    return Value{false};
+  }
+
+  if (!rhs.hasType(ValueType::String))
+  {
+    return Value{false};
+  }
+
+  // a pattern with no glob metacharacters at all matches as a substring
+  const auto& rawPattern = rhs.stringValue();
+  const auto pattern =
+    isGlobPattern(rawPattern) ? rawPattern : makeSubstringPattern(rawPattern);
+
+  if (lhs.hasType(ValueType::String))
+  {
+    return Value{kdl::ci::str_matches_glob(lhs.stringValue(), pattern)};
+  }
+
+  // array elements and map values that aren't strings never match
+  const auto matches = [&](const Value& value) {
+    return value.hasType(ValueType::String)
+           && kdl::ci::str_matches_glob(value.stringValue(), pattern);
+  };
+
+  if (lhs.hasType(ValueType::Array))
+  {
+    return Value{std::ranges::any_of(lhs.arrayValue(), matches)};
+  }
+
+  if (lhs.hasType(ValueType::Map))
+  {
+    return Value{std::ranges::any_of(
+      lhs.mapValue(), kdl::unpack([&](const auto& key, const auto& value) {
+        return kdl::ci::str_matches_glob(key, pattern) || matches(value);
+      }))};
+  }
+
+  return Value{false};
+}
+
+// like `==`, but values that can't be compared are not equal instead of an error
+bool evaluateEqual(
+  const Value& lhs, const Value& rhs, const ExpressionNode& expressionNode)
+{
+  try
+  {
+    return evaluateCompare(lhs, rhs, expressionNode) == 0;
+  }
+  catch (const EvaluationError&)
+  {
+    return false;
+  }
+}
+
+Value evaluateContains(
+  const Value& lhs, const Value& rhs, const ExpressionNode& expressionNode)
+{
+  if (lhs.hasType(ValueType::Undefined) || rhs.hasType(ValueType::Undefined))
+  {
+    return Value{false};
+  }
+
+  switch (lhs.type())
+  {
+  case ValueType::Array: {
+    const auto& array = lhs.arrayValue();
+    return Value{std::ranges::any_of(array, [&](const auto& element) {
+      return evaluateEqual(element, rhs, expressionNode);
+    })};
+  }
+  case ValueType::Map:
+    return Value{rhs.hasType(ValueType::String) && lhs.contains(rhs.stringValue())};
+  case ValueType::BBox:
+    if (rhs.hasType(ValueType::Vec3))
+    {
+      return Value{lhs.bboxValue().contains(rhs.vec3Value())};
+    }
+    if (rhs.hasType(ValueType::BBox))
+    {
+      return Value{lhs.bboxValue().contains(rhs.bboxValue())};
+    }
+    return Value{false};
+  case ValueType::Boolean:
+  case ValueType::String:
+  case ValueType::Number:
+  case ValueType::Range:
+  case ValueType::Vec3:
+  case ValueType::Null:
+  case ValueType::Undefined:
+    return Value{false};
+    switchDefault();
+  }
+}
+
 struct BuiltinFunction
 {
   size_t arity;
@@ -1428,6 +1555,16 @@ const auto builtinFunctions = kdl::flat_map<std::string, BuiltinFunction>{
       const auto& a = arguments[0].bboxValue();
       const auto& b = arguments[1].bboxValue();
       return Value{a.intersects(b)};
+    }}},
+  {"like",
+   {2,
+    [](auto&, const auto& arguments, const auto&) {
+      return evaluateLike(arguments[0], arguments[1]);
+    }}},
+  {"contains",
+   {2,
+    [](auto&, const auto& arguments, const auto& expressionNode) {
+      return evaluateContains(arguments[0], arguments[1], expressionNode);
     }}},
 };
 
