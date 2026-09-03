@@ -1496,6 +1496,83 @@ TEST_CASE("Expression")
                  "'bbox(vec(1, 2, 3), vec(4, 5, 6), vec(7, 8, 9))': bbox() expects 2 "
                  "arguments, but got 3"});
     }
+
+    SECTION("distanceTo")
+    {
+      CHECK(evaluate("distanceTo(vec(0, 0, 0), vec(3, 4, 0))") == Value{5.0});
+      CHECK(evaluate("distanceTo(vec(1, 2, 3), vec(1, 2, 3))") == Value{0.0});
+
+      CHECK(
+        evaluate("distanceTo(vec(3, 4, 0), vec(0, 0, 0))")
+        == evaluate("distanceTo(vec(0, 0, 0), vec(3, 4, 0))"));
+
+      // strings containing vectors are converted, and an undefined argument yields
+      // undefined
+      CHECK(evaluate(R"(distanceTo("3 4 0", vec(0, 0, 0)))") == Value{5.0});
+      CHECK(evaluate("distanceTo(undefined, vec(0, 0, 0))") == Value::Undefined);
+      CHECK(evaluate("distanceTo(vec(0, 0, 0), undefined)") == Value::Undefined);
+      CHECK(
+        evaluate(R"(distanceTo("a", vec(0, 0, 0)))")
+        == Error{"At line 1, column 1: Cannot evaluate expression 'distanceTo(\"a\", "
+                 "vec(0, 0, 0))': At line 1, column 12: Cannot convert value '\"a\"' of "
+                 "type 'String' to type 'Vec3'"});
+
+      CHECK(
+        evaluate("distanceTo(vec(0, 0, 0))")
+        == Error{"At line 1, column 1: Cannot evaluate expression "
+                 "'distanceTo(vec(0, 0, 0))': distanceTo() expects 2 arguments, but got "
+                 "1"});
+      CHECK(
+        evaluate("distanceTo()")
+        == Error{"At line 1, column 1: Cannot evaluate expression 'distanceTo()': "
+                 "distanceTo() expects 2 arguments, but got 0"});
+      CHECK(
+        evaluate("distanceTo(vec(0, 0, 0), vec(1, 1, 1), vec(2, 2, 2))")
+        == Error{"At line 1, column 1: Cannot evaluate expression "
+                 "'distanceTo(vec(0, 0, 0), vec(1, 1, 1), vec(2, 2, 2))': distanceTo() "
+                 "expects 2 arguments, but got 3"});
+    }
+
+    SECTION("intersects")
+    {
+      CHECK(
+        evaluate("intersects(bbox(vec(0, 0, 0), vec(2, 2, 2)), "
+                 "bbox(vec(1, 1, 1), vec(3, 3, 3)))")
+        == Value{true});
+
+      CHECK(
+        evaluate("intersects(bbox(vec(0, 0, 0), vec(1, 1, 1)), "
+                 "bbox(vec(2, 2, 2), vec(3, 3, 3)))")
+        == Value{false});
+
+      CHECK(
+        evaluate("intersects(bbox(vec(1, 1, 1), vec(3, 3, 3)), "
+                 "bbox(vec(0, 0, 0), vec(2, 2, 2)))")
+        == Value{true});
+
+      // an undefined argument yields undefined
+      CHECK(
+        evaluate("intersects(undefined, bbox(vec(0, 0, 0), vec(1, 1, 1)))")
+        == Value::Undefined);
+      CHECK(
+        evaluate("intersects(bbox(vec(0, 0, 0), vec(1, 1, 1)), undefined)")
+        == Value::Undefined);
+      CHECK(
+        evaluate("intersects(1, bbox(vec(0, 0, 0), vec(1, 1, 1)))")
+        == Error{"At line 1, column 1: Cannot evaluate expression 'intersects(1, "
+                 "bbox(vec(0, 0, 0), vec(1, 1, 1)))': At line 1, column 12: Cannot "
+                 "dereference value '1' of type 'Number' as type 'BBox'"});
+
+      CHECK(
+        evaluate("intersects(bbox(vec(0, 0, 0), vec(1, 1, 1)))")
+        == Error{"At line 1, column 1: Cannot evaluate expression "
+                 "'intersects(bbox(vec(0, 0, 0), vec(1, 1, 1)))': intersects() "
+                 "expects 2 arguments, but got 1"});
+      CHECK(
+        evaluate("intersects()")
+        == Error{"At line 1, column 1: Cannot evaluate expression 'intersects()': "
+                 "intersects() expects 2 arguments, but got 0"});
+    }
   }
 
   SECTION("Switch")
@@ -1608,6 +1685,7 @@ TEST_CASE("Expression")
     {"{a: 1 + 'a'}",       {},                  Value{MapType{{"a", Value::Undefined}}}},
     {"1[0]",               {},                  Value::Undefined},
     {"vec('a', 2, 3)",     {},                  Value::Undefined},
+    {"intersects(1, 2)",   {},                  Value::Undefined},
     }));
     // clang-format on
 
@@ -1668,6 +1746,7 @@ TEST_CASE("Expression")
 
     // An operand that isn't constant is never evaluated, so an operation that fails for
     // an undefined operand doesn't prevent the expression from being optimized
+    {"distanceTo(x, vec(0, 0, 0)) < 1", ls(call("distanceTo", {var("x"), lit(Vec3Type{0, 0, 0})}), lit(1))},
     {"{a:1}[x] == 1",           eq(scr(lit(MapType{{"a", Value{1}}}), var("x")), lit(1))},
 
     // A map with a non constant element cannot be folded

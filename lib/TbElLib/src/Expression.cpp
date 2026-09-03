@@ -1392,6 +1392,28 @@ const auto builtinFunctions = kdl::flat_map<std::string, BuiltinFunction>{
       const auto b = arguments[1].convertTo(ValueType::Vec3).vec3Value();
       return Value{BBoxType{vm::min(a, b), vm::max(a, b)}};
     }}},
+  {"distanceTo",
+   {2,
+    [](auto&, const auto& arguments, const auto&) {
+      if (hasUndefinedArgument(arguments))
+      {
+        return Value::Undefined;
+      }
+      const auto a = arguments[0].convertTo(ValueType::Vec3).vec3Value();
+      const auto b = arguments[1].convertTo(ValueType::Vec3).vec3Value();
+      return Value{vm::distance(a, b)};
+    }}},
+  {"intersects",
+   {2,
+    [](auto&, const auto& arguments, const auto&) {
+      if (hasUndefinedArgument(arguments))
+      {
+        return Value::Undefined;
+      }
+      const auto& a = arguments[0].bboxValue();
+      const auto& b = arguments[1].bboxValue();
+      return Value{a.intersects(b)};
+    }}},
 };
 
 Value evaluateCall(
