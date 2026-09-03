@@ -1502,6 +1502,111 @@ TEST_CASE("Expression")
         == Error{"At line 1, column 1: Cannot evaluate expression 'intersects()': "
                  "intersects() expects 2 arguments, but got 0"});
     }
+
+    SECTION("like")
+    {
+      // String like String: case-insensitive glob, and prefix/infix forms agree
+      CHECK(evaluate(R"(like("Hello World", "hello*"))") == Value{true});
+      CHECK(evaluate(R"("Hello World" like "hello*")") == Value{true});
+      CHECK(evaluate(R"("Hello World" like "*world")") == Value{true});
+      CHECK(evaluate(R"("Hello World" like "h?llo*")") == Value{true});
+      CHECK(evaluate(R"("Hello World" like "goodbye*")") == Value{false});
+
+      // a pattern with no glob metacharacters matches as a substring, not exactly
+      CHECK(evaluate(R"("func_detail" like "detail")") == Value{true});
+      CHECK(evaluate(R"("func_detail" like "func_detail")") == Value{true});
+      CHECK(evaluate(R"("detail" like "func_detail")") == Value{false});
+
+      // Array like String: true if any element matches
+      CHECK(evaluate(R"(["a", "b", "trigger_once"] like "*trigger*")") == Value{true});
+      CHECK(evaluate(R"(["a", "b", "c"] like "*trigger*")") == Value{false});
+      // non-String elements are simply skipped, not an error
+      CHECK(evaluate(R"([1, "trigger_once"] like "*trigger*")") == Value{true});
+
+      // never throws -- Undefined on either side, or an unsupported type combination,
+      // just fails to match
+      CHECK(evaluate(R"(undefined like "x")") == Value{false});
+      CHECK(evaluate(R"("x" like undefined)") == Value{false});
+      CHECK(evaluate(R"(1 like "1")") == Value{false});
+      CHECK(evaluate(R"("x" like 1)") == Value{false});
+
+      CHECK(
+        evaluate(R"(like("a"))")
+        == Error{"At line 1, column 1: Cannot evaluate expression 'like(\"a\")': "
+                 "like() expects 2 arguments, but got 1"});
+      CHECK(
+        evaluate("like()")
+        == Error{"At line 1, column 1: Cannot evaluate expression 'like()': like() "
+                 "expects 2 arguments, but got 0"});
+    }
+
+    SECTION("contains")
+    {
+      // Array contains X: element membership, prefix/infix forms agree
+      CHECK(evaluate(R"(contains([1, 2, 3], 2))") == Value{true});
+      CHECK(evaluate(R"([1, 2, 3] contains 2)") == Value{true});
+      CHECK(evaluate(R"([1, 2, 3] contains 4)") == Value{false});
+      CHECK(evaluate(R"(["Detail", "Trigger"] contains "Detail")") == Value{true});
+
+      // Map contains String: key membership
+      CHECK(evaluate(R"({a: 1, b: 2} contains "a")") == Value{true});
+      CHECK(evaluate(R"({a: 1, b: 2} contains "c")") == Value{false});
+      // a non-String rhs against a Map is simply false, not an error
+      CHECK(evaluate(R"({a: 1, b: 2} contains 1)") == Value{false});
+
+      // Range contains Number: all three range shapes, including reversed bounds
+      const auto boundedRange = MapType{{"r", Value{RangeType{BoundedRange{1, 10}}}}};
+      const auto reversedRange = MapType{{"r", Value{RangeType{BoundedRange{10, 1}}}}};
+      const auto leftBoundedRange = MapType{{"r", Value{RangeType{LeftBoundedRange{5}}}}};
+      const auto rightBoundedRange =
+        MapType{{"r", Value{RangeType{RightBoundedRange{5}}}}};
+
+      CHECK(evaluate("r contains 5", boundedRange) == Value{true});
+      CHECK(evaluate("r contains 15", boundedRange) == Value{false});
+      CHECK(evaluate("r contains 5", reversedRange) == Value{true});
+      CHECK(evaluate("r contains 5", leftBoundedRange) == Value{true});
+      CHECK(evaluate("r contains 4", leftBoundedRange) == Value{false});
+      CHECK(evaluate("r contains 5", rightBoundedRange) == Value{true});
+      CHECK(evaluate("r contains 6", rightBoundedRange) == Value{false});
+
+      // BBox contains Vec3: point containment
+      CHECK(
+        evaluate("bbox(vec(0, 0, 0), vec(2, 2, 2)) contains vec(1, 1, 1)")
+        == Value{true});
+      CHECK(
+        evaluate("bbox(vec(0, 0, 0), vec(2, 2, 2)) contains vec(3, 3, 3)")
+        == Value{false});
+
+      // BBox contains BBox: full containment
+      CHECK(
+        evaluate(
+          "bbox(vec(0, 0, 0), vec(3, 3, 3)) contains bbox(vec(1, 1, 1), vec(2, 2, 2))")
+        == Value{true});
+      CHECK(
+        evaluate(
+          "bbox(vec(0, 0, 0), vec(3, 3, 3)) contains bbox(vec(0, 0, 0), vec(3, 3, 3))")
+        == Value{true});
+      CHECK(
+        evaluate(
+          "bbox(vec(0, 0, 0), vec(3, 3, 3)) contains bbox(vec(1, 1, 1), vec(4, 4, 4))")
+        == Value{false});
+
+      // never throws -- Undefined on either side, or an unsupported type combination,
+      // just fails to match
+      CHECK(evaluate("[1, 2, 3] contains undefined") == Value{false});
+      CHECK(evaluate("undefined contains 1") == Value{false});
+      CHECK(evaluate(R"({a: 1} contains vec(1, 1, 1))") == Value{false});
+      CHECK(evaluate("r contains true", boundedRange) == Value{false});
+
+      CHECK(
+        evaluate("contains(1)")
+        == Error{"At line 1, column 1: Cannot evaluate expression 'contains(1)': "
+                 "contains() expects 2 arguments, but got 1"});
+      CHECK(
+        evaluate("contains()")
+        == Error{"At line 1, column 1: Cannot evaluate expression 'contains()': "
+                 "contains() expects 2 arguments, but got 0"});
+    }
   }
 
   SECTION("Infix calls")
