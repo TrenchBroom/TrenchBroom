@@ -338,6 +338,42 @@ asdf)")
     CHECK(parse("f(,1)").is_error());
   }
 
+  SECTION("Infix calls")
+  {
+    CHECK(parse("a distance b") == inf("distance", var("a"), var("b")));
+    CHECK(parse("1 like 2") == inf("like", lit(1), lit(2)));
+
+    // composes with prefix calls
+    CHECK(
+      parse("distance(a, b) distance c")
+      == inf("distance", call("distance", {var("a"), var("b")}), var("c")));
+    CHECK(parse("f(a like b)") == call("f", {inf("like", var("a"), var("b"))}));
+
+    // chains left-associatively, like every other binary operator
+    CHECK(
+      parse("a like b like c") == inf("like", inf("like", var("a"), var("b")), var("c")));
+
+    // an infix call binds tighter than every real binary operator
+    CHECK(
+      parse("1 + 2 like 3 + 4") == add(add(lit(1), inf("like", lit(2), lit(3))), lit(4)));
+    CHECK(
+      parse("1 * 2 like 3 * 4") == mul(mul(lit(1), inf("like", lit(2), lit(3))), lit(4)));
+    CHECK(
+      parse("a && b like c && d")
+      == logAnd(logAnd(var("a"), inf("like", var("b"), var("c"))), var("d")));
+
+    // even == itself, despite reading like the "natural" tier for like/in
+    CHECK(parse("a like b == c") == eq(inf("like", var("a"), var("b")), var("c")));
+    CHECK(
+      parse("a == b like c == d")
+      == eq(eq(var("a"), inf("like", var("b"), var("c"))), var("d")));
+
+    // a Name NOT preceded by a complete term is unaffected -- still a plain variable or
+    // prefix call
+    CHECK(parse("a") == var("a"));
+    CHECK(parse("f(a)") == call("f", {var("a")}));
+  }
+
   SECTION("Switch")
   {
     CHECK(parse("{{}}") == swt({}));
