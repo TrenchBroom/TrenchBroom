@@ -2,6 +2,7 @@ add_executable(TbElLibTest)
 EMBED_UTF8_MANIFEST(TbElLibTest)
 
 target_sources(TbElLibTest PRIVATE
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_BoundValueStore.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Expression.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Interpolate.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Parser.cpp
