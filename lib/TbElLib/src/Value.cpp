@@ -134,6 +134,11 @@ Value::Value(BBoxType value)
 {
 }
 
+Value::Value(BoundValueType value)
+  : m_value{std::make_shared<VariantType>(std::move(value))}
+{
+}
+
 Value::Value(NullType value)
   : m_value{std::make_shared<VariantType>(value)}
 {
@@ -156,6 +161,7 @@ ValueType Value::type() const
       [](const RangeType&) { return ValueType::Range; },
       [](const Vec3Type&) { return ValueType::Vec3; },
       [](const BBoxType&) { return ValueType::BBox; },
+      [](const BoundValueType&) { return ValueType::BoundValue; },
       [](const NullType&) { return ValueType::Null; },
       [](const UndefinedType&) { return ValueType::Undefined; }),
     *m_value);
@@ -297,6 +303,18 @@ const BBoxType& Value::bboxValue(const EvaluationContext& context) const
     *m_value);
 }
 
+const BoundValueType& Value::boundValue(const EvaluationContext& context) const
+{
+  return std::visit(
+    kdl::overload(
+      [&](const BoundValueType& b) -> const BoundValueType& { return b; },
+      [&](const auto&) -> const BoundValueType& {
+        throw DereferenceError{
+          context.location(*this), describe(), type(), ValueType::BoundValue};
+      }),
+    *m_value);
+}
+
 std::vector<std::string> Value::asStringList(const EvaluationContext& context) const
 {
   return arrayValue(context) | std::views::transform([&](const auto& entry) {
@@ -322,6 +340,7 @@ size_t Value::length() const
       [](const RangeType&) -> size_t { return 2u; },
       [](const Vec3Type&) -> size_t { return 3u; },
       [](const BBoxType&) -> size_t { return 2u; },
+      [](const BoundValueType& b) -> size_t { return b.keys().size(); },
       [](const NullType&) -> size_t { return 0u; },
       [](const UndefinedType&) -> size_t { return 0u; }),
     *m_value);
@@ -343,6 +362,7 @@ bool Value::convertibleTo(const ValueType toType) const
         case ValueType::Range:
         case ValueType::Vec3:
         case ValueType::BBox:
+        case ValueType::BoundValue:
         case ValueType::Undefined:
         case ValueType::Null:
           break;
@@ -364,6 +384,7 @@ bool Value::convertibleTo(const ValueType toType) const
         case ValueType::Map:
         case ValueType::Range:
         case ValueType::BBox:
+        case ValueType::BoundValue:
         case ValueType::Null:
         case ValueType::Undefined:
           break;
@@ -383,6 +404,7 @@ bool Value::convertibleTo(const ValueType toType) const
         case ValueType::Range:
         case ValueType::Vec3:
         case ValueType::BBox:
+        case ValueType::BoundValue:
         case ValueType::Null:
         case ValueType::Undefined:
           break;
@@ -402,6 +424,7 @@ bool Value::convertibleTo(const ValueType toType) const
         case ValueType::Range:
         case ValueType::Vec3:
         case ValueType::BBox:
+        case ValueType::BoundValue:
         case ValueType::Null:
         case ValueType::Undefined:
           break;
@@ -421,6 +444,7 @@ bool Value::convertibleTo(const ValueType toType) const
         case ValueType::Range:
         case ValueType::Vec3:
         case ValueType::BBox:
+        case ValueType::BoundValue:
         case ValueType::Null:
         case ValueType::Undefined:
           break;
@@ -440,6 +464,7 @@ bool Value::convertibleTo(const ValueType toType) const
         case ValueType::Map:
         case ValueType::Vec3:
         case ValueType::BBox:
+        case ValueType::BoundValue:
         case ValueType::Null:
         case ValueType::Undefined:
           break;
@@ -459,6 +484,7 @@ bool Value::convertibleTo(const ValueType toType) const
         case ValueType::Map:
         case ValueType::Range:
         case ValueType::BBox:
+        case ValueType::BoundValue:
         case ValueType::Null:
         case ValueType::Undefined:
           break;
@@ -478,6 +504,27 @@ bool Value::convertibleTo(const ValueType toType) const
         case ValueType::Map:
         case ValueType::Range:
         case ValueType::Vec3:
+        case ValueType::BoundValue:
+        case ValueType::Null:
+        case ValueType::Undefined:
+          break;
+        }
+
+        return false;
+      },
+      [&](const BoundValueType&) {
+        switch (toType)
+        {
+        case ValueType::BoundValue:
+          return true;
+        case ValueType::Boolean:
+        case ValueType::Number:
+        case ValueType::String:
+        case ValueType::Array:
+        case ValueType::Map:
+        case ValueType::Range:
+        case ValueType::Vec3:
+        case ValueType::BBox:
         case ValueType::Null:
         case ValueType::Undefined:
           break;
@@ -498,6 +545,7 @@ bool Value::convertibleTo(const ValueType toType) const
         case ValueType::Range:
         case ValueType::Vec3:
         case ValueType::BBox:
+        case ValueType::BoundValue:
         case ValueType::Undefined:
           break;
         }
@@ -517,6 +565,7 @@ bool Value::convertibleTo(const ValueType toType) const
         case ValueType::Range:
         case ValueType::Vec3:
         case ValueType::BBox:
+        case ValueType::BoundValue:
         case ValueType::Null:
           break;
         }
@@ -544,6 +593,7 @@ Value Value::convertTo(EvaluationContext& context, const ValueType toType) const
         case ValueType::Range:
         case ValueType::Vec3:
         case ValueType::BBox:
+        case ValueType::BoundValue:
         case ValueType::Undefined:
         case ValueType::Null:
           break;
@@ -581,6 +631,7 @@ Value Value::convertTo(EvaluationContext& context, const ValueType toType) const
         case ValueType::Map:
         case ValueType::Range:
         case ValueType::BBox:
+        case ValueType::BoundValue:
         case ValueType::Null:
         case ValueType::Undefined:
           break;
@@ -602,6 +653,7 @@ Value Value::convertTo(EvaluationContext& context, const ValueType toType) const
         case ValueType::Range:
         case ValueType::Vec3:
         case ValueType::BBox:
+        case ValueType::BoundValue:
         case ValueType::Null:
         case ValueType::Undefined:
           break;
@@ -621,6 +673,7 @@ Value Value::convertTo(EvaluationContext& context, const ValueType toType) const
         case ValueType::Range:
         case ValueType::Vec3:
         case ValueType::BBox:
+        case ValueType::BoundValue:
         case ValueType::Null:
         case ValueType::Undefined:
           break;
@@ -640,6 +693,7 @@ Value Value::convertTo(EvaluationContext& context, const ValueType toType) const
         case ValueType::Range:
         case ValueType::Vec3:
         case ValueType::BBox:
+        case ValueType::BoundValue:
         case ValueType::Null:
         case ValueType::Undefined:
           break;
@@ -659,6 +713,7 @@ Value Value::convertTo(EvaluationContext& context, const ValueType toType) const
         case ValueType::Map:
         case ValueType::Vec3:
         case ValueType::BBox:
+        case ValueType::BoundValue:
         case ValueType::Null:
         case ValueType::Undefined:
           break;
@@ -682,6 +737,7 @@ Value Value::convertTo(EvaluationContext& context, const ValueType toType) const
         case ValueType::Map:
         case ValueType::Range:
         case ValueType::BBox:
+        case ValueType::BoundValue:
         case ValueType::Null:
         case ValueType::Undefined:
           break;
@@ -701,6 +757,27 @@ Value Value::convertTo(EvaluationContext& context, const ValueType toType) const
         case ValueType::Map:
         case ValueType::Range:
         case ValueType::Vec3:
+        case ValueType::BoundValue:
+        case ValueType::Null:
+        case ValueType::Undefined:
+          break;
+        }
+
+        throw ConversionError{context.location(*this), describe(), type(), toType};
+      },
+      [&](const BoundValueType&) -> Value {
+        switch (toType)
+        {
+        case ValueType::BoundValue:
+          return *this;
+        case ValueType::Boolean:
+        case ValueType::Number:
+        case ValueType::String:
+        case ValueType::Array:
+        case ValueType::Map:
+        case ValueType::Range:
+        case ValueType::Vec3:
+        case ValueType::BBox:
         case ValueType::Null:
         case ValueType::Undefined:
           break;
@@ -726,6 +803,7 @@ Value Value::convertTo(EvaluationContext& context, const ValueType toType) const
         case ValueType::Range:
         case ValueType::Vec3:
         case ValueType::BBox:
+        case ValueType::BoundValue:
         case ValueType::Undefined:
           break;
         }
@@ -745,6 +823,7 @@ Value Value::convertTo(EvaluationContext& context, const ValueType toType) const
         case ValueType::Range:
         case ValueType::Vec3:
         case ValueType::BBox:
+        case ValueType::BoundValue:
         case ValueType::Null:
           break;
         }
@@ -896,6 +975,43 @@ void Value::appendToStream(
         Value{b.max}.appendToStream(str, multiline, indent);
         str << ")";
       },
+      [&](const BoundValueType& b) {
+        const auto names = b.keys();
+        if (names.empty())
+        {
+          str << "{}";
+        }
+        else
+        {
+          const auto childIndent = multiline ? indent + "\t" : "";
+          str << "{";
+          str << (multiline ? "\n" : " ");
+
+          for (size_t i = 0; i < names.size(); ++i)
+          {
+            const auto& key = names[i];
+            str << childIndent << "\"" << key << "\""
+                << ": ";
+            b.at(key)
+              .value_or(Value::Undefined)
+              .appendToStream(str, multiline, childIndent);
+            if (i < names.size() - 1)
+            {
+              str << ",";
+              if (!multiline)
+              {
+                str << " ";
+              }
+            }
+            if (multiline)
+            {
+              str << "\n";
+            }
+          }
+          str << (multiline ? indent : " ");
+          str << "}";
+        }
+      },
       [&](const NullType&) { str << "null"; },
       [&](const UndefinedType&) { str << "undefined"; }),
     *m_value);
@@ -909,6 +1025,7 @@ bool Value::contains(const EvaluationContext&, const size_t index) const
   case ValueType::Array:
     return index < length();
   case ValueType::Map:
+  case ValueType::BoundValue:
   case ValueType::Boolean:
   case ValueType::Number:
   case ValueType::Range:
@@ -923,6 +1040,11 @@ bool Value::contains(const EvaluationContext&, const size_t index) const
 
 bool Value::contains(const EvaluationContext& context, const std::string& key) const
 {
+  if (type() == ValueType::BoundValue)
+  {
+    return boundValue(context).at(key).has_value();
+  }
+
   const MapType& map = mapValue(context);
   const auto it = map.find(key);
   return it != std::end(map);
@@ -930,6 +1052,11 @@ bool Value::contains(const EvaluationContext& context, const std::string& key) c
 
 std::vector<std::string> Value::keys(const EvaluationContext& context) const
 {
+  if (type() == ValueType::BoundValue)
+  {
+    return boundValue(context).keys();
+  }
+
   return mapValue(context) | std::views::keys | kdl::ranges::to<std::vector>();
 }
 
@@ -954,6 +1081,7 @@ Value Value::at(const EvaluationContext& context, const size_t index) const
     throw IndexOutOfBoundsError{context.location(*this), *this, index};
   }
   case ValueType::Map:
+  case ValueType::BoundValue:
   case ValueType::Boolean:
   case ValueType::Number:
   case ValueType::Range:
@@ -989,6 +1117,7 @@ Value Value::atOrDefault(
     return defaultValue;
   }
   case ValueType::Map:
+  case ValueType::BoundValue:
   case ValueType::Boolean:
   case ValueType::Number:
   case ValueType::Range:
@@ -1011,6 +1140,13 @@ Value Value::at(const EvaluationContext& context, const std::string& key) const
     if (const auto it = map.find(key); it != map.end())
     {
       return it->second;
+    }
+    throw IndexOutOfBoundsError{context.location(*this), *this, key};
+  }
+  case ValueType::BoundValue: {
+    if (auto value = boundValue(context).at(key))
+    {
+      return *value;
     }
     throw IndexOutOfBoundsError{context.location(*this), *this, key};
   }
@@ -1039,6 +1175,13 @@ Value Value::atOrDefault(
     if (const auto it = map.find(key); it != map.end())
     {
       return it->second;
+    }
+    return defaultValue;
+  }
+  case ValueType::BoundValue: {
+    if (auto value = boundValue(context).at(key))
+    {
+      return *value;
     }
     return defaultValue;
   }

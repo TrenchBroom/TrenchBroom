@@ -17,6 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "el/BoundValue.h"
 #include "el/EvaluationContext.h"
 #include "el/Exceptions.h"
 #include "el/Expression.h"
@@ -1235,6 +1236,65 @@ TEST_CASE("Expression")
         == Error{"At line 1, column 34: Cannot evaluate expression "
                  "'bbox(vec(1, 2, 3), vec(4, 5, 6)) == 1': Invalid operand types "
                  "BBox and Number"});
+    }
+  }
+
+  SECTION("BoundValue")
+  {
+    // there is no literal/constructor syntax for BoundValue -- unlike Vec3/BBox, it's
+    // purely a mechanism for exposing a bound C++ object to EL, so it can only ever be
+    // reached via a bound variable, the same way Range is above.
+    const auto fields = BoundValueFields<std::string>{
+      {"name", [](const std::string& s) { return Value{s}; }},
+    };
+    const auto variables = MapType{{"v", makeBoundValue(std::string{"door1"}, fields)}};
+
+    SECTION("Subscript")
+    {
+      CHECK(evaluate(R"(v["name"])", variables) == Value{"door1"});
+      CHECK(evaluate("v.name", variables) == Value{"door1"});
+      // an unrecognized key is safely undefined, same as a missing Map key
+      CHECK(evaluate(R"(v["missing"])", variables) == Value::Undefined);
+      CHECK(evaluate("v.missing", variables) == Value::Undefined);
+    }
+
+    SECTION("Unary operators")
+    {
+      // typeName(BoundValue) is "Map", so it reads exactly like a real Map's own error
+      CHECK(
+        evaluate("!v", variables)
+        == Error{
+          "At line 1, column 1: Cannot evaluate expression '!v': Invalid type Map"});
+    }
+
+    SECTION("Arithmetic")
+    {
+      CHECK(
+        evaluate("v + v", variables)
+        == Error{"At line 1, column 3: Cannot evaluate expression 'v + v': Invalid "
+                 "operand types Map and Map"});
+    }
+
+    SECTION("Comparison")
+    {
+      // undefined-safe, like every other type
+      CHECK(evaluate("v == null", variables) == Value{false});
+      CHECK(evaluate("v > null", variables) == Value{true});
+      CHECK(evaluate("v == undefined", variables) == Value{false});
+      CHECK(evaluate("v > undefined", variables) == Value{true});
+
+      // deliberately not comparable as a whole, not even to another BoundValue --
+      // meant to be drilled into with subscript/dot-access instead
+      CHECK(
+        evaluate("v == v", variables)
+        == Error{"At line 1, column 3: Cannot evaluate expression 'v == v': Invalid "
+                 "operand types Map and Map"});
+    }
+
+    SECTION("contains")
+    {
+      CHECK(evaluate(R"(v contains "name")", variables) == Value{true});
+      CHECK(evaluate(R"(v contains "missing")", variables) == Value{false});
     }
   }
 

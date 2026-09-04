@@ -54,6 +54,7 @@ DecalSpecification convertToDecal(
   case el::ValueType::Range:
   case el::ValueType::Vec3:
   case el::ValueType::BBox:
+  case el::ValueType::BoundValue:
   case el::ValueType::Null:
   case el::ValueType::Undefined:
     break;

@@ -146,6 +146,11 @@ TEST_CASE("Types")
     CHECK(typeName(ValueType::BBox) == "BBox");
     CHECK(typeName(ValueType::Null) == "Null");
     CHECK(typeName(ValueType::Undefined) == "Undefined");
+
+    // BoundValue behaves like a read-only Map to an EL author, so it reports itself as
+    // one in every user-facing string -- deliberately not round-trippable via
+    // typeForName, unlike every type in allTypes below.
+    CHECK(typeName(ValueType::BoundValue) == "Map");
   }
 
   SECTION("typeForName")

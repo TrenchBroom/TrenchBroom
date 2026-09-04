@@ -17,6 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "el/BoundValue.h"
 #include "el/EvaluationContext.h"
 #include "el/Exceptions.h"
 #include "el/Types.h"
@@ -42,6 +43,7 @@ const auto allTypes = std::vector{
   ValueType::Range,
   ValueType::Vec3,
   ValueType::BBox,
+  ValueType::BoundValue,
   ValueType::Null,
   ValueType::Undefined,
 };
@@ -65,6 +67,20 @@ const auto rightBoundedRange = Value{RangeType{RightBoundedRange{5}}};
 const auto vec3 = Value{Vec3Type{1, 2, 3}};
 const auto bbox = Value{BBoxType{Vec3Type{1, 2, 3}, Vec3Type{4, 5, 6}}};
 
+struct BoundValueTestObject
+{
+  std::string name;
+  double number;
+};
+
+const auto boundValueTestFields = BoundValueFields<BoundValueTestObject>{
+  {"name", [](const BoundValueTestObject& o) { return Value{o.name}; }},
+  {"number", [](const BoundValueTestObject& o) { return Value{o.number}; }},
+};
+
+const auto boundValueTestObject = BoundValueTestObject{"test", 42.0};
+const auto testBoundValue = makeBoundValue(boundValueTestObject, boundValueTestFields);
+
 } // namespace
 
 TEST_CASE("Value")
@@ -86,6 +102,7 @@ TEST_CASE("Value")
     CHECK(Value{Vec3Type{1, 2, 3}}.type() == ValueType::Vec3);
     CHECK(
       Value{BBoxType{Vec3Type{1, 2, 3}, Vec3Type{4, 5, 6}}}.type() == ValueType::BBox);
+    CHECK(testBoundValue.type() == ValueType::BoundValue);
     CHECK(Value{NullType::Value}.type() == ValueType::Null);
     CHECK(Value{UndefinedType::Value}.type() == ValueType::Undefined);
 
@@ -115,6 +132,8 @@ TEST_CASE("Value")
     CHECK(Value{ArrayType{}}.typeName() == "Array");
     CHECK(Value{MapType{}}.typeName() == "Map");
     CHECK(boundedRange.typeName() == "Range");
+    // BoundValue masquerades as a Map to any EL author, including in this string
+    CHECK(testBoundValue.typeName() == "Map");
     CHECK(Value::Null.typeName() == "Null");
     CHECK(Value::Undefined.typeName() == "Undefined");
   }
@@ -217,6 +236,7 @@ TEST_CASE("Value")
       CHECK_THROWS_AS(boundedRange.arrayValue(context), DereferenceError);
       CHECK_THROWS_AS(vec3.arrayValue(context), DereferenceError);
       CHECK_THROWS_AS(bbox.arrayValue(context), DereferenceError);
+      CHECK_THROWS_AS(testBoundValue.arrayValue(context), DereferenceError);
       CHECK_THROWS_AS(Value::Undefined.arrayValue(context), DereferenceError);
     }).ignore();
 
@@ -241,6 +261,9 @@ TEST_CASE("Value")
       CHECK_THROWS_AS(boundedRange.mapValue(context), DereferenceError);
       CHECK_THROWS_AS(vec3.mapValue(context), DereferenceError);
       CHECK_THROWS_AS(bbox.mapValue(context), DereferenceError);
+      // BoundValue is a distinct variant alternative from Map, even though it behaves
+      // like one through the dedicated accessors (at/contains/keys/appendToStream/etc.)
+      CHECK_THROWS_AS(testBoundValue.mapValue(context), DereferenceError);
       CHECK_THROWS_AS(Value::Undefined.mapValue(context), DereferenceError);
     }).ignore();
 
@@ -264,6 +287,7 @@ TEST_CASE("Value")
       CHECK_THROWS_AS(Value{MapType{}}.rangeValue(context), DereferenceError);
       CHECK_THROWS_AS(vec3.rangeValue(context), DereferenceError);
       CHECK_THROWS_AS(bbox.rangeValue(context), DereferenceError);
+      CHECK_THROWS_AS(testBoundValue.rangeValue(context), DereferenceError);
 
       // unlike the other accessors, a range cannot be dereferenced from null
       CHECK_THROWS_AS(Value::Null.rangeValue(context), DereferenceError);
@@ -288,6 +312,7 @@ TEST_CASE("Value")
       CHECK_THROWS_AS(Value{MapType{}}.vec3Value(context), DereferenceError);
       CHECK_THROWS_AS(boundedRange.vec3Value(context), DereferenceError);
       CHECK_THROWS_AS(bbox.vec3Value(context), DereferenceError);
+      CHECK_THROWS_AS(testBoundValue.vec3Value(context), DereferenceError);
 
       // like range, a vec3 cannot be dereferenced from null
       CHECK_THROWS_AS(Value::Null.vec3Value(context), DereferenceError);
@@ -312,6 +337,7 @@ TEST_CASE("Value")
       CHECK_THROWS_AS(Value{MapType{}}.bboxValue(context), DereferenceError);
       CHECK_THROWS_AS(boundedRange.bboxValue(context), DereferenceError);
       CHECK_THROWS_AS(vec3.bboxValue(context), DereferenceError);
+      CHECK_THROWS_AS(testBoundValue.bboxValue(context), DereferenceError);
 
       // like range and vec3, a bbox cannot be dereferenced from null
       CHECK_THROWS_AS(Value::Null.bboxValue(context), DereferenceError);
@@ -322,6 +348,38 @@ TEST_CASE("Value")
       withEvaluationContext([](auto& context) { Value{"test"}.bboxValue(context); })
       == Result<void>{Error{
         R"(At unknown location: Cannot dereference value '"test"' of type 'String' as type 'BBox')"}});
+  }
+
+  SECTION("boundValue")
+  {
+    withEvaluationContext([](auto& context) {
+      CHECK(testBoundValue.boundValue(context).at("name") == Value{"test"});
+      CHECK(testBoundValue.boundValue(context).at("number") == Value{42.0});
+      CHECK(testBoundValue.boundValue(context).at("missing") == std::nullopt);
+      CHECK(
+        testBoundValue.boundValue(context).keys()
+        == std::vector<std::string>{"name", "number"});
+
+      CHECK_THROWS_AS(Value{true}.boundValue(context), DereferenceError);
+      CHECK_THROWS_AS(Value{"test"}.boundValue(context), DereferenceError);
+      CHECK_THROWS_AS(Value{1.0}.boundValue(context), DereferenceError);
+      CHECK_THROWS_AS(Value{ArrayType{}}.boundValue(context), DereferenceError);
+      CHECK_THROWS_AS(Value{MapType{}}.boundValue(context), DereferenceError);
+      CHECK_THROWS_AS(boundedRange.boundValue(context), DereferenceError);
+      CHECK_THROWS_AS(vec3.boundValue(context), DereferenceError);
+      CHECK_THROWS_AS(bbox.boundValue(context), DereferenceError);
+
+      // like range, vec3 and bbox, a BoundValue cannot be dereferenced from null
+      CHECK_THROWS_AS(Value::Null.boundValue(context), DereferenceError);
+      CHECK_THROWS_AS(Value::Undefined.boundValue(context), DereferenceError);
+    }).ignore();
+
+    // the message names the target type as "Map", matching typeName(BoundValue) --
+    // indistinguishable from a real Map's own dereference error, by design
+    CHECK(
+      withEvaluationContext([](auto& context) { Value{"test"}.boundValue(context); })
+      == Result<void>{Error{
+        R"(At unknown location: Cannot dereference value '"test"' of type 'String' as type 'Map')"}});
   }
 
   SECTION("asStringList")
@@ -365,6 +423,7 @@ TEST_CASE("Value")
     CHECK(boundedRange.length() == 2u);
     CHECK(vec3.length() == 3u);
     CHECK(bbox.length() == 2u);
+    CHECK(testBoundValue.length() == 2u);
     CHECK(Value::Null.length() == 0u);
     CHECK(Value::Undefined.length() == 0u);
   }
@@ -384,6 +443,7 @@ TEST_CASE("Value")
     CHECK(convertibleTypes(boundedRange) == std::vector{Range});
     CHECK(convertibleTypes(vec3) == std::vector{String, Vec3});
     CHECK(convertibleTypes(bbox) == std::vector{BBox});
+    CHECK(convertibleTypes(testBoundValue) == std::vector{BoundValue});
     CHECK(
       convertibleTypes(Value::Null)
       == std::vector{Boolean, String, Number, Array, Map, Null});
@@ -404,6 +464,8 @@ TEST_CASE("Value")
       CHECK_THROWS_AS(Value{true}.convertTo(context, ValueType::Range), ConversionError);
       CHECK_THROWS_AS(Value{true}.convertTo(context, ValueType::Vec3), ConversionError);
       CHECK_THROWS_AS(Value{true}.convertTo(context, ValueType::BBox), ConversionError);
+      CHECK_THROWS_AS(
+        Value{true}.convertTo(context, ValueType::BoundValue), ConversionError);
       CHECK_THROWS_AS(Value{true}.convertTo(context, ValueType::Null), ConversionError);
       CHECK_THROWS_AS(
         Value{true}.convertTo(context, ValueType::Undefined), ConversionError);
@@ -431,6 +493,8 @@ TEST_CASE("Value")
         Value{"asdf"}.convertTo(context, ValueType::Range), ConversionError);
       CHECK_THROWS_AS(Value{"asdf"}.convertTo(context, ValueType::Vec3), ConversionError);
       CHECK_THROWS_AS(Value{"asdf"}.convertTo(context, ValueType::BBox), ConversionError);
+      CHECK_THROWS_AS(
+        Value{"asdf"}.convertTo(context, ValueType::BoundValue), ConversionError);
       CHECK_THROWS_AS(Value{"asdf"}.convertTo(context, ValueType::Null), ConversionError);
       CHECK_THROWS_AS(
         Value{"asdf"}.convertTo(context, ValueType::Undefined), ConversionError);
@@ -453,6 +517,8 @@ TEST_CASE("Value")
       CHECK_THROWS_AS(Value{3}.convertTo(context, ValueType::Range), ConversionError);
       CHECK_THROWS_AS(Value{6}.convertTo(context, ValueType::Vec3), ConversionError);
       CHECK_THROWS_AS(Value{7}.convertTo(context, ValueType::BBox), ConversionError);
+      CHECK_THROWS_AS(
+        Value{8}.convertTo(context, ValueType::BoundValue), ConversionError);
       CHECK_THROWS_AS(Value{4}.convertTo(context, ValueType::Null), ConversionError);
       CHECK_THROWS_AS(Value{5}.convertTo(context, ValueType::Undefined), ConversionError);
 
@@ -472,6 +538,8 @@ TEST_CASE("Value")
         Value{ArrayType{}}.convertTo(context, ValueType::Vec3), ConversionError);
       CHECK_THROWS_AS(
         Value{ArrayType{}}.convertTo(context, ValueType::BBox), ConversionError);
+      CHECK_THROWS_AS(
+        Value{ArrayType{}}.convertTo(context, ValueType::BoundValue), ConversionError);
       CHECK_THROWS_AS(
         Value{ArrayType{}}.convertTo(context, ValueType::Null), ConversionError);
       CHECK_THROWS_AS(
@@ -493,6 +561,8 @@ TEST_CASE("Value")
       CHECK_THROWS_AS(
         Value{MapType{}}.convertTo(context, ValueType::BBox), ConversionError);
       CHECK_THROWS_AS(
+        Value{MapType{}}.convertTo(context, ValueType::BoundValue), ConversionError);
+      CHECK_THROWS_AS(
         Value{MapType{}}.convertTo(context, ValueType::Null), ConversionError);
       CHECK_THROWS_AS(
         Value{MapType{}}.convertTo(context, ValueType::Undefined), ConversionError);
@@ -508,6 +578,8 @@ TEST_CASE("Value")
       CHECK(boundedRange.convertTo(context, ValueType::Range) == boundedRange);
       CHECK_THROWS_AS(boundedRange.convertTo(context, ValueType::Vec3), ConversionError);
       CHECK_THROWS_AS(boundedRange.convertTo(context, ValueType::BBox), ConversionError);
+      CHECK_THROWS_AS(
+        boundedRange.convertTo(context, ValueType::BoundValue), ConversionError);
       CHECK_THROWS_AS(boundedRange.convertTo(context, ValueType::Null), ConversionError);
       CHECK_THROWS_AS(
         boundedRange.convertTo(context, ValueType::Undefined), ConversionError);
@@ -521,6 +593,7 @@ TEST_CASE("Value")
       CHECK_THROWS_AS(vec3.convertTo(context, ValueType::Range), ConversionError);
       CHECK(vec3.convertTo(context, ValueType::Vec3) == vec3);
       CHECK_THROWS_AS(vec3.convertTo(context, ValueType::BBox), ConversionError);
+      CHECK_THROWS_AS(vec3.convertTo(context, ValueType::BoundValue), ConversionError);
       CHECK_THROWS_AS(vec3.convertTo(context, ValueType::Null), ConversionError);
       CHECK_THROWS_AS(vec3.convertTo(context, ValueType::Undefined), ConversionError);
 
@@ -532,8 +605,30 @@ TEST_CASE("Value")
       CHECK_THROWS_AS(bbox.convertTo(context, ValueType::Range), ConversionError);
       CHECK_THROWS_AS(bbox.convertTo(context, ValueType::Vec3), ConversionError);
       CHECK(bbox.convertTo(context, ValueType::BBox) == bbox);
+      CHECK_THROWS_AS(bbox.convertTo(context, ValueType::BoundValue), ConversionError);
       CHECK_THROWS_AS(bbox.convertTo(context, ValueType::Null), ConversionError);
       CHECK_THROWS_AS(bbox.convertTo(context, ValueType::Undefined), ConversionError);
+
+      CHECK_THROWS_AS(
+        testBoundValue.convertTo(context, ValueType::Boolean), ConversionError);
+      CHECK_THROWS_AS(
+        testBoundValue.convertTo(context, ValueType::String), ConversionError);
+      CHECK_THROWS_AS(
+        testBoundValue.convertTo(context, ValueType::Number), ConversionError);
+      CHECK_THROWS_AS(
+        testBoundValue.convertTo(context, ValueType::Array), ConversionError);
+      CHECK_THROWS_AS(testBoundValue.convertTo(context, ValueType::Map), ConversionError);
+      CHECK_THROWS_AS(
+        testBoundValue.convertTo(context, ValueType::Range), ConversionError);
+      CHECK_THROWS_AS(
+        testBoundValue.convertTo(context, ValueType::Vec3), ConversionError);
+      CHECK_THROWS_AS(
+        testBoundValue.convertTo(context, ValueType::BBox), ConversionError);
+      CHECK(testBoundValue.convertTo(context, ValueType::BoundValue) == testBoundValue);
+      CHECK_THROWS_AS(
+        testBoundValue.convertTo(context, ValueType::Null), ConversionError);
+      CHECK_THROWS_AS(
+        testBoundValue.convertTo(context, ValueType::Undefined), ConversionError);
 
       CHECK(Value::Null.convertTo(context, ValueType::Boolean) == Value{false});
       CHECK(Value::Null.convertTo(context, ValueType::String) == Value{""});
@@ -543,6 +638,8 @@ TEST_CASE("Value")
       CHECK_THROWS_AS(Value::Null.convertTo(context, ValueType::Range), ConversionError);
       CHECK_THROWS_AS(Value::Null.convertTo(context, ValueType::Vec3), ConversionError);
       CHECK_THROWS_AS(Value::Null.convertTo(context, ValueType::BBox), ConversionError);
+      CHECK_THROWS_AS(
+        Value::Null.convertTo(context, ValueType::BoundValue), ConversionError);
       CHECK(Value::Null.convertTo(context, ValueType::Null) == Value::Null);
       CHECK_THROWS_AS(
         Value::Null.convertTo(context, ValueType::Undefined), ConversionError);
@@ -563,6 +660,8 @@ TEST_CASE("Value")
         Value::Undefined.convertTo(context, ValueType::Vec3), ConversionError);
       CHECK_THROWS_AS(
         Value::Undefined.convertTo(context, ValueType::BBox), ConversionError);
+      CHECK_THROWS_AS(
+        Value::Undefined.convertTo(context, ValueType::BoundValue), ConversionError);
       CHECK_THROWS_AS(
         Value::Undefined.convertTo(context, ValueType::Null), ConversionError);
       CHECK(
@@ -609,6 +708,9 @@ TEST_CASE("Value")
       CHECK(rightBoundedRange.asString() == "[..5]");
       CHECK(vec3.asString() == "vec(1, 2, 3)");
       CHECK(bbox.asString() == "bbox(vec(1, 2, 3), vec(4, 5, 6))");
+      // prints exactly like a real Map would, since BoundValue is meant to be
+      // indistinguishable from one
+      CHECK(testBoundValue.asString() == R"({ "name": "test", "number": 42 })");
       CHECK(Value::Null.asString() == "null");
       CHECK(Value::Undefined.asString() == "undefined");
     }
@@ -628,6 +730,8 @@ TEST_CASE("Value")
       CHECK(
         Value{MapType{{"a", Value{MapType{{"b", Value{1.0}}}}}}}.asString(true)
         == "{\n\t\"a\": {\n\t\t\"b\": 1\n\t}\n}");
+      CHECK(
+        testBoundValue.asString(true) == "{\n\t\"name\": \"test\",\n\t\"number\": 42\n}");
     }
   }
 
@@ -661,6 +765,7 @@ TEST_CASE("Value")
         CHECK(!boundedRange.contains(context, 0));
         CHECK(!vec3.contains(context, 0));
         CHECK(!bbox.contains(context, 0));
+        CHECK(!testBoundValue.contains(context, 0));
         CHECK(!Value::Null.contains(context, 0));
         CHECK(!Value::Undefined.contains(context, 0));
       }).ignore();
@@ -673,6 +778,10 @@ TEST_CASE("Value")
         CHECK(!Value{MapType{{"a", Value{1.0}}}}.contains(context, "b"));
         CHECK(!Value{MapType{}}.contains(context, "a"));
         CHECK(!Value::Null.contains(context, "a"));
+
+        CHECK(testBoundValue.contains(context, "name"));
+        CHECK(testBoundValue.contains(context, "number"));
+        CHECK(!testBoundValue.contains(context, "missing"));
 
         CHECK_THROWS_AS(Value{"ab"}.contains(context, "a"), DereferenceError);
         CHECK_THROWS_AS(Value{ArrayType{}}.contains(context, "a"), DereferenceError);
@@ -689,6 +798,7 @@ TEST_CASE("Value")
         == std::vector<std::string>{"a", "b"});
       CHECK(Value{MapType{}}.keys(context) == std::vector<std::string>{});
       CHECK(Value::Null.keys(context) == std::vector<std::string>{});
+      CHECK(testBoundValue.keys(context) == std::vector<std::string>{"name", "number"});
 
       CHECK_THROWS_AS(Value{ArrayType{}}.keys(context), DereferenceError);
     }).ignore();
@@ -714,6 +824,7 @@ TEST_CASE("Value")
         CHECK_THROWS_AS(boundedRange.at(context, 0), IndexError);
         CHECK_THROWS_AS(vec3.at(context, 0), IndexError);
         CHECK_THROWS_AS(bbox.at(context, 0), IndexError);
+        CHECK_THROWS_AS(testBoundValue.at(context, 0), IndexError);
         CHECK_THROWS_AS(Value::Null.at(context, 0), IndexError);
         CHECK_THROWS_AS(Value::Undefined.at(context, 0), IndexError);
       }).ignore();
@@ -725,6 +836,9 @@ TEST_CASE("Value")
         const auto map = Value{MapType{{"a", Value{1.0}}}};
         CHECK(map.at(context, "a") == Value{1.0});
         CHECK_THROWS_AS(map.at(context, "b"), IndexOutOfBoundsError);
+
+        CHECK(testBoundValue.at(context, "name") == Value{"test"});
+        CHECK_THROWS_AS(testBoundValue.at(context, "missing"), IndexOutOfBoundsError);
 
         CHECK_THROWS_AS(Value{"abc"}.at(context, "a"), IndexError);
         CHECK_THROWS_AS(Value{ArrayType{}}.at(context, "a"), IndexError);
@@ -760,6 +874,7 @@ TEST_CASE("Value")
         CHECK_THROWS_AS(boundedRange.atOrDefault(context, 0), IndexError);
         CHECK_THROWS_AS(vec3.atOrDefault(context, 0), IndexError);
         CHECK_THROWS_AS(bbox.atOrDefault(context, 0), IndexError);
+        CHECK_THROWS_AS(testBoundValue.atOrDefault(context, 0), IndexError);
         CHECK_THROWS_AS(Value::Null.atOrDefault(context, 0), IndexError);
         CHECK_THROWS_AS(Value::Undefined.atOrDefault(context, 0), IndexError);
       }).ignore();
@@ -772,6 +887,10 @@ TEST_CASE("Value")
         CHECK(map.atOrDefault(context, "a") == Value{1.0});
         CHECK(map.atOrDefault(context, "b") == Value::Null);
         CHECK(map.atOrDefault(context, "b", Value{"x"}) == Value{"x"});
+
+        CHECK(testBoundValue.atOrDefault(context, "name") == Value{"test"});
+        CHECK(testBoundValue.atOrDefault(context, "missing") == Value::Null);
+        CHECK(testBoundValue.atOrDefault(context, "missing", Value{"x"}) == Value{"x"});
 
         CHECK_THROWS_AS(Value{"abc"}.atOrDefault(context, "a"), IndexError);
         CHECK_THROWS_AS(Value{ArrayType{}}.atOrDefault(context, "a"), IndexError);
@@ -816,6 +935,17 @@ TEST_CASE("Value")
     const auto value = Value{ArrayType{Value{1.0}}};
     const auto copy = value;
     CHECK(value == copy);
+
+    // a BoundValue is equal to a literal copy of itself (same underlying closures,
+    // caught by the fast path above before the per-alternative visit ever runs)...
+    const auto boundValueCopy = testBoundValue;
+    CHECK(testBoundValue == boundValueCopy);
+    // ...but not to another BoundValue independently built over the same data: unlike
+    // Map, BoundValue holds std::functions, which aren't themselves comparable, so two
+    // separately-constructed BoundValues are always "not equal" -- consistent with
+    // BoundValue never being compared as a whole (see evaluateCompare in Expression.cpp)
+    CHECK_FALSE(
+      testBoundValue == makeBoundValue(boundValueTestObject, boundValueTestFields));
   }
 
   SECTION("operator!=")

@@ -26,8 +26,10 @@
 #include "vm/bbox.h"
 #include "vm/vec.h"
 
+#include <functional>
 #include <iosfwd>
 #include <map>
+#include <optional>
 #include <string>
 #include <variant>
 #include <vector>
@@ -115,6 +117,23 @@ using RangeType = std::variant<LeftBoundedRange, RightBoundedRange, BoundedRange
 using Vec3Type = vm::vec3d;
 using BBoxType = vm::bbox3d;
 
+/**
+ * A lazy, read-only, Map-like value: `at` looks up a key, returning nullopt if the key
+ * doesn't apply at all (as opposed to applying but currently evaluating to Undefined --
+ * the same distinction a real Map's `at`/`contains` already make between "key absent"
+ * and "key present with an Undefined value"); `keys` enumerates every key `at` can
+ * currently resolve. Each closure captures whatever object it's exposing directly, with
+ * its real type -- never a `void*` -- so building one is just constructing two closures,
+ * with no field ever materialized into a real `Value` until it's actually looked up.
+ */
+struct BoundValue
+{
+  std::function<std::optional<Value>(const std::string& key)> at;
+  std::function<std::vector<std::string>()> keys;
+};
+
+using BoundValueType = BoundValue;
+
 std::ostream& operator<<(std::ostream& lhs, const RangeType& rhs);
 
 class NullType
@@ -145,6 +164,7 @@ enum class ValueType
   Range,
   Vec3,
   BBox,
+  BoundValue,
   Null,
   Undefined
 };

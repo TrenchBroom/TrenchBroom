@@ -50,6 +50,7 @@ private:
     RangeType,
     Vec3Type,
     BBoxType,
+    BoundValueType,
     NullType,
     UndefinedType>;
   std::shared_ptr<VariantType> m_value;
@@ -72,6 +73,7 @@ public:
   explicit Value(RangeType value);
   explicit Value(Vec3Type value);
   explicit Value(BBoxType value);
+  explicit Value(BoundValueType value);
   explicit Value(NullType value);
   explicit Value(UndefinedType value);
 
@@ -97,6 +99,7 @@ public:
   const RangeType& rangeValue(const EvaluationContext& context) const;
   const Vec3Type& vec3Value(const EvaluationContext& context) const;
   const BBoxType& bboxValue(const EvaluationContext& context) const;
+  const BoundValueType& boundValue(const EvaluationContext& context) const;
 
   std::vector<std::string> asStringList(const EvaluationContext& context) const;
   std::vector<std::string> asStringSet(const EvaluationContext& context) const;
