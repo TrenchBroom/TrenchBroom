@@ -2,6 +2,7 @@ add_library(TbElLib STATIC)
 
 target_sources(TbElLib
   PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/BoundValueStore.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/EvaluationContext.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Exceptions.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Expression.cpp
