@@ -83,6 +83,10 @@ std::string typeName(const ValueType type)
     return "Vec3";
   case ValueType::BBox:
     return "BBox";
+  case ValueType::BoundValue:
+    // BoundValue behaves like a read-only Map from the EL author's perspective, so it
+    // reports itself as one in every user-facing string (error messages, etc.).
+    return "Map";
   case ValueType::Null:
     return "Null";
   case ValueType::Undefined:

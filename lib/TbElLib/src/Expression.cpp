@@ -131,6 +131,8 @@ Value evaluateUnaryPlus(
     [[fallthrough]];
   case ValueType::BBox:
     [[fallthrough]];
+  case ValueType::BoundValue:
+    [[fallthrough]];
   case ValueType::Null:
     [[fallthrough]];
   case ValueType::Undefined:
@@ -164,6 +166,8 @@ Value evaluateUnaryMinus(
     [[fallthrough]];
   case ValueType::BBox:
     [[fallthrough]];
+  case ValueType::BoundValue:
+    [[fallthrough]];
   case ValueType::Null:
     [[fallthrough]];
   case ValueType::Undefined:
@@ -192,6 +196,8 @@ Value evaluateLogicalNegation(
   case ValueType::Vec3:
     [[fallthrough]];
   case ValueType::BBox:
+    [[fallthrough]];
+  case ValueType::BoundValue:
     [[fallthrough]];
   case ValueType::Null:
     [[fallthrough]];
@@ -225,6 +231,8 @@ Value evaluateBitwiseNegation(
   case ValueType::Vec3:
     [[fallthrough]];
   case ValueType::BBox:
+    [[fallthrough]];
+  case ValueType::BoundValue:
     [[fallthrough]];
   case ValueType::Null:
     [[fallthrough]];
@@ -750,6 +758,7 @@ int evaluateCompare(
       case ValueType::Range:
       case ValueType::Vec3:
       case ValueType::BBox:
+      case ValueType::BoundValue:
         break;
       }
       break;
@@ -769,6 +778,7 @@ int evaluateCompare(
       case ValueType::Range:
       case ValueType::Vec3:
       case ValueType::BBox:
+      case ValueType::BoundValue:
         break;
       }
       break;
@@ -789,6 +799,7 @@ int evaluateCompare(
       case ValueType::Range:
       case ValueType::Vec3:
       case ValueType::BBox:
+      case ValueType::BoundValue:
         break;
       }
       break;
@@ -814,6 +825,7 @@ int evaluateCompare(
       case ValueType::Range:
       case ValueType::Vec3:
       case ValueType::BBox:
+      case ValueType::BoundValue:
         break;
       }
       break;
@@ -835,6 +847,7 @@ int evaluateCompare(
       case ValueType::Range:
       case ValueType::Vec3:
       case ValueType::BBox:
+      case ValueType::BoundValue:
         break;
       }
       break;
@@ -852,6 +865,7 @@ int evaluateCompare(
       case ValueType::Range:
       case ValueType::Vec3:
       case ValueType::BBox:
+      case ValueType::BoundValue:
         break;
       }
       break;
@@ -870,6 +884,7 @@ int evaluateCompare(
       case ValueType::Map:
       case ValueType::Range:
       case ValueType::BBox:
+      case ValueType::BoundValue:
         break;
       }
       break;
@@ -888,6 +903,28 @@ int evaluateCompare(
       case ValueType::Map:
       case ValueType::Range:
       case ValueType::Vec3:
+      case ValueType::BoundValue:
+        break;
+      }
+      break;
+    case ValueType::BoundValue:
+      // Deliberately unsupported via EL comparison operators -- BoundValue is meant to be
+      // drilled into with subscript/dot-access, not compared as a whole; only the
+      // universal Undefined-safety carve-out applies, same as every other type above.
+      switch (rhs.type())
+      {
+      case ValueType::Null:
+      case ValueType::Undefined:
+        return 1;
+      case ValueType::Boolean:
+      case ValueType::Number:
+      case ValueType::String:
+      case ValueType::Array:
+      case ValueType::Map:
+      case ValueType::Range:
+      case ValueType::Vec3:
+      case ValueType::BBox:
+      case ValueType::BoundValue:
         break;
       }
       break;
@@ -1110,6 +1147,7 @@ void computeIndexArray(
   case ValueType::Map:
   case ValueType::Vec3:
   case ValueType::BBox:
+  case ValueType::BoundValue:
   case ValueType::Null:
   case ValueType::Undefined:
     result.push_back(computeIndex(context, indexValue, indexableSize));
@@ -1166,6 +1204,7 @@ Value evaluateSubscript(
     case ValueType::Map:
     case ValueType::Vec3:
     case ValueType::BBox:
+    case ValueType::BoundValue:
     case ValueType::Null:
     case ValueType::Undefined:
       break;
@@ -1205,6 +1244,7 @@ Value evaluateSubscript(
     case ValueType::Map:
     case ValueType::Vec3:
     case ValueType::BBox:
+    case ValueType::BoundValue:
     case ValueType::Null:
     case ValueType::Undefined:
       break;
@@ -1250,6 +1290,32 @@ Value evaluateSubscript(
     case ValueType::Range:
     case ValueType::Vec3:
     case ValueType::BBox:
+    case ValueType::BoundValue:
+    case ValueType::Null:
+    case ValueType::Undefined:
+      break;
+    }
+    break;
+  case ValueType::BoundValue:
+    switch (rhs.type())
+    {
+    case ValueType::String: {
+      const auto& b = lhs.boundValue();
+      const auto& key = rhs.stringValue();
+      if (const auto value = b.at(key))
+      {
+        return *value;
+      }
+      return Value::Undefined;
+    }
+    case ValueType::Boolean:
+    case ValueType::Number:
+    case ValueType::Array:
+    case ValueType::Map:
+    case ValueType::Range:
+    case ValueType::Vec3:
+    case ValueType::BBox:
+    case ValueType::BoundValue:
     case ValueType::Null:
     case ValueType::Undefined:
       break;
@@ -1290,6 +1356,7 @@ Value evaluateSubscript(
     case ValueType::Range:
     case ValueType::Vec3:
     case ValueType::BBox:
+    case ValueType::BoundValue:
     case ValueType::Null:
     case ValueType::Undefined:
       break;
@@ -1318,6 +1385,7 @@ Value evaluateSubscript(
     case ValueType::Range:
     case ValueType::Vec3:
     case ValueType::BBox:
+    case ValueType::BoundValue:
     case ValueType::Null:
     case ValueType::Undefined:
       break;
@@ -1398,6 +1466,21 @@ Value evaluateLike(EvaluationContext&, const Value& lhs, const Value& rhs)
     })};
   }
 
+  // Map/BoundValue like String: true if any key, or any String-typed value, matches
+  if (lhs.hasType(ValueType::Map, ValueType::BoundValue))
+  {
+    const auto keys = lhs.keys();
+    return Value{std::ranges::any_of(keys, [&](const auto& key) {
+      if (kdl::ci::str_matches_glob(key, pattern))
+      {
+        return true;
+      }
+      const auto value = lhs.atOrDefault(key);
+      return value.hasType(ValueType::String)
+             && kdl::ci::str_matches_glob(value.stringValue(), pattern);
+    })};
+  }
+
   return Value{false};
 }
 
@@ -1416,6 +1499,7 @@ Value evaluateContains(EvaluationContext&, const Value& lhs, const Value& rhs)
       std::ranges::any_of(array, [&](const auto& element) { return element == rhs; })};
   }
   case ValueType::Map:
+  case ValueType::BoundValue:
     return Value{rhs.hasType(ValueType::String) && lhs.contains(rhs.stringValue())};
   case ValueType::Range:
     if (rhs.hasType(ValueType::Number))

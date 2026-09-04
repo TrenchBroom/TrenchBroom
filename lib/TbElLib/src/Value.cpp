@@ -134,6 +134,11 @@ Value::Value(BBoxType value)
 {
 }
 
+Value::Value(BoundValueType value)
+  : m_value{std::make_shared<const BoundValueType>(std::move(value))}
+{
+}
+
 Value::Value(NullType value)
   : m_value{value}
 {
@@ -156,6 +161,7 @@ ValueType Value::type() const
       [](const RangeType&) { return ValueType::Range; },
       [](const Vec3Type&) { return ValueType::Vec3; },
       [](const BBoxType&) { return ValueType::BBox; },
+      [](const std::shared_ptr<const BoundValueType>&) { return ValueType::BoundValue; },
       [](const NullType&) { return ValueType::Null; },
       [](const UndefinedType&) { return ValueType::Undefined; }),
     m_value);
@@ -289,6 +295,19 @@ const BBoxType& Value::bboxValue() const
     m_value);
 }
 
+const BoundValueType& Value::boundValue() const
+{
+  return std::visit(
+    kdl::overload(
+      [&](const std::shared_ptr<const BoundValueType>& b) -> const BoundValueType& {
+        return *b;
+      },
+      [&](const auto&) -> const BoundValueType& {
+        throw DereferenceError{location(), describe(), type(), ValueType::BoundValue};
+      }),
+    m_value);
+}
+
 std::vector<std::string> Value::asStringList() const
 {
   return arrayValue()
@@ -313,6 +332,9 @@ size_t Value::length() const
       [](const RangeType&) -> size_t { return 2u; },
       [](const Vec3Type&) -> size_t { return 3u; },
       [](const BBoxType&) -> size_t { return 2u; },
+      [](const std::shared_ptr<const BoundValueType>& b) -> size_t {
+        return b->keys().size();
+      },
       [](const NullType&) -> size_t { return 0u; },
       [](const UndefinedType&) -> size_t { return 0u; }),
     m_value);
@@ -334,6 +356,7 @@ bool Value::convertibleTo(const ValueType toType) const
         case ValueType::Range:
         case ValueType::Vec3:
         case ValueType::BBox:
+        case ValueType::BoundValue:
         case ValueType::Undefined:
         case ValueType::Null:
           break;
@@ -356,6 +379,7 @@ bool Value::convertibleTo(const ValueType toType) const
         case ValueType::Map:
         case ValueType::Range:
         case ValueType::BBox:
+        case ValueType::BoundValue:
         case ValueType::Null:
         case ValueType::Undefined:
           break;
@@ -375,6 +399,7 @@ bool Value::convertibleTo(const ValueType toType) const
         case ValueType::Range:
         case ValueType::Vec3:
         case ValueType::BBox:
+        case ValueType::BoundValue:
         case ValueType::Null:
         case ValueType::Undefined:
           break;
@@ -394,6 +419,7 @@ bool Value::convertibleTo(const ValueType toType) const
         case ValueType::Range:
         case ValueType::Vec3:
         case ValueType::BBox:
+        case ValueType::BoundValue:
         case ValueType::Null:
         case ValueType::Undefined:
           break;
@@ -413,6 +439,7 @@ bool Value::convertibleTo(const ValueType toType) const
         case ValueType::Range:
         case ValueType::Vec3:
         case ValueType::BBox:
+        case ValueType::BoundValue:
         case ValueType::Null:
         case ValueType::Undefined:
           break;
@@ -432,6 +459,7 @@ bool Value::convertibleTo(const ValueType toType) const
         case ValueType::Map:
         case ValueType::Vec3:
         case ValueType::BBox:
+        case ValueType::BoundValue:
         case ValueType::Null:
         case ValueType::Undefined:
           break;
@@ -451,6 +479,7 @@ bool Value::convertibleTo(const ValueType toType) const
         case ValueType::Map:
         case ValueType::Range:
         case ValueType::BBox:
+        case ValueType::BoundValue:
         case ValueType::Null:
         case ValueType::Undefined:
           break;
@@ -470,6 +499,27 @@ bool Value::convertibleTo(const ValueType toType) const
         case ValueType::Map:
         case ValueType::Range:
         case ValueType::Vec3:
+        case ValueType::BoundValue:
+        case ValueType::Null:
+        case ValueType::Undefined:
+          break;
+        }
+
+        return false;
+      },
+      [&](const std::shared_ptr<const BoundValueType>&) {
+        switch (toType)
+        {
+        case ValueType::BoundValue:
+          return true;
+        case ValueType::Boolean:
+        case ValueType::Number:
+        case ValueType::String:
+        case ValueType::Array:
+        case ValueType::Map:
+        case ValueType::Range:
+        case ValueType::Vec3:
+        case ValueType::BBox:
         case ValueType::Null:
         case ValueType::Undefined:
           break;
@@ -490,6 +540,7 @@ bool Value::convertibleTo(const ValueType toType) const
         case ValueType::Range:
         case ValueType::Vec3:
         case ValueType::BBox:
+        case ValueType::BoundValue:
         case ValueType::Undefined:
           break;
         }
@@ -509,6 +560,7 @@ bool Value::convertibleTo(const ValueType toType) const
         case ValueType::Range:
         case ValueType::Vec3:
         case ValueType::BBox:
+        case ValueType::BoundValue:
         case ValueType::Null:
           break;
         }
@@ -536,6 +588,7 @@ Value Value::convertTo(const ValueType toType) const
         case ValueType::Range:
         case ValueType::Vec3:
         case ValueType::BBox:
+        case ValueType::BoundValue:
         case ValueType::Undefined:
         case ValueType::Null:
           break;
@@ -574,6 +627,7 @@ Value Value::convertTo(const ValueType toType) const
         case ValueType::Map:
         case ValueType::Range:
         case ValueType::BBox:
+        case ValueType::BoundValue:
         case ValueType::Null:
         case ValueType::Undefined:
           break;
@@ -595,6 +649,7 @@ Value Value::convertTo(const ValueType toType) const
         case ValueType::Range:
         case ValueType::Vec3:
         case ValueType::BBox:
+        case ValueType::BoundValue:
         case ValueType::Null:
         case ValueType::Undefined:
           break;
@@ -614,6 +669,7 @@ Value Value::convertTo(const ValueType toType) const
         case ValueType::Range:
         case ValueType::Vec3:
         case ValueType::BBox:
+        case ValueType::BoundValue:
         case ValueType::Null:
         case ValueType::Undefined:
           break;
@@ -633,6 +689,7 @@ Value Value::convertTo(const ValueType toType) const
         case ValueType::Range:
         case ValueType::Vec3:
         case ValueType::BBox:
+        case ValueType::BoundValue:
         case ValueType::Null:
         case ValueType::Undefined:
           break;
@@ -652,6 +709,7 @@ Value Value::convertTo(const ValueType toType) const
         case ValueType::Map:
         case ValueType::Vec3:
         case ValueType::BBox:
+        case ValueType::BoundValue:
         case ValueType::Null:
         case ValueType::Undefined:
           break;
@@ -675,6 +733,7 @@ Value Value::convertTo(const ValueType toType) const
         case ValueType::Map:
         case ValueType::Range:
         case ValueType::BBox:
+        case ValueType::BoundValue:
         case ValueType::Null:
         case ValueType::Undefined:
           break;
@@ -694,6 +753,27 @@ Value Value::convertTo(const ValueType toType) const
         case ValueType::Map:
         case ValueType::Range:
         case ValueType::Vec3:
+        case ValueType::BoundValue:
+        case ValueType::Null:
+        case ValueType::Undefined:
+          break;
+        }
+
+        throw ConversionError{location(), describe(), type(), toType};
+      },
+      [&](const std::shared_ptr<const BoundValueType>&) -> Value {
+        switch (toType)
+        {
+        case ValueType::BoundValue:
+          return *this;
+        case ValueType::Boolean:
+        case ValueType::Number:
+        case ValueType::String:
+        case ValueType::Array:
+        case ValueType::Map:
+        case ValueType::Range:
+        case ValueType::Vec3:
+        case ValueType::BBox:
         case ValueType::Null:
         case ValueType::Undefined:
           break;
@@ -719,6 +799,7 @@ Value Value::convertTo(const ValueType toType) const
         case ValueType::Range:
         case ValueType::Vec3:
         case ValueType::BBox:
+        case ValueType::BoundValue:
         case ValueType::Undefined:
           break;
         }
@@ -738,6 +819,7 @@ Value Value::convertTo(const ValueType toType) const
         case ValueType::Range:
         case ValueType::Vec3:
         case ValueType::BBox:
+        case ValueType::BoundValue:
         case ValueType::Null:
           break;
         }
@@ -891,6 +973,44 @@ void Value::appendToStream(
         Value{b.max}.appendToStream(str, multiline, indent);
         str << ")";
       },
+      [&](const std::shared_ptr<const BoundValueType>& bp) {
+        const auto& b = *bp;
+        const auto names = b.keys();
+        if (names.empty())
+        {
+          str << "{}";
+        }
+        else
+        {
+          const auto childIndent = multiline ? indent + "\t" : "";
+          str << "{";
+          str << (multiline ? "\n" : " ");
+
+          for (size_t i = 0; i < names.size(); ++i)
+          {
+            const auto& key = names[i];
+            str << childIndent << "\"" << key << "\""
+                << ": ";
+            b.at(key)
+              .value_or(Value::Undefined)
+              .appendToStream(str, multiline, childIndent);
+            if (i < names.size() - 1)
+            {
+              str << ",";
+              if (!multiline)
+              {
+                str << " ";
+              }
+            }
+            if (multiline)
+            {
+              str << "\n";
+            }
+          }
+          str << (multiline ? indent : " ");
+          str << "}";
+        }
+      },
       [&](const NullType&) { str << "null"; },
       [&](const UndefinedType&) { str << "undefined"; }),
     m_value);
@@ -904,6 +1024,7 @@ bool Value::contains(const size_t index) const
   case ValueType::Array:
     return index < length();
   case ValueType::Map:
+  case ValueType::BoundValue:
   case ValueType::Boolean:
   case ValueType::Number:
   case ValueType::Range:
@@ -918,6 +1039,11 @@ bool Value::contains(const size_t index) const
 
 bool Value::contains(const std::string& key) const
 {
+  if (type() == ValueType::BoundValue)
+  {
+    return boundValue().at(key).has_value();
+  }
+
   const MapType& map = mapValue();
   const auto it = map.find(key);
   return it != std::end(map);
@@ -925,6 +1051,11 @@ bool Value::contains(const std::string& key) const
 
 std::vector<std::string> Value::keys() const
 {
+  if (type() == ValueType::BoundValue)
+  {
+    return boundValue().keys();
+  }
+
   return mapValue() | std::views::keys | kdl::ranges::to<std::vector>();
 }
 
@@ -949,6 +1080,7 @@ Value Value::at(const size_t index) const
     throw IndexOutOfBoundsError{location(), *this, index};
   }
   case ValueType::Map:
+  case ValueType::BoundValue:
   case ValueType::Boolean:
   case ValueType::Number:
   case ValueType::Range:
@@ -983,6 +1115,7 @@ Value Value::atOrDefault(const size_t index, Value defaultValue) const
     return defaultValue;
   }
   case ValueType::Map:
+  case ValueType::BoundValue:
   case ValueType::Boolean:
   case ValueType::Number:
   case ValueType::Range:
@@ -1005,6 +1138,13 @@ Value Value::at(const std::string& key) const
     if (const auto it = map.find(key); it != map.end())
     {
       return it->second;
+    }
+    throw IndexOutOfBoundsError{location(), *this, key};
+  }
+  case ValueType::BoundValue: {
+    if (auto value = boundValue().at(key))
+    {
+      return *value;
     }
     throw IndexOutOfBoundsError{location(), *this, key};
   }
@@ -1032,6 +1172,13 @@ Value Value::atOrDefault(const std::string& key, Value defaultValue) const
     if (const auto it = map.find(key); it != map.end())
     {
       return it->second;
+    }
+    return defaultValue;
+  }
+  case ValueType::BoundValue: {
+    if (auto value = boundValue().at(key))
+    {
+      return *value;
     }
     return defaultValue;
   }
@@ -1118,6 +1265,11 @@ bool operator==(const Value& lhs, const Value& rhs)
       },
       [](const Vec3Type& lhsVec3, const Vec3Type& rhsVec3) { return lhsVec3 == rhsVec3; },
       [](const BBoxType& lhsBBox, const BBoxType& rhsBBox) { return lhsBBox == rhsBBox; },
+      [](
+        const std::shared_ptr<const BoundValueType>& lhsBoundValue,
+        const std::shared_ptr<const BoundValueType>& rhsBoundValue) {
+        return lhsBoundValue == rhsBoundValue;
+      },
       [](const NullType&, const NullType&) { return true; },
       [](const UndefinedType&, const UndefinedType&) { return true; },
       [](const auto&, const auto&) { return false; }),
