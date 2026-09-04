@@ -19,6 +19,7 @@
 
 #include "el/EvaluationContext.h"
 #include "el/Exceptions.h"
+#include "el/LazyMap.h"
 #include "el/Types.h"
 #include "el/Value.h"
 
@@ -42,6 +43,7 @@ const auto allTypes = std::vector{
   ValueType::Range,
   ValueType::Vec3,
   ValueType::BBox,
+  ValueType::LazyMap,
   ValueType::Null,
   ValueType::Undefined,
 };
@@ -65,6 +67,20 @@ const auto rightBoundedRange = Value{RangeType{RightBoundedRange{5}}};
 const auto vec3 = Value{Vec3Type{1, 2, 3}};
 const auto bbox = Value{BBoxType{Vec3Type{1, 2, 3}, Vec3Type{4, 5, 6}}};
 
+struct LazyMapTestObject
+{
+  std::string name;
+  double number;
+};
+
+const auto lazyMapTestFields = LazyMapFields<LazyMapTestObject>{
+  {"name", [](const LazyMapTestObject& o) { return Value{o.name}; }},
+  {"number", [](const LazyMapTestObject& o) { return Value{o.number}; }},
+};
+
+const auto lazyMapTestObject = LazyMapTestObject{"test", 42.0};
+const auto testLazyMap = makeLazyMap(lazyMapTestObject, lazyMapTestFields);
+
 } // namespace
 
 TEST_CASE("Value")
@@ -86,6 +102,7 @@ TEST_CASE("Value")
     CHECK(Value{Vec3Type{1, 2, 3}}.type() == ValueType::Vec3);
     CHECK(
       Value{BBoxType{Vec3Type{1, 2, 3}, Vec3Type{4, 5, 6}}}.type() == ValueType::BBox);
+    CHECK(testLazyMap.type() == ValueType::LazyMap);
     CHECK(Value{NullType::Value}.type() == ValueType::Null);
     CHECK(Value{UndefinedType::Value}.type() == ValueType::Undefined);
 
@@ -115,6 +132,7 @@ TEST_CASE("Value")
     CHECK(Value{ArrayType{}}.typeName() == "Array");
     CHECK(Value{MapType{}}.typeName() == "Map");
     CHECK(boundedRange.typeName() == "Range");
+    CHECK(testLazyMap.typeName() == "Map");
     CHECK(Value::Null.typeName() == "Null");
     CHECK(Value::Undefined.typeName() == "Undefined");
   }
@@ -217,6 +235,7 @@ TEST_CASE("Value")
       CHECK_THROWS_AS(boundedRange.arrayValue(), DereferenceError);
       CHECK_THROWS_AS(vec3.arrayValue(), DereferenceError);
       CHECK_THROWS_AS(bbox.arrayValue(), DereferenceError);
+      CHECK_THROWS_AS(testLazyMap.arrayValue(), DereferenceError);
       CHECK_THROWS_AS(Value::Undefined.arrayValue(), DereferenceError);
     }).ignore();
 
@@ -240,6 +259,7 @@ TEST_CASE("Value")
       CHECK_THROWS_AS(boundedRange.mapValue(), DereferenceError);
       CHECK_THROWS_AS(vec3.mapValue(), DereferenceError);
       CHECK_THROWS_AS(bbox.mapValue(), DereferenceError);
+      CHECK_THROWS_AS(testLazyMap.mapValue(), DereferenceError);
       CHECK_THROWS_AS(Value::Undefined.mapValue(), DereferenceError);
     }).ignore();
 
@@ -263,6 +283,7 @@ TEST_CASE("Value")
       CHECK_THROWS_AS(Value{MapType{}}.rangeValue(), DereferenceError);
       CHECK_THROWS_AS(vec3.rangeValue(), DereferenceError);
       CHECK_THROWS_AS(bbox.rangeValue(), DereferenceError);
+      CHECK_THROWS_AS(testLazyMap.rangeValue(), DereferenceError);
 
       // unlike the other accessors, a range cannot be dereferenced from null
       CHECK_THROWS_AS(Value::Null.rangeValue(), DereferenceError);
@@ -287,6 +308,7 @@ TEST_CASE("Value")
       CHECK_THROWS_AS(Value{MapType{}}.vec3Value(), DereferenceError);
       CHECK_THROWS_AS(boundedRange.vec3Value(), DereferenceError);
       CHECK_THROWS_AS(bbox.vec3Value(), DereferenceError);
+      CHECK_THROWS_AS(testLazyMap.vec3Value(), DereferenceError);
 
       CHECK_THROWS_AS(Value::Null.vec3Value(), DereferenceError);
       CHECK_THROWS_AS(Value::Undefined.vec3Value(), DereferenceError);
@@ -310,6 +332,7 @@ TEST_CASE("Value")
       CHECK_THROWS_AS(Value{MapType{}}.bboxValue(), DereferenceError);
       CHECK_THROWS_AS(boundedRange.bboxValue(), DereferenceError);
       CHECK_THROWS_AS(vec3.bboxValue(), DereferenceError);
+      CHECK_THROWS_AS(testLazyMap.bboxValue(), DereferenceError);
 
       CHECK_THROWS_AS(Value::Null.bboxValue(), DereferenceError);
       CHECK_THROWS_AS(Value::Undefined.bboxValue(), DereferenceError);
@@ -319,6 +342,34 @@ TEST_CASE("Value")
       withEvaluationContext([](auto&) { Value{"test"}.bboxValue(); })
       == Result<void>{Error{
         R"(At unknown location: Cannot dereference value '"test"' of type 'String' as type 'BBox')"}});
+  }
+
+  SECTION("lazyMapValue")
+  {
+    withEvaluationContext([](auto&) {
+      CHECK(testLazyMap.lazyMapValue().at("name") == Value{"test"});
+      CHECK(testLazyMap.lazyMapValue().at("number") == Value{42.0});
+      CHECK(testLazyMap.lazyMapValue().at("missing") == std::nullopt);
+      CHECK(
+        testLazyMap.lazyMapValue().keys() == std::vector<std::string>{"name", "number"});
+
+      CHECK_THROWS_AS(Value{true}.lazyMapValue(), DereferenceError);
+      CHECK_THROWS_AS(Value{"test"}.lazyMapValue(), DereferenceError);
+      CHECK_THROWS_AS(Value{1.0}.lazyMapValue(), DereferenceError);
+      CHECK_THROWS_AS(Value{ArrayType{}}.lazyMapValue(), DereferenceError);
+      CHECK_THROWS_AS(Value{MapType{}}.lazyMapValue(), DereferenceError);
+      CHECK_THROWS_AS(boundedRange.lazyMapValue(), DereferenceError);
+      CHECK_THROWS_AS(vec3.lazyMapValue(), DereferenceError);
+      CHECK_THROWS_AS(bbox.lazyMapValue(), DereferenceError);
+
+      CHECK_THROWS_AS(Value::Null.lazyMapValue(), DereferenceError);
+      CHECK_THROWS_AS(Value::Undefined.lazyMapValue(), DereferenceError);
+    }).ignore();
+
+    CHECK(
+      withEvaluationContext([](auto&) { Value{"test"}.lazyMapValue(); })
+      == Result<void>{Error{
+        R"(At unknown location: Cannot dereference value '"test"' of type 'String' as type 'Map')"}});
   }
 
   SECTION("asStringList")
@@ -360,6 +411,7 @@ TEST_CASE("Value")
     CHECK(boundedRange.length() == 2u);
     CHECK(vec3.length() == 3u);
     CHECK(bbox.length() == 2u);
+    CHECK(testLazyMap.length() == 2u);
     CHECK(Value::Null.length() == 0u);
     CHECK(Value::Undefined.length() == 0u);
   }
@@ -379,6 +431,7 @@ TEST_CASE("Value")
     CHECK(convertibleTypes(boundedRange) == std::vector{Range});
     CHECK(convertibleTypes(vec3) == std::vector{String, Vec3});
     CHECK(convertibleTypes(bbox) == std::vector{BBox});
+    CHECK(convertibleTypes(testLazyMap) == std::vector{LazyMap});
     CHECK(
       convertibleTypes(Value::Null)
       == std::vector{Boolean, String, Number, Array, Map, Null});
@@ -399,6 +452,7 @@ TEST_CASE("Value")
       CHECK_THROWS_AS(Value{true}.convertTo(ValueType::Range), ConversionError);
       CHECK_THROWS_AS(Value{true}.convertTo(ValueType::Vec3), ConversionError);
       CHECK_THROWS_AS(Value{true}.convertTo(ValueType::BBox), ConversionError);
+      CHECK_THROWS_AS(Value{true}.convertTo(ValueType::LazyMap), ConversionError);
       CHECK_THROWS_AS(Value{true}.convertTo(ValueType::Null), ConversionError);
       CHECK_THROWS_AS(Value{true}.convertTo(ValueType::Undefined), ConversionError);
 
@@ -411,6 +465,7 @@ TEST_CASE("Value")
       CHECK(Value{" "}.convertTo(ValueType::Number) == Value{0});
       // "1.2 3 4", the format entity properties like "origin" use
       CHECK(Value{"1 2 3"}.convertTo(ValueType::Vec3) == Value{Vec3Type{1, 2, 3}});
+      CHECK(Value{"1 2 3"}.convertTo(ValueType::Vec3) == Value{Vec3Type{1, 2, 3}});
       CHECK(
         Value{"1.2 3 4"}.convertTo(ValueType::Vec3) == Value{Vec3Type{1.2, 3.0, 4.0}});
       CHECK_THROWS_AS(Value{"1 2"}.convertTo(ValueType::Vec3), ConversionError);
@@ -420,6 +475,7 @@ TEST_CASE("Value")
       CHECK_THROWS_AS(Value{"asdf"}.convertTo(ValueType::Range), ConversionError);
       CHECK_THROWS_AS(Value{"asdf"}.convertTo(ValueType::Vec3), ConversionError);
       CHECK_THROWS_AS(Value{"asdf"}.convertTo(ValueType::BBox), ConversionError);
+      CHECK_THROWS_AS(Value{"asdf"}.convertTo(ValueType::LazyMap), ConversionError);
       CHECK_THROWS_AS(Value{"asdf"}.convertTo(ValueType::Null), ConversionError);
       CHECK_THROWS_AS(Value{"asdf"}.convertTo(ValueType::Undefined), ConversionError);
 
@@ -438,6 +494,7 @@ TEST_CASE("Value")
       CHECK_THROWS_AS(Value{3}.convertTo(ValueType::Range), ConversionError);
       CHECK_THROWS_AS(Value{6}.convertTo(ValueType::Vec3), ConversionError);
       CHECK_THROWS_AS(Value{7}.convertTo(ValueType::BBox), ConversionError);
+      CHECK_THROWS_AS(Value{8}.convertTo(ValueType::LazyMap), ConversionError);
       CHECK_THROWS_AS(Value{4}.convertTo(ValueType::Null), ConversionError);
       CHECK_THROWS_AS(Value{5}.convertTo(ValueType::Undefined), ConversionError);
 
@@ -450,6 +507,16 @@ TEST_CASE("Value")
       CHECK_THROWS_AS(Value{ArrayType{}}.convertTo(ValueType::Vec3), ConversionError);
       CHECK_THROWS_AS(Value{ArrayType{}}.convertTo(ValueType::BBox), ConversionError);
       CHECK_THROWS_AS(Value{ArrayType{}}.convertTo(ValueType::Null), ConversionError);
+      CHECK_THROWS_AS(Value{ArrayType{}}.convertTo(ValueType::Boolean), ConversionError);
+      CHECK_THROWS_AS(Value{ArrayType{}}.convertTo(ValueType::String), ConversionError);
+      CHECK_THROWS_AS(Value{ArrayType{}}.convertTo(ValueType::Number), ConversionError);
+      CHECK(Value{ArrayType{}}.convertTo(ValueType::Array) == Value{ArrayType{}});
+      CHECK_THROWS_AS(Value{ArrayType{}}.convertTo(ValueType::Map), ConversionError);
+      CHECK_THROWS_AS(Value{ArrayType{}}.convertTo(ValueType::Range), ConversionError);
+      CHECK_THROWS_AS(Value{ArrayType{}}.convertTo(ValueType::Vec3), ConversionError);
+      CHECK_THROWS_AS(Value{ArrayType{}}.convertTo(ValueType::BBox), ConversionError);
+      CHECK_THROWS_AS(Value{ArrayType{}}.convertTo(ValueType::LazyMap), ConversionError);
+      CHECK_THROWS_AS(Value{ArrayType{}}.convertTo(ValueType::Null), ConversionError);
       CHECK_THROWS_AS(
         Value{ArrayType{}}.convertTo(ValueType::Undefined), ConversionError);
 
@@ -461,6 +528,7 @@ TEST_CASE("Value")
       CHECK_THROWS_AS(Value{MapType{}}.convertTo(ValueType::Range), ConversionError);
       CHECK_THROWS_AS(Value{MapType{}}.convertTo(ValueType::Vec3), ConversionError);
       CHECK_THROWS_AS(Value{MapType{}}.convertTo(ValueType::BBox), ConversionError);
+      CHECK_THROWS_AS(Value{MapType{}}.convertTo(ValueType::LazyMap), ConversionError);
       CHECK_THROWS_AS(Value{MapType{}}.convertTo(ValueType::Null), ConversionError);
       CHECK_THROWS_AS(Value{MapType{}}.convertTo(ValueType::Undefined), ConversionError);
 
@@ -472,6 +540,7 @@ TEST_CASE("Value")
       CHECK(boundedRange.convertTo(ValueType::Range) == boundedRange);
       CHECK_THROWS_AS(boundedRange.convertTo(ValueType::Vec3), ConversionError);
       CHECK_THROWS_AS(boundedRange.convertTo(ValueType::BBox), ConversionError);
+      CHECK_THROWS_AS(boundedRange.convertTo(ValueType::LazyMap), ConversionError);
       CHECK_THROWS_AS(boundedRange.convertTo(ValueType::Null), ConversionError);
       CHECK_THROWS_AS(boundedRange.convertTo(ValueType::Undefined), ConversionError);
 
@@ -484,6 +553,7 @@ TEST_CASE("Value")
       CHECK_THROWS_AS(vec3.convertTo(ValueType::Range), ConversionError);
       CHECK(vec3.convertTo(ValueType::Vec3) == vec3);
       CHECK_THROWS_AS(vec3.convertTo(ValueType::BBox), ConversionError);
+      CHECK_THROWS_AS(vec3.convertTo(ValueType::LazyMap), ConversionError);
       CHECK_THROWS_AS(vec3.convertTo(ValueType::Null), ConversionError);
       CHECK_THROWS_AS(vec3.convertTo(ValueType::Undefined), ConversionError);
 
@@ -495,9 +565,21 @@ TEST_CASE("Value")
       CHECK_THROWS_AS(bbox.convertTo(ValueType::Range), ConversionError);
       CHECK_THROWS_AS(bbox.convertTo(ValueType::Vec3), ConversionError);
       CHECK(bbox.convertTo(ValueType::BBox) == bbox);
+      CHECK_THROWS_AS(bbox.convertTo(ValueType::LazyMap), ConversionError);
       CHECK_THROWS_AS(bbox.convertTo(ValueType::Null), ConversionError);
       CHECK_THROWS_AS(bbox.convertTo(ValueType::Undefined), ConversionError);
 
+      CHECK_THROWS_AS(testLazyMap.convertTo(ValueType::Boolean), ConversionError);
+      CHECK_THROWS_AS(testLazyMap.convertTo(ValueType::String), ConversionError);
+      CHECK_THROWS_AS(testLazyMap.convertTo(ValueType::Number), ConversionError);
+      CHECK_THROWS_AS(testLazyMap.convertTo(ValueType::Array), ConversionError);
+      CHECK_THROWS_AS(testLazyMap.convertTo(ValueType::Map), ConversionError);
+      CHECK_THROWS_AS(testLazyMap.convertTo(ValueType::Range), ConversionError);
+      CHECK_THROWS_AS(testLazyMap.convertTo(ValueType::Vec3), ConversionError);
+      CHECK_THROWS_AS(testLazyMap.convertTo(ValueType::BBox), ConversionError);
+      CHECK(testLazyMap.convertTo(ValueType::LazyMap) == testLazyMap);
+      CHECK_THROWS_AS(testLazyMap.convertTo(ValueType::Null), ConversionError);
+      CHECK_THROWS_AS(testLazyMap.convertTo(ValueType::Undefined), ConversionError);
 
       CHECK(Value::Null.convertTo(ValueType::Boolean) == Value{false});
       CHECK(Value::Null.convertTo(ValueType::String) == Value{""});
@@ -507,6 +589,7 @@ TEST_CASE("Value")
       CHECK_THROWS_AS(Value::Null.convertTo(ValueType::Range), ConversionError);
       CHECK_THROWS_AS(Value::Null.convertTo(ValueType::Vec3), ConversionError);
       CHECK_THROWS_AS(Value::Null.convertTo(ValueType::BBox), ConversionError);
+      CHECK_THROWS_AS(Value::Null.convertTo(ValueType::LazyMap), ConversionError);
       CHECK(Value::Null.convertTo(ValueType::Null) == Value::Null);
       CHECK_THROWS_AS(Value::Null.convertTo(ValueType::Undefined), ConversionError);
 
@@ -518,6 +601,7 @@ TEST_CASE("Value")
       CHECK_THROWS_AS(Value::Undefined.convertTo(ValueType::Range), ConversionError);
       CHECK_THROWS_AS(Value::Undefined.convertTo(ValueType::Vec3), ConversionError);
       CHECK_THROWS_AS(Value::Undefined.convertTo(ValueType::BBox), ConversionError);
+      CHECK_THROWS_AS(Value::Undefined.convertTo(ValueType::LazyMap), ConversionError);
       CHECK_THROWS_AS(Value::Undefined.convertTo(ValueType::Null), ConversionError);
       CHECK(Value::Undefined.convertTo(ValueType::Undefined) == Value::Undefined);
     }).ignore();
@@ -562,6 +646,9 @@ TEST_CASE("Value")
       CHECK(rightBoundedRange.asString() == "[..5]");
       CHECK(vec3.asString() == "vec(1, 2, 3)");
       CHECK(bbox.asString() == "bbox(vec(1, 2, 3), vec(4, 5, 6))");
+      // prints exactly like a real Map would, since LazyMap is meant to be
+      // indistinguishable from one
+      CHECK(testLazyMap.asString() == R"({ "name": "test", "number": 42 })");
       CHECK(Value::Null.asString() == "null");
       CHECK(Value::Undefined.asString() == "undefined");
     }
@@ -581,6 +668,8 @@ TEST_CASE("Value")
       CHECK(
         Value{MapType{{"a", Value{MapType{{"b", Value{1.0}}}}}}}.asString(true)
         == "{\n\t\"a\": {\n\t\t\"b\": 1\n\t}\n}");
+      CHECK(
+        testLazyMap.asString(true) == "{\n\t\"name\": \"test\",\n\t\"number\": 42\n}");
     }
   }
 
@@ -614,6 +703,7 @@ TEST_CASE("Value")
         CHECK(!boundedRange.contains(0));
         CHECK(!vec3.contains(0));
         CHECK(!bbox.contains(0));
+        CHECK(!testLazyMap.contains(0));
         CHECK(!Value::Null.contains(0));
         CHECK(!Value::Undefined.contains(0));
       }).ignore();
@@ -627,6 +717,9 @@ TEST_CASE("Value")
         CHECK(!Value{MapType{}}.contains("a"));
         CHECK(!Value::Null.contains("a"));
 
+        CHECK(testLazyMap.contains("name"));
+        CHECK(testLazyMap.contains("number"));
+        CHECK(!testLazyMap.contains("missing"));
 
         CHECK_THROWS_AS(Value{"ab"}.contains("a"), DereferenceError);
         CHECK_THROWS_AS(Value{ArrayType{}}.contains("a"), DereferenceError);
@@ -643,6 +736,7 @@ TEST_CASE("Value")
         == std::vector<std::string>{"a", "b"});
       CHECK(Value{MapType{}}.keys() == std::vector<std::string>{});
       CHECK(Value::Null.keys() == std::vector<std::string>{});
+      CHECK(testLazyMap.keys() == std::vector<std::string>{"name", "number"});
 
       CHECK_THROWS_AS(Value{ArrayType{}}.keys(), DereferenceError);
     }).ignore();
@@ -668,6 +762,7 @@ TEST_CASE("Value")
         CHECK_THROWS_AS(boundedRange.at(0), IndexError);
         CHECK_THROWS_AS(vec3.at(0), IndexError);
         CHECK_THROWS_AS(bbox.at(0), IndexError);
+        CHECK_THROWS_AS(testLazyMap.at(0), IndexError);
         CHECK_THROWS_AS(Value::Null.at(0), IndexError);
         CHECK_THROWS_AS(Value::Undefined.at(0), IndexError);
       }).ignore();
@@ -680,6 +775,8 @@ TEST_CASE("Value")
         CHECK(map.at("a") == Value{1.0});
         CHECK_THROWS_AS(map.at("b"), IndexOutOfBoundsError);
 
+        CHECK(testLazyMap.at("name") == Value{"test"});
+        CHECK_THROWS_AS(testLazyMap.at("missing"), IndexOutOfBoundsError);
 
         CHECK_THROWS_AS(Value{"abc"}.at("a"), IndexError);
         CHECK_THROWS_AS(Value{ArrayType{}}.at("a"), IndexError);
@@ -715,6 +812,7 @@ TEST_CASE("Value")
         CHECK_THROWS_AS(boundedRange.atOrDefault(0), IndexError);
         CHECK_THROWS_AS(vec3.atOrDefault(0), IndexError);
         CHECK_THROWS_AS(bbox.atOrDefault(0), IndexError);
+        CHECK_THROWS_AS(testLazyMap.atOrDefault(0), IndexError);
         CHECK_THROWS_AS(Value::Null.atOrDefault(0), IndexError);
         CHECK_THROWS_AS(Value::Undefined.atOrDefault(0), IndexError);
       }).ignore();
@@ -728,6 +826,9 @@ TEST_CASE("Value")
         CHECK(map.atOrDefault("b") == Value::Null);
         CHECK(map.atOrDefault("b", Value{"x"}) == Value{"x"});
 
+        CHECK(testLazyMap.atOrDefault("name") == Value{"test"});
+        CHECK(testLazyMap.atOrDefault("missing") == Value::Null);
+        CHECK(testLazyMap.atOrDefault("missing", Value{"x"}) == Value{"x"});
 
         CHECK_THROWS_AS(Value{"abc"}.atOrDefault("a"), IndexError);
         CHECK_THROWS_AS(Value{ArrayType{}}.atOrDefault("a"), IndexError);
@@ -772,6 +873,16 @@ TEST_CASE("Value")
     const auto value = Value{ArrayType{Value{1.0}}};
     const auto copy = value;
     CHECK(value == copy);
+
+    // a LazyMap is equal to a literal copy of itself (same underlying closures,
+    // caught by the fast path above before the per-alternative visit ever runs)...
+    const auto lazyMapCopy = testLazyMap;
+    CHECK(testLazyMap == lazyMapCopy);
+    // ...but not to another LazyMap independently built over the same data: unlike
+    // Map, LazyMap holds std::functions, which aren't themselves comparable, so two
+    // separately-constructed LazyMaps are always "not equal" -- consistent with
+    // LazyMap never being compared as a whole (see evaluateCompare in Expression.cpp)
+    CHECK_FALSE(testLazyMap == makeLazyMap(lazyMapTestObject, lazyMapTestFields));
   }
 
   SECTION("operator!=")

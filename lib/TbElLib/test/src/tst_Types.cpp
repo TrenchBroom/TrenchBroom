@@ -146,6 +146,7 @@ TEST_CASE("Types")
     CHECK(typeName(ValueType::BBox) == "BBox");
     CHECK(typeName(ValueType::Null) == "Null");
     CHECK(typeName(ValueType::Undefined) == "Undefined");
+    CHECK(typeName(ValueType::LazyMap) == "Map");
   }
 
   SECTION("typeForName")

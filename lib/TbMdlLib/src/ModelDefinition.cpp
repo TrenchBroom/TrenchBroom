@@ -79,6 +79,7 @@ ModelSpecification convertToModel(el::EvaluationContext& context, const el::Valu
   case el::ValueType::Range:
   case el::ValueType::Vec3:
   case el::ValueType::BBox:
+  case el::ValueType::LazyMap:
   case el::ValueType::Null:
   case el::ValueType::Undefined:
     break;
@@ -217,6 +218,8 @@ Result<vm::vec3d> ModelDefinition::scale(
       case el::ValueType::Vec3:
         [[fallthrough]];
       case el::ValueType::BBox:
+        [[fallthrough]];
+      case el::ValueType::LazyMap:
         [[fallthrough]];
       case el::ValueType::Null:
         [[fallthrough]];
