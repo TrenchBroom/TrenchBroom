@@ -38,24 +38,6 @@ namespace tb::el
 {
 class EvaluationContext;
 
-class NullType
-{
-private:
-  NullType();
-
-public:
-  static const NullType Value;
-};
-
-class UndefinedType
-{
-private:
-  UndefinedType();
-
-public:
-  static const UndefinedType Value;
-};
-
 class Value
 {
 private:

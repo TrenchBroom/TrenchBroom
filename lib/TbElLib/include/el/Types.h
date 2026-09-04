@@ -112,6 +112,24 @@ using RangeType = std::variant<LeftBoundedRange, RightBoundedRange, BoundedRange
 
 std::ostream& operator<<(std::ostream& lhs, const RangeType& rhs);
 
+class NullType
+{
+private:
+  NullType();
+
+public:
+  static const NullType Value;
+};
+
+class UndefinedType
+{
+private:
+  UndefinedType();
+
+public:
+  static const UndefinedType Value;
+};
+
 enum class ValueType
 {
   Boolean,
