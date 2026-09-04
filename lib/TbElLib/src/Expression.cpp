@@ -140,6 +140,8 @@ Value evaluateUnaryPlus(const Value& v, const ExpressionNode& expressionNode)
     [[fallthrough]];
   case ValueType::BBox:
     [[fallthrough]];
+  case ValueType::LazyMap:
+    [[fallthrough]];
   case ValueType::Null:
     [[fallthrough]];
   case ValueType::Undefined:
@@ -172,6 +174,8 @@ Value evaluateUnaryMinus(const Value& v, const ExpressionNode& expressionNode)
     [[fallthrough]];
   case ValueType::BBox:
     [[fallthrough]];
+  case ValueType::LazyMap:
+    [[fallthrough]];
   case ValueType::Null:
     [[fallthrough]];
   case ValueType::Undefined:
@@ -199,6 +203,8 @@ Value evaluateLogicalNegation(const Value& v, const ExpressionNode& expressionNo
   case ValueType::Vec3:
     [[fallthrough]];
   case ValueType::BBox:
+    [[fallthrough]];
+  case ValueType::LazyMap:
     [[fallthrough]];
   case ValueType::Null:
     [[fallthrough]];
@@ -231,6 +237,8 @@ Value evaluateBitwiseNegation(const Value& v, const ExpressionNode& expressionNo
   case ValueType::Vec3:
     [[fallthrough]];
   case ValueType::BBox:
+    [[fallthrough]];
+  case ValueType::LazyMap:
     [[fallthrough]];
   case ValueType::Null:
     [[fallthrough]];
@@ -787,6 +795,7 @@ int evaluateCompare(
       case ValueType::Range:
       case ValueType::Vec3:
       case ValueType::BBox:
+      case ValueType::LazyMap:
         break;
       }
       break;
@@ -806,6 +815,7 @@ int evaluateCompare(
       case ValueType::Range:
       case ValueType::Vec3:
       case ValueType::BBox:
+      case ValueType::LazyMap:
         break;
       }
       break;
@@ -827,6 +837,7 @@ int evaluateCompare(
       case ValueType::Map:
       case ValueType::Range:
       case ValueType::BBox:
+      case ValueType::LazyMap:
         break;
       }
       break;
@@ -855,6 +866,7 @@ int evaluateCompare(
       case ValueType::Range:
       case ValueType::Vec3:
       case ValueType::BBox:
+      case ValueType::LazyMap:
         break;
       }
       break;
@@ -876,6 +888,7 @@ int evaluateCompare(
       case ValueType::Range:
       case ValueType::Vec3:
       case ValueType::BBox:
+      case ValueType::LazyMap:
         break;
       }
       break;
@@ -893,6 +906,7 @@ int evaluateCompare(
       case ValueType::Range:
       case ValueType::Vec3:
       case ValueType::BBox:
+      case ValueType::LazyMap:
         break;
       }
       break;
@@ -911,6 +925,7 @@ int evaluateCompare(
       case ValueType::Map:
       case ValueType::Range:
       case ValueType::BBox:
+      case ValueType::LazyMap:
         break;
       }
       break;
@@ -929,9 +944,41 @@ int evaluateCompare(
       case ValueType::Map:
       case ValueType::Range:
       case ValueType::Vec3:
+      case ValueType::LazyMap:
         break;
       }
       break;
+    case ValueType::LazyMap:
+      // Deliberately unsupported via EL comparison operators. LazyMap is meant to be
+      // drilled into with subscript/dot-access, not compared as a whole.
+      switch (rhs.type())
+      {
+      case ValueType::Null:
+      case ValueType::Undefined:
+        return 1;
+      case ValueType::Boolean:
+      case ValueType::Number:
+      case ValueType::String:
+      case ValueType::Array:
+      case ValueType::Map:
+      case ValueType::Range:
+      case ValueType::Vec3:
+      case ValueType::BBox:
+      case ValueType::LazyMap:
+        break;
+      }
+      break;
+    }
+
+    if (lhs.hasType(ValueType::LazyMap) || rhs.hasType(ValueType::LazyMap))
+    {
+      throw EvaluationError{
+        expressionNode,
+        fmt::format(
+          "Invalid operand types {} and {}: a lazy Map can only be accessed by key, not "
+          "compared",
+          lhs.typeName(),
+          rhs.typeName())};
     }
 
     throw EvaluationError{
@@ -1129,6 +1176,7 @@ void computeIndexArray(
   case ValueType::Map:
   case ValueType::Vec3:
   case ValueType::BBox:
+  case ValueType::LazyMap:
   case ValueType::Null:
   case ValueType::Undefined:
     result.push_back(toIndex(indexValue));
@@ -1180,6 +1228,7 @@ Value evaluateSubscript(
     case ValueType::Map:
     case ValueType::Vec3:
     case ValueType::BBox:
+    case ValueType::LazyMap:
     case ValueType::Null:
     case ValueType::Undefined:
       break;
@@ -1221,6 +1270,7 @@ Value evaluateSubscript(
     case ValueType::Map:
     case ValueType::Vec3:
     case ValueType::BBox:
+    case ValueType::LazyMap:
     case ValueType::Null:
     case ValueType::Undefined:
       break;
@@ -1266,6 +1316,28 @@ Value evaluateSubscript(
     case ValueType::Range:
     case ValueType::Vec3:
     case ValueType::BBox:
+    case ValueType::LazyMap:
+    case ValueType::Null:
+    case ValueType::Undefined:
+      break;
+    }
+    break;
+  case ValueType::LazyMap:
+    switch (rhs.type())
+    {
+    case ValueType::String: {
+      const auto& b = lhs.lazyMapValue();
+      const auto& key = rhs.stringValue();
+      return b.at(key).value_or(Value::Undefined);
+    }
+    case ValueType::Boolean:
+    case ValueType::Number:
+    case ValueType::Array:
+    case ValueType::Map:
+    case ValueType::Range:
+    case ValueType::Vec3:
+    case ValueType::BBox:
+    case ValueType::LazyMap:
     case ValueType::Null:
     case ValueType::Undefined:
       break;
@@ -1307,6 +1379,7 @@ Value evaluateSubscript(
     case ValueType::Range:
     case ValueType::Vec3:
     case ValueType::BBox:
+    case ValueType::LazyMap:
     case ValueType::Null:
     case ValueType::Undefined:
       break;
@@ -1335,6 +1408,7 @@ Value evaluateSubscript(
     case ValueType::Range:
     case ValueType::Vec3:
     case ValueType::BBox:
+    case ValueType::LazyMap:
     case ValueType::Null:
     case ValueType::Undefined:
       break;
@@ -1421,12 +1495,11 @@ bool matchesGlob(const Value& lhs, const std::string_view pattern)
     return std::ranges::any_of(lhs.arrayValue(), matches);
   }
 
-  if (lhs.hasType(ValueType::Map))
+  if (lhs.hasType(ValueType::Map, ValueType::LazyMap))
   {
-    return std::ranges::any_of(
-      lhs.mapValue(), kdl::unpack([&](const auto& key, const auto& value) {
-        return kdl::ci::str_matches_glob(key, pattern) || matches(value);
-      }));
+    return std::ranges::any_of(lhs.keys(), [&](const auto& key) {
+      return kdl::ci::str_matches_glob(key, pattern) || matches(lhs.atOrDefault(key));
+    });
   }
 
   return false;
@@ -1482,6 +1555,7 @@ Value evaluateContains(
     })};
   }
   case ValueType::Map:
+  case ValueType::LazyMap:
     return Value{rhs.hasType(ValueType::String) && lhs.contains(rhs.stringValue())};
   case ValueType::BBox:
     if (rhs.hasType(ValueType::Vec3))
