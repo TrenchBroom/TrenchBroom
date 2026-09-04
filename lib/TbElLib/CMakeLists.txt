@@ -6,6 +6,7 @@ target_sources(TbElLib
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Exceptions.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Expression.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Interpolate.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/LazyMapVariableStore.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/ParseExpression.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Parser.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Types.cpp
