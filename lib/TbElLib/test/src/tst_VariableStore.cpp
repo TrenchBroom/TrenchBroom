@@ -17,6 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "el/LazyMap.h"
+#include "el/LazyMapVariableStore.h"
 #include "el/Value.h"
 #include "el/VariableStore.h"
 
@@ -171,6 +173,16 @@ TEST_CASE("VariableStore")
     // stores are compared by their contents, not by their type
     CHECK(VariableTable{} == NullVariableStore{});
     CHECK_FALSE(VariableTable{{{"a", Value{1.0}}}} == NullVariableStore{});
+
+    const auto fields = LazyMapFields<std::string>{
+      {"a", [](const std::string& s) { return Value{s}; }},
+    };
+    CHECK(
+      VariableTable{{{"a", Value{"1"}}}}
+      == LazyMapVariableStore{makeLazyMapOf(std::string{"1"}, fields)});
+    CHECK_FALSE(
+      VariableTable{{{"a", Value{"2"}}}}
+      == LazyMapVariableStore{makeLazyMapOf(std::string{"1"}, fields)});
   }
 
   SECTION("operator!=")
