@@ -139,6 +139,8 @@ void EntityBrowser::connectObservers()
     m_document.documentDidChangeNotifier.connect([&]() { reload(); });
   m_notifierConnection +=
     m_document.resourcesWereProcessedNotifier.connect([&](const auto&) { reload(); });
+  m_notifierConnection +=
+    m_document.entityDefinitionsDidChangeNotifier.connect([&]() { reload(); });
 
   auto& prefs = PreferenceManager::instance();
   m_notifierConnection +=
