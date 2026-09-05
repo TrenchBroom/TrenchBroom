@@ -76,6 +76,7 @@ FreeType (Font rendering library)<br />
 FreeImage (Image loading & manipulation library)<br />
 tinyxml2 (XML parsing library)<br />
 miniz (Archive library)<br />
+natsort (Natural order string comparison)<br />
 Assimp (Asset importer library)<br />
 Catch 2 (C++ testing framework)<br />
 StackWalker (C++ stack trace analyzer)<br />
