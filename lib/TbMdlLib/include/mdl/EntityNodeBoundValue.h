@@ -21,25 +21,33 @@
 
 #include "el/Value.h"
 
+#include <optional>
+#include <string>
+#include <vector>
+
 namespace tb::mdl
 {
+class Entity;
+class EntityNode;
 class Map;
-class Node;
-class Taggable;
+
+std::optional<el::Value> entityPropertyValue(
+  const Entity& entity, const std::string& key);
+
+std::vector<std::string> entityPropertyNames(const Entity& entity);
+
+el::Value makeEntityPropertiesBoundValue(const Entity& entity);
 
 /**
- * Value-producing helpers for the fields that apply identically across several node
- * kinds' BoundValue (WorldNodeBoundValue, LayerNodeBoundValue, ...).
+ * A BoundValue exposing an entity's data as `{classname: ..., properties: {...}}` -- the
+ * shape of the query language's `entity` field, shared by the node and face domains.
  */
-
-el::Value layerNameValue(const Node& node);
-el::Value groupNameValue(const Node& node);
-bool isLinked(const Map& map, const Node& node);
+el::Value makeEntityBoundValue(const Entity& entity);
 
 /**
- * The names of every smart tag in `map` that `taggable` currently has -- the `tags`
- * field's value, for the node kinds (and BrushFace) that carry tags.
+ * The search/filter query language's BoundValue for an EntityNode -- the fields common
+ * to every node kind, plus `name`/`classname`/`properties`/`entity`/`tags`.
  */
-el::Value tagsValue(const Map& map, const Taggable& taggable);
+el::BoundValue makeEntityNodeBoundValue(const Map& map, const EntityNode& node);
 
 } // namespace tb::mdl

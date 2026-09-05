@@ -46,6 +46,7 @@ target_sources(TbMdlLib
     ${CMAKE_CURRENT_SOURCE_DIR}/src/EntityModelManager.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/EntityNode.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/EntityNodeBase.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/EntityNodeBoundValue.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/EntityProperties.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/EntityPropertiesVariableStore.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/EntityRotation.cpp

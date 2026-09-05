@@ -27,6 +27,7 @@
 #include "mdl/Map.h"
 #include "mdl/ModelUtils.h"
 #include "mdl/Node.h"
+#include "mdl/Tag.h"
 #include "mdl/WorldNode.h"
 
 #include <algorithm>
@@ -56,6 +57,19 @@ bool isLinked(const Map& map, const Node& node)
              .size()
            > 1;
   });
+}
+
+el::Value tagsValue(const Map& map, const Taggable& taggable)
+{
+  auto names = el::ArrayType{};
+  for (const auto& tag : map.smartTags())
+  {
+    if (taggable.hasTag(tag))
+    {
+      names.push_back(el::Value{tag.name()});
+    }
+  }
+  return el::Value{std::move(names)};
 }
 
 } // namespace tb::mdl
