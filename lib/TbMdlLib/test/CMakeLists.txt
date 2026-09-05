@@ -25,6 +25,7 @@ target_sources(TbMdlLibTest PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_EntityModel.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_EntityModelManager.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_EntityNode.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_EntityPropertiesVariableStore.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_EntityRotation.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_EntParser.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_FgdParser.cpp
