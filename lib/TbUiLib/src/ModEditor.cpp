@@ -48,6 +48,7 @@
 #include "kd/ranges/to.h"
 #include "kd/result.h"
 #include "kd/string_compare.h"
+#include "kd/string_compare_natural.h"
 #include "kd/vector_utils.h"
 
 #include <ranges>
@@ -226,7 +227,8 @@ void ModEditor::updateAvailableMods()
 {
   auto& map = m_document.map();
   findAvailableMods(map.gameInfo()) | kdl::transform([&](auto availableMods) {
-    m_availableMods = kdl::col_sort(std::move(availableMods), kdl::ci::string_less{});
+    m_availableMods =
+      kdl::col_sort(std::move(availableMods), kdl::ci::string_less_natural{});
   }) | kdl::transform_error([&](auto e) {
     m_availableMods.clear();
     map.logger().error() << "Could not update available mods: " << e.msg;
