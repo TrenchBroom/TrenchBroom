@@ -88,6 +88,7 @@ target_sources(TbMdlLibTest PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_NodeHandles.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_NodeIndex.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_NodeQueries.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_NodeQueryValues.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_NodeReader.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_NodeWriter.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_ObjSerializer.cpp
@@ -115,6 +116,7 @@ target_sources(TbMdlLibTest PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Validation.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_WadPropertyUtils.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_WorldNode.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_WorldNodeBoundValue.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_WorldReader.cpp
 )
 

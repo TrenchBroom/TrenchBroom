@@ -135,6 +135,7 @@ target_sources(TbMdlLib
     ${CMAKE_CURRENT_SOURCE_DIR}/src/NodeHandleManager.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/NodeHandles.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/NodeIndex.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/NodeQueryValues.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/NodeReader.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/NodeSerializer.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/NodeVisitor.cpp
@@ -200,6 +201,7 @@ target_sources(TbMdlLib
     ${CMAKE_CURRENT_SOURCE_DIR}/src/WorldBoundsValidator.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/WorldNodePathSeparatorValidator.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/WorldNode.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/WorldNodeBoundValue.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/WorldReader.cpp
 
   PUBLIC FILE_SET headers TYPE HEADERS
