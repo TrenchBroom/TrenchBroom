@@ -951,8 +951,10 @@ Result<EntityModelData> loadAssimpModel(
         "Assimp couldn't import model from '{}': {}", path, importer.GetErrorString())};
     }
 
-    // Create model data.
-    auto data = EntityModelData{PitchType::Normal, Orientation::Oriented};
+    // GoldSrc applies the Quake pitch inversion when rendering studio models.
+    const auto pitchType =
+      useQuakeCoordinateSystem(*scene) ? PitchType::MdlInverted : PitchType::Normal;
+    auto data = EntityModelData{pitchType, Orientation::Oriented};
 
     // create a frame for each animation in the scene
     // if we have no animations, always load 1 frame for the reference model
