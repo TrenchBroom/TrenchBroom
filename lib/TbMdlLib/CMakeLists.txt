@@ -10,9 +10,11 @@ target_sources(TbMdlLib
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Brush.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/BrushBuilder.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/BrushFace.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/BrushFaceBoundValue.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/BrushFaceHandle.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/BrushFaceReader.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/BrushFaceReference.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/BrushFaceVariableStore.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/BrushNode.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/BrushNodeBoundValue.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/BrushRendererBrushCache.cpp

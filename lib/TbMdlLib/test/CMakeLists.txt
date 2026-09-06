@@ -8,6 +8,8 @@ target_sources(TbMdlLibTest PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Brush.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_BrushBuilder.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_BrushFace.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_BrushFaceBoundValue.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_BrushFaceVariableStore.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_BrushNode.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_BrushNodeBoundValue.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_CommandProcessor.cpp
