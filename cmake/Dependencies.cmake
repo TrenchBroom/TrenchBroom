@@ -10,6 +10,7 @@ include(cmake/dependencies/fmt.cmake)
 include(cmake/dependencies/freeimage.cmake)
 include(cmake/dependencies/freetype.cmake)
 include(cmake/dependencies/miniz.cmake)
+include(cmake/dependencies/natsort.cmake)
 include(cmake/dependencies/stduuid.cmake)
 include(cmake/dependencies/tinyxml2.cmake)
 

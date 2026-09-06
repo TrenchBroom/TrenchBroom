@@ -43,6 +43,7 @@ target_sources(KdLibTest PRIVATE
   "${CMAKE_CURRENT_SOURCE_DIR}/src/tst_stable_remove_duplicates.cpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/src/tst_std_io.cpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/src/tst_string_compare.cpp"
+  "${CMAKE_CURRENT_SOURCE_DIR}/src/tst_string_compare_natural.cpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/src/tst_string_format.cpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/src/tst_string_utils.cpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/src/tst_struct_io.cpp"
