@@ -72,6 +72,7 @@ target_sources(TbMdlLib
     ${CMAKE_CURRENT_SOURCE_DIR}/src/IssueType.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Layer.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/LayerNode.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/LayerNodeBoundValue.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/LegacyModelDefinitionParser.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/LinkedGroupUtils.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/LinkSourceValidator.cpp
