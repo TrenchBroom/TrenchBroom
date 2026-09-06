@@ -62,6 +62,7 @@ target_sources(TbMdlLib
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Grid.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Group.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/GroupNode.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/GroupNodeBoundValue.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Hit.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/HitAdapter.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/HitFilter.cpp
