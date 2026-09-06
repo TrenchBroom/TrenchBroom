@@ -17,11 +17,14 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "base/Result.h"
 #include "el/Expression.h"
 #include "el/ParseExpression.h"
 #include "mdl/CatchConfig.h"
 #include "mdl/Entity.h"
 #include "mdl/EntityDefinition.h"
+#include "mdl/EntityModel.h"
+#include "mdl/EntityModelDataResource.h"
 #include "mdl/EntityProperties.h"
 #include "mdl/PropertyDefinition.h"
 
@@ -772,6 +775,42 @@ TEST_CASE("EntityTest")
       CHECK(
         entity.modelTransformation(defaultModelScaleExpression)
         == vm::translation_matrix(vm::vec3d{8, 7, 6})
+             * vm::scaling_matrix(vm::vec3d{2, 2, 2}));
+    }
+
+    SECTION(
+      "Rotation and model transformation caches are invalidated when the model "
+      "finishes loading")
+    {
+      entity.setClassname("light");
+      entity.setDefinition(&otherDefinition);
+      entity.addOrUpdateProperty(EntityPropertyKeys::Angles, "30 0 0");
+
+      // the model's data resource starts out unloaded, so entity.model()->data() is
+      // null and the pitch type is assumed to be PitchType::Normal
+      auto dataResource = std::make_shared<EntityModelDataResource>([] {
+        return Result<EntityModelData>{
+          EntityModelData{PitchType::MdlInverted, Orientation::Oriented}};
+      });
+      auto model = EntityModel{"some_model", dataResource};
+      entity.setModel(&model);
+
+      const auto defaultModelScaleExpression =
+        el::ExpressionNode{el::LiteralExpression{el::Value{2.0}}};
+      const auto pitch = vm::to_radians(30.0);
+
+      REQUIRE(entity.rotation() == vm::rotation_matrix(0.0, pitch, 0.0));
+      REQUIRE(
+        entity.modelTransformation(defaultModelScaleExpression)
+        == vm::rotation_matrix(0.0, pitch, 0.0) * vm::scaling_matrix(vm::vec3d{2, 2, 2}));
+
+      // loading the model reveals its real pitch type (MdlInverted), which flips the
+      // sign of the pitch, i.e. EntityRotationType::Euler
+      dataResource->loadSync();
+      CHECK(entity.rotation() == vm::rotation_matrix(0.0, -pitch, 0.0));
+      CHECK(
+        entity.modelTransformation(defaultModelScaleExpression)
+        == vm::rotation_matrix(0.0, -pitch, 0.0)
              * vm::scaling_matrix(vm::vec3d{2, 2, 2}));
     }
 

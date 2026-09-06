@@ -61,6 +61,11 @@ vm::mat4x4d entityModelTransformation(
   return vm::mat4x4d::identity();
 }
 
+bool isModelLoaded(const EntityModel* model)
+{
+  return model && model->dataResource().isLoaded();
+}
+
 } // namespace
 
 void setDefaultProperties(
@@ -215,12 +220,17 @@ Result<ModelSpecification> Entity::modelSpecification() const
 const vm::mat4x4d& Entity::modelTransformation(
   const std::optional<el::ExpressionNode>& defaultModelScaleExpression) const
 {
-  if (!m_cachedModelTransformation)
+  const auto modelIsLoaded = isModelLoaded(m_model);
+  if (
+    !m_cachedModelTransformation
+    || m_cachedModelTransformation->modelIsLoaded != modelIsLoaded)
   {
-    m_cachedModelTransformation =
-      entityModelTransformation(*this, defaultModelScaleExpression);
+    m_cachedModelTransformation = {
+      entityModelTransformation(*this, defaultModelScaleExpression),
+      modelIsLoaded,
+    };
   }
-  return *m_cachedModelTransformation;
+  return m_cachedModelTransformation->transform;
 }
 
 Result<DecalSpecification> Entity::decalSpecification() const
@@ -425,11 +435,15 @@ void Entity::setOrigin(const vm::vec3d& origin)
 
 const vm::mat4x4d& Entity::rotation() const
 {
-  if (!m_cachedRotation)
+  const auto modelIsLoaded = isModelLoaded(m_model);
+  if (!m_cachedRotation || m_cachedRotation->modelIsLoaded != modelIsLoaded)
   {
-    m_cachedRotation = entityRotation(*this);
+    m_cachedRotation = {
+      entityRotation(*this),
+      modelIsLoaded,
+    };
   }
-  return *m_cachedRotation;
+  return m_cachedRotation->transform;
 }
 
 std::vector<EntityProperty> Entity::propertiesWithKey(const std::string& key) const
