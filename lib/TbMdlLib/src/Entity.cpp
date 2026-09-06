@@ -42,6 +42,26 @@
 
 namespace tb::mdl
 {
+namespace
+{
+
+vm::mat4x4d entityModelTransformation(
+  const Entity& entity,
+  const std::optional<el::ExpressionNode>& defaultModelScaleExpression)
+{
+  if (const auto* pointDefinition = getPointEntityDefinition(entity.definition()))
+  {
+    const auto variableStore = EntityPropertiesVariableStore{entity};
+    const auto scale = safeGetModelScale(
+      pointDefinition->modelDefinition, variableStore, defaultModelScaleExpression);
+    return vm::translation_matrix(entity.origin()) * entity.rotation()
+           * vm::scaling_matrix(scale);
+  }
+
+  return vm::mat4x4d::identity();
+}
+
+} // namespace
 
 void setDefaultProperties(
   const EntityDefinition& entityDefinition,
@@ -197,18 +217,8 @@ const vm::mat4x4d& Entity::modelTransformation(
 {
   if (!m_cachedModelTransformation)
   {
-    if (const auto* pointDefinition = getPointEntityDefinition(definition()))
-    {
-      const auto variableStore = EntityPropertiesVariableStore{*this};
-      const auto scale = safeGetModelScale(
-        pointDefinition->modelDefinition, variableStore, defaultModelScaleExpression);
-      m_cachedModelTransformation =
-        vm::translation_matrix(origin()) * rotation() * vm::scaling_matrix(scale);
-    }
-    else
-    {
-      m_cachedModelTransformation = vm::mat4x4d::identity();
-    }
+    m_cachedModelTransformation =
+      entityModelTransformation(*this, defaultModelScaleExpression);
   }
   return *m_cachedModelTransformation;
 }
