@@ -268,6 +268,20 @@ public:
       m_state);
   }
 
+  bool isLoaded() const
+  {
+    return std::visit(
+      kdl::overload(
+        [](const ResourceUnloaded<T>&) { return false; },
+        [](const ResourceLoading<T>&) { return false; },
+        [](const ResourceLoaded<T>&) { return true; },
+        [](const ResourceReady<T>&) { return true; },
+        [](const ResourceDropping<T>&) { return false; },
+        [](const ResourceDropped&) { return false; },
+        [](const ResourceFailed&) { return false; }),
+      m_state);
+  }
+
   bool isDropped() const { return std::holds_alternative<ResourceDropped>(m_state); }
 
   bool needsProcessing() const
