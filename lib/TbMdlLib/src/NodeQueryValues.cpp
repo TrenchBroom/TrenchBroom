@@ -19,6 +19,8 @@
 
 #include "mdl/NodeQueryValues.h"
 
+#include "mdl/EntityNodeBase.h"
+#include "mdl/EntityNodeBoundValue.h"
 #include "mdl/Group.h"
 #include "mdl/GroupNode.h"
 #include "mdl/Layer.h"
@@ -70,6 +72,11 @@ el::Value tagsValue(const Map& map, const Taggable& taggable)
     }
   }
   return el::Value{std::move(names)};
+}
+
+el::Value ownerEntityValue(const EntityNodeBase* owner)
+{
+  return owner ? makeEntityBoundValue(owner->entity()) : el::Value::Undefined;
 }
 
 } // namespace tb::mdl
