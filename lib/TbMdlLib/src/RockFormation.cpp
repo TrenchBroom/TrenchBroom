@@ -19,7 +19,12 @@
 
 #include "mdl/RockFormation.h"
 
+#include "base/Macros.h"
+
+#include "kd/ranges/cartesian_product_view.h"
+#include "kd/ranges/concat_view.h"
 #include "kd/ranges/to.h"
+#include "kd/unpack.h"
 
 #include "vm/mat_ext.h"
 
@@ -107,27 +112,21 @@ public:
 using PointCloud = std::vector<vm::vec3d>;
 using RockFormation = std::vector<PointCloud>;
 
-double mix(const double min, const double max, const double amount)
-{
-  return min + (max - min) * amount;
-}
-
 double mix(const FormRange& range, const double form)
 {
-  return mix(range.atZero, range.atOne, form);
+  return vm::mix(range.atZero, range.atOne, form);
 }
 
 std::vector<vm::vec3d> makeSpherePoints(const size_t numPoints)
 {
   const auto goldenAngle = vm::Cd::pi() * (3.0 - std::sqrt(5.0));
 
-  return std::views::iota(size_t{0}, numPoints)
-         | std::views::transform([&](const auto i) {
-             const auto z = 1.0 - 2.0 * (double(i) + 0.5) / double(numPoints);
-             const auto r = std::sqrt(1.0 - z * z);
-             const auto theta = goldenAngle * double(i);
-             return vm::vec3d{r * std::cos(theta), r * std::sin(theta), z};
-           })
+  return std::views::iota(0u, numPoints) | std::views::transform([&](const auto i) {
+           const auto z = 1.0 - 2.0 * (double(i) + 0.5) / double(numPoints);
+           const auto r = std::sqrt(1.0 - z * z);
+           const auto theta = goldenAngle * double(i);
+           return vm::vec3d{r * std::cos(theta), r * std::sin(theta), z};
+         })
          | kdl::ranges::to<std::vector>();
 }
 
@@ -157,10 +156,10 @@ PointCloud makeRingPrism(
   const double phase = 0.0,
   const vm::vec2d& topOffset = {})
 {
-  auto points = makeRing(numSides, bottomRadius.x(), bottomRadius.y(), 0.0, phase);
-  auto top = makeRing(numSides, topRadius.x(), topRadius.y(), height, phase, topOffset);
-  points.insert(std::end(points), std::begin(top), std::end(top));
-  return points;
+  return kdl::views::concat(
+           makeRing(numSides, bottomRadius.x(), bottomRadius.y(), 0.0, phase),
+           makeRing(numSides, topRadius.x(), topRadius.y(), height, phase, topOffset))
+         | kdl::ranges::to<std::vector>();
 }
 
 /**
@@ -204,16 +203,12 @@ void ground(PointCloud& points)
 }
 
 PointCloud scaleAndOffset(
-  PointCloud points, const vm::vec3d& scale, const vm::vec3d& offset = {})
+  const PointCloud& points, const vm::vec3d& scale, const vm::vec3d& offset = {})
 {
-  for (auto& point : points)
-  {
-    point = vm::vec3d{
-      point.x() * scale.x() + offset.x(),
-      point.y() * scale.y() + offset.y(),
-      point.z() * scale.z() + offset.z()};
-  }
-  return points;
+  return points | std::views::transform([&](const auto& point) {
+           return point * scale + offset;
+         })
+         | kdl::ranges::to<std::vector>();
 }
 
 PointCloud makeBoulderPoints(
@@ -289,37 +284,35 @@ RockFormation makeStrata(
   constexpr auto TopOffset = Range{-0.09, 0.09};
   auto stream = RandomStream{seed};
   const auto count = Count(resolution);
-  auto result = RockFormation{};
-  result.reserve(count);
 
   auto drift = vm::vec2d{};
-  for (size_t i = 0; i < count; ++i)
-  {
-    const auto t = count == 1u ? 0.0 : double(i) / double(count - 1u);
-    const auto taper = 1.0 - t * mix(Taper, form);
-    const auto driftX = stream.next(-1.0, 1.0);
-    const auto driftY = stream.next(-1.0, 1.0);
-    drift = drift + vm::vec2d{driftX, driftY} * (DriftBase + DriftPerForm * form);
-    const auto phase = stream.next(Phase);
+  return std::views::iota(0u, count) | std::views::transform([&](const auto i) {
+           const auto t = count == 1u ? 0.0 : double(i) / double(count - 1u);
+           const auto taper = 1.0 - t * mix(Taper, form);
+           const auto driftX = stream.next(-1.0, 1.0);
+           const auto driftY = stream.next(-1.0, 1.0);
+           drift = drift + vm::vec2d{driftX, driftY} * (DriftBase + DriftPerForm * form);
+           const auto phase = stream.next(Phase);
 
-    const auto topRadiusX = taper * stream.next(TopRadius);
-    const auto topRadiusY = taper * stream.next(TopRadius);
-    const auto topOffsetX = stream.next(TopOffset);
-    const auto topOffsetY = stream.next(TopOffset);
+           const auto topRadiusX = taper * stream.next(TopRadius);
+           const auto topRadiusY = taper * stream.next(TopRadius);
+           const auto topOffsetX = stream.next(TopOffset);
+           const auto topOffsetY = stream.next(TopOffset);
 
-    auto points = makeRingPrism(
-      Sides,
-      {taper, taper * 0.9},
-      {topRadiusX, topRadiusY},
-      1.0,
-      phase,
-      {topOffsetX, topOffsetY});
-    flattenBase(points, baseFlattening);
-    ground(points);
-    result.push_back(scaleAndOffset(
-      std::move(points), {1.0, 1.0, 1.0}, {drift.x(), drift.y(), double(i) * Overlap}));
-  }
-  return result;
+           auto points = makeRingPrism(
+             Sides,
+             {taper, taper * 0.9},
+             {topRadiusX, topRadiusY},
+             1.0,
+             phase,
+             {topOffsetX, topOffsetY});
+           flattenBase(points, baseFlattening);
+           ground(points);
+
+           return scaleAndOffset(
+             points, {1.0, 1.0, 1.0}, {drift.x(), drift.y(), double(i) * Overlap});
+         })
+         | kdl::ranges::to<std::vector>();
 }
 
 RockFormation makeCrag(
@@ -358,26 +351,28 @@ RockFormation makeCrag(
     point[1] *= taper * bite;
   }
 
-  auto result =
-    RockFormation{scaleAndOffset(std::move(central), {CoreScale, CoreScale, 1.0})};
+  auto first = std::views::single(scaleAndOffset(central, {CoreScale, CoreScale, 1.0}));
+
   const auto count = Count(resolution);
-  for (size_t i = 0; i < count; ++i)
-  {
-    const auto angle =
-      double(i) / double(count) * 2.0 * vm::Cd::pi() + stream.next(AngleJitter);
-    const auto scale = stream.next(Scale);
-    auto points = makeBoulderPoints(
-      resolution > 0u ? resolution - 1u : 0u,
-      baseFlattening,
-      form * SatelliteForm,
-      seed + uint32_t((i + 1u) * 7919u));
-    const auto height = stream.next(Height);
-    result.push_back(scaleAndOffset(
-      std::move(points),
-      {scale, scale, height},
-      {std::cos(angle) * Reach, std::sin(angle) * Reach, 0.0}));
-  }
-  return result;
+  auto rest = std::views::iota(0u, count) | std::views::transform([&](const auto i) {
+                const auto angle = double(i) / double(count) * 2.0 * vm::Cd::pi()
+                                   + stream.next(AngleJitter);
+                const auto scale = stream.next(Scale);
+                const auto height = stream.next(Height);
+
+                const auto points = makeBoulderPoints(
+                  resolution > 0u ? resolution - 1u : 0u,
+                  baseFlattening,
+                  form * SatelliteForm,
+                  seed + uint32_t((i + 1u) * 7919u));
+
+                return scaleAndOffset(
+                  points,
+                  {scale, scale, height},
+                  {std::cos(angle) * Reach, std::sin(angle) * Reach, 0.0});
+              });
+
+  return kdl::views::concat(first, rest) | kdl::ranges::to<std::vector>();
 }
 
 PointCloud makeCrystalPoints(
@@ -427,38 +422,43 @@ RockFormation makeCrystal(
   constexpr auto Reach = double{0.08};
   auto stream = RandomStream{seed};
   const auto count = Count(resolution);
-  auto result = RockFormation{};
-  result.reserve(count);
 
-  for (size_t i = 0; i < count; ++i)
-  {
-    const auto main = i == 0u;
-    const auto secondary = i == 1u;
-    const auto angle = main ? 0.0 : satelliteAngle(i, count, stream.next(AngleJitter));
-    const auto distance = main ? 0.0 : stream.next(Distance) * mix(DistanceByForm, form);
-    const auto scale = main ? 1.0 : secondary ? SecondaryScale : stream.next(Scale);
-    const auto tilt = main        ? MainTilt
-                      : secondary ? form * SecondaryTilt
-                                  : form * stream.next(Tilt);
-    const auto girth = main ? MainGirth : secondary ? SecondaryGirth : stream.next(Girth);
+  return std::views::iota(0u, count) | std::views::transform([&](const auto i) {
+           const auto main = i == 0u;
+           const auto secondary = i == 1u;
+           const auto angle =
+             main ? 0.0 : satelliteAngle(i, count, stream.next(AngleJitter));
+           const auto distance =
+             main ? 0.0 : stream.next(Distance) * mix(DistanceByForm, form);
+           const auto scale = main        ? 1.0
+                              : secondary ? SecondaryScale
+                                          : stream.next(Scale);
+           const auto tilt = main        ? MainTilt
+                             : secondary ? form * SecondaryTilt
+                                         : form * stream.next(Tilt);
+           const auto girth = main        ? MainGirth
+                              : secondary ? SecondaryGirth
+                                          : stream.next(Girth);
+           const auto phase = stream.next(0.0, 2.0 * vm::Cd::pi());
 
-    const auto phase = stream.next(0.0, 2.0 * vm::Cd::pi());
-    auto points = makeCrystalPoints(Sides, Shoulder, phase);
-    for (auto& point : points)
-    {
-      point = {point.x() * girth, point.y() * girth, (point.z() + 1.0) * 0.5 * scale};
-    }
-    placeCrystal(points, angle, tilt);
-    for (auto& point : points)
-    {
-      point[0] += std::cos(angle) * Reach * distance;
-      point[1] += std::sin(angle) * Reach * distance;
-    }
-    flattenBase(points, baseFlattening);
-    ground(points);
-    result.push_back(std::move(points));
-  }
-  return result;
+           auto points = makeCrystalPoints(Sides, Shoulder, phase);
+           for (auto& point : points)
+           {
+             point = {point.xy() * girth, (point.z() + 1.0) * 0.5 * scale};
+           }
+           placeCrystal(points, angle, tilt);
+           for (auto& point : points)
+           {
+             point =
+               point
+               + vm::vec3d{std::cos(angle), std::sin(angle), 0.0} * Reach * distance;
+           }
+           flattenBase(points, baseFlattening);
+           ground(points);
+
+           return points;
+         })
+         | kdl::ranges::to<std::vector>();
 }
 
 PointCloud makeColumnPoints(const double taper, const double skewX, const double skewY)
@@ -499,30 +499,30 @@ RockFormation makeColumns(
   constexpr auto Reach = double{1.08};
   auto stream = RandomStream{seed};
   const auto count = Count(resolution);
-  auto result = RockFormation{};
-  result.reserve(count);
 
-  for (size_t i = 0; i < count; ++i)
-  {
-    const auto main = i == 0u;
-    const auto angle = main ? 0.0 : satelliteAngle(i, count, stream.next(AngleJitter));
-    const auto distance = main ? 0.0 : stream.next(Distance) * mix(DistanceByForm, form);
-    const auto width = main ? MainWidth : stream.next(Width);
-    const auto depth = main ? MainWidth : stream.next(Width);
-    const auto height = main ? MainHeight : stream.next(Height);
+  return std::views::iota(0u, count) | std::views::transform([&](const auto i) {
+           const auto main = i == 0u;
+           const auto angle =
+             main ? 0.0 : satelliteAngle(i, count, stream.next(AngleJitter));
+           const auto distance =
+             main ? 0.0 : stream.next(Distance) * mix(DistanceByForm, form);
+           const auto width = main ? MainWidth : stream.next(Width);
+           const auto depth = main ? MainWidth : stream.next(Width);
+           const auto height = main ? MainHeight : stream.next(Height);
 
-    const auto skewX = stream.next(Skew);
-    const auto skewY = stream.next(Skew);
+           const auto skewX = stream.next(Skew);
+           const auto skewY = stream.next(Skew);
 
-    auto points = scaleAndOffset(
-      makeColumnPoints(Taper, skewX, skewY),
-      {width, depth, height},
-      {std::cos(angle) * Reach * distance, std::sin(angle) * Reach * distance, 0.0});
-    flattenBase(points, baseFlattening);
-    ground(points);
-    result.push_back(std::move(points));
-  }
-  return result;
+           auto points = scaleAndOffset(
+             makeColumnPoints(Taper, skewX, skewY),
+             vm::vec3d{width, depth, height},
+             vm::vec3d{std::cos(angle), std::sin(angle), 0.0} * Reach * distance);
+           flattenBase(points, baseFlattening);
+           ground(points);
+
+           return points;
+         })
+         | kdl::ranges::to<std::vector>();
 }
 
 RockFormation makeBasalt(
@@ -544,24 +544,23 @@ RockFormation makeBasalt(
   const auto rows = std::max(size_t{2}, size_t(std::ceil(gridSize / std::sqrt(aspect))));
   const auto rootThree = std::sqrt(3.0);
 
-  auto result = RockFormation{};
-  result.reserve(columns * rows);
-  for (size_t column = 0; column < columns; ++column)
-  {
-    for (size_t row = 0; row < rows; ++row)
-    {
-      const auto tallest = column == columns / 2u && row == rows / 2u;
-      const auto height = tallest ? 1.0 : 1.0 - form * stream.next(HeightLoss);
-      auto points = makeRingPrism(Sides, {1.0, 1.0}, {1.0, 1.0}, height);
-      result.push_back(scaleAndOffset(
-        std::move(points),
-        {1.0, 1.0, 1.0},
-        {double(column) * 1.5,
-         (double(row) + (column % 2u == 0u ? 0.0 : 0.5)) * rootThree,
-         0.0}));
-    }
-  }
-  return result;
+  return kdl::views::cartesian_product(
+           std::views::iota(0u, columns), std::views::iota(0u, rows))
+         | std::views::transform(kdl::unpack([&](const auto c, const auto r) {
+             const auto tallest = c == columns / 2u && r == rows / 2u;
+             const auto height = tallest ? 1.0 : 1.0 - form * stream.next(HeightLoss);
+             const auto points = makeRingPrism(Sides, {1.0, 1.0}, {1.0, 1.0}, height);
+
+             return scaleAndOffset(
+               points,
+               {1.0, 1.0, 1.0},
+               {
+                 double(c) * 1.5,
+                 (double(r) + (c % 2u == 0u ? 0.0 : 0.5)) * rootThree,
+                 0.0,
+               });
+           }))
+         | kdl::ranges::to<std::vector>();
 }
 
 RockFormation makeCluster(
@@ -593,40 +592,39 @@ RockFormation makeCluster(
   const auto cellDepth = 2.0 / double(rows);
   const auto spread = mix(Spread, form);
 
-  auto result = RockFormation{};
-  result.reserve(count);
-  for (size_t i = 0; i < count; ++i)
-  {
-    const auto column = i % columns;
-    const auto row = i / columns;
-    const auto x = (-1.0 + (double(column) + stream.next(0.2, 0.8)) * cellWidth) * spread;
-    const auto y = (-1.0 + (double(row) + stream.next(0.2, 0.8)) * cellDepth) * spread;
-    const auto variation =
-      mix(Variation.min, Variation.max, stream.next()) * mix(1.0, SizeByForm, form);
-    auto points = makeBoulderPoints(
-      resolution, baseFlattening, form * BoulderForm, seed + uint32_t(i * 7919u));
-    const auto height = stream.next(Height) * variation;
-    result.push_back(scaleAndOffset(
-      std::move(points),
-      {cellWidth * Fill * variation, cellDepth * Fill * variation, height},
-      {x, y, 0.0}));
-  }
-  return result;
+  return std::views::iota(0u, count) | std::views::transform([&](const auto i) {
+           const auto c = double(i % columns);
+           const auto r = double(i / columns);
+           const auto x = (-1.0 + (c + stream.next(0.2, 0.8)) * cellWidth) * spread;
+           const auto y = (-1.0 + (r + stream.next(0.2, 0.8)) * cellDepth) * spread;
+           const auto variation = vm::mix(Variation.min, Variation.max, stream.next())
+                                  * vm::mix(1.0, SizeByForm, form);
+           const auto height = stream.next(Height) * variation;
+
+           const auto points = makeBoulderPoints(
+             resolution, baseFlattening, form * BoulderForm, seed + uint32_t(i * 7919u));
+           return scaleAndOffset(
+             points,
+             {cellWidth * Fill * variation, cellDepth * Fill * variation, height},
+             {x, y, 0.0});
+         })
+         | kdl::ranges::to<std::vector>();
 }
 
-void fitFormation(RockFormation& formation, const vm::bbox3d& bounds)
+RockFormation fitFormation(const RockFormation& formation, const vm::bbox3d& bounds)
 {
   const auto pointBounds = *vm::bbox3d::build(formation | std::views::join);
   const auto transform = vm::translation_matrix(bounds.min)
                          * vm::scaling_matrix(bounds.size() / pointBounds.size())
                          * vm::translation_matrix(-pointBounds.min);
-  for (auto& points : formation)
-  {
-    for (auto& point : points)
-    {
-      point = vm::round(transform * point);
-    }
-  }
+
+  return formation | std::views::transform([&](const auto& points) {
+           return points | std::views::transform([&](const auto point) {
+                    return vm::round(transform * point);
+                  })
+                  | kdl::ranges::to<std::vector>();
+         })
+         | kdl::ranges::to<std::vector>();
 }
 
 } // namespace
@@ -661,12 +659,11 @@ RockFormationPoints makeRockFormation(
       return makeBasalt(bounds, clampedResolution, clampedForm, seed);
     case RockType::Cluster:
       return makeCluster(bounds, clampedResolution, baseFlattening, clampedForm, seed);
+      switchDefault();
     }
-    return RockFormation{};
   }();
 
-  fitFormation(formation, bounds);
-  return formation;
+  return fitFormation(formation, bounds);
 }
 
 } // namespace tb::mdl
