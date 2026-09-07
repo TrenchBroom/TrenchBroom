@@ -60,7 +60,6 @@ TEST_CASE("loadAssimpModel")
       auto modelData = loadAssimpModel("cube.mdl", fs, logger);
       REQUIRE(modelData);
 
-      CHECK(modelData.value().pitchType() == PitchType::MdlInverted);
       CHECK(modelData.value().surfaceCount() == 4);
       CHECK(modelData.value().surface(0).skinCount() == 1);
       CHECK(modelData.value().surface(1).skinCount() == 3);
@@ -68,6 +67,29 @@ TEST_CASE("loadAssimpModel")
       CHECK(modelData.value().surface(3).skinCount() == 1);
       CHECK(modelData.value().frameCount() == 3);
     }
+  }
+
+  SECTION("pitch type")
+  {
+    const auto [modelPath, expectedPitchType] =
+      GENERATE(table<std::filesystem::path, PitchType>({
+        {"cube/cube.mdl", PitchType::MdlInverted},
+        {"alignment/ase/cuboid.ase", PitchType::Normal},
+        {"alignment/obj/cuboid.obj", PitchType::Normal},
+        {"alignment/fbx/cuboid.fbx", PitchType::Normal},
+        {"alignment/gltf/cuboid.gltf", PitchType::Normal},
+        {"alignment/glb/cuboid.glb", PitchType::Normal},
+      }));
+
+    CAPTURE(modelPath);
+
+    const auto basePath = getFixtureRoot() / "test/mdl/LoadAssimpModel";
+    auto fs = fs::DiskFileSystem{basePath};
+
+    auto modelData = loadAssimpModel(modelPath, fs, logger);
+    REQUIRE(modelData);
+
+    CHECK(modelData.value().pitchType() == expectedPitchType);
   }
 
   SECTION("alignment")
@@ -88,7 +110,6 @@ TEST_CASE("loadAssimpModel")
     auto modelData = loadAssimpModel(modelPath, fs, logger);
     REQUIRE(modelData);
 
-    CHECK(modelData.value().pitchType() == PitchType::Normal);
     REQUIRE(modelData.value().frameCount() == 1);
     REQUIRE(modelData.value().surfaceCount() == 1);
     REQUIRE(modelData.value().surface(0).skinCount() == 1);
