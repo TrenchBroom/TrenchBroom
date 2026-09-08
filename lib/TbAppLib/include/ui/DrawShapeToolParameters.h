@@ -20,7 +20,10 @@
 #pragma once
 
 #include "base/Notifier.h"
-#include "mdl/BrushBuilder.h"
+#include "mdl/CircleShape.h"
+#include "mdl/RockFormation.h"
+
+#include "vm/util.h"
 
 namespace tb::ui
 {
