@@ -101,6 +101,25 @@ TEST_CASE("bbox")
     CER_CHECK(translated.max == merged.max + offset);
   }
 
+  SECTION("build")
+  {
+    constexpr auto points = std::array<vec3d, 6>{
+      vec3d{-32, -16, -8},
+      vec3d{0, -4, -4},
+      vec3d{+4, +8, -16},
+      vec3d{+32, +16, -4},
+      vec3d{+16, +4, -8},
+      vec3d{+24, +32, +4}};
+
+    constexpr auto min =
+      vm::min(points[0], points[1], points[2], points[3], points[4], points[5]);
+    constexpr auto max =
+      vm::max(points[0], points[1], points[2], points[3], points[4], points[5]);
+
+    constexpr auto merged = bbox3d::build(points);
+    CER_CHECK(merged == bbox3d{min, max});
+  }
+
   SECTION("is_valid")
   {
     CER_CHECK(bbox3d::is_valid(vec3d{0, 0, 0}, vec3d{0, 0, 0}));

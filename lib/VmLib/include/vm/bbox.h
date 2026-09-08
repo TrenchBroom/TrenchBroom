@@ -27,6 +27,8 @@
 #include "vm/vec.h"
 
 #include <array>
+#include <optional>
+#include <ranges>
 
 namespace vm
 {
@@ -43,6 +45,34 @@ template <typename T, std::size_t S>
 class bbox
 {
 public:
+  /**
+   * Creates the smallest bounding box that contains all elements of the given range. The
+   * range can contain points or other bounding boxes, or anything else that a bounding
+   * box can be merged with. If the given range is empty, returns std::nullopt.
+   *
+   * @tparam R the range type
+   * @param r the range to build the bounding box from
+   * @return the bounding box, or std::nullopt if the given range is empty
+   */
+  template <std::ranges::range R>
+  static constexpr std::optional<bbox> build(R&& r)
+  {
+    auto it = std::ranges::begin(r);
+    const auto end = std::ranges::end(r);
+    if (it == end)
+    {
+      return std::nullopt;
+    }
+
+    auto result = bbox{*it};
+    for (++it; it != end; ++it)
+    {
+      result = merge(result, *it);
+    }
+
+    return result;
+  }
+
   /**
    * Helper to build a bounding box from points or other bounding boxes.
    */
