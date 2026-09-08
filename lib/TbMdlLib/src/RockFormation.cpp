@@ -620,13 +620,7 @@ RockFormation makeCluster(
 
 void fitFormation(RockFormation& formation, const vm::bbox3d& bounds)
 {
-  auto boundsBuilder = vm::bbox3d::builder{};
-  for (const auto& points : formation)
-  {
-    boundsBuilder.add(std::begin(points), std::end(points));
-  }
-
-  const auto pointBounds = boundsBuilder.bounds();
+  const auto pointBounds = *vm::bbox3d::build(formation | std::views::join);
   const auto transform = vm::translation_matrix(bounds.min)
                          * vm::scaling_matrix(bounds.size() / pointBounds.size())
                          * vm::translation_matrix(-pointBounds.min);
