@@ -73,9 +73,7 @@ auto notifySpecialWorldProperties(
 void doSwapNodeContents(
   std::vector<std::pair<Node*, NodeContents>>& nodesToSwap, Map& map)
 {
-  const auto nodes = nodesToSwap
-                     | std::views::transform([](const auto& pair) { return pair.first; })
-                     | kdl::ranges::to<std::vector>();
+  const auto nodes = nodesToSwap | std::views::keys | kdl::ranges::to<std::vector>();
 
   auto notifyNodes =
     NotifyBeforeAndAfter{map.nodesWillChangeNotifier, map.nodesDidChangeNotifier, nodes};
@@ -148,12 +146,8 @@ bool SwapNodeContentsCommand::doCollateWith(UndoableCommand& command)
 {
   if (auto* other = dynamic_cast<SwapNodeContentsCommand*>(&command))
   {
-    auto myNodes = m_nodes
-                   | std::views::transform([](const auto& pair) { return pair.first; })
-                   | kdl::ranges::to<std::vector>();
-    auto theirNodes = other->m_nodes
-                      | std::views::transform([](const auto& pair) { return pair.first; })
-                      | kdl::ranges::to<std::vector>();
+    auto myNodes = m_nodes | std::views::keys | kdl::ranges::to<std::vector>();
+    auto theirNodes = other->m_nodes | std::views::keys | kdl::ranges::to<std::vector>();
 
     std::ranges::sort(myNodes);
     std::ranges::sort(theirNodes);

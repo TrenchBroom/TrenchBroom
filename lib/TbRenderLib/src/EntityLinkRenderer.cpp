@@ -50,12 +50,7 @@ namespace
 
 auto getLinkEnds(const auto& entityLinks)
 {
-  return entityLinks
-         | std::views::transform(
-           [](const auto& nameAndTargetNodes) -> const mdl::EntityLinkManager::LinkEnds& {
-             return nameAndTargetNodes.second;
-           })
-         | std::views::join;
+  return entityLinks | std::views::values | std::views::join;
 }
 
 void addLink(
