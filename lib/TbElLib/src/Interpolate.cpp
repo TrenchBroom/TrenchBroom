@@ -27,6 +27,7 @@
 #include "kd/ranges/to.h"
 #include "kd/result_fold.h"
 #include "kd/string_utils.h"
+#include "kd/unpack.h"
 
 #include <fmt/format.h>
 
@@ -63,11 +64,11 @@ auto parseExpressions(
   const std::string_view str,
   const std::vector<std::tuple<std::size_t, std::size_t>>& expressionPositions)
 {
-  return expressionPositions | std::views::transform([&](const auto& expressionPosition) {
-           const auto [start, length] = expressionPosition;
-           const auto expressionStr = str.substr(start + 2, length - 3);
-           return parseExpression(ParseMode::Strict, expressionStr);
-         })
+  return expressionPositions
+         | std::views::transform(kdl::unpack([&](const auto& start, const auto& length) {
+             const auto expressionStr = str.substr(start + 2, length - 3);
+             return parseExpression(ParseMode::Strict, expressionStr);
+           }))
          | kdl::fold;
 }
 

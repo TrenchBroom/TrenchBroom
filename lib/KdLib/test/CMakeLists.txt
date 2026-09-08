@@ -48,6 +48,7 @@ target_sources(KdLibTest PRIVATE
   "${CMAKE_CURRENT_SOURCE_DIR}/src/tst_struct_io.cpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/src/tst_task_manager.cpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/src/tst_tuple_utils.cpp"
+  "${CMAKE_CURRENT_SOURCE_DIR}/src/tst_unpack.cpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/src/tst_vector_set.cpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/src/tst_vector_utils.cpp"
 )

@@ -38,6 +38,7 @@
 #include "kd/ranges/as_rvalue_view.h"
 #include "kd/ranges/to.h"
 #include "kd/result_fold.h"
+#include "kd/unpack.h"
 
 #include <assimp/IOStream.hpp>
 #include <assimp/IOSystem.hpp>
@@ -860,13 +861,10 @@ Result<void> loadSceneFrame(
   return meshes | std::views::transform([&](const auto& mesh) {
            return std::tuple{mesh, getMeshIndex(scene, *mesh.m_mesh)};
          })
-         | std::views::filter([](const auto& meshAndIndex) {
-             return std::get<1>(meshAndIndex) != std::nullopt;
-           })
-         | std::views::transform([&](const auto& meshAndIndex) {
-             const auto& mesh = std::get<0>(meshAndIndex);
-             const auto& meshIndex = *std::get<1>(meshAndIndex);
-
+         | std::views::filter(kdl::unpack(
+           [](const auto&, const auto& meshIndex) { return meshIndex != std::nullopt; }))
+         | std::views::transform(
+           kdl::unpack([&](const auto& mesh, const auto& meshIndex) {
              return computeMeshVertices(
                       *mesh.m_mesh,
                       mesh.m_transform,
@@ -878,9 +876,9 @@ Result<void> loadSceneFrame(
                           bounds.add(v.attr);
                         }
 
-                        return computeMeshData(mesh, meshIndex, vertices);
+                        return computeMeshData(mesh, *meshIndex, vertices);
                       });
-           })
+           }))
          | kdl::fold | kdl::and_then([&](const auto& meshData) -> Result<void> {
              if (!bounds.initialized())
              {

@@ -64,6 +64,7 @@
 #include "kd/ranges/join_with_view.h"
 #include "kd/ranges/to.h"
 #include "kd/task_manager.h"
+#include "kd/unpack.h"
 #include "kd/vector_utils.h"
 
 #include <fmt/format.h>
@@ -99,10 +100,11 @@ auto createGameManager()
              if (!warnings.empty())
              {
                const auto body =
-                 warnings | std::views::transform([](const auto& pair) {
-                   const auto& [path, warning] = pair;
-                   return fmt::format("<b>{}</b><br>{}", path.string(), warning);
-                 })
+                 warnings
+                 | std::views::transform(
+                   kdl::unpack([](const auto& path, const auto& warning) {
+                     return fmt::format("<b>{}</b><br>{}", path.string(), warning);
+                   }))
                  | kdl::views::join_with("<br><br>"s) | kdl::ranges::to<std::string>();
 
                auto messageBox = QMessageBox{};
@@ -138,10 +140,9 @@ std::optional<std::tuple<std::string, mdl::MapFormat>> detectOrQueryGameAndForma
   AppController& appController, const std::filesystem::path& path)
 {
   return fs::Disk::withInputStream(path, mdl::readMapHeader)
-         | kdl::transform(
-           [&](auto detectedGameNameAndMapFormat)
+         | kdl::transform(kdl::unpack(
+           [&](auto gameName, auto mapFormat)
              -> std::optional<std::tuple<std::string, mdl::MapFormat>> {
-             auto [gameName, mapFormat] = detectedGameNameAndMapFormat;
              const auto& gameManager = appController.gameManager();
              const auto gameList = gameManager.gameInfos()
                                    | std::views::transform([](const auto& gameInfo) {
@@ -163,8 +164,8 @@ std::optional<std::tuple<std::string, mdl::MapFormat>> detectOrQueryGameAndForma
                std::tie(gameName, mapFormat) = *queriedGameNameAndMapFormat;
              }
 
-             return std::optional{std::tuple{std::move(*gameName), mapFormat}};
-           })
+             return std::tuple{std::move(*gameName), mapFormat};
+           }))
          | kdl::transform_error([](const auto&) { return std::nullopt; }) | kdl::value();
 }
 
