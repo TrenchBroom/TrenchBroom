@@ -30,6 +30,7 @@
 
 #include "kd/contracts.h"
 #include "kd/ranges/to.h"
+#include "kd/unpack.h"
 
 #include <ranges>
 
@@ -40,9 +41,7 @@ namespace
 
 auto setLinkIds(const std::vector<std::tuple<Node*, std::string>>& linkIds)
 {
-  return linkIds | std::views::transform([](const auto& nodeAndLinkId) {
-           auto* node = std::get<Node*>(nodeAndLinkId);
-           const auto& linkId = std::get<std::string>(nodeAndLinkId);
+  return linkIds | std::views::transform(kdl::unpack([](auto* node, const auto& linkId) {
            return node->accept(kdl::overload(
              [&](const WorldNode&) -> std::tuple<Node*, std::string> {
                contract_assert(false);
@@ -55,7 +54,7 @@ auto setLinkIds(const std::vector<std::tuple<Node*, std::string>>& linkIds)
                object.setLinkId(std::move(linkId));
                return {node, std::move(oldLinkId)};
              }));
-         })
+         }))
          | kdl::ranges::to<std::vector>();
 }
 

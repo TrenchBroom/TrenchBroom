@@ -27,6 +27,7 @@
 #include "kd/overload.h"
 #include "kd/ranges/concat_view.h"
 #include "kd/ranges/to.h"
+#include "kd/unpack.h"
 
 #include <fmt/format.h>
 
@@ -1189,9 +1190,11 @@ Expression optimize(
   EvaluationContext& context, const MapExpression& expression, const ExpressionNode&)
 {
   auto optimizedExpressions =
-    expression.elements | std::views::transform([&](const auto& entry) {
-      return std::pair{entry.first, entry.second.optimize(context)};
-    });
+    expression.elements
+    | std::views::transform(
+      kdl::unpack([&](const auto& key, const auto& valueExpression) {
+        return std::pair{key, valueExpression.optimize(context)};
+      }));
 
   const auto isLiteral = std::ranges::all_of(
     optimizedExpressions, [](const auto& entry) { return entry.second.isLiteral(); });
@@ -1199,9 +1202,11 @@ Expression optimize(
   if (isLiteral)
   {
     return LiteralExpression{Value{
-      optimizedExpressions | std::views::transform([&](const auto& entry) {
-        return std::pair{entry.first, entry.second.evaluate(context)};
-      })
+      optimizedExpressions
+      | std::views::transform(
+        kdl::unpack([&](const auto& key, const auto& valueExpression) {
+          return std::pair{key, valueExpression.evaluate(context)};
+        }))
       | kdl::ranges::to<MapType>()}};
   }
 
