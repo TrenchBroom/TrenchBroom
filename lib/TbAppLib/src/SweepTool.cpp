@@ -82,11 +82,12 @@ auto initializeFaces(const auto& faces)
 
 auto initializeCenter(const auto& faces)
 {
-  return vm::bbox3d::merge_all(
-           std::begin(faces),
-           std::end(faces),
-           [](const auto& faceHandle) { return faceHandle.face().bounds(); })
-    .center();
+  contract_pre(!faces.empty());
+
+  return vm::bbox3d::build(faces | std::views::transform([](const auto& faceHandle) {
+                             return faceHandle.face().bounds();
+                           }))
+    ->center();
 }
 
 auto initializeNormal(const auto& faces)

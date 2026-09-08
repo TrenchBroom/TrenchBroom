@@ -140,8 +140,7 @@ void doParseFrame(
 
   const auto positions = parseFrameVertices(reader, vertices, origin, scale);
 
-  auto bounds = vm::bbox3f::builder{};
-  bounds.add(positions.begin(), positions.end());
+  const auto bounds = vm::bbox3f::build(positions);
 
   const auto frameTriangles =
     makeFrameTriangles(triangles, vertices, positions, skinWidth, skinHeight);
@@ -153,7 +152,7 @@ void doParseFrame(
     gl::IndexRangeMapBuilder<EntityModelVertex::Type>{frameTriangles.size() * 3, size};
   builder.addTriangles(frameTriangles);
 
-  auto& frame = model.addFrame(std::move(name), bounds.bounds());
+  auto& frame = model.addFrame(std::move(name), bounds.value_or(vm::bbox3f{}));
   surface.addMesh(frame, std::move(builder.vertices()), std::move(builder.indices()));
 }
 

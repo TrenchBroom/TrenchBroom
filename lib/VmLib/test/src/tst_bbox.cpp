@@ -101,6 +101,25 @@ TEST_CASE("bbox")
     CER_CHECK(translated.max == merged.max + offset);
   }
 
+  SECTION("build")
+  {
+    constexpr auto points = std::array<vec3d, 6>{
+      vec3d{-32, -16, -8},
+      vec3d{0, -4, -4},
+      vec3d{+4, +8, -16},
+      vec3d{+32, +16, -4},
+      vec3d{+16, +4, -8},
+      vec3d{+24, +32, +4}};
+
+    constexpr auto min =
+      vm::min(points[0], points[1], points[2], points[3], points[4], points[5]);
+    constexpr auto max =
+      vm::max(points[0], points[1], points[2], points[3], points[4], points[5]);
+
+    constexpr auto merged = bbox3d::build(points);
+    CER_CHECK(merged == bbox3d{min, max});
+  }
+
   SECTION("is_valid")
   {
     CER_CHECK(bbox3d::is_valid(vec3d{0, 0, 0}, vec3d{0, 0, 0}));
@@ -449,73 +468,4 @@ TEST_CASE("bbox")
   }
 }
 
-TEST_CASE("bbox_builder")
-{
-  SECTION("empty")
-  {
-    constexpr auto builder = vm::bbox3f::builder();
-    CER_CHECK_FALSE(builder.initialized())
-  }
-
-  SECTION("add_one_point")
-  {
-    const auto point = vm::vec3f{10, 20, 30};
-
-    vm::bbox3f::builder builder;
-    builder.add(point);
-
-    CHECK(builder.initialized());
-    CHECK(builder.bounds() == vm::bbox3f{point, point});
-  }
-
-  SECTION("twoPoints")
-  {
-    const auto point1 = vm::vec3f{10, 20, 30};
-    const auto point2 = vm::vec3f{100, 200, 300};
-
-    vm::bbox3f::builder builder;
-    builder.add(point1);
-    builder.add(point2);
-
-    CHECK(builder.initialized());
-    CHECK(builder.bounds() == vm::bbox3f{point1, point2});
-  }
-
-  SECTION("twoPointsReverseOrder")
-  {
-    const auto point1 = vm::vec3f{10, 20, 30};
-    const auto point2 = vm::vec3f{100, 200, 300};
-
-    vm::bbox3f::builder builder;
-    builder.add(point2);
-    builder.add(point1);
-
-    CHECK(builder.initialized());
-    CHECK(builder.bounds() == vm::bbox3f{point1, point2});
-  }
-
-  SECTION("add_one_bbox")
-  {
-    const auto bbox = vm::bbox3f{vec3f{2, 3, 4}, vec3f{5, 6, 7}};
-
-    vm::bbox3f::builder builder;
-    builder.add(bbox);
-
-    CHECK(builder.initialized());
-    CHECK(builder.bounds() == bbox);
-  }
-
-  SECTION("add_two_bboxes")
-  {
-    const auto first = vm::bbox3f{vec3f{2, 3, 4}, vec3f{5, 6, 7}};
-    const auto second = vm::bbox3f{vec3f{0, 4, 3}, vec3f{6, 8, 9}};
-
-    vm::bbox3f::builder builder;
-    builder.add(first);
-    builder.add(second);
-
-    CHECK(builder.initialized());
-    CHECK(builder.bounds() == vm::bbox3f{vec3f{0, 3, 3}, vec3f{6, 8, 9}});
-  }
-}
 } // namespace vm

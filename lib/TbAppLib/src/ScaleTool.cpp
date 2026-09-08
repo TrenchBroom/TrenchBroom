@@ -420,12 +420,12 @@ vm::bbox3d moveBBoxCorner(
   if (anchorType == AnchorPos::Center)
   {
     const auto points = std::vector{anchor - (newCorner - anchor), newCorner};
-    return vm::bbox3d::merge_all(std::begin(points), std::end(points));
+    return *vm::bbox3d::build(points);
   }
   else
   {
     const auto points = std::vector{oppositePoint, newCorner};
-    return vm::bbox3d::merge_all(std::begin(points), std::end(points));
+    return *vm::bbox3d::build(points);
   }
 }
 

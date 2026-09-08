@@ -876,16 +876,15 @@ typename Polyhedron<T, FP, VP>::Face* Polyhedron<T, FP, VP>::findClosestFace(
 template <typename T, typename FP, typename VP>
 void Polyhedron<T, FP, VP>::updateBounds()
 {
-  auto builder = typename vm::bbox<T, 3>::builder();
-  builder.add(m_vertices.begin(), m_vertices.end(), GetVertexPosition{});
-
-  if (!builder.initialized())
+  if (
+    const auto bounds =
+      vm::bbox<T, 3>::build(m_vertices | std::views::transform(GetVertexPosition{})))
   {
-    m_bounds.min = m_bounds.max = vm::vec<T, 3>::nan();
+    m_bounds = *bounds;
   }
   else
   {
-    m_bounds = builder.bounds();
+    m_bounds.min = m_bounds.max = vm::vec<T, 3>::nan();
   }
 }
 

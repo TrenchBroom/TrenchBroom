@@ -31,6 +31,7 @@
 #include "kd/path_utils.h"
 
 #include <map>
+#include <optional>
 
 namespace tb::mdl
 {
@@ -667,13 +668,16 @@ private: // parsing
     surface.setSkins(std::move(materials));
 
     // Count vertices and build bounds
-    auto bounds = vm::bbox3f::builder();
+    auto bounds = std::optional<vm::bbox3f>{};
     auto totalVertexCount = size_t(0);
     auto size = gl::MaterialIndexRangeMap::Size{};
     for (const auto& geomObject : scene.geomObjects)
     {
       const auto& mesh = geomObject.mesh;
-      bounds.add(mesh.vertices.begin(), mesh.vertices.end());
+      if (const auto meshBounds = vm::bbox3f::build(mesh.vertices))
+      {
+        bounds = bounds ? vm::merge(*bounds, *meshBounds) : meshBounds;
+      }
 
       auto materialIndex = geomObject.materialIndex;
       if (materialIndex >= surface.skinCount() - 1u)
@@ -689,7 +693,7 @@ private: // parsing
       totalVertexCount += vertexCount;
     }
 
-    auto& frame = data.addFrame(m_name, bounds.bounds());
+    auto& frame = data.addFrame(m_name, bounds.value_or(vm::bbox3f{}));
 
     // Collect vertex data
     auto builder = gl::MaterialIndexRangeMapBuilder<Vertex::Type>{totalVertexCount, size};

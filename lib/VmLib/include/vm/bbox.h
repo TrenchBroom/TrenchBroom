@@ -27,6 +27,8 @@
 #include "vm/vec.h"
 
 #include <array>
+#include <optional>
+#include <ranges>
 
 namespace vm
 {
@@ -44,83 +46,32 @@ class bbox
 {
 public:
   /**
-   * Helper to build a bounding box from points or other bounding boxes.
+   * Creates the smallest bounding box that contains all elements of the given range. The
+   * range can contain points or other bounding boxes, or anything else that a bounding
+   * box can be merged with. If the given range is empty, returns std::nullopt.
+   *
+   * @tparam R the range type
+   * @param r the range to build the bounding box from
+   * @return the bounding box, or std::nullopt if the given range is empty
    */
-  class builder
+  template <std::ranges::range R>
+  static constexpr std::optional<bbox> build(R&& r)
   {
-  private:
-    bbox m_bounds;
-
-  public:
-    /**
-     * Creates a new unitialized instance.
-     */
-    constexpr builder()
-      : m_bounds(false)
+    auto it = std::ranges::begin(r);
+    const auto end = std::ranges::end(r);
+    if (it == end)
     {
-      // put the bounds to an invalid state to signal that its unitialized
+      return std::nullopt;
     }
 
-    /**
-     * Returns the bounds. If the no point has been added, an empty bbox at the origin is
-     * returned.
-     */
-    constexpr const bbox& bounds() const { return m_bounds; }
-
-    /**
-     * Returns whether anything has been added to this builder.
-     */
-    constexpr bool initialized() const { return m_bounds.is_valid(); }
-
-    /**
-     * Adds the given range of points.
-     *
-     * @tparam I the iterator type
-     * @tparam G the type of the function that transforms the iterated type to a point
-     * @param cur the start of the range
-     * @param end the end of the range
-     * @param get the function that transforms the iterated type to a point
-     */
-    template <typename I, typename G = vm::identity>
-    constexpr void add(I cur, I end, G get = G())
+    auto result = bbox{*it};
+    for (++it; it != end; ++it)
     {
-      while (cur != end)
-      {
-        add(get(*cur));
-        ++cur;
-      }
+      result = merge(result, *it);
     }
 
-    /**
-     * Adds the given point.
-     */
-    constexpr void add(const vec<T, S>& point)
-    {
-      if (!initialized())
-      {
-        m_bounds.min = m_bounds.max = point;
-      }
-      else
-      {
-        m_bounds = merge(m_bounds, point);
-      }
-    }
-
-    /**
-     * Adds the given box.
-     */
-    constexpr void add(const bbox& box)
-    {
-      if (!initialized())
-      {
-        m_bounds = box;
-      }
-      else
-      {
-        m_bounds = merge(m_bounds, box);
-      }
-    }
-  };
+    return result;
+  }
 
 public:
   vec<T, S> min;
@@ -637,13 +588,9 @@ public:
    */
   constexpr bbox<T, S> transform(const mat<T, S + 1, S + 1>& transform) const
   {
-    builder builder;
-    const auto vertices = this->vertices();
-    for (const auto& vertex : vertices)
-    {
-      builder.add(transform * vertex);
-    }
-    return builder.bounds();
+    return *build(vertices() | std::views::transform([&](const auto& vertex) {
+                    return transform * vertex;
+                  }));
   }
 
   /**

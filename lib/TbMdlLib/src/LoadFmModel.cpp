@@ -350,7 +350,7 @@ size_t initFrame(const FmModel& fmdl, gl::IndexRangeMap::Size& size)
 void buildFrame(
   const FmModel& fmdl,
   const uint32_t frame_index,
-  vm::bbox3f::builder& bounds,
+  std::optional<vm::bbox3f>& bounds,
   gl::IndexRangeMapBuilder<EntityModelVertex::Type>& builder)
 {
   for (uint32_t i = 0; i < fmdl.header.num_mesh_nodes; i++)
@@ -402,7 +402,12 @@ void buildFrame(
         prim_pos += 3;
       }
 
-      bounds.add(std::begin(vertices), std::end(vertices), gl::GetVertexComponent<0>());
+      if (
+        const auto vertsBounds = vm::bbox3f::build(
+          vertices | std::views::transform(gl::GetVertexComponent<0>())))
+      {
+        bounds = bounds ? vm::merge(*bounds, *vertsBounds) : vertsBounds;
+      }
 
       if (prim_type == gl::PrimType::TriangleFan)
       {
@@ -429,12 +434,12 @@ EntityModelData buildModel(FmModel fmdl, std::string name)
     const size_t num_verts = initFrame(fmdl, size);
 
     // Build current frame.
-    auto bounds = vm::bbox3f::builder{};
+    auto bounds = std::optional<vm::bbox3f>{};
     auto builder = gl::IndexRangeMapBuilder<EntityModelVertex::Type>{num_verts, size};
     buildFrame(fmdl, i, bounds, builder);
 
     // Add to editor model.
-    auto& mdl_frame = data.addFrame(fmdl.frames[i].name, bounds.bounds());
+    auto& mdl_frame = data.addFrame(fmdl.frames[i].name, bounds.value_or(vm::bbox3f{}));
     surface.addMesh(
       mdl_frame, std::move(builder.vertices()), std::move(builder.indices()));
   }

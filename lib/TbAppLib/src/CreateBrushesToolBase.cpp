@@ -103,15 +103,15 @@ void CreateBrushesToolBase::render(
     m_brushRenderer->setForceTransparent(true);
     m_brushRenderer->setTransparencyAlpha(0.7f);
 
-    auto boundsBuilder = vm::bbox3d::builder{};
     for (const auto& brushNode : m_brushNodes)
     {
       m_brushRenderer->addBrush(*brushNode);
-      boundsBuilder.add(brushNode->logicalBounds());
     }
     m_brushRenderer->render(renderContext, renderBatch);
 
-    auto boundsRenderer = render::SelectionBoundsRenderer{boundsBuilder.bounds()};
+    const auto bounds = vm::bbox3d::build(
+      m_brushNodes | std::views::transform(&mdl::BrushNode::logicalBounds));
+    auto boundsRenderer = render::SelectionBoundsRenderer{*bounds};
     boundsRenderer.render(renderContext, renderBatch);
   }
 }
