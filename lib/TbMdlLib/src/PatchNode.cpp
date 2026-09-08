@@ -41,6 +41,7 @@
 #include "vm/intersection.h"
 #include "vm/vec_io.h" // IWYU pragma: keep
 
+#include <ranges>
 #include <string>
 
 namespace tb::mdl
@@ -286,17 +287,18 @@ PatchGrid makePatchGrid(const BezierPatch& patch, const size_t subdivisionsPerSu
   contract_assert(patchGrid.size() == normals.size());
 
   auto points = std::vector<PatchGrid::Point>{};
-  auto boundsBuilder = vm::bbox3d::builder{};
   for (const auto [point, normal] : kdl::views::zip(patchGrid, normals))
   {
     const auto position = vm::slice<3>(point, 0);
     const auto uvCoords = vm::slice<2>(point, 3);
     points.push_back(PatchGrid::Point{position, uvCoords, normal});
-    boundsBuilder.add(position);
   }
+  contract_pre(!points.empty());
 
-  return {
-    gridPointRowCount, gridPointColumnCount, std::move(points), boundsBuilder.bounds()};
+  const auto bounds =
+    *vm::bbox3d::build(points | std::views::transform(&PatchGrid::Point::position));
+
+  return {gridPointRowCount, gridPointColumnCount, std::move(points), bounds};
 }
 
 const HitType::Type PatchNode::PatchHitType = HitType::freeType();

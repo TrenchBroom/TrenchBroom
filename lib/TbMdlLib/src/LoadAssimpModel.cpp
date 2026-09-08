@@ -855,7 +855,7 @@ Result<void> loadSceneFrame(
     scene.mRootNode->mTransformation,
     getAxisTransform(scene));
 
-  auto bounds = vm::bbox3f::builder{};
+  auto points = std::vector<vm::vec3f>{};
 
   return meshes | std::views::transform([&](const auto& mesh) {
            return std::tuple{mesh, getMeshIndex(scene, *mesh.m_mesh)};
@@ -875,21 +875,21 @@ Result<void> loadSceneFrame(
                     | kdl::transform([&](const auto& vertices) {
                         for (const auto& v : vertices)
                         {
-                          bounds.add(v.attr);
+                          points.push_back(v.attr);
                         }
 
                         return computeMeshData(mesh, meshIndex, vertices);
                       });
            })
          | kdl::fold | kdl::and_then([&](const auto& meshData) -> Result<void> {
-             if (!bounds.initialized())
+             const auto frameBounds = vm::bbox3f::build(points);
+             if (!frameBounds)
              {
                // passing empty bounds as bbox crashes the program, don't let it happen
                return Error{"Model has no vertices. (So no valid bounding box.)"};
              }
 
-             const auto frameBounds = bounds.bounds();
-             auto& frame = model.addFrame(name, frameBounds);
+             auto& frame = model.addFrame(name, *frameBounds);
 
              for (const auto& data : meshData)
              {

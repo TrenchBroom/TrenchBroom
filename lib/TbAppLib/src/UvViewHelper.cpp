@@ -249,8 +249,9 @@ void UvViewHelper::computeLineVertices(
   const vm::mat4x4d& toWorld) const
 {
   const auto viewportVertices = toTex * m_camera.viewportVertices();
-  const auto viewportBounds =
-    vm::bbox3d::merge_all(std::begin(viewportVertices), std::end(viewportVertices));
+  contract_pre(!viewportVertices.empty());
+
+  const auto viewportBounds = *vm::bbox3d::build(viewportVertices);
   const auto& min = viewportBounds.min;
   const auto& max = viewportBounds.max;
 

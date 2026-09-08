@@ -31,6 +31,8 @@
 #include <vm/vec.h>
 
 #include <array>
+#include <optional>
+#include <ranges>
 
 namespace tb::mdl
 {
@@ -291,7 +293,7 @@ void buildFrame(
     size.inc(md2Mesh.type);
   }
 
-  auto bounds = vm::bbox3f::builder{};
+  auto bounds = std::optional<vm::bbox3f>{};
 
   auto builder = gl::IndexRangeMapBuilder<EntityModelVertex::Type>{vertexCount, size};
   for (const auto& md2Mesh : meshes)
@@ -301,7 +303,12 @@ void buildFrame(
       vertexCount += md2Mesh.vertices.size();
       const auto vertices = getVertices(frame, md2Mesh.vertices);
 
-      bounds.add(std::begin(vertices), std::end(vertices), gl::GetVertexComponent<0>());
+      if (
+        const auto meshBounds = vm::bbox3f::build(
+          vertices | std::views::transform(gl::GetVertexComponent<0>())))
+      {
+        bounds = bounds ? vm::merge(*bounds, *meshBounds) : meshBounds;
+      }
 
       if (md2Mesh.type == gl::PrimType::TriangleFan)
       {
@@ -314,7 +321,7 @@ void buildFrame(
     }
   }
 
-  auto& modelFrame = model.addFrame(frame.name, bounds.bounds());
+  auto& modelFrame = model.addFrame(frame.name, bounds.value_or(vm::bbox3f{}));
   surface.addMesh(
     modelFrame, std::move(builder.vertices()), std::move(builder.indices()));
 }

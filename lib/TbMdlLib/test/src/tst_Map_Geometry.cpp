@@ -1160,9 +1160,8 @@ TEST_CASE("Map_Geometry")
       const auto face1Verts = brushNode1->brush().face(*oFace1Index).vertexPositions();
       const auto face2Verts = brushNode2->brush().face(*oFace2Index).vertexPositions();
 
-      const auto bounds = vm::merge(
-        vm::bbox3d::merge_all(std::begin(face1Verts), std::end(face1Verts)),
-        vm::bbox3d::merge_all(std::begin(face2Verts), std::end(face2Verts)));
+      const auto bounds =
+        vm::merge(*vm::bbox3d::build(face1Verts), *vm::bbox3d::build(face2Verts));
 
       CHECK(brushNode3->logicalBounds() == bounds);
     }

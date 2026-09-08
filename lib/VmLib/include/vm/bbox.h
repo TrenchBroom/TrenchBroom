@@ -667,13 +667,9 @@ public:
    */
   constexpr bbox<T, S> transform(const mat<T, S + 1, S + 1>& transform) const
   {
-    builder builder;
-    const auto vertices = this->vertices();
-    for (const auto& vertex : vertices)
-    {
-      builder.add(transform * vertex);
-    }
-    return builder.bounds();
+    return *build(vertices() | std::views::transform([&](const auto& vertex) {
+                    return transform * vertex;
+                  }));
   }
 
   /**

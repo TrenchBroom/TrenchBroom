@@ -229,7 +229,7 @@ void parseFrame(
     }
   }
 
-  auto bounds = vm::bbox3f::builder{};
+  auto positions = std::vector<vm::vec3f>{};
 
   auto builder = gl::MaterialIndexRangeMapBuilder<Vertex::Type>{totalVertexCount, size};
   for (size_t i = 0; i < modelFaceCount; ++i)
@@ -253,7 +253,7 @@ void parseFrame(
         const auto& position = vertices[vertexIndex];
         const auto uvCoordss = uvCoords(position, materialInfo, skin);
 
-        bounds.add(position);
+        positions.push_back(position);
 
         faceVertices.emplace_back(position, uvCoordss);
       }
@@ -263,7 +263,8 @@ void parseFrame(
   }
 
   auto frameName = fmt::format("frame_{}", frameIndex);
-  auto& frame = modelData.addFrame(std::move(frameName), bounds.bounds());
+  auto& frame = modelData.addFrame(
+    std::move(frameName), vm::bbox3f::build(positions).value_or(vm::bbox3f{}));
   surface.addMesh(frame, std::move(builder.vertices()), std::move(builder.indices()));
 }
 

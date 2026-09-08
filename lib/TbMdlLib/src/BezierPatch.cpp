@@ -39,15 +39,14 @@ kdl_reflect_impl(BezierPatch);
 
 namespace
 {
+
 vm::bbox3d computeBounds(const std::vector<BezierPatch::Point>& points)
 {
-  auto builder = vm::bbox3d::builder{};
-  for (const auto& point : points)
-  {
-    builder.add(point.xyz());
-  }
-  return builder.bounds();
+  contract_pre(!points.empty());
+
+  return *vm::bbox3d::build(points | std::views::transform(&BezierPatch::Point::xyz));
 }
+
 } // namespace
 
 BezierPatch::BezierPatch(

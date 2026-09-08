@@ -43,9 +43,10 @@ namespace detail
 template <typename T>
 T computePlaneEpsilon(const std::vector<vm::vec<T, 3>>& points)
 {
-  auto builder = typename vm::bbox<T, 3>::builder{};
-  builder.add(points.begin(), points.end());
-  const auto size = builder.bounds().size();
+  contract_pre(!points.empty());
+
+  const auto bounds = vm::bbox<T, 3>::build(points);
+  const auto size = bounds->size();
 
   const auto defaultEpsilon = vm::constants<T>::point_status_epsilon();
   const auto computedEpsilon =

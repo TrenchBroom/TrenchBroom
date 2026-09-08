@@ -34,6 +34,8 @@
 #include <vm/vec.h>
 
 #include <array>
+#include <optional>
+#include <ranges>
 
 namespace tb::mdl
 {
@@ -373,7 +375,7 @@ void buildFrame(
     size.inc(mesh.type);
   }
 
-  auto bounds = vm::bbox3f::builder{};
+  auto bounds = std::optional<vm::bbox3f>{};
 
   auto builder = gl::IndexRangeMapBuilder<EntityModelVertex::Type>{vertexCount, size};
   for (const auto& mesh : meshes)
@@ -383,7 +385,12 @@ void buildFrame(
       vertexCount += mesh.vertices.size();
       const auto vertices = getVertices(frame, mesh.vertices);
 
-      bounds.add(vertices.begin(), vertices.end(), gl::GetVertexComponent<0>());
+      if (
+        const auto meshBounds = vm::bbox3f::build(
+          vertices | std::views::transform(gl::GetVertexComponent<0>())))
+      {
+        bounds = bounds ? vm::merge(*bounds, *meshBounds) : meshBounds;
+      }
       if (mesh.type == gl::PrimType::TriangleStrip)
       {
         builder.addTriangleStrip(vertices);
@@ -395,7 +402,7 @@ void buildFrame(
     }
   }
 
-  auto& modelFrame = model.addFrame(frame.name, bounds.bounds());
+  auto& modelFrame = model.addFrame(frame.name, bounds.value_or(vm::bbox3f{}));
   surface.addMesh(
     modelFrame, std::move(builder.vertices()), std::move(builder.indices()));
 }

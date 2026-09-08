@@ -37,6 +37,7 @@
 #include <fmt/format.h>
 
 #include <algorithm>
+#include <array>
 #include <string>
 
 namespace tb::mdl
@@ -154,20 +155,17 @@ void EntityModelFrame::addToSpacialTree(
     m_tris.reserve(m_tris.size() + count);
     for (size_t i = 0; i < count; i += 3)
     {
-      auto bounds = vm::bbox3f::builder{};
       const auto& p1 = gl::getVertexComponent<0>(vertices[index + i + 0]);
       const auto& p2 = gl::getVertexComponent<0>(vertices[index + i + 1]);
       const auto& p3 = gl::getVertexComponent<0>(vertices[index + i + 2]);
-      bounds.add(p1);
-      bounds.add(p2);
-      bounds.add(p3);
+      const auto bounds = vm::bbox3f::build(std::array{p1, p2, p3});
 
       const auto triIndex = m_tris.size() / 3u;
       m_tris.push_back(p1);
       m_tris.push_back(p2);
       m_tris.push_back(p3);
 
-      m_spacialTree.insert(bounds.bounds(), triIndex);
+      m_spacialTree.insert(*bounds, triIndex);
     }
     break;
   }
@@ -180,18 +178,15 @@ void EntityModelFrame::addToSpacialTree(
     const auto& p1 = gl::getVertexComponent<0>(vertices[index]);
     for (size_t i = 1; i < count - 1; ++i)
     {
-      auto bounds = vm::bbox3f::builder{};
       const auto& p2 = gl::getVertexComponent<0>(vertices[index + i]);
       const auto& p3 = gl::getVertexComponent<0>(vertices[index + i + 1]);
-      bounds.add(p1);
-      bounds.add(p2);
-      bounds.add(p3);
+      const auto bounds = vm::bbox3f::build(std::array{p1, p2, p3});
 
       const auto triIndex = m_tris.size() / 3u;
       m_tris.push_back(p1);
       m_tris.push_back(p2);
       m_tris.push_back(p3);
-      m_spacialTree.insert(bounds.bounds(), triIndex);
+      m_spacialTree.insert(*bounds, triIndex);
     }
     break;
   }
@@ -203,13 +198,10 @@ void EntityModelFrame::addToSpacialTree(
     m_tris.reserve(m_tris.size() + (count - 2) * 3);
     for (size_t i = 0; i < count - 2; ++i)
     {
-      auto bounds = vm::bbox3f::builder{};
       const auto& p1 = gl::getVertexComponent<0>(vertices[index + i + 0]);
       const auto& p2 = gl::getVertexComponent<0>(vertices[index + i + 1]);
       const auto& p3 = gl::getVertexComponent<0>(vertices[index + i + 2]);
-      bounds.add(p1);
-      bounds.add(p2);
-      bounds.add(p3);
+      const auto bounds = vm::bbox3f::build(std::array{p1, p2, p3});
 
       const auto triIndex = m_tris.size() / 3u;
       if (i % 2 == 0)
@@ -224,7 +216,7 @@ void EntityModelFrame::addToSpacialTree(
         m_tris.push_back(p3);
         m_tris.push_back(p2);
       }
-      m_spacialTree.insert(bounds.bounds(), triIndex);
+      m_spacialTree.insert(*bounds, triIndex);
     }
     break;
   }
