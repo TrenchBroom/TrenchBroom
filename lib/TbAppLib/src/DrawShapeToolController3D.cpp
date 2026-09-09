@@ -119,7 +119,10 @@ public:
     return DragStatus::Deny;
   }
 
-  void end(const InputState&, const DragState&) override { m_tool.createBrushes(); }
+  void end(const InputState&, const DragState&) override
+  {
+    m_tool.createBrushes(m_tool.groupNameForCreatedBrushes());
+  }
 
   void cancel(const DragState&) override { m_tool.cancel(); }
 

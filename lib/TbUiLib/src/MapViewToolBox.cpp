@@ -48,6 +48,8 @@
 
 #include "kd/contracts.h"
 
+#include <optional>
+
 namespace tb::ui
 {
 
@@ -217,7 +219,8 @@ void MapViewToolBox::performAssembleBrush()
 {
   contract_pre(assembleBrushToolActive());
 
-  m_assembleBrushTool->createBrushes();
+  // AssembleBrushTool only ever creates a single brush, so it is never grouped.
+  m_assembleBrushTool->createBrushes(std::nullopt);
 }
 
 bool MapViewToolBox::canToggleClipTool() const
