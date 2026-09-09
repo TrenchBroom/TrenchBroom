@@ -44,8 +44,6 @@ namespace
 
 using StairDirection = DrawShapeToolParameters::StairDirection;
 
-constexpr auto RockResolution = size_t{3};
-
 vm::axis::type stairDirectionToAxis(const StairDirection direction)
 {
   return direction == StairDirection::PosY || direction == StairDirection::NegY
@@ -403,7 +401,7 @@ Result<std::vector<mdl::Brush>> DrawShapeToolRockExtension::createBrushes(
   return builder.createRockFormation(
     bounds,
     parameters.rockType(),
-    RockResolution,
+    parameters.rockResolution(),
     parameters.rockBaseFlattening(),
     parameters.rockForm(),
     parameters.rockSeed(),

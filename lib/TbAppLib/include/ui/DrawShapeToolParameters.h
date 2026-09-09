@@ -65,6 +65,7 @@ private:
 
   // For rock shapes
   mdl::RockType m_rockType = mdl::RockType::Boulder;
+  size_t m_rockResolution = 3;
   double m_rockBaseFlattening = 0.15;
   double m_rockForm = 0.5;
   uint32_t m_rockSeed = 0;
@@ -102,6 +103,9 @@ public:
 
   mdl::RockType rockType() const;
   void setRockType(mdl::RockType rockType);
+
+  size_t rockResolution() const;
+  void setRockResolution(size_t rockResolution);
 
   double rockBaseFlattening() const;
   void setRockBaseFlattening(double rockBaseFlattening);

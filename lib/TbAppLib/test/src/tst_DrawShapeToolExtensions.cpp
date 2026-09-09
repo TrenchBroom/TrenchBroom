@@ -554,6 +554,22 @@ TEST_CASE("DrawShapeToolRockExtension")
 
     CHECK(result1.value()[0].vertexPositions() != result2.value()[0].vertexPositions());
   }
+
+  SECTION("createBrushes wires the resolution to the brush builder")
+  {
+    const auto bounds = vm::bbox3d{{-64, -64, -64}, {64, 64, 64}};
+    parameters.setRockType(mdl::RockType::Boulder);
+
+    parameters.setRockResolution(0);
+    const auto result1 = extension.createBrushes(bounds, parameters);
+    REQUIRE(result1.is_success());
+
+    parameters.setRockResolution(4);
+    const auto result2 = extension.createBrushes(bounds, parameters);
+    REQUIRE(result2.is_success());
+
+    CHECK(result1.value()[0].faceCount() != result2.value()[0].faceCount());
+  }
 }
 
 TEST_CASE("DrawShapeToolParameters")
@@ -570,6 +586,7 @@ TEST_CASE("DrawShapeToolParameters")
     REQUIRE(parameters.accuracy() == 1);
     REQUIRE(parameters.stepHeight() == 16.0);
     REQUIRE(parameters.stairDirection() == DrawShapeToolParameters::StairDirection::PosX);
+    REQUIRE(parameters.rockResolution() == 3);
     REQUIRE(parameters.incrementRockSeed() == false);
   }
 
@@ -733,6 +750,21 @@ TEST_CASE("DrawShapeToolParameters")
     CHECK(parametersDidChange.notifications.size() == 1u);
 
     parameters.setCircleShape(mdl::EdgeAlignedCircle{12});
+    CHECK(parametersDidChange.notifications.size() == 1u);
+  }
+
+  SECTION("RockResolution modifications")
+  {
+    auto parametersDidChange = Observer<>{parameters.parametersDidChangeNotifier};
+
+    parameters.setRockResolution(3);
+    CHECK(parametersDidChange.notifications.empty());
+
+    parameters.setRockResolution(4);
+    REQUIRE(parameters.rockResolution() == 4);
+    CHECK(parametersDidChange.notifications.size() == 1u);
+
+    parameters.setRockResolution(4);
     CHECK(parametersDidChange.notifications.size() == 1u);
   }
 

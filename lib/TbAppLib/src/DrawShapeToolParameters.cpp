@@ -162,6 +162,20 @@ void DrawShapeToolParameters::setRockType(const mdl::RockType rockType)
   }
 }
 
+size_t DrawShapeToolParameters::rockResolution() const
+{
+  return m_rockResolution;
+}
+
+void DrawShapeToolParameters::setRockResolution(const size_t rockResolution)
+{
+  if (rockResolution != m_rockResolution)
+  {
+    m_rockResolution = rockResolution;
+    parametersDidChangeNotifier();
+  }
+}
+
 double DrawShapeToolParameters::rockBaseFlattening() const
 {
   return m_rockBaseFlattening;

@@ -452,6 +452,10 @@ DrawShapeToolRockShapeExtensionPage::DrawShapeToolRockShapeExtensionPage(
      tr("Basalt"),
      tr("Cluster")});
 
+  auto* resolutionLabel = new QLabel{tr("Resolution: ")};
+  auto* resolutionBox = new QSpinBox{};
+  resolutionBox->setRange(0, 4);
+
   auto* baseFlatteningLabel = new QLabel{tr("Flatten: ")};
   auto* baseFlatteningBox = new QSpinBox{};
   baseFlatteningBox->setRange(0, 50);
@@ -519,6 +523,11 @@ DrawShapeToolRockShapeExtensionPage::DrawShapeToolRockShapeExtensionPage(
     this,
     [&](const auto index) { m_parameters.setRockType(indexToRockType(size_t(index))); });
   connect(
+    resolutionBox,
+    QOverload<int>::of(&QSpinBox::valueChanged),
+    this,
+    [&](const auto resolution) { m_parameters.setRockResolution(size_t(resolution)); });
+  connect(
     baseFlatteningBox,
     QOverload<int>::of(&QSpinBox::valueChanged),
     this,
@@ -544,6 +553,8 @@ DrawShapeToolRockShapeExtensionPage::DrawShapeToolRockShapeExtensionPage(
 
   addWidget(typeLabel);
   addWidget(typeBox);
+  addWidget(resolutionLabel);
+  addWidget(resolutionBox);
   addWidget(baseFlatteningLabel);
   addWidget(baseFlatteningBox);
   addWidget(formLabel);
@@ -557,6 +568,7 @@ DrawShapeToolRockShapeExtensionPage::DrawShapeToolRockShapeExtensionPage(
   m_notifierConnection += m_parameters.parametersDidChangeNotifier.connect([=, this]() {
     typeBox->setCurrentIndex(int(rockTypeToIndex(m_parameters.rockType())));
     updateFormLabel(m_parameters.rockType());
+    resolutionBox->setValue(int(m_parameters.rockResolution()));
     baseFlatteningBox->setValue(
       int(std::lround(m_parameters.rockBaseFlattening() * 100.0)));
     formBox->setValue(int(std::lround(m_parameters.rockForm() * 100.0)));
