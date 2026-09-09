@@ -48,6 +48,7 @@
 #include "kd/contracts.h"
 #include "kd/ranges/to.h"
 #include "kd/string_compare.h"
+#include "kd/string_compare_natural.h"
 #include "kd/string_utils.h"
 #include "kd/vector_utils.h"
 
@@ -276,7 +277,7 @@ std::vector<const gl::Material*> MaterialBrowserView::sortMaterials(
   std::vector<const gl::Material*> materials) const
 {
   const auto compareNames = [](const auto& lhs, const auto& rhs) {
-    return kdl::ci::string_less{}(lhs->name(), rhs->name());
+    return kdl::ci::string_less_natural{}(lhs->name(), rhs->name());
   };
 
   switch (m_sortOrder)

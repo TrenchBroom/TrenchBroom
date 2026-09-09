@@ -42,6 +42,7 @@
 #include "kd/contracts.h"
 #include "kd/ranges/to.h"
 #include "kd/string_compare.h"
+#include "kd/string_compare_natural.h"
 #include "kd/struct_io.h"
 
 #include <algorithm>
@@ -132,7 +133,7 @@ void MaterialTagMatcher::enable(TagMatcherCallback& callback, Map& map) const
     });
 
   std::ranges::sort(matchingMaterials, [](const auto* lhs, const auto* rhs) {
-    return kdl::ci::str_compare(lhs->name(), rhs->name()) < 0;
+    return kdl::ci::string_less_natural{}(lhs->name(), rhs->name());
   });
 
   const gl::Material* material = nullptr;
@@ -452,7 +453,7 @@ void EntityClassNameTagMatcher::enable(TagMatcherCallback& callback, Map& map) c
                              | kdl::ranges::to<std::vector>();
 
   std::ranges::sort(matchingDefinitions, [](const auto* lhs, const auto* rhs) {
-    return kdl::ci::str_compare(lhs->name, rhs->name) < 0;
+    return kdl::ci::string_less_natural{}(lhs->name, rhs->name);
   });
 
   const EntityDefinition* definition = nullptr;

@@ -47,6 +47,7 @@
 #include "kd/result.h"
 #include "kd/result_fold.h"
 #include "kd/string_compare.h"
+#include "kd/string_compare_natural.h"
 #include "kd/string_format.h"
 #include "kd/vector_utils.h"
 
@@ -349,10 +350,12 @@ std::string materialCollectionName(
 std::vector<gl::MaterialCollection> groupMaterialsIntoCollections(
   std::vector<gl::Material> materials)
 {
-  materials = kdl::vec_sort(std::move(materials), [&](const auto& lhs, const auto& rhs) {
-    return lhs.collectionName() < rhs.collectionName()   ? true
-           : lhs.collectionName() > rhs.collectionName() ? false
-                                                         : lhs.name() < rhs.name();
+  // Natural comparison folds case and skips whitespace, so distinct names such as
+  // "base 1.wad" and "base1.wad" can compare equal. string_less_natural breaks such
+  // ties by exact name, which keeps equal collection names adjacent. Otherwise, the
+  // chunk_by below could split one collection into several.
+  materials = kdl::vec_sort(std::move(materials), [](const auto& lhs, const auto& rhs) {
+    return kdl::ci::string_less_natural{}(lhs.collectionName(), rhs.collectionName());
   });
 
   return materials | kdl::views::chunk_by([&](const auto& lhs, const auto& rhs) {

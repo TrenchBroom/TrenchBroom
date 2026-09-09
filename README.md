@@ -66,6 +66,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for more information.
 - [FreeImage](https://freeimage.sourceforge.io/)
 - [TinyXML](http://www.grinninglizard.com/tinyxml/)
 - miniz
+- [natsort](https://sourcefrog.net/projects/natsort/)
 - [Assimp](https://www.assimp.org/)
 - [Catch2](https://github.com/catchorg/Catch2)
 - [CMake](https://cmake.org/)

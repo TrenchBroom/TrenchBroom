@@ -10,6 +10,7 @@ target_sources(KdLib
     "${CMAKE_CURRENT_SOURCE_DIR}/src/path_utils.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/result_error.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/string_compare.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/string_compare_natural.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/string_format.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/string_utils.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/task_manager.cpp"
@@ -25,6 +26,7 @@ target_link_libraries(KdLib
   PRIVATE
     CompilerConfig
     PrecompileStdHeaders
+    natsort
   PUBLIC
     Threads::Threads
 )
