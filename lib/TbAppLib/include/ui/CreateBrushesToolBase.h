@@ -23,6 +23,8 @@
 #include "ui/Tool.h"
 
 #include <memory>
+#include <optional>
+#include <string>
 
 namespace tb
 {
@@ -59,7 +61,7 @@ public:
 public:
   const mdl::Grid& grid() const;
 
-  void createBrushes();
+  void createBrushes(std::optional<std::string> groupName);
   void clearBrushes();
   void cancel();
 

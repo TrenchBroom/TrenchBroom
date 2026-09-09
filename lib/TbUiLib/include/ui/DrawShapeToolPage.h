@@ -24,6 +24,9 @@
 #include "base/Notifier.h"
 #include "base/NotifierConnection.h"
 
+#include <filesystem>
+
+class QCheckBox;
 class QStackedLayout;
 class QToolButton;
 
@@ -39,6 +42,7 @@ private:
 
   QToolButton* m_extensionButton = nullptr;
   QStackedLayout* m_extensionPages = nullptr;
+  QCheckBox* m_groupCheckBox = nullptr;
 
   NotifierConnection m_notifierConnection;
 
@@ -51,6 +55,7 @@ public:
 private:
   void createGui();
   void currentExtensionDidChange(size_t index);
+  void preferenceDidChange(const std::filesystem::path& path);
 };
 
 } // namespace tb::ui

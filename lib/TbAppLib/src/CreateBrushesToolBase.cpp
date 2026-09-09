@@ -22,6 +22,7 @@
 #include "base/PreferenceManager.h"
 #include "mdl/BrushNode.h"
 #include "mdl/Map.h"
+#include "mdl/Map_Groups.h"
 #include "mdl/Map_Nodes.h"
 #include "mdl/Map_Selection.h"
 #include "mdl/Transaction.h"
@@ -53,7 +54,7 @@ const mdl::Grid& CreateBrushesToolBase::grid() const
   return m_document.map().grid();
 }
 
-void CreateBrushesToolBase::createBrushes()
+void CreateBrushesToolBase::createBrushes(std::optional<std::string> groupName)
 {
   if (!m_brushNodes.empty())
   {
@@ -68,6 +69,10 @@ void CreateBrushesToolBase::createBrushes()
     auto addedNodes =
       addNodes(m_document.map(), {{&parentForNodes(m_document.map()), nodesToAdd}});
     selectNodes(m_document.map(), addedNodes);
+    if (groupName && addedNodes.size() > 1)
+    {
+      groupSelectedNodes(m_document.map(), *groupName);
+    }
     transaction.commit();
 
     doBrushesWereCreated();

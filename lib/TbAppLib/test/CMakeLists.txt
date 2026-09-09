@@ -8,6 +8,7 @@ target_sources(TbAppLibTest
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_ClipTool.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_ClipToolController.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_ControlPointTool.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_DrawShapeTool.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_DrawShapeToolExtensions.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_ExtrudeTool.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_ExtrudeToolController.cpp
