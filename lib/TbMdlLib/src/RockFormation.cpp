@@ -280,6 +280,7 @@ RockFormation makeStrata(
   constexpr auto Count = CountRule{2, 1};
   constexpr auto Sides = size_t{8};
   constexpr auto Overlap = double{0.72};
+  constexpr auto MaxExtraLayers = size_t{6};
   constexpr auto Taper = FormRange{0.12, 0.72};
   constexpr auto DriftBase = double{0.025};
   constexpr auto DriftPerForm = double{0.075};
@@ -287,7 +288,9 @@ RockFormation makeStrata(
   constexpr auto TopRadius = Range{0.82, 1.0};
   constexpr auto TopOffset = Range{-0.09, 0.09};
   auto stream = RandomStream{seed};
-  const auto count = Count(resolution);
+  const auto extraLayers =
+    size_t(std::lround(std::clamp(baseFlattening, 0.0, 1.0) * double(MaxExtraLayers)));
+  const auto count = Count(resolution) + extraLayers;
 
   auto drift = vm::vec2d{};
   return std::views::iota(0u, count) | std::views::transform([&](const auto i) {
@@ -303,15 +306,13 @@ RockFormation makeStrata(
            const auto topOffsetX = stream.next(TopOffset);
            const auto topOffsetY = stream.next(TopOffset);
 
-           auto points = makeRingPrism(
+           const auto points = makeRingPrism(
              Sides,
              {taper, taper * 0.9},
              {topRadiusX, topRadiusY},
              1.0,
              phase,
              {topOffsetX, topOffsetY});
-           flattenBase(points, baseFlattening);
-           ground(points);
 
            return scaleAndOffset(
              points, {1.0, 1.0, 1.0}, {drift.x(), drift.y(), double(i) * Overlap});

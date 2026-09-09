@@ -30,6 +30,7 @@
 #include "vm/bbox.h"
 #include "vm/vec.h"
 
+#include <algorithm>
 #include <cassert>
 #include <ranges>
 #include <string>
@@ -156,86 +157,104 @@ TEST_CASE("makeRockFormation")
         {-22, -23, -32},
         {0, -32, -32},
         {23, -23, -32},
-        {27, 0, -17},
-        {18, 23, -17},
-        {-3, 32, -17},
-        {-24, 22, -17},
-        {-32, 0, -17},
-        {-23, -23, -17},
-        {-2, -32, -17},
-        {19, -22, -17},
+        {27, 0, -18},
+        {18, 23, -18},
+        {-3, 32, -18},
+        {-24, 22, -18},
+        {-32, 0, -18},
+        {-23, -23, -18},
+        {-2, -32, -18},
+        {19, -22, -18},
       },
       {
-        {28, 6, -20},
-        {16, 24, -20},
-        {-6, 28, -20},
-        {-24, 16, -20},
-        {-28, -5, -20},
-        {-16, -23, -20},
-        {5, -27, -20},
-        {24, -15, -20},
-        {27, 6, -5},
-        {16, 24, -5},
-        {-3, 28, -5},
-        {-19, 16, -5},
-        {-23, -6, -5},
-        {-12, -25, -5},
-        {7, -29, -5},
-        {24, -16, -5},
+        {28, 6, -22},
+        {16, 25, -22},
+        {-6, 29, -22},
+        {-25, 17, -22},
+        {-29, -5, -22},
+        {-16, -23, -22},
+        {6, -27, -22},
+        {24, -15, -22},
+        {28, 6, -8},
+        {17, 25, -8},
+        {-3, 29, -8},
+        {-20, 16, -8},
+        {-23, -6, -8},
+        {-12, -25, -8},
+        {7, -29, -8},
+        {24, -17, -8},
       },
       {
-        {24, 5, -7},
-        {13, 21, -7},
-        {-6, 25, -7},
-        {-22, 15, -7},
-        {-26, -4, -7},
-        {-16, -20, -7},
-        {3, -24, -7},
-        {19, -14, -7},
-        {21, 3, 7},
-        {11, 19, 7},
-        {-7, 23, 7},
-        {-22, 13, 7},
-        {-26, -6, 7},
-        {-16, -22, 7},
-        {2, -27, 7},
-        {17, -16, 7},
+        {25, 5, -12},
+        {14, 22, -12},
+        {-6, 26, -12},
+        {-23, 15, -12},
+        {-27, -4, -12},
+        {-16, -21, -12},
+        {3, -25, -12},
+        {21, -14, -12},
+        {22, 3, 2},
+        {12, 20, 2},
+        {-7, 25, 2},
+        {-23, 14, 2},
+        {-27, -6, 2},
+        {-17, -23, 2},
+        {2, -28, 2},
+        {18, -17, 2},
       },
       {
-        {21, 1, 5},
-        {14, 16, 5},
-        {-2, 22, 5},
-        {-17, 15, 5},
-        {-23, 0, 5},
-        {-16, -15, 5},
-        {0, -21, 5},
-        {15, -14, 5},
-        {18, 3, 20},
-        {12, 16, 20},
-        {-1, 22, 20},
-        {-14, 15, 20},
-        {-19, 1, 20},
-        {-13, -12, 20},
-        {0, -18, 20},
-        {13, -11, 20},
+        {23, 2, -2},
+        {15, 18, -2},
+        {-2, 24, -2},
+        {-18, 17, -2},
+        {-25, 0, -2},
+        {-17, -16, -2},
+        {0, -23, -2},
+        {17, -15, -2},
+        {20, 3, 12},
+        {13, 18, 12},
+        {-1, 23, 12},
+        {-15, 17, 12},
+        {-21, 1, 12},
+        {-14, -14, 12},
+        {0, -19, 12},
+        {14, -13, 12},
       },
       {
-        {17, 3, 17},
-        {11, 16, 17},
-        {-2, 21, 17},
-        {-15, 15, 17},
-        {-20, 2, 17},
-        {-14, -11, 17},
-        {-1, -15, 17},
-        {12, -10, 17},
-        {13, 6, 32},
-        {8, 19, 32},
-        {-3, 24, 32},
-        {-14, 18, 32},
-        {-18, 5, 32},
-        {-13, -8, 32},
-        {-2, -13, 32},
-        {9, -7, 32},
+        {20, 3, 8},
+        {13, 18, 8},
+        {-2, 23, 8},
+        {-17, 17, 8},
+        {-22, 2, 8},
+        {-16, -13, 8},
+        {0, -18, 8},
+        {14, -11, 8},
+        {15, 7, 22},
+        {10, 21, 22},
+        {-3, 27, 22},
+        {-16, 20, 22},
+        {-21, 5, 22},
+        {-15, -10, 22},
+        {-2, -15, 22},
+        {11, -9, 22},
+      },
+      {
+        {19, 4, 18},
+        {12, 16, 18},
+        {-2, 19, 18},
+        {-14, 12, 18},
+        {-18, -1, 18},
+        {-10, -13, 18},
+        {3, -17, 18},
+        {15, -10, 18},
+        {16, 2, 32},
+        {9, 15, 32},
+        {-4, 18, 32},
+        {-15, 11, 32},
+        {-19, -4, 32},
+        {-12, -17, 32},
+        {1, -20, 32},
+        {13, -13, 32},
       },
     };
 
@@ -245,6 +264,40 @@ TEST_CASE("makeRockFormation")
     CHECK_THAT(actualBrushes, Catch::Matchers::UnorderedRangeEquals(expectedBrushes));
 
     CHECK(mergedBounds(actualBrushes) == Bounds);
+  }
+
+  SECTION("Strata baseFlattening adds more, thinner layers")
+  {
+    // Regression test: the whole formation is rescaled to fill the given bounds, so
+    // shrinking every layer by the same proportion has no visible effect at all --
+    // it must change the layer count instead to have any effect after rescaling.
+    const auto low =
+      makeRockFormation(Bounds, RockType::Strata, Resolution, 0.0, Form, Seed);
+    const auto high =
+      makeRockFormation(Bounds, RockType::Strata, Resolution, 1.0, Form, Seed);
+
+    CHECK(high.size() > low.size());
+  }
+
+  SECTION("Strata layers stay flush regardless of baseFlattening")
+  {
+    // Regression test: high baseFlattening used to shrink each layer without
+    // adjusting the fixed spacing between layers, leaving gaps between them.
+    const auto formation =
+      makeRockFormation(Bounds, RockType::Strata, Resolution, 0.5, Form, Seed);
+
+    for (size_t i = 0; i + 1 < formation.size(); ++i)
+    {
+      const auto maxZ =
+        std::ranges::max(formation[i] | std::views::transform([](const auto& point) {
+                           return point.z();
+                         }));
+      const auto minZ =
+        std::ranges::min(formation[i + 1] | std::views::transform([](const auto& point) {
+                           return point.z();
+                         }));
+      CHECK(maxZ >= minZ);
+    }
   }
 
   SECTION("Crag")
