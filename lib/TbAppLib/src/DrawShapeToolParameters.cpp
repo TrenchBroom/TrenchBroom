@@ -204,4 +204,18 @@ void DrawShapeToolParameters::setRockSeed(const uint32_t rockSeed)
   }
 }
 
+bool DrawShapeToolParameters::incrementRockSeed() const
+{
+  return m_incrementRockSeed;
+}
+
+void DrawShapeToolParameters::setIncrementRockSeed(const bool incrementRockSeed)
+{
+  if (incrementRockSeed != m_incrementRockSeed)
+  {
+    m_incrementRockSeed = incrementRockSeed;
+    parametersDidChangeNotifier();
+  }
+}
+
 } // namespace tb::ui

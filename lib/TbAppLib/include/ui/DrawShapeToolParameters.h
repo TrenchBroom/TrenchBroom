@@ -68,6 +68,7 @@ private:
   double m_rockBaseFlattening = 0.15;
   double m_rockForm = 0.5;
   uint32_t m_rockSeed = 0;
+  bool m_incrementRockSeed = false;
 
 public:
   Notifier<> parametersDidChangeNotifier;
@@ -110,6 +111,9 @@ public:
 
   uint32_t rockSeed() const;
   void setRockSeed(uint32_t rockSeed);
+
+  bool incrementRockSeed() const;
+  void setIncrementRockSeed(bool incrementRockSeed);
 };
 
 } // namespace tb::ui

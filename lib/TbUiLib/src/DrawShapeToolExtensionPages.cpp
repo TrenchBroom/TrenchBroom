@@ -468,6 +468,10 @@ DrawShapeToolRockShapeExtensionPage::DrawShapeToolRockShapeExtensionPage(
   seedBox->setRange(0, std::numeric_limits<int>::max());
   auto* randomSeedButton = new QPushButton{tr("Random")};
 
+  auto* incrementSeedCheckBox = new QCheckBox{tr("Increment Seed")};
+  incrementSeedCheckBox->setToolTip(
+    tr("Increment the seed automatically every time a shape is created or updated."));
+
   const auto updateFormLabel = [=](const RockType type) {
     switch (type)
     {
@@ -533,6 +537,10 @@ DrawShapeToolRockShapeExtensionPage::DrawShapeToolRockShapeExtensionPage(
     m_parameters.setRockSeed(
       QRandomGenerator::global()->bounded(quint32(std::numeric_limits<int>::max())));
   });
+  connect(
+    incrementSeedCheckBox, &QCheckBox::toggled, this, [&](const auto incrementRockSeed) {
+      m_parameters.setIncrementRockSeed(incrementRockSeed);
+    });
 
   addWidget(typeLabel);
   addWidget(typeBox);
@@ -543,6 +551,7 @@ DrawShapeToolRockShapeExtensionPage::DrawShapeToolRockShapeExtensionPage(
   addWidget(seedLabel);
   addWidget(seedBox);
   addWidget(randomSeedButton);
+  addWidget(incrementSeedCheckBox);
   addApplyButton(document);
 
   m_notifierConnection += m_parameters.parametersDidChangeNotifier.connect([=, this]() {
@@ -552,6 +561,7 @@ DrawShapeToolRockShapeExtensionPage::DrawShapeToolRockShapeExtensionPage(
       int(std::lround(m_parameters.rockBaseFlattening() * 100.0)));
     formBox->setValue(int(std::lround(m_parameters.rockForm() * 100.0)));
     seedBox->setValue(int(m_parameters.rockSeed()));
+    incrementSeedCheckBox->setChecked(m_parameters.incrementRockSeed());
   });
 }
 
