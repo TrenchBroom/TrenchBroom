@@ -83,10 +83,10 @@ struct CountRule
 
 /**
  * A deterministic random stream based on std::mt19937_64. The engine itself is fully
- * specified by the standard, so its output is portable across standard libraries, but
- * the distributions in <random> are not, so we must convert its output to a double
- * ourselves rather than using e.g. std::uniform_real_distribution. Draw from named
- * locals only: the evaluation order of function arguments is unspecified.
+ * specified by the standard, so its output is portable across standard libraries, but the
+ * distributions in <random> are not, so we may get different output from the same
+ * parameters on different platforms. Draw from named locals only: the evaluation order
+ * of function arguments is unspecified.
  */
 class RandomStream
 {
@@ -100,7 +100,11 @@ public:
   }
 
   /** Returns the next value in [0, 1). */
-  double next() { return double(m_engine() >> 11) * 0x1.0p-53; }
+  double next()
+  {
+    auto dist = std::uniform_real_distribution<double>{0.0, 1.0};
+    return dist(m_engine);
+  }
 
   /** Returns the next value in [min, max). */
   double next(const double min, const double max) { return min + next() * (max - min); }
