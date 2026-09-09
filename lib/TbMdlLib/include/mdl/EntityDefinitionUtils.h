@@ -23,6 +23,8 @@
 #include "mdl/EntityDefinition.h"
 
 #include "kd/ranges/to.h"
+#include "kd/string_compare_natural.h"
+#include "kd/vector_utils.h"
 
 #include <algorithm>
 #include <ranges>
@@ -48,16 +50,23 @@ std::vector<const EntityDefinition*> filterAndSort(
                 })
                 | kdl::ranges::to<std::vector>();
 
-  std::ranges::sort(result, [&](const auto* lhs, const auto* rhs) {
-    switch (order)
-    {
-    case EntityDefinitionSortOrder::Name:
-      return lhs->name < rhs->name;
-    case EntityDefinitionSortOrder::Usage:
-      return lhs->usageCount() < rhs->usageCount();
-      switchDefault();
-    }
-  });
+  const auto compareNames = [](const auto* lhs, const auto* rhs) {
+    return kdl::ci::string_less_natural{}(lhs->name, rhs->name);
+  };
+
+  switch (order)
+  {
+  case EntityDefinitionSortOrder::Name:
+    return kdl::vec_sort(std::move(result), compareNames);
+  case EntityDefinitionSortOrder::Usage:
+    return kdl::vec_sort(std::move(result), [&](const auto* lhs, const auto* rhs) {
+      return lhs->usageCount() < rhs->usageCount()   ? false
+             : lhs->usageCount() > rhs->usageCount() ? true
+                                                     : compareNames(lhs, rhs);
+    });
+    switchDefault();
+  }
+
   return result;
 }
 

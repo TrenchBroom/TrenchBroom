@@ -21,6 +21,7 @@
 
 #include "kd/reflection_impl.h"
 #include "kd/string_compare.h"
+#include "kd/string_compare_natural.h"
 #include "kd/string_format.h"
 
 namespace tb::mdl
@@ -36,7 +37,8 @@ std::string displayName(const EntityDefinitionGroup& group)
 bool compareEntityDefinitionGroups(
   const EntityDefinitionGroup& lhs, const EntityDefinitionGroup& rhs)
 {
-  if (const auto compareResult = kdl::ci::str_compare(displayName(lhs), displayName(rhs));
+  if (const auto compareResult =
+        kdl::ci::str_compare_natural(displayName(lhs), displayName(rhs));
       compareResult != 0)
   {
     return compareResult < 0;
