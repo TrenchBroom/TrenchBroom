@@ -23,7 +23,10 @@
 #include "kd/collection_utils.h"
 
 #include <algorithm>
+#include <cctype>
+#include <iterator>
 #include <string_view>
+#include <utility>
 #include <vector>
 
 namespace kdl
@@ -142,6 +145,114 @@ int str_compare(
   const std::string_view s1, const std::string_view s2, const CharCompare& char_compare)
 {
   return kdl::col_lexicographical_compare(s1, s2, char_compare);
+}
+
+/**
+ * Performs a natural order comparison of the given strings s1 and s2, using the given
+ * comparator to compare characters that are not part of a digit run. Returns -1 if the
+ * first string is less than the second string, or +1 in the opposite case, or 0 if both
+ * strings are equal.
+ *
+ * Runs of digits compare by their numeric value, ignoring any leading zeros, so "tex9"
+ * sorts before "tex10", and "tex1" sorts before "tex02". If two runs have the same
+ * numeric value only because of different zero padding, the padding breaks the tie by
+ * comparing the digits verbatim, so e.g. "tex01" sorts before "tex1". This means that two
+ * different digit runs never compare equal.
+ *
+ * All other characters, including whitespace, are compared using the given comparator.
+ *
+ * @tparam CharCompare the type of the comparator to use for comparing characters
+ * @param s1 the first string
+ * @param s2 the second string
+ * @param char_compare the comparator
+ * @return an int indicating the result of the comparison
+ */
+template <typename CharCompare>
+int str_compare_natural(
+  const std::string_view s1, const std::string_view s2, const CharCompare& char_compare)
+{
+  const auto skip = [](auto cur, const auto end, const auto& pred) {
+    while (cur != end && pred(*cur))
+    {
+      ++cur;
+    }
+    return cur;
+  };
+
+  const auto skipDigits = [&skip](auto cur, const auto end) {
+    return skip(cur, end, [](const auto x) { return std::isdigit(x); });
+  };
+
+  const auto skipZeros = [&skip](auto cur, const auto end) {
+    return skip(cur, end, [](const auto x) { return x == '0'; });
+  };
+
+  auto i1 = s1.begin();
+  auto i2 = s2.begin();
+
+  while (i1 != s1.end() && i2 != s2.end())
+  {
+    if (std::isdigit(*i1) && std::isdigit(*i2))
+    {
+      // Remember where the digits started.
+      const auto d1 = std::exchange(i1, skipDigits(i1, s1.end()));
+      const auto d2 = std::exchange(i2, skipDigits(i2, s2.end()));
+
+      // Ignore leading zeros to determine the numeric value of each run, but leave at
+      // least one digit so that a run of all zeros still has a value.
+      const auto z1 = skipZeros(d1, std::prev(i1));
+      const auto z2 = skipZeros(d2, std::prev(i2));
+
+      const auto value_len1 = std::distance(z1, i1);
+      const auto value_len2 = std::distance(z2, i2);
+
+      if (value_len1 != value_len2)
+      {
+        return value_len1 < value_len2 ? -1 : 1;
+      }
+
+      for (auto k1 = z1, k2 = z2; k1 != i1; ++k1, ++k2)
+      {
+        if (*k1 != *k2)
+        {
+          return *k1 < *k2 ? -1 : 1;
+        }
+      }
+
+      // The numeric values are equal; break the tie using the exact digits, including
+      // any leading zeros, so that different digit runs never compare equal.
+      auto k1 = d1;
+      auto k2 = d2;
+      while (k1 != i1 && k2 != i2)
+      {
+        if (*k1 != *k2)
+        {
+          return *k1 < *k2 ? -1 : 1;
+        }
+        ++k1;
+        ++k2;
+      }
+      if (k1 != i1 || k2 != i2)
+      {
+        return k1 != i1 ? 1 : -1;
+      }
+    }
+    else
+    {
+      if (char_compare(*i1, *i2))
+      {
+        return -1;
+      }
+      if (char_compare(*i2, *i1))
+      {
+        return 1;
+      }
+      ++i1;
+      ++i2;
+    }
+  }
+
+  return i1 == s1.end() && i2 == s2.end() ? 0 : i1 == s1.end() ? -1 : +1;
 }
 
 /**
