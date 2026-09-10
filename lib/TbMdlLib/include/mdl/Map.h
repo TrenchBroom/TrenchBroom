@@ -319,11 +319,6 @@ public: // selection management
 
 public: // tag management
   void registerSmartTags();
-  const std::vector<SmartTag>& smartTags() const;
-  bool isRegisteredSmartTag(const std::string& name) const;
-  const SmartTag& smartTag(const std::string& name) const;
-  bool isRegisteredSmartTag(size_t index) const;
-  const SmartTag& smartTag(size_t index) const;
 
 private:
   void initializeAllNodeTags();
