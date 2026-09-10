@@ -151,4 +151,28 @@ using is_variant = detail::is_variant<T>;
 template <typename T>
 inline constexpr bool is_variant_v = is_variant<T>::value;
 
+namespace detail
+{
+template <typename T, typename = void>
+struct is_transparent : std::false_type
+{
+};
+
+template <typename T>
+struct is_transparent<T, std::void_t<typename T::is_transparent>> : std::true_type
+{
+};
+} // namespace detail
+
+/**
+ * Indicates whether the given type is a transparent function object, i.e. whether it
+ * declares a nested `is_transparent` type. This is used to enable heterogeneous lookup
+ * in associative containers.
+ */
+template <typename T>
+using is_transparent = detail::is_transparent<T>;
+
+template <typename T>
+inline constexpr bool is_transparent_v = is_transparent<T>::value;
+
 } // namespace kdl
