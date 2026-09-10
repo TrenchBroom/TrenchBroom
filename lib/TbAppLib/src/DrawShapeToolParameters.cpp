@@ -148,4 +148,88 @@ void DrawShapeToolParameters::setStairDirection(const StairDirection stairDirect
   }
 }
 
+mdl::RockType DrawShapeToolParameters::rockType() const
+{
+  return m_rockType;
+}
+
+void DrawShapeToolParameters::setRockType(const mdl::RockType rockType)
+{
+  if (rockType != m_rockType)
+  {
+    m_rockType = rockType;
+    parametersDidChangeNotifier();
+  }
+}
+
+size_t DrawShapeToolParameters::rockResolution() const
+{
+  return m_rockResolution;
+}
+
+void DrawShapeToolParameters::setRockResolution(const size_t rockResolution)
+{
+  if (rockResolution != m_rockResolution)
+  {
+    m_rockResolution = rockResolution;
+    parametersDidChangeNotifier();
+  }
+}
+
+double DrawShapeToolParameters::rockBaseFlattening() const
+{
+  return m_rockBaseFlattening;
+}
+
+void DrawShapeToolParameters::setRockBaseFlattening(const double rockBaseFlattening)
+{
+  if (rockBaseFlattening != m_rockBaseFlattening)
+  {
+    m_rockBaseFlattening = rockBaseFlattening;
+    parametersDidChangeNotifier();
+  }
+}
+
+double DrawShapeToolParameters::rockForm() const
+{
+  return m_rockForm;
+}
+
+void DrawShapeToolParameters::setRockForm(const double rockForm)
+{
+  if (rockForm != m_rockForm)
+  {
+    m_rockForm = rockForm;
+    parametersDidChangeNotifier();
+  }
+}
+
+uint32_t DrawShapeToolParameters::rockSeed() const
+{
+  return m_rockSeed;
+}
+
+void DrawShapeToolParameters::setRockSeed(const uint32_t rockSeed)
+{
+  if (rockSeed != m_rockSeed)
+  {
+    m_rockSeed = rockSeed;
+    parametersDidChangeNotifier();
+  }
+}
+
+bool DrawShapeToolParameters::incrementRockSeed() const
+{
+  return m_incrementRockSeed;
+}
+
+void DrawShapeToolParameters::setIncrementRockSeed(const bool incrementRockSeed)
+{
+  if (incrementRockSeed != m_incrementRockSeed)
+  {
+    m_incrementRockSeed = incrementRockSeed;
+    parametersDidChangeNotifier();
+  }
+}
+
 } // namespace tb::ui
