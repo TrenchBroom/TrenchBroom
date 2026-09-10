@@ -42,6 +42,7 @@
 #include "mdl/SetLinkIdsCommand.h"
 #include "mdl/SwapNodeContentsCommand.h"
 #include "mdl/Tag.h"
+#include "mdl/TagManager.h"
 #include "mdl/Transaction.h"
 #include "mdl/VisualEffect.h"
 #include "mdl/WorldNode.h"
@@ -526,7 +527,7 @@ bool makeStructural(
   };
 
   auto anyTagDisabled = false;
-  for (const auto& tag : map.smartTags())
+  for (const auto& tag : map.tagManager().smartTags())
   {
     if (std::ranges::any_of(
           geometryNodes, [&](const Node* node) { return hasTag(node, tag); }))
