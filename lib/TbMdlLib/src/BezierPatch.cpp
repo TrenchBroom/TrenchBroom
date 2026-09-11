@@ -190,7 +190,7 @@ void BezierPatch::transform(const vm::mat4x4d& transformation)
 }
 
 void BezierPatch::transformControlPoints(
-  const std::set<vm::vec3d>& positions, const vm::mat4x4d& transformation)
+  const kdl::flat_set<vm::vec3d>& positions, const vm::mat4x4d& transformation)
 {
   contract_pre(vm::is_orientation_preserving_transform(transformation));
 

@@ -21,12 +21,12 @@
 
 #include "mdl/AssetReference.h"
 
+#include "kd/flat_set.h"
 #include "kd/reflection_decl.h"
 
 #include "vm/bbox.h"
 #include "vm/vec.h"
 
-#include <set>
 #include <string>
 #include <vector>
 
@@ -101,7 +101,7 @@ public: // control points:
 
   void transform(const vm::mat4x4d& transformation);
   void transformControlPoints(
-    const std::set<vm::vec3d>& positions, const vm::mat4x4d& transformation);
+    const kdl::flat_set<vm::vec3d>& positions, const vm::mat4x4d& transformation);
 
   std::vector<Point> evaluate(size_t subdivisionsPerSurface) const;
 
