@@ -33,6 +33,7 @@
 #include "ui/MapDocument.h"
 
 #include "kd/contracts.h"
+#include "kd/flat_set.h"
 #include "kd/ranges/to.h"
 #include "kd/reflection_impl.h"
 
@@ -46,7 +47,6 @@
 #include <fmt/ostream.h>
 
 #include <ranges>
-#include <set>
 
 namespace tb::ui
 {
@@ -119,7 +119,7 @@ std::vector<vm::polygon3f> polysForSides(
 
 std::vector<BBoxSide> sidesWithOppositeSides(const std::vector<BBoxSide>& sides)
 {
-  auto result = std::set<BBoxSide>{};
+  auto result = kdl::flat_set<BBoxSide>{};
   for (const auto& side : sides)
   {
     result.insert(side);
