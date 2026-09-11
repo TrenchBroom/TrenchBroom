@@ -132,7 +132,7 @@ TEST_CASE("Map_TagManagement")
       "yet_another_material", gl::createTextureResource(gl::Texture{64, 64})};
 
     const auto singleParam = std::string{"some_parm"};
-    const auto multiParams = std::set<std::string>{"parm1", "parm2"};
+    const auto multiParams = kdl::flat_set<std::string>{"parm1", "parm2"};
 
     materialA.setSurfaceParms({singleParam});
     materialB.setSurfaceParms(multiParams);

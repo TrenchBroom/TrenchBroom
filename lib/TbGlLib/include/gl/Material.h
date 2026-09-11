@@ -22,13 +22,13 @@
 #include "gl/GlUtils.h"
 #include "gl/TextureResource.h"
 
+#include "kd/flat_set.h"
 #include "kd/reflection_decl.h"
 
 #include <atomic>
 #include <filesystem>
 #include <memory>
 #include <optional>
-#include <set>
 #include <string>
 
 namespace tb::gl
@@ -109,7 +109,7 @@ private:
 
   // Quake 3 surface parameters; move these to materials when we add proper support for
   // those.
-  std::set<std::string> m_surfaceParms;
+  kdl::flat_set<std::string> m_surfaceParms;
 
   // Quake 3 surface culling; move to materials
   MaterialCulling m_culling = MaterialCulling::Default;
@@ -170,8 +170,8 @@ public:
 
   const TextureResource& textureResource() const;
 
-  const std::set<std::string>& surfaceParms() const;
-  void setSurfaceParms(std::set<std::string> surfaceParms);
+  const kdl::flat_set<std::string>& surfaceParms() const;
+  void setSurfaceParms(kdl::flat_set<std::string> surfaceParms);
 
   MaterialCulling culling() const;
   void setCulling(MaterialCulling culling);
