@@ -32,6 +32,7 @@
 #include "mdl/Selection.h"
 #include "mdl/Transaction.h"
 
+#include "kd/flat_set.h"
 #include "kd/overload.h"
 #include "kd/ranges/to.h"
 #include "kd/string_format.h"
@@ -127,7 +128,7 @@ bool transformControlPoints(
   const vm::mat4x4d& transform)
 {
   const auto controlPointPositionSet =
-    std::set<vm::vec3d>{controlPointPositions.begin(), controlPointPositions.end()};
+    kdl::flat_set<vm::vec3d>{controlPointPositions.begin(), controlPointPositions.end()};
 
   auto newNodes = applyToNodeContents(
     map.selection().patches,
