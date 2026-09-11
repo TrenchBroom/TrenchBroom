@@ -68,7 +68,7 @@ private:
   using V = vm::vec<typename P::FloatType, 3u>;
   using Vertex = typename P::Vertex;
   using VertexList = typename P::VertexList;
-  using VertexSet = std::set<Vertex*>;
+  using VertexSet = kdl::flat_set<Vertex*>;
   using HalfEdge = typename P::HalfEdge;
   using Face = typename P::Face;
   using VMap = std::map<V, V>;
