@@ -23,7 +23,7 @@
 #include "gl/AttrString.h"
 #include "render/EdgeRenderer.h"
 
-#include "kd/vector_set.h"
+#include "kd/flat_set.h"
 
 namespace tb
 {
@@ -44,7 +44,7 @@ private:
   class GroupNameAnchor;
 
   const mdl::EditorContext& m_editorContext;
-  kdl::vector_set<const mdl::GroupNode*> m_groups;
+  kdl::flat_set<const mdl::GroupNode*> m_groups;
 
   DirectEdgeRenderer m_boundsRenderer;
   bool m_boundsValid = false;

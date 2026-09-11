@@ -26,6 +26,7 @@
 #include "mdl/NodeQueries.h"
 
 #include "kd/contracts.h"
+#include "kd/flat_set.h"
 #include "kd/ranges/cartesian_product_view.h"
 #include "kd/ranges/to.h"
 #include "kd/stable_remove_duplicates.h"
@@ -479,7 +480,7 @@ std::vector<BrushFaceHandle> collectConnectedCoplanarFaces(
   // Flood out from the start face, re-querying the tree around each face we reach so a
   // long row of brushes is followed without ever visiting the rest of the map.
   auto region = std::vector<BrushFaceHandle>{};
-  auto visited = kdl::vector_set<BrushFaceHandle>{startFace};
+  auto visited = kdl::flat_set<BrushFaceHandle>{startFace};
   auto pending = std::vector<Candidate>{};
   pending.push_back(makeCandidate(startFace));
 

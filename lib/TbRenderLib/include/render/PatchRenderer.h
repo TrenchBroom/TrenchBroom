@@ -24,7 +24,7 @@
 #include "render/EdgeRenderer.h"
 #include "render/Renderable.h"
 
-#include "kd/vector_set.h"
+#include "kd/flat_set.h"
 
 namespace tb
 {
@@ -69,7 +69,7 @@ private:
   const mdl::EditorContext& m_editorContext;
 
   bool m_valid = true;
-  kdl::vector_set<const mdl::PatchNode*> m_patchNodes;
+  kdl::flat_set<const mdl::PatchNode*> m_patchNodes;
 
   gl::MaterialIndexArrayRenderer m_opaqueMeshRenderer;
   gl::MaterialIndexArrayRenderer m_transparentMeshRenderer;

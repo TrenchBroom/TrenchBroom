@@ -23,7 +23,7 @@
 #include "mdl/TagAttribute.h"
 #include "mdl/TagType.h"
 
-#include "kd/vector_set.h"
+#include "kd/flat_set.h"
 
 #include <iosfwd>
 #include <memory>
@@ -147,7 +147,7 @@ class Taggable
 {
 private:
   TagType::Type m_tagMask = 0;
-  kdl::vector_set<TagReference> m_tags;
+  kdl::flat_set<TagReference> m_tags;
   TagAttribute::AttributeType m_attributeMask = 0;
 
 public:

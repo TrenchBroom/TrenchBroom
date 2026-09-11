@@ -29,7 +29,7 @@
 #include "mdl/WorldNode.h"
 
 #include "kd/contracts.h"
-#include "kd/vector_set.h"
+#include "kd/flat_set.h"
 
 #include <fmt/format.h>
 
@@ -124,7 +124,7 @@ void sanitizeLayerSortIndicies(WorldNode& worldNode, ParserStatus& /* status */)
   // order.
   auto invalidLayers = std::vector<LayerNode*>{};
   auto validLayers = std::vector<LayerNode*>{};
-  auto usedIndices = kdl::vector_set<int>{};
+  auto usedIndices = kdl::flat_set<int>{};
   for (auto* layerNode : customLayers)
   {
     // Check for a totally invalid index
