@@ -48,6 +48,7 @@
 #include "ui/QStringUtils.h"
 
 #include "kd/contracts.h"
+#include "kd/flat_set.h"
 #include "kd/range_utils.h"
 #include "kd/reflection_impl.h"
 #include "kd/string_utils.h"
@@ -271,7 +272,7 @@ std::vector<std::string> allKeys(
   const bool showDefaultRows,
   const bool showProtectedProperties)
 {
-  auto result = kdl::vector_set<std::string>{};
+  auto result = kdl::flat_set<std::string>{};
   for (const auto* node : nodes)
   {
     // Add explicitly set properties
@@ -302,7 +303,7 @@ std::vector<std::string> allKeys(
     }
   }
 
-  return result.release_data();
+  return result.extract();
 }
 
 auto makeKeyToPropertyRowMap(const std::vector<PropertyRow>& rows)
@@ -376,7 +377,7 @@ std::map<std::string, PropertyRow> rowsForEntityNodes(
 
 std::vector<std::string> getAllPropertyKeys(const mdl::Map& map)
 {
-  auto result = kdl::vector_set<std::string>{};
+  auto result = kdl::flat_set<std::string>{};
   auto addEntityKeys = [&](const auto& node) {
     const auto keys =
       node.entity().properties()
@@ -411,13 +412,13 @@ std::vector<std::string> getAllPropertyKeys(const mdl::Map& map)
 
   // remove the empty string
   result.erase("");
-  return result.release_data();
+  return result.extract();
 }
 
 std::vector<std::string> getAllValuesForPropertyKeys(
   const mdl::Map& map, const std::vector<std::string>& propertyKeys)
 {
-  auto result = kdl::vector_set<std::string>();
+  auto result = kdl::flat_set<std::string>();
   for (const auto& key : propertyKeys)
   {
     for (const auto* entityNode : map.findNodes<mdl::EntityNodeBase>(
@@ -433,30 +434,31 @@ std::vector<std::string> getAllValuesForPropertyKeys(
 
   // remove the empty string
   result.erase("");
-  return result.release_data();
+  return result.extract();
 }
 
 std::vector<std::string> getAllClassnames(const mdl::Map& map)
 {
   // start with currently used classnames
-  auto result = getAllValuesForPropertyKeys(map, {mdl::EntityPropertyKeys::Classname});
-  auto resultSet = kdl::wrap_set(result);
+  auto result = kdl::flat_set{
+    kdl::sorted_unique,
+    getAllValuesForPropertyKeys(map, {mdl::EntityPropertyKeys::Classname})};
 
   // add keys from all loaded entity definitions
   for (const auto& entityDefinition : map.entityDefinitionManager().definitions())
   {
-    resultSet.insert(entityDefinition.name);
+    result.insert(entityDefinition.name);
   }
 
   // remove the empty string
-  resultSet.erase("");
-  return result;
+  result.erase("");
+  return result.extract();
 }
 
 template <typename... ValueType>
 std::vector<std::string> getAllValuesForPropertyValueTypes(const mdl::Map& map)
 {
-  auto result = kdl::vector_set<std::string>();
+  auto result = kdl::flat_set<std::string>();
   map.worldNode().accept(kdl::overload(
     [](auto&& thisLambda, const mdl::WorldNode& worldNode) {
       worldNode.visitChildren(thisLambda);
@@ -492,7 +494,7 @@ std::vector<std::string> getAllValuesForPropertyValueTypes(const mdl::Map& map)
 
   // remove the empty string
   result.erase("");
-  return result.release_data();
+  return result.extract();
 }
 
 bool computeShouldShowProtectedProperties(

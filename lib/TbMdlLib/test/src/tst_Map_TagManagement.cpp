@@ -40,6 +40,7 @@
 #include "mdl/TestFactory.h"
 #include "mdl/UpdateBrushFaceAttributes.h"
 
+#include "kd/flat_set.h"
 #include "kd/vector_utils.h"
 
 #include <catch2/catch_test_macros.hpp>
@@ -71,8 +72,7 @@ TEST_CASE("Map_TagManagement")
   const auto materialMatch = std::string{"some_material"};
   const auto materialPatternMatch = std::string{"*er_material"};
   const auto singleParamMatch = std::string{"parm2"};
-  const auto multiParamsMatch =
-    kdl::vector_set<std::string>{"some_parm", "parm1", "parm3"};
+  const auto multiParamsMatch = kdl::flat_set<std::string>{"some_parm", "parm1", "parm3"};
 
   auto fixtureConfig = MapFixtureConfig{};
   fixtureConfig.gameInfo.gameConfig.smartTags = {

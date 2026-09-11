@@ -32,6 +32,7 @@
 #include "render/RenderService.h"
 #include "render/TextAnchor.h"
 
+#include "kd/flat_set.h"
 #include "kd/ranges/to.h"
 
 #include "vm/mat.h"

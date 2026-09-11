@@ -23,7 +23,7 @@
 #include "mdl/TagVisitor.h"
 #include "mdl/UpdateBrushFaceAttributes.h"
 
-#include "kd/vector_set.h"
+#include "kd/flat_set.h"
 
 #include <functional>
 #include <iosfwd>
@@ -77,11 +77,11 @@ private:
 class SurfaceParmTagMatcher : public MaterialTagMatcher
 {
 private:
-  kdl::vector_set<std::string> m_parameters;
+  kdl::flat_set<std::string> m_parameters;
 
 public:
   explicit SurfaceParmTagMatcher(std::string parameter);
-  explicit SurfaceParmTagMatcher(kdl::vector_set<std::string> parameters);
+  explicit SurfaceParmTagMatcher(kdl::flat_set<std::string> parameters);
   std::unique_ptr<TagMatcher> clone() const override;
   bool matches(const Taggable& taggable) const override;
   void appendToStream(std::ostream& str) const override;

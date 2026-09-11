@@ -44,6 +44,7 @@
 #include "mdl/WorldNode.h"
 
 #include "kd/contracts.h"
+#include "kd/flat_set.h"
 #include "kd/ranges/to.h"
 #include "kd/vector_utils.h"
 
@@ -139,7 +140,9 @@ void fixRedundantPersistentIds(
   const std::map<Node*, std::vector<Node*>>& nodesToAdd,
   const std::vector<IdType>& existingPersistentGroupIds)
 {
-  auto persistentGroupIds = kdl::vector_set{existingPersistentGroupIds};
+  // parentheses (not braces) are required to select the container constructor instead of
+  // the initializer_list constructor, which takes priority for braced argument lists
+  auto persistentGroupIds = kdl::flat_set(existingPersistentGroupIds);
   for (auto& [newParent, nodesToAddToParent] : nodesToAdd)
   {
     for (auto* node : nodesToAddToParent)

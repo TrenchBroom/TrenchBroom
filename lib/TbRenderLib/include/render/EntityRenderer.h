@@ -26,7 +26,7 @@
 #include "render/Renderable.h"
 #include "render/TriangleRenderer.h"
 
-#include "kd/vector_set.h"
+#include "kd/flat_set.h"
 
 #include <vector>
 
@@ -50,7 +50,7 @@ class EntityRenderer
 private:
   mdl::EntityModelManager& m_entityModelManager;
   const mdl::EditorContext& m_editorContext;
-  kdl::vector_set<const mdl::EntityNode*> m_entities;
+  kdl::flat_set<const mdl::EntityNode*> m_entities;
 
   DirectEdgeRenderer m_pointEntityWireframeBoundsRenderer;
   DirectEdgeRenderer m_brushEntityWireframeBoundsRenderer;

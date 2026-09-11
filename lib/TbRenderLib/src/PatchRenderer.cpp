@@ -38,6 +38,7 @@
 #include "render/RenderContext.h"
 
 #include "kd/contracts.h"
+#include "kd/flat_set.h"
 #include "kd/ranges/to.h"
 #include "kd/vector_utils.h"
 
@@ -128,7 +129,7 @@ gl::MaterialIndexArrayRenderer buildMeshRenderer(
 }
 
 DirectEdgeRenderer buildEdgeRenderer(
-  const std::vector<const mdl::PatchNode*>& patchNodes,
+  const kdl::flat_set<const mdl::PatchNode*>& patchNodes,
   const mdl::EditorContext& editorContext)
 {
   size_t vertexCount = 0u;
@@ -354,7 +355,7 @@ void PatchRenderer::validate()
   {
     auto opaquePatchNodes = std::vector<const mdl::PatchNode*>{};
     auto transparentPatchNodes = std::vector<const mdl::PatchNode*>{};
-    for (const auto* patchNode : m_patchNodes.get_data())
+    for (const auto* patchNode : m_patchNodes)
     {
       (isRealBlend(patchNode) ? transparentPatchNodes : opaquePatchNodes)
         .push_back(patchNode);
@@ -362,7 +363,7 @@ void PatchRenderer::validate()
 
     m_opaqueMeshRenderer = buildMeshRenderer(opaquePatchNodes, m_editorContext);
     m_transparentMeshRenderer = buildMeshRenderer(transparentPatchNodes, m_editorContext);
-    m_edgeRenderer = buildEdgeRenderer(m_patchNodes.get_data(), m_editorContext);
+    m_edgeRenderer = buildEdgeRenderer(m_patchNodes, m_editorContext);
 
     m_valid = true;
   }

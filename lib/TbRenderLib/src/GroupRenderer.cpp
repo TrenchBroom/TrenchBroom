@@ -30,6 +30,8 @@
 #include "render/RenderService.h"
 #include "render/TextAnchor.h"
 
+#include "kd/flat_set.h"
+
 #include <vector>
 
 namespace tb::render
