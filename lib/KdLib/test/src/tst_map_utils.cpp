@@ -20,10 +20,12 @@
 
 #include "test_utils.h"
 
+#include "kd/flat_map.h"
 #include "kd/map_utils.h"
 
 #include <map>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 #include <catch2/catch_test_macros.hpp>
@@ -31,120 +33,140 @@
 namespace kdl
 {
 
+// thin, non-asserting wrappers that let the std::map test cases below use bare braced
+// initializers without pinning K/V at every call site
 template <typename K, typename V>
-void test_map_lexicographical_compare(
-  const int exp, const std::map<K, V>& lhs, const std::map<K, V>& rhs)
+int lexCompare(const std::map<K, V>& lhs, const std::map<K, V>& rhs)
 {
-  CHECK(map_lexicographical_compare(lhs, rhs) == exp);
+  return map_lexicographical_compare(lhs, rhs);
 }
 
 template <typename K, typename V>
-void test_map_is_equivalent(
-  const bool exp, const std::map<K, V>& lhs, const std::map<K, V>& rhs)
+bool isEquivalent(const std::map<K, V>& lhs, const std::map<K, V>& rhs)
 {
-  CHECK(map_is_equivalent(lhs, rhs) == exp);
+  return map_is_equivalent(lhs, rhs);
 }
 
 template <typename K, typename V>
-void test_map_find_or_default(
-  const V& exp, const std::map<K, V>& m, const K& key, const V& defaultValue)
+V findOrDefault(const std::map<K, V>& m, const K& key, const V& defaultValue)
 {
-  CHECK(map_find_or_default(m, key, defaultValue) == exp);
+  return map_find_or_default(m, key, defaultValue);
 }
 
 template <typename K, typename V>
-void test_map_union(
-  const std::map<K, V>& exp, const std::map<K, V>& m1, const std::map<K, V>& m2)
+std::map<K, V> unionOf(const std::map<K, V>& m1, const std::map<K, V>& m2)
 {
-  CHECK(map_union(m1, m2) == exp);
+  return map_union(m1, m2);
 }
 
 template <typename K, typename V>
-void test_map_merge(
-  const std::map<K, std::vector<V>>& exp,
-  const std::map<K, std::vector<V>>& m1,
-  const std::map<K, std::vector<V>>& m2)
+std::map<K, std::vector<V>> mergeOf(
+  const std::map<K, std::vector<V>>& m1, const std::map<K, std::vector<V>>& m2)
 {
-  CHECK(map_merge(m1, m2) == exp);
+  return map_merge(m1, m2);
 }
 
 TEST_CASE("map_utils")
 {
   SECTION("map_lexicographical_compare")
   {
-    test_map_lexicographical_compare<int, int>(0, {}, {});
-    test_map_lexicographical_compare<int, int>(0, {{1, 2}, {2, 3}}, {{1, 2}, {2, 3}});
-    test_map_lexicographical_compare<int, int>(-1, {{1, 2}, {2, 3}}, {{1, 2}, {3, 3}});
-    test_map_lexicographical_compare<int, int>(+1, {{1, 2}, {3, 3}}, {{1, 2}, {2, 3}});
-    test_map_lexicographical_compare<int, int>(-1, {{1, 2}, {3, 3}}, {{2, 2}, {3, 3}});
-    test_map_lexicographical_compare<int, int>(
-      +1,
-      {
-        {1, 2},
-        {2, 3},
-        {3, 4},
-      },
-      {{1, 2}, {2, 3}});
-    test_map_lexicographical_compare<int, int>(
-      -1,
-      {{1, 2}, {2, 3}},
-      {
-        {1, 2},
-        {2, 3},
-        {3, 4},
-      });
-    test_map_lexicographical_compare<int, int>(-1, {{1, 2}, {2, 3}}, {{1, 2}, {2, 4}});
+    CHECK(lexCompare<int, int>({}, {}) == 0);
+    CHECK(lexCompare<int, int>({{1, 2}, {2, 3}}, {{1, 2}, {2, 3}}) == 0);
+    CHECK(lexCompare<int, int>({{1, 2}, {2, 3}}, {{1, 2}, {3, 3}}) == -1);
+    CHECK(lexCompare<int, int>({{1, 2}, {3, 3}}, {{1, 2}, {2, 3}}) == +1);
+    CHECK(lexCompare<int, int>({{1, 2}, {3, 3}}, {{2, 2}, {3, 3}}) == -1);
+    CHECK(lexCompare<int, int>({{1, 2}, {2, 3}, {3, 4}}, {{1, 2}, {2, 3}}) == +1);
+    CHECK(lexCompare<int, int>({{1, 2}, {2, 3}}, {{1, 2}, {2, 3}, {3, 4}}) == -1);
+    CHECK(lexCompare<int, int>({{1, 2}, {2, 3}}, {{1, 2}, {2, 4}}) == -1);
+
+    // also works with kdl::flat_map, since both are ordered map types
+    CHECK(
+      map_lexicographical_compare(
+        kdl::flat_map<int, int>{{1, 2}, {2, 3}}, kdl::flat_map<int, int>{{1, 2}, {3, 3}})
+      == -1);
   }
 
   SECTION("map_is_equivalent")
   {
-    test_map_is_equivalent<int, int>(true, {}, {});
-    test_map_is_equivalent<int, int>(true, {{1, 2}, {2, 3}}, {{1, 2}, {2, 3}});
-    test_map_is_equivalent<int, int>(false, {{1, 2}, {2, 3}}, {{1, 2}, {3, 3}});
-    test_map_is_equivalent<int, int>(false, {{1, 2}, {3, 3}}, {{1, 2}, {2, 3}});
-    test_map_is_equivalent<int, int>(false, {{1, 2}, {3, 3}}, {{2, 2}, {3, 3}});
-    test_map_is_equivalent<int, int>(
-      false,
-      {
-        {1, 2},
-        {2, 3},
-        {3, 4},
-      },
-      {{1, 2}, {2, 3}});
-    test_map_is_equivalent<int, int>(
-      false,
-      {{1, 2}, {2, 3}},
-      {
-        {1, 2},
-        {2, 3},
-        {3, 4},
-      });
+    CHECK(isEquivalent<int, int>({}, {}));
+    CHECK(isEquivalent<int, int>({{1, 2}, {2, 3}}, {{1, 2}, {2, 3}}));
+    CHECK(!isEquivalent<int, int>({{1, 2}, {2, 3}}, {{1, 2}, {3, 3}}));
+    CHECK(!isEquivalent<int, int>({{1, 2}, {3, 3}}, {{1, 2}, {2, 3}}));
+    CHECK(!isEquivalent<int, int>({{1, 2}, {3, 3}}, {{2, 2}, {3, 3}}));
+    CHECK(!isEquivalent<int, int>({{1, 2}, {2, 3}, {3, 4}}, {{1, 2}, {2, 3}}));
+    CHECK(!isEquivalent<int, int>({{1, 2}, {2, 3}}, {{1, 2}, {2, 3}, {3, 4}}));
+
+    // also works with unordered maps and flat maps, which have no defined iteration order
+    CHECK(map_is_equivalent(
+      std::unordered_map<int, int>{{1, 2}, {2, 3}},
+      std::unordered_map<int, int>{{2, 3}, {1, 2}}));
+    CHECK(!map_is_equivalent(
+      std::unordered_map<int, int>{{1, 2}, {2, 3}},
+      std::unordered_map<int, int>{{1, 2}}));
+    CHECK(map_is_equivalent(
+      kdl::flat_map<int, int>{{1, 2}, {2, 3}}, kdl::flat_map<int, int>{{2, 3}, {1, 2}}));
   }
 
   SECTION("map_find_or_default")
   {
-    test_map_find_or_default<int, std::string>("default", {}, 1, "default");
-    test_map_find_or_default<int, std::string>("value", {{1, "value"}}, 1, "default");
+    CHECK(findOrDefault<int, std::string>({}, 1, "default") == "default");
+    CHECK(findOrDefault<int, std::string>({{1, "value"}}, 1, "default") == "value");
+
+    CHECK(
+      map_find_or_default(
+        std::unordered_map<int, std::string>{{1, "value"}}, 1, "default")
+      == "value");
+    CHECK(
+      map_find_or_default(kdl::flat_map<int, std::string>{{1, "value"}}, 2, "default")
+      == "default");
   }
 
   SECTION("map_union")
   {
-    test_map_union<int, int>({}, {}, {});
-    test_map_union<int, int>({{1, 2}}, {{1, 2}}, {});
-    test_map_union<int, int>({{1, 2}}, {}, {{1, 2}});
-    test_map_union<int, int>({{1, 2}}, {{1, 2}}, {{1, 2}});
-    test_map_union<int, int>({{1, 2}, {2, 3}}, {}, {{1, 2}, {2, 3}});
-    test_map_union<int, int>({{1, 2}, {2, 3}}, {{1, 2}}, {{2, 3}});
-    test_map_union<int, int>({{1, 3}}, {{1, 2}}, {{1, 3}});
+    CHECK(unionOf<int, int>({}, {}) == std::map<int, int>{});
+    CHECK(unionOf<int, int>({{1, 2}}, {}) == std::map<int, int>{{1, 2}});
+    CHECK(unionOf<int, int>({}, {{1, 2}}) == std::map<int, int>{{1, 2}});
+    CHECK(unionOf<int, int>({{1, 2}}, {{1, 2}}) == std::map<int, int>{{1, 2}});
+    CHECK(unionOf<int, int>({}, {{1, 2}, {2, 3}}) == std::map<int, int>{{1, 2}, {2, 3}});
+    CHECK(unionOf<int, int>({{1, 2}}, {{2, 3}}) == std::map<int, int>{{1, 2}, {2, 3}});
+    CHECK(unionOf<int, int>({{1, 2}}, {{1, 3}}) == std::map<int, int>{{1, 3}});
+
+    CHECK(
+      map_union(
+        std::unordered_map<int, int>{{1, 2}},
+        std::unordered_map<int, int>{{1, 3}, {2, 4}})
+      == std::unordered_map<int, int>{{1, 3}, {2, 4}});
+    CHECK(
+      map_union(kdl::flat_map<int, int>{{1, 2}}, kdl::flat_map<int, int>{{1, 3}, {2, 4}})
+      == kdl::flat_map<int, int>{{1, 3}, {2, 4}});
   }
 
   SECTION("map_merge")
   {
-    test_map_merge<int, int>({}, {}, {});
-    test_map_merge<int, int>({{1, {1, 2}}}, {{1, {1, 2}}}, {});
-    test_map_merge<int, int>({{1, {1, 2}}}, {}, {{1, {1, 2}}});
-    test_map_merge<int, int>({{1, {1, 2}}, {2, {3, 4}}}, {{1, {1, 2}}}, {{2, {3, 4}}});
-    test_map_merge<int, int>({{1, {1, 2, 3, 4}}}, {{1, {1, 2}}}, {{1, {3, 4}}});
+    CHECK(mergeOf<int, int>({}, {}) == (std::map<int, std::vector<int>>{}));
+    CHECK(
+      mergeOf<int, int>({{1, {1, 2}}}, {})
+      == (std::map<int, std::vector<int>>{{1, {1, 2}}}));
+    CHECK(
+      mergeOf<int, int>({}, {{1, {1, 2}}})
+      == (std::map<int, std::vector<int>>{{1, {1, 2}}}));
+    CHECK(
+      mergeOf<int, int>({{1, {1, 2}}}, {{2, {3, 4}}})
+      == (std::map<int, std::vector<int>>{{1, {1, 2}}, {2, {3, 4}}}));
+    CHECK(
+      mergeOf<int, int>({{1, {1, 2}}}, {{1, {3, 4}}})
+      == (std::map<int, std::vector<int>>{{1, {1, 2, 3, 4}}}));
+
+    CHECK(
+      map_merge(
+        std::unordered_map<int, std::vector<int>>{{1, {1, 2}}},
+        std::unordered_map<int, std::vector<int>>{{1, {3, 4}}})
+      == (std::unordered_map<int, std::vector<int>>{{1, {1, 2, 3, 4}}}));
+    CHECK(
+      map_merge(
+        kdl::flat_map<int, std::vector<int>>{{1, {1, 2}}},
+        kdl::flat_map<int, std::vector<int>>{{2, {3, 4}}})
+      == (kdl::flat_map<int, std::vector<int>>{{1, {1, 2}}, {2, {3, 4}}}));
   }
 
   SECTION("map_clear_and_delete")
@@ -167,6 +189,34 @@ TEST_CASE("map_utils")
     CHECK(d2);
     CHECK(d3);
     CHECK(d4);
+  }
+
+  SECTION("map_clear_and_delete with unordered_map")
+  {
+    bool d1 = false;
+    bool d2 = false;
+
+    auto m = std::unordered_map<int, std::vector<deletable*>>(
+      {{1, {new deletable{d1}}}, {2, {new deletable{d2}}}});
+
+    map_clear_and_delete(m);
+    CHECK(m.empty());
+    CHECK(d1);
+    CHECK(d2);
+  }
+
+  SECTION("map_clear_and_delete with flat_map")
+  {
+    bool d1 = false;
+    bool d2 = false;
+
+    auto m = kdl::flat_map<int, std::vector<deletable*>>{
+      {1, {new deletable{d1}}}, {2, {new deletable{d2}}}};
+
+    map_clear_and_delete(m);
+    CHECK(m.empty());
+    CHECK(d1);
+    CHECK(d2);
   }
 }
 

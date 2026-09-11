@@ -22,36 +22,38 @@
 
 #include "kd/collection_utils.h"
 
-#include <map>
-#include <vector>
+#include <algorithm>
+#include <functional>
+#include <iterator>
 
 namespace kdl
 {
 
 /**
  * Performs lexicographical comparison of the given maps. Entries of the maps are compared
- * using the common key comparator (of type C). If and only if the key comparison
- * determines that two keys are equivalent, the given value comparator is used to compare
- * the corresponding values.
+ * using the maps' common key comparator (as returned by `key_comp()`). If and only if the
+ * key comparison determines that two keys are equivalent, the given value comparator is
+ * used to compare the corresponding values.
+ *
+ * Since this walks both maps in iteration order and expects that order to be sorted by
+ * key, `M` must be an ordered map type such as `std::map` or `kdl::flat_map`. It cannot
+ * be used with `std::unordered_map`, whose iteration order is unspecified.
  *
  * Returns -1 if the first map is less than the second map, or +1 in the opposite case. If
  * both maps are equivalent, i.e. the corresponding keys and values are all equivalent,
  * then 0 is returned.
  *
- * @tparam K the key type
- * @tparam V the value type
- * @tparam C the key comparator type
+ * @tparam M the map type, must be ordered (e.g. std::map or kdl::flat_map)
  * @tparam D the value comparator type
  * @param map1 the first map
  * @param map2 the second map
  * @param value_cmp the value comparator
  * @return an int indicating the result of the comparison
  */
-template <typename K, typename V, typename C, typename D = std::less<V>>
-int map_lexicographical_compare(
-  const std::map<K, V, C>& map1, const std::map<K, V, C>& map2, const D& value_cmp = D())
+template <typename M, typename D = std::less<typename M::mapped_type>>
+int map_lexicographical_compare(const M& map1, const M& map2, const D& value_cmp = D())
 {
-  const auto key_cmp = C{};
+  const auto key_cmp = map1.key_comp();
   return kdl::range_lexicographical_compare(
     std::begin(map1),
     std::end(map1),
@@ -65,69 +67,69 @@ int map_lexicographical_compare(
 }
 
 /**
- * Checks if the given maps are equivalent according to their common key comparator and
- * the given value comparator. The maps are considered equivalent if and only if
- * lexicographical_compare returns 0. This is the case if the following conditions apply:
+ * Checks if the given maps are equivalent according to the given value comparator. The
+ * maps are considered equivalent if and only if they have the same number of entries, and
+ * for each entry in the first map, the second map contains an entry with an equivalent
+ * key (per `M::key_type`'s equality) whose value is equivalent according to `value_cmp`.
  *
- * - the maps have the same number of entries
- * - for each pair of corresponding entries, their keys are equivalent according to their
- * common key comparator
- * - for each pair of corresponding entries, their values are equivalent according to the
- * given value comparator
+ * Unlike `map_lexicographical_compare`, this does not depend on iteration order, so `M`
+ * may be any map type that supports `size()`, iteration, and `find()` - including
+ * `std::map`, `std::unordered_map`, and `kdl::flat_map`.
  *
- * @tparam K the key type
- * @tparam V the value type
- * @tparam C the key comparator type
+ * @tparam M the map type
  * @tparam D the value comparator type
  * @param map1 the first map
  * @param map2 the second map
- * @param valueCmp the value comparator
+ * @param value_cmp the value comparator
  * @return true if the given maps are equivalent and false otherwise
  */
-template <typename K, typename V, typename C, typename D = std::less<V>>
-bool map_is_equivalent(
-  const std::map<K, V, C>& map1, const std::map<K, V, C>& map2, const D& valueCmp = D())
+template <typename M, typename D = std::less<typename M::mapped_type>>
+bool map_is_equivalent(const M& map1, const M& map2, const D& value_cmp = D())
 {
-  return map1.size() == map2.size()
-         && map_lexicographical_compare(map1, map2, valueCmp) == 0;
+  if (map1.size() != map2.size())
+  {
+    return false;
+  }
+
+  return std::ranges::all_of(map1, [&](const auto& entry) {
+    const auto it = map2.find(entry.first);
+    return it != std::end(map2) && !value_cmp(entry.second, it->second)
+           && !value_cmp(it->second, entry.second);
+  });
 }
 
 /**
- * Returns the value of the given key or the given default value if the given key does not
+ * Returns the value of the given key or the given default value if the given map does not
  * contain the given key.
  *
- * @tparam K the key type
- * @tparam V the value type
+ * @tparam M the map type
  * @param m the map
  * @param k the key to find
  * @param default_value the value to return if the given key is not found
  * @return the value of the given key in the given map, or the given default value
  */
-template <typename K, typename V>
-const V& map_find_or_default(const std::map<K, V>& m, const K& k, const V& default_value)
+template <typename M>
+const typename M::mapped_type& map_find_or_default(
+  const M& m, const typename M::key_type& k, const typename M::mapped_type& default_value)
 {
-  auto it = m.find(k);
-  return it != m.end() ? it->second : default_value;
+  const auto it = m.find(k);
+  return it != std::end(m) ? it->second : default_value;
 }
 
 /**
  * Returns a map containing the key / value pairs from both of the given maps. If a key is
  * present in both of the maps, then the value from the second given map is retained.
  *
- * @tparam K the key type
- * @tparam V the value type
- * @tparam C the key comparator type
- * @tparam A the allocator type
+ * @tparam M the map type
  * @param m1 the first map
  * @param m2 the second map
  * @return a map containing the union of the key / value pairs from both maps, with
  * duplicate keys retaining the values from the second map
  */
-template <typename K, typename V, typename C, typename A>
-std::map<K, V, C, A> map_union(
-  const std::map<K, V, C, A>& m1, const std::map<K, V, C, A>& m2)
+template <typename M>
+M map_union(const M& m1, const M& m2)
 {
-  auto result = std::map<K, V, C, A>{};
+  auto result = M{};
   result.insert(
     std::begin(m2),
     std::end(m2)); // insert doesn't overwrite, so we need to insert m2 first
@@ -142,17 +144,14 @@ std::map<K, V, C, A> map_union(
  * second map is appended to the vector from the first map, and the resulting vector is
  * the value for the key in the returned map.
  *
- * @tparam K the key type
- * @tparam V the type of the values stored in the vectors
- * @tparam C the key comparator type
+ * @tparam M the map type; M::mapped_type must be a sequence container such as std::vector
  * @param m1 the first map
  * @param m2 the second map
  * @return a map that contains all keys from both maps, with the values appended as
  * described above
  */
-template <typename K, typename V, typename C>
-std::map<K, std::vector<V>, C> map_merge(
-  const std::map<K, std::vector<V>, C>& m1, const std::map<K, std::vector<V>, C>& m2)
+template <typename M>
+M map_merge(const M& m1, const M& m2)
 {
   if (m1.empty())
   {
@@ -176,16 +175,17 @@ std::map<K, std::vector<V>, C> map_merge(
  * For each vector stored as a value in the given map, applies the given deleter to each
  * element of the vector, and subsequently clears the given map.
  *
- * @tparam K the key type
- * @tparam V the type of the values stored in the vectors
+ * @tparam M the map type; M::mapped_type must be a std::vector of pointers
  * @tparam D the deleter type, defaults to deleter
  * @param m the map
  * @param deleter the deleter to apply
  */
-template <typename K, typename V, typename D = deleter<V*>>
-void map_clear_and_delete(std::map<K, std::vector<V*>>& m, const D& deleter = D())
+template <typename M, typename D = deleter<typename M::mapped_type::value_type>>
+void map_clear_and_delete(M& m, const D& deleter = D())
 {
-  for (auto& [key, value] : m)
+  // uses auto&& (rather than auto&) because kdl::flat_map's iterator returns pairs of
+  // references by value, which a plain lvalue reference cannot bind to
+  for (auto&& [key, value] : m)
   {
     kdl::col_delete_all(value, deleter);
   }
