@@ -48,6 +48,7 @@
 #include "mdl/Transaction.h"
 #include "mdl/WorldNode.h"
 
+#include "kd/flat_map.h"
 #include "kd/overload.h"
 #include "kd/ranges/as_rvalue_view.h"
 #include "kd/ranges/to.h"
@@ -701,7 +702,7 @@ bool csgSubtract(Map& map)
                              })
                            | kdl::ranges::to<std::vector>();
 
-  auto toAdd = std::map<Node*, std::vector<Node*>>{};
+  auto toAdd = kdl::flat_map<Node*, std::vector<Node*>>{};
   auto toRemove =
     std::vector<Node*>{std::begin(subtrahendNodes), std::end(subtrahendNodes)};
 
@@ -803,7 +804,7 @@ bool csgHollow(Map& map)
   }
 
   bool didHollowAnything = false;
-  auto toAdd = std::map<Node*, std::vector<Node*>>{};
+  auto toAdd = kdl::flat_map<Node*, std::vector<Node*>>{};
   auto toRemove = std::vector<Node*>{};
 
   for (auto* brushNode : brushNodes)

@@ -28,9 +28,9 @@
 #include "mdl/Map_Nodes.h"
 #include "mdl/Map_Selection.h"
 
+#include "kd/flat_map.h"
 #include "kd/vector_utils.h"
 
-#include <map>
 #include <vector>
 
 namespace tb::mdl
@@ -43,7 +43,7 @@ IssueQuickFix makeMoveBrushesToWorldQuickFix()
 {
   return {"Move Brushes to World", [](Map& map, const std::vector<const Issue*>& issues) {
             auto affectedNodes = std::vector<Node*>{};
-            auto nodesToReparent = std::map<Node*, std::vector<Node*>>{};
+            auto nodesToReparent = kdl::flat_map<Node*, std::vector<Node*>>{};
 
             for (const auto* issue : issues)
             {

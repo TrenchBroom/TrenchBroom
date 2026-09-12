@@ -21,6 +21,8 @@
 
 #include "mdl/NodeContents.h"
 
+#include "kd/flat_map.h"
+
 #include <vector>
 
 namespace tb::mdl
@@ -40,11 +42,12 @@ class TagMatcherCallback;
  */
 Node& parentForNodes(const Map& map, const std::vector<Node*>& nodes = {});
 
-std::vector<Node*> addNodes(Map& map, const std::map<Node*, std::vector<Node*>>& nodes);
+std::vector<Node*> addNodes(
+  Map& map, const kdl::flat_map<Node*, std::vector<Node*>>& nodes);
 
 void duplicateSelectedNodes(Map& map);
 
-bool reparentNodes(Map& map, const std::map<Node*, std::vector<Node*>>& nodesToAdd);
+bool reparentNodes(Map& map, const kdl::flat_map<Node*, std::vector<Node*>>& nodesToAdd);
 
 /**
  * Returns whether nodes is non-empty, consists solely of geometry nodes (brush or

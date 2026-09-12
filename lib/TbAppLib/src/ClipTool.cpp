@@ -38,6 +38,7 @@
 #include "render/RenderService.h"
 #include "ui/MapDocument.h"
 
+#include "kd/flat_map.h"
 #include "kd/map_utils.h"
 #include "kd/optional_utils.h"
 #include "kd/overload.h"
@@ -634,9 +635,9 @@ void ClipTool::performClip()
   }
 }
 
-std::map<mdl::Node*, std::vector<mdl::Node*>> ClipTool::clipBrushes()
+kdl::flat_map<mdl::Node*, std::vector<mdl::Node*>> ClipTool::clipBrushes()
 {
-  auto result = std::map<mdl::Node*, std::vector<mdl::Node*>>{};
+  auto result = kdl::flat_map<mdl::Node*, std::vector<mdl::Node*>>{};
   if (!m_frontBrushes.empty())
   {
     if (keepFrontBrushes())
@@ -928,7 +929,7 @@ void ClipTool::updateRenderers()
 }
 
 void ClipTool::addBrushesToRenderer(
-  const std::map<mdl::Node*, std::vector<mdl::Node*>>& map,
+  const kdl::flat_map<mdl::Node*, std::vector<mdl::Node*>>& map,
   render::BrushRenderer& renderer)
 {
   for (const auto& [parent, nodes] : map)

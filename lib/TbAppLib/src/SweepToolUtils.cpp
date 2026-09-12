@@ -324,7 +324,8 @@ vm::mat4x4d stationTransform(
     stationArcPivot(source, transform, parameters, rotationFull));
 }
 
-std::map<mdl::Node*, std::vector<std::unique_ptr<mdl::BrushNode>>> generateSweepBrushes(
+kdl::flat_map<mdl::Node*, std::vector<std::unique_ptr<mdl::BrushNode>>>
+generateSweepBrushes(
   mdl::Map& map,
   const SweepSource& source,
   const SweepTransform& transform,
@@ -354,7 +355,7 @@ std::map<mdl::Node*, std::vector<std::unique_ptr<mdl::BrushNode>>> generateSweep
   };
 
   // each source face produces its own run of brushes, grouped under its original parent
-  auto result = std::map<mdl::Node*, std::vector<std::unique_ptr<mdl::BrushNode>>>{};
+  auto result = kdl::flat_map<mdl::Node*, std::vector<std::unique_ptr<mdl::BrushNode>>>{};
   for (const auto& sourceFace : source.faces)
   {
     // fall back to the default insertion parent if the captured parent has been deleted

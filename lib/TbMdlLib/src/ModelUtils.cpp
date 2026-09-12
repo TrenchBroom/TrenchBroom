@@ -237,9 +237,10 @@ std::vector<GroupNode*> collectContainingGroups(const std::vector<Node*>& nodes)
   return kdl::vec_sort_and_remove_duplicates(std::move(result));
 }
 
-std::map<Node*, std::vector<Node*>> parentChildrenMap(const std::vector<Node*>& nodes)
+kdl::flat_map<Node*, std::vector<Node*>> parentChildrenMap(
+  const std::vector<Node*>& nodes)
 {
-  auto result = std::map<Node*, std::vector<Node*>>{};
+  auto result = kdl::flat_map<Node*, std::vector<Node*>>{};
 
   for (auto* node : nodes)
   {
