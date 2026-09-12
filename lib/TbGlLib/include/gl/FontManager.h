@@ -21,9 +21,10 @@
 
 #include "base/Macros.h"
 
+#include "kd/flat_map.h"
+
 #include <filesystem>
 #include <functional>
-#include <map>
 #include <memory>
 #include <string>
 #include <vector>
@@ -41,7 +42,7 @@ class FontManager
 {
 private:
   std::unique_ptr<FontFactory> m_factory;
-  std::map<FontDescriptor, std::unique_ptr<TextureFont>> m_cache;
+  kdl::flat_map<FontDescriptor, std::unique_ptr<TextureFont>> m_cache;
 
   std::vector<std::unique_ptr<TextureFont>> m_fontsToDestroy;
 
