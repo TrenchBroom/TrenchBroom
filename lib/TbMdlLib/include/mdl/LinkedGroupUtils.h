@@ -29,6 +29,7 @@
 #include "mdl/PatchNode.h" // IWYU pragma: keep
 #include "mdl/WorldNode.h"
 
+#include "kd/flat_map.h"
 #include "kd/overload.h"
 #include "kd/vector_utils.h"
 
@@ -156,6 +157,6 @@ std::vector<Error> copyAndSetLinkIds(
   const GroupNode& sourceGroupNode, const std::vector<GroupNode*>& targetGroupNodes);
 
 std::vector<Error> copyAndSetLinkIdsBeforeAddingNodes(
-  const std::map<Node*, std::vector<Node*>>& nodesToAdd, WorldNode& worldNode);
+  const kdl::flat_map<Node*, std::vector<Node*>>& nodesToAdd, WorldNode& worldNode);
 
 } // namespace tb::mdl
