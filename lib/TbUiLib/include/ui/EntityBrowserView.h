@@ -25,6 +25,8 @@
 #include "gl/VertexType.h"
 #include "ui/CellView.h"
 
+#include "kd/flat_map.h"
+
 #include "vm/bbox.h"
 #include "vm/quat.h" // IWYU pragma: keep
 
@@ -82,7 +84,7 @@ private:
   using EntityRenderer = gl::MaterialRenderer;
 
   using TextVertex = gl::VertexTypes::P2Uv2C4::Vertex;
-  using StringMap = std::map<gl::FontDescriptor, std::vector<TextVertex>>;
+  using StringMap = kdl::flat_map<gl::FontDescriptor, std::vector<TextVertex>>;
 
   static constexpr auto CameraPosition = vm::vec3f{256.0f, 0.0f, 0.0f};
   static constexpr auto CameraDirection = vm::vec3f{-1, 0, 0};

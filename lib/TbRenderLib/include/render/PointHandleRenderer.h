@@ -23,7 +23,7 @@
 #include "render/Circle.h"
 #include "render/Renderable.h"
 
-#include <map>
+#include "kd/flat_map.h"
 
 namespace tb
 {
@@ -40,7 +40,7 @@ class RenderContext;
 class PointHandleRenderer : public DirectRenderable
 {
 private:
-  using HandleMap = std::map<Color, std::vector<vm::vec3f>>;
+  using HandleMap = kdl::flat_map<Color, std::vector<vm::vec3f>>;
 
   HandleMap m_pointHandles;
   HandleMap m_highlights;
