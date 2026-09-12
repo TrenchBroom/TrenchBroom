@@ -25,16 +25,16 @@ namespace tb::mdl
 {
 
 std::unique_ptr<ReparentNodesCommand> ReparentNodesCommand::reparent(
-  std::map<Node*, std::vector<Node*>> nodesToAdd,
-  std::map<Node*, std::vector<Node*>> nodesToRemove)
+  kdl::flat_map<Node*, std::vector<Node*>> nodesToAdd,
+  kdl::flat_map<Node*, std::vector<Node*>> nodesToRemove)
 {
   return std::make_unique<ReparentNodesCommand>(
     std::move(nodesToAdd), std::move(nodesToRemove));
 }
 
 ReparentNodesCommand::ReparentNodesCommand(
-  std::map<Node*, std::vector<Node*>> nodesToAdd,
-  std::map<Node*, std::vector<Node*>> nodesToRemove)
+  kdl::flat_map<Node*, std::vector<Node*>> nodesToAdd,
+  kdl::flat_map<Node*, std::vector<Node*>> nodesToRemove)
   : UpdateLinkedGroupsCommandBase{"Reparent Objects", true}
   , m_nodesToAdd{std::move(nodesToAdd)}
   , m_nodesToRemove{std::move(nodesToRemove)}

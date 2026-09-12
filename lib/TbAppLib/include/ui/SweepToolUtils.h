@@ -20,6 +20,7 @@
 
 #pragma once
 
+#include "kd/flat_map.h"
 #include "kd/reflection_decl.h"
 
 #include "vm/polygon.h"
@@ -27,7 +28,6 @@
 #include "vm/vec.h"
 
 #include <iosfwd>
-#include <map>
 #include <memory>
 #include <vector>
 
@@ -137,7 +137,8 @@ vm::mat4x4d stationTransform(
  * the original source face. Segments that degenerate into invalid brushes are skipped and
  * logged rather than causing the whole sweep to fail.
  */
-std::map<mdl::Node*, std::vector<std::unique_ptr<mdl::BrushNode>>> generateSweepBrushes(
+kdl::flat_map<mdl::Node*, std::vector<std::unique_ptr<mdl::BrushNode>>>
+generateSweepBrushes(
   mdl::Map& map,
   const SweepSource& source,
   const SweepTransform& transform,

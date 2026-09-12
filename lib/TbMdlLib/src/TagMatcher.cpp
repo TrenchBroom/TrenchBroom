@@ -40,6 +40,7 @@
 #include "mdl/WorldNode.h" // IWYU pragma: keep
 
 #include "kd/contracts.h"
+#include "kd/flat_set.h"
 #include "kd/ranges/to.h"
 #include "kd/string_compare.h"
 #include "kd/struct_io.h"
@@ -224,7 +225,7 @@ SurfaceParmTagMatcher::SurfaceParmTagMatcher(std::string parameter)
 {
 }
 
-SurfaceParmTagMatcher::SurfaceParmTagMatcher(kdl::vector_set<std::string> parameters)
+SurfaceParmTagMatcher::SurfaceParmTagMatcher(kdl::flat_set<std::string> parameters)
   : m_parameters{std::move(parameters)}
 {
 }

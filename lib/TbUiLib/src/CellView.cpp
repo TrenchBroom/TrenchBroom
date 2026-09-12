@@ -40,6 +40,7 @@
 #include "ui/CellLayout.h"
 #include "ui/RenderView.h"
 
+#include "kd/flat_map.h"
 #include "kd/ranges/repeat_view.h"
 #include "kd/ranges/stride_view.h"
 #include "kd/ranges/zip_view.h"
@@ -48,7 +49,6 @@
 #include "vm/mat_ext.h"
 
 #include <algorithm>
-#include <map>
 
 namespace tb::ui
 {
@@ -456,7 +456,7 @@ auto collectStringVertices(
 
   const auto textColor = pref(Preferences::BrowserTextColor);
 
-  auto stringVertices = std::map<gl::FontDescriptor, std::vector<TextVertex>>{};
+  auto stringVertices = kdl::flat_map<gl::FontDescriptor, std::vector<TextVertex>>{};
   for (const auto& group : layout.groups())
   {
     if (group.intersectsY(y, height))
@@ -521,7 +521,7 @@ auto collectStringVertices(
 
 void CellView::renderTitleStrings(gl::Gl& gl, float y, float height)
 {
-  using StringRendererMap = std::map<gl::FontDescriptor, gl::VertexArray>;
+  using StringRendererMap = kdl::flat_map<gl::FontDescriptor, gl::VertexArray>;
   auto stringRenderers = StringRendererMap{};
 
   for (const auto& [descriptor, vertices] :
@@ -534,7 +534,7 @@ void CellView::renderTitleStrings(gl::Gl& gl, float y, float height)
   auto shader = gl::ActiveShader{gl, shaderManager(), gl::Shaders::ColoredTextShader};
   shader.set("Texture", 0);
 
-  for (auto& [descriptor, vertexArray] : stringRenderers)
+  for (auto&& [descriptor, vertexArray] : stringRenderers)
   {
     if (vertexArray.setup(gl, shader.program()))
     {

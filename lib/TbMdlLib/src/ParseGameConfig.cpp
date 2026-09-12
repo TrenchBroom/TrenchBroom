@@ -31,6 +31,7 @@
 #include "mdl/TagMatcher.h"
 #include "mdl/UvAttributes.h"
 
+#include "kd/flat_set.h"
 #include "kd/ranges/to.h"
 
 #include <fmt/format.h>
@@ -182,7 +183,7 @@ std::unique_ptr<TagMatcher> parseFaceTagMatcher(
     return patternValue.type() == el::ValueType::String
              ? std::make_unique<SurfaceParmTagMatcher>(patternValue.stringValue(context))
              : std::make_unique<SurfaceParmTagMatcher>(
-                 kdl::vector_set{patternValue.asStringSet(context)});
+                 kdl::flat_set(patternValue.asStringSet(context)));
   }
   if (match == "contentflag")
   {

@@ -19,7 +19,8 @@
 
 #pragma once
 
-#include <map>
+#include "kd/flat_map.h"
+
 #include <vector>
 
 namespace tb::mdl
@@ -27,7 +28,8 @@ namespace tb::mdl
 class Map;
 class Node;
 
-void addNodesAndNotify(const std::map<Node*, std::vector<Node*>>& nodes, Map& map);
-void removeNodesAndNotify(const std::map<Node*, std::vector<Node*>>& nodes, Map& map);
+void addNodesAndNotify(const kdl::flat_map<Node*, std::vector<Node*>>& nodes, Map& map);
+void removeNodesAndNotify(
+  const kdl::flat_map<Node*, std::vector<Node*>>& nodes, Map& map);
 
 } // namespace tb::mdl

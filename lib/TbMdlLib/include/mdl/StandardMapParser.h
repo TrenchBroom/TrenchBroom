@@ -27,7 +27,7 @@
 #include "mdl/SurfaceAttributes.h"
 #include "mdl/UvAttributes.h"
 
-#include "kd/vector_set_forward.h"
+#include "kd/flat_set_forward.h"
 
 #include "vm/vec.h"
 
@@ -81,7 +81,7 @@ class StandardMapParser : public MapParser, public Parser<QuakeMapToken::Type>
 {
 private:
   using Token = QuakeMapTokenizer::Token;
-  using EntityPropertyKeys = kdl::vector_set<std::string>;
+  using EntityPropertyKeys = kdl::flat_set<std::string>;
 
   static const std::string BrushPrimitiveId;
   static const std::string PatchId;

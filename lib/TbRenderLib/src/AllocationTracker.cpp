@@ -20,7 +20,7 @@
 #include "render/AllocationTracker.h"
 
 #include "kd/contracts.h"
-#include "kd/vector_set.h"
+#include "kd/flat_set.h"
 
 #include <algorithm>
 
@@ -471,7 +471,7 @@ bool AllocationTracker::hasAllocations() const
 
 std::vector<AllocationTracker::Range> AllocationTracker::freeBlocks() const
 {
-  kdl::vector_set<Range> res;
+  kdl::flat_set<Range> res;
   for (Block* block = m_leftmostBlock; block != nullptr; block = block->right)
   {
     if (block->free)
@@ -479,12 +479,12 @@ std::vector<AllocationTracker::Range> AllocationTracker::freeBlocks() const
       res.insert(Range{block->pos, block->size});
     }
   }
-  return res.release_data();
+  return res.extract();
 }
 
 std::vector<AllocationTracker::Range> AllocationTracker::usedBlocks() const
 {
-  kdl::vector_set<Range> res;
+  kdl::flat_set<Range> res;
   for (Block* block = m_leftmostBlock; block != nullptr; block = block->right)
   {
     if (!block->free)
@@ -492,7 +492,7 @@ std::vector<AllocationTracker::Range> AllocationTracker::usedBlocks() const
       res.insert(Range{block->pos, block->size});
     }
   }
-  return res.release_data();
+  return res.extract();
 }
 
 AllocationTracker::Index AllocationTracker::largestPossibleAllocation() const

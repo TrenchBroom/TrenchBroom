@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010 Kristian Duske
+ Copyright (C) 2026 Kristian Duske
 
  Permission is hereby granted, free of charge, to any person obtaining a copy of this
  software and associated documentation files (the "Software"), to deal in the Software
@@ -21,13 +21,13 @@
 #pragma once
 
 #include <functional>
-#include <memory>
+#include <vector>
 
 namespace kdl
 {
 template <
-  typename T,
-  typename Compare = std::less<T>,
-  typename Allocator = std::allocator<T>>
-class vector_set;
+  typename Key,
+  typename Compare = std::less<Key>,
+  typename KeyContainer = std::vector<Key>>
+class flat_set;
 }

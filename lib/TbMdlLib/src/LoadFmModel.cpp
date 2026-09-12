@@ -25,6 +25,7 @@
 #include "gl/IndexRangeMapBuilder.h"
 #include "mdl/LoadSkin.h"
 
+#include "kd/flat_set.h"
 #include "kd/path_utils.h"
 #include "kd/ranges/to.h"
 
@@ -69,7 +70,7 @@ const std::string MeshNodesName = "mesh nodes";
 constexpr uint32_t MeshNodesVersion = 3;
 
 // Ignored blocks.
-const std::set<std::string> IgnoredBlocks = {
+const kdl::flat_set<std::string> IgnoredBlocks = {
   "st coord", "tris", "short frames", "normals", "comp data", "skeleton", "references"};
 } // namespace FmLayout
 

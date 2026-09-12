@@ -20,6 +20,8 @@
 #include "mdl/BezierPatch.h"
 #include "mdl/CatchConfig.h"
 
+#include "kd/flat_set.h"
+
 #include "vm/approx.h"
 #include "vm/mat_ext.h"
 #include "vm/util.h"
@@ -224,7 +226,7 @@ TEST_CASE("BezierPatch")
     SECTION("updates matching control points and recomputes bounds")
     {
       patch.transformControlPoints(
-        std::set<vm::vec3d>{{1, 1, 2}}, vm::translation_matrix(vm::vec3d{2, 0, 0}));
+        kdl::flat_set<vm::vec3d>{{1, 1, 2}}, vm::translation_matrix(vm::vec3d{2, 0, 0}));
 
       // clang-format off
       CHECK(patch.controlPoints() == std::vector<BezierPatch::Point>{
@@ -243,7 +245,8 @@ TEST_CASE("BezierPatch")
       const auto originalBounds = patch.bounds();
 
       patch.transformControlPoints(
-        std::set<vm::vec3d>{{100, 100, 100}}, vm::translation_matrix(vm::vec3d{2, 0, 0}));
+        kdl::flat_set<vm::vec3d>{{100, 100, 100}},
+        vm::translation_matrix(vm::vec3d{2, 0, 0}));
 
       CHECK(patch.controlPoints() == originalControlPoints);
       CHECK(patch.bounds() == originalBounds);
@@ -255,7 +258,7 @@ TEST_CASE("BezierPatch")
       const auto originalBounds = patch.bounds();
 
       patch.transformControlPoints(
-        std::set<vm::vec3d>{}, vm::translation_matrix(vm::vec3d{2, 0, 0}));
+        kdl::flat_set<vm::vec3d>{}, vm::translation_matrix(vm::vec3d{2, 0, 0}));
 
       CHECK(patch.controlPoints() == originalControlPoints);
       CHECK(patch.bounds() == originalBounds);

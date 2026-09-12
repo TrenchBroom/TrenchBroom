@@ -44,6 +44,8 @@
 #include "mdl/WorldNode.h"
 
 #include "kd/contracts.h"
+#include "kd/flat_map.h"
+#include "kd/flat_set.h"
 #include "kd/ranges/to.h"
 #include "kd/vector_utils.h"
 
@@ -59,7 +61,7 @@ auto extractNodesToPaste(const std::vector<Node*>& nodes, Node& parent)
 {
   auto nodesToDetach = std::vector<Node*>{};
   auto nodesToDelete = std::vector<Node*>{};
-  auto nodesToAdd = std::map<Node*, std::vector<Node*>>{};
+  auto nodesToAdd = kdl::flat_map<Node*, std::vector<Node*>>{};
 
   for (auto* node : nodes)
   {
@@ -136,11 +138,13 @@ std::vector<IdType> allPersistentGroupIds(const Node& root)
 }
 
 void fixRedundantPersistentIds(
-  const std::map<Node*, std::vector<Node*>>& nodesToAdd,
+  const kdl::flat_map<Node*, std::vector<Node*>>& nodesToAdd,
   const std::vector<IdType>& existingPersistentGroupIds)
 {
-  auto persistentGroupIds = kdl::vector_set{existingPersistentGroupIds};
-  for (auto& [newParent, nodesToAddToParent] : nodesToAdd)
+  // parentheses (not braces) are required to select the container constructor instead of
+  // the initializer_list constructor, which takes priority for braced argument lists
+  auto persistentGroupIds = kdl::flat_set(existingPersistentGroupIds);
+  for (const auto& [newParent, nodesToAddToParent] : nodesToAdd)
   {
     for (auto* node : nodesToAddToParent)
     {
@@ -170,9 +174,9 @@ void fixRedundantPersistentIds(
 }
 
 void fixRecursiveLinkedGroups(
-  const std::map<Node*, std::vector<Node*>>& nodesToAdd, Logger& logger)
+  const kdl::flat_map<Node*, std::vector<Node*>>& nodesToAdd, Logger& logger)
 {
-  for (auto& [newParent, nodesToAddToParent] : nodesToAdd)
+  for (const auto& [newParent, nodesToAddToParent] : nodesToAdd)
   {
     const auto linkedGroupIds = kdl::vec_sort(collectParentLinkedGroupIds(*newParent));
     for (auto* node : nodesToAddToParent)
@@ -206,7 +210,7 @@ void fixRecursiveLinkedGroups(
 }
 
 void copyAndSetLinkIds(
-  const std::map<Node*, std::vector<Node*>>& nodesToAdd,
+  const kdl::flat_map<Node*, std::vector<Node*>>& nodesToAdd,
   WorldNode& worldNode,
   Logger& logger)
 {

@@ -41,7 +41,7 @@
 #include "ui/SignalDelayer.h"
 
 #include "kd/overload.h"
-#include "kd/vector_set.h"
+#include "kd/ranges/to.h"
 #include "kd/vector_utils.h"
 
 #include <fmt/format.h>
@@ -193,20 +193,17 @@ void IssueBrowserView::applyQuickFix(const mdl::IssueQuickFix& quickFix)
 std::vector<const mdl::Issue*> IssueBrowserView::collectIssues(
   const QList<QModelIndex>& indices) const
 {
-  // Use a vector_set to filter out duplicates.
+  auto issues = indices | std::views::filter(&QModelIndex::isValid)
+                | std::views::transform([&](const auto& index) {
+                    const auto row = static_cast<size_t>(index.row());
+                    return m_tableModel->issues().at(row);
+                  })
+                | kdl::ranges::to<std::vector>();
+
   // The QModelIndex list returned by getSelection() contains duplicates
   // (not sure why, current row and selected row?)
-  auto result = kdl::vector_set<const mdl::Issue*>{};
-  result.reserve(static_cast<size_t>(indices.size()));
-  for (const auto& index : indices)
-  {
-    if (index.isValid())
-    {
-      const auto row = static_cast<size_t>(index.row());
-      result.insert(m_tableModel->issues().at(row));
-    }
-  }
-  return result.release_data();
+  kdl::vec_sort_and_remove_duplicates(issues);
+  return issues;
 }
 
 std::vector<const mdl::IssueQuickFix*> IssueBrowserView::collectQuickFixes(

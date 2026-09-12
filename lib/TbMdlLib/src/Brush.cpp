@@ -26,6 +26,8 @@
 #include "mdl/UvCoordSystem.h"
 
 #include "kd/contracts.h"
+#include "kd/flat_map.h"
+#include "kd/flat_set.h"
 #include "kd/range_utils.h"
 #include "kd/ranges/concat_view.h"
 #include "kd/ranges/to.h"
@@ -43,7 +45,6 @@
 #include <algorithm>
 #include <iterator>
 #include <ranges>
-#include <set>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -670,7 +671,7 @@ Result<void> Brush::snapVertices(
 
   const auto newGeometry = snappedGeometry(*m_geometry, snapToF);
 
-  auto vertexMapping = std::map<vm::vec3d, vm::vec3d>{};
+  auto vertexMapping = kdl::flat_map<vm::vec3d, vm::vec3d>{};
   for (const auto* vertex : m_geometry->vertices())
   {
     const auto& origin = vertex->position();
@@ -839,7 +840,7 @@ Brush::CanTransformVerticesResult Brush::doCanTransformVertices(
   }
 
   const auto vertexSet =
-    std::set<vm::vec3d>{std::begin(vertexPositions), std::end(vertexPositions)};
+    kdl::flat_set<vm::vec3d>{std::begin(vertexPositions), std::end(vertexPositions)};
 
   auto remainingPoints = std::vector<vm::vec3d>{};
   remainingPoints.reserve(vertexCount());
@@ -982,7 +983,7 @@ Result<void> Brush::doTransformVertices(
 
   auto newGeometry = BrushGeometry{newVertices};
 
-  auto vertexMapping = std::map<vm::vec3d, vm::vec3d>{};
+  auto vertexMapping = kdl::flat_map<vm::vec3d, vm::vec3d>{};
   for (auto* oldVertex : m_geometry->vertices())
   {
     const auto& oldPosition = oldVertex->position();
@@ -1318,7 +1319,7 @@ bool Brush::checkFaceLinks() const
     }
   }
 
-  auto faceGeometries = std::set<const BrushFaceGeometry*>{};
+  auto faceGeometries = kdl::flat_set<const BrushFaceGeometry*>{};
   for (const auto& face : m_faces)
   {
     const auto* faceGeometry = face.geometry();

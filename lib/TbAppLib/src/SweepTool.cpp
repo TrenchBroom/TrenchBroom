@@ -39,9 +39,9 @@
 #include "ui/HandleDragTracker.h"
 #include "ui/MapDocument.h"
 
+#include "kd/flat_map.h"
 #include "kd/ranges/concat_view.h"
 #include "kd/ranges/to.h"
-#include "kd/unpack.h"
 #include "kd/vector_utils.h"
 
 #include "vm/bbox.h"
@@ -328,16 +328,15 @@ void SweepTool::commitSweep()
 {
   if (!m_previewBrushes.empty())
   {
-    auto nodesToAdd =
-      m_previewBrushes
-      | std::views::transform(kdl::unpack([](auto& parent, auto& childrenPtrs) {
-          auto childrenRaw = childrenPtrs | std::views::transform([](auto& childPtr) {
-                               return static_cast<mdl::Node*>(childPtr.release());
-                             })
-                             | kdl::ranges::to<std::vector>();
-          return std::pair{parent, std::move(childrenRaw)};
-        }))
-      | kdl::ranges::to<std::map>();
+    auto nodesToAdd = kdl::flat_map<mdl::Node*, std::vector<mdl::Node*>>{};
+    for (auto&& [parent, childrenPtrs] : m_previewBrushes)
+    {
+      auto childrenRaw = childrenPtrs | std::views::transform([](auto& childPtr) {
+                           return static_cast<mdl::Node*>(childPtr.release());
+                         })
+                         | kdl::ranges::to<std::vector>();
+      nodesToAdd.insert({parent, std::move(childrenRaw)});
+    }
 
     m_previewBrushes.clear();
     m_brushRenderer->clear();

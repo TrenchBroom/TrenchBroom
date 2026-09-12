@@ -21,11 +21,11 @@
 
 #include "gl/Material.h"
 
+#include "kd/flat_set.h"
 #include "kd/reflection_decl.h"
 
 #include <filesystem>
 #include <optional>
-#include <set>
 #include <string>
 #include <vector>
 
@@ -83,7 +83,7 @@ public:
   std::filesystem::path editorImage;
   std::filesystem::path lightImage;
   Culling culling = Culling::Front;
-  std::set<std::string> surfaceParms;
+  kdl::flat_set<std::string> surfaceParms;
   std::vector<Quake3ShaderStage> stages;
   std::optional<gl::MaterialAlphaFunc> qerAlphaFunc;
 

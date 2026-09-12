@@ -42,11 +42,13 @@
 #include "mdl/SetLinkIdsCommand.h"
 #include "mdl/SwapNodeContentsCommand.h"
 #include "mdl/Tag.h"
+#include "mdl/TagManager.h"
 #include "mdl/Transaction.h"
 #include "mdl/VisualEffect.h"
 #include "mdl/WorldNode.h"
 
 #include "kd/contracts.h"
+#include "kd/flat_map.h"
 #include "kd/overload.h"
 #include "kd/ranges/concat_view.h"
 #include "kd/ranges/to.h"
@@ -90,7 +92,7 @@ std::vector<GroupNode*> collectGroupsOrContainers(const std::vector<Node*>& node
 }
 
 void copyAndSetLinkIds(
-  const std::map<Node*, std::vector<Node*>>& nodesToAdd,
+  const kdl::flat_map<Node*, std::vector<Node*>>& nodesToAdd,
   WorldNode& worldNode,
   Logger& logger)
 {
@@ -118,7 +120,7 @@ bool shouldCloneParentWhenCloningNode(const Node* node)
     [](const PatchNode&) { return false; }));
 }
 
-void resetLinkIdsOfNonGroupedNodes(const std::map<Node*, std::vector<Node*>>& nodes)
+void resetLinkIdsOfNonGroupedNodes(const kdl::flat_map<Node*, std::vector<Node*>>& nodes)
 {
   for (const auto& [parent, children] : nodes)
   {
@@ -137,7 +139,7 @@ void resetLinkIdsOfNonGroupedNodes(const std::map<Node*, std::vector<Node*>>& no
   }
 }
 
-bool checkReparenting(const std::map<Node*, std::vector<Node*>>& nodesToAdd)
+bool checkReparenting(const kdl::flat_map<Node*, std::vector<Node*>>& nodesToAdd)
 {
   for (const auto& [newParent, children] : nodesToAdd)
   {
@@ -150,7 +152,7 @@ bool checkReparenting(const std::map<Node*, std::vector<Node*>>& nodesToAdd)
 }
 
 auto setLinkIdsForReparentingNodes(
-  const std::map<Node*, std::vector<Node*>>& nodesToReparent)
+  const kdl::flat_map<Node*, std::vector<Node*>>& nodesToReparent)
 {
   auto result = std::vector<std::tuple<Node*, std::string>>{};
   for (const auto& [newParent_, nodes] : nodesToReparent)
@@ -213,7 +215,8 @@ std::vector<Node*> removeImplicitelyRemovedNodes(std::vector<Node*> nodes)
   return result;
 }
 
-void closeRemovedGroups(Map& map, const std::map<Node*, std::vector<Node*>>& toRemove)
+void closeRemovedGroups(
+  Map& map, const kdl::flat_map<Node*, std::vector<Node*>>& toRemove)
 {
   const auto& editorContext = map.editorContext();
   for (const auto& [parent, nodes] : toRemove)
@@ -230,9 +233,9 @@ void closeRemovedGroups(Map& map, const std::map<Node*, std::vector<Node*>>& toR
   }
 }
 
-auto collectRemovableParents(const std::map<Node*, std::vector<Node*>>& nodes)
+auto collectRemovableParents(const kdl::flat_map<Node*, std::vector<Node*>>& nodes)
 {
-  auto result = std::map<Node*, std::vector<Node*>>{};
+  auto result = kdl::flat_map<Node*, std::vector<Node*>>{};
   for (const auto& [node, children] : nodes)
   {
     if (node->removeIfEmpty() && !node->hasChildren())
@@ -302,7 +305,8 @@ Node& parentForNodes(const Map& map, const std::vector<Node*>& nodes)
   return *parentLayer;
 }
 
-std::vector<Node*> addNodes(Map& map, const std::map<Node*, std::vector<Node*>>& nodes)
+std::vector<Node*> addNodes(
+  Map& map, const kdl::flat_map<Node*, std::vector<Node*>>& nodes)
 {
   contract_assert(std::ranges::all_of(nodes, [&](const auto& parentAndChildren) {
     const auto& [parent, children] = parentAndChildren;
@@ -334,7 +338,7 @@ std::vector<Node*> addNodes(Map& map, const std::map<Node*, std::vector<Node*>>&
 
 void duplicateSelectedNodes(Map& map)
 {
-  auto nodesToAdd = std::map<Node*, std::vector<Node*>>{};
+  auto nodesToAdd = kdl::flat_map<Node*, std::vector<Node*>>{};
   auto nodesToSelect = std::vector<Node*>{};
   auto newParentMap = std::map<Node*, Node*>{};
 
@@ -398,7 +402,7 @@ void duplicateSelectedNodes(Map& map)
   map.pushRepeatableCommand([&]() { duplicateSelectedNodes(map); });
 }
 
-bool reparentNodes(Map& map, const std::map<Node*, std::vector<Node*>>& nodesToAdd)
+bool reparentNodes(Map& map, const kdl::flat_map<Node*, std::vector<Node*>>& nodesToAdd)
 {
   if (!checkReparenting(nodesToAdd))
   {
@@ -424,7 +428,7 @@ bool reparentNodes(Map& map, const std::map<Node*, std::vector<Node*>>& nodesToA
   //   them visible
   // - creating brushes in a hidden layer, then moving them to a hidden layer, should
   //   downgrade them to inherited and hide them
-  for (auto& [newParent, nodes] : nodesToAdd)
+  for (const auto& [newParent, nodes] : nodesToAdd)
   {
     auto* newParentLayer = mdl::findContainingLayer(newParent);
 
@@ -453,8 +457,7 @@ bool reparentNodes(Map& map, const std::map<Node*, std::vector<Node*>>& nodesToA
   {
     setHasPendingChanges(
       collectContainingGroups(
-        removableNodes | std::views::values | std::views::join
-        | kdl::ranges::to<std::vector>()),
+        removableNodes.values() | std::views::join | kdl::ranges::to<std::vector>()),
       true);
 
     closeRemovedGroups(map, removableNodes);
@@ -526,7 +529,7 @@ bool makeStructural(
   };
 
   auto anyTagDisabled = false;
-  for (const auto& tag : map.smartTags())
+  for (const auto& tag : map.tagManager().smartTags())
   {
     if (std::ranges::any_of(
           geometryNodes, [&](const Node* node) { return hasTag(node, tag); }))
@@ -581,8 +584,7 @@ void removeNodes(Map& map, const std::vector<Node*>& nodes)
   while (!removableNodes.empty())
   {
     setHasPendingChanges(
-      collectGroupsOrContainers(
-        removableNodes | std::views::keys | kdl::ranges::to<std::vector>()),
+      collectGroupsOrContainers(removableNodes.keys() | kdl::ranges::to<std::vector>()),
       true);
 
     closeRemovedGroups(map, removableNodes);

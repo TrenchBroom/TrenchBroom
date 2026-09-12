@@ -184,12 +184,12 @@ const TextureResource& Material::textureResource() const
   return *m_textureResource;
 }
 
-const std::set<std::string>& Material::surfaceParms() const
+const kdl::flat_set<std::string>& Material::surfaceParms() const
 {
   return m_surfaceParms;
 }
 
-void Material::setSurfaceParms(std::set<std::string> surfaceParms)
+void Material::setSurfaceParms(kdl::flat_set<std::string> surfaceParms)
 {
   m_surfaceParms = std::move(surfaceParms);
 }
