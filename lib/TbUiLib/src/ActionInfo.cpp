@@ -22,9 +22,9 @@
 #include "base/PreferenceManager.h"
 #include "ui/ActionContext.h"
 
+#include "kd/flat_map.h"
 #include "kd/ranges/enumerate_view.h"
 
-#include <map>
 #include <ranges>
 
 namespace tb::ui
@@ -106,7 +106,7 @@ std::unordered_set<size_t> findConflicts(const std::vector<ActionInfo>& actionIn
 {
   auto& prefs = PreferenceManager::instance();
 
-  auto entries = std::map<ActionConflictKey, size_t>{};
+  auto entries = kdl::flat_map<ActionConflictKey, size_t>{};
   auto conflicts = std::unordered_set<size_t>{};
 
   for (const auto& [index, actionInfo] : actionInfos | kdl::views::enumerate)
