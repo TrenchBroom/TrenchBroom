@@ -23,10 +23,10 @@
 
 #include "kd/binary_relation.h"
 #include "kd/contracts.h"
+#include "kd/flat_map.h"
 #include "kd/flat_set.h"
 
 #include <limits>
-#include <map>
 #include <vector>
 
 namespace tb::mdl
@@ -71,7 +71,7 @@ private:
   using VertexSet = kdl::flat_set<Vertex*>;
   using HalfEdge = typename P::HalfEdge;
   using Face = typename P::Face;
-  using VMap = std::map<V, V>;
+  using VMap = kdl::flat_map<V, V>;
 
   using VertexRelation = kdl::binary_relation<Vertex*, Vertex*>;
 

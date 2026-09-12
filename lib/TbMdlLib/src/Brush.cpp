@@ -26,6 +26,7 @@
 #include "mdl/UvCoordSystem.h"
 
 #include "kd/contracts.h"
+#include "kd/flat_map.h"
 #include "kd/flat_set.h"
 #include "kd/range_utils.h"
 #include "kd/ranges/concat_view.h"
@@ -670,7 +671,7 @@ Result<void> Brush::snapVertices(
 
   const auto newGeometry = snappedGeometry(*m_geometry, snapToF);
 
-  auto vertexMapping = std::map<vm::vec3d, vm::vec3d>{};
+  auto vertexMapping = kdl::flat_map<vm::vec3d, vm::vec3d>{};
   for (const auto* vertex : m_geometry->vertices())
   {
     const auto& origin = vertex->position();
@@ -982,7 +983,7 @@ Result<void> Brush::doTransformVertices(
 
   auto newGeometry = BrushGeometry{newVertices};
 
-  auto vertexMapping = std::map<vm::vec3d, vm::vec3d>{};
+  auto vertexMapping = kdl::flat_map<vm::vec3d, vm::vec3d>{};
   for (auto* oldVertex : m_geometry->vertices())
   {
     const auto& oldPosition = oldVertex->position();
