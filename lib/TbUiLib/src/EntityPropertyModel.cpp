@@ -48,6 +48,7 @@
 #include "ui/QStringUtils.h"
 
 #include "kd/contracts.h"
+#include "kd/flat_map.h"
 #include "kd/flat_set.h"
 #include "kd/range_utils.h"
 #include "kd/reflection_impl.h"
@@ -57,7 +58,6 @@
 
 #include <algorithm>
 #include <iterator>
-#include <map>
 #include <optional>
 #include <string>
 #include <unordered_set>
@@ -310,7 +310,7 @@ auto makeKeyToPropertyRowMap(const std::vector<PropertyRow>& rows)
 {
   return rows
          | std::views::transform([](const auto& row) { return std::pair{row.key, row}; })
-         | kdl::ranges::to<std::map>();
+         | kdl::ranges::to<kdl::flat_map>();
 }
 
 struct KeyDiff
@@ -322,8 +322,8 @@ struct KeyDiff
 };
 
 KeyDiff comparePropertyMaps(
-  const std::map<std::string, PropertyRow>& oldRows,
-  const std::map<std::string, PropertyRow>& newRows)
+  const kdl::flat_map<std::string, PropertyRow>& oldRows,
+  const kdl::flat_map<std::string, PropertyRow>& newRows)
 {
   auto result = KeyDiff{};
   result.removed.reserve(oldRows.size());
@@ -362,12 +362,12 @@ KeyDiff comparePropertyMaps(
   return result;
 }
 
-std::map<std::string, PropertyRow> rowsForEntityNodes(
+kdl::flat_map<std::string, PropertyRow> rowsForEntityNodes(
   const std::vector<mdl::EntityNodeBase*>& entityNodes,
   const bool showDefaultRows,
   const bool showProtectedProperties)
 {
-  auto result = std::map<std::string, PropertyRow>{};
+  auto result = kdl::flat_map<std::string, PropertyRow>{};
   for (const auto& key : allKeys(entityNodes, showDefaultRows, showProtectedProperties))
   {
     result[key] = makeRow(key, entityNodes);
@@ -990,7 +990,8 @@ std::vector<std::string> EntityPropertyModel::propertyKeys(
   return result;
 }
 
-void EntityPropertyModel::setRows(const std::map<std::string, PropertyRow>& newRowMap)
+void EntityPropertyModel::setRows(
+  const kdl::flat_map<std::string, PropertyRow>& newRowMap)
 {
   const auto oldRowMap = makeKeyToPropertyRowMap(m_rows);
 

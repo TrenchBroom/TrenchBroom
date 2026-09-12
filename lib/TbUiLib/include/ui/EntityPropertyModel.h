@@ -21,10 +21,10 @@
 
 #include <QAbstractTableModel>
 
+#include "kd/flat_map.h"
 #include "kd/reflection_decl.h"
 
 #include <iosfwd>
-#include <map>
 #include <string>
 #include <vector>
 
@@ -177,7 +177,7 @@ public: // QAbstractTableModel overrides
 private: // helpers
   std::vector<std::string> propertyKeys(int row, int count) const;
 
-  void setRows(const std::map<std::string, PropertyRow>& newRows);
+  void setRows(const kdl::flat_map<std::string, PropertyRow>& newRows);
   bool hasRowWithPropertyKey(const std::string& propertyKey) const;
   bool renameProperty(
     size_t rowIndex,
