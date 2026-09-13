@@ -19,10 +19,11 @@
 
 #include "ui/IssueBrowserView.h"
 
-#include <QHBoxLayout>
 #include <QHeaderView>
 #include <QItemSelectionModel>
+#include <QLabel>
 #include <QMenu>
+#include <QStackedLayout>
 #include <QStandardItemModel>
 #include <QTableView>
 
@@ -104,10 +105,22 @@ void IssueBrowserView::createGui()
 
   fixRowHeightToContents(*m_tableView);
 
-  auto* layout = new QHBoxLayout{};
-  layout->setContentsMargins(0, 0, 0, 0);
-  layout->addWidget(m_tableView);
-  setLayout(layout);
+  m_validatingLabel = new QLabel{tr("Validating, please wait...")};
+  m_validatingLabel->setAlignment(Qt::AlignCenter);
+
+  auto font = m_validatingLabel->font();
+  font.setPointSize(font.pointSize() + 8);
+  m_validatingLabel->setFont(font);
+
+  auto palette = m_validatingLabel->palette();
+  palette.setColor(QPalette::WindowText, Qt::gray);
+  m_validatingLabel->setPalette(palette);
+
+  m_stackedLayout = new QStackedLayout{};
+  m_stackedLayout->setContentsMargins(0, 0, 0, 0);
+  m_stackedLayout->addWidget(m_tableView);
+  m_stackedLayout->addWidget(m_validatingLabel);
+  setLayout(m_stackedLayout);
 }
 
 int IssueBrowserView::hiddenIssueTypes() const
@@ -359,8 +372,9 @@ void IssueBrowserView::hideIssues()
 void IssueBrowserView::invalidate()
 {
   m_valid = false;
-  setEnabled(false);
-  setUpdatesEnabled(false);
+  m_tableView->setEnabled(false);
+  m_tableView->setUpdatesEnabled(false);
+  m_stackedLayout->setCurrentWidget(m_validatingLabel);
 
   m_validateSignalDelayer->queueSignal();
 }
@@ -371,8 +385,9 @@ void IssueBrowserView::validate()
   {
     updateIssues();
     m_valid = true;
-    setEnabled(true);
-    setUpdatesEnabled(true);
+    m_tableView->setEnabled(true);
+    m_tableView->setUpdatesEnabled(true);
+    m_stackedLayout->setCurrentWidget(m_tableView);
   }
 }
 

@@ -26,6 +26,8 @@
 
 #include <vector>
 
+class QLabel;
+class QStackedLayout;
 class QTableView;
 
 namespace tb
@@ -53,7 +55,9 @@ private:
 
   bool m_valid = false;
 
+  QStackedLayout* m_stackedLayout = nullptr;
   QTableView* m_tableView = nullptr;
+  QLabel* m_validatingLabel = nullptr;
   IssueBrowserModel* m_tableModel = nullptr;
 
   SignalDelayer* m_validateSignalDelayer = nullptr;
