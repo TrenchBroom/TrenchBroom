@@ -62,6 +62,11 @@ TEST_CASE("GameFileSystem")
       mod1_pak0_2.txt - contents: "mod1_pak0_2"
     pak1.PAK
       mod1_pak0_2.txt - contents: "mod1_pak1_2", overrides mod1/pak0.pak
+  natural_order
+    pak2.pak
+      shared.txt - contents: "pak2"
+    pak10.pak
+      shared.txt - contents: "pak10", overrides pak2.pak/shared.txt
   */
   const auto fixturePath = getFixtureRoot() / "test/mdl/GameFileSystem";
 
@@ -130,6 +135,18 @@ TEST_CASE("GameFileSystem")
     CHECK(fs::readTextFile(fs, "id1_pak0_2.txt") == "mod1_pak0_2");
     CHECK(fs::readTextFile(fs, "mod1_pak0_1.txt") == "mod1_pak0_1");
     CHECK(fs::readTextFile(fs, "mod1_pak0_2.txt") == "mod1_pak1_2");
+  }
+
+  SECTION("Mounts numbered packages in natural order")
+  {
+    fs.initialize(
+      environmentConfig,
+      gameConfig,
+      fixturePath,
+      {fixturePath / "natural_order"},
+      logger);
+
+    CHECK(fs::readTextFile(fs, "shared.txt") == "pak10");
   }
 
   SECTION("Game path is case insensitive")

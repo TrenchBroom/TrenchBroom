@@ -34,6 +34,7 @@
 #include "kd/ranges/as_rvalue_view.h"
 #include "kd/result_fold.h"
 #include "kd/string_compare.h"
+#include "kd/string_compare_natural.h"
 
 #include <memory>
 #include <ranges>
@@ -174,7 +175,10 @@ void GameFileSystem::addFileSystemPackages(
       fs::TraversalMode::Flat,
       fs::makeExtensionPathMatcher(packageExtensions))
       | kdl::and_then([&](auto packagePaths) {
-          std::ranges::sort(packagePaths);
+          std::ranges::sort(
+            packagePaths, kdl::ci::string_less_natural{}, [](const auto& p) {
+              return p.string();
+            });
           return packagePaths | kdl::views::as_rvalue
                  | std::views::transform([&](auto absPackagePath) {
                      return createImageFileSystem(packageFormat, absPackagePath)
