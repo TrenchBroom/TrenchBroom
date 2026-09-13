@@ -23,6 +23,7 @@
 #include <QHeaderView>
 #include <QItemSelectionModel>
 #include <QMenu>
+#include <QStandardItemModel>
 #include <QTableView>
 
 #include "mdl/BrushNode.h"
@@ -36,7 +37,6 @@
 #include "mdl/PatchNode.h"
 #include "mdl/Transaction.h"
 #include "mdl/WorldNode.h"
-#include "ui/AutoSizeTableRows.h"
 #include "ui/MapDocument.h"
 #include "ui/SignalDelayer.h"
 
@@ -51,6 +51,33 @@
 
 namespace tb::ui
 {
+namespace
+{
+
+/**
+ * Measures the height of a single row of unwrapped text and sets it as a fixed
+ * row height for all rows. Letting Qt resize every row to its contents becomes
+ * pathologically slow once the table holds a lot of issues.
+ */
+void fixRowHeightToContents(QTableView& tableView)
+{
+  auto measurementModel = QStandardItemModel{1, 2};
+  measurementModel.setItem(0, 0, new QStandardItem{"0"});
+  measurementModel.setItem(0, 1, new QStandardItem{"Issue"});
+
+  auto* previousModel = tableView.model();
+
+  tableView.setModel(&measurementModel);
+  tableView.verticalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+  tableView.resizeRowsToContents();
+  tableView.verticalHeader()->setSectionResizeMode(QHeaderView::Fixed);
+  tableView.verticalHeader()->setDefaultSectionSize(
+    tableView.verticalHeader()->sectionSize(0));
+
+  tableView.setModel(previousModel);
+}
+
+} // namespace
 
 using namespace std::chrono_literals;
 
@@ -75,7 +102,7 @@ void IssueBrowserView::createGui()
   m_tableView->horizontalHeader()->setSectionsClickable(false);
   m_tableView->setSelectionBehavior(QAbstractItemView::SelectRows);
 
-  autoSizeTableRows(m_tableView);
+  fixRowHeightToContents(*m_tableView);
 
   auto* layout = new QHBoxLayout{};
   layout->setContentsMargins(0, 0, 0, 0);
