@@ -2006,7 +2006,7 @@ private:
    */
   std::optional<Seam> createSeamForHorizon(const vm::vec<T, 3>& position, T planeEpsilon);
 
-  void visitFace(
+  bool visitFace(
     const vm::vec<T, 3>& position,
     HalfEdge* initialBoundaryEdge,
     std::unordered_set<Face*>& visitedFaces,
@@ -2079,6 +2079,10 @@ private:
 
   /**
    * Checks that all faces that would be created during weaving have noncolinear vertices.
+   *
+   * If the given seam has multiple loops, weaving a cone onto it is not possible, so this
+   * returns false. This can happen if the position of the new vertex is very close to
+   * another vertex and no correct seam can be computed due to imprecision.
    *
    * @param seam the seam to weave a cone onto
    * @param position the position of the cone's tip

@@ -393,10 +393,7 @@ typename Polyhedron<T, FP, VP>::Vertex* Polyhedron<T, FP, VP>::
   auto seam = createSeamForHorizon(position, planeEpsilon);
 
   // If no correct seam could be created, we assume that the vertex was inside the
-  // polyhedron. If the seam has multiple loops, this indicates that the point to be added
-  // is very close to another vertex and no correct seam can be computed due to
-  // imprecision. In that case, we just assume that the vertex is inside the polyhedron
-  // and skip it.
+  // polyhedron and skip it.
   if (!seam || seam->empty())
   {
     return nullptr;
@@ -405,8 +402,10 @@ typename Polyhedron<T, FP, VP>::Vertex* Polyhedron<T, FP, VP>::
   contract_assert(seam->size() >= 3);
 
   // Under certain circumstances, it is not possible to weave a cap onto the seam because
-  // it would create a face with colinear points. In this case, we assume the vertex was
-  // inside the polyhedron and skip it.
+  // it would create a face with colinear points, or because the seam has multiple loops.
+  // A seam with multiple loops indicates that the point to be added is very close to
+  // another vertex and no correct seam could be computed due to imprecision. In either
+  // case, we assume the vertex was inside the polyhedron and skip it.
   if (!checkSeamForWeaving(*seam, position))
   {
     return nullptr;
@@ -443,18 +442,26 @@ public:
    * Appends the given edge to the end of this seam.
    *
    * If this seam is not empty, then the given edge must not be identical to the last edge
-   * of this seam, and its first vertex must be identical to the last edge's second
-   * vertex.
+   * of this seam.
+   *
+   * Furthermore, its first vertex must be identical to the last edge's second vertex,
+   * otherwise it will be ignored and this function will return false.
    *
    * @param edge the edge to append, must not be null
+   * @return true if the edge could be appended, false otherwise
    */
-  void push_back(Edge* edge)
+  bool push_back(Edge* edge)
   {
     contract_pre(edge != nullptr);
     contract_pre(empty() || edge != last());
-    contract_pre(checkEdge(edge));
 
-    m_edges.push_back(edge);
+    if (checkEdge(edge))
+    {
+      m_edges.push_back(edge);
+      return true;
+    }
+
+    return false;
   }
 
   /**
@@ -647,14 +654,21 @@ std::optional<typename Polyhedron<T, FP, VP>::Seam> Polyhedron<T, FP, VP>::
   auto seam = Seam{};
 
   auto visitedFaces = std::unordered_set<Face*>{initialVisibleFace};
-  visitFace(
-    position, initialVisibleFace->boundary().front(), visitedFaces, seam, planeEpsilon);
+  if (!visitFace(
+        position,
+        initialVisibleFace->boundary().front(),
+        visitedFaces,
+        seam,
+        planeEpsilon))
+  {
+    return std::nullopt;
+  }
 
   return seam;
 }
 
 template <typename T, typename FP, typename VP>
-void Polyhedron<T, FP, VP>::visitFace(
+bool Polyhedron<T, FP, VP>::visitFace(
   const vm::vec<T, 3>& position,
   HalfEdge* initialBoundaryEdge,
   std::unordered_set<Face*>& visitedFaces,
@@ -670,19 +684,27 @@ void Polyhedron<T, FP, VP>::visitFace(
     {
       if (visitedFaces.insert(neighbour).second)
       {
-        visitFace(
-          position, currentBoundaryEdge->twin(), visitedFaces, seam, planeEpsilon);
+        if (!visitFace(
+              position, currentBoundaryEdge->twin(), visitedFaces, seam, planeEpsilon))
+        {
+          return false;
+        }
       }
     }
     else
     {
       auto* edge = currentBoundaryEdge->edge();
       edge->makeSecondEdge(currentBoundaryEdge);
-      seam.push_back(edge);
+      if (!seam.push_back(edge))
+      {
+        return false;
+      }
     }
 
     currentBoundaryEdge = currentBoundaryEdge->next();
   } while (currentBoundaryEdge != initialBoundaryEdge);
+
+  return true;
 }
 
 template <typename T, typename FP, typename VP>
@@ -821,7 +843,11 @@ bool Polyhedron<T, FP, VP>::checkSeamForWeaving(
 {
   contract_pre(seam.size() >= 3);
   contract_pre(!empty() && !point() && !edge());
-  assert(!seam.hasMultipleLoops());
+
+  if (seam.hasMultipleLoops())
+  {
+    return false;
+  }
 
   for (auto* edge : seam)
   {

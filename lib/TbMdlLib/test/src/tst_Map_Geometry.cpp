@@ -1205,6 +1205,26 @@ TEST_CASE("Map_Geometry")
       CHECK(top.uAxis() == vm::vec3d{1, 0, 0});
       CHECK(top.vAxis() == vm::vec3d{0, 1, 0});
     }
+
+    SECTION("Regression tests")
+    {
+      // A merge of these brushes previously crashed due to floating point imprecision
+      // when computing the convex hull of their combined vertices.
+      auto& map = fixture.load(
+        "test/mdl/Map/csgConvexMergeCrash.map",
+        {.mapFormat = MapFormat::Valve, .worldBounds = vm::bbox3d{32768.0}});
+
+      REQUIRE(map.editorContext().currentLayer()->childCount() == 119);
+
+      selectAllNodes(map);
+      CHECK(csgConvexMerge(map));
+
+      REQUIRE(map.editorContext().currentLayer()->childCount() == 1);
+      auto* result =
+        dynamic_cast<BrushNode*>(map.editorContext().currentLayer()->children().at(0));
+      REQUIRE(result);
+      CHECK(result->brush().fullySpecified());
+    }
   }
 
   SECTION("csgSubtract")
