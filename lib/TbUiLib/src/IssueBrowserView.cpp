@@ -19,10 +19,12 @@
 
 #include "ui/IssueBrowserView.h"
 
-#include <QHBoxLayout>
 #include <QHeaderView>
 #include <QItemSelectionModel>
+#include <QLabel>
 #include <QMenu>
+#include <QStackedLayout>
+#include <QStandardItemModel>
 #include <QTableView>
 
 #include "mdl/BrushNode.h"
@@ -36,7 +38,6 @@
 #include "mdl/PatchNode.h"
 #include "mdl/Transaction.h"
 #include "mdl/WorldNode.h"
-#include "ui/AutoSizeTableRows.h"
 #include "ui/MapDocument.h"
 #include "ui/SignalDelayer.h"
 
@@ -51,6 +52,33 @@
 
 namespace tb::ui
 {
+namespace
+{
+
+/**
+ * Measures the height of a single row of unwrapped text and sets it as a fixed
+ * row height for all rows. Letting Qt resize every row to its contents becomes
+ * pathologically slow once the table holds a lot of issues.
+ */
+void fixRowHeightToContents(QTableView& tableView)
+{
+  auto measurementModel = QStandardItemModel{1, 2};
+  measurementModel.setItem(0, 0, new QStandardItem{"0"});
+  measurementModel.setItem(0, 1, new QStandardItem{"Issue"});
+
+  auto* previousModel = tableView.model();
+
+  tableView.setModel(&measurementModel);
+  tableView.verticalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+  tableView.resizeRowsToContents();
+  tableView.verticalHeader()->setSectionResizeMode(QHeaderView::Fixed);
+  tableView.verticalHeader()->setDefaultSectionSize(
+    tableView.verticalHeader()->sectionSize(0));
+
+  tableView.setModel(previousModel);
+}
+
+} // namespace
 
 using namespace std::chrono_literals;
 
@@ -75,12 +103,24 @@ void IssueBrowserView::createGui()
   m_tableView->horizontalHeader()->setSectionsClickable(false);
   m_tableView->setSelectionBehavior(QAbstractItemView::SelectRows);
 
-  autoSizeTableRows(m_tableView);
+  fixRowHeightToContents(*m_tableView);
 
-  auto* layout = new QHBoxLayout{};
-  layout->setContentsMargins(0, 0, 0, 0);
-  layout->addWidget(m_tableView);
-  setLayout(layout);
+  m_validatingLabel = new QLabel{tr("Validating, please wait...")};
+  m_validatingLabel->setAlignment(Qt::AlignCenter);
+
+  auto font = m_validatingLabel->font();
+  font.setPointSize(font.pointSize() + 8);
+  m_validatingLabel->setFont(font);
+
+  auto palette = m_validatingLabel->palette();
+  palette.setColor(QPalette::WindowText, Qt::gray);
+  m_validatingLabel->setPalette(palette);
+
+  m_stackedLayout = new QStackedLayout{};
+  m_stackedLayout->setContentsMargins(0, 0, 0, 0);
+  m_stackedLayout->addWidget(m_tableView);
+  m_stackedLayout->addWidget(m_validatingLabel);
+  setLayout(m_stackedLayout);
 }
 
 int IssueBrowserView::hiddenIssueTypes() const
@@ -332,8 +372,9 @@ void IssueBrowserView::hideIssues()
 void IssueBrowserView::invalidate()
 {
   m_valid = false;
-  setEnabled(false);
-  setUpdatesEnabled(false);
+  m_tableView->setEnabled(false);
+  m_tableView->setUpdatesEnabled(false);
+  m_stackedLayout->setCurrentWidget(m_validatingLabel);
 
   m_validateSignalDelayer->queueSignal();
 }
@@ -344,8 +385,9 @@ void IssueBrowserView::validate()
   {
     updateIssues();
     m_valid = true;
-    setEnabled(true);
-    setUpdatesEnabled(true);
+    m_tableView->setEnabled(true);
+    m_tableView->setUpdatesEnabled(true);
+    m_stackedLayout->setCurrentWidget(m_tableView);
   }
 }
 
