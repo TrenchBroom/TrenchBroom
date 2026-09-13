@@ -21,9 +21,8 @@
 
 #include "mdl/Tag.h"
 
-#include "kd/vector_set.h"
-
 #include <string>
+#include <vector>
 
 namespace tb::mdl
 {
@@ -34,15 +33,7 @@ namespace tb::mdl
 class TagManager
 {
 private:
-  struct TagCmp
-  {
-    bool operator()(const SmartTag& lhs, const SmartTag& rhs) const;
-    bool operator()(const std::string& lhs, const SmartTag& rhs) const;
-    bool operator()(const SmartTag& lhs, const std::string& rhs) const;
-    bool operator()(const std::string& lhs, const std::string& rhs) const;
-  };
-
-  kdl::vector_set<SmartTag, TagCmp> m_smartTags;
+  std::vector<SmartTag> m_smartTags;
 
 public:
   /**
@@ -112,9 +103,6 @@ public:
    * @param taggable the object to update
    */
   void updateTags(Taggable& taggable) const;
-
-private:
-  size_t freeTagIndex();
 };
 
 } // namespace tb::mdl

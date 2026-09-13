@@ -22,7 +22,8 @@
 #include "base/Macros.h"
 #include "mdl/UpdateLinkedGroupsCommandBase.h"
 
-#include <map>
+#include "kd/flat_map.h"
+
 #include <memory>
 #include <vector>
 
@@ -35,17 +36,17 @@ class Node;
 class ReparentNodesCommand : public UpdateLinkedGroupsCommandBase
 {
 private:
-  std::map<Node*, std::vector<Node*>> m_nodesToAdd;
-  std::map<Node*, std::vector<Node*>> m_nodesToRemove;
+  kdl::flat_map<Node*, std::vector<Node*>> m_nodesToAdd;
+  kdl::flat_map<Node*, std::vector<Node*>> m_nodesToRemove;
 
 public:
   static std::unique_ptr<ReparentNodesCommand> reparent(
-    std::map<Node*, std::vector<Node*>> nodesToAdd,
-    std::map<Node*, std::vector<Node*>> nodesToRemove);
+    kdl::flat_map<Node*, std::vector<Node*>> nodesToAdd,
+    kdl::flat_map<Node*, std::vector<Node*>> nodesToRemove);
 
   ReparentNodesCommand(
-    std::map<Node*, std::vector<Node*>> nodesToAdd,
-    std::map<Node*, std::vector<Node*>> nodesToRemove);
+    kdl::flat_map<Node*, std::vector<Node*>> nodesToAdd,
+    kdl::flat_map<Node*, std::vector<Node*>> nodesToRemove);
 
 private:
   bool doPerformDo(Map& map) override;

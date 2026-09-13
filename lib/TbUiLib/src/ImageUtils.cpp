@@ -33,8 +33,7 @@
 #include "ui/SystemPaths.h"
 
 #include "kd/contracts.h"
-
-#include <map>
+#include "kd/flat_map.h"
 
 namespace tb::ui
 {
@@ -124,7 +123,7 @@ QPixmap loadSVGPixmap(const std::filesystem::path& imagePath)
 {
   contract_pre(isMainThread());
 
-  static auto cache = std::map<std::filesystem::path, QPixmap>{};
+  static auto cache = kdl::flat_map<std::filesystem::path, QPixmap>{};
   if (const auto it = cache.find(imagePath); it != cache.end())
   {
     return it->second;

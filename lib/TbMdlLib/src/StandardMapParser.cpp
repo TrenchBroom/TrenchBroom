@@ -26,6 +26,7 @@
 #include "mdl/EntityProperties.h"
 
 #include "kd/contracts.h"
+#include "kd/flat_set.h"
 #include "kd/k.h"
 
 #include "vm/vec.h"

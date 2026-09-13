@@ -41,6 +41,7 @@
 #include "ui/MapDocument.h"
 
 #include "kd/contracts.h"
+#include "kd/flat_map.h"
 #include "kd/k.h"
 #include "kd/map_utils.h"
 #include "kd/overload.h"
@@ -374,7 +375,7 @@ bool splitBrushesOutward(
   }
 
   auto newDragFaces = std::vector<mdl::BrushFaceHandle>{};
-  auto newNodes = std::map<mdl::Node*, std::vector<mdl::Node*>>{};
+  auto newNodes = kdl::flat_map<mdl::Node*, std::vector<mdl::Node*>>{};
 
   return dragState.initialDragHandles
          | std::views::transform([&](const auto& dragHandle) {
@@ -456,7 +457,7 @@ bool splitBrushesInward(
   // extruded have different parents (e.g. different brush entities),
   // so each newly created brush should be made a sibling of the brush it was cloned
   // from.
-  auto newNodes = std::map<mdl::Node*, std::vector<mdl::Node*>>{};
+  auto newNodes = kdl::flat_map<mdl::Node*, std::vector<mdl::Node*>>{};
   auto nodesToUpdate = std::vector<std::pair<mdl::Node*, mdl::NodeContents>>{};
 
   for (const auto& dragHandle : dragState.initialDragHandles)
@@ -550,7 +551,7 @@ bool stampBrushes(mdl::Map& map, const vm::vec3d& delta, ExtrudeDragState& dragS
     mdl::BrushBuilder{map.worldNode().mapFormat(), map.worldBounds()};
 
   auto newDragFaces = std::vector<mdl::BrushFaceHandle>{};
-  auto newNodes = std::map<mdl::Node*, std::vector<mdl::Node*>>{};
+  auto newNodes = kdl::flat_map<mdl::Node*, std::vector<mdl::Node*>>{};
 
   return dragState.initialDragHandles
          | std::views::transform([&](const auto& dragHandle) {

@@ -29,7 +29,7 @@
 namespace tb::mdl
 {
 
-void addNodesAndNotify(const std::map<Node*, std::vector<Node*>>& nodes, Map& map)
+void addNodesAndNotify(const kdl::flat_map<Node*, std::vector<Node*>>& nodes, Map& map)
 {
   auto addedNodes = std::vector<Node*>{};
   for (const auto& [parent, children] : nodes)
@@ -41,7 +41,7 @@ void addNodesAndNotify(const std::map<Node*, std::vector<Node*>>& nodes, Map& ma
   map.nodesWereAddedNotifier(addedNodes);
 }
 
-void removeNodesAndNotify(const std::map<Node*, std::vector<Node*>>& nodes, Map& map)
+void removeNodesAndNotify(const kdl::flat_map<Node*, std::vector<Node*>>& nodes, Map& map)
 {
   const auto allChildren =
     nodes | std::views::values | std::views::join | kdl::ranges::to<std::vector>();

@@ -23,9 +23,10 @@
 #include "mdl/HitType.h"
 #include "mdl/NodeTree.h"
 
+#include "kd/flat_map.h"
+
 #include "vm/bbox.h"
 
-#include <map>
 #include <vector>
 
 namespace tb::mdl
@@ -91,7 +92,8 @@ std::vector<GroupNode*> collectGroups(const std::vector<Node*>& nodes);
 
 std::vector<GroupNode*> collectContainingGroups(const std::vector<Node*>& nodes);
 
-std::map<Node*, std::vector<Node*>> parentChildrenMap(const std::vector<Node*>& nodes);
+kdl::flat_map<Node*, std::vector<Node*>> parentChildrenMap(
+  const std::vector<Node*>& nodes);
 
 std::vector<Node*> collectTouchingNodes(
   const std::vector<Node*>& nodes, const std::vector<BrushNode*>& brushes);

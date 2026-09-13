@@ -42,6 +42,7 @@
 #include "mdl/Matchers.h"
 #include "mdl/PatchNode.h"
 #include "mdl/SurfaceAttributes.h"
+#include "mdl/TagManager.h"
 #include "mdl/TagMatcher.h"
 #include "mdl/TestFactory.h"
 #include "mdl/TestUtils.h"
@@ -921,7 +922,7 @@ TEST_CASE("Map_Nodes")
       auto* brushNode = createBrushNode(map);
       addNodes(map, {{entityNode, {brushNode}}});
 
-      const auto& entityTag = map.smartTag("entity");
+      const auto& entityTag = map.tagManager().smartTag("entity");
       REQUIRE(brushNode->hasTag(entityTag));
 
       auto callback = TestCallback{0};
@@ -962,7 +963,7 @@ TEST_CASE("Map_Nodes")
       auto* patchNode = createPatchNode();
       addNodes(map, {{entityNode, {patchNode}}});
 
-      const auto& entityTag = map.smartTag("entity");
+      const auto& entityTag = map.tagManager().smartTag("entity");
       REQUIRE(patchNode->hasTag(entityTag));
 
       auto callback = TestCallback{0};
@@ -1099,7 +1100,7 @@ TEST_CASE("Map_Nodes")
       auto* patchNode = createPatchNode();
       addNodes(map, {{&parentForNodes(map), {patchNode}}});
 
-      const auto& entityTag = map.smartTag("entity");
+      const auto& entityTag = map.tagManager().smartTag("entity");
       REQUIRE(!brushNode->hasTag(entityTag));
       REQUIRE(!patchNode->hasTag(entityTag));
 

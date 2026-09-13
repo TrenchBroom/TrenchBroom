@@ -26,6 +26,7 @@
 #include "mdl/NodeQueries.h"
 
 #include "kd/contracts.h"
+#include "kd/flat_set.h"
 #include "kd/ranges/cartesian_product_view.h"
 #include "kd/ranges/to.h"
 #include "kd/stable_remove_duplicates.h"
@@ -236,9 +237,10 @@ std::vector<GroupNode*> collectContainingGroups(const std::vector<Node*>& nodes)
   return kdl::vec_sort_and_remove_duplicates(std::move(result));
 }
 
-std::map<Node*, std::vector<Node*>> parentChildrenMap(const std::vector<Node*>& nodes)
+kdl::flat_map<Node*, std::vector<Node*>> parentChildrenMap(
+  const std::vector<Node*>& nodes)
 {
-  auto result = std::map<Node*, std::vector<Node*>>{};
+  auto result = kdl::flat_map<Node*, std::vector<Node*>>{};
 
   for (auto* node : nodes)
   {
@@ -479,7 +481,7 @@ std::vector<BrushFaceHandle> collectConnectedCoplanarFaces(
   // Flood out from the start face, re-querying the tree around each face we reach so a
   // long row of brushes is followed without ever visiting the rest of the map.
   auto region = std::vector<BrushFaceHandle>{};
-  auto visited = kdl::vector_set<BrushFaceHandle>{startFace};
+  auto visited = kdl::flat_set<BrushFaceHandle>{startFace};
   auto pending = std::vector<Candidate>{};
   pending.push_back(makeCandidate(startFace));
 

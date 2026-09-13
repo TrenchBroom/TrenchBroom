@@ -22,7 +22,8 @@
 #include "base/Macros.h"
 #include "mdl/UpdateLinkedGroupsCommandBase.h"
 
-#include <map>
+#include "kd/flat_map.h"
+
 #include <memory>
 #include <vector>
 
@@ -40,16 +41,17 @@ private:
   };
 
   Action m_action;
-  std::map<Node*, std::vector<Node*>> m_nodesToAdd;
-  std::map<Node*, std::vector<Node*>> m_nodesToRemove;
+  kdl::flat_map<Node*, std::vector<Node*>> m_nodesToAdd;
+  kdl::flat_map<Node*, std::vector<Node*>> m_nodesToRemove;
 
 public:
   static std::unique_ptr<AddRemoveNodesCommand> add(
-    const std::map<Node*, std::vector<Node*>>& nodes);
+    const kdl::flat_map<Node*, std::vector<Node*>>& nodes);
   static std::unique_ptr<AddRemoveNodesCommand> remove(
-    const std::map<Node*, std::vector<Node*>>& nodes);
+    const kdl::flat_map<Node*, std::vector<Node*>>& nodes);
 
-  AddRemoveNodesCommand(Action action, const std::map<Node*, std::vector<Node*>>& nodes);
+  AddRemoveNodesCommand(
+    Action action, const kdl::flat_map<Node*, std::vector<Node*>>& nodes);
   ~AddRemoveNodesCommand() override;
 
 private:

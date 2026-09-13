@@ -23,9 +23,7 @@
 #include "gl/FreeTypeFontFactory.h"
 #include "gl/TextureFont.h"
 
-#include "kd/ranges/as_rvalue_view.h"
-
-#include <ranges>
+#include <algorithm>
 #include <string>
 
 namespace tb::gl
@@ -68,10 +66,10 @@ FontDescriptor FontManager::selectFontSize(
 
 void FontManager::clearCache()
 {
-  std::ranges::copy(
-    m_cache | std::views::values | kdl::views::as_rvalue,
-    std::back_inserter(m_fontsToDestroy));
-  m_cache.clear();
+  // extract() already empties m_cache, and unlike a views pipeline over the map, its
+  // extracted values are a plain, ordinary (non-proxy) vector that can be moved from
+  auto [keys, values] = m_cache.extract();
+  std::ranges::move(values, std::back_inserter(m_fontsToDestroy));
 }
 
 void FontManager::destroyPendingFonts(Gl& gl)

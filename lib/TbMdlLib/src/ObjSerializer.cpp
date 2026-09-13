@@ -27,6 +27,7 @@
 #include "mdl/PatchNode.h"
 
 #include "kd/contracts.h"
+#include "kd/flat_map.h"
 #include "kd/overload.h"
 
 #include <fmt/format.h>
@@ -110,7 +111,7 @@ static void writeMtlFile(
   const std::vector<ObjSerializer::Object>& objects,
   const ObjExportOptions& options)
 {
-  auto usedMaterials = std::map<std::string, const gl::Material*>{};
+  auto usedMaterials = kdl::flat_map<std::string, const gl::Material*>{};
 
   for (const auto& object : objects)
   {

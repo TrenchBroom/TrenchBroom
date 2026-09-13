@@ -1012,31 +1012,6 @@ void Map::registerSmartTags()
   m_tagManager->registerSmartTags(gameInfo().gameConfig.smartTags);
 }
 
-const std::vector<SmartTag>& Map::smartTags() const
-{
-  return m_tagManager->smartTags();
-}
-
-bool Map::isRegisteredSmartTag(const std::string& name) const
-{
-  return m_tagManager->isRegisteredSmartTag(name);
-}
-
-const SmartTag& Map::smartTag(const std::string& name) const
-{
-  return m_tagManager->smartTag(name);
-}
-
-bool Map::isRegisteredSmartTag(const size_t index) const
-{
-  return m_tagManager->isRegisteredSmartTag(index);
-}
-
-const SmartTag& Map::smartTag(const size_t index) const
-{
-  return m_tagManager->smartTag(index);
-}
-
 void Map::initializeAllNodeTags()
 {
   m_worldNode->accept(makeInitializeNodeTagsVisitor(*m_tagManager));

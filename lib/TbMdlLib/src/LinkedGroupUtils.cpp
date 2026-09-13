@@ -26,6 +26,7 @@
 #include "mdl/NodeQueries.h"
 
 #include "kd/contracts.h"
+#include "kd/flat_set.h"
 #include "kd/overload.h"
 #include "kd/ranges/chunk_by_view.h"
 #include "kd/ranges/concat_view.h"
@@ -125,8 +126,8 @@ std::vector<GroupNode*> collectContainingGroups(Node& node)
 SelectionResult nodeSelectionWithLinkedGroupConstraints(
   WorldNode& world, const std::vector<Node*>& nodes)
 {
-  auto groupsToLock = kdl::vector_set<GroupNode*>{};
-  auto groupsToKeepUnlocked = kdl::vector_set<GroupNode*>{};
+  auto groupsToLock = kdl::flat_set<GroupNode*>{};
+  auto groupsToKeepUnlocked = kdl::flat_set<GroupNode*>{};
 
   // collects subset of `nodes` which pass the constraints
   auto nodesToSelect = std::vector<Node*>{};
@@ -177,7 +178,7 @@ SelectionResult nodeSelectionWithLinkedGroupConstraints(
     nodesToSelect.push_back(node);
   }
 
-  return {nodesToSelect, groupsToLock.release_data()};
+  return {nodesToSelect, groupsToLock.extract()};
 }
 
 FaceSelectionResult faceSelectionWithLinkedGroupConstraints(
@@ -188,7 +189,7 @@ FaceSelectionResult faceSelectionWithLinkedGroupConstraints(
                      | kdl::ranges::to<std::vector<Node*>>();
   auto constrainedNodes = nodeSelectionWithLinkedGroupConstraints(world, nodes);
 
-  const auto nodesToSelect = kdl::vector_set<Node*>{constrainedNodes.nodesToSelect};
+  const auto nodesToSelect = kdl::flat_set<Node*>{constrainedNodes.nodesToSelect};
 
   auto facesToSelect = std::vector<BrushFaceHandle>{};
   for (const auto& handle : faces)
@@ -748,7 +749,7 @@ std::vector<Error> copyAndSetLinkIds(
 }
 
 std::vector<Error> copyAndSetLinkIdsBeforeAddingNodes(
-  const std::map<Node*, std::vector<Node*>>& nodesToAdd, WorldNode& worldNode)
+  const kdl::flat_map<Node*, std::vector<Node*>>& nodesToAdd, WorldNode& worldNode)
 {
   // Recursively collect all groups to add
   const auto groupsToAdd = kdl::vec_sort(

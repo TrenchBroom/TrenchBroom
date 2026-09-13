@@ -31,7 +31,8 @@
 #include "vm/ray.h"
 #include "vm/vec.h"
 
-#include <map>
+#include <kd/flat_map.h>
+
 #include <memory>
 #include <vector>
 
@@ -80,7 +81,8 @@ private:
   SweepTransform m_transform;
   SweepParameters m_parameters;
 
-  std::map<mdl::Node*, std::vector<std::unique_ptr<mdl::BrushNode>>> m_previewBrushes;
+  kdl::flat_map<mdl::Node*, std::vector<std::unique_ptr<mdl::BrushNode>>>
+    m_previewBrushes;
   std::unique_ptr<render::BrushRenderer> m_brushRenderer;
 
   NotifierConnection m_notifierConnection;

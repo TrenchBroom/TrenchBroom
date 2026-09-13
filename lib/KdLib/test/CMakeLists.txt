@@ -25,6 +25,8 @@ target_sources(KdLibTest PRIVATE
   "${CMAKE_CURRENT_SOURCE_DIR}/src/tst_collection_utils.cpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/src/tst_compact_trie.cpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/src/tst_filesystem_utils.cpp"
+  "${CMAKE_CURRENT_SOURCE_DIR}/src/tst_flat_map.cpp"
+  "${CMAKE_CURRENT_SOURCE_DIR}/src/tst_flat_set.cpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/src/tst_functional.cpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/src/tst_hash_utils.cpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/src/tst_intrusive_circular_list.cpp"
@@ -37,7 +39,6 @@ target_sources(KdLibTest PRIVATE
   "${CMAKE_CURRENT_SOURCE_DIR}/src/tst_reflection.cpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/src/tst_resource.cpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/src/tst_result.cpp"
-  "${CMAKE_CURRENT_SOURCE_DIR}/src/tst_set_adapter.cpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/src/tst_set_temp.cpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/src/tst_stable_pool.cpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/src/tst_stable_remove_duplicates.cpp"
@@ -49,7 +50,6 @@ target_sources(KdLibTest PRIVATE
   "${CMAKE_CURRENT_SOURCE_DIR}/src/tst_task_manager.cpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/src/tst_tuple_utils.cpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/src/tst_unpack.cpp"
-  "${CMAKE_CURRENT_SOURCE_DIR}/src/tst_vector_set.cpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/src/tst_vector_utils.cpp"
 )
 
