@@ -3,6 +3,7 @@ EMBED_UTF8_MANIFEST(TbQlLibTest)
 
 target_sources(TbQlLibTest PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_EntityNodeLazyMap.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_GroupNodeLazyMap.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_LayerNodeLazyMap.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_NodeQueryValues.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_WorldNodeLazyMap.cpp
