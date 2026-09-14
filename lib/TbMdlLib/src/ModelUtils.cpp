@@ -403,18 +403,16 @@ std::vector<Node*> collectSelectableNodes(
 
 std::vector<BrushFaceHandle> collectSelectedBrushFaces(const std::vector<Node*>& nodes)
 {
-  return collectBrushFaces(nodes, [](const BrushNode&, const BrushFace& brushFace) {
-    return brushFace.selected();
-  });
+  return collectBrushFaces(
+    nodes, [](const auto& brushFaceHandle) { return brushFaceHandle.face().selected(); });
 }
 
 std::vector<BrushFaceHandle> collectSelectableBrushFaces(
   const std::vector<Node*>& nodes, const EditorContext& editorContext)
 {
-  return collectBrushFaces(
-    nodes, [&](const BrushNode& brushNode, const BrushFace& brushFace) {
-      return editorContext.selectable(brushNode, brushFace);
-    });
+  return collectBrushFaces(nodes, [&](const auto& brushFaceHandle) {
+    return editorContext.selectable(brushFaceHandle.node(), brushFaceHandle.face());
+  });
 }
 
 std::vector<BrushFaceHandle> collectConnectedCoplanarFaces(
