@@ -35,6 +35,7 @@
 
 #include "kd/optional_utils.h"
 #include "kd/ranges/to.h"
+#include "kd/string_compare_natural.h"
 #include "kd/string_utils.h"
 
 #include <fmt/format.h>
@@ -47,6 +48,15 @@ namespace tb::mdl
 {
 namespace
 {
+
+struct PathLessNatural
+{
+  bool operator()(
+    const std::filesystem::path& lhs, const std::filesystem::path& rhs) const
+  {
+    return kdl::ci::string_less_natural{}(lhs.string(), rhs.string());
+  }
+};
 
 std::optional<EntityDefinitionFileSpec> defaultEntityDefinitionFile(const Map& map)
 {
@@ -96,26 +106,30 @@ std::vector<std::filesystem::path> enabledMaterialCollections(const Map& map)
   {
     const auto strs = kdl::str_split(*materialCollectionStr, ";");
     return kdl::vec_sort_and_remove_duplicates(
-      strs
-      | std::views::transform([](const auto& str) { return std::filesystem::path{str}; })
-      | kdl::ranges::to<std::vector>());
+      strs | std::views::transform([](const auto& str) {
+        return std::filesystem::path{str};
+      }) | kdl::ranges::to<std::vector>(),
+      PathLessNatural{});
   }
 
   // Otherwise, enable all material collections
   return kdl::vec_sort_and_remove_duplicates(
     map.materialManager().collections()
-    | std::views::transform([](const auto& collection) { return collection.path(); })
-    | kdl::ranges::to<std::vector>());
+      | std::views::transform([](const auto& collection) { return collection.path(); })
+      | kdl::ranges::to<std::vector>(),
+    PathLessNatural{});
 }
 
 std::vector<std::filesystem::path> disabledMaterialCollections(const Map& map)
 {
   auto materialCollections = kdl::vec_sort_and_remove_duplicates(
     map.materialManager().collections()
-    | std::views::transform([](const auto& collection) { return collection.path(); })
-    | kdl::ranges::to<std::vector>());
+      | std::views::transform([](const auto& collection) { return collection.path(); })
+      | kdl::ranges::to<std::vector>(),
+    PathLessNatural{});
 
-  return kdl::set_difference(materialCollections, enabledMaterialCollections(map));
+  return kdl::set_difference(
+    materialCollections, enabledMaterialCollections(map), PathLessNatural{});
 }
 
 void setEnabledMaterialCollections(
@@ -127,7 +141,7 @@ void setEnabledMaterialCollections(
   deselectAll(map);
 
   const auto enabledMaterialCollectionStr = kdl::str_join(
-    kdl::vec_sort_and_remove_duplicates(enabledMaterialCollections)
+    kdl::vec_sort_and_remove_duplicates(enabledMaterialCollections, PathLessNatural{})
       | std::views::transform([](const auto& path) { return path.string(); })
       | kdl::ranges::to<std::vector>(),
     ";");

@@ -41,6 +41,7 @@
 #include "kd/contracts.h"
 #include "kd/range_utils.h"
 #include "kd/ranges/to.h"
+#include "kd/string_compare_natural.h"
 #include "kd/vector_utils.h"
 
 namespace tb::ui
@@ -56,6 +57,14 @@ std::vector<mdl::EntityDefinitionFileSpec> allEntityDefinitionFiles(
              return mdl::EntityDefinitionFileSpec::makeBuiltin(path);
            })
          | kdl::ranges::to<std::vector>();
+}
+
+bool lessNatural(
+  const mdl::EntityDefinitionFileSpec& lhs, const mdl::EntityDefinitionFileSpec& rhs)
+{
+  return lhs.type != rhs.type
+           ? lhs.type < rhs.type
+           : kdl::ci::string_less_natural{}(lhs.path.string(), rhs.path.string());
 }
 
 } // namespace
@@ -182,7 +191,7 @@ void EntityDefinitionFileChooser::refresh()
 
   const auto& map = m_document.map();
   auto specs = allEntityDefinitionFiles(map.gameInfo().gameConfig);
-  specs = kdl::vec_sort(std::move(specs));
+  specs = kdl::vec_sort(std::move(specs), lessNatural);
 
   for (const auto& spec : specs)
   {

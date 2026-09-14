@@ -23,6 +23,7 @@
 #include "mdl/TagType.h"
 
 #include "kd/contracts.h"
+#include "kd/string_compare_natural.h"
 
 #include <fmt/format.h>
 
@@ -41,22 +42,22 @@ struct TagCmp
 
   bool operator()(const SmartTag& lhs, const SmartTag& rhs) const
   {
-    return lhs.name() < rhs.name();
+    return kdl::ci::string_less_natural{}(lhs.name(), rhs.name());
   }
 
   bool operator()(const std::string& lhs, const SmartTag& rhs) const
   {
-    return lhs < rhs.name();
+    return kdl::ci::string_less_natural{}(lhs, rhs.name());
   }
 
   bool operator()(const SmartTag& lhs, const std::string& rhs) const
   {
-    return lhs.name() < rhs;
+    return kdl::ci::string_less_natural{}(lhs.name(), rhs);
   }
 
   bool operator()(const std::string& lhs, const std::string& rhs) const
   {
-    return lhs < rhs;
+    return kdl::ci::string_less_natural{}(lhs, rhs);
   }
 };
 

@@ -153,7 +153,12 @@ TEST_CASE("EntityDefinitionManager")
 
       CHECK_THAT(
         pointDefinitions | std::views::transform(definitionName),
-        RangeEquals({"beta_one", "alpha_one", "alpha_three", "beta_two"}));
+        RangeEquals({
+          "beta_two",
+          "alpha_three",
+          "alpha_one",
+          "beta_one",
+        }));
     }
   }
 }

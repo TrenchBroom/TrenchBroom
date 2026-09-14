@@ -21,6 +21,7 @@
 
 #include "kd/reflection_impl.h"
 #include "kd/string_compare.h"
+#include "kd/string_compare_natural.h"
 
 #include "vm/bbox_io.h" // IWYU pragma: keep
 
@@ -84,7 +85,7 @@ std::string_view getShortName(const EntityDefinition& entityDefinition)
 bool compareEntityDefinitions(const EntityDefinition& lhs, const EntityDefinition& rhs)
 {
   if (const auto compareResult =
-        kdl::ci::str_compare(getShortName(lhs), getShortName(rhs));
+        kdl::ci::str_compare_natural(getShortName(lhs), getShortName(rhs));
       compareResult != 0)
   {
     return compareResult < 0;

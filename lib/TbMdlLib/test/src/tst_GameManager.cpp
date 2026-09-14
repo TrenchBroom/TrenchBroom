@@ -319,6 +319,34 @@ TEST_CASE("GameManager")
           })
         | kdl::transform_error([](const auto& e) { FAIL(e); });
     }
+
+    SECTION("orders games naturally")
+    {
+      auto env = fs::TestEnvironment{};
+
+      env.createDirectory(gamesPath);
+      env.createDirectory(userPath);
+
+      writeGameConfig(env, "Game10", "Game 10");
+      writeGameConfig(env, "Game9", "Game 9");
+      writeGameConfig(env, "Game2", "Game 2");
+
+      const auto gameConfigSearchDirs = std::vector{env.dir() / gamesPath};
+      const auto userGameDir = env.dir() / userPath;
+
+      initializeGameManager(gameConfigSearchDirs, userGameDir)
+        | kdl::transform([&](const auto& gameManager, const auto&) {
+            const auto& gameInfos = gameManager.gameInfos();
+
+            // A plain lexicographic sort would order these as Game 10, Game 2, Game 9.
+            CHECK_THAT(
+              gameInfos | std::views::transform([](const auto& gameInfo) {
+                return gameInfo.gameConfig.name;
+              }),
+              RangeEquals(std::vector{"Game 2", "Game 9", "Game 10"}));
+          })
+        | kdl::transform_error([](const auto& e) { FAIL(e); });
+    }
   }
 
   SECTION("updateCompilationConfig")
