@@ -463,14 +463,13 @@ auto collectNodesAndDescendants(
 // True if Predicate is callable with (const BrushNode&, const BrushFace&) and returns
 // bool.
 template <typename Predicate>
-concept BrushFacePredicate =
-  requires(Predicate pred, const BrushNode& b, const BrushFace& f) {
-    { pred(b, f) } -> std::convertible_to<bool>;
-  };
+concept BrushFacePredicate = requires(Predicate pred, const BrushFaceHandle& b) {
+  { pred(b) } -> std::convertible_to<bool>;
+};
 
 struct TrueBrushFacePredicate
 {
-  bool operator()(const BrushNode&, const BrushFace&) const { return true; }
+  bool operator()(const BrushFaceHandle&) const { return true; }
 };
 
 template <typename T = Node, BrushFacePredicate Predicate = TrueBrushFacePredicate>
@@ -494,15 +493,7 @@ std::vector<BrushFaceHandle> collectBrushFaces(
         entityNode.visitChildren(thisLambda);
       },
       [&](BrushNode& brushNode) {
-        const auto& brush = brushNode.brush();
-        for (size_t i = 0; i < brush.faceCount(); ++i)
-        {
-          const auto& face = brush.face(i);
-          if (predicate(brushNode, face))
-          {
-            result.emplace_back(brushNode, i);
-          }
-        }
+        std::ranges::copy_if(toHandles(brushNode), std::back_inserter(result), predicate);
       },
       [&](const PatchNode&) {}));
   return kdl::vec_sort_and_remove_duplicates(std::move(result));
