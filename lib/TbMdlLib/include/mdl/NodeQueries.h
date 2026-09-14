@@ -460,17 +460,15 @@ auto collectNodesAndDescendants(
 
 
 // Concept: BrushFacePredicate
-// True if Predicate is callable with (const BrushNode&, const BrushFace&) and returns
-// bool.
+// True if Predicate is callable with (const BrushFaceHandle&) and returns bool.
 template <typename Predicate>
-concept BrushFacePredicate =
-  requires(Predicate pred, const BrushNode& b, const BrushFace& f) {
-    { pred(b, f) } -> std::convertible_to<bool>;
-  };
+concept BrushFacePredicate = requires(Predicate pred, const BrushFaceHandle& h) {
+  { pred(h) } -> std::convertible_to<bool>;
+};
 
 struct TrueBrushFacePredicate
 {
-  bool operator()(const BrushNode&, const BrushFace&) const { return true; }
+  bool operator()(const BrushFaceHandle&) const { return true; }
 };
 
 template <typename T = Node, BrushFacePredicate Predicate = TrueBrushFacePredicate>
@@ -497,10 +495,10 @@ std::vector<BrushFaceHandle> collectBrushFaces(
         const auto& brush = brushNode.brush();
         for (size_t i = 0; i < brush.faceCount(); ++i)
         {
-          const auto& face = brush.face(i);
-          if (predicate(brushNode, face))
+          const auto handle = BrushFaceHandle{brushNode, i};
+          if (predicate(handle))
           {
-            result.emplace_back(brushNode, i);
+            result.push_back(handle);
           }
         }
       },
