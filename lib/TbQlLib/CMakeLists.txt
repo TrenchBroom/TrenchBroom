@@ -7,6 +7,7 @@ target_sources(TbQlLib
     ${CMAKE_CURRENT_SOURCE_DIR}/src/GroupNodeLazyMap.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/LayerNodeLazyMap.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/NodeQueryValues.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/NodeVariableStore.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/PatchNodeLazyMap.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/WorldNodeLazyMap.cpp
 
