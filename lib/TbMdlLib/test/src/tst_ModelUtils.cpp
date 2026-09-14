@@ -507,7 +507,8 @@ TEST_CASE("ModelUtils")
 
       CHECK_THAT(
         collectSelectedBrushFaces({&worldNode}),
-        UnorderedEquals(std::vector<BrushFaceHandle>{{brushNode, 0u}, {brushNode, 1u}}));
+        UnorderedEquals(
+          std::vector<BrushFaceHandle>{{*brushNode, 0u}, {*brushNode, 1u}}));
     }
 
     SECTION("Node selection")
@@ -544,7 +545,7 @@ TEST_CASE("ModelUtils")
 
     CHECK_THAT(
       collectSelectableBrushFaces({&worldNode}, editorContext),
-      UnorderedEquals(toHandles(selectableBrushNode)));
+      UnorderedEquals(toHandles(*selectableBrushNode)));
   }
 
   SECTION("computeLogicalBounds")
@@ -705,7 +706,7 @@ TEST_CASE("ModelUtils")
       };
 
     const auto topFace = [](auto* node) {
-      return BrushFaceHandle{node, *node->brush().findFace(vm::vec3d{0, 0, 1})};
+      return BrushFaceHandle{*node, *node->brush().findFace(vm::vec3d{0, 0, 1})};
     };
 
     SECTION("Single cube selects only the clicked face")

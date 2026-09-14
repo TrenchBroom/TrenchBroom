@@ -78,7 +78,7 @@ TEST_CASE("UvRotateTool")
   updatedBrush.face(topFaceIndex).setMaterial(&material);
   brushNode->setBrush(std::move(updatedBrush));
 
-  const auto faceHandle = mdl::BrushFaceHandle{brushNode, topFaceIndex};
+  const auto faceHandle = mdl::BrushFaceHandle{*brushNode, topFaceIndex};
   mdl::selectBrushFaces(map, {faceHandle});
 
   auto camera = gl::OrthographicCamera{

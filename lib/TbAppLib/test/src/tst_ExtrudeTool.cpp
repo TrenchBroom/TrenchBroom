@@ -183,7 +183,7 @@ TEST_CASE("ExtrudeTool")
       CHECK(
         hit.target<ExtrudeHitData>()
         == ExtrudeHitData{
-          {brushNode1, *brushNode1->brush().findFace(expectedFaceNormal)},
+          {*brushNode1, *brushNode1->brush().findFace(expectedFaceNormal)},
           expectedDragReference,
           expectedHandlePosition});
     }
@@ -224,7 +224,7 @@ TEST_CASE("ExtrudeTool")
       CHECK(
         hit.target<ExtrudeHitData>()
         == ExtrudeHitData{
-          {brushNode1, *brushNode1->brush().findFace(vm::vec3d{0, 0, 1})},
+          {*brushNode1, *brushNode1->brush().findFace(vm::vec3d{0, 0, 1})},
           vm::line3d{hit.hitPoint(), {0, 0, 1}},
           hit.hitPoint()});
     }
@@ -257,7 +257,7 @@ TEST_CASE("ExtrudeTool")
       CHECK(
         hit.target<ExtrudeHitData>()
         == ExtrudeHitData{
-          {brushNode1, *brushNode1->brush().findFace(expectedFaceNormal)},
+          {*brushNode1, *brushNode1->brush().findFace(expectedFaceNormal)},
           expectedDragReference,
           expectedHandlePosition});
     }
@@ -291,7 +291,7 @@ TEST_CASE("ExtrudeTool")
     // both coplanar top faces are chosen as drag handles, one per brush
     CHECK_THAT(
       tool.proposedDragHandles()
-        | std::views::transform([](const auto& h) { return h.faceHandle.node(); }),
+        | std::views::transform([](const auto& h) { return &h.faceHandle.node(); }),
       UnorderedRangeEquals(std::vector<mdl::BrushNode*>{brushNode1, brushNode2}));
 
     CHECK_THAT(
@@ -332,7 +332,7 @@ TEST_CASE("ExtrudeTool")
     // both coincident faces are chosen as drag handles, one per brush
     CHECK_THAT(
       tool.proposedDragHandles()
-        | std::views::transform([](const auto& h) { return h.faceHandle.node(); }),
+        | std::views::transform([](const auto& h) { return &h.faceHandle.node(); }),
       UnorderedRangeEquals(std::vector<mdl::BrushNode*>{brushNode1, brushNode2}));
 
     // the picked coplanar face faces +Z, the opposing face faces -Z
@@ -375,7 +375,7 @@ TEST_CASE("ExtrudeTool")
     // must not be linked in
     CHECK_THAT(
       tool.proposedDragHandles()
-        | std::views::transform([](const auto& h) { return h.faceHandle.node(); }),
+        | std::views::transform([](const auto& h) { return &h.faceHandle.node(); }),
       RangeEquals(std::vector<mdl::BrushNode*>{brushNode1}));
 
     CHECK_THAT(
@@ -424,12 +424,12 @@ TEST_CASE("ExtrudeTool")
       CHECK(
         extrudeHit.target<ExtrudeHitData>().face
         == mdl::BrushFaceHandle{
-          frontBrush, *frontBrush->brush().findFace(vm::vec3d{0, 1, 0})});
+          *frontBrush, *frontBrush->brush().findFace(vm::vec3d{0, 1, 0})});
 
       // both coincident seam faces become drag handles, one per brush
       CHECK_THAT(
         tool.proposedDragHandles()
-          | std::views::transform([](const auto& h) { return h.faceHandle.node(); }),
+          | std::views::transform([](const auto& h) { return &h.faceHandle.node(); }),
         UnorderedRangeEquals(std::vector<mdl::BrushNode*>{frontBrush, backBrush}));
       CHECK_THAT(
         tool.proposedDragHandles() | std::views::transform([](const auto& h) {
@@ -457,7 +457,7 @@ TEST_CASE("ExtrudeTool")
       CHECK(
         extrudeHit.target<ExtrudeHitData>().face
         == mdl::BrushFaceHandle{
-          occluderBrush, *occluderBrush->brush().findFace(vm::vec3d{0, -1, 0})});
+          *occluderBrush, *occluderBrush->brush().findFace(vm::vec3d{0, -1, 0})});
     }
 
     SECTION("a face interior away from any edge is picked normally")
@@ -471,7 +471,7 @@ TEST_CASE("ExtrudeTool")
       CHECK(
         extrudeHit.target<ExtrudeHitData>().face
         == mdl::BrushFaceHandle{
-          frontBrush, *frontBrush->brush().findFace(vm::vec3d{0, 0, 1})});
+          *frontBrush, *frontBrush->brush().findFace(vm::vec3d{0, 0, 1})});
     }
   }
 
@@ -511,7 +511,7 @@ TEST_CASE("ExtrudeTool")
     // both coincident seam faces become drag handles, one per brush
     CHECK_THAT(
       tool.proposedDragHandles()
-        | std::views::transform([](const auto& h) { return h.faceHandle.node(); }),
+        | std::views::transform([](const auto& h) { return &h.faceHandle.node(); }),
       UnorderedRangeEquals(std::vector<mdl::BrushNode*>{leftBrush, rightBrush}));
     CHECK_THAT(
       tool.proposedDragHandles() | std::views::transform([](const auto& h) {
@@ -552,7 +552,7 @@ TEST_CASE("ExtrudeTool")
     CHECK(
       extrudeHit.target<ExtrudeHitData>().face
       == mdl::BrushFaceHandle{
-        frontBrush, *frontBrush->brush().findFace(vm::vec3d{0, 0, 1})});
+        *frontBrush, *frontBrush->brush().findFace(vm::vec3d{0, 0, 1})});
   }
 
   SECTION("A non-collinear edge of a different touching brush does not override the face")
@@ -587,7 +587,7 @@ TEST_CASE("ExtrudeTool")
     CHECK(
       extrudeHit.target<ExtrudeHitData>().face
       == mdl::BrushFaceHandle{
-        frontBrush, *frontBrush->brush().findFace(vm::vec3d{0, 0, 1})});
+        *frontBrush, *frontBrush->brush().findFace(vm::vec3d{0, 0, 1})});
   }
 
   SECTION("findDragFaces")

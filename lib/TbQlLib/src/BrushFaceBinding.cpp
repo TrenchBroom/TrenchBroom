@@ -56,22 +56,22 @@ const el::BoundValueFields<BrushFaceBinding>& brushFaceBindingFields()
      [](const BrushFaceBinding& b) { return el::Value{b.handle.face().center()}; }},
     {"entity",
      [](const BrushFaceBinding& b) {
-       return ownerEntityValue(b.handle.node()->entity());
+       return ownerEntityValue(b.handle.node().entity());
      }},
     {"layerName",
-     [](const BrushFaceBinding& b) { return layerNameValue(*b.handle.node()); }},
+     [](const BrushFaceBinding& b) { return layerNameValue(b.handle.node()); }},
     {"groupName",
-     [](const BrushFaceBinding& b) { return groupNameValue(*b.handle.node()); }},
+     [](const BrushFaceBinding& b) { return groupNameValue(b.handle.node()); }},
     {"tags", [](const BrushFaceBinding& b) { return tagsValue(b.map, b.handle.face()); }},
     {"visible",
-     [](const BrushFaceBinding& b) { return el::Value{b.handle.node()->visible()}; }},
+     [](const BrushFaceBinding& b) { return el::Value{b.handle.node().visible()}; }},
     {"locked",
-     [](const BrushFaceBinding& b) { return el::Value{b.handle.node()->locked()}; }},
+     [](const BrushFaceBinding& b) { return el::Value{b.handle.node().locked()}; }},
     {"selected",
      [](const BrushFaceBinding& b) { return el::Value{b.handle.face().selected()}; }},
     {"linked",
      [](const BrushFaceBinding& b) {
-       return el::Value{isLinked(b.map, *b.handle.node())};
+       return el::Value{isLinked(b.map, b.handle.node())};
      }},
   };
   return fields;

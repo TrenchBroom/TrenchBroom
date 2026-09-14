@@ -39,7 +39,7 @@ Node* hitToNode(const Hit& hit)
   }
   if (hit.type() == BrushNode::BrushHitType)
   {
-    return hit.target<BrushFaceHandle>().node();
+    return &hit.target<BrushFaceHandle>().node();
   }
   return nullptr;
 }

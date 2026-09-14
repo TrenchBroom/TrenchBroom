@@ -280,7 +280,7 @@ TEST_CASE("ClipTool")
     CHECK(!tool.reset());
     CHECK(!tool.canClip());
 
-    tool.setFace(mdl::BrushFaceHandle{brushNode, 0});
+    tool.setFace(mdl::BrushFaceHandle{*brushNode, 0});
     CHECK(tool.canClip());
 
     // a face clip has no draggable points of its own

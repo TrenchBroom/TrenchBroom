@@ -166,7 +166,7 @@ TEST_CASE("Selection")
       selectNodes(map, {patchNode});
       break;
     case SelectionItem::brushFace:
-      selectBrushFaces(map, {{brushNode, 0}});
+      selectBrushFaces(map, {{*brushNode, 0}});
       break;
     }
   };
@@ -453,7 +453,7 @@ TEST_CASE("Selection")
 
     SECTION("face selected")
     {
-      selectBrushFaces(map, {{brushNode, 0}});
+      selectBrushFaces(map, {{*brushNode, 0}});
       CHECK_THAT(
         map.selection().allEntities(),
         UnorderedEquals(std::vector<EntityNodeBase*>{&worldNode}));
@@ -507,7 +507,7 @@ TEST_CASE("Selection")
 
     SECTION("face selected")
     {
-      selectBrushFaces(map, {{brushNode, 0}});
+      selectBrushFaces(map, {{*brushNode, 0}});
       CHECK_THAT(
         map.selection().allBrushes(), UnorderedEquals(std::vector<BrushNode*>{}));
     }
@@ -517,10 +517,10 @@ TEST_CASE("Selection")
   {
     SECTION("face selected")
     {
-      selectBrushFaces(map, {{brushNode, 0}});
+      selectBrushFaces(map, {{*brushNode, 0}});
       CHECK(
         map.selection().allBrushFaces()
-        == std::vector<BrushFaceHandle>{BrushFaceHandle{brushNode, 0}});
+        == std::vector<BrushFaceHandle>{BrushFaceHandle{*brushNode, 0}});
     }
 
     SECTION("brush selected")

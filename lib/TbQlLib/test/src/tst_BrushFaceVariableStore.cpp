@@ -42,7 +42,7 @@ TEST_CASE("BrushFaceVariableStore")
   auto* brushNode = mdl::createBrushNode(map);
   mdl::addNodes(map, {{&mdl::parentForNodes(map), {brushNode}}});
 
-  const auto handle = mdl::toHandles(brushNode).front();
+  const auto handle = mdl::toHandles(*brushNode).front();
 
   auto store = makeBrushFaceVariableStore(map, handle);
   CHECK(store.value("type") == el::Value{"face"});

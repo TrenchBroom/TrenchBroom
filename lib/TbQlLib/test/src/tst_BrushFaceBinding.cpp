@@ -60,7 +60,7 @@ TEST_CASE("BrushFaceBinding")
   auto* brushNode = mdl::createBrushNode(map, "tagged_material");
   mdl::addNodes(map, {{&mdl::parentForNodes(map), {brushNode}}});
 
-  const auto handle = mdl::toHandles(brushNode).front();
+  const auto handle = mdl::toHandles(*brushNode).front();
   const auto boundValue = makeBrushFaceBinding(map, handle);
 
   CHECK(
