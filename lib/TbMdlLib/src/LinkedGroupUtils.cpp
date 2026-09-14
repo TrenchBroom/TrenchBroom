@@ -184,9 +184,10 @@ SelectionResult nodeSelectionWithLinkedGroupConstraints(
 FaceSelectionResult faceSelectionWithLinkedGroupConstraints(
   WorldNode& world, const std::vector<BrushFaceHandle>& faces)
 {
-  const auto nodes = faces
-                     | std::views::transform([](auto handle) { return handle.node(); })
-                     | kdl::ranges::to<std::vector<Node*>>();
+  const auto nodes =
+    faces
+    | std::views::transform([](const auto& handle) -> Node* { return &handle.node(); })
+    | kdl::ranges::to<std::vector<Node*>>();
   auto constrainedNodes = nodeSelectionWithLinkedGroupConstraints(world, nodes);
 
   const auto nodesToSelect = kdl::flat_set<Node*>{constrainedNodes.nodesToSelect};
@@ -194,7 +195,7 @@ FaceSelectionResult faceSelectionWithLinkedGroupConstraints(
   auto facesToSelect = std::vector<BrushFaceHandle>{};
   for (const auto& handle : faces)
   {
-    if (nodesToSelect.count(handle.node()) != 0)
+    if (nodesToSelect.count(&handle.node()) != 0)
     {
       facesToSelect.push_back(handle);
     }

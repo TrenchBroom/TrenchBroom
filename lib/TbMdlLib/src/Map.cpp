@@ -1040,8 +1040,8 @@ void Map::updateFaceTags(const std::vector<BrushFaceHandle>& faceHandles)
 {
   for (const auto& faceHandle : faceHandles)
   {
-    BrushNode* node = faceHandle.node();
-    node->updateFaceTags(faceHandle.faceIndex(), *m_tagManager);
+    auto& node = faceHandle.node();
+    node.updateFaceTags(faceHandle.faceIndex(), *m_tagManager);
   }
 }
 
@@ -1262,10 +1262,10 @@ void Map::setMaterials(const std::vector<BrushFaceHandle>& faceHandles)
 {
   for (const auto& faceHandle : faceHandles)
   {
-    BrushNode* node = faceHandle.node();
+    auto& node = faceHandle.node();
     const BrushFace& face = faceHandle.face();
     auto* material = m_materialManager->material(face.materialName());
-    node->setFaceMaterial(faceHandle.faceIndex(), material);
+    node.setFaceMaterial(faceHandle.faceIndex(), material);
   }
   materialUsageCountsDidChangeNotifier();
 }
@@ -1607,7 +1607,7 @@ SelectionChange computeSelectionChangeForAddedNodes(const std::vector<Node*>& no
       {
         if (brush.face(i).selected())
         {
-          selectionChange.selectedBrushFaces.emplace_back(brushNode, i);
+          selectionChange.selectedBrushFaces.emplace_back(*brushNode, i);
         }
       }
     }
@@ -1633,7 +1633,7 @@ SelectionChange computeSelectionChangeForRemovedNodes(const std::vector<Node*>& 
       {
         if (brush.face(i).selected())
         {
-          selectionChange.deselectedBrushFaces.emplace_back(brushNode, i);
+          selectionChange.deselectedBrushFaces.emplace_back(*brushNode, i);
         }
       }
     }

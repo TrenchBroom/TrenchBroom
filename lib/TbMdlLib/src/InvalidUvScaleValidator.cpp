@@ -53,7 +53,7 @@ IssueQuickFix makeResetUvScaleQuickFix()
                 auto& brushNode = static_cast<BrushNode&>(issue->node());
                 const auto faceIndex =
                   static_cast<const BrushFaceIssue*>(issue)->faceIndex();
-                faceHandles.emplace_back(&brushNode, faceIndex);
+                faceHandles.emplace_back(brushNode, faceIndex);
               }
             }
 

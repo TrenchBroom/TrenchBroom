@@ -277,7 +277,7 @@ public:
     const auto faceHandle = mdl::hitToFaceHandle(hit);
     contract_assert(faceHandle);
 
-    return selectHelpVectors(*faceHandle->node(), faceHandle->face(), clipPoint);
+    return selectHelpVectors(faceHandle->node(), faceHandle->face(), clipPoint);
   }
 
   std::optional<std::tuple<vm::vec3d, vm::vec3d>> doGetNewClipPointPositionAndHitPoint(

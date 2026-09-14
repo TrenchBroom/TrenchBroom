@@ -76,7 +76,7 @@ TEST_CASE("CompareHitsByType")
     BrushBuilder{MapFormat::Quake3, worldBounds}.createCube(32.0, "material")
     | kdl::value()};
   const auto brushHit =
-    makeHit(BrushNode::BrushHitType, 1.0, BrushFaceHandle{&brushNode, 0});
+    makeHit(BrushNode::BrushHitType, 1.0, BrushFaceHandle{brushNode, 0});
 
   SECTION("sorts brush hits first")
   {
@@ -105,7 +105,7 @@ TEST_CASE("CompareHitsBySize")
     brushNode.brush().face(*topFaceIndex).projectedArea(vm::axis::z) == 32.0 * 32.0);
 
   const auto brushHit =
-    makeHit(BrushNode::BrushHitType, 1.0, BrushFaceHandle{&brushNode, *topFaceIndex});
+    makeHit(BrushNode::BrushHitType, 1.0, BrushFaceHandle{brushNode, *topFaceIndex});
 
   SECTION("sorts by the projected area of the hit brush face")
   {
@@ -145,7 +145,7 @@ TEST_CASE("CombineCompareHits")
     BrushBuilder{MapFormat::Quake3, worldBounds}.createCube(32.0, "material")
     | kdl::value()};
   const auto makeBrushHit = [&](const double distance) {
-    return makeHit(BrushNode::BrushHitType, distance, BrushFaceHandle{&brushNode, 0});
+    return makeHit(BrushNode::BrushHitType, distance, BrushFaceHandle{brushNode, 0});
   };
 
   const auto compare = CombineCompareHits{

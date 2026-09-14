@@ -352,7 +352,7 @@ void BrushNode::doPick(
       const auto [distance, faceIndex] = *hit;
       const auto hitPoint = vm::point_at_distance(ray, distance);
       pickResult.addHit(
-        Hit(BrushHitType, distance, hitPoint, BrushFaceHandle(this, faceIndex)));
+        Hit(BrushHitType, distance, hitPoint, BrushFaceHandle(*this, faceIndex)));
     }
   }
 }

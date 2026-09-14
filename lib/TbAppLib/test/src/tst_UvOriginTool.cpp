@@ -61,7 +61,7 @@ TEST_CASE("UvOriginTool")
   brush.face(topFaceIndex).setMaterial(&material);
 
   auto brushNode = std::make_unique<mdl::BrushNode>(std::move(brush));
-  const auto faceHandle = mdl::BrushFaceHandle{brushNode.get(), topFaceIndex};
+  const auto faceHandle = mdl::BrushFaceHandle{*brushNode, topFaceIndex};
 
   auto camera = gl::OrthographicCamera{
     1.0f,
