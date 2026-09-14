@@ -114,7 +114,7 @@ TEST_CASE("Map_Brushes")
       const size_t thirdFaceIndex = 2u;
 
       deselectAll(map);
-      selectBrushFaces(map, {{brushNode, firstFaceIndex}});
+      selectBrushFaces(map, {{*brushNode, firstFaceIndex}});
 
       setBrushFaceAttributes(
         map,
@@ -147,7 +147,7 @@ TEST_CASE("Map_Brushes")
       }
 
       deselectAll(map);
-      selectBrushFaces(map, {{brushNode, secondFaceIndex}});
+      selectBrushFaces(map, {{*brushNode, secondFaceIndex}});
 
       setBrushFaceAttributes(
         map,
@@ -180,7 +180,7 @@ TEST_CASE("Map_Brushes")
       }
 
       deselectAll(map);
-      selectBrushFaces(map, {{brushNode, thirdFaceIndex}});
+      selectBrushFaces(map, {{*brushNode, thirdFaceIndex}});
 
       setBrushFaceAttributes(map, copyAll(getFace(*brushNode, secondFaceIndex)));
 
@@ -195,7 +195,7 @@ TEST_CASE("Map_Brushes")
         getFace(*brushNode, thirdFaceIndex).surfaceAttributes().contents;
 
       deselectAll(map);
-      selectBrushFaces(map, {{brushNode, secondFaceIndex}});
+      selectBrushFaces(map, {{*brushNode, secondFaceIndex}});
 
       setBrushFaceAttributes(map, copyAll(getFace(*brushNode, firstFaceIndex)));
 
@@ -207,7 +207,7 @@ TEST_CASE("Map_Brushes")
         MatchesBrushFaceAttributes(getFace(*brushNode, firstFaceIndex)));
 
       deselectAll(map);
-      selectBrushFaces(map, {{brushNode, thirdFaceIndex}});
+      selectBrushFaces(map, {{*brushNode, thirdFaceIndex}});
       setBrushFaceAttributes(
         map, copyAllExceptContentFlags(getFace(*brushNode, firstFaceIndex)));
 
@@ -357,7 +357,7 @@ TEST_CASE("Map_Brushes")
       const auto initialX = getFace(*brushNode, faceIndex).uAxis();
       const auto initialY = getFace(*brushNode, faceIndex).vAxis();
 
-      selectBrushFaces(map, {{brushNode, faceIndex}});
+      selectBrushFaces(map, {{*brushNode, faceIndex}});
 
       // NOLINTNEXTLINE(misc-const-correctness)
       for (size_t i = 0; i < 5; ++i)
@@ -427,7 +427,7 @@ TEST_CASE("Map_Brushes")
 
       const size_t faceIndex = 0u;
       deselectAll(map);
-      selectBrushFaces(map, {{brushNode, faceIndex}});
+      selectBrushFaces(map, {{*brushNode, faceIndex}});
 
       const auto originalFace = getFace(*brushNode, faceIndex);
       const auto canUndoBefore = map.canUndoCommand();
@@ -455,7 +455,7 @@ TEST_CASE("Map_Brushes")
     REQUIRE(targetFaceIndex);
 
     deselectAll(map);
-    selectBrushFaces(map, {{brushNode, *sourceFaceIndex}});
+    selectBrushFaces(map, {{*brushNode, *sourceFaceIndex}});
     REQUIRE(setBrushFaceAttributes(
       map,
       {
@@ -467,7 +467,7 @@ TEST_CASE("Map_Brushes")
       }));
 
     deselectAll(map);
-    selectBrushFaces(map, {{brushNode, *targetFaceIndex}});
+    selectBrushFaces(map, {{*brushNode, *targetFaceIndex}});
     REQUIRE(setBrushFaceAttributes(
       map,
       {
@@ -541,7 +541,7 @@ TEST_CASE("Map_Brushes")
     REQUIRE(otherFaceIndex);
 
     deselectAll(map);
-    selectBrushFaces(map, {{brushNode, *faceIndex}});
+    selectBrushFaces(map, {{*brushNode, *faceIndex}});
 
     REQUIRE(setBrushFaceAttributes(
       map,
@@ -618,7 +618,7 @@ TEST_CASE("Map_Brushes")
       REQUIRE(otherFaceIndex);
 
       deselectAll(map);
-      selectBrushFaces(map, {{brushNode, *faceIndex}});
+      selectBrushFaces(map, {{*brushNode, *faceIndex}});
 
       REQUIRE(setBrushFaceAttributes(map, {.rotation = SetValue{10.0f}}));
 
@@ -675,7 +675,7 @@ TEST_CASE("Map_Brushes")
       REQUIRE(faceIndex);
 
       deselectAll(map);
-      selectBrushFaces(map, {{brushNode, *faceIndex}});
+      selectBrushFaces(map, {{*brushNode, *faceIndex}});
 
       const auto max = std::numeric_limits<float>::max();
       REQUIRE(setBrushFaceAttributes(map, {.rotation = SetValue{max}}));
@@ -707,7 +707,7 @@ TEST_CASE("Map_Brushes")
     REQUIRE(otherFaceIndex);
 
     deselectAll(map);
-    selectBrushFaces(map, {{brushNode, *faceIndex}});
+    selectBrushFaces(map, {{*brushNode, *faceIndex}});
 
     const auto factors = vm::vec2f{0.25f, -0.5f};
 
@@ -772,7 +772,7 @@ TEST_CASE("Map_Brushes")
     REQUIRE(otherFaceIndex);
 
     deselectAll(map);
-    selectBrushFaces(map, {{brushNode, *faceIndex}});
+    selectBrushFaces(map, {{*brushNode, *faceIndex}});
 
     REQUIRE(setBrushFaceAttributes(
       map,
@@ -847,7 +847,7 @@ TEST_CASE("Map_Brushes")
     REQUIRE(otherFaceIndex);
 
     deselectAll(map);
-    selectBrushFaces(map, {{brushNode, *faceIndex}});
+    selectBrushFaces(map, {{*brushNode, *faceIndex}});
 
     REQUIRE(setBrushFaceAttributes(map, {.rotation = SetValue{0.0f}}));
 
@@ -916,7 +916,7 @@ TEST_CASE("Map_Brushes")
     REQUIRE(otherFaceIndex);
 
     deselectAll(map);
-    selectBrushFaces(map, {{brushNode, *faceIndex}});
+    selectBrushFaces(map, {{*brushNode, *faceIndex}});
 
     REQUIRE(setBrushFaceAttributes(
       map,
@@ -990,7 +990,7 @@ TEST_CASE("Map_Brushes")
     REQUIRE(otherFaceIndex);
 
     deselectAll(map);
-    selectBrushFaces(map, {{brushNode, *faceIndex}});
+    selectBrushFaces(map, {{*brushNode, *faceIndex}});
 
     REQUIRE(setBrushFaceAttributes(
       map,
@@ -1092,7 +1092,7 @@ TEST_CASE("Map_Brushes")
     {
       // front face is not aligned (rotation == 15)
       deselectAll(map);
-      selectBrushFaces(map, {{brushNode, iFront}});
+      selectBrushFaces(map, {{*brushNode, iFront}});
       REQUIRE(setBrushFaceAttributes(
         map,
         {
@@ -1105,7 +1105,7 @@ TEST_CASE("Map_Brushes")
 
       // right face is aligned (rotation == 0)
       deselectAll(map);
-      selectBrushFaces(map, {{brushNode, iRight}});
+      selectBrushFaces(map, {{*brushNode, iRight}});
       REQUIRE(setBrushFaceAttributes(
         map,
         {
@@ -1123,7 +1123,7 @@ TEST_CASE("Map_Brushes")
       const auto originalTopFace = getFace(*brushNode, iTop);
 
       deselectAll(map);
-      selectBrushFaces(map, {{brushNode, iFront}, {brushNode, iRight}});
+      selectBrushFaces(map, {{*brushNode, iFront}, {*brushNode, iRight}});
       autoFitUv(map);
 
       // front face is now aligned
@@ -1142,7 +1142,7 @@ TEST_CASE("Map_Brushes")
       "Does not realign when selected faces are aligned but not all fitted and justified")
     {
       deselectAll(map);
-      selectBrushFaces(map, {{brushNode, iFront}});
+      selectBrushFaces(map, {{*brushNode, iFront}});
       REQUIRE(setBrushFaceAttributes(
         map,
         {
@@ -1154,7 +1154,7 @@ TEST_CASE("Map_Brushes")
         }));
 
       deselectAll(map);
-      selectBrushFaces(map, {{brushNode, iRight}});
+      selectBrushFaces(map, {{*brushNode, iRight}});
       REQUIRE(setBrushFaceAttributes(
         map,
         {
@@ -1166,7 +1166,7 @@ TEST_CASE("Map_Brushes")
         }));
 
       deselectAll(map);
-      selectBrushFaces(map, {{brushNode, iFront}, {brushNode, iRight}});
+      selectBrushFaces(map, {{*brushNode, iFront}, {*brushNode, iRight}});
 
       REQUIRE(isAligned(getFace(*brushNode, iFront)));
       REQUIRE(!isJustified(getFace(*brushNode, iFront), UvAxis::u, UvSign::plus));
@@ -1206,7 +1206,7 @@ TEST_CASE("Map_Brushes")
     SECTION("Undo and Redo")
     {
       deselectAll(map);
-      selectBrushFaces(map, {{brushNode, iFront}});
+      selectBrushFaces(map, {{*brushNode, iFront}});
       REQUIRE(setBrushFaceAttributes(
         map,
         {
@@ -1218,7 +1218,7 @@ TEST_CASE("Map_Brushes")
         }));
 
       deselectAll(map);
-      selectBrushFaces(map, {{brushNode, iRight}});
+      selectBrushFaces(map, {{*brushNode, iRight}});
       REQUIRE(setBrushFaceAttributes(
         map,
         {
@@ -1233,7 +1233,7 @@ TEST_CASE("Map_Brushes")
       const auto originalRightFace = getFace(*brushNode, iRight);
 
       deselectAll(map);
-      selectBrushFaces(map, {{brushNode, iFront}, {brushNode, iRight}});
+      selectBrushFaces(map, {{*brushNode, iFront}, {*brushNode, iRight}});
       autoFitUv(map);
 
       const auto modifiedFrontFace = getFace(*brushNode, iFront);

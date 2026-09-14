@@ -50,12 +50,12 @@ const el::LazyMapFields<LazyBrushFace>& brushFaceLazyMapFields()
     {"normal", [](const auto& b) { return el::Value{b.handle.face().normal()}; }},
     {"bounds", [](const auto& b) { return el::Value{b.handle.face().bounds()}; }},
     {"center", [](const auto& b) { return el::Value{b.handle.face().center()}; }},
-    {"entity", [](const auto& b) { return ownerEntityValue(b.handle.node()->entity()); }},
-    {"layerName", [](const auto& b) { return layerNameValue(*b.handle.node()); }},
-    {"groupName", [](const auto& b) { return groupNameValue(*b.handle.node()); }},
+    {"entity", [](const auto& b) { return ownerEntityValue(b.handle.node().entity()); }},
+    {"layerName", [](const auto& b) { return layerNameValue(b.handle.node()); }},
+    {"groupName", [](const auto& b) { return groupNameValue(b.handle.node()); }},
     {"tags", [](const auto& b) { return tagsValue(b.map, b.handle.face()); }},
-    {"visible", [](const auto& b) { return el::Value{b.handle.node()->visible()}; }},
-    {"locked", [](const auto& b) { return el::Value{b.handle.node()->locked()}; }},
+    {"visible", [](const auto& b) { return el::Value{b.handle.node().visible()}; }},
+    {"locked", [](const auto& b) { return el::Value{b.handle.node().locked()}; }},
     {"selected", [](const auto& b) { return el::Value{b.handle.face().selected()}; }},
   };
   return fields;

@@ -900,25 +900,25 @@ TEST_CASE("Map_Selection")
 
       addNodes(map, {{&parentForNodes(map), {brushNode1, brushNode2}}});
 
-      selectBrushFaces(map, {{brushNode1, 0}, {brushNode1, 2}, {brushNode2, 5}});
+      selectBrushFaces(map, {{*brushNode1, 0}, {*brushNode1, 2}, {*brushNode2, 5}});
 
       CHECK_THAT(
         map.selection().brushFaces,
         UnorderedEquals(std::vector<BrushFaceHandle>{
-          {brushNode1, 0},
-          {brushNode1, 2},
-          {brushNode2, 5},
+          {*brushNode1, 0},
+          {*brushNode1, 2},
+          {*brushNode2, 5},
         }));
 
-      selectBrushFaces(map, {{brushNode1, 1}});
+      selectBrushFaces(map, {{*brushNode1, 1}});
 
       CHECK_THAT(
         map.selection().brushFaces,
         UnorderedEquals(std::vector<BrushFaceHandle>{
-          {brushNode1, 0},
-          {brushNode1, 1},
-          {brushNode1, 2},
-          {brushNode2, 5},
+          {*brushNode1, 0},
+          {*brushNode1, 1},
+          {*brushNode1, 2},
+          {*brushNode2, 5},
         }));
     }
 
@@ -942,7 +942,7 @@ TEST_CASE("Map_Selection")
       {
         CHECK(!linkedGroupNode->locked());
 
-        selectBrushFaces(map, {{brushNode, 0}});
+        selectBrushFaces(map, {{*brushNode, 0}});
         CHECK(linkedGroupNode->locked());
 
         deselectAll(map);
@@ -992,10 +992,10 @@ TEST_CASE("Map_Selection")
 
       const auto expectedBrushFaces =
         kdl::views::concat(
-          toHandles(brushNodeM1),
-          toHandles(entityBrushNodeM1),
-          toHandles(groupedBrushNodeM1),
-          toHandles(brushNodeM13) | std::views::filter([](const auto& handle) {
+          toHandles(*brushNodeM1),
+          toHandles(*entityBrushNodeM1),
+          toHandles(*groupedBrushNodeM1),
+          toHandles(*brushNodeM13) | std::views::filter([](const auto& handle) {
             return handle.face().materialName() == "material1";
           }) | kdl::ranges::to<std::vector>())
         | kdl::ranges::to<std::vector>();
@@ -1009,10 +1009,10 @@ TEST_CASE("Map_Selection")
 
       const auto expectedBrushFaces =
         kdl::views::concat(
-          toHandles(brushNodeM1),
-          toHandles(entityBrushNodeM1),
-          toHandles(groupedBrushNodeM1),
-          toHandles(brushNodeM13) | std::views::filter([](const auto& handle) {
+          toHandles(*brushNodeM1),
+          toHandles(*entityBrushNodeM1),
+          toHandles(*groupedBrushNodeM1),
+          toHandles(*brushNodeM13) | std::views::filter([](const auto& handle) {
             return handle.face().materialName() == "material1";
           }) | kdl::ranges::to<std::vector>())
         | kdl::ranges::to<std::vector>();
@@ -1027,7 +1027,7 @@ TEST_CASE("Map_Selection")
       selectBrushFacesWithMaterial(map, "material1");
 
       CHECK_THAT(
-        map.selection().brushFaces, UnorderedEquals(toHandles(groupedBrushNodeM1)));
+        map.selection().brushFaces, UnorderedEquals(toHandles(*groupedBrushNodeM1)));
     }
   }
 
@@ -1057,10 +1057,10 @@ TEST_CASE("Map_Selection")
 
     SECTION("Brush face selection")
     {
-      selectBrushFaces(map, toHandles(entityBrushNode));
+      selectBrushFaces(map, toHandles(*entityBrushNode));
 
       REQUIRE_THAT(
-        map.selection().brushFaces, UnorderedEquals(toHandles(entityBrushNode)));
+        map.selection().brushFaces, UnorderedEquals(toHandles(*entityBrushNode)));
       deselectAll(map);
       CHECK(map.selection().brushFaces == std::vector<BrushFaceHandle>{});
     }
@@ -1130,13 +1130,14 @@ TEST_CASE("Map_Selection")
 
     SECTION("Brush face selection")
     {
-      selectBrushFaces(map, toHandles(entityBrushNode));
+      selectBrushFaces(map, toHandles(*entityBrushNode));
 
       REQUIRE_THAT(
-        map.selection().brushFaces, UnorderedEquals(toHandles(entityBrushNode)));
+        map.selection().brushFaces, UnorderedEquals(toHandles(*entityBrushNode)));
 
       deselectNodes(map, {entityNode});
-      CHECK_THAT(map.selection().brushFaces, UnorderedEquals(toHandles(entityBrushNode)));
+      CHECK_THAT(
+        map.selection().brushFaces, UnorderedEquals(toHandles(*entityBrushNode)));
     }
   }
 
@@ -1147,14 +1148,14 @@ TEST_CASE("Map_Selection")
 
     addNodes(map, {{&parentForNodes(map), {brushNode1, brushNode2}}});
 
-    selectBrushFaces(map, {{brushNode1, 0}, {brushNode1, 2}, {brushNode2, 5}});
+    selectBrushFaces(map, {{*brushNode1, 0}, {*brushNode1, 2}, {*brushNode2, 5}});
 
     REQUIRE_THAT(
       map.selection().brushFaces,
       UnorderedEquals(std::vector<BrushFaceHandle>{
-        {brushNode1, 0},
-        {brushNode1, 2},
-        {brushNode2, 5},
+        {*brushNode1, 0},
+        {*brushNode1, 2},
+        {*brushNode2, 5},
       }));
 
     SECTION("Deselect nothing does nothing")
@@ -1163,48 +1164,48 @@ TEST_CASE("Map_Selection")
       CHECK_THAT(
         map.selection().brushFaces,
         UnorderedEquals(std::vector<BrushFaceHandle>{
-          {brushNode1, 0},
-          {brushNode1, 2},
-          {brushNode2, 5},
+          {*brushNode1, 0},
+          {*brushNode1, 2},
+          {*brushNode2, 5},
         }));
     }
 
     SECTION("Deselect an unselected face does nothing")
     {
-      deselectBrushFaces(map, {{brushNode1, 1}});
+      deselectBrushFaces(map, {{*brushNode1, 1}});
       CHECK_THAT(
         map.selection().brushFaces,
         UnorderedEquals(std::vector<BrushFaceHandle>{
-          {brushNode1, 0},
-          {brushNode1, 2},
-          {brushNode2, 5},
+          {*brushNode1, 0},
+          {*brushNode1, 2},
+          {*brushNode2, 5},
         }));
     }
 
     SECTION("Deselect a single face")
     {
-      deselectBrushFaces(map, {{brushNode1, 0}});
+      deselectBrushFaces(map, {{*brushNode1, 0}});
       CHECK_THAT(
         map.selection().brushFaces,
         UnorderedEquals(std::vector<BrushFaceHandle>{
-          {brushNode1, 2},
-          {brushNode2, 5},
+          {*brushNode1, 2},
+          {*brushNode2, 5},
         }));
     }
 
     SECTION("Deselect multiple faces")
     {
-      deselectBrushFaces(map, {{brushNode1, 0}, {brushNode2, 5}});
+      deselectBrushFaces(map, {{*brushNode1, 0}, {*brushNode2, 5}});
       CHECK_THAT(
         map.selection().brushFaces,
         UnorderedEquals(std::vector<BrushFaceHandle>{
-          {brushNode1, 2},
+          {*brushNode1, 2},
         }));
     }
 
     SECTION("Deselect all faces")
     {
-      deselectBrushFaces(map, {{brushNode1, 0}, {brushNode1, 2}, {brushNode2, 5}});
+      deselectBrushFaces(map, {{*brushNode1, 0}, {*brushNode1, 2}, {*brushNode2, 5}});
       CHECK(map.selection().brushFaces == std::vector<BrushFaceHandle>{});
     }
   }

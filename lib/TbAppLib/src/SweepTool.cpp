@@ -75,7 +75,7 @@ auto initializeFaces(const auto& faces)
   return faces | std::views::transform([](const auto& faceHandle) {
            const auto& face = faceHandle.face();
            auto polygon = face.polygon();
-           return SweepFace{std::move(polygon), faceHandle.node()->parent()};
+           return SweepFace{std::move(polygon), faceHandle.node().parent()};
          })
          | kdl::ranges::to<std::vector>();
 }

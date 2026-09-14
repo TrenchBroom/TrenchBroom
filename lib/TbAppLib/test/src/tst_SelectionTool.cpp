@@ -192,7 +192,7 @@ TEST_CASE("SelectionTool")
           {
             CHECK(
               map.selection().brushFaces
-              == std::vector<mdl::BrushFaceHandle>{{brushNode, topFaceIndex}});
+              == std::vector<mdl::BrushFaceHandle>{{*brushNode, topFaceIndex}});
             CHECK(!map.selection().hasNodes());
           }
 
@@ -207,7 +207,7 @@ TEST_CASE("SelectionTool")
             {
               CHECK(
                 map.selection().brushFaces
-                == std::vector<mdl::BrushFaceHandle>{{brushNode, topFaceIndex}});
+                == std::vector<mdl::BrushFaceHandle>{{*brushNode, topFaceIndex}});
               CHECK(!map.selection().hasNodes());
             }
           }
@@ -296,7 +296,7 @@ TEST_CASE("SelectionTool")
 
         AND_GIVEN("The front face of the brush is selected")
         {
-          selectBrushFaces(map, {{brushNode, frontFaceIndex}});
+          selectBrushFaces(map, {{*brushNode, frontFaceIndex}});
 
           WHEN("I shift click once")
           {
@@ -309,7 +309,7 @@ TEST_CASE("SelectionTool")
             {
               CHECK(
                 map.selection().brushFaces
-                == std::vector<mdl::BrushFaceHandle>{{brushNode, topFaceIndex}});
+                == std::vector<mdl::BrushFaceHandle>{{*brushNode, topFaceIndex}});
               CHECK(!map.selection().hasNodes());
             }
           }
@@ -326,7 +326,7 @@ TEST_CASE("SelectionTool")
               CHECK_THAT(
                 map.selection().brushFaces,
                 UnorderedEquals(std::vector<mdl::BrushFaceHandle>{
-                  {brushNode, topFaceIndex}, {brushNode, frontFaceIndex}}));
+                  {*brushNode, topFaceIndex}, {*brushNode, frontFaceIndex}}));
               CHECK(!map.selection().hasNodes());
             }
           }
@@ -356,7 +356,7 @@ TEST_CASE("SelectionTool")
 
             const auto coplanarTopFaceIndex =
               *coplanarBrushNode->brush().findFace("top_face");
-            mdl::selectBrushFaces(map, {{brushNode, frontFaceIndex}});
+            mdl::selectBrushFaces(map, {{*brushNode, frontFaceIndex}});
 
             AND_WHEN("I select all adjacent coplanar faces")
             {
@@ -370,8 +370,8 @@ TEST_CASE("SelectionTool")
                 CHECK_THAT(
                   map.selection().brushFaces,
                   UnorderedEquals(std::vector<mdl::BrushFaceHandle>{
-                    {brushNode, topFaceIndex},
-                    {coplanarBrushNode, coplanarTopFaceIndex}}));
+                    {*brushNode, topFaceIndex},
+                    {*coplanarBrushNode, coplanarTopFaceIndex}}));
                 CHECK(!map.selection().hasNodes());
               }
             }
@@ -389,9 +389,9 @@ TEST_CASE("SelectionTool")
                 CHECK_THAT(
                   map.selection().brushFaces,
                   UnorderedEquals(std::vector<mdl::BrushFaceHandle>{
-                    {brushNode, frontFaceIndex},
-                    {brushNode, topFaceIndex},
-                    {coplanarBrushNode, coplanarTopFaceIndex}}));
+                    {*brushNode, frontFaceIndex},
+                    {*brushNode, topFaceIndex},
+                    {*coplanarBrushNode, coplanarTopFaceIndex}}));
                 CHECK(!map.selection().hasNodes());
               }
             }
@@ -440,7 +440,7 @@ TEST_CASE("SelectionTool")
             {
               CHECK(
                 map.selection().brushFaces
-                == std::vector<mdl::BrushFaceHandle>{{brushNode, topFaceIndex}});
+                == std::vector<mdl::BrushFaceHandle>{{*brushNode, topFaceIndex}});
               CHECK(!map.selection().hasNodes());
             }
           }
@@ -456,7 +456,7 @@ TEST_CASE("SelectionTool")
             {
               CHECK(
                 map.selection().brushFaces
-                == std::vector<mdl::BrushFaceHandle>{{brushNode, topFaceIndex}});
+                == std::vector<mdl::BrushFaceHandle>{{*brushNode, topFaceIndex}});
               CHECK(!map.selection().hasNodes());
             }
           }
@@ -617,7 +617,7 @@ TEST_CASE("SelectionTool")
             CHECK(
               map.selection().brushFaces
               == std::vector<mdl::BrushFaceHandle>{
-                {visibleBrushNode, visibleTopFaceIndex}});
+                {*visibleBrushNode, visibleTopFaceIndex}});
           }
         }
 
@@ -799,7 +799,7 @@ TEST_CASE("SelectionTool")
         {
           CHECK(
             map.selection().brushFaces
-            == std::vector<mdl::BrushFaceHandle>{{brushNode, topFaceIndex}});
+            == std::vector<mdl::BrushFaceHandle>{{*brushNode, topFaceIndex}});
         }
 
         AND_WHEN("The drag moves onto the front face")
@@ -809,7 +809,7 @@ TEST_CASE("SelectionTool")
             mdl::BrushNode::BrushHitType,
             0.0,
             vm::vec3d{0, 0, 0},
-            mdl::BrushFaceHandle{brushNode, frontFaceIndex}});
+            mdl::BrushFaceHandle{*brushNode, frontFaceIndex}});
 
           auto dragInputState = InputState{0.0f, 0.0f};
           dragInputState.setPickRequest({pickRay, camera});
@@ -824,7 +824,7 @@ TEST_CASE("SelectionTool")
             CHECK_THAT(
               map.selection().brushFaces,
               UnorderedEquals(std::vector<mdl::BrushFaceHandle>{
-                {brushNode, topFaceIndex}, {brushNode, frontFaceIndex}}));
+                {*brushNode, topFaceIndex}, {*brushNode, frontFaceIndex}}));
           }
 
           tracker->end(dragInputState);

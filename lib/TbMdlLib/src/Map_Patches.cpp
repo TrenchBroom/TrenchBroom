@@ -61,7 +61,7 @@ void convertSelectionToPatches(
 
   auto nodesToRemove = selection.allBrushFaces()
                        | std::views::transform([](const auto& faceHandle) {
-                           return static_cast<Node*>(faceHandle.node());
+                           return static_cast<Node*>(&faceHandle.node());
                          })
                        | kdl::ranges::to<std::vector>();
   kdl::vec_sort_and_remove_duplicates(nodesToRemove);

@@ -224,9 +224,9 @@ TEST_CASE("NodeQueries")
 
   SECTION("collectBrushFaces")
   {
-    CHECK_THAT(collectBrushFaces({&worldNode}), UnorderedEquals(toHandles(brushNode)));
+    CHECK_THAT(collectBrushFaces({&worldNode}), UnorderedEquals(toHandles(*brushNode)));
     CHECK_THAT(
-      collectBrushFaces({brushNode, brushNode}), UnorderedEquals(toHandles(brushNode)));
+      collectBrushFaces({brushNode, brushNode}), UnorderedEquals(toHandles(*brushNode)));
   }
 }
 

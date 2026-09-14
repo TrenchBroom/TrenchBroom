@@ -64,8 +64,8 @@ TEST_CASE("Map_Patches")
     REQUIRE(firstFaceIndex);
     REQUIRE(secondFaceIndex);
 
-    const auto firstFaceHandle = BrushFaceHandle{brushNode, *firstFaceIndex};
-    const auto secondFaceHandle = BrushFaceHandle{brushNode, *secondFaceIndex};
+    const auto firstFaceHandle = BrushFaceHandle{*brushNode, *firstFaceIndex};
+    const auto secondFaceHandle = BrushFaceHandle{*brushNode, *secondFaceIndex};
     selectBrushFaces(map, {firstFaceHandle, secondFaceHandle});
 
     const auto expectedPatches = kdl::views::concat(

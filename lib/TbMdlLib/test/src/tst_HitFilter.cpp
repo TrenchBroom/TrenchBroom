@@ -72,7 +72,7 @@ Hit makeHit(const HitType::Type type, const auto& target)
 
 Hit makeBrushHit(BrushNode* brushNode, const size_t faceIndex = 0)
 {
-  return makeHit(BrushNode::BrushHitType, BrushFaceHandle{brushNode, faceIndex});
+  return makeHit(BrushNode::BrushHitType, BrushFaceHandle{*brushNode, faceIndex});
 }
 
 } // namespace
