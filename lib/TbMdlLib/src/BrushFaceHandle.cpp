@@ -30,17 +30,16 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 
 namespace tb::mdl
 {
-BrushFaceHandle::BrushFaceHandle(BrushNode* node, const size_t faceIndex)
-  : m_node{node}
+BrushFaceHandle::BrushFaceHandle(BrushNode& node, const size_t faceIndex)
+  : m_node{&node}
   , m_faceIndex{faceIndex}
 {
-  contract_pre(m_node != nullptr);
   contract_pre(m_faceIndex < m_node->brush().faceCount());
 }
 
-BrushNode* BrushFaceHandle::node() const
+BrushNode& BrushFaceHandle::node() const
 {
-  return m_node;
+  return *m_node;
 }
 
 size_t BrushFaceHandle::faceIndex() const
@@ -57,15 +56,16 @@ kdl_reflect_impl(BrushFaceHandle);
 
 std::vector<BrushNode*> toNodes(const std::vector<BrushFaceHandle>& handles)
 {
-  return handles | std::views::transform([](const auto& handle) { return handle.node(); })
+  return handles
+         | std::views::transform([](const auto& handle) { return &handle.node(); })
          | kdl::ranges::to<std::vector>();
 }
 
-std::vector<BrushFaceHandle> toHandles(BrushNode* brushNode)
+std::vector<BrushFaceHandle> toHandles(BrushNode& brushNode)
 {
   std::vector<BrushFaceHandle> result;
-  result.reserve(brushNode->brush().faceCount());
-  for (size_t i = 0u; i < brushNode->brush().faceCount(); ++i)
+  result.reserve(brushNode.brush().faceCount());
+  for (size_t i = 0u; i < brushNode.brush().faceCount(); ++i)
   {
     result.emplace_back(brushNode, i);
   }

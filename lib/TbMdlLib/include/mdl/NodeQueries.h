@@ -500,7 +500,7 @@ std::vector<BrushFaceHandle> collectBrushFaces(
           const auto& face = brush.face(i);
           if (predicate(brushNode, face))
           {
-            result.emplace_back(&brushNode, i);
+            result.emplace_back(brushNode, i);
           }
         }
       },

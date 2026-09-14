@@ -134,7 +134,7 @@ TEST_CASE("Map_CopyPaste")
 
     SECTION("one face is selected")
     {
-      selectBrushFaces(map, {toHandles(brushNode).front()});
+      selectBrushFaces(map, {toHandles(*brushNode).front()});
 
       CHECK(
         serializeSelectedBrushFaces(map)
@@ -144,7 +144,7 @@ TEST_CASE("Map_CopyPaste")
 
     SECTION("all faces are selected")
     {
-      selectBrushFaces(map, toHandles(brushNode));
+      selectBrushFaces(map, toHandles(*brushNode));
 
       CHECK(
         serializeSelectedBrushFaces(map)
