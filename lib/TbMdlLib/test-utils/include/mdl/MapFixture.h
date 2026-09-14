@@ -25,6 +25,8 @@
 #include "mdl/GameInfo.h"
 #include "mdl/MapFormat.h"
 
+#include "vm/bbox.h"
+
 #include <filesystem>
 #include <memory>
 #include <optional>
@@ -53,6 +55,7 @@ struct MapFixtureConfig
   std::optional<MapFormat> mapFormat = std::nullopt;
   GameInfo gameInfo = DefaultGameInfo;
   EnvironmentConfig environmentConfig = {};
+  vm::bbox3d worldBounds = vm::bbox3d{8129.0};
 };
 
 inline const MapFixtureConfig QuakeFixtureConfig = MapFixtureConfig{

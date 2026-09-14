@@ -836,6 +836,35 @@ TEST_CASE("Polyhedron")
       CHECK(p.vertexCount() == 9u);
     }
 
+    SECTION(
+      "With a point set that previously crashed due to a precondition violation "
+      "when building the seam for a horizon")
+    {
+      // see https://github.com/TrenchBroom/TrenchBroom/issues/5480
+      // Floating point imprecision in the point status computation could produce a seam
+      // whose edges did not connect, violating a precondition; and separately, a seam
+      // with multiple loops could reach the cone weaving step, violating an assertion.
+      const auto vertices = std::vector<vm::vec3d>({
+        vm::vec3d(-9633, 1505, -1513), vm::vec3d(-9622, 1504, -1488),
+        vm::vec3d(-9622, 1504, -1550), vm::vec3d(-9656, 1504, -1488),
+        vm::vec3d(-9208, 1744, -1488), vm::vec3d(-9216, 1504, -1488),
+        vm::vec3d(-9432, 1744, -1488), vm::vec3d(-9322, 1625, -1489),
+        vm::vec3d(-9432, 1504, -1488), vm::vec3d(-9208, 1968, -1488),
+        vm::vec3d(-9432, 1968, -1488), vm::vec3d(-9320, 1856, -1489),
+        vm::vec3d(-9208, 2084, -1488), vm::vec3d(-9320, 2026, -1489),
+        vm::vec3d(-9432, 2084, -1488), vm::vec3d(-9208, 2308, -1488),
+        vm::vec3d(-9432, 2308, -1488), vm::vec3d(-9320, 2196, -1489),
+        vm::vec3d(-9400, 5122, -1489), vm::vec3d(-9344, 5220, -1488),
+        vm::vec3d(-9432, 4996, -1488), vm::vec3d(-9408, 5220, -1488),
+      });
+
+      const Polyhedron3d p(vertices);
+      CHECK(p.polyhedron());
+      CHECK(p.closed());
+      CHECK(p.vertexCount() == 10u);
+      CHECK(p.faceCount() == 14u);
+    }
+
     SECTION("With a redundant point at the center of a square")
     {
       //

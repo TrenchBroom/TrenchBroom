@@ -54,7 +54,7 @@ Map& MapFixture::create(MapFixtureConfig config)
       m_config->gameInfo,
       m_config->gameInfo.gamePathPreference.defaultValue,
       mapFormat,
-      vm::bbox3d{8129.0},
+      m_config->worldBounds,
       *m_taskManager,
       *m_resourceManager,
       *m_logger)
@@ -83,7 +83,7 @@ Map& MapFixture::load(const std::filesystem::path& path, MapFixtureConfig config
       m_config->gameInfo,
       m_config->gameInfo.gamePathPreference.defaultValue,
       mapFormat,
-      vm::bbox3d{8129.0},
+      m_config->worldBounds,
       absPath,
       *m_taskManager,
       *m_resourceManager,
