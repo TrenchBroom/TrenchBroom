@@ -28,6 +28,7 @@
 #include "kd/range_fold.h"
 
 #include <catch2/catch_test_macros.hpp>
+#include <catch2/generators/catch_generators.hpp>
 
 namespace tb::ui
 {
@@ -489,6 +490,88 @@ TEST_CASE("DrawShapeToolArchExtension")
   }
 }
 
+TEST_CASE("DrawShapeToolRockExtension")
+{
+  auto fixture = MapDocumentFixture{};
+  auto& document = fixture.create();
+  auto extension = DrawShapeToolRockExtension{document};
+  auto parameters = DrawShapeToolParameters{};
+
+  SECTION("createBrushes")
+  {
+    const auto bounds = vm::bbox3d{{-64, -64, -64}, {64, 64, 64}};
+    const auto result = extension.createBrushes(bounds, parameters);
+    REQUIRE(result.is_success());
+    REQUIRE(!result.value().empty());
+  }
+
+  SECTION("createBrushes exactly fills the given bounds")
+  {
+    const auto bounds = vm::bbox3d{{-64, -64, -64}, {64, 64, 64}};
+
+    extension.createBrushes(bounds, parameters)
+      | kdl::transform([&](const auto& brushes) {
+          CHECK(
+            kdl::fold_left_first(
+              brushes
+                | std::views::transform([](const auto& brush) { return brush.bounds(); }),
+              [](const auto& lhs, const auto& rhs) { return vm::merge(lhs, rhs); })
+            == bounds);
+        })
+      | kdl::transform_error([](const auto& e) { FAIL(e); });
+  }
+
+  SECTION("Create different rock types")
+  {
+    const auto bounds = vm::bbox3d{{-64, -64, -64}, {64, 64, 64}};
+    const auto rockType = GENERATE(
+      mdl::RockType::Boulder,
+      mdl::RockType::Shelf,
+      mdl::RockType::Strata,
+      mdl::RockType::Crag,
+      mdl::RockType::Crystal,
+      mdl::RockType::Columns,
+      mdl::RockType::Basalt,
+      mdl::RockType::Cluster);
+
+    parameters.setRockType(rockType);
+    const auto result = extension.createBrushes(bounds, parameters);
+    REQUIRE(result.is_success());
+    REQUIRE(!result.value().empty());
+  }
+
+  SECTION("createBrushes wires the seed to the brush builder")
+  {
+    const auto bounds = vm::bbox3d{{-64, -64, -64}, {64, 64, 64}};
+
+    parameters.setRockSeed(1);
+    const auto result1 = extension.createBrushes(bounds, parameters);
+    REQUIRE(result1.is_success());
+
+    parameters.setRockSeed(2);
+    const auto result2 = extension.createBrushes(bounds, parameters);
+    REQUIRE(result2.is_success());
+
+    CHECK(result1.value()[0].vertexPositions() != result2.value()[0].vertexPositions());
+  }
+
+  SECTION("createBrushes wires the resolution to the brush builder")
+  {
+    const auto bounds = vm::bbox3d{{-64, -64, -64}, {64, 64, 64}};
+    parameters.setRockType(mdl::RockType::Boulder);
+
+    parameters.setRockResolution(0);
+    const auto result1 = extension.createBrushes(bounds, parameters);
+    REQUIRE(result1.is_success());
+
+    parameters.setRockResolution(4);
+    const auto result2 = extension.createBrushes(bounds, parameters);
+    REQUIRE(result2.is_success());
+
+    CHECK(result1.value()[0].faceCount() != result2.value()[0].faceCount());
+  }
+}
+
 TEST_CASE("DrawShapeToolParameters")
 {
   auto parameters = DrawShapeToolParameters{};
@@ -503,6 +586,8 @@ TEST_CASE("DrawShapeToolParameters")
     REQUIRE(parameters.accuracy() == 1);
     REQUIRE(parameters.stepHeight() == 16.0);
     REQUIRE(parameters.stairDirection() == DrawShapeToolParameters::StairDirection::PosX);
+    REQUIRE(parameters.rockResolution() == 3);
+    REQUIRE(parameters.incrementRockSeed() == false);
   }
 
   SECTION("Axis modifications")
@@ -666,6 +751,42 @@ TEST_CASE("DrawShapeToolParameters")
 
     parameters.setCircleShape(mdl::EdgeAlignedCircle{12});
     CHECK(parametersDidChange.notifications.size() == 1u);
+  }
+
+  SECTION("RockResolution modifications")
+  {
+    auto parametersDidChange = Observer<>{parameters.parametersDidChangeNotifier};
+
+    parameters.setRockResolution(3);
+    CHECK(parametersDidChange.notifications.empty());
+
+    parameters.setRockResolution(4);
+    REQUIRE(parameters.rockResolution() == 4);
+    CHECK(parametersDidChange.notifications.size() == 1u);
+
+    parameters.setRockResolution(4);
+    CHECK(parametersDidChange.notifications.size() == 1u);
+  }
+
+  SECTION("IncrementRockSeed modifications")
+  {
+    auto parametersDidChange = Observer<>{parameters.parametersDidChangeNotifier};
+
+    REQUIRE(parameters.incrementRockSeed() == false);
+
+    parameters.setIncrementRockSeed(false);
+    CHECK(parametersDidChange.notifications.empty());
+
+    parameters.setIncrementRockSeed(true);
+    REQUIRE(parameters.incrementRockSeed() == true);
+    CHECK(parametersDidChange.notifications.size() == 1u);
+
+    parameters.setIncrementRockSeed(true);
+    CHECK(parametersDidChange.notifications.size() == 1u);
+
+    parameters.setIncrementRockSeed(false);
+    REQUIRE(parameters.incrementRockSeed() == false);
+    CHECK(parametersDidChange.notifications.size() == 2u);
   }
 }
 
