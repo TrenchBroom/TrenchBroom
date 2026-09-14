@@ -59,11 +59,7 @@ void convertSelectionToPatches(
       })
     | kdl::ranges::to<std::vector>();
 
-  auto nodesToRemove = selection.allBrushFaces()
-                       | std::views::transform([](const auto& faceHandle) {
-                           return static_cast<Node*>(faceHandle.node());
-                         })
-                       | kdl::ranges::to<std::vector>();
+  auto nodesToRemove = kdl::vec_static_cast<Node*>(toNodes(selection.allBrushFaces()));
   kdl::vec_sort_and_remove_duplicates(nodesToRemove);
 
   auto transaction = Transaction{map, "Convert Selection to Patches"};

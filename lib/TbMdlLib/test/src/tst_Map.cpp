@@ -183,13 +183,13 @@ TEST_CASE("Map")
       REQUIRE(topFaceIndex);
 
       // select the top face
-      selectBrushFaces(map, {{brushNode, *topFaceIndex}});
+      selectBrushFaces(map, {{*brushNode, *topFaceIndex}});
       CHECK_THAT(
         map.selection().brushFaces,
-        Equals(std::vector<mdl::BrushFaceHandle>{{brushNode, *topFaceIndex}}));
+        Equals(std::vector<mdl::BrushFaceHandle>{{*brushNode, *topFaceIndex}}));
 
       // deselect it
-      deselectBrushFaces(map, {{brushNode, *topFaceIndex}});
+      deselectBrushFaces(map, {{*brushNode, *topFaceIndex}});
       CHECK_THAT(map.selection().brushFaces, Equals(std::vector<mdl::BrushFaceHandle>{}));
 
       // select the brush
@@ -216,7 +216,7 @@ TEST_CASE("Map")
       map.undoCommand();
       CHECK_THAT(
         map.selection().brushFaces,
-        Equals(std::vector<mdl::BrushFaceHandle>{{brushNode, *topFaceIndex}}));
+        Equals(std::vector<mdl::BrushFaceHandle>{{*brushNode, *topFaceIndex}}));
     }
 
     SECTION("allEntities")

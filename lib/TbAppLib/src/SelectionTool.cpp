@@ -60,7 +60,7 @@ mdl::HitFilter isNodeSelectable(const mdl::EditorContext& editorContext)
   return [&](const auto& hit) {
     if (const auto faceHandle = mdl::hitToFaceHandle(hit))
     {
-      if (!editorContext.selectable(*faceHandle->node(), faceHandle->face()))
+      if (!editorContext.selectable(faceHandle->node(), faceHandle->face()))
       {
         return false;
       }
@@ -227,9 +227,9 @@ public:
         type(mdl::BrushNode::BrushHitType) && isNodeSelectable(editorContext));
       if (const auto faceHandle = mdl::hitToFaceHandle(hit))
       {
-        const auto* brushNode = faceHandle->node();
+        const auto& brushNode = faceHandle->node();
         const auto& face = faceHandle->face();
-        if (!face.selected() && editorContext.selectable(*brushNode, face))
+        if (!face.selected() && editorContext.selectable(brushNode, face))
         {
           selectBrushFaces(m_map, {*faceHandle});
         }
@@ -295,16 +295,16 @@ bool SelectionTool::mouseClick(const InputState& inputState)
       inputState, type(mdl::BrushNode::BrushHitType) && isNodeSelectable(editorContext));
     if (const auto faceHandle = mdl::hitToFaceHandle(hit))
     {
-      const auto* brushNode = faceHandle->node();
+      const auto& brushNode = faceHandle->node();
       const auto& face = faceHandle->face();
-      if (editorContext.selectable(*brushNode, face))
+      if (editorContext.selectable(brushNode, face))
       {
         if (isMultiClick(inputState))
         {
           const auto objects = map.selection().hasNodes();
           if (objects)
           {
-            if (brushNode->selected())
+            if (brushNode.selected())
             {
               deselectBrushFaces(map, {*faceHandle});
             }
@@ -405,7 +405,7 @@ bool SelectionTool::mouseDoubleClick(const InputState& inputState)
     const auto hit = firstHit(inputState, type(mdl::BrushNode::BrushHitType));
     if (const auto faceHandle = mdl::hitToFaceHandle(hit))
     {
-      if (editorContext.selectable(*faceHandle->node(), faceHandle->face()))
+      if (editorContext.selectable(faceHandle->node(), faceHandle->face()))
       {
         const auto region = mdl::collectConnectedCoplanarFaces(
           *faceHandle, editorContext, map.worldNode().nodeTree());
@@ -426,9 +426,9 @@ bool SelectionTool::mouseDoubleClick(const InputState& inputState)
     const auto hit = firstHit(inputState, type(mdl::BrushNode::BrushHitType));
     if (const auto faceHandle = mdl::hitToFaceHandle(hit))
     {
-      auto* brushNode = faceHandle->node();
+      auto& brushNode = faceHandle->node();
       const auto& face = faceHandle->face();
-      if (editorContext.selectable(*brushNode, face))
+      if (editorContext.selectable(brushNode, face))
       {
         replaceOrExtendFaceSelection(
           map, inputState, mdl::toHandles(brushNode), "Select Brush Faces");
@@ -529,9 +529,9 @@ std::unique_ptr<GestureTracker> SelectionTool::acceptMouseDrag(
     const auto hit = firstHit(inputState, type(mdl::BrushNode::BrushHitType));
     if (const auto faceHandle = mdl::hitToFaceHandle(hit))
     {
-      const auto* brushNode = faceHandle->node();
+      const auto& brushNode = faceHandle->node();
       const auto& face = faceHandle->face();
-      if (editorContext.selectable(*brushNode, face))
+      if (editorContext.selectable(brushNode, face))
       {
         map.startTransaction(
           "Drag Select Brush Faces", mdl::TransactionScope::LongRunning);

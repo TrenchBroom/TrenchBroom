@@ -23,7 +23,6 @@
 #include "mdl/BrushFace.h"
 #include "mdl/BrushNode.h"
 
-#include "kd/contracts.h"
 #include "kd/ranges/to.h"
 #include "kd/result_fold.h"
 
@@ -32,18 +31,17 @@
 namespace tb::mdl
 {
 
-BrushFaceReference::BrushFaceReference(BrushNode* node, const BrushFace& face)
-  : m_node{node}
+BrushFaceReference::BrushFaceReference(BrushNode& node, const BrushFace& face)
+  : m_node{&node}
   , m_facePlane{face.boundary()}
 {
-  contract_pre(m_node != nullptr);
 }
 
 Result<BrushFaceHandle> BrushFaceReference::resolve() const
 {
   if (const auto faceIndex = m_node->brush().findFace(m_facePlane))
   {
-    return BrushFaceHandle(m_node, *faceIndex);
+    return BrushFaceHandle(*m_node, *faceIndex);
   }
   return Error{"Cannot resolve brush face reference"};
 }

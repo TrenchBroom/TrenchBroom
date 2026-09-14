@@ -166,7 +166,7 @@ bool applyAndSwap(
   auto brushes = std::unordered_map<BrushNode*, Brush>{};
   for (const auto& faceHandle : faces)
   {
-    auto* brushNode = faceHandle.node();
+    auto* brushNode = &faceHandle.node();
     auto it = brushes.find(brushNode);
     if (it == std::end(brushes))
     {
