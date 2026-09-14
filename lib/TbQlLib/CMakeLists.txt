@@ -3,6 +3,7 @@ add_library(TbQlLib STATIC)
 target_sources(TbQlLib
   PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src/EntityNodeLazyMap.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/GroupNodeLazyMap.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/LayerNodeLazyMap.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/NodeQueryValues.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/WorldNodeLazyMap.cpp
