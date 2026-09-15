@@ -176,6 +176,23 @@ TEST_CASE("Map_Selection")
           UnorderedEquals(std::vector<Node*>{groupNode, linkedGroupNode}));
       }
     }
+
+    SECTION("A non-selectable node kind is not recorded as selected")
+    {
+      auto* layerNode = new LayerNode{Layer{"Layer"}};
+      addNodes(map, {{&map.worldNode(), {layerNode}}});
+
+      auto* entityNode = new EntityNode{Entity{}};
+      addNodes(map, {{&parentForNodes(map), {entityNode}}});
+
+      selectNodes(map, {layerNode, entityNode});
+
+      CHECK(!layerNode->selected());
+      CHECK(map.selection().nodes == std::vector<Node*>{entityNode});
+
+      deselectAll(map);
+      CHECK(map.selection().nodes == std::vector<Node*>{});
+    }
   }
 
   SECTION("selectSiblingNodes")
