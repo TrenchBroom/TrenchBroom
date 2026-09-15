@@ -176,6 +176,27 @@ TEST_CASE("Map_Selection")
           UnorderedEquals(std::vector<Node*>{groupNode, linkedGroupNode}));
       }
     }
+
+    SECTION("A non-selectable node kind is not recorded as selected")
+    {
+      // LayerNode (like WorldNode) is never selectable. selectNodes must not record one
+      // as selected just because it was asked to select it -- doing so anyway used to
+      // leave a phantom entry in the selection that deselectAll could never clear, since
+      // deselectAll only clears nodes whose own selected() is already true.
+      auto* layerNode = new LayerNode{Layer{"Layer"}};
+      addNodes(map, {{&map.worldNode(), {layerNode}}});
+
+      auto* entityNode = new EntityNode{Entity{}};
+      addNodes(map, {{&parentForNodes(map), {entityNode}}});
+
+      selectNodes(map, {layerNode, entityNode});
+
+      CHECK(!layerNode->selected());
+      CHECK(map.selection().nodes == std::vector<Node*>{entityNode});
+
+      deselectAll(map);
+      CHECK(map.selection().nodes == std::vector<Node*>{});
+    }
   }
 
   SECTION("selectSiblingNodes")
