@@ -32,16 +32,68 @@
 #include "mdl/PatchNode.h"
 #include "mdl/WorldNode.h"
 #include "ql/BrushFaceVariableStore.h"
+#include "ql/BrushNodeBinding.h"
+#include "ql/EntityNodeBinding.h"
+#include "ql/GroupNodeBinding.h"
+#include "ql/LayerNodeBinding.h"
 #include "ql/NodeVariableStore.h"
+#include "ql/PatchNodeBinding.h"
 #include "ql/QueryDomainInference.h"
+#include "ql/WorldNodeBinding.h"
 
+#include "kd/ranges/to.h"
+
+#include <fmt/format.h>
+#include <fmt/ranges.h>
+
+#include <optional>
+#include <ranges>
+#include <regex>
+#include <set>
+#include <string>
 #include <type_traits>
+#include <vector>
 
 namespace tb::ql
 {
 
 namespace
 {
+
+// see queryTextFrom's doc comment for the detection rule this implements
+bool looksLikeQuery(const std::string_view text)
+{
+  static const auto structuralChars = std::string_view{R"(<>=!&|()[]"')"};
+  if (text.find_first_of(structuralChars) != std::string_view::npos)
+  {
+    return true;
+  }
+
+  static const auto keywordPattern = std::regex{R"(\b(like|contains)\b)"};
+  return std::regex_search(text.begin(), text.end(), keywordPattern);
+}
+
+// see queryTextFrom's doc comment for what this is used for
+std::vector<std::string> fuzzySearchFieldNames()
+{
+  auto names = std::set<std::string>{};
+  const auto add = [&](const auto& fieldNames) {
+    names.insert(fieldNames.begin(), fieldNames.end());
+  };
+  add(worldNodeFieldNames());
+  add(layerNodeFieldNames());
+  add(groupNodeFieldNames());
+  add(entityNodeFieldNames());
+  add(brushNodeFieldNames());
+  add(patchNodeFieldNames());
+  // brushFaceFieldNames() is deliberately not unioned in -- material/normal can never
+  // match through a fuzzy query anyway, since the domain of this many unioned fields
+  // always resolves to every node kind but Face (see inferQueryDomain's "no narrowing
+  // signal" default); including them here would just be misleading dead clauses.
+  names.erase(
+    "type"); // a fixed discriminator literal ("world"/"entity"/...), not free text
+  return names | kdl::ranges::to<std::vector>();
+}
 
 bool matches(const el::ExpressionNode& expression, const el::VariableStore& store)
 {
@@ -81,6 +133,28 @@ constexpr QueryKind queryKindOf()
 }
 
 } // namespace
+
+std::optional<std::string> queryTextFrom(const std::string_view inputText)
+{
+  if (inputText.empty())
+  {
+    return std::nullopt;
+  }
+
+  if (looksLikeQuery(inputText))
+  {
+    return std::string{inputText};
+  }
+
+  static const auto fields = fuzzySearchFieldNames();
+  return fmt::format(
+    "{}",
+    fmt::join(
+      fields | std::views::transform([&](const auto& field) {
+        return fmt::format(R"({} like "{}")", field, inputText);
+      }),
+      " || "));
+}
 
 Result<el::ExpressionNode> parseQuery(const std::string_view queryText)
 {

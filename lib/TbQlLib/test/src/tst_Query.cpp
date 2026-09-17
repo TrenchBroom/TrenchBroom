@@ -35,11 +35,16 @@
 
 #include "kd/ranges/to.h"
 
+#include <fmt/format.h>
+#include <fmt/ranges.h>
+
+#include <optional>
 #include <ranges>
 #include <string>
 #include <vector>
 
 #include <catch2/catch_test_macros.hpp>
+#include <catch2/generators/catch_generators.hpp>
 #include <catch2/matchers/catch_matchers_range_equals.hpp>
 
 namespace tb::ql
@@ -61,6 +66,11 @@ std::vector<mdl::BrushFaceHandle> executeFaceQuery(
   return std::get<std::vector<mdl::BrushFaceHandle>>(executeQuery(map, expression));
 }
 
+std::vector<mdl::Node*> executeFuzzyNodeQuery(mdl::Map& map, const std::string& inputText)
+{
+  return executeNodeQuery(map, queryTextFrom(inputText).value());
+}
+
 } // namespace
 
 TEST_CASE("Query")
@@ -74,7 +84,10 @@ TEST_CASE("Query")
     new mdl::EntityNode{mdl::Entity{{{"classname", "info_player_start"}}}};
   mdl::addNodes(map, {{&mdl::parentForNodes(map), {playerStart}}});
 
-  auto* detailEntity = new mdl::EntityNode{mdl::Entity{{{"classname", "func_detail"}}}};
+  auto* detailEntity = new mdl::EntityNode{mdl::Entity{{
+    {"classname", "func_detail"},
+    {"message", "Careful, trap ahead"},
+  }}};
   mdl::addNodes(map, {{&mdl::parentForNodes(map), {detailEntity}}});
 
   auto* triggerBrush = mdl::createBrushNode(map, "trigger_material");
@@ -144,6 +157,102 @@ TEST_CASE("Query")
     CHECK(
       executeNodeQuery(map, R"(classname == "x" && materials like "y")")
       == std::vector<mdl::Node*>{});
+  }
+
+  SECTION(
+    "fuzzy search matches an entity by classname, and its brush by owning-entity"
+    " classname")
+  {
+    // triggerBrush's owning entity is detailEntity, so the new Map/BoundValue `like`
+    // case reaches `entity.classname` one level deep; wallBrush/floorBrush are owned by
+    // worldspawn, whose classname isn't "func_detail", so they're excluded
+    CHECK_THAT(
+      executeFuzzyNodeQuery(map, "func_detail"),
+      UnorderedRangeEquals(std::vector<mdl::Node*>{detailEntity, triggerBrush}));
+  }
+
+  SECTION("fuzzy search matches an entity by property value")
+  {
+    // does not reach triggerBrush via entity.properties -- that's two levels deep,
+    // outside the Map/BoundValue `like` case's one-level-deep scope
+    CHECK(executeFuzzyNodeQuery(map, "trap") == std::vector<mdl::Node*>{detailEntity});
+  }
+
+  SECTION("fuzzy search matches an entity by property key")
+  {
+    CHECK(executeFuzzyNodeQuery(map, "message") == std::vector<mdl::Node*>{detailEntity});
+  }
+
+  SECTION("fuzzy search matches a brush by material")
+  {
+    CHECK(executeFuzzyNodeQuery(map, "trigger") == std::vector<mdl::Node*>{triggerBrush});
+  }
+
+  SECTION("fuzzy search never spuriously matches via non-string fields")
+  {
+    CHECK(executeFuzzyNodeQuery(map, "true") == std::vector<mdl::Node*>{});
+  }
+}
+
+TEST_CASE("queryTextFrom")
+{
+  SECTION("empty input has no query to run")
+  {
+    CHECK(queryTextFrom("") == std::nullopt);
+  }
+
+  SECTION("input that looks like a query is passed through unchanged")
+  {
+    const auto inputText = GENERATE(
+      std::string{R"(classname == "info_player_start")"},
+      std::string{"visible == false"},
+      std::string{"a like b"},
+      std::string{R"(tags contains "Detail")"});
+
+    CAPTURE(inputText);
+    CHECK(queryTextFrom(inputText) == inputText);
+  }
+
+  SECTION("fuzzy text becomes an OR-chain across every free-text node field")
+  {
+    // every field any of the 6 node bindings expose, alphabetical, minus "type" (a
+    // fixed discriminator literal, not free text) -- deliberately does NOT include
+    // "material"/"normal" (BrushFaceBinding-only: faces are unreachable by fuzzy text,
+    // see queryTextFrom's doc comment)
+    const auto fields = std::vector<std::string>{
+      "bounds",
+      "center",
+      "classname",
+      "entity",
+      "groupName",
+      "layerName",
+      "linked",
+      "locked",
+      "materials",
+      "name",
+      "properties",
+      "selected",
+      "tags",
+      "visible",
+    };
+
+    const auto inputText = GENERATE(
+      std::string{"light"},
+      std::string{"func_*"},
+      // "like"/"contains" only count as the keyword as a standalone word
+      std::string{"likely"},
+      std::string{"containskeyword"});
+    CAPTURE(inputText);
+
+    const auto expected = fmt::format(
+      "{}",
+      fmt::join(
+        fields | std::views::transform([&](const auto& field) {
+          return fmt::format(R"({} like "{}")", field, inputText);
+        }),
+        " || "));
+
+    CHECK(queryTextFrom(inputText) == expected);
   }
 }
 
