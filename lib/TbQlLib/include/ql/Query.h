@@ -23,6 +23,8 @@
 #include "el/ExpressionNode.h"
 #include "mdl/BrushFaceHandle.h"
 
+#include <optional>
+#include <string>
 #include <string_view>
 #include <variant>
 #include <vector>
@@ -37,6 +39,29 @@ class Node;
 
 namespace ql
 {
+
+/**
+ * Interprets `inputText` as the search/filter query language's two input tiers: text
+ * that looks like an intentional query (containing an EL-structural token -- one of
+ * `< > = ! & | ( ) [ ] " '` -- or the standalone word `like`/`contains`) is passed
+ * through unchanged; anything else is fuzzy text, sugar for an OR-chain of `field like
+ * "<inputText>"` over every field any node kind's schema exposes (`like`'s own
+ * semantics already turn a wildcard-free pattern into a substring match, and safely
+ * no-op on a field whose value isn't String/Array/Map-shaped, so no per-field type
+ * filtering is needed). This keeps a bare word from ever being misread as an EL
+ * variable lookup, which would silently evaluate to Undefined/false for everything
+ * rather than matching by field.
+ *
+ * Two consequences worth knowing: brush faces are never reachable this way (the
+ * unioned domain always resolves to every node kind but Face -- write an explicit
+ * `material like "..."` query to search faces), and `properties` is one of the unioned
+ * fields, so an entity is matched by any of its property keys or values too, not just
+ * `classname`.
+ *
+ * Returns the resulting EL source text, ready to hand to parseQuery, or nullopt if
+ * `inputText` is empty -- there is no query to run.
+ */
+std::optional<std::string> queryTextFrom(std::string_view inputText);
 
 /**
  * Parses `queryText` as an EL expression for the search/filter query language. Returns
