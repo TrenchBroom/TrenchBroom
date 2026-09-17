@@ -130,22 +130,22 @@ TEST_CASE("Value")
 
   SECTION("booleanValue")
   {
-    withEvaluationContext([](auto& context) {
-      CHECK(Value{true}.booleanValue(context) == true);
-      CHECK(Value{false}.booleanValue(context) == false);
-      CHECK(Value::Null.booleanValue(context) == false);
+    withEvaluationContext([](auto&) {
+      CHECK(Value{true}.booleanValue() == true);
+      CHECK(Value{false}.booleanValue() == false);
+      CHECK(Value::Null.booleanValue() == false);
 
-      CHECK_THROWS_AS(Value{"test"}.booleanValue(context), DereferenceError);
-      CHECK_THROWS_AS(Value{1.0}.booleanValue(context), DereferenceError);
-      CHECK_THROWS_AS(Value{ArrayType{}}.booleanValue(context), DereferenceError);
-      CHECK_THROWS_AS(Value{MapType{}}.booleanValue(context), DereferenceError);
-      CHECK_THROWS_AS(boundedRange.booleanValue(context), DereferenceError);
-      CHECK_THROWS_AS(Value::Undefined.booleanValue(context), DereferenceError);
+      CHECK_THROWS_AS(Value{"test"}.booleanValue(), DereferenceError);
+      CHECK_THROWS_AS(Value{1.0}.booleanValue(), DereferenceError);
+      CHECK_THROWS_AS(Value{ArrayType{}}.booleanValue(), DereferenceError);
+      CHECK_THROWS_AS(Value{MapType{}}.booleanValue(), DereferenceError);
+      CHECK_THROWS_AS(boundedRange.booleanValue(), DereferenceError);
+      CHECK_THROWS_AS(Value::Undefined.booleanValue(), DereferenceError);
     }).ignore();
 
     // the error names the type the caller asked for
     CHECK(
-      withEvaluationContext([](auto& context) { Value{1.0}.booleanValue(context); })
+      withEvaluationContext([](auto&) { Value{1.0}.booleanValue(); })
       == Result<void>{Error{
         "At unknown location: Cannot dereference value '1' of type 'Number' as type "
         "'Boolean'"}});
@@ -153,20 +153,20 @@ TEST_CASE("Value")
 
   SECTION("stringValue")
   {
-    withEvaluationContext([](auto& context) {
-      CHECK(Value{"test"}.stringValue(context) == "test");
-      CHECK(Value::Null.stringValue(context) == "");
+    withEvaluationContext([](auto&) {
+      CHECK(Value{"test"}.stringValue() == "test");
+      CHECK(Value::Null.stringValue() == "");
 
-      CHECK_THROWS_AS(Value{true}.stringValue(context), DereferenceError);
-      CHECK_THROWS_AS(Value{1.0}.stringValue(context), DereferenceError);
-      CHECK_THROWS_AS(Value{ArrayType{}}.stringValue(context), DereferenceError);
-      CHECK_THROWS_AS(Value{MapType{}}.stringValue(context), DereferenceError);
-      CHECK_THROWS_AS(boundedRange.stringValue(context), DereferenceError);
-      CHECK_THROWS_AS(Value::Undefined.stringValue(context), DereferenceError);
+      CHECK_THROWS_AS(Value{true}.stringValue(), DereferenceError);
+      CHECK_THROWS_AS(Value{1.0}.stringValue(), DereferenceError);
+      CHECK_THROWS_AS(Value{ArrayType{}}.stringValue(), DereferenceError);
+      CHECK_THROWS_AS(Value{MapType{}}.stringValue(), DereferenceError);
+      CHECK_THROWS_AS(boundedRange.stringValue(), DereferenceError);
+      CHECK_THROWS_AS(Value::Undefined.stringValue(), DereferenceError);
     }).ignore();
 
     CHECK(
-      withEvaluationContext([](auto& context) { Value{1.0}.stringValue(context); })
+      withEvaluationContext([](auto&) { Value{1.0}.stringValue(); })
       == Result<void>{Error{
         "At unknown location: Cannot dereference value '1' of type 'Number' as type "
         "'String'"}});
@@ -174,179 +174,176 @@ TEST_CASE("Value")
 
   SECTION("numberValue")
   {
-    withEvaluationContext([](auto& context) {
-      CHECK(Value{1.5}.numberValue(context) == 1.5);
-      CHECK(Value::Null.numberValue(context) == 0.0);
+    withEvaluationContext([](auto&) {
+      CHECK(Value{1.5}.numberValue() == 1.5);
+      CHECK(Value::Null.numberValue() == 0.0);
 
-      CHECK_THROWS_AS(Value{true}.numberValue(context), DereferenceError);
-      CHECK_THROWS_AS(Value{"test"}.numberValue(context), DereferenceError);
-      CHECK_THROWS_AS(Value{ArrayType{}}.numberValue(context), DereferenceError);
-      CHECK_THROWS_AS(Value{MapType{}}.numberValue(context), DereferenceError);
-      CHECK_THROWS_AS(boundedRange.numberValue(context), DereferenceError);
-      CHECK_THROWS_AS(Value::Undefined.numberValue(context), DereferenceError);
+      CHECK_THROWS_AS(Value{true}.numberValue(), DereferenceError);
+      CHECK_THROWS_AS(Value{"test"}.numberValue(), DereferenceError);
+      CHECK_THROWS_AS(Value{ArrayType{}}.numberValue(), DereferenceError);
+      CHECK_THROWS_AS(Value{MapType{}}.numberValue(), DereferenceError);
+      CHECK_THROWS_AS(boundedRange.numberValue(), DereferenceError);
+      CHECK_THROWS_AS(Value::Undefined.numberValue(), DereferenceError);
     }).ignore();
 
     CHECK(
-      withEvaluationContext([](auto& context) { Value{"test"}.numberValue(context); })
+      withEvaluationContext([](auto&) { Value{"test"}.numberValue(); })
       == Result<void>{Error{
         R"(At unknown location: Cannot dereference value '"test"' of type 'String' as type 'Number')"}});
   }
 
   SECTION("integerValue")
   {
-    withEvaluationContext([](auto& context) {
-      CHECK(Value{1.0}.integerValue(context) == 1l);
-      CHECK(Value{1.7}.integerValue(context) == 1l);
-      CHECK(Value{-1.7}.integerValue(context) == -1l);
-      CHECK(Value::Null.integerValue(context) == 0l);
+    withEvaluationContext([](auto&) {
+      CHECK(Value{1.0}.integerValue() == 1l);
+      CHECK(Value{1.7}.integerValue() == 1l);
+      CHECK(Value{-1.7}.integerValue() == -1l);
+      CHECK(Value::Null.integerValue() == 0l);
 
-      CHECK_THROWS_AS(Value{"test"}.integerValue(context), DereferenceError);
+      CHECK_THROWS_AS(Value{"test"}.integerValue(), DereferenceError);
     }).ignore();
   }
 
   SECTION("arrayValue")
   {
-    withEvaluationContext([](auto& context) {
-      CHECK(Value{ArrayType{Value{1.0}}}.arrayValue(context) == ArrayType{Value{1.0}});
-      CHECK(Value::Null.arrayValue(context) == ArrayType{});
+    withEvaluationContext([](auto&) {
+      CHECK(Value{ArrayType{Value{1.0}}}.arrayValue() == ArrayType{Value{1.0}});
+      CHECK(Value::Null.arrayValue() == ArrayType{});
 
-      CHECK_THROWS_AS(Value{true}.arrayValue(context), DereferenceError);
-      CHECK_THROWS_AS(Value{"test"}.arrayValue(context), DereferenceError);
-      CHECK_THROWS_AS(Value{1.0}.arrayValue(context), DereferenceError);
-      CHECK_THROWS_AS(Value{MapType{}}.arrayValue(context), DereferenceError);
-      CHECK_THROWS_AS(boundedRange.arrayValue(context), DereferenceError);
-      CHECK_THROWS_AS(vec3.arrayValue(context), DereferenceError);
-      CHECK_THROWS_AS(bbox.arrayValue(context), DereferenceError);
-      CHECK_THROWS_AS(Value::Undefined.arrayValue(context), DereferenceError);
+      CHECK_THROWS_AS(Value{true}.arrayValue(), DereferenceError);
+      CHECK_THROWS_AS(Value{"test"}.arrayValue(), DereferenceError);
+      CHECK_THROWS_AS(Value{1.0}.arrayValue(), DereferenceError);
+      CHECK_THROWS_AS(Value{MapType{}}.arrayValue(), DereferenceError);
+      CHECK_THROWS_AS(boundedRange.arrayValue(), DereferenceError);
+      CHECK_THROWS_AS(vec3.arrayValue(), DereferenceError);
+      CHECK_THROWS_AS(bbox.arrayValue(), DereferenceError);
+      CHECK_THROWS_AS(Value::Undefined.arrayValue(), DereferenceError);
     }).ignore();
 
     CHECK(
-      withEvaluationContext([](auto& context) { Value{"test"}.arrayValue(context); })
+      withEvaluationContext([](auto&) { Value{"test"}.arrayValue(); })
       == Result<void>{Error{
         R"(At unknown location: Cannot dereference value '"test"' of type 'String' as type 'Array')"}});
   }
 
   SECTION("mapValue")
   {
-    withEvaluationContext([](auto& context) {
+    withEvaluationContext([](auto&) {
       CHECK(
-        Value{MapType{{"key", Value{1.0}}}}.mapValue(context)
-        == MapType{{"key", Value{1.0}}});
-      CHECK(Value::Null.mapValue(context) == MapType{});
+        Value{MapType{{"key", Value{1.0}}}}.mapValue() == MapType{{"key", Value{1.0}}});
+      CHECK(Value::Null.mapValue() == MapType{});
 
-      CHECK_THROWS_AS(Value{true}.mapValue(context), DereferenceError);
-      CHECK_THROWS_AS(Value{"test"}.mapValue(context), DereferenceError);
-      CHECK_THROWS_AS(Value{1.0}.mapValue(context), DereferenceError);
-      CHECK_THROWS_AS(Value{ArrayType{}}.mapValue(context), DereferenceError);
-      CHECK_THROWS_AS(boundedRange.mapValue(context), DereferenceError);
-      CHECK_THROWS_AS(vec3.mapValue(context), DereferenceError);
-      CHECK_THROWS_AS(bbox.mapValue(context), DereferenceError);
-      CHECK_THROWS_AS(Value::Undefined.mapValue(context), DereferenceError);
+      CHECK_THROWS_AS(Value{true}.mapValue(), DereferenceError);
+      CHECK_THROWS_AS(Value{"test"}.mapValue(), DereferenceError);
+      CHECK_THROWS_AS(Value{1.0}.mapValue(), DereferenceError);
+      CHECK_THROWS_AS(Value{ArrayType{}}.mapValue(), DereferenceError);
+      CHECK_THROWS_AS(boundedRange.mapValue(), DereferenceError);
+      CHECK_THROWS_AS(vec3.mapValue(), DereferenceError);
+      CHECK_THROWS_AS(bbox.mapValue(), DereferenceError);
+      CHECK_THROWS_AS(Value::Undefined.mapValue(), DereferenceError);
     }).ignore();
 
     CHECK(
-      withEvaluationContext([](auto& context) { Value{"test"}.mapValue(context); })
+      withEvaluationContext([](auto&) { Value{"test"}.mapValue(); })
       == Result<void>{Error{
         R"(At unknown location: Cannot dereference value '"test"' of type 'String' as type 'Map')"}});
   }
 
   SECTION("rangeValue")
   {
-    withEvaluationContext([](auto& context) {
-      CHECK(boundedRange.rangeValue(context) == RangeType{BoundedRange{1, 3}});
-      CHECK(leftBoundedRange.rangeValue(context) == RangeType{LeftBoundedRange{2}});
-      CHECK(rightBoundedRange.rangeValue(context) == RangeType{RightBoundedRange{5}});
+    withEvaluationContext([](auto&) {
+      CHECK(boundedRange.rangeValue() == RangeType{BoundedRange{1, 3}});
+      CHECK(leftBoundedRange.rangeValue() == RangeType{LeftBoundedRange{2}});
+      CHECK(rightBoundedRange.rangeValue() == RangeType{RightBoundedRange{5}});
 
-      CHECK_THROWS_AS(Value{true}.rangeValue(context), DereferenceError);
-      CHECK_THROWS_AS(Value{"test"}.rangeValue(context), DereferenceError);
-      CHECK_THROWS_AS(Value{1.0}.rangeValue(context), DereferenceError);
-      CHECK_THROWS_AS(Value{ArrayType{}}.rangeValue(context), DereferenceError);
-      CHECK_THROWS_AS(Value{MapType{}}.rangeValue(context), DereferenceError);
-      CHECK_THROWS_AS(vec3.rangeValue(context), DereferenceError);
-      CHECK_THROWS_AS(bbox.rangeValue(context), DereferenceError);
+      CHECK_THROWS_AS(Value{true}.rangeValue(), DereferenceError);
+      CHECK_THROWS_AS(Value{"test"}.rangeValue(), DereferenceError);
+      CHECK_THROWS_AS(Value{1.0}.rangeValue(), DereferenceError);
+      CHECK_THROWS_AS(Value{ArrayType{}}.rangeValue(), DereferenceError);
+      CHECK_THROWS_AS(Value{MapType{}}.rangeValue(), DereferenceError);
+      CHECK_THROWS_AS(vec3.rangeValue(), DereferenceError);
+      CHECK_THROWS_AS(bbox.rangeValue(), DereferenceError);
 
       // unlike the other accessors, a range cannot be dereferenced from null
-      CHECK_THROWS_AS(Value::Null.rangeValue(context), DereferenceError);
-      CHECK_THROWS_AS(Value::Undefined.rangeValue(context), DereferenceError);
+      CHECK_THROWS_AS(Value::Null.rangeValue(), DereferenceError);
+      CHECK_THROWS_AS(Value::Undefined.rangeValue(), DereferenceError);
     }).ignore();
 
     CHECK(
-      withEvaluationContext([](auto& context) { Value{"test"}.rangeValue(context); })
+      withEvaluationContext([](auto&) { Value{"test"}.rangeValue(); })
       == Result<void>{Error{
         R"(At unknown location: Cannot dereference value '"test"' of type 'String' as type 'Range')"}});
   }
 
   SECTION("vec3Value")
   {
-    withEvaluationContext([](auto& context) {
-      CHECK(vec3.vec3Value(context) == Vec3Type{1, 2, 3});
+    withEvaluationContext([](auto&) {
+      CHECK(vec3.vec3Value() == Vec3Type{1, 2, 3});
 
-      CHECK_THROWS_AS(Value{true}.vec3Value(context), DereferenceError);
-      CHECK_THROWS_AS(Value{"test"}.vec3Value(context), DereferenceError);
-      CHECK_THROWS_AS(Value{1.0}.vec3Value(context), DereferenceError);
-      CHECK_THROWS_AS(Value{ArrayType{}}.vec3Value(context), DereferenceError);
-      CHECK_THROWS_AS(Value{MapType{}}.vec3Value(context), DereferenceError);
-      CHECK_THROWS_AS(boundedRange.vec3Value(context), DereferenceError);
-      CHECK_THROWS_AS(bbox.vec3Value(context), DereferenceError);
+      CHECK_THROWS_AS(Value{true}.vec3Value(), DereferenceError);
+      CHECK_THROWS_AS(Value{"test"}.vec3Value(), DereferenceError);
+      CHECK_THROWS_AS(Value{1.0}.vec3Value(), DereferenceError);
+      CHECK_THROWS_AS(Value{ArrayType{}}.vec3Value(), DereferenceError);
+      CHECK_THROWS_AS(Value{MapType{}}.vec3Value(), DereferenceError);
+      CHECK_THROWS_AS(boundedRange.vec3Value(), DereferenceError);
+      CHECK_THROWS_AS(bbox.vec3Value(), DereferenceError);
 
-      CHECK_THROWS_AS(Value::Null.vec3Value(context), DereferenceError);
-      CHECK_THROWS_AS(Value::Undefined.vec3Value(context), DereferenceError);
+      CHECK_THROWS_AS(Value::Null.vec3Value(), DereferenceError);
+      CHECK_THROWS_AS(Value::Undefined.vec3Value(), DereferenceError);
     }).ignore();
 
     CHECK(
-      withEvaluationContext([](auto& context) { Value{"test"}.vec3Value(context); })
+      withEvaluationContext([](auto&) { Value{"test"}.vec3Value(); })
       == Result<void>{Error{
         R"(At unknown location: Cannot dereference value '"test"' of type 'String' as type 'Vec3')"}});
   }
 
   SECTION("bboxValue")
   {
-    withEvaluationContext([](auto& context) {
-      CHECK(bbox.bboxValue(context) == BBoxType{Vec3Type{1, 2, 3}, Vec3Type{4, 5, 6}});
+    withEvaluationContext([](auto&) {
+      CHECK(bbox.bboxValue() == BBoxType{Vec3Type{1, 2, 3}, Vec3Type{4, 5, 6}});
 
-      CHECK_THROWS_AS(Value{true}.bboxValue(context), DereferenceError);
-      CHECK_THROWS_AS(Value{"test"}.bboxValue(context), DereferenceError);
-      CHECK_THROWS_AS(Value{1.0}.bboxValue(context), DereferenceError);
-      CHECK_THROWS_AS(Value{ArrayType{}}.bboxValue(context), DereferenceError);
-      CHECK_THROWS_AS(Value{MapType{}}.bboxValue(context), DereferenceError);
-      CHECK_THROWS_AS(boundedRange.bboxValue(context), DereferenceError);
-      CHECK_THROWS_AS(vec3.bboxValue(context), DereferenceError);
+      CHECK_THROWS_AS(Value{true}.bboxValue(), DereferenceError);
+      CHECK_THROWS_AS(Value{"test"}.bboxValue(), DereferenceError);
+      CHECK_THROWS_AS(Value{1.0}.bboxValue(), DereferenceError);
+      CHECK_THROWS_AS(Value{ArrayType{}}.bboxValue(), DereferenceError);
+      CHECK_THROWS_AS(Value{MapType{}}.bboxValue(), DereferenceError);
+      CHECK_THROWS_AS(boundedRange.bboxValue(), DereferenceError);
+      CHECK_THROWS_AS(vec3.bboxValue(), DereferenceError);
 
-      CHECK_THROWS_AS(Value::Null.bboxValue(context), DereferenceError);
-      CHECK_THROWS_AS(Value::Undefined.bboxValue(context), DereferenceError);
+      CHECK_THROWS_AS(Value::Null.bboxValue(), DereferenceError);
+      CHECK_THROWS_AS(Value::Undefined.bboxValue(), DereferenceError);
     }).ignore();
 
     CHECK(
-      withEvaluationContext([](auto& context) { Value{"test"}.bboxValue(context); })
+      withEvaluationContext([](auto&) { Value{"test"}.bboxValue(); })
       == Result<void>{Error{
         R"(At unknown location: Cannot dereference value '"test"' of type 'String' as type 'BBox')"}});
   }
 
   SECTION("asStringList")
   {
-    withEvaluationContext([](auto& context) {
-      CHECK(Value{ArrayType{}}.asStringList(context) == std::vector<std::string>{});
-      CHECK(Value::Null.asStringList(context) == std::vector<std::string>{});
+    withEvaluationContext([](auto&) {
+      CHECK(Value{ArrayType{}}.asStringList() == std::vector<std::string>{});
+      CHECK(Value::Null.asStringList() == std::vector<std::string>{});
       CHECK(
-        Value{ArrayType{Value{"b"}, Value{"a"}, Value{"b"}, Value::Null}}.asStringList(
-          context)
+        Value{ArrayType{Value{"b"}, Value{"a"}, Value{"b"}, Value::Null}}.asStringList()
         == std::vector<std::string>{"b", "a", "b", ""});
 
-      CHECK_THROWS_AS(
-        Value{ArrayType{Value{1.0}}}.asStringList(context), DereferenceError);
-      CHECK_THROWS_AS(Value{"test"}.asStringList(context), DereferenceError);
+      CHECK_THROWS_AS(Value{ArrayType{Value{1.0}}}.asStringList(), DereferenceError);
+      CHECK_THROWS_AS(Value{"test"}.asStringList(), DereferenceError);
     }).ignore();
   }
 
   SECTION("asStringSet")
   {
-    withEvaluationContext([](auto& context) {
-      CHECK(Value{ArrayType{}}.asStringSet(context) == std::vector<std::string>{});
+    withEvaluationContext([](auto&) {
+      CHECK(Value{ArrayType{}}.asStringSet() == std::vector<std::string>{});
       CHECK(
-        Value{ArrayType{Value{"b"}, Value{"a"}, Value{"b"}}}.asStringSet(context)
+        Value{ArrayType{Value{"b"}, Value{"a"}, Value{"b"}}}.asStringSet()
         == std::vector<std::string>{"a", "b"});
 
-      CHECK_THROWS_AS(Value{"test"}.asStringSet(context), DereferenceError);
+      CHECK_THROWS_AS(Value{"test"}.asStringSet(), DereferenceError);
     }).ignore();
   }
 
@@ -390,190 +387,148 @@ TEST_CASE("Value")
 
   SECTION("convertTo")
   {
-    withEvaluationContext([](auto& context) {
-      CHECK(Value{true}.convertTo(context, ValueType::Boolean) == Value{true});
-      CHECK(Value{false}.convertTo(context, ValueType::Boolean) == Value{false});
-      CHECK(Value{true}.convertTo(context, ValueType::String) == Value{"true"});
-      CHECK(Value{false}.convertTo(context, ValueType::String) == Value{"false"});
-      CHECK(Value{true}.convertTo(context, ValueType::Number) == Value{1});
-      CHECK(Value{false}.convertTo(context, ValueType::Number) == Value{0});
-      CHECK_THROWS_AS(Value{true}.convertTo(context, ValueType::Array), ConversionError);
-      CHECK_THROWS_AS(Value{true}.convertTo(context, ValueType::Map), ConversionError);
-      CHECK_THROWS_AS(Value{true}.convertTo(context, ValueType::Range), ConversionError);
-      CHECK_THROWS_AS(Value{true}.convertTo(context, ValueType::Vec3), ConversionError);
-      CHECK_THROWS_AS(Value{true}.convertTo(context, ValueType::BBox), ConversionError);
-      CHECK_THROWS_AS(Value{true}.convertTo(context, ValueType::Null), ConversionError);
-      CHECK_THROWS_AS(
-        Value{true}.convertTo(context, ValueType::Undefined), ConversionError);
+    withEvaluationContext([](auto&) {
+      CHECK(Value{true}.convertTo(ValueType::Boolean) == Value{true});
+      CHECK(Value{false}.convertTo(ValueType::Boolean) == Value{false});
+      CHECK(Value{true}.convertTo(ValueType::String) == Value{"true"});
+      CHECK(Value{false}.convertTo(ValueType::String) == Value{"false"});
+      CHECK(Value{true}.convertTo(ValueType::Number) == Value{1});
+      CHECK(Value{false}.convertTo(ValueType::Number) == Value{0});
+      CHECK_THROWS_AS(Value{true}.convertTo(ValueType::Array), ConversionError);
+      CHECK_THROWS_AS(Value{true}.convertTo(ValueType::Map), ConversionError);
+      CHECK_THROWS_AS(Value{true}.convertTo(ValueType::Range), ConversionError);
+      CHECK_THROWS_AS(Value{true}.convertTo(ValueType::Vec3), ConversionError);
+      CHECK_THROWS_AS(Value{true}.convertTo(ValueType::BBox), ConversionError);
+      CHECK_THROWS_AS(Value{true}.convertTo(ValueType::Null), ConversionError);
+      CHECK_THROWS_AS(Value{true}.convertTo(ValueType::Undefined), ConversionError);
 
-      CHECK(Value{"asdf"}.convertTo(context, ValueType::Boolean) == Value{true});
-      CHECK(Value{"false"}.convertTo(context, ValueType::Boolean) == Value{false});
-      CHECK(Value{""}.convertTo(context, ValueType::Boolean) == Value{false});
-      CHECK(Value{"asdf"}.convertTo(context, ValueType::String) == Value{"asdf"});
-      CHECK(Value{"2"}.convertTo(context, ValueType::Number) == Value{2});
-      CHECK(Value{"-2.0"}.convertTo(context, ValueType::Number) == Value{-2});
-      CHECK(Value{" "}.convertTo(context, ValueType::Number) == Value{0});
+      CHECK(Value{"asdf"}.convertTo(ValueType::Boolean) == Value{true});
+      CHECK(Value{"false"}.convertTo(ValueType::Boolean) == Value{false});
+      CHECK(Value{""}.convertTo(ValueType::Boolean) == Value{false});
+      CHECK(Value{"asdf"}.convertTo(ValueType::String) == Value{"asdf"});
+      CHECK(Value{"2"}.convertTo(ValueType::Number) == Value{2});
+      CHECK(Value{"-2.0"}.convertTo(ValueType::Number) == Value{-2});
+      CHECK(Value{" "}.convertTo(ValueType::Number) == Value{0});
       // "1.2 3 4", the format entity properties like "origin" use
+      CHECK(Value{"1 2 3"}.convertTo(ValueType::Vec3) == Value{Vec3Type{1, 2, 3}});
       CHECK(
-        Value{"1 2 3"}.convertTo(context, ValueType::Vec3) == Value{Vec3Type{1, 2, 3}});
-      CHECK(
-        Value{"1.2 3 4"}.convertTo(context, ValueType::Vec3)
-        == Value{Vec3Type{1.2, 3.0, 4.0}});
-      CHECK_THROWS_AS(Value{"1 2"}.convertTo(context, ValueType::Vec3), ConversionError);
-      CHECK_THROWS_AS(
-        Value{"asdf"}.convertTo(context, ValueType::Number), ConversionError);
-      CHECK_THROWS_AS(
-        Value{"asdf"}.convertTo(context, ValueType::Array), ConversionError);
-      CHECK_THROWS_AS(Value{"asfd"}.convertTo(context, ValueType::Map), ConversionError);
-      CHECK_THROWS_AS(
-        Value{"asdf"}.convertTo(context, ValueType::Range), ConversionError);
-      CHECK_THROWS_AS(Value{"asdf"}.convertTo(context, ValueType::Vec3), ConversionError);
-      CHECK_THROWS_AS(Value{"asdf"}.convertTo(context, ValueType::BBox), ConversionError);
-      CHECK_THROWS_AS(Value{"asdf"}.convertTo(context, ValueType::Null), ConversionError);
-      CHECK_THROWS_AS(
-        Value{"asdf"}.convertTo(context, ValueType::Undefined), ConversionError);
+        Value{"1.2 3 4"}.convertTo(ValueType::Vec3) == Value{Vec3Type{1.2, 3.0, 4.0}});
+      CHECK_THROWS_AS(Value{"1 2"}.convertTo(ValueType::Vec3), ConversionError);
+      CHECK_THROWS_AS(Value{"asdf"}.convertTo(ValueType::Number), ConversionError);
+      CHECK_THROWS_AS(Value{"asdf"}.convertTo(ValueType::Array), ConversionError);
+      CHECK_THROWS_AS(Value{"asfd"}.convertTo(ValueType::Map), ConversionError);
+      CHECK_THROWS_AS(Value{"asdf"}.convertTo(ValueType::Range), ConversionError);
+      CHECK_THROWS_AS(Value{"asdf"}.convertTo(ValueType::Vec3), ConversionError);
+      CHECK_THROWS_AS(Value{"asdf"}.convertTo(ValueType::BBox), ConversionError);
+      CHECK_THROWS_AS(Value{"asdf"}.convertTo(ValueType::Null), ConversionError);
+      CHECK_THROWS_AS(Value{"asdf"}.convertTo(ValueType::Undefined), ConversionError);
 
-      CHECK(Value{1}.convertTo(context, ValueType::Boolean) == Value{true});
-      CHECK(Value{2}.convertTo(context, ValueType::Boolean) == Value{true});
-      CHECK(Value{-2}.convertTo(context, ValueType::Boolean) == Value{true});
-      CHECK(Value{0}.convertTo(context, ValueType::Boolean) == Value{false});
-      CHECK(Value{1.0}.convertTo(context, ValueType::String) == Value{"1"});
-      CHECK(Value{-1.0}.convertTo(context, ValueType::String) == Value{"-1"});
-      CHECK(
-        Value{1.1}.convertTo(context, ValueType::String) == Value{"1.1000000000000001"});
-      CHECK(
-        Value{-1.1}.convertTo(context, ValueType::String)
-        == Value{"-1.1000000000000001"});
-      CHECK(Value{1.0}.convertTo(context, ValueType::Number) == Value{1});
-      CHECK(Value{-1.0}.convertTo(context, ValueType::Number) == Value{-1});
-      CHECK_THROWS_AS(Value{1}.convertTo(context, ValueType::Array), ConversionError);
-      CHECK_THROWS_AS(Value{2}.convertTo(context, ValueType::Map), ConversionError);
-      CHECK_THROWS_AS(Value{3}.convertTo(context, ValueType::Range), ConversionError);
-      CHECK_THROWS_AS(Value{6}.convertTo(context, ValueType::Vec3), ConversionError);
-      CHECK_THROWS_AS(Value{7}.convertTo(context, ValueType::BBox), ConversionError);
-      CHECK_THROWS_AS(Value{4}.convertTo(context, ValueType::Null), ConversionError);
-      CHECK_THROWS_AS(Value{5}.convertTo(context, ValueType::Undefined), ConversionError);
+      CHECK(Value{1}.convertTo(ValueType::Boolean) == Value{true});
+      CHECK(Value{2}.convertTo(ValueType::Boolean) == Value{true});
+      CHECK(Value{-2}.convertTo(ValueType::Boolean) == Value{true});
+      CHECK(Value{0}.convertTo(ValueType::Boolean) == Value{false});
+      CHECK(Value{1.0}.convertTo(ValueType::String) == Value{"1"});
+      CHECK(Value{-1.0}.convertTo(ValueType::String) == Value{"-1"});
+      CHECK(Value{1.1}.convertTo(ValueType::String) == Value{"1.1000000000000001"});
+      CHECK(Value{-1.1}.convertTo(ValueType::String) == Value{"-1.1000000000000001"});
+      CHECK(Value{1.0}.convertTo(ValueType::Number) == Value{1});
+      CHECK(Value{-1.0}.convertTo(ValueType::Number) == Value{-1});
+      CHECK_THROWS_AS(Value{1}.convertTo(ValueType::Array), ConversionError);
+      CHECK_THROWS_AS(Value{2}.convertTo(ValueType::Map), ConversionError);
+      CHECK_THROWS_AS(Value{3}.convertTo(ValueType::Range), ConversionError);
+      CHECK_THROWS_AS(Value{6}.convertTo(ValueType::Vec3), ConversionError);
+      CHECK_THROWS_AS(Value{7}.convertTo(ValueType::BBox), ConversionError);
+      CHECK_THROWS_AS(Value{4}.convertTo(ValueType::Null), ConversionError);
+      CHECK_THROWS_AS(Value{5}.convertTo(ValueType::Undefined), ConversionError);
 
+      CHECK_THROWS_AS(Value{ArrayType{}}.convertTo(ValueType::Boolean), ConversionError);
+      CHECK_THROWS_AS(Value{ArrayType{}}.convertTo(ValueType::String), ConversionError);
+      CHECK_THROWS_AS(Value{ArrayType{}}.convertTo(ValueType::Number), ConversionError);
+      CHECK(Value{ArrayType{}}.convertTo(ValueType::Array) == Value{ArrayType{}});
+      CHECK_THROWS_AS(Value{ArrayType{}}.convertTo(ValueType::Map), ConversionError);
+      CHECK_THROWS_AS(Value{ArrayType{}}.convertTo(ValueType::Range), ConversionError);
+      CHECK_THROWS_AS(Value{ArrayType{}}.convertTo(ValueType::Vec3), ConversionError);
+      CHECK_THROWS_AS(Value{ArrayType{}}.convertTo(ValueType::BBox), ConversionError);
+      CHECK_THROWS_AS(Value{ArrayType{}}.convertTo(ValueType::Null), ConversionError);
       CHECK_THROWS_AS(
-        Value{ArrayType{}}.convertTo(context, ValueType::Boolean), ConversionError);
-      CHECK_THROWS_AS(
-        Value{ArrayType{}}.convertTo(context, ValueType::String), ConversionError);
-      CHECK_THROWS_AS(
-        Value{ArrayType{}}.convertTo(context, ValueType::Number), ConversionError);
-      CHECK(
-        Value{ArrayType{}}.convertTo(context, ValueType::Array) == Value{ArrayType{}});
-      CHECK_THROWS_AS(
-        Value{ArrayType{}}.convertTo(context, ValueType::Map), ConversionError);
-      CHECK_THROWS_AS(
-        Value{ArrayType{}}.convertTo(context, ValueType::Range), ConversionError);
-      CHECK_THROWS_AS(
-        Value{ArrayType{}}.convertTo(context, ValueType::Vec3), ConversionError);
-      CHECK_THROWS_AS(
-        Value{ArrayType{}}.convertTo(context, ValueType::BBox), ConversionError);
-      CHECK_THROWS_AS(
-        Value{ArrayType{}}.convertTo(context, ValueType::Null), ConversionError);
-      CHECK_THROWS_AS(
-        Value{ArrayType{}}.convertTo(context, ValueType::Undefined), ConversionError);
+        Value{ArrayType{}}.convertTo(ValueType::Undefined), ConversionError);
 
-      CHECK_THROWS_AS(
-        Value{MapType{}}.convertTo(context, ValueType::Boolean), ConversionError);
-      CHECK_THROWS_AS(
-        Value{MapType{}}.convertTo(context, ValueType::String), ConversionError);
-      CHECK_THROWS_AS(
-        Value{MapType{}}.convertTo(context, ValueType::Number), ConversionError);
-      CHECK_THROWS_AS(
-        Value{MapType{}}.convertTo(context, ValueType::Array), ConversionError);
-      CHECK(Value{MapType{}}.convertTo(context, ValueType::Map) == Value{MapType{}});
-      CHECK_THROWS_AS(
-        Value{MapType{}}.convertTo(context, ValueType::Range), ConversionError);
-      CHECK_THROWS_AS(
-        Value{MapType{}}.convertTo(context, ValueType::Vec3), ConversionError);
-      CHECK_THROWS_AS(
-        Value{MapType{}}.convertTo(context, ValueType::BBox), ConversionError);
-      CHECK_THROWS_AS(
-        Value{MapType{}}.convertTo(context, ValueType::Null), ConversionError);
-      CHECK_THROWS_AS(
-        Value{MapType{}}.convertTo(context, ValueType::Undefined), ConversionError);
+      CHECK_THROWS_AS(Value{MapType{}}.convertTo(ValueType::Boolean), ConversionError);
+      CHECK_THROWS_AS(Value{MapType{}}.convertTo(ValueType::String), ConversionError);
+      CHECK_THROWS_AS(Value{MapType{}}.convertTo(ValueType::Number), ConversionError);
+      CHECK_THROWS_AS(Value{MapType{}}.convertTo(ValueType::Array), ConversionError);
+      CHECK(Value{MapType{}}.convertTo(ValueType::Map) == Value{MapType{}});
+      CHECK_THROWS_AS(Value{MapType{}}.convertTo(ValueType::Range), ConversionError);
+      CHECK_THROWS_AS(Value{MapType{}}.convertTo(ValueType::Vec3), ConversionError);
+      CHECK_THROWS_AS(Value{MapType{}}.convertTo(ValueType::BBox), ConversionError);
+      CHECK_THROWS_AS(Value{MapType{}}.convertTo(ValueType::Null), ConversionError);
+      CHECK_THROWS_AS(Value{MapType{}}.convertTo(ValueType::Undefined), ConversionError);
 
-      CHECK_THROWS_AS(
-        boundedRange.convertTo(context, ValueType::Boolean), ConversionError);
-      CHECK_THROWS_AS(
-        boundedRange.convertTo(context, ValueType::String), ConversionError);
-      CHECK_THROWS_AS(
-        boundedRange.convertTo(context, ValueType::Number), ConversionError);
-      CHECK_THROWS_AS(boundedRange.convertTo(context, ValueType::Array), ConversionError);
-      CHECK_THROWS_AS(boundedRange.convertTo(context, ValueType::Map), ConversionError);
-      CHECK(boundedRange.convertTo(context, ValueType::Range) == boundedRange);
-      CHECK_THROWS_AS(boundedRange.convertTo(context, ValueType::Vec3), ConversionError);
-      CHECK_THROWS_AS(boundedRange.convertTo(context, ValueType::BBox), ConversionError);
-      CHECK_THROWS_AS(boundedRange.convertTo(context, ValueType::Null), ConversionError);
-      CHECK_THROWS_AS(
-        boundedRange.convertTo(context, ValueType::Undefined), ConversionError);
+      CHECK_THROWS_AS(boundedRange.convertTo(ValueType::Boolean), ConversionError);
+      CHECK_THROWS_AS(boundedRange.convertTo(ValueType::String), ConversionError);
+      CHECK_THROWS_AS(boundedRange.convertTo(ValueType::Number), ConversionError);
+      CHECK_THROWS_AS(boundedRange.convertTo(ValueType::Array), ConversionError);
+      CHECK_THROWS_AS(boundedRange.convertTo(ValueType::Map), ConversionError);
+      CHECK(boundedRange.convertTo(ValueType::Range) == boundedRange);
+      CHECK_THROWS_AS(boundedRange.convertTo(ValueType::Vec3), ConversionError);
+      CHECK_THROWS_AS(boundedRange.convertTo(ValueType::BBox), ConversionError);
+      CHECK_THROWS_AS(boundedRange.convertTo(ValueType::Null), ConversionError);
+      CHECK_THROWS_AS(boundedRange.convertTo(ValueType::Undefined), ConversionError);
 
-      CHECK_THROWS_AS(vec3.convertTo(context, ValueType::Boolean), ConversionError);
+      CHECK_THROWS_AS(vec3.convertTo(ValueType::Boolean), ConversionError);
       // "1.2 3 4", the format entity properties like "origin" use
-      CHECK(vec3.convertTo(context, ValueType::String) == Value{"1 2 3"});
-      CHECK_THROWS_AS(vec3.convertTo(context, ValueType::Number), ConversionError);
-      CHECK_THROWS_AS(vec3.convertTo(context, ValueType::Array), ConversionError);
-      CHECK_THROWS_AS(vec3.convertTo(context, ValueType::Map), ConversionError);
-      CHECK_THROWS_AS(vec3.convertTo(context, ValueType::Range), ConversionError);
-      CHECK(vec3.convertTo(context, ValueType::Vec3) == vec3);
-      CHECK_THROWS_AS(vec3.convertTo(context, ValueType::BBox), ConversionError);
-      CHECK_THROWS_AS(vec3.convertTo(context, ValueType::Null), ConversionError);
-      CHECK_THROWS_AS(vec3.convertTo(context, ValueType::Undefined), ConversionError);
+      CHECK(vec3.convertTo(ValueType::String) == Value{"1 2 3"});
+      CHECK_THROWS_AS(vec3.convertTo(ValueType::Number), ConversionError);
+      CHECK_THROWS_AS(vec3.convertTo(ValueType::Array), ConversionError);
+      CHECK_THROWS_AS(vec3.convertTo(ValueType::Map), ConversionError);
+      CHECK_THROWS_AS(vec3.convertTo(ValueType::Range), ConversionError);
+      CHECK(vec3.convertTo(ValueType::Vec3) == vec3);
+      CHECK_THROWS_AS(vec3.convertTo(ValueType::BBox), ConversionError);
+      CHECK_THROWS_AS(vec3.convertTo(ValueType::Null), ConversionError);
+      CHECK_THROWS_AS(vec3.convertTo(ValueType::Undefined), ConversionError);
 
-      CHECK_THROWS_AS(bbox.convertTo(context, ValueType::Boolean), ConversionError);
-      CHECK_THROWS_AS(bbox.convertTo(context, ValueType::String), ConversionError);
-      CHECK_THROWS_AS(bbox.convertTo(context, ValueType::Number), ConversionError);
-      CHECK_THROWS_AS(bbox.convertTo(context, ValueType::Array), ConversionError);
-      CHECK_THROWS_AS(bbox.convertTo(context, ValueType::Map), ConversionError);
-      CHECK_THROWS_AS(bbox.convertTo(context, ValueType::Range), ConversionError);
-      CHECK_THROWS_AS(bbox.convertTo(context, ValueType::Vec3), ConversionError);
-      CHECK(bbox.convertTo(context, ValueType::BBox) == bbox);
-      CHECK_THROWS_AS(bbox.convertTo(context, ValueType::Null), ConversionError);
-      CHECK_THROWS_AS(bbox.convertTo(context, ValueType::Undefined), ConversionError);
+      CHECK_THROWS_AS(bbox.convertTo(ValueType::Boolean), ConversionError);
+      CHECK_THROWS_AS(bbox.convertTo(ValueType::String), ConversionError);
+      CHECK_THROWS_AS(bbox.convertTo(ValueType::Number), ConversionError);
+      CHECK_THROWS_AS(bbox.convertTo(ValueType::Array), ConversionError);
+      CHECK_THROWS_AS(bbox.convertTo(ValueType::Map), ConversionError);
+      CHECK_THROWS_AS(bbox.convertTo(ValueType::Range), ConversionError);
+      CHECK_THROWS_AS(bbox.convertTo(ValueType::Vec3), ConversionError);
+      CHECK(bbox.convertTo(ValueType::BBox) == bbox);
+      CHECK_THROWS_AS(bbox.convertTo(ValueType::Null), ConversionError);
+      CHECK_THROWS_AS(bbox.convertTo(ValueType::Undefined), ConversionError);
 
-      CHECK(Value::Null.convertTo(context, ValueType::Boolean) == Value{false});
-      CHECK(Value::Null.convertTo(context, ValueType::String) == Value{""});
-      CHECK(Value::Null.convertTo(context, ValueType::Number) == Value{0});
-      CHECK(Value::Null.convertTo(context, ValueType::Array) == Value{ArrayType{}});
-      CHECK(Value::Null.convertTo(context, ValueType::Map) == Value{MapType{}});
-      CHECK_THROWS_AS(Value::Null.convertTo(context, ValueType::Range), ConversionError);
-      CHECK_THROWS_AS(Value::Null.convertTo(context, ValueType::Vec3), ConversionError);
-      CHECK_THROWS_AS(Value::Null.convertTo(context, ValueType::BBox), ConversionError);
-      CHECK(Value::Null.convertTo(context, ValueType::Null) == Value::Null);
-      CHECK_THROWS_AS(
-        Value::Null.convertTo(context, ValueType::Undefined), ConversionError);
 
-      CHECK_THROWS_AS(
-        Value::Undefined.convertTo(context, ValueType::Boolean), ConversionError);
-      CHECK_THROWS_AS(
-        Value::Undefined.convertTo(context, ValueType::String), ConversionError);
-      CHECK_THROWS_AS(
-        Value::Undefined.convertTo(context, ValueType::Number), ConversionError);
-      CHECK_THROWS_AS(
-        Value::Undefined.convertTo(context, ValueType::Array), ConversionError);
-      CHECK_THROWS_AS(
-        Value::Undefined.convertTo(context, ValueType::Map), ConversionError);
-      CHECK_THROWS_AS(
-        Value::Undefined.convertTo(context, ValueType::Range), ConversionError);
-      CHECK_THROWS_AS(
-        Value::Undefined.convertTo(context, ValueType::Vec3), ConversionError);
-      CHECK_THROWS_AS(
-        Value::Undefined.convertTo(context, ValueType::BBox), ConversionError);
-      CHECK_THROWS_AS(
-        Value::Undefined.convertTo(context, ValueType::Null), ConversionError);
-      CHECK(
-        Value::Undefined.convertTo(context, ValueType::Undefined) == Value::Undefined);
+      CHECK(Value::Null.convertTo(ValueType::Boolean) == Value{false});
+      CHECK(Value::Null.convertTo(ValueType::String) == Value{""});
+      CHECK(Value::Null.convertTo(ValueType::Number) == Value{0});
+      CHECK(Value::Null.convertTo(ValueType::Array) == Value{ArrayType{}});
+      CHECK(Value::Null.convertTo(ValueType::Map) == Value{MapType{}});
+      CHECK_THROWS_AS(Value::Null.convertTo(ValueType::Range), ConversionError);
+      CHECK_THROWS_AS(Value::Null.convertTo(ValueType::Vec3), ConversionError);
+      CHECK_THROWS_AS(Value::Null.convertTo(ValueType::BBox), ConversionError);
+      CHECK(Value::Null.convertTo(ValueType::Null) == Value::Null);
+      CHECK_THROWS_AS(Value::Null.convertTo(ValueType::Undefined), ConversionError);
+
+      CHECK_THROWS_AS(Value::Undefined.convertTo(ValueType::Boolean), ConversionError);
+      CHECK_THROWS_AS(Value::Undefined.convertTo(ValueType::String), ConversionError);
+      CHECK_THROWS_AS(Value::Undefined.convertTo(ValueType::Number), ConversionError);
+      CHECK_THROWS_AS(Value::Undefined.convertTo(ValueType::Array), ConversionError);
+      CHECK_THROWS_AS(Value::Undefined.convertTo(ValueType::Map), ConversionError);
+      CHECK_THROWS_AS(Value::Undefined.convertTo(ValueType::Range), ConversionError);
+      CHECK_THROWS_AS(Value::Undefined.convertTo(ValueType::Vec3), ConversionError);
+      CHECK_THROWS_AS(Value::Undefined.convertTo(ValueType::BBox), ConversionError);
+      CHECK_THROWS_AS(Value::Undefined.convertTo(ValueType::Null), ConversionError);
+      CHECK(Value::Undefined.convertTo(ValueType::Undefined) == Value::Undefined);
     }).ignore();
   }
 
   SECTION("tryConvertTo")
   {
-    withEvaluationContext([](auto& context) {
-      CHECK(Value{"2"}.tryConvertTo(context, ValueType::Number) == Value{2});
-      CHECK(Value{"asdf"}.tryConvertTo(context, ValueType::Number) == std::nullopt);
-      CHECK(Value{ArrayType{}}.tryConvertTo(context, ValueType::Map) == std::nullopt);
+    withEvaluationContext([](auto&) {
+      CHECK(Value{"2"}.tryConvertTo(ValueType::Number) == Value{2});
+      CHECK(Value{"asdf"}.tryConvertTo(ValueType::Number) == std::nullopt);
+      CHECK(Value{ArrayType{}}.tryConvertTo(ValueType::Map) == std::nullopt);
     }).ignore();
   }
 
@@ -642,53 +597,54 @@ TEST_CASE("Value")
   {
     SECTION("by index")
     {
-      withEvaluationContext([](auto& context) {
-        CHECK(Value{"ab"}.contains(context, 0));
-        CHECK(Value{"ab"}.contains(context, 1));
-        CHECK(!Value{"ab"}.contains(context, 2));
-        CHECK(!Value{""}.contains(context, 0));
+      withEvaluationContext([](auto&) {
+        CHECK(Value{"ab"}.contains(0));
+        CHECK(Value{"ab"}.contains(1));
+        CHECK(!Value{"ab"}.contains(2));
+        CHECK(!Value{""}.contains(0));
 
-        CHECK(Value{ArrayType{Value{1.0}}}.contains(context, 0));
-        CHECK(!Value{ArrayType{Value{1.0}}}.contains(context, 1));
-        CHECK(!Value{ArrayType{}}.contains(context, 0));
+        CHECK(Value{ArrayType{Value{1.0}}}.contains(0));
+        CHECK(!Value{ArrayType{Value{1.0}}}.contains(1));
+        CHECK(!Value{ArrayType{}}.contains(0));
 
         // every other type is not indexable by an integer
-        CHECK(!Value{MapType{{"0", Value{1.0}}}}.contains(context, 0));
-        CHECK(!Value{true}.contains(context, 0));
-        CHECK(!Value{1.0}.contains(context, 0));
-        CHECK(!boundedRange.contains(context, 0));
-        CHECK(!vec3.contains(context, 0));
-        CHECK(!bbox.contains(context, 0));
-        CHECK(!Value::Null.contains(context, 0));
-        CHECK(!Value::Undefined.contains(context, 0));
+        CHECK(!Value{MapType{{"0", Value{1.0}}}}.contains(0));
+        CHECK(!Value{true}.contains(0));
+        CHECK(!Value{1.0}.contains(0));
+        CHECK(!boundedRange.contains(0));
+        CHECK(!vec3.contains(0));
+        CHECK(!bbox.contains(0));
+        CHECK(!Value::Null.contains(0));
+        CHECK(!Value::Undefined.contains(0));
       }).ignore();
     }
 
     SECTION("by key")
     {
-      withEvaluationContext([](auto& context) {
-        CHECK(Value{MapType{{"a", Value{1.0}}}}.contains(context, "a"));
-        CHECK(!Value{MapType{{"a", Value{1.0}}}}.contains(context, "b"));
-        CHECK(!Value{MapType{}}.contains(context, "a"));
-        CHECK(!Value::Null.contains(context, "a"));
+      withEvaluationContext([](auto&) {
+        CHECK(Value{MapType{{"a", Value{1.0}}}}.contains("a"));
+        CHECK(!Value{MapType{{"a", Value{1.0}}}}.contains("b"));
+        CHECK(!Value{MapType{}}.contains("a"));
+        CHECK(!Value::Null.contains("a"));
 
-        CHECK_THROWS_AS(Value{"ab"}.contains(context, "a"), DereferenceError);
-        CHECK_THROWS_AS(Value{ArrayType{}}.contains(context, "a"), DereferenceError);
-        CHECK_THROWS_AS(Value::Undefined.contains(context, "a"), DereferenceError);
+
+        CHECK_THROWS_AS(Value{"ab"}.contains("a"), DereferenceError);
+        CHECK_THROWS_AS(Value{ArrayType{}}.contains("a"), DereferenceError);
+        CHECK_THROWS_AS(Value::Undefined.contains("a"), DereferenceError);
       }).ignore();
     }
   }
 
   SECTION("keys")
   {
-    withEvaluationContext([](auto& context) {
+    withEvaluationContext([](auto&) {
       CHECK(
-        Value{MapType{{"b", Value{1.0}}, {"a", Value{2.0}}}}.keys(context)
+        Value{MapType{{"b", Value{1.0}}, {"a", Value{2.0}}}}.keys()
         == std::vector<std::string>{"a", "b"});
-      CHECK(Value{MapType{}}.keys(context) == std::vector<std::string>{});
-      CHECK(Value::Null.keys(context) == std::vector<std::string>{});
+      CHECK(Value{MapType{}}.keys() == std::vector<std::string>{});
+      CHECK(Value::Null.keys() == std::vector<std::string>{});
 
-      CHECK_THROWS_AS(Value{ArrayType{}}.keys(context), DereferenceError);
+      CHECK_THROWS_AS(Value{ArrayType{}}.keys(), DereferenceError);
     }).ignore();
   }
 
@@ -696,43 +652,44 @@ TEST_CASE("Value")
   {
     SECTION("by index")
     {
-      withEvaluationContext([](auto& context) {
-        CHECK(Value{"abc"}.at(context, 0) == Value{"a"});
-        CHECK(Value{"abc"}.at(context, 2) == Value{"c"});
-        CHECK_THROWS_AS(Value{"abc"}.at(context, 3), IndexOutOfBoundsError);
+      withEvaluationContext([](auto&) {
+        CHECK(Value{"abc"}.at(0) == Value{"a"});
+        CHECK(Value{"abc"}.at(2) == Value{"c"});
+        CHECK_THROWS_AS(Value{"abc"}.at(3), IndexOutOfBoundsError);
 
         const auto array = Value{ArrayType{Value{1.0}, Value{"a"}}};
-        CHECK(array.at(context, 0) == Value{1.0});
-        CHECK(array.at(context, 1) == Value{"a"});
-        CHECK_THROWS_AS(array.at(context, 2), IndexOutOfBoundsError);
+        CHECK(array.at(0) == Value{1.0});
+        CHECK(array.at(1) == Value{"a"});
+        CHECK_THROWS_AS(array.at(2), IndexOutOfBoundsError);
 
-        CHECK_THROWS_AS(Value{MapType{}}.at(context, 0), IndexError);
-        CHECK_THROWS_AS(Value{true}.at(context, 0), IndexError);
-        CHECK_THROWS_AS(Value{1.0}.at(context, 0), IndexError);
-        CHECK_THROWS_AS(boundedRange.at(context, 0), IndexError);
-        CHECK_THROWS_AS(vec3.at(context, 0), IndexError);
-        CHECK_THROWS_AS(bbox.at(context, 0), IndexError);
-        CHECK_THROWS_AS(Value::Null.at(context, 0), IndexError);
-        CHECK_THROWS_AS(Value::Undefined.at(context, 0), IndexError);
+        CHECK_THROWS_AS(Value{MapType{}}.at(0), IndexError);
+        CHECK_THROWS_AS(Value{true}.at(0), IndexError);
+        CHECK_THROWS_AS(Value{1.0}.at(0), IndexError);
+        CHECK_THROWS_AS(boundedRange.at(0), IndexError);
+        CHECK_THROWS_AS(vec3.at(0), IndexError);
+        CHECK_THROWS_AS(bbox.at(0), IndexError);
+        CHECK_THROWS_AS(Value::Null.at(0), IndexError);
+        CHECK_THROWS_AS(Value::Undefined.at(0), IndexError);
       }).ignore();
     }
 
     SECTION("by key")
     {
-      withEvaluationContext([](auto& context) {
+      withEvaluationContext([](auto&) {
         const auto map = Value{MapType{{"a", Value{1.0}}}};
-        CHECK(map.at(context, "a") == Value{1.0});
-        CHECK_THROWS_AS(map.at(context, "b"), IndexOutOfBoundsError);
+        CHECK(map.at("a") == Value{1.0});
+        CHECK_THROWS_AS(map.at("b"), IndexOutOfBoundsError);
 
-        CHECK_THROWS_AS(Value{"abc"}.at(context, "a"), IndexError);
-        CHECK_THROWS_AS(Value{ArrayType{}}.at(context, "a"), IndexError);
-        CHECK_THROWS_AS(Value{true}.at(context, "a"), IndexError);
-        CHECK_THROWS_AS(Value{1.0}.at(context, "a"), IndexError);
-        CHECK_THROWS_AS(boundedRange.at(context, "a"), IndexError);
-        CHECK_THROWS_AS(vec3.at(context, "a"), IndexError);
-        CHECK_THROWS_AS(bbox.at(context, "a"), IndexError);
-        CHECK_THROWS_AS(Value::Null.at(context, "a"), IndexError);
-        CHECK_THROWS_AS(Value::Undefined.at(context, "a"), IndexError);
+
+        CHECK_THROWS_AS(Value{"abc"}.at("a"), IndexError);
+        CHECK_THROWS_AS(Value{ArrayType{}}.at("a"), IndexError);
+        CHECK_THROWS_AS(Value{true}.at("a"), IndexError);
+        CHECK_THROWS_AS(Value{1.0}.at("a"), IndexError);
+        CHECK_THROWS_AS(boundedRange.at("a"), IndexError);
+        CHECK_THROWS_AS(vec3.at("a"), IndexError);
+        CHECK_THROWS_AS(bbox.at("a"), IndexError);
+        CHECK_THROWS_AS(Value::Null.at("a"), IndexError);
+        CHECK_THROWS_AS(Value::Undefined.at("a"), IndexError);
       }).ignore();
     }
   }
@@ -741,45 +698,46 @@ TEST_CASE("Value")
   {
     SECTION("by index")
     {
-      withEvaluationContext([](auto& context) {
-        CHECK(Value{"abc"}.atOrDefault(context, 0) == Value{"a"});
-        CHECK(Value{"abc"}.atOrDefault(context, 3) == Value::Null);
-        CHECK(Value{"abc"}.atOrDefault(context, 3, Value{"x"}) == Value{"x"});
+      withEvaluationContext([](auto&) {
+        CHECK(Value{"abc"}.atOrDefault(0) == Value{"a"});
+        CHECK(Value{"abc"}.atOrDefault(3) == Value::Null);
+        CHECK(Value{"abc"}.atOrDefault(3, Value{"x"}) == Value{"x"});
 
         const auto array = Value{ArrayType{Value{1.0}}};
-        CHECK(array.atOrDefault(context, 0) == Value{1.0});
-        CHECK(array.atOrDefault(context, 1) == Value::Null);
-        CHECK(array.atOrDefault(context, 1, Value{"x"}) == Value{"x"});
+        CHECK(array.atOrDefault(0) == Value{1.0});
+        CHECK(array.atOrDefault(1) == Value::Null);
+        CHECK(array.atOrDefault(1, Value{"x"}) == Value{"x"});
 
         // a value that is not indexable by an integer still throws
-        CHECK_THROWS_AS(Value{MapType{}}.atOrDefault(context, 0), IndexError);
-        CHECK_THROWS_AS(Value{true}.atOrDefault(context, 0), IndexError);
-        CHECK_THROWS_AS(Value{1.0}.atOrDefault(context, 0), IndexError);
-        CHECK_THROWS_AS(boundedRange.atOrDefault(context, 0), IndexError);
-        CHECK_THROWS_AS(vec3.atOrDefault(context, 0), IndexError);
-        CHECK_THROWS_AS(bbox.atOrDefault(context, 0), IndexError);
-        CHECK_THROWS_AS(Value::Null.atOrDefault(context, 0), IndexError);
-        CHECK_THROWS_AS(Value::Undefined.atOrDefault(context, 0), IndexError);
+        CHECK_THROWS_AS(Value{MapType{}}.atOrDefault(0), IndexError);
+        CHECK_THROWS_AS(Value{true}.atOrDefault(0), IndexError);
+        CHECK_THROWS_AS(Value{1.0}.atOrDefault(0), IndexError);
+        CHECK_THROWS_AS(boundedRange.atOrDefault(0), IndexError);
+        CHECK_THROWS_AS(vec3.atOrDefault(0), IndexError);
+        CHECK_THROWS_AS(bbox.atOrDefault(0), IndexError);
+        CHECK_THROWS_AS(Value::Null.atOrDefault(0), IndexError);
+        CHECK_THROWS_AS(Value::Undefined.atOrDefault(0), IndexError);
       }).ignore();
     }
 
     SECTION("by key")
     {
-      withEvaluationContext([](auto& context) {
+      withEvaluationContext([](auto&) {
         const auto map = Value{MapType{{"a", Value{1.0}}}};
-        CHECK(map.atOrDefault(context, "a") == Value{1.0});
-        CHECK(map.atOrDefault(context, "b") == Value::Null);
-        CHECK(map.atOrDefault(context, "b", Value{"x"}) == Value{"x"});
+        CHECK(map.atOrDefault("a") == Value{1.0});
+        CHECK(map.atOrDefault("b") == Value::Null);
+        CHECK(map.atOrDefault("b", Value{"x"}) == Value{"x"});
 
-        CHECK_THROWS_AS(Value{"abc"}.atOrDefault(context, "a"), IndexError);
-        CHECK_THROWS_AS(Value{ArrayType{}}.atOrDefault(context, "a"), IndexError);
-        CHECK_THROWS_AS(Value{true}.atOrDefault(context, "a"), IndexError);
-        CHECK_THROWS_AS(Value{1.0}.atOrDefault(context, "a"), IndexError);
-        CHECK_THROWS_AS(boundedRange.atOrDefault(context, "a"), IndexError);
-        CHECK_THROWS_AS(vec3.atOrDefault(context, "a"), IndexError);
-        CHECK_THROWS_AS(bbox.atOrDefault(context, "a"), IndexError);
-        CHECK_THROWS_AS(Value::Null.atOrDefault(context, "a"), IndexError);
-        CHECK_THROWS_AS(Value::Undefined.atOrDefault(context, "a"), IndexError);
+
+        CHECK_THROWS_AS(Value{"abc"}.atOrDefault("a"), IndexError);
+        CHECK_THROWS_AS(Value{ArrayType{}}.atOrDefault("a"), IndexError);
+        CHECK_THROWS_AS(Value{true}.atOrDefault("a"), IndexError);
+        CHECK_THROWS_AS(Value{1.0}.atOrDefault("a"), IndexError);
+        CHECK_THROWS_AS(boundedRange.atOrDefault("a"), IndexError);
+        CHECK_THROWS_AS(vec3.atOrDefault("a"), IndexError);
+        CHECK_THROWS_AS(bbox.atOrDefault("a"), IndexError);
+        CHECK_THROWS_AS(Value::Null.atOrDefault("a"), IndexError);
+        CHECK_THROWS_AS(Value::Undefined.atOrDefault("a"), IndexError);
       }).ignore();
     }
   }

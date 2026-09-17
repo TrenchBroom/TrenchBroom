@@ -32,22 +32,20 @@ namespace tb::mdl
 
 namespace
 {
-std::string materialName(const el::EvaluationContext& context, const el::Value& value)
+std::string materialName(const el::Value& value)
 {
   using namespace std::string_literals;
-  return value.type() == el::ValueType::String ? value.stringValue(context) : ""s;
+  return value.type() == el::ValueType::String ? value.stringValue() : ""s;
 }
 
-DecalSpecification convertToDecal(
-  const el::EvaluationContext& context, const el::Value& value)
+DecalSpecification convertToDecal(const el::Value& value)
 {
   switch (value.type())
   {
   case el::ValueType::Map:
-    return {materialName(
-      context, value.atOrDefault(context, DecalSpecificationKeys::Material))};
+    return {materialName(value.atOrDefault(DecalSpecificationKeys::Material))};
   case el::ValueType::String:
-    return {materialName(context, value)};
+    return {materialName(value)};
   case el::ValueType::Boolean:
   case el::ValueType::Number:
   case el::ValueType::Array:
@@ -93,9 +91,7 @@ Result<DecalSpecification> DecalDefinition::decalSpecification(
   const el::VariableStore& variableStore) const
 {
   return el::withEvaluationContext(
-    [&](auto& context) {
-      return convertToDecal(context, m_expression.evaluate(context));
-    },
+    [&](auto& context) { return convertToDecal(m_expression.evaluate(context)); },
     variableStore);
 }
 
