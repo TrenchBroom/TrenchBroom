@@ -66,8 +66,8 @@ Result<std::string> CompilationContext::variableValue(
   return el::withEvaluationContext(
     [&](auto& context) {
       return context.variableValue(variableName)
-        .convertTo(context, el::ValueType::String)
-        .stringValue(context);
+        .convertTo(el::ValueType::String)
+        .stringValue();
     },
     *m_variables);
 }

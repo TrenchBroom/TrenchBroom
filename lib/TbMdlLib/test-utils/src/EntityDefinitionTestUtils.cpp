@@ -68,7 +68,7 @@ ModelSpecification getModelSpecification(
              el::parseExpression(el::ParseMode::Strict, entityPropertiesStr)
                .value()
                .evaluate(context)
-               .mapValue(context);
+               .mapValue();
            const auto variableStore = el::VariableTable{entityPropertiesMap};
            return modelDefinition.modelSpecification(variableStore);
          })
@@ -113,7 +113,7 @@ void assertDecalDefinition(
       el::parseExpression(el::ParseMode::Strict, entityPropertiesStr)
         .value()
         .evaluate(context)
-        .mapValue(context);
+        .mapValue();
     const auto variableStore = el::VariableTable{entityPropertiesMap};
     CHECK(actual.decalSpecification(variableStore) == expected);
   }).ignore();

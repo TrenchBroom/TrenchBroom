@@ -35,7 +35,7 @@ namespace
 std::string materialName(const el::EvaluationContext& context, const el::Value& value)
 {
   using namespace std::string_literals;
-  return value.type() == el::ValueType::String ? value.stringValue(context) : ""s;
+  return value.type() == el::ValueType::String ? value.stringValue() : ""s;
 }
 
 DecalSpecification convertToDecal(
@@ -45,7 +45,7 @@ DecalSpecification convertToDecal(
   {
   case el::ValueType::Map:
     return {materialName(
-      context, value.atOrDefault(context, DecalSpecificationKeys::Material))};
+      context, value.atOrDefault(DecalSpecificationKeys::Material))};
   case el::ValueType::String:
     return {materialName(context, value)};
   case el::ValueType::Boolean:

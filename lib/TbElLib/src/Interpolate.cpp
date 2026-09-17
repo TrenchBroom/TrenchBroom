@@ -81,7 +81,6 @@ auto evaluateExpressions(
 }
 
 auto substituteValues(
-  EvaluationContext& context,
   const std::string_view str,
   const std::vector<std::tuple<std::size_t, std::size_t>>& expressionsPositions,
   const std::vector<el::Value>& values)
@@ -92,7 +91,7 @@ auto substituteValues(
   {
     const auto [start, length] = expressionsPositions[i];
     result << str.substr(previousEnd, start - previousEnd);
-    result << values[i].convertTo(context, el::ValueType::String).stringValue(context);
+    result << values[i].convertTo(el::ValueType::String).stringValue();
     previousEnd = start + length;
   }
   result << str.substr(previousEnd);
@@ -112,8 +111,7 @@ Result<std::string> interpolate(
                           return evaluateExpressions(context, expressions);
                         })
                       | kdl::transform([&](const auto& values) {
-                          return substituteValues(
-                            context, str, expressionPositions, values);
+                          return substituteValues(str, expressionPositions, values);
                         });
              });
     },
