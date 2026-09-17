@@ -61,7 +61,7 @@ Value evaluate(
 
 template <typename Evaluator>
 Value evaluate(
-  EvaluationContext& context,
+  EvaluationContext&,
   const Evaluator& evaluator,
   const ArrayExpression& expression,
   const ExpressionNode&)
@@ -74,7 +74,7 @@ Value evaluate(
     auto value = element.accept(evaluator);
     if (value.hasType(ValueType::Range))
     {
-      const auto& range = std::get<BoundedRange>(value.rangeValue(context));
+      const auto& range = std::get<BoundedRange>(value.rangeValue());
       array.reserve(array.size() + range.length());
       range.forEach([&](const auto& i) { array.emplace_back(i); });
     }
@@ -104,17 +104,17 @@ Value evaluate(
 }
 
 Value evaluateUnaryPlus(
-  EvaluationContext& context, const Value& v, const ExpressionNode& expressionNode)
+  EvaluationContext&, const Value& v, const ExpressionNode& expressionNode)
 {
   switch (v.type())
   {
   case ValueType::Boolean:
   case ValueType::Number:
-    return Value{v.convertTo(context, ValueType::Number).numberValue(context)};
+    return Value{v.convertTo(ValueType::Number).numberValue()};
   case ValueType::String:
-    if (const auto result = v.tryConvertTo(context, ValueType::Number))
+    if (const auto result = v.tryConvertTo(ValueType::Number))
     {
-      return Value{result->numberValue(context)};
+      return Value{result->numberValue()};
     }
     [[fallthrough]];
   case ValueType::Array:
@@ -132,18 +132,18 @@ Value evaluateUnaryPlus(
 }
 
 Value evaluateUnaryMinus(
-  EvaluationContext& context, const Value& v, const ExpressionNode& expressionNode)
+  EvaluationContext&, const Value& v, const ExpressionNode& expressionNode)
 {
   switch (v.type())
   {
   case ValueType::Boolean:
     [[fallthrough]];
   case ValueType::Number:
-    return Value{-v.convertTo(context, ValueType::Number).numberValue(context)};
+    return Value{-v.convertTo(ValueType::Number).numberValue()};
   case ValueType::String:
-    if (const auto result = v.tryConvertTo(context, ValueType::Number))
+    if (const auto result = v.tryConvertTo(ValueType::Number))
     {
-      return Value{-result->numberValue(context)};
+      return Value{-result->numberValue()};
     }
     [[fallthrough]];
   case ValueType::Array:
@@ -161,12 +161,12 @@ Value evaluateUnaryMinus(
 }
 
 Value evaluateLogicalNegation(
-  EvaluationContext& context, const Value& v, const ExpressionNode& expressionNode)
+  EvaluationContext&, const Value& v, const ExpressionNode& expressionNode)
 {
   switch (v.type())
   {
   case ValueType::Boolean:
-    return Value{!v.booleanValue(context)};
+    return Value{!v.booleanValue()};
   case ValueType::Number:
     [[fallthrough]];
   case ValueType::String:
@@ -186,16 +186,16 @@ Value evaluateLogicalNegation(
 }
 
 Value evaluateBitwiseNegation(
-  EvaluationContext& context, const Value& v, const ExpressionNode& expressionNode)
+  EvaluationContext&, const Value& v, const ExpressionNode& expressionNode)
 {
   switch (v.type())
   {
   case ValueType::Number:
-    return Value{~v.integerValue(context)};
+    return Value{~v.integerValue()};
   case ValueType::String:
-    if (const auto result = v.tryConvertTo(context, ValueType::Number))
+    if (const auto result = v.tryConvertTo(ValueType::Number))
     {
-      return Value{~result->integerValue(context)};
+      return Value{~result->integerValue()};
     }
     [[fallthrough]];
   case ValueType::Boolean:
@@ -214,17 +214,15 @@ Value evaluateBitwiseNegation(
   throw EvaluationError{expressionNode, fmt::format("Invalid type {}", v.typeName())};
 }
 
-Value evaluateLeftBoundedRange(EvaluationContext& context, const Value& v)
+Value evaluateLeftBoundedRange(EvaluationContext&, const Value& v)
 {
-  const auto first =
-    static_cast<long>(v.convertTo(context, ValueType::Number).numberValue(context));
+  const auto first = static_cast<long>(v.convertTo(ValueType::Number).numberValue());
   return Value{LeftBoundedRange{first}}.producedBy(v);
 }
 
-Value evaluateRightBoundedRange(EvaluationContext& context, const Value& v)
+Value evaluateRightBoundedRange(EvaluationContext&, const Value& v)
 {
-  const auto last =
-    static_cast<long>(v.convertTo(context, ValueType::Number).numberValue(context));
+  const auto last = static_cast<long>(v.convertTo(ValueType::Number).numberValue());
   return Value{RightBoundedRange{last}}.producedBy(v);
 }
 
@@ -272,7 +270,7 @@ Value evaluate(
 
 template <typename Eval>
 std::optional<Value> tryEvaluateAlgebraicOperator(
-  EvaluationContext& context, const Value& lhs, const Value& rhs, const Eval& eval)
+  EvaluationContext&, const Value& lhs, const Value& rhs, const Eval& eval)
 {
   if (lhs.hasType(ValueType::Undefined) || rhs.hasType(ValueType::Undefined))
   {
@@ -283,26 +281,25 @@ std::optional<Value> tryEvaluateAlgebraicOperator(
     lhs.hasType(ValueType::Boolean, ValueType::Number)
     && rhs.hasType(ValueType::Boolean, ValueType::Number))
   {
-    return Value{eval(
-      lhs.convertTo(context, ValueType::Number),
-      rhs.convertTo(context, ValueType::Number))};
+    return Value{
+      eval(lhs.convertTo(ValueType::Number), rhs.convertTo(ValueType::Number))};
   }
 
   if (
     lhs.hasType(ValueType::Boolean, ValueType::Number) && rhs.hasType(ValueType::String))
   {
-    if (const auto rhsAsNumber = rhs.tryConvertTo(context, ValueType::Number))
+    if (const auto rhsAsNumber = rhs.tryConvertTo(ValueType::Number))
     {
-      return Value{eval(lhs.convertTo(context, ValueType::Number), *rhsAsNumber)};
+      return Value{eval(lhs.convertTo(ValueType::Number), *rhsAsNumber)};
     }
   }
 
   if (
     lhs.hasType(ValueType::String) && rhs.hasType(ValueType::Boolean, ValueType::Number))
   {
-    if (const auto lhsAsNumber = lhs.tryConvertTo(context, ValueType::Number))
+    if (const auto lhsAsNumber = lhs.tryConvertTo(ValueType::Number))
     {
-      return Value{eval(*lhsAsNumber, rhs.convertTo(context, ValueType::Number))};
+      return Value{eval(*lhsAsNumber, rhs.convertTo(ValueType::Number))};
     }
   }
 
@@ -318,7 +315,7 @@ Value evaluateAddition(
   if (
     const auto result = tryEvaluateAlgebraicOperator(
       context, lhs, rhs, [&](const auto& lhsNumber, const auto& rhsNumber) {
-        return lhsNumber.numberValue(context) + rhsNumber.numberValue(context);
+        return lhsNumber.numberValue() + rhsNumber.numberValue();
       }))
   {
     return *result;
@@ -327,20 +324,20 @@ Value evaluateAddition(
   if (lhs.hasType(ValueType::String) && rhs.hasType(ValueType::String))
   {
     return Value{
-      lhs.convertTo(context, ValueType::String).stringValue(context)
-      + rhs.convertTo(context, ValueType::String).stringValue(context)};
+      lhs.convertTo(ValueType::String).stringValue()
+      + rhs.convertTo(ValueType::String).stringValue()};
   }
 
   if (lhs.hasType(ValueType::Array) && rhs.hasType(ValueType::Array))
   {
     return Value{
-      kdl::views::concat(lhs.arrayValue(context), rhs.arrayValue(context))
+      kdl::views::concat(lhs.arrayValue(), rhs.arrayValue())
       | kdl::ranges::to<std::vector>()};
   }
 
   if (lhs.hasType(ValueType::Map) && rhs.hasType(ValueType::Map))
   {
-    return Value{kdl::map_union(lhs.mapValue(context), rhs.mapValue(context))};
+    return Value{kdl::map_union(lhs.mapValue(), rhs.mapValue())};
   }
 
   throw EvaluationError{
@@ -357,7 +354,7 @@ Value evaluateSubtraction(
   if (
     const auto result = tryEvaluateAlgebraicOperator(
       context, lhs, rhs, [&](const auto& lhsNumber, const auto& rhsNumber) {
-        return lhsNumber.numberValue(context) - rhsNumber.numberValue(context);
+        return lhsNumber.numberValue() - rhsNumber.numberValue();
       }))
   {
     return *result;
@@ -377,7 +374,7 @@ Value evaluateMultiplication(
   if (
     const auto result = tryEvaluateAlgebraicOperator(
       context, lhs, rhs, [&](const auto& lhsNumber, const auto& rhsNumber) {
-        return lhsNumber.numberValue(context) * rhsNumber.numberValue(context);
+        return lhsNumber.numberValue() * rhsNumber.numberValue();
       }))
   {
     return *result;
@@ -397,7 +394,7 @@ Value evaluateDivision(
   if (
     const auto result = tryEvaluateAlgebraicOperator(
       context, lhs, rhs, [&](const auto& lhsNumber, const auto& rhsNumber) {
-        return lhsNumber.numberValue(context) / rhsNumber.numberValue(context);
+        return lhsNumber.numberValue() / rhsNumber.numberValue();
       }))
   {
     return *result;
@@ -417,7 +414,7 @@ Value evaluateModulus(
   if (
     const auto result = tryEvaluateAlgebraicOperator(
       context, lhs, rhs, [&](const auto& lhsNumber, const auto& rhsNumber) {
-        return std::fmod(lhsNumber.numberValue(context), rhsNumber.numberValue(context));
+        return std::fmod(lhsNumber.numberValue(), rhsNumber.numberValue());
       }))
   {
     return *result;
@@ -430,7 +427,7 @@ Value evaluateModulus(
 
 template <typename EvaluateLhs, typename EvaluateRhs>
 Value evaluateLogicalAnd(
-  EvaluationContext& context,
+  EvaluationContext&,
   const EvaluateLhs& evaluateLhs,
   const EvaluateRhs& evaluateRhs,
   const ExpressionNode& expressionNode)
@@ -445,8 +442,7 @@ Value evaluateLogicalAnd(
 
   if (lhs.hasType(ValueType::Boolean, ValueType::Null))
   {
-    const auto lhsValue =
-      lhs.convertTo(context, ValueType::Boolean).booleanValue(context);
+    const auto lhsValue = lhs.convertTo(ValueType::Boolean).booleanValue();
     if (!lhsValue)
     {
       return Value{false};
@@ -455,7 +451,7 @@ Value evaluateLogicalAnd(
     rhs = evaluateRhs();
     if (rhs->hasType(ValueType::Boolean, ValueType::Null))
     {
-      return Value{rhs->convertTo(context, ValueType::Boolean).booleanValue(context)};
+      return Value{rhs->convertTo(ValueType::Boolean).booleanValue()};
     }
   }
 
@@ -476,7 +472,7 @@ Value evaluateLogicalAnd(
 
 template <typename EvaluateLhs, typename EvaluateRhs>
 Value evaluateLogicalOr(
-  EvaluationContext& context,
+  EvaluationContext&,
   const EvaluateLhs& evaluateLhs,
   const EvaluateRhs& evaluateRhs,
   const ExpressionNode& expressionNode)
@@ -491,8 +487,7 @@ Value evaluateLogicalOr(
 
   if (lhs.hasType(ValueType::Boolean, ValueType::Null))
   {
-    const auto lhsValue =
-      lhs.convertTo(context, ValueType::Boolean).booleanValue(context);
+    const auto lhsValue = lhs.convertTo(ValueType::Boolean).booleanValue();
     if (lhsValue)
     {
       return Value{true};
@@ -501,7 +496,7 @@ Value evaluateLogicalOr(
     rhs = evaluateRhs();
     if (rhs->hasType(ValueType::Boolean, ValueType::Null))
     {
-      return Value{rhs->convertTo(context, ValueType::Boolean).booleanValue(context)};
+      return Value{rhs->convertTo(ValueType::Boolean).booleanValue()};
     }
   }
 
@@ -522,7 +517,7 @@ Value evaluateLogicalOr(
 
 template <typename Eval>
 std::optional<Value> tryEvaluateBitwiseOperator(
-  EvaluationContext& context, const Value& lhs, const Value& rhs, const Eval& eval)
+  EvaluationContext&, const Value& lhs, const Value& rhs, const Eval& eval)
 {
   if (lhs.hasType(ValueType::Undefined) || rhs.hasType(ValueType::Undefined))
   {
@@ -531,9 +526,8 @@ std::optional<Value> tryEvaluateBitwiseOperator(
 
   if (lhs.convertibleTo(ValueType::Number) && rhs.convertibleTo(ValueType::Number))
   {
-    return Value{eval(
-      lhs.convertTo(context, ValueType::Number),
-      rhs.convertTo(context, ValueType::Number))};
+    return Value{
+      eval(lhs.convertTo(ValueType::Number), rhs.convertTo(ValueType::Number))};
   }
 
   return std::nullopt;
@@ -548,7 +542,7 @@ Value evaluateBitwiseAnd(
   if (
     const auto result = tryEvaluateBitwiseOperator(
       context, lhs, rhs, [&](const auto& lhsNumber, const auto& rhsNumber) {
-        return lhsNumber.integerValue(context) & rhsNumber.integerValue(context);
+        return lhsNumber.integerValue() & rhsNumber.integerValue();
       }))
   {
     return *result;
@@ -568,7 +562,7 @@ Value evaluateBitwiseXOr(
   if (
     const auto result = tryEvaluateBitwiseOperator(
       context, lhs, rhs, [&](const auto& lhsNumber, const auto& rhsNumber) {
-        return lhsNumber.integerValue(context) ^ rhsNumber.integerValue(context);
+        return lhsNumber.integerValue() ^ rhsNumber.integerValue();
       }))
   {
     return *result;
@@ -588,7 +582,7 @@ Value evaluateBitwiseOr(
   if (
     const auto result = tryEvaluateBitwiseOperator(
       context, lhs, rhs, [&](const auto& lhsNumber, const auto& rhsNumber) {
-        return lhsNumber.integerValue(context) | rhsNumber.integerValue(context);
+        return lhsNumber.integerValue() | rhsNumber.integerValue();
       }))
   {
     return *result;
@@ -608,7 +602,7 @@ Value evaluateBitwiseShiftLeft(
   if (
     const auto result = tryEvaluateBitwiseOperator(
       context, lhs, rhs, [&](const auto& lhsNumber, const auto& rhsNumber) {
-        return lhsNumber.integerValue(context) << rhsNumber.integerValue(context);
+        return lhsNumber.integerValue() << rhsNumber.integerValue();
       }))
   {
     return *result;
@@ -628,7 +622,7 @@ Value evaluateBitwiseShiftRight(
   if (
     const auto result = tryEvaluateBitwiseOperator(
       context, lhs, rhs, [&](const auto& lhsNumber, const auto& rhsNumber) {
-        return lhsNumber.integerValue(context) >> rhsNumber.integerValue(context);
+        return lhsNumber.integerValue() >> rhsNumber.integerValue();
       }))
   {
     return *result;
@@ -639,17 +633,17 @@ Value evaluateBitwiseShiftRight(
     fmt::format("Invalid operand types {} and {}", lhs.typeName(), rhs.typeName())};
 }
 
-int compareAsBooleans(EvaluationContext& context, const Value& lhs, const Value& rhs)
+int compareAsBooleans(EvaluationContext&, const Value& lhs, const Value& rhs)
 {
-  const bool lhsValue = lhs.convertTo(context, ValueType::Boolean).booleanValue(context);
-  const bool rhsValue = rhs.convertTo(context, ValueType::Boolean).booleanValue(context);
+  const bool lhsValue = lhs.convertTo(ValueType::Boolean).booleanValue();
+  const bool rhsValue = rhs.convertTo(ValueType::Boolean).booleanValue();
   return lhsValue == rhsValue ? 0 : lhsValue ? 1 : -1;
 }
 
-int compareAsNumbers(EvaluationContext& context, const Value& lhs, const Value& rhs)
+int compareAsNumbers(EvaluationContext&, const Value& lhs, const Value& rhs)
 {
-  const auto diff = lhs.convertTo(context, ValueType::Number).numberValue(context)
-                    - rhs.convertTo(context, ValueType::Number).numberValue(context);
+  const auto diff = lhs.convertTo(ValueType::Number).numberValue()
+                    - rhs.convertTo(ValueType::Number).numberValue();
   return diff < 0.0 ? -1 : diff > 0.0 ? 1 : 0;
 }
 
@@ -704,8 +698,7 @@ int evaluateCompare(
       case ValueType::Number:
         return compareAsNumbers(context, lhs, rhs);
       case ValueType::String:
-        return lhs.stringValue(context).compare(
-          rhs.convertTo(context, ValueType::String).stringValue(context));
+        return lhs.stringValue().compare(rhs.convertTo(ValueType::String).stringValue());
       case ValueType::Null:
       case ValueType::Undefined:
         return 1;
@@ -727,9 +720,7 @@ int evaluateCompare(
       {
       case ValueType::Array:
         return kdl::col_lexicographical_compare(
-          lhs.arrayValue(context),
-          rhs.arrayValue(context),
-          [&](const auto& l, const auto& r) {
+          lhs.arrayValue(), rhs.arrayValue(), [&](const auto& l, const auto& r) {
             return evaluateCompare(context, l, r, expressionNode) < 0;
           });
       case ValueType::Null:
@@ -748,9 +739,7 @@ int evaluateCompare(
       {
       case ValueType::Map:
         return kdl::map_lexicographical_compare(
-          lhs.mapValue(context),
-          rhs.mapValue(context),
-          [&](const auto& l, const auto& r) {
+          lhs.mapValue(), rhs.mapValue(), [&](const auto& l, const auto& r) {
             return evaluateCompare(context, l, r, expressionNode) < 0;
           });
       case ValueType::Null:
@@ -791,32 +780,28 @@ int evaluateCompare(
   }
 }
 
-Value evaluateBoundedRange(EvaluationContext& context, const Value& lhs, const Value& rhs)
+Value evaluateBoundedRange(EvaluationContext&, const Value& lhs, const Value& rhs)
 {
   if (lhs.hasType(ValueType::Undefined) || rhs.hasType(ValueType::Undefined))
   {
     return Value::Undefined;
   }
 
-  const auto from =
-    static_cast<long>(lhs.convertTo(context, ValueType::Number).numberValue(context));
-  const auto to =
-    static_cast<long>(rhs.convertTo(context, ValueType::Number).numberValue(context));
+  const auto from = static_cast<long>(lhs.convertTo(ValueType::Number).numberValue());
+  const auto to = static_cast<long>(rhs.convertTo(ValueType::Number).numberValue());
 
   return Value{BoundedRange{from, to}};
 }
 
 template <typename EvaluateLhs, typename EvaluateRhs>
 Value evaluateCase(
-  EvaluationContext& context,
-  const EvaluateLhs& evaluateLhs,
-  const EvaluateRhs& evaluateRhs)
+  EvaluationContext&, const EvaluateLhs& evaluateLhs, const EvaluateRhs& evaluateRhs)
 {
   const auto lhs = evaluateLhs();
 
   if (
     lhs.type() != ValueType::Undefined
-    && lhs.convertTo(context, ValueType::Boolean).booleanValue(context))
+    && lhs.convertTo(ValueType::Boolean).booleanValue())
   {
     return evaluateRhs();
   }
@@ -910,11 +895,10 @@ size_t computeIndex(const long index, const size_t indexableSize)
 }
 
 size_t computeIndex(
-  EvaluationContext& context, const Value& indexValue, const size_t indexableSize)
+  EvaluationContext&, const Value& indexValue, const size_t indexableSize)
 {
   return computeIndex(
-    static_cast<long>(
-      indexValue.convertTo(context, ValueType::Number).numberValue(context)),
+    static_cast<long>(indexValue.convertTo(ValueType::Number).numberValue()),
     indexableSize);
 }
 
@@ -952,7 +936,7 @@ void computeIndexArray(
   switch (indexValue.type())
   {
   case ValueType::Array: {
-    const auto& indexArray = indexValue.arrayValue(context);
+    const auto& indexArray = indexValue.arrayValue();
     result.reserve(result.size() + indexArray.size());
     for (size_t i = 0; i < indexArray.size(); ++i)
     {
@@ -963,7 +947,7 @@ void computeIndexArray(
   case ValueType::Range: {
     std::visit(
       [&](const auto& x) { computeIndexArray(x, indexableSize, result); },
-      indexValue.rangeValue(context));
+      indexValue.rangeValue());
     break;
   }
   case ValueType::Boolean:
@@ -998,7 +982,7 @@ Value evaluateSubscript(
     {
     case ValueType::Boolean:
     case ValueType::Number: {
-      const auto& str = lhs.stringValue(context);
+      const auto& str = lhs.stringValue();
       const auto index = computeIndex(context, rhs, str.length());
       auto result = std::stringstream{};
       if (index < str.length())
@@ -1009,7 +993,7 @@ Value evaluateSubscript(
     }
     case ValueType::Array:
     case ValueType::Range: {
-      const auto& str = lhs.stringValue(context);
+      const auto& str = lhs.stringValue();
       const auto indices = computeIndexArray(context, rhs, str.length());
       auto result = std::stringstream{};
       for (size_t i = 0; i < indices.size(); ++i)
@@ -1034,7 +1018,7 @@ Value evaluateSubscript(
     {
     case ValueType::Boolean:
     case ValueType::Number: {
-      const auto& array = lhs.arrayValue(context);
+      const auto& array = lhs.arrayValue();
       const auto index = computeIndex(context, rhs, array.size());
       if (index >= array.size())
       {
@@ -1044,7 +1028,7 @@ Value evaluateSubscript(
     }
     case ValueType::Array:
     case ValueType::Range: {
-      const auto& array = lhs.arrayValue(context);
+      const auto& array = lhs.arrayValue();
       const auto indices = computeIndexArray(context, rhs, array.size());
       auto result = ArrayType{};
       result.reserve(indices.size());
@@ -1070,8 +1054,8 @@ Value evaluateSubscript(
     switch (rhs.type())
     {
     case ValueType::String: {
-      const auto& map = lhs.mapValue(context);
-      const auto& key = rhs.stringValue(context);
+      const auto& map = lhs.mapValue();
+      const auto& key = rhs.stringValue();
       const auto it = map.find(key);
       if (it == std::end(map))
       {
@@ -1080,8 +1064,8 @@ Value evaluateSubscript(
       return it->second;
     }
     case ValueType::Array: {
-      const auto& map = lhs.mapValue(context);
-      const auto& keys = rhs.arrayValue(context);
+      const auto& map = lhs.mapValue();
+      const auto& keys = rhs.arrayValue();
       auto result = MapType{};
       for (size_t i = 0; i < keys.size(); ++i)
       {
@@ -1091,7 +1075,7 @@ Value evaluateSubscript(
           throw ConversionError{
             keyValue.location(), keyValue.describe(), keyValue.type(), ValueType::String};
         }
-        const auto& key = keyValue.stringValue(context);
+        const auto& key = keyValue.stringValue();
         const auto it = map.find(key);
         if (it != std::end(map))
         {

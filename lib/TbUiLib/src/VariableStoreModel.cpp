@@ -22,6 +22,7 @@
 #include "el/EvaluationContext.h"
 #include "el/VariableStore.h"
 
+
 namespace tb::ui
 {
 
@@ -60,8 +61,7 @@ QVariant VariableStoreModel::data(const QModelIndex& index, const int role) cons
 
   return el::withEvaluationContext(
            [&](auto& context) {
-             return QString::fromStdString(
-               context.variableValue(name).stringValue(context));
+             return QString::fromStdString(context.variableValue(name).stringValue());
            },
            *m_variables)
          | kdl::transform_error([](const auto& e) {
