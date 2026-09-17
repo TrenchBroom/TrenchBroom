@@ -39,14 +39,14 @@ namespace tb::mdl
 namespace
 {
 
-Entity toEntity(const el::EvaluationContext& context, const el::Value& entityValue)
+Entity toEntity(const el::Value& entityValue)
 {
-  auto entityProperties = entityValue.arrayValue(context)
+  auto entityProperties = entityValue.arrayValue()
                           | std::views::transform([&](const auto& propertyValue) {
-                              const auto& map = propertyValue.mapValue(context);
+                              const auto& map = propertyValue.mapValue();
                               return EntityProperty{
-                                map.at("key").stringValue(context),
-                                map.at("value").stringValue(context),
+                                map.at("key").stringValue(),
+                                map.at("value").stringValue(),
                               };
                             })
                           | kdl::ranges::to<std::vector>();
@@ -54,165 +54,139 @@ Entity toEntity(const el::EvaluationContext& context, const el::Value& entityVal
   return Entity{std::move(entityProperties)};
 }
 
-CompilationExportMap toExportTask(
-  const el::EvaluationContext& context, const el::Value& value)
+CompilationExportMap toExportTask(const el::Value& value)
 {
-  const auto enabled =
-    value.atOrDefault(context, "enabled", el::Value{true}).booleanValue(context);
+  const auto enabled = value.atOrDefault("enabled", el::Value{true}).booleanValue();
 
   const auto stripTbProperties =
-    value.atOrDefault(context, "stripTbProperties", el::Value{false})
-      .booleanValue(context);
+    value.atOrDefault("stripTbProperties", el::Value{false}).booleanValue();
 
   auto stripEntityPattern =
-    value.contains(context, "stripEntityPattern")
-      ? std::optional{value.at(context, "stripEntityPattern").stringValue(context)}
+    value.contains("stripEntityPattern")
+      ? std::optional{value.at("stripEntityPattern").stringValue()}
       : std::nullopt;
 
-  auto entityToAdd =
-    value.contains(context, "entityToAdd")
-      ? std::optional{toEntity(context, value.at(context, "entityToAdd"))}
-      : std::nullopt;
+  auto entityToAdd = value.contains("entityToAdd")
+                       ? std::optional{toEntity(value.at("entityToAdd"))}
+                       : std::nullopt;
 
   return {
     enabled,
     stripTbProperties,
     std::move(stripEntityPattern),
     std::move(entityToAdd),
-    value.at(context, "target").stringValue(context),
+    value.at("target").stringValue(),
   };
 }
 
-CompilationCopyFiles toCopyTask(
-  const el::EvaluationContext& context, const el::Value& value)
+CompilationCopyFiles toCopyTask(const el::Value& value)
 {
-  const auto enabled = value.contains(context, "enabled")
-                         ? value.at(context, "enabled").booleanValue(context)
-                         : true;
+  const auto enabled = value.atOrDefault("enabled", el::Value{true}).booleanValue();
   return {
     enabled,
-    value.at(context, "source").stringValue(context),
-    value.at(context, "target").stringValue(context),
+    value.at("source").stringValue(),
+    value.at("target").stringValue(),
   };
 }
 
-CompilationRenameFile toRenameTask(
-  const el::EvaluationContext& context, const el::Value& value)
+CompilationRenameFile toRenameTask(const el::Value& value)
 {
-  const auto enabled = value.contains(context, "enabled")
-                         ? value.at(context, "enabled").booleanValue(context)
-                         : true;
+  const auto enabled = value.atOrDefault("enabled", el::Value{true}).booleanValue();
   return {
     enabled,
-    value.at(context, "source").stringValue(context),
-    value.at(context, "target").stringValue(context),
+    value.at("source").stringValue(),
+    value.at("target").stringValue(),
   };
 }
 
-CompilationDeleteFiles toDeleteTask(
-  const el::EvaluationContext& context, const el::Value& value)
+CompilationDeleteFiles toDeleteTask(const el::Value& value)
 {
-  const auto enabled = value.contains(context, "enabled")
-                         ? value.at(context, "enabled").booleanValue(context)
-                         : true;
+  const auto enabled = value.atOrDefault("enabled", el::Value{true}).booleanValue();
   return {
     enabled,
-    value.at(context, "target").stringValue(context),
+    value.at("target").stringValue(),
   };
 }
 
-CompilationRunTool toToolTask(
-  const el::EvaluationContext& context, const el::Value& value)
+CompilationRunTool toToolTask(const el::Value& value)
 {
-  const auto enabled = value.contains(context, "enabled")
-                         ? value.at(context, "enabled").booleanValue(context)
-                         : true;
+  const auto enabled = value.atOrDefault("enabled", el::Value{true}).booleanValue();
   const auto treatNonZeroResultCodeAsError =
-    value.contains(context, "treatNonZeroResultCodeAsError")
-      ? value.at(context, "treatNonZeroResultCodeAsError").booleanValue(context)
-      : false;
+    value.atOrDefault("treatNonZeroResultCodeAsError", el::Value{false}).booleanValue();
 
   return {
     enabled,
-    value.at(context, "tool").stringValue(context),
-    value.at(context, "parameters").stringValue(context),
+    value.at("tool").stringValue(),
+    value.at("parameters").stringValue(),
     treatNonZeroResultCodeAsError,
   };
 }
 
-CompilationLaunchEngine toLaunchEngineTask(
-  const el::EvaluationContext& context, const el::Value& value)
+CompilationLaunchEngine toLaunchEngineTask(const el::Value& value)
 {
-  const auto enabled = value.contains(context, "enabled")
-                         ? value.at(context, "enabled").booleanValue(context)
-                         : true;
+  const auto enabled = value.atOrDefault("enabled", el::Value{true}).booleanValue();
   const auto treatLaunchFailureAsError =
-    value.contains(context, "treatLaunchFailureAsError")
-      ? value.at(context, "treatLaunchFailureAsError").booleanValue(context)
-      : false;
+    value.atOrDefault("treatLaunchFailureAsError", el::Value{false}).booleanValue();
 
   return {
     enabled,
-    value.at(context, "engineProfileId").stringValue(context),
+    value.at("engineProfileId").stringValue(),
     treatLaunchFailureAsError,
   };
 }
 
-CompilationTask toTask(const el::EvaluationContext& context, const el::Value& value)
+CompilationTask toTask(const el::Value& value)
 {
-  const auto typeName = value.at(context, "type").stringValue(context);
+  const auto typeName = value.at("type").stringValue();
 
   if (typeName == "export")
   {
-    return toExportTask(context, value);
+    return toExportTask(value);
   }
   if (typeName == "copy")
   {
-    return toCopyTask(context, value);
+    return toCopyTask(value);
   }
   if (typeName == "rename")
   {
-    return toRenameTask(context, value);
+    return toRenameTask(value);
   }
   if (typeName == "delete")
   {
-    return toDeleteTask(context, value);
+    return toDeleteTask(value);
   }
   if (typeName == "tool")
   {
-    return toToolTask(context, value);
+    return toToolTask(value);
   }
   if (typeName == "launchEngine")
   {
-    return toLaunchEngineTask(context, value);
+    return toLaunchEngineTask(value);
   }
 
   throw ParserException{fmt::format("Unknown compilation task type '{}'", typeName)};
 }
 
-std::vector<CompilationTask> toTasks(
-  const el::EvaluationContext& context, const el::Value& value)
+std::vector<CompilationTask> toTasks(const el::Value& value)
 {
-  return value.arrayValue(context) | std::views::transform([&](const auto& taskValue) {
-           return toTask(context, taskValue);
-         })
+  return value.arrayValue()
+         | std::views::transform([&](const auto& taskValue) { return toTask(taskValue); })
          | kdl::ranges::to<std::vector>();
 }
 
-CompilationProfile toProfile(const el::EvaluationContext& context, const el::Value& value)
+CompilationProfile toProfile(const el::Value& value)
 {
   return {
-    value.at(context, "name").stringValue(context),
-    value.at(context, "workdir").stringValue(context),
-    toTasks(context, value.at(context, "tasks")),
+    value.at("name").stringValue(),
+    value.at("workdir").stringValue(),
+    toTasks(value.at("tasks")),
   };
 }
 
-std::vector<CompilationProfile> toProfiles(
-  const el::EvaluationContext& context, const el::Value& value)
+std::vector<CompilationProfile> toProfiles(const el::Value& value)
 {
-  return value.arrayValue(context) | std::views::transform([&](const auto& profileValue) {
-           return toProfile(context, profileValue);
+  return value.arrayValue() | std::views::transform([&](const auto& profileValue) {
+           return toProfile(profileValue);
          })
          | kdl::ranges::to<std::vector>();
 }
@@ -223,13 +197,12 @@ Result<CompilationConfig> toCompilationConfig(
   try
   {
     const auto root = expression.evaluate(context);
-    if (const auto version = root.at(context, "version").numberValue(context);
-        version != 1.0)
+    if (const auto version = root.at("version").numberValue(); version != 1.0)
     {
       return Error{fmt::format("Unsupported compilation config version {}", version)};
     }
 
-    return CompilationConfig{toProfiles(context, root.at(context, "profiles"))};
+    return CompilationConfig{toProfiles(root.at("profiles"))};
   }
   catch (const ParserException& e)
   {

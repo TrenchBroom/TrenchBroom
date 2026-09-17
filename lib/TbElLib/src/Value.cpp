@@ -19,7 +19,6 @@
 
 #include "el/Value.h"
 
-#include "el/EvaluationContext.h"
 #include "el/Exceptions.h"
 #include "el/Expression.h" // IWYU pragma: keep
 #include "el/ExpressionNodeData.h"
@@ -144,7 +143,7 @@ std::string Value::describe() const
   return asString(false);
 }
 
-const BooleanType& Value::booleanValue(const EvaluationContext&) const
+const BooleanType& Value::booleanValue() const
 {
   return std::visit(
     kdl::overload(
@@ -159,7 +158,7 @@ const BooleanType& Value::booleanValue(const EvaluationContext&) const
     *m_value);
 }
 
-const StringType& Value::stringValue(const EvaluationContext&) const
+const StringType& Value::stringValue() const
 {
   return std::visit(
     kdl::overload(
@@ -174,7 +173,7 @@ const StringType& Value::stringValue(const EvaluationContext&) const
     *m_value);
 }
 
-const NumberType& Value::numberValue(const EvaluationContext&) const
+const NumberType& Value::numberValue() const
 {
   return std::visit(
     kdl::overload(
@@ -189,12 +188,12 @@ const NumberType& Value::numberValue(const EvaluationContext&) const
     *m_value);
 }
 
-IntegerType Value::integerValue(const EvaluationContext& context) const
+IntegerType Value::integerValue() const
 {
-  return static_cast<IntegerType>(numberValue(context));
+  return static_cast<IntegerType>(numberValue());
 }
 
-const ArrayType& Value::arrayValue(const EvaluationContext&) const
+const ArrayType& Value::arrayValue() const
 {
   return std::visit(
     kdl::overload(
@@ -209,7 +208,7 @@ const ArrayType& Value::arrayValue(const EvaluationContext&) const
     *m_value);
 }
 
-const MapType& Value::mapValue(const EvaluationContext&) const
+const MapType& Value::mapValue() const
 {
   return std::visit(
     kdl::overload(
@@ -224,7 +223,7 @@ const MapType& Value::mapValue(const EvaluationContext&) const
     *m_value);
 }
 
-const RangeType& Value::rangeValue(const EvaluationContext&) const
+const RangeType& Value::rangeValue() const
 {
   return std::visit(
     kdl::overload(
@@ -235,17 +234,16 @@ const RangeType& Value::rangeValue(const EvaluationContext&) const
     *m_value);
 }
 
-std::vector<std::string> Value::asStringList(const EvaluationContext& context) const
+std::vector<std::string> Value::asStringList() const
 {
-  return arrayValue(context) | std::views::transform([&](const auto& entry) {
-           return entry.stringValue(context);
-         })
+  return arrayValue()
+         | std::views::transform([&](const auto& entry) { return entry.stringValue(); })
          | kdl::ranges::to<std::vector>();
 }
 
-std::vector<std::string> Value::asStringSet(const EvaluationContext& context) const
+std::vector<std::string> Value::asStringSet() const
 {
-  return kdl::vec_sort_and_remove_duplicates(asStringList(context));
+  return kdl::vec_sort_and_remove_duplicates(asStringList());
 }
 
 size_t Value::length() const
@@ -407,7 +405,7 @@ bool Value::convertibleTo(const ValueType toType) const
     *m_value);
 }
 
-Value Value::convertTo(EvaluationContext&, const ValueType toType) const
+Value Value::convertTo(const ValueType toType) const
 {
   return std::visit(
     kdl::overload(
@@ -571,12 +569,11 @@ Value Value::convertTo(EvaluationContext&, const ValueType toType) const
     *m_value);
 }
 
-std::optional<Value> Value::tryConvertTo(
-  EvaluationContext& context, const ValueType toType) const
+std::optional<Value> Value::tryConvertTo(const ValueType toType) const
 {
   try
   {
-    return convertTo(context, toType);
+    return convertTo(toType);
   }
   catch (const ConversionError&)
   {
@@ -715,7 +712,7 @@ void Value::appendToStream(
     *m_value);
 }
 
-bool Value::contains(const EvaluationContext&, const size_t index) const
+bool Value::contains(const size_t index) const
 {
   switch (type())
   {
@@ -733,24 +730,24 @@ bool Value::contains(const EvaluationContext&, const size_t index) const
   return false;
 }
 
-bool Value::contains(const EvaluationContext& context, const std::string& key) const
+bool Value::contains(const std::string& key) const
 {
-  const MapType& map = mapValue(context);
+  const MapType& map = mapValue();
   const auto it = map.find(key);
   return it != std::end(map);
 }
 
-std::vector<std::string> Value::keys(const EvaluationContext& context) const
+std::vector<std::string> Value::keys() const
 {
-  return mapValue(context) | std::views::keys | kdl::ranges::to<std::vector>();
+  return mapValue() | std::views::keys | kdl::ranges::to<std::vector>();
 }
 
-Value Value::at(const EvaluationContext& context, const size_t index) const
+Value Value::at(const size_t index) const
 {
   switch (type())
   {
   case ValueType::String: {
-    const auto& str = stringValue(context);
+    const auto& str = stringValue();
     if (index < str.length())
     {
       return Value{str.substr(index, 1)};
@@ -758,7 +755,7 @@ Value Value::at(const EvaluationContext& context, const size_t index) const
     throw IndexOutOfBoundsError{location(), *this, index};
   }
   case ValueType::Array: {
-    const auto& array = arrayValue(context);
+    const auto& array = arrayValue();
     if (index < array.size())
     {
       return array[index];
@@ -777,13 +774,12 @@ Value Value::at(const EvaluationContext& context, const size_t index) const
   throw IndexError{location(), *this, index};
 }
 
-Value Value::atOrDefault(
-  const EvaluationContext& context, const size_t index, Value defaultValue) const
+Value Value::atOrDefault(const size_t index, Value defaultValue) const
 {
   switch (type())
   {
   case ValueType::String: {
-    const auto& str = stringValue(context);
+    const auto& str = stringValue();
     if (index < str.length())
     {
       return Value{str.substr(index, 1)};
@@ -791,7 +787,7 @@ Value Value::atOrDefault(
     return defaultValue;
   }
   case ValueType::Array: {
-    const auto& array = arrayValue(context);
+    const auto& array = arrayValue();
     if (index < array.size())
     {
       return array[index];
@@ -810,12 +806,12 @@ Value Value::atOrDefault(
   throw IndexError{location(), *this, index};
 }
 
-Value Value::at(const EvaluationContext& context, const std::string& key) const
+Value Value::at(const std::string& key) const
 {
   switch (type())
   {
   case ValueType::Map: {
-    const auto& map = mapValue(context);
+    const auto& map = mapValue();
     if (const auto it = map.find(key); it != map.end())
     {
       return it->second;
@@ -835,13 +831,12 @@ Value Value::at(const EvaluationContext& context, const std::string& key) const
   throw IndexError{location(), *this, key};
 }
 
-Value Value::atOrDefault(
-  const EvaluationContext& context, const std::string& key, Value defaultValue) const
+Value Value::atOrDefault(const std::string& key, Value defaultValue) const
 {
   switch (type())
   {
   case ValueType::Map: {
-    const auto& map = mapValue(context);
+    const auto& map = mapValue();
     if (const auto it = map.find(key); it != map.end())
     {
       return it->second;
