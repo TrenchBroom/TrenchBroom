@@ -19,7 +19,6 @@
 
 #include "el/EvaluationContext.h"
 
-#include "el/Expression.h" // IWYU pragma: keep
 #include "el/Value.h"
 #include "el/VariableStore.h"
 
@@ -43,36 +42,6 @@ EvaluationContext::~EvaluationContext() = default;
 Value EvaluationContext::variableValue(const std::string& name) const
 {
   return m_variables->value(name);
-}
-
-std::optional<ExpressionNode> EvaluationContext::expression(const Value& value) const
-{
-  const auto it = m_trace.find(value);
-  return it != m_trace.end() ? std::optional{it->second} : std::nullopt;
-}
-
-std::optional<FileLocation> EvaluationContext::location(const Value& value) const
-{
-  if (const auto expression = this->expression(value))
-  {
-    return expression->location();
-  }
-  return std::nullopt;
-}
-
-Value EvaluationContext::trace(Value value, const ExpressionNode& expression)
-{
-  m_trace.emplace(value, expression);
-  return value;
-}
-
-Value EvaluationContext::trace(Value value, const Value& original)
-{
-  if (const auto expression = this->expression(original))
-  {
-    return this->trace(value, *expression);
-  }
-  return value;
 }
 
 } // namespace tb::el
