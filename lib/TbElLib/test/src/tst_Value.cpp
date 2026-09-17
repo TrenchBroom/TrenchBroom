@@ -19,9 +19,11 @@
 
 #include "el/EvaluationContext.h"
 #include "el/Exceptions.h"
+#include "el/Expression.h"
 #include "el/Types.h"
 #include "el/Value.h"
 
+#include <optional>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -653,6 +655,80 @@ TEST_CASE("Value")
         CHECK_THROWS_AS(Value::Null.atOrDefault(context, "a"), IndexError);
         CHECK_THROWS_AS(Value::Undefined.atOrDefault(context, "a"), IndexError);
       }).ignore();
+    }
+  }
+
+  SECTION("expression")
+  {
+    const auto expression = ExpressionNode{LiteralExpression{Value{1.0}}};
+
+    CHECK(Value{1.0}.expression() == std::nullopt);
+    CHECK(Value{1.0}.producedBy(expression).expression() == expression);
+  }
+
+  SECTION("location")
+  {
+    const auto location = FileLocation{1, 2};
+
+    CHECK(Value{1.0}.location() == std::nullopt);
+    CHECK(
+      Value{1.0}.producedBy(ExpressionNode{LiteralExpression{Value{1.0}}}).location()
+      == std::nullopt);
+    CHECK(
+      Value{1.0}
+        .producedBy(ExpressionNode{LiteralExpression{Value{1.0}}, location})
+        .location()
+      == location);
+  }
+
+  SECTION("producedBy")
+  {
+    const auto location1 = FileLocation{1, 2};
+    const auto location2 = FileLocation{3, 4};
+    const auto expression1 = ExpressionNode{LiteralExpression{Value{1.0}}, location1};
+    const auto expression2 = ExpressionNode{LiteralExpression{Value{2.0}}, location2};
+
+    SECTION("by expression node")
+    {
+      const auto value = Value{1.0};
+
+      const auto producedValue = value.producedBy(expression1);
+      CHECK(producedValue == value);
+      CHECK(producedValue.expression() == expression1);
+      CHECK(producedValue.location() == location1);
+      CHECK(value.expression() == std::nullopt);
+
+      CHECK(Value{1.0}.producedBy(expression1).expression() == expression1);
+
+      // the first producer is kept
+      CHECK(producedValue.producedBy(expression2).expression() == expression1);
+      CHECK(producedValue.producedBy(expression2).location() == location1);
+      CHECK(
+        Value{1.0}.producedBy(expression1).producedBy(expression2).expression()
+        == expression1);
+    }
+
+    SECTION("by value")
+    {
+      const auto original = Value{2.0}.producedBy(expression1);
+      const auto value = Value{1.0};
+
+      const auto producedValue = value.producedBy(original);
+      CHECK(producedValue == value);
+      CHECK(producedValue.expression() == expression1);
+      CHECK(producedValue.location() == location1);
+      CHECK(value.expression() == std::nullopt);
+
+      CHECK(Value{1.0}.producedBy(original).expression() == expression1);
+
+      // the first producer is kept
+      CHECK(
+        Value{1.0}.producedBy(expression2).producedBy(original).expression()
+        == expression2);
+
+      // an original without a producer has no effect
+      CHECK(value.producedBy(Value{2.0}).expression() == std::nullopt);
+      CHECK(Value{1.0}.producedBy(Value{2.0}).expression() == std::nullopt);
     }
   }
 

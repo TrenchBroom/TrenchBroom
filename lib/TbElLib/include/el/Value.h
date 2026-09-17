@@ -19,20 +19,16 @@
 
 #pragma once
 
+#include "ExpressionNode.h"
 #include "Types.h"
+#include "base/FileLocation.h"
 
-// FIXME: try to remove some of these headers
 #include <iosfwd>
 #include <memory>
 #include <optional>
 #include <string>
 #include <variant>
 #include <vector>
-
-namespace tb
-{
-struct FileLocation;
-}
 
 namespace tb::el
 {
@@ -51,6 +47,9 @@ private:
     NullType,
     UndefinedType>;
   std::shared_ptr<VariantType> m_value;
+
+  std::shared_ptr<Expression> m_producedByExpression;
+  std::optional<FileLocation> m_producedByLocation;
 
 public:
   static const Value Null;
@@ -119,22 +118,18 @@ public:
     const std::string& key,
     Value defaultValue = Null) const;
 
+  std::optional<ExpressionNode> expression() const;
+  std::optional<FileLocation> location() const;
+
+  Value producedBy(const ExpressionNode& expressionNode) const&;
+  Value producedBy(const ExpressionNode& expressionNode) &&;
+  Value producedBy(const Value& original) const&;
+  Value producedBy(const Value& original) &&;
+
   friend bool operator==(const Value& lhs, const Value& rhs);
   friend bool operator!=(const Value& lhs, const Value& rhs);
 
   friend std::ostream& operator<<(std::ostream& lhs, const Value& rhs);
-
-  friend struct std::hash<tb::el::Value>;
 };
 
 } // namespace tb::el
-
-
-template <>
-struct std::hash<tb::el::Value>
-{
-  std::size_t operator()(const tb::el::Value& value) const noexcept
-  {
-    return std::hash<std::shared_ptr<tb::el::Value::VariantType>>{}(value.m_value);
-  }
-};
