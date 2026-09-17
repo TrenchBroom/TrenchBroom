@@ -69,7 +69,7 @@ void checkVersion(const el::EvaluationContext& context, const el::Value& version
   if (!isValidVersion)
   {
     throw ParserException{
-      *context.location(version),
+      *version.location(),
       fmt::format(
         "Unsupported game configuration version {}; valid versions are: {}",
         version.integerValue(context),
@@ -119,8 +119,7 @@ std::optional<vm::bbox3d> parseSoftMapBounds(
 
   // If a bounds is provided in the config, it must be valid
   throw ParserException{
-    *context.location(value),
-    fmt::format("Can't parse soft map bounds '{}'", value.asString())};
+    *value.location(), fmt::format("Can't parse soft map bounds '{}'", value.asString())};
 }
 
 std::vector<TagAttribute> parseTagAttributes(
@@ -131,8 +130,7 @@ std::vector<TagAttribute> parseTagAttributes(
            if (name != TagAttributes::Transparency.name)
            {
              throw ParserException{
-               *context.location(value),
-               fmt::format("Unexpected tag attribute '{}'", name)};
+               *value.location(), fmt::format("Unexpected tag attribute '{}'", name)};
            }
 
            return TagAttributes::Transparency;
@@ -161,8 +159,7 @@ void checkTagName(
   const auto& name = nameValue.stringValue(context);
   if (std::ranges::any_of(tags, [&](const auto& tag) { return tag.name() == name; }))
   {
-    throw ParserException{
-      *context.location(nameValue), fmt::format("Duplicate tag '{}'", name)};
+    throw ParserException{*nameValue.location(), fmt::format("Duplicate tag '{}'", name)};
   }
 }
 
@@ -197,7 +194,7 @@ std::unique_ptr<TagMatcher> parseFaceTagMatcher(
   }
 
   throw ParserException{
-    *context.location(value), fmt::format("Unexpected smart tag match type '{}'", match)};
+    *value.location(), fmt::format("Unexpected smart tag match type '{}'", match)};
 }
 
 SmartTag parseFaceTag(
@@ -245,7 +242,7 @@ std::unique_ptr<TagMatcher> parseBrushTagMatcher(
   }
 
   throw ParserException{
-    *context.location(value), fmt::format("Unexpected smart tag match type '{}'", match)};
+    *value.location(), fmt::format("Unexpected smart tag match type '{}'", match)};
 }
 
 SmartTag parseBrushTag(
@@ -362,7 +359,7 @@ std::tuple<UvAttributes, SurfaceAttributes> parseFaceAttribsDefaults(
   {
     const auto color = Color::parse(colorValue.stringValue(context))
                        | kdl::if_error([&](const auto& e) {
-                           throw ParserException{*context.location(value), e.msg};
+                           throw ParserException{*value.location(), e.msg};
                          })
                        | kdl::value();
     surfaceAttributes.color = color;
@@ -437,14 +434,14 @@ EntityConfig parseEntityConfig(
 
   const auto color = Color::parse(value.at(context, "defaultcolor").stringValue(context))
                      | kdl::if_error([&](const auto& e) {
-                         throw ParserException{*context.location(value), e.msg};
+                         throw ParserException{*value.location(), e.msg};
                        })
                      | kdl::value();
 
   return EntityConfig{
     std::move(paths),
     color,
-    context.expression(value.atOrDefault(context, "scale")),
+    value.atOrDefault(context, "scale").expression(),
     value.atOrDefault(context, "setDefaultProperties").booleanValue(context),
   };
 }
