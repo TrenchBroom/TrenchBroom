@@ -52,6 +52,7 @@
 #include "kd/flat_set.h"
 #include "kd/range_utils.h"
 #include "kd/reflection_impl.h"
+#include "kd/string_compare_natural.h"
 #include "kd/string_utils.h"
 
 #include <fmt/format.h>
@@ -1183,7 +1184,7 @@ bool EntityPropertyModel::lessThan(const size_t rowIndexA, const size_t rowIndex
   }
 
   // 2. sort by name
-  return rowA.key < rowB.key;
+  return kdl::ci::str_compare_natural(rowA.key, rowB.key) < 0;
 }
 
 } // namespace tb::ui
