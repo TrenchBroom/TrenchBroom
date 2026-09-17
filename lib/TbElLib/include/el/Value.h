@@ -19,20 +19,16 @@
 
 #pragma once
 
+#include "ExpressionNode.h"
 #include "Types.h"
+#include "base/FileLocation.h"
 
-// FIXME: try to remove some of these headers
 #include <iosfwd>
 #include <memory>
 #include <optional>
 #include <string>
 #include <variant>
 #include <vector>
-
-namespace tb
-{
-struct FileLocation;
-}
 
 namespace tb::el
 {
@@ -53,6 +49,9 @@ private:
     NullType,
     UndefinedType>;
   std::shared_ptr<VariantType> m_value;
+
+  std::shared_ptr<Expression> m_producedByExpression;
+  std::optional<FileLocation> m_producedByLocation;
 
 public:
   static const Value Null;
@@ -124,6 +123,12 @@ public:
     const EvaluationContext& context,
     const std::string& key,
     Value defaultValue = Null) const;
+
+  std::optional<ExpressionNode> expression() const;
+  std::optional<FileLocation> location() const;
+
+  Value producedBy(const ExpressionNode& expressionNode) const;
+  Value producedBy(const Value& original) const;
 
   friend bool operator==(const Value& lhs, const Value& rhs);
   friend bool operator!=(const Value& lhs, const Value& rhs);

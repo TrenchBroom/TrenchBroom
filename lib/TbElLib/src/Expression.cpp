@@ -239,14 +239,14 @@ Value evaluateLeftBoundedRange(EvaluationContext& context, const Value& v)
 {
   const auto first =
     static_cast<long>(v.convertTo(context, ValueType::Number).numberValue(context));
-  return context.trace(Value{LeftBoundedRange{first}}, v);
+  return Value{LeftBoundedRange{first}}.producedBy(v);
 }
 
 Value evaluateRightBoundedRange(EvaluationContext& context, const Value& v)
 {
   const auto last =
     static_cast<long>(v.convertTo(context, ValueType::Number).numberValue(context));
-  return context.trace(Value{RightBoundedRange{last}}, v);
+  return Value{RightBoundedRange{last}}.producedBy(v);
 }
 
 Value evaluateUnaryExpression(
@@ -271,7 +271,7 @@ Value evaluateUnaryExpression(
   case UnaryOperation::BitwiseNegation:
     return evaluateBitwiseNegation(context, operand, expressionNode);
   case UnaryOperation::Group:
-    return context.trace(Value{operand}, operand);
+    return operand;
   case UnaryOperation::LeftBoundedRange:
     return evaluateLeftBoundedRange(context, operand);
   case UnaryOperation::RightBoundedRange:
@@ -1253,10 +1253,7 @@ Value evaluateSubscript(
         if (keyValue.type() != ValueType::String)
         {
           throw ConversionError{
-            context.location(keyValue),
-            keyValue.describe(),
-            keyValue.type(),
-            ValueType::String};
+            keyValue.location(), keyValue.describe(), keyValue.type(), ValueType::String};
         }
         const auto& key = keyValue.stringValue(context);
         const auto it = map.find(key);
@@ -1893,8 +1890,8 @@ Value ExpressionNode::evaluate(EvaluationContext& context) const
 {
   return accept(
     [&](const auto& evaluator, const auto& expression, const auto& containingNode) {
-      return context.trace(
-        el::evaluate(context, evaluator, expression, containingNode), containingNode);
+      return el::evaluate(context, evaluator, expression, containingNode)
+        .producedBy(containingNode);
     });
 }
 
@@ -1904,8 +1901,8 @@ Value ExpressionNode::tryEvaluate(EvaluationContext& context) const
     [&](const auto& evaluator, const auto& expression, const auto& containingNode) {
       try
       {
-        return context.trace(
-          el::evaluate(context, evaluator, expression, containingNode), containingNode);
+        return el::evaluate(context, evaluator, expression, containingNode)
+          .producedBy(containingNode);
       }
       catch (const EvaluationError&)
       {
