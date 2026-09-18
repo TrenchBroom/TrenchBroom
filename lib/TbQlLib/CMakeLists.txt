@@ -7,6 +7,7 @@ target_sources(TbQlLib
     ${CMAKE_CURRENT_SOURCE_DIR}/src/GroupNodeBinding.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/LayerNodeBinding.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/NodeQueryValues.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/PatchNodeBinding.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/WorldNodeBinding.cpp
 
   PUBLIC FILE_SET headers TYPE HEADERS
