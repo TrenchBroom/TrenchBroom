@@ -20,7 +20,6 @@
 #include "el/Interpolate.h"
 
 #include "el/EvaluationContext.h"
-#include "el/Expression.h"
 #include "el/ParseExpression.h"
 #include "el/Value.h"
 

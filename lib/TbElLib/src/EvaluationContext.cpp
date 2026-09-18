@@ -19,6 +19,7 @@
 
 #include "el/EvaluationContext.h"
 
+#include "el/Expression.h" // IWYU pragma: keep
 #include "el/Value.h"
 #include "el/VariableStore.h"
 

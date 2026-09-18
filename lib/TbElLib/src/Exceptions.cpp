@@ -19,7 +19,7 @@
 
 #include "el/Exceptions.h"
 
-#include "el/Expression.h"
+#include "el/ExpressionNode.h"
 #include "el/Types.h"
 #include "el/Value.h"
 
