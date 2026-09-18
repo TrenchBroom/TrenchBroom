@@ -268,6 +268,14 @@ Finally, you can deselect everything by left clicking in the void, or by choosin
 
 To select a brush face, you need to hold #key(Shift) and left click it in the 3D viewport. You can select multiple brush faces by additionally holding #key(Ctrl). To select all faces of a brush, you can left double click that brush while holding #key(Shift). If you additionally hold #key(Ctrl), the faces are added to the current selection. To flood fill a whole coplanar surface at once - even where it spans several touching brushes - left double click a face while holding #key(Shift)#key(Alt). Again, hold #key(Ctrl) to add the faces to the current selection. To paint select brush faces, first select one brush face, then left drag while holding #key(Ctrl) and #key(Shift). To deselect all brush faces, simply click in the void or choose #menu(Menu/Edit/Deselect All).
 
+## Searching {#searching}
+
+![Search box](images/SearchBox.png)
+
+To select objects or brush faces by their properties, type into the search box in the bar above the editing area, next to the "View" button. TrenchBroom runs the search shortly after you stop typing and replaces the current selection with everything that matches. Matches that can't be selected, such as hidden or locked objects and objects in closed groups, are left out, and brush entities and layers are selected via the objects they contain. Clearing the search box deselects everything.
+
+You can type plain text such as `light` to find every object whose name, classname, properties or materials contain that text, or you can write a query such as `classname is "light" && properties.light > 300` for more precise results. While the search box has focus, a popup below it shows how many objects or faces matched, along with a short syntax reference. Press #key(Return) to run the search right away instead of waiting, and press #key(Esc) to close the popup; it opens again when the search box gets focus. The [query language](#query_language) section explains text searches and queries in detail.
+
 # Editing
 
 In this section, we will cover all topics related to the actual editing of a map. We begin by explaining how to set up the map itself, that is, how to set up mods, entity definitions, and material collection. Afterwards, we show you how to create new objects such as entities or brushes, how to edit and transform them, and how to delete them. After that, we explain how you can work with materials in TrenchBroom. The following section introduces the various tools at your disposal to shape brushes while the section after that focuses on entities and how to edit their properties. The goal of the final section is to help you keep an overview in your map by using layers, groups, and by various other means.
@@ -1846,7 +1854,7 @@ Note that the parameters are stored with the game engine profile.
 
 ## Expression Language {#expression_language}
 
-TrenchBroom contains a simple expression language that can be used to easily embed variables and more complex expressions into strings. Currently, the language is mainly used in the Compilation dialog and the Launch Engine dialog. In the following, we will introduce the syntax and the semantics of the expression language.
+TrenchBroom contains a simple expression language that can be used to easily embed variables and more complex expressions into strings. Currently, the language is mainly used in the Compilation dialog, the Launch Engine dialog, and for [queries](#query_language) in the search box. In the following, we will introduce the syntax and the semantics of the expression language.
 
 ### Evaluation
 
@@ -2646,6 +2654,154 @@ In EBNF, terminal rules are those which only contain terminal symbols on the rig
     Char    = Any ASCII character
 
 This concludes the manual for TrenchBroom's expression language.
+
+## Query Language {#query_language}
+
+The [search box](#searching) above the editing area accepts either plain text or a query. A query is an [expression](#expression_language) that TrenchBroom evaluates once for every object in the map, or for every brush face (see [Which Objects a Query Searches](#query_domain)). The [fields](#query_fields) of the object, such as its classname, its properties, or its bounds, are available as variables in the expression, and the search selects every object for which the expression evaluates to `true`.
+
+### Text Search and Queries
+
+TrenchBroom decides as follows whether you have entered text or a query.
+
+- If the input is a valid expression, it is a query. For example, `classname is "light"` is a query.
+- If the input is not a valid expression, such as `func_*` or `red light`, it is text to search for.
+- If the input consists of a single name or literal only, such as `light`, `42`, or `"red light"`, it is also text to search for, since it would not match anything as a query. The quotes around a string are removed, so `"red light"` searches for the text `red light`. The fields `visible` and `locked` are an exception: each of them is a valid query on its own, so `visible` finds every visible object. To search for one of these words as text, put it in quotes.
+- If the input uses a name that isn't a [field](#query_fields), or calls a function that isn't built in, it is also text to search for, since it most likely isn't meant as a query. For example, `light is red` searches for the text `light is red`. This also applies to misspelled field names, so `clasname is "light"` searches for that text instead of finding lights.
+
+A text search finds every object where the text occurs in its name, its classname, the keys or values of its properties, the names of its materials or [smart tags](#game_configuration_files_tags), or the name of the layer or group that contains it. Brushes and patches also match by the classname of the entity they belong to. The text is matched ignoring case. If it contains one of the wildcard characters `*`, `?`, or `%`, it must match the entire value rather than just a part of it, so `func_*` finds objects with a value starting with `func_`. See [Pattern Matching](#el_pattern_matching) for the meaning of the wildcard characters. A text search never finds brush faces.
+
+### Syntax
+
+Queries use the syntax of TrenchBroom's [expression language](#expression_language), which is explained in full detail in that section. The following table summarizes the parts that are most useful in queries.
+
+Syntax                                  Meaning
+------                                  -------
+`classname`, `center`                   The value of a [field](#query_fields) of the current object.
+`"text"`, `'text'`                      A string.
+`42`, `1.5`                             A number.
+`true`, `false`                         A boolean value.
+`[a, b, c]`                             An array.
+`a.b`, `a["b"]`                         The value under the key `b` in the map `a`, e.g. `properties.target` or `properties["target"]`.
+`v.x`, `v.y`, `v.z`                     A component of the vector `v`, e.g. `center.z`.
+`b.min`, `b.max`                        A corner of the bounding box `b`, e.g. `bounds.min`.
+`a == b`, `a != b`                      Equal, not equal.
+`a < b`, `a <= b`, `a > b`, `a >= b`    Less, less or equal, greater, greater or equal.
+`a && b`, `a || b`, `!a`                Logical and, or, not.
+`a + b`, `a - b`, `a * b`, `a / b`      Arithmetic.
+`(a)`                                   Parentheses group a part of a query.
+`a is b`                                The same as `a == b`.
+`a like p`                              Whether `a` matches the pattern `p`, ignoring case; see [Pattern Matching](#el_pattern_matching).
+`a contains b`                          Whether the array, map, or bounding box `a` contains `b`.
+`b in a`                                The same as `a contains b`.
+`vec(x, y, z)`                          A vector.
+`bbox(min, max)`                        A bounding box with the corners `min` and `max`.
+`a distanceTo b`                        The distance between the vectors `a` and `b`.
+`a intersects b`                        Whether the bounding boxes `a` and `b` overlap.
+
+Keep the following in mind when writing queries.
+
+- The functions `is`, `like`, `contains`, `in`, `distanceTo`, and `intersects` bind more tightly than any operator, so `classname is "light" && visible` works without parentheses. To negate such a term, enclose it in parentheses: `!(classname is "light")`.
+- Strings are compared case sensitively by `==`, `!=`, and `is`, but `like` ignores case.
+- Property values are strings, but they are converted to numbers when compared with a number, so `properties.light > 300` works as expected.
+- A field that the object doesn't have, or a property that the entity doesn't have, evaluates to `undefined`. `undefined` is not equal to any other value, and it is less than any other value, so `properties.light < 100` also finds lights without a `light` property. To test whether an entity has a property, use `properties contains "light"`.
+- If evaluating a query for an object results in an error, or in any value other than `true`, the object doesn't match. For example, `properties.light > 300` doesn't match a light whose `light` property is not a number.
+
+### Object Types {#query_object_types}
+
+Every object has one of the following types, which is available in the field `type`.
+
+Type      Objects
+----      -------
+`world`   The world, which holds the properties of the `worldspawn` entity.
+`layer`   Layers, including the default layer.
+`group`   Groups.
+`entity`  Point entities and brush entities.
+`brush`   Brushes.
+`patch`   Patches (Quake 3 only).
+`face`    Brush faces.
+
+Type names are lower case, so `type is "brush"` finds all brushes, while `type is "Brush"` finds nothing.
+
+### Fields {#query_fields}
+
+The following table lists all fields that a query can use.
+
+Field         Type      Description
+-----         ----      -----------
+`type`        String    The type of the object; see [Object Types](#query_object_types).
+`name`        String    The name of the layer or group.
+`classname`   String    The classname of the entity. For the world, this is `worldspawn`.
+`properties`  Map       The properties of the entity, mapping each property key to its value, e.g. `properties.targetname`.
+`entity`      Map       The entity that the brush or patch belongs to, or for a face, the entity that its brush belongs to. It has the fields `classname` and `properties`. For brushes and patches that don't belong to a brush entity, this is the world.
+`materials`   Array     The names of the materials used by the brush or patch, each name appearing once.
+`material`    String    The name of the material of the face.
+`normal`      Vec3      The normal of the face, a vector of length 1 that points away from the brush.
+`tags`        Array     The names of the [smart tags](#game_configuration_files_tags) that match the object, such as `Detail` or `Trigger`. Which tags exist depends on the game configuration.
+`bounds`      BBox      The bounding box of the object.
+`center`      Vec3      The center of the bounding box of the object.
+`layerName`   String    The name of the layer that contains the object. For a layer, this is its own name.
+`groupName`   String    The name of the innermost group that contains the object, or `undefined` if it isn't in a group.
+`visible`     Boolean   Whether the object is visible. For a face, whether its brush is visible.
+`locked`      Boolean   Whether the object is locked. For a face, whether its brush is locked.
+
+Not every object type has every field. The following table shows which fields are available for which object types.
+
+Field         World  Layer  Group  Entity  Brush  Patch  Face
+-----         -----  -----  -----  ------  -----  -----  ----
+`type`        ✓      ✓      ✓      ✓       ✓      ✓      ✓
+`name`               ✓      ✓
+`classname`   ✓                    ✓
+`properties`  ✓                    ✓
+`entity`                                   ✓      ✓      ✓
+`materials`                                ✓      ✓
+`material`                                               ✓
+`normal`                                                 ✓
+`tags`        ✓                    ✓       ✓      ✓      ✓
+`bounds`             ✓      ✓      ✓       ✓      ✓      ✓
+`center`             ✓      ✓      ✓       ✓      ✓      ✓
+`layerName`          ✓      ✓      ✓       ✓      ✓      ✓
+`groupName`          ✓      ✓      ✓       ✓      ✓      ✓
+`visible`     ✓      ✓      ✓      ✓       ✓      ✓      ✓
+`locked`      ✓      ✓      ✓      ✓       ✓      ✓      ✓
+
+### Which Objects a Query Searches {#query_domain}
+
+Since a field that an object doesn't have evaluates to `undefined`, a query could match objects that it isn't meant for. For example, `!(classname is "func_detail")` would match every brush, simply because brushes don't have a classname. To avoid this, TrenchBroom evaluates a query only for the types of objects that it applies to, which it determines as follows.
+
+- A field limits the search to the object types that have it. For example, `classname` limits it to the world and entities, while `materials` limits it to brushes and patches. The fields `type`, `visible`, and `locked` are available for every object type and don't limit the search.
+- Comparing `type` with type names limits the search to these types. This works with `type == "brush"`, `type is "brush"`, `type in ["brush", "patch"]`, and `["brush", "patch"] contains type`. With `==` and `is`, the type name may also come first, as in `"brush" == type`.
+- Two parts combined with `&&` only search object types that both parts allow, so `classname is "light" && materials like "*sky*"` finds nothing. Two parts combined with `||` search object types that either part allows.
+- If nothing limits the search, it covers every object type except faces.
+
+A query finds either objects or brush faces, but never both. It finds faces only if the rules above limit it to faces alone, as in `material like "sky*"` or `type is "face" && tags contains "Clip"`. Otherwise, faces are not searched at all.
+
+### Examples
+
+Query                                                              Finds
+-----                                                              -----
+`classname is "light"`                                             All light entities.
+`classname like "monster_*"`                                       All entities whose classname begins with `monster_`.
+`classname is "light" && properties.light > 300`                   All lights brighter than 300.
+`properties contains "target"`                                     All entities that have a `target` property.
+`properties.targetname is "door1"`                                 All entities whose `targetname` is `door1`.
+`properties like "door1"`                                          All entities with a property key or value that contains `door1`.
+`!(classname like "info_*")`                                       The world and all entities whose classname doesn't begin with `info_`.
+`type is "brush"`                                                  All brushes.
+`type in ["brush", "patch"] && layerName is "Details"`             All brushes and patches in the layer named `Details`.
+`type is "group" && name like "Hallway*"`                          All groups whose name begins with `Hallway`.
+`groupName is "Hallway"`                                           All objects in the group named `Hallway`.
+`entity.classname is "func_door"`                                  All brushes and patches that belong to a `func_door` entity.
+`entity.classname is "worldspawn"`                                 All brushes and patches that don't belong to a brush entity.
+`materials like "*trigger*"`                                       All brushes and patches that use a material whose name contains `trigger`.
+`tags contains "Detail"`                                           All objects that match the smart tag `Detail`.
+`visible && !locked`                                               All visible objects that aren't locked.
+`center.z < -1024`                                                 All objects whose center lies below a height of -1024.
+`center distanceTo vec(0, 0, 0) < 512`                             All objects whose center lies within 512 units of the origin.
+`bbox(vec(-512, -512, 0), vec(512, 512, 256)) contains bounds`     All objects that lie entirely inside the given box.
+`bounds intersects bbox(vec(-512, -512, 0), vec(512, 512, 256))`   All objects that overlap the given box.
+`material like "sky*"`                                             All faces whose material name begins with `sky`.
+`normal.z > 0.7`                                                   All faces that face upward, such as floors and gentle slopes.
+`material like "*water*" && normal.z > 0.7`                        All upward-facing faces with a material whose name contains `water`.
 
 ## Solving Problems
 

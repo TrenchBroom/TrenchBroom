@@ -46,7 +46,7 @@ SwitchableMapViewContainer::SwitchableMapViewContainer(
   : QWidget{parent}
   , m_appController{appController}
   , m_document{document}
-  , m_mapViewBar{new MapViewBar(m_document)}
+  , m_mapViewBar{new MapViewBar(m_appController, m_document)}
   , m_toolBox{std::make_unique<MapViewToolBox>(m_document, m_mapViewBar->toolPages())}
   , m_activationTracker{std::make_unique<MapViewActivationTracker>()}
 {
