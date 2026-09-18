@@ -2,6 +2,7 @@ add_executable(TbQlLibTest)
 EMBED_UTF8_MANIFEST(TbQlLibTest)
 
 target_sources(TbQlLibTest PRIVATE
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_BrushFaceLazyMap.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_BrushNodeLazyMap.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_EntityNodeLazyMap.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_GroupNodeLazyMap.cpp
