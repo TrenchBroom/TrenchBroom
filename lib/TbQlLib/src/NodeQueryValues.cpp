@@ -19,6 +19,7 @@
 
 #include "ql/NodeQueryValues.h"
 
+#include "mdl/EntityNodeBase.h"
 #include "mdl/Group.h"
 #include "mdl/GroupNode.h"
 #include "mdl/Layer.h"
@@ -30,6 +31,7 @@
 #include "mdl/Tag.h"
 #include "mdl/TagManager.h"
 #include "mdl/WorldNode.h"
+#include "ql/EntityNodeBinding.h"
 
 #include <algorithm>
 
@@ -72,6 +74,11 @@ el::Value tagsValue(const mdl::Map& map, const mdl::Taggable& taggable)
     }
   }
   return el::Value{std::move(names)};
+}
+
+el::Value ownerEntityValue(const mdl::EntityNodeBase* owner)
+{
+  return owner ? makeEntityBinding(owner->entity()) : el::Value::Undefined;
 }
 
 } // namespace tb::ql

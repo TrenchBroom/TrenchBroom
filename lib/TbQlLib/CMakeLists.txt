@@ -2,6 +2,7 @@ add_library(TbQlLib STATIC)
 
 target_sources(TbQlLib
   PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/BrushNodeBinding.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/EntityNodeBinding.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/GroupNodeBinding.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/LayerNodeBinding.cpp

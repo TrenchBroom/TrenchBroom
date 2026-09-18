@@ -23,6 +23,7 @@
 
 namespace tb::mdl
 {
+class EntityNodeBase;
 class Map;
 class Node;
 class Taggable;
@@ -45,5 +46,13 @@ bool isLinked(const mdl::Map& map, const mdl::Node& node);
  * field's value, for the node kinds (and BrushFace) that carry tags.
  */
 el::Value tagsValue(const mdl::Map& map, const mdl::Taggable& taggable);
+
+/**
+ * `{classname, properties}` of `owner`'s entity, or Undefined if `owner` is null -- the
+ * `entity` field's value for BrushNodeBinding and PatchNodeBinding, whose owning
+ * entity is reached via BrushNode::entity()/PatchNode::entity() rather than held
+ * directly.
+ */
+el::Value ownerEntityValue(const mdl::EntityNodeBase* owner);
 
 } // namespace tb::ql
