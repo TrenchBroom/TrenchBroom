@@ -19,27 +19,32 @@
 
 #pragma once
 
-#include "el/Value.h"
+#include "el/Types.h"
+
+#include "kd/flat_map.h"
+
+#include <string>
 
 namespace tb
 {
 namespace mdl
 {
-class EntityNodeBase;
+class BrushNode;
 class Map;
-class Node;
-class Taggable;
 } // namespace mdl
 
 namespace ql
 {
 
-el::Value layerNameValue(const mdl::Node& node);
-el::Value groupNameValue(const mdl::Node& node);
+/**
+ * A lazy map exposing a brush node's data.
+ */
+el::LazyMap makeBrushNodeLazyMap(const mdl::Map& map, const mdl::BrushNode& node);
 
-el::Value tagsValue(const mdl::Map& map, const mdl::Taggable& taggable);
-
-el::Value ownerEntityValue(const mdl::EntityNodeBase* owner);
+/**
+ * The fields makeBrushNodeLazyMap's result exposes and the types of their values.
+ */
+const kdl::flat_map<std::string, el::ValueType>& brushNodeFieldTypes();
 
 } // namespace ql
 } // namespace tb

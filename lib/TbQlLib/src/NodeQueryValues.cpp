@@ -19,6 +19,7 @@
 
 #include "ql/NodeQueryValues.h"
 
+#include "mdl/EntityNodeBase.h"
 #include "mdl/Group.h"
 #include "mdl/GroupNode.h"
 #include "mdl/Layer.h"
@@ -55,6 +56,11 @@ el::Value tagsValue(const mdl::Map& map, const mdl::Taggable& taggable)
     | std::views::transform(
       [](const auto& smartTag) { return el::Value{smartTag.name()}; })
     | kdl::ranges::to<el::ArrayType>()};
+}
+
+el::Value ownerEntityValue(const mdl::EntityNodeBase* owner)
+{
+  return owner ? makeEntityLazyMap(owner->entity()) : el::Value::Undefined;
 }
 
 } // namespace tb::ql
