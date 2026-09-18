@@ -460,11 +460,9 @@ TEST_CASE("Value")
       CHECK_THROWS_AS(Value{true}.convertTo(ValueType::Range), ConversionError);
       CHECK_THROWS_AS(Value{true}.convertTo(ValueType::Vec3), ConversionError);
       CHECK_THROWS_AS(Value{true}.convertTo(ValueType::BBox), ConversionError);
-      CHECK_THROWS_AS(
-        Value{true}.convertTo(ValueType::BoundValue), ConversionError);
+      CHECK_THROWS_AS(Value{true}.convertTo(ValueType::BoundValue), ConversionError);
       CHECK_THROWS_AS(Value{true}.convertTo(ValueType::Null), ConversionError);
-      CHECK_THROWS_AS(
-        Value{true}.convertTo(ValueType::Undefined), ConversionError);
+      CHECK_THROWS_AS(Value{true}.convertTo(ValueType::Undefined), ConversionError);
 
       CHECK(Value{"asdf"}.convertTo(ValueType::Boolean) == Value{true});
       CHECK(Value{"false"}.convertTo(ValueType::Boolean) == Value{false});
@@ -476,25 +474,17 @@ TEST_CASE("Value")
       // "1.2 3 4", the format entity properties like "origin" use
       CHECK(Value{"1 2 3"}.convertTo(ValueType::Vec3) == Value{Vec3Type{1, 2, 3}});
       CHECK(
-        Value{"1 2 3"}.convertTo(ValueType::Vec3) == Value{Vec3Type{1, 2, 3}});
-      CHECK(
-        Value{"1.2 3 4"}.convertTo(ValueType::Vec3)
-        == Value{Vec3Type{1.2, 3.0, 4.0}});
+        Value{"1.2 3 4"}.convertTo(ValueType::Vec3) == Value{Vec3Type{1.2, 3.0, 4.0}});
       CHECK_THROWS_AS(Value{"1 2"}.convertTo(ValueType::Vec3), ConversionError);
-      CHECK_THROWS_AS(
-        Value{"asdf"}.convertTo(ValueType::Number), ConversionError);
-      CHECK_THROWS_AS(
-        Value{"asdf"}.convertTo(ValueType::Array), ConversionError);
+      CHECK_THROWS_AS(Value{"asdf"}.convertTo(ValueType::Number), ConversionError);
+      CHECK_THROWS_AS(Value{"asdf"}.convertTo(ValueType::Array), ConversionError);
       CHECK_THROWS_AS(Value{"asfd"}.convertTo(ValueType::Map), ConversionError);
-      CHECK_THROWS_AS(
-        Value{"asdf"}.convertTo(ValueType::Range), ConversionError);
+      CHECK_THROWS_AS(Value{"asdf"}.convertTo(ValueType::Range), ConversionError);
       CHECK_THROWS_AS(Value{"asdf"}.convertTo(ValueType::Vec3), ConversionError);
       CHECK_THROWS_AS(Value{"asdf"}.convertTo(ValueType::BBox), ConversionError);
-      CHECK_THROWS_AS(
-        Value{"asdf"}.convertTo(ValueType::BoundValue), ConversionError);
+      CHECK_THROWS_AS(Value{"asdf"}.convertTo(ValueType::BoundValue), ConversionError);
       CHECK_THROWS_AS(Value{"asdf"}.convertTo(ValueType::Null), ConversionError);
-      CHECK_THROWS_AS(
-        Value{"asdf"}.convertTo(ValueType::Undefined), ConversionError);
+      CHECK_THROWS_AS(Value{"asdf"}.convertTo(ValueType::Undefined), ConversionError);
 
       CHECK(Value{1}.convertTo(ValueType::Boolean) == Value{true});
       CHECK(Value{2}.convertTo(ValueType::Boolean) == Value{true});
@@ -502,11 +492,8 @@ TEST_CASE("Value")
       CHECK(Value{0}.convertTo(ValueType::Boolean) == Value{false});
       CHECK(Value{1.0}.convertTo(ValueType::String) == Value{"1"});
       CHECK(Value{-1.0}.convertTo(ValueType::String) == Value{"-1"});
-      CHECK(
-        Value{1.1}.convertTo(ValueType::String) == Value{"1.1000000000000001"});
-      CHECK(
-        Value{-1.1}.convertTo(ValueType::String)
-        == Value{"-1.1000000000000001"});
+      CHECK(Value{1.1}.convertTo(ValueType::String) == Value{"1.1000000000000001"});
+      CHECK(Value{-1.1}.convertTo(ValueType::String) == Value{"-1.1000000000000001"});
       CHECK(Value{1.0}.convertTo(ValueType::Number) == Value{1});
       CHECK(Value{-1.0}.convertTo(ValueType::Number) == Value{-1});
       CHECK_THROWS_AS(Value{1}.convertTo(ValueType::Array), ConversionError);
@@ -514,8 +501,7 @@ TEST_CASE("Value")
       CHECK_THROWS_AS(Value{3}.convertTo(ValueType::Range), ConversionError);
       CHECK_THROWS_AS(Value{6}.convertTo(ValueType::Vec3), ConversionError);
       CHECK_THROWS_AS(Value{7}.convertTo(ValueType::BBox), ConversionError);
-      CHECK_THROWS_AS(
-        Value{8}.convertTo(ValueType::BoundValue), ConversionError);
+      CHECK_THROWS_AS(Value{8}.convertTo(ValueType::BoundValue), ConversionError);
       CHECK_THROWS_AS(Value{4}.convertTo(ValueType::Null), ConversionError);
       CHECK_THROWS_AS(Value{5}.convertTo(ValueType::Undefined), ConversionError);
 
@@ -527,68 +513,35 @@ TEST_CASE("Value")
       CHECK_THROWS_AS(Value{ArrayType{}}.convertTo(ValueType::Range), ConversionError);
       CHECK_THROWS_AS(Value{ArrayType{}}.convertTo(ValueType::Vec3), ConversionError);
       CHECK_THROWS_AS(Value{ArrayType{}}.convertTo(ValueType::BBox), ConversionError);
-      CHECK_THROWS_AS(Value{ArrayType{}}.convertTo(ValueType::Null), ConversionError);
-      CHECK_THROWS_AS(
-        Value{ArrayType{}}.convertTo(ValueType::Boolean), ConversionError);
-      CHECK_THROWS_AS(
-        Value{ArrayType{}}.convertTo(ValueType::String), ConversionError);
-      CHECK_THROWS_AS(
-        Value{ArrayType{}}.convertTo(ValueType::Number), ConversionError);
-      CHECK(
-        Value{ArrayType{}}.convertTo(ValueType::Array) == Value{ArrayType{}});
-      CHECK_THROWS_AS(
-        Value{ArrayType{}}.convertTo(ValueType::Map), ConversionError);
-      CHECK_THROWS_AS(
-        Value{ArrayType{}}.convertTo(ValueType::Range), ConversionError);
-      CHECK_THROWS_AS(
-        Value{ArrayType{}}.convertTo(ValueType::Vec3), ConversionError);
-      CHECK_THROWS_AS(
-        Value{ArrayType{}}.convertTo(ValueType::BBox), ConversionError);
       CHECK_THROWS_AS(
         Value{ArrayType{}}.convertTo(ValueType::BoundValue), ConversionError);
-      CHECK_THROWS_AS(
-        Value{ArrayType{}}.convertTo(ValueType::Null), ConversionError);
+      CHECK_THROWS_AS(Value{ArrayType{}}.convertTo(ValueType::Null), ConversionError);
       CHECK_THROWS_AS(
         Value{ArrayType{}}.convertTo(ValueType::Undefined), ConversionError);
 
-      CHECK_THROWS_AS(
-        Value{MapType{}}.convertTo(ValueType::Boolean), ConversionError);
-      CHECK_THROWS_AS(
-        Value{MapType{}}.convertTo(ValueType::String), ConversionError);
-      CHECK_THROWS_AS(
-        Value{MapType{}}.convertTo(ValueType::Number), ConversionError);
-      CHECK_THROWS_AS(
-        Value{MapType{}}.convertTo(ValueType::Array), ConversionError);
+      CHECK_THROWS_AS(Value{MapType{}}.convertTo(ValueType::Boolean), ConversionError);
+      CHECK_THROWS_AS(Value{MapType{}}.convertTo(ValueType::String), ConversionError);
+      CHECK_THROWS_AS(Value{MapType{}}.convertTo(ValueType::Number), ConversionError);
+      CHECK_THROWS_AS(Value{MapType{}}.convertTo(ValueType::Array), ConversionError);
       CHECK(Value{MapType{}}.convertTo(ValueType::Map) == Value{MapType{}});
-      CHECK_THROWS_AS(
-        Value{MapType{}}.convertTo(ValueType::Range), ConversionError);
-      CHECK_THROWS_AS(
-        Value{MapType{}}.convertTo(ValueType::Vec3), ConversionError);
-      CHECK_THROWS_AS(
-        Value{MapType{}}.convertTo(ValueType::BBox), ConversionError);
-      CHECK_THROWS_AS(
-        Value{MapType{}}.convertTo(ValueType::BoundValue), ConversionError);
-      CHECK_THROWS_AS(
-        Value{MapType{}}.convertTo(ValueType::Null), ConversionError);
-      CHECK_THROWS_AS(
-        Value{MapType{}}.convertTo(ValueType::Undefined), ConversionError);
+      CHECK_THROWS_AS(Value{MapType{}}.convertTo(ValueType::Range), ConversionError);
+      CHECK_THROWS_AS(Value{MapType{}}.convertTo(ValueType::Vec3), ConversionError);
+      CHECK_THROWS_AS(Value{MapType{}}.convertTo(ValueType::BBox), ConversionError);
+      CHECK_THROWS_AS(Value{MapType{}}.convertTo(ValueType::BoundValue), ConversionError);
+      CHECK_THROWS_AS(Value{MapType{}}.convertTo(ValueType::Null), ConversionError);
+      CHECK_THROWS_AS(Value{MapType{}}.convertTo(ValueType::Undefined), ConversionError);
 
-      CHECK_THROWS_AS(
-        boundedRange.convertTo(ValueType::Boolean), ConversionError);
-      CHECK_THROWS_AS(
-        boundedRange.convertTo(ValueType::String), ConversionError);
-      CHECK_THROWS_AS(
-        boundedRange.convertTo(ValueType::Number), ConversionError);
+      CHECK_THROWS_AS(boundedRange.convertTo(ValueType::Boolean), ConversionError);
+      CHECK_THROWS_AS(boundedRange.convertTo(ValueType::String), ConversionError);
+      CHECK_THROWS_AS(boundedRange.convertTo(ValueType::Number), ConversionError);
       CHECK_THROWS_AS(boundedRange.convertTo(ValueType::Array), ConversionError);
       CHECK_THROWS_AS(boundedRange.convertTo(ValueType::Map), ConversionError);
       CHECK(boundedRange.convertTo(ValueType::Range) == boundedRange);
       CHECK_THROWS_AS(boundedRange.convertTo(ValueType::Vec3), ConversionError);
       CHECK_THROWS_AS(boundedRange.convertTo(ValueType::BBox), ConversionError);
-      CHECK_THROWS_AS(
-        boundedRange.convertTo(ValueType::BoundValue), ConversionError);
+      CHECK_THROWS_AS(boundedRange.convertTo(ValueType::BoundValue), ConversionError);
       CHECK_THROWS_AS(boundedRange.convertTo(ValueType::Null), ConversionError);
-      CHECK_THROWS_AS(
-        boundedRange.convertTo(ValueType::Undefined), ConversionError);
+      CHECK_THROWS_AS(boundedRange.convertTo(ValueType::Undefined), ConversionError);
 
       CHECK_THROWS_AS(vec3.convertTo(ValueType::Boolean), ConversionError);
       // "1.2 3 4", the format entity properties like "origin" use
@@ -615,26 +568,17 @@ TEST_CASE("Value")
       CHECK_THROWS_AS(bbox.convertTo(ValueType::Null), ConversionError);
       CHECK_THROWS_AS(bbox.convertTo(ValueType::Undefined), ConversionError);
 
-      CHECK_THROWS_AS(
-        testBoundValue.convertTo(ValueType::Boolean), ConversionError);
-      CHECK_THROWS_AS(
-        testBoundValue.convertTo(ValueType::String), ConversionError);
-      CHECK_THROWS_AS(
-        testBoundValue.convertTo(ValueType::Number), ConversionError);
-      CHECK_THROWS_AS(
-        testBoundValue.convertTo(ValueType::Array), ConversionError);
+      CHECK_THROWS_AS(testBoundValue.convertTo(ValueType::Boolean), ConversionError);
+      CHECK_THROWS_AS(testBoundValue.convertTo(ValueType::String), ConversionError);
+      CHECK_THROWS_AS(testBoundValue.convertTo(ValueType::Number), ConversionError);
+      CHECK_THROWS_AS(testBoundValue.convertTo(ValueType::Array), ConversionError);
       CHECK_THROWS_AS(testBoundValue.convertTo(ValueType::Map), ConversionError);
-      CHECK_THROWS_AS(
-        testBoundValue.convertTo(ValueType::Range), ConversionError);
-      CHECK_THROWS_AS(
-        testBoundValue.convertTo(ValueType::Vec3), ConversionError);
-      CHECK_THROWS_AS(
-        testBoundValue.convertTo(ValueType::BBox), ConversionError);
+      CHECK_THROWS_AS(testBoundValue.convertTo(ValueType::Range), ConversionError);
+      CHECK_THROWS_AS(testBoundValue.convertTo(ValueType::Vec3), ConversionError);
+      CHECK_THROWS_AS(testBoundValue.convertTo(ValueType::BBox), ConversionError);
       CHECK(testBoundValue.convertTo(ValueType::BoundValue) == testBoundValue);
-      CHECK_THROWS_AS(
-        testBoundValue.convertTo(ValueType::Null), ConversionError);
-      CHECK_THROWS_AS(
-        testBoundValue.convertTo(ValueType::Undefined), ConversionError);
+      CHECK_THROWS_AS(testBoundValue.convertTo(ValueType::Null), ConversionError);
+      CHECK_THROWS_AS(testBoundValue.convertTo(ValueType::Undefined), ConversionError);
 
       CHECK(Value::Null.convertTo(ValueType::Boolean) == Value{false});
       CHECK(Value::Null.convertTo(ValueType::String) == Value{""});
@@ -644,34 +588,21 @@ TEST_CASE("Value")
       CHECK_THROWS_AS(Value::Null.convertTo(ValueType::Range), ConversionError);
       CHECK_THROWS_AS(Value::Null.convertTo(ValueType::Vec3), ConversionError);
       CHECK_THROWS_AS(Value::Null.convertTo(ValueType::BBox), ConversionError);
-      CHECK_THROWS_AS(
-        Value::Null.convertTo(ValueType::BoundValue), ConversionError);
+      CHECK_THROWS_AS(Value::Null.convertTo(ValueType::BoundValue), ConversionError);
       CHECK(Value::Null.convertTo(ValueType::Null) == Value::Null);
-      CHECK_THROWS_AS(
-        Value::Null.convertTo(ValueType::Undefined), ConversionError);
+      CHECK_THROWS_AS(Value::Null.convertTo(ValueType::Undefined), ConversionError);
 
-      CHECK_THROWS_AS(
-        Value::Undefined.convertTo(ValueType::Boolean), ConversionError);
-      CHECK_THROWS_AS(
-        Value::Undefined.convertTo(ValueType::String), ConversionError);
-      CHECK_THROWS_AS(
-        Value::Undefined.convertTo(ValueType::Number), ConversionError);
-      CHECK_THROWS_AS(
-        Value::Undefined.convertTo(ValueType::Array), ConversionError);
-      CHECK_THROWS_AS(
-        Value::Undefined.convertTo(ValueType::Map), ConversionError);
-      CHECK_THROWS_AS(
-        Value::Undefined.convertTo(ValueType::Range), ConversionError);
-      CHECK_THROWS_AS(
-        Value::Undefined.convertTo(ValueType::Vec3), ConversionError);
-      CHECK_THROWS_AS(
-        Value::Undefined.convertTo(ValueType::BBox), ConversionError);
-      CHECK_THROWS_AS(
-        Value::Undefined.convertTo(ValueType::BoundValue), ConversionError);
-      CHECK_THROWS_AS(
-        Value::Undefined.convertTo(ValueType::Null), ConversionError);
-      CHECK(
-        Value::Undefined.convertTo(ValueType::Undefined) == Value::Undefined);
+      CHECK_THROWS_AS(Value::Undefined.convertTo(ValueType::Boolean), ConversionError);
+      CHECK_THROWS_AS(Value::Undefined.convertTo(ValueType::String), ConversionError);
+      CHECK_THROWS_AS(Value::Undefined.convertTo(ValueType::Number), ConversionError);
+      CHECK_THROWS_AS(Value::Undefined.convertTo(ValueType::Array), ConversionError);
+      CHECK_THROWS_AS(Value::Undefined.convertTo(ValueType::Map), ConversionError);
+      CHECK_THROWS_AS(Value::Undefined.convertTo(ValueType::Range), ConversionError);
+      CHECK_THROWS_AS(Value::Undefined.convertTo(ValueType::Vec3), ConversionError);
+      CHECK_THROWS_AS(Value::Undefined.convertTo(ValueType::BBox), ConversionError);
+      CHECK_THROWS_AS(Value::Undefined.convertTo(ValueType::BoundValue), ConversionError);
+      CHECK_THROWS_AS(Value::Undefined.convertTo(ValueType::Null), ConversionError);
+      CHECK(Value::Undefined.convertTo(ValueType::Undefined) == Value::Undefined);
     }).ignore();
   }
 
