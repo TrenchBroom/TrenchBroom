@@ -23,6 +23,7 @@
 #include "el/Types.h"
 #include "el/Value.h"
 
+#include <limits>
 #include <optional>
 #include <sstream>
 #include <string>
@@ -811,6 +812,14 @@ TEST_CASE("Value")
     const auto value = Value{ArrayType{Value{1.0}}};
     const auto copy = value;
     CHECK(value == copy);
+
+    // NaN is equal to NaN, so that a number is equal to a copy of itself even though the
+    // copy doesn't share its representation
+    const auto nan = std::numeric_limits<NumberType>::quiet_NaN();
+    const auto number = Value{nan};
+    const auto numberCopy = number;
+    CHECK(number == numberCopy);
+    CHECK_FALSE(Value{nan} == Value{1.0});
   }
 
   SECTION("operator!=")

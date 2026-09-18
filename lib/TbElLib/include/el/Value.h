@@ -40,16 +40,18 @@ class Value
 private:
   using VariantType = std::variant<
     BooleanType,
-    StringType,
+    std::shared_ptr<const StringType>,
     NumberType,
-    ArrayType,
-    MapType,
-    RangeType,
+    std::shared_ptr<const ArrayType>,
+    std::shared_ptr<const MapType>,
+    LeftBoundedRange,
+    RightBoundedRange,
+    BoundedRange,
     Vec3Type,
-    BBoxType,
+    std::shared_ptr<const BBoxType>,
     NullType,
     UndefinedType>;
-  std::shared_ptr<VariantType> m_value;
+  VariantType m_value;
   std::shared_ptr<ExpressionNodeData> m_producedBy;
 
 public:
@@ -92,7 +94,7 @@ public:
   IntegerType integerValue() const;
   const ArrayType& arrayValue() const;
   const MapType& mapValue() const;
-  const RangeType& rangeValue() const;
+  RangeType rangeValue() const;
   const Vec3Type& vec3Value() const;
   const BBoxType& bboxValue() const;
 
