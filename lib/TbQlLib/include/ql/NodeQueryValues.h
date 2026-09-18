@@ -25,19 +25,25 @@ namespace tb::mdl
 {
 class Map;
 class Node;
+class Taggable;
 } // namespace tb::mdl
 
 namespace tb::ql
 {
 
 /**
- * Value-producing helpers for the `layerName`/`groupName`/`linked` fields, which apply
- * identically to every node kind's BoundValue (WorldNodeBoundValue, LayerNodeBoundValue,
- * ...).
+ * Value-producing helpers for the fields that apply identically across several node
+ * kinds' Binding (WorldNodeBinding, LayerNodeBinding, ...).
  */
 
 el::Value layerNameValue(const mdl::Node& node);
 el::Value groupNameValue(const mdl::Node& node);
 bool isLinked(const mdl::Map& map, const mdl::Node& node);
+
+/**
+ * The names of every smart tag in `map` that `taggable` currently has -- the `tags`
+ * field's value, for the node kinds (and BrushFace) that carry tags.
+ */
+el::Value tagsValue(const mdl::Map& map, const mdl::Taggable& taggable);
 
 } // namespace tb::ql

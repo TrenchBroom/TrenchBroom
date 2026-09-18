@@ -1,0 +1,63 @@
+/*
+ Copyright (C) 2026 Kristian Duske
+
+ This file is part of TrenchBroom.
+
+ TrenchBroom is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+
+ TrenchBroom is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#pragma once
+
+#include "el/Value.h"
+
+#include <optional>
+#include <string>
+#include <vector>
+
+namespace tb::mdl
+{
+class Entity;
+class EntityNode;
+class Map;
+} // namespace tb::mdl
+
+namespace tb::ql
+{
+
+std::optional<el::Value> entityPropertyValue(
+  const mdl::Entity& entity, const std::string& key);
+
+std::vector<std::string> entityPropertyNames(const mdl::Entity& entity);
+
+el::Value makeEntityPropertiesBinding(const mdl::Entity& entity);
+
+/**
+ * A Binding exposing an entity's data as `{classname: ..., properties: {...}}` -- the
+ * shape of the query language's `entity` field, shared by the node and face domains.
+ */
+el::Value makeEntityBinding(const mdl::Entity& entity);
+
+/**
+ * The search/filter query language's Binding for an EntityNode -- the fields common
+ * to every node kind, plus `classname`/`properties`/`tags`.
+ */
+el::BoundValue makeEntityNodeBinding(const mdl::Map& map, const mdl::EntityNode& node);
+
+/**
+ * The field names makeEntityNodeBinding's result exposes, without needing an actual
+ * node instance.
+ */
+std::vector<std::string> entityNodeFieldNames();
+
+} // namespace tb::ql
