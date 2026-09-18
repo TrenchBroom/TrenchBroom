@@ -2,6 +2,8 @@ add_executable(TbQlLibTest)
 EMBED_UTF8_MANIFEST(TbQlLibTest)
 
 target_sources(TbQlLibTest PRIVATE
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_BrushFaceBinding.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_BrushFaceVariableStore.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_BrushNodeBinding.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_EntityNodeBinding.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_GroupNodeBinding.cpp
