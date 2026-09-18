@@ -143,6 +143,7 @@ target_sources(TbUiLib
     ${CMAKE_CURRENT_SOURCE_DIR}/src/SweepToolPage.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/ScaleToolPage.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/SearchBox.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/SearchPanel.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/KeyboardShortcutUtils.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/SignalDelayer.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/SliderWithLabel.cpp
@@ -329,6 +330,7 @@ target_sources(TbUiLib
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/SweepToolPage.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/ScaleToolPage.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/SearchBox.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/SearchPanel.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/KeyboardShortcutUtils.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/SignalDelayer.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/SliderWithLabel.h
@@ -378,6 +380,7 @@ target_link_libraries(TbUiLib
     cpptrace::cpptrace
     ctre::ctre
     Qt6::Svg
+    TbQlLib
     TbVersionLib
   PUBLIC
     KdLib

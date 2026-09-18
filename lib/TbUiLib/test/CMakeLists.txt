@@ -22,6 +22,7 @@ target_sources(TbUiLibTest
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_QStringUtils.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_QVecUtils.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_RecentDocuments.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_SearchPanel.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_KeyboardShortcutUtils.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_LayerListBox.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_SystemPaths.cpp

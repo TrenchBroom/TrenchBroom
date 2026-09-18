@@ -27,6 +27,7 @@ class QLabel;
 namespace tb::ui
 {
 class MapDocument;
+class SearchPanel;
 class ViewPopupEditor;
 
 class MapViewBar : public ContainerBar
@@ -34,6 +35,7 @@ class MapViewBar : public ContainerBar
   Q_OBJECT
 private:
   QStackedLayout* m_toolBook = nullptr;
+  SearchPanel* m_searchPanel = nullptr;
   ViewPopupEditor* m_viewEditor = nullptr;
 
 public:

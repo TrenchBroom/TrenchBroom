@@ -344,7 +344,7 @@ TEST_CASE("Value")
         R"(At unknown location: Cannot dereference value '"test"' of type 'String' as type 'BBox')"}});
   }
 
-  SECTION("lazyMapValue")
+  SECTION("lazyMap")
   {
     withEvaluationContext([](auto&) {
       CHECK(testLazyMap.lazyMapValue().at("name") == Value{"test"});
@@ -498,15 +498,6 @@ TEST_CASE("Value")
       CHECK_THROWS_AS(Value{4}.convertTo(ValueType::Null), ConversionError);
       CHECK_THROWS_AS(Value{5}.convertTo(ValueType::Undefined), ConversionError);
 
-      CHECK_THROWS_AS(Value{ArrayType{}}.convertTo(ValueType::Boolean), ConversionError);
-      CHECK_THROWS_AS(Value{ArrayType{}}.convertTo(ValueType::String), ConversionError);
-      CHECK_THROWS_AS(Value{ArrayType{}}.convertTo(ValueType::Number), ConversionError);
-      CHECK(Value{ArrayType{}}.convertTo(ValueType::Array) == Value{ArrayType{}});
-      CHECK_THROWS_AS(Value{ArrayType{}}.convertTo(ValueType::Map), ConversionError);
-      CHECK_THROWS_AS(Value{ArrayType{}}.convertTo(ValueType::Range), ConversionError);
-      CHECK_THROWS_AS(Value{ArrayType{}}.convertTo(ValueType::Vec3), ConversionError);
-      CHECK_THROWS_AS(Value{ArrayType{}}.convertTo(ValueType::BBox), ConversionError);
-      CHECK_THROWS_AS(Value{ArrayType{}}.convertTo(ValueType::Null), ConversionError);
       CHECK_THROWS_AS(Value{ArrayType{}}.convertTo(ValueType::Boolean), ConversionError);
       CHECK_THROWS_AS(Value{ArrayType{}}.convertTo(ValueType::String), ConversionError);
       CHECK_THROWS_AS(Value{ArrayType{}}.convertTo(ValueType::Number), ConversionError);

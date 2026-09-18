@@ -27,6 +27,7 @@
 #include "base/PreferenceManager.h"
 #include "prefs/Preferences.h"
 #include "ui/MapDocument.h"
+#include "ui/SearchPanel.h"
 #include "ui/ViewConstants.h"
 #include "ui/ViewEditor.h"
 
@@ -51,6 +52,7 @@ void MapViewBar::createGui(MapDocument& document)
   m_toolBook = new QStackedLayout{};
   m_toolBook->setContentsMargins(0, 0, 0, 0);
 
+  m_searchPanel = new SearchPanel{document};
   m_viewEditor = new ViewPopupEditor{document};
 
 #if defined(Q_OS_MACOS)
@@ -66,6 +68,7 @@ void MapViewBar::createGui(MapDocument& document)
     LayoutConstants::WideHMargin, vMargin, LayoutConstants::WideHMargin, vMargin);
   layout->setSpacing(LayoutConstants::WideHMargin);
   layout->addLayout(m_toolBook, 1);
+  layout->addWidget(m_searchPanel, 0, Qt::AlignVCenter);
   layout->addWidget(m_viewEditor, 0, Qt::AlignVCenter);
 
   setLayout(layout);
