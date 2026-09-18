@@ -142,6 +142,7 @@ target_sources(TbUiLib
     ${CMAKE_CURRENT_SOURCE_DIR}/src/RotateToolPage.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/SweepToolPage.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/ScaleToolPage.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/QueryBuilder.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/SearchBox.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/SearchPanel.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/KeyboardShortcutUtils.cpp
@@ -329,6 +330,7 @@ target_sources(TbUiLib
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/RotateToolPage.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/SweepToolPage.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/ScaleToolPage.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/QueryBuilder.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/SearchBox.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/SearchPanel.h
     ${CMAKE_CURRENT_SOURCE_DIR}/include/ui/KeyboardShortcutUtils.h
@@ -380,7 +382,6 @@ target_link_libraries(TbUiLib
     cpptrace::cpptrace
     ctre::ctre
     Qt6::Svg
-    TbQlLib
     TbVersionLib
   PUBLIC
     KdLib
@@ -392,6 +393,7 @@ target_link_libraries(TbUiLib
     TbBaseLib
     TbMdlLib
     TbPreferencesLib
+    TbQlLib
     TbRenderLib
     UpdateLib
     VmLib
