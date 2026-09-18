@@ -11,6 +11,7 @@ target_sources(TbQlLibTest PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_NodeQueryValues.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_NodeVariableStore.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_PatchNodeBinding.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Query.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_QueryDomainInference.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_WorldNodeBinding.cpp
 )
