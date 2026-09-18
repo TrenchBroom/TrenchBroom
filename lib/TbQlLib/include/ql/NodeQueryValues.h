@@ -26,6 +26,7 @@ namespace tb
 {
 namespace mdl
 {
+class EntityNodeBase;
 class Map;
 class Node;
 class Taggable;
@@ -38,6 +39,8 @@ el::Value layerNameValue(const mdl::Node& node);
 el::Value groupNameValue(const mdl::Node& node);
 
 el::Value tagsValue(const mdl::Map& map, const mdl::Taggable& taggable);
+
+el::Value ownerEntityValue(const mdl::EntityNodeBase* owner);
 
 /**
  * Adds the fields that layers, groups, entities, brushes and patches have in common to
