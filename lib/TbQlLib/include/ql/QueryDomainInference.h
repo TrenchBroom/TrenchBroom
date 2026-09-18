@@ -22,6 +22,8 @@
 #include "kd/flat_set.h"
 
 #include <iosfwd>
+#include <optional>
+#include <string>
 
 namespace tb::el
 {
@@ -47,6 +49,12 @@ enum class QueryKind
 };
 
 std::ostream& operator<<(std::ostream& str, QueryKind kind);
+
+/**
+ * The inverse of streaming a QueryKind: `nullopt` if `name` isn't one of the seven
+ * lowercase kind names (`"world"`, `"layer"`, ...) `operator<<` produces.
+ */
+std::optional<QueryKind> queryKindFromName(const std::string& name);
 
 /**
  * A query's inferred target: the set of kinds it should be evaluated against.

@@ -70,10 +70,7 @@ std::ostream& operator<<(std::ostream& str, const QueryKind kind)
   return str;
 }
 
-namespace
-{
-
-std::optional<QueryKind> kindFromName(const std::string& name)
+std::optional<QueryKind> queryKindFromName(const std::string& name)
 {
   if (name == "world")
   {
@@ -105,6 +102,9 @@ std::optional<QueryKind> kindFromName(const std::string& name)
   }
   return std::nullopt;
 }
+
+namespace
+{
 
 QueryDomain fullDomain()
 {
@@ -200,14 +200,14 @@ std::optional<QueryKind> asTypeHint(const el::BinaryExpression& expr)
   {
     if (const auto name = asStringLiteral(expr.rightOperand))
     {
-      return kindFromName(*name);
+      return queryKindFromName(*name);
     }
   }
   if (isVariableNamed(expr.rightOperand, "type"))
   {
     if (const auto name = asStringLiteral(expr.leftOperand))
     {
-      return kindFromName(*name);
+      return queryKindFromName(*name);
     }
   }
   return std::nullopt;
