@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "Expression.h"
+#include "ExpressionNode.h"
 #include "Forward.h"
 #include "ParseMode.h"
 #include "base/Parser.h"

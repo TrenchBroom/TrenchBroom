@@ -21,6 +21,7 @@
 
 #include "el/EvaluationContext.h"
 #include "el/Exceptions.h"
+#include "el/Expression.h" // IWYU pragma: keep
 
 #include "kd/overload.h"
 #include "kd/ranges/to.h"
