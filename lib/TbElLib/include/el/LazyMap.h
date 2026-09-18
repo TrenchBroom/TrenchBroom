@@ -65,6 +65,8 @@ kdl::flat_map<std::string, ValueType> lazyMapFieldTypes(const LazyMapFields<T>& 
 /**
  * Builds a LazyMap that looks up keys against the given object via fields. A key absent
  * from fields is simply not in the map, so at() returns nullopt for it.
+ *
+ * The result refers to fields, which must outlive it.
  */
 template <typename T>
 LazyMap makeLazyMapOf(T object, const LazyMapFields<T>& fields)
@@ -79,6 +81,9 @@ LazyMap makeLazyMapOf(T object, const LazyMapFields<T>& fields)
   };
 }
 
+template <typename T>
+LazyMap makeLazyMapOf(T object, const LazyMapFields<T>&& fields) = delete;
+
 /**
  * Same as `makeLazyMapOf`, but wraps the result in a Value.
  */
@@ -87,5 +92,8 @@ Value makeLazyMap(T object, const LazyMapFields<T>& fields)
 {
   return Value{makeLazyMapOf(object, fields)};
 }
+
+template <typename T>
+Value makeLazyMap(T object, const LazyMapFields<T>&& fields) = delete;
 
 } // namespace tb::el
