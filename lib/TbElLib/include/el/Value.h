@@ -38,16 +38,16 @@ class Value
 private:
   using VariantType = std::variant<
     BooleanType,
-    StringType,
+    std::shared_ptr<const StringType>,
     NumberType,
-    ArrayType,
-    MapType,
+    std::shared_ptr<const ArrayType>,
+    std::shared_ptr<const MapType>,
     RangeType,
     Vec3Type,
     BBoxType,
     NullType,
     UndefinedType>;
-  std::shared_ptr<VariantType> m_value;
+  VariantType m_value;
 
   std::shared_ptr<Expression> m_producedByExpression;
   std::optional<FileLocation> m_producedByLocation;
@@ -129,18 +129,6 @@ public:
   friend bool operator!=(const Value& lhs, const Value& rhs);
 
   friend std::ostream& operator<<(std::ostream& lhs, const Value& rhs);
-
-  friend struct std::hash<tb::el::Value>;
 };
 
 } // namespace tb::el
-
-
-template <>
-struct std::hash<tb::el::Value>
-{
-  std::size_t operator()(const tb::el::Value& value) const noexcept
-  {
-    return std::hash<std::shared_ptr<tb::el::Value::VariantType>>{}(value.m_value);
-  }
-};
