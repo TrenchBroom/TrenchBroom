@@ -20,7 +20,7 @@
 #pragma once
 
 #include "Exceptions.h"
-#include "Expression.h"
+#include "ExpressionNode.h"
 #include "Value.h"
 #include "base/FileLocation.h"
 #include "base/Macros.h"
