@@ -19,27 +19,31 @@
 
 #pragma once
 
-#include "el/Value.h"
+#include "el/Types.h"
+
+#include <string>
+#include <vector>
 
 namespace tb
 {
 namespace mdl
 {
-class EntityNodeBase;
+class BrushNode;
 class Map;
-class Node;
-class Taggable;
 } // namespace mdl
 
 namespace ql
 {
 
-el::Value layerNameValue(const mdl::Node& node);
-el::Value groupNameValue(const mdl::Node& node);
+/**
+ * A lazy map exposing a brush node's data.
+ */
+el::LazyMap makeBrushNodeLazyMap(const mdl::Map& map, const mdl::BrushNode& node);
 
-el::Value tagsValue(const mdl::Map& map, const mdl::Taggable& taggable);
-
-el::Value ownerEntityValue(const mdl::EntityNodeBase* owner);
+/**
+ * The field names makeBrushNodeLazyMap's result exposes.
+ */
+std::vector<std::string> brushNodeFieldNames();
 
 } // namespace ql
 } // namespace tb
