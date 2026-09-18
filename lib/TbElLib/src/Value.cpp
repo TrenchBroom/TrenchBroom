@@ -70,77 +70,77 @@ const Value Value::Null = Value{NullType::Value};
 const Value Value::Undefined = Value{UndefinedType::Value};
 
 Value::Value()
-  : m_value{std::make_shared<VariantType>(NullType::Value)}
+  : m_value{NullType::Value}
 {
 }
 
 Value::Value(const BooleanType value)
-  : m_value{std::make_shared<VariantType>(value)}
+  : m_value{value}
 {
 }
 
 Value::Value(StringType value)
-  : m_value{std::make_shared<VariantType>(std::move(value))}
+  : m_value{std::make_shared<const StringType>(std::move(value))}
 {
 }
 
 Value::Value(const char* value)
-  : m_value{std::make_shared<VariantType>(StringType(value))}
+  : m_value{std::make_shared<const StringType>(value)}
 {
 }
 
 Value::Value(const NumberType value)
-  : m_value{std::make_shared<VariantType>(value)}
+  : m_value{value}
 {
 }
 
 Value::Value(const int value)
-  : m_value{std::make_shared<VariantType>(static_cast<NumberType>(value))}
+  : m_value{static_cast<NumberType>(value)}
 {
 }
 
 Value::Value(const long value)
-  : m_value{std::make_shared<VariantType>(static_cast<NumberType>(value))}
+  : m_value{static_cast<NumberType>(value)}
 {
 }
 
 Value::Value(const size_t value)
-  : m_value{std::make_shared<VariantType>(static_cast<NumberType>(value))}
+  : m_value{static_cast<NumberType>(value)}
 {
 }
 
 Value::Value(ArrayType value)
-  : m_value{std::make_shared<VariantType>(std::move(value))}
+  : m_value{std::make_shared<const ArrayType>(std::move(value))}
 {
 }
 
 Value::Value(MapType value)
-  : m_value{std::make_shared<VariantType>(std::move(value))}
+  : m_value{std::make_shared<const MapType>(std::move(value))}
 {
 }
 
 Value::Value(RangeType value)
-  : m_value{std::make_shared<VariantType>(std::move(value))}
+  : m_value{std::move(value)}
 {
 }
 
 Value::Value(Vec3Type value)
-  : m_value{std::make_shared<VariantType>(value)}
+  : m_value{value}
 {
 }
 
 Value::Value(BBoxType value)
-  : m_value{std::make_shared<VariantType>(value)}
+  : m_value{value}
 {
 }
 
 Value::Value(NullType value)
-  : m_value{std::make_shared<VariantType>(value)}
+  : m_value{value}
 {
 }
 
 Value::Value(UndefinedType value)
-  : m_value{std::make_shared<VariantType>(value)}
+  : m_value{value}
 {
 }
 
@@ -149,16 +149,16 @@ ValueType Value::type() const
   return std::visit(
     kdl::overload(
       [](const BooleanType&) { return ValueType::Boolean; },
-      [](const StringType&) { return ValueType::String; },
+      [](const std::shared_ptr<const StringType>&) { return ValueType::String; },
       [](const NumberType&) { return ValueType::Number; },
-      [](const ArrayType&) { return ValueType::Array; },
-      [](const MapType&) { return ValueType::Map; },
+      [](const std::shared_ptr<const ArrayType>&) { return ValueType::Array; },
+      [](const std::shared_ptr<const MapType>&) { return ValueType::Map; },
       [](const RangeType&) { return ValueType::Range; },
       [](const Vec3Type&) { return ValueType::Vec3; },
       [](const BBoxType&) { return ValueType::BBox; },
       [](const NullType&) { return ValueType::Null; },
       [](const UndefinedType&) { return ValueType::Undefined; }),
-    *m_value);
+    m_value);
 }
 
 bool Value::hasType(ValueType type) const
@@ -188,14 +188,14 @@ const BooleanType& Value::booleanValue() const
       [&](const auto&) -> const BooleanType& {
         throw DereferenceError{location(), describe(), type(), ValueType::Boolean};
       }),
-    *m_value);
+    m_value);
 }
 
 const StringType& Value::stringValue() const
 {
   return std::visit(
     kdl::overload(
-      [&](const StringType& s) -> const StringType& { return s; },
+      [&](const std::shared_ptr<const StringType>& s) -> const StringType& { return *s; },
       [&](const NullType&) -> const StringType& {
         static const StringType s;
         return s;
@@ -203,7 +203,7 @@ const StringType& Value::stringValue() const
       [&](const auto&) -> const StringType& {
         throw DereferenceError{location(), describe(), type(), ValueType::String};
       }),
-    *m_value);
+    m_value);
 }
 
 const NumberType& Value::numberValue() const
@@ -218,7 +218,7 @@ const NumberType& Value::numberValue() const
       [&](const auto&) -> const NumberType& {
         throw DereferenceError{location(), describe(), type(), ValueType::Number};
       }),
-    *m_value);
+    m_value);
 }
 
 IntegerType Value::integerValue() const
@@ -230,7 +230,7 @@ const ArrayType& Value::arrayValue() const
 {
   return std::visit(
     kdl::overload(
-      [&](const ArrayType& a) -> const ArrayType& { return a; },
+      [&](const std::shared_ptr<const ArrayType>& a) -> const ArrayType& { return *a; },
       [&](const NullType&) -> const ArrayType& {
         static const ArrayType a(0);
         return a;
@@ -238,14 +238,14 @@ const ArrayType& Value::arrayValue() const
       [&](const auto&) -> const ArrayType& {
         throw DereferenceError{location(), describe(), type(), ValueType::Array};
       }),
-    *m_value);
+    m_value);
 }
 
 const MapType& Value::mapValue() const
 {
   return std::visit(
     kdl::overload(
-      [&](const MapType& m) -> const MapType& { return m; },
+      [&](const std::shared_ptr<const MapType>& m) -> const MapType& { return *m; },
       [&](const NullType&) -> const MapType& {
         static const MapType m;
         return m;
@@ -253,7 +253,7 @@ const MapType& Value::mapValue() const
       [&](const auto&) -> const MapType& {
         throw DereferenceError{location(), describe(), type(), ValueType::Map};
       }),
-    *m_value);
+    m_value);
 }
 
 const RangeType& Value::rangeValue() const
@@ -264,7 +264,7 @@ const RangeType& Value::rangeValue() const
       [&](const auto&) -> const RangeType& {
         throw DereferenceError{location(), describe(), type(), ValueType::Range};
       }),
-    *m_value);
+    m_value);
 }
 
 const Vec3Type& Value::vec3Value() const
@@ -275,7 +275,7 @@ const Vec3Type& Value::vec3Value() const
       [&](const auto&) -> const Vec3Type& {
         throw DereferenceError{location(), describe(), type(), ValueType::Vec3};
       }),
-    *m_value);
+    m_value);
 }
 
 const BBoxType& Value::bboxValue() const
@@ -286,7 +286,7 @@ const BBoxType& Value::bboxValue() const
       [&](const auto&) -> const BBoxType& {
         throw DereferenceError{location(), describe(), type(), ValueType::BBox};
       }),
-    *m_value);
+    m_value);
 }
 
 std::vector<std::string> Value::asStringList() const
@@ -306,16 +306,16 @@ size_t Value::length() const
   return std::visit(
     kdl::overload(
       [](const BooleanType&) -> size_t { return 1u; },
-      [](const StringType& s) -> size_t { return s.length(); },
+      [](const std::shared_ptr<const StringType>& s) -> size_t { return s->length(); },
       [](const NumberType&) -> size_t { return 1u; },
-      [](const ArrayType& a) -> size_t { return a.size(); },
-      [](const MapType& m) -> size_t { return m.size(); },
+      [](const std::shared_ptr<const ArrayType>& a) -> size_t { return a->size(); },
+      [](const std::shared_ptr<const MapType>& m) -> size_t { return m->size(); },
       [](const RangeType&) -> size_t { return 2u; },
       [](const Vec3Type&) -> size_t { return 3u; },
       [](const BBoxType&) -> size_t { return 2u; },
       [](const NullType&) -> size_t { return 0u; },
       [](const UndefinedType&) -> size_t { return 0u; }),
-    *m_value);
+    m_value);
 }
 
 bool Value::convertibleTo(const ValueType toType) const
@@ -341,7 +341,8 @@ bool Value::convertibleTo(const ValueType toType) const
 
         return false;
       },
-      [&](const StringType& s) {
+      [&](const std::shared_ptr<const StringType>& sp) {
+        const auto& s = *sp;
         switch (toType)
         {
         case ValueType::Boolean:
@@ -381,7 +382,7 @@ bool Value::convertibleTo(const ValueType toType) const
 
         return false;
       },
-      [&](const ArrayType&) {
+      [&](const std::shared_ptr<const ArrayType>&) {
         switch (toType)
         {
         case ValueType::Array:
@@ -400,7 +401,7 @@ bool Value::convertibleTo(const ValueType toType) const
 
         return false;
       },
-      [&](const MapType&) {
+      [&](const std::shared_ptr<const MapType>&) {
         switch (toType)
         {
         case ValueType::Map:
@@ -514,7 +515,7 @@ bool Value::convertibleTo(const ValueType toType) const
 
         return false;
       }),
-    *m_value);
+    m_value);
 }
 
 Value Value::convertTo(const ValueType toType) const
@@ -542,7 +543,8 @@ Value Value::convertTo(const ValueType toType) const
 
         throw ConversionError{location(), describe(), type(), toType};
       },
-      [&](const StringType& s) -> Value {
+      [&](const std::shared_ptr<const StringType>& sp) -> Value {
+        const auto& s = *sp;
         switch (toType)
         {
         case ValueType::Boolean:
@@ -600,7 +602,7 @@ Value Value::convertTo(const ValueType toType) const
 
         throw ConversionError{location(), describe(), type(), toType};
       },
-      [&](const ArrayType&) -> Value {
+      [&](const std::shared_ptr<const ArrayType>&) -> Value {
         switch (toType)
         {
         case ValueType::Array:
@@ -619,7 +621,7 @@ Value Value::convertTo(const ValueType toType) const
 
         throw ConversionError{location(), describe(), type(), toType};
       },
-      [&](const MapType&) -> Value {
+      [&](const std::shared_ptr<const MapType>&) -> Value {
         switch (toType)
         {
         case ValueType::Map:
@@ -742,7 +744,7 @@ Value Value::convertTo(const ValueType toType) const
 
         throw ConversionError{location(), describe(), type(), toType};
       }),
-    *m_value);
+    m_value);
 }
 
 std::optional<Value> Value::tryConvertTo(const ValueType toType) const
@@ -770,12 +772,14 @@ void Value::appendToStream(
   std::visit(
     kdl::overload(
       [&](const BooleanType& b) { str << (b ? "true" : "false"); },
-      [&](const StringType& s) {
+      [&](const std::shared_ptr<const StringType>& sp) {
+        const auto& s = *sp;
         // Unescaping happens in Parser::parseLiteral
         str << "\"" << kdl::str_escape(s, "\\\"") << "\"";
       },
       [&](const NumberType& n) { appendNumber(str, n); },
-      [&](const ArrayType& a) {
+      [&](const std::shared_ptr<const ArrayType>& ap) {
+        const auto& a = *ap;
         if (a.empty())
         {
           str << "[]";
@@ -812,7 +816,8 @@ void Value::appendToStream(
           str << "]";
         }
       },
-      [&](const MapType& m) {
+      [&](const std::shared_ptr<const MapType>& mp) {
+        const auto& m = *mp;
         if (m.empty())
         {
           str << "{}";
@@ -888,7 +893,7 @@ void Value::appendToStream(
       },
       [&](const NullType&) { str << "null"; },
       [&](const UndefinedType&) { str << "undefined"; }),
-    *m_value);
+    m_value);
 }
 
 bool Value::contains(const size_t index) const
@@ -1085,37 +1090,39 @@ Value Value::producedBy(const Value& original) const
 
 bool operator==(const Value& lhs, const Value& rhs)
 {
-  return lhs.m_value == rhs.m_value
-         || std::visit(
-           kdl::overload(
-             [](const BooleanType& lhsBool, const BooleanType& rhsBool) {
-               return lhsBool == rhsBool;
-             },
-             [](const StringType& lhsString, const StringType& rhsString) {
-               return lhsString == rhsString;
-             },
-             [](const NumberType& lhsNumber, const NumberType& rhsNumber) {
-               return lhsNumber == rhsNumber;
-             },
-             [](const ArrayType& lhsArray, const ArrayType& rhsArray) {
-               return lhsArray == rhsArray;
-             },
-             [](
-               const MapType& lhsMap, const MapType& rhsMap) { return lhsMap == rhsMap; },
-             [](const RangeType& lhsRange, const RangeType& rhsRange) {
-               return lhsRange == rhsRange;
-             },
-             [](const Vec3Type& lhsVec3, const Vec3Type& rhsVec3) {
-               return lhsVec3 == rhsVec3;
-             },
-             [](const BBoxType& lhsBBox, const BBoxType& rhsBBox) {
-               return lhsBBox == rhsBBox;
-             },
-             [](const NullType&, const NullType&) { return true; },
-             [](const UndefinedType&, const UndefinedType&) { return true; },
-             [](const auto&, const auto&) { return false; }),
-           *lhs.m_value,
-           *rhs.m_value);
+  return std::visit(
+    kdl::overload(
+      [](const BooleanType& lhsBool, const BooleanType& rhsBool) {
+        return lhsBool == rhsBool;
+      },
+      [](
+        const std::shared_ptr<const StringType>& lhsString,
+        const std::shared_ptr<const StringType>& rhsString) {
+        return lhsString == rhsString || *lhsString == *rhsString;
+      },
+      [](const NumberType& lhsNumber, const NumberType& rhsNumber) {
+        return lhsNumber == rhsNumber;
+      },
+      [](
+        const std::shared_ptr<const ArrayType>& lhsArray,
+        const std::shared_ptr<const ArrayType>& rhsArray) {
+        return lhsArray == rhsArray || *lhsArray == *rhsArray;
+      },
+      [](
+        const std::shared_ptr<const MapType>& lhsMap,
+        const std::shared_ptr<const MapType>& rhsMap) {
+        return lhsMap == rhsMap || *lhsMap == *rhsMap;
+      },
+      [](const RangeType& lhsRange, const RangeType& rhsRange) {
+        return lhsRange == rhsRange;
+      },
+      [](const Vec3Type& lhsVec3, const Vec3Type& rhsVec3) { return lhsVec3 == rhsVec3; },
+      [](const BBoxType& lhsBBox, const BBoxType& rhsBBox) { return lhsBBox == rhsBBox; },
+      [](const NullType&, const NullType&) { return true; },
+      [](const UndefinedType&, const UndefinedType&) { return true; },
+      [](const auto&, const auto&) { return false; }),
+    lhs.m_value,
+    rhs.m_value);
 }
 
 bool operator!=(const Value& lhs, const Value& rhs)
