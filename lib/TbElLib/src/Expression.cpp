@@ -1566,6 +1566,16 @@ const auto builtinFunctions = kdl::flat_map<std::string, BuiltinFunction>{
     [](auto&, const auto& arguments, const auto& expressionNode) {
       return evaluateContains(arguments[0], arguments[1], expressionNode);
     }}},
+  {"in",
+   {2,
+    [](auto&, const auto& arguments, const auto& expressionNode) {
+      return evaluateContains(arguments[1], arguments[0], expressionNode);
+    }}},
+  {"is",
+   {2,
+    [](auto&, const auto& arguments, const auto& expressionNode) {
+      return Value{evaluateCompare(arguments[0], arguments[1], expressionNode) == 0};
+    }}},
 };
 
 Value evaluateCall(
