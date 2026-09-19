@@ -73,6 +73,12 @@ TEST_CASE("Parser")
       CHECK(parse("false") == lit(false));
     }
 
+    SECTION("Null and undefined")
+    {
+      CHECK(parse("null") == lit(Value::Null));
+      CHECK(parse("undefined") == lit(Value::Undefined));
+    }
+
     SECTION("Arrays")
     {
       CHECK(parse("[]") == arr());

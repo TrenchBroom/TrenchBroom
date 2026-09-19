@@ -80,6 +80,7 @@ auto tokenNames()
     {DoubleOBrace, "'{{'"},
     {DoubleCBrace, "'}}'"},
     {Null, "'null'"},
+    {Undefined, "'undefined'"},
     {Eof, "end of file"},
   };
 }
@@ -289,6 +290,7 @@ Tokenizer::Token Tokenizer::emitToken()
           {"true", ElToken::Boolean},
           {"false", ElToken::Boolean},
           {"null", ElToken::Null},
+          {"undefined", ElToken::Undefined},
         };
         const auto iKeyword = keywords.find(std::string_view{c, e});
         const auto type = iKeyword != keywords.end() ? iKeyword->second : ElToken::Name;
@@ -457,6 +459,11 @@ ExpressionNode Parser::parseLiteral()
   {
     m_tokenizer.nextToken();
     return ExpressionNode{LiteralExpression{Value::Null}, token.location()};
+  }
+  if (token.hasType(ElToken::Undefined))
+  {
+    m_tokenizer.nextToken();
+    return ExpressionNode{LiteralExpression{Value::Undefined}, token.location()};
   }
 
   if (token.hasType(ElToken::OBracket))
