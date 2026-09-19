@@ -101,7 +101,7 @@ IndexError::IndexError(
   : EvaluationError{
       location,
       fmt::format(
-        "'{}' is not a compatible index for '{}'", key, indexableValue.describe())}
+        "'{}' is not a compatible key for '{}'", key, indexableValue.describe())}
 {
 }
 
@@ -109,7 +109,7 @@ IndexOutOfBoundsError::IndexOutOfBoundsError(
   const ExpressionNode& expression, const Value& indexableValue, const size_t index)
   : EvaluationError{
       expression,
-      fmt::format("{} is out of bounds for '{}'", index, indexableValue.describe())}
+      fmt::format("Index {} is out of bounds for '{}'", index, indexableValue.describe())}
 {
 }
 
@@ -119,7 +119,7 @@ IndexOutOfBoundsError::IndexOutOfBoundsError(
   const size_t index)
   : EvaluationError{
       location,
-      fmt::format("{} is out of bounds for '{}'", index, indexableValue.describe())}
+      fmt::format("Index {} is out of bounds for '{}'", index, indexableValue.describe())}
 {
 }
 
@@ -128,7 +128,7 @@ IndexOutOfBoundsError::IndexOutOfBoundsError(
   const Value& indexableValue,
   const std::string_view key)
   : EvaluationError{
-      location, fmt::format("'{}' not found in '{}'", key, indexableValue.describe())}
+      location, fmt::format("Key '{}' not found in '{}'", key, indexableValue.describe())}
 {
 }
 
