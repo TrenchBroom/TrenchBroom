@@ -1036,6 +1036,14 @@ TEST_CASE("Expression")
 
     // Undefined sorts below everything else, null included
     {"undefined < null",       Value{true}},
+    {"undefined <= null",      Value{true}},
+    {"undefined > null",       Value{false}},
+    {"undefined >= null",      Value{false}},
+    {"null < undefined",       Value{false}},
+    {"null <= undefined",      Value{false}},
+    {"null > undefined",       Value{true}},
+    {"null >= undefined",      Value{true}},
+    {"null != undefined",      Value{true}},
     {"undefined < 0",          Value{true}},
     {"0 > undefined",          Value{true}},
     {"[] > undefined",         Value{true}},
