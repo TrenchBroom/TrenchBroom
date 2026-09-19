@@ -40,6 +40,7 @@ enum class DrawShapeToolExtensionKind
   Cone,
   UvSphere,
   IcoSphere,
+  Rock,
 };
 
 inline constexpr auto DrawShapeToolExtensionKinds = std::array{
@@ -50,6 +51,7 @@ inline constexpr auto DrawShapeToolExtensionKinds = std::array{
   DrawShapeToolExtensionKind::Cone,
   DrawShapeToolExtensionKind::UvSphere,
   DrawShapeToolExtensionKind::IcoSphere,
+  DrawShapeToolExtensionKind::Rock,
 };
 
 } // namespace tb::ui
