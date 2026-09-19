@@ -1807,6 +1807,24 @@ TEST_CASE("Expression")
     }
   }
 
+  SECTION("Infix calls")
+  {
+    CHECK(
+      evaluate("vec(0, 0, 0) distanceTo vec(3, 4, 0)")
+      == evaluate("distanceTo(vec(0, 0, 0), vec(3, 4, 0))"));
+    CHECK(evaluate("vec(0, 0, 0) distanceTo vec(3, 4, 0)") == Value{5.0});
+
+    CHECK(
+      evaluate(
+        "vec(0, 0, 0) distanceTo vec(3, 4, 0) == vec(0, 0, 0) distanceTo vec(6, 8, 0)")
+      == evaluate("distanceTo(vec(0, 0, 0), vec(3, 4, 0)) == "
+                  "distanceTo(vec(0, 0, 0), vec(6, 8, 0))"));
+    CHECK(
+      evaluate(
+        "vec(0, 0, 0) distanceTo vec(3, 4, 0) == vec(0, 0, 0) distanceTo vec(6, 8, 0)")
+      == Value{false});
+  }
+
   SECTION("Switch")
   {
     using T = std::tuple<std::string, Result<Value>>;
@@ -2066,6 +2084,10 @@ TEST_CASE("Expression")
 
     // A constructed BBox round-trips through its own construction syntax
     {"bbox(vec(1, 2, 3), vec(4, 5, 6))", "bbox(vec(1, 2, 3), vec(4, 5, 6))"},
+
+    // Infix calls round-trip as infix, not as the equivalent prefix call
+    {"a like b",         "a like b"},
+    {"a like b like c",  "a like b like c"},
     }));
     // clang-format on
 
@@ -2116,6 +2138,7 @@ TEST_CASE("Expression")
       "true && false", "true || false", "12 & 10", "12 ^ 10",      "12 | 10",
       "1 << 3",        "8 >> 2",        "1 < 2",   "1 <= 2",       "1 > 2",
       "1 >= 2",        "1 == 2",        "1 != 2",  "'asdf'[1..2]", "true -> 1",
+      "'ab' like 'b'", "[] contains 1", "1 is 1",  "1 in [1]",     "2 in [1]",
     }));
 
     CAPTURE(expression);
