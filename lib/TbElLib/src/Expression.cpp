@@ -836,48 +836,41 @@ Value evaluate(
     expressionNode);
 }
 
-size_t computeIndex(const long index, const size_t indexableSize)
+std::optional<size_t> computeIndex(const long index, const size_t indexableSize)
 {
   const auto size = static_cast<long>(indexableSize);
   return (index >= 0 && index < size) || (index < 0 && index >= -size)
-           ? static_cast<size_t>((size + index % size) % size)
-           : static_cast<size_t>(size);
+           ? std::optional{static_cast<size_t>((size + index % size) % size)}
+           : std::nullopt;
 }
 
-size_t computeIndex(const Value& indexValue, const size_t indexableSize)
+long toIndex(const Value& indexValue)
 {
-  return computeIndex(
-    static_cast<long>(indexValue.convertTo(ValueType::Number).numberValue()),
-    indexableSize);
+  return static_cast<long>(indexValue.convertTo(ValueType::Number).numberValue());
 }
 
 void computeIndexArray(
-  const LeftBoundedRange& range, const size_t indexableSize, std::vector<size_t>& result)
+  const LeftBoundedRange& range, const size_t indexableSize, std::vector<long>& result)
 {
   result.reserve(result.size() + range.length(indexableSize));
-  range.forEach(
-    [&](const auto i) { result.push_back(computeIndex(i, indexableSize)); },
-    indexableSize);
+  range.forEach([&](const auto i) { result.push_back(i); }, indexableSize);
 }
 
 void computeIndexArray(
-  const RightBoundedRange& range, const size_t indexableSize, std::vector<size_t>& result)
+  const RightBoundedRange& range, const size_t indexableSize, std::vector<long>& result)
 {
   result.reserve(result.size() + range.length(indexableSize));
-  range.forEach(
-    [&](const auto i) { result.push_back(computeIndex(i, indexableSize)); },
-    indexableSize);
+  range.forEach([&](const auto i) { result.push_back(i); }, indexableSize);
 }
 
-void computeIndexArray(
-  const BoundedRange& range, const size_t indexableSize, std::vector<size_t>& result)
+void computeIndexArray(const BoundedRange& range, const size_t, std::vector<long>& result)
 {
   result.reserve(result.size() + range.length());
-  range.forEach([&](const auto i) { result.push_back(computeIndex(i, indexableSize)); });
+  range.forEach([&](const auto i) { result.push_back(i); });
 }
 
 void computeIndexArray(
-  const Value& indexValue, const size_t indexableSize, std::vector<size_t>& result)
+  const Value& indexValue, const size_t indexableSize, std::vector<long>& result)
 {
   switch (indexValue.type())
   {
@@ -902,14 +895,14 @@ void computeIndexArray(
   case ValueType::Map:
   case ValueType::Null:
   case ValueType::Undefined:
-    result.push_back(computeIndex(indexValue, indexableSize));
+    result.push_back(toIndex(indexValue));
     break;
   }
 }
 
-std::vector<size_t> computeIndexArray(const Value& indexValue, const size_t indexableSize)
+std::vector<long> computeIndexArray(const Value& indexValue, const size_t indexableSize)
 {
-  auto result = std::vector<size_t>{};
+  auto result = std::vector<long>{};
   computeIndexArray(indexValue, indexableSize, result);
   return result;
 }
@@ -925,11 +918,11 @@ Value evaluateSubscript(
     case ValueType::Boolean:
     case ValueType::Number: {
       const auto& str = lhs.stringValue();
-      const auto index = computeIndex(rhs, str.length());
+      const auto index = computeIndex(toIndex(rhs), str.length());
       auto result = std::stringstream{};
-      if (index < str.length())
+      if (index)
       {
-        result << str[index];
+        result << str[*index];
       }
       return Value{result.str()};
     }
@@ -940,10 +933,9 @@ Value evaluateSubscript(
       auto result = std::stringstream{};
       for (size_t i = 0; i < indices.size(); ++i)
       {
-        const auto index = indices[i];
-        if (index < str.length())
+        if (const auto index = computeIndex(indices[i], str.length()))
         {
-          result << str[index];
+          result << str[*index];
         }
       }
       return Value{result.str()};
@@ -961,12 +953,13 @@ Value evaluateSubscript(
     case ValueType::Boolean:
     case ValueType::Number: {
       const auto& array = lhs.arrayValue();
-      const auto index = computeIndex(rhs, array.size());
-      if (index >= array.size())
+      const auto index = toIndex(rhs);
+      const auto arrayIndex = computeIndex(index, array.size());
+      if (!arrayIndex)
       {
         throw IndexOutOfBoundsError{expressionNode, lhs, index};
       }
-      return array[index];
+      return array[*arrayIndex];
     }
     case ValueType::Array:
     case ValueType::Range: {
@@ -977,11 +970,12 @@ Value evaluateSubscript(
       for (size_t i = 0; i < indices.size(); ++i)
       {
         const auto index = indices[i];
-        if (index >= array.size())
+        const auto arrayIndex = computeIndex(index, array.size());
+        if (!arrayIndex)
         {
           throw IndexOutOfBoundsError{expressionNode, lhs, index};
         }
-        result.push_back(array[index]);
+        result.push_back(array[*arrayIndex]);
       }
       return Value{std::move(result)};
     }
