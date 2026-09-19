@@ -205,6 +205,39 @@ TEST_CASE("Map_TagManagement")
     CHECK_THROWS_AS(fixture.create(fixtureConfigWithDuplicateTags), std::logic_error);
   }
 
+  SECTION("smartTags orders tags naturally")
+  {
+    auto fixtureConfigWithNumberedTags = MapFixtureConfig{};
+    fixtureConfigWithNumberedTags.gameInfo.gameConfig.smartTags = {
+      SmartTag{
+        "tag10",
+        {},
+        std::make_unique<MaterialNameTagMatcher>("some_material"),
+      },
+      SmartTag{
+        "tag9",
+        {},
+        std::make_unique<MaterialNameTagMatcher>("some_material"),
+      },
+      SmartTag{
+        "tag2",
+        {},
+        std::make_unique<MaterialNameTagMatcher>("some_material"),
+      },
+    };
+
+    auto& numberedMap = fixture.create(fixtureConfigWithNumberedTags);
+
+    auto tagNames = std::vector<std::string>{};
+    for (const auto& tag : numberedMap.tagManager().smartTags())
+    {
+      tagNames.push_back(tag.name());
+    }
+
+    // A plain lexicographic sort would order these as tag10, tag2, tag9.
+    CHECK(tagNames == std::vector<std::string>{"tag2", "tag9", "tag10"});
+  }
+
   SECTION("addNodes initializes brush tags")
   {
     auto* entityNode = new EntityNode{Entity{{

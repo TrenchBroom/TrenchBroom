@@ -52,6 +52,7 @@
 #include "kd/flat_set.h"
 #include "kd/range_utils.h"
 #include "kd/reflection_impl.h"
+#include "kd/string_compare_natural.h"
 #include "kd/string_utils.h"
 
 #include <fmt/format.h>
@@ -609,26 +610,25 @@ const std::vector<PropertyRow>& EntityPropertyModel::rows() const
 
 const PropertyRow* EntityPropertyModel::rowForModelIndex(const QModelIndex& index) const
 {
-  return index.isValid() ? &m_rows.at(static_cast<size_t>(index.row())) : nullptr;
+  return index.isValid() ? &m_rows.at(size_t(index.row())) : nullptr;
 }
 
 int EntityPropertyModel::rowIndexForPropertyKey(const std::string& propertyKey) const
 {
-  const auto it =
-    std::ranges::find_if(m_rows, [&](const auto& row) { return row.key == propertyKey; });
-  return it != m_rows.end() ? static_cast<int>(std::distance(m_rows.begin(), it)) : -1;
+  const auto iRow = std::ranges::find(m_rows, propertyKey, &PropertyRow::key);
+  return iRow != m_rows.end() ? int(std::distance(m_rows.begin(), iRow)) : -1;
 }
 
 QStringList EntityPropertyModel::getCompletions(const QModelIndex& index) const
 {
-  if (index.row() < 0 || index.row() >= static_cast<int>(m_rows.size()))
+  if (index.row() < 0 || index.row() >= int(m_rows.size()))
   {
     return {};
   }
 
   auto& map = m_document.map();
 
-  const auto& row = m_rows[static_cast<size_t>(index.row())];
+  const auto& row = m_rows[size_t(index.row())];
   auto result = std::vector<std::string>{};
   if (index.column() == ColumnKey)
   {
@@ -661,14 +661,7 @@ QStringList EntityPropertyModel::getCompletions(const QModelIndex& index) const
 
 std::string EntityPropertyModel::propertyKey(const int row) const
 {
-  if (row < 0 || row >= static_cast<int>(m_rows.size()))
-  {
-    return "";
-  }
-  else
-  {
-    return m_rows[static_cast<size_t>(row)].key;
-  }
+  return row >= 0 && row < int(m_rows.size()) ? m_rows[size_t(row)].key : "";
 }
 
 void EntityPropertyModel::updateFromMap()
@@ -684,21 +677,12 @@ void EntityPropertyModel::updateFromMap()
 
 int EntityPropertyModel::rowCount(const QModelIndex& parent) const
 {
-  if (parent.isValid())
-  {
-    return 0;
-  }
-  return static_cast<int>(m_rows.size());
+  return parent.isValid() ? 0 : int(m_rows.size());
 }
 
 int EntityPropertyModel::columnCount(const QModelIndex& parent) const
 {
-  if (parent.isValid())
-  {
-    return 0;
-  }
-
-  return NumColumns;
+  return parent.isValid() ? 0 : NumColumns;
 }
 
 Qt::ItemFlags EntityPropertyModel::flags(const QModelIndex& index) const
@@ -708,7 +692,7 @@ Qt::ItemFlags EntityPropertyModel::flags(const QModelIndex& index) const
     return Qt::NoItemFlags;
   }
 
-  const PropertyRow& row = m_rows.at(static_cast<size_t>(index.row()));
+  const PropertyRow& row = m_rows.at(size_t(index.row()));
 
   auto flags = Qt::ItemIsEnabled | Qt::ItemIsSelectable;
 
@@ -742,13 +726,13 @@ QVariant EntityPropertyModel::data(const QModelIndex& index, const int role) con
   auto& map = m_document.map();
 
   if (
-    !index.isValid() || index.row() < 0 || index.row() >= static_cast<int>(m_rows.size())
+    !index.isValid() || index.row() < 0 || index.row() >= int(m_rows.size())
     || index.column() < 0 || index.column() >= NumColumns)
   {
     return QVariant{};
   }
 
-  const auto& row = m_rows.at(static_cast<size_t>(index.row()));
+  const auto& row = m_rows.at(size_t(index.row()));
 
   if (role == Qt::DecorationRole)
   {
@@ -861,7 +845,7 @@ QVariant EntityPropertyModel::data(const QModelIndex& index, const int role) con
 bool EntityPropertyModel::setData(
   const QModelIndex& index, const QVariant& value, const int role)
 {
-  const auto& propertyRow = m_rows.at(static_cast<size_t>(index.row()));
+  const auto& propertyRow = m_rows.at(size_t(index.row()));
   unused(propertyRow);
 
   if (role != Qt::EditRole && role != Qt::CheckStateRole)
@@ -871,7 +855,7 @@ bool EntityPropertyModel::setData(
 
   auto& map = m_document.map();
 
-  const auto rowIndex = static_cast<size_t>(index.row());
+  const auto rowIndex = size_t(index.row());
   const auto nodes = map.selection().allEntities();
   if (nodes.empty())
   {
@@ -964,30 +948,26 @@ QVariant EntityPropertyModel::headerData(
 
 bool EntityPropertyModel::canRemove(const int rowIndexInt)
 {
-  if (rowIndexInt < 0 || static_cast<size_t>(rowIndexInt) >= m_rows.size())
+  if (rowIndexInt < 0 || size_t(rowIndexInt) >= m_rows.size())
   {
     return false;
   }
 
-  const auto& row = m_rows.at(static_cast<size_t>(rowIndexInt));
+  const auto& row = m_rows.at(size_t(rowIndexInt));
   if (row.valueState == ValueState::Unset)
   {
     return false;
   }
+
   return row.keyMutable && row.valueMutable;
 }
 
 std::vector<std::string> EntityPropertyModel::propertyKeys(
   const int row, const int count) const
 {
-  auto result = std::vector<std::string>{};
-  result.reserve(static_cast<std::size_t>(count));
-
-  for (int i = 0; i < count; ++i)
-  {
-    result.push_back(this->propertyKey(row + i));
-  }
-  return result;
+  return std::views::iota(0, count)
+         | std::views::transform([&](const auto i) { return propertyKey(row + i); })
+         | kdl::ranges::to<std::vector>();
 }
 
 void EntityPropertyModel::setRows(
@@ -1026,8 +1006,8 @@ void EntityPropertyModel::setRows(
     m_rows.at(*oldIndex) = newAddition;
 
     // Notify Qt
-    const auto topLeft = index(static_cast<int>(*oldIndex), 0);
-    const auto bottomRight = index(static_cast<int>(*oldIndex), NumColumns - 1);
+    const auto topLeft = index(int(*oldIndex), 0);
+    const auto bottomRight = index(int(*oldIndex), NumColumns - 1);
     emit dataChanged(topLeft, bottomRight);
     return;
   }
@@ -1050,8 +1030,8 @@ void EntityPropertyModel::setRows(
     m_rows.at(*oldIndex) = newRow;
 
     // Notify Qt
-    const auto topLeft = index(static_cast<int>(*oldIndex), 0);
-    const auto bottomRight = index(static_cast<int>(*oldIndex), NumColumns - 1);
+    const auto topLeft = index(int(*oldIndex), 0);
+    const auto bottomRight = index(int(*oldIndex), NumColumns - 1);
     emit dataChanged(topLeft, bottomRight);
   }
 
@@ -1062,8 +1042,8 @@ void EntityPropertyModel::setRows(
       qDebug() << "EntityPropertyModel::setRows: inserting " << diff.added.size()
                << " rows");
 
-    const auto firstNewRow = static_cast<int>(m_rows.size());
-    const auto lastNewRow = firstNewRow + static_cast<int>(diff.added.size()) - 1;
+    const auto firstNewRow = int(m_rows.size());
+    const auto lastNewRow = firstNewRow + int(diff.added.size()) - 1;
     contract_assert(lastNewRow >= firstNewRow);
 
     beginInsertRows(QModelIndex(), firstNewRow, lastNewRow);
@@ -1088,8 +1068,8 @@ void EntityPropertyModel::setRows(
       const auto index = kdl::index_of(m_rows, row);
       contract_assert(index);
 
-      beginRemoveRows(QModelIndex{}, static_cast<int>(*index), static_cast<int>(*index));
-      m_rows.erase(std::next(m_rows.begin(), static_cast<int>(*index)));
+      beginRemoveRows(QModelIndex{}, int(*index), int(*index));
+      m_rows.erase(std::next(m_rows.begin(), int(*index)));
       endRemoveRows();
     }
   }
@@ -1121,8 +1101,7 @@ bool EntityPropertyModel::renameProperty(
   auto& map = m_document.map();
   if (hasRowWithPropertyKey(newKey))
   {
-    const auto& rowToOverwrite =
-      m_rows.at(static_cast<size_t>(rowIndexForPropertyKey(newKey)));
+    const auto& rowToOverwrite = m_rows.at(size_t(rowIndexForPropertyKey(newKey)));
     if (!rowToOverwrite.valueMutable)
     {
       // Prevent changing an immutable value via a rename
@@ -1205,7 +1184,7 @@ bool EntityPropertyModel::lessThan(const size_t rowIndexA, const size_t rowIndex
   }
 
   // 2. sort by name
-  return rowA.key < rowB.key;
+  return kdl::ci::str_compare_natural(rowA.key, rowB.key) < 0;
 }
 
 } // namespace tb::ui
