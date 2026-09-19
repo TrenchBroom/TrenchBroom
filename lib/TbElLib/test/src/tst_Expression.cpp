@@ -26,6 +26,8 @@
 #include "el/Value.h"
 #include "el/VariableStore.h"
 
+#include "kd/result_io.h"
+
 #include <fmt/ostream.h>
 
 #include <string>
@@ -1108,7 +1110,7 @@ TEST_CASE("Expression")
       CHECK(
         evaluate("vec(1, 2, 3)[3]")
         == Error{"At line 1, column 13: Cannot evaluate expression 'vec(1, 2, 3)[3]': "
-                 "3 is out of bounds for 'vec(1, 2, 3)'"});
+                 "Index 3 is out of bounds for 'vec(1, 2, 3)'"});
 
       CHECK(evaluate(R"(vec(1, 2, 3)["x"])") == Value{1.0});
       CHECK(evaluate(R"(vec(1, 2, 3)["y"])") == Value{2.0});
@@ -1376,10 +1378,10 @@ TEST_CASE("Expression")
     {"'asdf'[5]",                        Value{""}},
     {"'asdf'[-5]",                       Value{""}},
     {"'asdf'[4, 5]",                     Value{""}},
-    {"[1, 2, 3][-4]",                    Error{"At line 1, column 10: Cannot evaluate expression '[1, 2, 3][-4]': 3 is out of bounds for '[1, 2, 3]'"}},
-    {"[0, 1, 2, 3][5]",                  Error{"At line 1, column 13: Cannot evaluate expression '[0, 1, 2, 3][5]': 4 is out of bounds for '[0, 1, 2, 3]'"}},
-    {"[1, 2, 3][0, 5]",                  Error{"At line 1, column 10: Cannot evaluate expression '[1, 2, 3][[0, 5]]': 3 is out of bounds for '[1, 2, 3]'"}},
-    {"[1, 2, 3][0..5]",                  Error{"At line 1, column 10: Cannot evaluate expression '[1, 2, 3][0..5]': 3 is out of bounds for '[1, 2, 3]'"}},
+    {"[1, 2, 3][-4]",                    Error{"At line 1, column 10: Cannot evaluate expression '[1, 2, 3][-4]': Index 3 is out of bounds for '[1, 2, 3]'"}},
+    {"[0, 1, 2, 3][5]",                  Error{"At line 1, column 13: Cannot evaluate expression '[0, 1, 2, 3][5]': Index 4 is out of bounds for '[0, 1, 2, 3]'"}},
+    {"[1, 2, 3][0, 5]",                  Error{"At line 1, column 10: Cannot evaluate expression '[1, 2, 3][[0, 5]]': Index 3 is out of bounds for '[1, 2, 3]'"}},
+    {"[1, 2, 3][0..5]",                  Error{"At line 1, column 10: Cannot evaluate expression '[1, 2, 3][0..5]': Index 3 is out of bounds for '[1, 2, 3]'"}},
     {"{a: 1, b: 2, c: 3}['d']",          Value::Undefined},
 
     // An undefined range bound makes the whole range undefined, which cannot index
