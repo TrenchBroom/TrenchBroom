@@ -129,7 +129,6 @@ public:
   Value producedBy(const Value& original) const;
 
   friend bool operator==(const Value& lhs, const Value& rhs);
-  friend bool operator!=(const Value& lhs, const Value& rhs);
 
   friend std::ostream& operator<<(std::ostream& lhs, const Value& rhs);
 };

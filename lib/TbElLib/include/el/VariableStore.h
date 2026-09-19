@@ -50,7 +50,6 @@ public:
 
 std::ostream& operator<<(std::ostream& lhs, const VariableStore& rhs);
 bool operator==(const VariableStore& lhs, const VariableStore& rhs);
-bool operator!=(const VariableStore& lhs, const VariableStore& rhs);
 
 class VariableTable : public VariableStore
 {
