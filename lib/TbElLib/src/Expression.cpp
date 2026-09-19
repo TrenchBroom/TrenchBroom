@@ -716,7 +716,10 @@ int evaluateCompare(
       }
       break;
     case ValueType::Null:
-      return rhs.hasType(ValueType::Null) ? 0 : -1;
+      // undefined sorts below everything else, null included
+      return rhs.hasType(ValueType::Null)        ? 0
+             : rhs.hasType(ValueType::Undefined) ? 1
+                                                 : -1;
     case ValueType::Undefined:
       return rhs.hasType(ValueType::Undefined) ? 0 : -1;
     case ValueType::Array:
