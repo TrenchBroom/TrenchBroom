@@ -1379,11 +1379,6 @@ bool operator==(const ExpressionNode& lhs, const ExpressionNode& rhs)
   return lhs.m_data->expression == rhs.m_data->expression;
 }
 
-bool operator!=(const ExpressionNode& lhs, const ExpressionNode& rhs)
-{
-  return !(lhs == rhs);
-}
-
 std::ostream& operator<<(std::ostream& lhs, const ExpressionNode& rhs)
 {
   lhs << rhs.m_data->expression;
@@ -1451,11 +1446,6 @@ bool operator==(const LiteralExpression& lhs, const LiteralExpression& rhs)
   return lhs.value == rhs.value;
 }
 
-bool operator!=(const LiteralExpression& lhs, const LiteralExpression& rhs)
-{
-  return !(lhs == rhs);
-}
-
 std::ostream& operator<<(std::ostream& lhs, const LiteralExpression& rhs)
 {
   return lhs << rhs.value;
@@ -1467,11 +1457,6 @@ bool operator==(const VariableExpression& lhs, const VariableExpression& rhs)
   return lhs.variableName == rhs.variableName;
 }
 
-bool operator!=(const VariableExpression& lhs, const VariableExpression& rhs)
-{
-  return !(lhs == rhs);
-}
-
 std::ostream& operator<<(std::ostream& lhs, const VariableExpression& rhs)
 {
   return lhs << rhs.variableName;
@@ -1481,11 +1466,6 @@ std::ostream& operator<<(std::ostream& lhs, const VariableExpression& rhs)
 bool operator==(const ArrayExpression& lhs, const ArrayExpression& rhs)
 {
   return lhs.elements == rhs.elements;
-}
-
-bool operator!=(const ArrayExpression& lhs, const ArrayExpression& rhs)
-{
-  return !(lhs == rhs);
 }
 
 std::ostream& operator<<(std::ostream& lhs, const ArrayExpression& rhs)
@@ -1508,11 +1488,6 @@ std::ostream& operator<<(std::ostream& lhs, const ArrayExpression& rhs)
 bool operator==(const MapExpression& lhs, const MapExpression& rhs)
 {
   return lhs.elements == rhs.elements;
-}
-
-bool operator!=(const MapExpression& lhs, const MapExpression& rhs)
-{
-  return !(lhs == rhs);
 }
 
 std::ostream& operator<<(std::ostream& lhs, const MapExpression& rhs)
@@ -1542,11 +1517,6 @@ std::ostream& operator<<(std::ostream& lhs, const MapExpression& rhs)
 bool operator==(const UnaryExpression& lhs, const UnaryExpression& rhs)
 {
   return lhs.operation == rhs.operation && lhs.operand == rhs.operand;
-}
-
-bool operator!=(const UnaryExpression& lhs, const UnaryExpression& rhs)
-{
-  return !(lhs == rhs);
 }
 
 std::ostream& operator<<(std::ostream& lhs, const UnaryExpression& rhs)
@@ -1585,11 +1555,6 @@ bool operator==(const BinaryExpression& lhs, const BinaryExpression& rhs)
 {
   return lhs.operation == rhs.operation && lhs.leftOperand == rhs.leftOperand
          && lhs.rightOperand == rhs.rightOperand;
-}
-
-bool operator!=(const BinaryExpression& lhs, const BinaryExpression& rhs)
-{
-  return !(lhs == rhs);
 }
 
 std::ostream& operator<<(std::ostream& lhs, const BinaryExpression& rhs)
@@ -1668,11 +1633,6 @@ bool operator==(const SubscriptExpression& lhs, const SubscriptExpression& rhs)
   return lhs.leftOperand == rhs.leftOperand && lhs.rightOperand == rhs.rightOperand;
 }
 
-bool operator!=(const SubscriptExpression& lhs, const SubscriptExpression& rhs)
-{
-  return !(lhs == rhs);
-}
-
 std::ostream& operator<<(std::ostream& lhs, const SubscriptExpression& rhs)
 {
   return lhs << rhs.leftOperand << "[" << rhs.rightOperand << "]";
@@ -1682,11 +1642,6 @@ std::ostream& operator<<(std::ostream& lhs, const SubscriptExpression& rhs)
 bool operator==(const SwitchExpression& lhs, const SwitchExpression& rhs)
 {
   return lhs.cases == rhs.cases;
-}
-
-bool operator!=(const SwitchExpression& lhs, const SwitchExpression& rhs)
-{
-  return !(lhs == rhs);
 }
 
 std::ostream& operator<<(std::ostream& lhs, const SwitchExpression& rhs)

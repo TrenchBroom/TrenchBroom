@@ -923,11 +923,6 @@ bool operator==(const Value& lhs, const Value& rhs)
            *rhs.m_value);
 }
 
-bool operator!=(const Value& lhs, const Value& rhs)
-{
-  return !(lhs == rhs);
-}
-
 std::ostream& operator<<(std::ostream& lhs, const Value& rhs)
 {
   rhs.appendToStream(lhs);

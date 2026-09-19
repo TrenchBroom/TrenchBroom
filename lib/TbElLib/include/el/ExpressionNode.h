@@ -123,7 +123,6 @@ public:
   std::string asString() const;
 
   friend bool operator==(const ExpressionNode& lhs, const ExpressionNode& rhs);
-  friend bool operator!=(const ExpressionNode& lhs, const ExpressionNode& rhs);
   friend std::ostream& operator<<(std::ostream& str, const ExpressionNode& exp);
 
   friend class Value;
