@@ -2268,7 +2268,7 @@ Whether a container value contains a given value can be tested using the `contai
     contains(container, value)
     container contains value
 
-The following table explains the supported combinations of container and value types.
+The following table explains the supported combinations of container and value types. It applies to the `in` function described below as well.
 
 Container   Value     Effect
 ---------   -----     ------
@@ -2284,6 +2284,31 @@ Container   Value     Effect
     bbox(vec(0, 0, 0), vec(3, 3, 3)) contains bbox(vec(1, 1, 1), vec(2, 2, 2)) // true
 
 `contains` never throws an error. If `container` or `value` is `undefined`, or if their combination of types is not one of those listed above, the result is simply `false`.
+
+The `in` function is the same as `contains`, except that its arguments are swapped. This often reads more naturally when using infix notation.
+
+    in(value, container)
+    value in container
+
+`in(a, b)` is exactly equivalent to `contains(b, a)`, so the table above applies to `in` as well, with `a` as the value and `b` as the container. Like `contains`, `in` never throws an error.
+
+    2 in [1, 2, 3]                                                      // true
+    "a" in { a: 1, b: 2 }                                               // true
+    vec(1, 1, 1) in bbox(vec(0, 0, 0), vec(2, 2, 2))                    // true
+
+### Equality Testing
+
+Whether two values are equal can be tested using the `is` function. Since it takes exactly two arguments, it can also be called using infix notation (see Infix Notation above).
+
+    is(a, b)
+    a is b
+
+`is(a, b)` is exactly equivalent to `a == b`. In particular, it applies the same implicit type conversions and throws the same error if the types of `a` and `b` cannot be compared.
+
+    1 is 1               // true
+    "a" is "b"           // false
+    1 is "1"             // true, since the string is converted to a number
+    1 in [1, 2] is true  // true, since chained infix calls are evaluated from left to right
 
 ### Unary Operator Terms
 
