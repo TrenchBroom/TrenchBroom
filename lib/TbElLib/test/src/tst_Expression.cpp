@@ -1594,6 +1594,130 @@ TEST_CASE("Expression")
         == Error{"At line 1, column 1: Cannot evaluate expression 'contains()': "
                  "contains() expects 2 arguments, but got 0"});
     }
+
+    SECTION("in")
+    {
+      CHECK(evaluate("in(2, [1, 2, 3])") == Value{true});
+      CHECK(evaluate("2 in [1, 2, 3]") == Value{true});
+      CHECK(evaluate("4 in [1, 2, 3]") == Value{false});
+      CHECK(evaluate(R"("Detail" in ["Detail", "Trigger"])") == Value{true});
+
+      CHECK(evaluate(R"("a" in {a: 1, b: 2})") == Value{true});
+      CHECK(evaluate(R"("c" in {a: 1, b: 2})") == Value{false});
+      CHECK(evaluate("1 in {a: 1, b: 2}") == Value{false});
+
+      const auto boundedRange = MapType{{"r", Value{RangeType{BoundedRange{1, 10}}}}};
+      const auto reversedRange = MapType{{"r", Value{RangeType{BoundedRange{10, 1}}}}};
+      const auto leftBoundedRange = MapType{{"r", Value{RangeType{LeftBoundedRange{5}}}}};
+      const auto rightBoundedRange =
+        MapType{{"r", Value{RangeType{RightBoundedRange{5}}}}};
+
+      CHECK(evaluate("in(5, r)", boundedRange) == Value{true});
+      CHECK(evaluate("5 in r", boundedRange) == Value{true});
+      CHECK(evaluate("15 in r", boundedRange) == Value{false});
+      CHECK(evaluate("5 in r", reversedRange) == Value{true});
+      CHECK(evaluate("5 in r", leftBoundedRange) == Value{true});
+      CHECK(evaluate("4 in r", leftBoundedRange) == Value{false});
+      CHECK(evaluate("5 in r", rightBoundedRange) == Value{true});
+      CHECK(evaluate("6 in r", rightBoundedRange) == Value{false});
+
+      CHECK(evaluate("vec(1, 1, 1) in bbox(vec(0, 0, 0), vec(2, 2, 2))") == Value{true});
+      CHECK(evaluate("vec(3, 3, 3) in bbox(vec(0, 0, 0), vec(2, 2, 2))") == Value{false});
+
+      CHECK(
+        evaluate("bbox(vec(1, 1, 1), vec(2, 2, 2)) in bbox(vec(0, 0, 0), vec(3, 3, 3))")
+        == Value{true});
+      CHECK(
+        evaluate("bbox(vec(1, 1, 1), vec(4, 4, 4)) in bbox(vec(0, 0, 0), vec(3, 3, 3))")
+        == Value{false});
+
+      CHECK(evaluate("in(2, [1, 2, 3])") == evaluate("contains([1, 2, 3], 2)"));
+      CHECK(evaluate("2 in [1, 2, 3]") == evaluate("[1, 2, 3] contains 2"));
+
+      CHECK(evaluate("1 in [1, 2] && 3 in [3, 4]") == Value{true});
+      CHECK(evaluate("1 in [1, 2] == true") == Value{true});
+
+      CHECK(evaluate("undefined in [1, 2, 3]") == Value{false});
+      CHECK(evaluate("1 in undefined") == Value{false});
+      CHECK(evaluate("vec(1, 1, 1) in {a: 1}") == Value{false});
+      CHECK(evaluate("true in r", boundedRange) == Value{false});
+
+      CHECK(
+        evaluate("in(1)")
+        == Error{"At line 1, column 1: Cannot evaluate expression 'in(1)': "
+                 "in() expects 2 arguments, but got 1"});
+      CHECK(
+        evaluate("in()")
+        == Error{"At line 1, column 1: Cannot evaluate expression 'in()': "
+                 "in() expects 2 arguments, but got 0"});
+    }
+
+    SECTION("is")
+    {
+      CHECK(evaluate("is(1, 1)") == Value{true});
+      CHECK(evaluate("1 is 1") == Value{true});
+      CHECK(evaluate("1 is 2") == Value{false});
+      CHECK(evaluate(R"("a" is "a")") == Value{true});
+      CHECK(evaluate(R"("a" is "b")") == Value{false});
+      CHECK(evaluate("true is true") == Value{true});
+      CHECK(evaluate("true is false") == Value{false});
+      CHECK(evaluate("null is null") == Value{true});
+      CHECK(evaluate("[1, 2] is [1, 2]") == Value{true});
+      CHECK(evaluate("[1, 2] is [1, 3]") == Value{false});
+      CHECK(evaluate("{a: 1} is {a: 1}") == Value{true});
+      CHECK(evaluate("{a: 1} is {a: 2}") == Value{false});
+      CHECK(evaluate("vec(1, 2, 3) is vec(1, 2, 3)") == Value{true});
+      CHECK(evaluate("vec(1, 2, 3) is vec(3, 2, 1)") == Value{false});
+      CHECK(
+        evaluate("bbox(vec(0, 0, 0), vec(1, 1, 1)) is bbox(vec(0, 0, 0), vec(1, 1, 1))")
+        == Value{true});
+      CHECK(
+        evaluate("bbox(vec(0, 0, 0), vec(1, 1, 1)) is bbox(vec(0, 0, 0), vec(2, 2, 2))")
+        == Value{false});
+
+      // is applies the same implicit conversions as ==
+      CHECK(evaluate(R"(1 is "1")") == Value{true});
+      CHECK(evaluate(R"(1 == "1")") == Value{true});
+      CHECK(evaluate("1 is true") == Value{true});
+      CHECK(evaluate("1 == true") == Value{true});
+      CHECK(evaluate("1 is null") == Value{false});
+      CHECK(evaluate("1 == null") == Value{false});
+
+      CHECK(evaluate("undefined is undefined") == Value{true});
+      CHECK(evaluate("1 is undefined") == Value{false});
+      CHECK(evaluate("undefined is 1") == Value{false});
+
+      // infix calls bind more tightly than other binary operators
+      CHECK(evaluate("1 is 1 && 2 is 2") == Value{true});
+      CHECK(evaluate("1 is 1 == true") == Value{true});
+
+      // chained infix calls are evaluated from left to right
+      CHECK(evaluate("1 in [1, 2] is true") == Value{true});
+      CHECK(evaluate("3 in [1, 2] is false") == Value{true});
+
+      // throws for incomparable types
+      CHECK(
+        evaluate("false is []")
+        == Error{"At line 1, column 7: Cannot evaluate expression 'false is []': "
+                 "Invalid operand types Boolean and Array"});
+      CHECK(
+        evaluate("is(false, [])")
+        == Error{"At line 1, column 1: Cannot evaluate expression 'is(false, [])': "
+                 "Invalid operand types Boolean and Array"});
+      CHECK(
+        evaluate("false == []")
+        == Error{"At line 1, column 7: Cannot evaluate expression 'false == []': "
+                 "Invalid operand types Boolean and Array"});
+
+      CHECK(
+        evaluate("is(1)")
+        == Error{"At line 1, column 1: Cannot evaluate expression 'is(1)': "
+                 "is() expects 2 arguments, but got 1"});
+      CHECK(
+        evaluate("is()")
+        == Error{"At line 1, column 1: Cannot evaluate expression 'is()': "
+                 "is() expects 2 arguments, but got 0"});
+    }
   }
 
   SECTION("Switch")
