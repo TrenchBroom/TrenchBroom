@@ -112,11 +112,11 @@ std::vector<GroupNode*> collectContainingGroups(Node& node)
 {
   auto result = std::vector<GroupNode*>{};
 
-  auto* currentNode = findContainingGroup(&node);
+  auto* currentNode = findContainingGroup(node);
   while (currentNode)
   {
     result.push_back(currentNode);
-    currentNode = findContainingGroup(currentNode);
+    currentNode = findContainingGroup(*currentNode);
   }
 
   return result;

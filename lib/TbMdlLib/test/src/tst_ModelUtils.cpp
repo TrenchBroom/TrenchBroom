@@ -76,12 +76,12 @@ TEST_CASE("ModelUtils")
     layerNode->addChildren({groupNode, patchNode});
     worldNode.addChild(layerNode);
 
-    CHECK(findContainingLayer(&worldNode) == nullptr);
-    CHECK(findContainingLayer(layerNode) == layerNode);
-    CHECK(findContainingLayer(groupNode) == layerNode);
-    CHECK(findContainingLayer(entityNode) == layerNode);
-    CHECK(findContainingLayer(brushNode) == layerNode);
-    CHECK(findContainingLayer(patchNode) == layerNode);
+    CHECK(findContainingLayer(worldNode) == nullptr);
+    CHECK(findContainingLayer(*layerNode) == layerNode);
+    CHECK(findContainingLayer(*groupNode) == layerNode);
+    CHECK(findContainingLayer(*entityNode) == layerNode);
+    CHECK(findContainingLayer(*brushNode) == layerNode);
+    CHECK(findContainingLayer(*patchNode) == layerNode);
   }
 
   SECTION("findContainingGroup")
@@ -109,13 +109,13 @@ TEST_CASE("ModelUtils")
     outerGroupNode->addChildren({innerGroupNode, patchNode});
     worldNode.defaultLayer()->addChild(outerGroupNode);
 
-    CHECK(findContainingGroup(&worldNode) == nullptr);
-    CHECK(findContainingGroup(layerNode) == nullptr);
-    CHECK(findContainingGroup(outerGroupNode) == nullptr);
-    CHECK(findContainingGroup(innerGroupNode) == outerGroupNode);
-    CHECK(findContainingGroup(entityNode) == innerGroupNode);
-    CHECK(findContainingGroup(brushNode) == innerGroupNode);
-    CHECK(findContainingGroup(patchNode) == outerGroupNode);
+    CHECK(findContainingGroup(worldNode) == nullptr);
+    CHECK(findContainingGroup(*layerNode) == nullptr);
+    CHECK(findContainingGroup(*outerGroupNode) == nullptr);
+    CHECK(findContainingGroup(*innerGroupNode) == outerGroupNode);
+    CHECK(findContainingGroup(*entityNode) == innerGroupNode);
+    CHECK(findContainingGroup(*brushNode) == innerGroupNode);
+    CHECK(findContainingGroup(*patchNode) == outerGroupNode);
   }
 
   SECTION("findContainingEntity")
@@ -149,14 +149,14 @@ TEST_CASE("ModelUtils")
     layerNode->addChild(groupNode);
     worldNode.addChild(layerNode);
 
-    CHECK(findContainingEntity(&worldNode) == nullptr);
-    CHECK(findContainingEntity(layerNode) == nullptr);
-    CHECK(findContainingEntity(groupNode) == nullptr);
-    CHECK(findContainingEntity(entityNode) == nullptr);
-    CHECK(findContainingEntity(structuralBrushNode) == &worldNode);
-    CHECK(findContainingEntity(structuralPatchNode) == &worldNode);
-    CHECK(findContainingEntity(entityBrushNode) == entityNode);
-    CHECK(findContainingEntity(entityPatchNode) == entityNode);
+    CHECK(findContainingEntity(worldNode) == nullptr);
+    CHECK(findContainingEntity(*layerNode) == nullptr);
+    CHECK(findContainingEntity(*groupNode) == nullptr);
+    CHECK(findContainingEntity(*entityNode) == nullptr);
+    CHECK(findContainingEntity(*structuralBrushNode) == &worldNode);
+    CHECK(findContainingEntity(*structuralPatchNode) == &worldNode);
+    CHECK(findContainingEntity(*entityBrushNode) == entityNode);
+    CHECK(findContainingEntity(*entityPatchNode) == entityNode);
   }
 
   SECTION("findOutermostClosedGroup")
@@ -186,26 +186,26 @@ TEST_CASE("ModelUtils")
 
     SECTION("All groups closed")
     {
-      CHECK(findOutermostClosedGroup(&worldNode) == nullptr);
-      CHECK(findOutermostClosedGroup(layerNode) == nullptr);
-      CHECK(findOutermostClosedGroup(outerGroupNode) == nullptr);
-      CHECK(findOutermostClosedGroup(innerGroupNode) == outerGroupNode);
-      CHECK(findOutermostClosedGroup(entityNode) == outerGroupNode);
-      CHECK(findOutermostClosedGroup(brushNode) == outerGroupNode);
-      CHECK(findOutermostClosedGroup(patchNode) == outerGroupNode);
+      CHECK(findOutermostClosedGroup(worldNode) == nullptr);
+      CHECK(findOutermostClosedGroup(*layerNode) == nullptr);
+      CHECK(findOutermostClosedGroup(*outerGroupNode) == nullptr);
+      CHECK(findOutermostClosedGroup(*innerGroupNode) == outerGroupNode);
+      CHECK(findOutermostClosedGroup(*entityNode) == outerGroupNode);
+      CHECK(findOutermostClosedGroup(*brushNode) == outerGroupNode);
+      CHECK(findOutermostClosedGroup(*patchNode) == outerGroupNode);
     }
 
     SECTION("Outer group open")
     {
       outerGroupNode->open();
 
-      CHECK(findOutermostClosedGroup(&worldNode) == nullptr);
-      CHECK(findOutermostClosedGroup(layerNode) == nullptr);
-      CHECK(findOutermostClosedGroup(outerGroupNode) == nullptr);
-      CHECK(findOutermostClosedGroup(innerGroupNode) == nullptr);
-      CHECK(findOutermostClosedGroup(entityNode) == innerGroupNode);
-      CHECK(findOutermostClosedGroup(brushNode) == innerGroupNode);
-      CHECK(findOutermostClosedGroup(patchNode) == nullptr);
+      CHECK(findOutermostClosedGroup(worldNode) == nullptr);
+      CHECK(findOutermostClosedGroup(*layerNode) == nullptr);
+      CHECK(findOutermostClosedGroup(*outerGroupNode) == nullptr);
+      CHECK(findOutermostClosedGroup(*innerGroupNode) == nullptr);
+      CHECK(findOutermostClosedGroup(*entityNode) == innerGroupNode);
+      CHECK(findOutermostClosedGroup(*brushNode) == innerGroupNode);
+      CHECK(findOutermostClosedGroup(*patchNode) == nullptr);
     }
 
     SECTION("Both groups open")
@@ -213,13 +213,13 @@ TEST_CASE("ModelUtils")
       outerGroupNode->open();
       innerGroupNode->open();
 
-      CHECK(findOutermostClosedGroup(&worldNode) == nullptr);
-      CHECK(findOutermostClosedGroup(layerNode) == nullptr);
-      CHECK(findOutermostClosedGroup(outerGroupNode) == nullptr);
-      CHECK(findOutermostClosedGroup(innerGroupNode) == nullptr);
-      CHECK(findOutermostClosedGroup(entityNode) == nullptr);
-      CHECK(findOutermostClosedGroup(brushNode) == nullptr);
-      CHECK(findOutermostClosedGroup(patchNode) == nullptr);
+      CHECK(findOutermostClosedGroup(worldNode) == nullptr);
+      CHECK(findOutermostClosedGroup(*layerNode) == nullptr);
+      CHECK(findOutermostClosedGroup(*outerGroupNode) == nullptr);
+      CHECK(findOutermostClosedGroup(*innerGroupNode) == nullptr);
+      CHECK(findOutermostClosedGroup(*entityNode) == nullptr);
+      CHECK(findOutermostClosedGroup(*brushNode) == nullptr);
+      CHECK(findOutermostClosedGroup(*patchNode) == nullptr);
     }
   }
 
