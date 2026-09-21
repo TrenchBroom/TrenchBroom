@@ -252,9 +252,9 @@ bool canMoveSelectedNodesToLayer(const Map& map, LayerNode* layerNode)
   const auto& nodes = map.selection().nodes;
 
   const auto isAnyNodeInGroup = std::ranges::any_of(
-    nodes, [&](auto* node) { return findContainingGroup(node) != nullptr; });
+    nodes, [&](auto* node) { return findContainingGroup(*node) != nullptr; });
   const auto isAnyNodeInOtherLayer = std::ranges::any_of(
-    nodes, [&](auto* node) { return findContainingLayer(node) != layerNode; });
+    nodes, [&](auto* node) { return findContainingLayer(*node) != layerNode; });
 
   return !nodes.empty() && !isAnyNodeInGroup && isAnyNodeInOtherLayer;
 }

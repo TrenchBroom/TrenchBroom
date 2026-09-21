@@ -294,12 +294,12 @@ Node& parentForNodes(const Map& map, const std::vector<Node*>& nodes)
     return *currentLayer;
   }
 
-  if (auto* parentGroup = findContainingGroup(nodes.at(0)))
+  if (auto* parentGroup = findContainingGroup(*nodes.at(0)))
   {
     return *parentGroup;
   }
 
-  auto* parentLayer = findContainingLayer(nodes.at(0));
+  auto* parentLayer = findContainingLayer(*nodes.at(0));
   contract_post(parentLayer != nullptr);
 
   return *parentLayer;
@@ -430,7 +430,7 @@ bool reparentNodes(Map& map, const kdl::flat_map<Node*, std::vector<Node*>>& nod
   //   downgrade them to inherited and hide them
   for (const auto& [newParent, nodes] : nodesToAdd)
   {
-    auto* newParentLayer = mdl::findContainingLayer(newParent);
+    auto* newParentLayer = mdl::findContainingLayer(*newParent);
 
     const auto nodesToDowngrade = mdl::collectNodesAndDescendants(
       nodes,
@@ -491,7 +491,7 @@ bool makeStructural(
   }
 
   const auto toReparent = geometryNodes | std::views::filter([&](const Node* node) {
-                            return findContainingEntity(node) != &map.worldNode();
+                            return findContainingEntity(*node) != &map.worldNode();
                           })
                           | kdl::ranges::to<std::vector>();
 

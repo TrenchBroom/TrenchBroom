@@ -140,13 +140,13 @@ EntityNode* createBrushEntity(Map& map, const EntityDefinition& definition)
 
   // if all nodes belong to the same entity, and that entity is not worldspawn, copy
   // its properties
-  const auto* containingEntity = findContainingEntity(nodes.front());
+  const auto* containingEntity = findContainingEntity(*nodes.front());
   auto entity =
     (containingEntity && containingEntity != &map.worldNode()
      && std::all_of(
        std::next(nodes.begin()),
        nodes.end(),
-       [&](const auto* node) { return findContainingEntity(node) == containingEntity; }))
+       [&](const auto* node) { return findContainingEntity(*node) == containingEntity; }))
       ? containingEntity->entity()
       : Entity{};
 

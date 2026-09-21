@@ -141,7 +141,7 @@ bool isPropertyValueMutable(const mdl::Entity& entity, const std::string& key)
 
 bool isPropertyProtectable(const mdl::EntityNodeBase& entityNode, const std::string& key)
 {
-  return mdl::findContainingGroup(&entityNode) && key != mdl::EntityPropertyKeys::Origin;
+  return mdl::findContainingGroup(entityNode) && key != mdl::EntityPropertyKeys::Origin;
 }
 
 PropertyProtection getPropertyProtection(
@@ -502,7 +502,7 @@ bool computeShouldShowProtectedProperties(
 {
   return !entityNodes.empty()
          && std::ranges::all_of(entityNodes, [](const auto* entityNode) {
-              return mdl::findContainingGroup(entityNode);
+              return mdl::findContainingGroup(*entityNode);
             });
 }
 
