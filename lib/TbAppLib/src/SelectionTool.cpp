@@ -67,7 +67,7 @@ mdl::HitFilter isNodeSelectable(const mdl::EditorContext& editorContext)
     }
     if (const auto* node = mdl::hitToNode(hit))
     {
-      return editorContext.selectable(*findOutermostClosedGroupOrNode(node));
+      return editorContext.selectable(*findOutermostClosedGroupOrNode(*node));
     }
     return false;
   };
@@ -243,7 +243,7 @@ public:
         firstHit(inputState, type(mdl::nodeHitType()) && isNodeSelectable(editorContext));
       if (hit.isMatch())
       {
-        auto* node = findOutermostClosedGroupOrNode(mdl::hitToNode(hit));
+        auto* node = findOutermostClosedGroupOrNode(*mdl::hitToNode(hit));
         if (!node->selected() && editorContext.selectable(*node))
         {
           selectNodes(m_map, {node});
@@ -348,7 +348,7 @@ bool SelectionTool::mouseClick(const InputState& inputState)
       firstHit(inputState, type(mdl::nodeHitType()) && isNodeSelectable(editorContext));
     if (hit.isMatch())
     {
-      auto* node = findOutermostClosedGroupOrNode(mdl::hitToNode(hit));
+      auto* node = findOutermostClosedGroupOrNode(*mdl::hitToNode(hit));
       if (editorContext.selectable(*node))
       {
         if (isMultiClick(inputState))
@@ -448,7 +448,7 @@ bool SelectionTool::mouseDoubleClick(const InputState& inputState)
       if (!inGroup || hitInGroup)
       {
         // If the hit node is inside a closed group, treat it as a hit on the group insted
-        auto* groupNode = findOutermostClosedGroup(mdl::hitToNode(hit));
+        auto* groupNode = findOutermostClosedGroup(*mdl::hitToNode(hit));
         if (groupNode != nullptr)
         {
           if (editorContext.selectable(*groupNode))
@@ -557,7 +557,7 @@ std::unique_ptr<GestureTracker> SelectionTool::acceptMouseDrag(
       return nullptr;
     }
 
-    auto* node = findOutermostClosedGroupOrNode(mdl::hitToNode(hit));
+    auto* node = findOutermostClosedGroupOrNode(*mdl::hitToNode(hit));
     if (editorContext.selectable(*node))
     {
       map.startTransaction("Drag Select Objects", mdl::TransactionScope::LongRunning);
@@ -584,7 +584,7 @@ void SelectionTool::setRenderOptions(
 
   if (const auto hit = firstHit(inputState, type(mdl::nodeHitType())); hit.isMatch())
   {
-    auto* node = findOutermostClosedGroupOrNode(mdl::hitToNode(hit));
+    auto* node = findOutermostClosedGroupOrNode(*mdl::hitToNode(hit));
     if (node->selected())
     {
       renderContext.setShowSelectionGuide();

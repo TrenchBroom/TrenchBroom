@@ -51,9 +51,9 @@ HitType::Type nodeHitType()
   return EntityNode::EntityHitType | BrushNode::BrushHitType | PatchNode::PatchHitType;
 }
 
-LayerNode* findContainingLayer(Node* node)
+LayerNode* findContainingLayer(Node& node)
 {
-  return node->accept(kdl::overload(
+  return node.accept(kdl::overload(
     [](WorldNode&) -> LayerNode* { return nullptr; },
     [](LayerNode& layerNode) -> LayerNode* { return &layerNode; },
     [](auto&& thisLambda, GroupNode& groupNode) -> LayerNode* {
@@ -75,7 +75,7 @@ std::vector<LayerNode*> collectContainingLayersUserSorted(const std::vector<Node
   std::vector<LayerNode*> layers;
   for (auto* node : nodes)
   {
-    if (auto* layer = findContainingLayer(node))
+    if (auto* layer = findContainingLayer(*node))
     {
       layers.push_back(layer);
     }
@@ -83,10 +83,10 @@ std::vector<LayerNode*> collectContainingLayersUserSorted(const std::vector<Node
   return kdl::vec_sort_and_remove_duplicates(std::move(layers));
 }
 
-GroupNode* findContainingGroup(Node* node)
+GroupNode* findContainingGroup(Node& node)
 {
   return node
-    ->visitParent(kdl::overload(
+    .visitParent(kdl::overload(
       [](WorldNode&) -> GroupNode* { return nullptr; },
       [](LayerNode&) -> GroupNode* { return nullptr; },
       [](GroupNode& groupNode) -> GroupNode* { return &groupNode; },
@@ -102,14 +102,14 @@ GroupNode* findContainingGroup(Node* node)
     .value_or(nullptr);
 }
 
-const GroupNode* findContainingGroup(const Node* node)
+const GroupNode* findContainingGroup(const Node& node)
 {
-  return findContainingGroup(const_cast<Node*>(node));
+  return findContainingGroup(const_cast<Node&>(node));
 }
 
-EntityNodeBase* findContainingEntity(Node* node)
+EntityNodeBase* findContainingEntity(Node& node)
 {
-  return node->accept(kdl::overload(
+  return node.accept(kdl::overload(
     [](WorldNode&) -> EntityNodeBase* { return nullptr; },
     [](LayerNode&) -> EntityNodeBase* { return nullptr; },
     [](GroupNode&) -> EntityNodeBase* { return nullptr; },
@@ -118,15 +118,15 @@ EntityNodeBase* findContainingEntity(Node* node)
     [](PatchNode& patchNode) { return patchNode.entity(); }));
 }
 
-const EntityNodeBase* findContainingEntity(const Node* node)
+const EntityNodeBase* findContainingEntity(const Node& node)
 {
-  return findContainingEntity(const_cast<Node*>(node));
+  return findContainingEntity(const_cast<Node&>(node));
 }
 
-GroupNode* findOutermostClosedGroup(Node* node)
+GroupNode* findOutermostClosedGroup(Node& node)
 {
   return node
-    ->visitParent(kdl::overload(
+    .visitParent(kdl::overload(
       [](WorldNode&) -> GroupNode* { return nullptr; },
       [](LayerNode&) -> GroupNode* { return nullptr; },
       [](auto&& thisLambda, GroupNode& groupNode) -> GroupNode* {
@@ -150,33 +150,33 @@ GroupNode* findOutermostClosedGroup(Node* node)
     .value_or(nullptr);
 }
 
-const GroupNode* findOutermostClosedGroup(const Node* node)
+const GroupNode* findOutermostClosedGroup(const Node& node)
 {
-  return findOutermostClosedGroup(const_cast<Node*>(node));
+  return findOutermostClosedGroup(const_cast<Node&>(node));
 }
 
-Node* findOutermostClosedGroupOrNode(Node* node)
+Node* findOutermostClosedGroupOrNode(Node& node)
 {
   if (auto* group = findOutermostClosedGroup(node))
   {
     return group;
   }
 
-  return node;
+  return &node;
 }
 
 std::vector<Node*> hitsToNodesWithGroupPicking(const std::vector<Hit>& hits)
 {
   return kdl::col_stable_remove_duplicates(
     hits | std::views::transform([](const auto& hit) {
-      return findOutermostClosedGroupOrNode(hitToNode(hit));
+      return findOutermostClosedGroupOrNode(*hitToNode(hit));
     })
     | kdl::ranges::to<std::vector>());
 }
 
-const Node* findOutermostClosedGroupOrNode(const Node* node)
+const Node* findOutermostClosedGroupOrNode(const Node& node)
 {
-  return findOutermostClosedGroupOrNode(const_cast<Node*>(node));
+  return findOutermostClosedGroupOrNode(const_cast<Node&>(node));
 }
 
 std::vector<GroupNode*> collectGroups(const std::vector<Node*>& nodes)
@@ -274,7 +274,7 @@ static std::vector<Node*> collectMatchingNodes(
   const auto collectIfMatching = [&](auto& node) {
     for (const auto* brush : brushes)
     {
-      if (predicate(node, brush))
+      if (predicate(node, *brush))
       {
         result.push_back(&node);
         return;
@@ -330,7 +330,7 @@ std::vector<Node*> collectTouchingNodes(
 {
   return collectMatchingNodes(
     nodes, brushNodes, [](const auto& node, const auto& brushNode) {
-      return brushNode->intersects(node);
+      return brushNode.intersects(node);
     });
 }
 
@@ -339,7 +339,7 @@ std::vector<Node*> collectContainedNodes(
 {
   return collectMatchingNodes(
     nodes, brushNodes, [](const auto& node, const auto& brushNode) {
-      return brushNode->contains(node);
+      return brushNode.contains(node);
     });
 }
 
@@ -457,11 +457,11 @@ std::vector<BrushFaceHandle> collectConnectedCoplanarFaces(
   // hidden or locked brushes from bridging the region.
   auto nodeCache = std::unordered_map<Node*, std::vector<BrushFaceHandle>>{};
 
-  const auto coplanarFacesOf = [&](Node* node) -> const std::vector<BrushFaceHandle>& {
-    auto [it, inserted] = nodeCache.emplace(node, std::vector<BrushFaceHandle>{});
+  const auto coplanarFacesOf = [&](Node& node) -> const std::vector<BrushFaceHandle>& {
+    auto [it, inserted] = nodeCache.emplace(&node, std::vector<BrushFaceHandle>{});
     if (inserted)
     {
-      it->second = collectSelectableBrushFaces(std::vector<Node*>{node}, editorContext)
+      it->second = collectSelectableBrushFaces(std::vector<Node*>{&node}, editorContext)
                    | std::views::filter([&](const auto& handle) {
                        return handle.face().coplanarWith(startPlane);
                      })
@@ -474,7 +474,7 @@ std::vector<BrushFaceHandle> collectConnectedCoplanarFaces(
     auto result = std::vector<BrushFaceHandle>{};
     for (auto* node : nodeTree.find_intersectors(bounds))
     {
-      kdl::vec_append(result, coplanarFacesOf(node));
+      kdl::vec_append(result, coplanarFacesOf(*node));
     }
     return result;
   };
