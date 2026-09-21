@@ -46,28 +46,28 @@ class octree;
 
 HitType::Type nodeHitType();
 
-LayerNode* findContainingLayer(Node* node);
+LayerNode* findContainingLayer(Node& node);
 
 std::vector<LayerNode*> collectContainingLayersUserSorted(
   const std::vector<Node*>& nodes);
 
-GroupNode* findContainingGroup(Node* node);
-const GroupNode* findContainingGroup(const Node* node);
+GroupNode* findContainingGroup(Node& node);
+const GroupNode* findContainingGroup(const Node& node);
 
 /**
  * Returns the entity that owns the given node, i.e. the closest ancestor entity or
  * world node, treating layers and groups as pass-through. Only brush and patch nodes
  * can be owned by an entity; returns nullptr for every other node type.
  */
-EntityNodeBase* findContainingEntity(Node* node);
-const EntityNodeBase* findContainingEntity(const Node* node);
+EntityNodeBase* findContainingEntity(Node& node);
+const EntityNodeBase* findContainingEntity(const Node& node);
 
 /**
  * Searches the ancestor chain of `node` for the outermost closed group and returns
  * it if one is found, otherwise returns nullptr.
  */
-GroupNode* findOutermostClosedGroup(Node* node);
-const GroupNode* findOutermostClosedGroup(const Node* node);
+GroupNode* findOutermostClosedGroup(Node& node);
+const GroupNode* findOutermostClosedGroup(const Node& node);
 
 /**
  * Implements the Group picking logic: if `node` is inside a (possibly nested chain of)
@@ -77,7 +77,7 @@ const GroupNode* findOutermostClosedGroup(const Node* node);
  * This is used to implement the UI where clicking on a brush inside a group selects the
  * group.
  */
-Node* findOutermostClosedGroupOrNode(Node* node);
+Node* findOutermostClosedGroupOrNode(Node& node);
 
 /**
  * Applies the group picking logic of findOutermostClosedGroupOrNode() to a list of hits.
@@ -86,7 +86,7 @@ Node* findOutermostClosedGroupOrNode(Node* node);
  */
 std::vector<mdl::Node*> hitsToNodesWithGroupPicking(const std::vector<Hit>& hits);
 
-const Node* findOutermostClosedGroupOrNode(const Node* node);
+const Node* findOutermostClosedGroupOrNode(const Node& node);
 
 std::vector<GroupNode*> collectGroups(const std::vector<Node*>& nodes);
 

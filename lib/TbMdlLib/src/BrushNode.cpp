@@ -389,12 +389,12 @@ Node* BrushNode::doGetContainer()
 
 LayerNode* BrushNode::doGetContainingLayer()
 {
-  return findContainingLayer(this);
+  return findContainingLayer(*this);
 }
 
 GroupNode* BrushNode::doGetContainingGroup()
 {
-  return findContainingGroup(this);
+  return findContainingGroup(*this);
 }
 
 void BrushNode::invalidateVertexCache()

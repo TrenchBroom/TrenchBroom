@@ -231,7 +231,7 @@ auto selectTargetFaceHandlesForLinkedGroups(
   const mdl::BrushFaceHandle& sourceFaceHandle,
   const std::vector<mdl::BrushFaceHandle>& targetFaceHandles)
 {
-  auto* containingGroupNode = mdl::findContainingGroup(sourceFaceHandle.node());
+  auto* containingGroupNode = mdl::findContainingGroup(*sourceFaceHandle.node());
   if (!containingGroupNode)
   {
     return targetFaceHandles;
