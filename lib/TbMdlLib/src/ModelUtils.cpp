@@ -69,6 +69,11 @@ LayerNode* findContainingLayer(Node& node)
     }));
 }
 
+const LayerNode* findContainingLayer(const Node& node)
+{
+  return findContainingLayer(const_cast<Node&>(node));
+}
+
 std::vector<LayerNode*> collectContainingLayersUserSorted(const std::vector<Node*>& nodes)
 {
   std::vector<LayerNode*> layers;
