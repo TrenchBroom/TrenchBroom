@@ -47,6 +47,7 @@ class octree;
 HitType::Type nodeHitType();
 
 LayerNode* findContainingLayer(Node& node);
+const LayerNode* findContainingLayer(const Node& node);
 
 std::vector<LayerNode*> collectContainingLayersUserSorted(
   const std::vector<Node*>& nodes);
