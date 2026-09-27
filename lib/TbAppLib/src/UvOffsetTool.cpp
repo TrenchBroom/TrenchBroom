@@ -63,7 +63,8 @@ vm::vec2f snapDelta(const UvViewHelper& helper, const vm::vec2f& delta)
     const auto transform = helper.face()->toUvCoordSystemMatrix(
       helper.face()->uvAttributes().offset - delta, helper.face()->uvAttributes().scale);
 
-    const auto distance = kdl::fold_left_first(
+    // a face always has vertices, so the fold always has a result
+    const auto distance = *kdl::fold_left_first(
       helper.face()->vertices() | std::views::transform([&](const auto& vertex) {
         return helper.computeDistanceFromUvGrid(transform * vertex->position());
       }),

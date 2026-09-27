@@ -35,6 +35,7 @@ target_sources(KdLibTest PRIVATE
   "${CMAKE_CURRENT_SOURCE_DIR}/src/tst_meta_utils.cpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/src/tst_optional_utils.cpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/src/tst_path_utils.cpp"
+  "${CMAKE_CURRENT_SOURCE_DIR}/src/tst_range_fold.cpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/src/tst_range_utils.cpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/src/tst_reflection.cpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/src/tst_resource.cpp"
