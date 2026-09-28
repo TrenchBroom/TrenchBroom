@@ -479,6 +479,9 @@ void MapWindow::createGui()
 
   setCentralWidget(layoutWrapper);
 
+  // reparenting the map view into the splitter above clears its focus
+  m_currentMapView->setFocus();
+
   restoreWidgetState(m_hSplitter);
   restoreWidgetState(m_vSplitter);
   restoreWidgetState(m_inspector);
