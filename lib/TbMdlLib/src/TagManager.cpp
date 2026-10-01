@@ -23,6 +23,7 @@
 #include "mdl/TagType.h"
 
 #include "kd/contracts.h"
+#include "kd/ranges/contains.h"
 #include "kd/string_compare_natural.h"
 
 #include <fmt/format.h>
@@ -95,8 +96,7 @@ const SmartTag& TagManager::smartTag(const std::string& name) const
 
 bool TagManager::isRegisteredSmartTag(const size_t index) const
 {
-  return std::ranges::any_of(
-    m_smartTags, [&](const auto& tag) { return tag.index() == index; });
+  return kdl::ranges::contains(m_smartTags, index, &SmartTag::index);
 }
 
 const SmartTag& TagManager::smartTag(const size_t index) const

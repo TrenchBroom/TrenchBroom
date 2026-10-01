@@ -27,10 +27,10 @@
 #include "mdl/ModelDefinition.h"
 #include "mdl/PropertyDefinition.h"
 
+#include "kd/ranges/contains.h"
 #include "kd/ranges/to.h"
 #include "kd/reflection_impl.h"
 #include "kd/string_utils.h"
-#include "kd/vector_utils.h"
 
 #include "vm/mat.h"
 #include "vm/mat_ext.h"
@@ -268,7 +268,7 @@ void Entity::addOrUpdateProperty(
   {
     m_properties.emplace_back(key, std::move(value));
 
-    if (defaultToProtected && !kdl::vec_contains(m_protectedProperties, key))
+    if (defaultToProtected && !kdl::ranges::contains(m_protectedProperties, key))
     {
       m_protectedProperties.push_back(std::move(key));
     }

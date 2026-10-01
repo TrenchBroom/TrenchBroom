@@ -24,6 +24,7 @@
 #include "mdl/NodeIndex.h"
 
 #include "kd/hash_utils.h"
+#include "kd/ranges/contains.h"
 #include "kd/ranges/to.h"
 #include "kd/reflection_impl.h"
 
@@ -201,9 +202,8 @@ bool EntityLinkManager::hasLink(
   const EntityNodeBase& targetNode,
   const std::string& sourcePropertyKey) const
 {
-  return std::ranges::any_of(
-    linksFrom(sourceNode, sourcePropertyKey),
-    [&](const auto& linkEnd) { return linkEnd.node == &targetNode; });
+  return kdl::ranges::contains(
+    linksFrom(sourceNode, sourcePropertyKey), &targetNode, &LinkEnd::node);
 }
 
 bool EntityLinkManager::hasLink(

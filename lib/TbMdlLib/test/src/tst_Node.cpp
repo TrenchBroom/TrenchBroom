@@ -38,6 +38,7 @@
 #include "mdl/WorldNode.h"
 
 #include "kd/overload.h"
+#include "kd/ranges/contains.h"
 #include "kd/result.h"
 #include "kd/vector_utils.h"
 
@@ -568,7 +569,7 @@ TEST_CASE("Node")
     CHECK(childNode->childCount() == 1u);
     CHECK(childNode->familySize() == 2u);
     CHECK(grandChildNode1->parent() == childNode);
-    CHECK(kdl::vec_contains(childNode->children(), grandChildNode1));
+    CHECK(kdl::ranges::contains(childNode->children(), grandChildNode1));
 
     rootNode.expectCall(DoCanAddChild{true, childNode});
     childNode->expectCall(DoParentWillChange{});
@@ -582,7 +583,7 @@ TEST_CASE("Node")
     CHECK(rootNode.childCount() == 1u);
     CHECK(rootNode.familySize() == 3u);
     CHECK(childNode->parent() == &rootNode);
-    CHECK(kdl::vec_contains(rootNode.children(), childNode));
+    CHECK(kdl::ranges::contains(rootNode.children(), childNode));
 
     childNode->expectCall(DoCanAddChild{true, grandChildNode2});
     grandChildNode2->expectCall(DoParentWillChange{});
@@ -595,7 +596,7 @@ TEST_CASE("Node")
     CHECK(childNode->childCount() == 2u);
     CHECK(childNode->familySize() == 3u);
     CHECK(grandChildNode2->parent() == childNode);
-    CHECK(kdl::vec_contains(childNode->children(), grandChildNode2));
+    CHECK(kdl::ranges::contains(childNode->children(), grandChildNode2));
   }
 
   SECTION("removeChild")
@@ -642,7 +643,7 @@ TEST_CASE("Node")
 
       rootNode.removeChild(childNode);
       CHECK(childNode->parent() == nullptr);
-      CHECK(!kdl::vec_contains(rootNode.children(), childNode));
+      CHECK(!kdl::ranges::contains(rootNode.children(), childNode));
       CHECK(rootNode.childCount() == 0u);
       CHECK(rootNode.familySize() == 1u);
       CHECK(childNode->childCount() == 2u);
@@ -662,7 +663,7 @@ TEST_CASE("Node")
 
         rootNode.addChild(childNode);
         CHECK(childNode->parent() == &rootNode);
-        CHECK(kdl::vec_contains(rootNode.children(), childNode));
+        CHECK(kdl::ranges::contains(rootNode.children(), childNode));
         CHECK(rootNode.childCount() == 1u);
         CHECK(rootNode.familySize() == 4u);
         CHECK(childNode->childCount() == 2u);

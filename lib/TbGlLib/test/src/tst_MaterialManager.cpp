@@ -24,7 +24,8 @@
 #include "gl/Texture.h"
 #include "gl/TextureResource.h"
 
-#include <algorithm>
+#include "kd/ranges/contains.h"
+
 #include <string>
 #include <utility>
 #include <vector>
@@ -135,8 +136,8 @@ TEST_CASE("MaterialManager")
       const auto found = manager.findMaterialsByTextureResourceId(ids);
 
       CHECK(found.size() == 2u);
-      CHECK(std::ranges::find(found, materialA) != found.end());
-      CHECK(std::ranges::find(found, materialB) != found.end());
+      CHECK(kdl::ranges::contains(found, materialA));
+      CHECK(kdl::ranges::contains(found, materialB));
     }
 
     SECTION("returns nothing for an unknown id")

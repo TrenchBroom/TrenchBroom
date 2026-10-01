@@ -44,6 +44,7 @@
 #include "ui/Tool.h"
 
 #include "kd/contracts.h"
+#include "kd/ranges/contains.h"
 #include "kd/ranges/to.h"
 #include "kd/set_temp.h"
 #include "kd/string_utils.h"
@@ -123,7 +124,7 @@ public:
   {
     const auto hasHandle = [&](const auto* node) {
       const auto nodeHandles = SomeHandleType::getHandles(*node);
-      return std::ranges::find(nodeHandles, handle) != nodeHandles.end();
+      return kdl::ranges::contains(nodeHandles, handle);
     };
 
     auto result =
@@ -138,7 +139,7 @@ public:
 
     const auto hasHandle = [&](const auto* node, const auto& handle) {
       const auto nodeHandles = SomeHandleType::getHandles(*node);
-      return std::ranges::find(nodeHandles, handle) != nodeHandles.end();
+      return kdl::ranges::contains(nodeHandles, handle);
     };
 
     const auto hasAnyHandle = [&](const auto* node) {

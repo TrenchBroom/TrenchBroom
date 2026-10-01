@@ -28,6 +28,7 @@
 #include "kd/contracts.h"
 #include "kd/flat_set.h"
 #include "kd/ranges/cartesian_product_view.h"
+#include "kd/ranges/contains.h"
 #include "kd/ranges/to.h"
 #include "kd/stable_remove_duplicates.h"
 #include "kd/vector_utils.h"
@@ -310,7 +311,7 @@ static std::vector<Node*> collectMatchingNodes(
       },
       [&](BrushNode& brushNode) {
         // if `brush` is one of the search query nodes, don't count it as touching
-        if (!kdl::vec_contains(brushes, &brushNode))
+        if (!kdl::ranges::contains(brushes, &brushNode))
         {
           collectIfMatching(brushNode);
         }

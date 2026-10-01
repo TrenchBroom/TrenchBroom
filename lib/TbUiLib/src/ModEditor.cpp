@@ -45,6 +45,7 @@
 #include "kd/collection_utils.h"
 #include "kd/contracts.h"
 #include "kd/ranges/as_rvalue_view.h"
+#include "kd/ranges/contains.h"
 #include "kd/ranges/to.h"
 #include "kd/result.h"
 #include "kd/string_compare.h"
@@ -244,7 +245,8 @@ void ModEditor::updateMods()
   m_availableModList->clear();
   m_availableModList->addItems(
     m_availableMods | std::views::filter([&](const auto& mod) {
-      return kdl::ci::str_contains(mod, pattern) && !kdl::vec_contains(enabledMods, mod);
+      return kdl::ci::str_contains(mod, pattern)
+             && !kdl::ranges::contains(enabledMods, mod);
     })
     | std::views::transform(QString::fromStdString) | kdl::ranges::to<QStringList>());
 

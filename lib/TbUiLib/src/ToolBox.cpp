@@ -30,6 +30,7 @@
 #include "ui/ToolController.h"
 
 #include "kd/contracts.h"
+#include "kd/ranges/contains.h"
 #include "kd/vector_utils.h"
 
 #include <string>
@@ -407,7 +408,7 @@ std::vector<Tool*> ToolBox::excludedTools(const Tool& tool) const
   auto result = std::vector<Tool*>{};
   for (const auto& exclusiveToolGroup : m_exclusiveToolGroups)
   {
-    if (kdl::vec_contains(exclusiveToolGroup, &tool))
+    if (kdl::ranges::contains(exclusiveToolGroup, &tool))
     {
       kdl::vec_append(result, exclusiveToolGroup);
     }

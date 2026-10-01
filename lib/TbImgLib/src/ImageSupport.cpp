@@ -24,6 +24,7 @@
 
 #include "kd/contracts.h"
 #include "kd/path_utils.h"
+#include "kd/ranges/contains.h"
 #include "kd/ranges/to.h"
 #include "kd/string_format.h"
 #include "kd/string_utils.h"
@@ -77,7 +78,8 @@ std::vector<std::filesystem::path> supportedExtensions()
 
 bool isSupportedExtension(const std::filesystem::path& extension)
 {
-  return kdl::vec_contains(cachedSupportedExtensions(), kdl::path_to_lower(extension));
+  return kdl::ranges::contains(
+    cachedSupportedExtensions(), kdl::path_to_lower(extension));
 }
 
 } // namespace tb::img

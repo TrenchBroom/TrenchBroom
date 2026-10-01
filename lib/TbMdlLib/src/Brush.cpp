@@ -30,6 +30,7 @@
 #include "kd/flat_set.h"
 #include "kd/range_utils.h"
 #include "kd/ranges/concat_view.h"
+#include "kd/ranges/contains.h"
 #include "kd/ranges/to.h"
 #include "kd/reflection_impl.h"
 #include "kd/result.h"
@@ -108,7 +109,7 @@ BrushGeometry removeVerticesFromGeometry(
   for (const auto* vertex : geometry.vertices())
   {
     const auto& position = vertex->position();
-    if (!kdl::vec_contains(vertexPositions, position))
+    if (!kdl::ranges::contains(vertexPositions, position))
     {
       points.push_back(position);
     }
@@ -971,7 +972,7 @@ Result<void> Brush::doTransformVertices(
   for (const auto* vertex : m_geometry->vertices())
   {
     const auto& position = vertex->position();
-    if (kdl::vec_contains(vertexPositions, position))
+    if (kdl::ranges::contains(vertexPositions, position))
     {
       newVertices.push_back(transform * position);
     }
@@ -987,7 +988,7 @@ Result<void> Brush::doTransformVertices(
   for (auto* oldVertex : m_geometry->vertices())
   {
     const auto& oldPosition = oldVertex->position();
-    const auto transformed = kdl::vec_contains(vertexPositions, oldPosition);
+    const auto transformed = kdl::ranges::contains(vertexPositions, oldPosition);
     const auto newPosition = transformed ? transform * oldPosition : oldPosition;
     const auto* newVertex =
       newGeometry.findClosestVertex(newPosition, CloseVertexEpsilon);
@@ -1300,8 +1301,7 @@ bool Brush::checkFaceLinks() const
   }
 
   const auto findFaceGeometry = [&](const BrushFaceGeometry* g) {
-    return std::ranges::any_of(
-      m_geometry->faces(), [&](const auto* fg) { return fg == g; });
+    return kdl::ranges::contains(m_geometry->faces(), g);
   };
 
   for (const auto* faceGeometry : m_geometry->faces())

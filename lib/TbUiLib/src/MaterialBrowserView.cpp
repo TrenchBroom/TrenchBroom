@@ -46,6 +46,7 @@
 #include "ui/MapDocument.h"
 
 #include "kd/contracts.h"
+#include "kd/ranges/contains.h"
 #include "kd/ranges/to.h"
 #include "kd/string_compare.h"
 #include "kd/string_compare_natural.h"
@@ -224,7 +225,7 @@ std::vector<const gl::MaterialCollection*> MaterialBrowserView::getCollections()
   auto result = std::vector<const gl::MaterialCollection*>{};
   for (const auto& collection : map.materialManager().collections())
   {
-    if (kdl::vec_contains(enabledMaterialCollections, collection.path()))
+    if (kdl::ranges::contains(enabledMaterialCollections, collection.path()))
     {
       result.push_back(&collection);
     }

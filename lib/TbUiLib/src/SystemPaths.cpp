@@ -31,8 +31,8 @@
 #include "ui/QPathUtils.h"
 
 #include "kd/optional_utils.h"
+#include "kd/ranges/contains.h"
 
-#include <algorithm>
 #include <cstdlib>
 #include <vector>
 
@@ -163,7 +163,7 @@ std::vector<std::filesystem::path> findResourceDirectories(
   for (const auto& dir : dirs)
   {
     const auto path = pathFromQString(dir);
-    if (std::ranges::find(result, path) == result.end())
+    if (!kdl::ranges::contains(result, path))
     {
       result.push_back(path);
     }

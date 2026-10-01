@@ -23,8 +23,9 @@
 #include "gl/Camera.h"
 #include "prefs/Preferences.h"
 
+#include "kd/contracts.h"
+#include "kd/ranges/contains.h"
 #include "kd/set_temp.h"
-#include "kd/vector_utils.h"
 
 #include "vm/vec.h"
 
@@ -33,7 +34,7 @@ namespace tb::ui
 void CameraLinkHelper::addCamera(gl::Camera* camera)
 {
   contract_pre(camera != nullptr);
-  contract_pre(!kdl::vec_contains(m_cameras, camera));
+  contract_pre(!kdl::ranges::contains(m_cameras, camera));
 
   m_cameras.push_back(camera);
   m_notifierConnection +=

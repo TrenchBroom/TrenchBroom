@@ -28,6 +28,7 @@
 #include "kd/contracts.h"
 #include "kd/range_utils.h"
 #include "kd/ranges/as_rvalue_view.h"
+#include "kd/ranges/contains.h"
 #include "kd/ranges/to.h"
 #include "kd/reflection_impl.h"
 #include "kd/vector_utils.h"
@@ -308,7 +309,7 @@ void Node::doAddChild(Node* child)
 {
   contract_pre(child != nullptr);
   contract_pre(child->parent() == nullptr);
-  contract_pre(!kdl::vec_contains(m_children, child));
+  contract_pre(!kdl::ranges::contains(m_children, child));
   contract_pre(canAddChild(*child));
 
   childWillBeAdded(*child);

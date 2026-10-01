@@ -25,6 +25,7 @@
 #include "mdl/Matchers.h"
 #include "mdl/Polyhedron3.h"
 
+#include "kd/ranges/contains.h"
 #include "kd/ranges/fold.h"
 #include "kd/ranges/to.h"
 #include "kd/result.h"
@@ -32,7 +33,6 @@
 #include "vm/approx.h"
 #include "vm/constants.h"
 
-#include <algorithm>
 #include <string>
 
 #include <catch2/catch_test_macros.hpp>
@@ -402,7 +402,7 @@ TEST_CASE("BrushBuilder")
                 {{128, 64, 16}, {128, -64, 0}, {128, -64, 16}},
               });
 
-              CHECK(std::ranges::find(brushes, expectedBrush) != brushes.end());
+              CHECK(kdl::ranges::contains(brushes, expectedBrush));
             })
           | kdl::transform_error([](const auto& e) { FAIL(e); });
       }

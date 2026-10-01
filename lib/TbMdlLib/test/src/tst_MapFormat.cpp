@@ -19,7 +19,8 @@
 
 #include "mdl/MapFormat.h"
 
-#include <algorithm>
+#include "kd/ranges/contains.h"
+
 #include <sstream>
 #include <string>
 #include <tuple>
@@ -160,7 +161,7 @@ TEST_CASE("MapFormat")
         CAPTURE(compatibleFormat);
 
         const auto formats = compatibleFormats(compatibleFormat);
-        CHECK(std::ranges::find(formats, format) != formats.end());
+        CHECK(kdl::ranges::contains(formats, format));
       }
     }
   }

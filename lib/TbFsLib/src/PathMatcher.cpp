@@ -20,8 +20,8 @@
 #include "fs/PathMatcher.h"
 
 #include "kd/path_utils.h"
+#include "kd/ranges/contains.h"
 #include "kd/string_compare.h"
-#include "kd/vector_utils.h"
 
 #include <algorithm>
 
@@ -51,7 +51,7 @@ PathMatcher makePathInfoPathMatcher(std::vector<PathInfo> pathInfos_)
 {
   return [pathInfos = std::move(pathInfos_)](
            const std::filesystem::path& path, const GetPathInfo& getPathInfo) {
-    return kdl::vec_contains(pathInfos, getPathInfo(path));
+    return kdl::ranges::contains(pathInfos, getPathInfo(path));
   };
 }
 

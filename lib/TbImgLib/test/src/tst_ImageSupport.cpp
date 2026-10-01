@@ -19,7 +19,7 @@
 
 #include "img/ImageSupport.h"
 
-#include "kd/vector_utils.h"
+#include "kd/ranges/contains.h"
 
 #include <catch2/catch_test_macros.hpp>
 
@@ -29,8 +29,8 @@ namespace tb::img
 TEST_CASE("supportedExtensions")
 {
   const auto extensions = supportedExtensions();
-  CHECK(kdl::vec_contains(extensions, std::filesystem::path{".png"}));
-  CHECK(kdl::vec_contains(extensions, std::filesystem::path{".jpg"}));
+  CHECK(kdl::ranges::contains(extensions, std::filesystem::path{".png"}));
+  CHECK(kdl::ranges::contains(extensions, std::filesystem::path{".jpg"}));
 }
 
 TEST_CASE("isSupportedExtension")
