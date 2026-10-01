@@ -28,7 +28,7 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-namespace kdl
+namespace kdl::ranges
 {
 
 TEST_CASE("fold")
@@ -106,4 +106,4 @@ TEST_CASE("fold")
   }
 }
 
-} // namespace kdl
+} // namespace kdl::ranges

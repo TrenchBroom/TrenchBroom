@@ -466,7 +466,7 @@ TEST_CASE("DrawShapeToolArchExtension")
           CHECK(brushes.size() == 5u);
 
           CHECK(
-            kdl::fold_left_first(
+            kdl::ranges::fold_left_first(
               brushes
                 | std::views::transform([](const auto& brush) { return brush.bounds(); }),
               [](const auto& lhs, const auto& rhs) { return vm::merge(lhs, rhs); })

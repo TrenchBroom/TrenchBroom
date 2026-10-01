@@ -33,6 +33,8 @@
 
 namespace kdl
 {
+namespace ranges
+{
 
 template <typename I, typename T>
 struct in_value_result
@@ -325,4 +327,5 @@ inline constexpr auto fold_right_last = detail::fold_right_last_fn{};
 inline constexpr auto fold_left_with_iter = detail::fold_left_with_iter_fn{};
 inline constexpr auto fold_left_first_with_iter = detail::fold_left_first_with_iter_fn{};
 
+} // namespace ranges
 } // namespace kdl

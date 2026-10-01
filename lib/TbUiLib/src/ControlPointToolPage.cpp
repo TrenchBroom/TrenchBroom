@@ -116,12 +116,12 @@ void ControlPointToolPage::updateControls()
         return patchNode->patch().pointColumnCount();
       });
 
-    const auto rows = kdl::fold_left(
+    const auto rows = kdl::ranges::fold_left(
       rowCounts | std::views::drop(1),
       std::optional<size_t>{rowCounts.front()},
       returnIfEqual);
 
-    const auto cols = kdl::fold_left(
+    const auto cols = kdl::ranges::fold_left(
       colCounts | std::views::drop(1),
       std::optional<size_t>{colCounts.front()},
       returnIfEqual);

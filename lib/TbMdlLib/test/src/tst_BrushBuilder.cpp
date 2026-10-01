@@ -68,7 +68,7 @@ auto makeBrush(const std::vector<std::tuple<vm::vec3d, vm::vec3d, vm::vec3d>>& f
 
 auto getMergedBounds(const std::vector<Brush>& brushes)
 {
-  return kdl::fold_left_first(
+  return kdl::ranges::fold_left_first(
     brushes | std::views::transform([](const auto& brush) { return brush.bounds(); }),
     [](const auto& lhs, const auto& rhs) { return vm::merge(lhs, rhs); });
 }
