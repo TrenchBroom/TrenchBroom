@@ -20,8 +20,11 @@
 
 #include "kd/ranges/to.h"
 
+#include <algorithm>
+#include <cstddef>
 #include <list>
 #include <map>
+#include <memory>
 #include <ranges>
 #include <set>
 #include <string>
@@ -33,6 +36,45 @@
 
 namespace kdl
 {
+namespace
+{
+
+// An allocator that counts how often it is asked to allocate memory. The count is shared
+// with all copies of the allocator, including rebound ones.
+template <typename T>
+struct counting_allocator
+{
+  using value_type = T;
+
+  explicit counting_allocator(std::size_t& count)
+    : allocation_count{&count}
+  {
+  }
+
+  template <typename U>
+  explicit counting_allocator(const counting_allocator<U>& other)
+    : allocation_count{other.allocation_count}
+  {
+  }
+
+  T* allocate(const std::size_t n)
+  {
+    ++*allocation_count;
+    return std::allocator<T>{}.allocate(n);
+  }
+
+  void deallocate(T* p, const std::size_t n) { std::allocator<T>{}.deallocate(p, n); }
+
+  template <typename U>
+  bool operator==(const counting_allocator<U>& other) const
+  {
+    return allocation_count == other.allocation_count;
+  }
+
+  std::size_t* allocation_count;
+};
+
+} // namespace
 
 TEST_CASE("to")
 {
@@ -84,6 +126,19 @@ TEST_CASE("to")
       == std::string{"hello"});
 
     CHECK(ranges::to<std::string>(std::vector{'a', 'b', 'c'}) == std::string{"abc"});
+  }
+
+  SECTION("range of move-only elements")
+  {
+    // This isn't a common range, so its elements are appended to the vector one by one
+    // instead of being passed to the vector's iterator constructor.
+    const auto v =
+      std::views::iota(0) | std::views::take_while([](const int i) { return i < 3; })
+      | std::views::transform([](const int i) { return std::make_unique<int>(i); })
+      | ranges::to<std::vector>();
+
+    CHECK(
+      std::ranges::equal(v, std::vector{0, 1, 2}, {}, [](const auto& p) { return *p; }));
   }
 
   SECTION("nested ranges")
@@ -155,6 +210,53 @@ TEST_CASE("to")
     CHECK(
       (std::vector{1, 2, 3} | ranges::to<std::vector<int>>(alloc))
       == std::vector{1, 2, 3});
+  }
+
+  SECTION("allocates the container's memory up front if the size of the range is known")
+  {
+    using Vec = std::vector<int, counting_allocator<int>>;
+
+    // Creating a vector of a known size is the baseline: it allocates the memory for its
+    // elements exactly once. We compare against this baseline instead of a fixed count
+    // because some standard library implementations allocate additional bookkeeping data.
+    auto expected_allocation_count = std::size_t{0};
+    {
+      const auto expected = Vec(100, counting_allocator<int>{expected_allocation_count});
+      REQUIRE(expected.size() == 100);
+    }
+
+    auto allocation_count = std::size_t{0};
+    const auto alloc = counting_allocator<int>{allocation_count};
+
+    SECTION("range with forward iterators")
+    {
+      const auto source = std::vector<int>(100, 1);
+
+      const auto v = ranges::to<Vec>(source, alloc);
+      CHECK(v.size() == 100);
+      CHECK(allocation_count == expected_allocation_count);
+    }
+
+    // The iterators of the following views are random access iterators in terms of the
+    // C++20 iterator concepts, but they report std::input_iterator_tag as their legacy
+    // iterator category because dereferencing them yields a prvalue.
+
+    SECTION("iota_view")
+    {
+      const auto v = ranges::to<Vec>(std::views::iota(0, 100), alloc);
+      CHECK(v.size() == 100);
+      CHECK(allocation_count == expected_allocation_count);
+    }
+
+    SECTION("transform_view")
+    {
+      const auto source = std::vector<int>(100, 1);
+
+      const auto v = ranges::to<Vec>(
+        source | std::views::transform([](const int i) { return i * 2; }), alloc);
+      CHECK(v.size() == 100);
+      CHECK(allocation_count == expected_allocation_count);
+    }
   }
 }
 
