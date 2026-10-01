@@ -31,7 +31,7 @@
 #include "ui/UvViewHelper.h"
 
 #include "kd/contracts.h"
-#include "kd/range_fold.h"
+#include "kd/ranges/fold.h"
 
 #include "vm/intersection.h"
 #include "vm/vec.h"

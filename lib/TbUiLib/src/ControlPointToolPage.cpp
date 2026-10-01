@@ -31,7 +31,7 @@
 #include "mdl/Transaction.h"
 #include "ui/MapDocument.h"
 
-#include "kd/range_fold.h"
+#include "kd/ranges/fold.h"
 
 namespace tb::ui
 {

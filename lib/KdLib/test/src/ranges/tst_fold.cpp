@@ -18,7 +18,7 @@
  DEALINGS IN THE SOFTWARE.
 */
 
-#include "kd/range_fold.h"
+#include "kd/ranges/fold.h"
 
 #include <optional>
 #include <ranges>
@@ -31,7 +31,7 @@
 namespace kdl
 {
 
-TEST_CASE("range_fold")
+TEST_CASE("fold")
 {
   using namespace std::string_literals;
 

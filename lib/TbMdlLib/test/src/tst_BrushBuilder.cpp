@@ -25,7 +25,7 @@
 #include "mdl/Matchers.h"
 #include "mdl/Polyhedron3.h"
 
-#include "kd/range_fold.h"
+#include "kd/ranges/fold.h"
 #include "kd/ranges/to.h"
 #include "kd/result.h"
 
