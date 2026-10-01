@@ -35,6 +35,7 @@
 
 #include "kd/contracts.h"
 #include "kd/overload.h"
+#include "kd/ranges/contains.h"
 #include "kd/ranges/to.h"
 
 #include "vm/intersection.h"
@@ -262,8 +263,7 @@ void EntityDecalRenderer::updateBrush(const mdl::BrushNode& brushNode)
     const auto& editorContext = m_map.editorContext();
     const auto intersects =
       editorContext.visible(brushNode) && brushNode.intersects(*ent);
-    const auto tracked =
-      std::ranges::find(data.brushes, &brushNode) != data.brushes.end();
+    const auto tracked = kdl::ranges::contains(data.brushes, &brushNode);
 
     // if this brush is tracked by this entity or intersects, we'll need to
     // recalculate the geometry
@@ -286,8 +286,7 @@ void EntityDecalRenderer::removeBrush(const mdl::BrushNode& brushNode)
     }
 
     // if this brush is tracked by this entity, remove it and recalculate
-    const auto tracked =
-      std::ranges::find(data.brushes, &brushNode) != data.brushes.end();
+    const auto tracked = kdl::ranges::contains(data.brushes, &brushNode);
     if (tracked)
     {
       invalidateDecalData(data);

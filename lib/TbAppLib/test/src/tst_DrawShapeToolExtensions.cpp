@@ -25,7 +25,7 @@
 #include "ui/DrawShapeToolParameters.h"
 #include "ui/MapDocumentFixture.h"
 
-#include "kd/range_fold.h"
+#include "kd/ranges/fold.h"
 
 #include <catch2/catch_test_macros.hpp>
 

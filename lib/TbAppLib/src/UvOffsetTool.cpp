@@ -31,7 +31,7 @@
 #include "ui/UvViewHelper.h"
 
 #include "kd/contracts.h"
-#include "kd/range_fold.h"
+#include "kd/ranges/fold.h"
 
 #include "vm/intersection.h"
 #include "vm/vec.h"
@@ -63,7 +63,8 @@ vm::vec2f snapDelta(const UvViewHelper& helper, const vm::vec2f& delta)
     const auto transform = helper.face()->toUvCoordSystemMatrix(
       helper.face()->uvAttributes().offset - delta, helper.face()->uvAttributes().scale);
 
-    const auto distance = kdl::fold_left_first(
+    // a face always has vertices, so the fold always has a result
+    const auto distance = *kdl::fold_left_first(
       helper.face()->vertices() | std::views::transform([&](const auto& vertex) {
         return helper.computeDistanceFromUvGrid(transform * vertex->position());
       }),

@@ -31,6 +31,7 @@
 #include "kd/contracts.h"
 #include "kd/invoke.h"
 #include "kd/path_utils.h"
+#include "kd/ranges/contains.h"
 #include "kd/result.h"
 #include "kd/string_compare.h"
 #include "kd/string_format.h"
@@ -40,7 +41,6 @@
 #include <fmt/format.h>
 #include <fmt/std.h>
 
-#include <algorithm>
 #include <memory>
 #include <string>
 #include <vector>
@@ -263,8 +263,7 @@ std::filesystem::path FgdParser::currentRoot() const
 
 bool FgdParser::isRecursiveInclude(const std::filesystem::path& path) const
 {
-  return std::ranges::any_of(
-    m_paths, [&](const auto& includedPath) { return includedPath == path; });
+  return kdl::ranges::contains(m_paths, path);
 }
 
 std::vector<EntityDefinitionClassInfo> FgdParser::parseClassInfos(ParserStatus& status)

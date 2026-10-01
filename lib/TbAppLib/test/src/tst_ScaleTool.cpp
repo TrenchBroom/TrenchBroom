@@ -39,6 +39,7 @@
 #include "ui/MapDocumentFixture.h"
 #include "ui/ScaleTool.h"
 
+#include "kd/ranges/contains.h"
 #include "kd/ranges/to.h"
 #include "kd/result.h"
 
@@ -543,7 +544,7 @@ TEST_CASE("bbox handle geometry")
           vm::vec3d{0, 0, 1},
           vm::vec3d{0, 0, -1}})
     {
-      CHECK(std::ranges::find(sides, BBoxSide{n}) != sides.end());
+      CHECK(kdl::ranges::contains(sides, BBoxSide{n}));
     }
   }
 
@@ -562,7 +563,7 @@ TEST_CASE("bbox handle geometry")
       {
         for (const auto z : {-1.0, 1.0})
         {
-          CHECK(std::ranges::find(corners, BBoxCorner{{x, y, z}}) != corners.end());
+          CHECK(kdl::ranges::contains(corners, BBoxCorner{{x, y, z}}));
         }
       }
     }

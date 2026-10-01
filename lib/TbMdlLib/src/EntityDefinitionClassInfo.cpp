@@ -22,8 +22,8 @@
 #include "base/Macros.h"
 #include "mdl/PropertyDefinition.h"
 
+#include "kd/ranges/contains.h"
 #include "kd/reflection_impl.h"
-#include "kd/vector_utils.h"
 
 #include "vm/bbox_io.h" // IWYU pragma: keep
 #include "vm/vec_io.h"  // IWYU pragma: keep
@@ -58,9 +58,8 @@ bool addPropertyDefinition(
   std::vector<PropertyDefinition>& propertyDefinitions,
   PropertyDefinition propertyDefinition)
 {
-  if (kdl::vec_contains(propertyDefinitions, [&](const auto& a) {
-        return a.key == propertyDefinition.key;
-      }))
+  if (kdl::ranges::contains(
+        propertyDefinitions, propertyDefinition.key, &PropertyDefinition::key))
   {
     return false;
   }

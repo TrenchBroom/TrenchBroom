@@ -29,7 +29,8 @@
 #include "mdl/FgdParser.h"
 #include "mdl/PropertyDefinition.h"
 
-#include <algorithm>
+#include "kd/ranges/contains.h"
+
 #include <filesystem>
 #include <string>
 
@@ -1380,10 +1381,9 @@ TEST_CASE("FgdParser")
       auto defs = parser.parseDefinitions(status);
       REQUIRE(defs);
       CHECK(defs.value().size() == 2u);
-      CHECK(std::ranges::any_of(
-        defs.value(), [](const auto& def) { return def.name == "worldspawn"; }));
-      CHECK(std::ranges::any_of(
-        defs.value(), [](const auto& def) { return def.name == "info_player_start"; }));
+      CHECK(kdl::ranges::contains(defs.value(), "worldspawn", &EntityDefinition::name));
+      CHECK(kdl::ranges::contains(
+        defs.value(), "info_player_start", &EntityDefinition::name));
     }
 
     SECTION("parseNestedInclude")
@@ -1399,12 +1399,11 @@ TEST_CASE("FgdParser")
       auto defs = parser.parseDefinitions(status);
       REQUIRE(defs);
       CHECK(defs.value().size() == 3u);
-      CHECK(std::ranges::any_of(
-        defs.value(), [](const auto& def) { return def.name == "worldspawn"; }));
-      CHECK(std::ranges::any_of(
-        defs.value(), [](const auto& def) { return def.name == "info_player_start"; }));
-      CHECK(std::ranges::any_of(
-        defs.value(), [](const auto& def) { return def.name == "info_player_coop"; }));
+      CHECK(kdl::ranges::contains(defs.value(), "worldspawn", &EntityDefinition::name));
+      CHECK(kdl::ranges::contains(
+        defs.value(), "info_player_start", &EntityDefinition::name));
+      CHECK(
+        kdl::ranges::contains(defs.value(), "info_player_coop", &EntityDefinition::name));
     }
 
     SECTION("parseRecursiveInclude")
@@ -1420,8 +1419,7 @@ TEST_CASE("FgdParser")
       auto defs = parser.parseDefinitions(status);
       REQUIRE(defs);
       CHECK(defs.value().size() == 1u);
-      CHECK(std::ranges::any_of(
-        defs.value(), [](const auto& def) { return def.name == "worldspawn"; }));
+      CHECK(kdl::ranges::contains(defs.value(), "worldspawn", &EntityDefinition::name));
     }
 
     SECTION("parseIncludeEscapingBasePath")
@@ -1440,10 +1438,9 @@ TEST_CASE("FgdParser")
       auto defs = parser.parseDefinitions(status);
       REQUIRE(defs);
       CHECK(defs.value().size() == 1u);
-      CHECK(std::ranges::any_of(
-        defs.value(), [](const auto& def) { return def.name == "worldspawn"; }));
-      CHECK(std::ranges::none_of(
-        defs.value(), [](const auto& def) { return def.name == "info_player_start"; }));
+      CHECK(kdl::ranges::contains(defs.value(), "worldspawn", &EntityDefinition::name));
+      CHECK(!kdl::ranges::contains(
+        defs.value(), "info_player_start", &EntityDefinition::name));
     }
   }
 

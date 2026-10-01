@@ -26,7 +26,7 @@
 #include "ui/MapViewBase.h"
 
 #include "kd/contracts.h"
-#include "kd/vector_utils.h"
+#include "kd/ranges/contains.h"
 
 namespace tb::ui
 {
@@ -130,7 +130,7 @@ void MapViewActivationTracker::setFocusEvent(QFocusEvent*, QWidget* widget)
 void MapViewActivationTracker::killFocusEvent(QFocusEvent*, QWidget*)
 {
   const auto* focusedWidget = QApplication::focusWidget();
-  if (!kdl::vec_contains(m_mapViews, focusedWidget))
+  if (!kdl::ranges::contains(m_mapViews, focusedWidget))
   {
     deactivate();
   }

@@ -39,10 +39,11 @@
 #include "ui/HandleDragTracker.h"
 #include "ui/MapDocument.h"
 
+#include "kd/contracts.h"
 #include "kd/flat_map.h"
 #include "kd/ranges/concat_view.h"
+#include "kd/ranges/contains.h"
 #include "kd/ranges/to.h"
-#include "kd/vector_utils.h"
 
 #include "vm/bbox.h"
 #include "vm/line.h"
@@ -584,7 +585,7 @@ void SweepTool::nodesWereRemoved(const std::vector<mdl::Node*>& nodes)
   {
     if (
       sourceFace.parent
-      && (kdl::vec_contains(nodes, sourceFace.parent) || sourceFace.parent->isDescendantOf(nodes)))
+      && (kdl::ranges::contains(nodes, sourceFace.parent) || sourceFace.parent->isDescendantOf(nodes)))
     {
       sourceFace.parent = nullptr;
       mustRebuild = true;

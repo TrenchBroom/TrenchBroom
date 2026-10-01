@@ -36,6 +36,7 @@
 
 #include "kd/path_utils.h"
 #include "kd/ranges/as_rvalue_view.h"
+#include "kd/ranges/contains.h"
 #include "kd/ranges/to.h"
 #include "kd/result_fold.h"
 #include "kd/unpack.h"
@@ -919,7 +920,7 @@ bool canLoadAssimpModel(const std::filesystem::path& path)
     ".csm",  ".ply",      ".cob",          ".scn",      ".xgl"};
   // clang-format on
 
-  return kdl::vec_contains(supportedExtensions, kdl::path_to_lower(path.extension()));
+  return kdl::ranges::contains(supportedExtensions, kdl::path_to_lower(path.extension()));
 }
 
 Result<EntityModelData> loadAssimpModel(

@@ -22,13 +22,13 @@
 #include "StringMakers.h" // IWYU pragma: keep
 #include "base/Result.h"
 
+#include "kd/ranges/contains.h"
 #include "kd/result.h" // IWYU pragma: keep
 #include "kd/std_io.h"
 #include "kd/vector_utils.h"
 
 #include "vm/vec.h"
 
-#include <algorithm>
 #include <cassert>
 #include <filesystem>
 #include <sstream>
@@ -122,10 +122,7 @@ public:
   {
   }
 
-  bool match(const T& in) const override
-  {
-    return std::ranges::any_of(m_expected, [&](const auto& e) { return in == e; });
-  }
+  bool match(const T& in) const override { return kdl::ranges::contains(m_expected, in); }
 
   std::string describe() const override
   {
@@ -160,7 +157,7 @@ public:
 
   bool match(const T& in) const override
   {
-    return std::ranges::none_of(m_expected, [&](const auto& e) { return in == e; });
+    return !kdl::ranges::contains(m_expected, in);
   }
 
   std::string describe() const override

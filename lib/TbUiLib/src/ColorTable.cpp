@@ -25,8 +25,7 @@
 #include <QSizePolicy>
 
 #include "kd/contracts.h"
-
-#include <algorithm>
+#include "kd/ranges/contains.h"
 
 namespace tb::ui
 {
@@ -77,7 +76,7 @@ void ColorTable::paintEvent(QPaintEvent* /* event */)
       {
         const auto& color = *it;
 
-        if (std::ranges::find(m_selectedColors, color) != std::end(m_selectedColors))
+        if (kdl::ranges::contains(m_selectedColors, color))
         {
           painter.setPen(QColor{Qt::red});
         }

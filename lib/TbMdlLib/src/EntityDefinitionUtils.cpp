@@ -21,6 +21,8 @@
 
 #include "mdl/EntityProperties.h"
 
+#include "kd/ranges/contains.h"
+
 namespace tb::mdl
 {
 namespace
@@ -142,20 +144,22 @@ bool isLinkSourceProperty(
   const EntityDefinition* entityDefinition, const std::string& key)
 {
   return entityDefinition
-         && std::ranges::any_of(
+         && kdl::ranges::contains(
            getPropertyDefinitionsWithType<PropertyValueTypes::LinkSource>(
              *entityDefinition),
-           [&](const auto& propertyDefinition) { return propertyDefinition.key == key; });
+           key,
+           &PropertyDefinition::key);
 }
 
 bool isLinkTargetProperty(
   const EntityDefinition* entityDefinition, const std::string& key)
 {
   return entityDefinition
-         && std::ranges::any_of(
+         && kdl::ranges::contains(
            getPropertyDefinitionsWithType<PropertyValueTypes::LinkTarget>(
              *entityDefinition),
-           [&](const auto& propertyDefinition) { return propertyDefinition.key == key; });
+           key,
+           &PropertyDefinition::key);
 }
 
 void addOrSetDefaultEntityLinkProperties(std::vector<EntityDefinition>& entityDefinitions)

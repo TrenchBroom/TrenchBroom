@@ -26,6 +26,7 @@
 
 #include "kd/overload.h"
 #include "kd/ranges/as_rvalue_view.h"
+#include "kd/ranges/contains.h"
 #include "kd/ranges/to.h"
 #include "kd/result.h"
 #include "kd/result_fold.h"
@@ -142,12 +143,8 @@ void UpdateLinkedGroupsHelper::collateWith(UpdateLinkedGroupsHelper& other)
 
   for (auto& [theirGroupNodeToUpdate_, theirOldChildren] : theirLinkedGroupUpdates)
   {
-    const auto myIt = std::ranges::find_if(
-      myLinkedGroupUpdates,
-      [theirGroupNodeToUpdate = theirGroupNodeToUpdate_](const auto& p) {
-        return p.first == theirGroupNodeToUpdate;
-      });
-    if (myIt == std::end(myLinkedGroupUpdates))
+    if (!kdl::ranges::contains(
+          myLinkedGroupUpdates | std::views::keys, theirGroupNodeToUpdate_))
     {
       myLinkedGroupUpdates.emplace_back(
         theirGroupNodeToUpdate_, std::move(theirOldChildren));

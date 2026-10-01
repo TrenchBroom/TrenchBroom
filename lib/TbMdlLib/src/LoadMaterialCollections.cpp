@@ -43,12 +43,12 @@
 #include "kd/path_utils.h"
 #include "kd/ranges/as_rvalue_view.h"
 #include "kd/ranges/chunk_by_view.h"
+#include "kd/ranges/contains.h"
 #include "kd/ranges/to.h"
 #include "kd/result.h"
 #include "kd/result_fold.h"
 #include "kd/string_compare.h"
 #include "kd/string_compare_natural.h"
-#include "kd/string_format.h"
 #include "kd/vector_utils.h"
 
 #include <fmt/format.h>
@@ -137,8 +137,8 @@ Result<std::filesystem::path> findShaderTexture(
   }
 
   if (
-    kdl::vec_contains(
-      materialConfig.extensions, kdl::str_to_lower(texturePath.extension().string()))
+    kdl::ranges::contains(
+      materialConfig.extensions, kdl::path_to_lower(texturePath.extension()))
     && fs.pathInfo(texturePath) == fs::PathInfo::File)
   {
     return texturePath;

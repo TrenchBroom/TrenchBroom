@@ -25,6 +25,7 @@
 #include "mdl/EntityModel.h"
 #include "mdl/LoadAssimpModel.h"
 
+#include "kd/ranges/contains.h"
 #include "kd/ranges/stride_view.h"
 
 #include "vm/approx.h"
@@ -138,8 +139,8 @@ TEST_CASE("loadAssimpModel")
     const auto pixels = std::ranges::subrange{image.data(), image.data() + image.size()};
     const auto alphas = pixels | std::views::drop(3) | kdl::views::stride(4);
 
-    const auto hasTransparentPixel = std::ranges::find(alphas, 0) != alphas.end();
-    const auto hasOpaquePixel = std::ranges::find(alphas, 255) != alphas.end();
+    const auto hasTransparentPixel = kdl::ranges::contains(alphas, 0);
+    const auto hasOpaquePixel = kdl::ranges::contains(alphas, 255);
 
     CHECK(hasTransparentPixel);
     CHECK(hasOpaquePixel);

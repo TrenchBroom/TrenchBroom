@@ -61,11 +61,12 @@
 #include "update/Updater.h"
 
 #include "kd/const_overload.h"
+#include "kd/contracts.h"
+#include "kd/ranges/contains.h"
 #include "kd/ranges/join_with_view.h"
 #include "kd/ranges/to.h"
 #include "kd/task_manager.h"
 #include "kd/unpack.h"
-#include "kd/vector_utils.h"
 
 #include <fmt/format.h>
 #include <fmt/ostream.h>
@@ -151,7 +152,7 @@ std::optional<std::tuple<std::string, mdl::MapFormat>> detectOrQueryGameAndForma
                                    | kdl::ranges::to<std::vector>();
 
              if (
-               gameName == std::nullopt || !kdl::vec_contains(gameList, *gameName)
+               gameName == std::nullopt || !kdl::ranges::contains(gameList, *gameName)
                || mapFormat == mdl::MapFormat::Unknown)
              {
                auto queriedGameNameAndMapFormat =
