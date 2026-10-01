@@ -180,27 +180,6 @@ TEST_CASE("vector_utils")
     CHECK(vec_static_cast<base*>(vd) == std::vector<base*>{d1.get(), d2.get()});
   }
 
-  SECTION("vec_contains")
-  {
-    using vec = std::vector<int>;
-
-    CHECK(!vec_contains(vec{}, 1));
-    CHECK(!vec_contains(vec{2}, 1));
-    CHECK(vec_contains(vec{1}, 1));
-    CHECK(vec_contains(vec{1, 2, 3}, 1));
-    CHECK(vec_contains(vec{1, 2, 3}, 2));
-    CHECK(vec_contains(vec{1, 2, 3}, 3));
-    CHECK(!vec_contains(vec{1, 2, 3}, 4));
-
-    CHECK(!vec_contains(vec{}, [](const auto& i) { return i == 1; }));
-    CHECK(!vec_contains(vec{2}, [](const auto& i) { return i == 1; }));
-    CHECK(vec_contains(vec{1}, [](const auto& i) { return i == 1; }));
-    CHECK(vec_contains(vec{1, 2, 3}, [](const auto& i) { return i == 1; }));
-    CHECK(vec_contains(vec{1, 2, 3}, [](const auto& i) { return i == 2; }));
-    CHECK(vec_contains(vec{1, 2, 3}, [](const auto& i) { return i == 3; }));
-    CHECK(!vec_contains(vec{1, 2, 3}, [](const auto& i) { return i == 4; }));
-  }
-
   SECTION("vec_push_back")
   {
     using ivec = std::vector<int>;

@@ -233,43 +233,6 @@ std::vector<O> vec_static_cast(std::vector<T, A> v)
 }
 
 /**
- * Finds the smallest index at which the given predicate is satisified in the given
- * vector. If the given vector does not such a value, an empty optional is returned.
- *
- * @tparam T the type of the vector elements
- * @tparam A the vector's allocator type
- * @tparam P the predicate type
- * @param v the vector to check
- * @param p the predicate
- * @return true if the given vector contains an element that satisfies the given predicate
- */
-template <
-  typename T,
-  typename A,
-  typename P,
-  typename std::enable_if_t<std::is_invocable_r_v<bool, P, const T&>>* = nullptr>
-bool vec_contains(const std::vector<T, A>& v, P&& p)
-{
-  return std::find_if(v.begin(), v.end(), p) != v.end();
-}
-
-/**
- * Checks if the given value is contained in the given vector.
- *
- * @tparam T the type of the vector elements
- * @tparam A the vector's allocator type
- * @tparam X the value type
- * @param v the vector to check
- * @param x the value to check
- * @return true if the given vector contains the given value and false otherwise
- */
-template <typename T, typename A, typename X>
-bool vec_contains(const std::vector<T, A>& v, const X& x)
-{
-  return std::find(v.begin(), v.end(), x) != v.end();
-}
-
-/**
  * Appends the given elements. Each element must be a type convertible to T and it is
  * perfectly forwarded to std::vector<T, A>::push_back.
  *
