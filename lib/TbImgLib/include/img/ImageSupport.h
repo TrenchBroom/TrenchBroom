@@ -20,13 +20,12 @@
 #pragma once
 
 #include <filesystem>
-#include <string>
 #include <vector>
 
 namespace tb::img
 {
 
-std::vector<std::string> supportedExtensions();
+std::vector<std::filesystem::path> supportedExtensions();
 bool isSupportedExtension(const std::filesystem::path& extension);
 
 } // namespace tb::img

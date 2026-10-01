@@ -21,8 +21,6 @@
 
 #include "kd/vector_utils.h"
 
-#include <string>
-
 #include <catch2/catch_test_macros.hpp>
 
 namespace tb::img
@@ -31,8 +29,8 @@ namespace tb::img
 TEST_CASE("supportedExtensions")
 {
   const auto extensions = supportedExtensions();
-  CHECK(kdl::vec_contains(extensions, std::string{".png"}));
-  CHECK(kdl::vec_contains(extensions, std::string{".jpg"}));
+  CHECK(kdl::vec_contains(extensions, std::filesystem::path{".png"}));
+  CHECK(kdl::vec_contains(extensions, std::filesystem::path{".jpg"}));
 }
 
 TEST_CASE("isSupportedExtension")
