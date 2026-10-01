@@ -20,8 +20,10 @@
 
 #include "kd/ranges/to.h"
 
+#include <algorithm>
 #include <list>
 #include <map>
+#include <memory>
 #include <ranges>
 #include <set>
 #include <string>
@@ -84,6 +86,19 @@ TEST_CASE("to")
       == std::string{"hello"});
 
     CHECK(ranges::to<std::string>(std::vector{'a', 'b', 'c'}) == std::string{"abc"});
+  }
+
+  SECTION("range of move-only elements")
+  {
+    // This isn't a common range, so its elements are appended to the vector one by one
+    // instead of being passed to the vector's iterator constructor.
+    const auto v =
+      std::views::iota(0) | std::views::take_while([](const int i) { return i < 3; })
+      | std::views::transform([](const int i) { return std::make_unique<int>(i); })
+      | ranges::to<std::vector>();
+
+    CHECK(
+      std::ranges::equal(v, std::vector{0, 1, 2}, {}, [](const auto& p) { return *p; }));
   }
 
   SECTION("nested ranges")

@@ -20,7 +20,6 @@
 
 #pragma once
 
-#include <algorithm>
 #include <ranges>
 
 // This file can only be used with C++20 or later.
@@ -58,14 +57,7 @@ constexpr bool container_appendable = requires(C& c, Reference&& ref) {
     || requires { c.insert(c.end(), std::forward<Reference>(ref)); });
 };
 
-// Append a single element to the given container c. The if constexpr guards live in this
-// plain function template rather than inline in the generic lambda returned by
-// container_appender below: as a lambda they are checked eagerly when the enclosing
-// container_appender<C> is instantiated (before Reference is known), which trips up clang
-// and MSVC in opposite ways -- clang hard-errors on the ill-formed member access (e.g.
-// std::string::emplace_back) and MSVC mis-evaluates the requires guards. Here the guards
-// are only checked when the function is actually called, with C and Reference both fully
-// substituted.
+// Append a single element to the given container c.
 template <typename C, typename Reference>
 constexpr void container_append(C& c, Reference&& ref)
 {
@@ -85,15 +77,6 @@ constexpr void container_append(C& c, Reference&& ref)
   {
     c.insert(c.end(), std::forward<Reference>(ref));
   }
-}
-
-// Create a function that appends an element to the given container c.
-template <typename C>
-constexpr auto container_appender(C& c)
-{
-  return [&c]<typename Reference>(Reference&& ref) {
-    container_append(c, std::forward<Reference>(ref));
-  };
 }
 
 // Used for type constexpr if conditions, see below
@@ -165,7 +148,10 @@ constexpr C to(R&& r, Args&&... args)
       {
         c.reserve(static_cast<std::ranges::range_size_t<C>>(std::ranges::size(r)));
       }
-      std::ranges::for_each(r, detail::container_appender(c));
+      for (auto&& elem : r)
+      {
+        detail::container_append(c, std::forward<decltype(elem)>(elem));
+      }
       return c;
     }
   }
