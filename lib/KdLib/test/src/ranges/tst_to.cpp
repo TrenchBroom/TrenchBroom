@@ -35,6 +35,7 @@
 #include <vector>
 
 #include <catch2/catch_test_macros.hpp>
+#include <catch2/matchers/catch_matchers_range_equals.hpp>
 
 namespace kdl
 {
@@ -124,6 +125,8 @@ struct counting_forward_iterator
 
 TEST_CASE("to")
 {
+  using Catch::Matchers::RangeEquals;
+
   SECTION("with specified collection type")
   {
     CHECK(ranges::to<std::list<int>>(std::vector{1, 2, 3, 3}) == std::list{1, 2, 3, 3});
@@ -197,7 +200,9 @@ TEST_CASE("to")
     const auto source = std::list{0, 1, 2};
     const auto v = ranges::to<std::vector<std::atomic<int>>>(source);
 
-    CHECK(std::ranges::equal(v, source, {}, [](const auto& a) { return a.load(); }));
+    CHECK_THAT(
+      v | std::views::transform([](const auto& a) { return a.load(); }),
+      RangeEquals(source));
   }
 
   SECTION("nested ranges")
