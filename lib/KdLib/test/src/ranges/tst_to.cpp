@@ -21,7 +21,9 @@
 #include "kd/ranges/to.h"
 
 #include <algorithm>
+#include <atomic>
 #include <cstddef>
+#include <iterator>
 #include <list>
 #include <map>
 #include <memory>
@@ -72,6 +74,50 @@ struct counting_allocator
   }
 
   std::size_t* allocation_count;
+};
+
+// A forward iterator that counts how often it is incremented. The count is shared with
+// all copies of the iterator. Its legacy iterator category is always
+// std::forward_iterator_tag, regardless of the category of the wrapped iterator.
+template <std::forward_iterator I>
+struct counting_forward_iterator
+{
+  using iterator_category = std::forward_iterator_tag;
+  using value_type = std::iter_value_t<I>;
+  using difference_type = std::iter_difference_t<I>;
+  using reference = std::iter_reference_t<I>;
+
+  counting_forward_iterator() = default;
+
+  counting_forward_iterator(I i, std::size_t& count)
+    : iter{std::move(i)}
+    , increment_count{&count}
+  {
+  }
+
+  reference operator*() const { return *iter; }
+
+  counting_forward_iterator& operator++()
+  {
+    ++iter;
+    ++*increment_count;
+    return *this;
+  }
+
+  counting_forward_iterator operator++(int)
+  {
+    auto result = *this;
+    ++*this;
+    return result;
+  }
+
+  bool operator==(const counting_forward_iterator& other) const
+  {
+    return iter == other.iter;
+  }
+
+  I iter = {};
+  std::size_t* increment_count = nullptr;
 };
 
 } // namespace
@@ -139,6 +185,19 @@ TEST_CASE("to")
 
     CHECK(
       std::ranges::equal(v, std::vector{0, 1, 2}, {}, [](const auto& p) { return *p; }));
+  }
+
+  SECTION("range of elements that cannot be moved")
+  {
+    // The size of this range is known and it doesn't have random access iterators, so we
+    // would prefer to reserve the vector's memory and to append the elements one by one.
+    // But that doesn't compile for elements that cannot be moved, so the range must be
+    // passed to the vector's iterator constructor, which constructs the elements in
+    // place.
+    const auto source = std::list{0, 1, 2};
+    const auto v = ranges::to<std::vector<std::atomic<int>>>(source);
+
+    CHECK(std::ranges::equal(v, source, {}, [](const auto& a) { return a.load(); }));
   }
 
   SECTION("nested ranges")
@@ -228,13 +287,31 @@ TEST_CASE("to")
     auto allocation_count = std::size_t{0};
     const auto alloc = counting_allocator<int>{allocation_count};
 
-    SECTION("range with forward iterators")
+    SECTION("range with random access iterators")
     {
       const auto source = std::vector<int>(100, 1);
 
       const auto v = ranges::to<Vec>(source, alloc);
       CHECK(v.size() == 100);
       CHECK(allocation_count == expected_allocation_count);
+    }
+
+    SECTION("range with forward iterators, iterating over it only once")
+    {
+      // The vector's iterator constructor would iterate over this range twice: once to
+      // determine its size and once to copy its elements.
+      const auto source = std::list<int>(100, 1);
+
+      auto increment_count = std::size_t{0};
+      const auto r = std::ranges::subrange{
+        counting_forward_iterator{source.begin(), increment_count},
+        counting_forward_iterator{source.end(), increment_count},
+        source.size()};
+
+      const auto v = ranges::to<Vec>(r, alloc);
+      CHECK(v.size() == 100);
+      CHECK(allocation_count == expected_allocation_count);
+      CHECK(increment_count == 100);
     }
 
     // The iterators of the following views are random access iterators in terms of the
