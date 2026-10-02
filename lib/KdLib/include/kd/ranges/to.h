@@ -117,11 +117,23 @@ concept iterator_category_range =
 // iterator concept because dereferencing them yields a prvalue, e.g. std::views::iota or
 // std::views::transform. If we know the size of such a range, we can do better than the
 // container's constructor by reserving the memory ourselves.
+//
+// And even if the category is derived from std::forward_iterator_tag, the constructors
+// must iterate over the range twice unless it is also derived from
+// std::random_access_iterator_tag: once to count the elements and once to copy them. If
+// we know the size of such a range, we can avoid the first pass.
+//
+// Reserving memory and appending elements can reallocate, so both require that the
+// elements of C can be moved, whereas the iterator constructors can construct them in
+// place. This requirement isn't part of the signatures of the corresponding member
+// functions, so reservable_container and container_appendable cannot detect it.
 template <typename C, typename R, typename... Args>
 constexpr bool prefer_reserve_and_append =
-  !iterator_category_range<R, std::forward_iterator_tag> && std::ranges::sized_range<R>
+  std::ranges::sized_range<R>
+  && !iterator_category_range<R, std::random_access_iterator_tag>
   && reservable_container<C> && std::constructible_from<C, Args...>
-  && container_appendable<C, std::ranges::range_reference_t<R>>;
+  && container_appendable<C, std::ranges::range_reference_t<R>>
+  && requires { requires std::move_constructible<std::ranges::range_value_t<C>>; };
 
 } // namespace detail
 
