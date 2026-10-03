@@ -1690,7 +1690,7 @@ In addition to making you aware of issues, TrenchBroom can also fix them for you
 
 TrenchBroom supports compiling your maps from inside the editor. This means that you can create compilation profiles and configure those profiles to run external compilation tools for you. Note however that TrenchBroom does not come with prepackaged compilation tools - you'll have to download and install those yourself. The following screenshot shows the compilation dialog that comes up when choosing #menu(Menu/Run/Compile...).
 
-![Compilation Dialog (Windows 10)](images/CompilationDialog.png)
+![Compilation Dialog (macOS)](images/CompilationDialog.png)
 
 This dialog allows you to create compilation profiles, which are listed on the left of the dialog. Each compilation profile has a name, a working directory, and a list of tasks. Click the '+' button below the profile list to create a new compilation profile, or click the '-' button to delete the selected profile. To duplicate a profile, right click on it and select "Duplicate" from the menu. If you select a profile, you can edit its name, working directory, and tasks on the right side of the dialog.
 
@@ -1806,7 +1806,7 @@ Variable         Scope             Description
 
 If the [game configuration](#game_configuration) for the current game includes compilation tools, then the names of those tools are also available as variables in the Tool scope. The following screenshot is a section of a compilation profile showing the use of such variables.
 
-![Compilation Dialog Section, with Tool Variables (Ubuntu Linux)](images/CompilationDialogToolVars.png)
+![Compilation Dialog Section, with Tool Variables (Linux)](images/CompilationDialogToolVars.png)
 
 It is recommended to use the following general process for compiling maps and to adapt it to your specified needs:
 
@@ -1830,7 +1830,7 @@ Before you can launch a game engine in TrenchBroom, you have to make your engine
 
 You can launch a game engine manually by clicking the 'Launch' button in the compilation dialog or choosing #menu(Menu/Run/Launch...). This brings up the launch dialog shown in the following screenshot.
 
-![Launch Dialog (Mac OS X)](images/LaunchGameEngineDialog.png)
+![Launch Dialog (Linux)](images/LaunchGameEngineDialog.png)
 
 In this dialog, you can select the game engine of choice, edit its parameters, and launch the engine. To select an engine, click on it in the list on the right hand side of the dialog. If you wish to edit the list of engines, you can bring up the game engine profile dialog by clicking on the 'Configure engines...' button. You can then edit its parameters in the text box at the bottom of the left hand side of the dialog. Note that you can use the following variables in this text box:
 
