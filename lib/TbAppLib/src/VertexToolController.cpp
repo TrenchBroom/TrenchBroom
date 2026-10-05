@@ -52,7 +52,7 @@ private:
         const auto selectedPositions = mdl::VertexHandle::getPositions(
           m_tool.handleManager().selectedHandles<mdl::VertexHandle>());
         const auto sourcePos = selectedPositions.front();
-        const auto targetPos = hit.target<vm::vec3d>();
+        const auto targetPos = m_tool.getHandlePosition(hit);
         const auto delta = targetPos - sourcePos;
         m_tool.moveSelection(delta);
         return true;

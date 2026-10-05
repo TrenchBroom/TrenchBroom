@@ -218,6 +218,18 @@ TEST_CASE("VertexToolController")
     {
       const auto modifierKeys = ModifierKeys::Shift | ModifierKeys::Alt;
 
+      // https://github.com/TrenchBroom/TrenchBroom/issues/5491
+      SECTION("moves the selected vertex onto the vertex under the mouse")
+      {
+        selectVertex({16, 16, 16});
+
+        CHECK(controller.mouseClick(inputStateAt({-16, 16, 16}, modifierKeys)));
+
+        CHECK(brushNode->brush().vertexCount() == 7u);
+        CHECK(!brushNode->brush().hasVertex(vm::vec3d{16, 16, 16}));
+        CHECK(selectedVertices() == std::vector<vm::vec3d>{{-16, 16, 16}});
+      }
+
       SECTION("does nothing if no vertex is selected")
       {
         CHECK(!controller.mouseClick(inputStateAt({-16, 16, 16}, modifierKeys)));
