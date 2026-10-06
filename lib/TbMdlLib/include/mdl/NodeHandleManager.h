@@ -51,7 +51,7 @@ class Node;
  *
  * Handles that are spatially close to one another are grouped into clumps. Two handles
  * belong to the same clump when their distance is less than the clump distance configured
- * at construction time (default: 0.01). Selection operates at the clump level: selecting
+ * at construction time (default: 0.1). Selection operates at the clump level: selecting
  * any handle in a clump selects all handles in that clump, and deselecting any handle
  * deselects the whole clump.
  *
@@ -391,7 +391,7 @@ public:
    * @param clumpDistance the maximum distance at which two handles are considered part of
    * the same clump
    */
-  explicit NodeHandleManager(const double clumpDistance = 0.01)
+  explicit NodeHandleManager(const double clumpDistance = 0.1)
     : m_clumpDistance{clumpDistance}
   {
   }
