@@ -169,18 +169,6 @@ public:
     assert(is_valid());
   }
 
-private:
-  /**
-   * This constructor is used by the builder to create an invalid bbox.
-   */
-  explicit constexpr bbox(const bool)
-    : min(vec<T, S>::fill(T(1)))
-    , max(vec<T, S>::fill(T(0)))
-  {
-    assert(!is_valid());
-  }
-
-public:
   /**
    * Creates the smallest bounding box that contains all points in the given range.
    * Optionally accepts a transformation that is applied to each element of the range. The
