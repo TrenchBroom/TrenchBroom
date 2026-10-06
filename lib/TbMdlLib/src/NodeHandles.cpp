@@ -31,13 +31,13 @@
 #include "mdl/PatchNode.h"
 #include "mdl/WorldNode.h"
 
-#include "kd/ranges/zip_transform_view.h"
 #include "kd/reflection_impl.h"
 
 #include "vm/polygon_io.h" // IWYU pragma: keep
 #include "vm/segment_io.h" // IWYU pragma: keep
 #include "vm/vec_io.h"     // IWYU pragma: keep
 
+#include <algorithm>
 #include <limits>
 
 namespace tb::mdl
@@ -177,19 +177,40 @@ std::vector<FaceHandle> FaceHandle::getHandles(const Node& node)
 
 double FaceHandle::distance(const FaceHandle& lhs, const FaceHandle& rhs)
 {
-  if (lhs.position.vertexCount() != rhs.position.vertexCount())
+  const auto& lhsVertices = lhs.position.vertices();
+  const auto& rhsVertices = rhs.position.vertices();
+
+  if (lhsVertices.size() != rhsVertices.size())
   {
     return std::numeric_limits<double>::max();
   }
 
-  const auto distances = kdl::views::zip_transform(
-    [](const auto& lhsVertex, const auto& rhsVertex) {
-      return vm::distance(lhsVertex, rhsVertex);
-    },
-    lhs.position.vertices(),
-    rhs.position.vertices());
+  const auto count = lhsVertices.size();
+  if (count == 0)
+  {
+    return 0.0;
+  }
 
-  return *std::ranges::max_element(distances);
+  // Align the vertices of both polygons at the vertex of rhs that is closest to the first
+  // vertex of lhs, and then compare them in both directions to disregard the winding.
+  const auto offset = static_cast<size_t>(std::ranges::distance(
+    rhsVertices.begin(),
+    std::ranges::min_element(rhsVertices, {}, [&](const auto& rhsVertex) {
+      return vm::squared_distance(lhsVertices.front(), rhsVertex);
+    })));
+
+  auto forwardDistance = 0.0;
+  auto backwardDistance = 0.0;
+  for (size_t i = 0; i < count; ++i)
+  {
+    forwardDistance = vm::max(
+      forwardDistance, vm::distance(lhsVertices[i], rhsVertices[(offset + i) % count]));
+    backwardDistance = vm::max(
+      backwardDistance,
+      vm::distance(lhsVertices[i], rhsVertices[(offset + count - i) % count]));
+  }
+
+  return vm::min(forwardDistance, backwardDistance);
 }
 
 std::optional<Hit> FaceHandle::pick(
