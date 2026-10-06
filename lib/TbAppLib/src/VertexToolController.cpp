@@ -30,24 +30,6 @@ namespace tb::ui
 namespace
 {
 
-class SelectVertexPart
-  : public NodeHandleToolSelectPartBase<VertexTool, mdl::VertexHandle>
-{
-public:
-  explicit SelectVertexPart(VertexTool& tool)
-    : NodeHandleToolSelectPartBase{tool, mdl::VertexHandle::HandleHitType}
-  {
-  }
-
-private:
-  bool equalHandles(
-    const mdl::VertexHandle& lhs, const mdl::VertexHandle& rhs) const override
-  {
-    return vm::squared_distance(lhs.position, rhs.position)
-           < MaxHandleDistance * MaxHandleDistance;
-  }
-};
-
 class MoveVertexPart : public NodeHandleToolMovePartBase<VertexTool>
 {
 public:
@@ -136,7 +118,8 @@ VertexToolController::VertexToolController(VertexTool& tool)
   : NodeHandleToolControllerBase(tool)
 {
   addController(std::make_unique<MoveVertexPart>(tool));
-  addController(std::make_unique<SelectVertexPart>(tool));
+  addController(std::make_unique<NodeHandleToolSelectPart<VertexTool>>(
+    tool, mdl::VertexHandle::HandleHitType));
 }
 
 } // namespace tb::ui

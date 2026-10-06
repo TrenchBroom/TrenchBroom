@@ -29,24 +29,6 @@ namespace tb::ui
 namespace
 {
 
-class SelectControlPointPart
-  : public NodeHandleToolSelectPartBase<ControlPointTool, mdl::ControlPointHandle>
-{
-public:
-  explicit SelectControlPointPart(ControlPointTool& tool)
-    : NodeHandleToolSelectPartBase{tool, mdl::ControlPointHandle::HandleHitType}
-  {
-  }
-
-private:
-  bool equalHandles(
-    const mdl::ControlPointHandle& lhs, const mdl::ControlPointHandle& rhs) const override
-  {
-    return vm::squared_distance(lhs.position, rhs.position)
-           < MaxHandleDistance * MaxHandleDistance;
-  }
-};
-
 class MoveControlPointPart : public NodeHandleToolMovePartBase<ControlPointTool>
 {
 public:
@@ -101,7 +83,8 @@ ControlPointToolController::ControlPointToolController(ControlPointTool& tool)
   : NodeHandleToolControllerBase{tool}
 {
   addController(std::make_unique<MoveControlPointPart>(tool));
-  addController(std::make_unique<SelectControlPointPart>(tool));
+  addController(std::make_unique<NodeHandleToolSelectPart<ControlPointTool>>(
+    tool, mdl::ControlPointHandle::HandleHitType));
 }
 
 } // namespace tb::ui
