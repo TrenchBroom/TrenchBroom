@@ -30,21 +30,6 @@ namespace tb::ui
 namespace
 {
 
-class SelectFacePart : public NodeHandleToolSelectPartBase<FaceTool, mdl::FaceHandle>
-{
-public:
-  explicit SelectFacePart(FaceTool& tool)
-    : NodeHandleToolSelectPartBase{tool, mdl::FaceHandle::HandleHitType}
-  {
-  }
-
-private:
-  bool equalHandles(const mdl::FaceHandle& lhs, const mdl::FaceHandle& rhs) const override
-  {
-    return compareUnoriented(lhs.position, rhs.position, MaxHandleDistance) == 0;
-  }
-};
-
 class MoveFacePart : public NodeHandleToolMovePartBase<FaceTool>
 {
 public:
@@ -60,7 +45,8 @@ FaceToolController::FaceToolController(FaceTool& tool)
   : NodeHandleToolControllerBase(tool)
 {
   addController(std::make_unique<MoveFacePart>(tool));
-  addController(std::make_unique<SelectFacePart>(tool));
+  addController(std::make_unique<NodeHandleToolSelectPart<FaceTool>>(
+    tool, mdl::FaceHandle::HandleHitType));
 }
 
 } // namespace tb::ui

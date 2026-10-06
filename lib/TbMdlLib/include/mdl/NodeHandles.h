@@ -172,6 +172,11 @@ struct FaceHandle
            | std::views::join | kdl::ranges::to<std::vector>();
   }
 
+  /**
+   * Returns the largest distance between corresponding vertices of the given handles,
+   * regardless of their winding. If the handles have different vertex counts, the
+   * maximum double value is returned.
+   */
   static double distance(const FaceHandle& lhs, const FaceHandle& rhs);
 
   /**

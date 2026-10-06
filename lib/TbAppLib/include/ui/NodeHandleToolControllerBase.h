@@ -42,7 +42,6 @@ protected:
 public:
   ~NodeHandleToolControllerBase() override = default;
 
-private:
   Tool& tool() override { return m_tool; }
 
   const Tool& tool() const override { return m_tool; }

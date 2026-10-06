@@ -31,16 +31,8 @@
 
 #include "vm/intersection.h"
 
-#include <unordered_set>
-#include <vector>
-
 namespace tb
 {
-namespace mdl
-{
-class Node;
-}
-
 namespace ui
 {
 class Tool;
@@ -99,18 +91,15 @@ public:
   }
 };
 
-template <typename T, typename HandleType>
-class NodeHandleToolSelectPartBase : public ToolController
+template <typename T>
+class NodeHandleToolSelectPart : public ToolController
 {
-protected:
-  constexpr static const double MaxHandleDistance = 0.25;
-
-protected:
+private:
   T& m_tool;
   mdl::HitType::Type m_hitType;
 
-protected:
-  NodeHandleToolSelectPartBase(T& tool, const mdl::HitType::Type hitType)
+public:
+  NodeHandleToolSelectPart(T& tool, const mdl::HitType::Type hitType)
     : m_tool{tool}
     , m_hitType{hitType}
   {
@@ -140,9 +129,9 @@ private:
       return false;
     }
 
-    if (const auto hits = firstHits(inputState.pickResult()); !hits.empty())
+    if (const auto& hit = firstHit(inputState.pickResult()); hit.isMatch())
     {
-      return m_tool.select(hits, inputState.modifierKeysPressed(ModifierKeys::CtrlCmd));
+      return m_tool.select(hit, inputState.modifierKeysPressed(ModifierKeys::CtrlCmd));
     }
     return m_tool.deselectAll();
   }
@@ -157,7 +146,7 @@ private:
       return nullptr;
     }
 
-    if (!firstHits(inputState.pickResult()).empty())
+    if (firstHit(inputState.pickResult()).isMatch())
     {
       return nullptr;
     }
@@ -183,7 +172,6 @@ private:
 
   bool cancel() override { return m_tool.deselectAll(); }
 
-protected:
   void setRenderOptions(
     const InputState&, render::RenderContext& renderContext) const override
   {
@@ -212,51 +200,12 @@ protected:
     }
   }
 
-protected:
-  std::vector<mdl::Hit> firstHits(const mdl::PickResult& pickResult) const
+  const mdl::Hit& firstHit(const mdl::PickResult& pickResult) const
   {
     using namespace mdl::HitFilters;
 
-    auto result = std::vector<mdl::Hit>{};
-    auto visitedNodes = std::unordered_set<mdl::Node*>{};
-
-    const auto& first = pickResult.first(type(m_hitType));
-    if (first.isMatch())
-    {
-      const auto& firstHandle = first.template target<const HandleType&>();
-
-      const auto matches = pickResult.all(type(m_hitType));
-      for (const auto& match : matches)
-      {
-        const auto& handle = match.template target<const HandleType&>();
-
-        if (equalHandles(handle, firstHandle))
-        {
-          if (allIncidentNodesVisited(handle, visitedNodes))
-          {
-            result.push_back(match);
-          }
-        }
-      }
-    }
-
-    return result;
+    return pickResult.first(type(m_hitType));
   }
-
-  bool allIncidentNodesVisited(
-    const HandleType& handle, std::unordered_set<mdl::Node*>& visitedNodes) const
-  {
-    auto result = true;
-    for (auto node : m_tool.findIncidentNodes(handle))
-    {
-      const auto unvisited = visitedNodes.insert(node).second;
-      result = result && unvisited;
-    }
-    return result;
-  }
-
-private:
-  virtual bool equalHandles(const HandleType& lhs, const HandleType& rhs) const = 0;
 };
 
 template <typename T>

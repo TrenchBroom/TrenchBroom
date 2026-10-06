@@ -30,24 +30,6 @@ namespace tb::ui
 namespace
 {
 
-class SelectVertexPart
-  : public NodeHandleToolSelectPartBase<VertexTool, mdl::VertexHandle>
-{
-public:
-  explicit SelectVertexPart(VertexTool& tool)
-    : NodeHandleToolSelectPartBase{tool, mdl::VertexHandle::HandleHitType}
-  {
-  }
-
-private:
-  bool equalHandles(
-    const mdl::VertexHandle& lhs, const mdl::VertexHandle& rhs) const override
-  {
-    return vm::squared_distance(lhs.position, rhs.position)
-           < MaxHandleDistance * MaxHandleDistance;
-  }
-};
-
 class MoveVertexPart : public NodeHandleToolMovePartBase<VertexTool>
 {
 public:
@@ -70,7 +52,7 @@ private:
         const auto selectedPositions = mdl::VertexHandle::getPositions(
           m_tool.handleManager().selectedHandles<mdl::VertexHandle>());
         const auto sourcePos = selectedPositions.front();
-        const auto targetPos = hit.target<vm::vec3d>();
+        const auto targetPos = m_tool.getHandlePosition(hit);
         const auto delta = targetPos - sourcePos;
         m_tool.moveSelection(delta);
         return true;
@@ -136,7 +118,8 @@ VertexToolController::VertexToolController(VertexTool& tool)
   : NodeHandleToolControllerBase(tool)
 {
   addController(std::make_unique<MoveVertexPart>(tool));
-  addController(std::make_unique<SelectVertexPart>(tool));
+  addController(std::make_unique<NodeHandleToolSelectPart<VertexTool>>(
+    tool, mdl::VertexHandle::HandleHitType));
 }
 
 } // namespace tb::ui

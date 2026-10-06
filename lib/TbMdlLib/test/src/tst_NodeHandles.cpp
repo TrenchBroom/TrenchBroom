@@ -207,6 +207,20 @@ TEST_CASE("FaceHandle")
     CHECK(
       FaceHandle::distance(lhs, differentVertexCount)
       == std::numeric_limits<double>::max());
+
+    // disregards the winding
+    const auto lhsInverted = FaceHandle{lhs.position.invert()};
+    CHECK(FaceHandle::distance(lhs, lhsInverted) == 0.0);
+    CHECK(FaceHandle::distance(lhsInverted, rhs) == 1.0);
+
+    // disregards which vertex comes first
+    const auto lhsDisplaced = FaceHandle{vm::polygon3d{{
+      {0.0, 2.0, 0.0},
+      {0.5, 0.0, 0.0},
+      {2.0, 0.0, 0.0},
+    }}};
+    REQUIRE(lhsDisplaced.position.vertices().front() != lhs.position.vertices().front());
+    CHECK(FaceHandle::distance(lhs, lhsDisplaced) == 0.5);
   }
 
   SECTION("pick")

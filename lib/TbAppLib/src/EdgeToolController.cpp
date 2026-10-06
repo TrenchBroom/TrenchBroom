@@ -29,21 +29,6 @@ namespace tb::ui
 namespace
 {
 
-class SelectEdgePart : public NodeHandleToolSelectPartBase<EdgeTool, mdl::EdgeHandle>
-{
-public:
-  explicit SelectEdgePart(EdgeTool& tool)
-    : NodeHandleToolSelectPartBase{tool, mdl::EdgeHandle::HandleHitType}
-  {
-  }
-
-private:
-  bool equalHandles(const mdl::EdgeHandle& lhs, const mdl::EdgeHandle& rhs) const override
-  {
-    return compare(lhs.position, rhs.position, MaxHandleDistance) == 0;
-  }
-};
-
 class MoveEdgePart : public NodeHandleToolMovePartBase<EdgeTool>
 {
 public:
@@ -59,7 +44,8 @@ EdgeToolController::EdgeToolController(EdgeTool& tool)
   : NodeHandleToolControllerBase{tool}
 {
   addController(std::make_unique<MoveEdgePart>(tool));
-  addController(std::make_unique<SelectEdgePart>(tool));
+  addController(std::make_unique<NodeHandleToolSelectPart<EdgeTool>>(
+    tool, mdl::EdgeHandle::HandleHitType));
 }
 
 } // namespace tb::ui
