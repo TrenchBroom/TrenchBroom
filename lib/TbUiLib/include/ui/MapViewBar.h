@@ -33,13 +33,13 @@ class MapViewBar : public ContainerBar
 {
   Q_OBJECT
 private:
-  QStackedLayout* m_toolBook = nullptr;
+  QStackedLayout* m_toolPages = nullptr;
   ViewPopupEditor* m_viewEditor = nullptr;
 
 public:
   explicit MapViewBar(MapDocument& document, QWidget* parent = nullptr);
 
-  QStackedLayout* toolBook();
+  QStackedLayout* toolPages();
 
 private:
   void createGui(MapDocument& document);
