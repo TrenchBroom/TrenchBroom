@@ -53,10 +53,10 @@
 namespace tb::ui
 {
 
-MapViewToolBox::MapViewToolBox(MapDocument& document, QStackedLayout* bookCtrl)
+MapViewToolBox::MapViewToolBox(MapDocument& document, QStackedLayout* toolPages)
   : m_document{document}
 {
-  createTools(bookCtrl);
+  createTools(toolPages);
   connectObservers();
 }
 
@@ -494,9 +494,9 @@ void MapViewToolBox::moveNodeHandles(const vm::vec3d& delta)
   }
 }
 
-void MapViewToolBox::createTools(QStackedLayout* bookCtrl)
+void MapViewToolBox::createTools(QStackedLayout* toolPages)
 {
-  m_bookCtrl = bookCtrl;
+  m_toolPages = toolPages;
 
   m_clipTool = std::make_unique<ClipTool>(m_document);
   m_assembleBrushTool = std::make_unique<AssembleBrushTool>(m_document);
@@ -560,29 +560,29 @@ void MapViewToolBox::createTools(QStackedLayout* bookCtrl)
   addTool(createEntityTool());
   addTool(drawShapeTool());
 
-  auto* parent = bookCtrl->parentWidget();
+  auto* parent = toolPages->parentWidget();
 
   m_emptyToolPage = new QWidget{parent};
-  bookCtrl->addWidget(m_emptyToolPage);
+  toolPages->addWidget(m_emptyToolPage);
 
   m_rotateToolPage = new RotateToolPage{m_document, rotateTool(), parent};
-  bookCtrl->addWidget(m_rotateToolPage);
+  toolPages->addWidget(m_rotateToolPage);
 
   m_sweepToolPage = new SweepToolPage{sweepTool(), parent};
-  bookCtrl->addWidget(m_sweepToolPage);
+  toolPages->addWidget(m_sweepToolPage);
 
   m_scaleToolPage = new ScaleToolPage{m_document, scaleTool(), parent};
-  bookCtrl->addWidget(m_scaleToolPage);
+  toolPages->addWidget(m_scaleToolPage);
 
   m_controlPointToolPage = new ControlPointToolPage{m_document, parent};
-  bookCtrl->addWidget(m_controlPointToolPage);
+  toolPages->addWidget(m_controlPointToolPage);
 
   auto* drawShapeToolPage =
     new DrawShapeToolPage{drawShapeTool().extensionManager(), parent};
   m_notifierConnection += drawShapeToolPage->applyParametersNotifier.connect(
     [this]() { drawShapeTool().applyExtensionParameters(); });
   m_drawShapeToolPage = drawShapeToolPage;
-  bookCtrl->addWidget(m_drawShapeToolPage);
+  toolPages->addWidget(m_drawShapeToolPage);
 
   updateToolPage();
 }
@@ -633,29 +633,29 @@ void MapViewToolBox::updateToolPage()
 {
   if (rotateToolActive())
   {
-    m_bookCtrl->setCurrentWidget(m_rotateToolPage);
+    m_toolPages->setCurrentWidget(m_rotateToolPage);
   }
   else if (sweepToolActive())
   {
-    m_bookCtrl->setCurrentWidget(m_sweepToolPage);
+    m_toolPages->setCurrentWidget(m_sweepToolPage);
   }
   else if (scaleToolActive())
   {
-    m_bookCtrl->setCurrentWidget(m_scaleToolPage);
+    m_toolPages->setCurrentWidget(m_scaleToolPage);
   }
   else if (controlPointToolActive())
   {
-    m_bookCtrl->setCurrentWidget(m_controlPointToolPage);
+    m_toolPages->setCurrentWidget(m_controlPointToolPage);
   }
   else if (
     shearToolActive() || vertexToolActive() || edgeToolActive() || faceToolActive()
     || clipToolActive())
   {
-    m_bookCtrl->setCurrentWidget(m_emptyToolPage);
+    m_toolPages->setCurrentWidget(m_emptyToolPage);
   }
   else
   {
-    m_bookCtrl->setCurrentWidget(m_drawShapeToolPage);
+    m_toolPages->setCurrentWidget(m_drawShapeToolPage);
   }
 }
 
