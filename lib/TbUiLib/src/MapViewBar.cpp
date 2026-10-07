@@ -39,17 +39,17 @@ MapViewBar::MapViewBar(MapDocument& document, QWidget* parent)
   createGui(document);
 }
 
-QStackedLayout* MapViewBar::toolBook()
+QStackedLayout* MapViewBar::toolPages()
 {
-  return m_toolBook;
+  return m_toolPages;
 }
 
 void MapViewBar::createGui(MapDocument& document)
 {
   setAttribute(Qt::WA_MacSmallSize);
 
-  m_toolBook = new QStackedLayout{};
-  m_toolBook->setContentsMargins(0, 0, 0, 0);
+  m_toolPages = new QStackedLayout{};
+  m_toolPages->setContentsMargins(0, 0, 0, 0);
 
   m_viewEditor = new ViewPopupEditor{document};
 
@@ -65,7 +65,7 @@ void MapViewBar::createGui(MapDocument& document)
   layout->setContentsMargins(
     LayoutConstants::WideHMargin, vMargin, LayoutConstants::WideHMargin, vMargin);
   layout->setSpacing(LayoutConstants::WideHMargin);
-  layout->addLayout(m_toolBook, 1);
+  layout->addLayout(m_toolPages, 1);
   layout->addWidget(m_viewEditor, 0, Qt::AlignVCenter);
 
   setLayout(layout);

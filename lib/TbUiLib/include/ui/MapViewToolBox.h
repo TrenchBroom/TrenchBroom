@@ -58,7 +58,7 @@ class MapViewToolBox : public ToolBox
 {
 private:
   MapDocument& m_document;
-  QStackedLayout* m_bookCtrl = nullptr;
+  QStackedLayout* m_toolPages = nullptr;
 
   std::unique_ptr<ClipTool> m_clipTool;
   std::unique_ptr<AssembleBrushTool> m_assembleBrushTool;
@@ -85,7 +85,7 @@ private:
   NotifierConnection m_notifierConnection;
 
 public:
-  MapViewToolBox(MapDocument& map, QStackedLayout* bookCtrl);
+  MapViewToolBox(MapDocument& map, QStackedLayout* toolPages);
   ~MapViewToolBox() override;
 
 public: // tools
@@ -188,7 +188,7 @@ public: // tools
   void moveNodeHandles(const vm::vec3d& delta);
 
 private: // Tool related methods
-  void createTools(QStackedLayout* bookCtrl);
+  void createTools(QStackedLayout* toolPages);
 
 private: // notification
   void connectObservers();
