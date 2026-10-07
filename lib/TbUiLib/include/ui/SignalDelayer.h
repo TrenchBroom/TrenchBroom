@@ -51,6 +51,12 @@ public slots:
    */
   void queueSignal();
 
+  /**
+   * If `processSignal()` is pending, emits it immediately instead of waiting for the
+   * delay to elapse.
+   */
+  void flushSignal();
+
 signals:
   void processSignal();
 };
