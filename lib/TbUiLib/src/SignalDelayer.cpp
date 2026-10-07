@@ -55,4 +55,13 @@ void SignalDelayer::queueSignal()
   m_timer->start();
 }
 
+void SignalDelayer::flushSignal()
+{
+  if (m_timer->isActive())
+  {
+    m_timer->stop();
+    emit processSignal();
+  }
+}
+
 } // namespace tb::ui
