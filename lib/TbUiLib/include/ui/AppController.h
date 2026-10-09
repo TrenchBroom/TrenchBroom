@@ -31,6 +31,7 @@ class QMenu;
 class QNetworkAccessManager;
 class QOffscreenSurface;
 class QOpenGLContext;
+class QTemporaryFile;
 class QTimer;
 
 namespace kdl
@@ -91,6 +92,8 @@ private:
   std::unique_ptr<WelcomeWindow> m_welcomeWindow;
   std::unique_ptr<AboutDialog> m_aboutDialog;
 
+  QTemporaryFile* m_manualRedirectFile = nullptr;
+
 public:
   AppController(
     std::unique_ptr<kdl::task_manager> taskManager,
@@ -134,7 +137,7 @@ public:
 
   void showWelcomeWindow();
 
-  void showManual();
+  void showManual(const QString& fragment = "");
   void showPreferences();
   void showAboutDialog();
   void debugShowCrashReportDialog();
