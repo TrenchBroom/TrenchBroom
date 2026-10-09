@@ -19,12 +19,9 @@
 
 #include "Matchers.h"
 #include "TestEnvironment.h"
-#include "fs/DiskIO.h"
+#include "fs/IdPakFileSystem.h"
 #include "fs/TestUtils.h"
 #include "fs/TraversalMode.h"
-#include "fs/ZipFileSystem.h"
-
-#include "kd/result.h"
 
 #include <filesystem>
 
@@ -33,34 +30,17 @@
 namespace tb::fs
 {
 
-TEST_CASE("ZipFileSystem")
+TEST_CASE("IdPakFileSystem")
 {
-  const auto fsTestPath = getFixtureRoot() / "test/fs/Zip/";
+  const auto fsTestPath = getFixtureRoot() / "test/fs/Pak/";
 
   SECTION("doReadDirectory")
   {
-    SECTION("returns an error if the archive cannot be opened")
-    {
-      const auto file = Disk::openFile(fsTestPath / "not_a_zip.zip") | kdl::value();
-      CHECK(createImageFileSystem<ZipFileSystem>(file).is_error());
-    }
-
-    SECTION("returns an error if extraction fails for a discovered entry")
-    {
-      auto fs = openFS<ZipFileSystem>(fsTestPath / "corrupted_data.zip");
-      CHECK(fs->openFile("data.txt").is_error());
-    }
-
-    SECTION("skips an entry with an empty filename")
-    {
-      auto fs = openFS<ZipFileSystem>(fsTestPath / "empty_filename.zip");
-      CHECK_THAT(fs->find("", TraversalMode::Recursive), MatchesPathsResult({}));
-    }
-
     SECTION("reads an entry whose name is not valid UTF-8")
     {
       // https://github.com/TrenchBroom/TrenchBroom/issues/5494
-      const auto fs = openFS<ZipFileSystem>(fsTestPath / "non_utf8_filename.zip");
+      const auto fs =
+        openFS<IdPakFileSystem>(fsTestPath / "idpak_non_utf8_entry_name.pak");
 
 #ifdef _WIN32
       const auto expectedPath = std::filesystem::path{L"fen\u00EAtre.txt"};
@@ -69,25 +49,6 @@ TEST_CASE("ZipFileSystem")
 #endif
       CHECK_THAT(fs->find("", TraversalMode::Flat), MatchesPathsResult({expectedPath}));
     }
-  }
-
-  SECTION("reload")
-  {
-    auto fs = openFS<ZipFileSystem>(fsTestPath / "zip.zip");
-
-    // reload can be called multiple times
-    CHECK(fs->reload().is_success());
-    CHECK(fs->reload().is_success());
-
-    CHECK_THAT(
-      fs->find("", TraversalMode::Flat),
-      MatchesPathsResult({
-        "bear.cfg",
-        "pics",
-        "textures",
-        "amnet.cfg",
-      }));
-    CHECK(fs->openFile("amnet.cfg").is_success());
   }
 }
 
