@@ -457,6 +457,24 @@ TEST_CASE("LaunchGameEngineDialog")
       CHECK(waitForLoggedArgs(launchLog) == std::vector<std::string>{"first"});
     }
 
+    SECTION("does not launch when return accepts a completion")
+    {
+      const auto disableNativeDialogs = DisableNativeDialogs{};
+
+      f.profileList->setCurrentRow(2);
+      QTest::keyClicks(f.parameterText, "${MAP_");
+
+      // while the completion popup is visible, it receives all key events
+      auto* popup = QApplication::activePopupWidget();
+      REQUIRE(popup != nullptr);
+
+      QTest::keyClick(popup, Qt::Key_Down);
+      QTest::keyClick(popup, Qt::Key_Return);
+
+      CHECK(f.parameterText->text() == "${MAP_BASE_NAME}");
+      CHECK(countFailedLaunches(f.dialog) == 0);
+    }
+
     SECTION("shows an error if the engine cannot be launched")
     {
       const auto disableNativeDialogs = DisableNativeDialogs{};
