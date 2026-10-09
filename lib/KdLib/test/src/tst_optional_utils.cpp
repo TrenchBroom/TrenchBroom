@@ -50,6 +50,16 @@ struct MoveOnly
   }
 };
 
+std::optional<int> maybeTwice(const int x)
+{
+  return x * 2;
+}
+
+int twice(const int x)
+{
+  return x * 2;
+}
+
 } // namespace
 
 TEST_CASE("optional_utils")
@@ -59,6 +69,11 @@ TEST_CASE("optional_utils")
     const auto f = [](int x) { return std::optional{x * 2}; };
     CHECK((std::optional<int>{42} | optional_and_then(f)) == 84);
     CHECK((std::optional<int>{} | optional_and_then(f)) == std::nullopt);
+
+    SECTION("with a function")
+    {
+      CHECK((std::optional<int>{42} | optional_and_then(maybeTwice)) == 84);
+    }
   }
 
   SECTION("optional_transform")
@@ -66,6 +81,11 @@ TEST_CASE("optional_utils")
     const auto f = [](int x) { return x * 2; };
     CHECK((std::optional<int>{42} | optional_transform(f)) == 84);
     CHECK((std::optional<int>{} | optional_transform(f)) == std::nullopt);
+
+    SECTION("with a function")
+    {
+      CHECK((std::optional<int>{42} | optional_transform(twice)) == 84);
+    }
   }
 
   SECTION("optional_value_or")
