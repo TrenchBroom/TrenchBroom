@@ -164,6 +164,12 @@ EntityRotationInfo entityRotationInfo(const Entity& entity)
           type = EntityRotationType::Angle;
           propertyKey = EntityPropertyKeys::Angle;
         }
+        else if (getPropertyDefinition(entity.definition(), EntityPropertyKeys::Angles))
+        {
+          // fall back to the entitiy definition if it declares "angles"
+          type = eulerType;
+          propertyKey = EntityPropertyKeys::Angles;
+        }
         else
         {
           // not a spotlight, don't modify
