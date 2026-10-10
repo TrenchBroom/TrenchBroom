@@ -158,11 +158,6 @@ void LaunchGameEngineDialog::createGui()
     &QLineEdit::textChanged,
     this,
     &LaunchGameEngineDialog::parametersChanged);
-  connect(
-    m_parameterText,
-    &QLineEdit::returnPressed,
-    this,
-    &LaunchGameEngineDialog::launchEngine);
 
   connect(
     m_launchButton, &QPushButton::clicked, this, &LaunchGameEngineDialog::launchEngine);

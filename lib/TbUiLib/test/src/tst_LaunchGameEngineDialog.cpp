@@ -159,6 +159,11 @@ std::vector<std::string> waitForLoggedArgs(const std::filesystem::path& logPath)
   return lines;
 }
 
+auto countFailedLaunches(const LaunchGameEngineDialog& dialog)
+{
+  return dialog.findChildren<QMessageBox*>().size();
+}
+
 } // namespace
 
 TEST_CASE("LaunchGameEngineDialog")
@@ -407,6 +412,20 @@ TEST_CASE("LaunchGameEngineDialog")
       QTest::mouseClick(f.launchButton, Qt::LeftButton);
 
       CHECK(waitForLoggedArgs(launchLog) == std::vector<std::string>{"first", "edited"});
+    }
+
+    SECTION("launches the selected profile once when return is pressed")
+    {
+      const auto disableNativeDialogs = DisableNativeDialogs{};
+
+      f.profileList->setCurrentRow(2);
+
+      // The parameters have the focus while they are edited. Without it, another button
+      // with the focus could be the default button that return triggers.
+      f.parameterText->setFocus();
+      QTest::keyClick(f.parameterText, Qt::Key_Return);
+
+      CHECK(countFailedLaunches(f.dialog) == 1);
     }
 
     SECTION("launches a profile when it is double clicked")
