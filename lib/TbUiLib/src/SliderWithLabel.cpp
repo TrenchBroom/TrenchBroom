@@ -40,13 +40,14 @@ SliderWithLabel::SliderWithLabel(const int minimum, const int maximum, QWidget* 
   m_slider->setTickPosition(QSlider::TicksBelow);
   m_slider->setTracking(true);
   m_slider->setOrientation(Qt::Horizontal);
+  m_slider->setAttribute(Qt::WA_LayoutUsesWidgetRect); // centers the label on macOS
 
   const auto maxDigits = int(std::log10(m_slider->maximum())) + 1;
   const auto str = QString{""}.fill('9', maxDigits);
   const auto rect = m_label->fontMetrics().boundingRect(str);
   const auto width = rect.width() + 1;
   m_label->setMinimumWidth(width);
-  m_label->setAlignment(Qt::AlignRight);
+  m_label->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
   m_label->setText(QString::number(m_slider->value()));
 
   auto* layout = new QHBoxLayout{};

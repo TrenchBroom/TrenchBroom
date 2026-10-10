@@ -47,6 +47,9 @@ public:
   std::optional<std::string> groupNameForCreatedBrushes() const;
 
 private:
+  void doBrushesWereCreated() override;
+
+private:
   DrawShapeToolExtensionManager m_extensionManager;
 };
 

@@ -37,15 +37,7 @@ static constexpr int NarrowHMargin = 4;
 static constexpr int WideVMargin = 8;
 static constexpr int MediumVMargin = 4;
 static constexpr int NarrowVMargin = 2;
-static constexpr int StaticBoxSideMargin = 15;
-static constexpr int StaticBoxTopMargin = 20;
-static constexpr int StaticBoxBottomMargin = 15;
-static constexpr int ChoiceTopMargin = 1;
-static constexpr int ChoiceLeftMargin = 0;
-static constexpr int ChoiceSizeDelta = 0;
-static constexpr int TextBoxInnerMargin = 5;
 static constexpr int TabBarBarLeftMargin = 10;
-static constexpr int ToggleButtonStyle = 0;
 #elif defined(Q_OS_MACOS)
 static constexpr int DialogOuterMargin = 20;
 static constexpr int DialogButtonTopMargin = 10;
@@ -58,15 +50,7 @@ static constexpr int NarrowHMargin = 2;
 static constexpr int WideVMargin = 8;
 static constexpr int MediumVMargin = 4;
 static constexpr int NarrowVMargin = 2;
-static constexpr int StaticBoxSideMargin = 10;
-static constexpr int StaticBoxTopMargin = 10;
-static constexpr int StaticBoxBottomMargin = 10;
-static constexpr int ChoiceTopMargin = 1;
-static constexpr int ChoiceLeftMargin = 1;
-static constexpr int ChoiceSizeDelta = 1;
-static constexpr int TextBoxInnerMargin = 0;
 static constexpr int TabBarBarLeftMargin = 10;
-static constexpr int ToggleButtonStyle = 0x08000000; // wxBORDER_SUNKEN
 #else
 static constexpr int DialogOuterMargin = 20;
 static constexpr int DialogButtonTopMargin = 10;
@@ -79,18 +63,8 @@ static constexpr int NarrowHMargin = 2;
 static constexpr int WideVMargin = 8;
 static constexpr int MediumVMargin = 4;
 static constexpr int NarrowVMargin = 2;
-static constexpr int StaticBoxSideMargin = 15;
-static constexpr int StaticBoxTopMargin = 10;
-static constexpr int StaticBoxBottomMargin = 30;
-static constexpr int ChoiceTopMargin = 0;
-static constexpr int ChoiceLeftMargin = 0;
-static constexpr int ChoiceSizeDelta = 0;
-static constexpr int TextBoxInnerMargin = 2;
 static constexpr int TabBarBarLeftMargin = 10;
-static constexpr int ToggleButtonStyle = 0;
 #endif
-static constexpr int MinPreferenceLabelWidth = 100;
-static constexpr int HighlightBoxMargin = 5;
 } // namespace LayoutConstants
 
 } // namespace tb::ui
