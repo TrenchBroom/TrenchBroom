@@ -21,7 +21,6 @@
 
 #include "base/LoggingHub.h"
 #include "base/PreferenceManager.h"
-#include "fs/DiskIO.h"
 #include "gl/MaterialManager.h"
 #include "gl/ResourceManager.h"
 #include "mdl/Autosaver.h"
@@ -44,6 +43,7 @@
 #include "render/MapRenderer.h"
 
 #include "kd/contracts.h"
+#include "kd/filesystem_utils.h"
 #include "kd/result.h"
 #include "kd/task_manager.h"
 
@@ -245,7 +245,7 @@ void MapDocument::loadPointFile(std::filesystem::path path)
     unloadPointFile();
   }
 
-  fs::Disk::withInputStream(path, [&](auto& stream) {
+  kdl::with_istream(path, [&](auto& stream) {
     return mdl::loadPointFile(stream) | kdl::transform([&](auto trace) {
              logger().info() << "Loaded point file " << path;
              m_pointFile = PointFile{std::move(trace), std::move(path)};
@@ -300,7 +300,7 @@ void MapDocument::loadPortalFile(std::filesystem::path path)
     unloadPortalFile();
   }
 
-  fs::Disk::withInputStream(path, [&](auto& stream) {
+  kdl::with_istream(path, [&](auto& stream) {
     return mdl::loadPortalFile(stream) | kdl::transform([&](auto portalFile) {
              logger().info() << "Loaded portal file " << path;
              m_portalFile = {std::move(portalFile), std::move(path)};

@@ -22,6 +22,7 @@
 #include "fs/DiskIO.h"
 #include "fs/ReaderException.h"
 
+#include "kd/filesystem_utils.h"
 #include "kd/result.h"
 
 #include <string>
@@ -32,7 +33,7 @@ namespace tb::fs
 std::string readTextFile(const std::filesystem::path& path)
 {
   const auto fixedPath = Disk::fixPath(path);
-  return Disk::withInputStream(
+  return kdl::with_istream(
            fixedPath,
            [](auto& stream) {
              return std::string{

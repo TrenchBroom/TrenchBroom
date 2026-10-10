@@ -19,8 +19,7 @@
 
 #include "mdl/PortalFile.h"
 
-#include "fs/DiskIO.h"
-
+#include "kd/filesystem_utils.h"
 #include "kd/result.h"
 #include "kd/string_format.h"
 #include "kd/string_utils.h"
@@ -35,7 +34,7 @@ namespace tb::mdl
 
 bool canLoadPortalFile(const std::filesystem::path& path)
 {
-  return fs::Disk::withInputStream(
+  return kdl::with_istream(
            path, [](auto& stream) { return stream.is_open() && stream.good(); })
          | kdl::transform_error([](const auto&) { return false; }) | kdl::value();
 }

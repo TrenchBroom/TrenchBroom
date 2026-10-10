@@ -21,6 +21,7 @@
 
 #include "fs/DiskIO.h"
 
+#include "kd/filesystem_utils.h"
 #include "kd/invoke.h"
 
 #include <filesystem>
@@ -74,7 +75,7 @@ public:
                std::filesystem::remove(path, error);
              }};
 
-             Disk::withOutputStream(path, [&](auto& stream) { stream << contents; })
+             kdl::with_ostream(path, [&](auto& stream) { stream << contents; })
                | kdl::transform_error([](auto e) { throw std::runtime_error{e.msg}; });
              return f(path);
            })

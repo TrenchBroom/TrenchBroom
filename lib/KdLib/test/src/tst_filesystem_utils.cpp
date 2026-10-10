@@ -51,6 +51,16 @@ TEST_CASE("filesystem_utils")
     stream << "some content";
   }
 
+  {
+    auto stream = std::ofstream{fixture_dir / "link_target.txt"};
+    REQUIRE(stream.good());
+    stream << "linked content";
+  }
+
+  std::filesystem::remove(fixture_dir / "link.txt");
+  std::filesystem::create_symlink(
+    fixture_dir / "link_target.txt", fixture_dir / "link.txt");
+
   SECTION("with_stream")
   {
     SECTION("with_istream")
@@ -60,6 +70,7 @@ TEST_CASE("filesystem_utils")
         == result_error{"Failed to open stream"});
 
       CHECK(with_istream(fixture_dir / "test.txt", read_all) == "some content");
+      CHECK(with_istream(fixture_dir / "link.txt", read_all) == "linked content");
     }
 
     SECTION("with_ostream")
@@ -76,6 +87,17 @@ TEST_CASE("filesystem_utils")
       }));
       CHECK(
         with_istream(fixture_dir / "some_other_name.txt", read_all) == "some text...");
+
+      REQUIRE(with_ostream(
+        fixture_dir / "link.txt", std::ios::out | std::ios::app, [](auto& stream) {
+          stream << "\nmore linked content";
+        }));
+      CHECK(
+        with_istream(fixture_dir / "link_target.txt", read_all)
+        == "linked content\nmore linked content");
+      CHECK(
+        with_istream(fixture_dir / "link.txt", read_all)
+        == "linked content\nmore linked content");
     }
   }
 

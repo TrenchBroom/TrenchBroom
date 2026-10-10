@@ -18,9 +18,10 @@
  */
 
 #include "TestEnvironment.h"
-#include "fs/DiskIO.h"
 #include "mdl/CatchConfig.h"
 #include "mdl/PortalFile.h"
+
+#include "kd/filesystem_utils.h"
 
 #include "vm/polygon.h"
 
@@ -61,7 +62,7 @@ TEST_CASE("loadPortalFile")
   {
     const auto path =
       getFixtureRoot() / "test/mdl/PortalFile/portaltest_prt1_invalid.prt";
-    CHECK(fs::Disk::withInputStream(path, [](auto& stream) {
+    CHECK(kdl::with_istream(path, [](auto& stream) {
             return loadPortalFile(stream);
           }).is_error());
   }
@@ -70,8 +71,7 @@ TEST_CASE("loadPortalFile")
   {
     const auto path = getFixtureRoot() / "test/mdl/PortalFile/portaltest_prt1.prt";
     CHECK(
-      (fs::Disk::withInputStream(
-         path, [](auto& stream) { return loadPortalFile(stream); })
+      (kdl::with_istream(path, [](auto& stream) { return loadPortalFile(stream); })
        | kdl::value())
       == ExpectedPortals);
   }
@@ -80,8 +80,7 @@ TEST_CASE("loadPortalFile")
   {
     const auto path = getFixtureRoot() / "test/mdl/PortalFile/portaltest_prt1q3.prt";
     CHECK(
-      (fs::Disk::withInputStream(
-         path, [](auto& stream) { return loadPortalFile(stream); })
+      (kdl::with_istream(path, [](auto& stream) { return loadPortalFile(stream); })
        | kdl::value())
       == ExpectedPortals);
   }
@@ -90,8 +89,7 @@ TEST_CASE("loadPortalFile")
   {
     const auto path = getFixtureRoot() / "test/mdl/PortalFile/portaltest_prt1am.prt";
     CHECK(
-      (fs::Disk::withInputStream(
-         path, [](auto& stream) { return loadPortalFile(stream); })
+      (kdl::with_istream(path, [](auto& stream) { return loadPortalFile(stream); })
        | kdl::value())
       == ExpectedPortals);
   }
@@ -100,8 +98,7 @@ TEST_CASE("loadPortalFile")
   {
     const auto path = getFixtureRoot() / "test/mdl/PortalFile/portaltest_prt2.prt";
     CHECK(
-      (fs::Disk::withInputStream(
-         path, [](auto& stream) { return loadPortalFile(stream); })
+      (kdl::with_istream(path, [](auto& stream) { return loadPortalFile(stream); })
        | kdl::value())
       == ExpectedPortals);
   }

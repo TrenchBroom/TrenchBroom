@@ -62,6 +62,7 @@
 
 #include "kd/const_overload.h"
 #include "kd/contracts.h"
+#include "kd/filesystem_utils.h"
 #include "kd/ranges/contains.h"
 #include "kd/ranges/join_with_view.h"
 #include "kd/ranges/to.h"
@@ -140,7 +141,7 @@ auto createRecentDocuments(QObject* parent)
 std::optional<std::tuple<std::string, mdl::MapFormat>> detectOrQueryGameAndFormat(
   AppController& appController, const std::filesystem::path& path)
 {
-  return fs::Disk::withInputStream(path, mdl::readMapHeader)
+  return kdl::with_istream(path, mdl::readMapHeader)
          | kdl::transform(kdl::unpack(
            [&](auto gameName, auto mapFormat)
              -> std::optional<std::tuple<std::string, mdl::MapFormat>> {
