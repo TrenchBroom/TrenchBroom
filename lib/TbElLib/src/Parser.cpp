@@ -79,6 +79,7 @@ auto tokenNames()
     {DoubleCBrace, "'}}'"},
     {Null, "'null'"},
     {Eof, "end of file"},
+    {Dot, "'.'"},
   };
 }
 } // namespace
@@ -247,6 +248,11 @@ Tokenizer::Token Tokenizer::emitToken()
           advance(2);
           return Token{ElToken::Range, c, c + 2, offset(c), line, column};
         }
+        if (!isDigit(lookAhead()))
+        {
+          advance();
+          return Token{ElToken::Dot, c, c + 1, offset(c), line, column};
+        }
         break;
       case '=':
         if (lookAhead() == '=')
@@ -377,18 +383,18 @@ ExpressionNode Parser::parseSimpleTermOrSwitch()
   const auto token = m_tokenizer.peekToken(ElToken::SimpleTerm | ElToken::DoubleOBrace);
   if (token.hasType(ElToken::SimpleTerm))
   {
-    return parseSimpleTermOrSubscript();
+    return parseSimpleTermOrSubscriptOrDotAccess();
   }
   return parseSwitch();
 }
 
-ExpressionNode Parser::parseSimpleTermOrSubscript()
+ExpressionNode Parser::parseSimpleTermOrSubscriptOrDotAccess()
 {
   auto term = parseSimpleTerm();
 
-  while (m_tokenizer.peekToken().hasType(ElToken::OBracket))
+  while (m_tokenizer.peekToken().hasType(ElToken::OBracket | ElToken::Dot))
   {
-    term = parseSubscript(std::move(term));
+    term = parseSubscriptOrDotAccess(std::move(term));
   }
 
   return term;
@@ -407,9 +413,16 @@ ExpressionNode Parser::parseSimpleTerm()
   }
   if (token.hasType(ElToken::Name))
   {
-    return parseVariable();
+    return parseCallOrVariable();
   }
   return parseLiteral();
+}
+
+ExpressionNode Parser::parseSubscriptOrDotAccess(ExpressionNode lhs)
+{
+  return m_tokenizer.peekToken().hasType(ElToken::OBracket)
+           ? parseSubscript(std::move(lhs))
+           : parseDotAccess(std::move(lhs));
 }
 
 ExpressionNode Parser::parseSubscript(ExpressionNode lhs)
@@ -435,6 +448,50 @@ ExpressionNode Parser::parseSubscript(ExpressionNode lhs)
                ? std::move(elements.front())
                : ExpressionNode{ArrayExpression{std::move(elements)}, location};
   return ExpressionNode{SubscriptExpression{std::move(lhs), std::move(rhs)}, location};
+}
+
+ExpressionNode Parser::parseDotAccess(ExpressionNode lhs)
+{
+  const auto dotToken = m_tokenizer.nextToken(ElToken::Dot);
+  const auto nameToken = m_tokenizer.nextToken(ElToken::Name);
+
+  return ExpressionNode{
+    DotExpression{std::move(lhs), nameToken.data()}, dotToken.location()};
+}
+
+ExpressionNode Parser::parseCallOrVariable()
+{
+  const auto snapshot = m_tokenizer.snapshot();
+  const auto nameToken = m_tokenizer.nextToken(ElToken::Name);
+  if (m_tokenizer.peekToken().hasType(ElToken::OParen))
+  {
+    return parseCall(nameToken);
+  }
+  m_tokenizer.restore(snapshot);
+
+  return parseVariable();
+}
+
+ExpressionNode Parser::parseCall(const Token& nameToken)
+{
+  m_tokenizer.nextToken(ElToken::OParen);
+
+  auto arguments = std::vector<ExpressionNode>{};
+  if (!m_tokenizer.peekToken().hasType(ElToken::CParen))
+  {
+    do
+    {
+      arguments.push_back(parseTerm());
+    } while (
+      m_tokenizer.nextToken(ElToken::Comma | ElToken::CParen).hasType(ElToken::Comma));
+  }
+  else
+  {
+    m_tokenizer.nextToken();
+  }
+
+  return ExpressionNode{
+    CallExpression{nameToken.data(), std::move(arguments)}, nameToken.location()};
 }
 
 ExpressionNode Parser::parseVariable()
@@ -509,8 +566,7 @@ ExpressionNode Parser::parseExpressionOrBoundedRange()
   {
     auto token = m_tokenizer.nextToken();
     expression = ExpressionNode{
-      BinaryExpression{
-        BinaryOperation::BoundedRange, std::move(expression), parseExpression()},
+      BinaryExpression{binop::BoundedRange{}, std::move(expression), parseExpression()},
       token.location()};
   }
 
@@ -537,7 +593,7 @@ ExpressionNode Parser::parseExpressionOrAnyRange()
       {
         expression = ExpressionNode{
           BinaryExpression{
-            BinaryOperation::BoundedRange, std::move(*expression), parseExpression()},
+            binop::BoundedRange{}, std::move(*expression), parseExpression()},
           token.location()};
       }
       else
@@ -628,32 +684,46 @@ ExpressionNode Parser::parseSwitch()
 ExpressionNode Parser::parseCompoundTerm(ExpressionNode lhs)
 {
   static const auto TokenMap = std::unordered_map<ElToken::Type, BinaryOperation>{
-    {ElToken::Addition, BinaryOperation::Addition},
-    {ElToken::Subtraction, BinaryOperation::Subtraction},
-    {ElToken::Multiplication, BinaryOperation::Multiplication},
-    {ElToken::Division, BinaryOperation::Division},
-    {ElToken::Modulus, BinaryOperation::Modulus},
-    {ElToken::LogicalAnd, BinaryOperation::LogicalAnd},
-    {ElToken::LogicalOr, BinaryOperation::LogicalOr},
-    {ElToken::BitwiseAnd, BinaryOperation::BitwiseAnd},
-    {ElToken::BitwiseXOr, BinaryOperation::BitwiseXOr},
-    {ElToken::BitwiseOr, BinaryOperation::BitwiseOr},
-    {ElToken::BitwiseShiftLeft, BinaryOperation::BitwiseShiftLeft},
-    {ElToken::BitwiseShiftRight, BinaryOperation::BitwiseShiftRight},
-    {ElToken::Less, BinaryOperation::Less},
-    {ElToken::LessOrEqual, BinaryOperation::LessOrEqual},
-    {ElToken::Greater, BinaryOperation::Greater},
-    {ElToken::GreaterOrEqual, BinaryOperation::GreaterOrEqual},
-    {ElToken::Equal, BinaryOperation::Equal},
-    {ElToken::NotEqual, BinaryOperation::NotEqual},
-    {ElToken::Range, BinaryOperation::BoundedRange},
-    {ElToken::Case, BinaryOperation::Case},
+    {ElToken::Addition, binop::Addition{}},
+    {ElToken::Subtraction, binop::Subtraction{}},
+    {ElToken::Multiplication, binop::Multiplication{}},
+    {ElToken::Division, binop::Division{}},
+    {ElToken::Modulus, binop::Modulus{}},
+    {ElToken::LogicalAnd, binop::LogicalAnd{}},
+    {ElToken::LogicalOr, binop::LogicalOr{}},
+    {ElToken::BitwiseAnd, binop::BitwiseAnd{}},
+    {ElToken::BitwiseXOr, binop::BitwiseXOr{}},
+    {ElToken::BitwiseOr, binop::BitwiseOr{}},
+    {ElToken::BitwiseShiftLeft, binop::BitwiseShiftLeft{}},
+    {ElToken::BitwiseShiftRight, binop::BitwiseShiftRight{}},
+    {ElToken::Less, binop::Less{}},
+    {ElToken::LessOrEqual, binop::LessOrEqual{}},
+    {ElToken::Greater, binop::Greater{}},
+    {ElToken::GreaterOrEqual, binop::GreaterOrEqual{}},
+    {ElToken::Equal, binop::Equal{}},
+    {ElToken::NotEqual, binop::NotEqual{}},
+    {ElToken::Range, binop::BoundedRange{}},
+    {ElToken::Case, binop::Case{}},
   };
 
-  while (m_tokenizer.peekToken().hasType(ElToken::CompoundTerm))
+  // a name only continues the term as an infix call if it names a built-in function, so
+  // in `a b c`, the term ends before `b` unless `b` is a built-in function
+  const auto continuesTerm = [](const auto& token) {
+    return token.hasType(ElToken::CompoundTerm)
+           && (!token.hasType(ElToken::Name) || isBuiltinFunction(token.data()));
+  };
+
+  while (continuesTerm(m_tokenizer.peekToken()))
   {
     const auto token = m_tokenizer.nextToken(ElToken::CompoundTerm);
-    if (const auto it = TokenMap.find(token.type()); it != TokenMap.end())
+    if (token.hasType(ElToken::Name))
+    {
+      lhs = ExpressionNode{
+        BinaryExpression{
+          binop::InfixCall{token.data()}, std::move(lhs), parseSimpleTermOrSwitch()},
+        token.location()};
+    }
+    else if (const auto it = TokenMap.find(token.type()); it != TokenMap.end())
     {
       const auto op = it->second;
       lhs = ExpressionNode{

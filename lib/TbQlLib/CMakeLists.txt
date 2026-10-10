@@ -1,0 +1,34 @@
+add_library(TbQlLib STATIC)
+
+target_sources(TbQlLib
+  PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/BrushFaceLazyMap.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/BrushFaceVariableStore.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/BrushNodeLazyMap.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/EntityNodeLazyMap.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/GroupNodeLazyMap.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/LayerNodeLazyMap.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/NodeQueryValues.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/NodeVariableStore.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/PatchNodeLazyMap.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/Query.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/QueryDomainInference.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/WorldNodeLazyMap.cpp
+
+  PUBLIC FILE_SET headers TYPE HEADERS
+    BASE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/include
+)
+
+target_link_libraries(TbQlLib
+  PRIVATE
+    CompilerConfig
+    PrecompileStdHeaders
+  PUBLIC
+    fmt::fmt-header-only
+    KdLib
+    TbBaseLib
+    TbElLib
+    TbMdlLib
+  )
+
+add_subdirectory(test)

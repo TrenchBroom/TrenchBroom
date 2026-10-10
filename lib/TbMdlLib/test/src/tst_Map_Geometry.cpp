@@ -1145,7 +1145,7 @@ TEST_CASE("Map_Geometry")
       REQUIRE(oFace1Index);
       REQUIRE(oFace2Index);
 
-      selectBrushFaces(map, {{brushNode1, *oFace1Index}, {brushNode2, *oFace2Index}});
+      selectBrushFaces(map, {{*brushNode1, *oFace1Index}, {*brushNode2, *oFace2Index}});
       CHECK(csgConvexMerge(map));
 
       // added to the parent of the first brush, original brush is not deleted

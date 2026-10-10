@@ -32,7 +32,7 @@ namespace detail
 template <typename F>
 struct and_then_helper
 {
-  const F& f;
+  F f;
 };
 
 // This actually does the work
@@ -52,7 +52,7 @@ constexpr auto operator|(const std::optional<T>& o, const and_then_helper<F>& h)
 template <typename F>
 struct or_else_helper
 {
-  const F& f;
+  F f;
 };
 
 template <typename T, typename F>
@@ -71,7 +71,7 @@ constexpr auto operator|(const std::optional<T>& o, const or_else_helper<F>& h)
 template <typename F>
 struct transform_helper
 {
-  const F& f;
+  F f;
 };
 
 // This actually does the work
@@ -110,21 +110,21 @@ constexpr auto operator|(const std::optional<T>& o, value_or_helper<X>&& h)
 } // namespace detail
 
 template <typename F>
-constexpr auto optional_and_then(const F& f)
+constexpr auto optional_and_then(F f)
 {
-  return detail::and_then_helper<F>{f};
+  return detail::and_then_helper<F>{std::move(f)};
 }
 
 template <typename F>
-constexpr auto optional_or_else(const F& f)
+constexpr auto optional_or_else(F f)
 {
-  return detail::or_else_helper<F>{f};
+  return detail::or_else_helper<F>{std::move(f)};
 }
 
 template <typename F>
-constexpr auto optional_transform(const F& f)
+constexpr auto optional_transform(F f)
 {
-  return detail::transform_helper<F>{f};
+  return detail::transform_helper<F>{std::move(f)};
 }
 
 template <typename X>

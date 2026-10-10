@@ -308,7 +308,7 @@ TEST_CASE("Map_Layers")
       auto* node = createNode(map);
       addNodes(map, {{&parentForNodes(map), {node}}});
 
-      REQUIRE(findContainingLayer(node) == defaultLayer);
+      REQUIRE(findContainingLayer(*node) == defaultLayer);
 
       WHEN("The node is moved to another layer")
       {
@@ -317,7 +317,7 @@ TEST_CASE("Map_Layers")
 
         THEN("The group node is in the target layer")
         {
-          CHECK(findContainingLayer(node) == customLayer);
+          CHECK(findContainingLayer(*node) == customLayer);
 
           AND_THEN("The node is selected")
           {
@@ -331,7 +331,7 @@ TEST_CASE("Map_Layers")
 
           THEN("The node is back in the original layer")
           {
-            CHECK(findContainingLayer(node) == defaultLayer);
+            CHECK(findContainingLayer(*node) == defaultLayer);
 
             AND_THEN("The node is selected")
             {
@@ -351,7 +351,7 @@ TEST_CASE("Map_Layers")
       entityNode->addChildren({childNode1, childNode2});
       addNodes(map, {{&parentForNodes(map), {entityNode}}});
 
-      REQUIRE(findContainingLayer(entityNode) == defaultLayer);
+      REQUIRE(findContainingLayer(*entityNode) == defaultLayer);
 
       WHEN("Any child node is selected and moved to another layer")
       {
@@ -377,7 +377,7 @@ TEST_CASE("Map_Layers")
 
         THEN("The brush entity node is moved to the target layer")
         {
-          CHECK(findContainingLayer(entityNode) == customLayer);
+          CHECK(findContainingLayer(*entityNode) == customLayer);
           CHECK(childNode1->parent() == entityNode);
           CHECK(childNode2->parent() == entityNode);
 
@@ -393,7 +393,7 @@ TEST_CASE("Map_Layers")
 
           THEN("The brush entity node is back in the original layer")
           {
-            CHECK(findContainingLayer(entityNode) == defaultLayer);
+            CHECK(findContainingLayer(*entityNode) == defaultLayer);
             CHECK(childNode1->parent() == entityNode);
             CHECK(childNode2->parent() == entityNode);
 

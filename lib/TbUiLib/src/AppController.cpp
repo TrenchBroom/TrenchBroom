@@ -170,6 +170,46 @@ std::optional<std::tuple<std::string, mdl::MapFormat>> detectOrQueryGameAndForma
          | kdl::transform_error([](const auto&) { return std::nullopt; }) | kdl::value();
 }
 
+/**
+ * Opens the given URL in the default browser.
+ *
+ * Not every platform retains the fragment of a file URL when asked to open it (macOS
+ * doesn't), so in that case, the browser is sent to a temporary page that redirects to
+ * the URL instead.
+ */
+void openInBrowser(const QUrl& url)
+{
+  if (!url.isLocalFile() || !url.hasFragment())
+  {
+    QDesktopServices::openUrl(url);
+    return;
+  }
+
+  const auto redirectPath = SystemPaths::tempDirectory() / "TrenchBroom-redirect.html";
+  const auto target = url.toString(QUrl::FullyEncoded).toHtmlEscaped().toStdString();
+
+  QDesktopServices::openUrl(
+    fs::Disk::withOutputStream(
+      redirectPath,
+      [&](auto& stream) {
+        stream << fmt::format(
+          R"(<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta http-equiv="refresh" content="0; url={0}">
+</head>
+<body>
+<a href="{0}">{0}</a>
+</body>
+</html>
+)",
+          target);
+      })
+    | kdl::transform([&]() { return QUrl::fromLocalFile(pathAsQString(redirectPath)); })
+    | kdl::value_or(url));
+}
+
 } // namespace
 
 AppController::AppController(
@@ -386,11 +426,15 @@ void AppController::showWelcomeWindow()
   m_welcomeWindow->raise();
 }
 
-void AppController::showManual()
+void AppController::showManual(const QString& fragment)
 {
   const auto manualPath = SystemPaths::findResourceFile("manual/index.html");
-  const auto manualPathUrl = QUrl::fromLocalFile(pathAsQString(manualPath));
-  QDesktopServices::openUrl(manualPathUrl);
+  auto manualPathUrl = QUrl::fromLocalFile(pathAsQString(manualPath));
+  if (!fragment.isEmpty())
+  {
+    manualPathUrl.setFragment(fragment);
+  }
+  openInBrowser(manualPathUrl);
 }
 
 void AppController::showPreferences()

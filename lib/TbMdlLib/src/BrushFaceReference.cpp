@@ -43,7 +43,7 @@ Result<BrushFaceHandle> BrushFaceReference::resolve() const
 {
   if (const auto faceIndex = m_node->brush().findFace(m_facePlane))
   {
-    return BrushFaceHandle(m_node, *faceIndex);
+    return BrushFaceHandle(*m_node, *faceIndex);
   }
   return Error{"Cannot resolve brush face reference"};
 }
@@ -51,7 +51,7 @@ Result<BrushFaceHandle> BrushFaceReference::resolve() const
 std::vector<BrushFaceReference> createRefs(const std::vector<BrushFaceHandle>& handles)
 {
   return handles | std::views::transform([](const auto& handle) {
-           return BrushFaceReference{handle.node(), handle.face()};
+           return BrushFaceReference{&handle.node(), handle.face()};
          })
          | kdl::ranges::to<std::vector>();
 }

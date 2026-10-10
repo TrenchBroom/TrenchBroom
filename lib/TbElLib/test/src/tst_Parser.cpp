@@ -20,6 +20,8 @@
 #include "el/Parser.h"
 #include "el/TestUtils.h"
 
+#include "kd/result_io.h" // IWYU pragma: keep
+
 #include <string>
 
 #include <catch2/catch_test_macros.hpp>
@@ -294,6 +296,92 @@ asdf)")
     {
       CHECK(parse(R"([ 1.0 ][])") == scr(arr({lit(1.0)}), arr({})));
     }
+  }
+
+  SECTION("Dot access")
+  {
+    CHECK(parse("a.b") == dot(var("a"), "b"));
+    CHECK(parse(R"({ "b": 1 }.b)") == dot(map({{"b", lit(1.0)}}), "b"));
+
+    CHECK(parse("a.b.c") == dot(dot(var("a"), "b"), "c"));
+    CHECK(parse("a.b[0]") == scr(dot(var("a"), "b"), lit(0)));
+    CHECK(parse("a[0].b") == dot(scr(var("a"), lit(0)), "b"));
+
+    CHECK(parse("1.5") == lit(1.5));
+    CHECK(parse("1.5 + a.b") == add(lit(1.5), dot(var("a"), "b")));
+  }
+
+  SECTION("Function calls")
+  {
+    CHECK(parse("f()") == call("f"));
+    CHECK(parse("f(1)") == call("f", {lit(1)}));
+    CHECK(parse("f(1, 2, 3)") == call("f", {lit(1), lit(2), lit(3)}));
+    CHECK(parse("f(1 + 2)") == call("f", {add(lit(1), lit(2))}));
+
+    // nested calls
+    CHECK(parse("f(g())") == call("f", {call("g")}));
+    CHECK(parse("f(g(1), 2)") == call("f", {call("g", {lit(1)}), lit(2)}));
+
+    // composes with dot-access and bracket subscript
+    CHECK(parse("f().x") == dot(call("f"), "x"));
+    CHECK(parse("f()[0]") == scr(call("f"), lit(0)));
+    CHECK(parse("f(a.b)") == call("f", {dot(var("a"), "b")}));
+
+    // whitespace between the name and '(' doesn't change anything
+    CHECK(parse("f (1)") == call("f", {lit(1)}));
+
+    // a Name NOT followed by '(' is still a plain variable, unaffected by any of this
+    CHECK(parse("f") == var("f"));
+    CHECK(parse("f + 1") == add(var("f"), lit(1)));
+
+    // malformed call syntax is still a parse error
+    CHECK(parse("f(").is_error());
+    CHECK(parse("f(1,)").is_error());
+    CHECK(parse("f(,1)").is_error());
+  }
+
+  SECTION("Infix calls")
+  {
+    CHECK(parse("a distanceTo b") == inf("distanceTo", var("a"), var("b")));
+    CHECK(parse("1 like 2") == inf("like", lit(1), lit(2)));
+
+    // composes with prefix calls
+    CHECK(
+      parse("distanceTo(a, b) distanceTo c")
+      == inf("distanceTo", call("distanceTo", {var("a"), var("b")}), var("c")));
+    CHECK(parse("f(a like b)") == call("f", {inf("like", var("a"), var("b"))}));
+
+    // chains left-associatively, like every other binary operator
+    CHECK(
+      parse("a like b like c") == inf("like", inf("like", var("a"), var("b")), var("c")));
+
+    // an infix call binds tighter than every real binary operator
+    CHECK(
+      parse("1 + 2 like 3 + 4") == add(add(lit(1), inf("like", lit(2), lit(3))), lit(4)));
+    CHECK(
+      parse("1 * 2 like 3 * 4") == mul(mul(lit(1), inf("like", lit(2), lit(3))), lit(4)));
+    CHECK(
+      parse("a && b like c && d")
+      == logAnd(logAnd(var("a"), inf("like", var("b"), var("c"))), var("d")));
+
+    // even == itself, despite reading like the "natural" tier for like/in
+    CHECK(parse("a like b == c") == eq(inf("like", var("a"), var("b")), var("c")));
+    CHECK(
+      parse("a == b like c == d")
+      == eq(eq(var("a"), inf("like", var("b"), var("c"))), var("d")));
+
+    // a Name NOT preceded by a complete term is unaffected -- still a plain variable or
+    // prefix call
+    CHECK(parse("a") == var("a"));
+    CHECK(parse("f(a)") == call("f", {var("a")}));
+
+    // a Name that isn't a built-in function ends the term instead of being called, which
+    // leaves trailing garbage in strict mode
+    CHECK(
+      parse("a f b")
+      == Error{
+        "At line 1, column 3: Expected end of file, but got variable (raw data: 'f')"});
+    CHECK(Parser{ParseMode::Lenient, "a f b"}.parse() == var("a"));
   }
 
   SECTION("Switch")

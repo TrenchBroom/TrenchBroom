@@ -134,7 +134,7 @@ public:
 
   void showWelcomeWindow();
 
-  void showManual();
+  void showManual(const QString& fragment = "");
   void showPreferences();
   void showAboutDialog();
   void debugShowCrashReportDialog();

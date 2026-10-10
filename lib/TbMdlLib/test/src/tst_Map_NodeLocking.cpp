@@ -185,32 +185,32 @@ TEST_CASE("Map_NodeLocking")
         selectBrushFaces(
           map,
           {
-            {selectedBrushNode, 0},
-            {selectedBrushNode, 1},
-            {unlockedBrushNode, 0},
+            {*selectedBrushNode, 0},
+            {*selectedBrushNode, 1},
+            {*unlockedBrushNode, 0},
           });
         REQUIRE_THAT(
           map.selection().brushFaces,
           UnorderedEquals(std::vector<BrushFaceHandle>{
-            {selectedBrushNode, 0},
-            {selectedBrushNode, 1},
-            {unlockedBrushNode, 0},
+            {*selectedBrushNode, 0},
+            {*selectedBrushNode, 1},
+            {*unlockedBrushNode, 0},
           }));
 
         lockNodes(map, {map.worldNode().defaultLayer()});
         CHECK_THAT(
           map.selection().brushFaces,
           UnorderedEquals(std::vector<BrushFaceHandle>{
-            {unlockedBrushNode, 0},
+            {*unlockedBrushNode, 0},
           }));
 
         map.undoCommand();
         CHECK_THAT(
           map.selection().brushFaces,
           UnorderedEquals(std::vector<BrushFaceHandle>{
-            {selectedBrushNode, 0},
-            {selectedBrushNode, 1},
-            {unlockedBrushNode, 0},
+            {*selectedBrushNode, 0},
+            {*selectedBrushNode, 1},
+            {*unlockedBrushNode, 0},
           }));
       }
     }

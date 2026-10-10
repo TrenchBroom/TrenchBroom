@@ -268,6 +268,14 @@ Finally, you can deselect everything by left clicking in the void, or by choosin
 
 To select a brush face, you need to hold #key(Shift) and left click it in the 3D viewport. You can select multiple brush faces by additionally holding #key(Ctrl). To select all faces of a brush, you can left double click that brush while holding #key(Shift). If you additionally hold #key(Ctrl), the faces are added to the current selection. To flood fill a whole coplanar surface at once - even where it spans several touching brushes - left double click a face while holding #key(Shift)#key(Alt). Again, hold #key(Ctrl) to add the faces to the current selection. To paint select brush faces, first select one brush face, then left drag while holding #key(Ctrl) and #key(Shift). To deselect all brush faces, simply click in the void or choose #menu(Menu/Edit/Deselect All).
 
+## Searching {#searching}
+
+![Search box](images/SearchBox.png)
+
+To select objects or brush faces by their properties, type into the search box in the bar above the editing area, next to the "View" button. TrenchBroom runs the search shortly after you stop typing and replaces the current selection with everything that matches. Matches that can't be selected, such as hidden or locked objects and objects in closed groups, are left out, and brush entities and layers are selected via the objects they contain. Clearing the search box deselects everything.
+
+You can type plain text such as `light` to find every object whose name, classname, properties or materials contain that text, or you can write a query such as `classname is "light" && properties.light > 300` for more precise results. While the search box has focus, a popup below it shows how many objects or faces matched, along with a short syntax reference. Press #key(Return) to run the search right away instead of waiting, and press #key(Esc) to close the popup; it opens again when the search box gets focus. The [query language](#query_language) section explains text searches and queries in detail.
+
 # Editing
 
 In this section, we will cover all topics related to the actual editing of a map. We begin by explaining how to set up the map itself, that is, how to set up mods, entity definitions, and material collection. Afterwards, we show you how to create new objects such as entities or brushes, how to edit and transform them, and how to delete them. After that, we explain how you can work with materials in TrenchBroom. The following section introduces the various tools at your disposal to shape brushes while the section after that focuses on entities and how to edit their properties. The goal of the final section is to help you keep an overview in your map by using layers, groups, and by various other means.
@@ -1846,7 +1854,7 @@ Note that the parameters are stored with the game engine profile.
 
 ## Expression Language {#expression_language}
 
-TrenchBroom contains a simple expression language that can be used to easily embed variables and more complex expressions into strings. Currently, the language is mainly used in the Compilation dialog and the Launch Engine dialog. In the following, we will introduce the syntax and the semantics of the expression language.
+TrenchBroom contains a simple expression language that can be used to easily embed variables and more complex expressions into strings. Currently, the language is mainly used in the Compilation dialog, the Launch Engine dialog, and for [queries](#query_language) in the search box. In the following, we will introduce the syntax and the semantics of the expression language.
 
 ### Evaluation
 
@@ -1859,13 +1867,15 @@ String     A string of characters.
 Number     A floating point number.
 Array      An array is a list of values.
 Map        A map is a list of key-value pairs. Synonyms: dictionary, table.
+Vec3       A three-dimensional vector with `x`, `y`, and `z` components; see below.
+BBox       An axis-aligned bounding box with `min` and `max` corners; see below.
 Range      The range type is only used internally.
-Null       The type of `null` values.
-Undefined  The type of undefined values.
+Null       The type of `null` values, which represent an empty value.
+Undefined  The type of `undefined` values, which represent the absence of a value.
 
 #### Type Conversion {#el_type_conversion}
 
-The following matrix describes the possible type conversions between these types. The first column contains the source type, while the following columns describe how a type conversion takes place, or if the result is an error. Note that the columns for types `Range`, `Null`, and `Undefined` are omitted because not type can be converted to these types (except for the trivial conversions). Converting a value of a some type `X` to the same type is called _trivial_.
+The following matrix describes the possible type conversions between these types. The first column contains the source type, while the following columns describe how a type conversion takes place, or if the result is an error. Note that the columns for types `Vec3`, `BBox`, `Range`, `Null`, and `Undefined` are omitted because no type can be converted to these types, except for the trivial conversion and, for `Vec3`, its conversion to and from `String` described below. Converting a value of a some type `X` to the same type is called _trivial_.
 
 -----------------------------------------------------------------------------------------------------------------------------
             `Boolean`                     `String`               `Number`                      `Array`     `Map`
@@ -1885,12 +1895,31 @@ The following matrix describes the possible type conversions between these types
 
 `Range`     error                         error                  error                         error       error
 
+`BBox`      error                         error                  error                         error       error
+
 `Null`      `false`                       `""` (empty string)    `0.0`                         empty array empty map
 
 `Undefined` error                         error                  error                         error       error
 -----------------------------------------------------------------------------------------------------------------------------
 
 A string value can be converted to a number value if and only if the string is a number literal (see below). Conversely, any number can always be converted to a string value, and the number is formatted as follows. If the number is integer, then only the decimal part and no fractional part will be added to the string. If the number is not integer, the fractional part will be formatted with a precision of 17 places.
+
+A `Vec3` (see below) can be converted to a `String`, which produces a string containing its three components separated by spaces, e.g. `"1 2 3"`. Conversely, a `String` consisting of three numbers separated by whitespace can be converted to a `Vec3`. This is the format used by some entity properties, such as an entity's `origin` property.
+
+#### Null and Undefined {#el_null_and_undefined}
+
+The types `Null` and `Undefined` both stand for the lack of a proper value, but they behave very differently.
+
+A value of type `Null` is an explicit empty value. As the type conversion matrix above shows, it converts to `false`, `0.0`, the empty string, the empty array, and the empty map. Accordingly, it is treated as `false` by the logical operators and as `0.0` by the binary operators. But it is not accepted by the unary operators or by the algebraic operators, and it cannot be subscripted. Using it there is an error.
+
+A value of type `Undefined` represents the absence of a value. It is the result of subscripting a map with a key that the map does not contain, and it is the result of a case term whose premise is not true. A value of type `Undefined` cannot be converted to any other type. Instead, it propagates: If an operand of a unary, algebraic, logical, or binary operator is `undefined`, then the result is `undefined` rather than an error, and subscripting an `undefined` value yields `undefined` as well. The comparison operators are the exception to this rule. They treat `undefined` as a value that is less than every other value, including `null`. Note that `undefined` is not the same as `false`. For example, `!undefined` is `undefined`, and not `true`.
+
+    map["missing"]["key"] // undefined
+    !undefined            // undefined
+    1 + undefined         // undefined
+    undefined == 0        // false
+    !null                 // error
+    1 + null              // error
 
 ### Expressions and Terms
 
@@ -2097,6 +2126,203 @@ Like arrays, maps can contain other subscriptable values such as strings, arrays
     map["some map"]["key2"]       // "asdf"
     map["some map"]["key2"][1..3] // "ey2"
 
+#### Subscripting Undefined and Null
+
+Subscripting a value of type `Undefined` yields `undefined`, regardless of the index. This is useful when accessing nested elements of maps because a missing key does not cause an error further down the chain (see [Null and Undefined](#el_null_and_undefined)).
+
+    map["missing key"]["key"] // undefined
+    map["missing key"][0]     // undefined
+
+Conversely, using an `undefined` value as an index is an error, and so is subscripting a value of type `Null`.
+
+#### Dot Access
+
+Since accessing a map by a string key that happens to be a valid name is very common, the expression language provides a shorthand for it using the dot operator.
+
+    DotAccess = SimpleTerm "." Name
+
+The expression `a.b` is exactly equivalent to `a["b"]`; dot access is simply a more convenient way to write such a subscript. Just like a regular subscript, it evaluates to `undefined` if the given key is not present in the map being accessed, and it can be chained, or combined with regular subscript expressions.
+
+    { some_key: 1 }.some_key    // 1
+    { some_key: 1 }.missing_key // undefined
+
+    { a: { b: 1 } }.a.b     // 1
+    { a: [ 1, 2, 3 ] }.a[1] // 2
+
+Note that dot access only works with names, that is, keys that begin with an alphabetic character or an underscore and contain only alphanumeric characters and underscores. If the key you want to access contains other characters or whitespace, or if it needs to be computed dynamically, you must use the regular subscript syntax with a string instead.
+
+    { "some key": 1 }["some key"] // 1, dot access cannot be used here because of the space
+
+### Function Calls
+
+The expression language allows calling a small, fixed set of built-in functions using the following syntax.
+
+    Call = Name "(" [ Expression { "," Expression } ] ")"
+
+A function call consists of the function's name, followed by a comma-separated list of argument expressions enclosed in parentheses. If a function does not take any arguments, the argument list is simply left empty. Note that the expression language does not support user defined functions. The available functions are listed in the following sections.
+
+#### Infix Notation
+
+Any function that takes exactly two arguments can also be called using infix notation, in which the function's name is placed between its two arguments instead of in front of them, and the parentheses are omitted.
+
+    InfixCall = SimpleTerm Name SimpleTerm
+
+The expression `a f b` is exactly equivalent to `f(a, b)`, provided that `f` is the name of a built-in function that takes two arguments. A name that isn't the name of a built-in function is not treated as an infix call, so `a f b` is a syntax error unless `f` is a built-in function.
+
+An infix function call always binds more tightly than any other binary operator; see Binary Operator Precedence below.
+
+### Vec3
+
+A `Vec3` value represents a three-dimensional vector with `x`, `y`, and `z` components. Vectors are constructed using the `vec` function.
+
+    vec(x, y, z)
+
+For example, `vec(1, 2, 3)` constructs a vector with `x` equal to `1`, `y` equal to `2`, and `z` equal to `3`.
+
+The individual components of a vector can be accessed using a numeric subscript, a string subscript, or dot access.
+
+    vec(1, 2, 3)[0]   // 1
+    vec(1, 2, 3)["y"] // 2
+    vec(1, 2, 3).z    // 3
+
+Vectors support the following arithmetic operators. Two vectors can be added or subtracted component-wise, and a vector can be multiplied or divided by a number, or by another vector component-wise. Unary plus and unary minus are also supported; unary minus negates each component of the vector.
+
+    vec(1, 2, 3) + vec(4, 5, 6) // vec(5, 7, 9)
+    vec(4, 5, 6) - vec(1, 2, 3) // vec(3, 3, 3)
+    vec(1, 2, 3) * 2            // vec(2, 4, 6)
+    vec(1, 2, 3) * vec(4, 5, 6) // vec(4, 10, 18)
+    -vec(1, 2, 3)               // vec(-1, -2, -3)
+
+Note that unary logical negation (`!`), unary bitwise negation (`~`), and the modulus operator (`%`) are not supported for vectors and result in an error, since there is no natural definition of these operations for a three-dimensional vector.
+
+Two vectors can be compared for equality, and, since vectors are ordered lexicographically by their components, using the operators `<`, `<=`, `>`, and `>=`.
+
+    vec(1, 2, 3) == vec(1, 2, 3) // true
+    vec(1, 2, 3) < vec(4, 5, 6)  // true
+
+The Euclidean distance between two vectors can be computed using the `distanceTo` function. Since it takes exactly two arguments, it can also be called using infix notation (see Infix Notation above).
+
+    distanceTo(a, b)
+    a distanceTo b
+
+For example, `vec(0, 0, 0) distanceTo vec(3, 4, 0)` evaluates to `5`.
+
+See [Type Conversion](#el_type_conversion) above for how a `Vec3` can be converted to and from a `String`.
+
+### BBox
+
+A `BBox` value represents an axis-aligned bounding box with a minimum and a maximum corner, each of which is a `Vec3`. Boxes are constructed using the `bbox` function.
+
+    bbox(min, max)
+
+For example, `bbox(vec(0, 0, 0), vec(1, 1, 1))` constructs a box with `min` equal to `vec(0, 0, 0)` and `max` equal to `vec(1, 1, 1)`. The two arguments are normalized component-wise so that `min` never exceeds `max`, regardless of the order in which they were given; `bbox(vec(1, 1, 1), vec(0, 0, 0))` therefore constructs the very same box.
+
+The two corners of a box can be accessed using a string subscript or dot access. Unlike vectors, boxes do not support numeric subscripts.
+
+    bbox(vec(0, 0, 0), vec(1, 1, 1))["min"] // vec(0, 0, 0)
+    bbox(vec(0, 0, 0), vec(1, 1, 1)).max    // vec(1, 1, 1)
+
+Two boxes can be compared for equality.
+
+    bbox(vec(0, 0, 0), vec(1, 1, 1)) == bbox(vec(0, 0, 0), vec(1, 1, 1)) // true
+
+Boxes can also be ordered using `<`, `<=`, `>`, and `>=`, which compare the boxes' corners lexicographically (`min` first, then `max`), though this ordering has no particular geometric meaning and is rarely useful on its own. Boxes do not support any arithmetic or unary operators; using any of them results in an error.
+
+Whether two boxes overlap can be tested using the `intersects` function. Since it takes exactly two arguments, it can also be called using infix notation (see Infix Notation above).
+
+    intersects(a, b)
+    a intersects b
+
+For example, `bbox(vec(0, 0, 0), vec(2, 2, 2)) intersects bbox(vec(1, 1, 1), vec(3, 3, 3))` evaluates to `true`, since the two boxes overlap. Note that `intersects` only tests for overlap; it evaluates to `true` even if neither box fully contains the other.
+
+### Pattern Matching {#el_pattern_matching}
+
+Strings, arrays of strings, and maps can be matched against a glob pattern using the `like` function. Since it takes exactly two arguments, it can also be called using infix notation (see Infix Notation above).
+
+    like(value, pattern)
+    value like pattern
+
+The match is case insensitive. The pattern may contain the following special characters.
+
+Character  Effect
+---------  ------
+`?`        Matches any single character.
+`*`        Matches any sequence of characters, including none.
+`%`        Matches any single digit.
+`%*`       Matches any sequence of digits, including none.
+`\?`       Matches a literal `?` character.
+`\*`       Matches a literal `*` character.
+`\%`       Matches a literal `%` character.
+`\\`       Matches a literal `\` character.
+
+If the pattern does not contain any of the characters `?`, `*`, or `%`, it is matched as a substring of `value` instead of requiring an exact match.
+
+    "Hello World" like "hello*"      // true
+    "Hello World" like "*world"      // true
+    "Hello World" like "h?llo*"      // true
+    "func_detail" like "detail"      // true, matched as a substring
+    "func_detail" like "func_detail" // true
+
+If `value` is an `Array`, `like` evaluates to `true` if any of its `String` elements matches the pattern; elements of any other type are simply ignored.
+
+    ["a", "b", "trigger_once"] like "*trigger*" // true
+
+If `value` is a `Map`, `like` evaluates to `true` if any of its keys, or any of its `String` values, matches the pattern.
+
+    { target: "door1" } like "target" // true, matched by key
+    { target: "door1" } like "door*"  // true, matched by value
+
+`like` never throws an error. If `value` or `pattern` is `undefined`, if `value` is of a type other than `String`, `Array` or `Map`, or if `pattern` is not a `String`, the result is simply `false`.
+
+### Membership Testing
+
+Whether a container value contains a given value can be tested using the `contains` function. Since it takes exactly two arguments, it can also be called using infix notation (see Infix Notation above).
+
+    contains(container, value)
+    container contains value
+
+The following table explains the supported combinations of container and value types. It applies to the `in` function described below as well.
+
+Container   Value     Effect
+---------   -----     ------
+`Array`     any type  `true` if the array contains an element equal to `value`.
+`Map`       `String`  `true` if the map contains a key equal to `value`.
+`Range`     `Number`  `true` if the number lies within the range. The bounds of the range are inclusive.
+`BBox`      `Vec3`    `true` if the box contains the point.
+`BBox`      `BBox`    `true` if the box fully contains the other box.
+
+    [1, 2, 3] contains 2                                                // true
+    { a: 1, b: 2 } contains "a"                                         // true
+    bbox(vec(0, 0, 0), vec(2, 2, 2)) contains vec(1, 1, 1)              // true
+    bbox(vec(0, 0, 0), vec(3, 3, 3)) contains bbox(vec(1, 1, 1), vec(2, 2, 2)) // true
+
+`contains` never throws an error. If `container` or `value` is `undefined`, or if their combination of types is not one of those listed above, the result is simply `false`.
+
+The `in` function is the same as `contains`, except that its arguments are swapped. This often reads more naturally when using infix notation.
+
+    in(value, container)
+    value in container
+
+`in(a, b)` is exactly equivalent to `contains(b, a)`, so the table above applies to `in` as well, with `a` as the value and `b` as the container. Like `contains`, `in` never throws an error.
+
+    2 in [1, 2, 3]                                                      // true
+    "a" in { a: 1, b: 2 }                                               // true
+    vec(1, 1, 1) in bbox(vec(0, 0, 0), vec(2, 2, 2))                    // true
+
+### Equality Testing
+
+Whether two values are equal can be tested using the `is` function. Since it takes exactly two arguments, it can also be called using infix notation (see Infix Notation above).
+
+    is(a, b)
+    a is b
+
+`is(a, b)` is exactly equivalent to `a == b`. In particular, it applies the same implicit type conversions and throws the same error if the types of `a` and `b` cannot be compared.
+
+    1 is 1               // true
+    "a" is "b"           // false
+    1 is "1"             // true, since the string is converted to a number
+    1 in [1, 2] is true  // true, since chained infix calls are evaluated from left to right
+
 ### Unary Operator Terms
 
 A unary operator is an operator that applies to a single operand. In TrenchBroom's expression language, there are four unary operators: unary plus, unary minus, logical negation, and binary negation.
@@ -2109,19 +2335,21 @@ A unary operator is an operator that applies to a single operand. In TrenchBroom
 The following table explains the effects of applying the unary operators to values depending on the type of the values.
 
 -------------------------------------------------------------------------------------------------------
-Operator         `Boolean`         `String`     `Number`     `Array` `Map`   `Range` `Null`  `Undefined`
+Operator          `Boolean`         `String`     `Number`     `Array` `Map`   `Range` `Null`  `Undefined`
 --------          ----              ----         ----         ----    ----    ----    ----    ----
-`Plus`            convert to number see below    no effect    error   error   error   error   error
+`Plus`            convert to number see below    no effect    error   error   error   error   `undefined`
 
-`Minus`           convert to number see below    negate value error   error   error   error   error
+`Minus`           convert to number see below    negate value error   error   error   error   `undefined`
                   and negate value
 
-`LogicalNegation` invert value      error        error        error   error   error   error   error
+`LogicalNegation` invert value      error        error        error   error   error   error   `undefined`
 
-`BinaryNegation`  error             see below    invert bits  error   error   error   error   error
+`BinaryNegation`  error             see below    invert bits  error   error   error   error   `undefined`
 -------------------------------------------------------------------------------------------------------
 
 Note on using applying a unary operator to a value of type `String`: Every operator except `LogicalNegation` will try to convert a value of type `String` to a number if possible.
+
+Applying a unary operator to a value of type `Undefined` yields `undefined`, see [Null and Undefined](#el_null_and_undefined).
 
 Some examples of using unary operators follow.
 
@@ -2135,6 +2363,8 @@ Some examples of using unary operators follow.
     ~1     // -2
     ~-2    // 1
     ~'-2'  // 1
+
+    !undefined // undefined
 
 ### Binary Operator Terms
 
@@ -2169,29 +2399,38 @@ In the previous two examples, the operands are simply concatenated. If both oper
 
 Note that the value under key `'k3'` is `4` and not `3`!
 
+If either operand is of type `Undefined`, the result is `undefined`, regardless of the type of the other operand. An operand of type `Null` is not accepted by any of these operators and causes an error (see [Null and Undefined](#el_null_and_undefined)).
+
+    1 + undefined   // undefined
+    "a" + undefined // undefined
+    1 + null        // error
+
 #### Logical Terms
 
-Logical terms can be applied to if both operands are of type `Boolean`. If one of the operands is not of type `Boolean`, an error is thrown.
+Logical terms are applied to operands of type `Boolean`. An operand of type `Null` is treated as `false`. If an operand has any other type, an error is thrown, with the exception of type `Undefined`: If either operand is `undefined`, the result is `undefined`. Like in C, the right operand is only evaluated if the left operand does not already determine the result. That is, `false && x` is `false` and `true || x` is `true` even if `x` is `undefined`. See also [Null and Undefined](#el_null_and_undefined).
 
     LogicalAnd = SimpleTerm "&&" Expression
     LogicalOr  = SimpleTerm "||" Expression
 
 The following table shows the effects of applying the logical operators.
 
-Left     Right   &&      ||
--------- ------- ----    ----
-`true`   `true`  `true`  `true`
-`true`   `false` `false` `true`
-`false`  `true`  `false` `true`
-`false`  `false` `false` `false`
+Left        Right       &&          ||
+----------- ----------- ----------- -----------
+`true`      `true`      `true`      `true`
+`true`      `false`     `false`     `true`
+`false`     `true`      `false`     `true`
+`false`     `false`     `false`     `false`
+`true`      `undefined` `undefined` `true`
+`false`     `undefined` `false`     `undefined`
+`undefined` Any         `undefined` `undefined`
 
 #### Binary Terms
 
-Binary terms manipulate the bit representation of operands of type `Number`. Note that, since manipulating the bit representation of a floating point number does not make much sense, the operands are converted to an integer representation first by omitting their fractional portion. If either of the operands is not of type `Number`, the operand is converted to type `Number` according to the [type conversion rules](#el_type_conversion).
+Binary terms manipulate the bit representation of operands of type `Number`. Note that, since manipulating the bit representation of a floating point number does not make much sense, the operands are converted to an integer representation first by omitting their fractional portion. If either of the operands is not of type `Number`, the operand is converted to type `Number` according to the [type conversion rules](#el_type_conversion). The exception to this rule is type `Undefined`: If either operand is `undefined`, the result is `undefined`.
 
     BinaryAnd        = SimpleTerm "&" SimpleTerm
-    BinaryXor        = SimpleTerm "|" SimpleTerm
-    BinaryOr         = SimpleTerm "^" SimpleTerm
+    BinaryXor        = SimpleTerm "^" SimpleTerm
+    BinaryOr         = SimpleTerm "|" SimpleTerm
     BinaryShiftLeft  = SimpleTerm "<<" SimpleTerm
     BinaryShiftRight = SimpleTerm ">>" SimpleTerm
 
@@ -2260,13 +2499,16 @@ Comparison operators always return a boolean value depending on the result of th
 `Map`       `Range`     error
 `Map`       `Null`      Left is greater than right.
 `Map`       `Undefined` Left is greater than right.
-`Range`     Any type    error
+`Range`     `Null`      Left is greater than right.
+`Range`     `Undefined` Left is greater than right.
+`Range`     Any other   error
 `Null`      `Null`      Both are equal.
-`Null`      `Undefined` Both are equal
-`Null`      Any type    Right is greater than left.
-`Undefined` `Null`      Both are equal.
-`Undefined` `Undefined` Both are equal
-`Undefined` Any type    Right is greater than left.
+`Null`      `Undefined` Left is greater than right.
+`Null`      Any other   Right is greater than left.
+`Undefined` `Undefined` Both are equal.
+`Undefined` Any other   Right is greater than left.
+
+Unlike the other operators, the comparison operators do not propagate `undefined`. Comparing a value to `undefined` never results in an error and always yields `true` or `false`. Note that `undefined` is less than every other value, including `null`, so `null` and `undefined` are not equal to each other (see [Null and Undefined](#el_null_and_undefined)).
 
 The following examples show the comparison operators in action with different operand types. Assume that all expressions evaluate to `true` unless otherwise stated in comments.
 
@@ -2293,9 +2535,15 @@ The following examples show the comparison operators in action with different op
     "asdf" < "bsdf"
 
     null == null
-    null == undefined
+    null != undefined
+    null > undefined
     null < -1
     null < "asdf"
+
+    undefined == undefined
+    undefined != 0
+    undefined < -1
+    "asdf" > undefined
 
     [ 1, 2, 3 ] == [ 1, 2, 3 ]
     [ 1, 2, 3 ] <  [ 2, 2, 3 ]
@@ -2309,7 +2557,8 @@ The case operator allows for conditional evaluation of expressions. This is usua
 
 In a case expression, the part before the `->` operator is called the _premise_ and the part after it is called the _conclusion_. The case operator is evaluated as follows:
 
-- If the premise evaluates to a value `r` that is convertible to `boolean`:
+- If the premise evaluates to `undefined`, the result of the case expression is `undefined`.
+- Otherwise, if the premise evaluates to a value `r` that is convertible to `boolean`:
     - If `r` converts to `true`:
         - The result of the case expression is the result of evaluating the conclusion.
     - Otherwise, the result of the case expression is `undefined`.
@@ -2317,12 +2566,14 @@ In a case expression, the part before the `->` operator is called the _premise_ 
 
 The following examples demonstrate the semantics of the case operator:
 
-    true   -> false  // false
-    false  -> true   // undefined
-    1      -> "test" // "test", because 1 converts to true
-    0      -> "test" // undefined, because 0 converts to false
-    "true" -> ""     // "", because "true" converts to true
-    ""     -> ""     // undefined, because "" converts to false
+    true      -> false  // false
+    false     -> true   // undefined
+    1         -> "test" // "test", because 1 converts to true
+    0         -> "test" // undefined, because 0 converts to false
+    "true"    -> ""     // "", because "true" converts to true
+    ""        -> ""     // undefined, because "" converts to false
+    null      -> "test" // undefined, because null converts to false
+    undefined -> "test" // undefined, because the premise is undefined
 
 #### Switch Term
 
@@ -2383,7 +2634,7 @@ Operator Name                Precedence
 `||`     Logical or          3
 `..`     Range               2
 `->`     Case                1
-` `      Other operators     13
+`name`   Infix function call 13
 
 Some examples:
 
@@ -2403,6 +2654,154 @@ In EBNF, terminal rules are those which only contain terminal symbols on the rig
     Char    = Any ASCII character
 
 This concludes the manual for TrenchBroom's expression language.
+
+## Query Language {#query_language}
+
+The [search box](#searching) above the editing area accepts either plain text or a query. A query is an [expression](#expression_language) that TrenchBroom evaluates once for every object in the map, or for every brush face (see [Which Objects a Query Searches](#query_domain)). The [fields](#query_fields) of the object, such as its classname, its properties, or its bounds, are available as variables in the expression, and the search selects every object for which the expression evaluates to `true`.
+
+### Text Search and Queries
+
+TrenchBroom decides as follows whether you have entered text or a query.
+
+- If the input is a valid expression, it is a query. For example, `classname is "light"` is a query.
+- If the input is not a valid expression, such as `func_*` or `red light`, it is text to search for.
+- If the input consists of a single name or literal only, such as `light`, `42`, or `"red light"`, it is also text to search for, since it would not match anything as a query. The quotes around a string are removed, so `"red light"` searches for the text `red light`. The fields `visible` and `locked` are an exception: each of them is a valid query on its own, so `visible` finds every visible object. To search for one of these words as text, put it in quotes.
+- If the input uses a name that isn't a [field](#query_fields), or calls a function that isn't built in, it is also text to search for, since it most likely isn't meant as a query. For example, `light is red` searches for the text `light is red`. This also applies to misspelled field names, so `clasname is "light"` searches for that text instead of finding lights.
+
+A text search finds every object where the text occurs in its name, its classname, the keys or values of its properties, the names of its materials or [smart tags](#game_configuration_files_tags), or the name of the layer or group that contains it. Brushes and patches also match by the classname of the entity they belong to. The text is matched ignoring case. If it contains one of the wildcard characters `*`, `?`, or `%`, it must match the entire value rather than just a part of it, so `func_*` finds objects with a value starting with `func_`. See [Pattern Matching](#el_pattern_matching) for the meaning of the wildcard characters. A text search never finds brush faces.
+
+### Syntax
+
+Queries use the syntax of TrenchBroom's [expression language](#expression_language), which is explained in full detail in that section. The following table summarizes the parts that are most useful in queries.
+
+Syntax                                  Meaning
+------                                  -------
+`classname`, `center`                   The value of a [field](#query_fields) of the current object.
+`"text"`, `'text'`                      A string.
+`42`, `1.5`                             A number.
+`true`, `false`                         A boolean value.
+`[a, b, c]`                             An array.
+`a.b`, `a["b"]`                         The value under the key `b` in the map `a`, e.g. `properties.target` or `properties["target"]`.
+`v.x`, `v.y`, `v.z`                     A component of the vector `v`, e.g. `center.z`.
+`b.min`, `b.max`                        A corner of the bounding box `b`, e.g. `bounds.min`.
+`a == b`, `a != b`                      Equal, not equal.
+`a < b`, `a <= b`, `a > b`, `a >= b`    Less, less or equal, greater, greater or equal.
+`a && b`, `a || b`, `!a`                Logical and, or, not.
+`a + b`, `a - b`, `a * b`, `a / b`      Arithmetic.
+`(a)`                                   Parentheses group a part of a query.
+`a is b`                                The same as `a == b`.
+`a like p`                              Whether `a` matches the pattern `p`, ignoring case; see [Pattern Matching](#el_pattern_matching).
+`a contains b`                          Whether the array, map, or bounding box `a` contains `b`.
+`b in a`                                The same as `a contains b`.
+`vec(x, y, z)`                          A vector.
+`bbox(min, max)`                        A bounding box with the corners `min` and `max`.
+`a distanceTo b`                        The distance between the vectors `a` and `b`.
+`a intersects b`                        Whether the bounding boxes `a` and `b` overlap.
+
+Keep the following in mind when writing queries.
+
+- The functions `is`, `like`, `contains`, `in`, `distanceTo`, and `intersects` bind more tightly than any operator, so `classname is "light" && visible` works without parentheses. To negate such a term, enclose it in parentheses: `!(classname is "light")`.
+- Strings are compared case sensitively by `==`, `!=`, and `is`, but `like` ignores case.
+- Property values are strings, but they are converted to numbers when compared with a number, so `properties.light > 300` works as expected.
+- A field that the object doesn't have, or a property that the entity doesn't have, evaluates to `undefined`. `undefined` is not equal to any other value, and it is less than any other value, so `properties.light < 100` also finds lights without a `light` property. To test whether an entity has a property, use `properties contains "light"`.
+- If evaluating a query for an object results in an error, or in any value other than `true`, the object doesn't match. For example, `properties.light > 300` doesn't match a light whose `light` property is not a number.
+
+### Object Types {#query_object_types}
+
+Every object has one of the following types, which is available in the field `type`.
+
+Type      Objects
+----      -------
+`world`   The world, which holds the properties of the `worldspawn` entity.
+`layer`   Layers, including the default layer.
+`group`   Groups.
+`entity`  Point entities and brush entities.
+`brush`   Brushes.
+`patch`   Patches (Quake 3 only).
+`face`    Brush faces.
+
+Type names are lower case, so `type is "brush"` finds all brushes, while `type is "Brush"` finds nothing.
+
+### Fields {#query_fields}
+
+The following table lists all fields that a query can use.
+
+Field         Type      Description
+-----         ----      -----------
+`type`        String    The type of the object; see [Object Types](#query_object_types).
+`name`        String    The name of the layer or group.
+`classname`   String    The classname of the entity. For the world, this is `worldspawn`.
+`properties`  Map       The properties of the entity, mapping each property key to its value, e.g. `properties.targetname`.
+`entity`      Map       The entity that the brush or patch belongs to, or for a face, the entity that its brush belongs to. It has the fields `classname` and `properties`. For brushes and patches that don't belong to a brush entity, this is the world.
+`materials`   Array     The names of the materials used by the brush or patch, each name appearing once.
+`material`    String    The name of the material of the face.
+`normal`      Vec3      The normal of the face, a vector of length 1 that points away from the brush.
+`tags`        Array     The names of the [smart tags](#game_configuration_files_tags) that match the object, such as `Detail` or `Trigger`. Which tags exist depends on the game configuration.
+`bounds`      BBox      The bounding box of the object.
+`center`      Vec3      The center of the bounding box of the object.
+`layerName`   String    The name of the layer that contains the object. For a layer, this is its own name.
+`groupName`   String    The name of the innermost group that contains the object, or `undefined` if it isn't in a group.
+`visible`     Boolean   Whether the object is visible. For a face, whether its brush is visible.
+`locked`      Boolean   Whether the object is locked. For a face, whether its brush is locked.
+
+Not every object type has every field. The following table shows which fields are available for which object types.
+
+Field         World  Layer  Group  Entity  Brush  Patch  Face
+-----         -----  -----  -----  ------  -----  -----  ----
+`type`        ✓      ✓      ✓      ✓       ✓      ✓      ✓
+`name`               ✓      ✓
+`classname`   ✓                    ✓
+`properties`  ✓                    ✓
+`entity`                                   ✓      ✓      ✓
+`materials`                                ✓      ✓
+`material`                                               ✓
+`normal`                                                 ✓
+`tags`        ✓                    ✓       ✓      ✓      ✓
+`bounds`             ✓      ✓      ✓       ✓      ✓      ✓
+`center`             ✓      ✓      ✓       ✓      ✓      ✓
+`layerName`          ✓      ✓      ✓       ✓      ✓      ✓
+`groupName`          ✓      ✓      ✓       ✓      ✓      ✓
+`visible`     ✓      ✓      ✓      ✓       ✓      ✓      ✓
+`locked`      ✓      ✓      ✓      ✓       ✓      ✓      ✓
+
+### Which Objects a Query Searches {#query_domain}
+
+Since a field that an object doesn't have evaluates to `undefined`, a query could match objects that it isn't meant for. For example, `!(classname is "func_detail")` would match every brush, simply because brushes don't have a classname. To avoid this, TrenchBroom evaluates a query only for the types of objects that it applies to, which it determines as follows.
+
+- A field limits the search to the object types that have it. For example, `classname` limits it to the world and entities, while `materials` limits it to brushes and patches. The fields `type`, `visible`, and `locked` are available for every object type and don't limit the search.
+- Comparing `type` with type names limits the search to these types. This works with `type == "brush"`, `type is "brush"`, `type in ["brush", "patch"]`, and `["brush", "patch"] contains type`. With `==` and `is`, the type name may also come first, as in `"brush" == type`.
+- Two parts combined with `&&` only search object types that both parts allow, so `classname is "light" && materials like "*sky*"` finds nothing. Two parts combined with `||` search object types that either part allows.
+- If nothing limits the search, it covers every object type except faces.
+
+A query finds either objects or brush faces, but never both. It finds faces only if the rules above limit it to faces alone, as in `material like "sky*"` or `type is "face" && tags contains "Clip"`. Otherwise, faces are not searched at all.
+
+### Examples
+
+Query                                                              Finds
+-----                                                              -----
+`classname is "light"`                                             All light entities.
+`classname like "monster_*"`                                       All entities whose classname begins with `monster_`.
+`classname is "light" && properties.light > 300`                   All lights brighter than 300.
+`properties contains "target"`                                     All entities that have a `target` property.
+`properties.targetname is "door1"`                                 All entities whose `targetname` is `door1`.
+`properties like "door1"`                                          All entities with a property key or value that contains `door1`.
+`!(classname like "info_*")`                                       The world and all entities whose classname doesn't begin with `info_`.
+`type is "brush"`                                                  All brushes.
+`type in ["brush", "patch"] && layerName is "Details"`             All brushes and patches in the layer named `Details`.
+`type is "group" && name like "Hallway*"`                          All groups whose name begins with `Hallway`.
+`groupName is "Hallway"`                                           All objects in the group named `Hallway`.
+`entity.classname is "func_door"`                                  All brushes and patches that belong to a `func_door` entity.
+`entity.classname is "worldspawn"`                                 All brushes and patches that don't belong to a brush entity.
+`materials like "*trigger*"`                                       All brushes and patches that use a material whose name contains `trigger`.
+`tags contains "Detail"`                                           All objects that match the smart tag `Detail`.
+`visible && !locked`                                               All visible objects that aren't locked.
+`center.z < -1024`                                                 All objects whose center lies below a height of -1024.
+`center distanceTo vec(0, 0, 0) < 512`                             All objects whose center lies within 512 units of the origin.
+`bbox(vec(-512, -512, 0), vec(512, 512, 256)) contains bounds`     All objects that lie entirely inside the given box.
+`bounds intersects bbox(vec(-512, -512, 0), vec(512, 512, 256))`   All objects that overlap the given box.
+`material like "sky*"`                                             All faces whose material name begins with `sky`.
+`normal.z > 0.7`                                                   All faces that face upward, such as floors and gentle slopes.
+`material like "*water*" && normal.z > 0.7`                        All upward-facing faces with a material whose name contains `water`.
 
 ## Solving Problems
 
@@ -2887,6 +3286,7 @@ Example                                   Description
 -------                                   -----------
 `"scale": 2`                              A fixed uniform scale factor of `2`.
 `"scale": "1 2 3"`                        A fixed non-uniform scale factor scaling X by 1, Y by 2 and Z by 3.
+`"scale": vec(1, 2, 3)`                   A fixed non-uniform scale factor scaling X by 1, Y by 2 and Z by 3, using a `Vec3` value directly.
 `"scale": modelscale`                     Use the value of the entities' `modelscale` property.
 `"scale": [ modelscale, modelscale_vec ]` Try the individual values in the array until we find one that doesn't evaluate to `Undefined` or `Null`.
 

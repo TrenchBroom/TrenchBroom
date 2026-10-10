@@ -23,14 +23,19 @@
 #include "el/Exceptions.h"
 #include "el/Value.h"
 
+#include "kd/flat_map.h"
 #include "kd/map_utils.h"
 #include "kd/overload.h"
 #include "kd/ranges/concat_view.h"
 #include "kd/ranges/to.h"
+#include "kd/reflection_impl.h"
+#include "kd/string_compare.h"
 #include "kd/unpack.h"
 
 #include <fmt/format.h>
 
+#include <algorithm>
+#include <functional>
 #include <ranges>
 #include <sstream>
 
@@ -61,7 +66,7 @@ Value evaluate(
 
 template <typename Evaluator>
 Value evaluate(
-  EvaluationContext& context,
+  EvaluationContext&,
   const Evaluator& evaluator,
   const ArrayExpression& expression,
   const ExpressionNode&)
@@ -74,7 +79,7 @@ Value evaluate(
     auto value = element.accept(evaluator);
     if (value.hasType(ValueType::Range))
     {
-      const auto& range = std::get<BoundedRange>(value.rangeValue(context));
+      const auto& range = std::get<BoundedRange>(value.rangeValue());
       array.reserve(array.size() + range.length());
       range.forEach([&](const auto& i) { array.emplace_back(i); });
     }
@@ -104,17 +109,19 @@ Value evaluate(
 }
 
 Value evaluateUnaryPlus(
-  EvaluationContext& context, const Value& v, const ExpressionNode& expressionNode)
+  EvaluationContext&, const Value& v, const ExpressionNode& expressionNode)
 {
   switch (v.type())
   {
   case ValueType::Boolean:
   case ValueType::Number:
-    return Value{v.convertTo(context, ValueType::Number).numberValue(context)};
+    return Value{v.convertTo(ValueType::Number).numberValue()};
+  case ValueType::Vec3:
+    return Value{+v.vec3Value()};
   case ValueType::String:
-    if (const auto result = v.tryConvertTo(context, ValueType::Number))
+    if (const auto result = v.tryConvertTo(ValueType::Number))
     {
-      return Value{result->numberValue(context)};
+      return Value{result->numberValue()};
     }
     [[fallthrough]];
   case ValueType::Array:
@@ -122,6 +129,10 @@ Value evaluateUnaryPlus(
   case ValueType::Map:
     [[fallthrough]];
   case ValueType::Range:
+    [[fallthrough]];
+  case ValueType::BBox:
+    [[fallthrough]];
+  case ValueType::LazyMap:
     [[fallthrough]];
   case ValueType::Null:
     [[fallthrough]];
@@ -132,18 +143,20 @@ Value evaluateUnaryPlus(
 }
 
 Value evaluateUnaryMinus(
-  EvaluationContext& context, const Value& v, const ExpressionNode& expressionNode)
+  EvaluationContext&, const Value& v, const ExpressionNode& expressionNode)
 {
   switch (v.type())
   {
   case ValueType::Boolean:
     [[fallthrough]];
   case ValueType::Number:
-    return Value{-v.convertTo(context, ValueType::Number).numberValue(context)};
+    return Value{-v.convertTo(ValueType::Number).numberValue()};
+  case ValueType::Vec3:
+    return Value{-v.vec3Value()};
   case ValueType::String:
-    if (const auto result = v.tryConvertTo(context, ValueType::Number))
+    if (const auto result = v.tryConvertTo(ValueType::Number))
     {
-      return Value{-result->numberValue(context)};
+      return Value{-result->numberValue()};
     }
     [[fallthrough]];
   case ValueType::Array:
@@ -151,6 +164,10 @@ Value evaluateUnaryMinus(
   case ValueType::Map:
     [[fallthrough]];
   case ValueType::Range:
+    [[fallthrough]];
+  case ValueType::BBox:
+    [[fallthrough]];
+  case ValueType::LazyMap:
     [[fallthrough]];
   case ValueType::Null:
     [[fallthrough]];
@@ -161,12 +178,12 @@ Value evaluateUnaryMinus(
 }
 
 Value evaluateLogicalNegation(
-  EvaluationContext& context, const Value& v, const ExpressionNode& expressionNode)
+  EvaluationContext&, const Value& v, const ExpressionNode& expressionNode)
 {
   switch (v.type())
   {
   case ValueType::Boolean:
-    return Value{!v.booleanValue(context)};
+    return Value{!v.booleanValue()};
   case ValueType::Number:
     [[fallthrough]];
   case ValueType::String:
@@ -176,6 +193,12 @@ Value evaluateLogicalNegation(
   case ValueType::Map:
     [[fallthrough]];
   case ValueType::Range:
+    [[fallthrough]];
+  case ValueType::Vec3:
+    [[fallthrough]];
+  case ValueType::BBox:
+    [[fallthrough]];
+  case ValueType::LazyMap:
     [[fallthrough]];
   case ValueType::Null:
     [[fallthrough]];
@@ -186,16 +209,16 @@ Value evaluateLogicalNegation(
 }
 
 Value evaluateBitwiseNegation(
-  EvaluationContext& context, const Value& v, const ExpressionNode& expressionNode)
+  EvaluationContext&, const Value& v, const ExpressionNode& expressionNode)
 {
   switch (v.type())
   {
   case ValueType::Number:
-    return Value{~v.integerValue(context)};
+    return Value{~v.integerValue()};
   case ValueType::String:
-    if (const auto result = v.tryConvertTo(context, ValueType::Number))
+    if (const auto result = v.tryConvertTo(ValueType::Number))
     {
-      return Value{~result->integerValue(context)};
+      return Value{~result->integerValue()};
     }
     [[fallthrough]];
   case ValueType::Boolean:
@@ -206,6 +229,12 @@ Value evaluateBitwiseNegation(
     [[fallthrough]];
   case ValueType::Range:
     [[fallthrough]];
+  case ValueType::Vec3:
+    [[fallthrough]];
+  case ValueType::BBox:
+    [[fallthrough]];
+  case ValueType::LazyMap:
+    [[fallthrough]];
   case ValueType::Null:
     [[fallthrough]];
   case ValueType::Undefined:
@@ -214,18 +243,16 @@ Value evaluateBitwiseNegation(
   throw EvaluationError{expressionNode, fmt::format("Invalid type {}", v.typeName())};
 }
 
-Value evaluateLeftBoundedRange(EvaluationContext& context, const Value& v)
+Value evaluateLeftBoundedRange(EvaluationContext&, const Value& v)
 {
-  const auto first =
-    static_cast<long>(v.convertTo(context, ValueType::Number).numberValue(context));
-  return context.trace(Value{LeftBoundedRange{first}}, v);
+  const auto first = static_cast<long>(v.convertTo(ValueType::Number).numberValue());
+  return Value{LeftBoundedRange{first}}.producedBy(v);
 }
 
-Value evaluateRightBoundedRange(EvaluationContext& context, const Value& v)
+Value evaluateRightBoundedRange(EvaluationContext&, const Value& v)
 {
-  const auto last =
-    static_cast<long>(v.convertTo(context, ValueType::Number).numberValue(context));
-  return context.trace(Value{RightBoundedRange{last}}, v);
+  const auto last = static_cast<long>(v.convertTo(ValueType::Number).numberValue());
+  return Value{RightBoundedRange{last}}.producedBy(v);
 }
 
 Value evaluateUnaryExpression(
@@ -250,7 +277,7 @@ Value evaluateUnaryExpression(
   case UnaryOperation::BitwiseNegation:
     return evaluateBitwiseNegation(context, operand, expressionNode);
   case UnaryOperation::Group:
-    return context.trace(Value{operand}, operand);
+    return operand;
   case UnaryOperation::LeftBoundedRange:
     return evaluateLeftBoundedRange(context, operand);
   case UnaryOperation::RightBoundedRange:
@@ -272,7 +299,7 @@ Value evaluate(
 
 template <typename Eval>
 std::optional<Value> tryEvaluateAlgebraicOperator(
-  EvaluationContext& context, const Value& lhs, const Value& rhs, const Eval& eval)
+  EvaluationContext&, const Value& lhs, const Value& rhs, const Eval& eval)
 {
   if (lhs.hasType(ValueType::Undefined) || rhs.hasType(ValueType::Undefined))
   {
@@ -283,26 +310,25 @@ std::optional<Value> tryEvaluateAlgebraicOperator(
     lhs.hasType(ValueType::Boolean, ValueType::Number)
     && rhs.hasType(ValueType::Boolean, ValueType::Number))
   {
-    return Value{eval(
-      lhs.convertTo(context, ValueType::Number),
-      rhs.convertTo(context, ValueType::Number))};
+    return Value{
+      eval(lhs.convertTo(ValueType::Number), rhs.convertTo(ValueType::Number))};
   }
 
   if (
     lhs.hasType(ValueType::Boolean, ValueType::Number) && rhs.hasType(ValueType::String))
   {
-    if (const auto rhsAsNumber = rhs.tryConvertTo(context, ValueType::Number))
+    if (const auto rhsAsNumber = rhs.tryConvertTo(ValueType::Number))
     {
-      return Value{eval(lhs.convertTo(context, ValueType::Number), *rhsAsNumber)};
+      return Value{eval(lhs.convertTo(ValueType::Number), *rhsAsNumber)};
     }
   }
 
   if (
     lhs.hasType(ValueType::String) && rhs.hasType(ValueType::Boolean, ValueType::Number))
   {
-    if (const auto lhsAsNumber = lhs.tryConvertTo(context, ValueType::Number))
+    if (const auto lhsAsNumber = lhs.tryConvertTo(ValueType::Number))
     {
-      return Value{eval(*lhsAsNumber, rhs.convertTo(context, ValueType::Number))};
+      return Value{eval(*lhsAsNumber, rhs.convertTo(ValueType::Number))};
     }
   }
 
@@ -318,7 +344,7 @@ Value evaluateAddition(
   if (
     const auto result = tryEvaluateAlgebraicOperator(
       context, lhs, rhs, [&](const auto& lhsNumber, const auto& rhsNumber) {
-        return lhsNumber.numberValue(context) + rhsNumber.numberValue(context);
+        return lhsNumber.numberValue() + rhsNumber.numberValue();
       }))
   {
     return *result;
@@ -327,20 +353,25 @@ Value evaluateAddition(
   if (lhs.hasType(ValueType::String) && rhs.hasType(ValueType::String))
   {
     return Value{
-      lhs.convertTo(context, ValueType::String).stringValue(context)
-      + rhs.convertTo(context, ValueType::String).stringValue(context)};
+      lhs.convertTo(ValueType::String).stringValue()
+      + rhs.convertTo(ValueType::String).stringValue()};
   }
 
   if (lhs.hasType(ValueType::Array) && rhs.hasType(ValueType::Array))
   {
     return Value{
-      kdl::views::concat(lhs.arrayValue(context), rhs.arrayValue(context))
+      kdl::views::concat(lhs.arrayValue(), rhs.arrayValue())
       | kdl::ranges::to<std::vector>()};
   }
 
   if (lhs.hasType(ValueType::Map) && rhs.hasType(ValueType::Map))
   {
-    return Value{kdl::map_union(lhs.mapValue(context), rhs.mapValue(context))};
+    return Value{kdl::map_union(lhs.mapValue(), rhs.mapValue())};
+  }
+
+  if (lhs.hasType(ValueType::Vec3) && rhs.hasType(ValueType::Vec3))
+  {
+    return Value{lhs.vec3Value() + rhs.vec3Value()};
   }
 
   throw EvaluationError{
@@ -357,10 +388,15 @@ Value evaluateSubtraction(
   if (
     const auto result = tryEvaluateAlgebraicOperator(
       context, lhs, rhs, [&](const auto& lhsNumber, const auto& rhsNumber) {
-        return lhsNumber.numberValue(context) - rhsNumber.numberValue(context);
+        return lhsNumber.numberValue() - rhsNumber.numberValue();
       }))
   {
     return *result;
+  }
+
+  if (lhs.hasType(ValueType::Vec3) && rhs.hasType(ValueType::Vec3))
+  {
+    return Value{lhs.vec3Value() - rhs.vec3Value()};
   }
 
   throw EvaluationError{
@@ -377,10 +413,25 @@ Value evaluateMultiplication(
   if (
     const auto result = tryEvaluateAlgebraicOperator(
       context, lhs, rhs, [&](const auto& lhsNumber, const auto& rhsNumber) {
-        return lhsNumber.numberValue(context) * rhsNumber.numberValue(context);
+        return lhsNumber.numberValue() * rhsNumber.numberValue();
       }))
   {
     return *result;
+  }
+
+  if (lhs.hasType(ValueType::Vec3) && rhs.hasType(ValueType::Vec3))
+  {
+    return Value{lhs.vec3Value() * rhs.vec3Value()};
+  }
+
+  if (lhs.hasType(ValueType::Vec3) && rhs.hasType(ValueType::Number))
+  {
+    return Value{lhs.vec3Value() * rhs.numberValue()};
+  }
+
+  if (lhs.hasType(ValueType::Number) && rhs.hasType(ValueType::Vec3))
+  {
+    return Value{lhs.numberValue() * rhs.vec3Value()};
   }
 
   throw EvaluationError{
@@ -397,10 +448,25 @@ Value evaluateDivision(
   if (
     const auto result = tryEvaluateAlgebraicOperator(
       context, lhs, rhs, [&](const auto& lhsNumber, const auto& rhsNumber) {
-        return lhsNumber.numberValue(context) / rhsNumber.numberValue(context);
+        return lhsNumber.numberValue() / rhsNumber.numberValue();
       }))
   {
     return *result;
+  }
+
+  if (lhs.hasType(ValueType::Vec3) && rhs.hasType(ValueType::Vec3))
+  {
+    return Value{lhs.vec3Value() / rhs.vec3Value()};
+  }
+
+  if (lhs.hasType(ValueType::Vec3) && rhs.hasType(ValueType::Number))
+  {
+    return Value{lhs.vec3Value() / rhs.numberValue()};
+  }
+
+  if (lhs.hasType(ValueType::Number) && rhs.hasType(ValueType::Vec3))
+  {
+    return Value{lhs.numberValue() / rhs.vec3Value()};
   }
 
   throw EvaluationError{
@@ -417,7 +483,7 @@ Value evaluateModulus(
   if (
     const auto result = tryEvaluateAlgebraicOperator(
       context, lhs, rhs, [&](const auto& lhsNumber, const auto& rhsNumber) {
-        return std::fmod(lhsNumber.numberValue(context), rhsNumber.numberValue(context));
+        return std::fmod(lhsNumber.numberValue(), rhsNumber.numberValue());
       }))
   {
     return *result;
@@ -430,7 +496,7 @@ Value evaluateModulus(
 
 template <typename EvaluateLhs, typename EvaluateRhs>
 Value evaluateLogicalAnd(
-  EvaluationContext& context,
+  EvaluationContext&,
   const EvaluateLhs& evaluateLhs,
   const EvaluateRhs& evaluateRhs,
   const ExpressionNode& expressionNode)
@@ -445,8 +511,7 @@ Value evaluateLogicalAnd(
 
   if (lhs.hasType(ValueType::Boolean, ValueType::Null))
   {
-    const auto lhsValue =
-      lhs.convertTo(context, ValueType::Boolean).booleanValue(context);
+    const auto lhsValue = lhs.convertTo(ValueType::Boolean).booleanValue();
     if (!lhsValue)
     {
       return Value{false};
@@ -455,7 +520,7 @@ Value evaluateLogicalAnd(
     rhs = evaluateRhs();
     if (rhs->hasType(ValueType::Boolean, ValueType::Null))
     {
-      return Value{rhs->convertTo(context, ValueType::Boolean).booleanValue(context)};
+      return Value{rhs->convertTo(ValueType::Boolean).booleanValue()};
     }
   }
 
@@ -476,7 +541,7 @@ Value evaluateLogicalAnd(
 
 template <typename EvaluateLhs, typename EvaluateRhs>
 Value evaluateLogicalOr(
-  EvaluationContext& context,
+  EvaluationContext&,
   const EvaluateLhs& evaluateLhs,
   const EvaluateRhs& evaluateRhs,
   const ExpressionNode& expressionNode)
@@ -491,8 +556,7 @@ Value evaluateLogicalOr(
 
   if (lhs.hasType(ValueType::Boolean, ValueType::Null))
   {
-    const auto lhsValue =
-      lhs.convertTo(context, ValueType::Boolean).booleanValue(context);
+    const auto lhsValue = lhs.convertTo(ValueType::Boolean).booleanValue();
     if (lhsValue)
     {
       return Value{true};
@@ -501,7 +565,7 @@ Value evaluateLogicalOr(
     rhs = evaluateRhs();
     if (rhs->hasType(ValueType::Boolean, ValueType::Null))
     {
-      return Value{rhs->convertTo(context, ValueType::Boolean).booleanValue(context)};
+      return Value{rhs->convertTo(ValueType::Boolean).booleanValue()};
     }
   }
 
@@ -522,7 +586,7 @@ Value evaluateLogicalOr(
 
 template <typename Eval>
 std::optional<Value> tryEvaluateBitwiseOperator(
-  EvaluationContext& context, const Value& lhs, const Value& rhs, const Eval& eval)
+  EvaluationContext&, const Value& lhs, const Value& rhs, const Eval& eval)
 {
   if (lhs.hasType(ValueType::Undefined) || rhs.hasType(ValueType::Undefined))
   {
@@ -531,9 +595,8 @@ std::optional<Value> tryEvaluateBitwiseOperator(
 
   if (lhs.convertibleTo(ValueType::Number) && rhs.convertibleTo(ValueType::Number))
   {
-    return Value{eval(
-      lhs.convertTo(context, ValueType::Number),
-      rhs.convertTo(context, ValueType::Number))};
+    return Value{
+      eval(lhs.convertTo(ValueType::Number), rhs.convertTo(ValueType::Number))};
   }
 
   return std::nullopt;
@@ -548,7 +611,7 @@ Value evaluateBitwiseAnd(
   if (
     const auto result = tryEvaluateBitwiseOperator(
       context, lhs, rhs, [&](const auto& lhsNumber, const auto& rhsNumber) {
-        return lhsNumber.integerValue(context) & rhsNumber.integerValue(context);
+        return lhsNumber.integerValue() & rhsNumber.integerValue();
       }))
   {
     return *result;
@@ -568,7 +631,7 @@ Value evaluateBitwiseXOr(
   if (
     const auto result = tryEvaluateBitwiseOperator(
       context, lhs, rhs, [&](const auto& lhsNumber, const auto& rhsNumber) {
-        return lhsNumber.integerValue(context) ^ rhsNumber.integerValue(context);
+        return lhsNumber.integerValue() ^ rhsNumber.integerValue();
       }))
   {
     return *result;
@@ -588,7 +651,7 @@ Value evaluateBitwiseOr(
   if (
     const auto result = tryEvaluateBitwiseOperator(
       context, lhs, rhs, [&](const auto& lhsNumber, const auto& rhsNumber) {
-        return lhsNumber.integerValue(context) | rhsNumber.integerValue(context);
+        return lhsNumber.integerValue() | rhsNumber.integerValue();
       }))
   {
     return *result;
@@ -608,7 +671,7 @@ Value evaluateBitwiseShiftLeft(
   if (
     const auto result = tryEvaluateBitwiseOperator(
       context, lhs, rhs, [&](const auto& lhsNumber, const auto& rhsNumber) {
-        return lhsNumber.integerValue(context) << rhsNumber.integerValue(context);
+        return lhsNumber.integerValue() << rhsNumber.integerValue();
       }))
   {
     return *result;
@@ -628,7 +691,7 @@ Value evaluateBitwiseShiftRight(
   if (
     const auto result = tryEvaluateBitwiseOperator(
       context, lhs, rhs, [&](const auto& lhsNumber, const auto& rhsNumber) {
-        return lhsNumber.integerValue(context) >> rhsNumber.integerValue(context);
+        return lhsNumber.integerValue() >> rhsNumber.integerValue();
       }))
   {
     return *result;
@@ -639,18 +702,36 @@ Value evaluateBitwiseShiftRight(
     fmt::format("Invalid operand types {} and {}", lhs.typeName(), rhs.typeName())};
 }
 
-int compareAsBooleans(EvaluationContext& context, const Value& lhs, const Value& rhs)
+int compareAsBooleans(EvaluationContext&, const Value& lhs, const Value& rhs)
 {
-  const bool lhsValue = lhs.convertTo(context, ValueType::Boolean).booleanValue(context);
-  const bool rhsValue = rhs.convertTo(context, ValueType::Boolean).booleanValue(context);
+  const bool lhsValue = lhs.convertTo(ValueType::Boolean).booleanValue();
+  const bool rhsValue = rhs.convertTo(ValueType::Boolean).booleanValue();
   return lhsValue == rhsValue ? 0 : lhsValue ? 1 : -1;
 }
 
-int compareAsNumbers(EvaluationContext& context, const Value& lhs, const Value& rhs)
+int compareAsNumbers(EvaluationContext&, const Value& lhs, const Value& rhs)
 {
-  const auto diff = lhs.convertTo(context, ValueType::Number).numberValue(context)
-                    - rhs.convertTo(context, ValueType::Number).numberValue(context);
+  const auto diff = lhs.convertTo(ValueType::Number).numberValue()
+                    - rhs.convertTo(ValueType::Number).numberValue();
   return diff < 0.0 ? -1 : diff > 0.0 ? 1 : 0;
+}
+
+int compareAsVec3s(EvaluationContext&, const Value& lhs, const Value& rhs)
+{
+  const auto ordering = lhs.vec3Value() <=> rhs.vec3Value();
+  return ordering < 0 ? -1 : ordering > 0 ? 1 : 0;
+}
+
+int compareAsBBoxes(EvaluationContext&, const Value& lhs, const Value& rhs)
+{
+  const auto& lhsBBox = lhs.bboxValue();
+  const auto& rhsBBox = rhs.bboxValue();
+  if (const auto ordering = lhsBBox.min <=> rhsBBox.min; ordering != 0)
+  {
+    return ordering < 0 ? -1 : 1;
+  }
+  const auto ordering = lhsBBox.max <=> rhsBBox.max;
+  return ordering < 0 ? -1 : ordering > 0 ? 1 : 0;
 }
 
 int evaluateCompare(
@@ -676,6 +757,9 @@ int evaluateCompare(
       case ValueType::Array:
       case ValueType::Map:
       case ValueType::Range:
+      case ValueType::Vec3:
+      case ValueType::BBox:
+      case ValueType::LazyMap:
         break;
       }
       break;
@@ -693,6 +777,9 @@ int evaluateCompare(
       case ValueType::Array:
       case ValueType::Map:
       case ValueType::Range:
+      case ValueType::Vec3:
+      case ValueType::BBox:
+      case ValueType::LazyMap:
         break;
       }
       break;
@@ -704,19 +791,24 @@ int evaluateCompare(
       case ValueType::Number:
         return compareAsNumbers(context, lhs, rhs);
       case ValueType::String:
-        return lhs.stringValue(context).compare(
-          rhs.convertTo(context, ValueType::String).stringValue(context));
+        return lhs.stringValue().compare(rhs.convertTo(ValueType::String).stringValue());
       case ValueType::Null:
       case ValueType::Undefined:
         return 1;
       case ValueType::Array:
       case ValueType::Map:
       case ValueType::Range:
+      case ValueType::Vec3:
+      case ValueType::BBox:
+      case ValueType::LazyMap:
         break;
       }
       break;
     case ValueType::Null:
-      return rhs.hasType(ValueType::Null) ? 0 : -1;
+      // undefined sorts below everything else, null included
+      return rhs.hasType(ValueType::Null)        ? 0
+             : rhs.hasType(ValueType::Undefined) ? 1
+                                                 : -1;
     case ValueType::Undefined:
       return rhs.hasType(ValueType::Undefined) ? 0 : -1;
     case ValueType::Array:
@@ -724,9 +816,7 @@ int evaluateCompare(
       {
       case ValueType::Array:
         return kdl::col_lexicographical_compare(
-          lhs.arrayValue(context),
-          rhs.arrayValue(context),
-          [&](const auto& l, const auto& r) {
+          lhs.arrayValue(), rhs.arrayValue(), [&](const auto& l, const auto& r) {
             return evaluateCompare(context, l, r, expressionNode) < 0;
           });
       case ValueType::Null:
@@ -737,6 +827,9 @@ int evaluateCompare(
       case ValueType::String:
       case ValueType::Map:
       case ValueType::Range:
+      case ValueType::Vec3:
+      case ValueType::BBox:
+      case ValueType::LazyMap:
         break;
       }
       break;
@@ -745,9 +838,7 @@ int evaluateCompare(
       {
       case ValueType::Map:
         return kdl::map_lexicographical_compare(
-          lhs.mapValue(context),
-          rhs.mapValue(context),
-          [&](const auto& l, const auto& r) {
+          lhs.mapValue(), rhs.mapValue(), [&](const auto& l, const auto& r) {
             return evaluateCompare(context, l, r, expressionNode) < 0;
           });
       case ValueType::Null:
@@ -758,6 +849,9 @@ int evaluateCompare(
       case ValueType::String:
       case ValueType::Array:
       case ValueType::Range:
+      case ValueType::Vec3:
+      case ValueType::BBox:
+      case ValueType::LazyMap:
         break;
       }
       break;
@@ -773,6 +867,67 @@ int evaluateCompare(
       case ValueType::Array:
       case ValueType::Map:
       case ValueType::Range:
+      case ValueType::Vec3:
+      case ValueType::BBox:
+      case ValueType::LazyMap:
+        break;
+      }
+      break;
+    case ValueType::Vec3:
+      switch (rhs.type())
+      {
+      case ValueType::Vec3:
+        return compareAsVec3s(context, lhs, rhs);
+      case ValueType::Null:
+      case ValueType::Undefined:
+        return 1;
+      case ValueType::Boolean:
+      case ValueType::Number:
+      case ValueType::String:
+      case ValueType::Array:
+      case ValueType::Map:
+      case ValueType::Range:
+      case ValueType::BBox:
+      case ValueType::LazyMap:
+        break;
+      }
+      break;
+    case ValueType::BBox:
+      switch (rhs.type())
+      {
+      case ValueType::BBox:
+        return compareAsBBoxes(context, lhs, rhs);
+      case ValueType::Null:
+      case ValueType::Undefined:
+        return 1;
+      case ValueType::Boolean:
+      case ValueType::Number:
+      case ValueType::String:
+      case ValueType::Array:
+      case ValueType::Map:
+      case ValueType::Range:
+      case ValueType::Vec3:
+      case ValueType::LazyMap:
+        break;
+      }
+      break;
+    case ValueType::LazyMap:
+      // Deliberately unsupported via EL comparison operators. LazyMap is meant to be
+      // drilled into with subscript/dot-access, not compared as a whole.
+      switch (rhs.type())
+      {
+      case ValueType::Null:
+      case ValueType::Undefined:
+        return 1;
+      case ValueType::Boolean:
+      case ValueType::Number:
+      case ValueType::String:
+      case ValueType::Array:
+      case ValueType::Map:
+      case ValueType::Range:
+      case ValueType::Vec3:
+      case ValueType::BBox:
+      case ValueType::LazyMap:
         break;
       }
       break;
@@ -788,32 +943,28 @@ int evaluateCompare(
   }
 }
 
-Value evaluateBoundedRange(EvaluationContext& context, const Value& lhs, const Value& rhs)
+Value evaluateBoundedRange(EvaluationContext&, const Value& lhs, const Value& rhs)
 {
   if (lhs.hasType(ValueType::Undefined) || rhs.hasType(ValueType::Undefined))
   {
     return Value::Undefined;
   }
 
-  const auto from =
-    static_cast<long>(lhs.convertTo(context, ValueType::Number).numberValue(context));
-  const auto to =
-    static_cast<long>(rhs.convertTo(context, ValueType::Number).numberValue(context));
+  const auto from = static_cast<long>(lhs.convertTo(ValueType::Number).numberValue());
+  const auto to = static_cast<long>(rhs.convertTo(ValueType::Number).numberValue());
 
   return Value{BoundedRange{from, to}};
 }
 
 template <typename EvaluateLhs, typename EvaluateRhs>
 Value evaluateCase(
-  EvaluationContext& context,
-  const EvaluateLhs& evaluateLhs,
-  const EvaluateRhs& evaluateRhs)
+  EvaluationContext&, const EvaluateLhs& evaluateLhs, const EvaluateRhs& evaluateRhs)
 {
   const auto lhs = evaluateLhs();
 
   if (
     lhs.type() != ValueType::Undefined
-    && lhs.convertTo(context, ValueType::Boolean).booleanValue(context))
+    && lhs.convertTo(ValueType::Boolean).booleanValue())
   {
     return evaluateRhs();
   }
@@ -821,66 +972,97 @@ Value evaluateCase(
   return Value::Undefined;
 }
 
+Value evaluateCall(
+  EvaluationContext& context,
+  const std::string& name,
+  const std::vector<Value>& arguments,
+  const ExpressionNode& expressionNode);
+
 template <typename EvalualateLhs, typename EvaluateRhs>
 Value evaluateBinaryExpression(
   EvaluationContext& context,
-  const BinaryOperation operator_,
+  const BinaryOperation& operator_,
   const EvalualateLhs& evaluateLhs,
   const EvaluateRhs& evaluateRhs,
   const ExpressionNode& expressionNode)
 {
-  switch (operator_)
-  {
-  case BinaryOperation::Addition:
-    return evaluateAddition(context, evaluateLhs(), evaluateRhs(), expressionNode);
-  case BinaryOperation::Subtraction:
-    return evaluateSubtraction(context, evaluateLhs(), evaluateRhs(), expressionNode);
-  case BinaryOperation::Multiplication:
-    return evaluateMultiplication(context, evaluateLhs(), evaluateRhs(), expressionNode);
-  case BinaryOperation::Division:
-    return evaluateDivision(context, evaluateLhs(), evaluateRhs(), expressionNode);
-  case BinaryOperation::Modulus:
-    return evaluateModulus(context, evaluateLhs(), evaluateRhs(), expressionNode);
-  case BinaryOperation::LogicalAnd:
-    return evaluateLogicalAnd(context, evaluateLhs, evaluateRhs, expressionNode);
-  case BinaryOperation::LogicalOr:
-    return evaluateLogicalOr(context, evaluateLhs, evaluateRhs, expressionNode);
-  case BinaryOperation::BitwiseAnd:
-    return evaluateBitwiseAnd(context, evaluateLhs(), evaluateRhs(), expressionNode);
-  case BinaryOperation::BitwiseXOr:
-    return evaluateBitwiseXOr(context, evaluateLhs(), evaluateRhs(), expressionNode);
-  case BinaryOperation::BitwiseOr:
-    return evaluateBitwiseOr(context, evaluateLhs(), evaluateRhs(), expressionNode);
-  case BinaryOperation::BitwiseShiftLeft:
-    return evaluateBitwiseShiftLeft(
-      context, evaluateLhs(), evaluateRhs(), expressionNode);
-  case BinaryOperation::BitwiseShiftRight:
-    return evaluateBitwiseShiftRight(
-      context, evaluateLhs(), evaluateRhs(), expressionNode);
-  case BinaryOperation::Less:
-    return Value{
-      evaluateCompare(context, evaluateLhs(), evaluateRhs(), expressionNode) < 0};
-  case BinaryOperation::LessOrEqual:
-    return Value{
-      evaluateCompare(context, evaluateLhs(), evaluateRhs(), expressionNode) <= 0};
-  case BinaryOperation::Greater:
-    return Value{
-      evaluateCompare(context, evaluateLhs(), evaluateRhs(), expressionNode) > 0};
-  case BinaryOperation::GreaterOrEqual:
-    return Value{
-      evaluateCompare(context, evaluateLhs(), evaluateRhs(), expressionNode) >= 0};
-  case BinaryOperation::Equal:
-    return Value{
-      evaluateCompare(context, evaluateLhs(), evaluateRhs(), expressionNode) == 0};
-  case BinaryOperation::NotEqual:
-    return Value{
-      evaluateCompare(context, evaluateLhs(), evaluateRhs(), expressionNode) != 0};
-  case BinaryOperation::BoundedRange:
-    return Value{evaluateBoundedRange(context, evaluateLhs(), evaluateRhs())};
-  case BinaryOperation::Case:
-    return evaluateCase(context, evaluateLhs, evaluateRhs);
-    switchDefault();
-  };
+  return std::visit(
+    kdl::overload(
+      [&](const binop::Addition&) {
+        return evaluateAddition(context, evaluateLhs(), evaluateRhs(), expressionNode);
+      },
+      [&](const binop::Subtraction&) {
+        return evaluateSubtraction(context, evaluateLhs(), evaluateRhs(), expressionNode);
+      },
+      [&](const binop::Multiplication&) {
+        return evaluateMultiplication(
+          context, evaluateLhs(), evaluateRhs(), expressionNode);
+      },
+      [&](const binop::Division&) {
+        return evaluateDivision(context, evaluateLhs(), evaluateRhs(), expressionNode);
+      },
+      [&](const binop::Modulus&) {
+        return evaluateModulus(context, evaluateLhs(), evaluateRhs(), expressionNode);
+      },
+      [&](const binop::LogicalAnd&) {
+        return evaluateLogicalAnd(context, evaluateLhs, evaluateRhs, expressionNode);
+      },
+      [&](const binop::LogicalOr&) {
+        return evaluateLogicalOr(context, evaluateLhs, evaluateRhs, expressionNode);
+      },
+      [&](const binop::BitwiseAnd&) {
+        return evaluateBitwiseAnd(context, evaluateLhs(), evaluateRhs(), expressionNode);
+      },
+      [&](const binop::BitwiseXOr&) {
+        return evaluateBitwiseXOr(context, evaluateLhs(), evaluateRhs(), expressionNode);
+      },
+      [&](const binop::BitwiseOr&) {
+        return evaluateBitwiseOr(context, evaluateLhs(), evaluateRhs(), expressionNode);
+      },
+      [&](const binop::BitwiseShiftLeft&) {
+        return evaluateBitwiseShiftLeft(
+          context, evaluateLhs(), evaluateRhs(), expressionNode);
+      },
+      [&](const binop::BitwiseShiftRight&) {
+        return evaluateBitwiseShiftRight(
+          context, evaluateLhs(), evaluateRhs(), expressionNode);
+      },
+      [&](const binop::Less&) {
+        return Value{
+          evaluateCompare(context, evaluateLhs(), evaluateRhs(), expressionNode) < 0};
+      },
+      [&](const binop::LessOrEqual&) {
+        return Value{
+          evaluateCompare(context, evaluateLhs(), evaluateRhs(), expressionNode) <= 0};
+      },
+      [&](const binop::Greater&) {
+        return Value{
+          evaluateCompare(context, evaluateLhs(), evaluateRhs(), expressionNode) > 0};
+      },
+      [&](const binop::GreaterOrEqual&) {
+        return Value{
+          evaluateCompare(context, evaluateLhs(), evaluateRhs(), expressionNode) >= 0};
+      },
+      [&](const binop::Equal&) {
+        return Value{
+          evaluateCompare(context, evaluateLhs(), evaluateRhs(), expressionNode) == 0};
+      },
+      [&](const binop::NotEqual&) {
+        return Value{
+          evaluateCompare(context, evaluateLhs(), evaluateRhs(), expressionNode) != 0};
+      },
+      [&](const binop::BoundedRange&) {
+        return Value{evaluateBoundedRange(context, evaluateLhs(), evaluateRhs())};
+      },
+      [&](const binop::Case&) { return evaluateCase(context, evaluateLhs, evaluateRhs); },
+      [&](const binop::InfixCall& infixCall) {
+        return evaluateCall(
+          context,
+          infixCall.functionName,
+          {evaluateLhs(), evaluateRhs()},
+          expressionNode);
+      }),
+    operator_);
 }
 
 template <typename Evaluator>
@@ -907,11 +1089,10 @@ size_t computeIndex(const long index, const size_t indexableSize)
 }
 
 size_t computeIndex(
-  EvaluationContext& context, const Value& indexValue, const size_t indexableSize)
+  EvaluationContext&, const Value& indexValue, const size_t indexableSize)
 {
   return computeIndex(
-    static_cast<long>(
-      indexValue.convertTo(context, ValueType::Number).numberValue(context)),
+    static_cast<long>(indexValue.convertTo(ValueType::Number).numberValue()),
     indexableSize);
 }
 
@@ -949,7 +1130,7 @@ void computeIndexArray(
   switch (indexValue.type())
   {
   case ValueType::Array: {
-    const auto& indexArray = indexValue.arrayValue(context);
+    const auto& indexArray = indexValue.arrayValue();
     result.reserve(result.size() + indexArray.size());
     for (size_t i = 0; i < indexArray.size(); ++i)
     {
@@ -960,13 +1141,16 @@ void computeIndexArray(
   case ValueType::Range: {
     std::visit(
       [&](const auto& x) { computeIndexArray(x, indexableSize, result); },
-      indexValue.rangeValue(context));
+      indexValue.rangeValue());
     break;
   }
   case ValueType::Boolean:
   case ValueType::Number:
   case ValueType::String:
   case ValueType::Map:
+  case ValueType::Vec3:
+  case ValueType::BBox:
+  case ValueType::LazyMap:
   case ValueType::Null:
   case ValueType::Undefined:
     result.push_back(computeIndex(context, indexValue, indexableSize));
@@ -995,7 +1179,7 @@ Value evaluateSubscript(
     {
     case ValueType::Boolean:
     case ValueType::Number: {
-      const auto& str = lhs.stringValue(context);
+      const auto& str = lhs.stringValue();
       const auto index = computeIndex(context, rhs, str.length());
       auto result = std::stringstream{};
       if (index < str.length())
@@ -1006,7 +1190,7 @@ Value evaluateSubscript(
     }
     case ValueType::Array:
     case ValueType::Range: {
-      const auto& str = lhs.stringValue(context);
+      const auto& str = lhs.stringValue();
       const auto indices = computeIndexArray(context, rhs, str.length());
       auto result = std::stringstream{};
       for (size_t i = 0; i < indices.size(); ++i)
@@ -1021,6 +1205,9 @@ Value evaluateSubscript(
     }
     case ValueType::String:
     case ValueType::Map:
+    case ValueType::Vec3:
+    case ValueType::BBox:
+    case ValueType::LazyMap:
     case ValueType::Null:
     case ValueType::Undefined:
       break;
@@ -1031,7 +1218,7 @@ Value evaluateSubscript(
     {
     case ValueType::Boolean:
     case ValueType::Number: {
-      const auto& array = lhs.arrayValue(context);
+      const auto& array = lhs.arrayValue();
       const auto index = computeIndex(context, rhs, array.size());
       if (index >= array.size())
       {
@@ -1041,7 +1228,7 @@ Value evaluateSubscript(
     }
     case ValueType::Array:
     case ValueType::Range: {
-      const auto& array = lhs.arrayValue(context);
+      const auto& array = lhs.arrayValue();
       const auto indices = computeIndexArray(context, rhs, array.size());
       auto result = ArrayType{};
       result.reserve(indices.size());
@@ -1058,6 +1245,9 @@ Value evaluateSubscript(
     }
     case ValueType::String:
     case ValueType::Map:
+    case ValueType::Vec3:
+    case ValueType::BBox:
+    case ValueType::LazyMap:
     case ValueType::Null:
     case ValueType::Undefined:
       break;
@@ -1067,8 +1257,8 @@ Value evaluateSubscript(
     switch (rhs.type())
     {
     case ValueType::String: {
-      const auto& map = lhs.mapValue(context);
-      const auto& key = rhs.stringValue(context);
+      const auto& map = lhs.mapValue();
+      const auto& key = rhs.stringValue();
       const auto it = map.find(key);
       if (it == std::end(map))
       {
@@ -1077,8 +1267,8 @@ Value evaluateSubscript(
       return it->second;
     }
     case ValueType::Array: {
-      const auto& map = lhs.mapValue(context);
-      const auto& keys = rhs.arrayValue(context);
+      const auto& map = lhs.mapValue();
+      const auto& keys = rhs.arrayValue();
       auto result = MapType{};
       for (size_t i = 0; i < keys.size(); ++i)
       {
@@ -1086,12 +1276,9 @@ Value evaluateSubscript(
         if (keyValue.type() != ValueType::String)
         {
           throw ConversionError{
-            context.location(keyValue),
-            keyValue.describe(),
-            keyValue.type(),
-            ValueType::String};
+            keyValue.location(), keyValue.describe(), keyValue.type(), ValueType::String};
         }
-        const auto& key = keyValue.stringValue(context);
+        const auto& key = keyValue.stringValue();
         const auto it = map.find(key);
         if (it != std::end(map))
         {
@@ -1104,16 +1291,111 @@ Value evaluateSubscript(
     case ValueType::Number:
     case ValueType::Map:
     case ValueType::Range:
+    case ValueType::Vec3:
+    case ValueType::BBox:
+    case ValueType::LazyMap:
     case ValueType::Null:
     case ValueType::Undefined:
       break;
     }
     break;
+  case ValueType::LazyMap:
+    switch (rhs.type())
+    {
+    case ValueType::String: {
+      const auto& b = lhs.lazyMapValue();
+      const auto& key = rhs.stringValue();
+      return b.at(key).value_or(Value::Undefined);
+    }
+    case ValueType::Boolean:
+    case ValueType::Number:
+    case ValueType::Array:
+    case ValueType::Map:
+    case ValueType::Range:
+    case ValueType::Vec3:
+    case ValueType::BBox:
+    case ValueType::LazyMap:
+    case ValueType::Null:
+    case ValueType::Undefined:
+      break;
+    }
+    break;
+  case ValueType::Vec3:
+    switch (rhs.type())
+    {
+    case ValueType::Boolean:
+    case ValueType::Number: {
+      const auto& v = lhs.vec3Value();
+      const auto index = computeIndex(context, rhs, 3u);
+      if (index >= 3u)
+      {
+        throw IndexOutOfBoundsError{expressionNode, lhs, index};
+      }
+      return Value{v[index]};
+    }
+    case ValueType::String: {
+      const auto& v = lhs.vec3Value();
+      const auto& key = rhs.stringValue();
+      if (key == "x")
+      {
+        return Value{v.x()};
+      }
+      if (key == "y")
+      {
+        return Value{v.y()};
+      }
+      if (key == "z")
+      {
+        return Value{v.z()};
+      }
+      return Value::Undefined;
+    }
+    case ValueType::Array:
+    case ValueType::Map:
+    case ValueType::Range:
+    case ValueType::Vec3:
+    case ValueType::BBox:
+    case ValueType::LazyMap:
+    case ValueType::Null:
+    case ValueType::Undefined:
+      break;
+    }
+    break;
+  case ValueType::BBox:
+    switch (rhs.type())
+    {
+    case ValueType::String: {
+      const auto& b = lhs.bboxValue();
+      const auto& key = rhs.stringValue();
+      if (key == "min")
+      {
+        return Value{b.min};
+      }
+      if (key == "max")
+      {
+        return Value{b.max};
+      }
+      return Value::Undefined;
+    }
+    case ValueType::Boolean:
+    case ValueType::Number:
+    case ValueType::Array:
+    case ValueType::Map:
+    case ValueType::Range:
+    case ValueType::Vec3:
+    case ValueType::BBox:
+    case ValueType::LazyMap:
+    case ValueType::Null:
+    case ValueType::Undefined:
+      break;
+    }
+    break;
+  case ValueType::Undefined:
+    return Value::Undefined;
   case ValueType::Boolean:
   case ValueType::Number:
   case ValueType::Range:
   case ValueType::Null:
-  case ValueType::Undefined:
     break;
   }
 
@@ -1132,6 +1414,254 @@ Value evaluate(
     expression.leftOperand.accept(evaluator),
     expression.rightOperand.accept(evaluator),
     expressionNode);
+}
+
+template <typename Evaluator>
+Value evaluate(
+  EvaluationContext& context,
+  const Evaluator& evaluator,
+  const DotExpression& expression,
+  const ExpressionNode& expressionNode)
+{
+  return evaluateSubscript(
+    context,
+    expression.operand.accept(evaluator),
+    Value{expression.fieldName},
+    expressionNode);
+}
+
+bool isGlobPattern(const std::string& pattern)
+{
+  return pattern.find_first_of("?*%\\") != std::string::npos;
+}
+
+Value evaluateLike(EvaluationContext&, const Value& lhs, const Value& rhs)
+{
+  if (lhs.hasType(ValueType::Undefined) || rhs.hasType(ValueType::Undefined))
+  {
+    return Value{false};
+  }
+
+  if (!rhs.hasType(ValueType::String))
+  {
+    return Value{false};
+  }
+
+  // a pattern with no glob metacharacters at all matches as a substring
+  const auto& rawPattern = rhs.stringValue();
+  const auto pattern = isGlobPattern(rawPattern) ? rawPattern : "*" + rawPattern + "*";
+
+  if (lhs.hasType(ValueType::String))
+  {
+    return Value{kdl::ci::str_matches_glob(lhs.stringValue(), pattern)};
+  }
+
+  if (lhs.hasType(ValueType::Array))
+  {
+    const auto& array = lhs.arrayValue();
+    return Value{std::ranges::any_of(array, [&](const auto& element) {
+      return element.hasType(ValueType::String)
+             && kdl::ci::str_matches_glob(element.stringValue(), pattern);
+    })};
+  }
+
+  // Map/LazyMap like String: true if any key, or any String-typed value, matches
+  if (lhs.hasType(ValueType::Map, ValueType::LazyMap))
+  {
+    const auto keys = lhs.keys();
+    return Value{std::ranges::any_of(keys, [&](const auto& key) {
+      if (kdl::ci::str_matches_glob(key, pattern))
+      {
+        return true;
+      }
+      const auto value = lhs.atOrDefault(key);
+      return value.hasType(ValueType::String)
+             && kdl::ci::str_matches_glob(value.stringValue(), pattern);
+    })};
+  }
+
+  return Value{false};
+}
+
+Value evaluateContains(EvaluationContext&, const Value& lhs, const Value& rhs)
+{
+  if (lhs.hasType(ValueType::Undefined) || rhs.hasType(ValueType::Undefined))
+  {
+    return Value{false};
+  }
+
+  switch (lhs.type())
+  {
+  case ValueType::Array: {
+    const auto& array = lhs.arrayValue();
+    return Value{
+      std::ranges::any_of(array, [&](const auto& element) { return element == rhs; })};
+  }
+  case ValueType::Map:
+  case ValueType::LazyMap:
+    return Value{rhs.hasType(ValueType::String) && lhs.contains(rhs.stringValue())};
+  case ValueType::Range:
+    if (rhs.hasType(ValueType::Number))
+    {
+      const auto n = rhs.numberValue();
+      return Value{std::visit(
+        kdl::overload(
+          [&](const LeftBoundedRange& r) { return n >= static_cast<double>(r.first); },
+          [&](const RightBoundedRange& r) { return n <= static_cast<double>(r.last); },
+          [&](const BoundedRange& r) {
+            const auto lo = static_cast<double>(std::min(r.first, r.last));
+            const auto hi = static_cast<double>(std::max(r.first, r.last));
+            return n >= lo && n <= hi;
+          }),
+        lhs.rangeValue())};
+    }
+    return Value{false};
+  case ValueType::BBox:
+    if (rhs.hasType(ValueType::Vec3))
+    {
+      return Value{lhs.bboxValue().contains(rhs.vec3Value())};
+    }
+    if (rhs.hasType(ValueType::BBox))
+    {
+      return Value{lhs.bboxValue().contains(rhs.bboxValue())};
+    }
+    return Value{false};
+  case ValueType::Boolean:
+  case ValueType::String:
+  case ValueType::Number:
+  case ValueType::Vec3:
+  case ValueType::Null:
+  case ValueType::Undefined:
+    return Value{false};
+    switchDefault();
+  }
+}
+
+using BuiltinFunction = std::function<Value(
+  EvaluationContext&, const std::vector<Value>&, const ExpressionNode&)>;
+
+const auto builtinFunctions = kdl::flat_map<std::string, BuiltinFunction>{
+  {"vec",
+   [](auto&, const auto& arguments, const auto& expressionNode) {
+     if (arguments.size() != 3)
+     {
+       throw EvaluationError{
+         expressionNode,
+         fmt::format("vec() expects 3 arguments, but got {}", arguments.size())};
+     }
+     return Value{Vec3Type{
+       arguments[0].numberValue(),
+       arguments[1].numberValue(),
+       arguments[2].numberValue(),
+     }};
+   }},
+  {"bbox",
+   [](auto&, const auto& arguments, const auto& expressionNode) {
+     if (arguments.size() != 2)
+     {
+       throw EvaluationError{
+         expressionNode,
+         fmt::format("bbox() expects 2 arguments, but got {}", arguments.size())};
+     }
+     const auto& a = arguments[0].vec3Value();
+     const auto& b = arguments[1].vec3Value();
+     return Value{BBoxType{vm::min(a, b), vm::max(a, b)}};
+   }},
+  {"distanceTo",
+   [](auto&, const auto& arguments, const auto& expressionNode) {
+     if (arguments.size() != 2)
+     {
+       throw EvaluationError{
+         expressionNode,
+         fmt::format("distanceTo() expects 2 arguments, but got {}", arguments.size())};
+     }
+     const auto& a = arguments[0].vec3Value();
+     const auto& b = arguments[1].vec3Value();
+     return Value{vm::distance(a, b)};
+   }},
+  {"intersects",
+   [](auto&, const auto& arguments, const auto& expressionNode) {
+     if (arguments.size() != 2)
+     {
+       throw EvaluationError{
+         expressionNode,
+         fmt::format("intersects() expects 2 arguments, but got {}", arguments.size())};
+     }
+     const auto& a = arguments[0].bboxValue();
+     const auto& b = arguments[1].bboxValue();
+     return Value{a.intersects(b)};
+   }},
+  {"like",
+   [](auto& context, const auto& arguments, const auto& expressionNode) {
+     if (arguments.size() != 2)
+     {
+       throw EvaluationError{
+         expressionNode,
+         fmt::format("like() expects 2 arguments, but got {}", arguments.size())};
+     }
+     return evaluateLike(context, arguments[0], arguments[1]);
+   }},
+  {"contains",
+   [](auto& context, const auto& arguments, const auto& expressionNode) {
+     if (arguments.size() != 2)
+     {
+       throw EvaluationError{
+         expressionNode,
+         fmt::format("contains() expects 2 arguments, but got {}", arguments.size())};
+     }
+     return evaluateContains(context, arguments[0], arguments[1]);
+   }},
+  {"in",
+   [](auto& context, const auto& arguments, const auto& expressionNode) {
+     if (arguments.size() != 2)
+     {
+       throw EvaluationError{
+         expressionNode,
+         fmt::format("in() expects 2 arguments, but got {}", arguments.size())};
+     }
+     return evaluateContains(context, arguments[1], arguments[0]);
+   }},
+  {"is",
+   [](auto& context, const auto& arguments, const auto& expressionNode) {
+     if (arguments.size() != 2)
+     {
+       throw EvaluationError{
+         expressionNode,
+         fmt::format("is() expects 2 arguments, but got {}", arguments.size())};
+     }
+     return Value{
+       evaluateCompare(context, arguments[0], arguments[1], expressionNode) == 0};
+   }},
+};
+
+Value evaluateCall(
+  EvaluationContext& context,
+  const std::string& name,
+  const std::vector<Value>& arguments,
+  const ExpressionNode& expressionNode)
+{
+  if (const auto it = builtinFunctions.find(name); it != builtinFunctions.end())
+  {
+    return it->second(context, arguments, expressionNode);
+  }
+
+  throw EvaluationError{expressionNode, fmt::format("Unknown function: '{}'", name)};
+}
+
+template <typename Evaluator>
+Value evaluate(
+  EvaluationContext& context,
+  const Evaluator& evaluator,
+  const CallExpression& expression,
+  const ExpressionNode& expressionNode)
+{
+  const auto arguments = expression.arguments
+                         | std::views::transform([&](const auto& argument) {
+                             return argument.accept(evaluator);
+                           })
+                         | kdl::ranges::to<std::vector>();
+
+  return evaluateCall(context, expression.name, arguments, expressionNode);
 }
 
 template <typename Evaluator>
@@ -1295,6 +1825,52 @@ Expression optimize(
 }
 
 Expression optimize(
+  EvaluationContext& context,
+  const DotExpression& expression,
+  const ExpressionNode& expressionNode)
+{
+  auto optimizedOperand = expression.operand.optimize(context);
+
+  if (optimizedOperand.isLiteral())
+  {
+    const auto operandValue = optimizedOperand.evaluate(context);
+    return LiteralExpression{evaluateSubscript(
+      context, operandValue, Value{expression.fieldName}, expressionNode)};
+  }
+
+  return DotExpression{std::move(optimizedOperand), expression.fieldName};
+}
+
+Expression optimize(
+  EvaluationContext& context,
+  const CallExpression& expression,
+  const ExpressionNode& expressionNode)
+{
+  auto optimizedArguments = expression.arguments
+                            | std::views::transform([&](const auto& argument) {
+                                return argument.optimize(context);
+                              })
+                            | kdl::ranges::to<std::vector>();
+
+  const auto allLiteral =
+    std::ranges::all_of(optimizedArguments, &ExpressionNode::isLiteral);
+
+  if (allLiteral)
+  {
+    const auto values = optimizedArguments
+                        | std::views::transform([&](const auto& argument) {
+                            return argument.evaluate(context);
+                          })
+                        | kdl::ranges::to<std::vector>();
+
+    return LiteralExpression{
+      evaluateCall(context, expression.name, values, expressionNode)};
+  }
+
+  return CallExpression{expression.name, std::move(optimizedArguments)};
+}
+
+Expression optimize(
   EvaluationContext& context, const SwitchExpression& expression, const ExpressionNode&)
 {
   if (expression.cases.empty())
@@ -1328,44 +1904,9 @@ Expression optimizeExpression(
 }
 
 
-size_t precedence(const BinaryOperation operation)
+size_t precedence(const BinaryOperation& operation)
 {
-  switch (operation)
-  {
-  case BinaryOperation::Multiplication:
-  case BinaryOperation::Division:
-  case BinaryOperation::Modulus:
-    return 12;
-  case BinaryOperation::Addition:
-  case BinaryOperation::Subtraction:
-    return 11;
-  case BinaryOperation::BitwiseShiftLeft:
-  case BinaryOperation::BitwiseShiftRight:
-    return 10;
-  case BinaryOperation::Less:
-  case BinaryOperation::LessOrEqual:
-  case BinaryOperation::Greater:
-  case BinaryOperation::GreaterOrEqual:
-    return 9;
-  case BinaryOperation::Equal:
-  case BinaryOperation::NotEqual:
-    return 8;
-  case BinaryOperation::BitwiseAnd:
-    return 7;
-  case BinaryOperation::BitwiseXOr:
-    return 6;
-  case BinaryOperation::BitwiseOr:
-    return 5;
-  case BinaryOperation::LogicalAnd:
-    return 4;
-  case BinaryOperation::LogicalOr:
-    return 3;
-  case BinaryOperation::BoundedRange:
-    return 2;
-  case BinaryOperation::Case:
-    return 1;
-    switchDefault();
-  };
+  return std::visit([](const auto& op) { return op.precedence; }, operation);
 }
 
 size_t precedence(const Expression& expression)
@@ -1411,8 +1952,8 @@ Value ExpressionNode::evaluate(EvaluationContext& context) const
 {
   return accept(
     [&](const auto& evaluator, const auto& expression, const auto& containingNode) {
-      return context.trace(
-        el::evaluate(context, evaluator, expression, containingNode), containingNode);
+      return el::evaluate(context, evaluator, expression, containingNode)
+        .producedBy(containingNode);
     });
 }
 
@@ -1422,8 +1963,8 @@ Value ExpressionNode::tryEvaluate(EvaluationContext& context) const
     [&](const auto& evaluator, const auto& expression, const auto& containingNode) {
       try
       {
-        return context.trace(
-          el::evaluate(context, evaluator, expression, containingNode), containingNode);
+        return el::evaluate(context, evaluator, expression, containingNode)
+          .producedBy(containingNode);
       }
       catch (const EvaluationError&)
       {
@@ -1454,11 +1995,6 @@ std::string ExpressionNode::asString() const
 bool operator==(const ExpressionNode& lhs, const ExpressionNode& rhs)
 {
   return *lhs.m_expression == *rhs.m_expression;
-}
-
-bool operator!=(const ExpressionNode& lhs, const ExpressionNode& rhs)
-{
-  return !(lhs == rhs);
 }
 
 std::ostream& operator<<(std::ostream& lhs, const ExpressionNode& rhs)
@@ -1528,11 +2064,6 @@ bool operator==(const LiteralExpression& lhs, const LiteralExpression& rhs)
   return lhs.value == rhs.value;
 }
 
-bool operator!=(const LiteralExpression& lhs, const LiteralExpression& rhs)
-{
-  return !(lhs == rhs);
-}
-
 std::ostream& operator<<(std::ostream& lhs, const LiteralExpression& rhs)
 {
   return lhs << rhs.value;
@@ -1544,11 +2075,6 @@ bool operator==(const VariableExpression& lhs, const VariableExpression& rhs)
   return lhs.variableName == rhs.variableName;
 }
 
-bool operator!=(const VariableExpression& lhs, const VariableExpression& rhs)
-{
-  return !(lhs == rhs);
-}
-
 std::ostream& operator<<(std::ostream& lhs, const VariableExpression& rhs)
 {
   return lhs << rhs.variableName;
@@ -1558,11 +2084,6 @@ std::ostream& operator<<(std::ostream& lhs, const VariableExpression& rhs)
 bool operator==(const ArrayExpression& lhs, const ArrayExpression& rhs)
 {
   return lhs.elements == rhs.elements;
-}
-
-bool operator!=(const ArrayExpression& lhs, const ArrayExpression& rhs)
-{
-  return !(lhs == rhs);
 }
 
 std::ostream& operator<<(std::ostream& lhs, const ArrayExpression& rhs)
@@ -1585,11 +2106,6 @@ std::ostream& operator<<(std::ostream& lhs, const ArrayExpression& rhs)
 bool operator==(const MapExpression& lhs, const MapExpression& rhs)
 {
   return lhs.elements == rhs.elements;
-}
-
-bool operator!=(const MapExpression& lhs, const MapExpression& rhs)
-{
-  return !(lhs == rhs);
 }
 
 std::ostream& operator<<(std::ostream& lhs, const MapExpression& rhs)
@@ -1619,11 +2135,6 @@ std::ostream& operator<<(std::ostream& lhs, const MapExpression& rhs)
 bool operator==(const UnaryExpression& lhs, const UnaryExpression& rhs)
 {
   return lhs.operation == rhs.operation && lhs.operand == rhs.operand;
-}
-
-bool operator!=(const UnaryExpression& lhs, const UnaryExpression& rhs)
-{
-  return !(lhs == rhs);
 }
 
 std::ostream& operator<<(std::ostream& lhs, const UnaryExpression& rhs)
@@ -1657,6 +2168,31 @@ std::ostream& operator<<(std::ostream& lhs, const UnaryExpression& rhs)
   return lhs;
 }
 
+namespace binop
+{
+kdl_reflect_impl(Multiplication);
+kdl_reflect_impl(Division);
+kdl_reflect_impl(Modulus);
+kdl_reflect_impl(Addition);
+kdl_reflect_impl(Subtraction);
+kdl_reflect_impl(BitwiseShiftLeft);
+kdl_reflect_impl(BitwiseShiftRight);
+kdl_reflect_impl(Less);
+kdl_reflect_impl(LessOrEqual);
+kdl_reflect_impl(Greater);
+kdl_reflect_impl(GreaterOrEqual);
+kdl_reflect_impl(Equal);
+kdl_reflect_impl(NotEqual);
+kdl_reflect_impl(BitwiseAnd);
+kdl_reflect_impl(BitwiseXOr);
+kdl_reflect_impl(BitwiseOr);
+kdl_reflect_impl(LogicalAnd);
+kdl_reflect_impl(LogicalOr);
+kdl_reflect_impl(BoundedRange);
+kdl_reflect_impl(Case);
+kdl_reflect_impl(InfixCall);
+} // namespace binop
+
 
 bool operator==(const BinaryExpression& lhs, const BinaryExpression& rhs)
 {
@@ -1664,77 +2200,65 @@ bool operator==(const BinaryExpression& lhs, const BinaryExpression& rhs)
          && lhs.rightOperand == rhs.rightOperand;
 }
 
-bool operator!=(const BinaryExpression& lhs, const BinaryExpression& rhs)
-{
-  return !(lhs == rhs);
-}
-
 std::ostream& operator<<(std::ostream& lhs, const BinaryExpression& rhs)
 {
-  switch (rhs.operation)
-  {
-  case BinaryOperation::Addition:
-    lhs << rhs.leftOperand << " + " << rhs.rightOperand;
-    break;
-  case BinaryOperation::Subtraction:
-    lhs << rhs.leftOperand << " - " << rhs.rightOperand;
-    break;
-  case BinaryOperation::Multiplication:
-    lhs << rhs.leftOperand << " * " << rhs.rightOperand;
-    break;
-  case BinaryOperation::Division:
-    lhs << rhs.leftOperand << " / " << rhs.rightOperand;
-    break;
-  case BinaryOperation::Modulus:
-    lhs << rhs.leftOperand << " % " << rhs.rightOperand;
-    break;
-  case BinaryOperation::LogicalAnd:
-    lhs << rhs.leftOperand << " && " << rhs.rightOperand;
-    break;
-  case BinaryOperation::LogicalOr:
-    lhs << rhs.leftOperand << " || " << rhs.rightOperand;
-    break;
-  case BinaryOperation::BitwiseAnd:
-    lhs << rhs.leftOperand << " & " << rhs.rightOperand;
-    break;
-  case BinaryOperation::BitwiseXOr:
-    lhs << rhs.leftOperand << " ^ " << rhs.rightOperand;
-    break;
-  case BinaryOperation::BitwiseOr:
-    lhs << rhs.leftOperand << " | " << rhs.rightOperand;
-    break;
-  case BinaryOperation::BitwiseShiftLeft:
-    lhs << rhs.leftOperand << " << " << rhs.rightOperand;
-    break;
-  case BinaryOperation::BitwiseShiftRight:
-    lhs << rhs.leftOperand << " >> " << rhs.rightOperand;
-    break;
-  case BinaryOperation::Less:
-    lhs << rhs.leftOperand << " < " << rhs.rightOperand;
-    break;
-  case BinaryOperation::LessOrEqual:
-    lhs << rhs.leftOperand << " <= " << rhs.rightOperand;
-    break;
-  case BinaryOperation::Greater:
-    lhs << rhs.leftOperand << " > " << rhs.rightOperand;
-    break;
-  case BinaryOperation::GreaterOrEqual:
-    lhs << rhs.leftOperand << " >= " << rhs.rightOperand;
-    break;
-  case BinaryOperation::Equal:
-    lhs << rhs.leftOperand << " == " << rhs.rightOperand;
-    break;
-  case BinaryOperation::NotEqual:
-    lhs << rhs.leftOperand << " != " << rhs.rightOperand;
-    break;
-  case BinaryOperation::BoundedRange:
-    lhs << rhs.leftOperand << ".." << rhs.rightOperand;
-    break;
-  case BinaryOperation::Case:
-    lhs << rhs.leftOperand << " -> " << rhs.rightOperand;
-    break;
-    switchDefault();
-  };
+  std::visit(
+    kdl::overload(
+      [&](const binop::Addition&) {
+        lhs << rhs.leftOperand << " + " << rhs.rightOperand;
+      },
+      [&](const binop::Subtraction&) {
+        lhs << rhs.leftOperand << " - " << rhs.rightOperand;
+      },
+      [&](const binop::Multiplication&) {
+        lhs << rhs.leftOperand << " * " << rhs.rightOperand;
+      },
+      [&](const binop::Division&) {
+        lhs << rhs.leftOperand << " / " << rhs.rightOperand;
+      },
+      [&](const binop::Modulus&) { lhs << rhs.leftOperand << " % " << rhs.rightOperand; },
+      [&](const binop::LogicalAnd&) {
+        lhs << rhs.leftOperand << " && " << rhs.rightOperand;
+      },
+      [&](const binop::LogicalOr&) {
+        lhs << rhs.leftOperand << " || " << rhs.rightOperand;
+      },
+      [&](const binop::BitwiseAnd&) {
+        lhs << rhs.leftOperand << " & " << rhs.rightOperand;
+      },
+      [&](const binop::BitwiseXOr&) {
+        lhs << rhs.leftOperand << " ^ " << rhs.rightOperand;
+      },
+      [&](const binop::BitwiseOr&) {
+        lhs << rhs.leftOperand << " | " << rhs.rightOperand;
+      },
+      [&](const binop::BitwiseShiftLeft&) {
+        lhs << rhs.leftOperand << " << " << rhs.rightOperand;
+      },
+      [&](const binop::BitwiseShiftRight&) {
+        lhs << rhs.leftOperand << " >> " << rhs.rightOperand;
+      },
+      [&](const binop::Less&) { lhs << rhs.leftOperand << " < " << rhs.rightOperand; },
+      [&](const binop::LessOrEqual&) {
+        lhs << rhs.leftOperand << " <= " << rhs.rightOperand;
+      },
+      [&](const binop::Greater&) { lhs << rhs.leftOperand << " > " << rhs.rightOperand; },
+      [&](const binop::GreaterOrEqual&) {
+        lhs << rhs.leftOperand << " >= " << rhs.rightOperand;
+      },
+      [&](const binop::Equal&) { lhs << rhs.leftOperand << " == " << rhs.rightOperand; },
+      [&](const binop::NotEqual&) {
+        lhs << rhs.leftOperand << " != " << rhs.rightOperand;
+      },
+      [&](const binop::BoundedRange&) {
+        lhs << rhs.leftOperand << ".." << rhs.rightOperand;
+      },
+      [&](const binop::Case&) { lhs << rhs.leftOperand << " -> " << rhs.rightOperand; },
+      [&](const binop::InfixCall& infixCall) {
+        lhs << rhs.leftOperand << " " << infixCall.functionName << " "
+            << rhs.rightOperand;
+      }),
+    rhs.operation);
 
   return lhs;
 }
@@ -1745,25 +2269,51 @@ bool operator==(const SubscriptExpression& lhs, const SubscriptExpression& rhs)
   return lhs.leftOperand == rhs.leftOperand && lhs.rightOperand == rhs.rightOperand;
 }
 
-bool operator!=(const SubscriptExpression& lhs, const SubscriptExpression& rhs)
-{
-  return !(lhs == rhs);
-}
-
 std::ostream& operator<<(std::ostream& lhs, const SubscriptExpression& rhs)
 {
   return lhs << rhs.leftOperand << "[" << rhs.rightOperand << "]";
 }
 
 
+bool operator==(const DotExpression& lhs, const DotExpression& rhs)
+{
+  return lhs.operand == rhs.operand && lhs.fieldName == rhs.fieldName;
+}
+
+std::ostream& operator<<(std::ostream& lhs, const DotExpression& rhs)
+{
+  return lhs << rhs.operand << "." << rhs.fieldName;
+}
+
+
+bool operator==(const CallExpression& lhs, const CallExpression& rhs)
+{
+  return lhs.name == rhs.name && lhs.arguments == rhs.arguments;
+}
+
+std::ostream& operator<<(std::ostream& lhs, const CallExpression& rhs)
+{
+  lhs << rhs.name << "(";
+  for (size_t i = 0; i < rhs.arguments.size(); ++i)
+  {
+    lhs << rhs.arguments[i];
+    if (i < rhs.arguments.size() - 1)
+    {
+      lhs << ", ";
+    }
+  }
+  return lhs << ")";
+}
+
+bool isBuiltinFunction(const std::string& name)
+{
+  return builtinFunctions.contains(name);
+}
+
+
 bool operator==(const SwitchExpression& lhs, const SwitchExpression& rhs)
 {
   return lhs.cases == rhs.cases;
-}
-
-bool operator!=(const SwitchExpression& lhs, const SwitchExpression& rhs)
-{
-  return !(lhs == rhs);
 }
 
 std::ostream& operator<<(std::ostream& lhs, const SwitchExpression& rhs)

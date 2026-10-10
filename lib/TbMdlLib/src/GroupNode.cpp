@@ -297,12 +297,12 @@ Node* GroupNode::doGetContainer()
 
 LayerNode* GroupNode::doGetContainingLayer()
 {
-  return findContainingLayer(this);
+  return findContainingLayer(*this);
 }
 
 GroupNode* GroupNode::doGetContainingGroup()
 {
-  return findContainingGroup(this);
+  return findContainingGroup(*this);
 }
 
 void GroupNode::invalidateBounds()

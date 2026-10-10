@@ -49,12 +49,12 @@ public:
    * @param node the containing brush node, must not be null
    * @param faceIndex the brush face index, must be valid for the given brush node
    */
-  BrushFaceHandle(BrushNode* node, size_t faceIndex);
+  BrushFaceHandle(BrushNode& node, size_t faceIndex);
 
   /**
    * Returns the containing brush node.
    */
-  BrushNode* node() const;
+  BrushNode& node() const;
 
   /**
    * Returns the face index.
@@ -77,6 +77,6 @@ std::vector<BrushNode*> toNodes(const std::vector<BrushFaceHandle>& handles);
 /**
  * Returns a vector containing handles representing the faces of the given brush.
  */
-std::vector<BrushFaceHandle> toHandles(BrushNode* brushNode);
+std::vector<BrushFaceHandle> toHandles(BrushNode& brushNode);
 
 } // namespace tb::mdl

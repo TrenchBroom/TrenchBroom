@@ -66,11 +66,6 @@ bool operator==(const VariableStore& lhs, const VariableStore& rhs)
          });
 }
 
-bool operator!=(const VariableStore& lhs, const VariableStore& rhs)
-{
-  return !(lhs == rhs);
-}
-
 VariableTable::VariableTable() = default;
 
 VariableTable::VariableTable(Table variables)
