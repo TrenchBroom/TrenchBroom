@@ -217,27 +217,32 @@ void LaunchGameEngineDialog::editGameEngines()
 {
   saveConfig();
 
-  auto dialog = GameEngineDialog{
+  auto* dialog = new GameEngineDialog{
     m_appController, m_document.map().gameInfo(), m_document.logger(), this};
-  dialog.exec();
+  dialog->setAttribute(Qt::WA_DeleteOnClose);
+  dialog->setModal(true);
 
-  const auto previousRow = m_gameEngineList->currentRow();
+  connect(dialog, &QDialog::finished, this, [&] {
+    const auto previousRow = m_gameEngineList->currentRow();
 
-  // reload m_config as it may have been changed by the GameEngineDialog
-  reloadConfig();
+    // reload m_config as it may have been changed by the GameEngineDialog
+    reloadConfig();
 
-  if (m_gameEngineList->count() > 0)
-  {
-    if (previousRow >= 0)
+    if (m_gameEngineList->count() > 0)
     {
-      m_gameEngineList->setCurrentRow(
-        std::min(previousRow, m_gameEngineList->count() - 1));
+      if (previousRow >= 0)
+      {
+        m_gameEngineList->setCurrentRow(
+          std::min(previousRow, m_gameEngineList->count() - 1));
+      }
+      else
+      {
+        m_gameEngineList->setCurrentRow(0);
+      }
     }
-    else
-    {
-      m_gameEngineList->setCurrentRow(0);
-    }
-  }
+  });
+
+  dialog->show();
 }
 
 void LaunchGameEngineDialog::launchEngine()
@@ -246,10 +251,18 @@ void LaunchGameEngineDialog::launchEngine()
   contract_assert(profile != nullptr);
 
   launchGameEngineProfile(*profile, variables())
-    | kdl::transform_error([](const auto& e) {
+    | kdl::transform_error([&](const auto& e) {
         const auto message = kdl::str_to_string("Could not launch game engine: ", e.msg);
-        QMessageBox::critical(
-          nullptr, "TrenchBroom", QString::fromStdString(message), QMessageBox::Ok);
+
+        auto* messageBox = new QMessageBox{
+          QMessageBox::Critical,
+          "TrenchBroom",
+          QString::fromStdString(message),
+          QMessageBox::Ok,
+          this};
+        messageBox->setAttribute(Qt::WA_DeleteOnClose);
+        messageBox->setModal(true);
+        messageBox->show();
       });
 }
 
