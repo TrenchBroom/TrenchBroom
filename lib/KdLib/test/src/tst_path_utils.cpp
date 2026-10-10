@@ -67,6 +67,33 @@ TEST_CASE("path_utils")
     }
   }
 
+  SECTION("parse_utf8_or_latin1_path")
+  {
+    SECTION("valid UTF-8 bytes")
+    {
+      const auto utf8Path = std::string{"textures/\xE3\x83\x86\xE3\x82\xAF.png"};
+      const auto path = parse_utf8_or_latin1_path(utf8Path);
+
+#ifdef _WIN32
+      CHECK(path.wstring() == L"textures\\\u30C6\u30AF.png");
+#else
+      CHECK(path.string() == utf8Path);
+#endif
+    }
+
+    SECTION("bytes that are not valid UTF-8")
+    {
+      const auto latin1Path = std::string{"textures/fen\xEAtre.png"};
+      const auto path = parse_utf8_or_latin1_path(latin1Path);
+
+#ifdef _WIN32
+      CHECK(path.wstring() == L"textures\\fen\u00EAtre.png");
+#else
+      CHECK(path.string() == latin1Path);
+#endif
+    }
+  }
+
   SECTION("path_length")
   {
     CHECK(path_length(path{}) == 0);

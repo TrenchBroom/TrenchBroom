@@ -21,6 +21,8 @@
 
 #include "fs/File.h"
 
+#include "kd/k.h"
+#include "kd/path_utils.h"
 #include "kd/result.h"
 
 #include <fmt/format.h>
@@ -110,7 +112,8 @@ Result<void> ZipFileSystem::doReadDirectory()
   {
     if (!mz_zip_reader_is_file_a_directory(&m_state->archive, i))
     {
-      const auto path = std::filesystem::path{filename(m_state->archive, i)};
+      const auto path = kdl::parse_utf8_or_latin1_path(
+        filename(m_state->archive, i), !K(convert_separators));
       if (path.empty())
       {
         continue;

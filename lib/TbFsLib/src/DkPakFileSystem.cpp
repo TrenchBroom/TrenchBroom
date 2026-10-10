@@ -23,6 +23,8 @@
 #include "fs/ReaderException.h"
 
 #include "kd/contracts.h"
+#include "kd/k.h"
+#include "kd/path_utils.h"
 #include "kd/result.h"
 #include "kd/string_format.h"
 
@@ -130,7 +132,8 @@ Result<void> DkPakFileSystem::doReadDirectory()
       const auto compressed = reader.readBool<int32_t>();
       const auto entrySize = compressed ? compressedSize : uncompressedSize;
 
-      const auto entryPath = std::filesystem::path(kdl::str_to_lower(entryName));
+      const auto entryPath = kdl::parse_utf8_or_latin1_path(
+        kdl::str_to_lower(entryName), !K(convert_separators));
       auto entryFile_ = std::make_shared<FileView>(m_file, entryAddress, entrySize);
 
       if (compressed)

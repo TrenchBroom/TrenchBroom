@@ -56,6 +56,9 @@ std::filesystem::path parse_path(
 
 std::filesystem::path parse_utf8_path(std::string str, bool convert_separators = true);
 
+std::filesystem::path parse_utf8_or_latin1_path(
+  std::string str, bool convert_separators = true);
+
 size_t path_length(const std::filesystem::path& path);
 
 bool path_has_prefix(

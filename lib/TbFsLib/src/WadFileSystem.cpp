@@ -23,6 +23,8 @@
 #include "fs/Reader.h"
 #include "fs/ReaderException.h"
 
+#include "kd/k.h"
+#include "kd/path_utils.h"
 #include "kd/result.h"
 #include "kd/string_format.h"
 #include "kd/string_utils.h"
@@ -113,7 +115,8 @@ Result<void> WadFileSystem::doReadDirectory()
         continue;
       }
 
-      const auto path = std::filesystem::path{entryName + "." + entryType};
+      const auto path = kdl::parse_utf8_or_latin1_path(
+        entryName + "." + entryType, !K(convert_separators));
       auto file_ = std::static_pointer_cast<File>(
         std::make_shared<FileView>(m_file, entryAddress, entrySize));
       addFile(path, [file = std::move(file_)]() -> Result<std::shared_ptr<File>> {

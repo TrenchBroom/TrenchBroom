@@ -39,6 +39,30 @@ std::filesystem::path parse_utf8_path(std::string str, const bool convert_separa
 #endif
 }
 
+std::filesystem::path parse_utf8_or_latin1_path(
+  std::string str, const bool convert_separators)
+{
+#ifdef _WIN32
+  // parse_utf8_path throws if the string is not valid UTF-8, which happens for names
+  // read from legacy file formats that don't specify an encoding - fall back to Latin-1,
+  // which maps every byte to the code point of the same value and so never fails.
+  try
+  {
+    return parse_utf8_path(str, convert_separators);
+  }
+  catch (const std::system_error&)
+  {
+    auto wstr = std::wstring(str.size(), L'\0');
+    std::ranges::transform(str, wstr.begin(), [](const char c) {
+      return static_cast<wchar_t>(static_cast<unsigned char>(c));
+    });
+    return parse_path(std::move(wstr), convert_separators);
+  }
+#else
+  return parse_utf8_path(std::move(str), convert_separators);
+#endif
+}
+
 size_t path_length(const std::filesystem::path& path)
 {
   return size_t(std::distance(path.begin(), path.end()));

@@ -88,6 +88,19 @@ TEST_CASE("WadFileSystem")
       const auto fs = openFS<WadFileSystem>(fsTestPath / "skips_empty_entry_name.wad");
       CHECK_THAT(fs->find("", TraversalMode::Flat), MatchesPathsResult({"real.D"}));
     }
+
+    SECTION("reads an entry whose name is not valid UTF-8")
+    {
+      // https://github.com/TrenchBroom/TrenchBroom/issues/5494
+      const auto fs = openFS<WadFileSystem>(fsTestPath / "non_utf8_entry_name.wad");
+
+#ifdef _WIN32
+      const auto expectedPath = std::filesystem::path{L"fen\u00EAtreopaque.D"};
+#else
+      const auto expectedPath = std::filesystem::path{"fen\xEAtreopaque.D"};
+#endif
+      CHECK_THAT(fs->find("", TraversalMode::Flat), MatchesPathsResult({expectedPath}));
+    }
   }
 
   SECTION("file can be replaced while wad file system exists")

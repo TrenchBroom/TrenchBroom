@@ -17,14 +17,17 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Matchers.h"
 #include "TestEnvironment.h"
 #include "fs/DiskIO.h"
 #include "fs/DkPakFileSystem.h"
 #include "fs/File.h" // IWYU pragma: keep
 #include "fs/TestUtils.h"
+#include "fs/TraversalMode.h"
 
 #include "kd/result.h"
 
+#include <filesystem>
 #include <string>
 
 #include <catch2/catch_test_macros.hpp>
@@ -82,6 +85,20 @@ TEST_CASE("DkPakFileSystem")
         Disk::openFile(fsTestPath / "Pak/dkpak_truncated.pak") | kdl::value();
       const auto result = createImageFileSystem<DkPakFileSystem>(file);
       CHECK(result.is_error());
+    }
+
+    SECTION("reads an entry whose name is not valid UTF-8")
+    {
+      // https://github.com/TrenchBroom/TrenchBroom/issues/5494
+      const auto fs =
+        openFS<DkPakFileSystem>(fsTestPath / "Pak/dkpak_non_utf8_entry_name.pak");
+
+#ifdef _WIN32
+      const auto expectedPath = std::filesystem::path{L"fen\u00EAtre.txt"};
+#else
+      const auto expectedPath = std::filesystem::path{"fen\xEAtre.txt"};
+#endif
+      CHECK_THAT(fs->find("", TraversalMode::Flat), MatchesPathsResult({expectedPath}));
     }
   }
 }
