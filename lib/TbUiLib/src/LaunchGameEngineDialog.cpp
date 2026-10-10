@@ -91,11 +91,13 @@ void LaunchGameEngineDialog::createGui()
   message->setWordWrap(true);
 
   auto* openPreferencesButton = new QPushButton{"Configure engines..."};
+  openPreferencesButton->setObjectName("LaunchGameEngineDialog_ConfigureEnginesButton");
 
   auto* parameterLabel = new QLabel{"Parameters"};
   setEmphasizedStyle(parameterLabel);
 
   m_parameterText = new MultiCompletionLineEdit{};
+  m_parameterText->setObjectName("LaunchGameEngineDialog_ParameterText");
   m_parameterText->setFont(Fonts::fixedWidthFont());
   m_parameterText->setMultiCompleter(new QCompleter{new VariableStoreModel{variables()}});
   m_parameterText->setWordDelimiters(
@@ -128,7 +130,9 @@ void LaunchGameEngineDialog::createGui()
 
   auto* buttonBox = new QDialogButtonBox{};
   m_launchButton = buttonBox->addButton("Launch", QDialogButtonBox::AcceptRole);
+  m_launchButton->setObjectName("LaunchGameEngineDialog_LaunchButton");
   auto* closeButton = buttonBox->addButton("Close", QDialogButtonBox::RejectRole);
+  closeButton->setObjectName("LaunchGameEngineDialog_CloseButton");
 
   auto* outerLayout = new QVBoxLayout{};
   outerLayout->setContentsMargins(0, 0, 0, 0);
@@ -154,11 +158,6 @@ void LaunchGameEngineDialog::createGui()
     &QLineEdit::textChanged,
     this,
     &LaunchGameEngineDialog::parametersChanged);
-  connect(
-    m_parameterText,
-    &QLineEdit::returnPressed,
-    this,
-    &LaunchGameEngineDialog::launchEngine);
 
   connect(
     m_launchButton, &QPushButton::clicked, this, &LaunchGameEngineDialog::launchEngine);
@@ -173,7 +172,7 @@ void LaunchGameEngineDialog::createGui()
     m_gameEngineList,
     &GameEngineProfileListBox::profileSelected,
     this,
-    &LaunchGameEngineDialog::launchEngine);
+    &LaunchGameEngineDialog::launchProfile);
 
   if (m_gameEngineList->count() > 0)
   {
@@ -217,27 +216,32 @@ void LaunchGameEngineDialog::editGameEngines()
 {
   saveConfig();
 
-  auto dialog = GameEngineDialog{
+  auto* dialog = new GameEngineDialog{
     m_appController, m_document.map().gameInfo(), m_document.logger(), this};
-  dialog.exec();
+  dialog->setAttribute(Qt::WA_DeleteOnClose);
+  dialog->setModal(true);
 
-  const auto previousRow = m_gameEngineList->currentRow();
+  connect(dialog, &QDialog::finished, this, [&] {
+    const auto previousRow = m_gameEngineList->currentRow();
 
-  // reload m_config as it may have been changed by the GameEngineDialog
-  reloadConfig();
+    // reload m_config as it may have been changed by the GameEngineDialog
+    reloadConfig();
 
-  if (m_gameEngineList->count() > 0)
-  {
-    if (previousRow >= 0)
+    if (m_gameEngineList->count() > 0)
     {
-      m_gameEngineList->setCurrentRow(
-        std::min(previousRow, m_gameEngineList->count() - 1));
+      if (previousRow >= 0)
+      {
+        m_gameEngineList->setCurrentRow(
+          std::min(previousRow, m_gameEngineList->count() - 1));
+      }
+      else
+      {
+        m_gameEngineList->setCurrentRow(0);
+      }
     }
-    else
-    {
-      m_gameEngineList->setCurrentRow(0);
-    }
-  }
+  });
+
+  dialog->show();
 }
 
 void LaunchGameEngineDialog::launchEngine()
@@ -245,11 +249,24 @@ void LaunchGameEngineDialog::launchEngine()
   const auto* profile = m_gameEngineList->selectedProfile();
   contract_assert(profile != nullptr);
 
-  launchGameEngineProfile(*profile, variables())
-    | kdl::transform_error([](const auto& e) {
+  launchProfile(*profile);
+}
+
+void LaunchGameEngineDialog::launchProfile(const mdl::GameEngineProfile& profile)
+{
+  launchGameEngineProfile(profile, variables())
+    | kdl::transform_error([&](const auto& e) {
         const auto message = kdl::str_to_string("Could not launch game engine: ", e.msg);
-        QMessageBox::critical(
-          nullptr, "TrenchBroom", QString::fromStdString(message), QMessageBox::Ok);
+
+        auto* messageBox = new QMessageBox{
+          QMessageBox::Critical,
+          "TrenchBroom",
+          QString::fromStdString(message),
+          QMessageBox::Ok,
+          this};
+        messageBox->setAttribute(Qt::WA_DeleteOnClose);
+        messageBox->setModal(true);
+        messageBox->show();
       });
 }
 
