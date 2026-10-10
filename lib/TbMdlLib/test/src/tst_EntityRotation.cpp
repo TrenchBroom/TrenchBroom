@@ -76,6 +76,10 @@ TEST_CASE("EntityRotation")
   {
     using namespace mdl;
 
+    auto anglePropertyDef =
+      PropertyDefinition{"angle", PropertyValueTypes::String{}, "", ""};
+    auto anglesPropertyDef =
+      PropertyDefinition{"angles", PropertyValueTypes::String{}, "", ""};
     auto manglePropertyDef =
       PropertyDefinition{"mangle", PropertyValueTypes::String{}, "", ""};
     auto targetPropertyDef =
@@ -175,8 +179,26 @@ TEST_CASE("EntityRotation")
     {{{"classname", "other"},
       {"angle", "45"}},             true,  {{{manglePropertyDef}}},         nullptr,        {EntityRotationType::AngleUpDown, "angle", EntityRotationUsage::Allowed}},
 
-    // but not for light entities
+    // for light entities, a mangle property definition doesn't count because adding mangle would turn the light into a spotlight
     {{{"classname", "light"}},      true,  {{{manglePropertyDef}}},         nullptr,        {EntityRotationType::None, "", EntityRotationUsage::Allowed}},
+
+    // and neither does an angle property definition because angle can be the spotlight cone angle
+    {{{"classname", "light"}},      true,  {{{anglePropertyDef}}},          nullptr,        {EntityRotationType::None, "", EntityRotationUsage::Allowed}},
+
+    // but an angles property definition does, type is controlled by the model's pitch type (default is normal)
+    {{{"classname", "light"}},      true,  {{{anglesPropertyDef}}},         nullptr,        {EntityRotationType::Euler_PositivePitchDown, "angles", EntityRotationUsage::Allowed}},
+
+    // a light with an angles property definition, type is controlled by the model's pitch type (inverted)
+    {{{"classname", "light"}},      true,  {{{anglesPropertyDef}}},         &invertedPitch, {EntityRotationType::Euler, "angles", EntityRotationUsage::Allowed}},
+
+    // light entities also prefer actual existing properties over definitions
+    {{{"classname", "light"},
+      {"angle", "45"}},             true,  {{{anglesPropertyDef}}},         nullptr,        {EntityRotationType::Angle, "angle", EntityRotationUsage::Allowed}},
+
+    // a light with a target key and an angles property definition
+    {{{"classname", "light"},
+      {"target", "xyz"}},           true,  {{{anglesPropertyDef,
+                                              targetPropertyDef}}},         nullptr,        {EntityRotationType::None, "", EntityRotationUsage::Allowed}},
     }));
     // clang-format on
 
@@ -278,6 +300,11 @@ TEST_CASE("EntityRotation")
 
     {{{"angle",  "60 30 90"}}, {ERT::Mangle,                  "angle", ERU::Allowed},       vm::rotation_matrix(vm::to_radians(-90.0), vm::to_radians(-60.0), vm::to_radians(-30.0)), {{"angle", "0 0 0"}}},
     {{{"angle",  "60 30 90"}}, {ERT::Mangle,                  "angle", ERU::BlockRotation}, vm::rotation_matrix(vm::to_radians(-90.0), vm::to_radians(-60.0), vm::to_radians(-30.0)), {}},
+
+    // a missing property is treated as no rotation and gets added
+    {{},                        {ERT::Angle,                   "angle", ERU::Allowed},       vm::mat4x4d::rot_90_z_ccw(),                           {{"angle", "90"}}},
+    {{},                        {ERT::Euler,                   "angles", ERU::Allowed},      vm::mat4x4d::rot_90_z_ccw(),                           {{"angles", "0 90 0"}}},
+    {{},                        {ERT::Euler_PositivePitchDown, "angles", ERU::Allowed},      vm::mat4x4d::rot_90_z_ccw(),                           {{"angles", "0 90 0"}}},
     }));
     // clang-format on
 
