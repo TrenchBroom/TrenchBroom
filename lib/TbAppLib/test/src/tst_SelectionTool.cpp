@@ -581,9 +581,9 @@ TEST_CASE("SelectionTool")
           tool.mouseClick(inputState);
           inputState.mouseUp(MouseButtons::Left);
 
-          THEN("The node is deselected")
+          THEN("Nothing happens")
           {
-            CHECK(!map.selection().hasNodes());
+            CHECK(map.selection().nodes == std::vector<mdl::Node*>{entityNode});
           }
         }
 
@@ -606,9 +606,9 @@ TEST_CASE("SelectionTool")
           tool.mouseClick(inputState);
           inputState.mouseUp(MouseButtons::Left);
 
-          THEN("The node is deselected")
+          THEN("Nothing happens")
           {
-            CHECK(!map.selection().hasNodes());
+            CHECK(map.selection().nodes == std::vector<mdl::Node*>{entityNode});
           }
         }
       }
@@ -663,9 +663,11 @@ TEST_CASE("SelectionTool")
           tool.mouseClick(inputState);
           inputState.mouseUp(MouseButtons::Left);
 
-          THEN("The face is deselected")
+          THEN("Nothing happens")
           {
-            CHECK(map.selection().brushFaces.empty());
+            CHECK(
+              map.selection().brushFaces
+              == std::vector<mdl::BrushFaceHandle>{faceHandle});
           }
         }
 
@@ -688,9 +690,11 @@ TEST_CASE("SelectionTool")
           tool.mouseClick(inputState);
           inputState.mouseUp(MouseButtons::Left);
 
-          THEN("The face is deselected")
+          THEN("Nothing happens")
           {
-            CHECK(map.selection().brushFaces.empty());
+            CHECK(
+              map.selection().brushFaces
+              == std::vector<mdl::BrushFaceHandle>{faceHandle});
           }
         }
       }
