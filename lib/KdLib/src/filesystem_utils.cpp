@@ -20,8 +20,11 @@
 
 #include "kd/filesystem_utils.h"
 
+#include "kd/ranges/to.h"
+
 #include <chrono>
 #include <random>
+#include <ranges>
 #include <sstream>
 
 namespace kdl
@@ -34,6 +37,24 @@ result<std::string, result_error> read_file(const std::filesystem::path& path)
     oss << is.rdbuf();
     return oss.str();
   });
+}
+
+result<std::vector<std::string>, result_error> read_lines(
+  const std::filesystem::path& path)
+{
+  return read_file(path) | kdl::transform([](const auto contents) {
+           auto lines = std::views::lazy_split(contents, '\n')
+                        | kdl::ranges::to<std::vector<std::string>>();
+
+           // a newline at the end of the file ends the last line and doesn't start
+           // another one
+           if (!lines.empty() && lines.back().empty())
+           {
+             lines.pop_back();
+           }
+
+           return lines;
+         });
 }
 
 tmp_file::tmp_file()

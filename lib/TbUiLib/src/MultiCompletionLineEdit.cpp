@@ -87,6 +87,16 @@ void MultiCompletionLineEdit::setMultiCompleter(QCompleter* completer)
 
 void MultiCompletionLineEdit::keyPressEvent(QKeyEvent* event)
 {
+  if (
+    m_multiCompleter && m_multiCompleter->popup()->isVisible()
+    && (event->key() == Qt::Key_Return || event->key() == Qt::Key_Enter))
+  {
+    // The completer forwards the event to us before handling it itself. Ignore it so
+    // that the completer accepts the completion and we don't emit returnPressed.
+    event->ignore();
+    return;
+  }
+
   QLineEdit::keyPressEvent(event);
 
   const auto t = event->text();

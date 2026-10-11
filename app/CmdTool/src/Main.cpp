@@ -17,8 +17,10 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <iostream>
 #include <signal.h>
+
+#include <fstream>
+#include <iostream>
 #include <string>
 #include <vector>
 
@@ -54,11 +56,22 @@ int main(int argc, char* argv[])
     return 0;
   }
 
+  if (arguments.size() >= 2 && arguments.front() == "--logArgs")
+  {
+    auto file = std::ofstream{arguments[1], std::ios::app};
+    for (size_t i = 2; i < arguments.size(); ++i)
+    {
+      file << arguments[i] << '\n';
+    }
+    return 0;
+  }
+
   std::cout << "Usage:\n"
             << "  --abort      Abort the program by calling std::abort\n"
             << "  --crash      Crash the program by raising the SIGSEGV signal\n"
             << "  --exit n     Return exit code n\n"
-            << "  --printArgs  Print all remaining arguments line by line\n";
+            << "  --printArgs  Print all remaining arguments line by line\n"
+            << "  --logArgs f  Append all remaining arguments line by line to file f\n";
 
   return -1;
 }

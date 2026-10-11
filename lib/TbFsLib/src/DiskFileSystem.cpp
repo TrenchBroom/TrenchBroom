@@ -25,6 +25,7 @@
 #include "fs/PathInfo.h"
 #include "fs/TraversalMode.h"
 
+#include "kd/filesystem_utils.h"
 #include "kd/path_utils.h"
 #include "kd/result.h"
 
@@ -214,7 +215,7 @@ Result<void> WritableDiskFileSystem::doCreateFile(
   const std::filesystem::path& path, const std::string& contents)
 {
   return reloadAfterWrite(makeAbsolute(path) | kdl::and_then([&](const auto& absPath) {
-                            return Disk::withOutputStream(
+                            return kdl::with_ostream(
                               absPath, [&](auto& stream) { stream << contents; });
                           }));
 }

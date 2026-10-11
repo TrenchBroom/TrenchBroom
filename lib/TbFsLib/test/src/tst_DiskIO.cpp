@@ -23,6 +23,8 @@
 #include "fs/TestEnvironment.h"
 #include "fs/TraversalMode.h"
 
+#include "kd/filesystem_utils.h"
+
 #include <fmt/format.h>
 #include <fmt/std.h>
 
@@ -245,50 +247,6 @@ TEST_CASE("DiskIO")
     CHECK(fs::Disk::openFile(env.dir() / "linkedTest2.map"));
   }
 
-  SECTION("withStream")
-  {
-    SECTION("withInputStream")
-    {
-      CHECK(
-        fs::Disk::withInputStream(env.dir() / "does not exist.txt", readAll)
-        == Error{"Failed to open stream"});
-
-      CHECK(fs::Disk::withInputStream(env.dir() / "test.txt", readAll) == "some content");
-      CHECK(
-        fs::Disk::withInputStream(env.dir() / "linkedTest2.map", readAll)
-        == "//test file\n{}");
-    }
-
-    SECTION("withOutputStream")
-    {
-      REQUIRE(fs::Disk::withOutputStream(
-        env.dir() / "test.txt", std::ios::out | std::ios::app, [](auto& stream) {
-          stream << "\nmore content";
-        }));
-      CHECK(
-        fs::Disk::withInputStream(env.dir() / "test.txt", readAll)
-        == "some content\nmore content");
-
-      REQUIRE(fs::Disk::withOutputStream(
-        env.dir() / "some_other_name.txt",
-        [](auto& stream) { stream << "some text..."; }));
-      CHECK(
-        fs::Disk::withInputStream(env.dir() / "some_other_name.txt", readAll)
-        == "some text...");
-
-      REQUIRE(fs::Disk::withOutputStream(
-        env.dir() / "linkedTest2.map", std::ios::out | std::ios::app, [](auto& stream) {
-          stream << "\nwow even more content";
-        }));
-      CHECK(
-        fs::Disk::withInputStream(env.dir() / "test2.map", readAll)
-        == "//test file\n{}\nwow even more content");
-      CHECK(
-        fs::Disk::withInputStream(env.dir() / "linkedTest2.map", readAll)
-        == "//test file\n{}\nwow even more content");
-    }
-  }
-
   SECTION("createDirectory")
   {
     CHECK(fs::Disk::createDirectory(env.dir() / "anotherDir") == Result<bool>{false});
@@ -436,8 +394,7 @@ TEST_CASE("DiskIO")
       REQUIRE(
         fs::Disk::pathInfo(env.dir() / "anotherDir/test3.map") == fs::PathInfo::File);
       REQUIRE(
-        fs::Disk::withInputStream(env.dir() / "anotherDir/test3.map", readAll)
-        != "some content");
+        kdl::with_istream(env.dir() / "anotherDir/test3.map", readAll) != "some content");
 
       SECTION("when the file can be overwritten")
       {
@@ -449,7 +406,7 @@ TEST_CASE("DiskIO")
         CHECK(
           fs::Disk::pathInfo(env.dir() / "anotherDir/test3.map") == fs::PathInfo::File);
         CHECK(
-          fs::Disk::withInputStream(env.dir() / "anotherDir/test3.map", readAll)
+          kdl::with_istream(env.dir() / "anotherDir/test3.map", readAll)
           == "some content");
       }
 
@@ -550,8 +507,7 @@ TEST_CASE("DiskIO")
       REQUIRE(
         fs::Disk::pathInfo(env.dir() / "anotherDir/test3.map") == fs::PathInfo::File);
       REQUIRE(
-        fs::Disk::withInputStream(env.dir() / "anotherDir/test3.map", readAll)
-        != "some content");
+        kdl::with_istream(env.dir() / "anotherDir/test3.map", readAll) != "some content");
 
       SECTION("when the file can be overwritten")
       {
@@ -563,7 +519,7 @@ TEST_CASE("DiskIO")
         CHECK(
           fs::Disk::pathInfo(env.dir() / "anotherDir/test3.map") == fs::PathInfo::File);
         CHECK(
-          fs::Disk::withInputStream(env.dir() / "anotherDir/test3.map", readAll)
+          kdl::with_istream(env.dir() / "anotherDir/test3.map", readAll)
           == "some content");
       }
 

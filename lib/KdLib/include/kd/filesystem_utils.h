@@ -25,6 +25,8 @@
 
 #include <filesystem>
 #include <fstream>
+#include <string>
+#include <vector>
 
 namespace kdl
 {
@@ -100,6 +102,9 @@ auto with_ostream(const std::filesystem::path& path, const F& function)
 }
 
 result<std::string, result_error> read_file(const std::filesystem::path& path);
+
+result<std::vector<std::string>, result_error> read_lines(
+  const std::filesystem::path& path);
 
 class tmp_file
 {

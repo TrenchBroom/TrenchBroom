@@ -71,6 +71,7 @@ private slots:
   void parametersChanged(const QString& text);
   void editGameEngines();
   void launchEngine();
+  void launchProfile(const mdl::GameEngineProfile& profile);
 public slots: // QDialog overrides
   void done(int r) override;
 

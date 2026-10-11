@@ -35,6 +35,7 @@
 #include "ui/QPathUtils.h"
 #include "ui/SystemPaths.h"
 
+#include "kd/filesystem_utils.h"
 #include "kd/path_utils.h"
 
 #include <cpptrace/basic.hpp>
@@ -147,7 +148,7 @@ std::filesystem::path crashReportBasePath()
     auto logPath = kdl::path_add_extension(basePath, ".log");
     auto mapPath = kdl::path_add_extension(basePath, ".map");
 
-    fs::Disk::withOutputStream(reportPath, [&](auto& stream) {
+    kdl::with_ostream(reportPath, [&](auto& stream) {
       stream << report;
       std::cerr << "wrote crash log to " << reportPath.string() << std::endl;
     }) | kdl::transform_error([](const auto& e) {

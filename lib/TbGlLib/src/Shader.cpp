@@ -19,10 +19,10 @@
 
 #include "gl/Shader.h"
 
-#include "fs/DiskIO.h"
 #include "gl/GlInterface.h"
 
 #include "kd/contracts.h"
+#include "kd/filesystem_utils.h"
 #include "kd/ranges/to.h"
 #include "kd/result.h"
 
@@ -78,7 +78,7 @@ namespace
 
 Result<std::vector<std::string>> loadSource(const std::filesystem::path& path)
 {
-  return fs::Disk::withInputStream(path, [](auto& stream) {
+  return kdl::with_istream(path, [](auto& stream) {
     std::string line;
     std::vector<std::string> lines;
 

@@ -50,6 +50,8 @@ GameEngineProfileManager::GameEngineProfileManager(
 
   auto* addProfileButton = createBitmapButton("Add.svg", "Add profile");
   m_removeProfileButton = createBitmapButton("Remove.svg", "Remove the selected profile");
+  addProfileButton->setObjectName("GameEngineProfileManager_AddProfileButton");
+  m_removeProfileButton->setObjectName("GameEngineProfileManager_RemoveProfileButton");
   m_removeProfileButton->setEnabled(false);
 
   auto* buttonLayout = createMiniToolBarLayout(addProfileButton, m_removeProfileButton);
