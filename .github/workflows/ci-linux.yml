@@ -15,6 +15,7 @@ jobs:
       TB_BUILD_TYPE: release
       TB_ARCH: default-arch
       TB_ENABLE_LTO: ${{ startsWith(github.ref, 'refs/tags/') && '1' || '0' }}
+      TB_ENABLE_STDLIB_HARDENING: ${{ startsWith(github.ref, 'refs/tags/') && '0' || '1' }}
 
     steps:
       - name: Checkout code
@@ -66,6 +67,7 @@ jobs:
             -e CC=gcc-13 \
             -e CXX=g++-13 \
             -e TB_ENABLE_LTO="${{ env.TB_ENABLE_LTO }}" \
+            -e TB_ENABLE_STDLIB_HARDENING="${{ env.TB_ENABLE_STDLIB_HARDENING }}" \
             -v "${{ github.workspace }}:${{ github.workspace }}" \
             -v "${QT_ROOT_DIR}:${QT_ROOT_DIR}:ro" \
             -w "${{ github.workspace }}" \

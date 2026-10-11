@@ -81,6 +81,7 @@ endif()
 
 include(cmake/Utils.cmake)
 include(cmake/Sanitizers.cmake)
+include(cmake/Hardening.cmake)
 include(cmake/CompilerConfig.cmake)
 include(cmake/PrecompileHeaders.cmake)
 
