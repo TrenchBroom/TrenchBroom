@@ -534,6 +534,167 @@ TEST_CASE("SelectionTool")
         }
       }
     }
+
+    GIVEN("A selected node")
+    {
+      auto* entityNode = new mdl::EntityNode{mdl::Entity{{{"origin", "64 0 0"}}}};
+
+      addNodes(map, {{&parentForNodes(map), {entityNode}}});
+      mdl::selectNodes(map, {entityNode});
+
+      auto camera = gl::OrthographicCamera{};
+
+      AND_GIVEN("A pick ray that points into the void")
+      {
+        camera.moveTo({0, 0, 32});
+        camera.setDirection({0, 0, 1}, {0, 1, 0});
+
+        const auto pickRay = vm::ray3d{camera.pickRay({0, 0, 0})};
+
+        auto pickResult = mdl::PickResult{};
+        pick(map, pickRay, pickResult);
+        REQUIRE(pickResult.all().empty());
+
+        REQUIRE(map.selection().nodes == std::vector<mdl::Node*>{entityNode});
+
+        auto inputState = InputState{0.0f, 0.0f};
+        inputState.setPickRequest({pickRay, camera});
+        inputState.setPickResult(std::move(pickResult));
+
+        WHEN("I shift click once")
+        {
+          inputState.setModifierKeys(ModifierKeys::Shift);
+          inputState.mouseDown(MouseButtons::Left);
+          tool.mouseClick(inputState);
+          inputState.mouseUp(MouseButtons::Left);
+
+          THEN("The node is deselected")
+          {
+            CHECK(!map.selection().hasNodes());
+          }
+        }
+
+        WHEN("I shift+ctrl click once")
+        {
+          inputState.setModifierKeys(ModifierKeys::Shift | ModifierKeys::CtrlCmd);
+          inputState.mouseDown(MouseButtons::Left);
+          tool.mouseClick(inputState);
+          inputState.mouseUp(MouseButtons::Left);
+
+          THEN("The node is deselected")
+          {
+            CHECK(!map.selection().hasNodes());
+          }
+        }
+
+        WHEN("I click once")
+        {
+          inputState.mouseDown(MouseButtons::Left);
+          tool.mouseClick(inputState);
+          inputState.mouseUp(MouseButtons::Left);
+
+          THEN("The node is deselected")
+          {
+            CHECK(!map.selection().hasNodes());
+          }
+        }
+
+        WHEN("I ctrl click once")
+        {
+          inputState.setModifierKeys(ModifierKeys::CtrlCmd);
+          inputState.mouseDown(MouseButtons::Left);
+          tool.mouseClick(inputState);
+          inputState.mouseUp(MouseButtons::Left);
+
+          THEN("The node is deselected")
+          {
+            CHECK(!map.selection().hasNodes());
+          }
+        }
+      }
+    }
+
+    GIVEN("A selected brush face")
+    {
+      auto* brushNode =
+        new mdl::BrushNode{builder.createCube(32.0, "some_face") | kdl::value()};
+      const auto faceHandle = mdl::BrushFaceHandle{brushNode, 0};
+
+      addNodes(map, {{&parentForNodes(map), {brushNode}}});
+      mdl::selectBrushFaces(map, {faceHandle});
+
+      auto camera = gl::OrthographicCamera{};
+
+      AND_GIVEN("A pick ray that points into the void")
+      {
+        camera.moveTo({0, 0, 32});
+        camera.setDirection({0, 0, 1}, {0, 1, 0});
+
+        const auto pickRay = vm::ray3d{camera.pickRay({0, 0, 0})};
+
+        auto pickResult = mdl::PickResult{};
+        pick(map, pickRay, pickResult);
+        REQUIRE(pickResult.all().empty());
+
+        REQUIRE(
+          map.selection().brushFaces == std::vector<mdl::BrushFaceHandle>{faceHandle});
+
+        auto inputState = InputState{0.0f, 0.0f};
+        inputState.setPickRequest({pickRay, camera});
+        inputState.setPickResult(std::move(pickResult));
+
+        WHEN("I shift click once")
+        {
+          inputState.setModifierKeys(ModifierKeys::Shift);
+          inputState.mouseDown(MouseButtons::Left);
+          tool.mouseClick(inputState);
+          inputState.mouseUp(MouseButtons::Left);
+
+          THEN("The face is deselected")
+          {
+            CHECK(map.selection().brushFaces.empty());
+          }
+        }
+
+        WHEN("I shift+ctrl click once")
+        {
+          inputState.setModifierKeys(ModifierKeys::Shift | ModifierKeys::CtrlCmd);
+          inputState.mouseDown(MouseButtons::Left);
+          tool.mouseClick(inputState);
+          inputState.mouseUp(MouseButtons::Left);
+
+          THEN("The face is deselected")
+          {
+            CHECK(map.selection().brushFaces.empty());
+          }
+        }
+
+        WHEN("I click once")
+        {
+          inputState.mouseDown(MouseButtons::Left);
+          tool.mouseClick(inputState);
+          inputState.mouseUp(MouseButtons::Left);
+
+          THEN("The face is deselected")
+          {
+            CHECK(map.selection().brushFaces.empty());
+          }
+        }
+
+        WHEN("I ctrl click once")
+        {
+          inputState.setModifierKeys(ModifierKeys::CtrlCmd);
+          inputState.mouseDown(MouseButtons::Left);
+          tool.mouseClick(inputState);
+          inputState.mouseUp(MouseButtons::Left);
+
+          THEN("The face is deselected")
+          {
+            CHECK(map.selection().brushFaces.empty());
+          }
+        }
+      }
+    }
   }
 
   SECTION("clickingThroughHidden")
