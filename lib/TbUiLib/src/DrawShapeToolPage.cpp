@@ -19,7 +19,6 @@
 
 #include "ui/DrawShapeToolPage.h"
 
-#include <QCheckBox>
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QMenu>
@@ -83,11 +82,11 @@ void DrawShapeToolPage::createGui()
     m_extensionPages->addWidget(extensionPage);
   }
 
-  m_groupCheckBox = new QCheckBox{tr("Group")};
-  m_groupCheckBox->setToolTip(
+  m_groupButton = createBitmapToggleButton(
+    "Group.svg",
     tr("Group the created brushes if the shape consists of more than one brush"));
-  m_groupCheckBox->setChecked(pref(Preferences::GroupBrushesCreatedByShapeTool));
-  connect(m_groupCheckBox, &QCheckBox::toggled, this, [](const auto groupCreatedBrushes) {
+  m_groupButton->setChecked(pref(Preferences::GroupBrushesCreatedByShapeTool));
+  connect(m_groupButton, &QToolButton::toggled, this, [](const auto groupCreatedBrushes) {
     setPref(Preferences::GroupBrushesCreatedByShapeTool, groupCreatedBrushes);
   });
 
@@ -97,7 +96,7 @@ void DrawShapeToolPage::createGui()
 
   layout->addWidget(label, 0, Qt::AlignVCenter);
   layout->addWidget(m_extensionButton, 0, Qt::AlignVCenter);
-  layout->addWidget(m_groupCheckBox, 0, Qt::AlignVCenter);
+  layout->addWidget(m_groupButton, 0, Qt::AlignVCenter);
   layout->addLayout(m_extensionPages);
   layout->addStretch(2);
 
@@ -115,7 +114,7 @@ void DrawShapeToolPage::preferenceDidChange(const std::filesystem::path& path)
 {
   if (path == Preferences::GroupBrushesCreatedByShapeTool.path)
   {
-    m_groupCheckBox->setChecked(pref(Preferences::GroupBrushesCreatedByShapeTool));
+    m_groupButton->setChecked(pref(Preferences::GroupBrushesCreatedByShapeTool));
   }
 }
 
