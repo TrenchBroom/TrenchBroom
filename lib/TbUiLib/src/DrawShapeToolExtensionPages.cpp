@@ -66,9 +66,9 @@ size_t stairDirectionToIndex(const StairDirection direction)
   return 0u;
 }
 
-StairDirection indexToStairDirection(const size_t index)
+constexpr StairDirection indexToStairDirection(const size_t index)
 {
-  static constexpr auto directions = std::array{
+  constexpr auto directions = std::array{
     StairDirection::PosX,
     StairDirection::NegX,
     StairDirection::PosY,
@@ -361,7 +361,7 @@ DrawShapeToolStairsExtensionPage::DrawShapeToolStairsExtensionPage(
     directionComboBox,
     QOverload<int>::of(&QComboBox::currentIndexChanged),
     this,
-    [&](const auto index) {
+    [&](const int index) {
       m_parameters.setStairDirection(indexToStairDirection(size_t(index)));
     });
 
