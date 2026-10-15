@@ -107,18 +107,13 @@ QPreferenceStoreDelegate::QPreferenceStoreDelegate(
   });
 
   loadCache();
+  watchPreferenceFile();
 
-  if (m_fileSystemWatcher->addPath(m_preferenceFilePath))
-  {
-    connect(
-      m_fileSystemWatcher,
-      &QFileSystemWatcher::QFileSystemWatcher::fileChanged,
-      this,
-      [&]() {
-        qDebug() << "Loading preferences after file change";
-        loadCache();
-      });
-  }
+  connect(m_fileSystemWatcher, &QFileSystemWatcher::fileChanged, this, [&]() {
+    qDebug() << "Loading preferences after file change";
+    watchPreferenceFile();
+    loadCache();
+  });
 }
 
 QPreferenceStoreDelegate::~QPreferenceStoreDelegate()
@@ -260,33 +255,33 @@ bool QPreferenceStoreDelegate::load(
 void QPreferenceStoreDelegate::save(const std::filesystem::path& path, const bool value)
 {
   m_cache[path] = QJsonValue{value};
-  triggerSaveChanges();
+  triggerSaveChanges(path);
 }
 
 void QPreferenceStoreDelegate::save(const std::filesystem::path& path, const float value)
 {
   m_cache[path] = QJsonValue{static_cast<double>(value)};
-  triggerSaveChanges();
+  triggerSaveChanges(path);
 }
 
 void QPreferenceStoreDelegate::save(const std::filesystem::path& path, const int value)
 {
   m_cache[path] = QJsonValue{value};
-  triggerSaveChanges();
+  triggerSaveChanges(path);
 }
 
 void QPreferenceStoreDelegate::save(
   const std::filesystem::path& path, const std::string& value)
 {
   m_cache[path] = QJsonValue{QString::fromStdString(value)};
-  triggerSaveChanges();
+  triggerSaveChanges(path);
 }
 
 void QPreferenceStoreDelegate::save(
   const std::filesystem::path& path, const std::filesystem::path& value)
 {
   m_cache[path] = QJsonValue{pathAsQString(value)};
-  triggerSaveChanges();
+  triggerSaveChanges(path);
 }
 
 void QPreferenceStoreDelegate::save(const std::filesystem::path& path, const Color& value)
@@ -305,7 +300,17 @@ void QPreferenceStoreDelegate::save(
   }
 
   m_cache[path] = std::move(jsonArray);
-  triggerSaveChanges();
+  triggerSaveChanges(path);
+}
+
+void QPreferenceStoreDelegate::watchPreferenceFile()
+{
+  // Some file system watcher implementations stop watching a file when it is replaced,
+  // which happens whenever it is saved atomically.
+  if (!m_fileSystemWatcher->files().contains(m_preferenceFilePath))
+  {
+    m_fileSystemWatcher->addPath(m_preferenceFilePath);
+  }
 }
 
 void QPreferenceStoreDelegate::loadCache()
@@ -341,12 +346,23 @@ void QPreferenceStoreDelegate::loadCache()
       },
       [&](const PreferenceErrors::NoFilePresent&) { m_cache = {}; }));
 
+  // values that were saved but not yet written are newer than the file contents
+  for (const auto& path : m_unsavedPaths)
+  {
+    const auto iPreviousValue = previousCache.find(path);
+    contract_assert(iPreviousValue != previousCache.end());
+
+    m_cache[path] = iPreviousValue->second;
+  }
+
   const auto changedPreferencePaths = changedKeysForMapDiff(previousCache, m_cache);
   preferencesWereReloadedNotifier(changedPreferencePaths);
 }
 
-void QPreferenceStoreDelegate::triggerSaveChanges()
+void QPreferenceStoreDelegate::triggerSaveChanges(const std::filesystem::path& path)
 {
+  m_unsavedPaths.insert(path);
+
   if (m_saveTimer->isActive())
   {
     m_saveTimer->stop();
@@ -361,6 +377,8 @@ void QPreferenceStoreDelegate::triggerSaveChanges()
 void QPreferenceStoreDelegate::saveChangesImmediately()
 {
   writePreferencesToFile(m_preferenceFilePath, m_cache)
+    | kdl::transform([&]() { m_unsavedPaths.clear(); })
+    | kdl::transform([&]() { watchPreferenceFile(); })
     | kdl::transform_error(kdl::overload(
       [&](const PreferenceErrors::FileAccessError&) {
         // This happens e.g. if you don't have read permissions for

@@ -30,6 +30,7 @@
 #include "ui/QPathUtils.h"
 #include "ui/QPreferenceStore.h"
 
+#include <algorithm>
 #include <chrono> // IWYU pragma: keep
 #include <condition_variable>
 #include <filesystem>
@@ -261,6 +262,138 @@ TEST_CASE("QPreferenceStore")
 
     CHECK(preferenceStore.load("some/path", value));
     CHECK(value == "fdsa");
+
+    SECTION("preferences reload when the replaced file changes on disk")
+    {
+      preferencesWereReloaded.reset();
+
+      env.createFileAtomically(preferenceFilename, R"({
+  "some/path": "qwer"
+}
+)");
+
+      CHECK(checkAndWaitUntil(std::chrono::steady_clock::now() + 10s, [&]() {
+        return !preferencesWereReloaded.notifications.empty();
+      }));
+
+      CHECK(
+        preferencesWereReloaded.notifications
+        == std::vector<std::vector<std::filesystem::path>>{{"some/path"}});
+
+      CHECK(preferenceStore.load("some/path", value));
+      CHECK(value == "qwer");
+    }
+  }
+
+  SECTION("preferences reload when the file created by saving changes on disk")
+  {
+    auto preferenceStore = QPreferenceStore{pathAsQString(preferenceFilePath), 50ms};
+    auto preferencesWereReloaded = Observer<std::vector<std::filesystem::path>>{
+      preferenceStore.preferencesWereReloadedNotifier};
+
+    preferenceStore.save("some/path", "asdf"s);
+    REQUIRE(checkAndWaitUntil(std::chrono::steady_clock::now() + 10s, [&]() {
+      return env.fileExists(preferenceFilename);
+    }));
+
+    env.createFileAtomically(preferenceFilename, R"({
+  "some/path": "asdf",
+  "some/other/path": "fdsa"
+}
+)");
+
+    CHECK(checkAndWaitUntil(std::chrono::steady_clock::now() + 10s, [&]() {
+      return !preferencesWereReloaded.notifications.empty();
+    }));
+
+    CHECK(
+      preferencesWereReloaded.notifications
+      == std::vector<std::vector<std::filesystem::path>>{{"some/other/path"}});
+
+    auto value = std::string{};
+    CHECK(preferenceStore.load("some/other/path", value));
+    CHECK(value == "fdsa");
+  }
+
+  SECTION("unsaved changes survive reloading the file")
+  {
+    env.createFile(preferenceFilename, R"({
+  "some/path": "asdf",
+  "some/other/path": "asdf"
+}
+)");
+
+    {
+      // the save delay must not elapse during the test; the destructor saves the changes
+      auto preferenceStore = QPreferenceStore{pathAsQString(preferenceFilePath), 1min};
+      auto preferencesWereReloaded = Observer<std::vector<std::filesystem::path>>{
+        preferenceStore.preferencesWereReloadedNotifier};
+
+      preferenceStore.save("some/path", "fdsa"s);
+
+      env.createFileAtomically(preferenceFilename, R"({
+  "some/path": "qwer",
+  "some/other/path": "qwer"
+}
+)");
+
+      REQUIRE(checkAndWaitUntil(std::chrono::steady_clock::now() + 10s, [&]() {
+        return !preferencesWereReloaded.notifications.empty();
+      }));
+
+      CHECK(
+        preferencesWereReloaded.notifications
+        == std::vector<std::vector<std::filesystem::path>>{{"some/other/path"}});
+
+      auto value = std::string{};
+      CHECK(preferenceStore.load("some/path", value));
+      CHECK(value == "fdsa");
+      CHECK(preferenceStore.load("some/other/path", value));
+      CHECK(value == "qwer");
+    }
+
+    CHECK(env.loadFile(preferenceFilename) == R"({
+    "some/other/path": "qwer",
+    "some/path": "fdsa"
+}
+)");
+  }
+
+  SECTION("saved changes are reloaded from the file after they are written")
+  {
+    env.createFile(preferenceFilename, R"({
+  "some/path": "asdf"
+}
+)");
+
+    auto preferenceStore = QPreferenceStore{pathAsQString(preferenceFilePath), 50ms};
+    auto preferencesWereReloaded = Observer<std::vector<std::filesystem::path>>{
+      preferenceStore.preferencesWereReloadedNotifier};
+
+    preferenceStore.save("some/path", "fdsa"s);
+    REQUIRE(checkAndWaitUntil(std::chrono::steady_clock::now() + 10s, [&]() {
+      return env.loadFile(preferenceFilename) == R"({
+    "some/path": "fdsa"
+}
+)";
+    }));
+
+    env.createFileAtomically(preferenceFilename, R"({
+  "some/path": "qwer"
+}
+)");
+
+    // writing the file may also trigger a reload, but that doesn't change any values
+    CHECK(checkAndWaitUntil(std::chrono::steady_clock::now() + 10s, [&]() {
+      return std::ranges::find(
+               preferencesWereReloaded.notifications,
+               std::vector<std::filesystem::path>{"some/path"})
+             != preferencesWereReloaded.notifications.end();
+    }));
+
+    auto value = std::string{};
+    CHECK(preferenceStore.load("some/path", value));
+    CHECK(value == "qwer");
   }
 
   SECTION("lock file")
