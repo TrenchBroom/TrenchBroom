@@ -194,6 +194,14 @@ TEST_CASE("ControlPointToolController")
         CHECK(selectedControlPoints().empty());
       }
 
+      SECTION("deselects all control points with CtrlCmd")
+      {
+        selectControlPoint({16, -16, -16});
+
+        CHECK(controller.mouseClick(inputStateAt(emptySpace, ModifierKeys::CtrlCmd)));
+        CHECK(selectedControlPoints().empty());
+      }
+
       SECTION("does nothing if no control point is selected")
       {
         CHECK(!controller.mouseClick(inputStateAt(emptySpace)));
