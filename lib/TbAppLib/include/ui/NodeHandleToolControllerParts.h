@@ -129,11 +129,12 @@ private:
       return false;
     }
 
+    const auto modifySelection = inputState.modifierKeysPressed(ModifierKeys::CtrlCmd);
     if (const auto& hit = firstHit(inputState.pickResult()); hit.isMatch())
     {
-      return m_tool.select(hit, inputState.modifierKeysPressed(ModifierKeys::CtrlCmd));
+      return m_tool.select(hit, modifySelection);
     }
-    return m_tool.deselectAll();
+    return !modifySelection && m_tool.deselectAll();
   }
 
   std::unique_ptr<GestureTracker> acceptMouseDrag(const InputState& inputState) override

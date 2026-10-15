@@ -194,12 +194,12 @@ TEST_CASE("ControlPointToolController")
         CHECK(selectedControlPoints().empty());
       }
 
-      SECTION("deselects all control points with CtrlCmd")
+      SECTION("does nothing with CtrlCmd")
       {
         selectControlPoint({16, -16, -16});
 
-        CHECK(controller.mouseClick(inputStateAt(emptySpace, ModifierKeys::CtrlCmd)));
-        CHECK(selectedControlPoints().empty());
+        CHECK(!controller.mouseClick(inputStateAt(emptySpace, ModifierKeys::CtrlCmd)));
+        CHECK(selectedControlPoints() == std::vector<vm::vec3d>{{16, -16, -16}});
       }
 
       SECTION("does nothing if no control point is selected")

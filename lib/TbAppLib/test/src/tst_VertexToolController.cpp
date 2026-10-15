@@ -188,12 +188,12 @@ TEST_CASE("VertexToolController")
         CHECK(selectedVertices().empty());
       }
 
-      SECTION("deselects all vertices with CtrlCmd")
+      SECTION("does nothing with CtrlCmd")
       {
         selectVertex({16, 16, 16});
 
-        CHECK(controller.mouseClick(inputStateAt(emptySpace, ModifierKeys::CtrlCmd)));
-        CHECK(selectedVertices().empty());
+        CHECK(!controller.mouseClick(inputStateAt(emptySpace, ModifierKeys::CtrlCmd)));
+        CHECK(selectedVertices() == std::vector<vm::vec3d>{{16, 16, 16}});
       }
 
       SECTION("does nothing if no vertex is selected")
