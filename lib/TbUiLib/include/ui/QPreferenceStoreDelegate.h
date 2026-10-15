@@ -31,6 +31,7 @@
 
 #include <chrono>
 #include <filesystem>
+#include <unordered_set>
 #include <vector>
 
 class QFileSystemWatcher;
@@ -50,12 +51,19 @@ private:
   QFileSystemWatcher* m_fileSystemWatcher = nullptr;
 
   /**
-   * This should always be in sync with what is on disk.
-   * Preference objects may have different values if there are unsaved changes.
+   * The contents of the preference file, plus any changes that have been saved, but not
+   * yet written to disk.
    * There may also be values in here we don't know how to deserialize; we write them back
    * to disk.
    */
   PreferenceValues m_cache;
+
+  /**
+   * The paths of preferences that have been saved since the preference file was last
+   * written. Their values in m_cache take precedence over the file contents when the
+   * file is reloaded.
+   */
+  std::unordered_set<std::filesystem::path> m_unsavedPaths;
 
   /**
    * If true, don't try to read/write preferences anymore.
@@ -91,7 +99,7 @@ public:
 private:
   void watchPreferenceFile();
   void loadCache();
-  void triggerSaveChanges();
+  void triggerSaveChanges(const std::filesystem::path& path);
   void saveChangesImmediately();
 
   void showErrorAndDisableFileReadWrite(const QString& reason, const QString& suggestion);
