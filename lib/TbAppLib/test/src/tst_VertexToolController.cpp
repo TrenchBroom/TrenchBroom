@@ -188,6 +188,14 @@ TEST_CASE("VertexToolController")
         CHECK(selectedVertices().empty());
       }
 
+      SECTION("deselects all vertices with CtrlCmd")
+      {
+        selectVertex({16, 16, 16});
+
+        CHECK(controller.mouseClick(inputStateAt(emptySpace, ModifierKeys::CtrlCmd)));
+        CHECK(selectedVertices().empty());
+      }
+
       SECTION("does nothing if no vertex is selected")
       {
         CHECK(!controller.mouseClick(inputStateAt(emptySpace)));
