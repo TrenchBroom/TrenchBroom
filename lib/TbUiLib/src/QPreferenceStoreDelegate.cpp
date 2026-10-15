@@ -107,18 +107,13 @@ QPreferenceStoreDelegate::QPreferenceStoreDelegate(
   });
 
   loadCache();
+  watchPreferenceFile();
 
-  if (m_fileSystemWatcher->addPath(m_preferenceFilePath))
-  {
-    connect(
-      m_fileSystemWatcher,
-      &QFileSystemWatcher::QFileSystemWatcher::fileChanged,
-      this,
-      [&]() {
-        qDebug() << "Loading preferences after file change";
-        loadCache();
-      });
-  }
+  connect(m_fileSystemWatcher, &QFileSystemWatcher::fileChanged, this, [&]() {
+    qDebug() << "Loading preferences after file change";
+    watchPreferenceFile();
+    loadCache();
+  });
 }
 
 QPreferenceStoreDelegate::~QPreferenceStoreDelegate()
@@ -308,6 +303,16 @@ void QPreferenceStoreDelegate::save(
   triggerSaveChanges();
 }
 
+void QPreferenceStoreDelegate::watchPreferenceFile()
+{
+  // Some file system watcher implementations stop watching a file when it is replaced,
+  // which happens whenever it is saved atomically.
+  if (!m_fileSystemWatcher->files().contains(m_preferenceFilePath))
+  {
+    m_fileSystemWatcher->addPath(m_preferenceFilePath);
+  }
+}
+
 void QPreferenceStoreDelegate::loadCache()
 {
   if (m_fileReadWriteDisabled)
@@ -361,6 +366,7 @@ void QPreferenceStoreDelegate::triggerSaveChanges()
 void QPreferenceStoreDelegate::saveChangesImmediately()
 {
   writePreferencesToFile(m_preferenceFilePath, m_cache)
+    | kdl::transform([&]() { watchPreferenceFile(); })
     | kdl::transform_error(kdl::overload(
       [&](const PreferenceErrors::FileAccessError&) {
         // This happens e.g. if you don't have read permissions for

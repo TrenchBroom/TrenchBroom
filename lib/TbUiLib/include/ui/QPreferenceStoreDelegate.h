@@ -89,6 +89,7 @@ public:
   void save(const std::filesystem::path& path, const std::vector<KeySequence>& value);
 
 private:
+  void watchPreferenceFile();
   void loadCache();
   void triggerSaveChanges();
   void saveChangesImmediately();
