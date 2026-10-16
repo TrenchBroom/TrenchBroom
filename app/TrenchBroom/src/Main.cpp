@@ -18,6 +18,7 @@
  */
 
 #include <QApplication>
+#include <QComboBox>
 #include <QCommandLineParser>
 #include <QEvent>
 #include <QFile>
@@ -28,6 +29,7 @@
 #include <QSettings>
 #include <QString>
 #include <QStyleHints>
+#include <QStyleOption>
 #include <QSurfaceFormat>
 #include <QtGlobal>
 
@@ -151,6 +153,65 @@ void loadStyle(QApplication& app)
                ? 0
                : QProxyStyle::styleHint(hint, option, widget, returnData);
     }
+
+#if defined(Q_OS_MACOS)
+    QRect subElementRect(
+      SubElement element,
+      const QStyleOption* option,
+      const QWidget* widget = nullptr) const override
+    {
+      auto rect = QProxyStyle::subElementRect(element, option, widget);
+
+      // The macOS style draws small non-editable combo boxes further down than their
+      // layout item rect suggests, so their text ends up below the text of the other
+      // widgets in a row. Move the layout item rect so that it is vertically centered
+      // on the text again.
+      if (element == QStyle::SE_ComboBoxLayoutItem && rect.isValid())
+      {
+        if (const auto* comboBox = qobject_cast<const QComboBox*>(widget);
+            comboBox && !comboBox->isEditable())
+        {
+          auto comboBoxOption = QStyleOptionComboBox{};
+          comboBoxOption.initFrom(comboBox);
+          comboBoxOption.rect = option->rect;
+
+          const auto textRect = subControlRect(
+            QStyle::CC_ComboBox, &comboBoxOption, QStyle::SC_ComboBoxEditField, widget);
+          rect.translate(0, textRect.center().y() - rect.center().y());
+        }
+      }
+
+      // Since macOS 26, the macOS style also draws the text of push buttons further down
+      // than their layout item rect suggests; before that, the offset determined here is
+      // zero. Where the text is drawn depends on the height of the button, which isn't
+      // final yet when the layout item rect is requested, so determine the offset for a
+      // button of the preferred height.
+      if (element == QStyle::SE_PushButtonLayoutItem && rect.isValid())
+      {
+        if (const auto* button = qstyleoption_cast<const QStyleOptionButton*>(option))
+        {
+          const auto textSize = QSize{0, button->fontMetrics.height()};
+          const auto size =
+            sizeFromContents(QStyle::CT_PushButton, button, textSize, widget);
+
+          auto sizedButton = *button;
+          sizedButton.rect.setHeight(size.height());
+
+          const auto textRect =
+            subElementRect(QStyle::SE_PushButtonContents, &sizedButton, widget);
+          const auto itemRect =
+            QProxyStyle::subElementRect(element, &sizedButton, widget);
+
+          // subtract the doubled centers so that the offset is rounded only once
+          const auto offset =
+            (textRect.top() + textRect.bottom() - itemRect.top() - itemRect.bottom()) / 2;
+          rect.translate(0, offset);
+        }
+      }
+
+      return rect;
+    }
+#endif
   };
 
   // Apply either the Fusion style + dark palette, or the system style

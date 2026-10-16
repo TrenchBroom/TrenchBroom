@@ -26,7 +26,6 @@
 
 #include <filesystem>
 
-class QCheckBox;
 class QStackedLayout;
 class QToolButton;
 
@@ -42,7 +41,7 @@ private:
 
   QToolButton* m_extensionButton = nullptr;
   QStackedLayout* m_extensionPages = nullptr;
-  QCheckBox* m_groupCheckBox = nullptr;
+  QToolButton* m_groupButton = nullptr;
 
   NotifierConnection m_notifierConnection;
 
