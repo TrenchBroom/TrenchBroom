@@ -333,10 +333,6 @@ Result<ExpressionNode> Parser::parse()
 
 ExpressionNode Parser::parseExpression()
 {
-  if (m_tokenizer.peekToken().hasType(ElToken::OParen))
-  {
-    return parseGroupedTerm();
-  }
   return parseTerm();
 }
 
@@ -346,13 +342,8 @@ ExpressionNode Parser::parseGroupedTerm()
   auto expression = parseTerm();
   m_tokenizer.nextToken(ElToken::CParen);
 
-  auto lhs = ExpressionNode{
+  return ExpressionNode{
     UnaryExpression{UnaryOperation::Group, std::move(expression)}, token.location()};
-  if (m_tokenizer.peekToken().hasType(ElToken::CompoundTerm))
-  {
-    return parseCompoundTerm(lhs);
-  }
-  return lhs;
 }
 
 ExpressionNode Parser::parseTerm()

@@ -415,6 +415,10 @@ asdf)")
     CHECK(
       parse("(2+1)*((1+1)*2)")
       == mul(grp(add(lit(2), lit(1))), grp(mul(grp(add(lit(1), lit(1))), lit(2)))));
+
+    // a unary operator applies only to the group, not to the term that follows it
+    CHECK(parse("!(true) && false") == logAnd(logNeg(grp(lit(true))), lit(false)));
+    CHECK(parse("-(1) + 2") == add(minus(grp(lit(1))), lit(2)));
   }
 }
 
