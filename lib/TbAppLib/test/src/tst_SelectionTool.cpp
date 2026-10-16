@@ -636,8 +636,7 @@ TEST_CASE("SelectionTool")
         pick(map, pickRay, pickResult);
         REQUIRE(pickResult.all().empty());
 
-        REQUIRE(
-          map.selection().brushFaces == std::vector<mdl::BrushFaceHandle>{faceHandle});
+        REQUIRE(map.selection().brushFaces == std::vector{faceHandle});
 
         auto inputState = InputState{0.0f, 0.0f};
         inputState.setPickRequest({pickRay, camera});
@@ -665,9 +664,7 @@ TEST_CASE("SelectionTool")
 
           THEN("Nothing happens")
           {
-            CHECK(
-              map.selection().brushFaces
-              == std::vector<mdl::BrushFaceHandle>{faceHandle});
+            CHECK(map.selection().brushFaces == std::vector{faceHandle});
           }
         }
 
@@ -692,9 +689,7 @@ TEST_CASE("SelectionTool")
 
           THEN("Nothing happens")
           {
-            CHECK(
-              map.selection().brushFaces
-              == std::vector<mdl::BrushFaceHandle>{faceHandle});
+            CHECK(map.selection().brushFaces == std::vector{faceHandle});
           }
         }
       }
