@@ -307,8 +307,8 @@ TEST_CASE("Map_Groups")
       auto* newGroupNode = groupSelectedNodes(map, "Group in Layer 1");
 
       CHECK(entityNode->parent() == newGroupNode);
-      CHECK(findContainingLayer(entityNode) == layerNode1);
-      CHECK(findContainingLayer(newGroupNode) == layerNode1);
+      CHECK(findContainingLayer(*entityNode) == layerNode1);
+      CHECK(findContainingLayer(*newGroupNode) == layerNode1);
       CHECK(map.editorContext().currentLayer() == layerNode2);
     }
 
@@ -407,11 +407,11 @@ TEST_CASE("Map_Groups")
       CHECK(!outerGroupNode->opened());
       CHECK(!innerGroupNode->opened());
 
-      CHECK(findOutermostClosedGroup(innerEntityNode1) == outerGroupNode);
-      CHECK(findOutermostClosedGroup(outerEntityNode1) == outerGroupNode);
+      CHECK(findOutermostClosedGroup(*innerEntityNode1) == outerGroupNode);
+      CHECK(findOutermostClosedGroup(*outerEntityNode1) == outerGroupNode);
 
-      CHECK(findContainingGroup(innerEntityNode1) == innerGroupNode);
-      CHECK(findContainingGroup(outerEntityNode1) == outerGroupNode);
+      CHECK(findContainingGroup(*innerEntityNode1) == innerGroupNode);
+      CHECK(findContainingGroup(*outerEntityNode1) == outerGroupNode);
 
       // open the outer group and ungroup the inner group
       openGroup(map, *outerGroupNode);

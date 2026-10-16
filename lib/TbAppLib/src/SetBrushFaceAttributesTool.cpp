@@ -169,8 +169,8 @@ std::optional<mdl::BrushFaceHandle> selectTargetFaceHandleForLinkedGroups(
   const mdl::BrushFaceHandle& sourceFaceHandle,
   const mdl::BrushFaceHandle& oldTargetFaceHandle)
 {
-  const auto& sourceBrushNode = *sourceFaceHandle.node();
-  const auto& oldTargetBrushNode = *oldTargetFaceHandle.node();
+  const auto& sourceBrushNode = sourceFaceHandle.node();
+  const auto& oldTargetBrushNode = oldTargetFaceHandle.node();
 
   // The target is already in the same linked group as the source
   if (containingSourceGroupNode.isAncestorOf(oldTargetBrushNode))
@@ -221,7 +221,7 @@ std::optional<mdl::BrushFaceHandle> selectTargetFaceHandleForLinkedGroups(
     newTargetBrushNode != &sourceBrushNode
     || sourceFaceHandle.faceIndex() != newTargetFaceIndex)
   {
-    return mdl::BrushFaceHandle{newTargetBrushNode, newTargetFaceIndex};
+    return mdl::BrushFaceHandle{*newTargetBrushNode, newTargetFaceIndex};
   }
 
   return std::nullopt;

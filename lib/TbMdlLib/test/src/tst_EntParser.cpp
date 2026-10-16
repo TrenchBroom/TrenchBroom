@@ -550,6 +550,39 @@ Target this entity with a misc_model to have the model attached to the entity (s
           },
         });
     }
+
+    SECTION("parseMalformedElModelDefinitionFallsBackToLiteralPath")
+    {
+      // Content that looks like an EL expression (starts with '{') but doesn't actually
+      // parse as one still falls back to being treated as a literal path, same as a plain
+      // path that never looked like EL to begin with.
+      const std::string file = R"(
+<?xml version="1.0"?>
+<classes>
+<point name="ammo_bfg" color=".3 .3 1" box="-16 -16 -16 16 16 16" model="{ this is not valid EL" />
+</classes>
+            )";
+
+      auto parser = EntParser{file, RgbaF{1.0f, 1.0f, 1.0f, 1.0f}};
+      auto status = TestParserStatus{};
+
+      CHECK(
+        parser.parseDefinitions(status)
+        == std::vector<mdl::EntityDefinition>{
+          {
+            "ammo_bfg",
+            RgbF{0.3f, 0.3f, 1.0f},
+            "",
+            {},
+            mdl::PointEntityDefinition{
+              {{-16, -16, -16}, {16, 16, 16}},
+              mdl::ModelDefinition{
+                el::lit(el::MapType{{"path", el::Value{"{ this is not valid EL"}}})},
+              {},
+            },
+          },
+        });
+    }
   }
 }
 

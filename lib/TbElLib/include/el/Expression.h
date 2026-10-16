@@ -19,12 +19,13 @@
 
 #pragma once
 
-#include "Forward.h"
+#include "ExpressionNode.h"
 #include "Value.h"
-#include "base/FileLocation.h"
 
+#include "kd/reflection_decl.h"
+
+#include <map>
 #include <memory>
-#include <optional>
 #include <string>
 #include <variant>
 #include <vector>
@@ -32,107 +33,7 @@
 namespace tb::el
 {
 
-struct LiteralExpression;
-struct VariableExpression;
-struct ArrayExpression;
-struct MapExpression;
-struct UnaryExpression;
-struct BinaryExpression;
-struct SubscriptExpression;
-struct SwitchExpression;
-
-using Expression = std::variant<
-  LiteralExpression,
-  VariableExpression,
-  ArrayExpression,
-  MapExpression,
-  UnaryExpression,
-  BinaryExpression,
-  SubscriptExpression,
-  SwitchExpression>;
-
 std::ostream& operator<<(std::ostream& lhs, const Expression& rhs);
-
-template <typename Visitor, typename Enable = void>
-struct VisitorResultType
-{
-  using type = std::invoke_result_t<Visitor, const LiteralExpression&>;
-};
-
-template <typename Visitor>
-struct VisitorResultType<
-  Visitor,
-  typename std::enable_if_t<std::is_invocable_v<
-    Visitor,
-    const Visitor&,
-    const LiteralExpression&,
-    const ExpressionNode&>>>
-{
-  using type = std::invoke_result_t<
-    Visitor,
-    const Visitor&,
-    const LiteralExpression&,
-    const ExpressionNode&>;
-};
-
-template <typename Visitor>
-struct VisitorResultType<
-  Visitor,
-  typename std::enable_if_t<
-    std::is_invocable_v<Visitor, const Visitor&, const LiteralExpression&>>>
-{
-  using type = std::invoke_result_t<Visitor, const Visitor&, const LiteralExpression&>;
-};
-
-template <typename Visitor>
-struct VisitorResultType<
-  Visitor,
-  typename std::enable_if_t<
-    std::is_invocable_v<Visitor, const LiteralExpression&, const ExpressionNode&>>>
-{
-  using type =
-    std::invoke_result_t<Visitor, const LiteralExpression&, const ExpressionNode&>;
-};
-
-template <typename Visitor>
-using VisitorResultType_t = typename VisitorResultType<Visitor>::type;
-
-
-class ExpressionNode
-{
-private:
-  std::shared_ptr<Expression> m_expression;
-  std::optional<FileLocation> m_location;
-
-  explicit ExpressionNode(
-    std::shared_ptr<Expression> expression,
-    std::optional<FileLocation> location = std::nullopt);
-
-public:
-  explicit ExpressionNode(
-    Expression&& expression, std::optional<FileLocation> location = std::nullopt);
-
-  bool isLiteral() const;
-
-  template <typename Visitor>
-  VisitorResultType_t<Visitor> accept(const Visitor& visitor) const;
-
-  Value evaluate(EvaluationContext& context) const;
-  Value tryEvaluate(EvaluationContext& context) const;
-
-  ExpressionNode optimize(EvaluationContext& context) const;
-
-  const std::optional<FileLocation>& location() const;
-
-  std::string asString() const;
-
-  friend bool operator==(const ExpressionNode& lhs, const ExpressionNode& rhs);
-  friend bool operator!=(const ExpressionNode& lhs, const ExpressionNode& rhs);
-  friend std::ostream& operator<<(std::ostream& str, const ExpressionNode& exp);
-
-private:
-  void rebalanceByPrecedence();
-};
 
 struct LiteralExpression
 {
@@ -140,7 +41,6 @@ struct LiteralExpression
 };
 
 bool operator==(const LiteralExpression& lhs, const LiteralExpression& rhs);
-bool operator!=(const LiteralExpression& lhs, const LiteralExpression& rhs);
 
 std::ostream& operator<<(std::ostream& lhs, const LiteralExpression& rhs);
 
@@ -151,7 +51,6 @@ struct VariableExpression
 };
 
 bool operator==(const VariableExpression& lhs, const VariableExpression& rhs);
-bool operator!=(const VariableExpression& lhs, const VariableExpression& rhs);
 
 std::ostream& operator<<(std::ostream& lhs, const VariableExpression& rhs);
 
@@ -162,7 +61,6 @@ struct ArrayExpression
 };
 
 bool operator==(const ArrayExpression& lhs, const ArrayExpression& rhs);
-bool operator!=(const ArrayExpression& lhs, const ArrayExpression& rhs);
 
 std::ostream& operator<<(std::ostream& lhs, const ArrayExpression& rhs);
 
@@ -173,7 +71,6 @@ struct MapExpression
 };
 
 bool operator==(const MapExpression& lhs, const MapExpression& rhs);
-bool operator!=(const MapExpression& lhs, const MapExpression& rhs);
 
 std::ostream& operator<<(std::ostream& lhs, const MapExpression& rhs);
 
@@ -196,34 +93,166 @@ struct UnaryExpression
 };
 
 bool operator==(const UnaryExpression& lhs, const UnaryExpression& rhs);
-bool operator!=(const UnaryExpression& lhs, const UnaryExpression& rhs);
 
 std::ostream& operator<<(std::ostream& lhs, const UnaryExpression& rhs);
 
 
-enum class BinaryOperation
+namespace binop
 {
-  Addition,
-  Subtraction,
-  Multiplication,
-  Division,
-  Modulus,
-  LogicalAnd,
-  LogicalOr,
-  BitwiseAnd,
-  BitwiseXOr,
-  BitwiseOr,
-  BitwiseShiftLeft,
-  BitwiseShiftRight,
-  Less,
-  LessOrEqual,
-  Greater,
-  GreaterOrEqual,
-  Equal,
-  NotEqual,
-  BoundedRange,
-  Case,
+
+struct Multiplication
+{
+  static constexpr size_t precedence = 12;
+  kdl_reflect_decl_empty(Multiplication);
 };
+
+struct Division
+{
+  static constexpr size_t precedence = 12;
+  kdl_reflect_decl_empty(Division);
+};
+
+struct Modulus
+{
+  static constexpr size_t precedence = 12;
+  kdl_reflect_decl_empty(Modulus);
+};
+
+struct Addition
+{
+  static constexpr size_t precedence = 11;
+  kdl_reflect_decl_empty(Addition);
+};
+
+struct Subtraction
+{
+  static constexpr size_t precedence = 11;
+  kdl_reflect_decl_empty(Subtraction);
+};
+
+struct BitwiseShiftLeft
+{
+  static constexpr size_t precedence = 10;
+  kdl_reflect_decl_empty(BitwiseShiftLeft);
+};
+
+struct BitwiseShiftRight
+{
+  static constexpr size_t precedence = 10;
+  kdl_reflect_decl_empty(BitwiseShiftRight);
+};
+
+struct Less
+{
+  static constexpr size_t precedence = 9;
+  kdl_reflect_decl_empty(Less);
+};
+
+struct LessOrEqual
+{
+  static constexpr size_t precedence = 9;
+  kdl_reflect_decl_empty(LessOrEqual);
+};
+
+struct Greater
+{
+  static constexpr size_t precedence = 9;
+  kdl_reflect_decl_empty(Greater);
+};
+
+struct GreaterOrEqual
+{
+  static constexpr size_t precedence = 9;
+  kdl_reflect_decl_empty(GreaterOrEqual);
+};
+
+struct Equal
+{
+  static constexpr size_t precedence = 8;
+  kdl_reflect_decl_empty(Equal);
+};
+
+struct NotEqual
+{
+  static constexpr size_t precedence = 8;
+  kdl_reflect_decl_empty(NotEqual);
+};
+
+struct BitwiseAnd
+{
+  static constexpr size_t precedence = 7;
+  kdl_reflect_decl_empty(BitwiseAnd);
+};
+
+struct BitwiseXOr
+{
+  static constexpr size_t precedence = 6;
+  kdl_reflect_decl_empty(BitwiseXOr);
+};
+
+struct BitwiseOr
+{
+  static constexpr size_t precedence = 5;
+  kdl_reflect_decl_empty(BitwiseOr);
+};
+
+struct LogicalAnd
+{
+  static constexpr size_t precedence = 4;
+  kdl_reflect_decl_empty(LogicalAnd);
+};
+
+struct LogicalOr
+{
+  static constexpr size_t precedence = 3;
+  kdl_reflect_decl_empty(LogicalOr);
+};
+
+struct BoundedRange
+{
+  static constexpr size_t precedence = 2;
+  kdl_reflect_decl_empty(BoundedRange);
+};
+
+struct Case
+{
+  static constexpr size_t precedence = 1;
+  kdl_reflect_decl_empty(Case);
+};
+
+struct InfixCall
+{
+  static constexpr size_t precedence = 13;
+
+  std::string functionName;
+
+  kdl_reflect_decl(InfixCall, functionName);
+};
+
+} // namespace binop
+
+using BinaryOperation = std::variant<
+  binop::Addition,
+  binop::Subtraction,
+  binop::Multiplication,
+  binop::Division,
+  binop::Modulus,
+  binop::LogicalAnd,
+  binop::LogicalOr,
+  binop::BitwiseAnd,
+  binop::BitwiseXOr,
+  binop::BitwiseOr,
+  binop::BitwiseShiftLeft,
+  binop::BitwiseShiftRight,
+  binop::Less,
+  binop::LessOrEqual,
+  binop::Greater,
+  binop::GreaterOrEqual,
+  binop::Equal,
+  binop::NotEqual,
+  binop::BoundedRange,
+  binop::Case,
+  binop::InfixCall>;
 
 struct BinaryExpression
 {
@@ -233,7 +262,6 @@ struct BinaryExpression
 };
 
 bool operator==(const BinaryExpression& lhs, const BinaryExpression& rhs);
-bool operator!=(const BinaryExpression& lhs, const BinaryExpression& rhs);
 
 std::ostream& operator<<(std::ostream& lhs, const BinaryExpression& rhs);
 
@@ -245,9 +273,35 @@ struct SubscriptExpression
 };
 
 bool operator==(const SubscriptExpression& lhs, const SubscriptExpression& rhs);
-bool operator!=(const SubscriptExpression& lhs, const SubscriptExpression& rhs);
 
 std::ostream& operator<<(std::ostream& lhs, const SubscriptExpression& rhs);
+
+
+struct DotExpression
+{
+  ExpressionNode operand;
+  std::string fieldName;
+};
+
+bool operator==(const DotExpression& lhs, const DotExpression& rhs);
+
+std::ostream& operator<<(std::ostream& lhs, const DotExpression& rhs);
+
+
+struct CallExpression
+{
+  std::string name;
+  std::vector<ExpressionNode> arguments;
+};
+
+bool operator==(const CallExpression& lhs, const CallExpression& rhs);
+
+std::ostream& operator<<(std::ostream& lhs, const CallExpression& rhs);
+
+/**
+ * Returns whether `name` is the name of a built-in function.
+ */
+bool isBuiltinFunction(const std::string& name);
 
 
 struct SwitchExpression
@@ -256,7 +310,6 @@ struct SwitchExpression
 };
 
 bool operator==(const SwitchExpression& lhs, const SwitchExpression& rhs);
-bool operator!=(const SwitchExpression& lhs, const SwitchExpression& rhs);
 
 std::ostream& operator<<(std::ostream& lhs, const SwitchExpression& rhs);
 

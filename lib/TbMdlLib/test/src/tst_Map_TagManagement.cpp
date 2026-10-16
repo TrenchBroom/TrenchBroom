@@ -355,7 +355,7 @@ TEST_CASE("Map_TagManagement")
 
     const auto& tag = tagManager.smartTag("contentflags");
 
-    const auto faceHandle = BrushFaceHandle{brushNode, 0u};
+    const auto faceHandle = BrushFaceHandle{*brushNode, 0u};
     CHECK(!faceHandle.face().hasTag(tag));
 
     selectBrushFaces(map, {faceHandle});
@@ -406,7 +406,7 @@ TEST_CASE("Map_TagManagement")
       const auto& tag = tagManager.smartTag("material");
       CHECK(tag.canEnable());
 
-      const auto faceHandle = BrushFaceHandle{nonMatchingBrushNode, 0u};
+      const auto faceHandle = BrushFaceHandle{*nonMatchingBrushNode, 0u};
       CHECK(!tag.matches(faceHandle.face()));
 
       selectBrushFaces(map, {faceHandle});
@@ -476,7 +476,7 @@ TEST_CASE("Map_TagManagement")
       const auto& tag = tagManager.smartTag("surfaceparm_single");
       CHECK(tag.canEnable());
 
-      const auto faceHandle = BrushFaceHandle{nonMatchingBrushNode, 0u};
+      const auto faceHandle = BrushFaceHandle{*nonMatchingBrushNode, 0u};
       CHECK(!tag.matches(faceHandle.face()));
 
       selectBrushFaces(map, {faceHandle});
@@ -532,7 +532,7 @@ TEST_CASE("Map_TagManagement")
       const auto& tag = tagManager.smartTag("contentflags");
       CHECK(tag.canEnable());
 
-      const auto faceHandle = BrushFaceHandle{nonMatchingBrushNode, 0u};
+      const auto faceHandle = BrushFaceHandle{*nonMatchingBrushNode, 0u};
       CHECK(!tag.matches(faceHandle.face()));
 
       selectBrushFaces(map, {faceHandle});
@@ -557,7 +557,7 @@ TEST_CASE("Map_TagManagement")
       const auto& tag = tagManager.smartTag("contentflags");
       CHECK(tag.canDisable());
 
-      const auto faceHandle = BrushFaceHandle{matchingBrushNode, 0u};
+      const auto faceHandle = BrushFaceHandle{*matchingBrushNode, 0u};
       CHECK(tag.matches(faceHandle.face()));
 
       selectBrushFaces(map, {faceHandle});
@@ -607,7 +607,7 @@ TEST_CASE("Map_TagManagement")
       const auto& tag = tagManager.smartTag("surfaceflags");
       CHECK(tag.canEnable());
 
-      const auto faceHandle = BrushFaceHandle{nonMatchingBrushNode, 0u};
+      const auto faceHandle = BrushFaceHandle{*nonMatchingBrushNode, 0u};
       CHECK(!tag.matches(faceHandle.face()));
 
       selectBrushFaces(map, {faceHandle});
@@ -632,7 +632,7 @@ TEST_CASE("Map_TagManagement")
       const auto& tag = tagManager.smartTag("surfaceflags");
       CHECK(tag.canDisable());
 
-      const auto faceHandle = BrushFaceHandle{matchingBrushNode, 0u};
+      const auto faceHandle = BrushFaceHandle{*matchingBrushNode, 0u};
       CHECK(tag.matches(faceHandle.face()));
 
       selectBrushFaces(map, {faceHandle});
