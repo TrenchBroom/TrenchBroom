@@ -23,11 +23,22 @@
 #include <QPushButton>
 
 #include "mdl/Map.h"
+#include "ui/BorderLine.h"
 #include "ui/MapDocument.h"
 #include "ui/ViewConstants.h"
 
 namespace tb::ui
 {
+namespace
+{
+
+void insertDivider(QHBoxLayout& layout)
+{
+  layout.insertWidget(
+    layout.count() - 1, new BorderLine{BorderLine::Direction::Vertical});
+}
+
+} // namespace
 
 DrawShapeToolExtensionPage::DrawShapeToolExtensionPage(QWidget* parent)
   : QWidget{parent}
@@ -42,6 +53,10 @@ DrawShapeToolExtensionPage::DrawShapeToolExtensionPage(QWidget* parent)
 void DrawShapeToolExtensionPage::addWidget(QWidget* widget)
 {
   auto* boxLayout = qobject_cast<QHBoxLayout*>(layout());
+  if (boxLayout->count() == 1)
+  {
+    insertDivider(*boxLayout);
+  }
   boxLayout->insertWidget(boxLayout->count() - 1, widget, 0, Qt::AlignVCenter);
 }
 
@@ -51,6 +66,10 @@ void DrawShapeToolExtensionPage::addApplyButton(MapDocument& document)
   applyButton->setEnabled(false);
   connect(applyButton, &QPushButton::clicked, this, [&]() { applyParametersNotifier(); });
 
+  if (auto* boxLayout = qobject_cast<QHBoxLayout*>(layout()); boxLayout->count() > 1)
+  {
+    insertDivider(*boxLayout);
+  }
   addWidget(applyButton);
 
   const auto enableApplyButton = [&document, applyButton](const auto&...) {
