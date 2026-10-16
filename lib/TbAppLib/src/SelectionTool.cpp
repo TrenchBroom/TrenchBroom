@@ -337,7 +337,7 @@ bool SelectionTool::mouseClick(const InputState& inputState)
         }
       }
     }
-    else
+    else if (!isMultiClick(inputState))
     {
       deselectAll(map);
     }
@@ -377,7 +377,7 @@ bool SelectionTool::mouseClick(const InputState& inputState)
         }
       }
     }
-    else
+    else if (!isMultiClick(inputState))
     {
       deselectAll(map);
     }
