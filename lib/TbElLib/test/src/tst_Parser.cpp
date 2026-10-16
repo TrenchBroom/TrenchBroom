@@ -333,6 +333,11 @@ asdf)")
     CHECK(parse("a1") == var("a1"));
     CHECK(parse("_1") == var("_1"));
     CHECK(parse("a_1b") == var("a_1b"));
+
+    // a name may begin with a keyword
+    CHECK(parse("trueValue") == var("trueValue"));
+    CHECK(parse("false_alarm") == var("false_alarm"));
+    CHECK(parse("nullable") == var("nullable"));
   }
 
   SECTION("Malformed input")

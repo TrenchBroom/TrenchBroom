@@ -32,6 +32,8 @@
 
 #include <optional>
 #include <string>
+#include <string_view>
+#include <unordered_map>
 
 namespace tb::el
 {
@@ -274,20 +276,6 @@ Tokenizer::Token Tokenizer::emitToken()
         return Token{ElToken::Number, c, e, offset(c), line, column};
       }
 
-      if (const auto* e = discard("true"))
-      {
-        return Token{ElToken::Boolean, c, e, offset(c), line, column};
-      }
-      if (const auto* e = discard("false"))
-      {
-        return Token{ElToken::Boolean, c, e, offset(c), line, column};
-      }
-
-      if (const auto* e = discard("null"))
-      {
-        return Token{ElToken::Null, c, e, offset(c), line, column};
-      }
-
       if (isLetter(*c) || *c == '_')
       {
         const char* e = nullptr;
@@ -297,7 +285,14 @@ Tokenizer::Token Tokenizer::emitToken()
           e = curPos();
         } while (!eof() && (isLetter(*e) || isDigit(*e) || *e == '_'));
 
-        return Token{ElToken::Name, c, e, offset(c), line, column};
+        static const auto keywords = std::unordered_map<std::string_view, ElToken::Type>{
+          {"true", ElToken::Boolean},
+          {"false", ElToken::Boolean},
+          {"null", ElToken::Null},
+        };
+        const auto iKeyword = keywords.find(std::string_view{c, e});
+        const auto type = iKeyword != keywords.end() ? iKeyword->second : ElToken::Name;
+        return Token{type, c, e, offset(c), line, column};
       }
 
       throw ParserException{
