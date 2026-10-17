@@ -139,7 +139,7 @@
 	ai_hint(choices) : "Hints for AI players" : "" =
 	[
 		"" : "None"
-		"trap" : "Trap: needs a targetname. A bot walks into a touched func_button that targets this door while its enemy stands on it, and never opens it to get past"
+		"trap" : "Trap: needs a targetname. A bot presses or shoots a func_button that targets it, directly or through trigger_relays, while its enemy stands on it or in its path"
 	]
 ]
 
@@ -163,7 +163,7 @@
 	ai_hint(choices) : "Hints for AI players" : "" =
 	[
 		"" : "None"
-		"trap" : "Trap: needs a targetname. A bot walks into a touched func_button that targets this door while its enemy stands on it, and never opens it to get past"
+		"trap" : "Trap: needs a targetname. A bot presses or shoots a func_button that targets it, directly or through trigger_relays, while its enemy stands on it or in its path"
 	]
 ]
 
@@ -183,6 +183,11 @@
 	lip(integer) : "The lip remaining at end of move" : 8
 	dmg(integer) : "The damage inflicted on players who block the door as it closes" : 2
 	sounds(integer) : "The sound set for the door (0 default, 1 stone, -1 silent)" : 0
+	ai_hint(choices) : "Hints for AI players" : "" =
+	[
+		"" : "None"
+		"trap" : "Trap: needs a targetname. A bot presses or shoots a func_button that targets it, directly or through trigger_relays, while its enemy stands on it or in its path"
+	]
 ]
 
 @SolidClass base(Phong) color(0 255 180) = func_group : "Groups brushes together in TrenchBroom for convenience. When the map is compiled, these entities are merged back into worldspawn." []
@@ -198,6 +203,11 @@
 	lip(integer) : "The lip remaining at end of move" : 8
 	height(integer) : "If set, this will determine the extent of the platform's movement, rather than implicitly using the platform's height"
 	sounds(integer) : "The sound set for the platform (0 default, 1 stone, -1 silent)"
+	ai_hint(choices) : "Hints for AI players" : "" =
+	[
+		"" : "None"
+		"trap" : "Trap: needs a targetname. A bot presses or shoots a func_button that targets it, directly or through trigger_relays, while its enemy stands on it or in its path"
+	]
 ]
 
 @SolidClass base(Phong) color(0 255 255) = func_race_checkpoint_gate : "A brush that is solid to a racer until the run satisfies its checkpoint condition, and solid to everything else always. A client with no run under way passes freely. Texture it with clip so that it is never seen. The gate opens the frame after its checkpoint is reached, so leave a stride between them."
@@ -268,6 +278,11 @@
 		2 : "The wall may be triggered off and on" : 0
 		4 : "The wall will initially be present, but can be toggled off" : 0
 	]
+	ai_hint(choices) : "Hints for AI players" : "" =
+	[
+		"" : "None"
+		"trap" : "Trap: needs a targetname. A bot presses or shoots a func_button that targets it, directly or through trigger_relays, while its enemy stands on it or in its path"
+	]
 ]
 
 @SolidClass base(Phong, Targetname) color(0 255 255) = func_water : "A movable water brush, which must be targeted to operate."
@@ -280,6 +295,11 @@
 	speed(integer) : "The speed at which the water moves" : 25
 	wait(integer) : "Delay in seconds before returning to the initial position" : -1
 	lip(integer) : "Lip remaining at end of move" : 0
+	ai_hint(choices) : "Hints for AI players" : "" =
+	[
+		"" : "None"
+		"trap" : "Trap: needs a targetname. A bot presses or shoots a func_button that targets it, directly or through trigger_relays, while its enemy stands on it or in its path"
+	]
 ]
 
 @PointClass base(Targetname) color(0 180 0) size(-4 -4 -4, 4 4 4) = info_null : "A positional target for other entities, etc. These are inhibited in the game and are only useful to the editor and BSP compiler." []
@@ -886,6 +906,7 @@
 		"quake" : "Quake"
 	]
 	min_clients(integer) : "The number of clients, humans and AI, the game fills to; unset, 0"
+	ai(string) : "The AI players, by name and separated by spaces, that the game adds first when it fills to min_clients. Any others are picked at random"
 	frag_limit(integer) : "The frag limit; unset, 30"
 	capture_limit(integer) : "The capture limit, in CTF; unset, 8"
 	time_limit(float) : "The time limit in minutes; unset, 20"
