@@ -876,7 +876,7 @@
 
 @SolidClass base(Phong, Target) color(0 255 40) = trigger_teleporter : "Touching this will warp players to the targeted misc_teleporter_dest entity. This is the brush form of misc_teleporter." []
 
-@SolidClass base(Phong) = worldspawn : "The worldspawn entity defines global conditions and behavior for the entire level. All brushes not belonging to an explicit entity implicitly belong to worldspawn. The map list's entry for the level takes precedence over the keys given here. A server setting other than 'default' takes precedence over both."
+@SolidClass base(Phong) = worldspawn : "The worldspawn entity defines global conditions and behavior for the entire level. All brushes not belonging to an explicit entity implicitly belong to worldspawn. The map list's entry for the level takes precedence over the gameplay, movement, gravity, min_clients, ai, frag_limit, capture_limit, time_limit and music given here. A server setting other than 'default' takes precedence over both, except for ai and music, which have no server setting."
 [
 	message(string) : "The map title"
 	games(string) : "Space-delimited games this map is made for, shown as badges in the Create Server map browser: dm tdm duel ctf instagib race" : "dm"
