@@ -25,7 +25,7 @@
 #include "el/Value.h"
 #include "el/VariableStore.h"
 
-#include "kd/result_io.h"
+#include "kd/result_io.h" // IWYU pragma: keep
 
 #include <fmt/ostream.h>
 
