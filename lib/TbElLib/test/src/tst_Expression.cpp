@@ -1353,9 +1353,10 @@ TEST_CASE("Expression")
                                     lit(1),
                                 })},
 
-    // A short circuited operand is never evaluated, and the expression still folds
-    {"false && x",              lit(false)},
-    {"true || x",               lit(true)},
+    // An expression only folds if all of its operands are constant, even if an operand
+    // would be short circuited
+    {"false && x",              logAnd(lit(false), var("x"))},
+    {"true || x",               logOr(lit(true), var("x"))},
     {"true && x",               logAnd(lit(true), var("x"))},
     {"false || x",              logOr(lit(false), var("x"))},
 
@@ -1371,6 +1372,10 @@ TEST_CASE("Expression")
     {"{a:1, b:2}['a']",         lit(1)},
     {"x[1]",                    scr(var("x"), lit(1))},
     {"'asdf'[x]",               scr(lit("asdf"), var("x"))},
+
+    // An operand that isn't constant is never evaluated, so an operation that fails for
+    // an undefined operand doesn't prevent the expression from being optimized
+    {"{a:1}[x] == 1",           eq(scr(lit(MapType{{"a", Value{1}}}), var("x")), lit(1))},
 
     // A map with a non constant element cannot be folded
     {"{a:1, b:x}",              map({{"a", lit(1)}, {"b", var("x")}})},

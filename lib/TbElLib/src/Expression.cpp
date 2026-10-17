@@ -1156,35 +1156,25 @@ Expression optimize(
   const BinaryExpression& expression,
   const ExpressionNode& expressionNode)
 {
-  auto optimizedLeftOperand = std::optional<ExpressionNode>{};
-  auto optimizedRightOperand = std::optional<ExpressionNode>{};
-
-  const auto evaluateLeftOperand = [&] {
-    optimizedLeftOperand = expression.leftOperand.optimize(context);
-    return optimizedLeftOperand->evaluate(context);
-  };
-
-  const auto evaluateRightOperand = [&] {
-    optimizedRightOperand = expression.rightOperand.optimize(context);
-    return optimizedRightOperand->evaluate(context);
-  };
-
-  auto value = evaluateBinaryExpression(
-    expression.operation, evaluateLeftOperand, evaluateRightOperand, expressionNode);
+  auto optimizedLeftOperand = expression.leftOperand.optimize(context);
+  auto optimizedRightOperand = expression.rightOperand.optimize(context);
 
   const auto isLiteral =
-    (!optimizedLeftOperand || optimizedLeftOperand->isLiteral())
-    && (!optimizedRightOperand || optimizedRightOperand->isLiteral());
+    optimizedLeftOperand.isLiteral() && optimizedRightOperand.isLiteral();
 
   if (isLiteral)
   {
-    return LiteralExpression{std::move(value)};
+    return LiteralExpression{evaluateBinaryExpression(
+      expression.operation,
+      [&] { return optimizedLeftOperand.evaluate(context); },
+      [&] { return optimizedRightOperand.evaluate(context); },
+      expressionNode)};
   }
 
   return BinaryExpression{
     expression.operation,
-    std::move(optimizedLeftOperand).value_or(expression.leftOperand.optimize(context)),
-    std::move(optimizedRightOperand).value_or(expression.rightOperand.optimize(context))};
+    std::move(optimizedLeftOperand),
+    std::move(optimizedRightOperand)};
 }
 
 Expression optimize(
