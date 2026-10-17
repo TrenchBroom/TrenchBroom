@@ -1382,6 +1382,12 @@ TEST_CASE("Expression")
 
     // An empty switch folds to undefined
     {"{{}}",                    lit(Value::Undefined)},
+
+    // A case that evaluates to undefined is never selected, so it is dropped
+    {"{{ undefined, 2 }}",      lit(2)},
+    {"{{ false -> 1, 2 }}",     lit(2)},
+    {"{{ false -> 1 }}",        lit(Value::Undefined)},
+    {"{{ x -> 1, undefined, 2 }}", swt({cs(var("x"), lit(1)), lit(2)})},
     }));
     // clang-format on
 

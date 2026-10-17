@@ -1202,22 +1202,30 @@ Expression optimize(
 Expression optimize(
   EvaluationContext& context, const SwitchExpression& expression, const ExpressionNode&)
 {
-  if (expression.cases.empty())
+  auto optimizedExpressions = std::vector<ExpressionNode>{};
+  for (const auto& case_ : expression.cases)
+  {
+    auto optimizedExpression = case_.optimize(context);
+    if (optimizedExpression.isLiteral())
+    {
+      auto value = optimizedExpression.evaluate(context);
+      if (value == Value::Undefined)
+      {
+        continue;
+      }
+
+      if (optimizedExpressions.empty())
+      {
+        return LiteralExpression{std::move(value)};
+      }
+    }
+
+    optimizedExpressions.push_back(std::move(optimizedExpression));
+  }
+
+  if (optimizedExpressions.empty())
   {
     return LiteralExpression{Value::Undefined};
-  }
-
-  auto firstOptimizedExpression = expression.cases.front().optimize(context);
-  if (firstOptimizedExpression.isLiteral())
-  {
-    return LiteralExpression{firstOptimizedExpression.evaluate(context)};
-  }
-
-  auto optimizedExpressions =
-    std::vector<ExpressionNode>{std::move(firstOptimizedExpression)};
-  for (size_t i = 1u; i < expression.cases.size(); ++i)
-  {
-    optimizedExpressions.push_back(expression.cases[i].optimize(context));
   }
 
   return SwitchExpression{std::move(optimizedExpressions)};
