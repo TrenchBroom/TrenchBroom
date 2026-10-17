@@ -64,16 +64,15 @@ std::vector<std::filesystem::path> extensionsToPaths(const std::vector<std::stri
 void checkVersion(const el::Value& version)
 {
   const auto validVsns = std::vector<el::IntegerType>{9};
-  const auto isValidVersion = version.convertibleTo(el::ValueType::Number)
-                              && kdl::ranges::contains(validVsns, version.integerValue());
+  const auto versionNumber = version.convertTo(el::ValueType::Number).integerValue();
 
-  if (!isValidVersion)
+  if (!kdl::ranges::contains(validVsns, versionNumber))
   {
     throw ParserException{
       *version.location(),
       fmt::format(
         "Unsupported game configuration version {}; valid versions are: {}",
-        version.integerValue(),
+        versionNumber,
         kdl::str_join(validVsns, ", "))};
   }
 }
