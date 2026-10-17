@@ -44,8 +44,6 @@
 @PointClass base(Item) color(20 180 180) studio("") = item_quad : "Quad damage" []
 @PointClass base(Item) color(204 26 26) studio("") = item_invulnerability : "Invulnerability. Grants full invulnerability for 30 seconds." []
 @PointClass base(Item) color(51 51 102) studio("") = item_invisibility : "Invisibility. Makes the player nearly invisible for 30 seconds." []
-@PointClass base(Item) color(204 26 26) studio("") = item_quake_pentagram : "Pentagram of Protection. Grants full invulnerability for 30 seconds." []
-@PointClass base(Item) color(51 51 102) studio("") = item_quake_shadows : "Ring of Shadows. Makes the player nearly invisible for 30 seconds." []
 
 @BaseClass base(Item) size(-8 -8 -24, 8 8 32) studio("") = TeamFlag []
 @PointClass base(TeamFlag) color(255 0 0) = item_flag_team1 : "Red flag" []
@@ -134,10 +132,15 @@
 	angle(integer) : "Determines the opening direction of the door (up = -1, down = -2)"
 	health(integer) : "If set, door must take damage to open"
 	speed(integer) : "The speed with which the door opens" : 100
-	wait(integer) : "Wait before returning (-1 = never return)" : 3
+	wait(integer) : "Seconds before the door returns (-1 = never return). Ignored when toggle is set" : 3
 	lip(integer) : "The lip remaining at end of move" : 8
 	dmg(integer) : "The damage inflicted on players who block the door as it closes" : 2
 	sounds(integer) : "The sound set for the door (0 default, 1 stone, -1 silent)" : 0
+	ai_hint(choices) : "Hints for AI players" : "" =
+	[
+		"" : "None"
+		"trap" : "Trap: needs a targetname. A bot walks into a touched func_button that targets this door while its enemy stands on it, and never opens it to get past"
+	]
 ]
 
 @SolidClass base(Phong, Targetname) color(0 255 255) = func_door_rotating : "A door which rotates about an origin on its Z axis. By default, doors open when a player walks close to them."
@@ -154,9 +157,14 @@
 	health(integer) : "If set, door must take damage to open"
 	speed(integer) : "The speed with which the door opens" : 100
 	rotation(integer) : "The rotation the door will open, in degrees" : 90
-	wait(integer) : "Wait before returning (-1 = never return)" : 3
+	wait(integer) : "Seconds before the door returns (-1 = never return). Ignored when toggle is set" : 3
 	dmg(integer) : "The damage inflicted on players who block the door as it closes" : 2
 	sounds(integer) : "The sound set for the door (0 default, 1 stone, -1 silent)" : 0
+	ai_hint(choices) : "Hints for AI players" : "" =
+	[
+		"" : "None"
+		"trap" : "Trap: needs a targetname. A bot walks into a touched func_button that targets this door while its enemy stands on it, and never opens it to get past"
+	]
 ]
 
 @SolidClass base(Phong, Targetname) color(0 255 255) = func_door_secret : "A secret door which opens when shot, or when targeted. The door first slides back, and then to the side."
@@ -192,6 +200,26 @@
 	sounds(integer) : "The sound set for the platform (0 default, 1 stone, -1 silent)"
 ]
 
+@SolidClass base(Phong) color(0 255 255) = func_race_checkpoint_gate : "A brush that is solid to a racer until the run satisfies its checkpoint condition, and solid to everything else always. A client with no run under way passes freely. Texture it with clip so that it is never seen. The gate opens the frame after its checkpoint is reached, so leave a stride between them."
+[
+	cp(integer) : "The checkpoint the gate is about, from 1"
+	mode(choices) : "When the gate opens" : "atleast" =
+	[
+		"atleast" : "Opens once checkpoint cp has been reached"
+		"exact" : "Opens only while cp is the last one reached"
+	]
+	invert(choices) : "Closes the gate under the condition instead of opening it" : 0 =
+	[
+		0 : "Disabled"
+		1 : "Enabled"
+	]
+]
+
+@SolidClass base(Phong) color(0 255 255) = func_race_oneway_wall : "A brush that a racer passes through in one direction and not the other, and that is solid to everything else. Texture it with clip so that it is never seen. The wall is judged by which side of its centre a racer stands: it passes them from its entry side in any direction, and stops them from the far side. Make it one thin brush from floor to ceiling, so that there is no over, under or gap."
+[
+	angle(integer) : "The direction of travel that passes, in the horizontal plane"
+]
+
 @SolidClass base(Phong, Targetname) color(0 255 255) = func_rotating : "Solid entity that rotates continuously. Rotates on the Z axis by default and requires an origin brush. It will always start on in the game and is not targetable."
 [
 	spawnflags(Flags) =
@@ -218,7 +246,7 @@
 	delay(integer) : "Additional delay before the first firing when start_on" : 0
 ]
 
-@SolidClass base(Phong, Target, Targetname) color(0 255 255) = func_train : "Trains are moving solids that players can ride along a series of path_corners. Target the first path_corner of the route. If the train is the target of a button or trigger, it will not begin moving until activated. Given a common/origin brush, each corner specifies the train's own origin and the train rotates about it, turning and pitching to face each leg of its route; without one, each corner specifies the train's lower bounding point and the train cannot rotate."
+@SolidClass base(Phong, Target, Targetname) color(0 255 255) = func_train : "Trains are moving solids that players can ride along a series of path_corners. Target the first path_corner of the route. If the train is the target of a button or trigger, it will not begin moving until activated. Given a common/origin brush, each corner specifies the train's own origin and the train rotates about it, turning and pitching to face each leg of its route; without one, each corner specifies the train's lower bounding point and the train cannot rotate. A cart is rarely modeled facing world east, though: give the train its own angle key to declare the compass heading its brushwork actually faces at rest, and every auto-computed leg turns relative to that heading instead of world east."
 [
 	spawnflags(Flags) =
 	[
@@ -229,6 +257,7 @@
 	dmg(integer) : "The damage inflicted on players who block the train" : 2
 	speed(integer) : "The speed with which the train moves, and the default for corners that omit it" : 100
 	sound(string) : "The looping sound to play while the train is in motion"
+	angle(integer) : "The compass heading the train's brushwork faces at rest (angles 0 0 0). Requires an origin brush"
 ]
 
 @SolidClass base(Phong, Targetname) color(0 255 255) = func_wall : "A solid that may spawn into existence via trigger."
@@ -303,6 +332,7 @@
 [
 	acceleration(string) : "The sprite acceleration" : "0 0 0"
 	acceleration_spread(string) : "Per-particle random acceleration range, applied symmetrically on each axis" : "0 0 0"
+	bounce(float) : "The share of its speed a sprite keeps when it bounces off the world; 0 passes through the world. Requires cg_spritePhysics" : "0"
 	color(string) : "Float RGB sprite color" : "1 1 1"
 	dir(string) : "The sprite directional axis (0 0 0 is billboard)" : "0 0 0"
 	density(float) : "The sprite density" : "1"
@@ -318,15 +348,14 @@
 	size_spread(float) : "Per-particle random size spread as a +/- fraction of size" : ".1"
 	size_velocity(float) : "Rate of size change in world units per second. Negative shrinks the sprite (destroying it at 0), positive grows it" : "0"
 	size_acceleration(float) : "Rate of change of size_velocity in world units per second squared. Use negative values to slow growth or speed shrinking" : "0"
-	softness(float) : "The sprite softness scalar" : "1"
-	sprite(string) : "The sprite image name" : "particle1"
+	sprite(string) : "The sprite image name" : "particle"
 	velocity(string) : "The sprite velocity" : "0 0 0"
 	velocity_spread(string) : "Per-particle random velocity spread, applied symmetrically on each axis" : "1 1 1"
 	width(float) : "The sprite width. Setting this will cause size to be ignored" : "0"
 	type(choices) : "Preset setting to apply" : "" =
 	[
 		"bubbles" : "Rising bubbles"
-		"embers" : "Rishing embers and ash"
+		"embers" : "Rising embers and ash"
 		"fizz" : "Boiling bubbles with ripples"
 		"flame": "Flame and smoke"
 		"steam": "Steam"
@@ -358,6 +387,11 @@
 	model(string) : "The static model name, e.g. trees/mytree"
 ]
 
+@SolidClass base(Phong) color(0 128 204) = misc_portal : "A brush entity showing the world as seen from the point it names. Give the face the player looks at a material declaring surface portal; the remaining faces are drawn normally. The portal is not solid: to let players travel through it, place a trigger_teleporter behind the portal face, so that they cross the face before the trigger fires."
+[
+	portal(target_destination) : "The info_null or misc_teleporter_dest this portal views the world from. A misc_teleporter_dest is viewed from its origin and angles, raised to standing eye height, so a portal beside a teleporter shows where it leads. Named portal rather than target so that a portal face may be put on an entity that already owes target to its own class, such as a func_train or a func_button"
+]
+
 @PointClass color(40 120 40) size(-8 -8 -8, 8 8 8) = misc_sound : "Client-side emission of ambient sounds."
 [
 	drift(float) : "The factor of randomized drift applied to the emission rate"
@@ -377,12 +411,12 @@
 @PointClass color(120 120 200) size(-24 -24 -24, 24 24 24) = misc_sprite : "Highly configurable client-side emission of sprites. These are useful for light volumes, blood dripping from walls, or anything else you can think of. Team two or more instances via the same team key to chain them: each entity mixes its emitted sprite properties with the next misc_sprite sharing that team key (in map file order), not the whole group at once. The last entity in the chain has no successor, so it emits unmixed."
 [
 	acceleration(string) : "The sprite acceleration" : "0 0 0"
-	color(string) : "The sprite HSVA color as 4 decimal values" : "0 0 1 1"
+	bounce(float) : "The share of its speed a sprite keeps when it bounces off the world; 0 passes through the world. Requires cg_spritePhysics" : "0"
+	color(string) : "The sprite RGB color as 3 decimal values" : "1 1 1"
 	count(integer) : "The count of sprites to emit per emission" : 1
 	dir(string) : "The sprite directional axis (0 0 0 is billboard)" : "0 0 0"
-	density(float) : "The sprite density" : "1"
 	drift(float) : "The factor of randomized drift applied to the emission rate"
-	end_color(string) : "The sprite HSVA end color as 4 decimal values" : "0 0 0 0"
+	end_color(string) : "The sprite RGB end color as 3 decimal values" : "0 0 0"
 	height(float) : "The sprite height. Setting this will cause size to be ignored" : "0"
 	hz(float) : "The emission rate, in events-per-second" : "0.5"
 	lifetime(float) : "The sprite lifetime in seconds" : "10"
@@ -392,8 +426,7 @@
 	size(float) : "The sprite size" : "1"
 	size_velocity(float) : "Rate of size change in world units per second. Negative shrinks the sprite (destroying it at 0), positive grows it" : "0"
 	size_acceleration(float) : "Rate of change of size_velocity in world units per second squared. Use negative values to slow growth or speed shrinking" : "0"
-	softness(float) : "The sprite softness scalar" : "1"
-	sprite(string) : "The sprite image name" : "particle1"
+	sprite(string) : "The sprite image name" : "particle"
 	team(string) : "The team name. Mixes this entity's sprite properties with the next misc_sprite sharing the same team key (chain order, not a full group). The last entity in the chain has no successor and emits unmixed."
 	velocity(string) : "The sprite velocity" : "0 0 0"
 	width(float) : "The sprite width. Setting this will cause size to be ignored" : "0"
@@ -436,7 +469,7 @@
 [
 	spawnflags(Flags) =
 	[
-		1 : "The train jumps to this corner instead of travelling to it, then carries on to this corner's target" : 0
+		1 : "The train jumps to this corner instead of travelling to it, taking the corner's angles if it has them, or else facing its next corner, then carries on to this corner's target" : 0
 		2 : "Suppress the teleport effect" : 0
 	]
 	target(target_destination) : "The next corner in the path"
@@ -775,58 +808,88 @@
 		8 : "The entity is toggled each time it is activated" : 0
 	]
 	angles(string) : "The direction to push the player in" : "0 0 0"
-	sound(string) : "The sound effect to play when the player is pushed" : "common/jumppad"
+	sound(string) : "The sound effect to play when the player is pushed" : "trigger/push"
 	speed(integer) : "The speed with which to push the player" : 100
+]
+
+@SolidClass base(Phong, Target) color(128 128 128) = trigger_race_start : "Where a run begins. A course may have several, or none: with none, the run begins on the client's first movement."
+[
+	start_mode(choices) : "When the run begins" : "touch" =
+	[
+		"touch" : "On entering the trigger"
+		"exit" : "On leaving the trigger"
+		"jump" : "On the first jump from inside the trigger"
+	]
+	wait(float) : "Seconds before the same client is heard from again" : "0.5"
+	message(string) : "An optional string to display when the run begins"
+]
+
+@SolidClass base(Phong, Target) color(128 128 128) = trigger_race_checkpoint : "A checkpoint. A course's checkpoints must be numbered 1 through N with none missing, and are passed in that order."
+[
+	cp(integer) : "This checkpoint's number, from 1"
+	wait(float) : "Seconds before the same client is heard from again" : "0.5"
+	message(string) : "An optional string to display when the checkpoint is reached"
+]
+
+@SolidClass base(Phong, Target) color(128 128 128) = trigger_race_split : "A timing point. A course's splits are numbered 1 through N with none missing and are passed in that order, but they only time the run: one missed does not spoil it."
+[
+	split(integer) : "This split's number, from 1"
+	label(string) : "An optional name, printed with the time (default 'Split N')"
+	wait(float) : "Seconds before the same client is heard from again" : "0.5"
+	message(string) : "An optional string to display when the split is reached"
+]
+
+@SolidClass base(Phong, Target) color(128 128 128) = trigger_race_stage : "Where a stage of the course begins. A run begins in stage 1, so stages are numbered 2 through N with none missing and entered in that order, and each is timed as a split is. A practicing client who reaches one has its restart_target stored, as store would, so that kill returns to the stage rather than the spawn."
+[
+	stage(integer) : "This stage's number, from 2"
+	restart_target(target_destination) : "The targetname of the info_notnull to return to, placed as a spawn point would be"
+	label(string) : "An optional name, printed with the time (default 'Stage N')"
+	wait(float) : "Seconds before the same client is heard from again" : "0.5"
+	message(string) : "An optional string to display when the stage is reached"
+]
+
+@SolidClass base(Phong, Target) color(128 128 128) = trigger_race_finish : "Where a run ends, once every checkpoint has been passed. A course needs at least one."
+[
+	wait(float) : "Seconds before the same client is heard from again" : "0.5"
+	message(string) : "An optional string to display when the run ends"
 ]
 
 @SolidClass base(Phong, Target) color(0 255 40) = trigger_teleporter : "Touching this will warp players to the targeted misc_teleporter_dest entity. This is the brush form of misc_teleporter." []
 
-@SolidClass base(Phong) = worldspawn : "The worldspawn entity defines global conditions and behavior for the entire level. All brushes not belonging to an explicit entity implicitly belong to worldspawn."
+@SolidClass base(Phong) = worldspawn : "The worldspawn entity defines global conditions and behavior for the entire level. All brushes not belonging to an explicit entity implicitly belong to worldspawn. The map list's entry for the level takes precedence over the keys given here. A server setting other than 'default' takes precedence over both."
 [
 	message(string) : "The map title"
+	games(string) : "Space-delimited games this map is made for, shown as badges in the Create Server map browser: dm tdm duel ctf instagib race" : "dm"
 	sky(string) : "The sky environment map" : "template"
-	ambient(float) : "The ambient light level" : "0"
-	gravity(integer) : "Gravity" : 800
+	ambient(string) : "The ambient light level, as one scalar or as three to tint it (e.g. 0.14 0.11 0.12)"
+	gravity(integer) : "Gravity for the level; unset, the movement's applies, 800 for most"
 	gameplay(choices) : "The gameplay mode" : "deathmatch" =
 	[
 		"deathmatch" : "Deathmatch"
+		"team_deathmatch" : "Team Deathmatch"
 		"instagib" : "Instagib"
-		"arena" : "Rocket Arena"
+		"team_instagib" : "Team Instagib"
+		"arena" : "Arena"
+		"team_arena" : "Team Arena"
 	]
-	hook(choices) : "Enables the grappling hook" : 0 =
-	[
-		0 : "Disabled"
-		1 : "Enabled"
-	]
-	teams(choices) : "Enables teams play" : 0 =
-	[
-		0 : "Disabled"
-		1 : "Enabled"
-		2 : "Auto-balanced"
-	]
-	num_teams(choices) : "Specifies the number of teams for teams and CTF play" : 0 =
-	[
-		0 : "Disabled"
-		2 : "2"
-		3 : "3"
-		4 : "4"
-	]
-	ctf(choices) : "Enables CTF play" : 0 =
-	[
-		0 : "Disabled"
-		1 : "Enabled"
-		2 : "Auto-balanced"
-	]
-	fraglimit(integer) : "The frag limit" : 20
-	roundlimit(integer) : "The round limit" : 20
-	capturelimit(integer) : "The capture limit" : 8
-	timelimit(integer) : "The time limit in minutes" : 20
-	items(choices) : "The item set for this map" : "quetoo" =
+	movement(choices) : "The player movement" : "quetoo" =
 	[
 		"quetoo" : "Quetoo"
+		"race" : "Quetoo Race"
+		"quake" : "Quake"
+		"quake2" : "Quake2"
+		"quake3" : "Quake3"
+	]
+	items(choices) : "The item set for this map" : "default" =
+	[
+		"default" : "Quetoo"
 		"quake" : "Quake"
 	]
-	give(string) : "A comma-delimited item string to give each player on spawn"
-	author(string) : "Creator of this map and other misc info"
-	version(string) : "Version string in 'major.minor.build' format"
+	min_clients(integer) : "The number of clients, humans and AI, the game fills to; unset, 0"
+	frag_limit(integer) : "The frag limit; unset, 30"
+	capture_limit(integer) : "The capture limit, in CTF; unset, 8"
+	time_limit(float) : "The time limit in minutes; unset, 20"
+	music(string) : "A comma-delimited list of music tracks; unset, all tracks are shuffled"
+	author(string) : "The creator of the map, and any other credits (metadata only)"
+	version(string) : "The version of the map, as major.minor.build (metadata only)"
 ]
