@@ -906,7 +906,7 @@
 		"quake" : "Quake"
 	]
 	min_clients(integer) : "The number of clients, humans and AI, the game fills to; unset, 0"
-	ai(string) : "The AI players, by name and separated by spaces, that the game adds first when it fills to min_clients. Any others are picked at random"
+	ai(string) : "The AI players, by name and separated by spaces, that join the level first. They always join, even beyond min_clients; any others that min_clients asks for are picked at random"
 	frag_limit(integer) : "The frag limit; unset, 30"
 	capture_limit(integer) : "The capture limit, in CTF; unset, 8"
 	time_limit(float) : "The time limit in minutes; unset, 20"
