@@ -181,7 +181,7 @@ VisitorResultType_t<Visitor> ExpressionNode::accept(const Visitor& visitor) cons
         return visitor(x);
       }
     },
-    *m_expression);
+    expression());
 }
 
 } // namespace tb::el

@@ -21,6 +21,7 @@
 
 #include "el/EvaluationContext.h"
 #include "el/Exceptions.h"
+#include "el/ExpressionNodeData.h"
 #include "el/Value.h"
 
 #include "kd/map_utils.h"
@@ -1388,24 +1389,22 @@ std::ostream& operator<<(std::ostream& lhs, const Expression& rhs)
   return lhs;
 }
 
-ExpressionNode::ExpressionNode(
-  std::shared_ptr<Expression> expression, std::optional<FileLocation> location)
-  : m_expression{std::move(expression)}
-  , m_location{std::move(location)}
+ExpressionNode::ExpressionNode(std::shared_ptr<ExpressionNodeData> data)
+  : m_data{std::move(data)}
 {
 }
 
 ExpressionNode::ExpressionNode(
   Expression&& expression, std::optional<FileLocation> location)
-  : m_expression{std::make_shared<Expression>(std::move(expression))}
-  , m_location{std::move(location)}
+  : m_data{std::make_shared<ExpressionNodeData>(
+      ExpressionNodeData{std::move(expression), std::move(location)})}
 {
   rebalanceByPrecedence();
 }
 
 bool ExpressionNode::isLiteral() const
 {
-  return std::holds_alternative<LiteralExpression>(*m_expression);
+  return std::holds_alternative<LiteralExpression>(m_data->expression);
 }
 
 Value ExpressionNode::evaluate(EvaluationContext& context) const
@@ -1435,14 +1434,18 @@ Value ExpressionNode::tryEvaluate(EvaluationContext& context) const
 
 ExpressionNode ExpressionNode::optimize(EvaluationContext& context) const
 {
-  return ExpressionNode{
-    std::make_shared<Expression>(optimizeExpression(context, *m_expression, *this)),
-    m_location};
+  return ExpressionNode{std::make_shared<ExpressionNodeData>(ExpressionNodeData{
+    optimizeExpression(context, m_data->expression, *this), m_data->location})};
 }
 
 const std::optional<FileLocation>& ExpressionNode::location() const
 {
-  return m_location;
+  return m_data->location;
+}
+
+const Expression& ExpressionNode::expression() const
+{
+  return m_data->expression;
 }
 
 std::string ExpressionNode::asString() const
@@ -1454,7 +1457,7 @@ std::string ExpressionNode::asString() const
 
 bool operator==(const ExpressionNode& lhs, const ExpressionNode& rhs)
 {
-  return *lhs.m_expression == *rhs.m_expression;
+  return lhs.m_data->expression == rhs.m_data->expression;
 }
 
 bool operator!=(const ExpressionNode& lhs, const ExpressionNode& rhs)
@@ -1464,7 +1467,7 @@ bool operator!=(const ExpressionNode& lhs, const ExpressionNode& rhs)
 
 std::ostream& operator<<(std::ostream& lhs, const ExpressionNode& rhs)
 {
-  lhs << *rhs.m_expression;
+  lhs << rhs.m_data->expression;
   return lhs;
 }
 
@@ -1481,11 +1484,11 @@ void ExpressionNode::rebalanceByPrecedence()
   std::visit(
     kdl::overload(
       [&](BinaryExpression& binaryExpression) {
-        const auto myPrecedence = precedence(*m_expression);
+        const auto myPrecedence = precedence(m_data->expression);
         const auto leftPrecedence =
-          precedence(*binaryExpression.leftOperand.m_expression);
+          precedence(binaryExpression.leftOperand.m_data->expression);
         const auto rightPrecedence =
-          precedence(*binaryExpression.rightOperand.m_expression);
+          precedence(binaryExpression.rightOperand.m_data->expression);
 
         if (myPrecedence > std::min(leftPrecedence, rightPrecedence))
         {
@@ -1495,7 +1498,7 @@ void ExpressionNode::rebalanceByPrecedence()
             // rebalancing the right subtree again
             auto leftExpressionNode = std::move(binaryExpression.leftOperand);
             auto& leftBinaryExpression =
-              std::get<BinaryExpression>(*leftExpressionNode.m_expression);
+              std::get<BinaryExpression>(leftExpressionNode.m_data->expression);
 
             binaryExpression.leftOperand = std::move(leftBinaryExpression.rightOperand);
             leftBinaryExpression.rightOperand = std::move(*this);
@@ -1509,7 +1512,7 @@ void ExpressionNode::rebalanceByPrecedence()
             // rebalancing the left subtree again
             auto rightExpressionNode = std::move(binaryExpression.rightOperand);
             auto& rightBinaryExpression =
-              std::get<BinaryExpression>(*rightExpressionNode.m_expression);
+              std::get<BinaryExpression>(rightExpressionNode.m_data->expression);
 
             binaryExpression.rightOperand = std::move(rightBinaryExpression.leftOperand);
             rightBinaryExpression.leftOperand = std::move(*this);
@@ -1520,7 +1523,7 @@ void ExpressionNode::rebalanceByPrecedence()
         }
       },
       [](auto&) {}),
-    *m_expression);
+    m_data->expression);
 }
 
 

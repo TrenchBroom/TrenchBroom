@@ -22,6 +22,7 @@
 #include "el/EvaluationContext.h"
 #include "el/Exceptions.h"
 #include "el/Expression.h" // IWYU pragma: keep
+#include "el/ExpressionNodeData.h"
 
 #include "kd/overload.h"
 #include "kd/ranges/to.h"
@@ -862,14 +863,12 @@ Value Value::atOrDefault(
 
 std::optional<ExpressionNode> Value::expression() const
 {
-  return m_producedByExpression
-           ? std::optional{ExpressionNode{m_producedByExpression, m_producedByLocation}}
-           : std::nullopt;
+  return m_producedBy ? std::optional{ExpressionNode{m_producedBy}} : std::nullopt;
 }
 
 std::optional<FileLocation> Value::location() const
 {
-  return m_producedByLocation;
+  return m_producedBy ? m_producedBy->location : std::nullopt;
 }
 
 Value Value::producedBy(const ExpressionNode& expressionNode) const&
@@ -879,10 +878,9 @@ Value Value::producedBy(const ExpressionNode& expressionNode) const&
 
 Value Value::producedBy(const ExpressionNode& expressionNode) &&
 {
-  if (!m_producedByExpression)
+  if (!m_producedBy)
   {
-    m_producedByExpression = expressionNode.m_expression;
-    m_producedByLocation = expressionNode.m_location;
+    m_producedBy = expressionNode.m_data;
   }
   return std::move(*this);
 }
@@ -894,10 +892,9 @@ Value Value::producedBy(const Value& original) const&
 
 Value Value::producedBy(const Value& original) &&
 {
-  if (!m_producedByExpression)
+  if (!m_producedBy)
   {
-    m_producedByExpression = original.m_producedByExpression;
-    m_producedByLocation = original.m_producedByLocation;
+    m_producedBy = original.m_producedBy;
   }
   return std::move(*this);
 }

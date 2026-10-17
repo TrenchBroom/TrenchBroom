@@ -34,6 +34,8 @@ namespace tb::el
 {
 class EvaluationContext;
 
+struct ExpressionNodeData;
+
 class Value
 {
 private:
@@ -47,9 +49,7 @@ private:
     NullType,
     UndefinedType>;
   std::shared_ptr<VariantType> m_value;
-
-  std::shared_ptr<Expression> m_producedByExpression;
-  std::optional<FileLocation> m_producedByLocation;
+  std::shared_ptr<ExpressionNodeData> m_producedBy;
 
 public:
   static const Value Null;
