@@ -21,6 +21,7 @@
 
 #include "base/ParserException.h"
 #include "el/EvaluationContext.h"
+#include "el/Expression.h"
 #include "el/ParseExpression.h"
 #include "el/Value.h"
 #include "mdl/GameConfig.h"
@@ -32,6 +33,7 @@
 #include "mdl/UvAttributes.h"
 
 #include "kd/flat_set.h"
+#include "kd/overload.h"
 #include "kd/ranges/contains.h"
 #include "kd/ranges/to.h"
 
@@ -390,7 +392,30 @@ FaceAttribsConfig parseFaceAttribsConfig(const el::Value& value)
   };
 }
 
-EntityConfig parseEntityConfig(const el::Value& value)
+std::optional<el::ExpressionNode> findMapElementExpression(
+  const el::ExpressionNode& expression, const std::string& key)
+{
+  return expression.accept(kdl::overload(
+    [&](const el::MapExpression& mapExpression) -> std::optional<el::ExpressionNode> {
+      const auto it = mapExpression.elements.find(key);
+      return it != mapExpression.elements.end() ? std::optional{it->second}
+                                                : std::nullopt;
+    },
+    [](const auto&) -> std::optional<el::ExpressionNode> { return std::nullopt; }));
+}
+
+std::optional<el::ExpressionNode> findDefaultScaleExpression(
+  const el::ExpressionNode& expression)
+{
+  if (const auto entitiesExpression = findMapElementExpression(expression, "entities"))
+  {
+    return findMapElementExpression(*entitiesExpression, "scale");
+  }
+  return std::nullopt;
+}
+
+EntityConfig parseEntityConfig(
+  const el::Value& value, std::optional<el::ExpressionNode> scaleExpression)
 {
   auto paths = value.at("definitions").arrayValue()
                | std::views::transform(
@@ -406,7 +431,7 @@ EntityConfig parseEntityConfig(const el::Value& value)
   return EntityConfig{
     std::move(paths),
     color,
-    value.atOrDefault("scale").expression(),
+    std::move(scaleExpression),
     value.atOrDefault("setDefaultProperties").booleanValue(),
   };
 }
@@ -487,7 +512,8 @@ Result<GameConfig> parseGameConfig(
     auto mapFormatConfigs = parseMapFormatConfigs(root.at("fileformats"));
     auto fileSystemConfig = parseFileSystemConfig(root.at("filesystem"));
     auto materialConfig = parseMaterialConfig(root.at("materials"));
-    auto entityConfig = parseEntityConfig(root.at("entities"));
+    auto entityConfig =
+      parseEntityConfig(root.at("entities"), findDefaultScaleExpression(expression));
     auto faceAttribsConfig = parseFaceAttribsConfig(root.atOrDefault("faceattribs"));
     auto tags = parseTags(root.atOrDefault("tags"), faceAttribsConfig);
     auto softMapBounds = parseSoftMapBounds(root.atOrDefault("softMapBounds"));

@@ -19,6 +19,7 @@
 
 #include "TestEnvironment.h"
 #include "el/Expression.h"
+#include "el/TestUtils.h"
 #include "fs/DiskIO.h"
 #include "fs/Reader.h"
 #include "fs/TraversalMode.h"
@@ -965,6 +966,44 @@ TEST_CASE("GameConfigParser")
           std::nullopt, // soft map bounds
           {}            // compilation tools
         });
+    }
+  }
+
+  SECTION("entities")
+  {
+    SECTION("parseSwitchDefaultScaleExpression")
+    {
+      const auto config = R"(
+{
+    "version": 9,
+    "name": "Quake",
+    "fileformats": [
+        { "format": "Standard" }
+    ],
+    "filesystem": {
+        "searchpath": "id1",
+        "packageformat": { "extension": "pak", "format": "idpak" }
+    },
+    "materials": {
+        "root": "textures",
+        "extensions": ["D"],
+        "palette": "gfx/palette.lmp",
+        "attribute": "wad"
+    },
+    "entities": {
+        "definitions": [ "Quake.fgd" ],
+        "defaultcolor": "0.6 0.6 0.6 1.0",
+        "scale": {{ modelscale_vec -> modelscale_vec, 2 }}
+    }
+}
+)";
+
+      CHECK(
+        (parseGameConfig(config) | kdl::value()).entityConfig.scaleExpression
+        == el::swt({
+          el::cs(el::var("modelscale_vec"), el::var("modelscale_vec")),
+          el::lit(2),
+        }));
     }
   }
 }
