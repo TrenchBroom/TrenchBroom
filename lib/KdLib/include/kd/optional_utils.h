@@ -43,7 +43,7 @@ constexpr auto operator|(std::optional<T>&& o, and_then_helper<F> h)
 }
 
 template <typename T, typename F>
-constexpr auto operator|(const std::optional<T>& o, const and_then_helper<F>& h)
+constexpr auto operator|(const std::optional<T>& o, and_then_helper<F> h)
 {
   return o ? h.f(*o) : std::nullopt;
 }
@@ -56,13 +56,13 @@ struct or_else_helper
 };
 
 template <typename T, typename F>
-constexpr auto operator|(std::optional<T>&& o, const or_else_helper<F>& h)
+constexpr auto operator|(std::optional<T>&& o, or_else_helper<F> h)
 {
   return o ? std::move(o) : h.f();
 }
 
 template <typename T, typename F>
-constexpr auto operator|(const std::optional<T>& o, const or_else_helper<F>& h)
+constexpr auto operator|(const std::optional<T>& o, or_else_helper<F> h)
 {
   return o ? o : h.f();
 }
@@ -76,13 +76,13 @@ struct transform_helper
 
 // This actually does the work
 template <typename T, typename F>
-constexpr auto operator|(std::optional<T>&& o, const transform_helper<F>& h)
+constexpr auto operator|(std::optional<T>&& o, transform_helper<F> h)
 {
   return o ? std::optional{h.f(std::move(*o))} : std::nullopt;
 }
 
 template <typename T, typename F>
-constexpr auto operator|(const std::optional<T>& o, const transform_helper<F>& h)
+constexpr auto operator|(const std::optional<T>& o, transform_helper<F> h)
 {
   return o ? std::optional{h.f(*o)} : std::nullopt;
 }

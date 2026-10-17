@@ -83,6 +83,14 @@ TEST_CASE("optional_utils")
       g = [](int x) { return x * 3; };
       CHECK((std::optional<int>{42} | helper) == 84);
     }
+
+    SECTION("with a mutable function")
+    {
+      const auto g = [n = 0](int x) mutable { return std::optional{x + ++n}; };
+      const auto o = std::optional<int>{42};
+      CHECK((o | optional_and_then(g)) == 43);
+      CHECK((std::optional<int>{42} | optional_and_then(g)) == 43);
+    }
   }
 
   SECTION("optional_or_else")
@@ -97,6 +105,14 @@ TEST_CASE("optional_utils")
       const auto helper = optional_or_else(g);
       g = [] { return 44; };
       CHECK((std::optional<int>{} | helper) == 43);
+    }
+
+    SECTION("with a mutable function")
+    {
+      const auto g = [n = 43]() mutable { return std::optional{n++}; };
+      const auto o = std::optional<int>{};
+      CHECK((o | optional_or_else(g)) == 43);
+      CHECK((std::optional<int>{} | optional_or_else(g)) == 43);
     }
   }
 
@@ -117,6 +133,14 @@ TEST_CASE("optional_utils")
       const auto helper = optional_transform(g);
       g = [](int x) { return x * 3; };
       CHECK((std::optional<int>{42} | helper) == 84);
+    }
+
+    SECTION("with a mutable function")
+    {
+      const auto g = [n = 0](int x) mutable { return x + ++n; };
+      const auto o = std::optional<int>{42};
+      CHECK((o | optional_transform(g)) == 43);
+      CHECK((std::optional<int>{42} | optional_transform(g)) == 43);
     }
   }
 
