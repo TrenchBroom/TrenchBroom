@@ -43,10 +43,9 @@ Entity toEntity(const el::Value& entityValue)
 {
   auto entityProperties = entityValue.arrayValue()
                           | std::views::transform([&](const auto& propertyValue) {
-                              const auto& map = propertyValue.mapValue();
                               return EntityProperty{
-                                map.at("key").stringValue(),
-                                map.at("value").stringValue(),
+                                propertyValue.at("key").stringValue(),
+                                propertyValue.at("value").stringValue(),
                               };
                             })
                           | kdl::ranges::to<std::vector>();
