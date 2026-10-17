@@ -91,7 +91,7 @@ class IndexOutOfBoundsError : public EvaluationError
 {
 public:
   IndexOutOfBoundsError(
-    const ExpressionNode& expression, const Value& indexableValue, size_t index);
+    const ExpressionNode& expression, const Value& indexableValue, long index);
   IndexOutOfBoundsError(
     const std::optional<FileLocation>& location,
     const Value& indexableValue,

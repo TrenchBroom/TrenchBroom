@@ -32,6 +32,8 @@
 
 #include <optional>
 #include <string>
+#include <string_view>
+#include <unordered_map>
 
 namespace tb::el
 {
@@ -78,6 +80,7 @@ auto tokenNames()
     {DoubleOBrace, "'{{'"},
     {DoubleCBrace, "'}}'"},
     {Null, "'null'"},
+    {Undefined, "'undefined'"},
     {Eof, "end of file"},
   };
 }
@@ -274,20 +277,6 @@ Tokenizer::Token Tokenizer::emitToken()
         return Token{ElToken::Number, c, e, offset(c), line, column};
       }
 
-      if (const auto* e = discard("true"))
-      {
-        return Token{ElToken::Boolean, c, e, offset(c), line, column};
-      }
-      if (const auto* e = discard("false"))
-      {
-        return Token{ElToken::Boolean, c, e, offset(c), line, column};
-      }
-
-      if (const auto* e = discard("null"))
-      {
-        return Token{ElToken::Null, c, e, offset(c), line, column};
-      }
-
       if (isLetter(*c) || *c == '_')
       {
         const char* e = nullptr;
@@ -297,7 +286,15 @@ Tokenizer::Token Tokenizer::emitToken()
           e = curPos();
         } while (!eof() && (isLetter(*e) || isDigit(*e) || *e == '_'));
 
-        return Token{ElToken::Name, c, e, offset(c), line, column};
+        static const auto keywords = std::unordered_map<std::string_view, ElToken::Type>{
+          {"true", ElToken::Boolean},
+          {"false", ElToken::Boolean},
+          {"null", ElToken::Null},
+          {"undefined", ElToken::Undefined},
+        };
+        const auto iKeyword = keywords.find(std::string_view{c, e});
+        const auto type = iKeyword != keywords.end() ? iKeyword->second : ElToken::Name;
+        return Token{type, c, e, offset(c), line, column};
       }
 
       throw ParserException{
@@ -338,10 +335,6 @@ Result<ExpressionNode> Parser::parse()
 
 ExpressionNode Parser::parseExpression()
 {
-  if (m_tokenizer.peekToken().hasType(ElToken::OParen))
-  {
-    return parseGroupedTerm();
-  }
   return parseTerm();
 }
 
@@ -351,13 +344,8 @@ ExpressionNode Parser::parseGroupedTerm()
   auto expression = parseTerm();
   m_tokenizer.nextToken(ElToken::CParen);
 
-  auto lhs = ExpressionNode{
+  return ExpressionNode{
     UnaryExpression{UnaryOperation::Group, std::move(expression)}, token.location()};
-  if (m_tokenizer.peekToken().hasType(ElToken::CompoundTerm))
-  {
-    return parseCompoundTerm(lhs);
-  }
-  return lhs;
 }
 
 ExpressionNode Parser::parseTerm()
@@ -471,6 +459,11 @@ ExpressionNode Parser::parseLiteral()
   {
     m_tokenizer.nextToken();
     return ExpressionNode{LiteralExpression{Value::Null}, token.location()};
+  }
+  if (token.hasType(ElToken::Undefined))
+  {
+    m_tokenizer.nextToken();
+    return ExpressionNode{LiteralExpression{Value::Undefined}, token.location()};
   }
 
   if (token.hasType(ElToken::OBracket))

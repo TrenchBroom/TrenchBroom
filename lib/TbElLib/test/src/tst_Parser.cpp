@@ -73,6 +73,12 @@ TEST_CASE("Parser")
       CHECK(parse("false") == lit(false));
     }
 
+    SECTION("Null and undefined")
+    {
+      CHECK(parse("null") == lit(Value::Null));
+      CHECK(parse("undefined") == lit(Value::Undefined));
+    }
+
     SECTION("Arrays")
     {
       CHECK(parse("[]") == arr());
@@ -333,6 +339,11 @@ asdf)")
     CHECK(parse("a1") == var("a1"));
     CHECK(parse("_1") == var("_1"));
     CHECK(parse("a_1b") == var("a_1b"));
+
+    // a name may begin with a keyword
+    CHECK(parse("trueValue") == var("trueValue"));
+    CHECK(parse("false_alarm") == var("false_alarm"));
+    CHECK(parse("nullable") == var("nullable"));
   }
 
   SECTION("Malformed input")
@@ -410,6 +421,10 @@ asdf)")
     CHECK(
       parse("(2+1)*((1+1)*2)")
       == mul(grp(add(lit(2), lit(1))), grp(mul(grp(add(lit(1), lit(1))), lit(2)))));
+
+    // a unary operator applies only to the group, not to the term that follows it
+    CHECK(parse("!(true) && false") == logAnd(logNeg(grp(lit(true))), lit(false)));
+    CHECK(parse("-(1) + 2") == add(minus(grp(lit(1))), lit(2)));
   }
 }
 

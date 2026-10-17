@@ -1860,8 +1860,8 @@ Number     A floating point number.
 Array      An array is a list of values.
 Map        A map is a list of key-value pairs. Synonyms: dictionary, table.
 Range      The range type is only used internally.
-Null       The type of `null` values.
-Undefined  The type of undefined values.
+Null       The type of `null` values, which represent an empty value.
+Undefined  The type of `undefined` values, which represent the absence of a value.
 
 #### Type Conversion {#el_type_conversion}
 
@@ -1892,6 +1892,21 @@ The following matrix describes the possible type conversions between these types
 
 A string value can be converted to a number value if and only if the string is a number literal (see below). Conversely, any number can always be converted to a string value, and the number is formatted as follows. If the number is integer, then only the decimal part and no fractional part will be added to the string. If the number is not integer, the fractional part will be formatted with a precision of 17 places.
 
+#### Null and Undefined {#el_null_and_undefined}
+
+The types `Null` and `Undefined` both stand for the lack of a proper value, but they behave very differently.
+
+A value of type `Null` is an explicit empty value. As the type conversion matrix above shows, it converts to `false`, `0.0`, the empty string, the empty array, and the empty map. Accordingly, it is treated as `false` by the logical operators and as `0.0` by the binary operators. But it is not accepted by the unary operators or by the algebraic operators, and it cannot be subscripted. Using it there is an error.
+
+A value of type `Undefined` represents the absence of a value. It is the result of subscripting a map with a key that the map does not contain, and it is the result of a case term whose premise is not true. A value of type `Undefined` cannot be converted to any other type. Instead, it propagates: If an operand of a unary, algebraic, logical, or binary operator is `undefined`, then the result is `undefined` rather than an error, and subscripting an `undefined` value yields `undefined` as well. The comparison operators are the exception to this rule. They treat `undefined` as a value that is less than every other value, including `null`. Note that `undefined` is not the same as `false`. For example, `!undefined` is `undefined`, and not `true`.
+
+    map["missing"]["key"] // undefined
+    !undefined            // undefined
+    1 + undefined         // undefined
+    undefined == 0        // false
+    !null                 // error
+    1 + null              // error
+
 ### Expressions and Terms
 
 Every expression is made of one single term. A term is something that can be evaluated, such as an addition (`7.0 + 3.0`) or a variable (which is then evaluated to its value).
@@ -1915,15 +1930,17 @@ A name is a string that begins with an alphabetic character or an underscore, po
 
     Name = ( "_" | Alpha ) { "_" | Alpha | Numeric }
 
-`MODS`, `_var1`, `_123` are all valid names while `1_MODS`, `$MODS`, `_$MODS` are not. When an expression is evaluated, all variable names are simply replaced by the values of the variables they reference. If a value is not of type `String`, it will be converted to that type. If the value is not convertible to type `String`, then an error will be thrown.
+`MODS`, `_var1`, `_123` are all valid names while `1_MODS`, `$MODS`, `_$MODS` are not. The keywords `true`, `false`, `null`, and `undefined` are not names either, so they cannot be used as variable names or as unquoted map keys. When an expression is evaluated, all variable names are simply replaced by the values of the variables they reference. If a value is not of type `String`, it will be converted to that type. If the value is not convertible to type `String`, then an error will be thrown.
 
-A literal is either a string, a number, a boolean, an array, or a map literal.
+A literal is either a string, a number, a boolean, `null`, `undefined`, an array, or a map literal.
 
-    Literal = String | Number | Boolean | Array | Map
+    Literal = String | Number | Boolean | Null | Undefined | Array | Map
 
-    Boolean = "true" | "false"
-    String  = """ { Char } """ | "'" { Char } "'"
-    Number  = Numeric { Numeric } [ "." Numeric { Numeric } ]
+    Boolean   = "true" | "false"
+    Null      = "null"
+    Undefined = "undefined"
+    String    = """ { Char } """ | "'" { Char } "'"
+    Number    = Numeric { Numeric } [ "." Numeric { Numeric } ]
 
 Note that strings can either be enclosed by double or single quotes, but you cannot mix these two styles. If you enclose a string by double quotes, you need to escape all literal double quotes within the string with backslashes like so: "this is a \\"fox\\"", but this is not necessary when using single quotes to enclose that string: 'this is a "fox"' is also a valid string literal.
 
@@ -2097,6 +2114,15 @@ Like arrays, maps can contain other subscriptable values such as strings, arrays
     map["some map"]["key2"]       // "asdf"
     map["some map"]["key2"][1..3] // "ey2"
 
+#### Subscripting Undefined and Null
+
+Subscripting a value of type `Undefined` yields `undefined`, regardless of the index. This is useful when accessing nested elements of maps because a missing key does not cause an error further down the chain (see [Null and Undefined](#el_null_and_undefined)).
+
+    map["missing key"]["key"] // undefined
+    map["missing key"][0]     // undefined
+
+Conversely, using an `undefined` value as an index is an error, and so is subscripting a value of type `Null`.
+
 ### Unary Operator Terms
 
 A unary operator is an operator that applies to a single operand. In TrenchBroom's expression language, there are four unary operators: unary plus, unary minus, logical negation, and binary negation.
@@ -2109,19 +2135,21 @@ A unary operator is an operator that applies to a single operand. In TrenchBroom
 The following table explains the effects of applying the unary operators to values depending on the type of the values.
 
 -------------------------------------------------------------------------------------------------------
-Operator         `Boolean`         `String`     `Number`     `Array` `Map`   `Range` `Null`  `Undefined`
+Operator          `Boolean`         `String`     `Number`     `Array` `Map`   `Range` `Null`  `Undefined`
 --------          ----              ----         ----         ----    ----    ----    ----    ----
-`Plus`            convert to number see below    no effect    error   error   error   error   error
+`Plus`            convert to number see below    no effect    error   error   error   error   `undefined`
 
-`Minus`           convert to number see below    negate value error   error   error   error   error
+`Minus`           convert to number see below    negate value error   error   error   error   `undefined`
                   and negate value
 
-`LogicalNegation` invert value      error        error        error   error   error   error   error
+`LogicalNegation` invert value      error        error        error   error   error   error   `undefined`
 
-`BinaryNegation`  error             see below    invert bits  error   error   error   error   error
+`BinaryNegation`  error             see below    invert bits  error   error   error   error   `undefined`
 -------------------------------------------------------------------------------------------------------
 
 Note on using applying a unary operator to a value of type `String`: Every operator except `LogicalNegation` will try to convert a value of type `String` to a number if possible.
+
+Applying a unary operator to a value of type `Undefined` yields `undefined`, see [Null and Undefined](#el_null_and_undefined).
 
 Some examples of using unary operators follow.
 
@@ -2135,6 +2163,8 @@ Some examples of using unary operators follow.
     ~1     // -2
     ~-2    // 1
     ~'-2'  // 1
+
+    !undefined // undefined
 
 ### Binary Operator Terms
 
@@ -2169,29 +2199,38 @@ In the previous two examples, the operands are simply concatenated. If both oper
 
 Note that the value under key `'k3'` is `4` and not `3`!
 
+If either operand is of type `Undefined`, the result is `undefined`, regardless of the type of the other operand. An operand of type `Null` is not accepted by any of these operators and causes an error (see [Null and Undefined](#el_null_and_undefined)).
+
+    1 + undefined   // undefined
+    "a" + undefined // undefined
+    1 + null        // error
+
 #### Logical Terms
 
-Logical terms can be applied to if both operands are of type `Boolean`. If one of the operands is not of type `Boolean`, an error is thrown.
+Logical terms are applied to operands of type `Boolean`. An operand of type `Null` is treated as `false`. If an operand has any other type, an error is thrown, with the exception of type `Undefined`: If either operand is `undefined`, the result is `undefined`. Like in C, the right operand is only evaluated if the left operand does not already determine the result. That is, `false && x` is `false` and `true || x` is `true` even if `x` is `undefined`. See also [Null and Undefined](#el_null_and_undefined).
 
     LogicalAnd = SimpleTerm "&&" Expression
     LogicalOr  = SimpleTerm "||" Expression
 
 The following table shows the effects of applying the logical operators.
 
-Left     Right   &&      ||
--------- ------- ----    ----
-`true`   `true`  `true`  `true`
-`true`   `false` `false` `true`
-`false`  `true`  `false` `true`
-`false`  `false` `false` `false`
+Left        Right       &&          ||
+----------- ----------- ----------- -----------
+`true`      `true`      `true`      `true`
+`true`      `false`     `false`     `true`
+`false`     `true`      `false`     `true`
+`false`     `false`     `false`     `false`
+`true`      `undefined` `undefined` `true`
+`false`     `undefined` `false`     `undefined`
+`undefined` Any         `undefined` `undefined`
 
 #### Binary Terms
 
-Binary terms manipulate the bit representation of operands of type `Number`. Note that, since manipulating the bit representation of a floating point number does not make much sense, the operands are converted to an integer representation first by omitting their fractional portion. If either of the operands is not of type `Number`, the operand is converted to type `Number` according to the [type conversion rules](#el_type_conversion).
+Binary terms manipulate the bit representation of operands of type `Number`. Note that, since manipulating the bit representation of a floating point number does not make much sense, the operands are converted to an integer representation first by omitting their fractional portion. If either of the operands is not of type `Number`, the operand is converted to type `Number` according to the [type conversion rules](#el_type_conversion). The exception to this rule is type `Undefined`: If either operand is `undefined`, the result is `undefined`.
 
     BinaryAnd        = SimpleTerm "&" SimpleTerm
-    BinaryXor        = SimpleTerm "|" SimpleTerm
-    BinaryOr         = SimpleTerm "^" SimpleTerm
+    BinaryXor        = SimpleTerm "^" SimpleTerm
+    BinaryOr         = SimpleTerm "|" SimpleTerm
     BinaryShiftLeft  = SimpleTerm "<<" SimpleTerm
     BinaryShiftRight = SimpleTerm ">>" SimpleTerm
 
@@ -2260,13 +2299,16 @@ Comparison operators always return a boolean value depending on the result of th
 `Map`       `Range`     error
 `Map`       `Null`      Left is greater than right.
 `Map`       `Undefined` Left is greater than right.
-`Range`     Any type    error
+`Range`     `Null`      Left is greater than right.
+`Range`     `Undefined` Left is greater than right.
+`Range`     Any other   error
 `Null`      `Null`      Both are equal.
-`Null`      `Undefined` Both are equal
-`Null`      Any type    Right is greater than left.
-`Undefined` `Null`      Both are equal.
-`Undefined` `Undefined` Both are equal
-`Undefined` Any type    Right is greater than left.
+`Null`      `Undefined` Left is greater than right.
+`Null`      Any other   Right is greater than left.
+`Undefined` `Undefined` Both are equal.
+`Undefined` Any other   Right is greater than left.
+
+Unlike the other operators, the comparison operators do not propagate `undefined`. Comparing a value to `undefined` never results in an error and always yields `true` or `false`. Note that `undefined` is less than every other value, including `null`, so `null` and `undefined` are not equal to each other (see [Null and Undefined](#el_null_and_undefined)).
 
 The following examples show the comparison operators in action with different operand types. Assume that all expressions evaluate to `true` unless otherwise stated in comments.
 
@@ -2293,9 +2335,15 @@ The following examples show the comparison operators in action with different op
     "asdf" < "bsdf"
 
     null == null
-    null == undefined
+    null != undefined
+    null > undefined
     null < -1
     null < "asdf"
+
+    undefined == undefined
+    undefined != 0
+    undefined < -1
+    "asdf" > undefined
 
     [ 1, 2, 3 ] == [ 1, 2, 3 ]
     [ 1, 2, 3 ] <  [ 2, 2, 3 ]
@@ -2309,7 +2357,8 @@ The case operator allows for conditional evaluation of expressions. This is usua
 
 In a case expression, the part before the `->` operator is called the _premise_ and the part after it is called the _conclusion_. The case operator is evaluated as follows:
 
-- If the premise evaluates to a value `r` that is convertible to `boolean`:
+- If the premise evaluates to `undefined`, the result of the case expression is `undefined`.
+- Otherwise, if the premise evaluates to a value `r` that is convertible to `boolean`:
     - If `r` converts to `true`:
         - The result of the case expression is the result of evaluating the conclusion.
     - Otherwise, the result of the case expression is `undefined`.
@@ -2317,12 +2366,14 @@ In a case expression, the part before the `->` operator is called the _premise_ 
 
 The following examples demonstrate the semantics of the case operator:
 
-    true   -> false  // false
-    false  -> true   // undefined
-    1      -> "test" // "test", because 1 converts to true
-    0      -> "test" // undefined, because 0 converts to false
-    "true" -> ""     // "", because "true" converts to true
-    ""     -> ""     // undefined, because "" converts to false
+    true      -> false  // false
+    false     -> true   // undefined
+    1         -> "test" // "test", because 1 converts to true
+    0         -> "test" // undefined, because 0 converts to false
+    "true"    -> ""     // "", because "true" converts to true
+    ""        -> ""     // undefined, because "" converts to false
+    null      -> "test" // undefined, because null converts to false
+    undefined -> "test" // undefined, because the premise is undefined
 
 #### Switch Term
 
@@ -2427,6 +2478,8 @@ The syntax for adding display models is identical in all entity definition files
 In ENT files, the model definitions are given as XML attribute values of the `<point />` element, e.g.
 
     <point model="..." />
+
+ENT files often give a plain model path without quotes, such as `<point model="progs/armor.mdl" />`. Therefore, TrenchBroom only interprets the attribute value as an expression if it starts with a brace or a quote. Any other value is used as the model path as is.
 
 Thereby, the ellipsis contains the actual information about the model to display. You can use TrenchBroom's [expression language](#expression_language) to define the actual models. Each entity definition should contain only one model definition, and the expression in the model definition should evaluate either to a value of type string or to a value of type map. If the expression evaluates to a map, it must have the following structure:
 

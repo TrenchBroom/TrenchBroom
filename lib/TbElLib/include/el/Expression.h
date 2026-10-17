@@ -19,12 +19,10 @@
 
 #pragma once
 
-#include "Forward.h"
+#include "ExpressionNode.h"
 #include "Value.h"
-#include "base/FileLocation.h"
 
-#include <memory>
-#include <optional>
+#include <map>
 #include <string>
 #include <variant>
 #include <vector>
@@ -32,107 +30,7 @@
 namespace tb::el
 {
 
-struct LiteralExpression;
-struct VariableExpression;
-struct ArrayExpression;
-struct MapExpression;
-struct UnaryExpression;
-struct BinaryExpression;
-struct SubscriptExpression;
-struct SwitchExpression;
-
-using Expression = std::variant<
-  LiteralExpression,
-  VariableExpression,
-  ArrayExpression,
-  MapExpression,
-  UnaryExpression,
-  BinaryExpression,
-  SubscriptExpression,
-  SwitchExpression>;
-
 std::ostream& operator<<(std::ostream& lhs, const Expression& rhs);
-
-template <typename Visitor, typename Enable = void>
-struct VisitorResultType
-{
-  using type = std::invoke_result_t<Visitor, const LiteralExpression&>;
-};
-
-template <typename Visitor>
-struct VisitorResultType<
-  Visitor,
-  typename std::enable_if_t<std::is_invocable_v<
-    Visitor,
-    const Visitor&,
-    const LiteralExpression&,
-    const ExpressionNode&>>>
-{
-  using type = std::invoke_result_t<
-    Visitor,
-    const Visitor&,
-    const LiteralExpression&,
-    const ExpressionNode&>;
-};
-
-template <typename Visitor>
-struct VisitorResultType<
-  Visitor,
-  typename std::enable_if_t<
-    std::is_invocable_v<Visitor, const Visitor&, const LiteralExpression&>>>
-{
-  using type = std::invoke_result_t<Visitor, const Visitor&, const LiteralExpression&>;
-};
-
-template <typename Visitor>
-struct VisitorResultType<
-  Visitor,
-  typename std::enable_if_t<
-    std::is_invocable_v<Visitor, const LiteralExpression&, const ExpressionNode&>>>
-{
-  using type =
-    std::invoke_result_t<Visitor, const LiteralExpression&, const ExpressionNode&>;
-};
-
-template <typename Visitor>
-using VisitorResultType_t = typename VisitorResultType<Visitor>::type;
-
-
-class ExpressionNode
-{
-private:
-  std::shared_ptr<Expression> m_expression;
-  std::optional<FileLocation> m_location;
-
-  explicit ExpressionNode(
-    std::shared_ptr<Expression> expression,
-    std::optional<FileLocation> location = std::nullopt);
-
-public:
-  explicit ExpressionNode(
-    Expression&& expression, std::optional<FileLocation> location = std::nullopt);
-
-  bool isLiteral() const;
-
-  template <typename Visitor>
-  VisitorResultType_t<Visitor> accept(const Visitor& visitor) const;
-
-  Value evaluate(EvaluationContext& context) const;
-  Value tryEvaluate(EvaluationContext& context) const;
-
-  ExpressionNode optimize(EvaluationContext& context) const;
-
-  const std::optional<FileLocation>& location() const;
-
-  std::string asString() const;
-
-  friend bool operator==(const ExpressionNode& lhs, const ExpressionNode& rhs);
-  friend bool operator!=(const ExpressionNode& lhs, const ExpressionNode& rhs);
-  friend std::ostream& operator<<(std::ostream& str, const ExpressionNode& exp);
-
-private:
-  void rebalanceByPrecedence();
-};
 
 struct LiteralExpression
 {
@@ -140,7 +38,6 @@ struct LiteralExpression
 };
 
 bool operator==(const LiteralExpression& lhs, const LiteralExpression& rhs);
-bool operator!=(const LiteralExpression& lhs, const LiteralExpression& rhs);
 
 std::ostream& operator<<(std::ostream& lhs, const LiteralExpression& rhs);
 
@@ -151,7 +48,6 @@ struct VariableExpression
 };
 
 bool operator==(const VariableExpression& lhs, const VariableExpression& rhs);
-bool operator!=(const VariableExpression& lhs, const VariableExpression& rhs);
 
 std::ostream& operator<<(std::ostream& lhs, const VariableExpression& rhs);
 
@@ -162,7 +58,6 @@ struct ArrayExpression
 };
 
 bool operator==(const ArrayExpression& lhs, const ArrayExpression& rhs);
-bool operator!=(const ArrayExpression& lhs, const ArrayExpression& rhs);
 
 std::ostream& operator<<(std::ostream& lhs, const ArrayExpression& rhs);
 
@@ -173,7 +68,6 @@ struct MapExpression
 };
 
 bool operator==(const MapExpression& lhs, const MapExpression& rhs);
-bool operator!=(const MapExpression& lhs, const MapExpression& rhs);
 
 std::ostream& operator<<(std::ostream& lhs, const MapExpression& rhs);
 
@@ -196,7 +90,6 @@ struct UnaryExpression
 };
 
 bool operator==(const UnaryExpression& lhs, const UnaryExpression& rhs);
-bool operator!=(const UnaryExpression& lhs, const UnaryExpression& rhs);
 
 std::ostream& operator<<(std::ostream& lhs, const UnaryExpression& rhs);
 
@@ -233,7 +126,6 @@ struct BinaryExpression
 };
 
 bool operator==(const BinaryExpression& lhs, const BinaryExpression& rhs);
-bool operator!=(const BinaryExpression& lhs, const BinaryExpression& rhs);
 
 std::ostream& operator<<(std::ostream& lhs, const BinaryExpression& rhs);
 
@@ -245,7 +137,6 @@ struct SubscriptExpression
 };
 
 bool operator==(const SubscriptExpression& lhs, const SubscriptExpression& rhs);
-bool operator!=(const SubscriptExpression& lhs, const SubscriptExpression& rhs);
 
 std::ostream& operator<<(std::ostream& lhs, const SubscriptExpression& rhs);
 
@@ -256,7 +147,6 @@ struct SwitchExpression
 };
 
 bool operator==(const SwitchExpression& lhs, const SwitchExpression& rhs);
-bool operator!=(const SwitchExpression& lhs, const SwitchExpression& rhs);
 
 std::ostream& operator<<(std::ostream& lhs, const SwitchExpression& rhs);
 
@@ -283,7 +173,7 @@ VisitorResultType_t<Visitor> ExpressionNode::accept(const Visitor& visitor) cons
         return visitor(x);
       }
     },
-    *m_expression);
+    expression());
 }
 
 } // namespace tb::el

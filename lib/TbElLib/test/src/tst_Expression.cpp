@@ -25,6 +25,8 @@
 #include "el/Value.h"
 #include "el/VariableStore.h"
 
+#include "kd/result_io.h"
+
 #include <fmt/ostream.h>
 
 #include <string>
@@ -1036,6 +1038,14 @@ TEST_CASE("Expression")
 
     // Undefined sorts below everything else, null included
     {"undefined < null",       Value{true}},
+    {"undefined <= null",      Value{true}},
+    {"undefined > null",       Value{false}},
+    {"undefined >= null",      Value{false}},
+    {"null < undefined",       Value{false}},
+    {"null <= undefined",      Value{false}},
+    {"null > undefined",       Value{true}},
+    {"null >= undefined",      Value{true}},
+    {"null != undefined",      Value{true}},
     {"undefined < 0",          Value{true}},
     {"0 > undefined",          Value{true}},
     {"[] > undefined",         Value{true}},
@@ -1162,10 +1172,10 @@ TEST_CASE("Expression")
     {"'asdf'[5]",                        Value{""}},
     {"'asdf'[-5]",                       Value{""}},
     {"'asdf'[4, 5]",                     Value{""}},
-    {"[1, 2, 3][-4]",                    Error{"At line 1, column 10: Cannot evaluate expression '[1, 2, 3][-4]': 3 is out of bounds for '[1, 2, 3]'"}},
-    {"[0, 1, 2, 3][5]",                  Error{"At line 1, column 13: Cannot evaluate expression '[0, 1, 2, 3][5]': 4 is out of bounds for '[0, 1, 2, 3]'"}},
-    {"[1, 2, 3][0, 5]",                  Error{"At line 1, column 10: Cannot evaluate expression '[1, 2, 3][[0, 5]]': 3 is out of bounds for '[1, 2, 3]'"}},
-    {"[1, 2, 3][0..5]",                  Error{"At line 1, column 10: Cannot evaluate expression '[1, 2, 3][0..5]': 3 is out of bounds for '[1, 2, 3]'"}},
+    {"[1, 2, 3][-4]",                    Error{"At line 1, column 10: Cannot evaluate expression '[1, 2, 3][-4]': Index -4 is out of bounds for '[1, 2, 3]'"}},
+    {"[0, 1, 2, 3][5]",                  Error{"At line 1, column 13: Cannot evaluate expression '[0, 1, 2, 3][5]': Index 5 is out of bounds for '[0, 1, 2, 3]'"}},
+    {"[1, 2, 3][0, 5]",                  Error{"At line 1, column 10: Cannot evaluate expression '[1, 2, 3][[0, 5]]': Index 5 is out of bounds for '[1, 2, 3]'"}},
+    {"[1, 2, 3][0..5]",                  Error{"At line 1, column 10: Cannot evaluate expression '[1, 2, 3][0..5]': Index 3 is out of bounds for '[1, 2, 3]'"}},
     {"{a: 1, b: 2, c: 3}['d']",          Value::Undefined},
 
     // An undefined range bound makes the whole range undefined, which cannot index
@@ -1182,12 +1192,26 @@ TEST_CASE("Expression")
     {"'asdf'['a']",                      Error{R"(At line 1, column 7: Cannot evaluate expression '"asdf"["a"]': '"a"' is not a compatible index for '"asdf"')"}},
     {"{a: 1}[0]",                        Error{R"(At line 1, column 7: Cannot evaluate expression '{ "a": 1 }[0]': '0' is not a compatible index for '{ "a": 1 }')"}},
 
+    // Subscripting Undefined
+    {"undefined[0]",                     Value::Undefined},
+    {"undefined['key']",                 Value::Undefined},
+
     }));
     // clang-format on
 
     CAPTURE(expression);
 
     CHECK(evaluate(expression) == expectedResult);
+  }
+
+  SECTION("Subscript of a Range")
+  {
+    const auto variables = MapType{{"r", Value{RangeType{BoundedRange{1, 3}}}}};
+
+    CHECK(
+      evaluate("r[0]", variables)
+      == Error{"At line 1, column 2: Cannot evaluate expression 'r[0]': '0' is not a "
+               "compatible index for '[1..3]'"});
   }
 
   SECTION("Switch")

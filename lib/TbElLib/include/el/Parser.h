@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "Expression.h"
+#include "ExpressionNode.h"
 #include "Forward.h"
 #include "ParseMode.h"
 #include "base/Parser.h"
@@ -72,7 +72,8 @@ constexpr auto DoubleOBrace = Type{1} << 35;
 constexpr auto DoubleCBrace = Type{1} << 36;
 constexpr auto Null = Type{1} << 37;
 constexpr auto Eof = Type{1} << 38;
-constexpr auto Literal = String | Number | Boolean | Null;
+constexpr auto Undefined = Type{1} << 39;
+constexpr auto Literal = String | Number | Boolean | Null | Undefined;
 constexpr auto UnaryOperator = Addition | Subtraction | LogicalNegation | BitwiseNegation;
 constexpr auto SimpleTerm = Name | Literal | OParen | OBracket | OBrace | UnaryOperator;
 constexpr auto CompoundTerm =

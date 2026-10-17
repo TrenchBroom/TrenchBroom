@@ -292,6 +292,40 @@ TEST_CASE("CompilationConfigParser")
            }},
         }});
     }
+
+    SECTION("parseOneProfileWithNameAndOneExportTaskWithEntityToAddWithMissingKey")
+    {
+      const auto config = R"(
+{
+  'version': 1,
+  'profiles': [
+    {
+      'name' : 'A profile',
+      'workdir' : '',
+      'tasks' : [ { 'type' : 'export', 'entityToAdd': [ { 'value': 'info_player_start' } ], 'target' : 'the target' } ]
+    }
+  ]
+})";
+
+      CHECK(parseCompilationConfig(config).is_error());
+    }
+
+    SECTION("parseOneProfileWithNameAndOneExportTaskWithEntityToAddWithMissingValue")
+    {
+      const auto config = R"(
+{
+  'version': 1,
+  'profiles': [
+    {
+      'name' : 'A profile',
+      'workdir' : '',
+      'tasks' : [ { 'type' : 'export', 'entityToAdd': [ { 'key': 'classname' } ], 'target' : 'the target' } ]
+    }
+  ]
+})";
+
+      CHECK(parseCompilationConfig(config).is_error());
+    }
   }
 
   SECTION("copy task")
