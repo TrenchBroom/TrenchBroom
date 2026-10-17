@@ -23,6 +23,7 @@
 #include <functional>
 #include <memory>
 #include <optional>
+#include <string>
 
 #include <catch2/catch_test_macros.hpp>
 
@@ -162,10 +163,13 @@ TEST_CASE("optional_utils")
 
     SECTION("lvalue fallback (copyable)")
     {
-      int fallback = 43;
-      CHECK((std::optional<int>{42} | optional_value_or(fallback)) == 42);
-      CHECK((std::optional<int>{} | optional_value_or(fallback)) == 43);
-      CHECK(fallback == 43);
+      // long enough to defeat the small string optimization
+      const auto expected = std::string{"a fallback value that does not fit into SSO"};
+      auto fallback = expected;
+      CHECK(
+        (std::optional<std::string>{"value"} | optional_value_or(fallback)) == "value");
+      CHECK((std::optional<std::string>{} | optional_value_or(fallback)) == expected);
+      CHECK(fallback == expected);
     }
   }
 }

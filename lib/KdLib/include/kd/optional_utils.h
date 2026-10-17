@@ -130,7 +130,7 @@ constexpr auto optional_transform(F f)
 template <typename X>
 constexpr auto optional_value_or(X&& x)
 {
-  return detail::value_or_helper<X>{std::forward<X>(x)};
+  return detail::value_or_helper<std::decay_t<X>>{std::forward<X>(x)};
 }
 
 } // namespace kdl
