@@ -83,8 +83,8 @@ void doDeselectBrushFaces(const std::vector<BrushFaceHandle>& faces, Map& map)
     const auto& face = handle.face();
     if (face.selected())
     {
-      auto* node = handle.node();
-      node->deselectFace(handle.faceIndex());
+      auto& node = handle.node();
+      node.deselectFace(handle.faceIndex());
       deselected.push_back(handle);
     }
   }
@@ -144,7 +144,11 @@ void doSelectNodes(const std::vector<Node*>& nodes, Map& map)
       if (!node->selected() /* && m_editorContext->selectable(node) remove check to allow issue objects to be selected */)
       {
         node->select();
-        selected.push_back(node);
+
+        if (node->selected())
+        {
+          selected.push_back(node);
+        }
       }
     }
   }
@@ -173,11 +177,11 @@ void doSelectBrushFaces(const std::vector<BrushFaceHandle>& faces, Map& map)
   auto& editorContext = map.editorContext();
   for (const auto& handle : constrained.facesToSelect)
   {
-    auto* node = handle.node();
+    auto& node = handle.node();
     const auto& face = handle.face();
-    if (!face.selected() && editorContext.selectable(*node, face))
+    if (!face.selected() && editorContext.selectable(node, face))
     {
-      node->selectFace(handle.faceIndex());
+      node.selectFace(handle.faceIndex());
       selected.push_back(handle);
     }
   }

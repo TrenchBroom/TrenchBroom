@@ -482,12 +482,12 @@ Node* PatchNode::doGetContainer()
 
 LayerNode* PatchNode::doGetContainingLayer()
 {
-  return findContainingLayer(this);
+  return findContainingLayer(*this);
 }
 
 GroupNode* PatchNode::doGetContainingGroup()
 {
-  return findContainingGroup(this);
+  return findContainingGroup(*this);
 }
 
 void PatchNode::doAcceptTagVisitor(TagVisitor& visitor)

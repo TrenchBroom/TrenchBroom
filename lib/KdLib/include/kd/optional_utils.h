@@ -32,7 +32,7 @@ namespace detail
 template <typename F>
 struct and_then_helper
 {
-  const F& f;
+  F f;
 };
 
 // This actually does the work
@@ -43,7 +43,7 @@ constexpr auto operator|(std::optional<T>&& o, and_then_helper<F> h)
 }
 
 template <typename T, typename F>
-constexpr auto operator|(const std::optional<T>& o, const and_then_helper<F>& h)
+constexpr auto operator|(const std::optional<T>& o, and_then_helper<F> h)
 {
   return o ? h.f(*o) : std::nullopt;
 }
@@ -52,17 +52,17 @@ constexpr auto operator|(const std::optional<T>& o, const and_then_helper<F>& h)
 template <typename F>
 struct or_else_helper
 {
-  const F& f;
+  F f;
 };
 
 template <typename T, typename F>
-constexpr auto operator|(std::optional<T>&& o, const or_else_helper<F>& h)
+constexpr auto operator|(std::optional<T>&& o, or_else_helper<F> h)
 {
   return o ? std::move(o) : h.f();
 }
 
 template <typename T, typename F>
-constexpr auto operator|(const std::optional<T>& o, const or_else_helper<F>& h)
+constexpr auto operator|(const std::optional<T>& o, or_else_helper<F> h)
 {
   return o ? o : h.f();
 }
@@ -71,18 +71,18 @@ constexpr auto operator|(const std::optional<T>& o, const or_else_helper<F>& h)
 template <typename F>
 struct transform_helper
 {
-  const F& f;
+  F f;
 };
 
 // This actually does the work
 template <typename T, typename F>
-constexpr auto operator|(std::optional<T>&& o, const transform_helper<F>& h)
+constexpr auto operator|(std::optional<T>&& o, transform_helper<F> h)
 {
   return o ? std::optional{h.f(std::move(*o))} : std::nullopt;
 }
 
 template <typename T, typename F>
-constexpr auto operator|(const std::optional<T>& o, const transform_helper<F>& h)
+constexpr auto operator|(const std::optional<T>& o, transform_helper<F> h)
 {
   return o ? std::optional{h.f(*o)} : std::nullopt;
 }
@@ -110,27 +110,27 @@ constexpr auto operator|(const std::optional<T>& o, value_or_helper<X>&& h)
 } // namespace detail
 
 template <typename F>
-constexpr auto optional_and_then(const F& f)
+constexpr auto optional_and_then(F f)
 {
-  return detail::and_then_helper<F>{f};
+  return detail::and_then_helper<F>{std::move(f)};
 }
 
 template <typename F>
-constexpr auto optional_or_else(const F& f)
+constexpr auto optional_or_else(F f)
 {
-  return detail::or_else_helper<F>{f};
+  return detail::or_else_helper<F>{std::move(f)};
 }
 
 template <typename F>
-constexpr auto optional_transform(const F& f)
+constexpr auto optional_transform(F f)
 {
-  return detail::transform_helper<F>{f};
+  return detail::transform_helper<F>{std::move(f)};
 }
 
 template <typename X>
 constexpr auto optional_value_or(X&& x)
 {
-  return detail::value_or_helper<X>{std::forward<X>(x)};
+  return detail::value_or_helper<std::decay_t<X>>{std::forward<X>(x)};
 }
 
 } // namespace kdl

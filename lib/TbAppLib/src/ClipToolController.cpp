@@ -180,7 +180,7 @@ public:
 };
 
 std::vector<const mdl::BrushFace*> selectIncidentFaces(
-  const mdl::BrushNode* brushNode, const mdl::BrushFace& face, const vm::vec3d& hitPoint)
+  const mdl::BrushNode& brushNode, const mdl::BrushFace& face, const vm::vec3d& hitPoint)
 {
   static const auto MaxDistance = vm::constants<double>::almost_zero();
 
@@ -199,7 +199,7 @@ std::vector<const mdl::BrushFace*> selectIncidentFaces(
 
   if (closestVertex != nullptr)
   {
-    const mdl::Brush& brush = brushNode->brush();
+    const mdl::Brush& brush = brushNode.brush();
     return brush.incidentFaces(closestVertex);
   }
 
@@ -224,8 +224,8 @@ std::vector<const mdl::BrushFace*> selectIncidentFaces(
     if (firstFaceIndex && secondFaceIndex)
     {
       return {
-        &brushNode->brush().face(*firstFaceIndex),
-        &brushNode->brush().face(*secondFaceIndex)};
+        &brushNode.brush().face(*firstFaceIndex),
+        &brushNode.brush().face(*secondFaceIndex)};
     }
   }
 
@@ -233,7 +233,7 @@ std::vector<const mdl::BrushFace*> selectIncidentFaces(
 }
 
 std::vector<vm::vec3d> selectHelpVectors(
-  const mdl::BrushNode* brushNode, const mdl::BrushFace& face, const vm::vec3d& hitPoint)
+  const mdl::BrushNode& brushNode, const mdl::BrushFace& face, const vm::vec3d& hitPoint)
 {
   auto result = std::vector<vm::vec3d>{};
   for (const mdl::BrushFace* incidentFace :

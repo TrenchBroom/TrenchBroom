@@ -49,7 +49,7 @@ HitFilter selected()
   return [](const Hit& hit) {
     if (const auto faceHandle = hitToFaceHandle(hit))
     {
-      return faceHandle->node()->selected() || faceHandle->face().selected();
+      return faceHandle->node().selected() || faceHandle->face().selected();
     }
     if (const auto* node = hitToNode(hit))
     {
@@ -64,7 +64,7 @@ HitFilter transitivelySelected()
   return [](const Hit& hit) {
     if (const auto faceHandle = hitToFaceHandle(hit))
     {
-      return faceHandle->node()->transitivelySelected() || faceHandle->face().selected();
+      return faceHandle->node().transitivelySelected() || faceHandle->face().selected();
     }
     if (const auto* node = hitToNode(hit))
     {

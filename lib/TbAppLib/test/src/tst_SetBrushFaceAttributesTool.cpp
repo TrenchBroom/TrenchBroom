@@ -77,7 +77,7 @@ TEST_CASE("SetBrushFaceAttributesTool")
 
   mdl::addNodes(map, {{map.editorContext().currentLayer(), {brushA, brushB}}});
   mdl::selectBrushFaces(
-    map, {mdl::BrushFaceHandle{brushA, *brushA->brush().findFace(vm::vec3d{0, 0, 1})}});
+    map, {mdl::BrushFaceHandle{*brushA, *brushA->brush().findFace(vm::vec3d{0, 0, 1})}});
 
   const auto brushBTopFaceIndex = *brushB->brush().findFace(vm::vec3d{0, 0, 1});
   const auto brushBSideFaceIndex = *brushB->brush().findFace(vm::vec3d{1, 0, 0});

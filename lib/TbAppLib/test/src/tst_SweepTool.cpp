@@ -63,7 +63,7 @@ TEST_CASE("SweepTool")
 
     CHECK(!tool.applies());
 
-    selectBrushFaces(map, {{brushNode, 0}});
+    selectBrushFaces(map, {{*brushNode, 0}});
     CHECK(tool.applies());
   }
 
@@ -83,7 +83,7 @@ TEST_CASE("SweepTool")
     addNodes(map, {{&parentForNodes(map), {brushNode}}});
 
     const auto faceIndex = *brushNode->brush().findFace(vm::vec3d{1, 0, 0});
-    selectBrushFaces(map, {{brushNode, faceIndex}});
+    selectBrushFaces(map, {{*brushNode, faceIndex}});
 
     REQUIRE(tool.activate());
     tool.setParameters(parameters);
@@ -288,7 +288,7 @@ TEST_CASE("SweepTool")
     addNodes(map, {{entityNode, {brushNode}}});
 
     const auto faceIndex = *brushNode->brush().findFace(vm::vec3d{1, 0, 0});
-    selectBrushFaces(map, {{brushNode, faceIndex}});
+    selectBrushFaces(map, {{*brushNode, faceIndex}});
 
     REQUIRE(tool.activate());
     tool.setParameters(parameters);
@@ -321,7 +321,7 @@ TEST_CASE("SweepTool")
 
     const auto faceIndexA = *brushNodeA->brush().findFace(vm::vec3d{1, 0, 0});
     const auto faceIndexB = *brushNodeB->brush().findFace(vm::vec3d{-1, 0, 0});
-    selectBrushFaces(map, {{brushNodeA, faceIndexA}, {brushNodeB, faceIndexB}});
+    selectBrushFaces(map, {{*brushNodeA, faceIndexA}, {*brushNodeB, faceIndexB}});
 
     REQUIRE(tool.activate());
     tool.setParameters(SweepParameters{2, 1, SweepPathMode::SBend, SweepAlignment::Free});

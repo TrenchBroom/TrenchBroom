@@ -96,7 +96,7 @@ TEST_CASE("Map_Commands")
         auto topFaceIndex = brushNode->brush().findFace(vm::vec3d{0, 0, 1});
         REQUIRE(topFaceIndex.has_value());
 
-        selectBrushFaces(map, {{brushNode, *topFaceIndex}});
+        selectBrushFaces(map, {{*brushNode, *topFaceIndex}});
 
         REQUIRE(setBrushFaceAttributes(map, {.xOffset = SetValue{12.34f}}));
 

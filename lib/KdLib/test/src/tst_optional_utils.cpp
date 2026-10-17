@@ -20,8 +20,10 @@
 
 #include "kd/optional_utils.h"
 
+#include <functional>
 #include <memory>
 #include <optional>
+#include <string>
 
 #include <catch2/catch_test_macros.hpp>
 
@@ -50,6 +52,16 @@ struct MoveOnly
   }
 };
 
+std::optional<int> maybeTwice(const int x)
+{
+  return x * 2;
+}
+
+int twice(const int x)
+{
+  return x * 2;
+}
+
 } // namespace
 
 TEST_CASE("optional_utils")
@@ -59,6 +71,50 @@ TEST_CASE("optional_utils")
     const auto f = [](int x) { return std::optional{x * 2}; };
     CHECK((std::optional<int>{42} | optional_and_then(f)) == 84);
     CHECK((std::optional<int>{} | optional_and_then(f)) == std::nullopt);
+
+    SECTION("with a function")
+    {
+      CHECK((std::optional<int>{42} | optional_and_then(maybeTwice)) == 84);
+    }
+
+    SECTION("stores a copy of the function")
+    {
+      auto g = std::function<std::optional<int>(int)>{[](int x) { return x * 2; }};
+      const auto helper = optional_and_then(g);
+      g = [](int x) { return x * 3; };
+      CHECK((std::optional<int>{42} | helper) == 84);
+    }
+
+    SECTION("with a mutable function")
+    {
+      const auto g = [n = 0](int x) mutable { return std::optional{x + ++n}; };
+      const auto o = std::optional<int>{42};
+      CHECK((o | optional_and_then(g)) == 43);
+      CHECK((std::optional<int>{42} | optional_and_then(g)) == 43);
+    }
+  }
+
+  SECTION("optional_or_else")
+  {
+    const auto f = [] { return std::optional{43}; };
+    CHECK((std::optional<int>{42} | optional_or_else(f)) == 42);
+    CHECK((std::optional<int>{} | optional_or_else(f)) == 43);
+
+    SECTION("stores a copy of the function")
+    {
+      auto g = std::function<std::optional<int>()>{[] { return 43; }};
+      const auto helper = optional_or_else(g);
+      g = [] { return 44; };
+      CHECK((std::optional<int>{} | helper) == 43);
+    }
+
+    SECTION("with a mutable function")
+    {
+      const auto g = [n = 43]() mutable { return std::optional{n++}; };
+      const auto o = std::optional<int>{};
+      CHECK((o | optional_or_else(g)) == 43);
+      CHECK((std::optional<int>{} | optional_or_else(g)) == 43);
+    }
   }
 
   SECTION("optional_transform")
@@ -66,6 +122,27 @@ TEST_CASE("optional_utils")
     const auto f = [](int x) { return x * 2; };
     CHECK((std::optional<int>{42} | optional_transform(f)) == 84);
     CHECK((std::optional<int>{} | optional_transform(f)) == std::nullopt);
+
+    SECTION("with a function")
+    {
+      CHECK((std::optional<int>{42} | optional_transform(twice)) == 84);
+    }
+
+    SECTION("stores a copy of the function")
+    {
+      auto g = std::function<int(int)>{[](int x) { return x * 2; }};
+      const auto helper = optional_transform(g);
+      g = [](int x) { return x * 3; };
+      CHECK((std::optional<int>{42} | helper) == 84);
+    }
+
+    SECTION("with a mutable function")
+    {
+      const auto g = [n = 0](int x) mutable { return x + ++n; };
+      const auto o = std::optional<int>{42};
+      CHECK((o | optional_transform(g)) == 43);
+      CHECK((std::optional<int>{42} | optional_transform(g)) == 43);
+    }
   }
 
   SECTION("optional_value_or")
@@ -86,10 +163,13 @@ TEST_CASE("optional_utils")
 
     SECTION("lvalue fallback (copyable)")
     {
-      int fallback = 43;
-      CHECK((std::optional<int>{42} | optional_value_or(fallback)) == 42);
-      CHECK((std::optional<int>{} | optional_value_or(fallback)) == 43);
-      CHECK(fallback == 43);
+      // long enough to defeat the small string optimization
+      const auto expected = std::string{"a fallback value that does not fit into SSO"};
+      auto fallback = expected;
+      CHECK(
+        (std::optional<std::string>{"value"} | optional_value_or(fallback)) == "value");
+      CHECK((std::optional<std::string>{} | optional_value_or(fallback)) == expected);
+      CHECK(fallback == expected);
     }
   }
 }

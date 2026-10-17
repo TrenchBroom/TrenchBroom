@@ -49,10 +49,10 @@ public:
   /**
    * Creates a new reference to the given face.
    *
-   * @param node the containing brush node, must not be null
+   * @param node the containing brush node
    * @param face the face to reference
    */
-  BrushFaceReference(BrushNode* node, const BrushFace& face);
+  BrushFaceReference(BrushNode& node, const BrushFace& face);
 
   /**
    * Resolves the referenced brush face or an error if this reference cannot be resolved.
