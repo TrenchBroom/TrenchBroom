@@ -36,6 +36,7 @@
 #include "kd/ranges/to.h"
 #include "kd/reflection_impl.h"
 
+#include <algorithm>
 #include <ranges>
 
 namespace tb::mdl
@@ -119,9 +120,12 @@ std::vector<BrushFaceHandle> computeAllBrushFaces(
 template <typename T, std::ranges::range S>
 auto applyChange(std::vector<T>& s1, S&& remove, S&& add)
 {
-  for (const auto& x : remove)
+  auto sortedRemove = remove | kdl::ranges::to<std::vector>();
+  if (!sortedRemove.empty())
   {
-    std::erase(s1, x);
+    std::ranges::sort(sortedRemove);
+    std::erase_if(
+      s1, [&](const auto& x) { return std::ranges::binary_search(sortedRemove, x); });
   }
   s1.insert(s1.end(), add.begin(), add.end());
 }

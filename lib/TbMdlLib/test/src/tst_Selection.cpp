@@ -32,6 +32,7 @@
 #include "mdl/Map_Selection.h"
 #include "mdl/PatchNode.h"
 #include "mdl/Selection.h"
+#include "mdl/SelectionChange.h"
 #include "mdl/TestUtils.h"
 #include "mdl/WorldNode.h"
 
@@ -177,6 +178,38 @@ TEST_CASE("Selection")
       selectItem(selectionItem);
     }
   };
+
+  SECTION("update")
+  {
+    auto selection = Selection{map};
+    selection.update(SelectionChange{
+      .selectedNodes =
+        {outerGroupNode, entityNode, brushNode, patchNode, brushEntityNode},
+      .deselectedNodes = {},
+      .selectedBrushFaces =
+        {{*brushNode, 0},
+         {*brushNode, 1},
+         {*brushNode, 2},
+         {*brushNode, 3},
+         {*brushNode, 4},
+         {*brushNode, 5}},
+      .deselectedBrushFaces = {},
+    });
+
+    // deselecting keeps the remaining nodes and faces in the order they were selected
+    selection.update(SelectionChange{
+      .selectedNodes = {},
+      .deselectedNodes = {brushEntityNode, entityNode},
+      .selectedBrushFaces = {},
+      .deselectedBrushFaces = {{*brushNode, 4}, {*brushNode, 1}},
+    });
+
+    CHECK(selection.nodes == std::vector<Node*>{outerGroupNode, brushNode, patchNode});
+    CHECK(
+      selection.brushFaces
+      == std::vector<BrushFaceHandle>{
+        {*brushNode, 0}, {*brushNode, 2}, {*brushNode, 3}, {*brushNode, 5}});
+  }
 
   SECTION("hasAny")
   {
