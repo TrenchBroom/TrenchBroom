@@ -42,8 +42,6 @@ struct DotExpression;
 struct CallExpression;
 struct SwitchExpression;
 
-struct ExpressionNodeData;
-
 using Expression = std::variant<
   LiteralExpression,
   VariableExpression,
@@ -104,9 +102,10 @@ using VisitorResultType_t = typename VisitorResultType<Visitor>::type;
 class ExpressionNode
 {
 private:
-  std::shared_ptr<ExpressionNodeData> m_data;
+  struct Data;
+  std::shared_ptr<Data> m_data;
 
-  explicit ExpressionNode(std::shared_ptr<ExpressionNodeData> data);
+  explicit ExpressionNode(std::shared_ptr<Data> data);
 
 public:
   explicit ExpressionNode(

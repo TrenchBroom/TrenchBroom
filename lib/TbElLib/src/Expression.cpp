@@ -21,7 +21,6 @@
 
 #include "el/EvaluationContext.h"
 #include "el/Exceptions.h"
-#include "el/ExpressionNodeData.h"
 #include "el/Value.h"
 
 #include "kd/flat_map.h"
@@ -1889,15 +1888,20 @@ std::ostream& operator<<(std::ostream& lhs, const Expression& rhs)
   return lhs;
 }
 
-ExpressionNode::ExpressionNode(std::shared_ptr<ExpressionNodeData> data)
+struct ExpressionNode::Data
+{
+  Expression expression;
+  std::optional<FileLocation> location;
+};
+
+ExpressionNode::ExpressionNode(std::shared_ptr<Data> data)
   : m_data{std::move(data)}
 {
 }
 
 ExpressionNode::ExpressionNode(
   Expression&& expression, std::optional<FileLocation> location)
-  : m_data{std::make_shared<ExpressionNodeData>(
-      ExpressionNodeData{std::move(expression), std::move(location)})}
+  : m_data{std::make_shared<Data>(Data{std::move(expression), std::move(location)})}
 {
   rebalanceByPrecedence();
 }
@@ -1934,8 +1938,8 @@ Value ExpressionNode::tryEvaluate(EvaluationContext& context) const
 
 ExpressionNode ExpressionNode::optimize(EvaluationContext& context) const
 {
-  return ExpressionNode{std::make_shared<ExpressionNodeData>(ExpressionNodeData{
-    optimizeExpression(context, m_data->expression, *this), m_data->location})};
+  return ExpressionNode{std::make_shared<Data>(
+    Data{optimizeExpression(context, m_data->expression, *this), m_data->location})};
 }
 
 const std::optional<FileLocation>& ExpressionNode::location() const
