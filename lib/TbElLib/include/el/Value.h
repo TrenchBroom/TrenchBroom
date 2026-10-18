@@ -23,6 +23,7 @@
 #include "Types.h"
 #include "base/FileLocation.h"
 
+#include <cstdint>
 #include <iosfwd>
 #include <memory>
 #include <optional>
@@ -32,8 +33,6 @@
 
 namespace tb::el
 {
-
-struct ExpressionNodeData;
 
 class Value
 {
@@ -52,7 +51,9 @@ private:
     NullType,
     UndefinedType>;
   VariantType m_value;
-  std::shared_ptr<ExpressionNodeData> m_producedBy;
+  // the location of the expression that produced this value, 0 if unknown
+  std::uint32_t m_line = 0;
+  std::uint32_t m_column = 0;
 
 public:
   static const Value Null;
@@ -121,7 +122,6 @@ public:
   Value at(const std::string& key) const;
   Value atOrDefault(const std::string& key, Value defaultValue = Null) const;
 
-  std::optional<ExpressionNode> expression() const;
   std::optional<FileLocation> location() const;
 
   Value producedBy(const ExpressionNode& expressionNode) const&;

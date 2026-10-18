@@ -21,7 +21,6 @@
 
 #include "el/Exceptions.h"
 #include "el/Expression.h" // IWYU pragma: keep
-#include "el/ExpressionNodeData.h"
 
 #include "kd/overload.h"
 #include "kd/ranges/to.h"
@@ -42,7 +41,7 @@ namespace tb::el
 {
 
 static_assert(
-  sizeof(Value) <= 48, "Values are copied often, store large types in a shared pointer");
+  sizeof(Value) <= 40, "Values are copied often, store large types in a shared pointer");
 
 namespace
 {
@@ -1058,14 +1057,14 @@ Value Value::atOrDefault(const std::string& key, Value defaultValue) const
   throw IndexError{location(), *this, key};
 }
 
-std::optional<ExpressionNode> Value::expression() const
-{
-  return m_producedBy ? std::optional{ExpressionNode{m_producedBy}} : std::nullopt;
-}
-
 std::optional<FileLocation> Value::location() const
 {
-  return m_producedBy ? m_producedBy->location : std::nullopt;
+  if (m_line == 0)
+  {
+    return std::nullopt;
+  }
+  return FileLocation{
+    m_line, m_column != 0 ? std::optional<size_t>{m_column} : std::nullopt};
 }
 
 Value Value::producedBy(const ExpressionNode& expressionNode) const&
@@ -1075,9 +1074,13 @@ Value Value::producedBy(const ExpressionNode& expressionNode) const&
 
 Value Value::producedBy(const ExpressionNode& expressionNode) &&
 {
-  if (!m_producedBy)
+  if (m_line == 0)
   {
-    m_producedBy = expressionNode.m_data;
+    if (const auto& location = expressionNode.location())
+    {
+      m_line = static_cast<std::uint32_t>(location->line);
+      m_column = static_cast<std::uint32_t>(location->column.value_or(0));
+    }
   }
   return std::move(*this);
 }
@@ -1089,9 +1092,10 @@ Value Value::producedBy(const Value& original) const&
 
 Value Value::producedBy(const Value& original) &&
 {
-  if (!m_producedBy)
+  if (m_line == 0)
   {
-    m_producedBy = original.m_producedBy;
+    m_line = original.m_line;
+    m_column = original.m_column;
   }
   return std::move(*this);
 }
