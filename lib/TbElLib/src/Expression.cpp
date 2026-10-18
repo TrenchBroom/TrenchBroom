@@ -35,8 +35,10 @@
 #include <fmt/format.h>
 
 #include <algorithm>
+#include <array>
 #include <functional>
 #include <ranges>
+#include <span>
 #include <sstream>
 #include <string_view>
 
@@ -967,7 +969,7 @@ Value evaluateCase(const EvaluateLhs& evaluateLhs, const EvaluateRhs& evaluateRh
 Value evaluateCall(
   EvaluationContext& context,
   const std::string& name,
-  const std::vector<Value>& arguments,
+  std::span<const Value> arguments,
   const ExpressionNode& expressionNode);
 
 template <typename EvalualateLhs, typename EvaluateRhs>
@@ -1039,11 +1041,8 @@ Value evaluateBinaryExpression(
       },
       [&](const binop::Case&) { return evaluateCase(evaluateLhs, evaluateRhs); },
       [&](const binop::InfixCall& infixCall) {
-        return evaluateCall(
-          context,
-          infixCall.functionName,
-          {evaluateLhs(), evaluateRhs()},
-          expressionNode);
+        const auto arguments = std::array{evaluateLhs(), evaluateRhs()};
+        return evaluateCall(context, infixCall.functionName, arguments, expressionNode);
       }),
     operator_);
 }
@@ -1501,12 +1500,11 @@ Value evaluateContains(
 struct BuiltinFunction
 {
   size_t arity;
-  std::function<Value(
-    EvaluationContext&, const std::vector<Value>&, const ExpressionNode&)>
+  std::function<Value(EvaluationContext&, std::span<const Value>, const ExpressionNode&)>
     evaluate;
 };
 
-bool hasUndefinedArgument(const std::vector<Value>& arguments)
+bool hasUndefinedArgument(const std::span<const Value> arguments)
 {
   return std::ranges::any_of(arguments, [](const auto& argument) {
     return argument.hasType(ValueType::Undefined);
@@ -1585,7 +1583,7 @@ const auto builtinFunctions = kdl::flat_map<std::string, BuiltinFunction>{
 Value evaluateCall(
   EvaluationContext& context,
   const std::string& name,
-  const std::vector<Value>& arguments,
+  const std::span<const Value> arguments,
   const ExpressionNode& expressionNode)
 {
   if (const auto it = builtinFunctions.find(name); it != builtinFunctions.end())
