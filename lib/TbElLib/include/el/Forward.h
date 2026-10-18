@@ -23,6 +23,7 @@ namespace tb::el
 {
 class Value;
 enum class ValueType;
+struct LazyMap;
 
 class ExpressionNode;
 

@@ -20,6 +20,7 @@
 #include "el/EvaluationContext.h"
 #include "el/Exceptions.h"
 #include "el/Expression.h"
+#include "el/LazyMap.h"
 #include "el/ParseExpression.h"
 #include "el/TestUtils.h"
 #include "el/Value.h"
@@ -47,10 +48,16 @@ namespace
 
 using V = Value;
 
-// A range can only be written inside a subscript, so a range value can only reach any
-// other expression by way of a variable.
+const auto lazyMapFields = LazyMapFields<std::string>{
+  {"name", {ValueType::String, [](const auto& s) { return Value{s}; }}},
+};
+
+// A range can only be written inside a subscript, and there is no syntax for a lazy map,
+// so these values can only reach any other expression by way of a variable. A lazy map
+// behaves like the Map that it represents, and reports its type as Map.
 const auto nonLiteralValues = MapType{
   {"range", Value{RangeType{BoundedRange{1, 3}}}},
+  {"lazyMap", makeLazyMapValue(std::string{"door1"}, lazyMapFields)},
 };
 
 auto evaluate(const std::string& expression, const MapType& variables = {})
@@ -234,6 +241,7 @@ TEST_CASE("Expression")
     {"+vec(1, 2, 3)",   Value{Vec3Type{1, 2, 3}}},
     {"+bbox(vec(1, 2, 3), vec(4, 5, 6))", Error{"At line 1, column 1: Cannot evaluate expression '+bbox(vec(1, 2, 3), vec(4, 5, 6))': Invalid type BBox"}},
     {"+range",          Error{"At line 1, column 1: Cannot evaluate expression '+range': Invalid type Range"}},
+    {"+lazyMap",        Error{"At line 1, column 1: Cannot evaluate expression '+lazyMap': Invalid type Map"}},
 
     // Unary minus
     {"-true",           Value{-1}},
@@ -247,6 +255,7 @@ TEST_CASE("Expression")
     {"-vec(1, 2, 3)",   Value{Vec3Type{-1, -2, -3}}},
     {"-bbox(vec(1, 2, 3), vec(4, 5, 6))", Error{"At line 1, column 1: Cannot evaluate expression '-bbox(vec(1, 2, 3), vec(4, 5, 6))': Invalid type BBox"}},
     {"-range",          Error{"At line 1, column 1: Cannot evaluate expression '-range': Invalid type Range"}},
+    {"-lazyMap",        Error{"At line 1, column 1: Cannot evaluate expression '-lazyMap': Invalid type Map"}},
 
     // Addition
     {"true + true",     Value{2}},
@@ -338,6 +347,10 @@ TEST_CASE("Expression")
     {"range + 1", Error{"At line 1, column 7: Cannot evaluate expression 'range + 1': Invalid operand types Range and Number"}},
     {"1 + range", Error{"At line 1, column 3: Cannot evaluate expression '1 + range': Invalid operand types Number and Range"}},
 
+    {"lazyMap + lazyMap", Value{MapType{{"name", Value{"door1"}}}}},
+    {"lazyMap + {a: 1}",  Value{MapType{{"a", Value{1}}, {"name", Value{"door1"}}}}},
+    {"{a: 1} + lazyMap",  Value{MapType{{"a", Value{1}}, {"name", Value{"door1"}}}}},
+
     // Subtraction
     {"true - true",     Value{0}},
     {"false - 3",       Value{-3}},
@@ -419,6 +432,9 @@ TEST_CASE("Expression")
 
     {"range - 1", Error{"At line 1, column 7: Cannot evaluate expression 'range - 1': Invalid operand types Range and Number"}},
     {"1 - range", Error{"At line 1, column 3: Cannot evaluate expression '1 - range': Invalid operand types Number and Range"}},
+
+    {"lazyMap - {}", Error{"At line 1, column 9: Cannot evaluate expression 'lazyMap - {}': Invalid operand types Map and Map"}},
+    {"{} - lazyMap", Error{"At line 1, column 4: Cannot evaluate expression '{} - lazyMap': Invalid operand types Map and Map"}},
 
     // Multiplication
     {"true * true",     Value{1}},
@@ -505,6 +521,9 @@ TEST_CASE("Expression")
     {"range * 1", Error{"At line 1, column 7: Cannot evaluate expression 'range * 1': Invalid operand types Range and Number"}},
     {"1 * range", Error{"At line 1, column 3: Cannot evaluate expression '1 * range': Invalid operand types Number and Range"}},
 
+    {"lazyMap * {}", Error{"At line 1, column 9: Cannot evaluate expression 'lazyMap * {}': Invalid operand types Map and Map"}},
+    {"{} * lazyMap", Error{"At line 1, column 4: Cannot evaluate expression '{} * lazyMap': Invalid operand types Map and Map"}},
+
     // Division
     {"true / true",     Value{1}},
     {"true / false",    Value{std::numeric_limits<NumberType>::infinity()}},
@@ -590,6 +609,9 @@ TEST_CASE("Expression")
     {"range / 1", Error{"At line 1, column 7: Cannot evaluate expression 'range / 1': Invalid operand types Range and Number"}},
     {"1 / range", Error{"At line 1, column 3: Cannot evaluate expression '1 / range': Invalid operand types Number and Range"}},
 
+    {"lazyMap / {}", Error{"At line 1, column 9: Cannot evaluate expression 'lazyMap / {}': Invalid operand types Map and Map"}},
+    {"{} / lazyMap", Error{"At line 1, column 4: Cannot evaluate expression '{} / lazyMap': Invalid operand types Map and Map"}},
+
 
     // Modulus
     {"true % true",     Value{0}},
@@ -669,6 +691,9 @@ TEST_CASE("Expression")
     {"range % 1", Error{"At line 1, column 7: Cannot evaluate expression 'range % 1': Invalid operand types Range and Number"}},
     {"1 % range", Error{"At line 1, column 3: Cannot evaluate expression '1 % range': Invalid operand types Number and Range"}},
 
+    {"lazyMap % {}", Error{"At line 1, column 9: Cannot evaluate expression 'lazyMap % {}': Invalid operand types Map and Map"}},
+    {"{} % lazyMap", Error{"At line 1, column 4: Cannot evaluate expression '{} % lazyMap': Invalid operand types Map and Map"}},
+
     // Logical negation
     {"!true",           Value{false}},
     {"!false",          Value{true}},
@@ -680,6 +705,7 @@ TEST_CASE("Expression")
     {"!vec(1, 2, 3)",   Error{"At line 1, column 1: Cannot evaluate expression '!vec(1, 2, 3)': Invalid type Vec3"}},
     {"!bbox(vec(1, 2, 3), vec(4, 5, 6))", Error{"At line 1, column 1: Cannot evaluate expression '!bbox(vec(1, 2, 3), vec(4, 5, 6))': Invalid type BBox"}},
     {"!range",          Error{"At line 1, column 1: Cannot evaluate expression '!range': Invalid type Range"}},
+    {"!lazyMap",        Error{"At line 1, column 1: Cannot evaluate expression '!lazyMap': Invalid type Map"}},
 
     // Logical conjunction
     {"false && false",  Value{false}},
@@ -733,12 +759,16 @@ TEST_CASE("Expression")
     {"bbox(vec(1, 2, 3), vec(4, 5, 6)) && true",  Error{"At line 1, column 34: Cannot evaluate expression 'bbox(vec(1, 2, 3), vec(4, 5, 6)) && true': Invalid operand types BBox and Boolean"}},
     {"true && range",                             Error{"At line 1, column 6: Cannot evaluate expression 'true && range': Invalid operand types Boolean and Range"}},
     {"range && true",                             Error{"At line 1, column 7: Cannot evaluate expression 'range && true': Invalid operand types Range and Boolean"}},
+    {"true && lazyMap",                           Error{"At line 1, column 6: Cannot evaluate expression 'true && lazyMap': Invalid operand types Boolean and Map"}},
+    {"lazyMap && true",                           Error{"At line 1, column 9: Cannot evaluate expression 'lazyMap && true': Invalid operand types Map and Boolean"}},
     {"false || vec(1, 2, 3)",                     Error{"At line 1, column 7: Cannot evaluate expression 'false || vec(1, 2, 3)': Invalid operand types Boolean and Vec3"}},
     {"vec(1, 2, 3) || false",                     Error{"At line 1, column 14: Cannot evaluate expression 'vec(1, 2, 3) || false': Invalid operand types Vec3 and Boolean"}},
     {"false || bbox(vec(1, 2, 3), vec(4, 5, 6))", Error{"At line 1, column 7: Cannot evaluate expression 'false || bbox(vec(1, 2, 3), vec(4, 5, 6))': Invalid operand types Boolean and BBox"}},
     {"bbox(vec(1, 2, 3), vec(4, 5, 6)) || false", Error{"At line 1, column 34: Cannot evaluate expression 'bbox(vec(1, 2, 3), vec(4, 5, 6)) || false': Invalid operand types BBox and Boolean"}},
     {"false || range",                            Error{"At line 1, column 7: Cannot evaluate expression 'false || range': Invalid operand types Boolean and Range"}},
     {"range || false",                            Error{"At line 1, column 7: Cannot evaluate expression 'range || false': Invalid operand types Range and Boolean"}},
+    {"false || lazyMap",                          Error{"At line 1, column 7: Cannot evaluate expression 'false || lazyMap': Invalid operand types Boolean and Map"}},
+    {"lazyMap || false",                          Error{"At line 1, column 9: Cannot evaluate expression 'lazyMap || false': Invalid operand types Map and Boolean"}},
 
     // Undefined on either side wins, whatever the other side is
     {"1 && undefined",  Value::Undefined},
@@ -792,6 +822,7 @@ TEST_CASE("Expression")
     {"~vec(1, 2, 3)",   Error{"At line 1, column 1: Cannot evaluate expression '~vec(1, 2, 3)': Invalid type Vec3"}},
     {"~bbox(vec(1, 2, 3), vec(4, 5, 6))", Error{"At line 1, column 1: Cannot evaluate expression '~bbox(vec(1, 2, 3), vec(4, 5, 6))': Invalid type BBox"}},
     {"~range",          Error{"At line 1, column 1: Cannot evaluate expression '~range': Invalid type Range"}},
+    {"~lazyMap",        Error{"At line 1, column 1: Cannot evaluate expression '~lazyMap': Invalid type Map"}},
 
     // Bitwise and
     {"0 & 0",           Value{0 & 0}},
@@ -815,6 +846,8 @@ TEST_CASE("Expression")
     {"123 & bbox(vec(1, 2, 3), vec(4, 5, 6))", Error{"At line 1, column 5: Cannot evaluate expression '123 & bbox(vec(1, 2, 3), vec(4, 5, 6))': Invalid operand types Number and BBox"}},
     {"range & 123",                            Error{"At line 1, column 7: Cannot evaluate expression 'range & 123': Invalid operand types Range and Number"}},
     {"123 & range",                            Error{"At line 1, column 5: Cannot evaluate expression '123 & range': Invalid operand types Number and Range"}},
+    {"lazyMap & 123",                          Error{"At line 1, column 9: Cannot evaluate expression 'lazyMap & 123': Invalid operand types Map and Number"}},
+    {"123 & lazyMap",                          Error{"At line 1, column 5: Cannot evaluate expression '123 & lazyMap': Invalid operand types Number and Map"}},
 
     // Bitwise or
     {"0 | 0",           Value{0 | 0}},
@@ -838,6 +871,8 @@ TEST_CASE("Expression")
     {"123 | bbox(vec(1, 2, 3), vec(4, 5, 6))", Error{"At line 1, column 5: Cannot evaluate expression '123 | bbox(vec(1, 2, 3), vec(4, 5, 6))': Invalid operand types Number and BBox"}},
     {"range | 123",                            Error{"At line 1, column 7: Cannot evaluate expression 'range | 123': Invalid operand types Range and Number"}},
     {"123 | range",                            Error{"At line 1, column 5: Cannot evaluate expression '123 | range': Invalid operand types Number and Range"}},
+    {"lazyMap | 123",                          Error{"At line 1, column 9: Cannot evaluate expression 'lazyMap | 123': Invalid operand types Map and Number"}},
+    {"123 | lazyMap",                          Error{"At line 1, column 5: Cannot evaluate expression '123 | lazyMap': Invalid operand types Number and Map"}},
 
     // Bitwise xor
     {"0 ^ 0",           Value{0 ^ 0}},
@@ -861,6 +896,8 @@ TEST_CASE("Expression")
     {"123 ^ bbox(vec(1, 2, 3), vec(4, 5, 6))", Error{"At line 1, column 5: Cannot evaluate expression '123 ^ bbox(vec(1, 2, 3), vec(4, 5, 6))': Invalid operand types Number and BBox"}},
     {"range ^ 123",                            Error{"At line 1, column 7: Cannot evaluate expression 'range ^ 123': Invalid operand types Range and Number"}},
     {"123 ^ range",                            Error{"At line 1, column 5: Cannot evaluate expression '123 ^ range': Invalid operand types Number and Range"}},
+    {"lazyMap ^ 123",                          Error{"At line 1, column 9: Cannot evaluate expression 'lazyMap ^ 123': Invalid operand types Map and Number"}},
+    {"123 ^ lazyMap",                          Error{"At line 1, column 5: Cannot evaluate expression '123 ^ lazyMap': Invalid operand types Number and Map"}},
 
     // Bitwise shift left
     {"1 << 2",          Value{1 << 2}},
@@ -883,6 +920,8 @@ TEST_CASE("Expression")
     {"1 << bbox(vec(1, 2, 3), vec(4, 5, 6))", Error{"At line 1, column 3: Cannot evaluate expression '1 << bbox(vec(1, 2, 3), vec(4, 5, 6))': Invalid operand types Number and BBox"}},
     {"range << 2",                            Error{"At line 1, column 7: Cannot evaluate expression 'range << 2': Invalid operand types Range and Number"}},
     {"1 << range",                            Error{"At line 1, column 3: Cannot evaluate expression '1 << range': Invalid operand types Number and Range"}},
+    {"lazyMap << 2",                          Error{"At line 1, column 9: Cannot evaluate expression 'lazyMap << 2': Invalid operand types Map and Number"}},
+    {"1 << lazyMap",                          Error{"At line 1, column 3: Cannot evaluate expression '1 << lazyMap': Invalid operand types Number and Map"}},
 
     // Bitwise shift right
     {"1 >> 2",          Value{1 >> 2}},
@@ -905,6 +944,8 @@ TEST_CASE("Expression")
     {"1 >> bbox(vec(1, 2, 3), vec(4, 5, 6))", Error{"At line 1, column 3: Cannot evaluate expression '1 >> bbox(vec(1, 2, 3), vec(4, 5, 6))': Invalid operand types Number and BBox"}},
     {"range >> 2",                            Error{"At line 1, column 7: Cannot evaluate expression 'range >> 2': Invalid operand types Range and Number"}},
     {"1 >> range",                            Error{"At line 1, column 3: Cannot evaluate expression '1 >> range': Invalid operand types Number and Range"}},
+    {"lazyMap >> 2",                          Error{"At line 1, column 9: Cannot evaluate expression 'lazyMap >> 2': Invalid operand types Map and Number"}},
+    {"1 >> lazyMap",                          Error{"At line 1, column 3: Cannot evaluate expression '1 >> lazyMap': Invalid operand types Number and Map"}},
 
     // Comparison
     {"false < false",   Value{false}},
@@ -1026,6 +1067,13 @@ TEST_CASE("Expression")
     {"range < 0", Error{"At line 1, column 7: Cannot evaluate expression 'range < 0': Invalid operand types Range and Number"}},
     {"0 < range", Error{"At line 1, column 3: Cannot evaluate expression '0 < range': Invalid operand types Number and Range"}},
 
+    // a lazy map is compared like the Map that it represents
+    {"lazyMap < 0",               Error{"At line 1, column 9: Cannot evaluate expression 'lazyMap < 0': Invalid operand types Map and Number"}},
+    {"0 < lazyMap",               Error{"At line 1, column 3: Cannot evaluate expression '0 < lazyMap': Invalid operand types Number and Map"}},
+    {"lazyMap < {}",              Value{false}},
+    {"{} < lazyMap",              Value{true}},
+    {"lazyMap < {name: 'door2'}", Value{true}},
+
     {"false <= false",   Value{true}},
     {"false <= true",    Value{true}},
     {"true <= false",    Value{false}},
@@ -1144,6 +1192,9 @@ TEST_CASE("Expression")
 
     {"range <= 0", Error{"At line 1, column 7: Cannot evaluate expression 'range <= 0': Invalid operand types Range and Number"}},
     {"0 <= range", Error{"At line 1, column 3: Cannot evaluate expression '0 <= range': Invalid operand types Number and Range"}},
+
+    {"lazyMap <= {}", Value{false}},
+    {"{} <= lazyMap", Value{true}},
 
     {"false > false",   Value{false}},
     {"true > false",    Value{true}},
@@ -1264,6 +1315,10 @@ TEST_CASE("Expression")
     {"range > 0", Error{"At line 1, column 7: Cannot evaluate expression 'range > 0': Invalid operand types Range and Number"}},
     {"0 > range", Error{"At line 1, column 3: Cannot evaluate expression '0 > range': Invalid operand types Number and Range"}},
 
+    {"lazyMap > {}",   Value{true}},
+    {"{} > lazyMap",   Value{false}},
+    {"lazyMap > null", Value{true}},
+
     {"false >= false",   Value{true}},
     {"true >= false",    Value{true}},
     {"false >= true",    Value{false}},
@@ -1382,6 +1437,9 @@ TEST_CASE("Expression")
 
     {"range >= 0", Error{"At line 1, column 7: Cannot evaluate expression 'range >= 0': Invalid operand types Range and Number"}},
     {"0 >= range", Error{"At line 1, column 3: Cannot evaluate expression '0 >= range': Invalid operand types Number and Range"}},
+
+    {"lazyMap >= {}", Value{true}},
+    {"{} >= lazyMap", Value{false}},
 
     {"false == false",   Value{true}},
     {"false == true",    Value{false}},
@@ -1507,6 +1565,12 @@ TEST_CASE("Expression")
     {"null == range",  Value{false}},
     {"range > null",   Value{true}},
 
+    // a lazy map is compared like the Map that it represents
+    {"lazyMap == lazyMap",         Value{true}},
+    {"lazyMap == {name: 'door1'}", Value{true}},
+    {"{} == lazyMap",              Value{false}},
+    {"lazyMap == null",            Value{false}},
+
     {"true != false",     Value{true}},
     {"1 != 1",            Value{false}},
     {"'a' != 'b'",        Value{true}},
@@ -1515,6 +1579,8 @@ TEST_CASE("Expression")
     {"{k1:1} != {k1:1}",  Value{false}},
     {"range != 0",        Error{"At line 1, column 7: Cannot evaluate expression 'range != 0': Invalid operand types Range and Number"}},
     {"0 != range",        Error{"At line 1, column 3: Cannot evaluate expression '0 != range': Invalid operand types Number and Range"}},
+    {"lazyMap != {}",     Value{true}},
+    {"{} != lazyMap",     Value{true}},
     {"undefined != null", Value{true}},
 
     {"undefined == undefined", Value{true}},
@@ -1527,6 +1593,8 @@ TEST_CASE("Expression")
     {"undefined == {}",        Value{false}},
     {"undefined == range",     Value{false}},
     {"range == undefined",     Value{false}},
+    {"undefined == lazyMap",   Value{false}},
+    {"lazyMap == undefined",   Value{false}},
 
     {"undefined == vec(1, 2, 3)",                     Value{false}},
     {"undefined == bbox(vec(1, 2, 3), vec(4, 5, 6))", Value{false}},
@@ -1546,6 +1614,7 @@ TEST_CASE("Expression")
     {"[] > undefined",         Value{true}},
     {"{} > undefined",         Value{true}},
     {"range > undefined",      Value{true}},
+    {"lazyMap > undefined",    Value{true}},
 
     {"vec(1, 2, 3) > undefined",                     Value{true}},
     {"bbox(vec(1, 2, 3), vec(4, 5, 6)) > undefined", Value{true}},
@@ -1564,6 +1633,7 @@ TEST_CASE("Expression")
     {"[] -> 'asdf'",                               Error{"At line 1, column 1: Cannot convert value '[]' of type 'Array' to type 'Boolean'"}},
     {"{} -> 'asdf'",                               Error{"At line 1, column 1: Cannot convert value '{}' of type 'Map' to type 'Boolean'"}},
     {"range -> 'asdf'",                            Error{"At line 1, column 1: Cannot convert value '[1..3]' of type 'Range' to type 'Boolean'"}},
+    {"lazyMap -> 'asdf'",                          Error{R"(At line 1, column 1: Cannot convert value '{ "name": "door1" }' of type 'Map' to type 'Boolean')"}},
     {"vec(1, 2, 3) -> 'asdf'",                     Error{"At line 1, column 1: Cannot convert value 'vec(1, 2, 3)' of type 'Vec3' to type 'Boolean'"}},
     {"bbox(vec(1, 2, 3), vec(4, 5, 6)) -> 'asdf'", Error{"At line 1, column 1: Cannot convert value 'bbox(vec(1, 2, 3), vec(4, 5, 6))' of type 'BBox' to type 'Boolean'"}},
     {"undefined -> 'asdf'",                        Value::Undefined},
@@ -1575,6 +1645,7 @@ TEST_CASE("Expression")
     {"true -> []",                               Value{ArrayType{}}},
     {"true -> {}",                               Value{MapType{}}},
     {"true -> range",                            Value{RangeType{BoundedRange{1, 3}}}},
+    {"true -> lazyMap",                          nonLiteralValues.at("lazyMap")},
     {"true -> vec(1, 2, 3)",                     Value{Vec3Type{1, 2, 3}}},
     {"true -> bbox(vec(1, 2, 3), vec(4, 5, 6))", Value{BBoxType{Vec3Type{1, 2, 3}, Vec3Type{4, 5, 6}}}},
     {"true -> undefined",                        Value::Undefined},
@@ -1679,6 +1750,11 @@ TEST_CASE("Expression")
     {"bbox(vec(1, 2, 3), vec(4, 5, 6))['max']", Value{Vec3Type{4, 5, 6}}},
     {"bbox(vec(1, 2, 3), vec(4, 5, 6))['w']",   Value::Undefined},
 
+    // For lazy maps
+    {"lazyMap['name']",                  Value{"door1"}},
+    {"lazyMap['name', 'missing']",       Value{MapType{{"name", Value{"door1"}}}}},
+    {"lazyMap['missing']",               Value::Undefined},
+
     // Missing keys are dropped rather than reported
     {"{a: 1, b: 2, c: 3}['a', 'd']",     Value{MapType{{"a", Value{1}}}}},
     {"{a: 1, b: 2, c: 3}['d', 'e']",     Value{MapType{}}},
@@ -1715,6 +1791,7 @@ TEST_CASE("Expression")
     {"'asdf'[{}]",                       Error{R"(At line 1, column 7: Cannot evaluate expression '"asdf"[{}]': '{}' is not a compatible index for '"asdf"')"}},
     {"'asdf'[vec(1, 2, 3)]",             Error{R"(At line 1, column 7: Cannot evaluate expression '"asdf"[vec(1, 2, 3)]': 'vec(1, 2, 3)' is not a compatible index for '"asdf"')"}},
     {"'asdf'[undefined]",                Error{R"(At line 1, column 7: Cannot evaluate expression '"asdf"[undefined]': 'undefined' is not a compatible index for '"asdf"')"}},
+    {"'asdf'[lazyMap]",                  Error{R"(At line 1, column 7: Cannot evaluate expression '"asdf"[lazyMap]': '{ "name": "door1" }' is not a compatible index for '"asdf"')"}},
 
     {"bbox(vec(1, 2, 3), vec(4, 5, 6))[0]",            Error{"At line 1, column 33: Cannot evaluate expression 'bbox(vec(1, 2, 3), vec(4, 5, 6))[0]': '0' is not a compatible index for 'bbox(vec(1, 2, 3), vec(4, 5, 6))'"}},
     {"bbox(vec(1, 2, 3), vec(4, 5, 6))['min', 'max']", Error{R"(At line 1, column 33: Cannot evaluate expression 'bbox(vec(1, 2, 3), vec(4, 5, 6))[["min", "max"]]': '["min", "max"]' is not a compatible index for 'bbox(vec(1, 2, 3), vec(4, 5, 6))')"}},
@@ -1755,6 +1832,10 @@ TEST_CASE("Expression")
     {"bbox(vec(1, 2, 3), vec(4, 5, 6)).min", {}, Value{Vec3Type{1, 2, 3}}},
     {"bbox(vec(1, 2, 3), vec(4, 5, 6)).max", {}, Value{Vec3Type{4, 5, 6}}},
     {"bbox(vec(1, 2, 3), vec(4, 5, 6)).w",   {}, Value::Undefined},
+
+    // a lazy map is accessed like a Map
+    {"lazyMap.name",    nonLiteralValues, Value{"door1"}},
+    {"lazyMap.missing", nonLiteralValues, Value::Undefined},
 
     // other types have no keys, but undefined propagates
     {"'asdf'.a",    {},               Error{R"(At line 1, column 7: Cannot evaluate expression '"asdf".a': '"a"' is not a compatible index for '"asdf"')"}},
@@ -1911,6 +1992,7 @@ TEST_CASE("Expression")
         {"escapedTrailingBackslash", Value{R"(quake\\)"}},
         {"literalBackslash", Value{R"(id1\gfx)"}},
         {"literalBackslashThenStar", Value{R"(*id1\g*)"}},
+        {"lazyMap", nonLiteralValues.at("lazyMap")},
       };
 
       // clang-format off
@@ -1967,6 +2049,10 @@ TEST_CASE("Expression")
       // non-String values are simply skipped, not an error
       {R"({a: 1} like "a")",                             Value{true}},
       {R"({a: 1} like "1")",                             Value{false}},
+      // a lazy map matches like the Map that it represents
+      {R"(lazyMap like "door*")",                        Value{true}},
+      {R"(lazyMap like "nam*")",                         Value{true}},
+      {R"(lazyMap like "missing")",                      Value{false}},
 
       // never throws -- Undefined on either side, or an unsupported type combination,
       // just fails to match
@@ -2011,6 +2097,9 @@ TEST_CASE("Expression")
       {R"({a: 1, b: 2} contains "c")",                                               Value{false}},
       // a non-String rhs against a Map is simply false, not an error
       {R"({a: 1, b: 2} contains 1)",                                                 Value{false}},
+      // a lazy map contains its keys like a Map
+      {R"(lazyMap contains "name")",                                                 Value{true}},
+      {R"(lazyMap contains "missing")",                                              Value{false}},
 
       // BBox contains Vec3: point containment
       {"bbox(vec(0, 0, 0), vec(2, 2, 2)) contains vec(1, 1, 1)",                     Value{true}},
@@ -2034,7 +2123,7 @@ TEST_CASE("Expression")
 
       CAPTURE(expression);
 
-      CHECK(evaluate(expression) == expectedResult);
+      CHECK(evaluate(expression, nonLiteralValues) == expectedResult);
     }
 
     SECTION("in")

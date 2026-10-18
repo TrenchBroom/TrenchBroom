@@ -114,6 +114,7 @@ using MapType = std::map<std::string, Value>;
 using RangeType = std::variant<LeftBoundedRange, RightBoundedRange, BoundedRange>;
 using Vec3Type = vm::vec3d;
 using BBoxType = vm::bbox3d;
+using LazyMapType = LazyMap;
 
 std::ostream& operator<<(std::ostream& lhs, const RangeType& rhs);
 
@@ -145,6 +146,7 @@ enum class ValueType
   Range,
   Vec3,
   BBox,
+  LazyMap,
   Null,
   Undefined
 };
