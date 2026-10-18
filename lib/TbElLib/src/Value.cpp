@@ -67,6 +67,61 @@ void appendNumber(std::ostream& str, const NumberType n)
   str << n;
 }
 
+template <typename Entries>
+void appendMapToStream(
+  std::ostream& str,
+  const Entries& entries,
+  const bool multiline,
+  const std::string& indent)
+{
+  if (std::ranges::empty(entries))
+  {
+    str << "{}";
+  }
+  else
+  {
+    const std::string childIndent = multiline ? indent + "\t" : "";
+    str << "{";
+    if (multiline)
+    {
+      str << "\n";
+    }
+    else
+    {
+      str << " ";
+    }
+
+    size_t i = 0;
+    for (const auto& [key, value] : entries)
+    {
+      str << childIndent << "\"" << key << "\""
+          << ": ";
+      value.appendToStream(str, multiline, childIndent);
+      if (i++ < std::ranges::size(entries) - 1)
+      {
+        str << ",";
+        if (!multiline)
+        {
+          str << " ";
+        }
+      }
+      if (multiline)
+      {
+        str << "\n";
+      }
+    }
+    if (multiline)
+    {
+      str << indent;
+    }
+    else
+    {
+      str << " ";
+    }
+    str << "}";
+  }
+}
+
 } // namespace
 
 NullType::NullType() = default;
@@ -830,53 +885,7 @@ void Value::appendToStream(
         }
       },
       [&](const std::shared_ptr<const MapType>& mp) {
-        const auto& m = *mp;
-        if (m.empty())
-        {
-          str << "{}";
-        }
-        else
-        {
-          const std::string childIndent = multiline ? indent + "\t" : "";
-          str << "{";
-          if (multiline)
-          {
-            str << "\n";
-          }
-          else
-          {
-            str << " ";
-          }
-
-          size_t i = 0;
-          for (const auto& [key, value] : m)
-          {
-            str << childIndent << "\"" << key << "\""
-                << ": ";
-            value.appendToStream(str, multiline, childIndent);
-            if (i++ < m.size() - 1)
-            {
-              str << ",";
-              if (!multiline)
-              {
-                str << " ";
-              }
-            }
-            if (multiline)
-            {
-              str << "\n";
-            }
-          }
-          if (multiline)
-          {
-            str << indent;
-          }
-          else
-          {
-            str << " ";
-          }
-          str << "}";
-        }
+        appendMapToStream(str, *mp, multiline, indent);
       },
       [&](const LeftBoundedRange& lbr) { str << "[" << lbr.first << "..]"; },
       [&](const RightBoundedRange& rbr) { str << "[.." << rbr.last << "]"; },
