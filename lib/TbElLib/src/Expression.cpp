@@ -44,6 +44,14 @@
 
 namespace tb::el
 {
+
+struct BuiltinFunction
+{
+  size_t arity;
+  std::function<Value(EvaluationContext&, std::span<const Value>, const ExpressionNode&)>
+    evaluate;
+};
+
 namespace
 {
 
@@ -968,6 +976,7 @@ Value evaluateCase(const EvaluateLhs& evaluateLhs, const EvaluateRhs& evaluateRh
 
 Value evaluateCall(
   EvaluationContext& context,
+  const BuiltinFunction* function,
   const std::string& name,
   std::span<const Value> arguments,
   const ExpressionNode& expressionNode);
@@ -1042,7 +1051,8 @@ Value evaluateBinaryExpression(
       [&](const binop::Case&) { return evaluateCase(evaluateLhs, evaluateRhs); },
       [&](const binop::InfixCall& infixCall) {
         const auto arguments = std::array{evaluateLhs(), evaluateRhs()};
-        return evaluateCall(context, infixCall.functionName, arguments, expressionNode);
+        return evaluateCall(
+          context, infixCall.function, infixCall.functionName, arguments, expressionNode);
       }),
     operator_);
 }
@@ -1497,13 +1507,6 @@ Value evaluateContains(
   }
 }
 
-struct BuiltinFunction
-{
-  size_t arity;
-  std::function<Value(EvaluationContext&, std::span<const Value>, const ExpressionNode&)>
-    evaluate;
-};
-
 bool hasUndefinedArgument(const std::span<const Value> arguments)
 {
   return std::ranges::any_of(arguments, [](const auto& argument) {
@@ -1511,98 +1514,108 @@ bool hasUndefinedArgument(const std::span<const Value> arguments)
   });
 }
 
-const auto builtinFunctions = kdl::flat_map<std::string, BuiltinFunction>{
-  {"vec",
-   {3,
-    [](auto&, const auto& arguments, const auto&) {
-      if (hasUndefinedArgument(arguments))
-      {
-        return Value::Undefined;
-      }
-      return Value{Vec3Type{
-        arguments[0].convertTo(ValueType::Number).numberValue(),
-        arguments[1].convertTo(ValueType::Number).numberValue(),
-        arguments[2].convertTo(ValueType::Number).numberValue(),
-      }};
-    }}},
-  {"bbox",
-   {2,
-    [](auto&, const auto& arguments, const auto&) {
-      if (hasUndefinedArgument(arguments))
-      {
-        return Value::Undefined;
-      }
-      const auto a = arguments[0].convertTo(ValueType::Vec3).vec3Value();
-      const auto b = arguments[1].convertTo(ValueType::Vec3).vec3Value();
-      return Value{BBoxType{vm::min(a, b), vm::max(a, b)}};
-    }}},
-  {"distanceTo",
-   {2,
-    [](auto&, const auto& arguments, const auto&) {
-      if (hasUndefinedArgument(arguments))
-      {
-        return Value::Undefined;
-      }
-      const auto a = arguments[0].convertTo(ValueType::Vec3).vec3Value();
-      const auto b = arguments[1].convertTo(ValueType::Vec3).vec3Value();
-      return Value{vm::distance(a, b)};
-    }}},
-  {"intersects",
-   {2,
-    [](auto&, const auto& arguments, const auto&) {
-      if (hasUndefinedArgument(arguments))
-      {
-        return Value::Undefined;
-      }
-      const auto& a = arguments[0].bboxValue();
-      const auto& b = arguments[1].bboxValue();
-      return Value{a.intersects(b)};
-    }}},
-  {"like",
-   {2,
-    [](auto&, const auto& arguments, const auto&) {
-      return evaluateLike(arguments[0], arguments[1]);
-    }}},
-  {"contains",
-   {2,
-    [](auto&, const auto& arguments, const auto& expressionNode) {
-      return evaluateContains(arguments[0], arguments[1], expressionNode);
-    }}},
-  {"in",
-   {2,
-    [](auto&, const auto& arguments, const auto& expressionNode) {
-      return evaluateContains(arguments[1], arguments[0], expressionNode);
-    }}},
-  {"is",
-   {2,
-    [](auto&, const auto& arguments, const auto& expressionNode) {
-      return Value{evaluateCompare(arguments[0], arguments[1], expressionNode) == 0};
-    }}},
-};
+const kdl::flat_map<std::string, BuiltinFunction>& builtinFunctions()
+{
+  static const auto functions = kdl::flat_map<std::string, BuiltinFunction>{
+    {"vec",
+     {3,
+      [](auto&, const auto& arguments, const auto&) {
+        if (hasUndefinedArgument(arguments))
+        {
+          return Value::Undefined;
+        }
+        return Value{Vec3Type{
+          arguments[0].convertTo(ValueType::Number).numberValue(),
+          arguments[1].convertTo(ValueType::Number).numberValue(),
+          arguments[2].convertTo(ValueType::Number).numberValue(),
+        }};
+      }}},
+    {"bbox",
+     {2,
+      [](auto&, const auto& arguments, const auto&) {
+        if (hasUndefinedArgument(arguments))
+        {
+          return Value::Undefined;
+        }
+        const auto a = arguments[0].convertTo(ValueType::Vec3).vec3Value();
+        const auto b = arguments[1].convertTo(ValueType::Vec3).vec3Value();
+        return Value{BBoxType{vm::min(a, b), vm::max(a, b)}};
+      }}},
+    {"distanceTo",
+     {2,
+      [](auto&, const auto& arguments, const auto&) {
+        if (hasUndefinedArgument(arguments))
+        {
+          return Value::Undefined;
+        }
+        const auto a = arguments[0].convertTo(ValueType::Vec3).vec3Value();
+        const auto b = arguments[1].convertTo(ValueType::Vec3).vec3Value();
+        return Value{vm::distance(a, b)};
+      }}},
+    {"intersects",
+     {2,
+      [](auto&, const auto& arguments, const auto&) {
+        if (hasUndefinedArgument(arguments))
+        {
+          return Value::Undefined;
+        }
+        const auto& a = arguments[0].bboxValue();
+        const auto& b = arguments[1].bboxValue();
+        return Value{a.intersects(b)};
+      }}},
+    {"like",
+     {2,
+      [](auto&, const auto& arguments, const auto&) {
+        return evaluateLike(arguments[0], arguments[1]);
+      }}},
+    {"contains",
+     {2,
+      [](auto&, const auto& arguments, const auto& expressionNode) {
+        return evaluateContains(arguments[0], arguments[1], expressionNode);
+      }}},
+    {"in",
+     {2,
+      [](auto&, const auto& arguments, const auto& expressionNode) {
+        return evaluateContains(arguments[1], arguments[0], expressionNode);
+      }}},
+    {"is",
+     {2,
+      [](auto&, const auto& arguments, const auto& expressionNode) {
+        return Value{evaluateCompare(arguments[0], arguments[1], expressionNode) == 0};
+      }}},
+  };
+  return functions;
+}
+
+const BuiltinFunction* findBuiltinFunction(const std::string& name)
+{
+  const auto it = builtinFunctions().find(name);
+  return it != builtinFunctions().end() ? &it->second : nullptr;
+}
 
 Value evaluateCall(
   EvaluationContext& context,
+  const BuiltinFunction* function,
   const std::string& name,
   const std::span<const Value> arguments,
   const ExpressionNode& expressionNode)
 {
-  if (const auto it = builtinFunctions.find(name); it != builtinFunctions.end())
+  if (function)
   {
-    const auto& function = it->second;
-    if (arguments.size() != function.arity)
+    if (arguments.size() != function->arity)
     {
       throw EvaluationError{
         expressionNode,
         fmt::format(
           "{}() expects {} arguments, but got {}",
           name,
-          function.arity,
+          function->arity,
           arguments.size())};
     }
 
     try
     {
-      return function.evaluate(context, arguments, expressionNode);
+      return function->evaluate(context, arguments, expressionNode);
     }
     catch (const ConversionError& e)
     {
@@ -1648,7 +1661,8 @@ Value evaluate(
   const auto arguments = expression.arguments | std::views::transform(evaluateArgument)
                          | kdl::ranges::to<std::vector>();
 
-  return evaluateCall(context, expression.name, arguments, expressionNode);
+  return evaluateCall(
+    context, expression.function, expression.name, arguments, expressionNode);
 }
 
 template <typename Evaluator>
@@ -1836,8 +1850,8 @@ Expression optimize(
                           })
                         | kdl::ranges::to<std::vector>();
 
-    return LiteralExpression{
-      evaluateCall(context, expression.name, values, expressionNode)};
+    return LiteralExpression{evaluateCall(
+      context, expression.function, expression.name, values, expressionNode)};
   }
 
   return CallExpression{expression.name, std::move(optimizedArguments)};
@@ -2178,6 +2192,13 @@ kdl_reflect_impl(LogicalAnd);
 kdl_reflect_impl(LogicalOr);
 kdl_reflect_impl(BoundedRange);
 kdl_reflect_impl(Case);
+
+InfixCall::InfixCall(std::string i_functionName)
+  : functionName{std::move(i_functionName)}
+  , function{findBuiltinFunction(functionName)}
+{
+}
+
 kdl_reflect_impl(InfixCall);
 } // namespace binop
 
@@ -2274,6 +2295,14 @@ std::ostream& operator<<(std::ostream& lhs, const DotExpression& rhs)
 }
 
 
+CallExpression::CallExpression(
+  std::string i_name, std::vector<ExpressionNode> i_arguments)
+  : name{std::move(i_name)}
+  , arguments{std::move(i_arguments)}
+  , function{findBuiltinFunction(name)}
+{
+}
+
 bool operator==(const CallExpression& lhs, const CallExpression& rhs)
 {
   return lhs.name == rhs.name && lhs.arguments == rhs.arguments;
@@ -2295,8 +2324,8 @@ std::ostream& operator<<(std::ostream& lhs, const CallExpression& rhs)
 
 std::optional<size_t> builtinFunctionArity(const std::string& name)
 {
-  const auto it = builtinFunctions.find(name);
-  return it != builtinFunctions.end() ? std::optional{it->second.arity} : std::nullopt;
+  const auto* function = findBuiltinFunction(name);
+  return function ? std::optional{function->arity} : std::nullopt;
 }
 
 
