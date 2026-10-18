@@ -1566,6 +1566,8 @@ TEST_CASE("Expression")
         {"escapedStarThenStar", Value{R"(a\**)"}},
         {"trailingBackslash", Value{R"(quake\)"}},
         {"escapedTrailingBackslash", Value{R"(quake\\)"}},
+        {"literalBackslash", Value{R"(id1\gfx)"}},
+        {"literalBackslashThenStar", Value{R"(*id1\g*)"}},
       };
 
       // clang-format off
@@ -1583,6 +1585,15 @@ TEST_CASE("Expression")
       {R"("func_detail" like "func_detail")",            Value{true}},
       {R"("detail" like "func_detail")",                 Value{false}},
 
+      // in a string literal, a backslash that precedes another backslash or a quote
+      // escapes it, but any other backslash is kept
+      {R"("quake*" like "quake\*")",                     Value{true}},
+      {R"("quake*" like "quake\\*")",                    Value{true}},
+      {R"("quake\x" like "quake\\*")",                   Value{false}},
+      {R"("quake\x" like "quake\\\\*")",                 Value{true}},
+      {R"("id1\gfx.wad" like "id1\gfx")",                Value{true}},
+      {R"("id1\gfx.wad" like "id1\\gfx")",               Value{true}},
+
       // an escaped wildcard is matched literally and doesn't prevent substring matching
       {"path like escapedBackslash",                     Value{true}},
       {R"("a*b" like escapedStar)",                      Value{true}},
@@ -1593,6 +1604,11 @@ TEST_CASE("Expression")
       {"path like trailingBackslash",                    Value{true}},
       {R"("quake*" like trailingBackslash)",             Value{false}},
       {"path like escapedTrailingBackslash",             Value{true}},
+
+      // so does a backslash that doesn't escape a wildcard or another backslash
+      {"path like literalBackslash",                     Value{true}},
+      {R"("id1g" like literalBackslash)",                Value{false}},
+      {"path like literalBackslashThenStar",             Value{true}},
 
       // Array like String: true if any element matches
       {R"(["a", "b", "trigger_once"] like "*trigger*")", Value{true}},

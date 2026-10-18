@@ -2262,7 +2262,7 @@ Character  Effect
 `\%`       Matches a literal `%` character.
 `\\`       Matches a literal `\` character.
 
-A single `\` at the end of the pattern also matches a literal `\` character.
+A `\` that is not followed by one of the characters `?`, `*`, `%`, or `\`, such as the one in `id1\gfx.wad` or one at the end of the pattern, also matches a literal `\` character.
 
 If the pattern does not contain any of the characters `?`, `*`, or `%`, except in an escape sequence such as `\*`, it is matched as a substring of `value` instead of requiring an exact match.
 
