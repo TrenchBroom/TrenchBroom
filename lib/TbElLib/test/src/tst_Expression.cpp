@@ -1588,6 +1588,26 @@ TEST_CASE("Expression")
       CHECK(evaluate(R"("func_detail" like "func_detail")") == Value{true});
       CHECK(evaluate(R"("detail" like "func_detail")") == Value{false});
 
+      // in a string literal, a backslash that precedes another backslash or a quote
+      // escapes it, but any other backslash is kept
+      //
+      // these expressions are not written inside CHECK because MSVC fails to stringize
+      // raw string literals that contain a double quote followed by a backslash
+      using T = std::tuple<std::string, Value>;
+      const auto stringLiteralCases = std::vector<T>{
+        {R"("quake*" like "quake\*")", Value{true}},
+        {R"("quake*" like "quake\\*")", Value{true}},
+        {R"("quake\x" like "quake\\*")", Value{false}},
+        {R"("quake\x" like "quake\\\\*")", Value{true}},
+        {R"("id1\gfx.wad" like "id1\gfx")", Value{true}},
+        {R"("id1\gfx.wad" like "id1\\gfx")", Value{true}},
+      };
+      for (const auto& [expression, expectedValue] : stringLiteralCases)
+      {
+        CAPTURE(expression);
+        CHECK(evaluate(expression) == expectedValue);
+      }
+
       // an escaped wildcard is matched literally and doesn't prevent substring matching
       const auto patterns = MapType{
         {"path", Value{R"(C:\quake\id1\gfx.wad)"}},
@@ -1596,6 +1616,8 @@ TEST_CASE("Expression")
         {"escapedStarThenStar", Value{R"(a\**)"}},
         {"trailingBackslash", Value{R"(quake\)"}},
         {"escapedTrailingBackslash", Value{R"(quake\\)"}},
+        {"literalBackslash", Value{R"(id1\gfx)"}},
+        {"literalBackslashThenStar", Value{R"(*id1\g*)"}},
       };
       CHECK(evaluate("path like escapedBackslash", patterns) == Value{true});
       CHECK(evaluate(R"("a*b" like escapedStar)", patterns) == Value{true});
@@ -1606,6 +1628,11 @@ TEST_CASE("Expression")
       CHECK(evaluate("path like trailingBackslash", patterns) == Value{true});
       CHECK(evaluate(R"("quake*" like trailingBackslash)", patterns) == Value{false});
       CHECK(evaluate("path like escapedTrailingBackslash", patterns) == Value{true});
+
+      // so does a backslash that doesn't escape a wildcard or another backslash
+      CHECK(evaluate("path like literalBackslash", patterns) == Value{true});
+      CHECK(evaluate(R"("id1g" like literalBackslash)", patterns) == Value{false});
+      CHECK(evaluate("path like literalBackslashThenStar", patterns) == Value{true});
 
       // Array like String: true if any element matches
       CHECK(evaluate(R"(["a", "b", "trigger_once"] like "*trigger*")") == Value{true});

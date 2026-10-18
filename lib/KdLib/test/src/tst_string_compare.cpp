@@ -190,6 +190,14 @@ TEST_CASE("string_compare")
       CHECK(!str_matches_glob("asdf", R"(asd\*)"));
       CHECK(str_matches_glob(R"(asd\f)", R"(asd\\*)"));
 
+      // a backslash that doesn't escape anything matches a literal backslash
+      CHECK(str_matches_glob(R"(asd\)", R"(asd\)"));
+      CHECK(str_matches_glob(R"(asd\f)", R"(asd\f)"));
+      CHECK(!str_matches_glob("asdf", R"(asd\f)"));
+      CHECK(str_matches_glob(R"(asd\f)", R"(*\f)"));
+      CHECK(str_matches_glob(R"(asd\fjkl)", R"(*d\f*)"));
+      CHECK(str_matches_glob(R"(asd\\f)", R"(asd\\\f)"));
+
       CHECK(!str_matches_glob("", "%"));
       CHECK(str_matches_glob("", "%*"));
       CHECK(str_matches_glob("0", "%"));
@@ -361,6 +369,7 @@ TEST_CASE("string_compare")
       CHECK(str_matches_glob("ASd*fjKl", "*a*f*l*"));
       CHECK(str_matches_glob("ASd*fjKl", R"(asd\*fjkl)"));
       CHECK(str_matches_glob(R"(aSD*?fJ\kL)", R"(asd\*\?fj\\kl)"));
+      CHECK(str_matches_glob(R"(aSD\F)", R"(asd\f)"));
       CHECK(str_matches_glob("ASdf", "as*"));
       CHECK(str_matches_glob("asDF", "*Df"));
       CHECK(str_matches_glob("aSDf", "*sd*"));
