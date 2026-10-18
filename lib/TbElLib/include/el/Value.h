@@ -23,6 +23,7 @@
 #include "Types.h"
 #include "base/FileLocation.h"
 
+#include <cstdint>
 #include <iosfwd>
 #include <memory>
 #include <optional>
@@ -33,22 +34,26 @@
 namespace tb::el
 {
 
-struct ExpressionNodeData;
-
 class Value
 {
 private:
   using VariantType = std::variant<
     BooleanType,
-    StringType,
+    std::shared_ptr<const StringType>,
     NumberType,
-    ArrayType,
-    MapType,
-    RangeType,
+    std::shared_ptr<const ArrayType>,
+    std::shared_ptr<const MapType>,
+    LeftBoundedRange,
+    RightBoundedRange,
+    BoundedRange,
+    Vec3Type,
+    std::shared_ptr<const BBoxType>,
     NullType,
     UndefinedType>;
-  std::shared_ptr<VariantType> m_value;
-  std::shared_ptr<ExpressionNodeData> m_producedBy;
+  VariantType m_value;
+  // the location of the expression that produced this value, 0 if unknown
+  std::uint32_t m_line = 0;
+  std::uint32_t m_column = 0;
 
 public:
   static const Value Null;
@@ -66,6 +71,8 @@ public:
   explicit Value(ArrayType value);
   explicit Value(MapType value);
   explicit Value(RangeType value);
+  explicit Value(Vec3Type value);
+  explicit Value(BBoxType value);
   explicit Value(NullType value);
   explicit Value(UndefinedType value);
 
@@ -88,7 +95,9 @@ public:
   IntegerType integerValue() const;
   const ArrayType& arrayValue() const;
   const MapType& mapValue() const;
-  const RangeType& rangeValue() const;
+  RangeType rangeValue() const;
+  const Vec3Type& vec3Value() const;
+  const BBoxType& bboxValue() const;
 
   std::vector<std::string> asStringList() const;
   std::vector<std::string> asStringSet() const;
@@ -113,7 +122,6 @@ public:
   Value at(const std::string& key) const;
   Value atOrDefault(const std::string& key, Value defaultValue = Null) const;
 
-  std::optional<ExpressionNode> expression() const;
   std::optional<FileLocation> location() const;
 
   Value producedBy(const ExpressionNode& expressionNode) const&;

@@ -31,12 +31,30 @@
 
 namespace vm
 {
+/**
+ * Determines how strictly vm::parse accepts the given string.
+ */
+enum class parse_mode
+{
+  /**
+   * Parentheses count as whitespace, a component may be followed by other characters, and
+   * anything after the last component is ignored.
+   */
+  lenient,
+  /**
+   * The string must consist of nothing but the components separated by whitespace, with
+   * optional leading and trailing whitespace.
+   */
+  strict,
+};
+
 namespace detail
 {
 template <typename T, std::size_t S>
-std::optional<vec<T, S>> doParse(const std::string_view str, size_t& pos)
+std::optional<vec<T, S>> doParse(
+  const std::string_view str, size_t& pos, const parse_mode mode)
 {
-  constexpr auto blank = " \t\n\r()";
+  const auto* blank = mode == parse_mode::strict ? " \t\n\r" : " \t\n\r()";
 
   auto result = vec<T, S>{};
   for (std::size_t i = 0; i < S; ++i)
@@ -45,9 +63,9 @@ std::optional<vec<T, S>> doParse(const std::string_view str, size_t& pos)
     {
       return std::nullopt;
     }
-    if (
-      from_chars(str.data() + pos, str.data() + str.length(), result[i]).ec
-      != std::errc{})
+    const auto [ptr, ec] =
+      from_chars(str.data() + pos, str.data() + str.length(), result[i]);
+    if (ec != std::errc{})
     {
       return std::nullopt;
     }
@@ -58,7 +76,20 @@ std::optional<vec<T, S>> doParse(const std::string_view str, size_t& pos)
         return std::nullopt;
       }
     }
+    if (
+      mode == parse_mode::strict
+      && ptr != str.data() + (pos == std::string::npos ? str.length() : pos))
+    {
+      return std::nullopt;
+    }
   }
+
+  if (
+    mode == parse_mode::strict && str.find_first_not_of(blank, pos) != std::string::npos)
+  {
+    return std::nullopt;
+  }
+
   return result;
 }
 } // namespace detail
@@ -72,16 +103,21 @@ std::optional<vec<T, S>> doParse(const std::string_view str, size_t& pos)
  *    WS ::= " " | \\t | \\n | \\r | "(" | ")";
  * FLOAT ::= any floating point number parseable by std::from_chars
  *
+ * In strict mode, parentheses don't count as whitespace, each FLOAT must be followed by
+ * whitespace or the end of the string, and only whitespace may follow the last component.
+ *
  * @tparam T the component type
  * @tparam S the number of components
  * @param str the string to parse
+ * @param mode how strictly to parse the string
  * @return the vector parsed from the string
  */
 template <typename T, std::size_t S>
-std::optional<vec<T, S>> parse(const std::string_view str)
+std::optional<vec<T, S>> parse(
+  const std::string_view str, const parse_mode mode = parse_mode::lenient)
 {
   std::size_t pos = 0;
-  return detail::doParse<T, S>(str, pos);
+  return detail::doParse<T, S>(str, pos, mode);
 }
 
 /**
@@ -109,7 +145,7 @@ void parse_all(const std::string_view str, O out)
   std::size_t pos = 0;
   while (pos != std::string::npos)
   {
-    if (const auto result = detail::doParse<T, S>(str, pos))
+    if (const auto result = detail::doParse<T, S>(str, pos, parse_mode::lenient))
     {
       out = *result;
       ++out;

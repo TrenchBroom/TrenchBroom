@@ -74,6 +74,21 @@ TEST_CASE("vec_io")
     CHECK(!(result.has_value()));
   }
 
+  SECTION("parse_strict")
+  {
+    CHECK(parse<float, 3>("1.0 3 3.5", parse_mode::strict) == vec3f{1.0f, 3.0f, 3.5f});
+    CHECK(
+      parse<float, 3>(" 1.0\t3  3.5 ", parse_mode::strict) == vec3f{1.0f, 3.0f, 3.5f});
+
+    CHECK(parse<float, 3>("1.0 3", parse_mode::strict) == std::nullopt);
+    CHECK(parse<float, 3>("1.0 3 4 5", parse_mode::strict) == std::nullopt);
+    CHECK(parse<float, 3>("1.0 3 4abc", parse_mode::strict) == std::nullopt);
+    CHECK(parse<float, 3>("1.0abc 3 4", parse_mode::strict) == std::nullopt);
+    CHECK(parse<float, 3>("(1.0 3 4)", parse_mode::strict) == std::nullopt);
+    CHECK(parse<float, 3>("asdf", parse_mode::strict) == std::nullopt);
+    CHECK(parse<float, 3>("", parse_mode::strict) == std::nullopt);
+  }
+
   SECTION("parse_all")
   {
     std::vector<vec3f> result;

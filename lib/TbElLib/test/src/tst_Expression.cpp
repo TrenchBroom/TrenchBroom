@@ -25,7 +25,7 @@
 #include "el/Value.h"
 #include "el/VariableStore.h"
 
-#include "kd/result_io.h"
+#include "kd/result_io.h" // IWYU pragma: keep
 
 #include <fmt/ostream.h>
 
@@ -105,6 +105,17 @@ std::vector<std::string> preorderVisit(const std::string& str)
         result.push_back(fmt::format("{}", fmt::streamed(subscriptExpression)));
         subscriptExpression.leftOperand.accept(thisLambda);
         subscriptExpression.rightOperand.accept(thisLambda);
+      },
+      [&](const auto& thisLambda, const DotExpression& dotExpression) {
+        result.push_back(fmt::format("{}", fmt::streamed(dotExpression)));
+        dotExpression.operand.accept(thisLambda);
+      },
+      [&](const auto& thisLambda, const CallExpression& callExpression) {
+        result.push_back(fmt::format("{}", fmt::streamed(callExpression)));
+        for (const auto& argument : callExpression.arguments)
+        {
+          argument.accept(thisLambda);
+        }
       },
       [&](const auto& thisLambda, const SwitchExpression& switchExpression) {
         result.push_back(fmt::format("{}", fmt::streamed(switchExpression)));
@@ -1087,6 +1098,173 @@ TEST_CASE("Expression")
                "operand types Range and Number"});
   }
 
+  SECTION("Vec3")
+  {
+    SECTION("Subscript")
+    {
+      CHECK(evaluate("vec(1, 2, 3)[0]") == Value{1.0});
+      CHECK(evaluate("vec(1, 2, 3)[1]") == Value{2.0});
+      CHECK(evaluate("vec(1, 2, 3)[2]") == Value{3.0});
+      CHECK(evaluate("vec(1, 2, 3)[-1]") == Value{3.0});
+      CHECK(
+        evaluate("vec(1, 2, 3)[3]")
+        == Error{"At line 1, column 13: Cannot evaluate expression 'vec(1, 2, 3)[3]': "
+                 "Index 3 is out of bounds for 'vec(1, 2, 3)'"});
+
+      CHECK(evaluate(R"(vec(1, 2, 3)["x"])") == Value{1.0});
+      CHECK(evaluate(R"(vec(1, 2, 3)["y"])") == Value{2.0});
+      CHECK(evaluate(R"(vec(1, 2, 3)["z"])") == Value{3.0});
+      CHECK(evaluate(R"(vec(1, 2, 3)["w"])") == Value::Undefined);
+
+      CHECK(evaluate("vec(1, 2, 3).x") == Value{1.0});
+      CHECK(evaluate("vec(1, 2, 3).y") == Value{2.0});
+      CHECK(evaluate("vec(1, 2, 3).z") == Value{3.0});
+      CHECK(evaluate("vec(1, 2, 3).w") == Value::Undefined);
+    }
+
+    SECTION("Unary operators")
+    {
+      CHECK(evaluate("+vec(1, 2, 3)") == Value{Vec3Type{1, 2, 3}});
+      CHECK(evaluate("-vec(1, 2, 3)") == Value{Vec3Type{-1, -2, -3}});
+      CHECK(
+        evaluate("!vec(1, 2, 3)")
+        == Error{"At line 1, column 1: Cannot evaluate expression '!vec(1, 2, 3)': "
+                 "Invalid type Vec3"});
+      CHECK(
+        evaluate("~vec(1, 2, 3)")
+        == Error{"At line 1, column 1: Cannot evaluate expression '~vec(1, 2, 3)': "
+                 "Invalid type Vec3"});
+    }
+
+    SECTION("Arithmetic")
+    {
+      CHECK(evaluate("vec(1, 2, 3) + vec(4, 5, 6)") == Value{Vec3Type{5, 7, 9}});
+      CHECK(evaluate("vec(4, 5, 6) - vec(1, 2, 3)") == Value{Vec3Type{3, 3, 3}});
+      CHECK(evaluate("vec(1, 2, 3) * 2") == Value{Vec3Type{2, 4, 6}});
+      CHECK(evaluate("2 * vec(1, 2, 3)") == Value{Vec3Type{2, 4, 6}});
+      CHECK(evaluate("vec(1, 2, 3) / 2") == Value{Vec3Type{0.5, 1.0, 1.5}});
+
+      CHECK(evaluate("vec(1, 2, 3) * vec(4, 5, 6)") == Value{Vec3Type{4, 10, 18}});
+      CHECK(evaluate("vec(1, 2, 3) / vec(4, 5, 6)") == Value{Vec3Type{0.25, 0.4, 0.5}});
+      CHECK(evaluate("12 / vec(4, 5, 6)") == Value{Vec3Type{3.0, 2.4, 2.0}});
+
+      // a string operand is converted to a vector, or to a number to scale a vector by
+      CHECK(evaluate(R"("1 2 3" + vec(1, 1, 1))") == Value{Vec3Type{2, 3, 4}});
+      CHECK(evaluate(R"(vec(1, 1, 1) - "1 2 3")") == Value{Vec3Type{0, -1, -2}});
+      CHECK(evaluate(R"("1 2 3" * vec(2, 2, 2))") == Value{Vec3Type{2, 4, 6}});
+      CHECK(evaluate(R"("1 2 3" / vec(2, 2, 2))") == Value{Vec3Type{0.5, 1, 1.5}});
+      CHECK(evaluate(R"(vec(1, 2, 3) * "2")") == Value{Vec3Type{2, 4, 6}});
+      CHECK(evaluate(R"("2" * vec(1, 2, 3))") == Value{Vec3Type{2, 4, 6}});
+      CHECK(evaluate(R"(vec(2, 4, 6) / "2")") == Value{Vec3Type{1, 2, 3}});
+      CHECK(evaluate("vec(1, 2, 3) * true") == Value{Vec3Type{1, 2, 3}});
+
+      // two strings are never converted to vectors
+      CHECK(evaluate(R"("1 2 3" + "1 2 3")") == Value{"1 2 31 2 3"});
+
+      CHECK(evaluate("vec(1, 2, 3) + undefined") == Value::Undefined);
+      CHECK(evaluate("undefined + vec(1, 2, 3)") == Value::Undefined);
+
+      CHECK(
+        evaluate("vec(1, 2, 3) % vec(4, 5, 6)")
+        == Error{"At line 1, column 14: Cannot evaluate expression 'vec(1, 2, 3) % "
+                 "vec(4, 5, 6)': Invalid operand types Vec3 and Vec3"});
+      CHECK(
+        evaluate("vec(1, 2, 3) + 2")
+        == Error{"At line 1, column 14: Cannot evaluate expression 'vec(1, 2, 3) + "
+                 "2': Invalid operand types Vec3 and Number"});
+      CHECK(
+        evaluate(R"(vec(1, 2, 3) * "a")")
+        == Error{"At line 1, column 14: Cannot evaluate expression 'vec(1, 2, 3) * "
+                 "\"a\"': Invalid operand types Vec3 and String"});
+      CHECK(
+        evaluate("vec(1, 2, 3) * null")
+        == Error{"At line 1, column 14: Cannot evaluate expression 'vec(1, 2, 3) * "
+                 "null': Invalid operand types Vec3 and Null"});
+    }
+
+    SECTION("Comparison")
+    {
+      CHECK(evaluate("vec(1, 2, 3) == vec(1, 2, 3)") == Value{true});
+      CHECK(evaluate("vec(1, 2, 3) == vec(4, 5, 6)") == Value{false});
+      CHECK(evaluate("vec(1, 2, 3) != vec(4, 5, 6)") == Value{true});
+      CHECK(evaluate("vec(1, 2, 3) < vec(4, 5, 6)") == Value{true});
+      CHECK(evaluate("vec(4, 5, 6) > vec(1, 2, 3)") == Value{true});
+
+      // a string is converted to a vector
+      CHECK(evaluate(R"(vec(1, 2, 3) == "1 2 3")") == Value{true});
+      CHECK(evaluate(R"("1 2 3" == vec(1, 2, 3))") == Value{true});
+      CHECK(evaluate(R"(vec(1, 2, 3) != "1 2 4")") == Value{true});
+      CHECK(evaluate(R"("1 2 3" < vec(1, 2, 4))") == Value{true});
+
+      CHECK(
+        evaluate("vec(1, 2, 3) == 1")
+        == Error{"At line 1, column 14: Cannot evaluate expression 'vec(1, 2, 3) == "
+                 "1': Invalid operand types Vec3 and Number"});
+      CHECK(
+        evaluate(R"(vec(1, 2, 3) == "a")")
+        == Error{"At line 1, column 14: Cannot evaluate expression 'vec(1, 2, 3) == "
+                 "\"a\"': At line 1, column 17: Cannot convert value '\"a\"' of type "
+                 "'String' to type 'Vec3'"});
+    }
+  }
+
+  SECTION("BBox")
+  {
+    SECTION("Subscript")
+    {
+      CHECK(evaluate("bbox(vec(1, 2, 3), vec(4, 5, 6)).min") == Value{Vec3Type{1, 2, 3}});
+      CHECK(evaluate("bbox(vec(1, 2, 3), vec(4, 5, 6)).max") == Value{Vec3Type{4, 5, 6}});
+      CHECK(
+        evaluate(R"(bbox(vec(1, 2, 3), vec(4, 5, 6))["min"])")
+        == Value{Vec3Type{1, 2, 3}});
+      CHECK(
+        evaluate(R"(bbox(vec(1, 2, 3), vec(4, 5, 6))["max"])")
+        == Value{Vec3Type{4, 5, 6}});
+      CHECK(evaluate(R"(bbox(vec(1, 2, 3), vec(4, 5, 6))["w"])") == Value::Undefined);
+      CHECK(evaluate("bbox(vec(1, 2, 3), vec(4, 5, 6)).w") == Value::Undefined);
+
+      // corners are normalized component-wise, so argument order doesn't matter
+      CHECK(evaluate("bbox(vec(4, 5, 6), vec(1, 2, 3)).min") == Value{Vec3Type{1, 2, 3}});
+      CHECK(evaluate("bbox(vec(4, 5, 6), vec(1, 2, 3)).max") == Value{Vec3Type{4, 5, 6}});
+    }
+
+    SECTION("Unary operators")
+    {
+      CHECK(
+        evaluate("!bbox(vec(1, 2, 3), vec(4, 5, 6))")
+        == Error{"At line 1, column 1: Cannot evaluate expression "
+                 "'!bbox(vec(1, 2, 3), vec(4, 5, 6))': Invalid type BBox"});
+    }
+
+    SECTION("Arithmetic")
+    {
+      CHECK(
+        evaluate("bbox(vec(1, 2, 3), vec(4, 5, 6)) + bbox(vec(1, 2, 3), vec(4, 5, 6))")
+        == Error{"At line 1, column 34: Cannot evaluate expression "
+                 "'bbox(vec(1, 2, 3), vec(4, 5, 6)) + bbox(vec(1, 2, 3), vec(4, 5, "
+                 "6))': Invalid operand types BBox and BBox"});
+    }
+
+    SECTION("Comparison")
+    {
+      CHECK(
+        evaluate("bbox(vec(1, 2, 3), vec(4, 5, 6)) == bbox(vec(1, 2, 3), vec(4, 5, 6))")
+        == Value{true});
+      CHECK(
+        evaluate("bbox(vec(1, 2, 3), vec(4, 5, 6)) == bbox(vec(0, 0, 0), vec(1, 1, 1))")
+        == Value{false});
+      CHECK(
+        evaluate("bbox(vec(1, 2, 3), vec(4, 5, 6)) != bbox(vec(0, 0, 0), vec(1, 1, 1))")
+        == Value{true});
+
+      CHECK(
+        evaluate("bbox(vec(1, 2, 3), vec(4, 5, 6)) == 1")
+        == Error{"At line 1, column 34: Cannot evaluate expression "
+                 "'bbox(vec(1, 2, 3), vec(4, 5, 6)) == 1': Invalid operand types "
+                 "BBox and Number"});
+    }
+  }
+
   SECTION("Subscript")
   {
     using T = std::tuple<std::string, Result<Value>>;
@@ -1214,6 +1392,439 @@ TEST_CASE("Expression")
                "compatible index for '[1..3]'"});
   }
 
+  SECTION("Dot access")
+  {
+    // a.b evaluates identically to a["b"], for a bound Map variable
+    const auto variables = MapType{{"m", Value{MapType{{"b", Value{1}}}}}};
+
+    CHECK(evaluate("m.b", variables) == evaluate("m[\"b\"]", variables));
+    CHECK(evaluate("m.b", variables) == Value{1});
+
+    // A missing key is Undefined via dot access too, same as via bracket subscript
+    CHECK(evaluate("m.missing", variables) == Value::Undefined);
+
+    // Chains
+    const auto nested =
+      MapType{{"m", Value{MapType{{"m", Value{MapType{{"b", Value{2}}}}}}}}};
+    CHECK(evaluate("m.m.b", nested) == Value{2});
+  }
+
+  SECTION("Function calls")
+  {
+    CHECK(
+      evaluate("f()")
+      == Error{"At line 1, column 1: Cannot evaluate expression 'f()': Unknown "
+               "function: 'f'"});
+    CHECK(
+      evaluate("f(1, 2)")
+      == Error{"At line 1, column 1: Cannot evaluate expression 'f(1, 2)': Unknown "
+               "function: 'f'"});
+
+    // arguments are still evaluated (and can themselves error) before the "unknown
+    // function" check happens
+    CHECK(
+      evaluate("f([] + true)")
+      == Error{"At line 1, column 6: Cannot evaluate expression '[] + true': Invalid "
+               "operand types Array and Boolean"});
+
+    SECTION("vec")
+    {
+      CHECK(evaluate("vec(1, 2, 3)") == Value{Vec3Type{1, 2, 3}});
+      CHECK(evaluate("vec(1.5, -2, 0)") == Value{Vec3Type{1.5, -2.0, 0.0}});
+
+      // arguments don't have to be literals
+      CHECK(evaluate("vec(1 + 1, 2 * 2, 3 - 1)") == Value{Vec3Type{2, 4, 2}});
+
+      // arguments are converted to numbers, and an undefined argument yields undefined
+      CHECK(evaluate(R"(vec("2", "2", true))") == Value{Vec3Type{2, 2, 1}});
+      CHECK(evaluate("vec(undefined, 2, 3)") == Value::Undefined);
+      CHECK(
+        evaluate(R"(vec("a", 2, 3))")
+        == Error{"At line 1, column 1: Cannot evaluate expression 'vec(\"a\", 2, 3)': "
+                 "At line 1, column 5: Cannot convert value '\"a\"' of type 'String' to "
+                 "type 'Number'"});
+
+      CHECK(
+        evaluate("vec()")
+        == Error{"At line 1, column 1: Cannot evaluate expression 'vec()': vec() "
+                 "expects 3 arguments, but got 0"});
+      CHECK(
+        evaluate("vec(1, 2)")
+        == Error{"At line 1, column 1: Cannot evaluate expression 'vec(1, 2)': vec() "
+                 "expects 3 arguments, but got 2"});
+      CHECK(
+        evaluate("vec(1, 2, 3, 4)")
+        == Error{"At line 1, column 1: Cannot evaluate expression 'vec(1, 2, 3, 4)': "
+                 "vec() expects 3 arguments, but got 4"});
+    }
+
+    SECTION("bbox")
+    {
+      CHECK(
+        evaluate("bbox(vec(1, 2, 3), vec(4, 5, 6))")
+        == Value{BBoxType{Vec3Type{1.0, 2.0, 3.0}, Vec3Type{4.0, 5.0, 6.0}}});
+
+      // corners are normalized component-wise, so argument order doesn't matter
+      CHECK(
+        evaluate("bbox(vec(4, 5, 6), vec(1, 2, 3))")
+        == Value{BBoxType{Vec3Type{1.0, 2.0, 3.0}, Vec3Type{4.0, 5.0, 6.0}}});
+
+      // strings containing vectors are converted, and an undefined argument yields
+      // undefined
+      CHECK(
+        evaluate(R"(bbox("1 2 3", vec(4, 5, 6)))")
+        == Value{BBoxType{Vec3Type{1.0, 2.0, 3.0}, Vec3Type{4.0, 5.0, 6.0}}});
+      CHECK(evaluate("bbox(undefined, vec(4, 5, 6))") == Value::Undefined);
+      CHECK(
+        evaluate("bbox(1, vec(4, 5, 6))")
+        == Error{
+          "At line 1, column 1: Cannot evaluate expression 'bbox(1, vec(4, 5, "
+          "6))': At line 1, column 6: Cannot convert value '1' of type 'Number' to "
+          "type 'Vec3'"});
+
+      CHECK(
+        evaluate("bbox()")
+        == Error{"At line 1, column 1: Cannot evaluate expression 'bbox()': bbox() "
+                 "expects 2 arguments, but got 0"});
+      CHECK(
+        evaluate("bbox(vec(1, 2, 3))")
+        == Error{"At line 1, column 1: Cannot evaluate expression "
+                 "'bbox(vec(1, 2, 3))': bbox() expects 2 arguments, but got 1"});
+      CHECK(
+        evaluate("bbox(vec(1, 2, 3), vec(4, 5, 6), vec(7, 8, 9))")
+        == Error{"At line 1, column 1: Cannot evaluate expression "
+                 "'bbox(vec(1, 2, 3), vec(4, 5, 6), vec(7, 8, 9))': bbox() expects 2 "
+                 "arguments, but got 3"});
+    }
+
+    SECTION("distanceTo")
+    {
+      CHECK(evaluate("distanceTo(vec(0, 0, 0), vec(3, 4, 0))") == Value{5.0});
+      CHECK(evaluate("distanceTo(vec(1, 2, 3), vec(1, 2, 3))") == Value{0.0});
+
+      CHECK(
+        evaluate("distanceTo(vec(3, 4, 0), vec(0, 0, 0))")
+        == evaluate("distanceTo(vec(0, 0, 0), vec(3, 4, 0))"));
+
+      // strings containing vectors are converted, and an undefined argument yields
+      // undefined
+      CHECK(evaluate(R"(distanceTo("3 4 0", vec(0, 0, 0)))") == Value{5.0});
+      CHECK(evaluate("distanceTo(undefined, vec(0, 0, 0))") == Value::Undefined);
+      CHECK(evaluate("distanceTo(vec(0, 0, 0), undefined)") == Value::Undefined);
+      CHECK(
+        evaluate(R"(distanceTo("a", vec(0, 0, 0)))")
+        == Error{"At line 1, column 1: Cannot evaluate expression 'distanceTo(\"a\", "
+                 "vec(0, 0, 0))': At line 1, column 12: Cannot convert value '\"a\"' of "
+                 "type 'String' to type 'Vec3'"});
+
+      CHECK(
+        evaluate("distanceTo(vec(0, 0, 0))")
+        == Error{"At line 1, column 1: Cannot evaluate expression "
+                 "'distanceTo(vec(0, 0, 0))': distanceTo() expects 2 arguments, but got "
+                 "1"});
+      CHECK(
+        evaluate("distanceTo()")
+        == Error{"At line 1, column 1: Cannot evaluate expression 'distanceTo()': "
+                 "distanceTo() expects 2 arguments, but got 0"});
+      CHECK(
+        evaluate("distanceTo(vec(0, 0, 0), vec(1, 1, 1), vec(2, 2, 2))")
+        == Error{"At line 1, column 1: Cannot evaluate expression "
+                 "'distanceTo(vec(0, 0, 0), vec(1, 1, 1), vec(2, 2, 2))': distanceTo() "
+                 "expects 2 arguments, but got 3"});
+    }
+
+    SECTION("intersects")
+    {
+      CHECK(
+        evaluate("intersects(bbox(vec(0, 0, 0), vec(2, 2, 2)), "
+                 "bbox(vec(1, 1, 1), vec(3, 3, 3)))")
+        == Value{true});
+
+      CHECK(
+        evaluate("intersects(bbox(vec(0, 0, 0), vec(1, 1, 1)), "
+                 "bbox(vec(2, 2, 2), vec(3, 3, 3)))")
+        == Value{false});
+
+      CHECK(
+        evaluate("intersects(bbox(vec(1, 1, 1), vec(3, 3, 3)), "
+                 "bbox(vec(0, 0, 0), vec(2, 2, 2)))")
+        == Value{true});
+
+      // an undefined argument yields undefined
+      CHECK(
+        evaluate("intersects(undefined, bbox(vec(0, 0, 0), vec(1, 1, 1)))")
+        == Value::Undefined);
+      CHECK(
+        evaluate("intersects(bbox(vec(0, 0, 0), vec(1, 1, 1)), undefined)")
+        == Value::Undefined);
+      CHECK(
+        evaluate("intersects(1, bbox(vec(0, 0, 0), vec(1, 1, 1)))")
+        == Error{"At line 1, column 1: Cannot evaluate expression 'intersects(1, "
+                 "bbox(vec(0, 0, 0), vec(1, 1, 1)))': At line 1, column 12: Cannot "
+                 "dereference value '1' of type 'Number' as type 'BBox'"});
+
+      CHECK(
+        evaluate("intersects(bbox(vec(0, 0, 0), vec(1, 1, 1)))")
+        == Error{"At line 1, column 1: Cannot evaluate expression "
+                 "'intersects(bbox(vec(0, 0, 0), vec(1, 1, 1)))': intersects() "
+                 "expects 2 arguments, but got 1"});
+      CHECK(
+        evaluate("intersects()")
+        == Error{"At line 1, column 1: Cannot evaluate expression 'intersects()': "
+                 "intersects() expects 2 arguments, but got 0"});
+    }
+
+    SECTION("like")
+    {
+      // String like String: case-insensitive glob, and prefix/infix forms agree
+      CHECK(evaluate(R"(like("Hello World", "hello*"))") == Value{true});
+      CHECK(evaluate(R"("Hello World" like "hello*")") == Value{true});
+      CHECK(evaluate(R"("Hello World" like "*world")") == Value{true});
+      CHECK(evaluate(R"("Hello World" like "h?llo*")") == Value{true});
+      CHECK(evaluate(R"("Hello World" like "goodbye*")") == Value{false});
+
+      // a pattern with no glob metacharacters matches as a substring, not exactly
+      CHECK(evaluate(R"("func_detail" like "detail")") == Value{true});
+      CHECK(evaluate(R"("func_detail" like "func_detail")") == Value{true});
+      CHECK(evaluate(R"("detail" like "func_detail")") == Value{false});
+
+      // an escaped wildcard is matched literally and doesn't prevent substring matching
+      const auto patterns = MapType{
+        {"path", Value{R"(C:\quake\id1\gfx.wad)"}},
+        {"escapedBackslash", Value{R"(id1\\gfx)"}},
+        {"escapedStar", Value{R"(\*)"}},
+        {"escapedStarThenStar", Value{R"(a\**)"}},
+        {"trailingBackslash", Value{R"(quake\)"}},
+        {"escapedTrailingBackslash", Value{R"(quake\\)"}},
+      };
+      CHECK(evaluate("path like escapedBackslash", patterns) == Value{true});
+      CHECK(evaluate(R"("a*b" like escapedStar)", patterns) == Value{true});
+      CHECK(evaluate(R"("a*bc" like escapedStarThenStar)", patterns) == Value{true});
+      CHECK(evaluate(R"("xa*bc" like escapedStarThenStar)", patterns) == Value{false});
+
+      // a trailing backslash that doesn't escape anything matches a literal backslash
+      CHECK(evaluate("path like trailingBackslash", patterns) == Value{true});
+      CHECK(evaluate(R"("quake*" like trailingBackslash)", patterns) == Value{false});
+      CHECK(evaluate("path like escapedTrailingBackslash", patterns) == Value{true});
+
+      // Array like String: true if any element matches
+      CHECK(evaluate(R"(["a", "b", "trigger_once"] like "*trigger*")") == Value{true});
+      CHECK(evaluate(R"(["a", "b", "c"] like "*trigger*")") == Value{false});
+      // non-String elements are simply skipped, not an error
+      CHECK(evaluate(R"([1, "trigger_once"] like "*trigger*")") == Value{true});
+
+      // Map like String: true if any key or String value matches
+      CHECK(evaluate(R"({target: "door1"} like "target")") == Value{true});
+      CHECK(evaluate(R"({target: "door1"} like "door*")") == Value{true});
+      CHECK(evaluate(R"({target: "door1"} like "light*")") == Value{false});
+      // non-String values are simply skipped, not an error
+      CHECK(evaluate(R"({a: 1} like "a")") == Value{true});
+      CHECK(evaluate(R"({a: 1} like "1")") == Value{false});
+
+      // never throws -- Undefined on either side, or an unsupported type combination,
+      // just fails to match
+      CHECK(evaluate(R"(undefined like "x")") == Value{false});
+      CHECK(evaluate(R"("x" like undefined)") == Value{false});
+      CHECK(evaluate(R"(1 like "1")") == Value{false});
+      CHECK(evaluate(R"("x" like 1)") == Value{false});
+
+      CHECK(
+        evaluate(R"(like("a"))")
+        == Error{"At line 1, column 1: Cannot evaluate expression 'like(\"a\")': "
+                 "like() expects 2 arguments, but got 1"});
+      CHECK(
+        evaluate("like()")
+        == Error{"At line 1, column 1: Cannot evaluate expression 'like()': like() "
+                 "expects 2 arguments, but got 0"});
+    }
+
+    SECTION("contains")
+    {
+      // Array contains X: element membership, prefix/infix forms agree
+      CHECK(evaluate(R"(contains([1, 2, 3], 2))") == Value{true});
+      CHECK(evaluate(R"([1, 2, 3] contains 2)") == Value{true});
+      CHECK(evaluate(R"([1, 2, 3] contains 4)") == Value{false});
+      CHECK(evaluate(R"(["Detail", "Trigger"] contains "Detail")") == Value{true});
+
+      // elements are compared like `==`, which converts strings to numbers, and an
+      // element that can't be compared to the value doesn't match
+      CHECK(evaluate(R"([1, 2, 3] contains "2")") == Value{true});
+      CHECK(evaluate(R"(["1", "2"] contains 2)") == Value{true});
+      CHECK(evaluate(R"(["a", 2] contains 2)") == Value{true});
+      CHECK(evaluate(R"([vec(1, 1, 1)] contains "a")") == Value{false});
+      CHECK(evaluate(R"(["1 2 3"] contains vec(1, 2, 3))") == Value{true});
+
+      // Map contains String: key membership
+      CHECK(evaluate(R"({a: 1, b: 2} contains "a")") == Value{true});
+      CHECK(evaluate(R"({a: 1, b: 2} contains "c")") == Value{false});
+      // a non-String rhs against a Map is simply false, not an error
+      CHECK(evaluate(R"({a: 1, b: 2} contains 1)") == Value{false});
+
+      // BBox contains Vec3: point containment
+      CHECK(
+        evaluate("bbox(vec(0, 0, 0), vec(2, 2, 2)) contains vec(1, 1, 1)")
+        == Value{true});
+      CHECK(
+        evaluate("bbox(vec(0, 0, 0), vec(2, 2, 2)) contains vec(3, 3, 3)")
+        == Value{false});
+
+      // BBox contains BBox: full containment
+      CHECK(
+        evaluate(
+          "bbox(vec(0, 0, 0), vec(3, 3, 3)) contains bbox(vec(1, 1, 1), vec(2, 2, 2))")
+        == Value{true});
+      CHECK(
+        evaluate(
+          "bbox(vec(0, 0, 0), vec(3, 3, 3)) contains bbox(vec(0, 0, 0), vec(3, 3, 3))")
+        == Value{true});
+      CHECK(
+        evaluate(
+          "bbox(vec(0, 0, 0), vec(3, 3, 3)) contains bbox(vec(1, 1, 1), vec(4, 4, 4))")
+        == Value{false});
+
+      // never throws -- Undefined on either side, or an unsupported type combination,
+      // just fails to match
+      CHECK(evaluate("[1, 2, 3] contains undefined") == Value{false});
+      CHECK(evaluate("undefined contains 1") == Value{false});
+      CHECK(evaluate(R"({a: 1} contains vec(1, 1, 1))") == Value{false});
+
+      CHECK(
+        evaluate("contains(1)")
+        == Error{"At line 1, column 1: Cannot evaluate expression 'contains(1)': "
+                 "contains() expects 2 arguments, but got 1"});
+      CHECK(
+        evaluate("contains()")
+        == Error{"At line 1, column 1: Cannot evaluate expression 'contains()': "
+                 "contains() expects 2 arguments, but got 0"});
+    }
+
+    SECTION("in")
+    {
+      CHECK(evaluate("in(2, [1, 2, 3])") == Value{true});
+      CHECK(evaluate("2 in [1, 2, 3]") == Value{true});
+      CHECK(evaluate("4 in [1, 2, 3]") == Value{false});
+      CHECK(evaluate(R"("Detail" in ["Detail", "Trigger"])") == Value{true});
+
+      CHECK(evaluate(R"("a" in {a: 1, b: 2})") == Value{true});
+      CHECK(evaluate(R"("c" in {a: 1, b: 2})") == Value{false});
+      CHECK(evaluate("1 in {a: 1, b: 2}") == Value{false});
+
+      CHECK(evaluate("vec(1, 1, 1) in bbox(vec(0, 0, 0), vec(2, 2, 2))") == Value{true});
+      CHECK(evaluate("vec(3, 3, 3) in bbox(vec(0, 0, 0), vec(2, 2, 2))") == Value{false});
+
+      CHECK(
+        evaluate("bbox(vec(1, 1, 1), vec(2, 2, 2)) in bbox(vec(0, 0, 0), vec(3, 3, 3))")
+        == Value{true});
+      CHECK(
+        evaluate("bbox(vec(1, 1, 1), vec(4, 4, 4)) in bbox(vec(0, 0, 0), vec(3, 3, 3))")
+        == Value{false});
+
+      CHECK(evaluate("in(2, [1, 2, 3])") == evaluate("contains([1, 2, 3], 2)"));
+      CHECK(evaluate("2 in [1, 2, 3]") == evaluate("[1, 2, 3] contains 2"));
+
+      CHECK(evaluate("1 in [1, 2] && 3 in [3, 4]") == Value{true});
+      CHECK(evaluate("1 in [1, 2] == true") == Value{true});
+
+      CHECK(evaluate("undefined in [1, 2, 3]") == Value{false});
+      CHECK(evaluate("1 in undefined") == Value{false});
+      CHECK(evaluate("vec(1, 1, 1) in {a: 1}") == Value{false});
+
+      CHECK(
+        evaluate("in(1)")
+        == Error{"At line 1, column 1: Cannot evaluate expression 'in(1)': "
+                 "in() expects 2 arguments, but got 1"});
+      CHECK(
+        evaluate("in()")
+        == Error{"At line 1, column 1: Cannot evaluate expression 'in()': "
+                 "in() expects 2 arguments, but got 0"});
+    }
+
+    SECTION("is")
+    {
+      CHECK(evaluate("is(1, 1)") == Value{true});
+      CHECK(evaluate("1 is 1") == Value{true});
+      CHECK(evaluate("1 is 2") == Value{false});
+      CHECK(evaluate(R"("a" is "a")") == Value{true});
+      CHECK(evaluate(R"("a" is "b")") == Value{false});
+      CHECK(evaluate("true is true") == Value{true});
+      CHECK(evaluate("true is false") == Value{false});
+      CHECK(evaluate("null is null") == Value{true});
+      CHECK(evaluate("[1, 2] is [1, 2]") == Value{true});
+      CHECK(evaluate("[1, 2] is [1, 3]") == Value{false});
+      CHECK(evaluate("{a: 1} is {a: 1}") == Value{true});
+      CHECK(evaluate("{a: 1} is {a: 2}") == Value{false});
+      CHECK(evaluate("vec(1, 2, 3) is vec(1, 2, 3)") == Value{true});
+      CHECK(evaluate("vec(1, 2, 3) is vec(3, 2, 1)") == Value{false});
+      CHECK(
+        evaluate("bbox(vec(0, 0, 0), vec(1, 1, 1)) is bbox(vec(0, 0, 0), vec(1, 1, 1))")
+        == Value{true});
+      CHECK(
+        evaluate("bbox(vec(0, 0, 0), vec(1, 1, 1)) is bbox(vec(0, 0, 0), vec(2, 2, 2))")
+        == Value{false});
+
+      // is applies the same implicit conversions as ==
+      CHECK(evaluate(R"(1 is "1")") == Value{true});
+      CHECK(evaluate(R"(1 == "1")") == Value{true});
+      CHECK(evaluate("1 is true") == Value{true});
+      CHECK(evaluate("1 == true") == Value{true});
+      CHECK(evaluate("1 is null") == Value{false});
+      CHECK(evaluate("1 == null") == Value{false});
+
+      CHECK(evaluate("undefined is undefined") == Value{true});
+      CHECK(evaluate("1 is undefined") == Value{false});
+      CHECK(evaluate("undefined is 1") == Value{false});
+
+      // infix calls bind more tightly than other binary operators
+      CHECK(evaluate("1 is 1 && 2 is 2") == Value{true});
+      CHECK(evaluate("1 is 1 == true") == Value{true});
+
+      // chained infix calls are evaluated from left to right
+      CHECK(evaluate("1 in [1, 2] is true") == Value{true});
+      CHECK(evaluate("3 in [1, 2] is false") == Value{true});
+
+      // throws for incomparable types
+      CHECK(
+        evaluate("false is []")
+        == Error{"At line 1, column 7: Cannot evaluate expression 'false is []': "
+                 "Invalid operand types Boolean and Array"});
+      CHECK(
+        evaluate("is(false, [])")
+        == Error{"At line 1, column 1: Cannot evaluate expression 'is(false, [])': "
+                 "Invalid operand types Boolean and Array"});
+      CHECK(
+        evaluate("false == []")
+        == Error{"At line 1, column 7: Cannot evaluate expression 'false == []': "
+                 "Invalid operand types Boolean and Array"});
+
+      CHECK(
+        evaluate("is(1)")
+        == Error{"At line 1, column 1: Cannot evaluate expression 'is(1)': "
+                 "is() expects 2 arguments, but got 1"});
+      CHECK(
+        evaluate("is()")
+        == Error{"At line 1, column 1: Cannot evaluate expression 'is()': "
+                 "is() expects 2 arguments, but got 0"});
+    }
+  }
+
+  SECTION("Infix calls")
+  {
+    CHECK(
+      evaluate("vec(0, 0, 0) distanceTo vec(3, 4, 0)")
+      == evaluate("distanceTo(vec(0, 0, 0), vec(3, 4, 0))"));
+    CHECK(evaluate("vec(0, 0, 0) distanceTo vec(3, 4, 0)") == Value{5.0});
+
+    CHECK(
+      evaluate(
+        "vec(0, 0, 0) distanceTo vec(3, 4, 0) == vec(0, 0, 0) distanceTo vec(6, 8, 0)")
+      == evaluate("distanceTo(vec(0, 0, 0), vec(3, 4, 0)) == "
+                  "distanceTo(vec(0, 0, 0), vec(6, 8, 0))"));
+    CHECK(
+      evaluate(
+        "vec(0, 0, 0) distanceTo vec(3, 4, 0) == vec(0, 0, 0) distanceTo vec(6, 8, 0)")
+      == Value{false});
+  }
+
   SECTION("Switch")
   {
     using T = std::tuple<std::string, Result<Value>>;
@@ -1323,6 +1934,8 @@ TEST_CASE("Expression")
     {"[1 + 'a', 2]",       {},                  Value{ArrayType{Value::Undefined, Value{2.0}}}},
     {"{a: 1 + 'a'}",       {},                  Value{MapType{{"a", Value::Undefined}}}},
     {"1[0]",               {},                  Value::Undefined},
+    {"vec('a', 2, 3)",     {},                  Value::Undefined},
+    {"intersects(1, 2)",   {},                  Value::Undefined},
     }));
     // clang-format on
 
@@ -1353,9 +1966,10 @@ TEST_CASE("Expression")
                                     lit(1),
                                 })},
 
-    // A short circuited operand is never evaluated, and the expression still folds
-    {"false && x",              lit(false)},
-    {"true || x",               lit(true)},
+    // An expression only folds if all of its operands are constant, even if an operand
+    // would be short circuited
+    {"false && x",              logAnd(lit(false), var("x"))},
+    {"true || x",               logOr(lit(true), var("x"))},
     {"true && x",               logAnd(lit(true), var("x"))},
     {"false || x",              logOr(lit(false), var("x"))},
 
@@ -1372,11 +1986,33 @@ TEST_CASE("Expression")
     {"x[1]",                    scr(var("x"), lit(1))},
     {"'asdf'[x]",               scr(lit("asdf"), var("x"))},
 
+    // Dot access expressions
+    {"{a:1}.a",                 lit(1)},
+    {"x.a",                     dot(var("x"), "a")},
+
+    // Function calls
+    {"vec(1, 2, 3)",            lit(Vec3Type{1, 2, 3})},
+    {"vec(x, 2, 3)",            call("vec", {var("x"), lit(2), lit(3)})},
+    {"vec(1, 2, 3) distanceTo vec(1, 2, 3)", lit(0)},
+    {"x distanceTo vec(1, 2, 3)", inf("distanceTo", var("x"), lit(Vec3Type{1, 2, 3}))},
+
+    // An operand that isn't constant is never evaluated, so an operation that fails for
+    // an undefined operand doesn't prevent the expression from being optimized
+    {"distanceTo(x, vec(0, 0, 0)) < 1", ls(call("distanceTo", {var("x"), lit(Vec3Type{0, 0, 0})}), lit(1))},
+    {"x intersects y",          inf("intersects", var("x"), var("y"))},
+    {"{a:1}[x] == 1",           eq(scr(lit(MapType{{"a", Value{1}}}), var("x")), lit(1))},
+
     // A map with a non constant element cannot be folded
     {"{a:1, b:x}",              map({{"a", lit(1)}, {"b", var("x")}})},
 
     // An empty switch folds to undefined
     {"{{}}",                    lit(Value::Undefined)},
+
+    // A case that evaluates to undefined is never selected, so it is dropped
+    {"{{ undefined, 2 }}",      lit(2)},
+    {"{{ false -> 1, 2 }}",     lit(2)},
+    {"{{ false -> 1 }}",        lit(Value::Undefined)},
+    {"{{ x -> 1, undefined, 2 }}", swt({cs(var("x"), lit(1)), lit(2)})},
     }));
     // clang-format on
 
@@ -1434,6 +2070,24 @@ TEST_CASE("Expression")
     {"[1, 2]",           "[1, 2]"},
     {"{a: 1}",           R"({ "a": 1 })"},
     {"{{ x -> 1, 2 }}",  "{{ x -> 1, 2 }}"},
+
+    // Dot access round-trips as dot access, not as the equivalent bracket subscript
+    {"x.y",              "x.y"},
+    {"x.y.z",            "x.y.z"},
+    {"x.y[0]",           "x.y[0]"},
+
+    // Function calls
+    {"f()",              "f()"},
+    {"f(1)",             "f(1)"},
+    {"f(1, 2)",          "f(1, 2)"},
+    {"f(g())",           "f(g())"},
+
+    // A constructed BBox round-trips through its own construction syntax
+    {"bbox(vec(1, 2, 3), vec(4, 5, 6))", "bbox(vec(1, 2, 3), vec(4, 5, 6))"},
+
+    // Infix calls round-trip as infix, not as the equivalent prefix call
+    {"a like b",         "a like b"},
+    {"a like b like c",  "a like b like c"},
     }));
     // clang-format on
 
@@ -1457,8 +2111,8 @@ TEST_CASE("Expression")
       UnaryExpression{UnaryOperation::Minus, lit(1)}
       != UnaryExpression{UnaryOperation::Plus, lit(1)});
     CHECK(
-      BinaryExpression{BinaryOperation::Addition, lit(1), lit(2)}
-      != BinaryExpression{BinaryOperation::Subtraction, lit(1), lit(2)});
+      BinaryExpression{binop::Addition{}, lit(1), lit(2)}
+      != BinaryExpression{binop::Subtraction{}, lit(1), lit(2)});
     CHECK(
       SubscriptExpression{lit("ab"), lit(0)} != SubscriptExpression{lit("ab"), lit(1)});
     CHECK(SwitchExpression{{lit(1)}} != SwitchExpression{{lit(2)}});
@@ -1468,11 +2122,11 @@ TEST_CASE("Expression")
       UnaryExpression{UnaryOperation::Minus, lit(1)}
       != UnaryExpression{UnaryOperation::Minus, lit(2)});
     CHECK(
-      BinaryExpression{BinaryOperation::Addition, lit(1), lit(2)}
-      != BinaryExpression{BinaryOperation::Addition, lit(3), lit(2)});
+      BinaryExpression{binop::Addition{}, lit(1), lit(2)}
+      != BinaryExpression{binop::Addition{}, lit(3), lit(2)});
     CHECK(
-      BinaryExpression{BinaryOperation::Addition, lit(1), lit(2)}
-      != BinaryExpression{BinaryOperation::Addition, lit(1), lit(3)});
+      BinaryExpression{binop::Addition{}, lit(1), lit(2)}
+      != BinaryExpression{binop::Addition{}, lit(1), lit(3)});
     CHECK(
       SubscriptExpression{lit("ab"), lit(0)} != SubscriptExpression{lit("cd"), lit(0)});
   }
@@ -1484,6 +2138,7 @@ TEST_CASE("Expression")
       "true && false", "true || false", "12 & 10", "12 ^ 10",      "12 | 10",
       "1 << 3",        "8 >> 2",        "1 < 2",   "1 <= 2",       "1 > 2",
       "1 >= 2",        "1 == 2",        "1 != 2",  "'asdf'[1..2]", "true -> 1",
+      "'ab' like 'b'", "[] contains 1", "1 is 1",  "1 in [1]",     "2 in [1]",
     }));
 
     CAPTURE(expression);

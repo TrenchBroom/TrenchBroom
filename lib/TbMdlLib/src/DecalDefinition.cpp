@@ -50,6 +50,8 @@ DecalSpecification convertToDecal(const el::Value& value)
   case el::ValueType::Number:
   case el::ValueType::Array:
   case el::ValueType::Range:
+  case el::ValueType::Vec3:
+  case el::ValueType::BBox:
   case el::ValueType::Null:
   case el::ValueType::Undefined:
     break;

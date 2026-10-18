@@ -23,6 +23,9 @@
 
 #include "kd/reflection_decl.h"
 
+#include "vm/bbox.h"
+#include "vm/vec.h"
+
 #include <iosfwd>
 #include <map>
 #include <string>
@@ -109,6 +112,8 @@ using IntegerType = long;
 using ArrayType = std::vector<Value>;
 using MapType = std::map<std::string, Value>;
 using RangeType = std::variant<LeftBoundedRange, RightBoundedRange, BoundedRange>;
+using Vec3Type = vm::vec3d;
+using BBoxType = vm::bbox3d;
 
 std::ostream& operator<<(std::ostream& lhs, const RangeType& rhs);
 
@@ -138,6 +143,8 @@ enum class ValueType
   Array,
   Map,
   Range,
+  Vec3,
+  BBox,
   Null,
   Undefined
 };

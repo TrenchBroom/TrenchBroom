@@ -38,9 +38,9 @@ struct MapExpression;
 struct UnaryExpression;
 struct BinaryExpression;
 struct SubscriptExpression;
+struct DotExpression;
+struct CallExpression;
 struct SwitchExpression;
-
-struct ExpressionNodeData;
 
 using Expression = std::variant<
   LiteralExpression,
@@ -50,6 +50,8 @@ using Expression = std::variant<
   UnaryExpression,
   BinaryExpression,
   SubscriptExpression,
+  DotExpression,
+  CallExpression,
   SwitchExpression>;
 
 template <typename Visitor, typename Enable = void>
@@ -100,9 +102,10 @@ using VisitorResultType_t = typename VisitorResultType<Visitor>::type;
 class ExpressionNode
 {
 private:
-  std::shared_ptr<ExpressionNodeData> m_data;
+  struct Data;
+  std::shared_ptr<Data> m_data;
 
-  explicit ExpressionNode(std::shared_ptr<ExpressionNodeData> data);
+  explicit ExpressionNode(std::shared_ptr<Data> data);
 
 public:
   explicit ExpressionNode(
@@ -124,8 +127,6 @@ public:
 
   friend bool operator==(const ExpressionNode& lhs, const ExpressionNode& rhs);
   friend std::ostream& operator<<(std::ostream& str, const ExpressionNode& exp);
-
-  friend class Value;
 
 private:
   const Expression& expression() const;

@@ -79,6 +79,10 @@ std::string typeName(const ValueType type)
     return "Map";
   case ValueType::Range:
     return "Range";
+  case ValueType::Vec3:
+    return "Vec3";
+  case ValueType::BBox:
+    return "BBox";
   case ValueType::Null:
     return "Null";
   case ValueType::Undefined:
@@ -112,6 +116,14 @@ ValueType typeForName(const std::string& type)
   if (type == "Range")
   {
     return ValueType::Range;
+  }
+  if (type == "Vec3")
+  {
+    return ValueType::Vec3;
+  }
+  if (type == "BBox")
+  {
+    return ValueType::BBox;
   }
   if (type == "Null")
   {

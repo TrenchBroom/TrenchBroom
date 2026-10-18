@@ -1859,13 +1859,15 @@ String     A string of characters.
 Number     A floating point number.
 Array      An array is a list of values.
 Map        A map is a list of key-value pairs. Synonyms: dictionary, table.
+Vec3       A three-dimensional vector with `x`, `y`, and `z` components; see below.
+BBox       An axis-aligned bounding box with `min` and `max` corners; see below.
 Range      The range type is only used internally.
 Null       The type of `null` values, which represent an empty value.
 Undefined  The type of `undefined` values, which represent the absence of a value.
 
 #### Type Conversion {#el_type_conversion}
 
-The following matrix describes the possible type conversions between these types. The first column contains the source type, while the following columns describe how a type conversion takes place, or if the result is an error. Note that the columns for types `Range`, `Null`, and `Undefined` are omitted because not type can be converted to these types (except for the trivial conversions). Converting a value of a some type `X` to the same type is called _trivial_.
+The following matrix describes the possible type conversions between these types. The first column contains the source type, while the following columns describe how a type conversion takes place, or if the result is an error. Note that the columns for types `Vec3`, `BBox`, `Range`, `Null`, and `Undefined` are omitted because no type can be converted to these types, except for the trivial conversion and, for `Vec3`, its conversion to and from `String` described below. Converting a value of a some type `X` to the same type is called _trivial_.
 
 -----------------------------------------------------------------------------------------------------------------------------
             `Boolean`                     `String`               `Number`                      `Array`     `Map`
@@ -1885,12 +1887,16 @@ The following matrix describes the possible type conversions between these types
 
 `Range`     error                         error                  error                         error       error
 
+`BBox`      error                         error                  error                         error       error
+
 `Null`      `false`                       `""` (empty string)    `0.0`                         empty array empty map
 
 `Undefined` error                         error                  error                         error       error
 -----------------------------------------------------------------------------------------------------------------------------
 
 A string value can be converted to a number value if and only if the string is a number literal (see below). Conversely, any number can always be converted to a string value, and the number is formatted as follows. If the number is integer, then only the decimal part and no fractional part will be added to the string. If the number is not integer, the fractional part will be formatted with a precision of 17 places.
+
+A `Vec3` (see below) can be converted to a `String`, which produces a string containing its three components separated by spaces, e.g. `"1 2 3"`. Each component is formatted like a number that is converted to a string. Conversely, a `String` consisting of exactly three numbers separated by whitespace can be converted to a `Vec3`. This is the format used by some entity properties, such as an entity's `origin` property.
 
 #### Null and Undefined {#el_null_and_undefined}
 
@@ -2122,6 +2128,210 @@ Subscripting a value of type `Undefined` yields `undefined`, regardless of the i
     map["missing key"][0]     // undefined
 
 Conversely, using an `undefined` value as an index is an error, and so is subscripting a value of type `Null`.
+
+#### Dot Access
+
+Since accessing a map by a string key that happens to be a valid name is very common, the expression language provides a shorthand for it using the dot operator.
+
+    DotAccess = SimpleTerm "." Name
+
+The expression `a.b` is exactly equivalent to `a["b"]`; dot access is simply a more convenient way to write such a subscript. Just like a regular subscript, it evaluates to `undefined` if the given key is not present in the map being accessed, and it can be chained, or combined with regular subscript expressions.
+
+    { some_key: 1 }.some_key    // 1
+    { some_key: 1 }.missing_key // undefined
+
+    { a: { b: 1 } }.a.b     // 1
+    { a: [ 1, 2, 3 ] }.a[1] // 2
+
+Note that dot access only works with names, that is, keys that begin with an alphabetic character or an underscore and contain only alphanumeric characters and underscores. If the key you want to access contains other characters or whitespace, or if it needs to be computed dynamically, you must use the regular subscript syntax with a string instead.
+
+    { "some key": 1 }["some key"] // 1, dot access cannot be used here because of the space
+
+### Function Calls
+
+The expression language allows calling a small, fixed set of built-in functions using the following syntax.
+
+    Call = Name "(" [ Expression { "," Expression } ] ")"
+
+A function call consists of the function's name, followed by a comma-separated list of argument expressions enclosed in parentheses. If a function does not take any arguments, the argument list is simply left empty. Note that the expression language does not support user defined functions. The available functions are listed in the following sections.
+
+#### Infix Notation
+
+Any function that takes exactly two arguments can also be called using infix notation, in which the function's name is placed between its two arguments instead of in front of them, and the parentheses are omitted.
+
+    InfixCall = SimpleTerm Name SimpleTerm
+
+The expression `a f b` is exactly equivalent to `f(a, b)`, provided that `f` is the name of a built-in function that takes two arguments. A name that isn't the name of a built-in function that takes two arguments is not treated as an infix call, so `a f b` is a syntax error unless `f` is such a function.
+
+An infix function call always binds more tightly than any other binary operator; see Binary Operator Precedence below.
+
+### Vec3
+
+A `Vec3` value represents a three-dimensional vector with `x`, `y`, and `z` components. Vectors are constructed using the `vec` function.
+
+    vec(x, y, z)
+
+For example, `vec(1, 2, 3)` constructs a vector with `x` equal to `1`, `y` equal to `2`, and `z` equal to `3`.
+
+The arguments are converted to numbers (see [Type Conversion](#el_type_conversion)), so strings containing numbers, such as the values of entity properties, can be passed directly. If any argument is `undefined`, the result is `undefined`.
+
+The individual components of a vector can be accessed using a numeric subscript, a string subscript, or dot access.
+
+    vec(1, 2, 3)[0]   // 1
+    vec(1, 2, 3)["y"] // 2
+    vec(1, 2, 3).z    // 3
+
+Vectors support the following arithmetic operators. Two vectors can be added or subtracted component-wise, and a vector can be multiplied or divided by a number, or by another vector component-wise. Unary plus and unary minus are also supported; unary minus negates each component of the vector.
+
+    vec(1, 2, 3) + vec(4, 5, 6) // vec(5, 7, 9)
+    vec(4, 5, 6) - vec(1, 2, 3) // vec(3, 3, 3)
+    vec(1, 2, 3) * 2            // vec(2, 4, 6)
+    vec(1, 2, 3) * vec(4, 5, 6) // vec(4, 10, 18)
+    -vec(1, 2, 3)               // vec(-1, -2, -3)
+
+If one operand is a vector and the other one is a string, the string is converted to a vector. If the string doesn't contain a vector, but the vector can be multiplied or divided by a number, the string is converted to a number instead. This makes it possible to use entity properties in vector arithmetic.
+
+    origin + vec(0, 0, 16)    // vec(1, 2, 19) if origin is "1 2 3"
+    vec(1, 1, 1) * modelscale // vec(2, 2, 2) if modelscale is "2"
+
+Note that unary logical negation (`!`), unary bitwise negation (`~`), and the modulus operator (`%`) are not supported for vectors and result in an error, since there is no natural definition of these operations for a three-dimensional vector.
+
+Two vectors can be compared for equality, and, since vectors are ordered lexicographically by their components, using the operators `<`, `<=`, `>`, and `>=`. A vector can also be compared to a string, which is then converted to a vector.
+
+    vec(1, 2, 3) == vec(1, 2, 3) // true
+    vec(1, 2, 3) < vec(4, 5, 6)  // true
+
+The Euclidean distance between two vectors can be computed using the `distanceTo` function. Since it takes exactly two arguments, it can also be called using infix notation (see Infix Notation above).
+
+    distanceTo(a, b)
+    a distanceTo b
+
+For example, `vec(0, 0, 0) distanceTo vec(3, 4, 0)` evaluates to `5`.
+
+Strings containing vectors are converted to vectors. If either argument is `undefined`, the result is `undefined`.
+
+See [Type Conversion](#el_type_conversion) above for how a `Vec3` can be converted to and from a `String`.
+
+### BBox
+
+A `BBox` value represents an axis-aligned bounding box with a minimum and a maximum corner, each of which is a `Vec3`. Boxes are constructed using the `bbox` function.
+
+    bbox(min, max)
+
+For example, `bbox(vec(0, 0, 0), vec(1, 1, 1))` constructs a box with `min` equal to `vec(0, 0, 0)` and `max` equal to `vec(1, 1, 1)`. The two arguments are normalized component-wise so that `min` never exceeds `max`, regardless of the order in which they were given; `bbox(vec(1, 1, 1), vec(0, 0, 0))` therefore constructs the very same box.
+
+Strings containing vectors are converted to vectors. If either argument is `undefined`, the result is `undefined`.
+
+The two corners of a box can be accessed using a string subscript or dot access. Unlike vectors, boxes do not support numeric subscripts.
+
+    bbox(vec(0, 0, 0), vec(1, 1, 1))["min"] // vec(0, 0, 0)
+    bbox(vec(0, 0, 0), vec(1, 1, 1)).max    // vec(1, 1, 1)
+
+Two boxes can be compared for equality.
+
+    bbox(vec(0, 0, 0), vec(1, 1, 1)) == bbox(vec(0, 0, 0), vec(1, 1, 1)) // true
+
+Boxes can also be ordered using `<`, `<=`, `>`, and `>=`, which compare the boxes' corners lexicographically (`min` first, then `max`), though this ordering has no particular geometric meaning and is rarely useful on its own. Boxes do not support any arithmetic or unary operators; using any of them results in an error.
+
+Whether two boxes overlap can be tested using the `intersects` function. Since it takes exactly two arguments, it can also be called using infix notation (see Infix Notation above).
+
+    intersects(a, b)
+    a intersects b
+
+For example, `bbox(vec(0, 0, 0), vec(2, 2, 2)) intersects bbox(vec(1, 1, 1), vec(3, 3, 3))` evaluates to `true`, since the two boxes overlap. Note that `intersects` only tests for overlap; it evaluates to `true` even if neither box fully contains the other.
+
+If either argument is `undefined`, the result is `undefined`.
+
+### Pattern Matching {#el_pattern_matching}
+
+Strings, arrays of strings, and maps can be matched against a glob pattern using the `like` function. Since it takes exactly two arguments, it can also be called using infix notation (see Infix Notation above).
+
+    like(value, pattern)
+    value like pattern
+
+The match is case insensitive. The pattern may contain the following special characters.
+
+Character  Effect
+---------  ------
+`?`        Matches any single character.
+`*`        Matches any sequence of characters, including none.
+`%`        Matches any single digit.
+`%*`       Matches any sequence of digits, including none.
+`\?`       Matches a literal `?` character.
+`\*`       Matches a literal `*` character.
+`\%`       Matches a literal `%` character.
+`\\`       Matches a literal `\` character.
+
+A single `\` at the end of the pattern also matches a literal `\` character.
+
+If the pattern does not contain any of the characters `?`, `*`, or `%`, except in an escape sequence such as `\*`, it is matched as a substring of `value` instead of requiring an exact match.
+
+    "Hello World" like "hello*"      // true
+    "Hello World" like "*world"      // true
+    "Hello World" like "h?llo*"      // true
+    "func_detail" like "detail"      // true, matched as a substring
+    "func_detail" like "func_detail" // true
+
+If `value` is an `Array`, `like` evaluates to `true` if any of its `String` elements matches the pattern; elements of any other type are simply ignored.
+
+    ["a", "b", "trigger_once"] like "*trigger*" // true
+
+If `value` is a `Map`, `like` evaluates to `true` if any of its keys, or any of its `String` values, matches the pattern.
+
+    { target: "door1" } like "target" // true, matched by key
+    { target: "door1" } like "door*"  // true, matched by value
+
+`like` never throws an error. If `value` or `pattern` is `undefined`, if `value` is of a type other than `String`, `Array` or `Map`, or if `pattern` is not a `String`, the result is simply `false`.
+
+### Membership Testing
+
+Whether a container value contains a given value can be tested using the `contains` function. Since it takes exactly two arguments, it can also be called using infix notation (see Infix Notation above).
+
+    contains(container, value)
+    container contains value
+
+The following table explains the supported combinations of container and value types. It applies to the `in` function described below as well.
+
+Container   Value     Effect
+---------   -----     ------
+`Array`     any type  `true` if the array contains an element equal to `value`.
+`Map`       `String`  `true` if the map contains a key equal to `value`.
+`BBox`      `Vec3`    `true` if the box contains the point.
+`BBox`      `BBox`    `true` if the box fully contains the other box.
+
+The elements of an array are compared with `value` like `==` does, including its type conversions, so `[1, 2, 3] contains "2"` is `true`.
+
+    [1, 2, 3] contains 2                                                // true
+    { a: 1, b: 2 } contains "a"                                         // true
+    bbox(vec(0, 0, 0), vec(2, 2, 2)) contains vec(1, 1, 1)              // true
+    bbox(vec(0, 0, 0), vec(3, 3, 3)) contains bbox(vec(1, 1, 1), vec(2, 2, 2)) // true
+
+`contains` never throws an error. If `container` or `value` is `undefined`, or if their combination of types is not one of those listed above, the result is simply `false`.
+
+The `in` function is the same as `contains`, except that its arguments are swapped. This often reads more naturally when using infix notation.
+
+    in(value, container)
+    value in container
+
+`in(a, b)` is exactly equivalent to `contains(b, a)`, so the table above applies to `in` as well, with `a` as the value and `b` as the container. Like `contains`, `in` never throws an error.
+
+    2 in [1, 2, 3]                                                      // true
+    "a" in { a: 1, b: 2 }                                               // true
+    vec(1, 1, 1) in bbox(vec(0, 0, 0), vec(2, 2, 2))                    // true
+
+### Equality Testing
+
+Whether two values are equal can be tested using the `is` function. Since it takes exactly two arguments, it can also be called using infix notation (see Infix Notation above).
+
+    is(a, b)
+    a is b
+
+`is(a, b)` is exactly equivalent to `a == b`. In particular, it applies the same implicit type conversions and throws the same error if the types of `a` and `b` cannot be compared.
+
+    1 is 1               // true
+    "a" is "b"           // false
+    1 is "1"             // true, since the string is converted to a number
+    1 in [1, 2] is true  // true, since chained infix calls are evaluated from left to right
 
 ### Unary Operator Terms
 
@@ -2434,7 +2644,7 @@ Operator Name                Precedence
 `||`     Logical or          3
 `..`     Range               2
 `->`     Case                1
-` `      Other operators     13
+`name`   Infix function call 13
 
 Some examples:
 
@@ -2940,6 +3150,7 @@ Example                                   Description
 -------                                   -----------
 `"scale": 2`                              A fixed uniform scale factor of `2`.
 `"scale": "1 2 3"`                        A fixed non-uniform scale factor scaling X by 1, Y by 2 and Z by 3.
+`"scale": vec(1, 2, 3)`                   A fixed non-uniform scale factor scaling X by 1, Y by 2 and Z by 3, using a `Vec3` value directly.
 `"scale": modelscale`                     Use the value of the entities' `modelscale` property.
 `"scale": [ modelscale, modelscale_vec ]` Try the individual values in the array until we find one that doesn't evaluate to `Undefined` or `Null`.
 
