@@ -24,7 +24,6 @@
 #include "base/Macros.h"
 #include "base/Result.h"
 
-#include <memory>
 #include <string>
 
 namespace tb::el
@@ -33,14 +32,12 @@ namespace tb::el
 class EvaluationContext
 {
 private:
-  std::unique_ptr<VariableStore> m_variables;
+  const VariableStore& m_variables;
 
   EvaluationContext();
   explicit EvaluationContext(const VariableStore& variables);
 
 public:
-  ~EvaluationContext();
-
   Value variableValue(const std::string& name) const;
 
   template <typename F, typename... Args>
