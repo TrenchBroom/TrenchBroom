@@ -44,6 +44,13 @@
 
 namespace tb::el
 {
+
+struct BuiltinFunction
+{
+  size_t arity;
+  std::function<Value(std::span<const Value>, const ExpressionNode&)> evaluate;
+};
+
 namespace
 {
 
@@ -967,6 +974,7 @@ Value evaluateCase(const EvaluateLhs& evaluateLhs, const EvaluateRhs& evaluateRh
 }
 
 Value evaluateCall(
+  const BuiltinFunction* function,
   const std::string& name,
   std::span<const Value> arguments,
   const ExpressionNode& expressionNode);
@@ -1040,7 +1048,8 @@ Value evaluateBinaryExpression(
       [&](const binop::Case&) { return evaluateCase(evaluateLhs, evaluateRhs); },
       [&](const binop::InfixCall& infixCall) {
         const auto arguments = std::array{evaluateLhs(), evaluateRhs()};
-        return evaluateCall(infixCall.functionName, arguments, expressionNode);
+        return evaluateCall(
+          infixCall.cachedFunction, infixCall.functionName, arguments, expressionNode);
       }),
     operator_);
 }
@@ -1494,12 +1503,6 @@ Value evaluateContains(
   }
 }
 
-struct BuiltinFunction
-{
-  size_t arity;
-  std::function<Value(std::span<const Value>, const ExpressionNode&)> evaluate;
-};
-
 bool hasUndefinedArgument(const std::span<const Value> arguments)
 {
   return std::ranges::any_of(arguments, [](const auto& argument) {
@@ -1577,27 +1580,27 @@ const auto builtinFunctions = kdl::flat_map<std::string, BuiltinFunction>{
 };
 
 Value evaluateCall(
+  const BuiltinFunction* function,
   const std::string& name,
   const std::span<const Value> arguments,
   const ExpressionNode& expressionNode)
 {
-  if (const auto it = builtinFunctions.find(name); it != builtinFunctions.end())
+  if (function)
   {
-    const auto& function = it->second;
-    if (arguments.size() != function.arity)
+    if (arguments.size() != function->arity)
     {
       throw EvaluationError{
         expressionNode,
         fmt::format(
           "{}() expects {} arguments, but got {}",
           name,
-          function.arity,
+          function->arity,
           arguments.size())};
     }
 
     try
     {
-      return function.evaluate(arguments, expressionNode);
+      return function->evaluate(arguments, expressionNode);
     }
     catch (const ConversionError& e)
     {
@@ -1633,6 +1636,7 @@ Value evaluate(
     std::ranges::transform(expression.arguments, arguments.begin(), evaluateArgument);
 
     return evaluateCall(
+      expression.cachedFunction,
       expression.name,
       std::span{arguments}.first(expression.arguments.size()),
       expressionNode);
@@ -1641,7 +1645,8 @@ Value evaluate(
   const auto arguments = expression.arguments | std::views::transform(evaluateArgument)
                          | kdl::ranges::to<std::vector>();
 
-  return evaluateCall(expression.name, arguments, expressionNode);
+  return evaluateCall(
+    expression.cachedFunction, expression.name, arguments, expressionNode);
 }
 
 template <typename Evaluator>
@@ -1828,10 +1833,12 @@ Expression optimize(
                           })
                         | kdl::ranges::to<std::vector>();
 
-    return LiteralExpression{evaluateCall(expression.name, values, expressionNode)};
+    return LiteralExpression{
+      evaluateCall(expression.cachedFunction, expression.name, values, expressionNode)};
   }
 
-  return CallExpression{expression.name, std::move(optimizedArguments)};
+  return CallExpression{
+    expression.name, std::move(optimizedArguments), expression.cachedFunction};
 }
 
 Expression optimize(
@@ -2284,10 +2291,16 @@ std::ostream& operator<<(std::ostream& lhs, const CallExpression& rhs)
   return lhs << ")";
 }
 
-std::optional<size_t> builtinFunctionArity(const std::string& name)
+const BuiltinFunction* findBuiltinFunction(const std::string& name)
 {
   const auto it = builtinFunctions.find(name);
-  return it != builtinFunctions.end() ? std::optional{it->second.arity} : std::nullopt;
+  return it != builtinFunctions.end() ? &it->second : nullptr;
+}
+
+std::optional<size_t> builtinFunctionArity(const std::string& name)
+{
+  const auto* function = findBuiltinFunction(name);
+  return function ? std::optional{function->arity} : std::nullopt;
 }
 
 

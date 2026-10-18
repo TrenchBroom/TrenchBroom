@@ -204,8 +204,11 @@ ExpressionNode cs(ExpressionNode leftOperand, ExpressionNode rightOperand)
 ExpressionNode inf(
   std::string name, ExpressionNode leftOperand, ExpressionNode rightOperand)
 {
+  const auto* function = findBuiltinFunction(name);
   return ExpressionNode{BinaryExpression{
-    binop::InfixCall{std::move(name)}, std::move(leftOperand), std::move(rightOperand)}};
+    binop::InfixCall{std::move(name), function},
+    std::move(leftOperand),
+    std::move(rightOperand)}};
 }
 
 ExpressionNode scr(ExpressionNode leftOperand, ExpressionNode rightOperand)
@@ -221,7 +224,8 @@ ExpressionNode dot(ExpressionNode operand, std::string fieldName)
 
 ExpressionNode call(std::string name, std::vector<ExpressionNode> arguments)
 {
-  return ExpressionNode{CallExpression{std::move(name), std::move(arguments)}};
+  const auto* function = findBuiltinFunction(name);
+  return ExpressionNode{CallExpression{std::move(name), std::move(arguments), function}};
 }
 
 ExpressionNode swt(std::vector<ExpressionNode> cases)

@@ -486,7 +486,9 @@ ExpressionNode Parser::parseCall(const Token& nameToken)
   }
 
   return ExpressionNode{
-    CallExpression{nameToken.data(), std::move(arguments)}, nameToken.location()};
+    CallExpression{
+      nameToken.data(), std::move(arguments), findBuiltinFunction(nameToken.data())},
+    nameToken.location()};
 }
 
 ExpressionNode Parser::parseVariable()
@@ -728,7 +730,9 @@ ExpressionNode Parser::parseCompoundTerm(ExpressionNode lhs)
     {
       lhs = ExpressionNode{
         BinaryExpression{
-          binop::InfixCall{token.data()}, std::move(lhs), parseSimpleTermOrSwitch()},
+          binop::InfixCall{token.data(), findBuiltinFunction(token.data())},
+          std::move(lhs),
+          parseSimpleTermOrSwitch()},
         token.location()};
     }
     else if (const auto it = TokenMap.find(token.type()); it != TokenMap.end())
