@@ -1948,7 +1948,7 @@ A literal is either a string, a number, a boolean, `null`, `undefined`, an array
     String    = """ { Char } """ | "'" { Char } "'"
     Number    = Numeric { Numeric } [ "." Numeric { Numeric } ]
 
-Note that strings can either be enclosed by double or single quotes, but you cannot mix these two styles. If you enclose a string by double quotes, you need to escape all literal double quotes within the string with backslashes like so: "this is a \\"fox\\"", but this is not necessary when using single quotes to enclose that string: 'this is a "fox"' is also a valid string literal.
+Note that strings can either be enclosed by double or single quotes, but you cannot mix these two styles. If you enclose a string by double quotes, you need to escape all literal double quotes within the string with backslashes like so: "this is a \\"fox\\"", but this is not necessary when using single quotes to enclose that string: 'this is a "fox"' is also a valid string literal. A backslash that is followed by another backslash escapes it, so the string literal `"C:\\quake"` stands for the string `C:\quake`. Any other backslash is kept as it is.
 
 Further note that number literals need not contain a fractional part and can be written like integers, i.e. `1` instead of `1.0`.
 
@@ -2262,7 +2262,9 @@ Character  Effect
 `\%`       Matches a literal `%` character.
 `\\`       Matches a literal `\` character.
 
-A single `\` at the end of the pattern also matches a literal `\` character.
+A `\` that is not followed by one of the characters `?`, `*`, `%`, or `\`, such as the one in `id1\gfx.wad` or one at the end of the pattern, also matches a literal `\` character.
+
+These escape sequences are part of the pattern itself. When the pattern is written as a string literal, `\\` already stands for a single `\` (see Names and Literals above), while any other backslash is kept. Escape sequences such as `\*` and paths such as `id1\gfx.wad` can therefore be written as they are, but a literal `\` followed by a wildcard needs four backslashes: `"quake\\\\*"` matches `quake\` followed by anything, whereas `"quake\\*"` is the pattern `quake\*`, which matches a literal `*`.
 
 If the pattern does not contain any of the characters `?`, `*`, or `%`, except in an escape sequence such as `\*`, it is matched as a substring of `value` instead of requiring an exact match.
 

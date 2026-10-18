@@ -290,6 +290,9 @@ bool str_is_equal(
  * - \% matches a literal '%' character
  * - \\ matches a literal '\' character
  *
+ * A '\' that isn't followed by one of the characters '?', '*', '%' or '\' also matches a
+ * literal '\' character.
+ *
  * Consider the following examples:
  * - ?o? matches 'god' and 'dog', but not 'dug'
  * - he*o matches 'hello' and 'hero', but not 'hera' nor 'hiro'
@@ -333,6 +336,10 @@ bool str_matches_glob(
     return str_is_equal(str, literal, char_equal);
   }
 
+  const auto is_escapable = [](const char c) {
+    return c == '*' || c == '?' || c == '%' || c == '\\';
+  };
+
   using match_task = std::pair<std::size_t, std::size_t>;
 
   const auto num_match_tasks =
@@ -358,27 +365,15 @@ bool str_matches_glob(
       continue;
     }
 
-    if (pattern[p_i] == '\\' && p_i < pattern.length() - 1u)
+    if (
+      pattern[p_i] == '\\' && p_i < pattern.length() - 1u
+      && is_escapable(pattern[p_i + 1u]))
     {
       // handle escaped characters in the pattern
-      if (s_i < str.length())
+      if (s_i < str.length() && str[s_i] == pattern[p_i + 1u])
       {
-        // check the next character in the pattern against the next character in the
-        // string
-        const auto& n = pattern[p_i + 1u];
-        if (n == '*' || n == '?' || n == '%' || n == '\\')
-        {
-          if (str[s_i] == n)
-          {
-            // the string matches the escaped character, continue to match
-            match_tasks.emplace_back(s_i + 1u, p_i + 2u);
-          }
-        }
-        else
-        {
-          // invalid escape sequence in pattern
-          return false;
-        }
+        // the string matches the escaped character, continue to match
+        match_tasks.emplace_back(s_i + 1u, p_i + 2u);
       }
     }
     else if (pattern[p_i] == '*')
