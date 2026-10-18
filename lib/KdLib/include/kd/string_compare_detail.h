@@ -308,6 +308,31 @@ template <typename CharEqual>
 bool str_matches_glob(
   const std::string_view str, const std::string_view pattern, const CharEqual& char_equal)
 {
+  // fast path for patterns with a leading and / or a trailing *, and no other placeholder
+  const auto leading_star = pattern.starts_with('*');
+  const auto trailing_star =
+    pattern.size() > (leading_star ? 1u : 0u) && pattern.ends_with('*');
+  const auto literal = pattern.substr(
+    leading_star ? 1u : 0u,
+    pattern.size() - (leading_star ? 1u : 0u) - (trailing_star ? 1u : 0u));
+
+  if (literal.find_first_of("*?%\\") == std::string_view::npos)
+  {
+    if (leading_star && trailing_star)
+    {
+      return literal.empty() || str_contains(str, literal, char_equal);
+    }
+    if (leading_star)
+    {
+      return str_is_suffix(str, literal, char_equal);
+    }
+    if (trailing_star)
+    {
+      return str_is_prefix(str, literal, char_equal);
+    }
+    return str_is_equal(str, literal, char_equal);
+  }
+
   using match_task = std::pair<std::size_t, std::size_t>;
   std::vector<match_task> match_tasks({{0u, 0u}});
 
