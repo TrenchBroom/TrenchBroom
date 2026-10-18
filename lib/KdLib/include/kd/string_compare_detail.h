@@ -334,7 +334,12 @@ bool str_matches_glob(
   }
 
   using match_task = std::pair<std::size_t, std::size_t>;
-  std::vector<match_task> match_tasks({{0u, 0u}});
+
+  const auto num_match_tasks =
+    pattern.find('*') != std::string_view::npos ? str.length() + 1u : 1u;
+  auto match_tasks = std::vector<match_task>{};
+  match_tasks.reserve(num_match_tasks);
+  match_tasks.emplace_back(0u, 0u);
 
   while (!match_tasks.empty())
   {
