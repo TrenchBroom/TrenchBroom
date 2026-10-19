@@ -1624,10 +1624,28 @@ Value evaluate(
   const CallExpression& expression,
   const ExpressionNode& expressionNode)
 {
-  const auto arguments = expression.arguments
-                         | std::views::transform([&](const auto& argument) {
-                             return argument.accept(evaluator);
-                           })
+  // built-in functions take at most three arguments, so they are evaluated into a fixed
+  // buffer to avoid an allocation per call
+  static constexpr size_t MaxBufferedArguments = 3;
+
+  const auto evaluateArgument = [&](const auto& argument) {
+    return argument.accept(evaluator);
+  };
+
+  if (expression.arguments.size() <= MaxBufferedArguments)
+  {
+    auto arguments = std::array<Value, MaxBufferedArguments>{};
+    std::ranges::transform(expression.arguments, arguments.begin(), evaluateArgument);
+
+    return evaluateCall(
+      context,
+      expression.function,
+      expression.name,
+      std::span{arguments}.first(expression.arguments.size()),
+      expressionNode);
+  }
+
+  const auto arguments = expression.arguments | std::views::transform(evaluateArgument)
                          | kdl::ranges::to<std::vector>();
 
   return evaluateCall(context, expression.name, arguments, expressionNode);
