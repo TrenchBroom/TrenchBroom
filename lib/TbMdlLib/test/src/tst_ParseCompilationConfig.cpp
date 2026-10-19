@@ -17,6 +17,10 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "TestEnvironment.h"
+#include "fs/DiskIO.h"
+#include "fs/Reader.h"
+#include "fs/TraversalMode.h"
 #include "mdl/CatchConfig.h"
 #include "mdl/CompilationConfig.h"
 #include "mdl/CompilationTask.h"
@@ -31,6 +35,30 @@ namespace tb::mdl
 
 TEST_CASE("CompilationConfigParser")
 {
+  SECTION("includes")
+  {
+    SECTION("parseIncludedCompilationConfigs")
+    {
+      const auto basePath = getFixtureRoot() / "games/";
+      const auto cfgFiles = fs::Disk::find(
+                              basePath,
+                              fs::TraversalMode::Recursive,
+                              fs::makeFilenamePathMatcher("CompilationProfiles.cfg"))
+                            | kdl::value();
+      REQUIRE(!cfgFiles.empty());
+
+      for (const auto& path : cfgFiles)
+      {
+        CAPTURE(path);
+
+        auto file = fs::Disk::openFile(path) | kdl::value();
+        auto reader = file->reader().buffer();
+
+        CHECK(parseCompilationConfig(reader.stringView()).is_success());
+      }
+    }
+  }
+
   SECTION("invalid input")
   {
     SECTION("parseBlankConfig")
