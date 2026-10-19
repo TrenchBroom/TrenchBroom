@@ -105,6 +105,13 @@ struct BoundedRange
   kdl_reflect_decl(BoundedRange, first, last);
 };
 
+struct Pattern
+{
+  std::string glob;
+
+  kdl_reflect_decl(Pattern, glob);
+};
+
 using BooleanType = bool;
 using StringType = std::string;
 using NumberType = double;
@@ -114,6 +121,7 @@ using MapType = std::map<std::string, Value>;
 using RangeType = std::variant<LeftBoundedRange, RightBoundedRange, BoundedRange>;
 using Vec3Type = vm::vec3d;
 using BBoxType = vm::bbox3d;
+using PatternType = Pattern;
 
 std::ostream& operator<<(std::ostream& lhs, const RangeType& rhs);
 
@@ -145,6 +153,7 @@ enum class ValueType
   Range,
   Vec3,
   BBox,
+  Pattern,
   Null,
   Undefined
 };

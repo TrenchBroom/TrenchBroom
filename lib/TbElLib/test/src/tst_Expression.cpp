@@ -141,6 +141,7 @@ TEST_CASE("Expression")
     {"true",         Value{true}},
     {"false",        Value{false}},
     {"'asdf'",       Value{"asdf"}},
+    {R"(g"a*")",     Value{Pattern{"a*"}}},
     {"2",            Value{2}},
     {"-2",           Value{-2}},
     {"[2, 3]",       Value{ArrayType{Value{2}, Value{3}}}},
@@ -1265,6 +1266,46 @@ TEST_CASE("Expression")
     }
   }
 
+  SECTION("Pattern")
+  {
+    SECTION("Subscript")
+    {
+      CHECK(
+        evaluate(R"(g"a*"[0])")
+        == Error{
+          R"(At line 1, column 6: Cannot evaluate expression 'g"a*"[0]': '0' is not a compatible index for 'g"a*"')"});
+    }
+
+    SECTION("Unary operators")
+    {
+      CHECK(
+        evaluate(R"(!g"a*")")
+        == Error{
+          R"(At line 1, column 1: Cannot evaluate expression '!g"a*"': Invalid type Pattern)"});
+    }
+
+    SECTION("Arithmetic")
+    {
+      CHECK(
+        evaluate(R"(g"a*" + g"b*")")
+        == Error{
+          R"(At line 1, column 7: Cannot evaluate expression 'g"a*" + g"b*"': Invalid operand types Pattern and Pattern)"});
+    }
+
+    SECTION("Comparison")
+    {
+      CHECK(evaluate(R"(g"a*" == g"a*")") == Value{true});
+      CHECK(evaluate(R"(g"a*" == g"b*")") == Value{false});
+      CHECK(evaluate(R"(g"a*" != g"b*")") == Value{true});
+      CHECK(evaluate(R"(g"a*" < g"b*")") == Value{true});
+
+      CHECK(
+        evaluate(R"(g"a*" == "a*")")
+        == Error{
+          R"(At line 1, column 7: Cannot evaluate expression 'g"a*" == "a*"': Invalid operand types Pattern and String)"});
+    }
+  }
+
   SECTION("Subscript")
   {
     using T = std::tuple<std::string, Result<Value>>;
@@ -1576,84 +1617,71 @@ TEST_CASE("Expression")
 
     SECTION("like")
     {
-      // String like String: case-insensitive glob, and prefix/infix forms agree
-      CHECK(evaluate(R"(like("Hello World", "hello*"))") == Value{true});
-      CHECK(evaluate(R"("Hello World" like "hello*")") == Value{true});
-      CHECK(evaluate(R"("Hello World" like "*world")") == Value{true});
-      CHECK(evaluate(R"("Hello World" like "h?llo*")") == Value{true});
-      CHECK(evaluate(R"("Hello World" like "goodbye*")") == Value{false});
+      // String like Pattern: case-insensitive glob, and prefix/infix forms agree
+      CHECK(evaluate(R"(like("Hello World", g"hello*"))") == Value{true});
+      CHECK(evaluate(R"("Hello World" like g"hello*")") == Value{true});
+      CHECK(evaluate(R"("Hello World" like g"*world")") == Value{true});
+      CHECK(evaluate(R"("Hello World" like g"h?llo*")") == Value{true});
+      CHECK(evaluate(R"("Hello World" like g"goodbye*")") == Value{false});
 
-      // a pattern with no glob metacharacters matches as a substring, not exactly
-      CHECK(evaluate(R"("func_detail" like "detail")") == Value{true});
-      CHECK(evaluate(R"("func_detail" like "func_detail")") == Value{true});
-      CHECK(evaluate(R"("detail" like "func_detail")") == Value{false});
+      // a pattern matches the entire value
+      CHECK(evaluate(R"("func_detail" like g"func_detail")") == Value{true});
+      CHECK(evaluate(R"("func_detail" like g"detail")") == Value{false});
+      CHECK(evaluate(R"("func_detail" like g"*detail")") == Value{true});
 
-      // in a string literal, a backslash that precedes another backslash or a quote
-      // escapes it, but any other backslash is kept
+      // the backslashes in a pattern are passed to the matcher as written: a backslash
+      // escapes a wildcard, another backslash or a double quote, and any other backslash
+      // matches itself
       //
       // these expressions are not written inside CHECK because MSVC fails to stringize
       // raw string literals that contain a double quote followed by a backslash
       using T = std::tuple<std::string, Value>;
-      const auto stringLiteralCases = std::vector<T>{
-        {R"("quake*" like "quake\*")", Value{true}},
-        {R"("quake*" like "quake\\*")", Value{true}},
-        {R"("quake\x" like "quake\\*")", Value{false}},
-        {R"("quake\x" like "quake\\\\*")", Value{true}},
-        {R"("id1\gfx.wad" like "id1\gfx")", Value{true}},
-        {R"("id1\gfx.wad" like "id1\\gfx")", Value{true}},
+      const auto variables = MapType{{"path", Value{R"(C:\quake\id1\gfx.wad)"}}};
+      const auto backslashCases = std::vector<T>{
+        {R"(path like g"C:\quake\id1\gfx.wad")", Value{true}},
+        {R"(path like g"C:\quake\\*")", Value{true}},
+        {R"(path like g"C:\quake\*")", Value{false}},
+        {R"("quake*" like g"quake\*")", Value{true}},
+        {R"("what?" like g"what\?")", Value{true}},
+        {R"("whats" like g"what\?")", Value{false}},
+        {R"("100%" like g"100\%")", Value{true}},
+        {R"("1000" like g"100\%")", Value{false}},
+        {R"('say "hi"' like g"say \"hi\"")", Value{true}},
       };
-      for (const auto& [expression, expectedValue] : stringLiteralCases)
+      for (const auto& [expression, expectedValue] : backslashCases)
       {
         CAPTURE(expression);
-        CHECK(evaluate(expression) == expectedValue);
+        CHECK(evaluate(expression, variables) == expectedValue);
       }
 
-      // an escaped wildcard is matched literally and doesn't prevent substring matching
-      const auto patterns = MapType{
-        {"path", Value{R"(C:\quake\id1\gfx.wad)"}},
-        {"escapedBackslash", Value{R"(id1\\gfx)"}},
-        {"escapedStar", Value{R"(\*)"}},
-        {"escapedStarThenStar", Value{R"(a\**)"}},
-        {"trailingBackslash", Value{R"(quake\)"}},
-        {"escapedTrailingBackslash", Value{R"(quake\\)"}},
-        {"literalBackslash", Value{R"(id1\gfx)"}},
-        {"literalBackslashThenStar", Value{R"(*id1\g*)"}},
-      };
-      CHECK(evaluate("path like escapedBackslash", patterns) == Value{true});
-      CHECK(evaluate(R"("a*b" like escapedStar)", patterns) == Value{true});
-      CHECK(evaluate(R"("a*bc" like escapedStarThenStar)", patterns) == Value{true});
-      CHECK(evaluate(R"("xa*bc" like escapedStarThenStar)", patterns) == Value{false});
-
-      // a trailing backslash that doesn't escape anything matches a literal backslash
-      CHECK(evaluate("path like trailingBackslash", patterns) == Value{true});
-      CHECK(evaluate(R"("quake*" like trailingBackslash)", patterns) == Value{false});
-      CHECK(evaluate("path like escapedTrailingBackslash", patterns) == Value{true});
-
-      // so does a backslash that doesn't escape a wildcard or another backslash
-      CHECK(evaluate("path like literalBackslash", patterns) == Value{true});
-      CHECK(evaluate(R"("id1g" like literalBackslash)", patterns) == Value{false});
-      CHECK(evaluate("path like literalBackslashThenStar", patterns) == Value{true});
-
-      // Array like String: true if any element matches
-      CHECK(evaluate(R"(["a", "b", "trigger_once"] like "*trigger*")") == Value{true});
-      CHECK(evaluate(R"(["a", "b", "c"] like "*trigger*")") == Value{false});
+      // Array like Pattern: true if any element matches
+      CHECK(evaluate(R"(["a", "b", "trigger_once"] like g"*trigger*")") == Value{true});
+      CHECK(evaluate(R"(["a", "b", "c"] like g"*trigger*")") == Value{false});
       // non-String elements are simply skipped, not an error
-      CHECK(evaluate(R"([1, "trigger_once"] like "*trigger*")") == Value{true});
+      CHECK(evaluate(R"([1, "trigger_once"] like g"*trigger*")") == Value{true});
 
-      // Map like String: true if any key or String value matches
-      CHECK(evaluate(R"({target: "door1"} like "target")") == Value{true});
-      CHECK(evaluate(R"({target: "door1"} like "door*")") == Value{true});
-      CHECK(evaluate(R"({target: "door1"} like "light*")") == Value{false});
+      // Map like Pattern: true if any key or String value matches
+      CHECK(evaluate(R"({target: "door1"} like g"target")") == Value{true});
+      CHECK(evaluate(R"({target: "door1"} like g"door*")") == Value{true});
+      CHECK(evaluate(R"({target: "door1"} like g"light*")") == Value{false});
       // non-String values are simply skipped, not an error
-      CHECK(evaluate(R"({a: 1} like "a")") == Value{true});
-      CHECK(evaluate(R"({a: 1} like "1")") == Value{false});
+      CHECK(evaluate(R"({a: 1} like g"a")") == Value{true});
+      CHECK(evaluate(R"({a: 1} like g"1")") == Value{false});
 
-      // never throws -- Undefined on either side, or an unsupported type combination,
-      // just fails to match
-      CHECK(evaluate(R"(undefined like "x")") == Value{false});
+      // Undefined on either side, or a value that can't be matched, just fails to match
+      CHECK(evaluate(R"(undefined like g"x")") == Value{false});
       CHECK(evaluate(R"("x" like undefined)") == Value{false});
-      CHECK(evaluate(R"(1 like "1")") == Value{false});
-      CHECK(evaluate(R"("x" like 1)") == Value{false});
+      CHECK(evaluate(R"(1 like g"1")") == Value{false});
+
+      // but anything other than a pattern on the right-hand side is an error
+      CHECK(
+        evaluate(R"("x" like "x")")
+        == Error{
+          R"(At line 1, column 5: Cannot evaluate expression '"x" like "x"': At line 1, column 10: Cannot dereference value '"x"' of type 'String' as type 'Pattern')"});
+      CHECK(
+        evaluate(R"("x" like 1)")
+        == Error{
+          R"(At line 1, column 5: Cannot evaluate expression '"x" like 1': At line 1, column 10: Cannot dereference value '1' of type 'Number' as type 'Pattern')"});
 
       CHECK(
         evaluate(R"(like("a"))")
@@ -2112,6 +2140,10 @@ TEST_CASE("Expression")
     // A constructed BBox round-trips through its own construction syntax
     {"bbox(vec(1, 2, 3), vec(4, 5, 6))", "bbox(vec(1, 2, 3), vec(4, 5, 6))"},
 
+    // A pattern round-trips with its backslashes, escaping only its double quotes
+    {R"(g"a\*")",        R"(g"a\*")"},
+    {R"(g"a\"b")",       R"(g"a\"b")"},
+
     // Infix calls round-trip as infix, not as the equivalent prefix call
     {"a like b",         "a like b"},
     {"a like b like c",  "a like b like c"},
@@ -2161,11 +2193,15 @@ TEST_CASE("Expression")
   SECTION("optimize agrees with evaluate for every binary operator")
   {
     const auto expression = GENERATE(values<std::string>({
-      "1 + 2",         "3 - 1",         "2 * 3",   "6 / 2",        "7 % 3",
-      "true && false", "true || false", "12 & 10", "12 ^ 10",      "12 | 10",
-      "1 << 3",        "8 >> 2",        "1 < 2",   "1 <= 2",       "1 > 2",
-      "1 >= 2",        "1 == 2",        "1 != 2",  "'asdf'[1..2]", "true -> 1",
-      "'ab' like 'b'", "[] contains 1", "1 is 1",  "1 in [1]",     "2 in [1]",
+      "1 + 2",         "3 - 1",     "2 * 3",
+      "6 / 2",         "7 % 3",     "true && false",
+      "true || false", "12 & 10",   "12 ^ 10",
+      "12 | 10",       "1 << 3",    "8 >> 2",
+      "1 < 2",         "1 <= 2",    "1 > 2",
+      "1 >= 2",        "1 == 2",    "1 != 2",
+      "'asdf'[1..2]",  "true -> 1", R"('ab' like g"*b")",
+      "[] contains 1", "1 is 1",    "1 in [1]",
+      "2 in [1]",
     }));
 
     CAPTURE(expression);

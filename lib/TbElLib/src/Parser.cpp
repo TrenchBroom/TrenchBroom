@@ -27,6 +27,7 @@
 #include "el/Value.h"
 
 #include "kd/string_format.h"
+#include "kd/string_utils.h"
 
 #include <fmt/format.h>
 
@@ -46,6 +47,7 @@ auto tokenNames()
   return Tokenizer::TokenNameMap{
     {Name, "variable"},
     {String, "string"},
+    {ElToken::Pattern, "pattern"},
     {Number, "number"},
     {Boolean, "boolean"},
     {OBracket, "'['"},
@@ -283,6 +285,14 @@ Tokenizer::Token Tokenizer::emitToken()
         return Token{ElToken::Number, c, e, offset(c), line, column};
       }
 
+      if (*c == 'g' && lookAhead() == '"')
+      {
+        advance(2);
+        c = curPos();
+        const char* e = readQuotedString('"');
+        return Token{ElToken::Pattern, c, e, offset(c), line, column};
+      }
+
       if (isLetter(*c) || *c == '_')
       {
         const char* e = nullptr;
@@ -499,6 +509,14 @@ ExpressionNode Parser::parseLiteral()
     // Escaping happens in Value::appendToStream
     auto value = kdl::str_unescape(token.data(), "\\\"");
     return ExpressionNode{LiteralExpression{Value{std::move(value)}}, token.location()};
+  }
+  if (token.hasType(ElToken::Pattern))
+  {
+    m_tokenizer.nextToken();
+    // Escaping happens in Value::appendToStream
+    auto glob = kdl::str_replace_every(token.data(), R"(\")", R"(")");
+    return ExpressionNode{
+      LiteralExpression{Value{Pattern{std::move(glob)}}}, token.location()};
   }
   if (token.hasType(ElToken::Number))
   {

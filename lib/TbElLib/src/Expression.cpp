@@ -140,6 +140,8 @@ Value evaluateUnaryPlus(const Value& v, const ExpressionNode& expressionNode)
     [[fallthrough]];
   case ValueType::BBox:
     [[fallthrough]];
+  case ValueType::Pattern:
+    [[fallthrough]];
   case ValueType::Null:
     [[fallthrough]];
   case ValueType::Undefined:
@@ -172,6 +174,8 @@ Value evaluateUnaryMinus(const Value& v, const ExpressionNode& expressionNode)
     [[fallthrough]];
   case ValueType::BBox:
     [[fallthrough]];
+  case ValueType::Pattern:
+    [[fallthrough]];
   case ValueType::Null:
     [[fallthrough]];
   case ValueType::Undefined:
@@ -199,6 +203,8 @@ Value evaluateLogicalNegation(const Value& v, const ExpressionNode& expressionNo
   case ValueType::Vec3:
     [[fallthrough]];
   case ValueType::BBox:
+    [[fallthrough]];
+  case ValueType::Pattern:
     [[fallthrough]];
   case ValueType::Null:
     [[fallthrough]];
@@ -231,6 +237,8 @@ Value evaluateBitwiseNegation(const Value& v, const ExpressionNode& expressionNo
   case ValueType::Vec3:
     [[fallthrough]];
   case ValueType::BBox:
+    [[fallthrough]];
+  case ValueType::Pattern:
     [[fallthrough]];
   case ValueType::Null:
     [[fallthrough]];
@@ -787,6 +795,7 @@ int evaluateCompare(
       case ValueType::Range:
       case ValueType::Vec3:
       case ValueType::BBox:
+      case ValueType::Pattern:
         break;
       }
       break;
@@ -806,6 +815,7 @@ int evaluateCompare(
       case ValueType::Range:
       case ValueType::Vec3:
       case ValueType::BBox:
+      case ValueType::Pattern:
         break;
       }
       break;
@@ -827,6 +837,7 @@ int evaluateCompare(
       case ValueType::Map:
       case ValueType::Range:
       case ValueType::BBox:
+      case ValueType::Pattern:
         break;
       }
       break;
@@ -855,6 +866,7 @@ int evaluateCompare(
       case ValueType::Range:
       case ValueType::Vec3:
       case ValueType::BBox:
+      case ValueType::Pattern:
         break;
       }
       break;
@@ -876,6 +888,7 @@ int evaluateCompare(
       case ValueType::Range:
       case ValueType::Vec3:
       case ValueType::BBox:
+      case ValueType::Pattern:
         break;
       }
       break;
@@ -893,6 +906,7 @@ int evaluateCompare(
       case ValueType::Range:
       case ValueType::Vec3:
       case ValueType::BBox:
+      case ValueType::Pattern:
         break;
       }
       break;
@@ -911,6 +925,7 @@ int evaluateCompare(
       case ValueType::Map:
       case ValueType::Range:
       case ValueType::BBox:
+      case ValueType::Pattern:
         break;
       }
       break;
@@ -929,6 +944,26 @@ int evaluateCompare(
       case ValueType::Map:
       case ValueType::Range:
       case ValueType::Vec3:
+      case ValueType::Pattern:
+        break;
+      }
+      break;
+    case ValueType::Pattern:
+      switch (rhs.type())
+      {
+      case ValueType::Pattern:
+        return lhs.patternValue().glob.compare(rhs.patternValue().glob);
+      case ValueType::Null:
+      case ValueType::Undefined:
+        return 1;
+      case ValueType::Boolean:
+      case ValueType::Number:
+      case ValueType::String:
+      case ValueType::Array:
+      case ValueType::Map:
+      case ValueType::Range:
+      case ValueType::Vec3:
+      case ValueType::BBox:
         break;
       }
       break;
@@ -1129,6 +1164,7 @@ void computeIndexArray(
   case ValueType::Map:
   case ValueType::Vec3:
   case ValueType::BBox:
+  case ValueType::Pattern:
   case ValueType::Null:
   case ValueType::Undefined:
     result.push_back(toIndex(indexValue));
@@ -1180,6 +1216,7 @@ Value evaluateSubscript(
     case ValueType::Map:
     case ValueType::Vec3:
     case ValueType::BBox:
+    case ValueType::Pattern:
     case ValueType::Null:
     case ValueType::Undefined:
       break;
@@ -1221,6 +1258,7 @@ Value evaluateSubscript(
     case ValueType::Map:
     case ValueType::Vec3:
     case ValueType::BBox:
+    case ValueType::Pattern:
     case ValueType::Null:
     case ValueType::Undefined:
       break;
@@ -1266,6 +1304,7 @@ Value evaluateSubscript(
     case ValueType::Range:
     case ValueType::Vec3:
     case ValueType::BBox:
+    case ValueType::Pattern:
     case ValueType::Null:
     case ValueType::Undefined:
       break;
@@ -1307,6 +1346,7 @@ Value evaluateSubscript(
     case ValueType::Range:
     case ValueType::Vec3:
     case ValueType::BBox:
+    case ValueType::Pattern:
     case ValueType::Null:
     case ValueType::Undefined:
       break;
@@ -1335,6 +1375,7 @@ Value evaluateSubscript(
     case ValueType::Range:
     case ValueType::Vec3:
     case ValueType::BBox:
+    case ValueType::Pattern:
     case ValueType::Null:
     case ValueType::Undefined:
       break;
@@ -1345,6 +1386,7 @@ Value evaluateSubscript(
   case ValueType::Boolean:
   case ValueType::Number:
   case ValueType::Range:
+  case ValueType::Pattern:
   case ValueType::Null:
     break;
   }
@@ -1374,33 +1416,6 @@ Value evaluate(
 {
   return evaluateSubscript(
     expression.operand.accept(evaluator), Value{expression.fieldName}, expressionNode);
-}
-
-// whether the pattern contains a wildcard that isn't escaped
-bool isGlobPattern(const std::string& pattern)
-{
-  for (size_t i = 0u; i < pattern.size(); ++i)
-  {
-    if (pattern[i] == '\\')
-    {
-      ++i;
-    }
-    else if (pattern[i] == '?' || pattern[i] == '*' || pattern[i] == '%')
-    {
-      return true;
-    }
-  }
-  return false;
-}
-
-// a trailing backslash that doesn't escape anything is escaped so that it doesn't escape
-// the appended wildcard
-std::string makeSubstringPattern(const std::string& pattern)
-{
-  const auto trailingBackslashes = std::ranges::distance(
-    pattern | std::views::reverse
-    | std::views::take_while([](const auto c) { return c == '\\'; }));
-  return "*" + pattern + (trailingBackslashes % 2 == 1 ? "\\" : "") + "*";
 }
 
 bool matchesGlob(const Value& lhs, const std::string_view pattern)
@@ -1439,16 +1454,7 @@ Value evaluateLike(const Value& lhs, const Value& rhs)
     return Value{false};
   }
 
-  if (!rhs.hasType(ValueType::String))
-  {
-    return Value{false};
-  }
-
-  // a pattern with no glob metacharacters at all matches as a substring
-  const auto& pattern = rhs.stringValue();
-  return Value{
-    isGlobPattern(pattern) ? matchesGlob(lhs, pattern)
-                           : matchesGlob(lhs, makeSubstringPattern(pattern))};
+  return Value{matchesGlob(lhs, rhs.patternValue().glob)};
 }
 
 // like `==`, but values that can't be compared are not equal instead of an error
@@ -1498,6 +1504,7 @@ Value evaluateContains(
   case ValueType::Number:
   case ValueType::Range:
   case ValueType::Vec3:
+  case ValueType::Pattern:
   case ValueType::Null:
   case ValueType::Undefined:
     return Value{false};

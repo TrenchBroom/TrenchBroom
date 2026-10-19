@@ -39,6 +39,7 @@ const auto allTypes = std::vector{
   ValueType::Range,
   ValueType::Vec3,
   ValueType::BBox,
+  ValueType::Pattern,
   ValueType::Null,
   ValueType::Undefined,
 };
@@ -144,6 +145,7 @@ TEST_CASE("Types")
     CHECK(typeName(ValueType::Range) == "Range");
     CHECK(typeName(ValueType::Vec3) == "Vec3");
     CHECK(typeName(ValueType::BBox) == "BBox");
+    CHECK(typeName(ValueType::Pattern) == "Pattern");
     CHECK(typeName(ValueType::Null) == "Null");
     CHECK(typeName(ValueType::Undefined) == "Undefined");
   }
@@ -158,6 +160,7 @@ TEST_CASE("Types")
     CHECK(typeForName("Range") == ValueType::Range);
     CHECK(typeForName("Vec3") == ValueType::Vec3);
     CHECK(typeForName("BBox") == ValueType::BBox);
+    CHECK(typeForName("Pattern") == ValueType::Pattern);
     CHECK(typeForName("Null") == ValueType::Null);
     CHECK(typeForName("Undefined") == ValueType::Undefined);
 

@@ -1861,13 +1861,14 @@ Array      An array is a list of values.
 Map        A map is a list of key-value pairs. Synonyms: dictionary, table.
 Vec3       A three-dimensional vector with `x`, `y`, and `z` components; see below.
 BBox       An axis-aligned bounding box with `min` and `max` corners; see below.
+Pattern    A glob pattern that strings can be matched against; see below.
 Range      The range type is only used internally.
 Null       The type of `null` values, which represent an empty value.
 Undefined  The type of `undefined` values, which represent the absence of a value.
 
 #### Type Conversion {#el_type_conversion}
 
-The following matrix describes the possible type conversions between these types. The first column contains the source type, while the following columns describe how a type conversion takes place, or if the result is an error. Note that the columns for types `Vec3`, `BBox`, `Range`, `Null`, and `Undefined` are omitted because no type can be converted to these types, except for the trivial conversion and, for `Vec3`, its conversion to and from `String` described below. Converting a value of a some type `X` to the same type is called _trivial_.
+The following matrix describes the possible type conversions between these types. The first column contains the source type, while the following columns describe how a type conversion takes place, or if the result is an error. Note that the columns for types `Vec3`, `BBox`, `Pattern`, `Range`, `Null`, and `Undefined` are omitted because no type can be converted to these types, except for the trivial conversion and, for `Vec3`, its conversion to and from `String` described below. Converting a value of a some type `X` to the same type is called _trivial_.
 
 -----------------------------------------------------------------------------------------------------------------------------
             `Boolean`                     `String`               `Number`                      `Array`     `Map`
@@ -1888,6 +1889,8 @@ The following matrix describes the possible type conversions between these types
 `Range`     error                         error                  error                         error       error
 
 `BBox`      error                         error                  error                         error       error
+
+`Pattern`   error                         error                  error                         error       error
 
 `Null`      `false`                       `""` (empty string)    `0.0`                         empty array empty map
 
@@ -1938,17 +1941,20 @@ A name is a string that begins with an alphabetic character or an underscore, po
 
 `MODS`, `_var1`, `_123` are all valid names while `1_MODS`, `$MODS`, `_$MODS` are not. The keywords `true`, `false`, `null`, and `undefined` are not names either, so they cannot be used as variable names or as unquoted map keys. When an expression is evaluated, all variable names are simply replaced by the values of the variables they reference. If a value is not of type `String`, it will be converted to that type. If the value is not convertible to type `String`, then an error will be thrown.
 
-A literal is either a string, a number, a boolean, `null`, `undefined`, an array, or a map literal.
+A literal is either a string, a pattern, a number, a boolean, `null`, `undefined`, an array, or a map literal.
 
-    Literal = String | Number | Boolean | Null | Undefined | Array | Map
+    Literal = String | Pattern | Number | Boolean | Null | Undefined | Array | Map
 
     Boolean   = "true" | "false"
     Null      = "null"
     Undefined = "undefined"
     String    = """ { Char } """ | "'" { Char } "'"
+    Pattern   = "g" """ { Char } """
     Number    = Numeric { Numeric } [ "." Numeric { Numeric } ]
 
 Note that strings can either be enclosed by double or single quotes, but you cannot mix these two styles. If you enclose a string by double quotes, you need to escape all literal double quotes within the string with backslashes like so: "this is a \\"fox\\"", but this is not necessary when using single quotes to enclose that string: 'this is a "fox"' is also a valid string literal. A backslash that is followed by another backslash escapes it, so the string literal `"C:\\quake"` stands for the string `C:\quake`. Any other backslash is kept as it is.
+
+A pattern literal is written like a string enclosed by double quotes, with a `g` immediately in front of the opening quote, e.g. `g"*_detail"`. Unlike in a string literal, the backslashes in a pattern literal are kept as they are, except that `\"` stands for a double quote. See [Pattern Matching](#el_pattern_matching) below for how patterns are used.
 
 Further note that number literals need not contain a fractional part and can be written like integers, i.e. `1` instead of `1.0`.
 
@@ -2249,7 +2255,7 @@ Strings, arrays of strings, and maps can be matched against a glob pattern using
     like(value, pattern)
     value like pattern
 
-The match is case insensitive. The pattern may contain the following special characters.
+The pattern must be a pattern literal such as `g"*_detail"` (see Names and Literals above). The match is case insensitive, and the pattern must match the entire value. The pattern may contain the following special characters.
 
 Character  Effect
 ---------  ------
@@ -2261,29 +2267,27 @@ Character  Effect
 `\*`       Matches a literal `*` character.
 `\%`       Matches a literal `%` character.
 `\\`       Matches a literal `\` character.
+`\"`       Matches a literal `"` character.
 
-A `\` that is not followed by one of the characters `?`, `*`, `%`, or `\`, such as the one in `id1\gfx.wad` or one at the end of the pattern, also matches a literal `\` character.
+A `\` that is not followed by one of the characters `?`, `*`, `%`, `\`, or `"`, such as the ones in `C:\quake\id1`, also matches a literal `\` character. Since the backslashes in a pattern literal are kept as they are, these escape sequences are written exactly as shown: `g"C:\quake\\*"` matches `C:\quake\` followed by anything, whereas `g"C:\quake\*"` only matches `C:\quake*`.
 
-These escape sequences are part of the pattern itself. When the pattern is written as a string literal, `\\` already stands for a single `\` (see Names and Literals above), while any other backslash is kept. Escape sequences such as `\*` and paths such as `id1\gfx.wad` can therefore be written as they are, but a literal `\` followed by a wildcard needs four backslashes: `"quake\\\\*"` matches `quake\` followed by anything, whereas `"quake\\*"` is the pattern `quake\*`, which matches a literal `*`.
-
-If the pattern does not contain any of the characters `?`, `*`, or `%`, except in an escape sequence such as `\*`, it is matched as a substring of `value` instead of requiring an exact match.
-
-    "Hello World" like "hello*"      // true
-    "Hello World" like "*world"      // true
-    "Hello World" like "h?llo*"      // true
-    "func_detail" like "detail"      // true, matched as a substring
-    "func_detail" like "func_detail" // true
+    "Hello World" like g"hello*"      // true
+    "Hello World" like g"*world"      // true
+    "Hello World" like g"h?llo*"      // true
+    "func_detail" like g"func_detail" // true
+    "func_detail" like g"detail"      // false, the pattern must match the entire value
+    "func_detail" like g"*detail"     // true
 
 If `value` is an `Array`, `like` evaluates to `true` if any of its `String` elements matches the pattern; elements of any other type are simply ignored.
 
-    ["a", "b", "trigger_once"] like "*trigger*" // true
+    ["a", "b", "trigger_once"] like g"*trigger*" // true
 
 If `value` is a `Map`, `like` evaluates to `true` if any of its keys, or any of its `String` values, matches the pattern.
 
-    { target: "door1" } like "target" // true, matched by key
-    { target: "door1" } like "door*"  // true, matched by value
+    { target: "door1" } like g"target" // true, matched by key
+    { target: "door1" } like g"door*"  // true, matched by value
 
-`like` never throws an error. If `value` or `pattern` is `undefined`, if `value` is of a type other than `String`, `Array` or `Map`, or if `pattern` is not a `String`, the result is simply `false`.
+If `value` or `pattern` is `undefined`, or if `value` is of a type other than `String`, `Array` or `Map`, the result is simply `false`. If `pattern` is of any other type, such as a `String`, evaluating `like` results in an error.
 
 ### Membership Testing
 

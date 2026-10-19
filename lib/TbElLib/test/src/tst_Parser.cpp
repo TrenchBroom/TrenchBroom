@@ -23,6 +23,8 @@
 #include "kd/result_io.h" // IWYU pragma: keep
 
 #include <string>
+#include <tuple>
+#include <vector>
 
 #include <catch2/catch_test_macros.hpp>
 
@@ -56,6 +58,35 @@ TEST_CASE("Parser")
       // MSVC complains about an illegal escape sequence if we use a raw string literal
       // for the expression
       CHECK(parse("\"asdf\\\" \\\"asdf\"") == lit(R"(asdf" "asdf)"));
+    }
+
+    SECTION("Patterns")
+    {
+      CHECK(parse(R"(g"a*)").is_error());
+      CHECK(parse(R"(g"a*")") == lit(Pattern{"a*"}));
+      CHECK(parse(R"(g"")") == lit(Pattern{""}));
+
+      // backslashes are passed on to the glob matcher, except in escaped double quotes
+      //
+      // these expressions are not written inside CHECK because MSVC fails to stringize
+      // raw string literals that contain a double quote followed by a backslash
+      using T = std::tuple<std::string, std::string>;
+      const auto backslashCases = std::vector<T>{
+        {R"(g"a\*b\\c\d")", R"(a\*b\\c\d)"},
+        {R"(g"a\"b")", R"(a"b)"},
+        {R"(g"a\\\"b")", R"(a\\"b)"},
+      };
+      for (const auto& [expression, glob] : backslashCases)
+      {
+        CAPTURE(expression);
+        CHECK(parse(expression) == lit(Pattern{glob}));
+      }
+
+      // only a g immediately followed by a double quote starts a pattern
+      CHECK(parse("g") == var("g"));
+      CHECK(parse("gx") == var("gx"));
+      CHECK(parse(R"(g "a")").is_error());
+      CHECK(parse(R"(g'a')").is_error());
     }
 
     SECTION("Numbers")

@@ -32,6 +32,7 @@ namespace tb::el
 kdl_reflect_impl(LeftBoundedRange);
 kdl_reflect_impl(RightBoundedRange);
 kdl_reflect_impl(BoundedRange);
+kdl_reflect_impl(Pattern);
 
 namespace detail
 {
@@ -83,6 +84,8 @@ std::string typeName(const ValueType type)
     return "Vec3";
   case ValueType::BBox:
     return "BBox";
+  case ValueType::Pattern:
+    return "Pattern";
   case ValueType::Null:
     return "Null";
   case ValueType::Undefined:
@@ -124,6 +127,10 @@ ValueType typeForName(const std::string& type)
   if (type == "BBox")
   {
     return ValueType::BBox;
+  }
+  if (type == "Pattern")
+  {
+    return ValueType::Pattern;
   }
   if (type == "Null")
   {
