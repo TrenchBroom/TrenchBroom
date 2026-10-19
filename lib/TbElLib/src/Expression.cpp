@@ -36,7 +36,6 @@
 
 #include <algorithm>
 #include <array>
-#include <functional>
 #include <ranges>
 #include <span>
 #include <sstream>
@@ -48,7 +47,7 @@ namespace tb::el
 struct BuiltinFunction
 {
   size_t arity;
-  std::function<Value(std::span<const Value>, const ExpressionNode&)> evaluate;
+  Value (*evaluate)(std::span<const Value>, const ExpressionNode&);
 };
 
 namespace
@@ -1513,7 +1512,7 @@ bool hasUndefinedArgument(const std::span<const Value> arguments)
 const auto builtinFunctions = kdl::flat_map<std::string, BuiltinFunction>{
   {"vec",
    {3,
-    [](const auto& arguments, const auto&) {
+    [](const std::span<const Value> arguments, const ExpressionNode&) {
       if (hasUndefinedArgument(arguments))
       {
         return Value::Undefined;
@@ -1526,7 +1525,7 @@ const auto builtinFunctions = kdl::flat_map<std::string, BuiltinFunction>{
     }}},
   {"bbox",
    {2,
-    [](const auto& arguments, const auto&) {
+    [](const std::span<const Value> arguments, const ExpressionNode&) {
       if (hasUndefinedArgument(arguments))
       {
         return Value::Undefined;
@@ -1537,7 +1536,7 @@ const auto builtinFunctions = kdl::flat_map<std::string, BuiltinFunction>{
     }}},
   {"distanceTo",
    {2,
-    [](const auto& arguments, const auto&) {
+    [](const std::span<const Value> arguments, const ExpressionNode&) {
       if (hasUndefinedArgument(arguments))
       {
         return Value::Undefined;
@@ -1548,7 +1547,7 @@ const auto builtinFunctions = kdl::flat_map<std::string, BuiltinFunction>{
     }}},
   {"intersects",
    {2,
-    [](const auto& arguments, const auto&) {
+    [](const std::span<const Value> arguments, const ExpressionNode&) {
       if (hasUndefinedArgument(arguments))
       {
         return Value::Undefined;
@@ -1559,22 +1558,22 @@ const auto builtinFunctions = kdl::flat_map<std::string, BuiltinFunction>{
     }}},
   {"like",
    {2,
-    [](const auto& arguments, const auto&) {
+    [](const std::span<const Value> arguments, const ExpressionNode&) {
       return evaluateLike(arguments[0], arguments[1]);
     }}},
   {"contains",
    {2,
-    [](const auto& arguments, const auto& expressionNode) {
+    [](const std::span<const Value> arguments, const ExpressionNode& expressionNode) {
       return evaluateContains(arguments[0], arguments[1], expressionNode);
     }}},
   {"in",
    {2,
-    [](const auto& arguments, const auto& expressionNode) {
+    [](const std::span<const Value> arguments, const ExpressionNode& expressionNode) {
       return evaluateContains(arguments[1], arguments[0], expressionNode);
     }}},
   {"is",
    {2,
-    [](const auto& arguments, const auto& expressionNode) {
+    [](const std::span<const Value> arguments, const ExpressionNode& expressionNode) {
       return Value{evaluateCompare(arguments[0], arguments[1], expressionNode) == 0};
     }}},
 };
