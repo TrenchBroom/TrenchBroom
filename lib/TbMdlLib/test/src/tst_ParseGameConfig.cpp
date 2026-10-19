@@ -44,10 +44,12 @@ TEST_CASE("GameConfigParser")
     SECTION("parseIncludedGameConfigs")
     {
       const auto basePath = getFixtureRoot() / "games/";
-      const auto cfgFiles =
-        fs::Disk::find(
-          basePath, fs::TraversalMode::Recursive, fs::makeExtensionPathMatcher({".cfg"}))
-        | kdl::value();
+      const auto cfgFiles = fs::Disk::find(
+                              basePath,
+                              fs::TraversalMode::Recursive,
+                              fs::makeFilenamePathMatcher("GameConfig.cfg"))
+                            | kdl::value();
+      REQUIRE(!cfgFiles.empty());
 
       for (const auto& path : cfgFiles)
       {
