@@ -50,13 +50,13 @@ TEST_CASE("compact_trie")
   {
     CHECK(test_index::escape("") == "");
     CHECK(test_index::escape("plain text") == "plain text");
-    CHECK(test_index::escape("literal*?%\\") == "literal\\*\\?\\%\\\\");
+    CHECK(test_index::escape(R"(literal*?%\)") == R"(literal\*\?\%\\)");
 
-    index.insert("literal*?%\\", "value");
+    index.insert(R"(literal*?%\)", "value");
     index.insert("literal1234", "other");
 
     CHECK_THAT(
-      find(index, test_index::escape("literal*?%\\")), UnorderedRangeEquals({"value"}));
+      find(index, test_index::escape(R"(literal*?%\)")), UnorderedRangeEquals({"value"}));
   }
 
   SECTION("insert")
