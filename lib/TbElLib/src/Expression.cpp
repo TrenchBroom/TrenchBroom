@@ -38,6 +38,7 @@
 #include <functional>
 #include <ranges>
 #include <sstream>
+#include <string_view>
 
 namespace tb::el
 {
@@ -1389,6 +1390,35 @@ std::string makeSubstringPattern(const std::string& pattern)
   return "*" + pattern + (trailingBackslashes % 2 == 1 ? "\\" : "") + "*";
 }
 
+bool matchesGlob(const Value& lhs, const std::string_view pattern)
+{
+  if (lhs.hasType(ValueType::String))
+  {
+    return kdl::ci::str_matches_glob(lhs.stringValue(), pattern);
+  }
+
+  // array elements and map values that aren't strings never match
+  const auto matches = [&](const Value& value) {
+    return value.hasType(ValueType::String)
+           && kdl::ci::str_matches_glob(value.stringValue(), pattern);
+  };
+
+  if (lhs.hasType(ValueType::Array))
+  {
+    return std::ranges::any_of(lhs.arrayValue(), matches);
+  }
+
+  if (lhs.hasType(ValueType::Map))
+  {
+    return std::ranges::any_of(
+      lhs.mapValue(), kdl::unpack([&](const auto& key, const auto& value) {
+        return kdl::ci::str_matches_glob(key, pattern) || matches(value);
+      }));
+  }
+
+  return false;
+}
+
 Value evaluateLike(const Value& lhs, const Value& rhs)
 {
   if (lhs.hasType(ValueType::Undefined) || rhs.hasType(ValueType::Undefined))
@@ -1402,35 +1432,10 @@ Value evaluateLike(const Value& lhs, const Value& rhs)
   }
 
   // a pattern with no glob metacharacters at all matches as a substring
-  const auto& rawPattern = rhs.stringValue();
-  const auto pattern =
-    isGlobPattern(rawPattern) ? rawPattern : makeSubstringPattern(rawPattern);
-
-  if (lhs.hasType(ValueType::String))
-  {
-    return Value{kdl::ci::str_matches_glob(lhs.stringValue(), pattern)};
-  }
-
-  // array elements and map values that aren't strings never match
-  const auto matches = [&](const Value& value) {
-    return value.hasType(ValueType::String)
-           && kdl::ci::str_matches_glob(value.stringValue(), pattern);
-  };
-
-  if (lhs.hasType(ValueType::Array))
-  {
-    return Value{std::ranges::any_of(lhs.arrayValue(), matches)};
-  }
-
-  if (lhs.hasType(ValueType::Map))
-  {
-    return Value{std::ranges::any_of(
-      lhs.mapValue(), kdl::unpack([&](const auto& key, const auto& value) {
-        return kdl::ci::str_matches_glob(key, pattern) || matches(value);
-      }))};
-  }
-
-  return Value{false};
+  const auto& pattern = rhs.stringValue();
+  return Value{
+    isGlobPattern(pattern) ? matchesGlob(lhs, pattern)
+                           : matchesGlob(lhs, makeSubstringPattern(pattern))};
 }
 
 // like `==`, but values that can't be compared are not equal instead of an error
