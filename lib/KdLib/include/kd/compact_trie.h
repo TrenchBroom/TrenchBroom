@@ -25,7 +25,6 @@
 #include "kd/string_format.h"
 
 #include <algorithm>
-#include <stdexcept>
 #include <string>
 #include <string_view>
 #include <unordered_map>
@@ -469,9 +468,6 @@ private:
      * @param parent this node's parent (used to update the match_state)
      * @param match_state the match state
      * @param out the output iterator to which the values of matched nodes are added
-     *
-     * @throws std::invalid_argument if the given pattern contains an invalid escape
-     * sequence
      */
     template <typename O>
     void find_matches(
@@ -518,38 +514,29 @@ private:
 
         // after this point, we can assume that the pattern is not consumed, but the key
         // might be
-        if (pattern[p_i] == detail::pattern_escape_char && p_i < pattern.length() - 1u)
+        if (
+          pattern[p_i] == detail::pattern_escape_char && p_i < pattern.length() - 1u
+          && detail::is_special_char(pattern[p_i + 1u]))
         {
           // handle escaped characters in the pattern
           const auto& n = pattern[p_i + 1u];
 
           if (k_i < m_key.length())
           {
-            // check the next character in the pattern against the next character in the
-            // key
-            if (detail::is_special_char(n))
+            if (m_key[k_i] == n)
             {
-              if (m_key[k_i] == n)
-              {
-                // the key matches the escaped character, continue
-                match_tasks.emplace_back(k_i + 1u, p_i + 2u);
-              }
-            }
-            else
-            {
-              throw std::invalid_argument{"invalid escape sequence in pattern"};
+              // the key matches the escaped character, continue
+              match_tasks.emplace_back(k_i + 1u, p_i + 2u);
             }
           }
           else
           {
-            // the key is consumed, so continue matching at the children
-            for (const auto c : detail::pattern_special_chars)
+            // the key is consumed, so continue matching at the child that starts with the
+            // escaped character
+            const auto it = detail::sorted_find(m_children, node_cmp{}, n);
+            if (it != m_children.end())
             {
-              const auto it = detail::sorted_find(m_children, node_cmp{}, c);
-              if (it != m_children.end())
-              {
-                it->find_matches(pattern, p_i, this, match_state, out);
-              }
+              it->find_matches(pattern, p_i, this, match_state, out);
             }
           }
         }
