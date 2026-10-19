@@ -58,7 +58,7 @@ TEST_CASE("GameConfigParser")
         auto file = fs::Disk::openFile(path) | kdl::value();
         auto reader = file->reader().buffer();
 
-        CHECK_NOTHROW(parseGameConfig(reader.stringView(), path));
+        CHECK(parseGameConfig(reader.stringView(), path).is_success());
       }
     }
   }
