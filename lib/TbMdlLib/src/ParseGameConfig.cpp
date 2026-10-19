@@ -61,6 +61,18 @@ std::vector<std::filesystem::path> extensionsToPaths(const std::vector<std::stri
          | kdl::ranges::to<std::vector>();
 }
 
+std::string parsePattern(const el::Value& value)
+{
+  return value.hasType(el::ValueType::Pattern) ? value.patternValue().glob
+                                               : value.stringValue();
+}
+
+std::vector<std::string> parsePatterns(const el::Value& value)
+{
+  return value.arrayValue() | std::views::transform(parsePattern)
+         | kdl::ranges::to<std::vector>();
+}
+
 void checkVersion(const el::Value& version)
 {
   const auto validVsns = std::vector<el::IntegerType>{9};
@@ -163,7 +175,7 @@ std::unique_ptr<TagMatcher> parseFaceTagMatcher(
   const auto match = value.at("match").stringValue();
   if (match == "material")
   {
-    return std::make_unique<MaterialNameTagMatcher>(value.at("pattern").stringValue());
+    return std::make_unique<MaterialNameTagMatcher>(parsePattern(value.at("pattern")));
   }
   if (match == "surfaceparm")
   {
@@ -222,7 +234,7 @@ std::unique_ptr<TagMatcher> parseBrushTagMatcher(const el::Value& value)
   if (match == "classname")
   {
     return std::make_unique<EntityClassNameTagMatcher>(
-      value.at("pattern").stringValue(), value.atOrDefault("material").stringValue());
+      parsePattern(value.at("pattern")), value.atOrDefault("material").stringValue());
   }
 
   throw ParserException{
@@ -472,7 +484,7 @@ MaterialConfig parseMaterialConfig(const el::Value& value)
     value.contains("attribute") ? std::optional{value.at("attribute").stringValue()}
                                 : std::nullopt,
     std::filesystem::path{value.atOrDefault("shaderSearchPath").stringValue()},
-    value.atOrDefault("excludes").asStringList(),
+    parsePatterns(value.atOrDefault("excludes")),
   };
 }
 

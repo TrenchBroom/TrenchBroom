@@ -2962,7 +2962,7 @@ The game configuration is an [expression language](#expression_language) map wit
             "name": "Trigger",
             "attribs": [ "transparent" ],
             "match": "classname",
-            "pattern": "trigger*",
+            "pattern": g"trigger*",
             "texture": "trigger"
           }
         ],
@@ -2971,7 +2971,7 @@ The game configuration is an [expression language](#expression_language) map wit
             "name": "Clip",
             "attribs": [ "transparent" ],
             "match": "texture",
-            "pattern": "clip"
+            "pattern": g"clip"
           },
           {
             "name": "Liquid",
@@ -3107,7 +3107,7 @@ idpak        Id pak file
 dkpak        Daikatana pak file
 zip          Zip file, often uses other extensions such as pk3
 
-#### Material Configurations
+#### Material Configurations {#game_configuration_files_materials}
 
 Every material configuration consists of a root search directory, and optionally a list of included file extensions, a palette path, an attribute for wad file lists and a list of exclusion patterns.
 
@@ -3116,7 +3116,7 @@ Every material configuration consists of a root search directory, and optionally
       "extensions": [ ".D" ],
       "palette": "pics/colormap.pcx",
       "attribute": "wad",
-      "excludes": [ "*_norm", "*_gloss" ],
+      "excludes": [ g"*_norm", g"*_gloss" ],
     },
 
 The `root` key specifies the folder at which to search for the material packages. This folder is relative to the game file system set up according to the `filesystem` configuration earlier in the file. TrenchBroom will create a material collection for each folder contained in the root folder specified here.
@@ -3129,12 +3129,12 @@ Optionally, you can specify a palette. The value of the `palette` key specifies 
 
 The `attribute` key specifies the name of a worldspawn property where TrenchBroom will store the wad files in the map file.
 
-The optional `excludes` key specifies a list of patterns matched against material names which will be ignored and not displayed in the [material browser](#material_browser). Wildcards `*` and `?` are allowed. Use backslashes to escape literal `*` and `?` chars.
+The optional `excludes` key specifies a list of patterns matched against material names which will be ignored and not displayed in the [material browser](#material_browser). A pattern is written as a pattern literal such as `g"*_norm"`; see [Pattern Matching](#el_pattern_matching) for the special characters it may contain. A pattern can also be written as a string, but then every backslash in it must be escaped once more, e.g. `"quake\\\\*"` instead of `g"quake\\*"`.
 
     "materials": {
       "root": "textures",
       "extensions": [ "" ],
-      "excludes": [ "*_norm", "*_gloss" ]
+      "excludes": [ g"*_norm", g"*_gloss" ]
     },
 
 #### Entity Configuration {#game_configuration_files_entities}
@@ -3185,7 +3185,7 @@ Each of these keys has a list of tags. Each tag looks as follows.
       "name": "Clip",
       "attribs": [ "transparent" ],
       "match": "material",
-      "pattern": "clip"
+      "pattern": g"clip"
     },
 
 The only attribute type currently supported in the `attribs` list is "transparent", which as mentioned above will cause faces matching this tag to be rendered with partial transparency in the 3D viewport.
@@ -3209,9 +3209,9 @@ surfaceparm  Match against shader surface parameter Yes                No
 
 Additional keys will be required to configure the matcher, depending on the value of the `match` key.
 
-* For the `classname` matcher, the key `pattern` contains a pattern that is matched against the classname of the brush entity that contains the brush. Wildcards `*` and `?` are allowed. Use backslashes to escape literal `*` and `?` chars.
+* For the `classname` matcher, the key `pattern` contains a pattern that is matched against the classname of the brush entity that contains the brush. The pattern is written like the `excludes` patterns of the [material configuration](#game_configuration_files_materials).
     - Additionally, the `classname` matcher can contain an optional `material` key. When this tag is applied by the use of its keyboard shortcut, then the selected brushes will receive the material with the name given as the value of this key (e.g. `"material": "trigger"` will assign the `trigger` material).
-* For the `material` matcher, the key `pattern` contains a pattern that is matched against a face's material name. If the pattern does *not* contain a slash, it will only be matched against the segment after the final slash (if any) in the material name. Wildcards `*` and `?` are allowed. Use backslashes to escape literal `*` and `?` chars.
+* For the `material` matcher, the key `pattern` contains a pattern that is matched against a face's material name. If the pattern does *not* contain a slash, it will only be matched against the segment after the final slash (if any) in the material name. The pattern is written like the `excludes` patterns of the [material configuration](#game_configuration_files_materials).
 * For the `contentflag` and `surfaceflag` matchers, the key `flags` contains a list of content or surface flag names to match against (see below for more info on content and surface flags).
 * For the `surfaceparm` matcher, the key `pattern` contains a name that is matched against the surface parameters of a face's shader. No wildcards allowed; the parameter name must match exactly. In version 4 of the game config format, you may alternately specify a *list* of surfaceparm names for this value, which will match against a shader if it has any of those surfaceparms.
 

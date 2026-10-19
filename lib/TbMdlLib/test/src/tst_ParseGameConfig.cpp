@@ -168,7 +168,7 @@ TEST_CASE("GameConfigParser")
                 "name": "Trigger",
                 "attribs": [ "transparent" ],
                 "match": "classname",
-                "pattern": "trigger*"
+                "pattern": g"trigger*"
             }
         ],
         "brushface": [
@@ -176,24 +176,24 @@ TEST_CASE("GameConfigParser")
                 "name": "Clip",
                 "attribs": [ "transparent" ],
                 "match": "material",
-                "pattern": "clip"
+                "pattern": g"clip"
             },
             {
                 "name": "Skip",
                 "attribs": [ "transparent" ],
                 "match": "material",
-                "pattern": "skip"
+                "pattern": g"skip"
             },
             {
                 "name": "Hint",
                 "attribs": [ "transparent" ],
                 "match": "material",
-                "pattern": "hint*"
+                "pattern": g"hint*"
             },
             {
                 "name": "Liquid",
                 "match": "material",
-                "pattern": "\**"
+                "pattern": g"\**"
             }
         ]
     }
@@ -243,7 +243,7 @@ TEST_CASE("GameConfigParser")
               {mdl::TagAttribute{1u, "transparent"}},
               std::make_unique<mdl::MaterialNameTagMatcher>("hint*")},
             mdl::SmartTag{
-              "Liquid", {}, std::make_unique<mdl::MaterialNameTagMatcher>("\\**")},
+              "Liquid", {}, std::make_unique<mdl::MaterialNameTagMatcher>(R"(\**)")},
           },            // smart tags
           std::nullopt, // soft map bounds
           {}            // compilation tools
@@ -278,7 +278,7 @@ TEST_CASE("GameConfigParser")
                 "name": "Trigger",
                 "attribs": [ "transparent" ],
                 "match": "classname",
-                "pattern": "trigger*",
+                "pattern": g"trigger*",
                 "material": "trigger"
             }
         ],
@@ -287,19 +287,19 @@ TEST_CASE("GameConfigParser")
                 "name": "Clip",
                 "attribs": [ "transparent" ],
                 "match": "material",
-                "pattern": "clip"
+                "pattern": g"clip"
             },
             {
                 "name": "Skip",
                 "attribs": [ "transparent" ],
                 "match": "material",
-                "pattern": "skip"
+                "pattern": g"skip"
             },
             {
                 "name": "Hint",
                 "attribs": [ "transparent" ],
                 "match": "material",
-                "pattern": "hint*"
+                "pattern": g"hint*"
             },
             {
                 "name": "Detail",
@@ -586,8 +586,8 @@ TEST_CASE("GameConfigParser")
         "extensions": [ "" ],
         "shaderSearchPath": "scripts", // this will likely change when we get a material system
         "excludes": [
-            "*_norm",
-            "*_gloss"
+            g"*_norm",
+            g"*_gloss"
         ]
     },
     "entities": {
@@ -602,7 +602,7 @@ TEST_CASE("GameConfigParser")
                 "name": "Trigger",
                 "attribs": [ "transparent" ],
                 "match": "classname",
-                "pattern": "trigger*",
+                "pattern": g"trigger*",
                 "material": "trigger"
             }
         ],
@@ -617,13 +617,13 @@ TEST_CASE("GameConfigParser")
                 "name": "Skip",
                 "attribs": [ "transparent" ],
                 "match": "material",
-                "pattern": "skip"
+                "pattern": g"skip"
             },
             {
                 "name": "Hint",
                 "attribs": [ "transparent" ],
                 "match": "material",
-                "pattern": "hint*"
+                "pattern": g"hint*"
             },
             {
                 "name": "Detail",
@@ -948,13 +948,62 @@ TEST_CASE("GameConfigParser")
                 "name": "Trigger",
                 "attribs": [ "transparent" ],
                 "match": "classname",
-                "pattern": "trigger*"
+                "pattern": g"trigger*"
             }
         ],
         "brushface": [
             {
                 "name": "Trigger",
                 "attribs": [ "transparent" ],
+                "match": "material",
+                "pattern": g"clip"
+            }
+        ]
+    }
+}
+)";
+
+      CHECK(parseGameConfig(config).is_error());
+    }
+  }
+
+  SECTION("patterns")
+  {
+    SECTION("parseStringPatterns")
+    {
+      // patterns can still be written as strings, whose backslashes must be escaped once
+      // more than those of a pattern literal
+      const auto config = R"(
+{
+    "version": 9,
+    "name": "Quake",
+    "fileformats": [
+        { "format": "Standard" }
+    ],
+    "filesystem": {
+        "searchpath": "id1",
+        "packageformat": { "extension": "pak", "format": "idpak" }
+    },
+    "materials": {
+        "root": "textures",
+        "extensions": ["D"],
+        "excludes": [ "*_norm", "a\\\\*" ]
+    },
+    "entities": {
+        "definitions": [ "Quake.fgd" ],
+        "defaultcolor": "0.6 0.6 0.6 1.0"
+    },
+    "tags": {
+        "brush": [
+            {
+                "name": "Trigger",
+                "match": "classname",
+                "pattern": "trigger*"
+            }
+        ],
+        "brushface": [
+            {
+                "name": "Clip",
                 "match": "material",
                 "pattern": "clip"
             }
@@ -963,7 +1012,18 @@ TEST_CASE("GameConfigParser")
 }
 )";
 
-      CHECK(parseGameConfig(config).is_error());
+      const auto gameConfig = parseGameConfig(config) | kdl::value();
+
+      CHECK(
+        gameConfig.materialConfig.excludes
+        == std::vector<std::string>{"*_norm", R"(a\\*)"});
+      CHECK(
+        gameConfig.smartTags
+        == std::vector<SmartTag>{
+          SmartTag{
+            "Trigger", {}, std::make_unique<EntityClassNameTagMatcher>("trigger*", "")},
+          SmartTag{"Clip", {}, std::make_unique<MaterialNameTagMatcher>("clip")},
+        });
     }
   }
 
