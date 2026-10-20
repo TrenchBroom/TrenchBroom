@@ -1948,7 +1948,7 @@ A literal is either a string, a number, a boolean, `null`, `undefined`, an array
     String    = """ { Char } """ | "'" { Char } "'"
     Number    = Numeric { Numeric } [ "." Numeric { Numeric } ]
 
-Note that strings can either be enclosed by double or single quotes, but you cannot mix these two styles. If you enclose a string by double quotes, you need to escape all literal double quotes within the string with backslashes like so: "this is a \\"fox\\"", but this is not necessary when using single quotes to enclose that string: 'this is a "fox"' is also a valid string literal. A backslash that is followed by another backslash escapes it, so the string literal `"C:\\quake"` stands for the string `C:\quake`. Any other backslash is kept as it is.
+Note that strings can either be enclosed by double or single quotes, but you cannot mix these two styles. If you enclose a string by double quotes, you need to escape all literal double quotes within the string with backslashes like so: "this is a \\"fox\\"", but this is not necessary when using single quotes to enclose that string: 'this is a "fox"' is also a valid string literal. Likewise, literal single quotes must be escaped within a string enclosed by single quotes: 'this is a \\'fox\\''. A backslash that is followed by the enclosing quote character or by another backslash escapes that character, so the string literal `"C:\\quake"` stands for the string `C:\quake`. Any other backslash is kept as it is.
 
 Further note that number literals need not contain a fractional part and can be written like integers, i.e. `1` instead of `1.0`.
 
