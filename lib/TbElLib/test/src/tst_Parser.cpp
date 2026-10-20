@@ -67,6 +67,15 @@ TEST_CASE("Parser")
       {R"("asdf)",            Error{"Unexpected end of file"}},
       {R"("asdf")",           lit("asdf")},
       {R"("asdf\" \"asdf")",  lit(R"(asdf" "asdf)")},
+      {R"("asdf\' \'asdf")",  lit(R"(asdf\' \'asdf)")},
+
+      {R"('asdf)",            Error{"Unexpected end of file"}},
+      {R"('asdf')",           lit("asdf")},
+      {R"('asdf\' \'asdf')",  lit("asdf' 'asdf")},
+      {R"('asdf\" \"asdf')",  lit(R"(asdf\" \"asdf)")},
+
+      {R"("C:\\quake")",      lit(R"(C:\quake)")},
+      {R"("C:\quake")",       lit(R"(C:\quake)")},
       }));
       // clang-format on
 
