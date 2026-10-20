@@ -63,8 +63,13 @@ TEST_CASE("Parser")
       CHECK(parse("'asdf\\' \\'asdf'") == lit("asdf' 'asdf"));
       CHECK(parse("'asdf\\\" \\\"asdf'") == lit(R"(asdf\" \"asdf)"));
 
-      CHECK(parse("\"C:\\\\quake\"") == lit(R"(C:\quake)"));
+      // backslashes are only special if they precede the delimiter
       CHECK(parse("\"C:\\quake\"") == lit(R"(C:\quake)"));
+      CHECK(parse("\"\\\\server\\share\"") == lit(R"(\\server\share)"));
+      CHECK(parse("\"a\\\\\\\"b\"") == lit(R"(a\"b)"));
+      CHECK(parse("\"C:\\quake\\\\\"") == lit(R"(C:\quake\)"));
+      CHECK(parse("\"C:\\quake\\\"").is_error());
+      CHECK(parse("'C:\\quake\\\\'") == lit(R"(C:\quake\)"));
     }
 
     SECTION("Numbers")

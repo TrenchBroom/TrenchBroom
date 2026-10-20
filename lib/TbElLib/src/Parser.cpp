@@ -498,10 +498,9 @@ ExpressionNode Parser::parseLiteral()
   if (token.hasType(ElToken::String))
   {
     m_tokenizer.nextToken();
-    const auto escapableChars =
-      token.hasType(ElToken::DoubleQuotedString) ? "\\\"" : "\\'";
+    const auto delim = token.hasType(ElToken::DoubleQuotedString) ? '"' : '\'';
     // Escaping happens in Value::appendToStream
-    auto value = kdl::str_unescape(token.data(), escapableChars);
+    auto value = kdl::str_unescape_delimiter(token.data(), delim);
     return ExpressionNode{LiteralExpression{Value{std::move(value)}}, token.location()};
   }
   if (token.hasType(ElToken::Number))
