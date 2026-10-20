@@ -26,22 +26,30 @@
 
 namespace tb::el
 {
+namespace
+{
+
+const VariableTable& emptyVariableTable()
+{
+  static const auto variables = VariableTable{};
+  return variables;
+}
+
+} // namespace
 
 EvaluationContext::EvaluationContext()
-  : m_variables{std::make_unique<VariableTable>()}
+  : m_variables{emptyVariableTable()}
 {
 }
 
 EvaluationContext::EvaluationContext(const VariableStore& store)
-  : m_variables{store.clone()}
+  : m_variables{store}
 {
 }
 
-EvaluationContext::~EvaluationContext() = default;
-
 Value EvaluationContext::variableValue(const std::string& name) const
 {
-  return m_variables->value(name);
+  return m_variables.value(name);
 }
 
 } // namespace tb::el

@@ -87,12 +87,12 @@ TEST_CASE("parseGameEngineConfig")
 		{
 			"name": "winquake",
 			"parameters": "-flag1 -flag2",
-			"path": "C:\\Quake\\winquake.exe"
+			"path": "C:\Quake\winquake.exe"
 		},
 		{
 			"name": "glquake",
 			"parameters": "-flag3 -flag4",
-			"path": "C:\\Quake\\glquake.exe",
+			"path": "C:\Quake\glquake.exe",
             "extraKey": ""
 		}
 	],
@@ -126,7 +126,7 @@ TEST_CASE("parseGameEngineConfig")
 		{
 			"name": "winquake",
 			"parameters": "-flag1 -flag2",
-			"path": "C:\\Quake\\winquake.exe",
+			"path": "C:\Quake\winquake.exe",
 			"id": "11111111-2222-3333-4444-555555555555"
 		}
 	],
@@ -148,7 +148,7 @@ TEST_CASE("parseGameEngineConfig")
 		{
 			"name": "winquake",
 			"parameters": "-flag1 -flag2",
-			"path": "C:\\Quake\\winquake.exe"
+			"path": "C:\Quake\winquake.exe"
 		}
 	],
 	"version": 1

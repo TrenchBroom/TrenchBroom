@@ -20,7 +20,11 @@
 
 #include "kd/string_format.h"
 
+#include <string>
+#include <tuple>
+
 #include <catch2/catch_test_macros.hpp>
+#include <catch2/generators/catch_generators.hpp>
 
 namespace kdl
 {
@@ -152,6 +156,63 @@ TEST_CASE("string_format")
     CHECK(str_unescape("asdf\\", "") == "asdf\\");
     CHECK(str_unescape("asdf\\\\", "") == "asdf\\");
     CHECK(str_unescape("asdf\\\\\\\\", "") == "asdf\\\\");
+  }
+
+  SECTION("str_escape_delimiter")
+  {
+    using T = std::tuple<std::string, char, std::string>;
+
+    const auto [str, delim, expected] = GENERATE(values<T>({
+      {"", '"', ""},
+      {"asdf", '"', "asdf"},
+      {R"(a"b)", '"', R"(a\"b)"},
+      {R"(a'b)", '"', R"(a'b)"},
+      {R"(a'b)", '\'', R"(a\'b)"},
+      // escape chars that don't precede a delimiter are kept as they are
+      {R"(C:\quake)", '"', R"(C:\quake)"},
+      {R"(\\server\share)", '"', R"(\\server\share)"},
+      {R"(a\'b)", '"', R"(a\'b)"},
+      // escape chars that precede a delimiter are escaped
+      {R"(a\"b)", '"', R"(a\\\"b)"},
+      {R"(a\\"b)", '"', R"(a\\\\\"b)"},
+      // escape chars at the end precede the closing delimiter
+      {R"(C:\quake\)", '"', R"(C:\quake\\)"},
+      {R"(C:\quake\\)", '"', R"(C:\quake\\\\)"},
+    }));
+
+    CAPTURE(str, delim);
+
+    CHECK(str_escape_delimiter(str, delim) == expected);
+  }
+
+  SECTION("str_unescape_delimiter")
+  {
+    using T = std::tuple<std::string, char, std::string>;
+
+    const auto [str, delim, expected] = GENERATE(values<T>({
+      {"", '"', ""},
+      {"asdf", '"', "asdf"},
+      {R"(a\"b)", '"', R"(a"b)"},
+      {R"(a\'b)", '"', R"(a\'b)"},
+      {R"(a\'b)", '\'', R"(a'b)"},
+      // escape chars that don't precede a delimiter are kept as they are
+      {R"(C:\quake)", '"', R"(C:\quake)"},
+      {R"(\\server\share)", '"', R"(\\server\share)"},
+      // escape chars that precede a delimiter are unescaped
+      {R"(a\\\"b)", '"', R"(a\"b)"},
+      {R"(a\\\\\"b)", '"', R"(a\\"b)"},
+      {R"(a\\"b)", '"', R"(a\"b)"},
+      // escape chars at the end precede the closing delimiter
+      {R"(C:\quake\\)", '"', R"(C:\quake\)"},
+      {R"(C:\quake\\\\)", '"', R"(C:\quake\\)"},
+      // an unpaired escape char at the end is kept
+      {R"(C:\quake\)", '"', R"(C:\quake\)"},
+      {R"(C:\quake\\\)", '"', R"(C:\quake\\)"},
+    }));
+
+    CAPTURE(str, delim);
+
+    CHECK(str_unescape_delimiter(str, delim) == expected);
   }
 
   SECTION("str_is_blank")

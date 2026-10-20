@@ -56,6 +56,20 @@ TEST_CASE("Parser")
       // MSVC complains about an illegal escape sequence if we use a raw string literal
       // for the expression
       CHECK(parse("\"asdf\\\" \\\"asdf\"") == lit(R"(asdf" "asdf)"));
+      CHECK(parse("\"asdf\\' \\'asdf\"") == lit(R"(asdf\' \'asdf)"));
+
+      CHECK(parse(R"('asdf)").is_error());
+      CHECK(parse(R"('asdf')") == lit("asdf"));
+      CHECK(parse("'asdf\\' \\'asdf'") == lit("asdf' 'asdf"));
+      CHECK(parse("'asdf\\\" \\\"asdf'") == lit(R"(asdf\" \"asdf)"));
+
+      // backslashes are only special if they precede the delimiter
+      CHECK(parse("\"C:\\quake\"") == lit(R"(C:\quake)"));
+      CHECK(parse("\"\\\\server\\share\"") == lit(R"(\\server\share)"));
+      CHECK(parse("\"a\\\\\\\"b\"") == lit(R"(a\"b)"));
+      CHECK(parse("\"C:\\quake\\\\\"") == lit(R"(C:\quake\)"));
+      CHECK(parse("\"C:\\quake\\\"").is_error());
+      CHECK(parse("'C:\\quake\\\\'") == lit(R"(C:\quake\)"));
     }
 
     SECTION("Numbers")

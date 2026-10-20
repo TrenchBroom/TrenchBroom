@@ -678,7 +678,7 @@ TEST_CASE("CompilationConfigParser")
     "name": "Full Compile",
     "tasks": [{
       "source": "${WORK_DIR_PATH}/${MAP_BASE_NAME}.bsp",
-      "target": "C:\\quake2\\chaos\\maps\\",
+      "target": "C:\quake2\chaos\maps\\",
       "type": "copy"
     }],
     "workdir": "${MAP_DIR_PATH}"

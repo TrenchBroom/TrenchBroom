@@ -20,6 +20,7 @@
 #include "el/EvaluationContext.h"
 #include "el/Exceptions.h"
 #include "el/Expression.h"
+#include "el/LazyMap.h"
 #include "el/ParseExpression.h"
 #include "el/TestUtils.h"
 #include "el/Value.h"
@@ -1265,6 +1266,75 @@ TEST_CASE("Expression")
     }
   }
 
+  SECTION("LazyMap")
+  {
+    // there is no literal/constructor syntax for LazyMap, so it can only ever be reached
+    // via a bound variable, the same way Range is above
+    const auto fields = LazyMapFields<std::string>{
+      {"name", {ValueType::String, [](const auto& s) { return Value{s}; }}},
+    };
+    const auto variables = MapType{{"v", makeLazyMap(std::string{"door1"}, fields)}};
+
+    SECTION("Subscript")
+    {
+      CHECK(evaluate(R"(v["name"])", variables) == Value{"door1"});
+      CHECK(evaluate("v.name", variables) == Value{"door1"});
+      CHECK(evaluate(R"(v["missing"])", variables) == Value::Undefined);
+      CHECK(evaluate("v.missing", variables) == Value::Undefined);
+    }
+
+    SECTION("Unary operators")
+    {
+      // typeName(LazyMap) is "Map", so it reads exactly like a real Map's own error
+      CHECK(
+        evaluate("!v", variables)
+        == Error{
+          "At line 1, column 1: Cannot evaluate expression '!v': Invalid type Map"});
+    }
+
+    SECTION("Arithmetic")
+    {
+      CHECK(
+        evaluate("v + v", variables)
+        == Error{"At line 1, column 3: Cannot evaluate expression 'v + v': Invalid "
+                 "operand types Map and Map"});
+    }
+
+    SECTION("Comparison")
+    {
+      CHECK(evaluate("v == null", variables) == Value{false});
+      CHECK(evaluate("v > null", variables) == Value{true});
+      CHECK(evaluate("v == undefined", variables) == Value{false});
+      CHECK(evaluate("v > undefined", variables) == Value{true});
+
+      // deliberately not comparable as a whole, not even to another LazyMap --
+      // meant to be drilled into with subscript/dot-access instead
+      CHECK(
+        evaluate("v == v", variables)
+        == Error{"At line 1, column 3: Cannot evaluate expression 'v == v': Invalid "
+                 "operand types Map and Map: a lazy Map can only be accessed by key, "
+                 "not compared"});
+      CHECK(
+        evaluate("{} != v", variables)
+        == Error{"At line 1, column 4: Cannot evaluate expression '{} != v': Invalid "
+                 "operand types Map and Map: a lazy Map can only be accessed by key, "
+                 "not compared"});
+    }
+
+    SECTION("contains")
+    {
+      CHECK(evaluate(R"(v contains "name")", variables) == Value{true});
+      CHECK(evaluate(R"(v contains "missing")", variables) == Value{false});
+    }
+
+    SECTION("like")
+    {
+      CHECK(evaluate(R"(v like "door*")", variables) == Value{true});
+      CHECK(evaluate(R"(v like "nam*")", variables) == Value{true});
+      CHECK(evaluate(R"(v like "missing")", variables) == Value{false});
+    }
+  }
+
   SECTION("Subscript")
   {
     using T = std::tuple<std::string, Result<Value>>;
@@ -1588,6 +1658,27 @@ TEST_CASE("Expression")
       CHECK(evaluate(R"("func_detail" like "func_detail")") == Value{true});
       CHECK(evaluate(R"("detail" like "func_detail")") == Value{false});
 
+      // in a string literal, backslashes are only special if they precede a quote, so
+      // the pattern is written as it is
+      //
+      // these expressions are not written inside CHECK because MSVC fails to stringize
+      // raw string literals that contain a double quote followed by a backslash
+      using T = std::tuple<std::string, Value>;
+      const auto stringLiteralCases = std::vector<T>{
+        {R"("quake*" like "quake\*")", Value{true}},
+        {R"("quake*" like "quake\\*")", Value{false}},
+        {R"("quake\x" like "quake\\*")", Value{true}},
+        {R"("quake\x" like "quake\\\\*")", Value{false}},
+        {R"("id1\gfx.wad" like "id1\gfx")", Value{true}},
+        {R"("id1\gfx.wad" like "id1\\gfx")", Value{true}},
+        {R"("C:\quake\\" like "quake\\")", Value{true}},
+      };
+      for (const auto& [expression, expectedValue] : stringLiteralCases)
+      {
+        CAPTURE(expression);
+        CHECK(evaluate(expression) == expectedValue);
+      }
+
       // an escaped wildcard is matched literally and doesn't prevent substring matching
       const auto patterns = MapType{
         {"path", Value{R"(C:\quake\id1\gfx.wad)"}},
@@ -1596,6 +1687,8 @@ TEST_CASE("Expression")
         {"escapedStarThenStar", Value{R"(a\**)"}},
         {"trailingBackslash", Value{R"(quake\)"}},
         {"escapedTrailingBackslash", Value{R"(quake\\)"}},
+        {"literalBackslash", Value{R"(id1\gfx)"}},
+        {"literalBackslashThenStar", Value{R"(*id1\g*)"}},
       };
       CHECK(evaluate("path like escapedBackslash", patterns) == Value{true});
       CHECK(evaluate(R"("a*b" like escapedStar)", patterns) == Value{true});
@@ -1606,6 +1699,11 @@ TEST_CASE("Expression")
       CHECK(evaluate("path like trailingBackslash", patterns) == Value{true});
       CHECK(evaluate(R"("quake*" like trailingBackslash)", patterns) == Value{false});
       CHECK(evaluate("path like escapedTrailingBackslash", patterns) == Value{true});
+
+      // so does a backslash that doesn't escape a wildcard or another backslash
+      CHECK(evaluate("path like literalBackslash", patterns) == Value{true});
+      CHECK(evaluate(R"("id1g" like literalBackslash)", patterns) == Value{false});
+      CHECK(evaluate("path like literalBackslashThenStar", patterns) == Value{true});
 
       // Array like String: true if any element matches
       CHECK(evaluate(R"(["a", "b", "trigger_once"] like "*trigger*")") == Value{true});
