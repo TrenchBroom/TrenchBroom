@@ -56,6 +56,15 @@ TEST_CASE("Parser")
       // MSVC complains about an illegal escape sequence if we use a raw string literal
       // for the expression
       CHECK(parse("\"asdf\\\" \\\"asdf\"") == lit(R"(asdf" "asdf)"));
+      CHECK(parse("\"asdf\\' \\'asdf\"") == lit(R"(asdf\' \'asdf)"));
+
+      CHECK(parse(R"('asdf)").is_error());
+      CHECK(parse(R"('asdf')") == lit("asdf"));
+      CHECK(parse("'asdf\\' \\'asdf'") == lit("asdf' 'asdf"));
+      CHECK(parse("'asdf\\\" \\\"asdf'") == lit(R"(asdf\" \"asdf)"));
+
+      CHECK(parse("\"C:\\\\quake\"") == lit(R"(C:\quake)"));
+      CHECK(parse("\"C:\\quake\"") == lit(R"(C:\quake)"));
     }
 
     SECTION("Numbers")
