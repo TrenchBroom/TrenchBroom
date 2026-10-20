@@ -290,6 +290,9 @@ bool str_is_equal(
  * - \% matches a literal '%' character
  * - \\ matches a literal '\' character
  *
+ * A '\' that isn't followed by one of the characters '?', '*', '%' or '\' also matches a
+ * literal '\' character.
+ *
  * Consider the following examples:
  * - ?o? matches 'god' and 'dog', but not 'dug'
  * - he*o matches 'hello' and 'hero', but not 'hera' nor 'hiro'
@@ -308,8 +311,42 @@ template <typename CharEqual>
 bool str_matches_glob(
   const std::string_view str, const std::string_view pattern, const CharEqual& char_equal)
 {
+  // fast path for patterns with a leading and / or a trailing *, and no other placeholder
+  const auto leading_star = pattern.starts_with('*');
+  const auto trailing_star =
+    pattern.size() > (leading_star ? 1u : 0u) && pattern.ends_with('*');
+  const auto literal = pattern.substr(
+    leading_star ? 1u : 0u,
+    pattern.size() - (leading_star ? 1u : 0u) - (trailing_star ? 1u : 0u));
+
+  if (literal.find_first_of("*?%\\") == std::string_view::npos)
+  {
+    if (leading_star && trailing_star)
+    {
+      return literal.empty() || str_contains(str, literal, char_equal);
+    }
+    if (leading_star)
+    {
+      return str_is_suffix(str, literal, char_equal);
+    }
+    if (trailing_star)
+    {
+      return str_is_prefix(str, literal, char_equal);
+    }
+    return str_is_equal(str, literal, char_equal);
+  }
+
+  const auto is_escapable = [](const char c) {
+    return c == '*' || c == '?' || c == '%' || c == '\\';
+  };
+
   using match_task = std::pair<std::size_t, std::size_t>;
-  std::vector<match_task> match_tasks({{0u, 0u}});
+
+  const auto num_match_tasks =
+    pattern.find('*') != std::string_view::npos ? str.length() + 1u : 1u;
+  auto match_tasks = std::vector<match_task>{};
+  match_tasks.reserve(num_match_tasks);
+  match_tasks.emplace_back(0u, 0u);
 
   while (!match_tasks.empty())
   {
@@ -328,27 +365,15 @@ bool str_matches_glob(
       continue;
     }
 
-    if (pattern[p_i] == '\\' && p_i < pattern.length() - 1u)
+    if (
+      pattern[p_i] == '\\' && p_i < pattern.length() - 1u
+      && is_escapable(pattern[p_i + 1u]))
     {
       // handle escaped characters in the pattern
-      if (s_i < str.length())
+      if (s_i < str.length() && str[s_i] == pattern[p_i + 1u])
       {
-        // check the next character in the pattern against the next character in the
-        // string
-        const auto& n = pattern[p_i + 1u];
-        if (n == '*' || n == '?' || n == '%' || n == '\\')
-        {
-          if (str[s_i] == n)
-          {
-            // the string matches the escaped character, continue to match
-            match_tasks.emplace_back(s_i + 1u, p_i + 2u);
-          }
-        }
-        else
-        {
-          // invalid escape sequence in pattern
-          return false;
-        }
+        // the string matches the escaped character, continue to match
+        match_tasks.emplace_back(s_i + 1u, p_i + 2u);
       }
     }
     else if (pattern[p_i] == '*')

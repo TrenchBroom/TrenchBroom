@@ -50,13 +50,13 @@ TEST_CASE("compact_trie")
   {
     CHECK(test_index::escape("") == "");
     CHECK(test_index::escape("plain text") == "plain text");
-    CHECK(test_index::escape("literal*?%\\") == "literal\\*\\?\\%\\\\");
+    CHECK(test_index::escape(R"(literal*?%\)") == R"(literal\*\?\%\\)");
 
-    index.insert("literal*?%\\", "value");
+    index.insert(R"(literal*?%\)", "value");
     index.insert("literal1234", "other");
 
     CHECK_THAT(
-      find(index, test_index::escape("literal*?%\\")), UnorderedRangeEquals({"value"}));
+      find(index, test_index::escape(R"(literal*?%\)")), UnorderedRangeEquals({"value"}));
   }
 
   SECTION("insert")
@@ -216,6 +216,29 @@ TEST_CASE("compact_trie")
 
     index.remove("k1", "value3");
     CHECK(find(index, "k%*") == std::vector<std::string>{});
+  }
+
+  SECTION("find_matches_with_backslashes")
+  {
+    index.insert(R"(a\b)", "value");
+    index.insert(R"(a\*)", "value2");
+    index.insert(R"(a\)", "value3");
+    index.insert("a*", "value4");
+    index.insert("ab", "value5");
+    index.insert(R"(x\y)", "value6");
+
+    // an escaped special character matches literally
+    CHECK_THAT(find(index, R"(a\*)"), UnorderedRangeEquals({"value4"}));
+    CHECK_THAT(find(index, R"(a\\b)"), UnorderedRangeEquals({"value"}));
+    CHECK_THAT(find(index, R"(a\\\*)"), UnorderedRangeEquals({"value2"}));
+    CHECK_THAT(
+      find(index, R"(a\\*)"), UnorderedRangeEquals({"value", "value2", "value3"}));
+
+    // a backslash that doesn't escape anything matches a literal backslash
+    CHECK_THAT(find(index, R"(a\b)"), UnorderedRangeEquals({"value"}));
+    CHECK_THAT(find(index, R"(a\)"), UnorderedRangeEquals({"value3"}));
+    CHECK_THAT(find(index, R"(x\y)"), UnorderedRangeEquals({"value6"}));
+    CHECK(find(index, R"(x\z)") == std::vector<std::string>{});
   }
 
   SECTION("get_keys")

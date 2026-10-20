@@ -100,7 +100,7 @@ const std::string& Tokenizer::IntegerDelim() const
 }
 
 Tokenizer::Tokenizer(const std::string_view str, const size_t line, const size_t column)
-  : tb::Tokenizer<ElToken::Type>{tokenNames(), str, "\"", '\\', line, column}
+  : tb::Tokenizer<ElToken::Type>{tokenNames(), str, "\"'", '\\', line, column}
 {
 }
 
@@ -234,7 +234,9 @@ Tokenizer::Token Tokenizer::emitToken()
       advance();
       c = curPos();
       const char* e = readQuotedString(delim);
-      return Token{ElToken::String, c, e, offset(c), line, column};
+      const auto type =
+        delim == '"' ? ElToken::DoubleQuotedString : ElToken::SingleQuotedString;
+      return Token{type, c, e, offset(c), line, column};
     }
     case ' ':
     case '\t':
@@ -496,8 +498,9 @@ ExpressionNode Parser::parseLiteral()
   if (token.hasType(ElToken::String))
   {
     m_tokenizer.nextToken();
+    const auto delim = token.hasType(ElToken::DoubleQuotedString) ? '"' : '\'';
     // Escaping happens in Value::appendToStream
-    auto value = kdl::str_unescape(token.data(), "\\\"");
+    auto value = kdl::str_unescape_delimiter(token.data(), delim);
     return ExpressionNode{LiteralExpression{Value{std::move(value)}}, token.location()};
   }
   if (token.hasType(ElToken::Number))

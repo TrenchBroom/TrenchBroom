@@ -788,7 +788,7 @@ void Value::appendToStream(
       [&](const std::shared_ptr<const StringType>& sp) {
         const auto& s = *sp;
         // Unescaping happens in Parser::parseLiteral
-        str << "\"" << kdl::str_escape(s, "\\\"") << "\"";
+        str << "\"" << kdl::str_escape_delimiter(s, '"') << "\"";
       },
       [&](const NumberType& n) { appendNumber(str, n); },
       [&](const std::shared_ptr<const ArrayType>& ap) {

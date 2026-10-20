@@ -523,8 +523,10 @@ TEST_CASE("Value")
       CHECK(Value{false}.asString() == "false");
       CHECK(Value{"test"}.asString() == R"("test")");
       // MSVC reports C4129 for escape sequences inside a raw string literal, so these
-      // are regular literals: the value is a"b\c and it serializes to "a\"b\\c"
-      CHECK(Value{"a\"b\\c"}.asString() == "\"a\\\"b\\\\c\"");
+      // are regular literals: the value a"b\c serializes to "a\"b\c", and the value
+      // C:\quake\ serializes to "C:\quake\\"
+      CHECK(Value{"a\"b\\c"}.asString() == "\"a\\\"b\\c\"");
+      CHECK(Value{"C:\\quake\\"}.asString() == "\"C:\\quake\\\\\"");
       CHECK(Value{16.0}.asString() == "16");
       CHECK(Value{-16.0}.asString() == "-16");
       CHECK(Value{1.1}.asString() == "1.1000000000000001");
