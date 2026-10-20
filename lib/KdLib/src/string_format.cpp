@@ -243,6 +243,63 @@ std::string str_unescape(
   return buffer.str();
 }
 
+std::string str_escape_delimiter(
+  const std::string_view str, const char delim, const char esc)
+{
+  contract_pre(delim != esc);
+
+  auto result = std::string{};
+  result.reserve(str.size());
+
+  auto escapes = size_t(0);
+  for (const auto c : str)
+  {
+    if (c == esc)
+    {
+      ++escapes;
+    }
+    else
+    {
+      if (c == delim)
+      {
+        result.append(escapes + 1, esc);
+      }
+      escapes = 0;
+    }
+    result.push_back(c);
+  }
+  result.append(escapes, esc);
+
+  return result;
+}
+
+std::string str_unescape_delimiter(
+  const std::string_view str, const char delim, const char esc)
+{
+  contract_pre(delim != esc);
+
+  auto result = std::string{};
+  result.reserve(str.size());
+
+  auto escapes = size_t(0);
+  for (const auto c : str)
+  {
+    if (c == esc)
+    {
+      ++escapes;
+    }
+    else
+    {
+      result.append(c == delim ? escapes / 2 : escapes, esc);
+      result.push_back(c);
+      escapes = 0;
+    }
+  }
+  result.append((escapes + 1) / 2, esc);
+
+  return result;
+}
+
 bool str_is_blank(const std::string_view str, const std::string_view whitespace)
 {
   return str.find_first_not_of(whitespace) == std::string::npos;
