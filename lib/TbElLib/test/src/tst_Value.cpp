@@ -689,7 +689,8 @@ TEST_CASE("Value")
       {Value{true},                                              "true"},
       {Value{false},                                             "false"},
       {Value{"test"},                                            R"("test")"},
-      {Value{R"(a"b\c)"},                                        R"("a\"b\\c")"},
+      {Value{R"(a"b\c)"},                                        R"("a\"b\c")"},
+      {Value{R"(C:\quake\)"},                                    R"("C:\quake\\")"},
       {Value{16.0},                                              "16"},
       {Value{-16.0},                                             "-16"},
       {Value{1.1},                                               "1.1000000000000001"},
@@ -744,6 +745,17 @@ TEST_CASE("Value")
     str << "prefix ";
     Value{ArrayType{Value{1.0}, Value{2.0}}}.appendToStream(str);
     CHECK(str.str() == "prefix [\n\t1,\n\t2\n]");
+
+    // with legacy escaping, every backslash and quote is escaped, also in nested values
+    auto legacyStr = std::ostringstream{};
+    Value{ArrayType{
+            Value{R"(a"b\c)"},
+            Value{MapType{{"path", Value{R"(\\server\share)"}}}},
+          }}
+      .appendToStream(legacyStr, false, "", StringEscaping::Legacy);
+    // MSVC cannot parse this raw string literal inline in CHECK
+    const auto expected = R"(["a\"b\\c", { "path": "\\\\server\\share" }])";
+    CHECK(legacyStr.str() == expected);
   }
 
   SECTION("contains")

@@ -18,6 +18,7 @@
  */
 
 #include "el/Parser.h"
+#include "el/StringEscaping.h"
 #include "el/TestUtils.h"
 
 #include "kd/result_io.h" // IWYU pragma: keep
@@ -32,9 +33,10 @@ namespace tb::el
 namespace
 {
 
-auto parse(const std::string& str)
+auto parse(
+  const std::string& str, const StringEscaping escaping = StringEscaping::Default)
 {
-  return Parser{ParseMode::Strict, str}.parse();
+  return Parser{ParseMode::Strict, str, 1, 1, escaping}.parse();
 }
 
 } // namespace
@@ -74,14 +76,41 @@ TEST_CASE("Parser")
       {R"('asdf\' \'asdf')",  lit("asdf' 'asdf")},
       {R"('asdf\" \"asdf')",  lit(R"(asdf\" \"asdf)")},
 
-      {R"("C:\\quake")",      lit(R"(C:\quake)")},
+      // backslashes are only special if they precede the delimiter
       {R"("C:\quake")",       lit(R"(C:\quake)")},
+      {R"("\\server\share")", lit(R"(\\server\share)")},
+      {R"("a\\\"b")",         lit(R"(a\"b)")},
+      {R"("C:\quake\\")",     lit(R"(C:\quake\)")},
+      {R"("C:\quake\")",      Error{"Unexpected end of file"}},
+      {R"('C:\quake\\')",     lit(R"(C:\quake\)")},
       }));
       // clang-format on
 
       CAPTURE(expression);
 
       CHECK(parse(expression) == expectedResult);
+    }
+
+    SECTION("Strings with legacy escaping")
+    {
+      // every backslash escapes a following backslash or delimiter
+
+      // clang-format off
+      const auto
+      [expression,               expectedExpression] = GENERATE(table<std::string, ExpressionNode>({
+      {R"("C:\\quake\\id1")",    lit(R"(C:\quake\id1)")},
+      {R"("\\\\server\\share")", lit(R"(\\server\share)")},
+      {R"("C:\quake")",          lit(R"(C:\quake)")},
+      {R"("a\"b")",              lit(R"(a"b)")},
+      {R"("C:\quake\\")",        lit(R"(C:\quake\)")},
+      {R"('it\'s')",             lit("it's")},
+      {R"('a\"b')",              lit(R"(a\"b)")},
+      }));
+      // clang-format on
+
+      CAPTURE(expression);
+
+      CHECK(parse(expression, StringEscaping::Legacy) == expectedExpression);
     }
 
     SECTION("Numbers")

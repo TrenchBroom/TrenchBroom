@@ -22,6 +22,7 @@
 #include "ExpressionNode.h"
 #include "Forward.h"
 #include "ParseMode.h"
+#include "StringEscaping.h"
 #include "base/Parser.h"
 #include "base/Result.h"
 #include "base/Tokenizer.h"
@@ -102,11 +103,17 @@ class Parser : public tb::Parser<ElToken::Type>
 {
 protected:
   ParseMode m_mode;
+  StringEscaping m_escaping;
   Tokenizer m_tokenizer;
   using Token = Tokenizer::Token;
 
 public:
-  Parser(ParseMode mode, std::string_view str, size_t line = 1, size_t column = 1);
+  Parser(
+    ParseMode mode,
+    std::string_view str,
+    size_t line = 1,
+    size_t column = 1,
+    StringEscaping escaping = StringEscaping::Default);
   TokenizerState tokenizerState() const;
 
   Result<ExpressionNode> parse();

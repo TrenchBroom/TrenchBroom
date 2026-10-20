@@ -59,6 +59,12 @@ TEST_CASE("parseGameEngineConfig")
     CHECK(parseGameEngineConfig(config).is_error());
   }
 
+  SECTION("unsupported version")
+  {
+    const auto config = R"(  { 'version': 3, 'profiles': [] } )";
+    CHECK(parseGameEngineConfig(config).is_error());
+  }
+
   SECTION("empty profiles")
   {
     const auto config = R"(  { 'version': 1, 'profiles': [] } )";
@@ -159,6 +165,31 @@ TEST_CASE("parseGameEngineConfig")
     REQUIRE(result);
     REQUIRE(result.value().profiles.size() == 1u);
     CHECK(result.value().profiles[0].id != "");
+  }
+
+  SECTION("backslashes in version 2")
+  {
+    const auto config = R"(
+{
+	"profiles": [
+		{
+			"name": "winquake",
+			"parameters": "-basedir \\server\quake\\",
+			"path": "C:\Quake\winquake.exe"
+		}
+	],
+	"version": 2
+}
+)";
+
+    CHECK(
+      parseGameEngineConfig(config)
+      == mdl::GameEngineConfig{{{
+        .id = generateUuid(),
+        .name = "winquake",
+        .path = R"(C:\Quake\winquake.exe)",
+        .parameterSpec = R"(-basedir \\server\quake\)",
+      }}});
   }
 }
 

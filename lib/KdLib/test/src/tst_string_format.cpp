@@ -223,6 +223,65 @@ TEST_CASE("string_format")
     CHECK(str_unescape(str, chars) == expected);
   }
 
+  SECTION("str_escape_delimiter")
+  {
+    // clang-format off
+    const auto
+    [str,                 delim, expected] = GENERATE(table<std::string, char, std::string>({
+    {"",                  '"',   ""},
+    {"asdf",              '"',   "asdf"},
+    {R"(a"b)",            '"',   R"(a\"b)"},
+    {R"(a'b)",            '"',   R"(a'b)"},
+    {R"(a'b)",            '\'',  R"(a\'b)"},
+    // escape chars that don't precede a delimiter are kept as they are
+    {R"(C:\quake)",       '"',   R"(C:\quake)"},
+    {R"(\\server\share)", '"',   R"(\\server\share)"},
+    {R"(a\'b)",           '"',   R"(a\'b)"},
+    // escape chars that precede a delimiter are escaped
+    {R"(a\"b)",           '"',   R"(a\\\"b)"},
+    {R"(a\\"b)",          '"',   R"(a\\\\\"b)"},
+    // escape chars at the end precede the closing delimiter
+    {R"(C:\quake\)",      '"',   R"(C:\quake\\)"},
+    {R"(C:\quake\\)",     '"',   R"(C:\quake\\\\)"},
+    }));
+    // clang-format on
+
+    CAPTURE(str, delim);
+
+    CHECK(str_escape_delimiter(str, delim) == expected);
+  }
+
+  SECTION("str_unescape_delimiter")
+  {
+    // clang-format off
+    const auto
+    [str,                 delim, expected] = GENERATE(table<std::string, char, std::string>({
+    {"",                  '"',   ""},
+    {"asdf",              '"',   "asdf"},
+    {R"(a\"b)",           '"',   R"(a"b)"},
+    {R"(a\'b)",           '"',   R"(a\'b)"},
+    {R"(a\'b)",           '\'',  R"(a'b)"},
+    // escape chars that don't precede a delimiter are kept as they are
+    {R"(C:\quake)",       '"',   R"(C:\quake)"},
+    {R"(\\server\share)", '"',   R"(\\server\share)"},
+    // escape chars that precede a delimiter are unescaped
+    {R"(a\\\"b)",         '"',   R"(a\"b)"},
+    {R"(a\\\\\"b)",       '"',   R"(a\\"b)"},
+    {R"(a\\"b)",          '"',   R"(a\"b)"},
+    // escape chars at the end precede the closing delimiter
+    {R"(C:\quake\\)",     '"',   R"(C:\quake\)"},
+    {R"(C:\quake\\\\)",   '"',   R"(C:\quake\\)"},
+    // an unpaired escape char at the end is kept
+    {R"(C:\quake\)",      '"',   R"(C:\quake\)"},
+    {R"(C:\quake\\\)",    '"',   R"(C:\quake\\)"},
+    }));
+    // clang-format on
+
+    CAPTURE(str, delim);
+
+    CHECK(str_unescape_delimiter(str, delim) == expected);
+  }
+
   SECTION("str_is_blank")
   {
     // clang-format off

@@ -24,9 +24,10 @@
 namespace tb::el
 {
 
-Result<ExpressionNode> parseExpression(const ParseMode mode, const std::string_view str)
+Result<ExpressionNode> parseExpression(
+  const ParseMode mode, const std::string_view str, const StringEscaping escaping)
 {
-  return Parser{mode, str}.parse();
+  return Parser{mode, str, 1, 1, escaping}.parse();
 }
 
 } // namespace tb::el

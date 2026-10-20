@@ -1948,7 +1948,7 @@ A literal is either a string, a number, a boolean, `null`, `undefined`, an array
     String    = """ { Char } """ | "'" { Char } "'"
     Number    = Numeric { Numeric } [ "." Numeric { Numeric } ]
 
-Note that strings can either be enclosed by double or single quotes, but you cannot mix these two styles. If you enclose a string by double quotes, you need to escape all literal double quotes within the string with backslashes like so: "this is a \\"fox\\"", but this is not necessary when using single quotes to enclose that string: 'this is a "fox"' is also a valid string literal. Likewise, literal single quotes must be escaped within a string enclosed by single quotes: 'this is a \\'fox\\''.
+Note that strings can either be enclosed by double or single quotes, but you cannot mix these two styles. If you enclose a string by double quotes, you need to escape all literal double quotes within the string with backslashes like so: "this is a \\"fox\\"", but this is not necessary when using single quotes to enclose that string: 'this is a "fox"' is also a valid string literal. Likewise, literal single quotes must be escaped within a string enclosed by single quotes: 'this is a \\'fox\\''. Backslashes are only special if they precede the enclosing quote character. Then each pair of backslashes stands for a single backslash, and an unpaired backslash escapes the quote character. Any other backslash is kept as it is, so the string literal `"C:\quake\id1"` stands for the string `C:\quake\id1`, but a trailing backslash must be doubled: `"C:\quake\\"` stands for the string `C:\quake\`.
 
 Further note that number literals need not contain a fractional part and can be written like integers, i.e. `1` instead of `1.0`.
 
@@ -2263,6 +2263,8 @@ Character  Effect
 `\\`       Matches a literal `\` character.
 
 A `\` that is not followed by one of the characters `?`, `*`, `%`, or `\`, such as the one in `id1\gfx.wad` or one at the end of the pattern, also matches a literal `\` character.
+
+These escape sequences are part of the pattern itself. A string literal only treats backslashes specially if they precede the enclosing quote character (see Names and Literals above), so a pattern can be written as a string literal as it is: `"quake\*"` matches `quake` followed by a literal `*`, and `"quake\\*"` matches `quake\` followed by anything. Only a trailing backslash must be doubled: `"quake\\"` is the pattern `quake\`.
 
 If the pattern does not contain any of the characters `?`, `*`, or `%`, except in an escape sequence such as `\*`, it is matched as a substring of `value` instead of requiring an exact match.
 
@@ -3027,10 +3029,12 @@ The game configuration files are versioned. Whenever a breaking change to the ga
 
 **Current Versions**
 
-TrenchBroom currently supports game config version 9.
+TrenchBroom currently supports game config versions 9 and 10.
 
 **Version History**
 
+* Version 10
+  - Backslashes in strings are only special if they precede the enclosing quote character (see Names and Literals in the [expression language](#expression_language) section). Version 9 files are still read with the old rule, where every backslash escapes a following backslash or quote character.
 * Version 9
   - Adapt to terminology change: `texture` renamed to `material`
 * Version 8

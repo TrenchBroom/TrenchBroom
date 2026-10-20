@@ -1585,14 +1585,15 @@ TEST_CASE("Expression")
       {R"("func_detail" like "func_detail")",            Value{true}},
       {R"("detail" like "func_detail")",                 Value{false}},
 
-      // in a string literal, a backslash that precedes another backslash or a quote
-      // escapes it, but any other backslash is kept
+      // in a string literal, backslashes are only special if they precede a quote, so
+      // the pattern is written as it is
       {R"("quake*" like "quake\*")",                     Value{true}},
-      {R"("quake*" like "quake\\*")",                    Value{true}},
-      {R"("quake\x" like "quake\\*")",                   Value{false}},
-      {R"("quake\x" like "quake\\\\*")",                 Value{true}},
+      {R"("quake*" like "quake\\*")",                    Value{false}},
+      {R"("quake\x" like "quake\\*")",                   Value{true}},
+      {R"("quake\x" like "quake\\\\*")",                 Value{false}},
       {R"("id1\gfx.wad" like "id1\gfx")",                Value{true}},
       {R"("id1\gfx.wad" like "id1\\gfx")",               Value{true}},
+      {R"("C:\quake\\" like "quake\\")",                 Value{true}},
 
       // an escaped wildcard is matched literally and doesn't prevent substring matching
       {"path like escapedBackslash",                     Value{true}},
