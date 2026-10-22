@@ -166,13 +166,29 @@ TEST_CASE("string_compare")
       CHECK(str_matches_glob("asdfjkl", "a*f*l"));
       CHECK(str_matches_glob("asdfjkl", "*a*f*l*"));
       CHECK(str_matches_glob("asd*fjkl", "*a*f*l*"));
-      CHECK(str_matches_glob("asd*fjkl", "asd\\*fjkl"));
-      CHECK(str_matches_glob("asd*?fj\\kl", "asd\\*\\?fj\\\\kl"));
+      CHECK(str_matches_glob("asd*fjkl", R"(asd\*fjkl)"));
+      CHECK(str_matches_glob(R"(asd*?fj\kl)", R"(asd\*\?fj\\kl)"));
       CHECK(!str_matches_glob("asdf", "*F"));
       CHECK(!str_matches_glob("asdF", "a*f"));
       CHECK(!str_matches_glob("ASDF", "?S?f"));
 
       CHECK(!str_matches_glob("classname", "*_color"));
+
+      CHECK(str_matches_glob("", "**"));
+      CHECK(str_matches_glob("asdf", "**"));
+      CHECK(!str_matches_glob("asdf", "asd"));
+      CHECK(str_matches_glob("asdf", "as*"));
+      CHECK(!str_matches_glob("asdf", "sd*"));
+      CHECK(!str_matches_glob("as", "asdf*"));
+      CHECK(!str_matches_glob("df", "*asdf"));
+      CHECK(str_matches_glob("asdf", "*sd*"));
+      CHECK(str_matches_glob("asdf", "*asdf*"));
+      CHECK(!str_matches_glob("asdf", "*ds*"));
+      CHECK(!str_matches_glob("asdf", "*SD*"));
+      CHECK(!str_matches_glob("sd", "*asdf*"));
+      CHECK(str_matches_glob("asd*", R"(asd\*)"));
+      CHECK(!str_matches_glob("asdf", R"(asd\*)"));
+      CHECK(str_matches_glob(R"(asd\f)", R"(asd\\*)"));
 
       CHECK(!str_matches_glob("", "%"));
       CHECK(str_matches_glob("", "%*"));
@@ -195,7 +211,7 @@ TEST_CASE("string_compare")
       CHECK(str_matches_glob("Zasdf3376bdc", "Z*%**"));
       CHECK(str_matches_glob("78777Zasdf3376bdc", "%*Z*%**"));
 
-      CHECK(str_matches_glob("34dkadj%773", "*\\%%*"));
+      CHECK(str_matches_glob("34dkadj%773", R"(*\%%*)"));
     }
 
     SECTION("sort")
@@ -343,8 +359,12 @@ TEST_CASE("string_compare")
       CHECK(str_matches_glob("AsDfjkl", "a*f*l"));
       CHECK(str_matches_glob("AsDfjkl", "*a*f*l*"));
       CHECK(str_matches_glob("ASd*fjKl", "*a*f*l*"));
-      CHECK(str_matches_glob("ASd*fjKl", "asd\\*fjkl"));
-      CHECK(str_matches_glob("aSD*?fJ\\kL", "asd\\*\\?fj\\\\kl"));
+      CHECK(str_matches_glob("ASd*fjKl", R"(asd\*fjkl)"));
+      CHECK(str_matches_glob(R"(aSD*?fJ\kL)", R"(asd\*\?fj\\kl)"));
+      CHECK(str_matches_glob("ASdf", "as*"));
+      CHECK(str_matches_glob("asDF", "*Df"));
+      CHECK(str_matches_glob("aSDf", "*sd*"));
+      CHECK(!str_matches_glob("aSDf", "*ds*"));
     }
 
     SECTION("sort")
