@@ -780,7 +780,10 @@ std::string Value::asString(const bool multiline) const
 }
 
 void Value::appendToStream(
-  std::ostream& str, const bool multiline, const std::string& indent) const
+  std::ostream& str,
+  const bool multiline,
+  const std::string& indent,
+  const StringEscaping escaping) const
 {
   std::visit(
     kdl::overload(
@@ -788,7 +791,10 @@ void Value::appendToStream(
       [&](const std::shared_ptr<const StringType>& sp) {
         const auto& s = *sp;
         // Unescaping happens in Parser::parseLiteral
-        str << "\"" << kdl::str_escape_delimiter(s, '"') << "\"";
+        const auto escaped = escaping == StringEscaping::Legacy
+                               ? kdl::str_escape(s, "\\\"")
+                               : kdl::str_escape_delimiter(s, '"');
+        str << "\"" << escaped << "\"";
       },
       [&](const NumberType& n) { appendNumber(str, n); },
       [&](const std::shared_ptr<const ArrayType>& ap) {
@@ -808,7 +814,7 @@ void Value::appendToStream(
           for (size_t i = 0; i < a.size(); ++i)
           {
             str << childIndent;
-            a[i].appendToStream(str, multiline, childIndent);
+            a[i].appendToStream(str, multiline, childIndent, escaping);
             if (i < a.size() - 1)
             {
               str << ",";
@@ -853,7 +859,7 @@ void Value::appendToStream(
           {
             str << childIndent << "\"" << key << "\""
                 << ": ";
-            value.appendToStream(str, multiline, childIndent);
+            value.appendToStream(str, multiline, childIndent, escaping);
             if (i++ < m.size() - 1)
             {
               str << ",";

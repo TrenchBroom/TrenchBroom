@@ -20,6 +20,7 @@
 #pragma once
 
 #include "ExpressionNode.h"
+#include "StringEscaping.h"
 #include "Types.h"
 #include "base/FileLocation.h"
 
@@ -109,7 +110,10 @@ public:
 
   std::string asString(bool multiline = false) const;
   void appendToStream(
-    std::ostream& str, bool multiline = true, const std::string& indent = "") const;
+    std::ostream& str,
+    bool multiline = true,
+    const std::string& indent = "",
+    StringEscaping escaping = StringEscaping::Default) const;
 
   bool contains(size_t index) const;
   bool contains(const std::string& key) const;
