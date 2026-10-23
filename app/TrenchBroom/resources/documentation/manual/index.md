@@ -3029,10 +3029,12 @@ The game configuration files are versioned. Whenever a breaking change to the ga
 
 **Current Versions**
 
-TrenchBroom currently supports game config version 9.
+TrenchBroom currently supports game config versions 9 and 10.
 
 **Version History**
 
+* Version 10
+  - Backslashes in strings are only special if they precede the enclosing quote character (see Names and Literals in the [expression language](#expression_language) section). Version 9 files are still read with the old rule, where every backslash escapes a following backslash or quote character.
 * Version 9
   - Adapt to terminology change: `texture` renamed to `material`
 * Version 8

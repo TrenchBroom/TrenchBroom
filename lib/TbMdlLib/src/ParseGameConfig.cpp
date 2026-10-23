@@ -22,9 +22,9 @@
 #include "base/ParserException.h"
 #include "el/EvaluationContext.h"
 #include "el/Expression.h"
-#include "el/ParseExpression.h"
 #include "el/Value.h"
 #include "mdl/GameConfig.h"
+#include "mdl/ParseConfigExpression.h"
 #include "mdl/SoftMapBounds.h"
 #include "mdl/SurfaceAttributes.h"
 #include "mdl/Tag.h"
@@ -63,7 +63,7 @@ std::vector<std::filesystem::path> extensionsToPaths(const std::vector<std::stri
 
 void checkVersion(const el::Value& version)
 {
-  const auto validVsns = std::vector<el::IntegerType>{9};
+  const auto validVsns = std::vector<el::IntegerType>{9, 10};
   const auto versionNumber = version.convertTo(el::ValueType::Number).integerValue();
 
   if (!kdl::ranges::contains(validVsns, versionNumber))
@@ -546,7 +546,7 @@ Result<GameConfig> parseGameConfig(
 Result<GameConfig> parseGameConfig(
   std::string_view str, const std::filesystem::path& path)
 {
-  return el::parseExpression(el::ParseMode::Strict, str)
+  return parseConfigExpression(str, 9)
          | kdl::and_then([&](const auto& expression) -> Result<GameConfig> {
              return el::withEvaluationContext(
                [&](auto& context) { return parseGameConfig(context, expression, path); });

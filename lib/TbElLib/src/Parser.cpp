@@ -313,8 +313,13 @@ Tokenizer::Token Tokenizer::emitToken()
 }
 
 Parser::Parser(
-  const ParseMode mode, std::string_view str, const size_t line, const size_t column)
+  const ParseMode mode,
+  std::string_view str,
+  const size_t line,
+  const size_t column,
+  const StringEscaping escaping)
   : m_mode{mode}
+  , m_escaping{escaping}
   , m_tokenizer{str, line, column}
 {
 }
@@ -500,7 +505,9 @@ ExpressionNode Parser::parseLiteral()
     m_tokenizer.nextToken();
     const auto delim = token.hasType(ElToken::DoubleQuotedString) ? '"' : '\'';
     // Escaping happens in Value::appendToStream
-    auto value = kdl::str_unescape_delimiter(token.data(), delim);
+    auto value = m_escaping == StringEscaping::Legacy
+                   ? kdl::str_unescape(token.data(), delim == '"' ? "\\\"" : "\\'")
+                   : kdl::str_unescape_delimiter(token.data(), delim);
     return ExpressionNode{LiteralExpression{Value{std::move(value)}}, token.location()};
   }
   if (token.hasType(ElToken::Number))

@@ -18,6 +18,7 @@
  */
 
 #include "el/Parser.h"
+#include "el/StringEscaping.h"
 #include "el/TestUtils.h"
 
 #include "kd/result_io.h" // IWYU pragma: keep
@@ -31,9 +32,10 @@ namespace tb::el
 namespace
 {
 
-auto parse(const std::string& str)
+auto parse(
+  const std::string& str, const StringEscaping escaping = StringEscaping::Default)
 {
-  return Parser{ParseMode::Strict, str}.parse();
+  return Parser{ParseMode::Strict, str, 1, 1, escaping}.parse();
 }
 
 } // namespace
@@ -70,6 +72,16 @@ TEST_CASE("Parser")
       CHECK(parse("\"C:\\quake\\\\\"") == lit(R"(C:\quake\)"));
       CHECK(parse("\"C:\\quake\\\"").is_error());
       CHECK(parse("'C:\\quake\\\\'") == lit(R"(C:\quake\)"));
+
+      // with legacy escaping, every backslash escapes a following backslash or delimiter
+      constexpr auto Legacy = StringEscaping::Legacy;
+      CHECK(parse("\"C:\\\\quake\\\\id1\"", Legacy) == lit(R"(C:\quake\id1)"));
+      CHECK(parse("\"\\\\\\\\server\\\\share\"", Legacy) == lit(R"(\\server\share)"));
+      CHECK(parse("\"C:\\quake\"", Legacy) == lit(R"(C:\quake)"));
+      CHECK(parse("\"a\\\"b\"", Legacy) == lit(R"(a"b)"));
+      CHECK(parse("\"C:\\quake\\\\\"", Legacy) == lit(R"(C:\quake\)"));
+      CHECK(parse("'it\\'s'", Legacy) == lit("it's"));
+      CHECK(parse("'a\\\"b'", Legacy) == lit(R"(a\"b)"));
     }
 
     SECTION("Numbers")

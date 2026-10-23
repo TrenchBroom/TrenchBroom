@@ -31,8 +31,11 @@
 
 #include <filesystem>
 #include <string>
+#include <tuple>
+#include <vector>
 
 #include <catch2/catch_test_macros.hpp>
+#include <catch2/generators/catch_generators.hpp>
 
 namespace tb::mdl
 {
@@ -82,12 +85,12 @@ TEST_CASE("GameConfigParser")
         parseGameConfig(R"({ "version": 8 })")
         == Result<GameConfig>{
           Error{"At line 1, column 14: Unsupported game configuration version 8; valid "
-                "versions are: 9"}});
+                "versions are: 9, 10"}});
       CHECK(
         parseGameConfig(R"({ "version": "8" })")
         == Result<GameConfig>{
           Error{"At line 1, column 14: Unsupported game configuration version 8; valid "
-                "versions are: 9"}});
+                "versions are: 9, 10"}});
     }
 
     SECTION("parseVersionNotConvertibleToNumber")
@@ -130,6 +133,48 @@ TEST_CASE("GameConfigParser")
 )";
 
       CHECK(parseGameConfig(config).is_success());
+    }
+
+    SECTION("parseStringEscapingByVersion")
+    {
+      // version 9 uses legacy string escaping, where every backslash escapes a
+      // following backslash or quote
+      using T = std::tuple<std::string, std::string>;
+      const auto [version, expectedExclude] = GENERATE(values<T>({
+        {"9", R"(skip\*)"},
+        {"10", R"(skip\\*)"},
+      }));
+      CAPTURE(version);
+
+      const auto config = R"(
+{
+    "version": )" + version
+                          + R"(,
+    "name": "Quake",
+    "fileformats": [
+        { "format": "Standard" }
+    ],
+    "filesystem": {
+        "searchpath": "id1",
+        "packageformat": { "extension": "pak", "format": "idpak" }
+    },
+    "materials": {
+        "root": "textures",
+        "extensions": ["D"],
+        "excludes": ["skip\\*"]
+    },
+    "entities": {
+        "definitions": [ "Quake.fgd" ],
+        "defaultcolor": "0.6 0.6 0.6 1.0"
+    }
+}
+)";
+
+      const auto gameConfig = parseGameConfig(config);
+      REQUIRE(gameConfig);
+      CHECK(
+        gameConfig.value().materialConfig.excludes
+        == std::vector<std::string>{expectedExclude});
     }
   }
 
