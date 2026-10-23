@@ -25,6 +25,8 @@
 #include <QComboBox>
 #include <QDoubleSpinBox>
 #include <QLabel>
+#include <QRandomGenerator>
+#include <QSlider>
 #include <QSpinBox>
 #include <QStackedWidget>
 #include <QToolButton>
@@ -39,6 +41,8 @@
 
 #include <algorithm>
 #include <array>
+#include <cmath>
+#include <limits>
 #include <ranges>
 
 namespace tb::ui
@@ -48,6 +52,26 @@ namespace
 {
 
 using StairDirection = DrawShapeToolParameters::StairDirection;
+using RockType = mdl::RockType;
+
+size_t rockTypeToIndex(const RockType type)
+{
+  return size_t(type);
+}
+
+constexpr RockType indexToRockType(const size_t index)
+{
+  constexpr auto types = std::array{
+    RockType::Boulder,
+    RockType::Shelf,
+    RockType::Strata,
+    RockType::Crag,
+    RockType::Crystal,
+    RockType::Columns,
+    RockType::Basalt,
+    RockType::Cluster};
+  return types[std::min(index, types.size() - 1u)];
+}
 
 size_t stairDirectionToIndex(const StairDirection direction)
 {
@@ -66,9 +90,9 @@ size_t stairDirectionToIndex(const StairDirection direction)
   return 0u;
 }
 
-StairDirection indexToStairDirection(const size_t index)
+constexpr StairDirection indexToStairDirection(const size_t index)
 {
-  static constexpr auto directions = std::array{
+  constexpr auto directions = std::array{
     StairDirection::PosX,
     StairDirection::NegX,
     StairDirection::PosY,
@@ -98,6 +122,8 @@ DrawShapeToolExtensionPage* createExtensionPage(
     return new DrawShapeToolUvSphereShapeExtensionPage{document, parameters, parent};
   case DrawShapeToolExtensionKind::IcoSphere:
     return new DrawShapeToolIcoSphereShapeExtensionPage{document, parameters, parent};
+  case DrawShapeToolExtensionKind::Rock:
+    return new DrawShapeToolRockShapeExtensionPage{document, parameters, parent};
   }
 
   return nullptr;
@@ -361,7 +387,7 @@ DrawShapeToolStairsExtensionPage::DrawShapeToolStairsExtensionPage(
     directionComboBox,
     QOverload<int>::of(&QComboBox::currentIndexChanged),
     this,
-    [&](const auto index) {
+    [&](const int index) {
       m_parameters.setStairDirection(indexToStairDirection(size_t(index)));
     });
 
@@ -406,6 +432,80 @@ DrawShapeToolArchShapeExtensionPage::DrawShapeToolArchShapeExtensionPage(
   m_notifierConnection += m_parameters.parametersDidChangeNotifier.connect([=, this]() {
     spandrelCheckBox->setChecked(m_parameters.createSpandrel());
     thicknessBox->setValue(m_parameters.thickness());
+  });
+}
+
+DrawShapeToolRockShapeExtensionPage::DrawShapeToolRockShapeExtensionPage(
+  MapDocument& document, DrawShapeToolParameters& parameters, QWidget* parent)
+  : DrawShapeToolExtensionPage{parent}
+  , m_parameters{parameters}
+{
+  auto* typeBox = new QComboBox{};
+  typeBox->addItems(
+    {tr("Boulder"),
+     tr("Shelf"),
+     tr("Strata"),
+     tr("Crag"),
+     tr("Crystal"),
+     tr("Columns"),
+     tr("Basalt"),
+     tr("Cluster")});
+
+  auto* detailLabel = new QLabel{tr("Detail: ")};
+  auto* detailSlider = new QSlider{Qt::Horizontal};
+  detailSlider->setRange(0, 100);
+  detailSlider->setTickPosition(QSlider::TicksBelow);
+  detailSlider->setAttribute(Qt::WA_LayoutUsesWidgetRect);
+  detailSlider->setMinimumWidth(150);
+  detailSlider->setToolTip(
+    tr("Controls how complex the rock is. Depending on the type, this is the number of "
+       "faces, layers or pieces. Larger shapes get more of them at the same setting."));
+  detailLabel->setToolTip(detailSlider->toolTip());
+
+  auto* seedLabel = new QLabel{tr("Seed: ")};
+  auto* seedBox = new QSpinBox{};
+  seedBox->setRange(0, std::numeric_limits<int>::max());
+  auto* randomSeedButton = createBitmapButton("Randomize.svg", tr("Set a random seed"));
+
+  auto* incrementSeedButton = createBitmapToggleButton(
+    "Auto_Inc.svg",
+    tr("Increment the seed automatically every time a shape is created or updated."));
+
+  connect(
+    typeBox,
+    QOverload<int>::of(&QComboBox::currentIndexChanged),
+    this,
+    [&](const int index) { m_parameters.setRockType(indexToRockType(size_t(index))); });
+  connect(detailSlider, &QSlider::valueChanged, this, [&](const auto detail) {
+    m_parameters.setRockDetail(double(detail) / 100.0);
+  });
+  connect(
+    seedBox, QOverload<int>::of(&QSpinBox::valueChanged), this, [&](const auto seed) {
+      m_parameters.setRockSeed(uint32_t(seed));
+    });
+  connect(randomSeedButton, &QToolButton::clicked, this, [&]() {
+    m_parameters.setRockSeed(
+      QRandomGenerator::global()->bounded(quint32(std::numeric_limits<int>::max())));
+  });
+  connect(
+    incrementSeedButton, &QToolButton::toggled, this, [&](const auto incrementRockSeed) {
+      m_parameters.setIncrementRockSeed(incrementRockSeed);
+    });
+
+  addWidget(typeBox);
+  addWidget(detailLabel);
+  addWidget(detailSlider);
+  addWidget(seedLabel);
+  addWidget(seedBox);
+  addWidget(randomSeedButton);
+  addWidget(incrementSeedButton);
+  addApplyButton(document);
+
+  m_notifierConnection += m_parameters.parametersDidChangeNotifier.connect([=, this]() {
+    typeBox->setCurrentIndex(int(rockTypeToIndex(m_parameters.rockType())));
+    detailSlider->setValue(int(std::lround(m_parameters.rockDetail() * 100.0)));
+    seedBox->setValue(int(m_parameters.rockSeed()));
+    incrementSeedButton->setChecked(m_parameters.incrementRockSeed());
   });
 }
 

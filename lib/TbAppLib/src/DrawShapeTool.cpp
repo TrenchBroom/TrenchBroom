@@ -66,7 +66,7 @@ void DrawShapeTool::update(const vm::bbox3d& bounds)
       | kdl::ranges::to<std::vector>());
   }) | kdl::transform_error([&](auto e) {
     clearBrushes();
-    m_document.logger().error() << "Could not update brushes: " << e;
+    m_document.logger().error() << "Could not update brushes: " << e.msg;
   });
 }
 
@@ -118,8 +118,17 @@ void DrawShapeTool::applyExtensionParameters()
 
       transaction.commit();
     }) | kdl::transform_error([&](auto e) {
-      m_document.logger().error() << "Could not update brushes: " << e;
+      m_document.logger().error() << "Could not update brushes: " << e.msg;
     });
+  }
+}
+
+void DrawShapeTool::doBrushesWereCreated()
+{
+  auto& parameters = m_extensionManager.parameters();
+  if (parameters.incrementRockSeed())
+  {
+    parameters.setRockSeed(parameters.rockSeed() + 1);
   }
 }
 
