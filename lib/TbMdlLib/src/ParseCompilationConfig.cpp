@@ -21,11 +21,11 @@
 
 #include "base/ParserException.h"
 #include "el/EvaluationContext.h"
-#include "el/ParseExpression.h"
 #include "el/Value.h"
 #include "mdl/CompilationConfig.h"
 #include "mdl/CompilationProfile.h"
 #include "mdl/CompilationTask.h"
+#include "mdl/ParseConfigExpression.h"
 
 #include "kd/ranges/to.h"
 
@@ -196,7 +196,8 @@ Result<CompilationConfig> toCompilationConfig(
   try
   {
     const auto root = expression.evaluate(context);
-    if (const auto version = root.at("version").numberValue(); version != 1.0)
+    if (const auto version = root.at("version").numberValue();
+        version != 1.0 && version != 2.0)
     {
       return Error{fmt::format("Unsupported compilation config version {}", version)};
     }
@@ -214,11 +215,10 @@ Result<CompilationConfig> toCompilationConfig(
 
 Result<CompilationConfig> parseCompilationConfig(const std::string_view str)
 {
-  return el::parseExpression(el::ParseMode::Strict, str)
-         | kdl::and_then([&](const auto& expression) {
-             return el::withEvaluationContext(
-               [&](auto& context) { return toCompilationConfig(context, expression); });
-           });
+  return parseConfigExpression(str, 1) | kdl::and_then([&](const auto& expression) {
+           return el::withEvaluationContext(
+             [&](auto& context) { return toCompilationConfig(context, expression); });
+         });
 }
 
 } // namespace tb::mdl

@@ -20,6 +20,7 @@
 #include "mdl/GameManager.h"
 
 #include "base/Logger.h"
+#include "el/Value.h"
 #include "fs/DiskFileSystem.h"
 #include "fs/DiskIO.h"
 #include "fs/PathInfo.h"
@@ -269,7 +270,9 @@ Result<bool> writeConfig(
 
   return fs.createDirectory(profilesPath.parent_path()) | kdl::and_then([&](auto) {
            auto stream = std::stringstream{};
-           stream << toValue(newConfig) << "\n";
+           toValue(newConfig).appendToStream(
+             stream, true, "", el::StringEscaping::Legacy);
+           stream << "\n";
            return fs.createFileAtomic(profilesPath, stream.str());
          })
          | kdl::transform([&]() {

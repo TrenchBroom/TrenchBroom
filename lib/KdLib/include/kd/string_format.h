@@ -174,6 +174,36 @@ std::string str_unescape(
   std::string_view str, std::string_view chars, char esc = EscapeChar);
 
 /**
+ * Returns a string that can be enclosed by the given delimiter. Every delimiter in the
+ * given string is escaped by the given escape char, which defaults to a single backslash.
+ * An escape char is only escaped if it precedes a delimiter or the end of the string.
+ *
+ * Precondition: delim is not the escape character
+ *
+ * @param str the string to escape
+ * @param delim the delimiter to escape
+ * @param esc the escape character
+ * @return the escaped string
+ */
+std::string str_escape_delimiter(std::string_view str, char delim, char esc = EscapeChar);
+
+/**
+ * Unescapes a string that was escaped by str_escape_delimiter. A sequence of escape chars
+ * is kept as it is unless it precedes a delimiter or the end of the string. In that case,
+ * each pair of escape chars stands for a single escape char, and an unpaired escape char
+ * escapes the delimiter or, at the end of the string, is kept.
+ *
+ * Precondition: delim is not the escape character
+ *
+ * @param str the string to unescape
+ * @param delim the delimiter to unescape
+ * @param esc the escape character
+ * @return the unescaped string
+ */
+std::string str_unescape_delimiter(
+  std::string_view str, char delim, char esc = EscapeChar);
+
+/**
  * Checks whether the given string consists of only whitespace.
  *
  * @param str the string to check
