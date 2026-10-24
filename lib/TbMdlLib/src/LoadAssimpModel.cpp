@@ -347,6 +347,16 @@ std::optional<aiTexel> getTransparentTexel(const aiMaterial& material)
   return std::nullopt;
 }
 
+bool isAdditiveMaterial(const aiMaterial& material)
+{
+  if (int blendFunc = 0;
+      material.Get(AI_MATKEY_BLEND_FUNC, blendFunc) == aiReturn_SUCCESS)
+  {
+    return blendFunc == aiBlendMode_Additive;
+  }
+  return false;
+}
+
 std::vector<gl::Texture> loadTexturesForMaterial(
   const aiScene& scene,
   const size_t materialIndex,
@@ -975,6 +985,15 @@ Result<EntityModelData> loadAssimpModel(
         loadTexturesForMaterial(*scene, mesh->mMaterialIndex, path, fs, logger)
         | kdl::views::as_rvalue | std::views::transform(createMaterial)
         | kdl::ranges::to<std::vector>();
+
+      if (isAdditiveMaterial(*scene->mMaterials[mesh->mMaterialIndex]))
+      {
+        for (auto& material : materials)
+        {
+          material.setBlendFunc(GL_ONE, GL_ONE);
+        }
+      }
+
       surface.setSkins(std::move(materials));
     }
 
