@@ -330,6 +330,49 @@ TEST_CASE("intersection")
     constexpr auto diff = vec3f{-2.0f, 3.0f, 8.0f} - origin;
     constexpr auto dir = normalize(diff);
     CHECK(intersect_ray_bbox(ray3f{origin, dir}, bounds) == approx(length(diff)));
+
+    // origin outside, ray misses the box
+    CER_CHECK(
+      intersect_ray_bbox(ray3f{vec3f{-20, 0, 0}, normalize(vec3f{1, 0, 2})}, bounds)
+      == std::nullopt);
+
+    // origin outside, ray is parallel to the y slab and outside of it
+    CER_CHECK(
+      intersect_ray_bbox(ray3f{vec3f{0, 10, 0}, vec3f{0, 0, 1}}, bounds) == std::nullopt);
+
+    // origin outside, ray runs along a face of the box
+    CER_CHECK(
+      intersect_ray_bbox(ray3f{vec3f{0, 9, 0}, vec3f{0, 0, 1}}, bounds) == approx(4.0f));
+
+    // origin inside, ray leaves the box along an axis
+    CER_CHECK(
+      intersect_ray_bbox(ray3f{vec3f{0, 0, 6}, vec3f{+1, 0, 0}}, bounds) == approx(8.0f));
+    CER_CHECK(
+      intersect_ray_bbox(ray3f{vec3f{0, 0, 6}, vec3f{-1, 0, 0}}, bounds)
+      == approx(12.0f));
+
+    // origin inside, ray leaves the box diagonally
+    CER_CHECK(
+      intersect_ray_bbox(ray3f{vec3f{0, 0, 6}, normalize(vec3f{1, 1, 0})}, bounds)
+      == approx(length(vec3f{8, 8, 0})));
+
+    // origin on the boundary, ray points into the box
+    CER_CHECK(
+      intersect_ray_bbox(ray3f{vec3f{-12, 0, 6}, vec3f{1, 0, 0}}, bounds)
+      == approx(20.0f));
+
+    // origin on the boundary, ray points out of the box
+    CER_CHECK(
+      intersect_ray_bbox(ray3f{vec3f{-12, 0, 6}, vec3f{-1, 0, 0}}, bounds)
+      == approx(0.0f));
+
+    constexpr auto bounds2 = bbox2f{vec2f{-1, -1}, vec2f{1, 1}};
+    CER_CHECK(
+      intersect_ray_bbox(ray<float, 2>{vec2f{-3, 0}, vec2f{1, 0}}, bounds2)
+      == approx(2.0f));
+    CER_CHECK(
+      intersect_ray_bbox(ray<float, 2>{vec2f{-3, 2}, vec2f{1, 0}}, bounds2)
+      == std::nullopt);
   }
 
   SECTION("intersect_ray_sphere")
