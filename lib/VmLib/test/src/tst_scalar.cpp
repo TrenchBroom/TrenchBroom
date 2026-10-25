@@ -24,6 +24,9 @@
 #include "vm/approx.h"
 #include "vm/scalar.h"
 
+#include <bit>
+#include <cmath>
+#include <cstdint>
 #include <limits>
 
 #include <catch2/catch_test_macros.hpp>
@@ -42,6 +45,12 @@ namespace vm
 
 namespace
 {
+
+// std::signbit is not constexpr before C++23
+constexpr bool has_sign_bit(const double v)
+{
+  return (std::bit_cast<std::uint64_t>(v) >> 63) != 0;
+}
 
 template <typename T>
 void checkSolution(
@@ -324,6 +333,9 @@ TEST_CASE("scalar")
     CER_CHECK(floor(0.4) == approx(0.0));
     CER_CHECK(floor(0.6) == approx(0.0));
     CER_CHECK(floor(1.0) == approx(1.0));
+
+    // the result is never negative zero
+    CER_CHECK(!has_sign_bit(floor(-0.0)));
   }
 
   SECTION("ceil")
@@ -337,6 +349,10 @@ TEST_CASE("scalar")
     CER_CHECK(ceil(0.6) == approx(1.0));
     CER_CHECK(ceil(1.0) == approx(1.0));
     CER_CHECK(ceil(1.1) == approx(2.0));
+
+    // the result is never negative zero
+    CER_CHECK(!has_sign_bit(ceil(-0.0)));
+    CER_CHECK(!has_sign_bit(ceil(-0.4)));
   }
 
   SECTION("trunc")
@@ -362,6 +378,10 @@ TEST_CASE("scalar")
     CER_CHECK(is_inf(trunc(std::numeric_limits<double>::infinity())));
     CER_CHECK(is_inf(trunc(-std::numeric_limits<double>::infinity())));
     CER_CHECK(is_nan(trunc(nan<double>())));
+
+    // the result is never negative zero
+    CER_CHECK(!has_sign_bit(trunc(-0.0)));
+    CER_CHECK(!has_sign_bit(trunc(-0.4)));
   }
 
   SECTION("mix")
@@ -401,6 +421,10 @@ TEST_CASE("scalar")
     CER_CHECK(round(0.6) == approx(+1.0));
     CER_CHECK(round(1.0) == approx(+1.0));
     CER_CHECK(round(1.1) == approx(+1.0));
+
+    // the result is never negative zero
+    CER_CHECK(!has_sign_bit(round(-0.0)));
+    CER_CHECK(!has_sign_bit(round(-0.4)));
   }
 
   SECTION("round_up")
@@ -488,6 +512,9 @@ TEST_CASE("scalar")
     CER_CHECK(snap(-1.4, 2.0) == approx(-2.0));
     CER_CHECK(snap(-1.5, 2.0) == approx(-2.0));
     CER_CHECK(snap(-1.6, 2.0) == approx(-2.0));
+
+    // the result is never negative zero
+    CER_CHECK(!has_sign_bit(snap(-3.0, 16.0)));
   }
 
   SECTION("snapUp")
