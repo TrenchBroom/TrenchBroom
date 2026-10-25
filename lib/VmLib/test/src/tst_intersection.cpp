@@ -344,12 +344,27 @@ TEST_CASE("intersection")
     CER_CHECK(
       intersect_ray_bbox(ray3f{vec3f{0, 9, 0}, vec3f{0, 0, 1}}, bounds) == approx(4.0f));
 
+    // origin outside, ray enters the box through an edge
+    CER_CHECK(
+      intersect_ray_bbox(
+        ray3d{vec3d{6, -2, 0}, normalize(vec3d{-5, 2, 0})},
+        bbox3d{vec3d{0, 0, -5}, vec3d{1, 10, 5}})
+      == approx(length(vec3d{5, 2, 0})));
+
     // origin inside, ray leaves the box along an axis
     CER_CHECK(
       intersect_ray_bbox(ray3f{vec3f{0, 0, 6}, vec3f{+1, 0, 0}}, bounds) == approx(8.0f));
     CER_CHECK(
       intersect_ray_bbox(ray3f{vec3f{0, 0, 6}, vec3f{-1, 0, 0}}, bounds)
       == approx(12.0f));
+    CER_CHECK(
+      intersect_ray_bbox(ray3f{vec3f{0, 0, 6}, vec3f{0, +1, 0}}, bounds) == approx(9.0f));
+    CER_CHECK(
+      intersect_ray_bbox(ray3f{vec3f{0, 0, 6}, vec3f{0, -1, 0}}, bounds) == approx(3.0f));
+    CER_CHECK(
+      intersect_ray_bbox(ray3f{vec3f{0, 0, 6}, vec3f{0, 0, +1}}, bounds) == approx(2.0f));
+    CER_CHECK(
+      intersect_ray_bbox(ray3f{vec3f{0, 0, 6}, vec3f{0, 0, -1}}, bounds) == approx(2.0f));
 
     // origin inside, ray leaves the box diagonally
     CER_CHECK(

@@ -32,6 +32,7 @@
 #include "vm/util.h"
 #include "vm/vec.h"
 
+#include <limits>
 #include <optional>
 
 namespace vm
@@ -383,6 +384,9 @@ std::optional<T> intersect_ray_polygon(
  * Computes the point of intersection between the given ray and the given bounding box,
  * and returns the distance on the given ray from the ray's origin to that point.
  *
+ * If the ray's origin is inside the bounding box or on its boundary, then the
+ * intersection point is the point where the ray leaves the bounding box.
+ *
  * @tparam T the component type
  * @tparam S the number of components
  * @param r the ray
@@ -393,88 +397,36 @@ std::optional<T> intersect_ray_polygon(
 template <typename T, size_t S>
 constexpr std::optional<T> intersect_ray_bbox(const ray<T, S>& r, const bbox<T, S>& b)
 {
-  // Compute candidate planes
-  T origins[S]{};
-  bool inside[S]{};
-  auto allInside = true;
+  // Intersect the ray with each pair of slab planes and keep the overlap of the resulting
+  // distance intervals
+  auto tNear = -std::numeric_limits<T>::infinity();
+  auto tFar = std::numeric_limits<T>::infinity();
   for (size_t i = 0; i < S; ++i)
   {
-    if (r.origin[i] < b.min[i])
+    if (r.direction[i] == T(0))
     {
-      origins[i] = b.min[i];
-      allInside = inside[i] = false;
-    }
-    else if (r.origin[i] > b.max[i])
-    {
-      origins[i] = b.max[i];
-      allInside = inside[i] = false;
-    }
-    else
-    {
-      origins[i] = r.direction[i] < T(0) ? b.min[i] : b.max[i];
-      inside[i] = true;
-    }
-  }
-
-  // Intersect candidate planes with ray
-  T distances[S]{};
-  for (size_t i = 0; i < S; ++i)
-  {
-    distances[i] =
-      r.direction[i] != T(0) ? (origins[i] - r.origin[i]) / r.direction[i] : T(-1);
-  }
-
-  auto bestPlane = size_t(0);
-  if (allInside)
-  {
-    // find the closest plane that was hit
-    for (size_t i = 1; i < S; ++i)
-    {
-      if (distances[i] > T(0) && distances[i] < distances[bestPlane])
-      {
-        bestPlane = i;
-      }
-    }
-  }
-  else
-  {
-    // find the farthest plane that was hit
-    for (size_t i = 0; i < S; ++i)
-    {
-      if (!inside[i])
-      {
-        bestPlane = i;
-        break;
-      }
-    }
-    for (size_t i = bestPlane + 1; i < S; ++i)
-    {
-      if (!inside[i] && distances[i] > distances[bestPlane])
-      {
-        bestPlane = i;
-      }
-    }
-  }
-
-  // Check if the final candidate actually hits the box
-  if (distances[bestPlane] < T(0))
-  {
-    return std::nullopt;
-  }
-
-  for (size_t i = 0; i < S; ++i)
-  {
-    if (bestPlane != i)
-    {
-      const auto coord = r.origin[i] + distances[bestPlane] * r.direction[i];
-      if (coord < b.min[i] || coord > b.max[i])
+      // The ray is parallel to the slab planes, so its origin must be between them
+      if (r.origin[i] < b.min[i] || r.origin[i] > b.max[i])
       {
         return std::nullopt;
       }
     }
+    else
+    {
+      const auto t1 = (b.min[i] - r.origin[i]) / r.direction[i];
+      const auto t2 = (b.max[i] - r.origin[i]) / r.direction[i];
+      tNear = max(tNear, min(t1, t2));
+      tFar = min(tFar, max(t1, t2));
+    }
   }
 
-  return distances[bestPlane];
+  if (tNear > tFar || tFar < T(0))
+  {
+    return std::nullopt;
+  }
+
+  // If the origin is inside the box, the ray hits the box where it leaves it
+  return tNear > T(0) ? tNear : tFar;
 }
 
 /**
