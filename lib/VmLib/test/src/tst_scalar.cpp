@@ -422,6 +422,18 @@ TEST_CASE("scalar")
     CER_CHECK(round(1.0) == approx(+1.0));
     CER_CHECK(round(1.1) == approx(+1.0));
 
+    // the largest values below 0.5
+    CER_CHECK(round(0.49999999999999994) == 0.0);
+    CER_CHECK(round(-0.49999999999999994) == 0.0);
+    CER_CHECK(round(0.49999997f) == 0.0f);
+    CER_CHECK(round(-0.49999997f) == 0.0f);
+
+    // odd integers just above 2^52 (2^23 for float)
+    CER_CHECK(round(4503599627370497.0) == 4503599627370497.0);
+    CER_CHECK(round(-4503599627370497.0) == -4503599627370497.0);
+    CER_CHECK(round(8388609.0f) == 8388609.0f);
+    CER_CHECK(round(-8388609.0f) == -8388609.0f);
+
     // the result is never negative zero
     CER_CHECK(!has_sign_bit(round(-0.0)));
     CER_CHECK(!has_sign_bit(round(-0.4)));

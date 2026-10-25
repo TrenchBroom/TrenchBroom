@@ -550,7 +550,8 @@ constexpr T fract(const T v)
 }
 
 /**
- * Rounds the given value to the nearest integer value.
+ * Rounds the given value to the nearest integer value. Values halfway between two integer
+ * values are rounded away from zero.
  *
  * @tparam T the argument type, which must be a floating point type
  * @param v the value
@@ -560,8 +561,9 @@ template <typename T>
 constexpr T round(const T v)
 {
   static_assert(std::is_floating_point_v<T>, "T must be a floating point type");
-  return v > static_cast<T>(0.0) ? floor(v + static_cast<T>(0.5))
-                                 : ceil(v - static_cast<T>(0.5));
+
+  const auto r = trunc(v);
+  return abs(v - r) >= static_cast<T>(0.5) ? r + sign(v) : r;
 }
 
 /**
