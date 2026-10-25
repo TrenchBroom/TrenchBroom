@@ -328,6 +328,10 @@ TEST_CASE("bbox")
     const auto projected =
       bbox3d::merge_all(std::begin(projectedPoints), std::end(projectedPoints));
     CHECK(inFront.transform(projection) == projected);
+
+    // a box whose size can't be represented exactly
+    constexpr auto inexactSize = bbox3d{vec3d{0.1, 0.1, 0.1}, vec3d{10, 10, 10}};
+    CER_CHECK(inexactSize.transform(mat4x4d::identity()) == inexactSize);
   }
 
   SECTION("operator_equal")

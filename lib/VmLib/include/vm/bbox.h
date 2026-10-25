@@ -576,6 +576,27 @@ public:
    */
   constexpr bbox<T, S> transform(const mat<T, S + 1, S + 1>& transform) const
   {
+    if (is_affine(transform))
+    {
+      // Each component of a transformed vertex is a sum of products of a matrix element
+      // and a vertex component. It is smallest (largest) for the vertex that minimizes
+      // (maximizes) every product, so we only need to transform that vertex.
+      auto newMin = vec<T, S>{};
+      auto newMax = vec<T, S>{};
+      for (std::size_t i = 0; i < S; ++i)
+      {
+        for (std::size_t j = 0; j < S; ++j)
+        {
+          const auto f = transform[j][i];
+          newMin[i] += f * (f < T(0) ? max[j] : min[j]);
+          newMax[i] += f * (f < T(0) ? min[j] : max[j]);
+        }
+        newMin[i] += transform[S][i];
+        newMax[i] += transform[S][i];
+      }
+      return bbox<T, S>{newMin, newMax};
+    }
+
     return *build(vertices() | std::views::transform([&](const auto& vertex) {
                     return transform * vertex;
                   }));
