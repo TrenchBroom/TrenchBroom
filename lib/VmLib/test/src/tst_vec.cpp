@@ -377,6 +377,13 @@ TEST_CASE("vec")
     CER_CHECK(find_max_component(vec3f{3.0f, 1.0f, -2.0f}, 1) == 1u);
     CER_CHECK(find_max_component(vec3f{3.0f, 1.0f, -2.0f}, 2) == 2u);
     CER_CHECK(find_max_component(normalize(vec3f{1.0f, 2.0f, -3.0f}), 0) == 1u);
+
+    // several components with the same value
+    CER_CHECK(find_max_component(vec3f{1, 1, 0}, 0) == 1u);
+    CER_CHECK(find_max_component(vec3f{1, 0, 1}, 0) == 2u);
+    CER_CHECK(find_max_component(vec3f{1, 1, 1}, 0) == 2u);
+    CER_CHECK(find_max_component(vec3f{1, 1, 1}, 1) == 1u);
+    CER_CHECK(find_max_component(vec3f{1, 1, 1}, 2) == 0u);
   }
 
   SECTION("find_abs_max_component")
@@ -392,6 +399,17 @@ TEST_CASE("vec")
     CER_CHECK(find_abs_max_component(vec3f{3.0f, 1.0f, -2.0f}, 1) == 2u);
     CER_CHECK(find_abs_max_component(vec3f{3.0f, 1.0f, -2.0f}, 2) == 1u);
     CER_CHECK(find_abs_max_component(normalize(vec3f{1.0f, 2.0f, -3.0f}), 0) == 2u);
+
+    // several components with the same absolute value
+    CER_CHECK(find_abs_max_component(vec3f{1, -1, 0}, 0) == 1u);
+    CER_CHECK(find_abs_max_component(vec3f{1, -1, 0}, 1) == 0u);
+    CER_CHECK(find_abs_max_component(vec3f{1, -1, 0}, 2) == 2u);
+    CER_CHECK(find_abs_max_component(vec3f{1, 0, -1}, 0) == 2u);
+    CER_CHECK(find_abs_max_component(vec3f{0, -1, 1}, 0) == 2u);
+    CER_CHECK(find_abs_max_component(vec3f{-1, -1, -1}, 0) == 2u);
+    CER_CHECK(find_abs_max_component(vec3f{-1, -1, -1}, 1) == 1u);
+    CER_CHECK(find_abs_max_component(vec3f{-1, -1, -1}, 2) == 0u);
+    CER_CHECK(find_abs_max_component(normalize(vec3f{1, 1, 0}), 0) == 1u);
   }
 
   SECTION("get_abs_max_component_axis")
@@ -407,6 +425,11 @@ TEST_CASE("vec")
     CER_CHECK(get_abs_max_component_axis(vec3f{3.0f, -1.0f, 2.0f}, 1u) == vec3f{0, 0, 1});
     CER_CHECK(
       get_abs_max_component_axis(vec3f{3.0f, -1.0f, 2.0f}, 2u) == vec3f{0, -1, 0});
+
+    // several components with the same absolute value
+    CER_CHECK(get_abs_max_component_axis(vec3f{1, -1, 0}) == vec3f{0, -1, 0});
+    CER_CHECK(get_abs_max_component_axis(vec3f{1, 0, -1}) == vec3f{0, 0, -1});
+    CER_CHECK(get_abs_max_component_axis(vec3f{0, -1, 1}) == vec3f{0, 0, 1});
   }
 
   SECTION("get_max_component")
@@ -435,6 +458,12 @@ TEST_CASE("vec")
     CER_CHECK(get_abs_max_component(vec3f{3.0f, 1.0f, -2.0f}, 0) == 3.0f);
     CER_CHECK(get_abs_max_component(vec3f{3.0f, 1.0f, -2.0f}, 1) == -2.0f);
     CER_CHECK(get_abs_max_component(vec3f{3.0f, 1.0f, -2.0f}, 2) == 1.0f);
+
+    // several components with the same absolute value
+    CER_CHECK(get_abs_max_component(vec3f{1, -1, 0}, 0) == -1.0f);
+    CER_CHECK(get_abs_max_component(vec3f{-1, 1, 0}, 0) == 1.0f);
+    CER_CHECK(get_abs_max_component(vec3f{1, 0, -1}, 0) == -1.0f);
+    CER_CHECK(get_abs_max_component(vec3f{0, -1, 1}, 0) == 1.0f);
   }
 
   // ========== arithmetic operators ==========
