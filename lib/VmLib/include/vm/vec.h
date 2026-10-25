@@ -581,6 +581,26 @@ constexpr void sort_vector(
            || (!cmp(rhs.element, lhs.element) && lhs.index < rhs.index);
   });
 }
+
+/**
+ * Returns the index of the largest component of the given vector according to the given
+ * comparator. If there are multiple such components, then the index of the last one is
+ * returned. This is the component that sort_vector puts last.
+ */
+template <typename T, std::size_t S, typename Cmp>
+constexpr std::size_t find_max_index(const vec<T, S>& vector, const Cmp& cmp)
+{
+  std::size_t result = 0;
+  for (std::size_t i = 1u; i < S; ++i)
+  {
+    if (!cmp(vector[i], vector[result]))
+    {
+      result = i;
+    }
+  }
+  return result;
+}
+
 } // namespace detail
 
 /**
@@ -600,6 +620,11 @@ constexpr std::size_t find_max_component(
   assert(k < S);
 
   constexpr auto cmp = [](const auto& lhs, const auto& rhs) { return lhs < rhs; };
+
+  if (k == 0u)
+  {
+    return detail::find_max_index(vector, cmp);
+  }
 
   detail::vector_index_elements<T, S> elements;
   detail::sort_vector(vector, cmp, elements);
@@ -625,6 +650,11 @@ constexpr std::size_t find_abs_max_component(
   constexpr auto cmp = [](const auto& lhs, const auto& rhs) {
     return abs(lhs) < abs(rhs);
   };
+
+  if (k == 0u)
+  {
+    return detail::find_max_index(vector, cmp);
+  }
 
   detail::vector_index_elements<T, S> elements;
   detail::sort_vector(vector, cmp, elements);
