@@ -20,7 +20,12 @@
 
 #include "kd/string_format.h"
 
+#include <optional>
+#include <string>
+#include <tuple>
+
 #include <catch2/catch_test_macros.hpp>
+#include <catch2/generators/catch_generators.hpp>
 
 namespace kdl
 {
@@ -29,45 +34,80 @@ TEST_CASE("string_format")
 {
   SECTION("str_select")
   {
-    CHECK(str_select(true, "yes", "no") == "yes");
-    CHECK(str_select(false, "yes", "no") == "no");
+    // clang-format off
+    const auto
+    [predicate, expected] = GENERATE(table<bool, std::string>({
+    {true,      "yes"},
+    {false,     "no"},
+    }));
+    // clang-format on
+
+    CAPTURE(predicate);
+
+    CHECK(str_select(predicate, "yes", "no") == expected);
   }
 
   SECTION("str_plural")
   {
-    CHECK(str_plural(0, "one", "many") == "many");
-    CHECK(str_plural(1, "one", "many") == "one");
-    CHECK(str_plural(2, "one", "many") == "many");
+    // clang-format off
+    const auto
+    [count, expected] = GENERATE(table<std::size_t, std::string>({
+    {0,     "many"},
+    {1,     "one"},
+    {2,     "many"},
+    }));
+    // clang-format on
+
+    CAPTURE(count);
+
+    CHECK(str_plural(count, "one", "many") == expected);
   }
 
   SECTION("str_plural_with_prefix_suffix")
   {
-    CHECK(str_plural("prefix ", 0, "one", "many", " suffix") == "prefix many suffix");
-    CHECK(str_plural("prefix ", 1, "one", "many", " suffix") == "prefix one suffix");
-    CHECK(str_plural("prefix ", 2, "one", "many", " suffix") == "prefix many suffix");
+    // clang-format off
+    const auto
+    [count, expected] = GENERATE(table<std::size_t, std::string>({
+    {0,     "prefix many suffix"},
+    {1,     "prefix one suffix"},
+    {2,     "prefix many suffix"},
+    }));
+    // clang-format on
+
+    CAPTURE(count);
+
+    CHECK(str_plural("prefix ", count, "one", "many", " suffix") == expected);
   }
 
   SECTION("str_trim")
   {
-    CHECK(str_trim("") == "");
-    CHECK(str_trim("abc") == "abc");
-    CHECK(str_trim(" abc") == "abc");
-    CHECK(str_trim("abc  ") == "abc");
-    CHECK(str_trim("  abc   ") == "abc");
-    CHECK(str_trim("  abc   ") == "abc");
-    CHECK(str_trim("xyxxabczzxzyz", "xyz") == "abc");
+    // clang-format off
+    const auto
+    [str,             chars,        expected] = GENERATE(table<std::string, std::optional<std::string>, std::string>({
+    {"",              std::nullopt, ""},
+    {"abc",           std::nullopt, "abc"},
+    {" abc",          std::nullopt, "abc"},
+    {"abc  ",         std::nullopt, "abc"},
+    {"  abc   ",      std::nullopt, "abc"},
+    {"xyxxabczzxzyz", "xyz",        "abc"},
+    }));
+    // clang-format on
+
+    CAPTURE(str, chars);
+
+    CHECK((chars ? str_trim(str, *chars) : str_trim(str)) == expected);
   }
 
   SECTION("str_to_lower_char")
   {
     constexpr auto input =
-      " !\"#$%&\\'()*+,-./"
-      "0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\\\]^_`abcdefghijklmnopqrstuvwxyz{|}"
-      "~";
+      R"( !"#$%&\'()*+,-./)"
+      R"(0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|})"
+      R"(~)";
     constexpr auto expected =
-      " !\"#$%&\\'()*+,-./"
-      "0123456789:;<=>?@abcdefghijklmnopqrstuvwxyz[\\\\]^_`abcdefghijklmnopqrstuvwxyz{|}"
-      "~";
+      R"( !"#$%&\'()*+,-./)"
+      R"(0123456789:;<=>?@abcdefghijklmnopqrstuvwxyz[\\]^_`abcdefghijklmnopqrstuvwxyz{|})"
+      R"(~)";
 
     CHECK(str_to_lower(input) == expected);
   }
@@ -75,32 +115,50 @@ TEST_CASE("string_format")
   SECTION("str_to_upper_char")
   {
     constexpr auto input =
-      " !\"#$%&\\'()*+,-./"
-      "0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\\\]^_`abcdefghijklmnopqrstuvwxyz{|}"
-      "~";
+      R"( !"#$%&\'()*+,-./)"
+      R"(0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|})"
+      R"(~)";
     constexpr auto expected =
-      " !\"#$%&\\'()*+,-./"
-      "0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\\\]^_`ABCDEFGHIJKLMNOPQRSTUVWXYZ{|}"
-      "~";
+      R"( !"#$%&\'()*+,-./)"
+      R"(0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`ABCDEFGHIJKLMNOPQRSTUVWXYZ{|})"
+      R"(~)";
     CHECK(str_to_upper(input) == expected);
   }
 
   SECTION("str_to_lower")
   {
-    CHECK(str_to_lower("") == "");
-    CHECK(str_to_lower("#?\"abc73474") == "#?\"abc73474");
-    CHECK(str_to_lower("#?\"abC73474") == "#?\"abc73474");
-    CHECK(str_to_lower("#?\"ABC73474") == "#?\"abc73474");
-    CHECK(str_to_lower("XYZ") == "xyz");
+    // clang-format off
+    const auto
+    [str,              expected] = GENERATE(table<std::string, std::string>({
+    {"",               ""},
+    {R"(#?"abc73474)", R"(#?"abc73474)"},
+    {R"(#?"abC73474)", R"(#?"abc73474)"},
+    {R"(#?"ABC73474)", R"(#?"abc73474)"},
+    {"XYZ",            "xyz"},
+    }));
+    // clang-format on
+
+    CAPTURE(str);
+
+    CHECK(str_to_lower(str) == expected);
   }
 
   SECTION("str_to_upper")
   {
-    CHECK(str_to_lower("") == "");
-    CHECK(str_to_upper("#?\"ABC73474") == "#?\"ABC73474");
-    CHECK(str_to_upper("#?\"ABc73474") == "#?\"ABC73474");
-    CHECK(str_to_upper("#?\"ABC73474") == "#?\"ABC73474");
-    CHECK(str_to_upper("xyz") == "XYZ");
+    // clang-format off
+    const auto
+    [str,              expected] = GENERATE(table<std::string, std::string>({
+    {"",               ""},
+    {R"(#?"ABC73474)", R"(#?"ABC73474)"},
+    {R"(#?"ABc73474)", R"(#?"ABC73474)"},
+    {R"(#?"ABC73474)", R"(#?"ABC73474)"},
+    {"xyz",            "XYZ"},
+    }));
+    // clang-format on
+
+    CAPTURE(str);
+
+    CHECK(str_to_upper(str) == expected);
   }
 
   SECTION("str_capitalize")
@@ -112,67 +170,96 @@ TEST_CASE("string_format")
 
   SECTION("str_escape")
   {
-    CHECK(str_escape("", "") == "");
-    CHECK(str_escape("", ";") == "");
-    CHECK(str_escape("asdf", "") == "asdf");
-    CHECK(str_escape("\\", "") == "\\\\");
+    // clang-format off
+    const auto
+    [str,                         chars,    expected] = GENERATE(table<std::string, std::string, std::string>({
+    {"",                          "",       ""},
+    {"",                          ";",      ""},
+    {"asdf",                      "",       "asdf"},
+    {R"(\)",                      "",       R"(\\)"},
 
-    CHECK(
-      str_escape("c:\\blah\\fasel\\test.jpg", "\\") == "c:\\\\blah\\\\fasel\\\\test.jpg");
-    CHECK(
-      str_escape("c:\\blah\\fasel\\test.jpg", "\\:.")
-      == "c\\:\\\\blah\\\\fasel\\\\test\\.jpg");
-    CHECK(str_escape("asdf", "a") == "\\asdf");
-    CHECK(str_escape("asdf", "f") == "asd\\f");
+    {R"(c:\blah\fasel\test.jpg)", R"(\)",   R"(c:\\blah\\fasel\\test.jpg)"},
+    {R"(c:\blah\fasel\test.jpg)", R"(\:.)", R"(c\:\\blah\\fasel\\test\.jpg)"},
+    {"asdf",                      "a",      R"(\asdf)"},
+    {"asdf",                      "f",      R"(asd\f)"},
+    }));
+    // clang-format on
+
+    CAPTURE(str, chars);
+
+    CHECK(str_escape(str, chars) == expected);
   }
 
   SECTION("str_escape_if_necessary")
   {
     CHECK(
       str_escape_if_necessary(
-        "this # should be escaped, but not this \\#; this \\\\# however, should!", "#")
-      == "this \\# should be escaped, but not this \\#; this \\\\\\# however, should!");
+        R"(this # should be escaped, but not this \#; this \\# however, should!)", "#")
+      == R"(this \# should be escaped, but not this \#; this \\\# however, should!)");
   }
 
   SECTION("str_unescape")
   {
-    CHECK(str_unescape("", "") == "");
-    CHECK(str_unescape("", ";") == "");
-    CHECK(str_unescape("asdf", "") == "asdf");
+    // clang-format off
+    const auto
+    [str,                              chars,    expected] = GENERATE(table<std::string, std::string, std::string>({
+    {"",                               "",       ""},
+    {"",                               ";",      ""},
+    {"asdf",                           "",       "asdf"},
 
-    CHECK(
-      str_unescape("c:\\\\blah\\\\fasel\\\\test.jpg", "\\")
-      == "c:\\blah\\fasel\\test.jpg");
-    CHECK(
-      str_unescape("c\\:\\\\blah\\\\fasel\\\\test\\.jpg", "\\:.")
-      == "c:\\blah\\fasel\\test.jpg");
-    CHECK(str_unescape("\\asdf", "a") == "asdf");
-    CHECK(str_unescape("asd\\f", "f") == "asdf");
-    CHECK(str_unescape("\\asdf", "a") == "asdf");
-    CHECK(str_unescape("asdf\\", "") == "asdf\\");
-    CHECK(str_unescape("asdf\\\\", "") == "asdf\\");
-    CHECK(str_unescape("asdf\\\\\\\\", "") == "asdf\\\\");
+    {R"(c:\\blah\\fasel\\test.jpg)",   R"(\)",   R"(c:\blah\fasel\test.jpg)"},
+    {R"(c\:\\blah\\fasel\\test\.jpg)", R"(\:.)", R"(c:\blah\fasel\test.jpg)"},
+    {R"(\asdf)",                       "a",      "asdf"},
+    {R"(asd\f)",                       "f",      "asdf"},
+    {R"(\asdf)",                       "a",      "asdf"},
+    {R"(asdf\)",                       "",       R"(asdf\)"},
+    {R"(asdf\\)",                      "",       R"(asdf\)"},
+    {R"(asdf\\\\)",                    "",       R"(asdf\\)"},
+    }));
+    // clang-format on
+
+    CAPTURE(str, chars);
+
+    CHECK(str_unescape(str, chars) == expected);
   }
 
   SECTION("str_is_blank")
   {
-    CHECK(str_is_blank(""));
-    CHECK(str_is_blank(" "));
-    CHECK(str_is_blank(" \n\r\t"));
-    CHECK(!str_is_blank("a \n\r\t"));
-    CHECK(!str_is_blank("  a \n\r\t"));
-    CHECK(!str_is_blank(" another one bites    "));
+    // clang-format off
+    const auto
+    [str,                      expected] = GENERATE(table<std::string, bool>({
+    {"",                       true},
+    {" ",                      true},
+    {" \n\r\t",                true},
+    {"a \n\r\t",               false},
+    {"  a \n\r\t",             false},
+    {" another one bites    ", false},
+    }));
+    // clang-format on
+
+    CAPTURE(str);
+
+    CHECK(str_is_blank(str) == expected);
   }
 
   SECTION("str_is_numeric")
   {
-    CHECK(str_is_numeric(""));
-    CHECK(!str_is_numeric("a"));
-    CHECK(!str_is_numeric("66a"));
-    CHECK(!str_is_numeric("66a33"));
-    CHECK(!str_is_numeric("a33"));
-    CHECK(str_is_numeric("1"));
-    CHECK(str_is_numeric("1234567890"));
+    // clang-format off
+    const auto
+    [str,          expected] = GENERATE(table<std::string, bool>({
+    {"",           true},
+    {"a",          false},
+    {"66a",        false},
+    {"66a33",      false},
+    {"a33",        false},
+    {"1",          true},
+    {"1234567890", true},
+    }));
+    // clang-format on
+
+    CAPTURE(str);
+
+    CHECK(str_is_numeric(str) == expected);
   }
 }
 
