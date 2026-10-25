@@ -118,6 +118,27 @@ TEST_CASE("loadAssimpModel")
     CHECK(vm::approx(modelData.value().bounds(0)) == vm::bbox3f{{0, 0, 0}, {2, 1, 3}});
   }
 
+  SECTION("model with additive texture")
+  {
+    const auto basePath = getFixtureRoot() / "test/mdl/LoadAssimpModel/additiveTexture";
+    auto fs = fs::DiskFileSystem{basePath};
+
+    auto modelData = loadAssimpModel("additive.mdl", fs, logger);
+    REQUIRE(modelData);
+    REQUIRE(modelData.value().surfaceCount() > 0);
+
+    for (size_t i = 0; i < modelData.value().surfaceCount(); ++i)
+    {
+      const auto& surface = modelData.value().surface(i);
+      REQUIRE(surface.skinCount() > 0);
+
+      CHECK(
+        surface.skin(0)->effectiveBlendFunc()
+        == gl::MaterialBlendFunc{
+          gl::MaterialBlendFunc::Enable::UseFactors, GL_ONE, GL_ONE});
+    }
+  }
+
   SECTION("model with mask texture")
   {
     const auto basePath =
