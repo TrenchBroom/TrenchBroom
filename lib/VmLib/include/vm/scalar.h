@@ -444,6 +444,22 @@ constexpr T smoothstep(const T e0, const T e1, const T v)
   return t * t * (T(3) - T(2) * t);
 }
 
+namespace detail
+{
+/**
+ * Returns positive zero if the given value is zero, and the given value otherwise.
+ *
+ * The rounding functions below use the standard library functions at runtime, which can
+ * return negative zero. Their constant evaluated implementations never do, so we use this
+ * function to make both return the same values.
+ */
+template <typename T>
+constexpr T normalize_zero(const T v)
+{
+  return v + T(0);
+}
+} // namespace detail
+
 /**
  * Returns the nearest integer value not greater in magnitude than the given value, i.e.,
  * the given value is rounded towards 0.
@@ -455,6 +471,11 @@ constexpr T smoothstep(const T e0, const T e1, const T v)
 template <typename T>
 constexpr T trunc(const T v)
 {
+  if (!std::is_constant_evaluated())
+  {
+    return detail::normalize_zero(std::trunc(v));
+  }
+
   if (is_nan(v) || is_inf(v))
   {
     return v;
@@ -496,6 +517,11 @@ template <typename T>
 constexpr T floor(const T v)
 {
   static_assert(std::is_floating_point_v<T>, "T must be a floating point type");
+  if (!std::is_constant_evaluated())
+  {
+    return detail::normalize_zero(std::floor(v));
+  }
+
   const auto r = trunc(v);
   return (v >= static_cast<T>(0.0)) ? r : (r == v ? v : r - static_cast<T>(1.0));
 }
@@ -511,6 +537,11 @@ template <typename T>
 constexpr T ceil(const T v)
 {
   static_assert(std::is_floating_point_v<T>, "T must be a floating point type");
+  if (!std::is_constant_evaluated())
+  {
+    return detail::normalize_zero(std::ceil(v));
+  }
+
   const auto r = trunc(v);
   return (v < static_cast<T>(0.0)) ? r : (r == v ? r : r + static_cast<T>(1.0));
 }
@@ -561,6 +592,10 @@ template <typename T>
 constexpr T round(const T v)
 {
   static_assert(std::is_floating_point_v<T>, "T must be a floating point type");
+  if (!std::is_constant_evaluated())
+  {
+    return detail::normalize_zero(std::round(v));
+  }
 
   const auto r = trunc(v);
   return abs(v - r) >= static_cast<T>(0.5) ? r + sign(v) : r;
