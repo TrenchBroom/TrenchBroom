@@ -18,6 +18,7 @@
  */
 
 #include "el/Parser.h"
+#include "el/StringEscaping.h"
 #include "el/TestUtils.h"
 
 #include "kd/result_io.h" // IWYU pragma: keep
@@ -25,15 +26,17 @@
 #include <string>
 
 #include <catch2/catch_test_macros.hpp>
+#include <catch2/generators/catch_generators.hpp>
 
 namespace tb::el
 {
 namespace
 {
 
-auto parse(const std::string& str)
+auto parse(
+  const std::string& str, const StringEscaping escaping = StringEscaping::Default)
 {
-  return Parser{ParseMode::Strict, str}.parse();
+  return Parser{ParseMode::Strict, str, 1, 1, escaping}.parse();
 }
 
 } // namespace
@@ -42,90 +45,175 @@ TEST_CASE("Parser")
 {
   SECTION("emptyExpression")
   {
-    CHECK(parse("").is_error());
-    CHECK(parse("    ").is_error());
-    CHECK(parse("\n").is_error());
+    // clang-format off
+    const auto
+    [expression, expectedError] = GENERATE(table<std::string, Error>({
+    {"",         Error{"At line 1, column 1: Expected variable, string, number, boolean, '[', '{', '(', '+', '-', '!', '~', '{{', 'null', or 'undefined', but got end of file (raw data: '')"}},
+    {"    ",     Error{"At line 1, column 5: Expected variable, string, number, boolean, '[', '{', '(', '+', '-', '!', '~', '{{', 'null', or 'undefined', but got end of file (raw data: '')"}},
+    {"\n",       Error{"At line 2, column 1: Expected variable, string, number, boolean, '[', '{', '(', '+', '-', '!', '~', '{{', 'null', or 'undefined', but got end of file (raw data: '')"}},
+    }));
+    // clang-format on
+
+    CAPTURE(expression);
+
+    CHECK(parse(expression) == expectedError);
   }
 
   SECTION("Literals")
   {
     SECTION("Strings")
     {
-      CHECK(parse(R"("asdf)").is_error());
-      CHECK(parse(R"("asdf")") == lit("asdf"));
-      // MSVC complains about an illegal escape sequence if we use a raw string literal
-      // for the expression
-      CHECK(parse("\"asdf\\\" \\\"asdf\"") == lit(R"(asdf" "asdf)"));
+      // clang-format off
+      const auto
+      [expression,            expectedResult] = GENERATE(table<std::string, Result<ExpressionNode>>({
+      {R"("asdf)",            Error{"Unexpected end of file"}},
+      {R"("asdf")",           lit("asdf")},
+      {R"("asdf\" \"asdf")",  lit(R"(asdf" "asdf)")},
+      {R"("asdf\' \'asdf")",  lit(R"(asdf\' \'asdf)")},
+
+      {R"('asdf)",            Error{"Unexpected end of file"}},
+      {R"('asdf')",           lit("asdf")},
+      {R"('asdf\' \'asdf')",  lit("asdf' 'asdf")},
+      {R"('asdf\" \"asdf')",  lit(R"(asdf\" \"asdf)")},
+
+      // backslashes are only special if they precede the delimiter
+      {R"("C:\quake")",       lit(R"(C:\quake)")},
+      {R"("\\server\share")", lit(R"(\\server\share)")},
+      {R"("a\\\"b")",         lit(R"(a\"b)")},
+      {R"("C:\quake\\")",     lit(R"(C:\quake\)")},
+      {R"("C:\quake\")",      Error{"Unexpected end of file"}},
+      {R"('C:\quake\\')",     lit(R"(C:\quake\)")},
+      }));
+      // clang-format on
+
+      CAPTURE(expression);
+
+      CHECK(parse(expression) == expectedResult);
+    }
+
+    SECTION("Strings with legacy escaping")
+    {
+      // every backslash escapes a following backslash or delimiter
+
+      // clang-format off
+      const auto
+      [expression,               expectedExpression] = GENERATE(table<std::string, ExpressionNode>({
+      {R"("C:\\quake\\id1")",    lit(R"(C:\quake\id1)")},
+      {R"("\\\\server\\share")", lit(R"(\\server\share)")},
+      {R"("C:\quake")",          lit(R"(C:\quake)")},
+      {R"("a\"b")",              lit(R"(a"b)")},
+      {R"("C:\quake\\")",        lit(R"(C:\quake\)")},
+      {R"('it\'s')",             lit("it's")},
+      {R"('a\"b')",              lit(R"(a\"b)")},
+      }));
+      // clang-format on
+
+      CAPTURE(expression);
+
+      CHECK(parse(expression, StringEscaping::Legacy) == expectedExpression);
     }
 
     SECTION("Numbers")
     {
-      CHECK(parse("1.123.34").is_error());
+      // clang-format off
+      const auto
+      [expression, expectedResult] = GENERATE(table<std::string, Result<ExpressionNode>>({
+      {"1.123.34", Error{"At line 1, column 2: Unexpected character: '.'"}},
+      {"1",        lit(1.0)},
+      {"1.0",      lit(1.0)},
+      {"01.00",    lit(1.0)},
+      {".0",       lit(0.0)},
+      {"0",        lit(0.0)},
+      }));
+      // clang-format on
 
-      CHECK(parse("1") == lit(1.0));
-      CHECK(parse("1.0") == lit(1.0));
-      CHECK(parse("01.00") == lit(1.0));
-      CHECK(parse(".0") == lit(0.0));
-      CHECK(parse("0") == lit(0.0));
+      CAPTURE(expression);
+
+      CHECK(parse(expression) == expectedResult);
     }
 
     SECTION("Booleans")
     {
-      CHECK(parse("true") == lit(true));
-      CHECK(parse("false") == lit(false));
+      // clang-format off
+      const auto
+      [expression, expectedExpression] = GENERATE(table<std::string, ExpressionNode>({
+      {"true",     lit(true)},
+      {"false",    lit(false)},
+      }));
+      // clang-format on
+
+      CAPTURE(expression);
+
+      CHECK(parse(expression) == expectedExpression);
     }
 
     SECTION("Null and undefined")
     {
-      CHECK(parse("null") == lit(Value::Null));
-      CHECK(parse("undefined") == lit(Value::Undefined));
+      // clang-format off
+      const auto
+      [expression,  expectedExpression] = GENERATE(table<std::string, ExpressionNode>({
+      {"null",      lit(Value::Null)},
+      {"undefined", lit(Value::Undefined)},
+      }));
+      // clang-format on
+
+      CAPTURE(expression);
+
+      CHECK(parse(expression) == expectedExpression);
     }
 
     SECTION("Arrays")
     {
-      CHECK(parse("[]") == arr());
-      CHECK(
-        parse(R"([ 1.0 , "test",[ true] ])")
-        == arr({
-          lit(1.0),
-          lit("test"),
-          arr({lit(true)}),
-        }));
+      // clang-format off
+      const auto
+      [expression,                    expectedExpression] = GENERATE(table<std::string, ExpressionNode>({
+      {"[]",                          arr()},
+      {R"([ 1.0 , "test",[ true] ])", arr({lit(1.0), lit("test"), arr({lit(true)})})},
+      }));
+      // clang-format on
+
+      CAPTURE(expression);
+
+      CHECK(parse(expression) == expectedExpression);
     }
 
     SECTION("Ranges")
     {
-      CHECK(parse("[1..3]") == arr({bRng(lit(1.0), lit(3.0))}));
-      CHECK(parse("[][1..3]") == scr(arr(), bRng(lit(1.0), lit(3.0))));
-      CHECK(parse("[][..3]") == scr(arr(), rbRng(lit(3.0))));
-      CHECK(parse("[][1..]") == scr(arr(), lbRng(lit(1.0))));
+      // clang-format off
+      const auto
+      [expression, expectedExpression] = GENERATE(table<std::string, ExpressionNode>({
+      {"[1..3]",   arr({bRng(lit(1.0), lit(3.0))})},
+      {"[][1..3]", scr(arr(), bRng(lit(1.0), lit(3.0)))},
+      {"[][..3]",  scr(arr(), rbRng(lit(3.0)))},
+      {"[][1..]",  scr(arr(), lbRng(lit(1.0)))},
+      }));
+      // clang-format on
+
+      CAPTURE(expression);
+
+      CHECK(parse(expression) == expectedExpression);
     }
 
     SECTION("Maps")
     {
-      CHECK(parse("{}") == map());
-      CHECK(
-        parse(
-          R"( { "testkey1": 1, "testkey2"   :"asdf", "testkey3":{"nestedKey":true} })")
-        == map({
-          {"testkey1", lit(1.0)},
-          {"testkey2", lit("asdf")},
-          {"testkey3", map({{"nestedKey", lit(true)}})},
-        }));
-      CHECK(parse(R"([ { "key": "value" } ])") == arr({map({{"key", lit("value")}})}));
-      CHECK(
-        parse(R"({ "outerkey1": [ { "key": "value" } ], "outerkey2": "asdf" })")
-        == map({
-          {"outerkey1", arr({map({{"key", lit("value")}})})},
-          {"outerkey2", lit("asdf")},
-        }));
-
-      CHECK(parse(R"({
+      // clang-format off
+      const auto
+      [expression,                                                                   expectedResult] = GENERATE(table<std::string, Result<ExpressionNode>>({
+      {"{}",                                                                         map()},
+      {R"( { "testkey1": 1, "testkey2"   :"asdf", "testkey3":{"nestedKey":true} })", map({{"testkey1", lit(1.0)}, {"testkey2", lit("asdf")}, {"testkey3", map({{"nestedKey", lit(true)}})}})},
+      {R"([ { "key": "value" } ])",                                                  arr({map({{"key", lit("value")}})})},
+      {R"({ "outerkey1": [ { "key": "value" } ], "outerkey2": "asdf" })",            map({{"outerkey1", arr({map({{"key", lit("value")}})})}, {"outerkey2", lit("asdf")}})},
+      {R"({
   "profiles": [],
   "version": 1
 }
-asdf)")
-              .is_error());
+asdf)",                                                                              Error{"At line 5, column 1: Expected end of file, but got variable (raw data: 'asdf')"}},
+      }));
+      // clang-format on
+
+      CAPTURE(expression);
+
+      CHECK(parse(expression) == expectedResult);
     }
   }
 
@@ -148,16 +236,34 @@ asdf)")
 
     SECTION("Logical negation")
     {
-      CHECK(parse("!true") == logNeg(lit(true)));
-      CHECK(parse("!false") == logNeg(lit(false)));
-      CHECK(parse("!0") == logNeg(lit(0)));
+      // clang-format off
+      const auto
+      [expression, expectedExpression] = GENERATE(table<std::string, ExpressionNode>({
+      {"!true",    logNeg(lit(true))},
+      {"!false",   logNeg(lit(false))},
+      {"!0",       logNeg(lit(0))},
+      }));
+      // clang-format on
+
+      CAPTURE(expression);
+
+      CHECK(parse(expression) == expectedExpression);
     }
 
     SECTION("Bitwise negation")
     {
-      CHECK(parse("~393") == bitNeg(lit(393)));
-      CHECK(parse("~").is_error());
-      CHECK(parse("~~").is_error());
+      // clang-format off
+      const auto
+      [expression, expectedResult] = GENERATE(table<std::string, Result<ExpressionNode>>({
+      {"~393",     bitNeg(lit(393))},
+      {"~",        Error{"At line 1, column 2: Expected variable, string, number, boolean, '[', '{', '(', '+', '-', '!', '~', '{{', 'null', or 'undefined', but got end of file (raw data: '')"}},
+      {"~~",       Error{"At line 1, column 3: Expected variable, string, number, boolean, '[', '{', '(', '+', '-', '!', '~', '{{', 'null', or 'undefined', but got end of file (raw data: '')"}},
+      }));
+      // clang-format on
+
+      CAPTURE(expression);
+
+      CHECK(parse(expression) == expectedResult);
     }
   }
 
@@ -165,34 +271,79 @@ asdf)")
   {
     SECTION("Addition")
     {
-      CHECK(parse("2 + 3") == add(lit(2.0), lit(3.0)));
-      CHECK(parse("\"as\"+\"df\"") == add(lit("as"), lit("df")));
-      CHECK(parse("2 + 3 + 4") == add(add(lit(2.0), lit(3.0)), lit(4.0)));
+      // clang-format off
+      const auto
+      [expression,     expectedExpression] = GENERATE(table<std::string, ExpressionNode>({
+      {"2 + 3",        add(lit(2.0), lit(3.0))},
+      {R"("as"+"df")", add(lit("as"), lit("df"))},
+      {"2 + 3 + 4",    add(add(lit(2.0), lit(3.0)), lit(4.0))},
+      }));
+      // clang-format on
+
+      CAPTURE(expression);
+
+      CHECK(parse(expression) == expectedExpression);
     }
 
     SECTION("Subtraction")
     {
-      CHECK(parse("2-3.0") == sub(lit(2.0), lit(3.0)));
-      CHECK(parse("2-3 -  4") == sub(sub(lit(2.0), lit(3.0)), lit(4.0)));
-      CHECK(parse("2-3-4-2") == sub(sub(sub(lit(2.0), lit(3.0)), lit(4.0)), lit(2.0)));
+      // clang-format off
+      const auto
+      [expression, expectedExpression] = GENERATE(table<std::string, ExpressionNode>({
+      {"2-3.0",    sub(lit(2.0), lit(3.0))},
+      {"2-3 -  4", sub(sub(lit(2.0), lit(3.0)), lit(4.0))},
+      {"2-3-4-2",  sub(sub(sub(lit(2.0), lit(3.0)), lit(4.0)), lit(2.0))},
+      }));
+      // clang-format on
+
+      CAPTURE(expression);
+
+      CHECK(parse(expression) == expectedExpression);
     }
 
     SECTION("Multiplication")
     {
-      CHECK(parse("2 * 3.0") == mul(lit(2.0), lit(3.0)));
-      CHECK(parse("2 * 3 * 4") == mul(mul(lit(2.0), lit(3.0)), lit(4.0)));
+      // clang-format off
+      const auto
+      [expression,  expectedExpression] = GENERATE(table<std::string, ExpressionNode>({
+      {"2 * 3.0",   mul(lit(2.0), lit(3.0))},
+      {"2 * 3 * 4", mul(mul(lit(2.0), lit(3.0)), lit(4.0))},
+      }));
+      // clang-format on
+
+      CAPTURE(expression);
+
+      CHECK(parse(expression) == expectedExpression);
     }
 
     SECTION("Division")
     {
-      CHECK(parse("12 / 2.0") == div(lit(12.0), lit(2.0)));
-      CHECK(parse("12 / 2 / 2") == div(div(lit(12.0), lit(2.0)), lit(2.0)));
+      // clang-format off
+      const auto
+      [expression,   expectedExpression] = GENERATE(table<std::string, ExpressionNode>({
+      {"12 / 2.0",   div(lit(12.0), lit(2.0))},
+      {"12 / 2 / 2", div(div(lit(12.0), lit(2.0)), lit(2.0))},
+      }));
+      // clang-format on
+
+      CAPTURE(expression);
+
+      CHECK(parse(expression) == expectedExpression);
     }
 
     SECTION("Modulus")
     {
-      CHECK(parse("12 % 2.0") == mod(lit(12.0), lit(2.0)));
-      CHECK(parse("12 % 5 % 3") == mod(mod(lit(12.0), lit(5.0)), lit(3.0)));
+      // clang-format off
+      const auto
+      [expression,   expectedExpression] = GENERATE(table<std::string, ExpressionNode>({
+      {"12 % 2.0",   mod(lit(12.0), lit(2.0))},
+      {"12 % 5 % 3", mod(mod(lit(12.0), lit(5.0)), lit(3.0))},
+      }));
+      // clang-format on
+
+      CAPTURE(expression);
+
+      CHECK(parse(expression) == expectedExpression);
     }
 
     SECTION("Logical and")
@@ -217,8 +368,17 @@ asdf)")
 
     SECTION("Bitwise xor")
     {
-      CHECK(parse("23 ^ 24") == bitXOr(lit(23), lit(24)));
-      CHECK(parse("23 ^^ 23").is_error());
+      // clang-format off
+      const auto
+      [expression, expectedResult] = GENERATE(table<std::string, Result<ExpressionNode>>({
+      {"23 ^ 24",  bitXOr(lit(23), lit(24))},
+      {"23 ^^ 23", Error{"At line 1, column 5: Expected variable, string, number, boolean, '[', '{', '(', '+', '-', '!', '~', '{{', 'null', or 'undefined', but got unknown token type (raw data: '^')"}},
+      }));
+      // clang-format on
+
+      CAPTURE(expression);
+
+      CHECK(parse(expression) == expectedResult);
     }
 
     SECTION("Bitwise shift left")
@@ -238,263 +398,322 @@ asdf)")
 
     SECTION("Comparison operators")
     {
-      CHECK(parse("1 < 2") == ls(lit(1), lit(2)));
-      CHECK(parse("1 <= 2") == lsEq(lit(1), lit(2)));
-      CHECK(parse("1 > 2") == gr(lit(1), lit(2)));
-      CHECK(parse("1 >= 2") == grEq(lit(1), lit(2)));
-      CHECK(parse("1 == 2") == eq(lit(1), lit(2)));
-      CHECK(parse("1 != 2") == neq(lit(1), lit(2)));
+      // clang-format off
+      const auto
+      [expression, expectedExpression] = GENERATE(table<std::string, ExpressionNode>({
+      {"1 < 2",    ls(lit(1), lit(2))},
+      {"1 <= 2",   lsEq(lit(1), lit(2))},
+      {"1 > 2",    gr(lit(1), lit(2))},
+      {"1 >= 2",   grEq(lit(1), lit(2))},
+      {"1 == 2",   eq(lit(1), lit(2))},
+      {"1 != 2",   neq(lit(1), lit(2))},
+      }));
+      // clang-format on
+
+      CAPTURE(expression);
+
+      CHECK(parse(expression) == expectedExpression);
     }
 
     SECTION("Operator combinations")
     {
-      CHECK(parse("1 + 2 * 3") == add(lit(1), mul(lit(2), lit(3))));
-      CHECK(parse("1 * 2 + 3") == add(mul(lit(1), lit(2)), lit(3)));
-      CHECK(parse("1 + 2 * 3 + 2") == add(add(lit(1), mul(lit(2), lit(3))), lit(2)));
-      CHECK(
-        parse("1 + 2 * 3 + 2 * 2")
-        == add(add(lit(1), mul(lit(2), lit(3))), mul(lit(2), lit(2))));
-      CHECK(parse("3 + 2 < 3 + 3") == ls(add(lit(3), lit(2)), add(lit(3), lit(3))));
-      CHECK(
-        parse("3 + 2 < 3 + 3 + 0 && true")
-        == logAnd(ls(add(lit(3), lit(2)), add(add(lit(3), lit(3)), lit(0))), lit(true)));
-      CHECK(
-        parse("false && false || true")
-        == logOr(logAnd(lit(false), lit(false)), lit(true)));
-      CHECK(
-        parse("false && (false || true)")
-        == logAnd(lit(false), grp(logOr(lit(false), lit(true)))));
+      // clang-format off
+      const auto
+      [expression,                  expectedExpression] = GENERATE(table<std::string, ExpressionNode>({
+      {"1 + 2 * 3",                 add(lit(1), mul(lit(2), lit(3)))},
+      {"1 * 2 + 3",                 add(mul(lit(1), lit(2)), lit(3))},
+      {"1 + 2 * 3 + 2",             add(add(lit(1), mul(lit(2), lit(3))), lit(2))},
+      {"1 + 2 * 3 + 2 * 2",         add(add(lit(1), mul(lit(2), lit(3))), mul(lit(2), lit(2)))},
+      {"3 + 2 < 3 + 3",             ls(add(lit(3), lit(2)), add(lit(3), lit(3)))},
+      {"3 + 2 < 3 + 3 + 0 && true", logAnd(ls(add(lit(3), lit(2)), add(add(lit(3), lit(3)), lit(0))), lit(true))},
+      {"false && false || true",    logOr(logAnd(lit(false), lit(false)), lit(true))},
+      {"false && (false || true)",  logAnd(lit(false), grp(logOr(lit(false), lit(true))))},
+      }));
+      // clang-format on
+
+      CAPTURE(expression);
+
+      CHECK(parse(expression) == expectedExpression);
     }
   }
 
   SECTION("Subscript")
   {
-    CHECK(
-      parse(R"([ 1.0, 2.0, "test" ][0])")
-      == scr(arr({lit(1.0), lit(2.0), lit("test")}), lit(0)));
-    CHECK(
-      parse(R"([ 1.0, 2.0, "test" ][1+1])")
-      == scr(arr({lit(1.0), lit(2.0), lit("test")}), add(lit(1), lit(1))));
-    CHECK(
-      parse(R"({ "key1":1, "key2":2, "key3":"test"}["key1"])")
-      == scr(
-        map({
-          {"key1", lit(1.0)},
-          {"key2", lit(2.0)},
-          {"key3", lit("test")},
-        }),
-        lit("key1")));
-    CHECK(
-      parse(R"([ 1.0, [ 2.0, "test"] ][1][0])")
-      == scr(scr(arr({lit(1.0), arr({lit(2.0), lit("test")})}), lit(1)), lit(0)));
-    CHECK(
-      parse(R"([ 1.0, 2.0, "test" ][0,1,2])")
-      == scr(arr({lit(1.0), lit(2.0), lit("test")}), arr({lit(0), lit(1), lit(2)})));
-    CHECK(
-      parse(R"([ 1.0, 2.0, "test" ][0..2])")
-      == scr(arr({lit(1.0), lit(2.0), lit("test")}), bRng(lit(0), lit(2))));
-    CHECK(
-      parse(R"([ 1.0, 2.0, "test" ][0..2,3])")
-      == scr(
-        arr({lit(1.0), lit(2.0), lit("test")}), arr({bRng(lit(0), lit(2)), lit(3)})));
+    // clang-format off
+    const auto
+    [expression,                                        expectedExpression] = GENERATE(table<std::string, ExpressionNode>({
+    {R"([ 1.0, 2.0, "test" ][0])",                      scr(arr({lit(1.0), lit(2.0), lit("test")}), lit(0))},
+    {R"([ 1.0, 2.0, "test" ][1+1])",                    scr(arr({lit(1.0), lit(2.0), lit("test")}), add(lit(1), lit(1)))},
+    {R"({ "key1":1, "key2":2, "key3":"test"}["key1"])", scr(map({{"key1", lit(1.0)}, {"key2", lit(2.0)}, {"key3", lit("test")}}), lit("key1"))},
+    {R"([ 1.0, [ 2.0, "test"] ][1][0])",                scr(scr(arr({lit(1.0), arr({lit(2.0), lit("test")})}), lit(1)), lit(0))},
+    {R"([ 1.0, 2.0, "test" ][0,1,2])",                  scr(arr({lit(1.0), lit(2.0), lit("test")}), arr({lit(0), lit(1), lit(2)}))},
+    {R"([ 1.0, 2.0, "test" ][0..2])",                   scr(arr({lit(1.0), lit(2.0), lit("test")}), bRng(lit(0), lit(2)))},
+    {R"([ 1.0, 2.0, "test" ][0..2,3])",                 scr(arr({lit(1.0), lit(2.0), lit("test")}), arr({bRng(lit(0), lit(2)), lit(3)}))},
 
-    SECTION("Empty subscript")
-    {
-      CHECK(parse(R"([ 1.0 ][])") == scr(arr({lit(1.0)}), arr({})));
-    }
+    // empty subscript
+    {R"([ 1.0 ][])",                                    scr(arr({lit(1.0)}), arr({}))},
+    }));
+    // clang-format on
+
+    CAPTURE(expression);
+
+    CHECK(parse(expression) == expectedExpression);
   }
 
   SECTION("Dot access")
   {
-    CHECK(parse("a.b") == dot(var("a"), "b"));
-    CHECK(parse(R"({ "b": 1 }.b)") == dot(map({{"b", lit(1.0)}}), "b"));
+    // clang-format off
+    const auto
+    [expression,        expectedExpression] = GENERATE(table<std::string, ExpressionNode>({
+    {"a.b",             dot(var("a"), "b")},
+    {R"({ "b": 1 }.b)", dot(map({{"b", lit(1.0)}}), "b")},
 
-    CHECK(parse("a.b.c") == dot(dot(var("a"), "b"), "c"));
-    CHECK(parse("a.b[0]") == scr(dot(var("a"), "b"), lit(0)));
-    CHECK(parse("a[0].b") == dot(scr(var("a"), lit(0)), "b"));
+    {"a.b.c",           dot(dot(var("a"), "b"), "c")},
+    {"a.b[0]",          scr(dot(var("a"), "b"), lit(0))},
+    {"a[0].b",          dot(scr(var("a"), lit(0)), "b")},
 
-    CHECK(parse("1.5") == lit(1.5));
-    CHECK(parse("1.5 + a.b") == add(lit(1.5), dot(var("a"), "b")));
+    {"1.5",             lit(1.5)},
+    {"1.5 + a.b",       add(lit(1.5), dot(var("a"), "b"))},
+    }));
+    // clang-format on
+
+    CAPTURE(expression);
+
+    CHECK(parse(expression) == expectedExpression);
   }
 
   SECTION("Function calls")
   {
-    CHECK(parse("f()") == call("f"));
-    CHECK(parse("f(1)") == call("f", {lit(1)}));
-    CHECK(parse("f(1, 2, 3)") == call("f", {lit(1), lit(2), lit(3)}));
-    CHECK(parse("f(1 + 2)") == call("f", {add(lit(1), lit(2))}));
+    // clang-format off
+    const auto
+    [expression,   expectedResult] = GENERATE(table<std::string, Result<ExpressionNode>>({
+    {"f()",        call("f")},
+    {"f(1)",       call("f", {lit(1)})},
+    {"f(1, 2, 3)", call("f", {lit(1), lit(2), lit(3)})},
+    {"f(1 + 2)",   call("f", {add(lit(1), lit(2))})},
 
     // nested calls
-    CHECK(parse("f(g())") == call("f", {call("g")}));
-    CHECK(parse("f(g(1), 2)") == call("f", {call("g", {lit(1)}), lit(2)}));
+    {"f(g())",     call("f", {call("g")})},
+    {"f(g(1), 2)", call("f", {call("g", {lit(1)}), lit(2)})},
 
     // composes with dot-access and bracket subscript
-    CHECK(parse("f().x") == dot(call("f"), "x"));
-    CHECK(parse("f()[0]") == scr(call("f"), lit(0)));
-    CHECK(parse("f(a.b)") == call("f", {dot(var("a"), "b")}));
+    {"f().x",      dot(call("f"), "x")},
+    {"f()[0]",     scr(call("f"), lit(0))},
+    {"f(a.b)",     call("f", {dot(var("a"), "b")})},
 
     // whitespace between the name and '(' doesn't change anything
-    CHECK(parse("f (1)") == call("f", {lit(1)}));
+    {"f (1)",      call("f", {lit(1)})},
 
     // a Name NOT followed by '(' is still a plain variable, unaffected by any of this
-    CHECK(parse("f") == var("f"));
-    CHECK(parse("f + 1") == add(var("f"), lit(1)));
+    {"f",          var("f")},
+    {"f + 1",      add(var("f"), lit(1))},
 
     // malformed call syntax is still a parse error
-    CHECK(parse("f(").is_error());
-    CHECK(parse("f(1,)").is_error());
-    CHECK(parse("f(,1)").is_error());
+    {"f(",         Error{"At line 1, column 3: Expected variable, string, number, boolean, '[', '{', '(', '+', '-', '!', '~', '{{', 'null', or 'undefined', but got end of file (raw data: '')"}},
+    {"f(1,)",      Error{"At line 1, column 5: Expected variable, string, number, boolean, '[', '{', '(', '+', '-', '!', '~', '{{', 'null', or 'undefined', but got ')' (raw data: ')')"}},
+    {"f(,1)",      Error{"At line 1, column 3: Expected variable, string, number, boolean, '[', '{', '(', '+', '-', '!', '~', '{{', 'null', or 'undefined', but got ',' (raw data: ',')"}},
+    }));
+    // clang-format on
+
+    CAPTURE(expression);
+
+    CHECK(parse(expression) == expectedResult);
   }
 
   SECTION("Infix calls")
   {
-    CHECK(parse("a distanceTo b") == inf("distanceTo", var("a"), var("b")));
-    CHECK(parse("1 intersects 2") == inf("intersects", lit(1), lit(2)));
+    // clang-format off
+    const auto
+    [expression,                      expectedResult] = GENERATE(table<std::string, Result<ExpressionNode>>({
+    {"a distanceTo b",                inf("distanceTo", var("a"), var("b"))},
+    {"1 intersects 2",                inf("intersects", lit(1), lit(2))},
 
     // composes with prefix calls
-    CHECK(
-      parse("distanceTo(a, b) distanceTo c")
-      == inf("distanceTo", call("distanceTo", {var("a"), var("b")}), var("c")));
-    CHECK(
-      parse("f(a intersects b)") == call("f", {inf("intersects", var("a"), var("b"))}));
+    {"distanceTo(a, b) distanceTo c", inf("distanceTo", call("distanceTo", {var("a"), var("b")}), var("c"))},
+    {"f(a intersects b)",             call("f", {inf("intersects", var("a"), var("b"))})},
 
     // chains left-associatively, like every other binary operator
-    CHECK(
-      parse("a intersects b intersects c")
-      == inf("intersects", inf("intersects", var("a"), var("b")), var("c")));
+    {"a intersects b intersects c",   inf("intersects", inf("intersects", var("a"), var("b")), var("c"))},
 
     // an infix call binds tighter than every real binary operator
-    CHECK(
-      parse("1 + 2 intersects 3 + 4")
-      == add(add(lit(1), inf("intersects", lit(2), lit(3))), lit(4)));
-    CHECK(
-      parse("1 * 2 intersects 3 * 4")
-      == mul(mul(lit(1), inf("intersects", lit(2), lit(3))), lit(4)));
-    CHECK(
-      parse("a && b intersects c && d")
-      == logAnd(logAnd(var("a"), inf("intersects", var("b"), var("c"))), var("d")));
+    {"1 + 2 intersects 3 + 4",        add(add(lit(1), inf("intersects", lit(2), lit(3))), lit(4))},
+    {"1 * 2 intersects 3 * 4",        mul(mul(lit(1), inf("intersects", lit(2), lit(3))), lit(4))},
+    {"a && b intersects c && d",      logAnd(logAnd(var("a"), inf("intersects", var("b"), var("c"))), var("d"))},
 
     // even ==, so the result of the call is what gets compared
-    CHECK(
-      parse("a intersects b == c")
-      == eq(inf("intersects", var("a"), var("b")), var("c")));
-    CHECK(
-      parse("a == b intersects c == d")
-      == eq(eq(var("a"), inf("intersects", var("b"), var("c"))), var("d")));
+    {"a intersects b == c",           eq(inf("intersects", var("a"), var("b")), var("c"))},
+    {"a == b intersects c == d",      eq(eq(var("a"), inf("intersects", var("b"), var("c"))), var("d"))},
 
     // a Name NOT preceded by a complete term is unaffected -- still a plain variable or
     // prefix call
-    CHECK(parse("a") == var("a"));
-    CHECK(parse("f(a)") == call("f", {var("a")}));
+    {"a",                             var("a")},
+    {"f(a)",                          call("f", {var("a")})},
 
     // a Name that isn't a built-in function ends the term instead of being called, which
     // leaves trailing garbage in strict mode
-    CHECK(
-      parse("a f b")
-      == Error{
-        "At line 1, column 3: Expected end of file, but got variable (raw data: 'f')"});
-    CHECK(Parser{ParseMode::Lenient, "a f b"}.parse() == var("a"));
+    {"a f b",                         Error{"At line 1, column 3: Expected end of file, but got variable (raw data: 'f')"}},
 
     // so does a built-in function that doesn't take two arguments
-    CHECK(
-      parse("a vec b")
-      == Error{
-        "At line 1, column 3: Expected end of file, but got variable (raw data: 'vec')"});
+    {"a vec b",                       Error{"At line 1, column 3: Expected end of file, but got variable (raw data: 'vec')"}},
+    }));
+    // clang-format on
+
+    CAPTURE(expression);
+
+    CHECK(parse(expression) == expectedResult);
+  }
+
+  SECTION("Infix calls in lenient mode")
+  {
+    // a Name that isn't a built-in function ends the term instead of being called
+    CHECK(Parser{ParseMode::Lenient, "a f b"}.parse() == var("a"));
   }
 
   SECTION("Switch")
   {
-    CHECK(parse("{{}}") == swt({}));
-    CHECK(parse("{{'asdf'}}") == swt({lit("asdf")}));
-    CHECK(parse("{{'fdsa', 'asdf'}}") == swt({lit("fdsa"), lit("asdf")}));
-    CHECK(
-      parse("{{false -> 'fdsa', 'asdf'}}")
-      == swt({cs(lit(false), lit("fdsa")), lit("asdf")}));
+    // clang-format off
+    const auto
+    [expression,                    expectedExpression] = GENERATE(table<std::string, ExpressionNode>({
+    {"{{}}",                        swt({})},
+    {"{{'asdf'}}",                  swt({lit("asdf")})},
+    {"{{'fdsa', 'asdf'}}",          swt({lit("fdsa"), lit("asdf")})},
+    {"{{false -> 'fdsa', 'asdf'}}", swt({cs(lit(false), lit("fdsa")), lit("asdf")})},
+    }));
+    // clang-format on
+
+    CAPTURE(expression);
+
+    CHECK(parse(expression) == expectedExpression);
   }
 
   SECTION("Comments")
   {
-    CHECK(parse("1 // comment") == lit(1));
-    CHECK(parse("1 // comment\n") == lit(1));
-    CHECK(parse("// comment\n1") == lit(1));
-    CHECK(parse("1 + // comment\n2") == add(lit(1), lit(2)));
-    CHECK(parse("// comment").is_error());
+    // clang-format off
+    const auto
+    [expression,          expectedResult] = GENERATE(table<std::string, Result<ExpressionNode>>({
+    {"1 // comment",      lit(1)},
+    {"1 // comment\n",    lit(1)},
+    {"// comment\n1",     lit(1)},
+    {"1 + // comment\n2", add(lit(1), lit(2))},
+    {"// comment",        Error{"At line 1, column 11: Expected variable, string, number, boolean, '[', '{', '(', '+', '-', '!', '~', '{{', 'null', or 'undefined', but got end of file (raw data: '')"}},
 
     // a single slash is still division
-    CHECK(parse("4 / 2") == div(lit(4), lit(2)));
+    {"4 / 2",             div(lit(4), lit(2))},
+    }));
+    // clang-format on
+
+    CAPTURE(expression);
+
+    CHECK(parse(expression) == expectedResult);
   }
 
   SECTION("Whitespace")
   {
-    CHECK(parse("\t1") == lit(1));
-    CHECK(parse("\r1") == lit(1));
-    CHECK(parse("1\t+\r2") == add(lit(1), lit(2)));
-    CHECK(parse("\t\r\n ").is_error());
+    // clang-format off
+    const auto
+    [expression, expectedResult] = GENERATE(table<std::string, Result<ExpressionNode>>({
+    {"\t1",      lit(1)},
+    {"\r1",      lit(1)},
+    {"1\t+\r2",  add(lit(1), lit(2))},
+    {"\t\r\n ",  Error{"At line 2, column 2: Expected variable, string, number, boolean, '[', '{', '(', '+', '-', '!', '~', '{{', 'null', or 'undefined', but got end of file (raw data: '')"}},
+    }));
+    // clang-format on
+
+    CAPTURE(expression);
+
+    CHECK(parse(expression) == expectedResult);
   }
 
   SECTION("Names")
   {
-    CHECK(parse("_a") == var("_a"));
-    CHECK(parse("a_b") == var("a_b"));
-    CHECK(parse("a1") == var("a1"));
-    CHECK(parse("_1") == var("_1"));
-    CHECK(parse("a_1b") == var("a_1b"));
+    // clang-format off
+    const auto
+    [expression,    expectedExpression] = GENERATE(table<std::string, ExpressionNode>({
+    {"_a",          var("_a")},
+    {"a_b",         var("a_b")},
+    {"a1",          var("a1")},
+    {"_1",          var("_1")},
+    {"a_1b",        var("a_1b")},
 
     // a name may begin with a keyword
-    CHECK(parse("trueValue") == var("trueValue"));
-    CHECK(parse("false_alarm") == var("false_alarm"));
-    CHECK(parse("nullable") == var("nullable"));
+    {"trueValue",   var("trueValue")},
+    {"false_alarm", var("false_alarm")},
+    {"nullable",    var("nullable")},
+    }));
+    // clang-format on
+
+    CAPTURE(expression);
+
+    CHECK(parse(expression) == expectedExpression);
   }
 
   SECTION("Malformed input")
   {
+    // clang-format off
+    const auto
+    [expression, expectedResult] = GENERATE(table<std::string, Result<ExpressionNode>>({
     // a number cannot be followed by another decimal point
-    CHECK(parse("1.2.3").is_error());
+    {"1.2.3",    Error{"At line 1, column 2: Unexpected character: '.'"}},
 
-    CHECK(parse("$").is_error());
+    {"$",        Error{"At line 1, column 1: Unexpected character: '$'"}},
 
     // a lone '=' is not an operator, and must not consume the character after it
-    CHECK(parse("1 = 2").is_error());
-    CHECK(parse("1 =2").is_error());
-    CHECK(parse("1 =+ 2").is_error());
-    CHECK(parse("1 =* 2").is_error());
-    CHECK(parse("=").is_error());
+    {"1 = 2",    Error{"At line 1, column 3: Unexpected character: '='"}},
+    {"1 =2",     Error{"At line 1, column 3: Unexpected character: '='"}},
+    {"1 =+ 2",   Error{"At line 1, column 3: Unexpected character: '='"}},
+    {"1 =* 2",   Error{"At line 1, column 3: Unexpected character: '='"}},
+    {"=",        Error{"At line 1, column 1: Unexpected character: '='"}},
 
     // but '==' still is, including when the right operand follows immediately
-    CHECK(parse("1 == 2") == eq(lit(1), lit(2)));
-    CHECK(parse("1 ==2") == eq(lit(1), lit(2)));
-    CHECK(parse("a==b") == eq(var("a"), var("b")));
+    {"1 == 2",   eq(lit(1), lit(2))},
+    {"1 ==2",    eq(lit(1), lit(2))},
+    {"a==b",     eq(var("a"), var("b"))},
+    }));
+    // clang-format on
+
+    CAPTURE(expression);
+
+    CHECK(parse(expression) == expectedResult);
   }
 
   SECTION("Numbers need not be separated from the following operator")
   {
-    CHECK(parse("1+2") == add(lit(1), lit(2)));
-    CHECK(parse("1-2") == sub(lit(1), lit(2)));
-    CHECK(parse("1*2") == mul(lit(1), lit(2)));
-    CHECK(parse("1/2") == div(lit(1), lit(2)));
-    CHECK(parse("1%2") == mod(lit(1), lit(2)));
-    CHECK(parse("1==2") == eq(lit(1), lit(2)));
-    CHECK(parse("1!=2") == neq(lit(1), lit(2)));
-    CHECK(parse("1<2") == ls(lit(1), lit(2)));
-    CHECK(parse("1<=2") == lsEq(lit(1), lit(2)));
-    CHECK(parse("1>2") == gr(lit(1), lit(2)));
-    CHECK(parse("1>=2") == grEq(lit(1), lit(2)));
-    CHECK(parse("1&2") == bitAnd(lit(1), lit(2)));
-    CHECK(parse("1|2") == bitOr(lit(1), lit(2)));
-    CHECK(parse("1^2") == bitXOr(lit(1), lit(2)));
-    CHECK(parse("1<<2") == bitShL(lit(1), lit(2)));
-    CHECK(parse("1>>2") == bitShR(lit(1), lit(2)));
-    CHECK(parse("1&&2") == logAnd(lit(1), lit(2)));
-    CHECK(parse("1||2") == logOr(lit(1), lit(2)));
-    CHECK(parse("1->2") == cs(lit(1), lit(2)));
+    // clang-format off
+    const auto
+    [expression,    expectedExpression] = GENERATE(table<std::string, ExpressionNode>({
+    {"1+2",         add(lit(1), lit(2))},
+    {"1-2",         sub(lit(1), lit(2))},
+    {"1*2",         mul(lit(1), lit(2))},
+    {"1/2",         div(lit(1), lit(2))},
+    {"1%2",         mod(lit(1), lit(2))},
+    {"1==2",        eq(lit(1), lit(2))},
+    {"1!=2",        neq(lit(1), lit(2))},
+    {"1<2",         ls(lit(1), lit(2))},
+    {"1<=2",        lsEq(lit(1), lit(2))},
+    {"1>2",         gr(lit(1), lit(2))},
+    {"1>=2",        grEq(lit(1), lit(2))},
+    {"1&2",         bitAnd(lit(1), lit(2))},
+    {"1|2",         bitOr(lit(1), lit(2))},
+    {"1^2",         bitXOr(lit(1), lit(2))},
+    {"1<<2",        bitShL(lit(1), lit(2))},
+    {"1>>2",        bitShR(lit(1), lit(2))},
+    {"1&&2",        logAnd(lit(1), lit(2))},
+    {"1||2",        logOr(lit(1), lit(2))},
+    {"1->2",        cs(lit(1), lit(2))},
 
     // decimals and exponents are read before the delimiter is checked
-    CHECK(parse("1.5<2") == ls(lit(1.5), lit(2)));
-    CHECK(parse("1e2<2") == ls(lit(100.0), lit(2)));
-    CHECK(parse("1e-2<2") == ls(lit(0.01), lit(2)));
+    {"1.5<2",       ls(lit(1.5), lit(2))},
+    {"1e2<2",       ls(lit(100.0), lit(2))},
+    {"1e-2<2",      ls(lit(0.01), lit(2))},
 
     // a range in a subscript still ends the integer before the dots
-    CHECK(parse("[1,2][0..1]") == scr(arr({lit(1), lit(2)}), bRng(lit(0), lit(1))));
+    {"[1,2][0..1]", scr(arr({lit(1), lit(2)}), bRng(lit(0), lit(1)))},
+    }));
+    // clang-format on
+
+    CAPTURE(expression);
+
+    CHECK(parse(expression) == expectedExpression);
   }
 
   SECTION("tokenizerState")
@@ -513,18 +732,24 @@ asdf)")
 
   SECTION("Groups")
   {
-    CHECK(parse("()").is_error());
-    CHECK(parse("(1)") == grp(lit(1)));
-    CHECK(parse("(2+1)*3") == mul(grp(add(lit(2), lit(1))), lit(3)));
-    CHECK(
-      parse("(2+1)*(2+1)") == mul(grp(add(lit(2), lit(1))), grp(add(lit(2), lit(1)))));
-    CHECK(
-      parse("(2+1)*((1+1)*2)")
-      == mul(grp(add(lit(2), lit(1))), grp(mul(grp(add(lit(1), lit(1))), lit(2)))));
+    // clang-format off
+    const auto
+    [expression,         expectedResult] = GENERATE(table<std::string, Result<ExpressionNode>>({
+    {"()",               Error{"At line 1, column 2: Expected variable, string, number, boolean, '[', '{', '(', '+', '-', '!', '~', '{{', 'null', or 'undefined', but got ')' (raw data: ')')"}},
+    {"(1)",              grp(lit(1))},
+    {"(2+1)*3",          mul(grp(add(lit(2), lit(1))), lit(3))},
+    {"(2+1)*(2+1)",      mul(grp(add(lit(2), lit(1))), grp(add(lit(2), lit(1))))},
+    {"(2+1)*((1+1)*2)",  mul(grp(add(lit(2), lit(1))), grp(mul(grp(add(lit(1), lit(1))), lit(2))))},
 
     // a unary operator applies only to the group, not to the term that follows it
-    CHECK(parse("!(true) && false") == logAnd(logNeg(grp(lit(true))), lit(false)));
-    CHECK(parse("-(1) + 2") == add(minus(grp(lit(1))), lit(2)));
+    {"!(true) && false", logAnd(logNeg(grp(lit(true))), lit(false))},
+    {"-(1) + 2",         add(minus(grp(lit(1))), lit(2))},
+    }));
+    // clang-format on
+
+    CAPTURE(expression);
+
+    CHECK(parse(expression) == expectedResult);
   }
 }
 

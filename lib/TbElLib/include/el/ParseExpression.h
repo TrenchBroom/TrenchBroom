@@ -22,12 +22,16 @@
 #include "base/Result.h"
 #include "el/Expression.h"
 #include "el/ParseMode.h"
+#include "el/StringEscaping.h"
 
 #include <string_view>
 
 namespace tb::el
 {
 
-Result<ExpressionNode> parseExpression(ParseMode mode, std::string_view str);
+Result<ExpressionNode> parseExpression(
+  ParseMode mode,
+  std::string_view str,
+  StringEscaping escaping = StringEscaping::Default);
 
 } // namespace tb::el

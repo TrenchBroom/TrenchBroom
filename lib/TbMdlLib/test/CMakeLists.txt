@@ -93,6 +93,7 @@ target_sources(TbMdlLibTest PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Octree.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Palette.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_ParseCompilationConfig.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_ParseConfigExpression.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_ParseGameConfig.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_ParseGameEngineConfig.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_PatchNode.cpp

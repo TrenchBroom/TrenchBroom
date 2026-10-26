@@ -23,6 +23,11 @@
 #include "el/Types.h"
 #include "el/Value.h"
 
+#include "kd/result_io.h" // IWYU pragma: keep
+
+#include "vm/bbox_io.h" // IWYU pragma: keep
+#include "vm/vec_io.h"  // IWYU pragma: keep
+
 #include <limits>
 #include <optional>
 #include <sstream>
@@ -30,6 +35,7 @@
 #include <vector>
 
 #include <catch2/catch_test_macros.hpp>
+#include <catch2/generators/catch_generators.hpp>
 
 namespace tb::el
 {
@@ -74,31 +80,55 @@ TEST_CASE("Value")
 {
   SECTION("constructor")
   {
-    CHECK(Value{}.type() == ValueType::Null);
-    CHECK(Value{true}.type() == ValueType::Boolean);
-    CHECK(Value{false}.type() == ValueType::Boolean);
-    CHECK(Value{StringType{"test"}}.type() == ValueType::String);
-    CHECK(Value{"test"}.type() == ValueType::String);
-    CHECK(Value{1.0}.type() == ValueType::Number);
-    CHECK(Value{1}.type() == ValueType::Number);
-    CHECK(Value{1l}.type() == ValueType::Number);
-    CHECK(Value{size_t(1)}.type() == ValueType::Number);
-    CHECK(Value{ArrayType{}}.type() == ValueType::Array);
-    CHECK(Value{MapType{}}.type() == ValueType::Map);
-    CHECK(Value{RangeType{BoundedRange{1, 3}}}.type() == ValueType::Range);
-    CHECK(Value{Vec3Type{1, 2, 3}}.type() == ValueType::Vec3);
-    CHECK(
-      Value{BBoxType{Vec3Type{1, 2, 3}, Vec3Type{4, 5, 6}}}.type() == ValueType::BBox);
-    CHECK(Value{NullType::Value}.type() == ValueType::Null);
-    CHECK(Value{UndefinedType::Value}.type() == ValueType::Undefined);
+    SECTION("type")
+    {
+      // clang-format off
+      const auto
+      [value,                                                 expectedType] = GENERATE(table<Value, ValueType>({
+      {Value{},                                               ValueType::Null},
+      {Value{true},                                           ValueType::Boolean},
+      {Value{false},                                          ValueType::Boolean},
+      {Value{StringType{"test"}},                             ValueType::String},
+      {Value{"test"},                                         ValueType::String},
+      {Value{1.0},                                            ValueType::Number},
+      {Value{1},                                              ValueType::Number},
+      {Value{1l},                                             ValueType::Number},
+      {Value{size_t(1)},                                      ValueType::Number},
+      {Value{ArrayType{}},                                    ValueType::Array},
+      {Value{MapType{}},                                      ValueType::Map},
+      {Value{RangeType{BoundedRange{1, 3}}},                  ValueType::Range},
+      {Value{Vec3Type{1, 2, 3}},                              ValueType::Vec3},
+      {Value{BBoxType{Vec3Type{1, 2, 3}, Vec3Type{4, 5, 6}}}, ValueType::BBox},
+      {Value{NullType::Value},                                ValueType::Null},
+      {Value{UndefinedType::Value},                           ValueType::Undefined},
 
-    CHECK(Value::Null.type() == ValueType::Null);
-    CHECK(Value::Undefined.type() == ValueType::Undefined);
+      {Value::Null,                                           ValueType::Null},
+      {Value::Undefined,                                      ValueType::Undefined},
+      }));
+      // clang-format on
 
-    // the integral constructors all widen to a number
-    CHECK(Value{1} == Value{1.0});
-    CHECK(Value{1l} == Value{1.0});
-    CHECK(Value{size_t(1)} == Value{1.0});
+      CAPTURE(value);
+
+      CHECK(value.type() == expectedType);
+    }
+
+    SECTION("integral constructors")
+    {
+      // the integral constructors all widen to a number
+
+      // clang-format off
+      const auto
+      [value,            expectedValue] = GENERATE(table<Value, Value>({
+      {Value{1},         Value{1.0}},
+      {Value{1l},        Value{1.0}},
+      {Value{size_t(1)}, Value{1.0}},
+      }));
+      // clang-format on
+
+      CAPTURE(value);
+
+      CHECK(value == expectedValue);
+    }
   }
 
   SECTION("hasType")
@@ -112,458 +142,599 @@ TEST_CASE("Value")
 
   SECTION("typeName")
   {
-    CHECK(Value{true}.typeName() == "Boolean");
-    CHECK(Value{"test"}.typeName() == "String");
-    CHECK(Value{1.0}.typeName() == "Number");
-    CHECK(Value{ArrayType{}}.typeName() == "Array");
-    CHECK(Value{MapType{}}.typeName() == "Map");
-    CHECK(boundedRange.typeName() == "Range");
-    CHECK(Value::Null.typeName() == "Null");
-    CHECK(Value::Undefined.typeName() == "Undefined");
+    // clang-format off
+    const auto
+    [value,              expectedTypeName] = GENERATE(table<Value, std::string>({
+    {Value{true},        "Boolean"},
+    {Value{"test"},      "String"},
+    {Value{1.0},         "Number"},
+    {Value{ArrayType{}}, "Array"},
+    {Value{MapType{}},   "Map"},
+    {boundedRange,       "Range"},
+    {Value::Null,        "Null"},
+    {Value::Undefined,   "Undefined"},
+    }));
+    // clang-format on
+
+    CAPTURE(value);
+
+    CHECK(value.typeName() == expectedTypeName);
   }
 
   SECTION("describe")
   {
-    CHECK(Value{true}.describe() == "true");
-    CHECK(Value{"test"}.describe() == R"("test")");
-    CHECK(Value{1.0}.describe() == "1");
-    CHECK(Value{ArrayType{Value{1.0}, Value{2.0}}}.describe() == "[1, 2]");
-    CHECK(Value{MapType{{"key", Value{1.0}}}}.describe() == R"({ "key": 1 })");
+    // clang-format off
+    const auto
+    [value,                                    expectedDescription] = GENERATE(table<Value, std::string>({
+    {Value{true},                              "true"},
+    {Value{"test"},                            R"("test")"},
+    {Value{1.0},                               "1"},
+    {Value{ArrayType{Value{1.0}, Value{2.0}}}, "[1, 2]"},
+    {Value{MapType{{"key", Value{1.0}}}},      R"({ "key": 1 })"},
+    }));
+    // clang-format on
+
+    CAPTURE(value);
+
+    CHECK(value.describe() == expectedDescription);
   }
 
   SECTION("booleanValue")
   {
-    CHECK(Value{true}.booleanValue() == true);
-    CHECK(Value{false}.booleanValue() == false);
-    CHECK(Value::Null.booleanValue() == false);
+    // clang-format off
+    const auto
+    [value,              expectedResult] = GENERATE(table<Value, Result<BooleanType>>({
+    {Value{true},        true},
+    {Value{false},       false},
+    {Value::Null,        false},
 
-    CHECK_THROWS_AS(Value{"test"}.booleanValue(), DereferenceError);
-    CHECK_THROWS_AS(Value{1.0}.booleanValue(), DereferenceError);
-    CHECK_THROWS_AS(Value{ArrayType{}}.booleanValue(), DereferenceError);
-    CHECK_THROWS_AS(Value{MapType{}}.booleanValue(), DereferenceError);
-    CHECK_THROWS_AS(boundedRange.booleanValue(), DereferenceError);
-    CHECK_THROWS_AS(Value::Undefined.booleanValue(), DereferenceError);
+    {Value{"test"},      Error{R"(At unknown location: Cannot dereference value '"test"' of type 'String' as type 'Boolean')"}},
+    {Value{1.0},         Error{"At unknown location: Cannot dereference value '1' of type 'Number' as type 'Boolean'"}},
+    {Value{ArrayType{}}, Error{"At unknown location: Cannot dereference value '[]' of type 'Array' as type 'Boolean'"}},
+    {Value{MapType{}},   Error{"At unknown location: Cannot dereference value '{}' of type 'Map' as type 'Boolean'"}},
+    {boundedRange,       Error{"At unknown location: Cannot dereference value '[1..3]' of type 'Range' as type 'Boolean'"}},
+    {Value::Undefined,   Error{"At unknown location: Cannot dereference value 'undefined' of type 'Undefined' as type 'Boolean'"}},
+    }));
+    // clang-format on
 
-    // the error names the type the caller asked for
+    CAPTURE(value);
+
     CHECK(
-      withEvaluationContext([](auto&) { Value{1.0}.booleanValue(); })
-      == Result<void>{Error{
-        "At unknown location: Cannot dereference value '1' of type 'Number' as type "
-        "'Boolean'"}});
+      withEvaluationContext([&](auto&) { return value.booleanValue(); })
+      == expectedResult);
   }
 
   SECTION("stringValue")
   {
-    CHECK(Value{"test"}.stringValue() == "test");
-    CHECK(Value::Null.stringValue() == "");
+    // clang-format off
+    const auto
+    [value,              expectedResult] = GENERATE(table<Value, Result<StringType>>({
+    {Value{"test"},      "test"},
+    {Value::Null,        ""},
 
-    CHECK_THROWS_AS(Value{true}.stringValue(), DereferenceError);
-    CHECK_THROWS_AS(Value{1.0}.stringValue(), DereferenceError);
-    CHECK_THROWS_AS(Value{ArrayType{}}.stringValue(), DereferenceError);
-    CHECK_THROWS_AS(Value{MapType{}}.stringValue(), DereferenceError);
-    CHECK_THROWS_AS(boundedRange.stringValue(), DereferenceError);
-    CHECK_THROWS_AS(Value::Undefined.stringValue(), DereferenceError);
+    {Value{true},        Error{"At unknown location: Cannot dereference value 'true' of type 'Boolean' as type 'String'"}},
+    {Value{1.0},         Error{"At unknown location: Cannot dereference value '1' of type 'Number' as type 'String'"}},
+    {Value{ArrayType{}}, Error{"At unknown location: Cannot dereference value '[]' of type 'Array' as type 'String'"}},
+    {Value{MapType{}},   Error{"At unknown location: Cannot dereference value '{}' of type 'Map' as type 'String'"}},
+    {boundedRange,       Error{"At unknown location: Cannot dereference value '[1..3]' of type 'Range' as type 'String'"}},
+    {Value::Undefined,   Error{"At unknown location: Cannot dereference value 'undefined' of type 'Undefined' as type 'String'"}},
+    }));
+    // clang-format on
+
+    CAPTURE(value);
 
     CHECK(
-      withEvaluationContext([](auto&) { Value{1.0}.stringValue(); })
-      == Result<void>{Error{
-        "At unknown location: Cannot dereference value '1' of type 'Number' as type "
-        "'String'"}});
+      withEvaluationContext([&](auto&) { return value.stringValue(); })
+      == expectedResult);
   }
 
   SECTION("numberValue")
   {
-    CHECK(Value{1.5}.numberValue() == 1.5);
-    CHECK(Value::Null.numberValue() == 0.0);
+    // clang-format off
+    const auto
+    [value,              expectedResult] = GENERATE(table<Value, Result<NumberType>>({
+    {Value{1.5},         1.5},
+    {Value::Null,        0.0},
 
-    CHECK_THROWS_AS(Value{true}.numberValue(), DereferenceError);
-    CHECK_THROWS_AS(Value{"test"}.numberValue(), DereferenceError);
-    CHECK_THROWS_AS(Value{ArrayType{}}.numberValue(), DereferenceError);
-    CHECK_THROWS_AS(Value{MapType{}}.numberValue(), DereferenceError);
-    CHECK_THROWS_AS(boundedRange.numberValue(), DereferenceError);
-    CHECK_THROWS_AS(Value::Undefined.numberValue(), DereferenceError);
+    {Value{true},        Error{"At unknown location: Cannot dereference value 'true' of type 'Boolean' as type 'Number'"}},
+    {Value{"test"},      Error{R"(At unknown location: Cannot dereference value '"test"' of type 'String' as type 'Number')"}},
+    {Value{ArrayType{}}, Error{"At unknown location: Cannot dereference value '[]' of type 'Array' as type 'Number'"}},
+    {Value{MapType{}},   Error{"At unknown location: Cannot dereference value '{}' of type 'Map' as type 'Number'"}},
+    {boundedRange,       Error{"At unknown location: Cannot dereference value '[1..3]' of type 'Range' as type 'Number'"}},
+    {Value::Undefined,   Error{"At unknown location: Cannot dereference value 'undefined' of type 'Undefined' as type 'Number'"}},
+    }));
+    // clang-format on
+
+    CAPTURE(value);
 
     CHECK(
-      withEvaluationContext([](auto&) { Value{"test"}.numberValue(); })
-      == Result<void>{Error{
-        R"(At unknown location: Cannot dereference value '"test"' of type 'String' as type 'Number')"}});
+      withEvaluationContext([&](auto&) { return value.numberValue(); })
+      == expectedResult);
   }
 
   SECTION("integerValue")
   {
-    CHECK(Value{1.0}.integerValue() == 1l);
-    CHECK(Value{1.7}.integerValue() == 1l);
-    CHECK(Value{-1.7}.integerValue() == -1l);
-    CHECK(Value::Null.integerValue() == 0l);
+    // clang-format off
+    const auto
+    [value,         expectedResult] = GENERATE(table<Value, Result<IntegerType>>({
+    {Value{1.0},    1l},
+    {Value{1.7},    1l},
+    {Value{-1.7},   -1l},
+    {Value::Null,   0l},
 
-    CHECK_THROWS_AS(Value{"test"}.integerValue(), DereferenceError);
+    {Value{"test"}, Error{R"(At unknown location: Cannot dereference value '"test"' of type 'String' as type 'Number')"}},
+    }));
+    // clang-format on
+
+    CAPTURE(value);
+
+    CHECK(
+      withEvaluationContext([&](auto&) { return value.integerValue(); })
+      == expectedResult);
   }
 
   SECTION("arrayValue")
   {
-    CHECK(Value{ArrayType{Value{1.0}}}.arrayValue() == ArrayType{Value{1.0}});
-    CHECK(Value::Null.arrayValue() == ArrayType{});
+    // clang-format off
+    const auto
+    [value,                        expectedResult] = GENERATE(table<Value, Result<ArrayType>>({
+    {Value{ArrayType{Value{1.0}}}, ArrayType{Value{1.0}}},
+    {Value::Null,                  ArrayType{}},
 
-    CHECK_THROWS_AS(Value{true}.arrayValue(), DereferenceError);
-    CHECK_THROWS_AS(Value{"test"}.arrayValue(), DereferenceError);
-    CHECK_THROWS_AS(Value{1.0}.arrayValue(), DereferenceError);
-    CHECK_THROWS_AS(Value{MapType{}}.arrayValue(), DereferenceError);
-    CHECK_THROWS_AS(boundedRange.arrayValue(), DereferenceError);
-    CHECK_THROWS_AS(vec3.arrayValue(), DereferenceError);
-    CHECK_THROWS_AS(bbox.arrayValue(), DereferenceError);
-    CHECK_THROWS_AS(Value::Undefined.arrayValue(), DereferenceError);
+    {Value{true},                  Error{"At unknown location: Cannot dereference value 'true' of type 'Boolean' as type 'Array'"}},
+    {Value{"test"},                Error{R"(At unknown location: Cannot dereference value '"test"' of type 'String' as type 'Array')"}},
+    {Value{1.0},                   Error{"At unknown location: Cannot dereference value '1' of type 'Number' as type 'Array'"}},
+    {Value{MapType{}},             Error{"At unknown location: Cannot dereference value '{}' of type 'Map' as type 'Array'"}},
+    {boundedRange,                 Error{"At unknown location: Cannot dereference value '[1..3]' of type 'Range' as type 'Array'"}},
+    {vec3,                         Error{"At unknown location: Cannot dereference value 'vec(1, 2, 3)' of type 'Vec3' as type 'Array'"}},
+    {bbox,                         Error{"At unknown location: Cannot dereference value 'bbox(vec(1, 2, 3), vec(4, 5, 6))' of type 'BBox' as type 'Array'"}},
+    {Value::Undefined,             Error{"At unknown location: Cannot dereference value 'undefined' of type 'Undefined' as type 'Array'"}},
+    }));
+    // clang-format on
+
+    CAPTURE(value);
 
     CHECK(
-      withEvaluationContext([](auto&) { Value{"test"}.arrayValue(); })
-      == Result<void>{Error{
-        R"(At unknown location: Cannot dereference value '"test"' of type 'String' as type 'Array')"}});
+      withEvaluationContext([&](auto&) { return value.arrayValue(); }) == expectedResult);
   }
 
   SECTION("mapValue")
   {
-    CHECK(Value{MapType{{"key", Value{1.0}}}}.mapValue() == MapType{{"key", Value{1.0}}});
-    CHECK(Value::Null.mapValue() == MapType{});
+    // clang-format off
+    const auto
+    [value,                               expectedResult] = GENERATE(table<Value, Result<MapType>>({
+    {Value{MapType{{"key", Value{1.0}}}}, MapType{{"key", Value{1.0}}}},
+    {Value::Null,                         MapType{}},
 
-    CHECK_THROWS_AS(Value{true}.mapValue(), DereferenceError);
-    CHECK_THROWS_AS(Value{"test"}.mapValue(), DereferenceError);
-    CHECK_THROWS_AS(Value{1.0}.mapValue(), DereferenceError);
-    CHECK_THROWS_AS(Value{ArrayType{}}.mapValue(), DereferenceError);
-    CHECK_THROWS_AS(boundedRange.mapValue(), DereferenceError);
-    CHECK_THROWS_AS(vec3.mapValue(), DereferenceError);
-    CHECK_THROWS_AS(bbox.mapValue(), DereferenceError);
-    CHECK_THROWS_AS(Value::Undefined.mapValue(), DereferenceError);
+    {Value{true},                         Error{"At unknown location: Cannot dereference value 'true' of type 'Boolean' as type 'Map'"}},
+    {Value{"test"},                       Error{R"(At unknown location: Cannot dereference value '"test"' of type 'String' as type 'Map')"}},
+    {Value{1.0},                          Error{"At unknown location: Cannot dereference value '1' of type 'Number' as type 'Map'"}},
+    {Value{ArrayType{}},                  Error{"At unknown location: Cannot dereference value '[]' of type 'Array' as type 'Map'"}},
+    {boundedRange,                        Error{"At unknown location: Cannot dereference value '[1..3]' of type 'Range' as type 'Map'"}},
+    {vec3,                                Error{"At unknown location: Cannot dereference value 'vec(1, 2, 3)' of type 'Vec3' as type 'Map'"}},
+    {bbox,                                Error{"At unknown location: Cannot dereference value 'bbox(vec(1, 2, 3), vec(4, 5, 6))' of type 'BBox' as type 'Map'"}},
+    {Value::Undefined,                    Error{"At unknown location: Cannot dereference value 'undefined' of type 'Undefined' as type 'Map'"}},
+    }));
+    // clang-format on
+
+    CAPTURE(value);
 
     CHECK(
-      withEvaluationContext([](auto&) { Value{"test"}.mapValue(); })
-      == Result<void>{Error{
-        R"(At unknown location: Cannot dereference value '"test"' of type 'String' as type 'Map')"}});
+      withEvaluationContext([&](auto&) { return value.mapValue(); }) == expectedResult);
   }
 
   SECTION("rangeValue")
   {
-    CHECK(boundedRange.rangeValue() == RangeType{BoundedRange{1, 3}});
-    CHECK(leftBoundedRange.rangeValue() == RangeType{LeftBoundedRange{2}});
-    CHECK(rightBoundedRange.rangeValue() == RangeType{RightBoundedRange{5}});
+    // clang-format off
+    const auto
+    [value,              expectedResult] = GENERATE(table<Value, Result<RangeType>>({
+    {boundedRange,       RangeType{BoundedRange{1, 3}}},
+    {leftBoundedRange,   RangeType{LeftBoundedRange{2}}},
+    {rightBoundedRange,  RangeType{RightBoundedRange{5}}},
 
-    CHECK_THROWS_AS(Value{true}.rangeValue(), DereferenceError);
-    CHECK_THROWS_AS(Value{"test"}.rangeValue(), DereferenceError);
-    CHECK_THROWS_AS(Value{1.0}.rangeValue(), DereferenceError);
-    CHECK_THROWS_AS(Value{ArrayType{}}.rangeValue(), DereferenceError);
-    CHECK_THROWS_AS(Value{MapType{}}.rangeValue(), DereferenceError);
-    CHECK_THROWS_AS(vec3.rangeValue(), DereferenceError);
-    CHECK_THROWS_AS(bbox.rangeValue(), DereferenceError);
+    {Value{true},        Error{"At unknown location: Cannot dereference value 'true' of type 'Boolean' as type 'Range'"}},
+    {Value{"test"},      Error{R"(At unknown location: Cannot dereference value '"test"' of type 'String' as type 'Range')"}},
+    {Value{1.0},         Error{"At unknown location: Cannot dereference value '1' of type 'Number' as type 'Range'"}},
+    {Value{ArrayType{}}, Error{"At unknown location: Cannot dereference value '[]' of type 'Array' as type 'Range'"}},
+    {Value{MapType{}},   Error{"At unknown location: Cannot dereference value '{}' of type 'Map' as type 'Range'"}},
+    {vec3,               Error{"At unknown location: Cannot dereference value 'vec(1, 2, 3)' of type 'Vec3' as type 'Range'"}},
+    {bbox,               Error{"At unknown location: Cannot dereference value 'bbox(vec(1, 2, 3), vec(4, 5, 6))' of type 'BBox' as type 'Range'"}},
 
     // unlike the other accessors, a range cannot be dereferenced from null
-    CHECK_THROWS_AS(Value::Null.rangeValue(), DereferenceError);
-    CHECK_THROWS_AS(Value::Undefined.rangeValue(), DereferenceError);
+    {Value::Null,        Error{"At unknown location: Cannot dereference value 'null' of type 'Null' as type 'Range'"}},
+    {Value::Undefined,   Error{"At unknown location: Cannot dereference value 'undefined' of type 'Undefined' as type 'Range'"}},
+    }));
+    // clang-format on
+
+    CAPTURE(value);
 
     CHECK(
-      withEvaluationContext([](auto&) { Value{"test"}.rangeValue(); })
-      == Result<void>{Error{
-        R"(At unknown location: Cannot dereference value '"test"' of type 'String' as type 'Range')"}});
+      withEvaluationContext([&](auto&) { return value.rangeValue(); }) == expectedResult);
   }
 
   SECTION("vec3Value")
   {
-    CHECK(vec3.vec3Value() == Vec3Type{1, 2, 3});
+    // clang-format off
+    const auto
+    [value,              expectedResult] = GENERATE(table<Value, Result<Vec3Type>>({
+    {vec3,               Vec3Type{1, 2, 3}},
 
-    CHECK_THROWS_AS(Value{true}.vec3Value(), DereferenceError);
-    CHECK_THROWS_AS(Value{"test"}.vec3Value(), DereferenceError);
-    CHECK_THROWS_AS(Value{1.0}.vec3Value(), DereferenceError);
-    CHECK_THROWS_AS(Value{ArrayType{}}.vec3Value(), DereferenceError);
-    CHECK_THROWS_AS(Value{MapType{}}.vec3Value(), DereferenceError);
-    CHECK_THROWS_AS(boundedRange.vec3Value(), DereferenceError);
-    CHECK_THROWS_AS(bbox.vec3Value(), DereferenceError);
+    {Value{true},        Error{"At unknown location: Cannot dereference value 'true' of type 'Boolean' as type 'Vec3'"}},
+    {Value{"test"},      Error{R"(At unknown location: Cannot dereference value '"test"' of type 'String' as type 'Vec3')"}},
+    {Value{1.0},         Error{"At unknown location: Cannot dereference value '1' of type 'Number' as type 'Vec3'"}},
+    {Value{ArrayType{}}, Error{"At unknown location: Cannot dereference value '[]' of type 'Array' as type 'Vec3'"}},
+    {Value{MapType{}},   Error{"At unknown location: Cannot dereference value '{}' of type 'Map' as type 'Vec3'"}},
+    {boundedRange,       Error{"At unknown location: Cannot dereference value '[1..3]' of type 'Range' as type 'Vec3'"}},
+    {bbox,               Error{"At unknown location: Cannot dereference value 'bbox(vec(1, 2, 3), vec(4, 5, 6))' of type 'BBox' as type 'Vec3'"}},
 
-    CHECK_THROWS_AS(Value::Null.vec3Value(), DereferenceError);
-    CHECK_THROWS_AS(Value::Undefined.vec3Value(), DereferenceError);
+    {Value::Null,        Error{"At unknown location: Cannot dereference value 'null' of type 'Null' as type 'Vec3'"}},
+    {Value::Undefined,   Error{"At unknown location: Cannot dereference value 'undefined' of type 'Undefined' as type 'Vec3'"}},
+    }));
+    // clang-format on
+
+    CAPTURE(value);
 
     CHECK(
-      withEvaluationContext([](auto&) { Value{"test"}.vec3Value(); })
-      == Result<void>{Error{
-        R"(At unknown location: Cannot dereference value '"test"' of type 'String' as type 'Vec3')"}});
+      withEvaluationContext([&](auto&) { return value.vec3Value(); }) == expectedResult);
   }
 
   SECTION("bboxValue")
   {
-    CHECK(bbox.bboxValue() == BBoxType{Vec3Type{1, 2, 3}, Vec3Type{4, 5, 6}});
+    // clang-format off
+    const auto
+    [value,              expectedResult] = GENERATE(table<Value, Result<BBoxType>>({
+    {bbox,               BBoxType{Vec3Type{1, 2, 3}, Vec3Type{4, 5, 6}}},
 
-    CHECK_THROWS_AS(Value{true}.bboxValue(), DereferenceError);
-    CHECK_THROWS_AS(Value{"test"}.bboxValue(), DereferenceError);
-    CHECK_THROWS_AS(Value{1.0}.bboxValue(), DereferenceError);
-    CHECK_THROWS_AS(Value{ArrayType{}}.bboxValue(), DereferenceError);
-    CHECK_THROWS_AS(Value{MapType{}}.bboxValue(), DereferenceError);
-    CHECK_THROWS_AS(boundedRange.bboxValue(), DereferenceError);
-    CHECK_THROWS_AS(vec3.bboxValue(), DereferenceError);
+    {Value{true},        Error{"At unknown location: Cannot dereference value 'true' of type 'Boolean' as type 'BBox'"}},
+    {Value{"test"},      Error{R"(At unknown location: Cannot dereference value '"test"' of type 'String' as type 'BBox')"}},
+    {Value{1.0},         Error{"At unknown location: Cannot dereference value '1' of type 'Number' as type 'BBox'"}},
+    {Value{ArrayType{}}, Error{"At unknown location: Cannot dereference value '[]' of type 'Array' as type 'BBox'"}},
+    {Value{MapType{}},   Error{"At unknown location: Cannot dereference value '{}' of type 'Map' as type 'BBox'"}},
+    {boundedRange,       Error{"At unknown location: Cannot dereference value '[1..3]' of type 'Range' as type 'BBox'"}},
+    {vec3,               Error{"At unknown location: Cannot dereference value 'vec(1, 2, 3)' of type 'Vec3' as type 'BBox'"}},
 
-    CHECK_THROWS_AS(Value::Null.bboxValue(), DereferenceError);
-    CHECK_THROWS_AS(Value::Undefined.bboxValue(), DereferenceError);
+    {Value::Null,        Error{"At unknown location: Cannot dereference value 'null' of type 'Null' as type 'BBox'"}},
+    {Value::Undefined,   Error{"At unknown location: Cannot dereference value 'undefined' of type 'Undefined' as type 'BBox'"}},
+    }));
+    // clang-format on
+
+    CAPTURE(value);
 
     CHECK(
-      withEvaluationContext([](auto&) { Value{"test"}.bboxValue(); })
-      == Result<void>{Error{
-        R"(At unknown location: Cannot dereference value '"test"' of type 'String' as type 'BBox')"}});
+      withEvaluationContext([&](auto&) { return value.bboxValue(); }) == expectedResult);
   }
 
   SECTION("asStringList")
   {
-    CHECK(Value{ArrayType{}}.asStringList() == std::vector<std::string>{});
-    CHECK(Value::Null.asStringList() == std::vector<std::string>{});
-    CHECK(
-      Value{ArrayType{Value{"b"}, Value{"a"}, Value{"b"}, Value::Null}}.asStringList()
-      == std::vector<std::string>{"b", "a", "b", ""});
+    // clang-format off
+    const auto
+    [value,                                                             expectedResult] = GENERATE(table<Value, Result<std::vector<std::string>>>({
+    {Value{ArrayType{}},                                                std::vector<std::string>{}},
+    {Value::Null,                                                       std::vector<std::string>{}},
+    {Value{ArrayType{Value{"b"}, Value{"a"}, Value{"b"}, Value::Null}}, std::vector<std::string>{"b", "a", "b", ""}},
 
-    CHECK_THROWS_AS(Value{ArrayType{Value{1.0}}}.asStringList(), DereferenceError);
-    CHECK_THROWS_AS(Value{"test"}.asStringList(), DereferenceError);
+    {Value{ArrayType{Value{1.0}}},                                      Error{"At unknown location: Cannot dereference value '1' of type 'Number' as type 'String'"}},
+    {Value{"test"},                                                     Error{R"(At unknown location: Cannot dereference value '"test"' of type 'String' as type 'Array')"}},
+    }));
+    // clang-format on
+
+    CAPTURE(value);
+
+    CHECK(
+      withEvaluationContext([&](auto&) { return value.asStringList(); })
+      == expectedResult);
   }
 
   SECTION("asStringSet")
   {
-    CHECK(Value{ArrayType{}}.asStringSet() == std::vector<std::string>{});
-    CHECK(
-      Value{ArrayType{Value{"b"}, Value{"a"}, Value{"b"}}}.asStringSet()
-      == std::vector<std::string>{"a", "b"});
+    // clang-format off
+    const auto
+    [value,                                                expectedResult] = GENERATE(table<Value, Result<std::vector<std::string>>>({
+    {Value{ArrayType{}},                                   std::vector<std::string>{}},
+    {Value{ArrayType{Value{"b"}, Value{"a"}, Value{"b"}}}, std::vector<std::string>{"a", "b"}},
 
-    CHECK_THROWS_AS(Value{"test"}.asStringSet(), DereferenceError);
+    {Value{"test"},                                        Error{R"(At unknown location: Cannot dereference value '"test"' of type 'String' as type 'Array')"}},
+    }));
+    // clang-format on
+
+    CAPTURE(value);
+
+    CHECK(
+      withEvaluationContext([&](auto&) { return value.asStringSet(); })
+      == expectedResult);
   }
 
   SECTION("length")
   {
-    CHECK(Value{true}.length() == 1u);
-    CHECK(Value{""}.length() == 0u);
-    CHECK(Value{"test"}.length() == 4u);
-    CHECK(Value{1.0}.length() == 1u);
-    CHECK(Value{ArrayType{}}.length() == 0u);
-    CHECK(Value{ArrayType{Value{1.0}, Value{2.0}}}.length() == 2u);
-    CHECK(Value{MapType{}}.length() == 0u);
-    CHECK(Value{MapType{{"key", Value{1.0}}}}.length() == 1u);
-    CHECK(boundedRange.length() == 2u);
-    CHECK(vec3.length() == 3u);
-    CHECK(bbox.length() == 2u);
-    CHECK(Value::Null.length() == 0u);
-    CHECK(Value::Undefined.length() == 0u);
+    // clang-format off
+    const auto
+    [value,                                    expectedLength] = GENERATE(table<Value, size_t>({
+    {Value{true},                              1u},
+    {Value{""},                                0u},
+    {Value{"test"},                            4u},
+    {Value{1.0},                               1u},
+    {Value{ArrayType{}},                       0u},
+    {Value{ArrayType{Value{1.0}, Value{2.0}}}, 2u},
+    {Value{MapType{}},                         0u},
+    {Value{MapType{{"key", Value{1.0}}}},      1u},
+    {boundedRange,                             2u},
+    {vec3,                                     3u},
+    {bbox,                                     2u},
+    {Value::Null,                              0u},
+    {Value::Undefined,                         0u},
+    }));
+    // clang-format on
+
+    CAPTURE(value);
+
+    CHECK(value.length() == expectedLength);
   }
 
   SECTION("convertibleTo")
   {
     using enum ValueType;
 
-    CHECK(convertibleTypes(Value{true}) == std::vector{Boolean, String, Number});
-    CHECK(convertibleTypes(Value{"test"}) == std::vector{Boolean, String});
-    CHECK(convertibleTypes(Value{"2.0"}) == std::vector{Boolean, String, Number});
-    CHECK(convertibleTypes(Value{" "}) == std::vector{Boolean, String, Number});
-    CHECK(convertibleTypes(Value{"1 2 3"}) == std::vector{Boolean, String, Number, Vec3});
-    CHECK(!Value{"1 2 3 4"}.convertibleTo(Vec3));
-    CHECK(!Value{"1 2 3abc"}.convertibleTo(Vec3));
-    CHECK(convertibleTypes(Value{1.0}) == std::vector{Boolean, String, Number});
-    CHECK(convertibleTypes(Value{ArrayType{}}) == std::vector{Array});
-    CHECK(convertibleTypes(Value{MapType{}}) == std::vector{Map});
-    CHECK(convertibleTypes(boundedRange) == std::vector{Range});
-    CHECK(convertibleTypes(vec3) == std::vector{String, Vec3});
-    CHECK(convertibleTypes(bbox) == std::vector{BBox});
-    CHECK(
-      convertibleTypes(Value::Null)
-      == std::vector{Boolean, String, Number, Array, Map, Null});
-    CHECK(convertibleTypes(Value::Undefined) == std::vector{Undefined});
+    SECTION("convertible types")
+    {
+      // clang-format off
+      const auto
+      [value,              expectedTypes] = GENERATE(table<Value, std::vector<ValueType>>({
+      {Value{true},        std::vector{Boolean, String, Number}},
+      {Value{"test"},      std::vector{Boolean, String}},
+      {Value{"2.0"},       std::vector{Boolean, String, Number}},
+      {Value{" "},         std::vector{Boolean, String, Number}},
+      {Value{"1 2 3"},     std::vector{Boolean, String, Number, Vec3}},
+      {Value{1.0},         std::vector{Boolean, String, Number}},
+      {Value{ArrayType{}}, std::vector{Array}},
+      {Value{MapType{}},   std::vector{Map}},
+      {boundedRange,       std::vector{Range}},
+      {vec3,               std::vector{String, Vec3}},
+      {bbox,               std::vector{BBox}},
+      {Value::Null,        std::vector{Boolean, String, Number, Array, Map, Null}},
+      {Value::Undefined,   std::vector{Undefined}},
+      }));
+      // clang-format on
+
+      CAPTURE(value);
+
+      CHECK(convertibleTypes(value) == expectedTypes);
+    }
+
+    SECTION("strings that are not vectors")
+    {
+      const auto value = GENERATE(values<Value>({
+        Value{"1 2 3 4"},
+        Value{"1 2 3abc"},
+      }));
+
+      CAPTURE(value);
+
+      CHECK(!value.convertibleTo(Vec3));
+    }
   }
 
   SECTION("convertTo")
   {
-    CHECK(Value{true}.convertTo(ValueType::Boolean) == Value{true});
-    CHECK(Value{false}.convertTo(ValueType::Boolean) == Value{false});
-    CHECK(Value{true}.convertTo(ValueType::String) == Value{"true"});
-    CHECK(Value{false}.convertTo(ValueType::String) == Value{"false"});
-    CHECK(Value{true}.convertTo(ValueType::Number) == Value{1});
-    CHECK(Value{false}.convertTo(ValueType::Number) == Value{0});
-    CHECK_THROWS_AS(Value{true}.convertTo(ValueType::Array), ConversionError);
-    CHECK_THROWS_AS(Value{true}.convertTo(ValueType::Map), ConversionError);
-    CHECK_THROWS_AS(Value{true}.convertTo(ValueType::Range), ConversionError);
-    CHECK_THROWS_AS(Value{true}.convertTo(ValueType::Vec3), ConversionError);
-    CHECK_THROWS_AS(Value{true}.convertTo(ValueType::BBox), ConversionError);
-    CHECK_THROWS_AS(Value{true}.convertTo(ValueType::Null), ConversionError);
-    CHECK_THROWS_AS(Value{true}.convertTo(ValueType::Undefined), ConversionError);
+    // clang-format off
+    const auto
+    [value,                                 type,                 expectedResult] = GENERATE(table<Value, ValueType, Result<Value>>({
+    {Value{true},                           ValueType::Boolean,   Value{true}},
+    {Value{false},                          ValueType::Boolean,   Value{false}},
+    {Value{true},                           ValueType::String,    Value{"true"}},
+    {Value{false},                          ValueType::String,    Value{"false"}},
+    {Value{true},                           ValueType::Number,    Value{1}},
+    {Value{false},                          ValueType::Number,    Value{0}},
+    {Value{true},                           ValueType::Array,     Error{"At unknown location: Cannot convert value 'true' of type 'Boolean' to type 'Array'"}},
+    {Value{true},                           ValueType::Map,       Error{"At unknown location: Cannot convert value 'true' of type 'Boolean' to type 'Map'"}},
+    {Value{true},                           ValueType::Range,     Error{"At unknown location: Cannot convert value 'true' of type 'Boolean' to type 'Range'"}},
+    {Value{true},                           ValueType::Vec3,      Error{"At unknown location: Cannot convert value 'true' of type 'Boolean' to type 'Vec3'"}},
+    {Value{true},                           ValueType::BBox,      Error{"At unknown location: Cannot convert value 'true' of type 'Boolean' to type 'BBox'"}},
+    {Value{true},                           ValueType::Null,      Error{"At unknown location: Cannot convert value 'true' of type 'Boolean' to type 'Null'"}},
+    {Value{true},                           ValueType::Undefined, Error{"At unknown location: Cannot convert value 'true' of type 'Boolean' to type 'Undefined'"}},
 
-    CHECK(Value{"asdf"}.convertTo(ValueType::Boolean) == Value{true});
-    CHECK(Value{"false"}.convertTo(ValueType::Boolean) == Value{false});
-    CHECK(Value{""}.convertTo(ValueType::Boolean) == Value{false});
-    CHECK(Value{"asdf"}.convertTo(ValueType::String) == Value{"asdf"});
-    CHECK(Value{"2"}.convertTo(ValueType::Number) == Value{2});
-    CHECK(Value{"-2.0"}.convertTo(ValueType::Number) == Value{-2});
-    CHECK(Value{" "}.convertTo(ValueType::Number) == Value{0});
+    {Value{"asdf"},                         ValueType::Boolean,   Value{true}},
+    {Value{"false"},                        ValueType::Boolean,   Value{false}},
+    {Value{""},                             ValueType::Boolean,   Value{false}},
+    {Value{"asdf"},                         ValueType::String,    Value{"asdf"}},
+    {Value{"2"},                            ValueType::Number,    Value{2}},
+    {Value{"-2.0"},                         ValueType::Number,    Value{-2}},
+    {Value{" "},                            ValueType::Number,    Value{0}},
     // "1.2 3 4", the format entity properties like "origin" use
-    CHECK(Value{"1 2 3"}.convertTo(ValueType::Vec3) == Value{Vec3Type{1, 2, 3}});
-    CHECK(Value{"1.2 3 4"}.convertTo(ValueType::Vec3) == Value{Vec3Type{1.2, 3.0, 4.0}});
-    CHECK(Value{" 1\t2  3 "}.convertTo(ValueType::Vec3) == Value{Vec3Type{1, 2, 3}});
-    CHECK_THROWS_AS(Value{"1 2"}.convertTo(ValueType::Vec3), ConversionError);
-    CHECK_THROWS_AS(Value{"1 2 3 4"}.convertTo(ValueType::Vec3), ConversionError);
-    CHECK_THROWS_AS(Value{"1 2 3abc"}.convertTo(ValueType::Vec3), ConversionError);
-    CHECK_THROWS_AS(Value{"1abc 2 3"}.convertTo(ValueType::Vec3), ConversionError);
-    CHECK_THROWS_AS(Value{"asdf"}.convertTo(ValueType::Number), ConversionError);
-    CHECK_THROWS_AS(Value{"asdf"}.convertTo(ValueType::Array), ConversionError);
-    CHECK_THROWS_AS(Value{"asfd"}.convertTo(ValueType::Map), ConversionError);
-    CHECK_THROWS_AS(Value{"asdf"}.convertTo(ValueType::Range), ConversionError);
-    CHECK_THROWS_AS(Value{"asdf"}.convertTo(ValueType::Vec3), ConversionError);
-    CHECK_THROWS_AS(Value{"asdf"}.convertTo(ValueType::BBox), ConversionError);
-    CHECK_THROWS_AS(Value{"asdf"}.convertTo(ValueType::Null), ConversionError);
-    CHECK_THROWS_AS(Value{"asdf"}.convertTo(ValueType::Undefined), ConversionError);
+    {Value{"1 2 3"},                        ValueType::Vec3,      Value{Vec3Type{1, 2, 3}}},
+    {Value{"1.2 3 4"},                      ValueType::Vec3,      Value{Vec3Type{1.2, 3.0, 4.0}}},
+    {Value{" 1\t2  3 "},                    ValueType::Vec3,      Value{Vec3Type{1, 2, 3}}},
+    {Value{"1 2"},                          ValueType::Vec3,      Error{R"(At unknown location: Cannot convert value '"1 2"' of type 'String' to type 'Vec3')"}},
+    {Value{"1 2 3 4"},                      ValueType::Vec3,      Error{R"(At unknown location: Cannot convert value '"1 2 3 4"' of type 'String' to type 'Vec3')"}},
+    {Value{"1 2 3abc"},                     ValueType::Vec3,      Error{R"(At unknown location: Cannot convert value '"1 2 3abc"' of type 'String' to type 'Vec3')"}},
+    {Value{"1abc 2 3"},                     ValueType::Vec3,      Error{R"(At unknown location: Cannot convert value '"1abc 2 3"' of type 'String' to type 'Vec3')"}},
+    {Value{"asdf"},                         ValueType::Number,    Error{R"(At unknown location: Cannot convert value '"asdf"' of type 'String' to type 'Number')"}},
+    {Value{"asdf"},                         ValueType::Array,     Error{R"(At unknown location: Cannot convert value '"asdf"' of type 'String' to type 'Array')"}},
+    {Value{"asfd"},                         ValueType::Map,       Error{R"(At unknown location: Cannot convert value '"asfd"' of type 'String' to type 'Map')"}},
+    {Value{"asdf"},                         ValueType::Range,     Error{R"(At unknown location: Cannot convert value '"asdf"' of type 'String' to type 'Range')"}},
+    {Value{"asdf"},                         ValueType::Vec3,      Error{R"(At unknown location: Cannot convert value '"asdf"' of type 'String' to type 'Vec3')"}},
+    {Value{"asdf"},                         ValueType::BBox,      Error{R"(At unknown location: Cannot convert value '"asdf"' of type 'String' to type 'BBox')"}},
+    {Value{"asdf"},                         ValueType::Null,      Error{R"(At unknown location: Cannot convert value '"asdf"' of type 'String' to type 'Null')"}},
+    {Value{"asdf"},                         ValueType::Undefined, Error{R"(At unknown location: Cannot convert value '"asdf"' of type 'String' to type 'Undefined')"}},
 
-    CHECK(Value{1}.convertTo(ValueType::Boolean) == Value{true});
-    CHECK(Value{2}.convertTo(ValueType::Boolean) == Value{true});
-    CHECK(Value{-2}.convertTo(ValueType::Boolean) == Value{true});
-    CHECK(Value{0}.convertTo(ValueType::Boolean) == Value{false});
-    CHECK(Value{1.0}.convertTo(ValueType::String) == Value{"1"});
-    CHECK(Value{-1.0}.convertTo(ValueType::String) == Value{"-1"});
-    CHECK(Value{1.1}.convertTo(ValueType::String) == Value{"1.1000000000000001"});
-    CHECK(Value{-1.1}.convertTo(ValueType::String) == Value{"-1.1000000000000001"});
-    CHECK(Value{1.0}.convertTo(ValueType::Number) == Value{1});
-    CHECK(Value{-1.0}.convertTo(ValueType::Number) == Value{-1});
-    CHECK_THROWS_AS(Value{1}.convertTo(ValueType::Array), ConversionError);
-    CHECK_THROWS_AS(Value{2}.convertTo(ValueType::Map), ConversionError);
-    CHECK_THROWS_AS(Value{3}.convertTo(ValueType::Range), ConversionError);
-    CHECK_THROWS_AS(Value{6}.convertTo(ValueType::Vec3), ConversionError);
-    CHECK_THROWS_AS(Value{7}.convertTo(ValueType::BBox), ConversionError);
-    CHECK_THROWS_AS(Value{4}.convertTo(ValueType::Null), ConversionError);
-    CHECK_THROWS_AS(Value{5}.convertTo(ValueType::Undefined), ConversionError);
+    {Value{1},                              ValueType::Boolean,   Value{true}},
+    {Value{2},                              ValueType::Boolean,   Value{true}},
+    {Value{-2},                             ValueType::Boolean,   Value{true}},
+    {Value{0},                              ValueType::Boolean,   Value{false}},
+    {Value{1.0},                            ValueType::String,    Value{"1"}},
+    {Value{-1.0},                           ValueType::String,    Value{"-1"}},
+    {Value{1.1},                            ValueType::String,    Value{"1.1000000000000001"}},
+    {Value{-1.1},                           ValueType::String,    Value{"-1.1000000000000001"}},
+    {Value{1.0},                            ValueType::Number,    Value{1}},
+    {Value{-1.0},                           ValueType::Number,    Value{-1}},
+    {Value{1},                              ValueType::Array,     Error{"At unknown location: Cannot convert value '1' of type 'Number' to type 'Array'"}},
+    {Value{2},                              ValueType::Map,       Error{"At unknown location: Cannot convert value '2' of type 'Number' to type 'Map'"}},
+    {Value{3},                              ValueType::Range,     Error{"At unknown location: Cannot convert value '3' of type 'Number' to type 'Range'"}},
+    {Value{6},                              ValueType::Vec3,      Error{"At unknown location: Cannot convert value '6' of type 'Number' to type 'Vec3'"}},
+    {Value{7},                              ValueType::BBox,      Error{"At unknown location: Cannot convert value '7' of type 'Number' to type 'BBox'"}},
+    {Value{4},                              ValueType::Null,      Error{"At unknown location: Cannot convert value '4' of type 'Number' to type 'Null'"}},
+    {Value{5},                              ValueType::Undefined, Error{"At unknown location: Cannot convert value '5' of type 'Number' to type 'Undefined'"}},
 
-    CHECK_THROWS_AS(Value{ArrayType{}}.convertTo(ValueType::Boolean), ConversionError);
-    CHECK_THROWS_AS(Value{ArrayType{}}.convertTo(ValueType::String), ConversionError);
-    CHECK_THROWS_AS(Value{ArrayType{}}.convertTo(ValueType::Number), ConversionError);
-    CHECK(Value{ArrayType{}}.convertTo(ValueType::Array) == Value{ArrayType{}});
-    CHECK_THROWS_AS(Value{ArrayType{}}.convertTo(ValueType::Map), ConversionError);
-    CHECK_THROWS_AS(Value{ArrayType{}}.convertTo(ValueType::Range), ConversionError);
-    CHECK_THROWS_AS(Value{ArrayType{}}.convertTo(ValueType::Vec3), ConversionError);
-    CHECK_THROWS_AS(Value{ArrayType{}}.convertTo(ValueType::BBox), ConversionError);
-    CHECK_THROWS_AS(Value{ArrayType{}}.convertTo(ValueType::Null), ConversionError);
-    CHECK_THROWS_AS(Value{ArrayType{}}.convertTo(ValueType::Undefined), ConversionError);
+    {Value{ArrayType{}},                    ValueType::Boolean,   Error{"At unknown location: Cannot convert value '[]' of type 'Array' to type 'Boolean'"}},
+    {Value{ArrayType{}},                    ValueType::String,    Error{"At unknown location: Cannot convert value '[]' of type 'Array' to type 'String'"}},
+    {Value{ArrayType{}},                    ValueType::Number,    Error{"At unknown location: Cannot convert value '[]' of type 'Array' to type 'Number'"}},
+    {Value{ArrayType{}},                    ValueType::Array,     Value{ArrayType{}}},
+    {Value{ArrayType{}},                    ValueType::Map,       Error{"At unknown location: Cannot convert value '[]' of type 'Array' to type 'Map'"}},
+    {Value{ArrayType{}},                    ValueType::Range,     Error{"At unknown location: Cannot convert value '[]' of type 'Array' to type 'Range'"}},
+    {Value{ArrayType{}},                    ValueType::Vec3,      Error{"At unknown location: Cannot convert value '[]' of type 'Array' to type 'Vec3'"}},
+    {Value{ArrayType{}},                    ValueType::BBox,      Error{"At unknown location: Cannot convert value '[]' of type 'Array' to type 'BBox'"}},
+    {Value{ArrayType{}},                    ValueType::Null,      Error{"At unknown location: Cannot convert value '[]' of type 'Array' to type 'Null'"}},
+    {Value{ArrayType{}},                    ValueType::Undefined, Error{"At unknown location: Cannot convert value '[]' of type 'Array' to type 'Undefined'"}},
 
-    CHECK_THROWS_AS(Value{MapType{}}.convertTo(ValueType::Boolean), ConversionError);
-    CHECK_THROWS_AS(Value{MapType{}}.convertTo(ValueType::String), ConversionError);
-    CHECK_THROWS_AS(Value{MapType{}}.convertTo(ValueType::Number), ConversionError);
-    CHECK_THROWS_AS(Value{MapType{}}.convertTo(ValueType::Array), ConversionError);
-    CHECK(Value{MapType{}}.convertTo(ValueType::Map) == Value{MapType{}});
-    CHECK_THROWS_AS(Value{MapType{}}.convertTo(ValueType::Range), ConversionError);
-    CHECK_THROWS_AS(Value{MapType{}}.convertTo(ValueType::Vec3), ConversionError);
-    CHECK_THROWS_AS(Value{MapType{}}.convertTo(ValueType::BBox), ConversionError);
-    CHECK_THROWS_AS(Value{MapType{}}.convertTo(ValueType::Null), ConversionError);
-    CHECK_THROWS_AS(Value{MapType{}}.convertTo(ValueType::Undefined), ConversionError);
+    {Value{MapType{}},                      ValueType::Boolean,   Error{"At unknown location: Cannot convert value '{}' of type 'Map' to type 'Boolean'"}},
+    {Value{MapType{}},                      ValueType::String,    Error{"At unknown location: Cannot convert value '{}' of type 'Map' to type 'String'"}},
+    {Value{MapType{}},                      ValueType::Number,    Error{"At unknown location: Cannot convert value '{}' of type 'Map' to type 'Number'"}},
+    {Value{MapType{}},                      ValueType::Array,     Error{"At unknown location: Cannot convert value '{}' of type 'Map' to type 'Array'"}},
+    {Value{MapType{}},                      ValueType::Map,       Value{MapType{}}},
+    {Value{MapType{}},                      ValueType::Range,     Error{"At unknown location: Cannot convert value '{}' of type 'Map' to type 'Range'"}},
+    {Value{MapType{}},                      ValueType::Vec3,      Error{"At unknown location: Cannot convert value '{}' of type 'Map' to type 'Vec3'"}},
+    {Value{MapType{}},                      ValueType::BBox,      Error{"At unknown location: Cannot convert value '{}' of type 'Map' to type 'BBox'"}},
+    {Value{MapType{}},                      ValueType::Null,      Error{"At unknown location: Cannot convert value '{}' of type 'Map' to type 'Null'"}},
+    {Value{MapType{}},                      ValueType::Undefined, Error{"At unknown location: Cannot convert value '{}' of type 'Map' to type 'Undefined'"}},
 
-    CHECK_THROWS_AS(boundedRange.convertTo(ValueType::Boolean), ConversionError);
-    CHECK_THROWS_AS(boundedRange.convertTo(ValueType::String), ConversionError);
-    CHECK_THROWS_AS(boundedRange.convertTo(ValueType::Number), ConversionError);
-    CHECK_THROWS_AS(boundedRange.convertTo(ValueType::Array), ConversionError);
-    CHECK_THROWS_AS(boundedRange.convertTo(ValueType::Map), ConversionError);
-    CHECK(boundedRange.convertTo(ValueType::Range) == boundedRange);
-    CHECK_THROWS_AS(boundedRange.convertTo(ValueType::Vec3), ConversionError);
-    CHECK_THROWS_AS(boundedRange.convertTo(ValueType::BBox), ConversionError);
-    CHECK_THROWS_AS(boundedRange.convertTo(ValueType::Null), ConversionError);
-    CHECK_THROWS_AS(boundedRange.convertTo(ValueType::Undefined), ConversionError);
+    {boundedRange,                          ValueType::Boolean,   Error{"At unknown location: Cannot convert value '[1..3]' of type 'Range' to type 'Boolean'"}},
+    {boundedRange,                          ValueType::String,    Error{"At unknown location: Cannot convert value '[1..3]' of type 'Range' to type 'String'"}},
+    {boundedRange,                          ValueType::Number,    Error{"At unknown location: Cannot convert value '[1..3]' of type 'Range' to type 'Number'"}},
+    {boundedRange,                          ValueType::Array,     Error{"At unknown location: Cannot convert value '[1..3]' of type 'Range' to type 'Array'"}},
+    {boundedRange,                          ValueType::Map,       Error{"At unknown location: Cannot convert value '[1..3]' of type 'Range' to type 'Map'"}},
+    {boundedRange,                          ValueType::Range,     boundedRange},
+    {boundedRange,                          ValueType::Vec3,      Error{"At unknown location: Cannot convert value '[1..3]' of type 'Range' to type 'Vec3'"}},
+    {boundedRange,                          ValueType::BBox,      Error{"At unknown location: Cannot convert value '[1..3]' of type 'Range' to type 'BBox'"}},
+    {boundedRange,                          ValueType::Null,      Error{"At unknown location: Cannot convert value '[1..3]' of type 'Range' to type 'Null'"}},
+    {boundedRange,                          ValueType::Undefined, Error{"At unknown location: Cannot convert value '[1..3]' of type 'Range' to type 'Undefined'"}},
 
-    CHECK_THROWS_AS(vec3.convertTo(ValueType::Boolean), ConversionError);
+    {vec3,                                  ValueType::Boolean,   Error{"At unknown location: Cannot convert value 'vec(1, 2, 3)' of type 'Vec3' to type 'Boolean'"}},
     // "1.2 3 4", the format entity properties like "origin" use
-    CHECK(vec3.convertTo(ValueType::String) == Value{"1 2 3"});
+    {vec3,                                  ValueType::String,    Value{"1 2 3"}},
     // components are formatted like numbers, without losing precision
+    {Value{Vec3Type{1234567.5, 0.125, -4}}, ValueType::String,    Value{"1234567.5 0.125 -4"}},
+    {vec3,                                  ValueType::Number,    Error{"At unknown location: Cannot convert value 'vec(1, 2, 3)' of type 'Vec3' to type 'Number'"}},
+    {vec3,                                  ValueType::Array,     Error{"At unknown location: Cannot convert value 'vec(1, 2, 3)' of type 'Vec3' to type 'Array'"}},
+    {vec3,                                  ValueType::Map,       Error{"At unknown location: Cannot convert value 'vec(1, 2, 3)' of type 'Vec3' to type 'Map'"}},
+    {vec3,                                  ValueType::Range,     Error{"At unknown location: Cannot convert value 'vec(1, 2, 3)' of type 'Vec3' to type 'Range'"}},
+    {vec3,                                  ValueType::Vec3,      vec3},
+    {vec3,                                  ValueType::BBox,      Error{"At unknown location: Cannot convert value 'vec(1, 2, 3)' of type 'Vec3' to type 'BBox'"}},
+    {vec3,                                  ValueType::Null,      Error{"At unknown location: Cannot convert value 'vec(1, 2, 3)' of type 'Vec3' to type 'Null'"}},
+    {vec3,                                  ValueType::Undefined, Error{"At unknown location: Cannot convert value 'vec(1, 2, 3)' of type 'Vec3' to type 'Undefined'"}},
+
+    {bbox,                                  ValueType::Boolean,   Error{"At unknown location: Cannot convert value 'bbox(vec(1, 2, 3), vec(4, 5, 6))' of type 'BBox' to type 'Boolean'"}},
+    {bbox,                                  ValueType::String,    Error{"At unknown location: Cannot convert value 'bbox(vec(1, 2, 3), vec(4, 5, 6))' of type 'BBox' to type 'String'"}},
+    {bbox,                                  ValueType::Number,    Error{"At unknown location: Cannot convert value 'bbox(vec(1, 2, 3), vec(4, 5, 6))' of type 'BBox' to type 'Number'"}},
+    {bbox,                                  ValueType::Array,     Error{"At unknown location: Cannot convert value 'bbox(vec(1, 2, 3), vec(4, 5, 6))' of type 'BBox' to type 'Array'"}},
+    {bbox,                                  ValueType::Map,       Error{"At unknown location: Cannot convert value 'bbox(vec(1, 2, 3), vec(4, 5, 6))' of type 'BBox' to type 'Map'"}},
+    {bbox,                                  ValueType::Range,     Error{"At unknown location: Cannot convert value 'bbox(vec(1, 2, 3), vec(4, 5, 6))' of type 'BBox' to type 'Range'"}},
+    {bbox,                                  ValueType::Vec3,      Error{"At unknown location: Cannot convert value 'bbox(vec(1, 2, 3), vec(4, 5, 6))' of type 'BBox' to type 'Vec3'"}},
+    {bbox,                                  ValueType::BBox,      bbox},
+    {bbox,                                  ValueType::Null,      Error{"At unknown location: Cannot convert value 'bbox(vec(1, 2, 3), vec(4, 5, 6))' of type 'BBox' to type 'Null'"}},
+    {bbox,                                  ValueType::Undefined, Error{"At unknown location: Cannot convert value 'bbox(vec(1, 2, 3), vec(4, 5, 6))' of type 'BBox' to type 'Undefined'"}},
+
+    {Value::Null,                           ValueType::Boolean,   Value{false}},
+    {Value::Null,                           ValueType::String,    Value{""}},
+    {Value::Null,                           ValueType::Number,    Value{0}},
+    {Value::Null,                           ValueType::Array,     Value{ArrayType{}}},
+    {Value::Null,                           ValueType::Map,       Value{MapType{}}},
+    {Value::Null,                           ValueType::Range,     Error{"At unknown location: Cannot convert value 'null' of type 'Null' to type 'Range'"}},
+    {Value::Null,                           ValueType::Vec3,      Error{"At unknown location: Cannot convert value 'null' of type 'Null' to type 'Vec3'"}},
+    {Value::Null,                           ValueType::BBox,      Error{"At unknown location: Cannot convert value 'null' of type 'Null' to type 'BBox'"}},
+    {Value::Null,                           ValueType::Null,      Value::Null},
+    {Value::Null,                           ValueType::Undefined, Error{"At unknown location: Cannot convert value 'null' of type 'Null' to type 'Undefined'"}},
+
+    {Value::Undefined,                      ValueType::Boolean,   Error{"At unknown location: Cannot convert value 'undefined' of type 'Undefined' to type 'Boolean'"}},
+    {Value::Undefined,                      ValueType::String,    Error{"At unknown location: Cannot convert value 'undefined' of type 'Undefined' to type 'String'"}},
+    {Value::Undefined,                      ValueType::Number,    Error{"At unknown location: Cannot convert value 'undefined' of type 'Undefined' to type 'Number'"}},
+    {Value::Undefined,                      ValueType::Array,     Error{"At unknown location: Cannot convert value 'undefined' of type 'Undefined' to type 'Array'"}},
+    {Value::Undefined,                      ValueType::Map,       Error{"At unknown location: Cannot convert value 'undefined' of type 'Undefined' to type 'Map'"}},
+    {Value::Undefined,                      ValueType::Range,     Error{"At unknown location: Cannot convert value 'undefined' of type 'Undefined' to type 'Range'"}},
+    {Value::Undefined,                      ValueType::Vec3,      Error{"At unknown location: Cannot convert value 'undefined' of type 'Undefined' to type 'Vec3'"}},
+    {Value::Undefined,                      ValueType::BBox,      Error{"At unknown location: Cannot convert value 'undefined' of type 'Undefined' to type 'BBox'"}},
+    {Value::Undefined,                      ValueType::Null,      Error{"At unknown location: Cannot convert value 'undefined' of type 'Undefined' to type 'Null'"}},
+    {Value::Undefined,                      ValueType::Undefined, Value::Undefined},
+    }));
+    // clang-format on
+
+    CAPTURE(value, type);
+
     CHECK(
-      Value{Vec3Type{1234567.5, 0.125, -4}}.convertTo(ValueType::String)
-      == Value{"1234567.5 0.125 -4"});
-    CHECK_THROWS_AS(vec3.convertTo(ValueType::Number), ConversionError);
-    CHECK_THROWS_AS(vec3.convertTo(ValueType::Array), ConversionError);
-    CHECK_THROWS_AS(vec3.convertTo(ValueType::Map), ConversionError);
-    CHECK_THROWS_AS(vec3.convertTo(ValueType::Range), ConversionError);
-    CHECK(vec3.convertTo(ValueType::Vec3) == vec3);
-    CHECK_THROWS_AS(vec3.convertTo(ValueType::BBox), ConversionError);
-    CHECK_THROWS_AS(vec3.convertTo(ValueType::Null), ConversionError);
-    CHECK_THROWS_AS(vec3.convertTo(ValueType::Undefined), ConversionError);
-
-    CHECK_THROWS_AS(bbox.convertTo(ValueType::Boolean), ConversionError);
-    CHECK_THROWS_AS(bbox.convertTo(ValueType::String), ConversionError);
-    CHECK_THROWS_AS(bbox.convertTo(ValueType::Number), ConversionError);
-    CHECK_THROWS_AS(bbox.convertTo(ValueType::Array), ConversionError);
-    CHECK_THROWS_AS(bbox.convertTo(ValueType::Map), ConversionError);
-    CHECK_THROWS_AS(bbox.convertTo(ValueType::Range), ConversionError);
-    CHECK_THROWS_AS(bbox.convertTo(ValueType::Vec3), ConversionError);
-    CHECK(bbox.convertTo(ValueType::BBox) == bbox);
-    CHECK_THROWS_AS(bbox.convertTo(ValueType::Null), ConversionError);
-    CHECK_THROWS_AS(bbox.convertTo(ValueType::Undefined), ConversionError);
-
-    CHECK(Value::Null.convertTo(ValueType::Boolean) == Value{false});
-    CHECK(Value::Null.convertTo(ValueType::String) == Value{""});
-    CHECK(Value::Null.convertTo(ValueType::Number) == Value{0});
-    CHECK(Value::Null.convertTo(ValueType::Array) == Value{ArrayType{}});
-    CHECK(Value::Null.convertTo(ValueType::Map) == Value{MapType{}});
-    CHECK_THROWS_AS(Value::Null.convertTo(ValueType::Range), ConversionError);
-    CHECK_THROWS_AS(Value::Null.convertTo(ValueType::Vec3), ConversionError);
-    CHECK_THROWS_AS(Value::Null.convertTo(ValueType::BBox), ConversionError);
-    CHECK(Value::Null.convertTo(ValueType::Null) == Value::Null);
-    CHECK_THROWS_AS(Value::Null.convertTo(ValueType::Undefined), ConversionError);
-
-    CHECK_THROWS_AS(Value::Undefined.convertTo(ValueType::Boolean), ConversionError);
-    CHECK_THROWS_AS(Value::Undefined.convertTo(ValueType::String), ConversionError);
-    CHECK_THROWS_AS(Value::Undefined.convertTo(ValueType::Number), ConversionError);
-    CHECK_THROWS_AS(Value::Undefined.convertTo(ValueType::Array), ConversionError);
-    CHECK_THROWS_AS(Value::Undefined.convertTo(ValueType::Map), ConversionError);
-    CHECK_THROWS_AS(Value::Undefined.convertTo(ValueType::Range), ConversionError);
-    CHECK_THROWS_AS(Value::Undefined.convertTo(ValueType::Vec3), ConversionError);
-    CHECK_THROWS_AS(Value::Undefined.convertTo(ValueType::BBox), ConversionError);
-    CHECK_THROWS_AS(Value::Undefined.convertTo(ValueType::Null), ConversionError);
-    CHECK(Value::Undefined.convertTo(ValueType::Undefined) == Value::Undefined);
+      withEvaluationContext([&](auto&) { return value.convertTo(type); })
+      == expectedResult);
   }
 
   SECTION("tryConvertTo")
   {
-    CHECK(Value{"2"}.tryConvertTo(ValueType::Number) == Value{2});
-    CHECK(Value{"asdf"}.tryConvertTo(ValueType::Number) == std::nullopt);
-    CHECK(Value{ArrayType{}}.tryConvertTo(ValueType::Map) == std::nullopt);
+    // clang-format off
+    const auto
+    [value,              type,              expectedValue] = GENERATE(table<Value, ValueType, std::optional<Value>>({
+    {Value{"2"},         ValueType::Number, Value{2}},
+    {Value{"asdf"},      ValueType::Number, std::nullopt},
+    {Value{ArrayType{}}, ValueType::Map,    std::nullopt},
+    }));
+    // clang-format on
+
+    CAPTURE(value, type);
+
+    CHECK(value.tryConvertTo(type) == expectedValue);
   }
 
   SECTION("asString")
   {
     SECTION("single line")
     {
-      CHECK(Value{true}.asString() == "true");
-      CHECK(Value{false}.asString() == "false");
-      CHECK(Value{"test"}.asString() == R"("test")");
-      // MSVC reports C4129 for escape sequences inside a raw string literal, so these
-      // are regular literals: the value is a"b\c and it serializes to "a\"b\\c"
-      CHECK(Value{"a\"b\\c"}.asString() == "\"a\\\"b\\\\c\"");
-      CHECK(Value{16.0}.asString() == "16");
-      CHECK(Value{-16.0}.asString() == "-16");
-      CHECK(Value{1.1}.asString() == "1.1000000000000001");
-      CHECK(Value{ArrayType{}}.asString() == "[]");
-      CHECK(Value{ArrayType{Value{1.0}}}.asString() == "[1]");
-      CHECK(Value{ArrayType{Value{1.0}, Value{"a"}}}.asString() == R"([1, "a"])");
-      CHECK(Value{ArrayType{Value{ArrayType{Value{1.0}}}}}.asString() == "[[1]]");
-      CHECK(Value{MapType{}}.asString() == "{}");
-      CHECK(Value{MapType{{"a", Value{1.0}}}}.asString() == R"({ "a": 1 })");
-      CHECK(
-        Value{MapType{{"a", Value{1.0}}, {"b", Value{2.0}}}}.asString()
-        == R"({ "a": 1, "b": 2 })");
-      CHECK(
-        Value{MapType{{"a", Value{MapType{{"b", Value{1.0}}}}}}}.asString()
-        == R"({ "a": { "b": 1 } })");
-      CHECK(boundedRange.asString() == "[1..3]");
-      CHECK(leftBoundedRange.asString() == "[2..]");
-      CHECK(rightBoundedRange.asString() == "[..5]");
-      CHECK(vec3.asString() == "vec(1, 2, 3)");
-      CHECK(bbox.asString() == "bbox(vec(1, 2, 3), vec(4, 5, 6))");
-      CHECK(Value::Null.asString() == "null");
-      CHECK(Value::Undefined.asString() == "undefined");
+      // clang-format off
+      const auto
+      [value,                                                    expectedString] = GENERATE(table<Value, std::string>({
+      {Value{true},                                              "true"},
+      {Value{false},                                             "false"},
+      {Value{"test"},                                            R"("test")"},
+      {Value{R"(a"b\c)"},                                        R"("a\"b\c")"},
+      {Value{R"(C:\quake\)"},                                    R"("C:\quake\\")"},
+      {Value{16.0},                                              "16"},
+      {Value{-16.0},                                             "-16"},
+      {Value{1.1},                                               "1.1000000000000001"},
+      {Value{ArrayType{}},                                       "[]"},
+      {Value{ArrayType{Value{1.0}}},                             "[1]"},
+      {Value{ArrayType{Value{1.0}, Value{"a"}}},                 R"([1, "a"])"},
+      {Value{ArrayType{Value{ArrayType{Value{1.0}}}}},           "[[1]]"},
+      {Value{MapType{}},                                         "{}"},
+      {Value{MapType{{"a", Value{1.0}}}},                        R"({ "a": 1 })"},
+      {Value{MapType{{"a", Value{1.0}}, {"b", Value{2.0}}}},     R"({ "a": 1, "b": 2 })"},
+      {Value{MapType{{"a", Value{MapType{{"b", Value{1.0}}}}}}}, R"({ "a": { "b": 1 } })"},
+      {boundedRange,                                             "[1..3]"},
+      {leftBoundedRange,                                         "[2..]"},
+      {rightBoundedRange,                                        "[..5]"},
+      {vec3,                                                     "vec(1, 2, 3)"},
+      {bbox,                                                     "bbox(vec(1, 2, 3), vec(4, 5, 6))"},
+      {Value::Null,                                              "null"},
+      {Value::Undefined,                                         "undefined"},
+      }));
+      // clang-format on
+
+      CAPTURE(value);
+
+      CHECK(value.asString() == expectedString);
     }
 
     SECTION("multiline")
     {
-      CHECK(Value{true}.asString(true) == "true");
-      CHECK(Value{ArrayType{}}.asString(true) == "[]");
-      CHECK(Value{ArrayType{Value{1.0}, Value{2.0}}}.asString(true) == "[\n\t1,\n\t2\n]");
-      CHECK(
-        Value{ArrayType{Value{ArrayType{Value{1.0}}}}}.asString(true)
-        == "[\n\t[\n\t\t1\n\t]\n]");
-      CHECK(Value{MapType{}}.asString(true) == "{}");
-      CHECK(
-        Value{MapType{{"a", Value{1.0}}, {"b", Value{2.0}}}}.asString(true)
-        == "{\n\t\"a\": 1,\n\t\"b\": 2\n}");
-      CHECK(
-        Value{MapType{{"a", Value{MapType{{"b", Value{1.0}}}}}}}.asString(true)
-        == "{\n\t\"a\": {\n\t\t\"b\": 1\n\t}\n}");
+      // clang-format off
+      const auto
+      [value,                                                    expectedString] = GENERATE(table<Value, std::string>({
+      {Value{true},                                              "true"},
+      {Value{ArrayType{}},                                       "[]"},
+      {Value{ArrayType{Value{1.0}, Value{2.0}}},                 "[\n\t1,\n\t2\n]"},
+      {Value{ArrayType{Value{ArrayType{Value{1.0}}}}},           "[\n\t[\n\t\t1\n\t]\n]"},
+      {Value{MapType{}},                                         "{}"},
+      {Value{MapType{{"a", Value{1.0}}, {"b", Value{2.0}}}},     "{\n\t\"a\": 1,\n\t\"b\": 2\n}"},
+      {Value{MapType{{"a", Value{MapType{{"b", Value{1.0}}}}}}}, "{\n\t\"a\": {\n\t\t\"b\": 1\n\t}\n}"},
+      }));
+      // clang-format on
+
+      CAPTURE(value);
+
+      CHECK(value.asString(true) == expectedString);
     }
   }
 
@@ -574,94 +745,150 @@ TEST_CASE("Value")
     str << "prefix ";
     Value{ArrayType{Value{1.0}, Value{2.0}}}.appendToStream(str);
     CHECK(str.str() == "prefix [\n\t1,\n\t2\n]");
+
+    // with legacy escaping, every backslash and quote is escaped, also in nested values
+    auto legacyStr = std::ostringstream{};
+    Value{ArrayType{
+            Value{R"(a"b\c)"},
+            Value{MapType{{"path", Value{R"(\\server\share)"}}}},
+          }}
+      .appendToStream(legacyStr, false, "", StringEscaping::Legacy);
+    // MSVC cannot parse this raw string literal inline in CHECK
+    const auto expected = R"(["a\"b\\c", { "path": "\\\\server\\share" }])";
+    CHECK(legacyStr.str() == expected);
   }
 
   SECTION("contains")
   {
     SECTION("by index")
     {
-      CHECK(Value{"ab"}.contains(0));
-      CHECK(Value{"ab"}.contains(1));
-      CHECK(!Value{"ab"}.contains(2));
-      CHECK(!Value{""}.contains(0));
+      // clang-format off
+      const auto
+      [value,                             index, expectedResult] = GENERATE(table<Value, size_t, bool>({
+      {Value{"ab"},                       0,     true},
+      {Value{"ab"},                       1,     true},
+      {Value{"ab"},                       2,     false},
+      {Value{""},                         0,     false},
 
-      CHECK(Value{ArrayType{Value{1.0}}}.contains(0));
-      CHECK(!Value{ArrayType{Value{1.0}}}.contains(1));
-      CHECK(!Value{ArrayType{}}.contains(0));
+      {Value{ArrayType{Value{1.0}}},      0,     true},
+      {Value{ArrayType{Value{1.0}}},      1,     false},
+      {Value{ArrayType{}},                0,     false},
 
       // every other type is not indexable by an integer
-      CHECK(!Value{MapType{{"0", Value{1.0}}}}.contains(0));
-      CHECK(!Value{true}.contains(0));
-      CHECK(!Value{1.0}.contains(0));
-      CHECK(!boundedRange.contains(0));
-      CHECK(!vec3.contains(0));
-      CHECK(!bbox.contains(0));
-      CHECK(!Value::Null.contains(0));
-      CHECK(!Value::Undefined.contains(0));
+      {Value{MapType{{"0", Value{1.0}}}}, 0,     false},
+      {Value{true},                       0,     false},
+      {Value{1.0},                        0,     false},
+      {boundedRange,                      0,     false},
+      {vec3,                              0,     false},
+      {bbox,                              0,     false},
+      {Value::Null,                       0,     false},
+      {Value::Undefined,                  0,     false},
+      }));
+      // clang-format on
+
+      CAPTURE(value, index);
+
+      CHECK(value.contains(index) == expectedResult);
     }
 
     SECTION("by key")
     {
-      CHECK(Value{MapType{{"a", Value{1.0}}}}.contains("a"));
-      CHECK(!Value{MapType{{"a", Value{1.0}}}}.contains("b"));
-      CHECK(!Value{MapType{}}.contains("a"));
-      CHECK(!Value::Null.contains("a"));
+      // clang-format off
+      const auto
+      [value,                             key, expectedResult] = GENERATE(table<Value, std::string, Result<bool>>({
+      {Value{MapType{{"a", Value{1.0}}}}, "a", true},
+      {Value{MapType{{"a", Value{1.0}}}}, "b", false},
+      {Value{MapType{}},                  "a", false},
+      {Value::Null,                       "a", false},
 
-      CHECK_THROWS_AS(Value{"ab"}.contains("a"), DereferenceError);
-      CHECK_THROWS_AS(Value{ArrayType{}}.contains("a"), DereferenceError);
-      CHECK_THROWS_AS(Value::Undefined.contains("a"), DereferenceError);
+      {Value{"ab"},                       "a", Error{R"(At unknown location: Cannot dereference value '"ab"' of type 'String' as type 'Map')"}},
+      {Value{ArrayType{}},                "a", Error{"At unknown location: Cannot dereference value '[]' of type 'Array' as type 'Map'"}},
+      {Value::Undefined,                  "a", Error{"At unknown location: Cannot dereference value 'undefined' of type 'Undefined' as type 'Map'"}},
+      }));
+      // clang-format on
+
+      CAPTURE(value, key);
+
+      CHECK(
+        withEvaluationContext([&](auto&) { return value.contains(key); })
+        == expectedResult);
     }
   }
 
   SECTION("keys")
   {
-    CHECK(
-      Value{MapType{{"b", Value{1.0}}, {"a", Value{2.0}}}}.keys()
-      == std::vector<std::string>{"a", "b"});
-    CHECK(Value{MapType{}}.keys() == std::vector<std::string>{});
-    CHECK(Value::Null.keys() == std::vector<std::string>{});
+    // clang-format off
+    const auto
+    [value,                                                expectedResult] = GENERATE(table<Value, Result<std::vector<std::string>>>({
+    {Value{MapType{{"b", Value{1.0}}, {"a", Value{2.0}}}}, std::vector<std::string>{"a", "b"}},
+    {Value{MapType{}},                                     std::vector<std::string>{}},
+    {Value::Null,                                          std::vector<std::string>{}},
 
-    CHECK_THROWS_AS(Value{ArrayType{}}.keys(), DereferenceError);
+    {Value{ArrayType{}},                                   Error{"At unknown location: Cannot dereference value '[]' of type 'Array' as type 'Map'"}},
+    }));
+    // clang-format on
+
+    CAPTURE(value);
+
+    CHECK(withEvaluationContext([&](auto&) { return value.keys(); }) == expectedResult);
   }
 
   SECTION("at")
   {
     SECTION("by index")
     {
-      CHECK(Value{"abc"}.at(0) == Value{"a"});
-      CHECK(Value{"abc"}.at(2) == Value{"c"});
-      CHECK_THROWS_AS(Value{"abc"}.at(3), IndexOutOfBoundsError);
+      // clang-format off
+      const auto
+      [value,                                    index, expectedResult] = GENERATE(table<Value, size_t, Result<Value>>({
+      {Value{"abc"},                             0,     Value{"a"}},
+      {Value{"abc"},                             2,     Value{"c"}},
+      {Value{"abc"},                             3,     Error{R"(At unknown location: Index 3 is out of bounds for '"abc"')"}},
 
-      const auto array = Value{ArrayType{Value{1.0}, Value{"a"}}};
-      CHECK(array.at(0) == Value{1.0});
-      CHECK(array.at(1) == Value{"a"});
-      CHECK_THROWS_AS(array.at(2), IndexOutOfBoundsError);
+      {Value{ArrayType{Value{1.0}, Value{"a"}}}, 0,     Value{1.0}},
+      {Value{ArrayType{Value{1.0}, Value{"a"}}}, 1,     Value{"a"}},
+      {Value{ArrayType{Value{1.0}, Value{"a"}}}, 2,     Error{R"(At unknown location: Index 2 is out of bounds for '[1, "a"]')"}},
 
-      CHECK_THROWS_AS(Value{MapType{}}.at(0), IndexError);
-      CHECK_THROWS_AS(Value{true}.at(0), IndexError);
-      CHECK_THROWS_AS(Value{1.0}.at(0), IndexError);
-      CHECK_THROWS_AS(boundedRange.at(0), IndexError);
-      CHECK_THROWS_AS(vec3.at(0), IndexError);
-      CHECK_THROWS_AS(bbox.at(0), IndexError);
-      CHECK_THROWS_AS(Value::Null.at(0), IndexError);
-      CHECK_THROWS_AS(Value::Undefined.at(0), IndexError);
+      {Value{MapType{}},                         0,     Error{"At unknown location: 0 is not a compatible index for '{}'"}},
+      {Value{true},                              0,     Error{"At unknown location: 0 is not a compatible index for 'true'"}},
+      {Value{1.0},                               0,     Error{"At unknown location: 0 is not a compatible index for '1'"}},
+      {boundedRange,                             0,     Error{"At unknown location: 0 is not a compatible index for '[1..3]'"}},
+      {vec3,                                     0,     Error{"At unknown location: 0 is not a compatible index for 'vec(1, 2, 3)'"}},
+      {bbox,                                     0,     Error{"At unknown location: 0 is not a compatible index for 'bbox(vec(1, 2, 3), vec(4, 5, 6))'"}},
+      {Value::Null,                              0,     Error{"At unknown location: 0 is not a compatible index for 'null'"}},
+      {Value::Undefined,                         0,     Error{"At unknown location: 0 is not a compatible index for 'undefined'"}},
+      }));
+      // clang-format on
+
+      CAPTURE(value, index);
+
+      CHECK(
+        withEvaluationContext([&](auto&) { return value.at(index); }) == expectedResult);
     }
 
     SECTION("by key")
     {
-      const auto map = Value{MapType{{"a", Value{1.0}}}};
-      CHECK(map.at("a") == Value{1.0});
-      CHECK_THROWS_AS(map.at("b"), IndexOutOfBoundsError);
+      // clang-format off
+      const auto
+      [value,                             key, expectedResult] = GENERATE(table<Value, std::string, Result<Value>>({
+      {Value{MapType{{"a", Value{1.0}}}}, "a", Value{1.0}},
+      {Value{MapType{{"a", Value{1.0}}}}, "b", Error{R"(At unknown location: Key 'b' not found in '{ "a": 1 }')"}},
 
-      CHECK_THROWS_AS(Value{"abc"}.at("a"), IndexError);
-      CHECK_THROWS_AS(Value{ArrayType{}}.at("a"), IndexError);
-      CHECK_THROWS_AS(Value{true}.at("a"), IndexError);
-      CHECK_THROWS_AS(Value{1.0}.at("a"), IndexError);
-      CHECK_THROWS_AS(boundedRange.at("a"), IndexError);
-      CHECK_THROWS_AS(vec3.at("a"), IndexError);
-      CHECK_THROWS_AS(bbox.at("a"), IndexError);
-      CHECK_THROWS_AS(Value::Null.at("a"), IndexError);
-      CHECK_THROWS_AS(Value::Undefined.at("a"), IndexError);
+      {Value{"abc"},                      "a", Error{R"(At unknown location: 'a' is not a compatible key for '"abc"')"}},
+      {Value{ArrayType{}},                "a", Error{"At unknown location: 'a' is not a compatible key for '[]'"}},
+      {Value{true},                       "a", Error{"At unknown location: 'a' is not a compatible key for 'true'"}},
+      {Value{1.0},                        "a", Error{"At unknown location: 'a' is not a compatible key for '1'"}},
+      {boundedRange,                      "a", Error{"At unknown location: 'a' is not a compatible key for '[1..3]'"}},
+      {vec3,                              "a", Error{"At unknown location: 'a' is not a compatible key for 'vec(1, 2, 3)'"}},
+      {bbox,                              "a", Error{"At unknown location: 'a' is not a compatible key for 'bbox(vec(1, 2, 3), vec(4, 5, 6))'"}},
+      {Value::Null,                       "a", Error{"At unknown location: 'a' is not a compatible key for 'null'"}},
+      {Value::Undefined,                  "a", Error{"At unknown location: 'a' is not a compatible key for 'undefined'"}},
+      }));
+      // clang-format on
+
+      CAPTURE(value, key);
+
+      CHECK(
+        withEvaluationContext([&](auto&) { return value.at(key); }) == expectedResult);
     }
   }
 
@@ -669,63 +896,86 @@ TEST_CASE("Value")
   {
     SECTION("by index")
     {
-      CHECK(Value{"abc"}.atOrDefault(0) == Value{"a"});
-      CHECK(Value{"abc"}.atOrDefault(3) == Value::Null);
-      CHECK(Value{"abc"}.atOrDefault(3, Value{"x"}) == Value{"x"});
+      // clang-format off
+      const auto
+      [value,                        index, defaultValue, expectedResult] = GENERATE(table<Value, size_t, std::optional<Value>, Result<Value>>({
+      {Value{"abc"},                 0,     std::nullopt, Value{"a"}},
+      {Value{"abc"},                 3,     std::nullopt, Value::Null},
+      {Value{"abc"},                 3,     Value{"x"},   Value{"x"}},
 
-      const auto array = Value{ArrayType{Value{1.0}}};
-      CHECK(array.atOrDefault(0) == Value{1.0});
-      CHECK(array.atOrDefault(1) == Value::Null);
-      CHECK(array.atOrDefault(1, Value{"x"}) == Value{"x"});
+      {Value{ArrayType{Value{1.0}}}, 0,     std::nullopt, Value{1.0}},
+      {Value{ArrayType{Value{1.0}}}, 1,     std::nullopt, Value::Null},
+      {Value{ArrayType{Value{1.0}}}, 1,     Value{"x"},   Value{"x"}},
 
       // a value that is not indexable by an integer still throws
-      CHECK_THROWS_AS(Value{MapType{}}.atOrDefault(0), IndexError);
-      CHECK_THROWS_AS(Value{true}.atOrDefault(0), IndexError);
-      CHECK_THROWS_AS(Value{1.0}.atOrDefault(0), IndexError);
-      CHECK_THROWS_AS(boundedRange.atOrDefault(0), IndexError);
-      CHECK_THROWS_AS(vec3.atOrDefault(0), IndexError);
-      CHECK_THROWS_AS(bbox.atOrDefault(0), IndexError);
-      CHECK_THROWS_AS(Value::Null.atOrDefault(0), IndexError);
-      CHECK_THROWS_AS(Value::Undefined.atOrDefault(0), IndexError);
+      {Value{MapType{}},             0,     std::nullopt, Error{"At unknown location: 0 is not a compatible index for '{}'"}},
+      {Value{true},                  0,     std::nullopt, Error{"At unknown location: 0 is not a compatible index for 'true'"}},
+      {Value{1.0},                   0,     std::nullopt, Error{"At unknown location: 0 is not a compatible index for '1'"}},
+      {boundedRange,                 0,     std::nullopt, Error{"At unknown location: 0 is not a compatible index for '[1..3]'"}},
+      {vec3,                         0,     std::nullopt, Error{"At unknown location: 0 is not a compatible index for 'vec(1, 2, 3)'"}},
+      {bbox,                         0,     std::nullopt, Error{"At unknown location: 0 is not a compatible index for 'bbox(vec(1, 2, 3), vec(4, 5, 6))'"}},
+      {Value::Null,                  0,     std::nullopt, Error{"At unknown location: 0 is not a compatible index for 'null'"}},
+      {Value::Undefined,             0,     std::nullopt, Error{"At unknown location: 0 is not a compatible index for 'undefined'"}},
+      }));
+      // clang-format on
+
+      CAPTURE(value, index, defaultValue);
+
+      CHECK(
+        withEvaluationContext([&](auto&) {
+          return defaultValue ? value.atOrDefault(index, *defaultValue)
+                              : value.atOrDefault(index);
+        })
+        == expectedResult);
     }
 
     SECTION("by key")
     {
-      const auto map = Value{MapType{{"a", Value{1.0}}}};
-      CHECK(map.atOrDefault("a") == Value{1.0});
-      CHECK(map.atOrDefault("b") == Value::Null);
-      CHECK(map.atOrDefault("b", Value{"x"}) == Value{"x"});
+      // clang-format off
+      const auto
+      [value,                             key, defaultValue, expectedResult] = GENERATE(table<Value, std::string, std::optional<Value>, Result<Value>>({
+      {Value{MapType{{"a", Value{1.0}}}}, "a", std::nullopt, Value{1.0}},
+      {Value{MapType{{"a", Value{1.0}}}}, "b", std::nullopt, Value::Null},
+      {Value{MapType{{"a", Value{1.0}}}}, "b", Value{"x"},   Value{"x"}},
 
-      CHECK_THROWS_AS(Value{"abc"}.atOrDefault("a"), IndexError);
-      CHECK_THROWS_AS(Value{ArrayType{}}.atOrDefault("a"), IndexError);
-      CHECK_THROWS_AS(Value{true}.atOrDefault("a"), IndexError);
-      CHECK_THROWS_AS(Value{1.0}.atOrDefault("a"), IndexError);
-      CHECK_THROWS_AS(boundedRange.atOrDefault("a"), IndexError);
-      CHECK_THROWS_AS(vec3.atOrDefault("a"), IndexError);
-      CHECK_THROWS_AS(bbox.atOrDefault("a"), IndexError);
-      CHECK_THROWS_AS(Value::Null.atOrDefault("a"), IndexError);
-      CHECK_THROWS_AS(Value::Undefined.atOrDefault("a"), IndexError);
+      {Value{"abc"},                      "a", std::nullopt, Error{R"(At unknown location: 'a' is not a compatible key for '"abc"')"}},
+      {Value{ArrayType{}},                "a", std::nullopt, Error{"At unknown location: 'a' is not a compatible key for '[]'"}},
+      {Value{true},                       "a", std::nullopt, Error{"At unknown location: 'a' is not a compatible key for 'true'"}},
+      {Value{1.0},                        "a", std::nullopt, Error{"At unknown location: 'a' is not a compatible key for '1'"}},
+      {boundedRange,                      "a", std::nullopt, Error{"At unknown location: 'a' is not a compatible key for '[1..3]'"}},
+      {vec3,                              "a", std::nullopt, Error{"At unknown location: 'a' is not a compatible key for 'vec(1, 2, 3)'"}},
+      {bbox,                              "a", std::nullopt, Error{"At unknown location: 'a' is not a compatible key for 'bbox(vec(1, 2, 3), vec(4, 5, 6))'"}},
+      {Value::Null,                       "a", std::nullopt, Error{"At unknown location: 'a' is not a compatible key for 'null'"}},
+      {Value::Undefined,                  "a", std::nullopt, Error{"At unknown location: 'a' is not a compatible key for 'undefined'"}},
+      }));
+      // clang-format on
+
+      CAPTURE(value, key, defaultValue);
+
+      CHECK(
+        withEvaluationContext([&](auto&) {
+          return defaultValue ? value.atOrDefault(key, *defaultValue)
+                              : value.atOrDefault(key);
+        })
+        == expectedResult);
     }
   }
 
   SECTION("location")
   {
-    const auto location = FileLocation{1, 2};
+    // clang-format off
+    const auto
+    [value,                                                                                    expectedLocation] = GENERATE(table<Value, std::optional<FileLocation>>({
+    {Value{1.0},                                                                               std::nullopt},
+    {Value{1.0}.producedBy(ExpressionNode{LiteralExpression{Value{1.0}}}),                     std::nullopt},
+    {Value{1.0}.producedBy(ExpressionNode{LiteralExpression{Value{1.0}}, FileLocation{1, 2}}), FileLocation{1, 2}},
+    {Value{1.0}.producedBy(ExpressionNode{LiteralExpression{Value{1.0}}, FileLocation{3}}),    FileLocation{3}},
+    }));
+    // clang-format on
 
-    CHECK(Value{1.0}.location() == std::nullopt);
-    CHECK(
-      Value{1.0}.producedBy(ExpressionNode{LiteralExpression{Value{1.0}}}).location()
-      == std::nullopt);
-    CHECK(
-      Value{1.0}
-        .producedBy(ExpressionNode{LiteralExpression{Value{1.0}}, location})
-        .location()
-      == location);
-    CHECK(
-      Value{1.0}
-        .producedBy(ExpressionNode{LiteralExpression{Value{1.0}}, FileLocation{3}})
-        .location()
-      == FileLocation{3});
+    CAPTURE(value);
+
+    CHECK(value.location() == expectedLocation);
   }
 
   SECTION("producedBy")
@@ -785,48 +1035,72 @@ TEST_CASE("Value")
 
   SECTION("operator==")
   {
-    CHECK(Value{true} == Value{true});
-    CHECK_FALSE(Value{true} == Value{false});
-    CHECK(Value{"a"} == Value{"a"});
-    CHECK_FALSE(Value{"a"} == Value{"b"});
-    CHECK(Value{1.0} == Value{1.0});
-    CHECK_FALSE(Value{1.0} == Value{2.0});
-    CHECK(Value{ArrayType{Value{1.0}}} == Value{ArrayType{Value{1.0}}});
-    CHECK_FALSE(Value{ArrayType{Value{1.0}}} == Value{ArrayType{}});
-    CHECK(Value{MapType{{"a", Value{1.0}}}} == Value{MapType{{"a", Value{1.0}}}});
-    CHECK_FALSE(Value{MapType{{"a", Value{1.0}}}} == Value{MapType{}});
-    CHECK(boundedRange == Value{RangeType{BoundedRange{1, 3}}});
-    CHECK_FALSE(boundedRange == leftBoundedRange);
-    CHECK(vec3 == Value{Vec3Type{1, 2, 3}});
-    CHECK_FALSE(vec3 == Value{Vec3Type{1, 2, 4}});
-    CHECK(bbox == Value{BBoxType{Vec3Type{1, 2, 3}, Vec3Type{4, 5, 6}}});
-    CHECK_FALSE(bbox == Value{BBoxType{Vec3Type{1, 2, 3}, Vec3Type{4, 5, 7}}});
-    CHECK(Value::Null == Value{});
-    CHECK(Value::Undefined == Value{UndefinedType::Value});
+    SECTION("values")
+    {
+      // clang-format off
+      const auto
+      [lhs,                               rhs,                                                   expectedResult] = GENERATE(table<Value, Value, bool>({
+      {Value{true},                       Value{true},                                           true},
+      {Value{true},                       Value{false},                                          false},
+      {Value{"a"},                        Value{"a"},                                            true},
+      {Value{"a"},                        Value{"b"},                                            false},
+      {Value{1.0},                        Value{1.0},                                            true},
+      {Value{1.0},                        Value{2.0},                                            false},
+      {Value{ArrayType{Value{1.0}}},      Value{ArrayType{Value{1.0}}},                          true},
+      {Value{ArrayType{Value{1.0}}},      Value{ArrayType{}},                                    false},
+      {Value{MapType{{"a", Value{1.0}}}}, Value{MapType{{"a", Value{1.0}}}},                     true},
+      {Value{MapType{{"a", Value{1.0}}}}, Value{MapType{}},                                      false},
+      {boundedRange,                      Value{RangeType{BoundedRange{1, 3}}},                  true},
+      {boundedRange,                      leftBoundedRange,                                      false},
+      {vec3,                              Value{Vec3Type{1, 2, 3}},                              true},
+      {vec3,                              Value{Vec3Type{1, 2, 4}},                              false},
+      {bbox,                              Value{BBoxType{Vec3Type{1, 2, 3}, Vec3Type{4, 5, 6}}}, true},
+      {bbox,                              Value{BBoxType{Vec3Type{1, 2, 3}, Vec3Type{4, 5, 7}}}, false},
+      {Value::Null,                       Value{},                                               true},
+      {Value::Undefined,                  Value{UndefinedType::Value},                           true},
 
-    // values of different types are never equal
-    CHECK_FALSE(Value::Null == Value::Undefined);
-    CHECK_FALSE(Value{1.0} == Value{"1"});
-    CHECK_FALSE(Value{true} == Value{1.0});
+      // values of different types are never equal
+      {Value::Null,                       Value::Undefined,                                      false},
+      {Value{1.0},                        Value{"1"},                                            false},
+      {Value{true},                       Value{1.0},                                            false},
+      }));
+      // clang-format on
 
-    // a value is equal to a copy of itself, which shares its representation
-    const auto value = Value{ArrayType{Value{1.0}}};
-    const auto copy = value;
-    CHECK(value == copy);
+      CAPTURE(lhs, rhs);
 
-    // NaN is equal to NaN, so that a number is equal to a copy of itself even though the
-    // copy doesn't share its representation
-    const auto nan = std::numeric_limits<NumberType>::quiet_NaN();
-    const auto number = Value{nan};
-    const auto numberCopy = number;
-    CHECK(number == numberCopy);
-    CHECK_FALSE(Value{nan} == Value{1.0});
+      CHECK((lhs == rhs) == expectedResult);
+    }
+
+    SECTION("copies")
+    {
+      // a value is equal to a copy of itself, which shares its representation
+      const auto value = Value{ArrayType{Value{1.0}}};
+      const auto copy = value;
+      CHECK(value == copy);
+
+      // NaN is equal to NaN, so that a number is equal to a copy of itself even though
+      // the copy doesn't share its representation
+      const auto nan = std::numeric_limits<NumberType>::quiet_NaN();
+      const auto number = Value{nan};
+      const auto numberCopy = number;
+      CHECK(number == numberCopy);
+      CHECK_FALSE(Value{nan} == Value{1.0});
+    }
   }
 
   SECTION("operator!=")
   {
-    CHECK_FALSE(Value{1.0} != Value{1.0});
-    CHECK(Value{1.0} != Value{2.0});
+    // clang-format off
+    const auto
+    [lhs,        rhs,        expectedResult] = GENERATE(table<Value, Value, bool>({
+    {Value{1.0}, Value{1.0}, false},
+    {Value{1.0}, Value{2.0}, true},
+    }));
+    // clang-format on
+
+    CAPTURE(lhs, rhs);
+
+    CHECK((lhs != rhs) == expectedResult);
   }
 
   SECTION("operator<<")

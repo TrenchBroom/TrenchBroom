@@ -147,6 +147,7 @@ target_sources(TbMdlLib
     ${CMAKE_CURRENT_SOURCE_DIR}/src/ParallelUvCoordSystem.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/ParaxialUvCoordSystem.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/ParseCompilationConfig.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/ParseConfigExpression.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/ParseGameConfig.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/ParseGameEngineConfig.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/ParseModelDefinition.cpp

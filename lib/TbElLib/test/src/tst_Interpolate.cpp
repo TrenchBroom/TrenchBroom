@@ -21,6 +21,8 @@
 #include "el/Value.h"
 #include "el/VariableStore.h"
 
+#include "kd/result_io.h" // IWYU pragma: keep
+
 #include <string>
 
 #include <catch2/catch_test_macros.hpp>
