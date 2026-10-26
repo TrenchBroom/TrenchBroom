@@ -34,7 +34,11 @@ namespace vm
 #define CHECK_SQRT(v) CHECK(sqrt(v) == approx(std::sqrt(v)));
 
 
-#define CE_CHECK_SQRT(v) CHECK(sqrt_c(v) == approx(std::sqrt(v)))
+#define CE_CHECK_SQRT(v)                                                                 \
+  {                                                                                      \
+    constexpr auto _r_r = sqrt(v);                                                       \
+    CHECK(_r_r == approx(std::sqrt(v)));                                                 \
+  }
 
 namespace
 {
@@ -708,14 +712,8 @@ TEST_CASE("scalar")
     {
       CHECK_SQRT(v)
     }
-
-    CHECK(is_nan(sqrt(nan<double>())));
-    CHECK(is_nan(sqrt(-1.0)));
     CHECK_SQRT(std::numeric_limits<double>::infinity());
-  }
 
-  SECTION("sqrt_c")
-  {
     CE_CHECK_SQRT(0.0);
     CE_CHECK_SQRT(0.2);
     CE_CHECK_SQRT(1.0);
@@ -726,8 +724,8 @@ TEST_CASE("scalar")
     CE_CHECK_SQRT(223235.2394839489348);
     CE_CHECK_SQRT(std::numeric_limits<double>::infinity());
 
-    CE_CHECK(is_nan(sqrt_c(nan<double>())));
-    CE_CHECK(is_nan(sqrt_c(-1.0)));
+    CER_CHECK(is_nan(sqrt(nan<double>())));
+    CER_CHECK(is_nan(sqrt(-1.0)));
   }
 
   SECTION("solve_quadratic")

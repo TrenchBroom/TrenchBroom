@@ -205,23 +205,10 @@ public:
    * @param transform the transformation to apply
    * @return the transformed plane
    */
-  plane<T, S> transform(const mat<T, S + 1, S + 1>& transform) const
+  constexpr plane<T, S> transform(const mat<T, S + 1, S + 1>& transform) const
   {
     return plane<T, S>(
       transform * anchor(), normalize(strip_translation(transform) * normal));
-  }
-
-  /**
-   * Transforms this plane using the given transformation matrix at compile time. The
-   * translational part is not applied to the normal.
-   *
-   * @param transform the transformation to apply
-   * @return the transformed plane
-   */
-  constexpr plane<T, S> transform_c(const mat<T, S + 1, S + 1>& transform) const
-  {
-    return plane<T, S>(
-      transform * anchor(), normalize_c(strip_translation(transform) * normal));
   }
 
   /**

@@ -74,27 +74,20 @@ TEST_CASE("ray")
 
   SECTION("transform")
   {
-    const auto r = ray3d{vec3d{1, 1, 1}, vec3d{0, 0, 1}};
+    constexpr auto r = ray3d{vec3d{1, 1, 1}, vec3d{0, 0, 1}};
+    constexpr auto tm = translation_matrix(vec3d{1, 1, 1});
+    CER_CHECK(is_unit(r.direction, vm::Cd::almost_zero()));
+
     const auto rm =
       rotation_matrix(to_radians(15.0), to_radians(20.0), to_radians(-12.0));
-    const auto tm = translation_matrix(vec3d{1, 1, 1});
-
     const auto rt = r.transform(rm * tm);
-    CHECK(is_unit(r.direction, vm::Cd::almost_zero()));
     CHECK(rt.origin == approx(rm * tm * r.origin));
     CHECK(rt.direction == approx(rm * r.direction));
-  }
 
-  SECTION("transform_c")
-  {
-    constexpr auto r = ray3d{vec3d{1, 1, 1}, vec3d{0, 0, 1}};
     constexpr auto sm = scaling_matrix(vec3d{2.0, 0.5, -2.0});
-    constexpr auto tm = translation_matrix(vec3d{1, 1, 1});
-
-    constexpr auto rt = r.transform_c(sm * tm);
-    CER_CHECK(is_unit_c(r.direction, vm::Cd::almost_zero()));
-    CER_CHECK(rt.origin == approx(sm * tm * r.origin));
-    CER_CHECK(rt.direction == approx(normalize_c(sm * r.direction)));
+    constexpr auto st = r.transform(sm * tm);
+    CER_CHECK(st.origin == approx(sm * tm * r.origin));
+    CER_CHECK(st.direction == approx(normalize(sm * r.direction)));
   }
 
   SECTION("point_status")

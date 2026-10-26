@@ -56,7 +56,7 @@ TEST_CASE("plane")
   SECTION("constructor_with_distance_and_normal")
   {
     constexpr auto d = 123.0f;
-    constexpr auto n = normalize_c(vec3f{1.0f, 2.0f, 3.0f});
+    constexpr auto n = normalize(vec3f{1.0f, 2.0f, 3.0f});
     constexpr auto p = plane3f{d, n};
     CER_CHECK(p.distance == approx(d));
     CER_CHECK(p.normal == approx(n));
@@ -65,7 +65,7 @@ TEST_CASE("plane")
   SECTION("constructor_with_anchor_and_normal")
   {
     constexpr auto a = vec3f{-2038.034f, 0.0023f, 32.0f};
-    constexpr auto n = normalize_c(vec3f{9.734f, -3.393f, 2.033f});
+    constexpr auto n = normalize(vec3f{9.734f, -3.393f, 2.033f});
     constexpr auto p = plane3f{a, n};
     CER_CHECK(p.distance == approx(dot(a, n)));
     CER_CHECK(p.normal == approx(n));
@@ -74,7 +74,7 @@ TEST_CASE("plane")
   SECTION("anchor")
   {
     constexpr auto a = vec3f{-2038.034f, 0.0023f, 32.0f};
-    constexpr auto n = normalize_c(vec3f{9.734f, -3.393f, 2.033f});
+    constexpr auto n = normalize(vec3f{9.734f, -3.393f, 2.033f});
     constexpr auto p = plane3f{a, n};
     CER_CHECK(p.anchor() == approx(p.distance * n));
   }
@@ -82,7 +82,7 @@ TEST_CASE("plane")
   SECTION("at")
   {
     constexpr auto a = vec3f{-2038.034f, 0.0023f, 32.0f};
-    constexpr auto n = normalize_c(vec3f{9.734f, -3.393f, 2.033f});
+    constexpr auto n = normalize(vec3f{9.734f, -3.393f, 2.033f});
     constexpr auto p = plane3f{a, n};
     constexpr auto point1 = vec2f{27.022f, -12.0123223f};
 
@@ -118,7 +118,7 @@ TEST_CASE("plane")
   SECTION("xyz_at")
   {
     constexpr auto a = vec3f{-2038.034f, 0.0023f, 32.0f};
-    constexpr auto n = normalize_c(vec3f{9.734f, -3.393f, 2.033f});
+    constexpr auto n = normalize(vec3f{9.734f, -3.393f, 2.033f});
     constexpr auto p = plane3f{a, n};
     constexpr auto point1 = vec2f{27.022f, -12.0123223f};
 
@@ -130,7 +130,7 @@ TEST_CASE("plane")
   SECTION("point_distance")
   {
     constexpr auto a = vec3f{-2038.034f, 0.0023f, 32.0f};
-    constexpr auto n = normalize_c(vec3f{9.734f, -3.393f, 2.033f});
+    constexpr auto n = normalize(vec3f{9.734f, -3.393f, 2.033f});
     constexpr auto p = plane3f{a, n};
     constexpr auto point = vec3f{1.0f, -32.37873f, 32.0f};
     CER_CHECK(p.point_distance(point) == dot(point, p.normal) - p.distance);
@@ -152,27 +152,20 @@ TEST_CASE("plane")
 
   SECTION("transform")
   {
-    const auto p = plane3d{vec3d{1, 1, 1}, vec3d{0, 0, 1}};
+    constexpr auto p = plane3d{vec3d{1, 1, 1}, vec3d{0, 0, 1}};
+    constexpr auto tm = translation_matrix(vec3d{1, 1, 1});
+    CER_CHECK(is_unit(p.normal, vm::Cd::almost_zero()));
+
     const auto rm =
       rotation_matrix(to_radians(15.0), to_radians(20.0), to_radians(-12.0));
-    const auto tm = translation_matrix(vec3d{1, 1, 1});
+    const auto rt = p.transform(rm * tm);
+    CHECK(rt.point_status(rm * tm * p.anchor()) == plane_status::inside);
+    CHECK(rt.normal == approx(rm * p.normal));
 
-    const auto pt = p.transform(rm * tm);
-    CHECK(is_unit(p.normal, vm::Cd::almost_zero()));
-    CHECK(pt.point_status(rm * tm * p.anchor()) == plane_status::inside);
-    CHECK(pt.normal == approx(rm * p.normal));
-  }
-
-  SECTION("transform_c")
-  {
-    constexpr auto p = plane3d{vec3d{1, 1, 1}, vec3d{0, 0, 1}};
     constexpr auto sm = scaling_matrix(vec3d{2.0, 0.5, 3.0});
-    constexpr auto tm = translation_matrix(vec3d{1, 1, 1});
-
-    constexpr auto pt = p.transform_c(sm * tm);
-    CER_CHECK(is_unit_c(p.normal, vm::Cd::almost_zero()))
-    CHECK(pt.point_status(sm * tm * p.anchor()) == plane_status::inside);
-    CHECK(pt.normal == approx(normalize_c(sm * p.normal)));
+    constexpr auto st = p.transform(sm * tm);
+    CER_CHECK(st.point_status(sm * tm * p.anchor()) == plane_status::inside);
+    CER_CHECK(st.normal == approx(normalize(sm * p.normal)));
   }
 
   SECTION("project_point")
@@ -184,7 +177,7 @@ TEST_CASE("plane")
       plane3d{0.0, vec3d{0, 0, 1}}.project_point(vec3d{1, 2, 10})
       == approx(vec3d{1, 2, 0}));
     CER_CHECK(
-      plane3d{0.0, normalize_c(vec3d{1, 1, 1})}.project_point(vec3d{10, 10, 10})
+      plane3d{0.0, normalize(vec3d{1, 1, 1})}.project_point(vec3d{10, 10, 10})
       == approx(vec3d{0, 0, 0}));
   }
 
@@ -198,7 +191,7 @@ TEST_CASE("plane")
       == approx(vec3d{1, 2, 0}));
     CER_CHECK(
       plane3d{0.0, vec3d{0, 0, 1}}.project_point(
-        vec3d{10, 10, 10}, normalize_c(vec3d{1, 1, 1}))
+        vec3d{10, 10, 10}, normalize(vec3d{1, 1, 1}))
       == approx(vec3d{0, 0, 0}));
   }
 
@@ -222,7 +215,7 @@ TEST_CASE("plane")
       == approx(vec3d{1, 1, 0}));
     CER_CHECK(
       plane3d{0.0, vec3d{0, 0, 1}}.project_vector(
-        vec3d{1, 1, 1}, normalize_c(vec3d{1, 1, -1}))
+        vec3d{1, 1, 1}, normalize(vec3d{1, 1, -1}))
       == approx(vec3d{2, 2, 0}));
   }
 
@@ -257,7 +250,7 @@ TEST_CASE("plane")
     CER_CHECK_FALSE(plane3d{20.0, vec3d{0, 0, 1}} == plane3d{10.0, vec3d{0, 0, 1}});
     CER_CHECK_FALSE(plane3d{10.0, vec3d{0, 0, -1}} == plane3d{10.0, vec3d{0, 0, 1}});
     CER_CHECK_FALSE(
-      plane3d{10.0, normalize_c(vec3d{1, 1, 1})} == plane3d{10.0, vec3d{0, 0, 1}});
+      plane3d{10.0, normalize(vec3d{1, 1, 1})} == plane3d{10.0, vec3d{0, 0, 1}});
   }
 
   SECTION("operator_not_equal")
@@ -266,8 +259,7 @@ TEST_CASE("plane")
     CER_CHECK_FALSE(plane3d{10.0, vec3d{0, 0, 1}} != plane3d{10.0, vec3d{0, 0, 1}});
     CER_CHECK(plane3d{20.0, vec3d{0, 0, 1}} != plane3d{10.0, vec3d{0, 0, 1}});
     CER_CHECK(plane3d{10.0, vec3d{0, 0, -1}} != plane3d{10.0, vec3d{0, 0, 1}});
-    CER_CHECK(
-      plane3d{10.0, normalize_c(vec3d{1, 1, 1})} != plane3d{10.0, vec3d{0, 0, 1}});
+    CER_CHECK(plane3d{10.0, normalize(vec3d{1, 1, 1})} != plane3d{10.0, vec3d{0, 0, 1}});
   }
 
   SECTION("plane_normal")
@@ -398,7 +390,7 @@ TEST_CASE("plane")
   SECTION("aligned_orthogonal_plane")
   {
     constexpr auto position = vec3f{322.0f, -122.2392f, 34.0f};
-    constexpr auto direction = normalize_c(vec3f{1.0f, 2.0f, -3.0f});
+    constexpr auto direction = normalize(vec3f{1.0f, 2.0f, -3.0f});
     constexpr auto p = aligned_orthogonal_plane(position, direction);
     CER_CHECK(p.point_status(position) == plane_status::inside)
     CER_CHECK(p.normal == approx(vec3f{0, 0, -1}));

@@ -108,25 +108,10 @@ public:
    * @param transform the transformation to apply
    * @return the transformed ray
    */
-  ray<T, S> transform(const mat<T, S + 1, S + 1>& transform) const
+  constexpr ray<T, S> transform(const mat<T, S + 1, S + 1>& transform) const
   {
     const auto newOrigin = transform * origin;
     const auto newDirection = normalize(strip_translation(transform) * direction);
-    return ray<T, S>(newOrigin, newDirection);
-  }
-
-  /**
-   * Transforms this line using the given transformation matrix at compile time. The
-   * translational part is not applied to the direction, and the direction is normalized
-   * after the transformation has been applied.
-   *
-   * @param transform the transformation to apply
-   * @return the transformed ray
-   */
-  constexpr ray<T, S> transform_c(const mat<T, S + 1, S + 1>& transform) const
-  {
-    const auto newOrigin = transform * origin;
-    const auto newDirection = normalize_c(strip_translation(transform) * direction);
     return ray<T, S>(newOrigin, newDirection);
   }
 

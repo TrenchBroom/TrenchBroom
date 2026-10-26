@@ -328,7 +328,7 @@ TEST_CASE("intersection")
 
     constexpr auto origin = vec3f{-10.0f, -7.0f, 14.0f};
     constexpr auto diff = vec3f{-2.0f, 3.0f, 8.0f} - origin;
-    constexpr auto dir = normalize_c(diff);
+    constexpr auto dir = normalize(diff);
     CHECK(intersect_ray_bbox(ray3f{origin, dir}, bounds) == approx(length(diff)));
   }
 
@@ -404,7 +404,7 @@ TEST_CASE("intersection")
   SECTION("intersect_line_plane")
   {
     constexpr auto p = plane3f{5.0f, vec3f{0, 0, 1}};
-    constexpr auto l = line3f{vec3f{0, 0, 15}, normalize_c(vec3f{1, 0, -1})};
+    constexpr auto l = line3f{vec3f{0, 0, 15}, normalize(vec3f{1, 0, -1})};
     CER_CHECK(
       point_at_distance(l, *intersect_line_plane(l, p)) == approx(vec3f{10, 0, 5}));
   }

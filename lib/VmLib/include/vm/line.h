@@ -101,24 +101,10 @@ public:
    * @param transform the transformation to apply
    * @return the transformed line
    */
-  line<T, S> transform(const mat<T, S + 1, S + 1>& transform) const
+  constexpr line<T, S> transform(const mat<T, S + 1, S + 1>& transform) const
   {
     return line<T, S>(
       transform * point, normalize(strip_translation(transform) * direction));
-  }
-
-  /**
-   * Transforms this line using the given transformation matrix at compile time. The
-   * translational part is not applied to the direction, and the direction is normalized
-   * after the transformation was applied.
-   *
-   * @param transform the transformation to apply
-   * @return the transformed line
-   */
-  constexpr line<T, S> transform_c(const mat<T, S + 1, S + 1>& transform) const
-  {
-    return line<T, S>(
-      transform * point, normalize_c(strip_translation(transform) * direction));
   }
 
   /**

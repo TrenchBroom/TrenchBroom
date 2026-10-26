@@ -1151,23 +1151,9 @@ constexpr T squared_length(const vec<T, S>& vec)
  * @return the length of the given vector
  */
 template <typename T, std::size_t S>
-T length(const vec<T, S>& vec)
+constexpr T length(const vec<T, S>& vec)
 {
   return sqrt(squared_length(vec));
-}
-
-/**
- * Returns the length of the given vector at compile time.
- *
- * @tparam T the component type
- * @tparam S the number of components
- * @param vec the vector to return the length of
- * @return the length of the given vector
- */
-template <typename T, std::size_t S>
-constexpr T length_c(const vec<T, S>& vec)
-{
-  return sqrt_c(squared_length(vec));
 }
 
 /**
@@ -1179,23 +1165,9 @@ constexpr T length_c(const vec<T, S>& vec)
  * @return the normalized vector
  */
 template <typename T, std::size_t S>
-vec<T, S> normalize(const vec<T, S>& vec)
+constexpr vec<T, S> normalize(const vec<T, S>& vec)
 {
   return vec / length(vec);
-}
-
-/**
- * Normalizes the given vector at compile time.
- *
- * @tparam T the component type
- * @tparam S the number of components
- * @param vec the vector to return the squared length of
- * @return the normalized vector
- */
-template <typename T, std::size_t S>
-constexpr vec<T, S> normalize_c(const vec<T, S>& vec)
-{
-  return vec / length_c(vec);
 }
 
 /**
@@ -1260,24 +1232,9 @@ constexpr vec<T, 3> unswizzle(const vec<T, 3>& point, const std::size_t axis)
  * @return true if the given vector has a length of 1 and false otherwise
  */
 template <typename T, std::size_t S>
-bool is_unit(const vec<T, S>& v, const T epsilon)
+constexpr bool is_unit(const vec<T, S>& v, const T epsilon)
 {
   return is_equal(length(v), T(1.0), epsilon);
-}
-
-/**
- * Checks whether the given vector has unit length (1) at compile time.
- *
- * @tparam T the component type
- * @tparam S the number of components
- * @param v the vector to check
- * @param epsilon the epsilon value
- * @return true if the given vector has a length of 1 and false otherwise
- */
-template <typename T, std::size_t S>
-constexpr bool is_unit_c(const vec<T, S>& v, const T epsilon)
-{
-  return is_equal(length_c(v), T(1.0), epsilon);
 }
 
 /**
@@ -1444,24 +1401,9 @@ constexpr vec<T, S> mod(const vec<T, S>& v, const vec<T, S>& f)
  * @return the distance between the given points
  */
 template <typename T, std::size_t S>
-T distance(const vec<T, S>& lhs, const vec<T, S>& rhs)
+constexpr T distance(const vec<T, S>& lhs, const vec<T, S>& rhs)
 {
   return length(lhs - rhs);
-}
-
-/**
- * Computes the distance between two given points at compile time.
- *
- * @tparam T the component type
- * @tparam S the number of components
- * @param lhs the first point
- * @param rhs the second point
- * @return the distance between the given points
- */
-template <typename T, std::size_t S>
-constexpr T distance_c(const vec<T, S>& lhs, const vec<T, S>& rhs)
-{
-  return length_c(lhs - rhs);
 }
 
 /**
@@ -1562,34 +1504,12 @@ constexpr bool is_colinear(
  * @return true if the given vectors are parallel, and false otherwise
  */
 template <typename T, std::size_t S>
-bool is_parallel(
+constexpr bool is_parallel(
   const vec<T, S>& lhs,
   const vec<T, S>& rhs,
   const T epsilon = constants<T>::colinear_epsilon())
 {
   const T cos = dot(normalize(lhs), normalize(rhs));
-  return is_equal(abs(cos), T(1.0), epsilon);
-}
-
-/**
- * Checks whether the given vectors are parallel at compile time. Two vectors are
- * considered to be parallel if and only if they point in the same or in opposite
- * directions.
- *
- * @tparam T the component type
- * @tparam S the number of components
- * @param lhs the first vector
- * @param rhs the second vector
- * @param epsilon the epsilon value
- * @return true if the given vectors are parallel, and false otherwise
- */
-template <typename T, std::size_t S>
-constexpr bool is_parallel_c(
-  const vec<T, S>& lhs,
-  const vec<T, S>& rhs,
-  const T epsilon = constants<T>::colinear_epsilon())
-{
-  const T cos = dot(normalize_c(lhs), normalize_c(rhs));
   return is_equal(abs(cos), T(1.0), epsilon);
 }
 
@@ -1778,39 +1698,7 @@ constexpr vec<T, S> correct(
  * @return true if the given point is contained within the segment
  */
 template <typename T, std::size_t S>
-bool is_between(const vec<T, S>& p, const vec<T, S>& start, const vec<T, S>& end)
-{
-  assert(is_colinear(p, start, end));
-
-  if (p == start || p == end)
-  {
-    return true;
-  }
-  else
-  {
-    const auto toStart = start - p;
-    const auto toEnd = end - p;
-
-    const auto d = dot(toEnd, normalize(toStart));
-    return d < T(0.0);
-  }
-}
-
-/**
- * Given three colinear points, this function checks whether the first point is contained
- * in a segment formed by the other two points at compile time.
- *
- * The result is undefined for the case of non-colinear points.
- *
- * @tparam T the component type
- * @tparam S the number of components
- * @param p the point to check
- * @param start the segment start
- * @param end the segment end
- * @return true if the given point is contained within the segment
- */
-template <typename T, std::size_t S>
-constexpr bool is_between_c(
+constexpr bool is_between(
   const vec<T, S>& p, const vec<T, S>& start, const vec<T, S>& end)
 {
   assert(is_colinear(p, start, end));
@@ -1824,7 +1712,7 @@ constexpr bool is_between_c(
     const auto toStart = start - p;
     const auto toEnd = end - p;
 
-    const auto d = dot(toEnd, normalize_c(toStart));
+    const auto d = dot(toEnd, normalize(toStart));
     return d < T(0.0);
   }
 }

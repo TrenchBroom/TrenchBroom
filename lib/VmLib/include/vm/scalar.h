@@ -919,16 +919,21 @@ constexpr T sqrt_c_nr(const T x, const T curr, const T prev)
 }
 
 /**
- * Computes the square root of the given value at compile time.
+ * Computes the square root of the given value.
  *
  * @tparam T the argument type, which must be a floating point type
  * @param value the value or NaN if an error occurs
  * @return the square root of the value
  */
 template <typename T>
-constexpr T sqrt_c(const T value)
+constexpr T sqrt(const T value)
 {
   static_assert(std::is_floating_point_v<T>, "T must be a floating point type");
+  if (!std::is_constant_evaluated())
+  {
+    return std::sqrt(value);
+  }
+
   if (is_nan(value) || value == std::numeric_limits<T>::infinity())
   {
     return value;
@@ -941,20 +946,6 @@ constexpr T sqrt_c(const T value)
   {
     return std::numeric_limits<T>::quiet_NaN();
   }
-}
-
-/**
- * Computes the square root of the given value.
- *
- * @tparam T the argument type, which must be a floating point type
- * @param value the value or NaN if an error occurs
- * @return the square root of the value
- */
-template <typename T>
-T sqrt(const T value)
-{
-  static_assert(std::is_floating_point_v<T>, "T must be a floating point type");
-  return std::sqrt(value);
 }
 
 /**
