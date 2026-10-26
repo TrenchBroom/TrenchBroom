@@ -173,6 +173,27 @@ TEST_CASE("plane")
     CER_CHECK(
       oblique.transform(mirror).point_status(mirror * (oblique.anchor() + oblique.normal))
       == plane_status::above);
+
+    // points on the plane stay on it when the transformation scales non-uniformly
+    constexpr auto scaled = oblique.transform(sm);
+    CER_CHECK(
+      scaled.point_status(sm * (oblique.anchor() + vec3d{2, -1, 0}))
+      == plane_status::inside);
+
+    // points on the plane stay on it when the transformation scales non-uniformly and
+    // shears it
+    constexpr auto skew =
+      shear_matrix(0.5, 0.0, 0.0, -0.25, 0.0, 0.0) * scaling_matrix(vec3d{2, 1, 3});
+    constexpr auto skewed = oblique.transform(skew);
+    CER_CHECK(
+      skewed.point_status(skew * (oblique.anchor() + vec3d{2, -1, 0}))
+      == plane_status::inside);
+    CER_CHECK(
+      skewed.point_status(skew * (oblique.anchor() + vec3d{3, 0, -1}))
+      == plane_status::inside);
+    CER_CHECK(
+      skewed.point_status(skew * (oblique.anchor() + oblique.normal))
+      == plane_status::above);
   }
 
   SECTION("project_point")

@@ -200,8 +200,9 @@ public:
   }
 
   /**
-   * Transforms this plane using the given transformation matrix. The translational part
-   * is not applied to the normal.
+   * Transforms this plane using the given transformation matrix. The normal is
+   * transformed by the inverse transpose of the transformation without its translational
+   * part, so that it remains perpendicular to the transformed plane.
    *
    * @param transform the transformation to apply, which must be affine
    * @return the transformed plane
@@ -209,8 +210,7 @@ public:
   constexpr plane<T, S> transform(const mat<T, S + 1, S + 1>& transform) const
   {
     assert(is_affine(transform));
-    return plane<T, S>(
-      transform * anchor(), normalize(strip_translation(transform) * normal));
+    return plane<T, S>(transform * anchor(), normalize(transform_normal(transform)));
   }
 
   /**
@@ -271,6 +271,20 @@ public:
       return *point - anchor();
     }
     return std::nullopt;
+  }
+
+private:
+  /**
+   * Returns this plane's normal transformed by the inverse transpose of the given
+   * transformation without its translational part. The result is not normalized.
+   */
+  constexpr vec<T, S> transform_normal(const mat<T, S + 1, S + 1>& transform) const
+  {
+    // The transposed adjugate is the inverse transpose multiplied by the determinant, so
+    // we flip it for transformations that reverse the orientation
+    const auto linear = slice<S, S>(transform, 0, 0);
+    return transpose(compute_adjugate(linear)) * normal
+           * sign(compute_determinant(linear));
   }
 };
 
