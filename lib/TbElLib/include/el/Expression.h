@@ -33,6 +33,8 @@
 namespace tb::el
 {
 
+struct BuiltinFunction;
+
 std::ostream& operator<<(std::ostream& lhs, const Expression& rhs);
 
 struct LiteralExpression
@@ -225,6 +227,7 @@ struct InfixCall
   static constexpr size_t precedence = 13;
 
   std::string functionName;
+  const BuiltinFunction* cachedFunction;
 
   kdl_reflect_decl(InfixCall, functionName);
 };
@@ -292,11 +295,18 @@ struct CallExpression
 {
   std::string name;
   std::vector<ExpressionNode> arguments;
+  const BuiltinFunction* cachedFunction;
 };
 
 bool operator==(const CallExpression& lhs, const CallExpression& rhs);
 
 std::ostream& operator<<(std::ostream& lhs, const CallExpression& rhs);
+
+/**
+ * Returns the built-in function with the given name, or null if there is no such
+ * function.
+ */
+const BuiltinFunction* findBuiltinFunction(const std::string& name);
 
 /**
  * Returns the number of arguments of the built-in function with the given name, or
