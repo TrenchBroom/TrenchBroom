@@ -964,14 +964,12 @@ Value evaluateCase(const EvaluateLhs& evaluateLhs, const EvaluateRhs& evaluateRh
 }
 
 Value evaluateCall(
-  EvaluationContext& context,
   const std::string& name,
   const std::vector<Value>& arguments,
   const ExpressionNode& expressionNode);
 
 template <typename EvalualateLhs, typename EvaluateRhs>
 Value evaluateBinaryExpression(
-  EvaluationContext& context,
   const BinaryOperation& operator_,
   const EvalualateLhs& evaluateLhs,
   const EvaluateRhs& evaluateRhs,
@@ -1039,23 +1037,19 @@ Value evaluateBinaryExpression(
       [&](const binop::Case&) { return evaluateCase(evaluateLhs, evaluateRhs); },
       [&](const binop::InfixCall& infixCall) {
         return evaluateCall(
-          context,
-          infixCall.functionName,
-          {evaluateLhs(), evaluateRhs()},
-          expressionNode);
+          infixCall.functionName, {evaluateLhs(), evaluateRhs()}, expressionNode);
       }),
     operator_);
 }
 
 template <typename Evaluator>
 Value evaluate(
-  EvaluationContext& context,
+  EvaluationContext&,
   const Evaluator& evaluator,
   const BinaryExpression& expression,
   const ExpressionNode& expressionNode)
 {
   return evaluateBinaryExpression(
-    context,
     expression.operation,
     [&] { return expression.leftOperand.accept(evaluator); },
     [&] { return expression.rightOperand.accept(evaluator); },
@@ -1496,9 +1490,7 @@ Value evaluateContains(
 struct BuiltinFunction
 {
   size_t arity;
-  std::function<Value(
-    EvaluationContext&, const std::vector<Value>&, const ExpressionNode&)>
-    evaluate;
+  std::function<Value(const std::vector<Value>&, const ExpressionNode&)> evaluate;
 };
 
 bool hasUndefinedArgument(const std::vector<Value>& arguments)
@@ -1511,7 +1503,7 @@ bool hasUndefinedArgument(const std::vector<Value>& arguments)
 const auto builtinFunctions = kdl::flat_map<std::string, BuiltinFunction>{
   {"vec",
    {3,
-    [](auto&, const auto& arguments, const auto&) {
+    [](const auto& arguments, const auto&) {
       if (hasUndefinedArgument(arguments))
       {
         return Value::Undefined;
@@ -1524,7 +1516,7 @@ const auto builtinFunctions = kdl::flat_map<std::string, BuiltinFunction>{
     }}},
   {"bbox",
    {2,
-    [](auto&, const auto& arguments, const auto&) {
+    [](const auto& arguments, const auto&) {
       if (hasUndefinedArgument(arguments))
       {
         return Value::Undefined;
@@ -1535,7 +1527,7 @@ const auto builtinFunctions = kdl::flat_map<std::string, BuiltinFunction>{
     }}},
   {"distanceTo",
    {2,
-    [](auto&, const auto& arguments, const auto&) {
+    [](const auto& arguments, const auto&) {
       if (hasUndefinedArgument(arguments))
       {
         return Value::Undefined;
@@ -1546,7 +1538,7 @@ const auto builtinFunctions = kdl::flat_map<std::string, BuiltinFunction>{
     }}},
   {"intersects",
    {2,
-    [](auto&, const auto& arguments, const auto&) {
+    [](const auto& arguments, const auto&) {
       if (hasUndefinedArgument(arguments))
       {
         return Value::Undefined;
@@ -1557,28 +1549,27 @@ const auto builtinFunctions = kdl::flat_map<std::string, BuiltinFunction>{
     }}},
   {"like",
    {2,
-    [](auto&, const auto& arguments, const auto&) {
+    [](const auto& arguments, const auto&) {
       return evaluateLike(arguments[0], arguments[1]);
     }}},
   {"contains",
    {2,
-    [](auto&, const auto& arguments, const auto& expressionNode) {
+    [](const auto& arguments, const auto& expressionNode) {
       return evaluateContains(arguments[0], arguments[1], expressionNode);
     }}},
   {"in",
    {2,
-    [](auto&, const auto& arguments, const auto& expressionNode) {
+    [](const auto& arguments, const auto& expressionNode) {
       return evaluateContains(arguments[1], arguments[0], expressionNode);
     }}},
   {"is",
    {2,
-    [](auto&, const auto& arguments, const auto& expressionNode) {
+    [](const auto& arguments, const auto& expressionNode) {
       return Value{evaluateCompare(arguments[0], arguments[1], expressionNode) == 0};
     }}},
 };
 
 Value evaluateCall(
-  EvaluationContext& context,
   const std::string& name,
   const std::vector<Value>& arguments,
   const ExpressionNode& expressionNode)
@@ -1599,7 +1590,7 @@ Value evaluateCall(
 
     try
     {
-      return function.evaluate(context, arguments, expressionNode);
+      return function.evaluate(arguments, expressionNode);
     }
     catch (const ConversionError& e)
     {
@@ -1616,7 +1607,7 @@ Value evaluateCall(
 
 template <typename Evaluator>
 Value evaluate(
-  EvaluationContext& context,
+  EvaluationContext&,
   const Evaluator& evaluator,
   const CallExpression& expression,
   const ExpressionNode& expressionNode)
@@ -1627,7 +1618,7 @@ Value evaluate(
                            })
                          | kdl::ranges::to<std::vector>();
 
-  return evaluateCall(context, expression.name, arguments, expressionNode);
+  return evaluateCall(expression.name, arguments, expressionNode);
 }
 
 template <typename Evaluator>
@@ -1741,7 +1732,6 @@ Expression optimize(
   if (isLiteral)
   {
     return LiteralExpression{evaluateBinaryExpression(
-      context,
       expression.operation,
       [&] { return optimizedLeftOperand.evaluate(context); },
       [&] { return optimizedRightOperand.evaluate(context); },
@@ -1815,8 +1805,7 @@ Expression optimize(
                           })
                         | kdl::ranges::to<std::vector>();
 
-    return LiteralExpression{
-      evaluateCall(context, expression.name, values, expressionNode)};
+    return LiteralExpression{evaluateCall(expression.name, values, expressionNode)};
   }
 
   return CallExpression{expression.name, std::move(optimizedArguments)};
