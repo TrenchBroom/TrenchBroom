@@ -625,6 +625,12 @@ TEST_CASE("intersection")
 
       // bbox face lies in polygon plane
       CHECK(intersect_bbox_polygon(bbox7, std::begin(poly), std::end(poly)));
+
+      // polygon edge passes through bbox, but no bbox edge intersects polygon
+      constexpr auto sliver = std::array<vec3d, 3>{
+        vec3d{-5.0, -0.1, 0.0}, vec3d{5.0, -0.1, 0.0}, vec3d{5.0, 0.1, 0.0}};
+      CER_CHECK(intersect_bbox_polygon(
+        bbox3d{{-1, -1, -1}, {1, 1, 1}}, std::begin(sliver), std::end(sliver)));
     }
   }
 

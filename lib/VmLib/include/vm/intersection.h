@@ -810,28 +810,24 @@ constexpr bool intersect_bbox_polygon(
     }
   }
 
-  const auto pl =
-    from_points(get(*begin), get(*std::next(begin)), get(*std::next(begin, 2)));
-  assert(pl);
-
   // 2
   for (auto cur = begin; cur != end; ++cur)
   {
     const auto next = std::next(cur) != end ? std::next(cur) : begin;
 
+    // No vertex is inside the box, so if the edge intersects the box, it enters the box
+    // between its start (at distance 0) and its end (at distance 1)
     const auto start = get(*cur);
-    const auto dir = get(*next) - start;
-    const auto ln = line<T, 3>{start, dir};
-    const auto d = intersect_line_plane(ln, *pl);
-    if (d && *d >= T(0) && *d <= T(1))
+    const auto edge = ray<T, 3>{start, get(*next) - start};
+    if (const auto d = intersect_ray_bbox(edge, bbox); d && *d <= T(1))
     {
-      const auto pt = pl->project_point(point_at_distance(ln, *d));
-      if (polygon_contains_point(pt, cur, end, get))
-      {
-        return true;
-      }
+      return true;
     }
   }
+
+  const auto pl =
+    from_points(get(*begin), get(*std::next(begin)), get(*std::next(begin, 2)));
+  assert(pl);
 
   // 3
   auto edgeIsect = false;
