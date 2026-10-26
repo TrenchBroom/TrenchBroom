@@ -166,6 +166,13 @@ TEST_CASE("plane")
     constexpr auto st = p.transform(sm * tm);
     CER_CHECK(st.point_status(sm * tm * p.anchor()) == plane_status::inside);
     CER_CHECK(st.normal == approx(normalize(sm * p.normal)));
+
+    // a point above the plane stays above it when the transformation mirrors it
+    constexpr auto oblique = plane3d{vec3d{1, 1, 1}, normalize(vec3d{1, 2, 3})};
+    constexpr auto mirror = scaling_matrix(vec3d{-1, 1, 1});
+    CER_CHECK(
+      oblique.transform(mirror).point_status(mirror * (oblique.anchor() + oblique.normal))
+      == plane_status::above);
   }
 
   SECTION("project_point")
