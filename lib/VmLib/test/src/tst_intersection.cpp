@@ -597,10 +597,19 @@ TEST_CASE("intersection")
     constexpr auto bbox2 = bbox3d{{-1.1, -1.1, -1}, {-0.9, -0.9, 1}};
     constexpr auto bbox3 = bbox3d{{0, 0, 0}, {2, 2, 2}};
     constexpr auto bbox4 = bbox3d{{0.9, -0.1, -1}, {1.1, 0.1, 1}};
+    constexpr auto bbox5 = bbox3d{{2, 2, -1}, {3, 3, 1}};
+    constexpr auto bbox6 = bbox3d{{-0.5, -0.5, 1}, {0.5, 0.5, 2}};
+    constexpr auto bbox7 = bbox3d{{-0.5, -0.5, 0}, {0.5, 0.5, 1}};
 
     SECTION("no intersection")
     {
       CHECK(!(intersect_bbox_polygon(bbox1, std::begin(poly), std::end(poly))));
+
+      // polygon plane intersects bbox, but polygon is beside it
+      CHECK(!(intersect_bbox_polygon(bbox5, std::begin(poly), std::end(poly))));
+
+      // bbox is above polygon
+      CHECK(!(intersect_bbox_polygon(bbox6, std::begin(poly), std::end(poly))));
     }
 
     SECTION("intersection")
@@ -613,6 +622,9 @@ TEST_CASE("intersection")
 
       // polygon edge intersects bbox
       CHECK(intersect_bbox_polygon(bbox4, std::begin(poly), std::end(poly)));
+
+      // bbox face lies in polygon plane
+      CHECK(intersect_bbox_polygon(bbox7, std::begin(poly), std::end(poly)));
     }
   }
 
