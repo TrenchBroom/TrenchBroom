@@ -24,9 +24,9 @@
 // Check at runtime and at compile time, since many functions take a different path during
 // constant evaluation.
 #define CER_CHECK(...)                                                                   \
-  CHECK((__VA_ARGS__));                                                                  \
-  STATIC_CHECK((__VA_ARGS__));
+  CHECK(__VA_ARGS__);                                                                    \
+  STATIC_CHECK(__VA_ARGS__);
 
 #define CER_CHECK_FALSE(...)                                                             \
-  CHECK_FALSE((__VA_ARGS__));                                                            \
-  STATIC_CHECK_FALSE((__VA_ARGS__));
+  CHECK_FALSE(__VA_ARGS__);                                                              \
+  STATIC_CHECK_FALSE(__VA_ARGS__);
