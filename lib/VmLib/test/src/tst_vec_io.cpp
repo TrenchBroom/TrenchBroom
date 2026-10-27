@@ -21,6 +21,7 @@
 
 #include "vm/vec_io.h"
 
+#include <iterator>
 #include <sstream>
 
 #include <catch2/catch_test_macros.hpp>

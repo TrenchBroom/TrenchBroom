@@ -53,6 +53,7 @@
 #include "vm/vec.h"
 #include "vm/vec_io.h" // IWYU pragma: keep
 
+#include <iterator>
 #include <ranges>
 #include <string>
 #include <type_traits>

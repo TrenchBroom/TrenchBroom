@@ -41,6 +41,7 @@
 
 #include <algorithm>
 #include <filesystem>
+#include <iterator>
 
 namespace tb::ui
 {

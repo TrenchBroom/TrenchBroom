@@ -34,6 +34,7 @@
 #include <cassert>
 #include <cmath>
 #include <cstdint>
+#include <iterator>
 #include <optional>
 #include <unordered_map>
 #include <variant>

@@ -30,6 +30,8 @@
 #include "ui/ChoosePathTypeDialog.h"
 #include "ui/QPathUtils.h"
 
+#include <iterator>
+
 namespace tb::ui
 {
 namespace

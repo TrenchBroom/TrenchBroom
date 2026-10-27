@@ -36,6 +36,8 @@
 #include "kd/compact_trie.h"
 #include "kd/vector_utils.h"
 
+#include <iterator>
+
 namespace tb::mdl
 {
 namespace

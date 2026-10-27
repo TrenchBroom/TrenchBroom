@@ -24,6 +24,7 @@
 #include "gl/TextureFont.h"
 
 #include <algorithm>
+#include <iterator>
 #include <string>
 
 namespace tb::gl

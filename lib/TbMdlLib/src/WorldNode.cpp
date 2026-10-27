@@ -37,6 +37,7 @@
 
 #include "vm/bbox_io.h" // IWYU pragma: keep
 
+#include <iterator>
 #include <string>
 #include <vector>
 

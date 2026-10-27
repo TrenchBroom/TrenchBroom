@@ -47,6 +47,7 @@
 #include "kd/struct_io.h"
 
 #include <algorithm>
+#include <iterator>
 #include <ostream>
 #include <ranges>
 #include <vector>
