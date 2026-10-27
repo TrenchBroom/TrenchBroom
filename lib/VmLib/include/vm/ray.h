@@ -28,6 +28,8 @@
 #include "vm/util.h"
 #include "vm/vec.h"
 
+#include <cassert>
+
 namespace vm
 {
 /**
@@ -105,11 +107,12 @@ public:
    * not applied to the direction, and the direction is normalized after the
    * transformation has been applied.
    *
-   * @param transform the transformation to apply
+   * @param transform the transformation to apply, which must be affine
    * @return the transformed ray
    */
   constexpr ray<T, S> transform(const mat<T, S + 1, S + 1>& transform) const
   {
+    assert(is_affine(transform));
     const auto newOrigin = transform * origin;
     const auto newDirection = normalize(strip_translation(transform) * direction);
     return ray<T, S>(newOrigin, newDirection);

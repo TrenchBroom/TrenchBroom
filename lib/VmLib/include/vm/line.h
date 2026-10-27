@@ -25,6 +25,8 @@
 #include "vm/mat.h"
 #include "vm/vec.h"
 
+#include <cassert>
+
 namespace vm
 {
 /**
@@ -98,11 +100,12 @@ public:
    * not applied to the direction, and the direction is normalized after the
    * transformation was applied.
    *
-   * @param transform the transformation to apply
+   * @param transform the transformation to apply, which must be affine
    * @return the transformed line
    */
   constexpr line<T, S> transform(const mat<T, S + 1, S + 1>& transform) const
   {
+    assert(is_affine(transform));
     return line<T, S>(
       transform * point, normalize(strip_translation(transform) * direction));
   }

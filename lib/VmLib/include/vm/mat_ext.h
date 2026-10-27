@@ -28,6 +28,7 @@
 #include "vm/vec.h"
 
 #include <array>
+#include <cassert>
 #include <optional>
 #include <vector>
 
@@ -581,12 +582,13 @@ constexpr mat<T, S, S> translation_matrix(const mat<T, S, S>& m)
  *
  * @tparam T the component type
  * @tparam S the number of components
- * @param m the transformation matrix
+ * @param m the transformation matrix, which must be affine
  * @return the transformation matrix without its translation part
  */
 template <typename T, std::size_t S>
 constexpr mat<T, S, S> strip_translation(const mat<T, S, S>& m)
 {
+  assert(is_affine(m));
   mat<T, S, S> result(m);
   for (size_t i = 0; i < S - 1; ++i)
   {

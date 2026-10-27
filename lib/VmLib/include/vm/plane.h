@@ -27,6 +27,7 @@
 #include "vm/util.h"
 #include "vm/vec.h"
 
+#include <cassert>
 #include <type_traits>
 
 namespace vm
@@ -202,11 +203,12 @@ public:
    * Transforms this plane using the given transformation matrix. The translational part
    * is not applied to the normal.
    *
-   * @param transform the transformation to apply
+   * @param transform the transformation to apply, which must be affine
    * @return the transformed plane
    */
   constexpr plane<T, S> transform(const mat<T, S + 1, S + 1>& transform) const
   {
+    assert(is_affine(transform));
     return plane<T, S>(
       transform * anchor(), normalize(strip_translation(transform) * normal));
   }
