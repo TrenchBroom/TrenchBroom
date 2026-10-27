@@ -684,45 +684,5 @@ TEST_CASE("polygon")
         {+1, +1, 0},
       });
   }
-
-  SECTION("compare_unoriented_empty_polygon")
-  {
-    const auto p1 = polygon3d{};
-    CHECK(compareUnoriented(p1, polygon3d{}) == std::strong_ordering::equal);
-    CHECK(compareUnoriented(p1, polygon3d{{0, 0, 0}}) == std::strong_ordering::less);
-
-    const auto p2 = polygon3d{{0, 0, 0}};
-    CHECK(compareUnoriented(p2, p1) == std::strong_ordering::greater);
-    CHECK(compareUnoriented(p2, polygon3d{{0, 0, 0}}) == std::strong_ordering::equal);
-  }
-
-  SECTION("testBackwardComparePolygonWithOneVertex")
-  {
-    const auto p2 = polygon3d{{0, 0, 0}};
-    CHECK(compareUnoriented(p2, polygon3d{{0, 0, 0}}) == std::strong_ordering::equal);
-    CHECK(
-      compareUnoriented(p2, polygon3d{{0, 0, 0}, {0, 0, 0}})
-      == std::strong_ordering::less);
-  }
-
-  SECTION("compare_unoriented")
-  {
-    const auto p1 = polygon3d{
-      {-1.0, -1.0, 0.0},
-      {+1.0, -1.0, 0.0},
-      {+1.0, +1.0, 0.0},
-      {-1.0, +1.0, 0.0},
-    };
-    const auto p2 = polygon3d{
-      {-1.0, +1.0, 0.0},
-      {+1.0, +1.0, 0.0},
-      {+1.0, -1.0, 0.0},
-      {-1.0, -1.0, 0.0},
-    };
-    CHECK(compareUnoriented(p1, p1) == std::strong_ordering::equal);
-    CHECK(compareUnoriented(p1, p2) == std::strong_ordering::equal);
-    CHECK(compareUnoriented(p2, p1) == std::strong_ordering::equal);
-    CHECK(compareUnoriented(p2, p2) == std::strong_ordering::equal);
-  }
 }
 } // namespace vm

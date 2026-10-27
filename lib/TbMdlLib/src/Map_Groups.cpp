@@ -47,6 +47,7 @@
 #include "kd/vector_utils.h"
 
 #include <algorithm>
+#include <iterator>
 #include <ranges>
 
 namespace tb::mdl

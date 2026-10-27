@@ -34,6 +34,7 @@
 #include <cassert>
 #include <cmath>
 #include <cstdint>
+#include <iterator>
 #include <optional>
 #include <unordered_map>
 #include <variant>
@@ -549,7 +550,7 @@ public:
         },
         [&](const auto& node) {
           const auto bounds = get_address(node).to_bounds(m_min_size);
-          return bounds.contains(ray.origin) || vm::intersect_ray_bbox(ray, bounds);
+          return vm::intersect_ray_bbox(ray, bounds) != std::nullopt;
         });
     }
   }

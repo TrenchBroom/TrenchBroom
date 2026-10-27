@@ -25,6 +25,7 @@
 #include "kd/filesystem_utils.h"
 #include "kd/result.h"
 
+#include <iterator>
 #include <string>
 
 namespace tb::fs

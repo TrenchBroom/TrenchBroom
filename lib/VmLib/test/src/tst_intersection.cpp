@@ -328,8 +328,66 @@ TEST_CASE("intersection")
 
     constexpr auto origin = vec3f{-10.0f, -7.0f, 14.0f};
     constexpr auto diff = vec3f{-2.0f, 3.0f, 8.0f} - origin;
-    constexpr auto dir = normalize_c(diff);
-    CHECK(intersect_ray_bbox(ray3f{origin, dir}, bounds) == approx(length(diff)));
+    constexpr auto dir = normalize(diff);
+    CER_CHECK(intersect_ray_bbox(ray3f{origin, dir}, bounds) == approx(length(diff)));
+
+    // origin outside, ray misses the box
+    CER_CHECK(
+      intersect_ray_bbox(ray3f{vec3f{-20, 0, 0}, normalize(vec3f{1, 0, 2})}, bounds)
+      == std::nullopt);
+
+    // origin outside, ray is parallel to the y slab and outside of it
+    CER_CHECK(
+      intersect_ray_bbox(ray3f{vec3f{0, 10, 0}, vec3f{0, 0, 1}}, bounds) == std::nullopt);
+
+    // origin outside, ray runs along a face of the box
+    CER_CHECK(
+      intersect_ray_bbox(ray3f{vec3f{0, 9, 0}, vec3f{0, 0, 1}}, bounds) == approx(4.0f));
+
+    // origin outside, ray enters the box through an edge
+    CER_CHECK(
+      intersect_ray_bbox(
+        ray3d{vec3d{6, -2, 0}, normalize(vec3d{-5, 2, 0})},
+        bbox3d{vec3d{0, 0, -5}, vec3d{1, 10, 5}})
+      == approx(length(vec3d{5, 2, 0})));
+
+    // origin inside, ray leaves the box along an axis
+    CER_CHECK(
+      intersect_ray_bbox(ray3f{vec3f{0, 0, 6}, vec3f{+1, 0, 0}}, bounds) == approx(8.0f));
+    CER_CHECK(
+      intersect_ray_bbox(ray3f{vec3f{0, 0, 6}, vec3f{-1, 0, 0}}, bounds)
+      == approx(12.0f));
+    CER_CHECK(
+      intersect_ray_bbox(ray3f{vec3f{0, 0, 6}, vec3f{0, +1, 0}}, bounds) == approx(9.0f));
+    CER_CHECK(
+      intersect_ray_bbox(ray3f{vec3f{0, 0, 6}, vec3f{0, -1, 0}}, bounds) == approx(3.0f));
+    CER_CHECK(
+      intersect_ray_bbox(ray3f{vec3f{0, 0, 6}, vec3f{0, 0, +1}}, bounds) == approx(2.0f));
+    CER_CHECK(
+      intersect_ray_bbox(ray3f{vec3f{0, 0, 6}, vec3f{0, 0, -1}}, bounds) == approx(2.0f));
+
+    // origin inside, ray leaves the box diagonally
+    CER_CHECK(
+      intersect_ray_bbox(ray3f{vec3f{0, 0, 6}, normalize(vec3f{1, 1, 0})}, bounds)
+      == approx(length(vec3f{8, 8, 0})));
+
+    // origin on the boundary, ray points into the box
+    CER_CHECK(
+      intersect_ray_bbox(ray3f{vec3f{-12, 0, 6}, vec3f{1, 0, 0}}, bounds)
+      == approx(20.0f));
+
+    // origin on the boundary, ray points out of the box
+    CER_CHECK(
+      intersect_ray_bbox(ray3f{vec3f{-12, 0, 6}, vec3f{-1, 0, 0}}, bounds)
+      == approx(0.0f));
+
+    constexpr auto bounds2 = bbox2f{vec2f{-1, -1}, vec2f{1, 1}};
+    CER_CHECK(
+      intersect_ray_bbox(ray<float, 2>{vec2f{-3, 0}, vec2f{1, 0}}, bounds2)
+      == approx(2.0f));
+    CER_CHECK(
+      intersect_ray_bbox(ray<float, 2>{vec2f{-3, 2}, vec2f{1, 0}}, bounds2)
+      == std::nullopt);
   }
 
   SECTION("intersect_ray_sphere")
@@ -404,7 +462,7 @@ TEST_CASE("intersection")
   SECTION("intersect_line_plane")
   {
     constexpr auto p = plane3f{5.0f, vec3f{0, 0, 1}};
-    constexpr auto l = line3f{vec3f{0, 0, 15}, normalize_c(vec3f{1, 0, -1})};
+    constexpr auto l = line3f{vec3f{0, 0, 15}, normalize(vec3f{1, 0, -1})};
     CER_CHECK(
       point_at_distance(l, *intersect_line_plane(l, p)) == approx(vec3f{10, 0, 5}));
   }
@@ -539,22 +597,40 @@ TEST_CASE("intersection")
     constexpr auto bbox2 = bbox3d{{-1.1, -1.1, -1}, {-0.9, -0.9, 1}};
     constexpr auto bbox3 = bbox3d{{0, 0, 0}, {2, 2, 2}};
     constexpr auto bbox4 = bbox3d{{0.9, -0.1, -1}, {1.1, 0.1, 1}};
+    constexpr auto bbox5 = bbox3d{{2, 2, -1}, {3, 3, 1}};
+    constexpr auto bbox6 = bbox3d{{-0.5, -0.5, 1}, {0.5, 0.5, 2}};
+    constexpr auto bbox7 = bbox3d{{-0.5, -0.5, 0}, {0.5, 0.5, 1}};
 
     SECTION("no intersection")
     {
-      CHECK(!(intersect_bbox_polygon(bbox1, std::begin(poly), std::end(poly))));
+      CER_CHECK(!intersect_bbox_polygon(bbox1, std::begin(poly), std::end(poly)));
+
+      // polygon plane intersects bbox, but polygon is beside it
+      CER_CHECK(!intersect_bbox_polygon(bbox5, std::begin(poly), std::end(poly)));
+
+      // bbox is above polygon
+      CER_CHECK(!intersect_bbox_polygon(bbox6, std::begin(poly), std::end(poly)));
     }
 
     SECTION("intersection")
     {
       // polygon point inside bbox
-      CHECK(intersect_bbox_polygon(bbox2, std::begin(poly), std::end(poly)));
+      CER_CHECK(intersect_bbox_polygon(bbox2, std::begin(poly), std::end(poly)));
 
       // bbox edge intersects polygon
-      CHECK(intersect_bbox_polygon(bbox3, std::begin(poly), std::end(poly)));
+      CER_CHECK(intersect_bbox_polygon(bbox3, std::begin(poly), std::end(poly)));
 
       // polygon edge intersects bbox
-      CHECK(intersect_bbox_polygon(bbox4, std::begin(poly), std::end(poly)));
+      CER_CHECK(intersect_bbox_polygon(bbox4, std::begin(poly), std::end(poly)));
+
+      // bbox face lies in polygon plane
+      CER_CHECK(intersect_bbox_polygon(bbox7, std::begin(poly), std::end(poly)));
+
+      // polygon edge passes through bbox, but no bbox edge intersects polygon
+      constexpr auto sliver = std::array<vec3d, 3>{
+        vec3d{-5.0, -0.1, 0.0}, vec3d{5.0, -0.1, 0.0}, vec3d{5.0, 0.1, 0.0}};
+      CER_CHECK(intersect_bbox_polygon(
+        bbox3d{{-1, -1, -1}, {1, 1, 1}}, std::begin(sliver), std::end(sliver)));
     }
   }
 

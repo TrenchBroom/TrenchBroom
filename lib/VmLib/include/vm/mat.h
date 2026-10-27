@@ -26,6 +26,7 @@
 #include <cassert>
 #include <optional>
 #include <tuple>
+#include <utility>
 
 namespace vm
 {
@@ -433,6 +434,29 @@ constexpr bool is_zero(const mat<T, R, C>& m, const T epsilon)
 }
 
 /**
+ * Checks whether the given matrix is an affine transformation in homogeneous coordinates,
+ * that is, whether its last row is (0, ..., 0, 1). The elements are compared exactly,
+ * which is reliable because composing affine transformations keeps the last row exact.
+ *
+ * @tparam T the element type
+ * @tparam S the number of rows and columns
+ * @param m the matrix to check
+ * @return true if the given matrix is an affine transformation
+ */
+template <typename T, std::size_t S>
+constexpr bool is_affine(const mat<T, S, S>& m)
+{
+  for (size_t c = 0; c < S - 1; ++c)
+  {
+    if (m[c][S - 1] != static_cast<T>(0))
+    {
+      return false;
+    }
+  }
+  return m[S - 1][S - 1] == static_cast<T>(1);
+}
+
+/**
  * Checks whether the given matrices have identical components.
  *
  * @tparam T the element type
@@ -744,7 +768,7 @@ constexpr mat<T, C, R> transpose(const mat<T, R, C>& m)
   {
     for (std::size_t r = c + 1u; r < R; ++r)
     {
-      detail::swap(result[c][r], result[r][c]);
+      std::swap(result[c][r], result[r][c]);
     }
   }
   return result;
@@ -975,10 +999,10 @@ constexpr std::optional<std::tuple<mat<T, S, S>, vec<size_t, S>>> lup_find_decom
     {
       return std::nullopt;
     }
-    swap(pi[k], pi[kPrime]);
+    std::swap(pi[k], pi[kPrime]);
     for (std::size_t i = 0; i < S; ++i)
     {
-      swap(a[i][k], a[i][kPrime]);
+      std::swap(a[i][k], a[i][kPrime]);
     }
     for (std::size_t i = k + 1; i < S; ++i)
     {

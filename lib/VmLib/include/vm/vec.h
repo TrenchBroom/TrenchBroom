@@ -22,9 +22,9 @@
 #pragma once
 
 #include "vm/constants.h"
-#include "vm/constexpr_util.h"
 #include "vm/scalar.h"
 
+#include <algorithm>
 #include <cassert>
 #include <cstddef>
 #include <type_traits>
@@ -573,8 +573,34 @@ constexpr void sort_vector(
     elements[i].element = vector[i];
     elements[i].index = i;
   }
-  sort(std::begin(elements), std::end(elements), cmp);
+
+  // Break ties by index to sort stably. Replace this with std::ranges::stable_sort as
+  // soon as it is constexpr (C++26).
+  std::ranges::sort(elements, [&](const auto& lhs, const auto& rhs) {
+    return cmp(lhs.element, rhs.element)
+           || (!cmp(rhs.element, lhs.element) && lhs.index < rhs.index);
+  });
 }
+
+/**
+ * Returns the index of the largest component of the given vector according to the given
+ * comparator. If there are multiple such components, then the index of the last one is
+ * returned. This is the component that sort_vector puts last.
+ */
+template <typename T, std::size_t S, typename Cmp>
+constexpr std::size_t find_max_index(const vec<T, S>& vector, const Cmp& cmp)
+{
+  std::size_t result = 0;
+  for (std::size_t i = 1u; i < S; ++i)
+  {
+    if (!cmp(vector[i], vector[result]))
+    {
+      result = i;
+    }
+  }
+  return result;
+}
+
 } // namespace detail
 
 /**
@@ -593,9 +619,12 @@ constexpr std::size_t find_max_component(
 {
   assert(k < S);
 
-  constexpr auto cmp = [](const auto& lhs, const auto& rhs) {
-    return lhs.element < rhs.element;
-  };
+  constexpr auto cmp = [](const auto& lhs, const auto& rhs) { return lhs < rhs; };
+
+  if (k == 0u)
+  {
+    return detail::find_max_index(vector, cmp);
+  }
 
   detail::vector_index_elements<T, S> elements;
   detail::sort_vector(vector, cmp, elements);
@@ -619,8 +648,13 @@ constexpr std::size_t find_abs_max_component(
   assert(k < S);
 
   constexpr auto cmp = [](const auto& lhs, const auto& rhs) {
-    return abs(lhs.element) < abs(rhs.element);
+    return abs(lhs) < abs(rhs);
   };
+
+  if (k == 0u)
+  {
+    return detail::find_max_index(vector, cmp);
+  }
 
   detail::vector_index_elements<T, S> elements;
   detail::sort_vector(vector, cmp, elements);
@@ -660,14 +694,9 @@ constexpr vec<T, S> get_abs_max_component_axis(
  * @return the value of a k-largest component value of the given vector
  */
 template <typename T, std::size_t S>
-constexpr T get_max_component(vec<T, S> vector, const std::size_t k = 0u)
+constexpr T get_max_component(const vec<T, S>& vector, const std::size_t k = 0u)
 {
-  assert(k < S);
-
-  constexpr auto cmp = [](const auto& lhs, const auto& rhs) { return lhs < rhs; };
-
-  detail::sort(std::begin(vector.v), std::end(vector.v), cmp);
-  return vector[S - k - 1u];
+  return vector[find_max_component(vector, k)];
 }
 
 /**
@@ -681,14 +710,9 @@ constexpr T get_max_component(vec<T, S> vector, const std::size_t k = 0u)
  * @return the value of a k-largest component of the given vector
  */
 template <typename T, std::size_t S>
-constexpr T get_abs_max_component(vec<T, S> vector, const std::size_t k = 0u)
+constexpr T get_abs_max_component(const vec<T, S>& vector, const std::size_t k = 0u)
 {
-  constexpr auto cmp = [](const auto& lhs, const auto& rhs) {
-    return abs(lhs) < abs(rhs);
-  };
-
-  detail::sort(std::begin(vector.v), std::end(vector.v), cmp);
-  return vector[S - k - 1u];
+  return vector[find_abs_max_component(vector, k)];
 }
 
 /* ========== arithmetic operators ========== */
@@ -1151,23 +1175,9 @@ constexpr T squared_length(const vec<T, S>& vec)
  * @return the length of the given vector
  */
 template <typename T, std::size_t S>
-T length(const vec<T, S>& vec)
+constexpr T length(const vec<T, S>& vec)
 {
   return sqrt(squared_length(vec));
-}
-
-/**
- * Returns the length of the given vector at compile time.
- *
- * @tparam T the component type
- * @tparam S the number of components
- * @param vec the vector to return the length of
- * @return the length of the given vector
- */
-template <typename T, std::size_t S>
-constexpr T length_c(const vec<T, S>& vec)
-{
-  return sqrt_c(squared_length(vec));
 }
 
 /**
@@ -1179,23 +1189,9 @@ constexpr T length_c(const vec<T, S>& vec)
  * @return the normalized vector
  */
 template <typename T, std::size_t S>
-vec<T, S> normalize(const vec<T, S>& vec)
+constexpr vec<T, S> normalize(const vec<T, S>& vec)
 {
   return vec / length(vec);
-}
-
-/**
- * Normalizes the given vector at compile time.
- *
- * @tparam T the component type
- * @tparam S the number of components
- * @param vec the vector to return the squared length of
- * @return the normalized vector
- */
-template <typename T, std::size_t S>
-constexpr vec<T, S> normalize_c(const vec<T, S>& vec)
-{
-  return vec / length_c(vec);
 }
 
 /**
@@ -1260,24 +1256,9 @@ constexpr vec<T, 3> unswizzle(const vec<T, 3>& point, const std::size_t axis)
  * @return true if the given vector has a length of 1 and false otherwise
  */
 template <typename T, std::size_t S>
-bool is_unit(const vec<T, S>& v, const T epsilon)
+constexpr bool is_unit(const vec<T, S>& v, const T epsilon)
 {
   return is_equal(length(v), T(1.0), epsilon);
-}
-
-/**
- * Checks whether the given vector has unit length (1) at compile time.
- *
- * @tparam T the component type
- * @tparam S the number of components
- * @param v the vector to check
- * @param epsilon the epsilon value
- * @return true if the given vector has a length of 1 and false otherwise
- */
-template <typename T, std::size_t S>
-constexpr bool is_unit_c(const vec<T, S>& v, const T epsilon)
-{
-  return is_equal(length_c(v), T(1.0), epsilon);
 }
 
 /**
@@ -1444,24 +1425,9 @@ constexpr vec<T, S> mod(const vec<T, S>& v, const vec<T, S>& f)
  * @return the distance between the given points
  */
 template <typename T, std::size_t S>
-T distance(const vec<T, S>& lhs, const vec<T, S>& rhs)
+constexpr T distance(const vec<T, S>& lhs, const vec<T, S>& rhs)
 {
   return length(lhs - rhs);
-}
-
-/**
- * Computes the distance between two given points at compile time.
- *
- * @tparam T the component type
- * @tparam S the number of components
- * @param lhs the first point
- * @param rhs the second point
- * @return the distance between the given points
- */
-template <typename T, std::size_t S>
-constexpr T distance_c(const vec<T, S>& lhs, const vec<T, S>& rhs)
-{
-  return length_c(lhs - rhs);
 }
 
 /**
@@ -1562,34 +1528,12 @@ constexpr bool is_colinear(
  * @return true if the given vectors are parallel, and false otherwise
  */
 template <typename T, std::size_t S>
-bool is_parallel(
+constexpr bool is_parallel(
   const vec<T, S>& lhs,
   const vec<T, S>& rhs,
   const T epsilon = constants<T>::colinear_epsilon())
 {
   const T cos = dot(normalize(lhs), normalize(rhs));
-  return is_equal(abs(cos), T(1.0), epsilon);
-}
-
-/**
- * Checks whether the given vectors are parallel at compile time. Two vectors are
- * considered to be parallel if and only if they point in the same or in opposite
- * directions.
- *
- * @tparam T the component type
- * @tparam S the number of components
- * @param lhs the first vector
- * @param rhs the second vector
- * @param epsilon the epsilon value
- * @return true if the given vectors are parallel, and false otherwise
- */
-template <typename T, std::size_t S>
-constexpr bool is_parallel_c(
-  const vec<T, S>& lhs,
-  const vec<T, S>& rhs,
-  const T epsilon = constants<T>::colinear_epsilon())
-{
-  const T cos = dot(normalize_c(lhs), normalize_c(rhs));
   return is_equal(abs(cos), T(1.0), epsilon);
 }
 
@@ -1778,39 +1722,7 @@ constexpr vec<T, S> correct(
  * @return true if the given point is contained within the segment
  */
 template <typename T, std::size_t S>
-bool is_between(const vec<T, S>& p, const vec<T, S>& start, const vec<T, S>& end)
-{
-  assert(is_colinear(p, start, end));
-
-  if (p == start || p == end)
-  {
-    return true;
-  }
-  else
-  {
-    const auto toStart = start - p;
-    const auto toEnd = end - p;
-
-    const auto d = dot(toEnd, normalize(toStart));
-    return d < T(0.0);
-  }
-}
-
-/**
- * Given three colinear points, this function checks whether the first point is contained
- * in a segment formed by the other two points at compile time.
- *
- * The result is undefined for the case of non-colinear points.
- *
- * @tparam T the component type
- * @tparam S the number of components
- * @param p the point to check
- * @param start the segment start
- * @param end the segment end
- * @return true if the given point is contained within the segment
- */
-template <typename T, std::size_t S>
-constexpr bool is_between_c(
+constexpr bool is_between(
   const vec<T, S>& p, const vec<T, S>& start, const vec<T, S>& end)
 {
   assert(is_colinear(p, start, end));
@@ -1824,7 +1736,7 @@ constexpr bool is_between_c(
     const auto toStart = start - p;
     const auto toEnd = end - p;
 
-    const auto d = dot(toEnd, normalize_c(toStart));
+    const auto d = dot(toEnd, normalize(toStart));
     return d < T(0.0);
   }
 }

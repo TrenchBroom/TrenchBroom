@@ -54,7 +54,7 @@ TEST_CASE("line")
   SECTION("constructor_with_point_and_direction")
   {
     constexpr auto p = vec3f{10, 20, 30};
-    constexpr auto n = normalize_c(vec3f{1.0f, 2.0f, 3.0f});
+    constexpr auto n = normalize(vec3f{1.0f, 2.0f, 3.0f});
     constexpr auto l = line3f{p, n};
     CER_CHECK(l.point == approx(p));
     CER_CHECK(l.direction == approx(n));
@@ -74,27 +74,20 @@ TEST_CASE("line")
 
   SECTION("transform")
   {
-    const auto l = line3d{{1, 1, 1}, {0, 0, 1}};
+    constexpr auto l = line3d{{1, 1, 1}, {0, 0, 1}};
+    constexpr auto tm = translation_matrix(vec3d{1, 1, 1});
+    CER_CHECK(is_unit(l.direction, vm::Cd::almost_zero()));
+
     const auto rm =
       rotation_matrix(to_radians(15.0), to_radians(20.0), to_radians(-12.0));
-    const auto tm = translation_matrix(vec3d{1, 1, 1});
+    const auto rt = l.transform(rm * tm);
+    CHECK(rt.point == approx(rm * tm * l.point));
+    CHECK(rt.direction == approx(rm * l.direction));
 
-    const auto lt = l.transform(rm * tm);
-    CHECK(is_unit(l.direction, vm::Cd::almost_zero()));
-    CHECK(lt.point == approx(rm * tm * l.point));
-    CHECK(lt.direction == approx(rm * l.direction));
-  }
-
-  SECTION("transform_c")
-  {
-    constexpr auto l = line3d{{1, 1, 1}, {0, 0, 1}};
     constexpr auto sm = scaling_matrix(vec3d{2.0, 0.5, -2.0});
-    constexpr auto tm = translation_matrix(vec3d{1, 1, 1});
-
-    constexpr auto lt = l.transform_c(sm * tm);
-    CHECK(is_unit(l.direction, vm::Cd::almost_zero()));
-    CHECK(lt.point == approx(sm * tm * l.point));
-    CHECK(lt.direction == approx(normalize_c(sm * l.direction)));
+    constexpr auto st = l.transform(sm * tm);
+    CER_CHECK(st.point == approx(sm * tm * l.point));
+    CER_CHECK(st.direction == approx(normalize(sm * l.direction)));
   }
 
   SECTION("make_canonical")

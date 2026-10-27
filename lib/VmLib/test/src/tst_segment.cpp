@@ -80,14 +80,8 @@ TEST_CASE("segment")
 
   SECTION("length")
   {
-    const auto s = segment3d{vec3d{4, 0, 0}, vec3d{2, 0, 0}};
-    CHECK(s.length() == approx(2.0));
-  }
-
-  SECTION("length_c")
-  {
     constexpr auto s = segment3d{vec3d{4, 0, 0}, vec3d{2, 0, 0}};
-    CER_CHECK(s.length_c() == approx(2.0));
+    CER_CHECK(s.length() == approx(2.0));
   }
 
   SECTION("squared_length")

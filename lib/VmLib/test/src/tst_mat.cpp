@@ -345,6 +345,20 @@ TEST_CASE("mat")
     CHECK(!(is_zero(mat4x4d::identity(), vm::Cd::almost_zero())));
   }
 
+  SECTION("is_affine")
+  {
+    CER_CHECK(is_affine(mat4x4d::identity()));
+    CER_CHECK(is_affine(mat4x4d{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 0, 0, 0, 1}));
+    CER_CHECK(is_affine(mat3x3d{1, 2, 3, 4, 5, 6, 0, 0, 1}));
+
+    CER_CHECK(!is_affine(mat4x4d::zero()));
+    CER_CHECK(!is_affine(mat4x4d{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 1, 0, 0, 1}));
+    CER_CHECK(!is_affine(mat4x4d{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 0, 1, 0, 1}));
+    CER_CHECK(!is_affine(mat4x4d{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 0, 0, 1, 1}));
+    CER_CHECK(!is_affine(mat4x4d{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 0, 0, 0, 2}));
+    CER_CHECK(!is_affine(mat3x3d{1, 2, 3, 4, 5, 6, 0, 0, 2}));
+  }
+
   SECTION("operator_equal")
   {
     constexpr auto m = mat4x4d{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};

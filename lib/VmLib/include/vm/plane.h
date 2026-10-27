@@ -27,6 +27,7 @@
 #include "vm/util.h"
 #include "vm/vec.h"
 
+#include <cassert>
 #include <type_traits>
 
 namespace vm
@@ -199,29 +200,17 @@ public:
   }
 
   /**
-   * Transforms this plane using the given transformation matrix. The translational part
-   * is not applied to the normal.
+   * Transforms this plane using the given transformation matrix. The normal is
+   * transformed by the inverse transpose of the transformation without its translational
+   * part, so that it remains perpendicular to the transformed plane.
    *
-   * @param transform the transformation to apply
+   * @param transform the transformation to apply, which must be affine
    * @return the transformed plane
    */
-  plane<T, S> transform(const mat<T, S + 1, S + 1>& transform) const
+  constexpr plane<T, S> transform(const mat<T, S + 1, S + 1>& transform) const
   {
-    return plane<T, S>(
-      transform * anchor(), normalize(strip_translation(transform) * normal));
-  }
-
-  /**
-   * Transforms this plane using the given transformation matrix at compile time. The
-   * translational part is not applied to the normal.
-   *
-   * @param transform the transformation to apply
-   * @return the transformed plane
-   */
-  constexpr plane<T, S> transform_c(const mat<T, S + 1, S + 1>& transform) const
-  {
-    return plane<T, S>(
-      transform * anchor(), normalize_c(strip_translation(transform) * normal));
+    assert(is_affine(transform));
+    return plane<T, S>(transform * anchor(), normalize(transform_normal(transform)));
   }
 
   /**
@@ -282,6 +271,20 @@ public:
       return *point - anchor();
     }
     return std::nullopt;
+  }
+
+private:
+  /**
+   * Returns this plane's normal transformed by the inverse transpose of the given
+   * transformation without its translational part. The result is not normalized.
+   */
+  constexpr vec<T, S> transform_normal(const mat<T, S + 1, S + 1>& transform) const
+  {
+    // The transposed adjugate is the inverse transpose multiplied by the determinant, so
+    // we flip it for transformations that reverse the orientation
+    const auto linear = slice<S, S>(transform, 0, 0);
+    return transpose(compute_adjugate(linear)) * normal
+           * sign(compute_determinant(linear));
   }
 };
 
@@ -360,7 +363,7 @@ constexpr bool operator!=(const plane<T, S>& lhs, const plane<T, S>& rhs)
  * @return the normal if the plane is valid and nullopt otherwise
  */
 template <typename T>
-std::optional<vec<T, 3>> plane_normal(
+constexpr std::optional<vec<T, 3>> plane_normal(
   const vec<T, 3>& p1,
   const vec<T, 3>& p2,
   const vec<T, 3>& p3,
@@ -372,8 +375,15 @@ std::optional<vec<T, 3>> plane_normal(
 
   // Fail if v1 and v2 are parallel, opposite, or either is zero-length.
   // Rearranging "A cross B = ||A|| * ||B|| * sin(theta) * n" (n is a unit vector
-  // perpendicular to A and B) gives sin_theta below.
-  const auto sin_theta = abs(length(normal) / (length(v1) * length(v2)));
+  // perpendicular to A and B) gives sin_theta below. Check for zero-length vectors before
+  // dividing because dividing by zero is not allowed during constant evaluation.
+  const auto lengths = length(v1) * length(v2);
+  if (lengths == static_cast<T>(0))
+  {
+    return std::nullopt;
+  }
+
+  const auto sin_theta = abs(length(normal) / lengths);
   if (is_nan(sin_theta) || is_inf(sin_theta) || sin_theta < epsilon)
   {
     return std::nullopt;
@@ -404,7 +414,7 @@ std::optional<vec<T, 3>> plane_normal(
  * @return the plane if the points define a valid plane and nullopt otherwise
  */
 template <typename T>
-std::optional<plane<T, 3>> from_points(
+constexpr std::optional<plane<T, 3>> from_points(
   const vec<T, 3>& p1, const vec<T, 3>& p2, const vec<T, 3>& p3)
 {
   if (const auto normal = plane_normal(p1, p2, p3))
@@ -441,7 +451,7 @@ std::optional<plane<T, 3>> from_points(
  * @return the plane if the opints define a valid plane and nullopt otherwise
  */
 template <typename I, typename G = identity>
-auto from_points(I cur, I end, const G& get = G())
+constexpr auto from_points(I cur, I end, const G& get = G())
   -> std::optional<
     plane<typename std::remove_reference<decltype(get(*cur))>::type::type, 3>>
 {

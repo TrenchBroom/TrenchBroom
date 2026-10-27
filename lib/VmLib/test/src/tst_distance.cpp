@@ -231,30 +231,30 @@ TEST_CASE("distance")
     line_distance_extra_tests(ray1, segDist2Ray);
 
     constexpr auto segDist3Ray =
-      ray3f{vec3f{1.0f, 1.0f, 0.0f}, normalize_c(vec3f{1.0f, 1.0f, 1.0f})};
+      ray3f{vec3f{1.0f, 1.0f, 0.0f}, normalize(vec3f{1.0f, 1.0f, 1.0f})};
     constexpr auto segDist3 = squared_distance(ray1, segDist3Ray);
-    CER_CHECK_FALSE(segDist3.parallel);
-    CHECK(segDist3.position1 == approx(0.0f));
-    CHECK(segDist3.distance == approx(2.0f));
-    CHECK(segDist3.position2 == approx(0.0f));
+    CER_CHECK(!segDist3.parallel);
+    CER_CHECK(segDist3.position1 == approx(0.0f));
+    CER_CHECK(segDist3.distance == approx(2.0f));
+    CER_CHECK(segDist3.position2 == approx(0.0f));
     line_distance_extra_tests(ray1, segDist3Ray);
 
     constexpr auto segDist4Ray =
-      ray3f{vec3f{1.0f, 1.0f, 0.0f}, normalize_c(vec3f{-1.0f, -1.0f, +1.0f})};
+      ray3f{vec3f{1.0f, 1.0f, 0.0f}, normalize(vec3f{-1.0f, -1.0f, +1.0f})};
     constexpr auto segDist4 = squared_distance(ray1, segDist4Ray);
-    CER_CHECK_FALSE(segDist4.parallel);
+    CER_CHECK(!segDist4.parallel);
     CER_CHECK(segDist4.position1 == approx(1.0f));
     CER_CHECK(segDist4.distance == approx(0.0f));
-    CER_CHECK(segDist4.position2 == approx(length_c(vec3f{1.0f, 1.0f, 1.0f})));
+    CER_CHECK(segDist4.position2 == approx(length(vec3f{1.0f, 1.0f, 1.0f})));
     line_distance_extra_tests(ray1, segDist4Ray);
 
     constexpr auto segDist5Ray =
-      ray3f{vec3f{1.0f, 1.0f, 0.0f}, normalize_c(vec3f{-1.0f, 0.0f, +1.0f})};
+      ray3f{vec3f{1.0f, 1.0f, 0.0f}, normalize(vec3f{-1.0f, 0.0f, +1.0f})};
     constexpr auto segDist5 = squared_distance(ray1, segDist5Ray);
-    CER_CHECK_FALSE(segDist5.parallel);
+    CER_CHECK(!segDist5.parallel);
     CER_CHECK(segDist5.position1 == approx(1.0f));
     CER_CHECK(segDist5.distance == approx(1.0f));
-    CER_CHECK(segDist5.position2 == approx(length_c(vec3f{1.0f, 0.0f, 1.0f})));
+    CER_CHECK(segDist5.position2 == approx(length(vec3f{1.0f, 0.0f, 1.0f})));
     line_distance_extra_tests(ray1, segDist5Ray);
 
     // parallel, second ray is in front
@@ -297,21 +297,21 @@ TEST_CASE("distance")
     line_distance_extra_tests(ray, segDist2Line);
 
     constexpr auto segDist3Line =
-      line3f{vec3f{1.0f, 0.0f, 0.0f}, normalize_c(vec3f{-1.0f, 1.0f, 0.0f})};
+      line3f{vec3f{1.0f, 0.0f, 0.0f}, normalize(vec3f{-1.0f, 1.0f, 0.0f})};
     constexpr auto segDist3 = squared_distance(ray, segDist3Line);
-    CER_CHECK_FALSE(segDist3.parallel);
+    CER_CHECK(!segDist3.parallel);
     CER_CHECK(segDist3.position1 == approx(0.0f));
     CER_CHECK(segDist3.distance == approx(0.5f));
-    CER_CHECK(segDist3.position2 == approx(sqrt_c(2.0f) / 2.0f));
+    CER_CHECK(segDist3.position2 == approx(sqrt(2.0f) / 2.0f));
     line_distance_extra_tests(ray, segDist3Line);
 
     constexpr auto segDist4Line =
-      line3f{vec3f{1.0f, 0.0f, 0.0f}, normalize_c(vec3f{1.0f, -1.0f, 0.0f})};
+      line3f{vec3f{1.0f, 0.0f, 0.0f}, normalize(vec3f{1.0f, -1.0f, 0.0f})};
     constexpr auto segDist4 = squared_distance(ray, segDist4Line);
-    CER_CHECK_FALSE(segDist4.parallel);
+    CER_CHECK(!segDist4.parallel);
     CER_CHECK(segDist4.position1 == approx(0.0f));
     CER_CHECK(segDist4.distance == approx(0.5f));
-    CER_CHECK(segDist4.position2 == approx(-sqrt_c(2.0f) / 2.0f));
+    CER_CHECK(segDist4.position2 == approx(-sqrt(2.0f) / 2.0f));
     line_distance_extra_tests(ray, segDist4Line);
 
     // parallel, ray is in front of line

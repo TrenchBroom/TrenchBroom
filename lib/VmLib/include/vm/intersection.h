@@ -32,6 +32,7 @@
 #include "vm/util.h"
 #include "vm/vec.h"
 
+#include <limits>
 #include <optional>
 
 namespace vm
@@ -206,7 +207,8 @@ constexpr bool polygon_contains_point(
  * @return true if the given point is contained in the given polygon, and false otherwise
  */
 template <typename T, typename I, typename G = identity>
-bool polygon_contains_point(const vec<T, 3>& p, I cur, I end, const G& get = G())
+constexpr bool polygon_contains_point(
+  const vec<T, 3>& p, I cur, I end, const G& get = G())
 {
   auto temp = cur;
 
@@ -383,6 +385,9 @@ std::optional<T> intersect_ray_polygon(
  * Computes the point of intersection between the given ray and the given bounding box,
  * and returns the distance on the given ray from the ray's origin to that point.
  *
+ * If the ray's origin is inside the bounding box or on its boundary, then the
+ * intersection point is the point where the ray leaves the bounding box.
+ *
  * @tparam T the component type
  * @tparam S the number of components
  * @param r the ray
@@ -393,88 +398,36 @@ std::optional<T> intersect_ray_polygon(
 template <typename T, size_t S>
 constexpr std::optional<T> intersect_ray_bbox(const ray<T, S>& r, const bbox<T, S>& b)
 {
-  // Compute candidate planes
-  T origins[S]{};
-  bool inside[S]{};
-  auto allInside = true;
+  // Intersect the ray with each pair of slab planes and keep the overlap of the resulting
+  // distance intervals
+  auto tNear = -std::numeric_limits<T>::infinity();
+  auto tFar = std::numeric_limits<T>::infinity();
   for (size_t i = 0; i < S; ++i)
   {
-    if (r.origin[i] < b.min[i])
+    if (r.direction[i] == T(0))
     {
-      origins[i] = b.min[i];
-      allInside = inside[i] = false;
-    }
-    else if (r.origin[i] > b.max[i])
-    {
-      origins[i] = b.max[i];
-      allInside = inside[i] = false;
-    }
-    else
-    {
-      origins[i] = r.direction[i] < T(0) ? b.min[i] : b.max[i];
-      inside[i] = true;
-    }
-  }
-
-  // Intersect candidate planes with ray
-  T distances[S]{};
-  for (size_t i = 0; i < S; ++i)
-  {
-    distances[i] =
-      r.direction[i] != T(0) ? (origins[i] - r.origin[i]) / r.direction[i] : T(-1);
-  }
-
-  auto bestPlane = size_t(0);
-  if (allInside)
-  {
-    // find the closest plane that was hit
-    for (size_t i = 1; i < S; ++i)
-    {
-      if (distances[i] > T(0) && distances[i] < distances[bestPlane])
-      {
-        bestPlane = i;
-      }
-    }
-  }
-  else
-  {
-    // find the farthest plane that was hit
-    for (size_t i = 0; i < S; ++i)
-    {
-      if (!inside[i])
-      {
-        bestPlane = i;
-        break;
-      }
-    }
-    for (size_t i = bestPlane + 1; i < S; ++i)
-    {
-      if (!inside[i] && distances[i] > distances[bestPlane])
-      {
-        bestPlane = i;
-      }
-    }
-  }
-
-  // Check if the final candidate actually hits the box
-  if (distances[bestPlane] < T(0))
-  {
-    return std::nullopt;
-  }
-
-  for (size_t i = 0; i < S; ++i)
-  {
-    if (bestPlane != i)
-    {
-      const auto coord = r.origin[i] + distances[bestPlane] * r.direction[i];
-      if (coord < b.min[i] || coord > b.max[i])
+      // The ray is parallel to the slab planes, so its origin must be between them
+      if (r.origin[i] < b.min[i] || r.origin[i] > b.max[i])
       {
         return std::nullopt;
       }
     }
+    else
+    {
+      const auto t1 = (b.min[i] - r.origin[i]) / r.direction[i];
+      const auto t2 = (b.max[i] - r.origin[i]) / r.direction[i];
+      tNear = max(tNear, min(t1, t2));
+      tFar = min(tFar, max(t1, t2));
+    }
   }
 
-  return distances[bestPlane];
+  if (tNear > tFar || tFar < T(0))
+  {
+    return std::nullopt;
+  }
+
+  // If the origin is inside the box, the ray hits the box where it leaves it
+  return tNear > T(0) ? tNear : tFar;
 }
 
 /**
@@ -858,28 +811,24 @@ constexpr bool intersect_bbox_polygon(
     }
   }
 
-  const auto pl =
-    from_points(get(*begin), get(*std::next(begin)), get(*std::next(begin, 2)));
-  assert(pl);
-
   // 2
   for (auto cur = begin; cur != end; ++cur)
   {
     const auto next = std::next(cur) != end ? std::next(cur) : begin;
 
+    // No vertex is inside the box, so if the edge intersects the box, it enters the box
+    // between its start (at distance 0) and its end (at distance 1)
     const auto start = get(*cur);
-    const auto dir = get(*next) - start;
-    const auto ln = line<T, 3>{start, dir};
-    const auto d = intersect_line_plane(ln, *pl);
-    if (d && *d >= T(0) && *d <= T(1))
+    const auto edge = ray<T, 3>{start, get(*next) - start};
+    if (const auto d = intersect_ray_bbox(edge, bbox); d && *d <= T(1))
     {
-      const auto pt = pl->project_point(point_at_distance(ln, *d));
-      if (polygon_contains_point(pt, cur, end, get))
-      {
-        return true;
-      }
+      return true;
     }
   }
+
+  const auto pl =
+    from_points(get(*begin), get(*std::next(begin)), get(*std::next(begin, 2)));
+  assert(pl);
 
   // 3
   auto edgeIsect = false;

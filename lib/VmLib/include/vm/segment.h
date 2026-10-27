@@ -103,14 +103,7 @@ public:
    *
    * @return the length of this segment
    */
-  T length() const { return vm::length(m_end - m_start); }
-
-  /**
-   * Returns the length of this segment at compile time.
-   *
-   * @return the length of this segment
-   */
-  constexpr T length_c() const { return vm::length_c(m_end - m_start); }
+  constexpr T length() const { return vm::length(m_end - m_start); }
 
   /**
    * Returns the squared length of this segment.

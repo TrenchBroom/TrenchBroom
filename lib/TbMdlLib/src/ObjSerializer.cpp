@@ -33,6 +33,7 @@
 #include <fmt/format.h>
 
 #include <iostream>
+#include <iterator>
 #include <utility>
 
 namespace tb::mdl

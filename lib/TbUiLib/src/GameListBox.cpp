@@ -29,6 +29,7 @@
 #include "kd/range_utils.h"
 
 #include <filesystem>
+#include <iterator>
 #include <string>
 #include <vector>
 

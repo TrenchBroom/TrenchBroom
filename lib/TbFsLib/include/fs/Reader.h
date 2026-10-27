@@ -22,6 +22,7 @@
 #include "vm/vec.h"
 
 #include <cstdio>
+#include <iterator>
 #include <memory>
 #include <string>
 #include <string_view>

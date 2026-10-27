@@ -394,6 +394,36 @@ TEST_CASE("mat_ext")
 
       CHECK(test[i] == approx(out[i]));
     }
+
+    // mapping four points recovers a general affine transformation
+    const auto transform =
+      translation_matrix(vec3d{-16, 32, 8}) * rotation_matrix(0.3, -1.2, 2.1)
+      * shear_matrix(0.5, 0.0, 0.0, -0.25, 0.0, 0.0) * scaling_matrix(vec3d{2, -0.5, 3});
+    const vec3d points[4] = {{16, 0, 0}, {64, 0, 0}, {16, 32, 0}, {0, 0, 48}};
+    CHECK(
+      points_transformation_matrix(
+        points[0],
+        points[1],
+        points[2],
+        points[3],
+        transform * points[0],
+        transform * points[1],
+        transform * points[2],
+        transform * points[3])
+      == approx(transform));
+
+    // the input points lie in a plane
+    CER_CHECK(
+      points_transformation_matrix(
+        vec3d{0, 0, 0},
+        vec3d{16, 0, 0},
+        vec3d{32, 0, 0},
+        vec3d{0, 16, 0},
+        vec3d{0, 0, 0},
+        vec3d{16, 0, 0},
+        vec3d{32, 0, 0},
+        vec3d{0, 16, 0})
+      == std::nullopt);
   }
 }
 

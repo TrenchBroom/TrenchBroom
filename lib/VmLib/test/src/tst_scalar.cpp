@@ -24,6 +24,9 @@
 #include "vm/approx.h"
 #include "vm/scalar.h"
 
+#include <bit>
+#include <cmath>
+#include <cstdint>
 #include <limits>
 
 #include <catch2/catch_test_macros.hpp>
@@ -34,10 +37,20 @@ namespace vm
 #define CHECK_SQRT(v) CHECK(sqrt(v) == approx(std::sqrt(v)));
 
 
-#define CE_CHECK_SQRT(v) CHECK(sqrt_c(v) == approx(std::sqrt(v)))
+#define CE_CHECK_SQRT(v)                                                                 \
+  {                                                                                      \
+    constexpr auto _r_r = sqrt(v);                                                       \
+    CHECK(_r_r == approx(std::sqrt(v)));                                                 \
+  }
 
 namespace
 {
+
+// std::signbit is not constexpr before C++23
+constexpr bool has_sign_bit(const double v)
+{
+  return (std::bit_cast<std::uint64_t>(v) >> 63) != 0;
+}
 
 template <typename T>
 void checkSolution(
@@ -320,6 +333,9 @@ TEST_CASE("scalar")
     CER_CHECK(floor(0.4) == approx(0.0));
     CER_CHECK(floor(0.6) == approx(0.0));
     CER_CHECK(floor(1.0) == approx(1.0));
+
+    // the result is never negative zero
+    CER_CHECK(!has_sign_bit(floor(-0.0)));
   }
 
   SECTION("ceil")
@@ -333,6 +349,10 @@ TEST_CASE("scalar")
     CER_CHECK(ceil(0.6) == approx(1.0));
     CER_CHECK(ceil(1.0) == approx(1.0));
     CER_CHECK(ceil(1.1) == approx(2.0));
+
+    // the result is never negative zero
+    CER_CHECK(!has_sign_bit(ceil(-0.0)));
+    CER_CHECK(!has_sign_bit(ceil(-0.4)));
   }
 
   SECTION("trunc")
@@ -358,6 +378,10 @@ TEST_CASE("scalar")
     CER_CHECK(is_inf(trunc(std::numeric_limits<double>::infinity())));
     CER_CHECK(is_inf(trunc(-std::numeric_limits<double>::infinity())));
     CER_CHECK(is_nan(trunc(nan<double>())));
+
+    // the result is never negative zero
+    CER_CHECK(!has_sign_bit(trunc(-0.0)));
+    CER_CHECK(!has_sign_bit(trunc(-0.4)));
   }
 
   SECTION("mix")
@@ -397,6 +421,22 @@ TEST_CASE("scalar")
     CER_CHECK(round(0.6) == approx(+1.0));
     CER_CHECK(round(1.0) == approx(+1.0));
     CER_CHECK(round(1.1) == approx(+1.0));
+
+    // the largest values below 0.5
+    CER_CHECK(round(0.49999999999999994) == 0.0);
+    CER_CHECK(round(-0.49999999999999994) == 0.0);
+    CER_CHECK(round(0.49999997f) == 0.0f);
+    CER_CHECK(round(-0.49999997f) == 0.0f);
+
+    // odd integers just above 2^52 (2^23 for float)
+    CER_CHECK(round(4503599627370497.0) == 4503599627370497.0);
+    CER_CHECK(round(-4503599627370497.0) == -4503599627370497.0);
+    CER_CHECK(round(8388609.0f) == 8388609.0f);
+    CER_CHECK(round(-8388609.0f) == -8388609.0f);
+
+    // the result is never negative zero
+    CER_CHECK(!has_sign_bit(round(-0.0)));
+    CER_CHECK(!has_sign_bit(round(-0.4)));
   }
 
   SECTION("round_up")
@@ -484,6 +524,9 @@ TEST_CASE("scalar")
     CER_CHECK(snap(-1.4, 2.0) == approx(-2.0));
     CER_CHECK(snap(-1.5, 2.0) == approx(-2.0));
     CER_CHECK(snap(-1.6, 2.0) == approx(-2.0));
+
+    // the result is never negative zero
+    CER_CHECK(!has_sign_bit(snap(-3.0, 16.0)));
   }
 
   SECTION("snapUp")
@@ -708,14 +751,8 @@ TEST_CASE("scalar")
     {
       CHECK_SQRT(v)
     }
-
-    CHECK(is_nan(sqrt(nan<double>())));
-    CHECK(is_nan(sqrt(-1.0)));
     CHECK_SQRT(std::numeric_limits<double>::infinity());
-  }
 
-  SECTION("sqrt_c")
-  {
     CE_CHECK_SQRT(0.0);
     CE_CHECK_SQRT(0.2);
     CE_CHECK_SQRT(1.0);
@@ -726,8 +763,8 @@ TEST_CASE("scalar")
     CE_CHECK_SQRT(223235.2394839489348);
     CE_CHECK_SQRT(std::numeric_limits<double>::infinity());
 
-    CE_CHECK(is_nan(sqrt_c(nan<double>())));
-    CE_CHECK(is_nan(sqrt_c(-1.0)));
+    CER_CHECK(is_nan(sqrt(nan<double>())));
+    CER_CHECK(is_nan(sqrt(-1.0)));
   }
 
   SECTION("solve_quadratic")

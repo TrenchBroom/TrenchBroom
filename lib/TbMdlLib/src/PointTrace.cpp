@@ -28,6 +28,7 @@
 
 #include <algorithm>
 #include <istream>
+#include <iterator>
 #include <ranges>
 
 namespace tb::mdl

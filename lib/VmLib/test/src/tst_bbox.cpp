@@ -304,6 +304,34 @@ TEST_CASE("bbox")
       bbox3d::merge_all(std::begin(transformedPoints), std::end(transformedPoints));
     CER_CHECK(bounds.transform(transform).min == transformed.min);
     CER_CHECK(bounds.transform(transform).max == transformed.max);
+
+    // mirroring and translation
+    constexpr auto mirror =
+      translation_matrix(vec3d{1, -2, 3}) * scaling_matrix(vec3d{-1, 2, -0.5});
+    constexpr auto mirroredPoints = mirror * points;
+    constexpr auto mirrored =
+      bbox3d::merge_all(std::begin(mirroredPoints), std::end(mirroredPoints));
+    CER_CHECK(bounds.transform(mirror) == mirrored);
+
+    // rotation and translation
+    const auto rotation =
+      translation_matrix(vec3d{1, -2, 3}) * rotation_matrix(0.3, -1.2, 2.1);
+    const auto rotatedPoints = rotation * points;
+    const auto rotated =
+      bbox3d::merge_all(std::begin(rotatedPoints), std::end(rotatedPoints));
+    CHECK(bounds.transform(rotation) == rotated);
+
+    // perspective projection
+    constexpr auto inFront = bbox3d{vec3d{-2, -2, -10}, vec3d{2, 2, -5}};
+    const auto projection = perspective_matrix(90.0, 1.0, 100.0, 640, 480);
+    const auto projectedPoints = projection * inFront.vertices();
+    const auto projected =
+      bbox3d::merge_all(std::begin(projectedPoints), std::end(projectedPoints));
+    CHECK(inFront.transform(projection) == projected);
+
+    // a box whose size can't be represented exactly
+    constexpr auto inexactSize = bbox3d{vec3d{0.1, 0.1, 0.1}, vec3d{10, 10, 10}};
+    CER_CHECK(inexactSize.transform(mat4x4d::identity()) == inexactSize);
   }
 
   SECTION("operator_equal")

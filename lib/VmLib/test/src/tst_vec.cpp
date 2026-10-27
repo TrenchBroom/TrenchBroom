@@ -376,7 +376,14 @@ TEST_CASE("vec")
     CER_CHECK(find_max_component(vec3f{3.0f, 1.0f, -2.0f}, 0) == 0u);
     CER_CHECK(find_max_component(vec3f{3.0f, 1.0f, -2.0f}, 1) == 1u);
     CER_CHECK(find_max_component(vec3f{3.0f, 1.0f, -2.0f}, 2) == 2u);
-    CER_CHECK(find_max_component(normalize_c(vec3f{1.0f, 2.0f, -3.0f}), 0) == 1u);
+    CER_CHECK(find_max_component(normalize(vec3f{1.0f, 2.0f, -3.0f}), 0) == 1u);
+
+    // several components with the same value
+    CER_CHECK(find_max_component(vec3f{1, 1, 0}, 0) == 1u);
+    CER_CHECK(find_max_component(vec3f{1, 0, 1}, 0) == 2u);
+    CER_CHECK(find_max_component(vec3f{1, 1, 1}, 0) == 2u);
+    CER_CHECK(find_max_component(vec3f{1, 1, 1}, 1) == 1u);
+    CER_CHECK(find_max_component(vec3f{1, 1, 1}, 2) == 0u);
   }
 
   SECTION("find_abs_max_component")
@@ -391,7 +398,18 @@ TEST_CASE("vec")
     CER_CHECK(find_abs_max_component(vec3f{3.0f, 1.0f, -2.0f}, 0) == 0u);
     CER_CHECK(find_abs_max_component(vec3f{3.0f, 1.0f, -2.0f}, 1) == 2u);
     CER_CHECK(find_abs_max_component(vec3f{3.0f, 1.0f, -2.0f}, 2) == 1u);
-    CER_CHECK(find_abs_max_component(normalize_c(vec3f{1.0f, 2.0f, -3.0f}), 0) == 2u);
+    CER_CHECK(find_abs_max_component(normalize(vec3f{1.0f, 2.0f, -3.0f}), 0) == 2u);
+
+    // several components with the same absolute value
+    CER_CHECK(find_abs_max_component(vec3f{1, -1, 0}, 0) == 1u);
+    CER_CHECK(find_abs_max_component(vec3f{1, -1, 0}, 1) == 0u);
+    CER_CHECK(find_abs_max_component(vec3f{1, -1, 0}, 2) == 2u);
+    CER_CHECK(find_abs_max_component(vec3f{1, 0, -1}, 0) == 2u);
+    CER_CHECK(find_abs_max_component(vec3f{0, -1, 1}, 0) == 2u);
+    CER_CHECK(find_abs_max_component(vec3f{-1, -1, -1}, 0) == 2u);
+    CER_CHECK(find_abs_max_component(vec3f{-1, -1, -1}, 1) == 1u);
+    CER_CHECK(find_abs_max_component(vec3f{-1, -1, -1}, 2) == 0u);
+    CER_CHECK(find_abs_max_component(normalize(vec3f{1, 1, 0}), 0) == 1u);
   }
 
   SECTION("get_abs_max_component_axis")
@@ -407,6 +425,11 @@ TEST_CASE("vec")
     CER_CHECK(get_abs_max_component_axis(vec3f{3.0f, -1.0f, 2.0f}, 1u) == vec3f{0, 0, 1});
     CER_CHECK(
       get_abs_max_component_axis(vec3f{3.0f, -1.0f, 2.0f}, 2u) == vec3f{0, -1, 0});
+
+    // several components with the same absolute value
+    CER_CHECK(get_abs_max_component_axis(vec3f{1, -1, 0}) == vec3f{0, -1, 0});
+    CER_CHECK(get_abs_max_component_axis(vec3f{1, 0, -1}) == vec3f{0, 0, -1});
+    CER_CHECK(get_abs_max_component_axis(vec3f{0, -1, 1}) == vec3f{0, 0, 1});
   }
 
   SECTION("get_max_component")
@@ -435,6 +458,12 @@ TEST_CASE("vec")
     CER_CHECK(get_abs_max_component(vec3f{3.0f, 1.0f, -2.0f}, 0) == 3.0f);
     CER_CHECK(get_abs_max_component(vec3f{3.0f, 1.0f, -2.0f}, 1) == -2.0f);
     CER_CHECK(get_abs_max_component(vec3f{3.0f, 1.0f, -2.0f}, 2) == 1.0f);
+
+    // several components with the same absolute value
+    CER_CHECK(get_abs_max_component(vec3f{1, -1, 0}, 0) == -1.0f);
+    CER_CHECK(get_abs_max_component(vec3f{-1, 1, 0}, 0) == 1.0f);
+    CER_CHECK(get_abs_max_component(vec3f{1, 0, -1}, 0) == -1.0f);
+    CER_CHECK(get_abs_max_component(vec3f{0, -1, 1}, 0) == 1.0f);
   }
 
   // ========== arithmetic operators ==========
@@ -601,8 +630,7 @@ TEST_CASE("vec")
     constexpr auto t1 = vec3f{7.0f, 4.0f, 0.0f};
     constexpr auto t2 = vec3f{-2.0f, 22.0f, 0.0f};
     CER_CHECK(
-      normalize_c(cross(normalize_c(t1), normalize_c(t2)))
-      == approx(normalize_c(cross(t1, t2))));
+      normalize(cross(normalize(t1), normalize(t2))) == approx(normalize(cross(t1, t2))));
   }
 
   SECTION("squared_length")
@@ -615,39 +643,20 @@ TEST_CASE("vec")
 
   SECTION("length")
   {
-    CHECK(length(vec3f{0, 0, 0}) == approx(0.0f));
-    CHECK(length(vec3f{1, 0, 0}) == approx(1.0f));
-    CHECK(length(vec3f{2.3f, 8.7878f, -2323.0f}) == approx(std::sqrt(5396411.51542884f)));
-  }
-
-  SECTION("length_c")
-  {
-    CE_CHECK(length_c(vec3f{0, 0, 0}) == approx(0.0f));
-    CE_CHECK(length_c(vec3f{1, 0, 0}) == approx(1.0f));
-    CE_CHECK(
-      length_c(vec3f{2.3f, 8.7878f, -2323.0f}) == approx(sqrt_c(5396411.51542884f)));
+    CER_CHECK(length(vec3f{0, 0, 0}) == approx(0.0f));
+    CER_CHECK(length(vec3f{1, 0, 0}) == approx(1.0f));
+    CER_CHECK(length(vec3f{2.3f, 8.7878f, -2323.0f}) == approx(sqrt(5396411.51542884f)));
   }
 
   SECTION("normalize")
   {
-    CHECK(normalize(vec3f{1, 0, 0}) == vec3f{1, 0, 0});
-    CHECK(normalize(vec3f{-1, 0, 0}) == vec3f{-1, 0, 0});
-
-    const vec3f v1(2.3f, 8.7878f, -2323.0f);
-    const vec3f v2(4.333f, -2.0f, 322.0f);
-    CHECK(normalize(v1) == approx(v1 / length(v1)));
-    CHECK(normalize(v2) == approx(v2 / length(v2)));
-  }
-
-  SECTION("normalize_c")
-  {
-    CE_CHECK(normalize_c(vec3f{1, 0, 0}) == vec3f{1, 0, 0});
-    CE_CHECK(normalize_c(vec3f{-1, 0, 0}) == vec3f{-1, 0, 0});
+    CER_CHECK(normalize(vec3f{1, 0, 0}) == vec3f{1, 0, 0});
+    CER_CHECK(normalize(vec3f{-1, 0, 0}) == vec3f{-1, 0, 0});
 
     constexpr vec3f v1(2.3f, 8.7878f, -2323.0f);
     constexpr vec3f v2(4.333f, -2.0f, 322.0f);
-    CE_CHECK(normalize_c(v1) == approx(v1 / length_c(v1)));
-    CE_CHECK(normalize_c(v2) == approx(v2 / length_c(v2)));
+    CER_CHECK(normalize(v1) == approx(v1 / length(v1)));
+    CER_CHECK(normalize(v2) == approx(v2 / length(v2)));
   }
 
   SECTION("swizzle")
@@ -666,28 +675,15 @@ TEST_CASE("vec")
 
   SECTION("is_unit")
   {
-    CHECK(is_unit(vec3f{1, 0, 0}, vm::Cf::almost_zero()));
-    CHECK(is_unit(vec3f{0, 1, 0}, vm::Cf::almost_zero()));
-    CHECK(is_unit(vec3f{0, 0, 1}, vm::Cf::almost_zero()));
-    CHECK(is_unit(vec3f{-1, 0, 0}, vm::Cf::almost_zero()));
-    CHECK(is_unit(vec3f{0, -1, 0}, vm::Cf::almost_zero()));
-    CHECK(is_unit(vec3f{0, 0, -1}, vm::Cf::almost_zero()));
-    CHECK(is_unit(normalize(vec3f{1, 1, 1}), vm::Cf::almost_zero()));
-    CHECK(!(is_unit(vec3f{1, 1, 1}, vm::Cf::almost_zero())));
-    CHECK(!(is_unit(vec3f{0, 0, 0}, vm::Cf::almost_zero())));
-  }
-
-  SECTION("is_unit_c")
-  {
-    CE_CHECK(is_unit_c(vec3f{1, 0, 0}, vm::Cf::almost_zero()));
-    CE_CHECK(is_unit_c(vec3f{0, 1, 0}, vm::Cf::almost_zero()));
-    CE_CHECK(is_unit_c(vec3f{0, 0, 1}, vm::Cf::almost_zero()));
-    CE_CHECK(is_unit_c(vec3f{-1, 0, 0}, vm::Cf::almost_zero()));
-    CE_CHECK(is_unit_c(vec3f{0, -1, 0}, vm::Cf::almost_zero()));
-    CE_CHECK(is_unit_c(vec3f{0, 0, -1}, vm::Cf::almost_zero()));
-    CE_CHECK(is_unit_c(normalize_c(vec3f{1, 1, 1}), vm::Cf::almost_zero()));
-    CE_CHECK_FALSE(is_unit_c(vec3f{1, 1, 1}, vm::Cf::almost_zero()));
-    CE_CHECK_FALSE(is_unit_c(vec3f{0, 0, 0}, vm::Cf::almost_zero()));
+    CER_CHECK(is_unit(vec3f{1, 0, 0}, vm::Cf::almost_zero()));
+    CER_CHECK(is_unit(vec3f{0, 1, 0}, vm::Cf::almost_zero()));
+    CER_CHECK(is_unit(vec3f{0, 0, 1}, vm::Cf::almost_zero()));
+    CER_CHECK(is_unit(vec3f{-1, 0, 0}, vm::Cf::almost_zero()));
+    CER_CHECK(is_unit(vec3f{0, -1, 0}, vm::Cf::almost_zero()));
+    CER_CHECK(is_unit(vec3f{0, 0, -1}, vm::Cf::almost_zero()));
+    CER_CHECK(is_unit(normalize(vec3f{1, 1, 1}), vm::Cf::almost_zero()));
+    CER_CHECK(!is_unit(vec3f{1, 1, 1}, vm::Cf::almost_zero()));
+    CER_CHECK(!is_unit(vec3f{0, 0, 0}, vm::Cf::almost_zero()));
   }
 
   SECTION("is_zero")
@@ -721,7 +717,7 @@ TEST_CASE("vec")
     CER_CHECK(is_integral(vec3f{0, 0, -1}));
     CER_CHECK(is_integral(vec3f{1, 1, 1}));
     CER_CHECK(is_integral(vec3f{0, 0, 0}));
-    CER_CHECK_FALSE(is_integral(normalize_c(vec3f{1, 1, 1})));
+    CER_CHECK(!is_integral(normalize(vec3f{1, 1, 1})));
   }
 
   SECTION("mix")
@@ -772,19 +768,9 @@ TEST_CASE("vec")
     constexpr auto v1 = vec3f{2.3f, 8.7878f, -2323.0f};
     constexpr auto v2 = vec3f{4.333f, -2.0f, 322.0f};
 
-    CHECK(distance(v1, v1) == approx(0.0f));
-    CHECK(distance(v1, vec3f{0, 0, 0}) == approx(length(v1)));
-    CHECK(distance(v1, v2) == approx(length(v1 - v2)));
-  }
-
-  SECTION("distance_c")
-  {
-    constexpr auto v1 = vec3f{2.3f, 8.7878f, -2323.0f};
-    constexpr auto v2 = vec3f{4.333f, -2.0f, 322.0f};
-
-    CE_CHECK(distance_c(v1, v1) == approx(0.0f));
-    CE_CHECK(distance_c(v1, vec3f{0, 0, 0}) == approx(length_c(v1)));
-    CE_CHECK(distance_c(v1, v2) == approx(length_c(v1 - v2)));
+    CER_CHECK(distance(v1, v1) == approx(0.0f));
+    CER_CHECK(distance(v1, vec3f{0, 0, 0}) == approx(length(v1)));
+    CER_CHECK(distance(v1, v2) == approx(length(v1 - v2)));
   }
 
   SECTION("to_homogeneous_coords")
@@ -812,18 +798,10 @@ TEST_CASE("vec")
 
   SECTION("is_parallel")
   {
-    CHECK(is_parallel(vec3f{1, 0, 0}, vec3f{1, 0, 0}));
-    CHECK(is_parallel(vec3f{1, 0, 0}, vec3f{-1, 0, 0}));
-    CHECK(is_parallel(vec3f{1, 1, 1}, vec3f{1, 1, 1}));
-    CHECK(is_parallel(vec3f{1, 1, 1}, normalize(vec3f{1, 1, 1})));
-  }
-
-  SECTION("is_parallel_c")
-  {
-    CE_CHECK(is_parallel_c(vec3f{1, 0, 0}, vec3f{1, 0, 0}));
-    CE_CHECK(is_parallel_c(vec3f{1, 0, 0}, vec3f{-1, 0, 0}));
-    CE_CHECK(is_parallel_c(vec3f{1, 1, 1}, vec3f{1, 1, 1}));
-    CE_CHECK(is_parallel_c(vec3f{1, 1, 1}, normalize_c(vec3f{1, 1, 1})));
+    CER_CHECK(is_parallel(vec3f{1, 0, 0}, vec3f{1, 0, 0}));
+    CER_CHECK(is_parallel(vec3f{1, 0, 0}, vec3f{-1, 0, 0}));
+    CER_CHECK(is_parallel(vec3f{1, 1, 1}, vec3f{1, 1, 1}));
+    CER_CHECK(is_parallel(vec3f{1, 1, 1}, normalize(vec3f{1, 1, 1})));
   }
 
   // ========== rounding and error correction ==========
@@ -833,7 +811,7 @@ TEST_CASE("vec")
     CER_CHECK(floor(vec3f{1, 0, 0}) == vec3f{1, 0, 0});
     CER_CHECK(floor(vec3f{1, 1, 1}) == vec3f{1, 1, 1});
     CER_CHECK(floor(vec3f{0, 0, 0}) == vec3f{0, 0, 0});
-    CER_CHECK(floor(normalize_c(vec3f{1, 1, 1})) == vec3f{0, 0, 0});
+    CER_CHECK(floor(normalize(vec3f{1, 1, 1})) == vec3f{0, 0, 0});
     CER_CHECK(floor(vec3f{0.4f, 0.4f, 0.4f}) == vec3f{0, 0, 0});
     CER_CHECK(floor(vec3f{0.4f, 0.5f, 0.4f}) == vec3f{0, 0, 0});
     CER_CHECK(floor(vec3f{-0.4f, -0.5f, -0.4f}) == vec3f{-1, -1, -1});
@@ -844,7 +822,7 @@ TEST_CASE("vec")
     CER_CHECK(ceil(vec3f{1, 0, 0}) == vec3f{1, 0, 0});
     CER_CHECK(ceil(vec3f{1, 1, 1}) == vec3f{1, 1, 1});
     CER_CHECK(ceil(vec3f{0, 0, 0}) == vec3f{0, 0, 0});
-    CER_CHECK(ceil(normalize_c(vec3f{1, 1, 1})) == vec3f{1, 1, 1});
+    CER_CHECK(ceil(normalize(vec3f{1, 1, 1})) == vec3f{1, 1, 1});
     CER_CHECK(ceil(vec3f{0.4f, 0.4f, 0.4f}) == vec3f{1, 1, 1});
     CER_CHECK(ceil(vec3f{0.4f, 0.5f, 0.4f}) == vec3f{1, 1, 1});
     CER_CHECK(ceil(vec3f{-0.4f, -0.5f, -0.4f}) == vec3f{0, 0, 0});
@@ -856,8 +834,8 @@ TEST_CASE("vec")
     CER_CHECK(trunc(vec3f{1, 0, 0}) == vec3f{1, 0, 0});
     CER_CHECK(trunc(vec3f{1, 1, 1}) == vec3f{1, 1, 1});
     CER_CHECK(trunc(vec3f{0, 0, 0}) == vec3f{0, 0, 0});
-    CER_CHECK(trunc(normalize_c(vec3f{1, 1, 1})) == vec3f{0, 0, 0});
-    CER_CHECK(trunc(normalize_c(-vec3f{1, 1, 1})) == vec3f{0, 0, 0});
+    CER_CHECK(trunc(normalize(vec3f{1, 1, 1})) == vec3f{0, 0, 0});
+    CER_CHECK(trunc(normalize(-vec3f{1, 1, 1})) == vec3f{0, 0, 0});
     CER_CHECK(trunc(vec3f{0.4f, 0.4f, 0.4f}) == vec3f{0, 0, 0});
     CER_CHECK(trunc(vec3f{0.4f, 0.5f, 0.4f}) == vec3f{0, 0, 0});
     CER_CHECK(trunc(vec3f{-0.4f, -0.5f, -0.4f}) == vec3f{0, 0, 0});
@@ -869,7 +847,7 @@ TEST_CASE("vec")
     CER_CHECK(round(vec3f{1, 0, 0}) == vec3f{1, 0, 0});
     CER_CHECK(round(vec3f{1, 1, 1}) == vec3f{1, 1, 1});
     CER_CHECK(round(vec3f{0, 0, 0}) == vec3f{0, 0, 0});
-    CER_CHECK(round(normalize_c(vec3f{1, 1, 1})) == vec3f{1, 1, 1});
+    CER_CHECK(round(normalize(vec3f{1, 1, 1})) == vec3f{1, 1, 1});
     CER_CHECK(round(vec3f{0.4f, 0.4f, 0.4f}) == vec3f{0, 0, 0});
     CER_CHECK(round(vec3f{0.4f, 0.5f, 0.4f}) == vec3f{0, 1, 0});
     CER_CHECK(round(vec3f{-0.4f, -0.5f, -0.4f}) == vec3f{0, -1, 0});
@@ -917,20 +895,11 @@ TEST_CASE("vec")
 
   SECTION("is_between")
   {
-    CHECK(is_between(vec3f{1, 0, 0}, vec3f{0, 0, 0}, vec3f{2, 0, 0}));
-    CHECK(is_between(vec3f{1, 0, 0}, vec3f{2, 0, 0}, vec3f{0, 0, 0}));
-    CHECK(is_between(vec3f{1, 0, 0}, vec3f{1, 0, 0}, vec3f{0, 0, 0}));
-    CHECK(is_between(vec3f{0, 0, 0}, vec3f{1, 0, 0}, vec3f{0, 0, 0}));
-    CHECK(!(is_between(vec3f{2, 0, 0}, vec3f{1, 0, 0}, vec3f{0, 0, 0})));
-  }
-
-  SECTION("is_between_c")
-  {
-    CE_CHECK(is_between_c(vec3f{1, 0, 0}, vec3f{0, 0, 0}, vec3f{2, 0, 0}));
-    CE_CHECK(is_between_c(vec3f{1, 0, 0}, vec3f{2, 0, 0}, vec3f{0, 0, 0}));
-    CE_CHECK(is_between_c(vec3f{1, 0, 0}, vec3f{1, 0, 0}, vec3f{0, 0, 0}));
-    CE_CHECK(is_between_c(vec3f{0, 0, 0}, vec3f{1, 0, 0}, vec3f{0, 0, 0}));
-    CE_CHECK_FALSE(is_between_c(vec3f{2, 0, 0}, vec3f{1, 0, 0}, vec3f{0, 0, 0}));
+    CER_CHECK(is_between(vec3f{1, 0, 0}, vec3f{0, 0, 0}, vec3f{2, 0, 0}));
+    CER_CHECK(is_between(vec3f{1, 0, 0}, vec3f{2, 0, 0}, vec3f{0, 0, 0}));
+    CER_CHECK(is_between(vec3f{1, 0, 0}, vec3f{1, 0, 0}, vec3f{0, 0, 0}));
+    CER_CHECK(is_between(vec3f{0, 0, 0}, vec3f{1, 0, 0}, vec3f{0, 0, 0}));
+    CER_CHECK(!is_between(vec3f{2, 0, 0}, vec3f{1, 0, 0}, vec3f{0, 0, 0}));
   }
 
   SECTION("average")

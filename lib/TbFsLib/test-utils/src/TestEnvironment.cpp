@@ -26,6 +26,7 @@
 #include <algorithm>
 #include <chrono>
 #include <fstream>
+#include <iterator>
 #include <string>
 
 #include <catch2/interfaces/catch_interfaces_capture.hpp>

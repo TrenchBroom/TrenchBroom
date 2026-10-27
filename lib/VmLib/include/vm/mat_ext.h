@@ -28,6 +28,7 @@
 #include "vm/vec.h"
 
 #include <array>
+#include <cassert>
 #include <optional>
 #include <vector>
 
@@ -581,12 +582,13 @@ constexpr mat<T, S, S> translation_matrix(const mat<T, S, S>& m)
  *
  * @tparam T the component type
  * @tparam S the number of components
- * @param m the transformation matrix
+ * @param m the transformation matrix, which must be affine
  * @return the transformation matrix without its translation part
  */
 template <typename T, std::size_t S>
 constexpr mat<T, S, S> strip_translation(const mat<T, S, S>& m)
 {
+  assert(is_affine(m));
   mat<T, S, S> result(m);
   for (size_t i = 0; i < S - 1; ++i)
   {
@@ -887,56 +889,35 @@ constexpr std::optional<mat<T, 4, 4>> points_transformation_matrix(
   const auto vec1Out = onPlane2Out - onPlane0Out;
   const auto vec2Out = offPlaneOut - onPlane0Out;
 
-  // Set up a system of equations that will find the upper-left 3x3 part of a 4x4 affine
-  // matrix with no translation.
+  // Find the upper-left 3x3 part M of a 4x4 affine matrix with no translation such that
+  // M maps each input vector to the corresponding output vector. Row r of M solves
+  // A * x = b, where the rows of A are the input vectors and b contains the components r
+  // of the output vectors, so all rows can be found using the same decomposition of A.
+  const auto A = mat<T, 3, 3>{
+    vec0In.x(),
+    vec0In.y(),
+    vec0In.z(),
+    vec1In.x(),
+    vec1In.y(),
+    vec1In.z(),
+    vec2In.x(),
+    vec2In.y(),
+    vec2In.z()};
 
-  // A*X=B
-
-  const vec<T, 9> B{
-    vec0Out.x(),
-    vec0Out.y(),
-    vec0Out.z(),
-    vec1Out.x(),
-    vec1Out.y(),
-    vec1Out.z(),
-    vec2Out.x(),
-    vec2Out.y(),
-    vec2Out.z(),
-  };
-
-  const mat<T, 9, 9> A{
-    vec0In.x(), vec0In.y(), vec0In.z(), 0.0,        0.0,        0.0,        0.0,
-    0.0,        0.0,        0.0,        0.0,        0.0,        vec0In.x(), vec0In.y(),
-    vec0In.z(), 0.0,        0.0,        0.0,        0.0,        0.0,        0.0,
-    0.0,        0.0,        0.0,        vec0In.x(), vec0In.y(), vec0In.z(), vec1In.x(),
-    vec1In.y(), vec1In.z(), 0.0,        0.0,        0.0,        0.0,        0.0,
-    0.0,        0.0,        0.0,        0.0,        vec1In.x(), vec1In.y(), vec1In.z(),
-    0.0,        0.0,        0.0,        0.0,        0.0,        0.0,        0.0,
-    0.0,        0.0,        vec1In.x(), vec1In.y(), vec1In.z(), vec2In.x(), vec2In.y(),
-    vec2In.z(), 0.0,        0.0,        0.0,        0.0,        0.0,        0.0,
-    0.0,        0.0,        0.0,        vec2In.x(), vec2In.y(), vec2In.z(), 0.0,
-    0.0,        0.0,        0.0,        0.0,        0.0,        0.0,        0.0,
-    0.0,        vec2In.x(), vec2In.y(), vec2In.z()};
-
-  if (const auto X = lup_solve(A, B))
+  if (const auto decomposition = detail::lup_find_decomposition(A))
   {
-    const mat<T, 4, 4> xformWithoutTranslation(
-      (*X)[0],
-      (*X)[1],
-      (*X)[2],
-      0.0,
-      (*X)[3],
-      (*X)[4],
-      (*X)[5],
-      0.0,
-      (*X)[6],
-      (*X)[7],
-      (*X)[8],
-      0.0,
-      0.0,
-      0.0,
-      0.0,
-      1.0);
+    const auto& [lu, pi] = *decomposition;
+
+    auto xformWithoutTranslation = mat<T, 4, 4>::identity();
+    for (std::size_t r = 0; r < 3; ++r)
+    {
+      const auto row =
+        detail::lup_solve_internal(lu, pi, vec<T, 3>{vec0Out[r], vec1Out[r], vec2Out[r]});
+      for (std::size_t c = 0; c < 3; ++c)
+      {
+        xformWithoutTranslation[c][r] = row[c];
+      }
+    }
 
     return translation_matrix(onPlane0Out) * xformWithoutTranslation
            * translation_matrix(-onPlane0In);
