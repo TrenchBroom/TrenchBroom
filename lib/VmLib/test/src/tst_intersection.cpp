@@ -329,7 +329,7 @@ TEST_CASE("intersection")
     constexpr auto origin = vec3f{-10.0f, -7.0f, 14.0f};
     constexpr auto diff = vec3f{-2.0f, 3.0f, 8.0f} - origin;
     constexpr auto dir = normalize(diff);
-    CHECK(intersect_ray_bbox(ray3f{origin, dir}, bounds) == approx(length(diff)));
+    CER_CHECK(intersect_ray_bbox(ray3f{origin, dir}, bounds) == approx(length(diff)));
 
     // origin outside, ray misses the box
     CER_CHECK(
@@ -603,28 +603,28 @@ TEST_CASE("intersection")
 
     SECTION("no intersection")
     {
-      CHECK(!(intersect_bbox_polygon(bbox1, std::begin(poly), std::end(poly))));
+      CER_CHECK(!intersect_bbox_polygon(bbox1, std::begin(poly), std::end(poly)));
 
       // polygon plane intersects bbox, but polygon is beside it
-      CHECK(!(intersect_bbox_polygon(bbox5, std::begin(poly), std::end(poly))));
+      CER_CHECK(!intersect_bbox_polygon(bbox5, std::begin(poly), std::end(poly)));
 
       // bbox is above polygon
-      CHECK(!(intersect_bbox_polygon(bbox6, std::begin(poly), std::end(poly))));
+      CER_CHECK(!intersect_bbox_polygon(bbox6, std::begin(poly), std::end(poly)));
     }
 
     SECTION("intersection")
     {
       // polygon point inside bbox
-      CHECK(intersect_bbox_polygon(bbox2, std::begin(poly), std::end(poly)));
+      CER_CHECK(intersect_bbox_polygon(bbox2, std::begin(poly), std::end(poly)));
 
       // bbox edge intersects polygon
-      CHECK(intersect_bbox_polygon(bbox3, std::begin(poly), std::end(poly)));
+      CER_CHECK(intersect_bbox_polygon(bbox3, std::begin(poly), std::end(poly)));
 
       // polygon edge intersects bbox
-      CHECK(intersect_bbox_polygon(bbox4, std::begin(poly), std::end(poly)));
+      CER_CHECK(intersect_bbox_polygon(bbox4, std::begin(poly), std::end(poly)));
 
       // bbox face lies in polygon plane
-      CHECK(intersect_bbox_polygon(bbox7, std::begin(poly), std::end(poly)));
+      CER_CHECK(intersect_bbox_polygon(bbox7, std::begin(poly), std::end(poly)));
 
       // polygon edge passes through bbox, but no bbox edge intersects polygon
       constexpr auto sliver = std::array<vec3d, 3>{
