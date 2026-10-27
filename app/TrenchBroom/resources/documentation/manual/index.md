@@ -467,6 +467,7 @@ Cylinder               Creates a cylinder with a variable number of sides; poten
 Cone                   Creates a cone with a variable number of sides
 Spheroid (UV)          Creates a spheroid shape made up of triangles and quads with two poles
 Spheroid (Icosahedron) Creates a spheroid shape made up of triangles, based on an icosahedron
+Rock                   Creates a randomized rock formation made up of one or more brushes
 
 Note that the cylinder, cone, UV sphere and arch shapes all have similar options, namely the number of sides and a circle mode.
 By using the same values for these options across different shapes, TrenchBroom will create shapes that fit onto each other perfectly.
@@ -490,6 +491,27 @@ This hollow cylinder is scalable because its vertices are all aligned on the gri
 If you create an asymmetric scalable shape, it will not be scaled to fit the bounding box drawn with the mouse like the other shapes. Rather, only the middle portion of it will be elongated so that the vertices remain on the grid. This even applies to cones and UV spheres so that the different shapes still fit together.
 
 The arch is created as the top half of a hollow cylinder. The axis is the direction the arch runs through, like a tunnel. Sides, thickness and circle mode work just like the cylinder, so an arch and a cylinder built with the same values will line up. When using scalable circle mode, drawing the bounds taller than a semicircle will extend the sides straight down, acting as "supports" for the arch. Checking _Spandrel_ fills the gaps between the arch and its bounding box with extra brushes. 
+
+The rock shape creates a randomized rock formation that fills the bounding box drawn with the mouse. Depending on its type, a rock formation consists of a single brush or of several overlapping brushes. The following types are available:
+
+Type     Description
+----     -----------
+Boulder  A single rounded boulder with a flat base
+Shelf    A single wide slab with sloping sides and an uneven top
+Strata   A stack of layers that taper towards the top and drift sideways
+Crag     A tall, jagged rock surrounded by smaller boulders
+Crystal  A cluster of pointed hexagonal shards that fan out from a central shard
+Columns  A group of tapered columns of varying heights around a tall central column
+Basalt   A honeycomb of hexagonal columns of varying heights
+Cluster  A scattering of small boulders
+
+The _Detail_ slider controls how complex the rock formation is. Each type interprets it in its own way, for example as the number of faces of a boulder, the number of layers of strata, or the number of shards of a crystal. Larger bounds make a rock formation more complex at the same detail setting, and for basalt and clusters, the detail setting determines the size of the pieces, so that larger bounds are filled with more of them.
+
+![Rock Shape UI](images/RockShapeUi.png)
+
+The _Seed_ determines the random variations of the rock formation. The same type, detail, seed and bounds always produce the same rock formation, so you can change the seed to try different variations of a rock formation. The button next to the seed sets a random seed. If you toggle the button to the right of it, the seed is incremented every time you create a rock or apply the parameters to the selection, so that every new rock formation looks different.
+
+The vertices of a rock formation are snapped to the integer grid, except for the slanted tops of columns and basalt.
 
 ### Creating Complex Shapes
 

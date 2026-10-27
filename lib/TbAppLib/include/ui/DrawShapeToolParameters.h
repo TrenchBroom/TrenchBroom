@@ -20,7 +20,10 @@
 #pragma once
 
 #include "base/Notifier.h"
-#include "mdl/BrushBuilder.h"
+#include "mdl/CircleShape.h"
+#include "mdl/RockFormation.h"
+
+#include "vm/util.h"
 
 namespace tb::ui
 {
@@ -60,6 +63,12 @@ private:
   double m_stepHeight = 16.0;
   StairDirection m_stairDirection = StairDirection::PosX;
 
+  // For rock shapes
+  mdl::RockType m_rockType = mdl::RockType::Boulder;
+  double m_rockDetail = 0.5;
+  uint32_t m_rockSeed = 0;
+  bool m_incrementRockSeed = false;
+
 public:
   Notifier<> parametersDidChangeNotifier;
 
@@ -89,6 +98,18 @@ public:
 
   StairDirection stairDirection() const;
   void setStairDirection(StairDirection stairDirection);
+
+  mdl::RockType rockType() const;
+  void setRockType(mdl::RockType rockType);
+
+  double rockDetail() const;
+  void setRockDetail(double rockDetail);
+
+  uint32_t rockSeed() const;
+  void setRockSeed(uint32_t rockSeed);
+
+  bool incrementRockSeed() const;
+  void setIncrementRockSeed(bool incrementRockSeed);
 };
 
 } // namespace tb::ui
