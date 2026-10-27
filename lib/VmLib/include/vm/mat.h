@@ -26,6 +26,7 @@
 #include <cassert>
 #include <optional>
 #include <tuple>
+#include <utility>
 
 namespace vm
 {
@@ -744,7 +745,7 @@ constexpr mat<T, C, R> transpose(const mat<T, R, C>& m)
   {
     for (std::size_t r = c + 1u; r < R; ++r)
     {
-      detail::swap(result[c][r], result[r][c]);
+      std::swap(result[c][r], result[r][c]);
     }
   }
   return result;
@@ -975,10 +976,10 @@ constexpr std::optional<std::tuple<mat<T, S, S>, vec<size_t, S>>> lup_find_decom
     {
       return std::nullopt;
     }
-    swap(pi[k], pi[kPrime]);
+    std::swap(pi[k], pi[kPrime]);
     for (std::size_t i = 0; i < S; ++i)
     {
-      swap(a[i][k], a[i][kPrime]);
+      std::swap(a[i][k], a[i][kPrime]);
     }
     for (std::size_t i = k + 1; i < S; ++i)
     {

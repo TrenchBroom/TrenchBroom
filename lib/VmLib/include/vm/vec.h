@@ -22,9 +22,9 @@
 #pragma once
 
 #include "vm/constants.h"
-#include "vm/constexpr_util.h"
 #include "vm/scalar.h"
 
+#include <algorithm>
 #include <cassert>
 #include <cstddef>
 #include <type_traits>
@@ -573,7 +573,13 @@ constexpr void sort_vector(
     elements[i].element = vector[i];
     elements[i].index = i;
   }
-  sort(std::begin(elements), std::end(elements), cmp);
+
+  // Break ties by index to sort stably. Replace this with std::ranges::stable_sort as
+  // soon as it is constexpr (C++26).
+  std::ranges::sort(elements, [&](const auto& lhs, const auto& rhs) {
+    return cmp(lhs.element, rhs.element)
+           || (!cmp(rhs.element, lhs.element) && lhs.index < rhs.index);
+  });
 }
 } // namespace detail
 
@@ -593,9 +599,7 @@ constexpr std::size_t find_max_component(
 {
   assert(k < S);
 
-  constexpr auto cmp = [](const auto& lhs, const auto& rhs) {
-    return lhs.element < rhs.element;
-  };
+  constexpr auto cmp = [](const auto& lhs, const auto& rhs) { return lhs < rhs; };
 
   detail::vector_index_elements<T, S> elements;
   detail::sort_vector(vector, cmp, elements);
@@ -619,7 +623,7 @@ constexpr std::size_t find_abs_max_component(
   assert(k < S);
 
   constexpr auto cmp = [](const auto& lhs, const auto& rhs) {
-    return abs(lhs.element) < abs(rhs.element);
+    return abs(lhs) < abs(rhs);
   };
 
   detail::vector_index_elements<T, S> elements;
@@ -660,14 +664,9 @@ constexpr vec<T, S> get_abs_max_component_axis(
  * @return the value of a k-largest component value of the given vector
  */
 template <typename T, std::size_t S>
-constexpr T get_max_component(vec<T, S> vector, const std::size_t k = 0u)
+constexpr T get_max_component(const vec<T, S>& vector, const std::size_t k = 0u)
 {
-  assert(k < S);
-
-  constexpr auto cmp = [](const auto& lhs, const auto& rhs) { return lhs < rhs; };
-
-  detail::sort(std::begin(vector.v), std::end(vector.v), cmp);
-  return vector[S - k - 1u];
+  return vector[find_max_component(vector, k)];
 }
 
 /**
@@ -681,14 +680,9 @@ constexpr T get_max_component(vec<T, S> vector, const std::size_t k = 0u)
  * @return the value of a k-largest component of the given vector
  */
 template <typename T, std::size_t S>
-constexpr T get_abs_max_component(vec<T, S> vector, const std::size_t k = 0u)
+constexpr T get_abs_max_component(const vec<T, S>& vector, const std::size_t k = 0u)
 {
-  constexpr auto cmp = [](const auto& lhs, const auto& rhs) {
-    return abs(lhs) < abs(rhs);
-  };
-
-  detail::sort(std::begin(vector.v), std::end(vector.v), cmp);
-  return vector[S - k - 1u];
+  return vector[find_abs_max_component(vector, k)];
 }
 
 /* ========== arithmetic operators ========== */
