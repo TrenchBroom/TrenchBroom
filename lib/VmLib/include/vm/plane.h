@@ -363,7 +363,7 @@ constexpr bool operator!=(const plane<T, S>& lhs, const plane<T, S>& rhs)
  * @return the normal if the plane is valid and nullopt otherwise
  */
 template <typename T>
-std::optional<vec<T, 3>> plane_normal(
+constexpr std::optional<vec<T, 3>> plane_normal(
   const vec<T, 3>& p1,
   const vec<T, 3>& p2,
   const vec<T, 3>& p3,
@@ -375,8 +375,15 @@ std::optional<vec<T, 3>> plane_normal(
 
   // Fail if v1 and v2 are parallel, opposite, or either is zero-length.
   // Rearranging "A cross B = ||A|| * ||B|| * sin(theta) * n" (n is a unit vector
-  // perpendicular to A and B) gives sin_theta below.
-  const auto sin_theta = abs(length(normal) / (length(v1) * length(v2)));
+  // perpendicular to A and B) gives sin_theta below. Check for zero-length vectors before
+  // dividing because dividing by zero is not allowed during constant evaluation.
+  const auto lengths = length(v1) * length(v2);
+  if (lengths == static_cast<T>(0))
+  {
+    return std::nullopt;
+  }
+
+  const auto sin_theta = abs(length(normal) / lengths);
   if (is_nan(sin_theta) || is_inf(sin_theta) || sin_theta < epsilon)
   {
     return std::nullopt;
@@ -407,7 +414,7 @@ std::optional<vec<T, 3>> plane_normal(
  * @return the plane if the points define a valid plane and nullopt otherwise
  */
 template <typename T>
-std::optional<plane<T, 3>> from_points(
+constexpr std::optional<plane<T, 3>> from_points(
   const vec<T, 3>& p1, const vec<T, 3>& p2, const vec<T, 3>& p3)
 {
   if (const auto normal = plane_normal(p1, p2, p3))
@@ -444,7 +451,7 @@ std::optional<plane<T, 3>> from_points(
  * @return the plane if the opints define a valid plane and nullopt otherwise
  */
 template <typename I, typename G = identity>
-auto from_points(I cur, I end, const G& get = G())
+constexpr auto from_points(I cur, I end, const G& get = G())
   -> std::optional<
     plane<typename std::remove_reference<decltype(get(*cur))>::type::type, 3>>
 {

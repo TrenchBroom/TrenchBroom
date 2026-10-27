@@ -207,7 +207,8 @@ constexpr bool polygon_contains_point(
  * @return true if the given point is contained in the given polygon, and false otherwise
  */
 template <typename T, typename I, typename G = identity>
-bool polygon_contains_point(const vec<T, 3>& p, I cur, I end, const G& get = G())
+constexpr bool polygon_contains_point(
+  const vec<T, 3>& p, I cur, I end, const G& get = G())
 {
   auto temp = cur;
 

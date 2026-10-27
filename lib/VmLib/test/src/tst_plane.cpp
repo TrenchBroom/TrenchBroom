@@ -292,110 +292,132 @@ TEST_CASE("plane")
 
   SECTION("plane_normal")
   {
-    CHECK(plane_normal(vec3d{0, 0, 0}, vec3d{0, 1, 0}, vec3d{1, 0, 0}) == vec3d{0, 0, 1});
-    CHECK(
+    CER_CHECK(
+      plane_normal(vec3d{0, 0, 0}, vec3d{0, 1, 0}, vec3d{1, 0, 0}) == vec3d{0, 0, 1});
+    CER_CHECK(
       plane_normal(vec3d{0, 0, 0}, normalize(vec3d{1, 1, 0}), vec3d{1, 0, 0})
-      == vec3d{0, 0, 1});
-    CHECK(plane_normal(vec3d{0, 0, 0}, vec3d{0, 0, 0}, vec3d{1, 0, 0}) == std::nullopt);
-    CHECK(plane_normal(vec3d{0, 0, 0}, vec3d{1, 0, 0}, vec3d{1, 0, 0}) == std::nullopt);
-    CHECK(plane_normal(vec3d{0, 0, 0}, vec3d{-1, 0, 0}, vec3d{1, 0, 0}) == std::nullopt);
-    CHECK(plane_normal(vec3d{0, 0, 0}, vec3d{0, 0, 0}, vec3d{1, 0, 0}) == std::nullopt);
+      == approx(vec3d{0, 0, 1}));
+    CER_CHECK(
+      plane_normal(vec3d{0, 0, 0}, vec3d{0, 0, 0}, vec3d{1, 0, 0}) == std::nullopt);
+    CER_CHECK(
+      plane_normal(vec3d{0, 0, 0}, vec3d{1, 0, 0}, vec3d{1, 0, 0}) == std::nullopt);
+    CER_CHECK(
+      plane_normal(vec3d{0, 0, 0}, vec3d{-1, 0, 0}, vec3d{1, 0, 0}) == std::nullopt);
+    CER_CHECK(
+      plane_normal(vec3d{0, 0, 0}, vec3d{0, 0, 0}, vec3d{1, 0, 0}) == std::nullopt);
   }
 
   SECTION("from_points")
   {
-    std::array<vec3f, 3> points;
-    const float epsilon = constants<float>::point_status_epsilon();
+    constexpr auto epsilon = constants<float>::point_status_epsilon();
 
-    points[0] = vec3f{0.0f, 0.0f, 0.0f};
-    points[1] = vec3f{0.0f, 1.0f, 0.0f};
-    points[2] = vec3f{1.0f, 0.0f, 0.0f};
+    {
+      constexpr auto points = std::array{
+        vec3f{0.0f, 0.0f, 0.0f}, vec3f{0.0f, 1.0f, 0.0f}, vec3f{1.0f, 0.0f, 0.0f}};
 
-    auto plane = from_points(std::begin(points), std::end(points));
-    CHECK(plane);
-    CHECK(plane->normal == approx(vec3f{0, 0, 1}));
-    CHECK(plane->distance == approx(0.0f));
+      constexpr auto plane = from_points(std::begin(points), std::end(points));
+      CER_CHECK(plane);
+      CER_CHECK(plane->normal == approx(vec3f{0, 0, 1}));
+      CER_CHECK(plane->distance == approx(0.0f));
+    }
 
-    // right angle, short vectors
-    points[0] = vec3f{0.0f, 0.0f, 0.0f};
-    points[1] = vec3f{0.0f, epsilon, 0.0f};
-    points[2] = vec3f{epsilon, 0.0f, 0.0f};
+    {
+      // right angle, short vectors
+      constexpr auto points = std::array{
+        vec3f{0.0f, 0.0f, 0.0f}, vec3f{0.0f, epsilon, 0.0f}, vec3f{epsilon, 0.0f, 0.0f}};
 
-    plane = from_points(std::begin(points), std::end(points));
-    CHECK(plane);
-    CHECK(plane->normal == approx(vec3f{0, 0, 1}));
-    CHECK(plane->distance == approx(0.0f));
+      constexpr auto plane = from_points(std::begin(points), std::end(points));
+      CER_CHECK(plane);
+      CER_CHECK(plane->normal == approx(vec3f{0, 0, 1}));
+      CER_CHECK(plane->distance == approx(0.0f));
+    }
 
-    // plane point vectors at a 45 degree angle, short vectors
-    points[0] = vec3f{0.0f, 0.0f, 0.0f};
-    points[1] = vec3f{epsilon, epsilon, 0.0f};
-    points[2] = vec3f{epsilon, 0.0f, 0.0f};
+    {
+      // plane point vectors at a 45 degree angle, short vectors
+      constexpr auto points = std::array{
+        vec3f{0.0f, 0.0f, 0.0f},
+        vec3f{epsilon, epsilon, 0.0f},
+        vec3f{epsilon, 0.0f, 0.0f}};
 
-    plane = from_points(std::begin(points), std::end(points));
-    CHECK(plane);
-    CHECK(plane->normal == approx(vec3f{0, 0, 1}));
-    CHECK(plane->distance == approx(0.0f));
+      constexpr auto plane = from_points(std::begin(points), std::end(points));
+      CER_CHECK(plane);
+      CER_CHECK(plane->normal == approx(vec3f{0, 0, 1}));
+      CER_CHECK(plane->distance == approx(0.0f));
+    }
 
-    // horizontal plane at z=length units above the origin
-    points[0] = vec3f{0.0f, 0.0f, epsilon};
-    points[1] = vec3f{0.0f, epsilon, epsilon};
-    points[2] = vec3f{epsilon, 0.0f, epsilon};
+    {
+      // horizontal plane at z=length units above the origin
+      constexpr auto points = std::array{
+        vec3f{0.0f, 0.0f, epsilon},
+        vec3f{0.0f, epsilon, epsilon},
+        vec3f{epsilon, 0.0f, epsilon}};
 
-    plane = from_points(std::begin(points), std::end(points));
-    CHECK(plane);
-    CHECK(plane->normal == approx(vec3f{0, 0, 1}));
-    CHECK(plane->distance == approx(epsilon));
+      constexpr auto plane = from_points(std::begin(points), std::end(points));
+      CER_CHECK(plane);
+      CER_CHECK(plane->normal == approx(vec3f{0, 0, 1}));
+      CER_CHECK(plane->distance == approx(epsilon));
+    }
 
-    // small angle (triangle 1000 units wide, length units tall)
-    points[0] = vec3f{0.0f, 0.0f, 0.0f};
-    points[1] = vec3f{1000.0f, epsilon, 0.0f};
-    points[2] = vec3f{1000.0f, 0.0f, 0.0f};
+    {
+      // small angle (triangle 1000 units wide, length units tall)
+      constexpr auto points = std::array{
+        vec3f{0.0f, 0.0f, 0.0f},
+        vec3f{1000.0f, epsilon, 0.0f},
+        vec3f{1000.0f, 0.0f, 0.0f}};
 
-    plane = from_points(std::begin(points), std::end(points));
-    CHECK(plane);
-    CHECK(plane->normal == approx(vec3f{0, 0, 1}));
-    CHECK(plane->distance == approx(0.0f));
+      constexpr auto plane = from_points(std::begin(points), std::end(points));
+      CER_CHECK(plane);
+      CER_CHECK(plane->normal == approx(vec3f{0, 0, 1}));
+      CER_CHECK(plane->distance == approx(0.0f));
+    }
 
-    // small angle
-    points[0] = vec3f{224.0f, -400.0f, 1648.0f};
-    points[1] = vec3f{304.0f, -432.0f, 1248.0f + epsilon};
-    points[2] = vec3f{304.0f, -432.0f, 1248.0f};
+    {
+      // small angle
+      constexpr auto points = std::array{
+        vec3f{224.0f, -400.0f, 1648.0f},
+        vec3f{304.0f, -432.0f, 1248.0f + epsilon},
+        vec3f{304.0f, -432.0f, 1248.0f}};
 
-    plane = from_points(std::begin(points), std::end(points));
-    CHECK(plane);
-    CHECK(length(plane->normal) == approx(1.0f));
+      constexpr auto plane = from_points(std::begin(points), std::end(points));
+      CER_CHECK(plane);
+      CER_CHECK(length(plane->normal) == approx(1.0f));
+    }
 
-    // too-small angle (triangle 1000 units wide, length/100 units tall)
-    points[0] = vec3f{0.0f, 0.0f, 0.0f};
-    points[1] = vec3f{1000.0f, epsilon / 100.0f, 0.0f};
-    points[2] = vec3f{1000.0f, 0.0f, 0.0f};
+    {
+      // too-small angle (triangle 1000 units wide, length/100 units tall)
+      constexpr auto points = std::array{
+        vec3f{0.0f, 0.0f, 0.0f},
+        vec3f{1000.0f, epsilon / 100.0f, 0.0f},
+        vec3f{1000.0f, 0.0f, 0.0f}};
 
-    plane = from_points(std::begin(points), std::end(points));
-    CHECK(plane == std::nullopt);
+      CER_CHECK(from_points(std::begin(points), std::end(points)) == std::nullopt);
+    }
 
-    // all zero
-    points[0] = vec3f{0.0f, 0.0f, 0.0f};
-    points[1] = vec3f{0.0f, 0.0f, 0.0f};
-    points[2] = vec3f{0.0f, 0.0f, 0.0f};
+    {
+      // all zero
+      constexpr auto points = std::array{
+        vec3f{0.0f, 0.0f, 0.0f}, vec3f{0.0f, 0.0f, 0.0f}, vec3f{0.0f, 0.0f, 0.0f}};
 
-    plane = from_points(std::begin(points), std::end(points));
-    CHECK(plane == std::nullopt);
+      CER_CHECK(from_points(std::begin(points), std::end(points)) == std::nullopt);
+    }
 
-    // same direction, short vectors
-    points[0] = vec3f{0.0f, 0.0f, 0.0f};
-    points[1] = vec3f{2 * epsilon, 0.0f, 0.0f};
-    points[2] = vec3f{epsilon, 0.0f, 0.0f};
+    {
+      // same direction, short vectors
+      constexpr auto points = std::array{
+        vec3f{0.0f, 0.0f, 0.0f},
+        vec3f{2 * epsilon, 0.0f, 0.0f},
+        vec3f{epsilon, 0.0f, 0.0f}};
 
-    plane = from_points(std::begin(points), std::end(points));
-    CHECK(plane == std::nullopt);
+      CER_CHECK(from_points(std::begin(points), std::end(points)) == std::nullopt);
+    }
 
-    // opposite, short vectors
-    points[0] = vec3f{0.0f, 0.0f, 0.0f};
-    points[1] = vec3f{-epsilon, 0.0f, 0.0f};
-    points[2] = vec3f{epsilon, 0.0f, 0.0f};
+    {
+      // opposite, short vectors
+      constexpr auto points = std::array{
+        vec3f{0.0f, 0.0f, 0.0f}, vec3f{-epsilon, 0.0f, 0.0f}, vec3f{epsilon, 0.0f, 0.0f}};
 
-    plane = from_points(std::begin(points), std::end(points));
-    CHECK(plane == std::nullopt);
+      CER_CHECK(from_points(std::begin(points), std::end(points)) == std::nullopt);
+    }
   }
 
   SECTION("horizontal_plane")
