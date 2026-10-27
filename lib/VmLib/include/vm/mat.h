@@ -434,6 +434,29 @@ constexpr bool is_zero(const mat<T, R, C>& m, const T epsilon)
 }
 
 /**
+ * Checks whether the given matrix is an affine transformation in homogeneous coordinates,
+ * that is, whether its last row is (0, ..., 0, 1). The elements are compared exactly,
+ * which is reliable because composing affine transformations keeps the last row exact.
+ *
+ * @tparam T the element type
+ * @tparam S the number of rows and columns
+ * @param m the matrix to check
+ * @return true if the given matrix is an affine transformation
+ */
+template <typename T, std::size_t S>
+constexpr bool is_affine(const mat<T, S, S>& m)
+{
+  for (size_t c = 0; c < S - 1; ++c)
+  {
+    if (m[c][S - 1] != static_cast<T>(0))
+    {
+      return false;
+    }
+  }
+  return m[S - 1][S - 1] == static_cast<T>(1);
+}
+
+/**
  * Checks whether the given matrices have identical components.
  *
  * @tparam T the element type
