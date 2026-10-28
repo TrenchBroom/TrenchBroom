@@ -235,6 +235,7 @@ public:
   }
 
   template <typename... Args>
+    requires std::is_constructible_v<value_type, Args...>
   std::pair<iterator, bool> emplace(Args&&... args)
   {
     return insert(value_type{std::forward<Args>(args)...});
