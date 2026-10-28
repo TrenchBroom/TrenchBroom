@@ -20,6 +20,7 @@
 #include "el/EvaluationContext.h"
 #include "el/Exceptions.h"
 #include "el/Expression.h"
+#include "el/LazyMap.h"
 #include "el/Types.h"
 #include "el/Value.h"
 
@@ -51,6 +52,7 @@ const auto allTypes = std::vector{
   ValueType::Range,
   ValueType::Vec3,
   ValueType::BBox,
+  ValueType::LazyMap,
   ValueType::Null,
   ValueType::Undefined,
 };
@@ -73,6 +75,20 @@ const auto leftBoundedRange = Value{RangeType{LeftBoundedRange{2}}};
 const auto rightBoundedRange = Value{RangeType{RightBoundedRange{5}}};
 const auto vec3 = Value{Vec3Type{1, 2, 3}};
 const auto bbox = Value{BBoxType{Vec3Type{1, 2, 3}, Vec3Type{4, 5, 6}}};
+
+struct LazyMapTestObject
+{
+  std::string name;
+  double number;
+};
+
+const auto lazyMapTestFields = LazyMapFields<LazyMapTestObject>{
+  {"name", {ValueType::String, [](const auto& o) { return Value{o.name}; }}},
+  {"number", {ValueType::Number, [](const auto& o) { return Value{o.number}; }}},
+};
+
+const auto lazyMapTestObject = LazyMapTestObject{"test", 42.0};
+const auto testLazyMap = makeLazyMap(lazyMapTestObject, lazyMapTestFields);
 
 } // namespace
 
@@ -99,6 +115,7 @@ TEST_CASE("Value")
       {Value{RangeType{BoundedRange{1, 3}}},                  ValueType::Range},
       {Value{Vec3Type{1, 2, 3}},                              ValueType::Vec3},
       {Value{BBoxType{Vec3Type{1, 2, 3}, Vec3Type{4, 5, 6}}}, ValueType::BBox},
+      {testLazyMap,                                           ValueType::LazyMap},
       {Value{NullType::Value},                                ValueType::Null},
       {Value{UndefinedType::Value},                           ValueType::Undefined},
 
@@ -151,6 +168,7 @@ TEST_CASE("Value")
     {Value{ArrayType{}}, "Array"},
     {Value{MapType{}},   "Map"},
     {boundedRange,       "Range"},
+    {testLazyMap,        "Map"},
     {Value::Null,        "Null"},
     {Value::Undefined,   "Undefined"},
     }));
@@ -288,6 +306,7 @@ TEST_CASE("Value")
     {boundedRange,                 Error{"At unknown location: Cannot dereference value '[1..3]' of type 'Range' as type 'Array'"}},
     {vec3,                         Error{"At unknown location: Cannot dereference value 'vec(1, 2, 3)' of type 'Vec3' as type 'Array'"}},
     {bbox,                         Error{"At unknown location: Cannot dereference value 'bbox(vec(1, 2, 3), vec(4, 5, 6))' of type 'BBox' as type 'Array'"}},
+    {testLazyMap,                  Error{R"(At unknown location: Cannot dereference value '{ "name": "test", "number": 42 }' of type 'Map' as type 'Array')"}},
     {Value::Undefined,             Error{"At unknown location: Cannot dereference value 'undefined' of type 'Undefined' as type 'Array'"}},
     }));
     // clang-format on
@@ -313,6 +332,7 @@ TEST_CASE("Value")
     {boundedRange,                        Error{"At unknown location: Cannot dereference value '[1..3]' of type 'Range' as type 'Map'"}},
     {vec3,                                Error{"At unknown location: Cannot dereference value 'vec(1, 2, 3)' of type 'Vec3' as type 'Map'"}},
     {bbox,                                Error{"At unknown location: Cannot dereference value 'bbox(vec(1, 2, 3), vec(4, 5, 6))' of type 'BBox' as type 'Map'"}},
+    {testLazyMap,                         Error{R"(At unknown location: Cannot dereference value '{ "name": "test", "number": 42 }' of type 'Map' as type 'Map')"}},
     {Value::Undefined,                    Error{"At unknown location: Cannot dereference value 'undefined' of type 'Undefined' as type 'Map'"}},
     }));
     // clang-format on
@@ -339,6 +359,7 @@ TEST_CASE("Value")
     {Value{MapType{}},   Error{"At unknown location: Cannot dereference value '{}' of type 'Map' as type 'Range'"}},
     {vec3,               Error{"At unknown location: Cannot dereference value 'vec(1, 2, 3)' of type 'Vec3' as type 'Range'"}},
     {bbox,               Error{"At unknown location: Cannot dereference value 'bbox(vec(1, 2, 3), vec(4, 5, 6))' of type 'BBox' as type 'Range'"}},
+    {testLazyMap,        Error{R"(At unknown location: Cannot dereference value '{ "name": "test", "number": 42 }' of type 'Map' as type 'Range')"}},
 
     // unlike the other accessors, a range cannot be dereferenced from null
     {Value::Null,        Error{"At unknown location: Cannot dereference value 'null' of type 'Null' as type 'Range'"}},
@@ -366,6 +387,7 @@ TEST_CASE("Value")
     {Value{MapType{}},   Error{"At unknown location: Cannot dereference value '{}' of type 'Map' as type 'Vec3'"}},
     {boundedRange,       Error{"At unknown location: Cannot dereference value '[1..3]' of type 'Range' as type 'Vec3'"}},
     {bbox,               Error{"At unknown location: Cannot dereference value 'bbox(vec(1, 2, 3), vec(4, 5, 6))' of type 'BBox' as type 'Vec3'"}},
+    {testLazyMap,        Error{R"(At unknown location: Cannot dereference value '{ "name": "test", "number": 42 }' of type 'Map' as type 'Vec3')"}},
 
     {Value::Null,        Error{"At unknown location: Cannot dereference value 'null' of type 'Null' as type 'Vec3'"}},
     {Value::Undefined,   Error{"At unknown location: Cannot dereference value 'undefined' of type 'Undefined' as type 'Vec3'"}},
@@ -392,6 +414,7 @@ TEST_CASE("Value")
     {Value{MapType{}},   Error{"At unknown location: Cannot dereference value '{}' of type 'Map' as type 'BBox'"}},
     {boundedRange,       Error{"At unknown location: Cannot dereference value '[1..3]' of type 'Range' as type 'BBox'"}},
     {vec3,               Error{"At unknown location: Cannot dereference value 'vec(1, 2, 3)' of type 'Vec3' as type 'BBox'"}},
+    {testLazyMap,        Error{R"(At unknown location: Cannot dereference value '{ "name": "test", "number": 42 }' of type 'Map' as type 'BBox')"}},
 
     {Value::Null,        Error{"At unknown location: Cannot dereference value 'null' of type 'Null' as type 'BBox'"}},
     {Value::Undefined,   Error{"At unknown location: Cannot dereference value 'undefined' of type 'Undefined' as type 'BBox'"}},
@@ -402,6 +425,43 @@ TEST_CASE("Value")
 
     CHECK(
       withEvaluationContext([&](auto&) { return value.bboxValue(); }) == expectedResult);
+  }
+
+  SECTION("lazyMap")
+  {
+    SECTION("lazy map")
+    {
+      const auto& lazyMap = testLazyMap.lazyMapValue();
+      CHECK(lazyMap.at("name") == Value{"test"});
+      CHECK(lazyMap.at("number") == Value{42.0});
+      CHECK(lazyMap.at("missing") == std::nullopt);
+      CHECK(lazyMap.keys() == std::vector<std::string>{"name", "number"});
+    }
+
+    SECTION("other types")
+    {
+      // clang-format off
+      const auto
+      [value,              expectedResult] = GENERATE(table<Value, Result<void>>({
+      {Value{true},        Error{"At unknown location: Cannot dereference value 'true' of type 'Boolean' as type 'Map'"}},
+      {Value{"test"},      Error{R"(At unknown location: Cannot dereference value '"test"' of type 'String' as type 'Map')"}},
+      {Value{1.0},         Error{"At unknown location: Cannot dereference value '1' of type 'Number' as type 'Map'"}},
+      {Value{ArrayType{}}, Error{"At unknown location: Cannot dereference value '[]' of type 'Array' as type 'Map'"}},
+      {Value{MapType{}},   Error{"At unknown location: Cannot dereference value '{}' of type 'Map' as type 'Map'"}},
+      {boundedRange,       Error{"At unknown location: Cannot dereference value '[1..3]' of type 'Range' as type 'Map'"}},
+      {vec3,               Error{"At unknown location: Cannot dereference value 'vec(1, 2, 3)' of type 'Vec3' as type 'Map'"}},
+      {bbox,               Error{"At unknown location: Cannot dereference value 'bbox(vec(1, 2, 3), vec(4, 5, 6))' of type 'BBox' as type 'Map'"}},
+
+      {Value::Null,        Error{"At unknown location: Cannot dereference value 'null' of type 'Null' as type 'Map'"}},
+      {Value::Undefined,   Error{"At unknown location: Cannot dereference value 'undefined' of type 'Undefined' as type 'Map'"}},
+      }));
+      // clang-format on
+
+      CAPTURE(value);
+
+      CHECK(
+        withEvaluationContext([&](auto&) { value.lazyMapValue(); }) == expectedResult);
+    }
   }
 
   SECTION("asStringList")
@@ -460,6 +520,7 @@ TEST_CASE("Value")
     {boundedRange,                             2u},
     {vec3,                                     3u},
     {bbox,                                     2u},
+    {testLazyMap,                              2u},
     {Value::Null,                              0u},
     {Value::Undefined,                         0u},
     }));
@@ -490,7 +551,8 @@ TEST_CASE("Value")
       {boundedRange,       std::vector{Range}},
       {vec3,               std::vector{String, Vec3}},
       {bbox,               std::vector{BBox}},
-      {Value::Null,        std::vector{Boolean, String, Number, Array, Map, Null}},
+      {testLazyMap,        std::vector{Map, LazyMap}},
+      {Value::Null,       std::vector{Boolean, String, Number, Array, Map, Null}},
       {Value::Undefined,   std::vector{Undefined}},
       }));
       // clang-format on
@@ -529,6 +591,7 @@ TEST_CASE("Value")
     {Value{true},                           ValueType::Range,     Error{"At unknown location: Cannot convert value 'true' of type 'Boolean' to type 'Range'"}},
     {Value{true},                           ValueType::Vec3,      Error{"At unknown location: Cannot convert value 'true' of type 'Boolean' to type 'Vec3'"}},
     {Value{true},                           ValueType::BBox,      Error{"At unknown location: Cannot convert value 'true' of type 'Boolean' to type 'BBox'"}},
+    {Value{true},                           ValueType::LazyMap,   Error{"At unknown location: Cannot convert value 'true' of type 'Boolean' to type 'Map'"}},
     {Value{true},                           ValueType::Null,      Error{"At unknown location: Cannot convert value 'true' of type 'Boolean' to type 'Null'"}},
     {Value{true},                           ValueType::Undefined, Error{"At unknown location: Cannot convert value 'true' of type 'Boolean' to type 'Undefined'"}},
 
@@ -553,6 +616,7 @@ TEST_CASE("Value")
     {Value{"asdf"},                         ValueType::Range,     Error{R"(At unknown location: Cannot convert value '"asdf"' of type 'String' to type 'Range')"}},
     {Value{"asdf"},                         ValueType::Vec3,      Error{R"(At unknown location: Cannot convert value '"asdf"' of type 'String' to type 'Vec3')"}},
     {Value{"asdf"},                         ValueType::BBox,      Error{R"(At unknown location: Cannot convert value '"asdf"' of type 'String' to type 'BBox')"}},
+    {Value{"asdf"},                         ValueType::LazyMap,   Error{R"(At unknown location: Cannot convert value '"asdf"' of type 'String' to type 'Map')"}},
     {Value{"asdf"},                         ValueType::Null,      Error{R"(At unknown location: Cannot convert value '"asdf"' of type 'String' to type 'Null')"}},
     {Value{"asdf"},                         ValueType::Undefined, Error{R"(At unknown location: Cannot convert value '"asdf"' of type 'String' to type 'Undefined')"}},
 
@@ -571,6 +635,7 @@ TEST_CASE("Value")
     {Value{3},                              ValueType::Range,     Error{"At unknown location: Cannot convert value '3' of type 'Number' to type 'Range'"}},
     {Value{6},                              ValueType::Vec3,      Error{"At unknown location: Cannot convert value '6' of type 'Number' to type 'Vec3'"}},
     {Value{7},                              ValueType::BBox,      Error{"At unknown location: Cannot convert value '7' of type 'Number' to type 'BBox'"}},
+    {Value{8},                              ValueType::LazyMap,   Error{"At unknown location: Cannot convert value '8' of type 'Number' to type 'Map'"}},
     {Value{4},                              ValueType::Null,      Error{"At unknown location: Cannot convert value '4' of type 'Number' to type 'Null'"}},
     {Value{5},                              ValueType::Undefined, Error{"At unknown location: Cannot convert value '5' of type 'Number' to type 'Undefined'"}},
 
@@ -582,6 +647,7 @@ TEST_CASE("Value")
     {Value{ArrayType{}},                    ValueType::Range,     Error{"At unknown location: Cannot convert value '[]' of type 'Array' to type 'Range'"}},
     {Value{ArrayType{}},                    ValueType::Vec3,      Error{"At unknown location: Cannot convert value '[]' of type 'Array' to type 'Vec3'"}},
     {Value{ArrayType{}},                    ValueType::BBox,      Error{"At unknown location: Cannot convert value '[]' of type 'Array' to type 'BBox'"}},
+    {Value{ArrayType{}},                    ValueType::LazyMap,   Error{"At unknown location: Cannot convert value '[]' of type 'Array' to type 'Map'"}},
     {Value{ArrayType{}},                    ValueType::Null,      Error{"At unknown location: Cannot convert value '[]' of type 'Array' to type 'Null'"}},
     {Value{ArrayType{}},                    ValueType::Undefined, Error{"At unknown location: Cannot convert value '[]' of type 'Array' to type 'Undefined'"}},
 
@@ -593,6 +659,7 @@ TEST_CASE("Value")
     {Value{MapType{}},                      ValueType::Range,     Error{"At unknown location: Cannot convert value '{}' of type 'Map' to type 'Range'"}},
     {Value{MapType{}},                      ValueType::Vec3,      Error{"At unknown location: Cannot convert value '{}' of type 'Map' to type 'Vec3'"}},
     {Value{MapType{}},                      ValueType::BBox,      Error{"At unknown location: Cannot convert value '{}' of type 'Map' to type 'BBox'"}},
+    {Value{MapType{}},                      ValueType::LazyMap,   Error{"At unknown location: Cannot convert value '{}' of type 'Map' to type 'Map'"}},
     {Value{MapType{}},                      ValueType::Null,      Error{"At unknown location: Cannot convert value '{}' of type 'Map' to type 'Null'"}},
     {Value{MapType{}},                      ValueType::Undefined, Error{"At unknown location: Cannot convert value '{}' of type 'Map' to type 'Undefined'"}},
 
@@ -604,6 +671,7 @@ TEST_CASE("Value")
     {boundedRange,                          ValueType::Range,     boundedRange},
     {boundedRange,                          ValueType::Vec3,      Error{"At unknown location: Cannot convert value '[1..3]' of type 'Range' to type 'Vec3'"}},
     {boundedRange,                          ValueType::BBox,      Error{"At unknown location: Cannot convert value '[1..3]' of type 'Range' to type 'BBox'"}},
+    {boundedRange,                          ValueType::LazyMap,   Error{"At unknown location: Cannot convert value '[1..3]' of type 'Range' to type 'Map'"}},
     {boundedRange,                          ValueType::Null,      Error{"At unknown location: Cannot convert value '[1..3]' of type 'Range' to type 'Null'"}},
     {boundedRange,                          ValueType::Undefined, Error{"At unknown location: Cannot convert value '[1..3]' of type 'Range' to type 'Undefined'"}},
 
@@ -618,6 +686,7 @@ TEST_CASE("Value")
     {vec3,                                  ValueType::Range,     Error{"At unknown location: Cannot convert value 'vec(1, 2, 3)' of type 'Vec3' to type 'Range'"}},
     {vec3,                                  ValueType::Vec3,      vec3},
     {vec3,                                  ValueType::BBox,      Error{"At unknown location: Cannot convert value 'vec(1, 2, 3)' of type 'Vec3' to type 'BBox'"}},
+    {vec3,                                  ValueType::LazyMap,   Error{"At unknown location: Cannot convert value 'vec(1, 2, 3)' of type 'Vec3' to type 'Map'"}},
     {vec3,                                  ValueType::Null,      Error{"At unknown location: Cannot convert value 'vec(1, 2, 3)' of type 'Vec3' to type 'Null'"}},
     {vec3,                                  ValueType::Undefined, Error{"At unknown location: Cannot convert value 'vec(1, 2, 3)' of type 'Vec3' to type 'Undefined'"}},
 
@@ -629,8 +698,21 @@ TEST_CASE("Value")
     {bbox,                                  ValueType::Range,     Error{"At unknown location: Cannot convert value 'bbox(vec(1, 2, 3), vec(4, 5, 6))' of type 'BBox' to type 'Range'"}},
     {bbox,                                  ValueType::Vec3,      Error{"At unknown location: Cannot convert value 'bbox(vec(1, 2, 3), vec(4, 5, 6))' of type 'BBox' to type 'Vec3'"}},
     {bbox,                                  ValueType::BBox,      bbox},
+    {bbox,                                  ValueType::LazyMap,   Error{"At unknown location: Cannot convert value 'bbox(vec(1, 2, 3), vec(4, 5, 6))' of type 'BBox' to type 'Map'"}},
     {bbox,                                  ValueType::Null,      Error{"At unknown location: Cannot convert value 'bbox(vec(1, 2, 3), vec(4, 5, 6))' of type 'BBox' to type 'Null'"}},
     {bbox,                                  ValueType::Undefined, Error{"At unknown location: Cannot convert value 'bbox(vec(1, 2, 3), vec(4, 5, 6))' of type 'BBox' to type 'Undefined'"}},
+
+    {testLazyMap,                           ValueType::Boolean,   Error{R"(At unknown location: Cannot convert value '{ "name": "test", "number": 42 }' of type 'Map' to type 'Boolean')"}},
+    {testLazyMap,                           ValueType::String,    Error{R"(At unknown location: Cannot convert value '{ "name": "test", "number": 42 }' of type 'Map' to type 'String')"}},
+    {testLazyMap,                           ValueType::Number,    Error{R"(At unknown location: Cannot convert value '{ "name": "test", "number": 42 }' of type 'Map' to type 'Number')"}},
+    {testLazyMap,                           ValueType::Array,     Error{R"(At unknown location: Cannot convert value '{ "name": "test", "number": 42 }' of type 'Map' to type 'Array')"}},
+    {testLazyMap,                           ValueType::Map,       Value{MapType{{"name", Value{"test"}}, {"number", Value{42}}}}},
+    {testLazyMap,                           ValueType::Range,     Error{R"(At unknown location: Cannot convert value '{ "name": "test", "number": 42 }' of type 'Map' to type 'Range')"}},
+    {testLazyMap,                           ValueType::Vec3,      Error{R"(At unknown location: Cannot convert value '{ "name": "test", "number": 42 }' of type 'Map' to type 'Vec3')"}},
+    {testLazyMap,                           ValueType::BBox,      Error{R"(At unknown location: Cannot convert value '{ "name": "test", "number": 42 }' of type 'Map' to type 'BBox')"}},
+    {testLazyMap,                           ValueType::LazyMap,   testLazyMap},
+    {testLazyMap,                           ValueType::Null,      Error{R"(At unknown location: Cannot convert value '{ "name": "test", "number": 42 }' of type 'Map' to type 'Null')"}},
+    {testLazyMap,                           ValueType::Undefined, Error{R"(At unknown location: Cannot convert value '{ "name": "test", "number": 42 }' of type 'Map' to type 'Undefined')"}},
 
     {Value::Null,                           ValueType::Boolean,   Value{false}},
     {Value::Null,                           ValueType::String,    Value{""}},
@@ -640,6 +722,7 @@ TEST_CASE("Value")
     {Value::Null,                           ValueType::Range,     Error{"At unknown location: Cannot convert value 'null' of type 'Null' to type 'Range'"}},
     {Value::Null,                           ValueType::Vec3,      Error{"At unknown location: Cannot convert value 'null' of type 'Null' to type 'Vec3'"}},
     {Value::Null,                           ValueType::BBox,      Error{"At unknown location: Cannot convert value 'null' of type 'Null' to type 'BBox'"}},
+    {Value::Null,                           ValueType::LazyMap,   Error{"At unknown location: Cannot convert value 'null' of type 'Null' to type 'Map'"}},
     {Value::Null,                           ValueType::Null,      Value::Null},
     {Value::Null,                           ValueType::Undefined, Error{"At unknown location: Cannot convert value 'null' of type 'Null' to type 'Undefined'"}},
 
@@ -651,6 +734,7 @@ TEST_CASE("Value")
     {Value::Undefined,                      ValueType::Range,     Error{"At unknown location: Cannot convert value 'undefined' of type 'Undefined' to type 'Range'"}},
     {Value::Undefined,                      ValueType::Vec3,      Error{"At unknown location: Cannot convert value 'undefined' of type 'Undefined' to type 'Vec3'"}},
     {Value::Undefined,                      ValueType::BBox,      Error{"At unknown location: Cannot convert value 'undefined' of type 'Undefined' to type 'BBox'"}},
+    {Value::Undefined,                      ValueType::LazyMap,   Error{"At unknown location: Cannot convert value 'undefined' of type 'Undefined' to type 'Map'"}},
     {Value::Undefined,                      ValueType::Null,      Error{"At unknown location: Cannot convert value 'undefined' of type 'Undefined' to type 'Null'"}},
     {Value::Undefined,                      ValueType::Undefined, Value::Undefined},
     }));
@@ -707,6 +791,9 @@ TEST_CASE("Value")
       {rightBoundedRange,                                        "[..5]"},
       {vec3,                                                     "vec(1, 2, 3)"},
       {bbox,                                                     "bbox(vec(1, 2, 3), vec(4, 5, 6))"},
+      // prints exactly like a real Map would, since LazyMap is meant to be
+      // indistinguishable from one
+      {testLazyMap,                                              R"({ "name": "test", "number": 42 })"},
       {Value::Null,                                              "null"},
       {Value::Undefined,                                         "undefined"},
       }));
@@ -729,6 +816,7 @@ TEST_CASE("Value")
       {Value{MapType{}},                                         "{}"},
       {Value{MapType{{"a", Value{1.0}}, {"b", Value{2.0}}}},     "{\n\t\"a\": 1,\n\t\"b\": 2\n}"},
       {Value{MapType{{"a", Value{MapType{{"b", Value{1.0}}}}}}}, "{\n\t\"a\": {\n\t\t\"b\": 1\n\t}\n}"},
+      {testLazyMap,                                              "{\n\t\"name\": \"test\",\n\t\"number\": 42\n}"},
       }));
       // clang-format on
 
@@ -781,6 +869,7 @@ TEST_CASE("Value")
       {boundedRange,                      0,     false},
       {vec3,                              0,     false},
       {bbox,                              0,     false},
+      {testLazyMap,                       0,     false},
       {Value::Null,                       0,     false},
       {Value::Undefined,                  0,     false},
       }));
@@ -795,15 +884,18 @@ TEST_CASE("Value")
     {
       // clang-format off
       const auto
-      [value,                             key, expectedResult] = GENERATE(table<Value, std::string, Result<bool>>({
-      {Value{MapType{{"a", Value{1.0}}}}, "a", true},
-      {Value{MapType{{"a", Value{1.0}}}}, "b", false},
-      {Value{MapType{}},                  "a", false},
-      {Value::Null,                       "a", false},
+      [value,                             key,       expectedResult] = GENERATE(table<Value, std::string, Result<bool>>({
+      {Value{MapType{{"a", Value{1.0}}}}, "a",       true},
+      {Value{MapType{{"a", Value{1.0}}}}, "b",       false},
+      {Value{MapType{}},                  "a",       false},
+      {Value::Null,                       "a",       false},
+      {testLazyMap,                       "name",    true},
+      {testLazyMap,                       "number",  true},
+      {testLazyMap,                       "missing", false},
 
-      {Value{"ab"},                       "a", Error{R"(At unknown location: Cannot dereference value '"ab"' of type 'String' as type 'Map')"}},
-      {Value{ArrayType{}},                "a", Error{"At unknown location: Cannot dereference value '[]' of type 'Array' as type 'Map'"}},
-      {Value::Undefined,                  "a", Error{"At unknown location: Cannot dereference value 'undefined' of type 'Undefined' as type 'Map'"}},
+      {Value{"ab"},                       "a",       Error{R"(At unknown location: Cannot dereference value '"ab"' of type 'String' as type 'Map')"}},
+      {Value{ArrayType{}},                "a",       Error{"At unknown location: Cannot dereference value '[]' of type 'Array' as type 'Map'"}},
+      {Value::Undefined,                  "a",       Error{"At unknown location: Cannot dereference value 'undefined' of type 'Undefined' as type 'Map'"}},
       }));
       // clang-format on
 
@@ -823,6 +915,7 @@ TEST_CASE("Value")
     {Value{MapType{{"b", Value{1.0}}, {"a", Value{2.0}}}}, std::vector<std::string>{"a", "b"}},
     {Value{MapType{}},                                     std::vector<std::string>{}},
     {Value::Null,                                          std::vector<std::string>{}},
+    {testLazyMap,                                          std::vector<std::string>{"name", "number"}},
 
     {Value{ArrayType{}},                                   Error{"At unknown location: Cannot dereference value '[]' of type 'Array' as type 'Map'"}},
     }));
@@ -854,7 +947,8 @@ TEST_CASE("Value")
       {boundedRange,                             0,     Error{"At unknown location: 0 is not a compatible index for '[1..3]'"}},
       {vec3,                                     0,     Error{"At unknown location: 0 is not a compatible index for 'vec(1, 2, 3)'"}},
       {bbox,                                     0,     Error{"At unknown location: 0 is not a compatible index for 'bbox(vec(1, 2, 3), vec(4, 5, 6))'"}},
-      {Value::Null,                              0,     Error{"At unknown location: 0 is not a compatible index for 'null'"}},
+      {testLazyMap,                              0,     Error{R"(At unknown location: 0 is not a compatible index for '{ "name": "test", "number": 42 }')"}},
+      {Value::Null,                             0,     Error{"At unknown location: 0 is not a compatible index for 'null'"}},
       {Value::Undefined,                         0,     Error{"At unknown location: 0 is not a compatible index for 'undefined'"}},
       }));
       // clang-format on
@@ -869,19 +963,21 @@ TEST_CASE("Value")
     {
       // clang-format off
       const auto
-      [value,                             key, expectedResult] = GENERATE(table<Value, std::string, Result<Value>>({
-      {Value{MapType{{"a", Value{1.0}}}}, "a", Value{1.0}},
-      {Value{MapType{{"a", Value{1.0}}}}, "b", Error{R"(At unknown location: Key 'b' not found in '{ "a": 1 }')"}},
+      [value,                             key,       expectedResult] = GENERATE(table<Value, std::string, Result<Value>>({
+      {Value{MapType{{"a", Value{1.0}}}}, "a",       Value{1.0}},
+      {Value{MapType{{"a", Value{1.0}}}}, "b",       Error{R"(At unknown location: Key 'b' not found in '{ "a": 1 }')"}},
+      {testLazyMap,                       "name",    Value{"test"}},
+      {testLazyMap,                       "missing", Error{R"(At unknown location: Key 'missing' not found in '{ "name": "test", "number": 42 }')"}},
 
-      {Value{"abc"},                      "a", Error{R"(At unknown location: 'a' is not a compatible key for '"abc"')"}},
-      {Value{ArrayType{}},                "a", Error{"At unknown location: 'a' is not a compatible key for '[]'"}},
-      {Value{true},                       "a", Error{"At unknown location: 'a' is not a compatible key for 'true'"}},
-      {Value{1.0},                        "a", Error{"At unknown location: 'a' is not a compatible key for '1'"}},
-      {boundedRange,                      "a", Error{"At unknown location: 'a' is not a compatible key for '[1..3]'"}},
-      {vec3,                              "a", Error{"At unknown location: 'a' is not a compatible key for 'vec(1, 2, 3)'"}},
-      {bbox,                              "a", Error{"At unknown location: 'a' is not a compatible key for 'bbox(vec(1, 2, 3), vec(4, 5, 6))'"}},
-      {Value::Null,                       "a", Error{"At unknown location: 'a' is not a compatible key for 'null'"}},
-      {Value::Undefined,                  "a", Error{"At unknown location: 'a' is not a compatible key for 'undefined'"}},
+      {Value{"abc"},                      "a",       Error{R"(At unknown location: 'a' is not a compatible key for '"abc"')"}},
+      {Value{ArrayType{}},                "a",       Error{"At unknown location: 'a' is not a compatible key for '[]'"}},
+      {Value{true},                       "a",       Error{"At unknown location: 'a' is not a compatible key for 'true'"}},
+      {Value{1.0},                        "a",       Error{"At unknown location: 'a' is not a compatible key for '1'"}},
+      {boundedRange,                      "a",       Error{"At unknown location: 'a' is not a compatible key for '[1..3]'"}},
+      {vec3,                              "a",       Error{"At unknown location: 'a' is not a compatible key for 'vec(1, 2, 3)'"}},
+      {bbox,                              "a",       Error{"At unknown location: 'a' is not a compatible key for 'bbox(vec(1, 2, 3), vec(4, 5, 6))'"}},
+      {Value::Null,                       "a",       Error{"At unknown location: 'a' is not a compatible key for 'null'"}},
+      {Value::Undefined,                  "a",       Error{"At unknown location: 'a' is not a compatible key for 'undefined'"}},
       }));
       // clang-format on
 
@@ -914,7 +1010,8 @@ TEST_CASE("Value")
       {boundedRange,                 0,     std::nullopt, Error{"At unknown location: 0 is not a compatible index for '[1..3]'"}},
       {vec3,                         0,     std::nullopt, Error{"At unknown location: 0 is not a compatible index for 'vec(1, 2, 3)'"}},
       {bbox,                         0,     std::nullopt, Error{"At unknown location: 0 is not a compatible index for 'bbox(vec(1, 2, 3), vec(4, 5, 6))'"}},
-      {Value::Null,                  0,     std::nullopt, Error{"At unknown location: 0 is not a compatible index for 'null'"}},
+      {testLazyMap,                  0,     std::nullopt, Error{R"(At unknown location: 0 is not a compatible index for '{ "name": "test", "number": 42 }')"}},
+      {Value::Null,                 0,     std::nullopt, Error{"At unknown location: 0 is not a compatible index for 'null'"}},
       {Value::Undefined,             0,     std::nullopt, Error{"At unknown location: 0 is not a compatible index for 'undefined'"}},
       }));
       // clang-format on
@@ -933,20 +1030,23 @@ TEST_CASE("Value")
     {
       // clang-format off
       const auto
-      [value,                             key, defaultValue, expectedResult] = GENERATE(table<Value, std::string, std::optional<Value>, Result<Value>>({
-      {Value{MapType{{"a", Value{1.0}}}}, "a", std::nullopt, Value{1.0}},
-      {Value{MapType{{"a", Value{1.0}}}}, "b", std::nullopt, Value::Null},
-      {Value{MapType{{"a", Value{1.0}}}}, "b", Value{"x"},   Value{"x"}},
+      [value,                             key,       defaultValue, expectedResult] = GENERATE(table<Value, std::string, std::optional<Value>, Result<Value>>({
+      {Value{MapType{{"a", Value{1.0}}}}, "a",       std::nullopt, Value{1.0}},
+      {Value{MapType{{"a", Value{1.0}}}}, "b",       std::nullopt, Value::Null},
+      {Value{MapType{{"a", Value{1.0}}}}, "b",       Value{"x"},   Value{"x"}},
+      {testLazyMap,                       "name",    std::nullopt, Value{"test"}},
+      {testLazyMap,                       "missing", std::nullopt, Value::Null},
+      {testLazyMap,                       "missing", Value{"x"},   Value{"x"}},
 
-      {Value{"abc"},                      "a", std::nullopt, Error{R"(At unknown location: 'a' is not a compatible key for '"abc"')"}},
-      {Value{ArrayType{}},                "a", std::nullopt, Error{"At unknown location: 'a' is not a compatible key for '[]'"}},
-      {Value{true},                       "a", std::nullopt, Error{"At unknown location: 'a' is not a compatible key for 'true'"}},
-      {Value{1.0},                        "a", std::nullopt, Error{"At unknown location: 'a' is not a compatible key for '1'"}},
-      {boundedRange,                      "a", std::nullopt, Error{"At unknown location: 'a' is not a compatible key for '[1..3]'"}},
-      {vec3,                              "a", std::nullopt, Error{"At unknown location: 'a' is not a compatible key for 'vec(1, 2, 3)'"}},
-      {bbox,                              "a", std::nullopt, Error{"At unknown location: 'a' is not a compatible key for 'bbox(vec(1, 2, 3), vec(4, 5, 6))'"}},
-      {Value::Null,                       "a", std::nullopt, Error{"At unknown location: 'a' is not a compatible key for 'null'"}},
-      {Value::Undefined,                  "a", std::nullopt, Error{"At unknown location: 'a' is not a compatible key for 'undefined'"}},
+      {Value{"abc"},                      "a",       std::nullopt, Error{R"(At unknown location: 'a' is not a compatible key for '"abc"')"}},
+      {Value{ArrayType{}},                "a",       std::nullopt, Error{"At unknown location: 'a' is not a compatible key for '[]'"}},
+      {Value{true},                       "a",       std::nullopt, Error{"At unknown location: 'a' is not a compatible key for 'true'"}},
+      {Value{1.0},                        "a",       std::nullopt, Error{"At unknown location: 'a' is not a compatible key for '1'"}},
+      {boundedRange,                      "a",       std::nullopt, Error{"At unknown location: 'a' is not a compatible key for '[1..3]'"}},
+      {vec3,                              "a",       std::nullopt, Error{"At unknown location: 'a' is not a compatible key for 'vec(1, 2, 3)'"}},
+      {bbox,                              "a",       std::nullopt, Error{"At unknown location: 'a' is not a compatible key for 'bbox(vec(1, 2, 3), vec(4, 5, 6))'"}},
+      {Value::Null,                       "a",       std::nullopt, Error{"At unknown location: 'a' is not a compatible key for 'null'"}},
+      {Value::Undefined,                  "a",       std::nullopt, Error{"At unknown location: 'a' is not a compatible key for 'undefined'"}},
       }));
       // clang-format on
 
@@ -1056,6 +1156,8 @@ TEST_CASE("Value")
       {vec3,                              Value{Vec3Type{1, 2, 4}},                              false},
       {bbox,                              Value{BBoxType{Vec3Type{1, 2, 3}, Vec3Type{4, 5, 6}}}, true},
       {bbox,                              Value{BBoxType{Vec3Type{1, 2, 3}, Vec3Type{4, 5, 7}}}, false},
+      {testLazyMap,                       makeLazyMap(lazyMapTestObject, lazyMapTestFields),     true},
+      {testLazyMap,                       makeLazyMap(LazyMapTestObject{}, lazyMapTestFields),   false},
       {Value::Null,                       Value{},                                               true},
       {Value::Undefined,                  Value{UndefinedType::Value},                           true},
 
@@ -1063,6 +1165,7 @@ TEST_CASE("Value")
       {Value::Null,                       Value::Undefined,                                      false},
       {Value{1.0},                        Value{"1"},                                            false},
       {Value{true},                       Value{1.0},                                            false},
+      {testLazyMap,                       testLazyMap.convertTo(ValueType::Map),                 false},
       }));
       // clang-format on
 

@@ -20,6 +20,7 @@
 #include "el/EvaluationContext.h"
 #include "el/Exceptions.h"
 #include "el/Expression.h"
+#include "el/LazyMap.h"
 #include "el/ParseExpression.h"
 #include "el/TestUtils.h"
 #include "el/Value.h"
@@ -1277,6 +1278,105 @@ TEST_CASE("Expression")
       CAPTURE(expression);
 
       CHECK(evaluate(expression) == expectedResult);
+    }
+  }
+
+  SECTION("LazyMap")
+  {
+    // there is no literal/constructor syntax for LazyMap, so it can only ever be reached
+    // via a bound variable, the same way Range is above
+    const auto fields = LazyMapFields<std::string>{
+      {"name", {ValueType::String, [](const auto& s) { return Value{s}; }}},
+    };
+    const auto variables = MapType{{"v", makeLazyMap(std::string{"door1"}, fields)}};
+
+    SECTION("Subscript")
+    {
+      // clang-format off
+      const auto
+      [expression,        expectedValue] = GENERATE(table<std::string, Value>({
+      {R"(v["name"])",    Value{"door1"}},
+      {"v.name",          Value{"door1"}},
+      {R"(v["missing"])", Value::Undefined},
+      {"v.missing",       Value::Undefined},
+      {R"(v["name", "missing"])", Value{MapType{{"name", Value{"door1"}}}}},
+      }));
+      // clang-format on
+
+      CAPTURE(expression);
+
+      CHECK(evaluate(expression, variables) == expectedValue);
+    }
+
+    SECTION("Unary operators")
+    {
+      // typeName(LazyMap) is "Map", so it reads exactly like a real Map's own error
+      CHECK(
+        evaluate("!v", variables)
+        == Error{
+          "At line 1, column 1: Cannot evaluate expression '!v': Invalid type Map"});
+    }
+
+    SECTION("Arithmetic")
+    {
+      CHECK(evaluate("v + v", variables) == Value{MapType{{"name", Value{"door1"}}}});
+      CHECK(
+        evaluate("v + {a: 1}", variables)
+        == Value{MapType{{"a", Value{1}}, {"name", Value{"door1"}}}});
+    }
+
+    SECTION("Comparison")
+    {
+      // clang-format off
+      const auto
+      [expression,       expectedResult] = GENERATE(table<std::string, Result<Value>>({
+      {"v == null",      Value{false}},
+      {"v > null",       Value{true}},
+      {"v == undefined", Value{false}},
+      {"v > undefined",  Value{true}},
+
+      // compared like the Map that it represents
+      {"v == v",                Value{true}},
+      {"{} != v",               Value{true}},
+      {R"(v == {name: "door1"})", Value{true}},
+      {R"(v < {name: "door2"})",  Value{true}},
+      }));
+      // clang-format on
+
+      CAPTURE(expression);
+
+      CHECK(evaluate(expression, variables) == expectedResult);
+    }
+
+    SECTION("contains")
+    {
+      // clang-format off
+      const auto
+      [expression,                expectedValue] = GENERATE(table<std::string, Value>({
+      {R"(v contains "name")",    Value{true}},
+      {R"(v contains "missing")", Value{false}},
+      }));
+      // clang-format on
+
+      CAPTURE(expression);
+
+      CHECK(evaluate(expression, variables) == expectedValue);
+    }
+
+    SECTION("like")
+    {
+      // clang-format off
+      const auto
+      [expression,            expectedValue] = GENERATE(table<std::string, Value>({
+      {R"(v like "door*")",   Value{true}},
+      {R"(v like "nam*")",    Value{true}},
+      {R"(v like "missing")", Value{false}},
+      }));
+      // clang-format on
+
+      CAPTURE(expression);
+
+      CHECK(evaluate(expression, variables) == expectedValue);
     }
   }
 
