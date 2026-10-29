@@ -29,4 +29,6 @@ DrawShapeToolExtension::DrawShapeToolExtension(MapDocument& document)
 
 DrawShapeToolExtension::~DrawShapeToolExtension() = default;
 
+void DrawShapeToolExtension::brushesWereCreated(DrawShapeToolParameters&) const {}
+
 } // namespace tb::ui

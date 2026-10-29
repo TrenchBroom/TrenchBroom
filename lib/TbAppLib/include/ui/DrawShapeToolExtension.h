@@ -45,6 +45,7 @@ public:
   virtual const std::filesystem::path& iconPath() const = 0;
   virtual Result<std::vector<mdl::Brush>> createBrushes(
     const vm::bbox3d& bounds, const DrawShapeToolParameters& parameters) const = 0;
+  virtual void brushesWereCreated(DrawShapeToolParameters& parameters) const;
 };
 
 } // namespace tb::ui

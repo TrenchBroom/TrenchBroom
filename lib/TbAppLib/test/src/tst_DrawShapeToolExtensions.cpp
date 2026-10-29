@@ -570,6 +570,27 @@ TEST_CASE("DrawShapeToolRockExtension")
 
     CHECK(result1.value()[0].faceCount() != result2.value()[0].faceCount());
   }
+
+  SECTION("brushesWereCreated")
+  {
+    parameters.setRockSeed(7);
+
+    SECTION("increments the seed if enabled")
+    {
+      parameters.setIncrementRockSeed(true);
+
+      extension.brushesWereCreated(parameters);
+      CHECK(parameters.rockSeed() == 8);
+    }
+
+    SECTION("does not change the seed if disabled")
+    {
+      parameters.setIncrementRockSeed(false);
+
+      extension.brushesWereCreated(parameters);
+      CHECK(parameters.rockSeed() == 7);
+    }
+  }
 }
 
 TEST_CASE("DrawShapeToolParameters")

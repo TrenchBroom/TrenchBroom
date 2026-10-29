@@ -128,11 +128,7 @@ void DrawShapeTool::applyExtensionParameters()
 
 void DrawShapeTool::doBrushesWereCreated()
 {
-  auto& parameters = m_extensionManager.parameters();
-  if (parameters.incrementRockSeed())
-  {
-    parameters.setRockSeed(parameters.rockSeed() + 1);
-  }
+  m_extensionManager.brushesWereCreated();
 }
 
 } // namespace tb::ui

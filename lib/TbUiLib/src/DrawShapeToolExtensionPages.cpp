@@ -468,8 +468,7 @@ DrawShapeToolRockShapeExtensionPage::DrawShapeToolRockShapeExtensionPage(
   auto* randomSeedButton = createBitmapButton("Randomize.svg", tr("Set a random seed"));
 
   auto* incrementSeedButton = createBitmapToggleButton(
-    "Auto_Inc.svg",
-    tr("Increment the seed automatically every time a shape is created or updated."));
+    "Auto_Inc.svg", tr("Increment the seed automatically every time a rock is created."));
 
   connect(
     typeBox,

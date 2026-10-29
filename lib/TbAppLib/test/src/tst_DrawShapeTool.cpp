@@ -131,6 +131,25 @@ TEST_CASE("DrawShapeTool")
     CHECK(dynamic_cast<mdl::BrushNode*>(selectedNodes.front()) != nullptr);
   }
 
+  SECTION("createBrushes only increments the rock seed when a rock is created")
+  {
+    auto& parameters = tool.extensionManager().parameters();
+    parameters.setIncrementRockSeed(true);
+
+    REQUIRE(tool.extensionManager().currentExtension().name() == "Cuboid");
+
+    tool.update(bounds);
+    tool.createBrushes(tool.groupNameForCreatedBrushes());
+    CHECK(parameters.rockSeed() == 0);
+
+    const auto rockIndex = indexOfExtensionNamed(tool.extensionManager(), "Rock");
+    REQUIRE(tool.extensionManager().setCurrentExtensionIndex(rockIndex));
+
+    tool.update(bounds);
+    tool.createBrushes(tool.groupNameForCreatedBrushes());
+    CHECK(parameters.rockSeed() == 1);
+  }
+
   SECTION("applying the parameters replaces the selection with the shape")
   {
     auto* brushNode = addBrushNode(map, bounds);
