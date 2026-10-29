@@ -37,7 +37,6 @@
 #include "vm/mat_ext.h"
 
 #include <algorithm>
-#include <array>
 #include <cmath>
 #include <optional>
 #include <ranges>

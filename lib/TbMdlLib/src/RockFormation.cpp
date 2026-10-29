@@ -97,7 +97,6 @@ public:
 };
 
 using PointCloud = std::vector<vm::vec3d>;
-using RockFormation = std::vector<PointCloud>;
 
 double mix(const DetailRange& range, const double detail)
 {
@@ -304,14 +303,14 @@ PointCloud makeBoulderPoints(
   return points;
 }
 
-RockFormation makeBoulder(
+RockFormationPoints makeBoulder(
   const vm::bbox3d& bounds, const double detail, const uint32_t seed)
 {
   const auto sizedDetail = detailForSize(detail, boulderSize(bounds.size()));
   return {makeBoulderPoints(sizedDetail, sizedDetail, seed)};
 }
 
-RockFormation makeShelf(
+RockFormationPoints makeShelf(
   const vm::bbox3d& bounds, const double detail, const uint32_t seed)
 {
   constexpr auto SideDensity = DetailRange{0.35, 0.7};
@@ -332,7 +331,7 @@ RockFormation makeShelf(
   return {std::move(points)};
 }
 
-RockFormation makeStrata(
+RockFormationPoints makeStrata(
   const vm::bbox3d& bounds, const double detail, const uint32_t seed)
 {
   constexpr auto MinCount = size_t{2};
@@ -396,7 +395,8 @@ RockFormation makeStrata(
          | kdl::ranges::to<std::vector>();
 }
 
-RockFormation makeCrag(const vm::bbox3d& bounds, const double detail, const uint32_t seed)
+RockFormationPoints makeCrag(
+  const vm::bbox3d& bounds, const double detail, const uint32_t seed)
 {
   constexpr auto Count = CountRange{1, 5};
   constexpr auto CoreAsymmetry = double{0.4};
@@ -477,7 +477,7 @@ void placeCrystal(PointCloud& points, const double angle, const double tilt)
   }
 }
 
-RockFormation makeCrystal(
+RockFormationPoints makeCrystal(
   const vm::bbox3d& bounds, const double detail, const uint32_t seed)
 {
   constexpr auto Count = CountRange{3, 11};
@@ -556,7 +556,7 @@ PointCloud makeColumnPoints(const double taper, const double skewX, const double
   return points;
 }
 
-RockFormation makeColumns(
+RockFormationPoints makeColumns(
   const vm::bbox3d& bounds, const double detail, const uint32_t seed)
 {
   constexpr auto MinCount = size_t{1};
@@ -618,7 +618,7 @@ RockFormation makeColumns(
                            }));
 
   auto columns = std::vector<Column>(countX * countY);
-  auto result = RockFormation{};
+  auto result = RockFormationPoints{};
   result.reserve(cells.size());
 
   for (const auto& [x, y] : cells)
@@ -648,7 +648,7 @@ RockFormation makeColumns(
   return result;
 }
 
-RockFormation makeBasalt(
+RockFormationPoints makeBasalt(
   const vm::bbox3d& bounds, const double detail, const uint32_t seed)
 {
   constexpr auto Sides = size_t{6};
@@ -694,7 +694,7 @@ RockFormation makeBasalt(
          | kdl::ranges::to<std::vector>();
 }
 
-RockFormation makeCluster(
+RockFormationPoints makeCluster(
   const vm::bbox3d& bounds, const double detail, const uint32_t seed)
 {
   constexpr auto CellSize = DetailRange{256.0, 64.0};
@@ -744,7 +744,8 @@ RockFormation makeCluster(
          | kdl::ranges::to<std::vector>();
 }
 
-RockFormation fitFormation(const RockFormation& formation, const vm::bbox3d& bounds)
+RockFormationPoints fitFormation(
+  const RockFormationPoints& formation, const vm::bbox3d& bounds)
 {
   const auto min = vm::ceil(bounds.min);
   const auto max = vm::floor(bounds.max);
@@ -776,7 +777,7 @@ RockFormation fitFormation(const RockFormation& formation, const vm::bbox3d& bou
  * the prism remain flat. The highest point of a top remains in place, so that the prism
  * does not grow.
  */
-void slantTops(RockFormation& prisms, const uint32_t seed)
+void slantTops(RockFormationPoints& prisms, const uint32_t seed)
 {
   constexpr auto Tilt = Range{0.0, vm::to_radians(8.0)};
   constexpr auto MaxDrop = double{0.25};

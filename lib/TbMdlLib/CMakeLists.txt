@@ -9,7 +9,6 @@ target_sources(TbMdlLib
     ${CMAKE_CURRENT_SOURCE_DIR}/src/BezierPatch.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Brush.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/BrushBuilder.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/RockFormation.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/BrushFace.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/BrushFaceHandle.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/BrushFaceReader.cpp
@@ -167,6 +166,7 @@ target_sources(TbMdlLib
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Quake3ShaderParser.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/ReparentNodesCommand.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/RepeatStack.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/RockFormation.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Selection.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/SelectionChange.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/SelectionCommand.cpp
