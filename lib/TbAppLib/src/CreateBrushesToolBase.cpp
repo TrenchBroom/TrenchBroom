@@ -54,6 +54,11 @@ const mdl::Grid& CreateBrushesToolBase::grid() const
   return m_document.map().grid();
 }
 
+bool CreateBrushesToolBase::hasBrushes() const
+{
+  return !m_brushNodes.empty();
+}
+
 void CreateBrushesToolBase::createBrushes(std::optional<std::string> groupName)
 {
   if (!m_brushNodes.empty())

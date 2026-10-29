@@ -61,6 +61,7 @@ public:
 public:
   const mdl::Grid& grid() const;
 
+  bool hasBrushes() const;
   void createBrushes(std::optional<std::string> groupName);
   void clearBrushes();
   void cancel();

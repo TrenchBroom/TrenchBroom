@@ -47,11 +47,14 @@ DrawShapeTool::DrawShapeTool(MapDocument& document)
     auto& map = m_document.map();
     if (const auto bounds = map.selectionBounds())
     {
-      auto transaction = mdl::Transaction{map, "Apply shape parameters"};
       update(*bounds);
-      mdl::removeSelectedNodes(map);
-      createBrushes(groupNameForCreatedBrushes());
-      transaction.commit();
+      if (hasBrushes())
+      {
+        auto transaction = mdl::Transaction{map, "Apply shape parameters"};
+        mdl::removeSelectedNodes(map);
+        createBrushes(groupNameForCreatedBrushes());
+        transaction.commit();
+      }
     }
   });
 }
