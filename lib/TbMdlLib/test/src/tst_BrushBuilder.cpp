@@ -769,6 +769,43 @@ TEST_CASE("BrushBuilder")
     }
   }
 
+  SECTION("createRockFormation")
+  {
+    auto builder = BrushBuilder{MapFormat::Standard, worldBounds};
+
+    SECTION("Thin or small bounds do not error")
+    {
+      // Rounding to the integer grid flattens some of the pieces in these bounds.
+      const auto type = GENERATE(
+        RockType::Boulder,
+        RockType::Shelf,
+        RockType::Strata,
+        RockType::Crag,
+        RockType::Crystal,
+        RockType::Columns,
+        RockType::Basalt,
+        RockType::Cluster);
+      const auto bounds = GENERATE(
+        vm::bbox3d{{0, 0, 0}, {64, 64, 2}},
+        vm::bbox3d{{0, 0, 0}, {2, 64, 64}},
+        vm::bbox3d{{0, 0, 0}, {2, 2, 2}},
+        vm::bbox3d{{0, 0, 0}, {0.5, 0.5, 0.5}});
+      const auto detail = GENERATE(0.0, 0.5, 1.0);
+      const auto seed = GENERATE(uint32_t{0}, uint32_t{1});
+
+      CAPTURE(type, bounds, detail, seed);
+
+      builder.createRockFormation(bounds, type, detail, seed, "someName")
+        | kdl::transform([](const auto& brushes) {
+            for (const auto& brush : brushes)
+            {
+              CHECK(brush.fullySpecified());
+            }
+          })
+        | kdl::transform_error([](const auto& e) { FAIL(e); });
+    }
+  }
+
   SECTION("createBrush")
   {
     auto builder = BrushBuilder{MapFormat::Standard, worldBounds};
