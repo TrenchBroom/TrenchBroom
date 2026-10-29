@@ -609,7 +609,9 @@ TEST_CASE("DrawShapeToolParameters")
     REQUIRE(parameters.accuracy() == 1);
     REQUIRE(parameters.stepHeight() == 16.0);
     REQUIRE(parameters.stairDirection() == DrawShapeToolParameters::StairDirection::PosX);
+    REQUIRE(parameters.rockType() == mdl::RockType::Boulder);
     REQUIRE(parameters.rockDetail() == 0.5);
+    REQUIRE(parameters.rockSeed() == 0);
     REQUIRE(parameters.incrementRockSeed() == false);
   }
 
@@ -774,6 +776,25 @@ TEST_CASE("DrawShapeToolParameters")
 
     parameters.setCircleShape(mdl::EdgeAlignedCircle{12});
     CHECK(parametersDidChange.notifications.size() == 1u);
+  }
+
+  SECTION("RockType modifications")
+  {
+    auto parametersDidChange = Observer<>{parameters.parametersDidChangeNotifier};
+
+    parameters.setRockType(mdl::RockType::Boulder);
+    CHECK(parametersDidChange.notifications.empty());
+
+    parameters.setRockType(mdl::RockType::Strata);
+    REQUIRE(parameters.rockType() == mdl::RockType::Strata);
+    CHECK(parametersDidChange.notifications.size() == 1u);
+
+    parameters.setRockType(mdl::RockType::Strata);
+    CHECK(parametersDidChange.notifications.size() == 1u);
+
+    parameters.setRockType(mdl::RockType::Cluster);
+    REQUIRE(parameters.rockType() == mdl::RockType::Cluster);
+    CHECK(parametersDidChange.notifications.size() == 2u);
   }
 
   SECTION("RockDetail modifications")
