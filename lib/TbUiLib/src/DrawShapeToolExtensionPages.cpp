@@ -31,6 +31,7 @@
 #include <QStackedWidget>
 #include <QToolButton>
 
+#include "mdl/RockFormation.h"
 #include "ui/BitmapButton.h"
 #include "ui/DrawShapeToolExtension.h"
 #include "ui/DrawShapeToolExtensionKind.h"
@@ -53,23 +54,39 @@ namespace
 using StairDirection = DrawShapeToolParameters::StairDirection;
 using RockType = mdl::RockType;
 
+QString rockTypeName(const RockType type)
+{
+  switch (type)
+  {
+  case RockType::Boulder:
+    return QObject::tr("Boulder");
+  case RockType::Shelf:
+    return QObject::tr("Shelf");
+  case RockType::Strata:
+    return QObject::tr("Strata");
+  case RockType::Crag:
+    return QObject::tr("Crag");
+  case RockType::Crystal:
+    return QObject::tr("Crystal");
+  case RockType::Columns:
+    return QObject::tr("Columns");
+  case RockType::Basalt:
+    return QObject::tr("Basalt");
+  case RockType::Cluster:
+    return QObject::tr("Cluster");
+  }
+
+  return {};
+}
+
 size_t rockTypeToIndex(const RockType type)
 {
-  return size_t(type);
+  return size_t(std::ranges::find(mdl::RockTypes, type) - mdl::RockTypes.begin());
 }
 
 constexpr RockType indexToRockType(const size_t index)
 {
-  constexpr auto types = std::array{
-    RockType::Boulder,
-    RockType::Shelf,
-    RockType::Strata,
-    RockType::Crag,
-    RockType::Crystal,
-    RockType::Columns,
-    RockType::Basalt,
-    RockType::Cluster};
-  return types[std::min(index, types.size() - 1u)];
+  return mdl::RockTypes[std::min(index, mdl::RockTypes.size() - 1u)];
 }
 
 size_t stairDirectionToIndex(const StairDirection direction)
@@ -440,15 +457,10 @@ DrawShapeToolRockShapeExtensionPage::DrawShapeToolRockShapeExtensionPage(
   , m_parameters{parameters}
 {
   auto* typeBox = new QComboBox{};
-  typeBox->addItems(
-    {tr("Boulder"),
-     tr("Shelf"),
-     tr("Strata"),
-     tr("Crag"),
-     tr("Crystal"),
-     tr("Columns"),
-     tr("Basalt"),
-     tr("Cluster")});
+  for (const auto type : mdl::RockTypes)
+  {
+    typeBox->addItem(rockTypeName(type));
+  }
 
   auto* detailLabel = new QLabel{tr("Detail: ")};
   auto* detailSlider = new QSlider{Qt::Horizontal};

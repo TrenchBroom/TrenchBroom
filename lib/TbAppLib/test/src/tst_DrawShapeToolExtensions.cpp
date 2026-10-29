@@ -29,6 +29,7 @@
 
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/generators/catch_generators.hpp>
+#include <catch2/generators/catch_generators_range.hpp>
 
 namespace tb::ui
 {
@@ -524,15 +525,7 @@ TEST_CASE("DrawShapeToolRockExtension")
   SECTION("Create different rock types")
   {
     const auto bounds = vm::bbox3d{{-64, -64, -64}, {64, 64, 64}};
-    const auto rockType = GENERATE(
-      mdl::RockType::Boulder,
-      mdl::RockType::Shelf,
-      mdl::RockType::Strata,
-      mdl::RockType::Crag,
-      mdl::RockType::Crystal,
-      mdl::RockType::Columns,
-      mdl::RockType::Basalt,
-      mdl::RockType::Cluster);
+    const auto rockType = GENERATE(from_range(mdl::RockTypes));
 
     parameters.setRockType(rockType);
     const auto result = extension.createBrushes(bounds, parameters);

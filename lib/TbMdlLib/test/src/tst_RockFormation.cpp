@@ -42,6 +42,7 @@
 
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/generators/catch_generators.hpp>
+#include <catch2/generators/catch_generators_range.hpp>
 #include <catch2/matchers/catch_matchers_range_equals.hpp>
 
 namespace tb::mdl
@@ -1015,15 +1016,7 @@ TEST_CASE("makeRockFormation")
 
   SECTION("Detail is clamped")
   {
-    const auto type = GENERATE(
-      RockType::Boulder,
-      RockType::Shelf,
-      RockType::Strata,
-      RockType::Crag,
-      RockType::Crystal,
-      RockType::Columns,
-      RockType::Basalt,
-      RockType::Cluster);
+    const auto type = GENERATE(from_range(RockTypes));
 
     CAPTURE(type);
 
@@ -1037,15 +1030,7 @@ TEST_CASE("makeRockFormation")
 
   SECTION("Fractional bounds are filled with integer coordinates")
   {
-    const auto type = GENERATE(
-      RockType::Boulder,
-      RockType::Shelf,
-      RockType::Strata,
-      RockType::Crag,
-      RockType::Crystal,
-      RockType::Columns,
-      RockType::Basalt,
-      RockType::Cluster);
+    const auto type = GENERATE(from_range(RockTypes));
 
     CAPTURE(type);
 
@@ -1056,15 +1041,7 @@ TEST_CASE("makeRockFormation")
 
   SECTION("Bounds without an integer coordinate along an axis yield no formation")
   {
-    const auto type = GENERATE(
-      RockType::Boulder,
-      RockType::Shelf,
-      RockType::Strata,
-      RockType::Crag,
-      RockType::Crystal,
-      RockType::Columns,
-      RockType::Basalt,
-      RockType::Cluster);
+    const auto type = GENERATE(from_range(RockTypes));
 
     CAPTURE(type);
 

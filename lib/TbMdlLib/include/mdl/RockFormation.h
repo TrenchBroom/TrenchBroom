@@ -21,6 +21,7 @@
 
 #include "vm/bbox.h"
 
+#include <array>
 #include <cstdint>
 #include <vector>
 
@@ -37,6 +38,17 @@ enum class RockType
   Columns,
   Basalt,
   Cluster,
+};
+
+inline constexpr auto RockTypes = std::array{
+  RockType::Boulder,
+  RockType::Shelf,
+  RockType::Strata,
+  RockType::Crag,
+  RockType::Crystal,
+  RockType::Columns,
+  RockType::Basalt,
+  RockType::Cluster,
 };
 
 using RockFormationPoints = std::vector<std::vector<vm::vec3d>>;

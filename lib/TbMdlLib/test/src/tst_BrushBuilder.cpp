@@ -37,6 +37,7 @@
 
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/generators/catch_generators.hpp>
+#include <catch2/generators/catch_generators_range.hpp>
 #include <catch2/matchers/catch_matchers_contains.hpp>
 #include <catch2/matchers/catch_matchers_range_equals.hpp>
 
@@ -776,15 +777,7 @@ TEST_CASE("BrushBuilder")
     SECTION("Thin or small bounds do not error")
     {
       // Rounding to the integer grid flattens some of the pieces in these bounds.
-      const auto type = GENERATE(
-        RockType::Boulder,
-        RockType::Shelf,
-        RockType::Strata,
-        RockType::Crag,
-        RockType::Crystal,
-        RockType::Columns,
-        RockType::Basalt,
-        RockType::Cluster);
+      const auto type = GENERATE(from_range(RockTypes));
       const auto bounds = GENERATE(
         vm::bbox3d{{0, 0, 0}, {64, 64, 2}},
         vm::bbox3d{{0, 0, 0}, {2, 64, 64}},
