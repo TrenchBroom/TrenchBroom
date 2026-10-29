@@ -66,10 +66,10 @@ struct CountRange
 
 /**
  * A deterministic random stream based on std::mt19937_64. The engine itself is fully
- * specified by the standard, so its output is portable across standard libraries, but the
- * distributions in <random> are not, so we may get different output from the same
- * parameters on different platforms. Draw from named locals only: the evaluation order
- * of function arguments is unspecified.
+ * specified by the standard, so its output is portable across standard libraries. The
+ * distributions in <random> are not, so we convert the engine's output into doubles
+ * ourselves. Draw from named locals only: the evaluation order of function arguments is
+ * unspecified.
  */
 class RandomStream
 {
@@ -82,12 +82,12 @@ public:
   {
   }
 
-  /** Returns the next value in [0, 1). */
-  double next()
-  {
-    auto dist = std::uniform_real_distribution<double>{0.0, 1.0};
-    return dist(m_engine);
-  }
+  /**
+   * Returns the next value in [0, 1). The upper 53 bits of the engine's output fit into
+   * the mantissa of a double, and dividing by a power of two is exact, so the result
+   * does not depend on the platform.
+   */
+  double next() { return double(m_engine() >> 11) / double(uint64_t{1} << 53); }
 
   /** Returns the next value in [min, max). */
   double next(const double min, const double max) { return min + next() * (max - min); }
