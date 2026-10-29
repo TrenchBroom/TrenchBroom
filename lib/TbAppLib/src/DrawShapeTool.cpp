@@ -25,7 +25,6 @@
 #include "mdl/BrushNode.h"
 #include "mdl/Map.h"
 #include "mdl/Map_Nodes.h"
-#include "mdl/Map_Selection.h"
 #include "mdl/Transaction.h"
 #include "prefs/Preferences.h"
 #include "ui/DrawShapeToolExtensionManager.h"
@@ -94,36 +93,6 @@ std::optional<std::string> DrawShapeTool::groupNameForCreatedBrushes() const
   return pref(Preferences::GroupBrushesCreatedByShapeTool)
            ? std::optional{m_extensionManager.currentExtension().name()}
            : std::nullopt;
-}
-
-void DrawShapeTool::applyExtensionParameters()
-{
-  auto& map = m_document.map();
-  if (const auto& selectionBounds = map.selectionBounds())
-  {
-    m_extensionManager.createBrushes(*selectionBounds) | kdl::transform([](auto brushes) {
-      return brushes | std::views::transform([](auto brush) {
-               return std::make_unique<mdl::BrushNode>(std::move(brush));
-             })
-             | kdl::ranges::to<std::vector>();
-    }) | kdl::transform([&](auto brushNodes) {
-      auto transaction = mdl::Transaction{map, "Update Brushes"};
-
-      removeSelectedNodes(map);
-      const auto addedNodes = addNodes(
-        map,
-        {
-          {&parentForNodes(map), brushNodes | std::views::transform([](auto& node) {
-                                   return static_cast<mdl::Node*>(node.release());
-                                 }) | kdl::ranges::to<std::vector>()},
-        });
-      selectNodes(map, addedNodes);
-
-      transaction.commit();
-    }) | kdl::transform_error([&](auto e) {
-      m_document.logger().error() << "Could not update brushes: " << e.msg;
-    });
-  }
 }
 
 void DrawShapeTool::doBrushesWereCreated()

@@ -21,7 +21,6 @@
 
 #include <QWidget>
 
-#include "base/Notifier.h"
 #include "base/NotifierConnection.h"
 
 #include <filesystem>
@@ -46,8 +45,6 @@ private:
   NotifierConnection m_notifierConnection;
 
 public:
-  Notifier<> applyParametersNotifier;
-
   explicit DrawShapeToolPage(
     DrawShapeToolExtensionManager& extensionManager, QWidget* parent = nullptr);
 

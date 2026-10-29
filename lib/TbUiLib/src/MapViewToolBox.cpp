@@ -577,11 +577,7 @@ void MapViewToolBox::createTools(QStackedLayout* bookCtrl)
   m_controlPointToolPage = new ControlPointToolPage{m_document, parent};
   bookCtrl->addWidget(m_controlPointToolPage);
 
-  auto* drawShapeToolPage =
-    new DrawShapeToolPage{drawShapeTool().extensionManager(), parent};
-  m_notifierConnection += drawShapeToolPage->applyParametersNotifier.connect(
-    [this]() { drawShapeTool().applyExtensionParameters(); });
-  m_drawShapeToolPage = drawShapeToolPage;
+  m_drawShapeToolPage = new DrawShapeToolPage{drawShapeTool().extensionManager(), parent};
   bookCtrl->addWidget(m_drawShapeToolPage);
 
   updateToolPage();

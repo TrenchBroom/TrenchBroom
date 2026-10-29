@@ -42,7 +42,6 @@ public:
   bool cancel();
 
   DrawShapeToolExtensionManager& extensionManager();
-  void applyExtensionParameters();
 
   std::optional<std::string> groupNameForCreatedBrushes() const;
 
