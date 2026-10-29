@@ -155,8 +155,9 @@ public:
    * complex in a type-specific way, for example by the number of boulder faces, strata
    * layers or crystal shards. Larger bounds make the formation more complex at the same
    * detail. All vertices are snapped to the integer grid, except for those of the slanted
-   * tops of columns and basalt. Pieces that snapping flattens are left out, so thin or
-   * small bounds may yield fewer brushes, or none at all.
+   * tops of columns and basalt, so fractional bounds are only filled up to the nearest
+   * integer coordinates within them. Pieces that snapping flattens are left out, so thin
+   * or small bounds may yield fewer brushes, or none at all.
    */
   Result<std::vector<Brush>> createRockFormation(
     const vm::bbox3d& bounds,

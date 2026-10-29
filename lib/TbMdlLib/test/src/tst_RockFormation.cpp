@@ -1035,6 +1035,43 @@ TEST_CASE("makeRockFormation")
       == makeRockFormation(FieldBounds, type, 1.0, Seed));
   }
 
+  SECTION("Fractional bounds are filled with integer coordinates")
+  {
+    const auto type = GENERATE(
+      RockType::Boulder,
+      RockType::Shelf,
+      RockType::Strata,
+      RockType::Crag,
+      RockType::Crystal,
+      RockType::Columns,
+      RockType::Basalt,
+      RockType::Cluster);
+
+    CAPTURE(type);
+
+    const auto bounds = vm::bbox3d{{0.5, 0.5, 0.5}, {64.5, 64.5, 64.5}};
+    const auto formation = makeRockFormation(bounds, type, Detail, Seed);
+    CHECK(mergedBounds(buildBrushes(builder, formation)) == vm::bbox3d{1.0, 64.0});
+  }
+
+  SECTION("Bounds without an integer coordinate along an axis yield no formation")
+  {
+    const auto type = GENERATE(
+      RockType::Boulder,
+      RockType::Shelf,
+      RockType::Strata,
+      RockType::Crag,
+      RockType::Crystal,
+      RockType::Columns,
+      RockType::Basalt,
+      RockType::Cluster);
+
+    CAPTURE(type);
+
+    const auto bounds = vm::bbox3d{{0, 0, 0.25}, {64, 64, 0.75}};
+    CHECK(makeRockFormation(bounds, type, Detail, Seed).empty());
+  }
+
   SECTION("Basalt and Cluster create more pieces in larger bounds")
   {
     const auto type = GENERATE(RockType::Basalt, RockType::Cluster);

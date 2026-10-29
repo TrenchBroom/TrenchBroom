@@ -46,6 +46,9 @@ using RockFormationPoints = std::vector<std::vector<vm::vec3d>>;
  * grid, except for the top points of Columns and Basalt: their tops are slanted, which
  * moves these points off the grid.
  *
+ * The formation fills the largest box with integer coordinates that fits into the bounds.
+ * If there is no such box, the formation is empty.
+ *
  * `detail` is clamped to [0, 1] and makes the formation simpler or more complex. Each
  * rock type interprets it in its own way, for example as the number of faces or pieces.
  *
