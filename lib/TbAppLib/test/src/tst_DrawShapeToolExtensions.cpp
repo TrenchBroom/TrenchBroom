@@ -590,6 +590,15 @@ TEST_CASE("DrawShapeToolRockExtension")
       extension.brushesWereCreated(parameters);
       CHECK(parameters.rockSeed() == 7);
     }
+
+    SECTION("wraps around after the largest seed")
+    {
+      parameters.setIncrementRockSeed(true);
+      parameters.setRockSeed(DrawShapeToolParameters::MaxRockSeed);
+
+      extension.brushesWereCreated(parameters);
+      CHECK(parameters.rockSeed() == 0);
+    }
   }
 }
 
@@ -786,6 +795,21 @@ TEST_CASE("DrawShapeToolParameters")
     CHECK(parametersDidChange.notifications.size() == 1u);
 
     parameters.setRockDetail(1.0);
+    CHECK(parametersDidChange.notifications.size() == 1u);
+  }
+
+  SECTION("RockSeed modifications")
+  {
+    auto parametersDidChange = Observer<>{parameters.parametersDidChangeNotifier};
+
+    parameters.setRockSeed(0);
+    CHECK(parametersDidChange.notifications.empty());
+
+    parameters.setRockSeed(DrawShapeToolParameters::MaxRockSeed);
+    REQUIRE(parameters.rockSeed() == DrawShapeToolParameters::MaxRockSeed);
+    CHECK(parametersDidChange.notifications.size() == 1u);
+
+    parameters.setRockSeed(DrawShapeToolParameters::MaxRockSeed);
     CHECK(parametersDidChange.notifications.size() == 1u);
   }
 

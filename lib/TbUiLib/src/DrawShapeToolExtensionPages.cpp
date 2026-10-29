@@ -42,7 +42,6 @@
 #include <algorithm>
 #include <array>
 #include <cmath>
-#include <limits>
 #include <ranges>
 
 namespace tb::ui
@@ -464,7 +463,7 @@ DrawShapeToolRockShapeExtensionPage::DrawShapeToolRockShapeExtensionPage(
 
   auto* seedLabel = new QLabel{tr("Seed: ")};
   auto* seedBox = new QSpinBox{};
-  seedBox->setRange(0, std::numeric_limits<int>::max());
+  seedBox->setRange(0, int(DrawShapeToolParameters::MaxRockSeed));
   auto* randomSeedButton = createBitmapButton("Randomize.svg", tr("Set a random seed"));
 
   auto* incrementSeedButton = createBitmapToggleButton(
@@ -484,7 +483,7 @@ DrawShapeToolRockShapeExtensionPage::DrawShapeToolRockShapeExtensionPage(
     });
   connect(randomSeedButton, &QToolButton::clicked, this, [&]() {
     m_parameters.setRockSeed(
-      QRandomGenerator::global()->bounded(quint32(std::numeric_limits<int>::max())));
+      QRandomGenerator::global()->bounded(DrawShapeToolParameters::MaxRockSeed + 1));
   });
   connect(
     incrementSeedButton, &QToolButton::toggled, this, [&](const auto incrementRockSeed) {

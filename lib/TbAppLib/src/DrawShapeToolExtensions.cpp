@@ -411,7 +411,9 @@ void DrawShapeToolRockExtension::brushesWereCreated(
 {
   if (parameters.incrementRockSeed())
   {
-    parameters.setRockSeed(parameters.rockSeed() + 1);
+    const auto rockSeed = parameters.rockSeed();
+    parameters.setRockSeed(
+      rockSeed < DrawShapeToolParameters::MaxRockSeed ? rockSeed + 1 : 0);
   }
 }
 
