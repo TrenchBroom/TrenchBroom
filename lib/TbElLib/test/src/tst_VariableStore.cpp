@@ -20,7 +20,6 @@
 #include "el/Value.h"
 #include "el/VariableStore.h"
 
-#include <memory>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -36,20 +35,6 @@ TEST_CASE("VariableTable")
   {
     CHECK(VariableTable{}.size() == 0u);
     CHECK(VariableTable{{{"a", Value{1.0}}}}.size() == 1u);
-  }
-
-  SECTION("clone")
-  {
-    auto table = VariableTable{{{"a", Value{1.0}}}};
-    const auto clone = std::unique_ptr<VariableStore>{table.clone()};
-
-    CHECK(clone->size() == 1u);
-    CHECK(clone->value("a") == Value{1.0});
-
-    // the clone owns a copy of the table, so the original can move on without it
-    table.set("b", Value{2.0});
-    CHECK(clone->size() == 1u);
-    CHECK(clone->value("b") == Value::Undefined);
   }
 
   SECTION("size")
@@ -99,15 +84,6 @@ TEST_CASE("VariableTable")
 
 TEST_CASE("NullVariableStore")
 {
-  SECTION("clone")
-  {
-    const auto store = NullVariableStore{};
-    const auto clone = std::unique_ptr<VariableStore>{store.clone()};
-
-    CHECK(clone->size() == 0u);
-    CHECK(clone->value("a") == Value::Null);
-  }
-
   SECTION("size")
   {
     CHECK(NullVariableStore{}.size() == 0u);

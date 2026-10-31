@@ -40,7 +40,6 @@ public:
   VariableStore& operator=(const VariableStore& other) = default;
   VariableStore& operator=(VariableStore&& other) noexcept = default;
 
-  virtual VariableStore* clone() const = 0;
   virtual size_t size() const = 0;
   virtual Value value(const std::string& name) const = 0;
   virtual std::vector<std::string> names() const = 0;
@@ -61,7 +60,6 @@ public:
   VariableTable();
   explicit VariableTable(Table variables);
 
-  VariableStore* clone() const override;
   size_t size() const override;
   Value value(const std::string& name) const override;
   std::vector<std::string> names() const override;
@@ -73,7 +71,6 @@ class NullVariableStore : public VariableStore
 public:
   NullVariableStore();
 
-  VariableStore* clone() const override;
   size_t size() const override;
   Value value(const std::string& name) const override;
   std::vector<std::string> names() const override;

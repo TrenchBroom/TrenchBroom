@@ -20,15 +20,16 @@
 #include "ui/VariableStoreModel.h"
 
 #include "el/EvaluationContext.h"
-#include "el/VariableStore.h"
+
+#include <utility>
 
 namespace tb::ui
 {
 
-VariableStoreModel::VariableStoreModel(const el::VariableStore& variables)
-  : m_variables{variables.clone()}
+VariableStoreModel::VariableStoreModel(el::VariableTable variables)
+  : m_variables{std::move(variables)}
 {
-  for (const auto& name : m_variables->names())
+  for (const auto& name : m_variables.names())
   {
     m_variableNames.push_back(name);
   }
@@ -38,14 +39,14 @@ VariableStoreModel::~VariableStoreModel() = default;
 
 int VariableStoreModel::rowCount(const QModelIndex& /* parent */) const
 {
-  return int(m_variables->size());
+  return int(m_variables.size());
 }
 
 QVariant VariableStoreModel::data(const QModelIndex& index, const int role) const
 {
   if (
     index.column() < 0 || index.column() > 1 || index.row() < 0
-    || index.row() >= int(m_variables->size()))
+    || index.row() >= int(m_variables.size()))
   {
     return {};
   }
@@ -62,7 +63,7 @@ QVariant VariableStoreModel::data(const QModelIndex& index, const int role) cons
            [&](auto& context) {
              return QString::fromStdString(context.variableValue(name).stringValue());
            },
-           *m_variables)
+           m_variables)
          | kdl::transform_error([](const auto& e) {
              return QString{"Error: %1"}.arg(QString::fromStdString(e.msg));
            })

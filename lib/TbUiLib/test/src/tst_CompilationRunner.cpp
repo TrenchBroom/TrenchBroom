@@ -24,7 +24,6 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 #include <QtTest/QSignalSpy>
 
 #include "CmdTool.h"
-#include "el/VariableStore.h"
 #include "fs/TestEnvironment.h"
 #include "gl/PerspectiveCamera.h"
 #include "mdl/CompilationProfile.h"
@@ -126,7 +125,7 @@ TEST_CASE("CompilationRunToolTaskRunner")
 
   SECTION("runMissingTool")
   {
-    auto variables = el::NullVariableStore{};
+    auto variables = CompilationVariables{map, ""};
     auto output = QTextEdit{};
     auto outputAdapter = TextOutputAdapter{&output};
 
@@ -156,7 +155,7 @@ TEST_CASE("CompilationRunToolTaskRunner")
 
     CAPTURE(toolPath);
 
-    auto variables = el::NullVariableStore{};
+    auto variables = CompilationVariables{map, ""};
     auto output = QTextEdit{};
     auto outputAdapter = TextOutputAdapter{&output};
 
@@ -177,7 +176,7 @@ TEST_CASE("CompilationRunToolTaskRunner")
 
   SECTION("toolReturnsZeroExitCode")
   {
-    auto variables = el::NullVariableStore{};
+    auto variables = CompilationVariables{map, ""};
     auto output = QTextEdit{};
     auto outputAdapter = TextOutputAdapter{&output};
 
@@ -198,7 +197,7 @@ TEST_CASE("CompilationRunToolTaskRunner")
 
   SECTION("toolReturnsNonZeroExitCode")
   {
-    auto variables = el::NullVariableStore{};
+    auto variables = CompilationVariables{map, ""};
     auto output = QTextEdit{};
     auto outputAdapter = TextOutputAdapter{&output};
 
@@ -219,7 +218,7 @@ TEST_CASE("CompilationRunToolTaskRunner")
 
   SECTION("argumentPassing")
   {
-    auto variables = el::NullVariableStore{};
+    auto variables = CompilationVariables{map, ""};
     auto output = QTextEdit{};
     auto outputAdapter = TextOutputAdapter{&output};
 
@@ -246,7 +245,7 @@ escaped str)"));
   // the test is unreliable on Windows
   SECTION("toolAborts")
   {
-    auto variables = el::NullVariableStore{};
+    auto variables = CompilationVariables{map, ""};
     auto output = QTextEdit{};
     auto outputAdapter = TextOutputAdapter{&output};
 
@@ -270,7 +269,7 @@ escaped str)"));
   // the test is unreliable on macOS in debug mode
   SECTION("toolCrashes")
   {
-    auto variables = el::NullVariableStore{};
+    auto variables = CompilationVariables{map, ""};
     auto output = QTextEdit{};
     auto outputAdapter = TextOutputAdapter{&output};
 
@@ -319,7 +318,7 @@ TEST_CASE("CompilationLaunchEngineTaskRunner")
 
   SECTION("launchEngine")
   {
-    auto variables = el::NullVariableStore{};
+    auto variables = CompilationVariables{map, ""};
     auto output = QTextEdit{};
     auto outputAdapter = TextOutputAdapter{&output};
 
@@ -342,7 +341,7 @@ TEST_CASE("CompilationLaunchEngineTaskRunner")
 
   SECTION("invalidEngineProfile")
   {
-    auto variables = el::NullVariableStore{};
+    auto variables = CompilationVariables{map, ""};
     auto output = QTextEdit{};
     auto outputAdapter = TextOutputAdapter{&output};
 
@@ -367,7 +366,7 @@ TEST_CASE("CompilationLaunchEngineTaskRunner")
 
   SECTION("launchFailure")
   {
-    auto variables = el::NullVariableStore{};
+    auto variables = CompilationVariables{map, ""};
     auto output = QTextEdit{};
     auto outputAdapter = TextOutputAdapter{&output};
 
@@ -391,7 +390,7 @@ TEST_CASE("CompilationLaunchEngineTaskRunner")
 
   SECTION("testModeDoesNotLaunch")
   {
-    auto variables = el::NullVariableStore{};
+    auto variables = CompilationVariables{map, ""};
     auto output = QTextEdit{};
     auto outputAdapter = TextOutputAdapter{&output};
 
