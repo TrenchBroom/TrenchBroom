@@ -77,4 +77,9 @@ Result<std::vector<mdl::Brush>> DrawShapeToolExtensionManager::createBrushes(
   return currentExtension().createBrushes(bounds, m_parameters);
 }
 
+void DrawShapeToolExtensionManager::brushesWereCreated()
+{
+  currentExtension().brushesWereCreated(m_parameters);
+}
+
 } // namespace tb::ui

@@ -21,6 +21,7 @@
 
 #include "vm/bbox.h"
 
+#include <array>
 #include <cstdint>
 #include <vector>
 
@@ -39,12 +40,26 @@ enum class RockType
   Cluster,
 };
 
+inline constexpr auto RockTypes = std::array{
+  RockType::Boulder,
+  RockType::Shelf,
+  RockType::Strata,
+  RockType::Crag,
+  RockType::Crystal,
+  RockType::Columns,
+  RockType::Basalt,
+  RockType::Cluster,
+};
+
 using RockFormationPoints = std::vector<std::vector<vm::vec3d>>;
 
 /**
  * Generate and fit point clouds for convex rock brushes. The points lie on the integer
  * grid, except for the top points of Columns and Basalt: their tops are slanted, which
  * moves these points off the grid.
+ *
+ * The formation fills the largest box with integer coordinates that fits into the bounds.
+ * If there is no such box, the formation is empty.
  *
  * `detail` is clamped to [0, 1] and makes the formation simpler or more complex. Each
  * rock type interprets it in its own way, for example as the number of faces or pieces.

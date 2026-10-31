@@ -406,6 +406,17 @@ Result<std::vector<mdl::Brush>> DrawShapeToolRockExtension::createBrushes(
     map.currentMaterialName());
 }
 
+void DrawShapeToolRockExtension::brushesWereCreated(
+  DrawShapeToolParameters& parameters) const
+{
+  if (parameters.incrementRockSeed())
+  {
+    const auto rockSeed = parameters.rockSeed();
+    parameters.setRockSeed(
+      rockSeed < DrawShapeToolParameters::MaxRockSeed ? rockSeed + 1 : 0);
+  }
+}
+
 std::vector<std::unique_ptr<DrawShapeToolExtension>> createDrawShapeToolExtensions(
   MapDocument& document)
 {

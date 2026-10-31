@@ -29,6 +29,7 @@
 
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/generators/catch_generators.hpp>
+#include <catch2/generators/catch_generators_range.hpp>
 
 namespace tb::ui
 {
@@ -524,15 +525,7 @@ TEST_CASE("DrawShapeToolRockExtension")
   SECTION("Create different rock types")
   {
     const auto bounds = vm::bbox3d{{-64, -64, -64}, {64, 64, 64}};
-    const auto rockType = GENERATE(
-      mdl::RockType::Boulder,
-      mdl::RockType::Shelf,
-      mdl::RockType::Strata,
-      mdl::RockType::Crag,
-      mdl::RockType::Crystal,
-      mdl::RockType::Columns,
-      mdl::RockType::Basalt,
-      mdl::RockType::Cluster);
+    const auto rockType = GENERATE(from_range(mdl::RockTypes));
 
     parameters.setRockType(rockType);
     const auto result = extension.createBrushes(bounds, parameters);
@@ -570,6 +563,36 @@ TEST_CASE("DrawShapeToolRockExtension")
 
     CHECK(result1.value()[0].faceCount() != result2.value()[0].faceCount());
   }
+
+  SECTION("brushesWereCreated")
+  {
+    parameters.setRockSeed(7);
+
+    SECTION("increments the seed if enabled")
+    {
+      parameters.setIncrementRockSeed(true);
+
+      extension.brushesWereCreated(parameters);
+      CHECK(parameters.rockSeed() == 8);
+    }
+
+    SECTION("does not change the seed if disabled")
+    {
+      parameters.setIncrementRockSeed(false);
+
+      extension.brushesWereCreated(parameters);
+      CHECK(parameters.rockSeed() == 7);
+    }
+
+    SECTION("wraps around after the largest seed")
+    {
+      parameters.setIncrementRockSeed(true);
+      parameters.setRockSeed(DrawShapeToolParameters::MaxRockSeed);
+
+      extension.brushesWereCreated(parameters);
+      CHECK(parameters.rockSeed() == 0);
+    }
+  }
 }
 
 TEST_CASE("DrawShapeToolParameters")
@@ -586,7 +609,9 @@ TEST_CASE("DrawShapeToolParameters")
     REQUIRE(parameters.accuracy() == 1);
     REQUIRE(parameters.stepHeight() == 16.0);
     REQUIRE(parameters.stairDirection() == DrawShapeToolParameters::StairDirection::PosX);
+    REQUIRE(parameters.rockType() == mdl::RockType::Boulder);
     REQUIRE(parameters.rockDetail() == 0.5);
+    REQUIRE(parameters.rockSeed() == 0);
     REQUIRE(parameters.incrementRockSeed() == false);
   }
 
@@ -753,6 +778,25 @@ TEST_CASE("DrawShapeToolParameters")
     CHECK(parametersDidChange.notifications.size() == 1u);
   }
 
+  SECTION("RockType modifications")
+  {
+    auto parametersDidChange = Observer<>{parameters.parametersDidChangeNotifier};
+
+    parameters.setRockType(mdl::RockType::Boulder);
+    CHECK(parametersDidChange.notifications.empty());
+
+    parameters.setRockType(mdl::RockType::Strata);
+    REQUIRE(parameters.rockType() == mdl::RockType::Strata);
+    CHECK(parametersDidChange.notifications.size() == 1u);
+
+    parameters.setRockType(mdl::RockType::Strata);
+    CHECK(parametersDidChange.notifications.size() == 1u);
+
+    parameters.setRockType(mdl::RockType::Cluster);
+    REQUIRE(parameters.rockType() == mdl::RockType::Cluster);
+    CHECK(parametersDidChange.notifications.size() == 2u);
+  }
+
   SECTION("RockDetail modifications")
   {
     auto parametersDidChange = Observer<>{parameters.parametersDidChangeNotifier};
@@ -765,6 +809,21 @@ TEST_CASE("DrawShapeToolParameters")
     CHECK(parametersDidChange.notifications.size() == 1u);
 
     parameters.setRockDetail(1.0);
+    CHECK(parametersDidChange.notifications.size() == 1u);
+  }
+
+  SECTION("RockSeed modifications")
+  {
+    auto parametersDidChange = Observer<>{parameters.parametersDidChangeNotifier};
+
+    parameters.setRockSeed(0);
+    CHECK(parametersDidChange.notifications.empty());
+
+    parameters.setRockSeed(DrawShapeToolParameters::MaxRockSeed);
+    REQUIRE(parameters.rockSeed() == DrawShapeToolParameters::MaxRockSeed);
+    CHECK(parametersDidChange.notifications.size() == 1u);
+
+    parameters.setRockSeed(DrawShapeToolParameters::MaxRockSeed);
     CHECK(parametersDidChange.notifications.size() == 1u);
   }
 

@@ -25,6 +25,9 @@
 
 #include "vm/util.h"
 
+#include <cstdint>
+#include <limits>
+
 namespace tb::ui
 {
 
@@ -38,6 +41,8 @@ public:
     PosY,
     NegY,
   };
+
+  static constexpr auto MaxRockSeed = uint32_t(std::numeric_limits<int>::max());
 
 private:
   // For axis aligned shapes

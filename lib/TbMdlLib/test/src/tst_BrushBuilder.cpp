@@ -37,6 +37,7 @@
 
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/generators/catch_generators.hpp>
+#include <catch2/generators/catch_generators_range.hpp>
 #include <catch2/matchers/catch_matchers_contains.hpp>
 #include <catch2/matchers/catch_matchers_range_equals.hpp>
 
@@ -764,6 +765,35 @@ TEST_CASE("BrushBuilder")
 
             // every one of the icosahedron's 20 triangles is split into four
             CHECK(sphere.faceCount() == 80u);
+          })
+        | kdl::transform_error([](const auto& e) { FAIL(e); });
+    }
+  }
+
+  SECTION("createRockFormation")
+  {
+    auto builder = BrushBuilder{MapFormat::Standard, worldBounds};
+
+    SECTION("Thin or small bounds do not error")
+    {
+      // Rounding to the integer grid flattens some of the pieces in these bounds.
+      const auto type = GENERATE(from_range(RockTypes));
+      const auto bounds = GENERATE(
+        vm::bbox3d{{0, 0, 0}, {64, 64, 2}},
+        vm::bbox3d{{0, 0, 0}, {2, 64, 64}},
+        vm::bbox3d{{0, 0, 0}, {2, 2, 2}},
+        vm::bbox3d{{0, 0, 0}, {0.5, 0.5, 0.5}});
+      const auto detail = GENERATE(0.0, 0.5, 1.0);
+      const auto seed = GENERATE(uint32_t{0}, uint32_t{1});
+
+      CAPTURE(type, bounds, detail, seed);
+
+      builder.createRockFormation(bounds, type, detail, seed, "someName")
+        | kdl::transform([](const auto& brushes) {
+            for (const auto& brush : brushes)
+            {
+              CHECK(brush.fullySpecified());
+            }
           })
         | kdl::transform_error([](const auto& e) { FAIL(e); });
     }

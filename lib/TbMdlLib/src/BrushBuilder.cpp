@@ -37,7 +37,6 @@
 #include "vm/mat_ext.h"
 
 #include <algorithm>
-#include <array>
 #include <cmath>
 #include <optional>
 #include <ranges>
@@ -977,9 +976,11 @@ Result<std::vector<Brush>> BrushBuilder::createRockFormation(
   const std::string& textureName) const
 {
   const auto formation = makeRockFormation(bounds, type, detail, seed);
-  return formation | std::views::transform([&](const auto& points) {
-           return createBrush(points, textureName);
-         })
+  return formation
+         | std::views::transform([](const auto& points) { return Polyhedron3{points}; })
+         | std::views::filter([](const auto& p) { return p.polyhedron(); })
+         | std::views::transform(
+           [&](const auto& polyhedron) { return createBrush(polyhedron, textureName); })
          | kdl::fold;
 }
 

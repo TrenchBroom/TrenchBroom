@@ -53,6 +53,7 @@ public:
   bool setCurrentExtensionIndex(size_t currentExtensionIndex);
 
   Result<std::vector<mdl::Brush>> createBrushes(const vm::bbox3d& bounds) const;
+  void brushesWereCreated();
 };
 
 } // namespace tb::ui

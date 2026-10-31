@@ -19,6 +19,8 @@
 
 #include "ui/DrawShapeToolParameters.h"
 
+#include "kd/contracts.h"
+
 namespace tb::ui
 {
 
@@ -183,6 +185,8 @@ uint32_t DrawShapeToolParameters::rockSeed() const
 
 void DrawShapeToolParameters::setRockSeed(const uint32_t rockSeed)
 {
+  contract_pre(rockSeed <= MaxRockSeed);
+
   if (rockSeed != m_rockSeed)
   {
     m_rockSeed = rockSeed;

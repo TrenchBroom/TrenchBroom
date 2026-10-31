@@ -116,6 +116,7 @@ public:
   const std::filesystem::path& iconPath() const override;
   Result<std::vector<mdl::Brush>> createBrushes(
     const vm::bbox3d& bounds, const DrawShapeToolParameters& parameters) const override;
+  void brushesWereCreated(DrawShapeToolParameters& parameters) const override;
 };
 
 std::vector<std::unique_ptr<DrawShapeToolExtension>> createDrawShapeToolExtensions(
