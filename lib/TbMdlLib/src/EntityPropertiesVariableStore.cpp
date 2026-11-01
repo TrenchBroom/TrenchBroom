@@ -33,11 +33,6 @@ EntityPropertiesVariableStore::EntityPropertiesVariableStore(const Entity& entit
 {
 }
 
-el::VariableStore* EntityPropertiesVariableStore::clone() const
-{
-  return new EntityPropertiesVariableStore{m_entity};
-}
-
 size_t EntityPropertiesVariableStore::size() const
 {
   return m_entity.properties().size();

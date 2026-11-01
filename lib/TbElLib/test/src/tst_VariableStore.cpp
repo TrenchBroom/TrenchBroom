@@ -17,10 +17,11 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "el/LazyMap.h"
+#include "el/LazyMapVariableStore.h"
 #include "el/Value.h"
 #include "el/VariableStore.h"
 
-#include <memory>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -36,20 +37,6 @@ TEST_CASE("VariableTable")
   {
     CHECK(VariableTable{}.size() == 0u);
     CHECK(VariableTable{{{"a", Value{1.0}}}}.size() == 1u);
-  }
-
-  SECTION("clone")
-  {
-    auto table = VariableTable{{{"a", Value{1.0}}}};
-    const auto clone = std::unique_ptr<VariableStore>{table.clone()};
-
-    CHECK(clone->size() == 1u);
-    CHECK(clone->value("a") == Value{1.0});
-
-    // the clone owns a copy of the table, so the original can move on without it
-    table.set("b", Value{2.0});
-    CHECK(clone->size() == 1u);
-    CHECK(clone->value("b") == Value::Undefined);
   }
 
   SECTION("size")
@@ -99,15 +86,6 @@ TEST_CASE("VariableTable")
 
 TEST_CASE("NullVariableStore")
 {
-  SECTION("clone")
-  {
-    const auto store = NullVariableStore{};
-    const auto clone = std::unique_ptr<VariableStore>{store.clone()};
-
-    CHECK(clone->size() == 0u);
-    CHECK(clone->value("a") == Value::Null);
-  }
-
   SECTION("size")
   {
     CHECK(NullVariableStore{}.size() == 0u);
@@ -171,6 +149,23 @@ TEST_CASE("VariableStore")
     // stores are compared by their contents, not by their type
     CHECK(VariableTable{} == NullVariableStore{});
     CHECK_FALSE(VariableTable{{{"a", Value{1.0}}}} == NullVariableStore{});
+
+    const auto fields = LazyMapFields<std::string>{
+      {"a", {ValueType::String, [](const auto& s) { return Value{s}; }}},
+    };
+    CHECK(
+      VariableTable{{{"a", Value{"1"}}}}
+      == LazyMapVariableStore{makeLazyMap(std::string{"1"}, fields)});
+    CHECK_FALSE(
+      VariableTable{{{"a", Value{"2"}}}}
+      == LazyMapVariableStore{makeLazyMap(std::string{"1"}, fields)});
+
+    const auto nestedFields = LazyMapFields<std::string>{
+      {"b",
+       {ValueType::LazyMap, [&](const auto& s) { return makeLazyMapValue(s, fields); }}},
+    };
+    const auto store = LazyMapVariableStore{makeLazyMap(std::string{"1"}, nestedFields)};
+    CHECK(store == store);
   }
 
   SECTION("operator!=")

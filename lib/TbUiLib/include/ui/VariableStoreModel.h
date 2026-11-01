@@ -21,37 +21,30 @@
 
 #include <QAbstractListModel>
 
-#include <memory>
+#include "el/VariableStore.h"
+
 #include <string>
 #include <vector>
 
 class QModelIndex;
 class QVariant;
 
-namespace tb
-{
-namespace el
-{
-class VariableStore;
-}
-
-namespace ui
+namespace tb::ui
 {
 
 class VariableStoreModel : public QAbstractListModel
 {
   Q_OBJECT
 private:
-  std::unique_ptr<el::VariableStore> m_variables;
+  el::VariableTable m_variables;
   std::vector<std::string> m_variableNames;
 
 public:
-  explicit VariableStoreModel(const el::VariableStore& variables);
+  explicit VariableStoreModel(el::VariableTable variables);
   ~VariableStoreModel() override;
 
   int rowCount(const QModelIndex& parent) const override;
   QVariant data(const QModelIndex& index, int role) const override;
 };
 
-} // namespace ui
-} // namespace tb
+} // namespace tb::ui

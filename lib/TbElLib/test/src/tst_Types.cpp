@@ -144,6 +144,7 @@ TEST_CASE("Types")
     CHECK(typeName(ValueType::Range) == "Range");
     CHECK(typeName(ValueType::Vec3) == "Vec3");
     CHECK(typeName(ValueType::BBox) == "BBox");
+    CHECK(typeName(ValueType::LazyMap) == "Map");
     CHECK(typeName(ValueType::Null) == "Null");
     CHECK(typeName(ValueType::Undefined) == "Undefined");
   }

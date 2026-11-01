@@ -61,6 +61,21 @@ TEST_CASE("Parser")
 
   SECTION("Literals")
   {
+    SECTION("Booleans")
+    {
+      // clang-format off
+      const auto
+      [expression, expectedExpression] = GENERATE(table<std::string, ExpressionNode>({
+      {"true",     lit(true)},
+      {"false",    lit(false)},
+      }));
+      // clang-format on
+
+      CAPTURE(expression);
+
+      CHECK(parse(expression) == expectedExpression);
+    }
+
     SECTION("Strings")
     {
       // clang-format off
@@ -132,36 +147,6 @@ TEST_CASE("Parser")
       CHECK(parse(expression) == expectedResult);
     }
 
-    SECTION("Booleans")
-    {
-      // clang-format off
-      const auto
-      [expression, expectedExpression] = GENERATE(table<std::string, ExpressionNode>({
-      {"true",     lit(true)},
-      {"false",    lit(false)},
-      }));
-      // clang-format on
-
-      CAPTURE(expression);
-
-      CHECK(parse(expression) == expectedExpression);
-    }
-
-    SECTION("Null and undefined")
-    {
-      // clang-format off
-      const auto
-      [expression,  expectedExpression] = GENERATE(table<std::string, ExpressionNode>({
-      {"null",      lit(Value::Null)},
-      {"undefined", lit(Value::Undefined)},
-      }));
-      // clang-format on
-
-      CAPTURE(expression);
-
-      CHECK(parse(expression) == expectedExpression);
-    }
-
     SECTION("Arrays")
     {
       // clang-format off
@@ -169,23 +154,6 @@ TEST_CASE("Parser")
       [expression,                    expectedExpression] = GENERATE(table<std::string, ExpressionNode>({
       {"[]",                          arr()},
       {R"([ 1.0 , "test",[ true] ])", arr({lit(1.0), lit("test"), arr({lit(true)})})},
-      }));
-      // clang-format on
-
-      CAPTURE(expression);
-
-      CHECK(parse(expression) == expectedExpression);
-    }
-
-    SECTION("Ranges")
-    {
-      // clang-format off
-      const auto
-      [expression, expectedExpression] = GENERATE(table<std::string, ExpressionNode>({
-      {"[1..3]",   arr({bRng(lit(1.0), lit(3.0))})},
-      {"[][1..3]", scr(arr(), bRng(lit(1.0), lit(3.0)))},
-      {"[][..3]",  scr(arr(), rbRng(lit(3.0)))},
-      {"[][1..]",  scr(arr(), lbRng(lit(1.0)))},
       }));
       // clang-format on
 
@@ -214,6 +182,38 @@ asdf)",                                                                         
       CAPTURE(expression);
 
       CHECK(parse(expression) == expectedResult);
+    }
+
+    SECTION("Ranges")
+    {
+      // clang-format off
+      const auto
+      [expression, expectedExpression] = GENERATE(table<std::string, ExpressionNode>({
+      {"[1..3]",   arr({bRng(lit(1.0), lit(3.0))})},
+      {"[][1..3]", scr(arr(), bRng(lit(1.0), lit(3.0)))},
+      {"[][..3]",  scr(arr(), rbRng(lit(3.0)))},
+      {"[][1..]",  scr(arr(), lbRng(lit(1.0)))},
+      }));
+      // clang-format on
+
+      CAPTURE(expression);
+
+      CHECK(parse(expression) == expectedExpression);
+    }
+
+    SECTION("Null and undefined")
+    {
+      // clang-format off
+      const auto
+      [expression,  expectedExpression] = GENERATE(table<std::string, ExpressionNode>({
+      {"null",      lit(Value::Null)},
+      {"undefined", lit(Value::Undefined)},
+      }));
+      // clang-format on
+
+      CAPTURE(expression);
+
+      CHECK(parse(expression) == expectedExpression);
     }
   }
 

@@ -37,7 +37,6 @@ private:
 public:
   explicit EntityPropertiesVariableStore(const Entity& entity);
 
-  VariableStore* clone() const override;
   size_t size() const override;
   el::Value value(const std::string& name) const override;
   std::vector<std::string> names() const override;

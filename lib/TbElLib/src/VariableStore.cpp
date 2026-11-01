@@ -73,11 +73,6 @@ VariableTable::VariableTable(Table variables)
 {
 }
 
-VariableStore* VariableTable::clone() const
-{
-  return new VariableTable(m_variables);
-}
-
 size_t VariableTable::size() const
 {
   return m_variables.size();
@@ -103,11 +98,6 @@ void VariableTable::set(std::string name, Value value)
 }
 
 NullVariableStore::NullVariableStore() = default;
-
-VariableStore* NullVariableStore::clone() const
-{
-  return new NullVariableStore{};
-}
 
 size_t NullVariableStore::size() const
 {

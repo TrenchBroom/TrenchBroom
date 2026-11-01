@@ -23,7 +23,6 @@
 #include "el/VariableStore.h"
 #include "ui/TextOutputAdapter.h"
 
-#include <memory>
 #include <string>
 
 namespace tb
@@ -46,7 +45,7 @@ class CompilationContext
 private:
   const mdl::Map& m_map;
   const gl::PerspectiveCamera& m_camera;
-  std::unique_ptr<el::VariableStore> m_variables;
+  el::VariableTable m_variables;
 
   TextOutputAdapter m_output;
   bool m_test;
@@ -55,7 +54,7 @@ public:
   CompilationContext(
     const mdl::Map& map,
     const gl::PerspectiveCamera& camera,
-    const el::VariableStore& variables,
+    el::VariableTable variables,
     TextOutputAdapter output,
     bool test);
 

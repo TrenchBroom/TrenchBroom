@@ -18,6 +18,8 @@
  DEALINGS IN THE SOFTWARE.
 */
 
+#include "kd/flat_map.h"
+#include "kd/flat_set.h"
 #include "kd/ranges/to.h"
 
 #include <algorithm>
@@ -32,6 +34,7 @@
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
+#include <utility>
 #include <vector>
 
 #include <catch2/catch_test_macros.hpp>
@@ -175,6 +178,29 @@ TEST_CASE("to")
       == std::string{"hello"});
 
     CHECK(ranges::to<std::string>(std::vector{'a', 'b', 'c'}) == std::string{"abc"});
+  }
+
+  SECTION("into a container whose emplace doesn't take a position")
+  {
+    // These aren't common ranges, so their elements are appended one by one. The emplace
+    // functions of the flat containers only take an element's constructor arguments, so
+    // the elements must be appended by calling insert with a position instead.
+    const auto first3 =
+      std::views::iota(0) | std::views::take_while([](const int i) { return i < 3; });
+
+    CHECK((first3 | ranges::to<flat_set>()) == flat_set{0, 1, 2});
+    CHECK((first3 | ranges::to<flat_set<int>>()) == flat_set{0, 1, 2});
+
+    const auto first3Pairs = first3 | std::views::transform([](const int i) {
+                               return std::pair{i, std::to_string(i)};
+                             });
+
+    CHECK(
+      (first3Pairs | ranges::to<flat_map>())
+      == flat_map<int, std::string>{{0, "0"}, {1, "1"}, {2, "2"}});
+    CHECK(
+      (first3Pairs | ranges::to<flat_map<int, std::string>>())
+      == flat_map<int, std::string>{{0, "0"}, {1, "1"}, {2, "2"}});
   }
 
   SECTION("range of move-only elements")
