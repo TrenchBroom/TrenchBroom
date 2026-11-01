@@ -47,6 +47,12 @@ namespace
 
 using V = Value;
 
+// A range can only be written inside a subscript, so a range value can only reach any
+// other expression by way of a variable.
+const auto nonLiteralValues = MapType{
+  {"range", Value{RangeType{BoundedRange{1, 3}}}},
+};
+
 auto evaluate(const std::string& expression, const MapType& variables = {})
 {
   return withEvaluationContext(
@@ -225,6 +231,7 @@ TEST_CASE("Expression")
     {"+null",           Error{R"(At line 1, column 1: Cannot evaluate expression '+null': Invalid type Null)"}},
     {"+[]",             Error{R"(At line 1, column 1: Cannot evaluate expression '+[]': Invalid type Array)"}},
     {"+{}",             Error{R"(At line 1, column 1: Cannot evaluate expression '+{}': Invalid type Map)"}},
+    {"+vec(1, 2, 3)",   Value{Vec3Type{1, 2, 3}}},
 
     // Unary minus
     {"-true",           Value{-1}},
@@ -235,6 +242,7 @@ TEST_CASE("Expression")
     {"-null",           Error{R"(At line 1, column 1: Cannot evaluate expression '-null': Invalid type Null)"}},
     {"-[]",             Error{R"(At line 1, column 1: Cannot evaluate expression '-[]': Invalid type Array)"}},
     {"-{}",             Error{R"(At line 1, column 1: Cannot evaluate expression '-{}': Invalid type Map)"}},
+    {"-vec(1, 2, 3)",   Value{Vec3Type{-1, -2, -3}}},
 
     // Addition
     {"true + true",     Value{2}},
@@ -288,6 +296,15 @@ TEST_CASE("Expression")
         {"k4", Value{5}},
     }}},
 
+    {"vec(1, 2, 3) + vec(4, 5, 6)", Value{Vec3Type{5, 7, 9}}},
+    {"vec(1, 2, 3) + 2",            Error{"At line 1, column 14: Cannot evaluate expression 'vec(1, 2, 3) + 2': Invalid operand types Vec3 and Number"}},
+    // a string operand is converted to a vector
+    {"'1 2 3' + vec(1, 1, 1)",      Value{Vec3Type{2, 3, 4}}},
+    // two strings are never converted to vectors
+    {"'1 2 3' + '1 2 3'",           Value{"1 2 31 2 3"}},
+
+    {"bbox(vec(1, 2, 3), vec(4, 5, 6)) + bbox(vec(1, 2, 3), vec(4, 5, 6))", Error{"At line 1, column 34: Cannot evaluate expression 'bbox(vec(1, 2, 3), vec(4, 5, 6)) + bbox(vec(1, 2, 3), vec(4, 5, 6))': Invalid operand types BBox and BBox"}},
+
     // Subtraction
     {"true - true",     Value{0}},
     {"false - 3",       Value{-3}},
@@ -333,6 +350,10 @@ TEST_CASE("Expression")
     {"{} - null",       Error{R"(At line 1, column 4: Cannot evaluate expression '{} - null': Invalid operand types Map and Null)"}},
     {"{} - []",         Error{R"(At line 1, column 4: Cannot evaluate expression '{} - []': Invalid operand types Map and Array)"}},
     {"{} - {}",         Error{R"(At line 1, column 4: Cannot evaluate expression '{} - {}': Invalid operand types Map and Map)"}},
+
+    {"vec(4, 5, 6) - vec(1, 2, 3)", Value{Vec3Type{3, 3, 3}}},
+    // a string operand is converted to a vector
+    {"vec(1, 1, 1) - '1 2 3'",      Value{Vec3Type{0, -1, -2}}},
 
     // Multiplication
     {"true * true",     Value{1}},
@@ -381,6 +402,17 @@ TEST_CASE("Expression")
     {"{} * []",         Error{R"(At line 1, column 4: Cannot evaluate expression '{} * []': Invalid operand types Map and Array)"}},
     {"{} * {}",         Error{R"(At line 1, column 4: Cannot evaluate expression '{} * {}': Invalid operand types Map and Map)"}},
 
+    {"vec(1, 2, 3) * 2",            Value{Vec3Type{2, 4, 6}}},
+    {"2 * vec(1, 2, 3)",            Value{Vec3Type{2, 4, 6}}},
+    {"vec(1, 2, 3) * vec(4, 5, 6)", Value{Vec3Type{4, 10, 18}}},
+    {"vec(1, 2, 3) * true",         Value{Vec3Type{1, 2, 3}}},
+    {"vec(1, 2, 3) * null",         Error{"At line 1, column 14: Cannot evaluate expression 'vec(1, 2, 3) * null': Invalid operand types Vec3 and Null"}},
+    // a string operand is converted to a vector, or to a number to scale a vector by
+    {"'1 2 3' * vec(2, 2, 2)",      Value{Vec3Type{2, 4, 6}}},
+    {"vec(1, 2, 3) * '2'",          Value{Vec3Type{2, 4, 6}}},
+    {"'2' * vec(1, 2, 3)",          Value{Vec3Type{2, 4, 6}}},
+    {"vec(1, 2, 3) * 'a'",          Error{R"(At line 1, column 14: Cannot evaluate expression 'vec(1, 2, 3) * "a"': Invalid operand types Vec3 and String)"}},
+
     // Division
     {"true / true",     Value{1}},
     {"true / false",    Value{std::numeric_limits<NumberType>::infinity()}},
@@ -428,6 +460,13 @@ TEST_CASE("Expression")
     {"{} / []",         Error{R"(At line 1, column 4: Cannot evaluate expression '{} / []': Invalid operand types Map and Array)"}},
     {"{} / {}",         Error{R"(At line 1, column 4: Cannot evaluate expression '{} / {}': Invalid operand types Map and Map)"}},
 
+    {"vec(1, 2, 3) / 2",            Value{Vec3Type{0.5, 1.0, 1.5}}},
+    {"vec(1, 2, 3) / vec(4, 5, 6)", Value{Vec3Type{0.25, 0.4, 0.5}}},
+    {"12 / vec(4, 5, 6)",           Value{Vec3Type{3.0, 2.4, 2.0}}},
+    // a string operand is converted to a vector, or to a number to scale a vector by
+    {"'1 2 3' / vec(2, 2, 2)",      Value{Vec3Type{0.5, 1, 1.5}}},
+    {"vec(2, 4, 6) / '2'",          Value{Vec3Type{1, 2, 3}}},
+
 
     // Modulus
     {"true % true",     Value{0}},
@@ -474,6 +513,8 @@ TEST_CASE("Expression")
     {"{} % []",         Error{R"(At line 1, column 4: Cannot evaluate expression '{} % []': Invalid operand types Map and Array)"}},
     {"{} % {}",         Error{R"(At line 1, column 4: Cannot evaluate expression '{} % {}': Invalid operand types Map and Map)"}},
 
+    {"vec(1, 2, 3) % vec(4, 5, 6)", Error{"At line 1, column 14: Cannot evaluate expression 'vec(1, 2, 3) % vec(4, 5, 6)': Invalid operand types Vec3 and Vec3"}},
+
     // Logical negation
     {"!true",           Value{false}},
     {"!false",          Value{true}},
@@ -482,6 +523,8 @@ TEST_CASE("Expression")
     {"!null",           Error{R"(At line 1, column 1: Cannot evaluate expression '!null': Invalid type Null)"}},
     {"![]",             Error{R"(At line 1, column 1: Cannot evaluate expression '![]': Invalid type Array)"}},
     {"!{}",             Error{R"(At line 1, column 1: Cannot evaluate expression '!{}': Invalid type Map)"}},
+    {"!vec(1, 2, 3)",   Error{"At line 1, column 1: Cannot evaluate expression '!vec(1, 2, 3)': Invalid type Vec3"}},
+    {"!bbox(vec(1, 2, 3), vec(4, 5, 6))", Error{"At line 1, column 1: Cannot evaluate expression '!bbox(vec(1, 2, 3), vec(4, 5, 6))': Invalid type BBox"}},
 
     // Logical conjunction
     {"false && false",  Value{false}},
@@ -546,6 +589,9 @@ TEST_CASE("Expression")
     {"1 << undefined",  Value::Undefined},
     {"1 >> undefined",  Value::Undefined},
 
+    {"vec(1, 2, 3) + undefined", Value::Undefined},
+    {"undefined + vec(1, 2, 3)", Value::Undefined},
+
     // Bitwise negation
     {"~23423",          Value{~23423}},
     {"~23423.1",        Value{~23423}},
@@ -556,6 +602,7 @@ TEST_CASE("Expression")
     {"~null",           Error{R"(At line 1, column 1: Cannot evaluate expression '~null': Invalid type Null)"}},
     {"~[]",             Error{R"(At line 1, column 1: Cannot evaluate expression '~[]': Invalid type Array)"}},
     {"~{}",             Error{R"(At line 1, column 1: Cannot evaluate expression '~{}': Invalid type Map)"}},
+    {"~vec(1, 2, 3)",   Error{"At line 1, column 1: Cannot evaluate expression '~vec(1, 2, 3)': Invalid type Vec3"}},
 
     // Bitwise and
     {"0 & 0",           Value{0 & 0}},
@@ -1038,6 +1085,31 @@ TEST_CASE("Expression")
     {"{k1:1} == {k1:1, k2:2}", Value{false}},
     {"{k1:1} == {k1:2, k2:2}", Value{false}},
 
+    {"vec(1, 2, 3) == vec(1, 2, 3)", Value{true}},
+    {"vec(1, 2, 3) == vec(4, 5, 6)", Value{false}},
+    {"vec(1, 2, 3) != vec(4, 5, 6)", Value{true}},
+    {"vec(1, 2, 3) < vec(4, 5, 6)",  Value{true}},
+    {"vec(4, 5, 6) > vec(1, 2, 3)",  Value{true}},
+    {"vec(1, 2, 3) == 1",            Error{"At line 1, column 14: Cannot evaluate expression 'vec(1, 2, 3) == 1': Invalid operand types Vec3 and Number"}},
+    // a string is converted to a vector
+    {"vec(1, 2, 3) == '1 2 3'",      Value{true}},
+    {"'1 2 3' == vec(1, 2, 3)",      Value{true}},
+    {"vec(1, 2, 3) != '1 2 4'",      Value{true}},
+    {"'1 2 3' < vec(1, 2, 4)",       Value{true}},
+    {"vec(1, 2, 3) == 'a'",          Error{R"(At line 1, column 14: Cannot evaluate expression 'vec(1, 2, 3) == "a"': At line 1, column 17: Cannot convert value '"a"' of type 'String' to type 'Vec3')"}},
+
+    {"bbox(vec(1, 2, 3), vec(4, 5, 6)) == bbox(vec(1, 2, 3), vec(4, 5, 6))", Value{true}},
+    {"bbox(vec(1, 2, 3), vec(4, 5, 6)) == bbox(vec(0, 0, 0), vec(1, 1, 1))", Value{false}},
+    {"bbox(vec(1, 2, 3), vec(4, 5, 6)) != bbox(vec(0, 0, 0), vec(1, 1, 1))", Value{true}},
+    {"bbox(vec(1, 2, 3), vec(4, 5, 6)) == 1",                                Error{"At line 1, column 34: Cannot evaluate expression 'bbox(vec(1, 2, 3), vec(4, 5, 6)) == 1': Invalid operand types BBox and Number"}},
+
+    // a range is not comparable to anything else, not even another range
+    {"range == range", Error{"At line 1, column 7: Cannot evaluate expression 'range == range': Invalid operand types Range and Range"}},
+    {"range == 0",     Error{"At line 1, column 7: Cannot evaluate expression 'range == 0': Invalid operand types Range and Number"}},
+    {"range == null",  Value{false}},
+    {"null == range",  Value{false}},
+    {"range > null",   Value{true}},
+
     {"undefined == undefined", Value{true}},
     {"undefined == null",      Value{false}},
     {"null == undefined",      Value{false}},
@@ -1046,6 +1118,8 @@ TEST_CASE("Expression")
     {"undefined == ''",        Value{false}},
     {"undefined == []",        Value{false}},
     {"undefined == {}",        Value{false}},
+    {"undefined == range",     Value{false}},
+    {"range == undefined",     Value{false}},
 
     // Undefined sorts below everything else, null included
     {"undefined < null",       Value{true}},
@@ -1061,6 +1135,7 @@ TEST_CASE("Expression")
     {"0 > undefined",          Value{true}},
     {"[] > undefined",         Value{true}},
     {"{} > undefined",         Value{true}},
+    {"range > undefined",      Value{true}},
 
     // Case
     {"true -> 'asdf'",  Value{"asdf"}},
@@ -1071,213 +1146,7 @@ TEST_CASE("Expression")
 
     CAPTURE(expression);
 
-    CHECK(evaluate(expression) == expectedResult);
-  }
-
-  SECTION("Comparison with ranges")
-  {
-    // The grammar only accepts a range inside a subscript, so a range value can
-    // only reach a comparison by way of a variable.
-    const auto variables = MapType{{"r", Value{RangeType{BoundedRange{1, 3}}}}};
-
-    // clang-format off
-    const auto
-    [expression,       expectedResult] = GENERATE(table<std::string, Result<Value>>({
-    {"r == null",      Value{false}},
-    {"r > null",       Value{true}},
-    {"r == undefined", Value{false}},
-    {"r > undefined",  Value{true}},
-    {"null == r",      Value{false}},
-    {"undefined == r", Value{false}},
-
-    // a range is not comparable to anything else, not even another range
-    {"r == r",         Error{"At line 1, column 3: Cannot evaluate expression 'r == r': Invalid operand types Range and Range"}},
-    {"r == 0",         Error{"At line 1, column 3: Cannot evaluate expression 'r == 0': Invalid operand types Range and Number"}},
-    }));
-    // clang-format on
-
-    CAPTURE(expression);
-
-    CHECK(evaluate(expression, variables) == expectedResult);
-  }
-
-  SECTION("Vec3")
-  {
-    SECTION("Subscript")
-    {
-      // clang-format off
-      const auto
-      [expression,             expectedResult] = GENERATE(table<std::string, Result<Value>>({
-      {"vec(1, 2, 3)[0]",      Value{1.0}},
-      {"vec(1, 2, 3)[1]",      Value{2.0}},
-      {"vec(1, 2, 3)[2]",      Value{3.0}},
-      {"vec(1, 2, 3)[-1]",     Value{3.0}},
-      {"vec(1, 2, 3)[3]",      Error{"At line 1, column 13: Cannot evaluate expression 'vec(1, 2, 3)[3]': Index 3 is out of bounds for 'vec(1, 2, 3)'"}},
-
-      {R"(vec(1, 2, 3)["x"])", Value{1.0}},
-      {R"(vec(1, 2, 3)["y"])", Value{2.0}},
-      {R"(vec(1, 2, 3)["z"])", Value{3.0}},
-      {R"(vec(1, 2, 3)["w"])", Value::Undefined},
-
-      {"vec(1, 2, 3).x",       Value{1.0}},
-      {"vec(1, 2, 3).y",       Value{2.0}},
-      {"vec(1, 2, 3).z",       Value{3.0}},
-      {"vec(1, 2, 3).w",       Value::Undefined},
-      }));
-      // clang-format on
-
-      CAPTURE(expression);
-
-      CHECK(evaluate(expression) == expectedResult);
-    }
-
-    SECTION("Unary operators")
-    {
-      // clang-format off
-      const auto
-      [expression,      expectedResult] = GENERATE(table<std::string, Result<Value>>({
-      {"+vec(1, 2, 3)", Value{Vec3Type{1, 2, 3}}},
-      {"-vec(1, 2, 3)", Value{Vec3Type{-1, -2, -3}}},
-      {"!vec(1, 2, 3)", Error{"At line 1, column 1: Cannot evaluate expression '!vec(1, 2, 3)': Invalid type Vec3"}},
-      {"~vec(1, 2, 3)", Error{"At line 1, column 1: Cannot evaluate expression '~vec(1, 2, 3)': Invalid type Vec3"}},
-      }));
-      // clang-format on
-
-      CAPTURE(expression);
-
-      CHECK(evaluate(expression) == expectedResult);
-    }
-
-    SECTION("Arithmetic")
-    {
-      // clang-format off
-      const auto
-      [expression,                    expectedResult] = GENERATE(table<std::string, Result<Value>>({
-      {"vec(1, 2, 3) + vec(4, 5, 6)", Value{Vec3Type{5, 7, 9}}},
-      {"vec(4, 5, 6) - vec(1, 2, 3)", Value{Vec3Type{3, 3, 3}}},
-      {"vec(1, 2, 3) * 2",            Value{Vec3Type{2, 4, 6}}},
-      {"2 * vec(1, 2, 3)",            Value{Vec3Type{2, 4, 6}}},
-      {"vec(1, 2, 3) / 2",            Value{Vec3Type{0.5, 1.0, 1.5}}},
-
-      {"vec(1, 2, 3) * vec(4, 5, 6)", Value{Vec3Type{4, 10, 18}}},
-      {"vec(1, 2, 3) / vec(4, 5, 6)", Value{Vec3Type{0.25, 0.4, 0.5}}},
-      {"12 / vec(4, 5, 6)",           Value{Vec3Type{3.0, 2.4, 2.0}}},
-
-      // a string operand is converted to a vector, or to a number to scale a vector by
-      {R"("1 2 3" + vec(1, 1, 1))",   Value{Vec3Type{2, 3, 4}}},
-      {R"(vec(1, 1, 1) - "1 2 3")",   Value{Vec3Type{0, -1, -2}}},
-      {R"("1 2 3" * vec(2, 2, 2))",   Value{Vec3Type{2, 4, 6}}},
-      {R"("1 2 3" / vec(2, 2, 2))",   Value{Vec3Type{0.5, 1, 1.5}}},
-      {R"(vec(1, 2, 3) * "2")",       Value{Vec3Type{2, 4, 6}}},
-      {R"("2" * vec(1, 2, 3))",       Value{Vec3Type{2, 4, 6}}},
-      {R"(vec(2, 4, 6) / "2")",       Value{Vec3Type{1, 2, 3}}},
-      {"vec(1, 2, 3) * true",         Value{Vec3Type{1, 2, 3}}},
-
-      // two strings are never converted to vectors
-      {R"("1 2 3" + "1 2 3")",        Value{"1 2 31 2 3"}},
-
-      {"vec(1, 2, 3) + undefined",    Value::Undefined},
-      {"undefined + vec(1, 2, 3)",    Value::Undefined},
-
-      {"vec(1, 2, 3) % vec(4, 5, 6)", Error{"At line 1, column 14: Cannot evaluate expression 'vec(1, 2, 3) % vec(4, 5, 6)': Invalid operand types Vec3 and Vec3"}},
-      {"vec(1, 2, 3) + 2",            Error{"At line 1, column 14: Cannot evaluate expression 'vec(1, 2, 3) + 2': Invalid operand types Vec3 and Number"}},
-      {R"(vec(1, 2, 3) * "a")",       Error{R"(At line 1, column 14: Cannot evaluate expression 'vec(1, 2, 3) * "a"': Invalid operand types Vec3 and String)"}},
-      {"vec(1, 2, 3) * null",         Error{"At line 1, column 14: Cannot evaluate expression 'vec(1, 2, 3) * null': Invalid operand types Vec3 and Null"}},
-      }));
-      // clang-format on
-
-      CAPTURE(expression);
-
-      CHECK(evaluate(expression) == expectedResult);
-    }
-
-    SECTION("Comparison")
-    {
-      // clang-format off
-      const auto
-      [expression,                     expectedResult] = GENERATE(table<std::string, Result<Value>>({
-      {"vec(1, 2, 3) == vec(1, 2, 3)", Value{true}},
-      {"vec(1, 2, 3) == vec(4, 5, 6)", Value{false}},
-      {"vec(1, 2, 3) != vec(4, 5, 6)", Value{true}},
-      {"vec(1, 2, 3) < vec(4, 5, 6)",  Value{true}},
-      {"vec(4, 5, 6) > vec(1, 2, 3)",  Value{true}},
-
-      // a string is converted to a vector
-      {R"(vec(1, 2, 3) == "1 2 3")",   Value{true}},
-      {R"("1 2 3" == vec(1, 2, 3))",   Value{true}},
-      {R"(vec(1, 2, 3) != "1 2 4")",   Value{true}},
-      {R"("1 2 3" < vec(1, 2, 4))",    Value{true}},
-
-      {"vec(1, 2, 3) == 1",            Error{"At line 1, column 14: Cannot evaluate expression 'vec(1, 2, 3) == 1': Invalid operand types Vec3 and Number"}},
-      {R"(vec(1, 2, 3) == "a")",       Error{R"(At line 1, column 14: Cannot evaluate expression 'vec(1, 2, 3) == "a"': At line 1, column 17: Cannot convert value '"a"' of type 'String' to type 'Vec3')"}},
-      }));
-      // clang-format on
-
-      CAPTURE(expression);
-
-      CHECK(evaluate(expression) == expectedResult);
-    }
-  }
-
-  SECTION("BBox")
-  {
-    SECTION("Subscript")
-    {
-      // clang-format off
-      const auto
-      [expression,                                   expectedValue] = GENERATE(table<std::string, Value>({
-      {"bbox(vec(1, 2, 3), vec(4, 5, 6)).min",       Value{Vec3Type{1, 2, 3}}},
-      {"bbox(vec(1, 2, 3), vec(4, 5, 6)).max",       Value{Vec3Type{4, 5, 6}}},
-      {R"(bbox(vec(1, 2, 3), vec(4, 5, 6))["min"])", Value{Vec3Type{1, 2, 3}}},
-      {R"(bbox(vec(1, 2, 3), vec(4, 5, 6))["max"])", Value{Vec3Type{4, 5, 6}}},
-      {R"(bbox(vec(1, 2, 3), vec(4, 5, 6))["w"])",   Value::Undefined},
-      {"bbox(vec(1, 2, 3), vec(4, 5, 6)).w",         Value::Undefined},
-
-      // corners are normalized component-wise, so argument order doesn't matter
-      {"bbox(vec(4, 5, 6), vec(1, 2, 3)).min",       Value{Vec3Type{1, 2, 3}}},
-      {"bbox(vec(4, 5, 6), vec(1, 2, 3)).max",       Value{Vec3Type{4, 5, 6}}},
-      }));
-      // clang-format on
-
-      CAPTURE(expression);
-
-      CHECK(evaluate(expression) == expectedValue);
-    }
-
-    SECTION("Unary operators")
-    {
-      CHECK(
-        evaluate("!bbox(vec(1, 2, 3), vec(4, 5, 6))")
-        == Error{"At line 1, column 1: Cannot evaluate expression "
-                 "'!bbox(vec(1, 2, 3), vec(4, 5, 6))': Invalid type BBox"});
-    }
-
-    SECTION("Arithmetic")
-    {
-      CHECK(
-        evaluate("bbox(vec(1, 2, 3), vec(4, 5, 6)) + bbox(vec(1, 2, 3), vec(4, 5, 6))")
-        == Error{"At line 1, column 34: Cannot evaluate expression "
-                 "'bbox(vec(1, 2, 3), vec(4, 5, 6)) + bbox(vec(1, 2, 3), vec(4, 5, "
-                 "6))': Invalid operand types BBox and BBox"});
-    }
-
-    SECTION("Comparison")
-    {
-      // clang-format off
-      const auto
-      [expression,                                                             expectedResult] = GENERATE(table<std::string, Result<Value>>({
-      {"bbox(vec(1, 2, 3), vec(4, 5, 6)) == bbox(vec(1, 2, 3), vec(4, 5, 6))", Value{true}},
-      {"bbox(vec(1, 2, 3), vec(4, 5, 6)) == bbox(vec(0, 0, 0), vec(1, 1, 1))", Value{false}},
-      {"bbox(vec(1, 2, 3), vec(4, 5, 6)) != bbox(vec(0, 0, 0), vec(1, 1, 1))", Value{true}},
-
-      {"bbox(vec(1, 2, 3), vec(4, 5, 6)) == 1",                                Error{"At line 1, column 34: Cannot evaluate expression 'bbox(vec(1, 2, 3), vec(4, 5, 6)) == 1': Invalid operand types BBox and Number"}},
-      }));
-      // clang-format on
-
-      CAPTURE(expression);
-
-      CHECK(evaluate(expression) == expectedResult);
-    }
+    CHECK(evaluate(expression, nonLiteralValues) == expectedResult);
   }
 
   SECTION("Subscript")
@@ -1357,6 +1226,19 @@ TEST_CASE("Expression")
     {"{a: 1, b: 2, c: 3}['c', 'a']",     Value{MapType{{"a", Value{1}}, {"c", Value{3}}}}},
     {"{a: 1, b: 2, c: 3}['a', 'a']",     Value{MapType{{"a", Value{1}}}}},
 
+    // For Vec3s
+    {"vec(1, 2, 3)[0]",                  Value{1.0}},
+    {"vec(1, 2, 3)[1]",                  Value{2.0}},
+    {"vec(1, 2, 3)[2]",                  Value{3.0}},
+    {"vec(1, 2, 3)[-1]",                 Value{3.0}},
+    {"vec(1, 2, 3)['x']",                Value{1.0}},
+    {"vec(1, 2, 3)['y']",                Value{2.0}},
+    {"vec(1, 2, 3)['z']",                Value{3.0}},
+
+    // For BBoxes
+    {"bbox(vec(1, 2, 3), vec(4, 5, 6))['min']", Value{Vec3Type{1, 2, 3}}},
+    {"bbox(vec(1, 2, 3), vec(4, 5, 6))['max']", Value{Vec3Type{4, 5, 6}}},
+
     // Missing keys are dropped rather than reported
     {"{a: 1, b: 2, c: 3}['a', 'd']",     Value{MapType{{"a", Value{1}}}}},
     {"{a: 1, b: 2, c: 3}['d', 'e']",     Value{MapType{}}},
@@ -1370,6 +1252,9 @@ TEST_CASE("Expression")
     {"[1, 2, 3][0, 5]",                  Error{"At line 1, column 10: Cannot evaluate expression '[1, 2, 3][[0, 5]]': Index 5 is out of bounds for '[1, 2, 3]'"}},
     {"[1, 2, 3][0..5]",                  Error{"At line 1, column 10: Cannot evaluate expression '[1, 2, 3][0..5]': Index 3 is out of bounds for '[1, 2, 3]'"}},
     {"{a: 1, b: 2, c: 3}['d']",          Value::Undefined},
+    {"vec(1, 2, 3)[3]",                  Error{"At line 1, column 13: Cannot evaluate expression 'vec(1, 2, 3)[3]': Index 3 is out of bounds for 'vec(1, 2, 3)'"}},
+    {"vec(1, 2, 3)['w']",                Value::Undefined},
+    {"bbox(vec(1, 2, 3), vec(4, 5, 6))['w']", Value::Undefined},
 
     // An undefined range bound makes the whole range undefined, which cannot index
     {"'asdf'[undefined..1]",             Error{R"(At line 1, column 7: Cannot evaluate expression '"asdf"[undefined..1]': 'undefined' is not a compatible index for '"asdf"')"}},
@@ -1384,6 +1269,7 @@ TEST_CASE("Expression")
     {"null[0]",                          Error{"At line 1, column 5: Cannot evaluate expression 'null[0]': '0' is not a compatible index for 'null'"}},
     {"'asdf'['a']",                      Error{R"(At line 1, column 7: Cannot evaluate expression '"asdf"["a"]': '"a"' is not a compatible index for '"asdf"')"}},
     {"{a: 1}[0]",                        Error{R"(At line 1, column 7: Cannot evaluate expression '{ "a": 1 }[0]': '0' is not a compatible index for '{ "a": 1 }')"}},
+    {"range[0]",                         Error{"At line 1, column 6: Cannot evaluate expression 'range[0]': '0' is not a compatible index for '[1..3]'"}},
 
     // Subscripting Undefined
     {"undefined[0]",                     Value::Undefined},
@@ -1394,17 +1280,7 @@ TEST_CASE("Expression")
 
     CAPTURE(expression);
 
-    CHECK(evaluate(expression) == expectedResult);
-  }
-
-  SECTION("Subscript of a Range")
-  {
-    const auto variables = MapType{{"r", Value{RangeType{BoundedRange{1, 3}}}}};
-
-    CHECK(
-      evaluate("r[0]", variables)
-      == Error{"At line 1, column 2: Cannot evaluate expression 'r[0]': '0' is not a "
-               "compatible index for '[1..3]'"});
+    CHECK(evaluate(expression, nonLiteralValues) == expectedResult);
   }
 
   SECTION("Dot access")
@@ -1421,6 +1297,15 @@ TEST_CASE("Expression")
 
     // Chains
     {"m.m.b",     {{"m", Value{MapType{{"m", Value{MapType{{"b", Value{2}}}}}}}}}, Value{2}},
+
+    // Vec3 components and BBox corners are accessed like Map keys
+    {"vec(1, 2, 3).x",                       {}, Value{1.0}},
+    {"vec(1, 2, 3).y",                       {}, Value{2.0}},
+    {"vec(1, 2, 3).z",                       {}, Value{3.0}},
+    {"vec(1, 2, 3).w",                       {}, Value::Undefined},
+    {"bbox(vec(1, 2, 3), vec(4, 5, 6)).min", {}, Value{Vec3Type{1, 2, 3}}},
+    {"bbox(vec(1, 2, 3), vec(4, 5, 6)).max", {}, Value{Vec3Type{4, 5, 6}}},
+    {"bbox(vec(1, 2, 3), vec(4, 5, 6)).w",   {}, Value::Undefined},
     }));
     // clang-format on
 
