@@ -232,6 +232,8 @@ TEST_CASE("Expression")
     {"+[]",             Error{R"(At line 1, column 1: Cannot evaluate expression '+[]': Invalid type Array)"}},
     {"+{}",             Error{R"(At line 1, column 1: Cannot evaluate expression '+{}': Invalid type Map)"}},
     {"+vec(1, 2, 3)",   Value{Vec3Type{1, 2, 3}}},
+    {"+bbox(vec(1, 2, 3), vec(4, 5, 6))", Error{"At line 1, column 1: Cannot evaluate expression '+bbox(vec(1, 2, 3), vec(4, 5, 6))': Invalid type BBox"}},
+    {"+range",          Error{"At line 1, column 1: Cannot evaluate expression '+range': Invalid type Range"}},
 
     // Unary minus
     {"-true",           Value{-1}},
@@ -243,6 +245,8 @@ TEST_CASE("Expression")
     {"-[]",             Error{R"(At line 1, column 1: Cannot evaluate expression '-[]': Invalid type Array)"}},
     {"-{}",             Error{R"(At line 1, column 1: Cannot evaluate expression '-{}': Invalid type Map)"}},
     {"-vec(1, 2, 3)",   Value{Vec3Type{-1, -2, -3}}},
+    {"-bbox(vec(1, 2, 3), vec(4, 5, 6))", Error{"At line 1, column 1: Cannot evaluate expression '-bbox(vec(1, 2, 3), vec(4, 5, 6))': Invalid type BBox"}},
+    {"-range",          Error{"At line 1, column 1: Cannot evaluate expression '-range': Invalid type Range"}},
 
     // Addition
     {"true + true",     Value{2}},
@@ -297,13 +301,42 @@ TEST_CASE("Expression")
     }}},
 
     {"vec(1, 2, 3) + vec(4, 5, 6)", Value{Vec3Type{5, 7, 9}}},
+    {"vec(1, 2, 3) + true",         Error{"At line 1, column 14: Cannot evaluate expression 'vec(1, 2, 3) + true': Invalid operand types Vec3 and Boolean"}},
     {"vec(1, 2, 3) + 2",            Error{"At line 1, column 14: Cannot evaluate expression 'vec(1, 2, 3) + 2': Invalid operand types Vec3 and Number"}},
+    {"vec(1, 2, 3) + 'test'",       Error{R"(At line 1, column 14: Cannot evaluate expression 'vec(1, 2, 3) + "test"': Invalid operand types Vec3 and String)"}},
+    {"vec(1, 2, 3) + null",         Error{"At line 1, column 14: Cannot evaluate expression 'vec(1, 2, 3) + null': Invalid operand types Vec3 and Null"}},
+    {"vec(1, 2, 3) + []",           Error{"At line 1, column 14: Cannot evaluate expression 'vec(1, 2, 3) + []': Invalid operand types Vec3 and Array"}},
+    {"vec(1, 2, 3) + {}",           Error{"At line 1, column 14: Cannot evaluate expression 'vec(1, 2, 3) + {}': Invalid operand types Vec3 and Map"}},
+    {"true + vec(1, 2, 3)",         Error{"At line 1, column 6: Cannot evaluate expression 'true + vec(1, 2, 3)': Invalid operand types Boolean and Vec3"}},
+    {"2 + vec(1, 2, 3)",            Error{"At line 1, column 3: Cannot evaluate expression '2 + vec(1, 2, 3)': Invalid operand types Number and Vec3"}},
+    {"'test' + vec(1, 2, 3)",       Error{R"(At line 1, column 8: Cannot evaluate expression '"test" + vec(1, 2, 3)': Invalid operand types String and Vec3)"}},
+    {"null + vec(1, 2, 3)",         Error{"At line 1, column 6: Cannot evaluate expression 'null + vec(1, 2, 3)': Invalid operand types Null and Vec3"}},
+    {"[] + vec(1, 2, 3)",           Error{"At line 1, column 4: Cannot evaluate expression '[] + vec(1, 2, 3)': Invalid operand types Array and Vec3"}},
+    {"{} + vec(1, 2, 3)",           Error{"At line 1, column 4: Cannot evaluate expression '{} + vec(1, 2, 3)': Invalid operand types Map and Vec3"}},
     // a string operand is converted to a vector
     {"'1 2 3' + vec(1, 1, 1)",      Value{Vec3Type{2, 3, 4}}},
+    {"vec(1, 1, 1) + '1 2 3'",      Value{Vec3Type{2, 3, 4}}},
     // two strings are never converted to vectors
     {"'1 2 3' + '1 2 3'",           Value{"1 2 31 2 3"}},
 
     {"bbox(vec(1, 2, 3), vec(4, 5, 6)) + bbox(vec(1, 2, 3), vec(4, 5, 6))", Error{"At line 1, column 34: Cannot evaluate expression 'bbox(vec(1, 2, 3), vec(4, 5, 6)) + bbox(vec(1, 2, 3), vec(4, 5, 6))': Invalid operand types BBox and BBox"}},
+    {"bbox(vec(1, 2, 3), vec(4, 5, 6)) + true",                             Error{"At line 1, column 34: Cannot evaluate expression 'bbox(vec(1, 2, 3), vec(4, 5, 6)) + true': Invalid operand types BBox and Boolean"}},
+    {"bbox(vec(1, 2, 3), vec(4, 5, 6)) + 2",                                Error{"At line 1, column 34: Cannot evaluate expression 'bbox(vec(1, 2, 3), vec(4, 5, 6)) + 2': Invalid operand types BBox and Number"}},
+    {"bbox(vec(1, 2, 3), vec(4, 5, 6)) + 'test'",                           Error{R"(At line 1, column 34: Cannot evaluate expression 'bbox(vec(1, 2, 3), vec(4, 5, 6)) + "test"': Invalid operand types BBox and String)"}},
+    {"bbox(vec(1, 2, 3), vec(4, 5, 6)) + null",                             Error{"At line 1, column 34: Cannot evaluate expression 'bbox(vec(1, 2, 3), vec(4, 5, 6)) + null': Invalid operand types BBox and Null"}},
+    {"bbox(vec(1, 2, 3), vec(4, 5, 6)) + []",                               Error{"At line 1, column 34: Cannot evaluate expression 'bbox(vec(1, 2, 3), vec(4, 5, 6)) + []': Invalid operand types BBox and Array"}},
+    {"bbox(vec(1, 2, 3), vec(4, 5, 6)) + {}",                               Error{"At line 1, column 34: Cannot evaluate expression 'bbox(vec(1, 2, 3), vec(4, 5, 6)) + {}': Invalid operand types BBox and Map"}},
+    {"bbox(vec(1, 2, 3), vec(4, 5, 6)) + vec(1, 2, 3)",                     Error{"At line 1, column 34: Cannot evaluate expression 'bbox(vec(1, 2, 3), vec(4, 5, 6)) + vec(1, 2, 3)': Invalid operand types BBox and Vec3"}},
+    {"true + bbox(vec(1, 2, 3), vec(4, 5, 6))",                             Error{"At line 1, column 6: Cannot evaluate expression 'true + bbox(vec(1, 2, 3), vec(4, 5, 6))': Invalid operand types Boolean and BBox"}},
+    {"2 + bbox(vec(1, 2, 3), vec(4, 5, 6))",                                Error{"At line 1, column 3: Cannot evaluate expression '2 + bbox(vec(1, 2, 3), vec(4, 5, 6))': Invalid operand types Number and BBox"}},
+    {"'test' + bbox(vec(1, 2, 3), vec(4, 5, 6))",                           Error{R"(At line 1, column 8: Cannot evaluate expression '"test" + bbox(vec(1, 2, 3), vec(4, 5, 6))': Invalid operand types String and BBox)"}},
+    {"null + bbox(vec(1, 2, 3), vec(4, 5, 6))",                             Error{"At line 1, column 6: Cannot evaluate expression 'null + bbox(vec(1, 2, 3), vec(4, 5, 6))': Invalid operand types Null and BBox"}},
+    {"[] + bbox(vec(1, 2, 3), vec(4, 5, 6))",                               Error{"At line 1, column 4: Cannot evaluate expression '[] + bbox(vec(1, 2, 3), vec(4, 5, 6))': Invalid operand types Array and BBox"}},
+    {"{} + bbox(vec(1, 2, 3), vec(4, 5, 6))",                               Error{"At line 1, column 4: Cannot evaluate expression '{} + bbox(vec(1, 2, 3), vec(4, 5, 6))': Invalid operand types Map and BBox"}},
+    {"vec(1, 2, 3) + bbox(vec(1, 2, 3), vec(4, 5, 6))",                     Error{"At line 1, column 14: Cannot evaluate expression 'vec(1, 2, 3) + bbox(vec(1, 2, 3), vec(4, 5, 6))': Invalid operand types Vec3 and BBox"}},
+
+    {"range + 1", Error{"At line 1, column 7: Cannot evaluate expression 'range + 1': Invalid operand types Range and Number"}},
+    {"1 + range", Error{"At line 1, column 3: Cannot evaluate expression '1 + range': Invalid operand types Number and Range"}},
 
     // Subtraction
     {"true - true",     Value{0}},
@@ -352,8 +385,40 @@ TEST_CASE("Expression")
     {"{} - {}",         Error{R"(At line 1, column 4: Cannot evaluate expression '{} - {}': Invalid operand types Map and Map)"}},
 
     {"vec(4, 5, 6) - vec(1, 2, 3)", Value{Vec3Type{3, 3, 3}}},
+    {"vec(1, 2, 3) - true",         Error{"At line 1, column 14: Cannot evaluate expression 'vec(1, 2, 3) - true': Invalid operand types Vec3 and Boolean"}},
+    {"vec(1, 2, 3) - 2",            Error{"At line 1, column 14: Cannot evaluate expression 'vec(1, 2, 3) - 2': Invalid operand types Vec3 and Number"}},
+    {"vec(1, 2, 3) - 'test'",       Error{R"(At line 1, column 14: Cannot evaluate expression 'vec(1, 2, 3) - "test"': Invalid operand types Vec3 and String)"}},
+    {"vec(1, 2, 3) - null",         Error{"At line 1, column 14: Cannot evaluate expression 'vec(1, 2, 3) - null': Invalid operand types Vec3 and Null"}},
+    {"vec(1, 2, 3) - []",           Error{"At line 1, column 14: Cannot evaluate expression 'vec(1, 2, 3) - []': Invalid operand types Vec3 and Array"}},
+    {"vec(1, 2, 3) - {}",           Error{"At line 1, column 14: Cannot evaluate expression 'vec(1, 2, 3) - {}': Invalid operand types Vec3 and Map"}},
+    {"true - vec(1, 2, 3)",         Error{"At line 1, column 6: Cannot evaluate expression 'true - vec(1, 2, 3)': Invalid operand types Boolean and Vec3"}},
+    {"2 - vec(1, 2, 3)",            Error{"At line 1, column 3: Cannot evaluate expression '2 - vec(1, 2, 3)': Invalid operand types Number and Vec3"}},
+    {"'test' - vec(1, 2, 3)",       Error{R"(At line 1, column 8: Cannot evaluate expression '"test" - vec(1, 2, 3)': Invalid operand types String and Vec3)"}},
+    {"null - vec(1, 2, 3)",         Error{"At line 1, column 6: Cannot evaluate expression 'null - vec(1, 2, 3)': Invalid operand types Null and Vec3"}},
+    {"[] - vec(1, 2, 3)",           Error{"At line 1, column 4: Cannot evaluate expression '[] - vec(1, 2, 3)': Invalid operand types Array and Vec3"}},
+    {"{} - vec(1, 2, 3)",           Error{"At line 1, column 4: Cannot evaluate expression '{} - vec(1, 2, 3)': Invalid operand types Map and Vec3"}},
     // a string operand is converted to a vector
+    {"'1 2 3' - vec(1, 1, 1)",      Value{Vec3Type{0, 1, 2}}},
     {"vec(1, 1, 1) - '1 2 3'",      Value{Vec3Type{0, -1, -2}}},
+
+    {"bbox(vec(1, 2, 3), vec(4, 5, 6)) - bbox(vec(1, 2, 3), vec(4, 5, 6))", Error{"At line 1, column 34: Cannot evaluate expression 'bbox(vec(1, 2, 3), vec(4, 5, 6)) - bbox(vec(1, 2, 3), vec(4, 5, 6))': Invalid operand types BBox and BBox"}},
+    {"bbox(vec(1, 2, 3), vec(4, 5, 6)) - true",                             Error{"At line 1, column 34: Cannot evaluate expression 'bbox(vec(1, 2, 3), vec(4, 5, 6)) - true': Invalid operand types BBox and Boolean"}},
+    {"bbox(vec(1, 2, 3), vec(4, 5, 6)) - 2",                                Error{"At line 1, column 34: Cannot evaluate expression 'bbox(vec(1, 2, 3), vec(4, 5, 6)) - 2': Invalid operand types BBox and Number"}},
+    {"bbox(vec(1, 2, 3), vec(4, 5, 6)) - 'test'",                           Error{R"(At line 1, column 34: Cannot evaluate expression 'bbox(vec(1, 2, 3), vec(4, 5, 6)) - "test"': Invalid operand types BBox and String)"}},
+    {"bbox(vec(1, 2, 3), vec(4, 5, 6)) - null",                             Error{"At line 1, column 34: Cannot evaluate expression 'bbox(vec(1, 2, 3), vec(4, 5, 6)) - null': Invalid operand types BBox and Null"}},
+    {"bbox(vec(1, 2, 3), vec(4, 5, 6)) - []",                               Error{"At line 1, column 34: Cannot evaluate expression 'bbox(vec(1, 2, 3), vec(4, 5, 6)) - []': Invalid operand types BBox and Array"}},
+    {"bbox(vec(1, 2, 3), vec(4, 5, 6)) - {}",                               Error{"At line 1, column 34: Cannot evaluate expression 'bbox(vec(1, 2, 3), vec(4, 5, 6)) - {}': Invalid operand types BBox and Map"}},
+    {"bbox(vec(1, 2, 3), vec(4, 5, 6)) - vec(1, 2, 3)",                     Error{"At line 1, column 34: Cannot evaluate expression 'bbox(vec(1, 2, 3), vec(4, 5, 6)) - vec(1, 2, 3)': Invalid operand types BBox and Vec3"}},
+    {"true - bbox(vec(1, 2, 3), vec(4, 5, 6))",                             Error{"At line 1, column 6: Cannot evaluate expression 'true - bbox(vec(1, 2, 3), vec(4, 5, 6))': Invalid operand types Boolean and BBox"}},
+    {"2 - bbox(vec(1, 2, 3), vec(4, 5, 6))",                                Error{"At line 1, column 3: Cannot evaluate expression '2 - bbox(vec(1, 2, 3), vec(4, 5, 6))': Invalid operand types Number and BBox"}},
+    {"'test' - bbox(vec(1, 2, 3), vec(4, 5, 6))",                           Error{R"(At line 1, column 8: Cannot evaluate expression '"test" - bbox(vec(1, 2, 3), vec(4, 5, 6))': Invalid operand types String and BBox)"}},
+    {"null - bbox(vec(1, 2, 3), vec(4, 5, 6))",                             Error{"At line 1, column 6: Cannot evaluate expression 'null - bbox(vec(1, 2, 3), vec(4, 5, 6))': Invalid operand types Null and BBox"}},
+    {"[] - bbox(vec(1, 2, 3), vec(4, 5, 6))",                               Error{"At line 1, column 4: Cannot evaluate expression '[] - bbox(vec(1, 2, 3), vec(4, 5, 6))': Invalid operand types Array and BBox"}},
+    {"{} - bbox(vec(1, 2, 3), vec(4, 5, 6))",                               Error{"At line 1, column 4: Cannot evaluate expression '{} - bbox(vec(1, 2, 3), vec(4, 5, 6))': Invalid operand types Map and BBox"}},
+    {"vec(1, 2, 3) - bbox(vec(1, 2, 3), vec(4, 5, 6))",                     Error{"At line 1, column 14: Cannot evaluate expression 'vec(1, 2, 3) - bbox(vec(1, 2, 3), vec(4, 5, 6))': Invalid operand types Vec3 and BBox"}},
+
+    {"range - 1", Error{"At line 1, column 7: Cannot evaluate expression 'range - 1': Invalid operand types Range and Number"}},
+    {"1 - range", Error{"At line 1, column 3: Cannot evaluate expression '1 - range': Invalid operand types Number and Range"}},
 
     // Multiplication
     {"true * true",     Value{1}},
@@ -402,16 +467,43 @@ TEST_CASE("Expression")
     {"{} * []",         Error{R"(At line 1, column 4: Cannot evaluate expression '{} * []': Invalid operand types Map and Array)"}},
     {"{} * {}",         Error{R"(At line 1, column 4: Cannot evaluate expression '{} * {}': Invalid operand types Map and Map)"}},
 
-    {"vec(1, 2, 3) * 2",            Value{Vec3Type{2, 4, 6}}},
-    {"2 * vec(1, 2, 3)",            Value{Vec3Type{2, 4, 6}}},
     {"vec(1, 2, 3) * vec(4, 5, 6)", Value{Vec3Type{4, 10, 18}}},
     {"vec(1, 2, 3) * true",         Value{Vec3Type{1, 2, 3}}},
+    {"vec(1, 2, 3) * 2",            Value{Vec3Type{2, 4, 6}}},
+    {"vec(1, 2, 3) * 'test'",       Error{R"(At line 1, column 14: Cannot evaluate expression 'vec(1, 2, 3) * "test"': Invalid operand types Vec3 and String)"}},
     {"vec(1, 2, 3) * null",         Error{"At line 1, column 14: Cannot evaluate expression 'vec(1, 2, 3) * null': Invalid operand types Vec3 and Null"}},
+    {"vec(1, 2, 3) * []",           Error{"At line 1, column 14: Cannot evaluate expression 'vec(1, 2, 3) * []': Invalid operand types Vec3 and Array"}},
+    {"vec(1, 2, 3) * {}",           Error{"At line 1, column 14: Cannot evaluate expression 'vec(1, 2, 3) * {}': Invalid operand types Vec3 and Map"}},
+    {"true * vec(1, 2, 3)",         Value{Vec3Type{1, 2, 3}}},
+    {"2 * vec(1, 2, 3)",            Value{Vec3Type{2, 4, 6}}},
+    {"'test' * vec(1, 2, 3)",       Error{R"(At line 1, column 8: Cannot evaluate expression '"test" * vec(1, 2, 3)': Invalid operand types String and Vec3)"}},
+    {"null * vec(1, 2, 3)",         Error{"At line 1, column 6: Cannot evaluate expression 'null * vec(1, 2, 3)': Invalid operand types Null and Vec3"}},
+    {"[] * vec(1, 2, 3)",           Error{"At line 1, column 4: Cannot evaluate expression '[] * vec(1, 2, 3)': Invalid operand types Array and Vec3"}},
+    {"{} * vec(1, 2, 3)",           Error{"At line 1, column 4: Cannot evaluate expression '{} * vec(1, 2, 3)': Invalid operand types Map and Vec3"}},
     // a string operand is converted to a vector, or to a number to scale a vector by
     {"'1 2 3' * vec(2, 2, 2)",      Value{Vec3Type{2, 4, 6}}},
+    {"vec(2, 2, 2) * '1 2 3'",      Value{Vec3Type{2, 4, 6}}},
     {"vec(1, 2, 3) * '2'",          Value{Vec3Type{2, 4, 6}}},
     {"'2' * vec(1, 2, 3)",          Value{Vec3Type{2, 4, 6}}},
-    {"vec(1, 2, 3) * 'a'",          Error{R"(At line 1, column 14: Cannot evaluate expression 'vec(1, 2, 3) * "a"': Invalid operand types Vec3 and String)"}},
+
+    {"bbox(vec(1, 2, 3), vec(4, 5, 6)) * bbox(vec(1, 2, 3), vec(4, 5, 6))", Error{"At line 1, column 34: Cannot evaluate expression 'bbox(vec(1, 2, 3), vec(4, 5, 6)) * bbox(vec(1, 2, 3), vec(4, 5, 6))': Invalid operand types BBox and BBox"}},
+    {"bbox(vec(1, 2, 3), vec(4, 5, 6)) * true",                             Error{"At line 1, column 34: Cannot evaluate expression 'bbox(vec(1, 2, 3), vec(4, 5, 6)) * true': Invalid operand types BBox and Boolean"}},
+    {"bbox(vec(1, 2, 3), vec(4, 5, 6)) * 2",                                Error{"At line 1, column 34: Cannot evaluate expression 'bbox(vec(1, 2, 3), vec(4, 5, 6)) * 2': Invalid operand types BBox and Number"}},
+    {"bbox(vec(1, 2, 3), vec(4, 5, 6)) * 'test'",                           Error{R"(At line 1, column 34: Cannot evaluate expression 'bbox(vec(1, 2, 3), vec(4, 5, 6)) * "test"': Invalid operand types BBox and String)"}},
+    {"bbox(vec(1, 2, 3), vec(4, 5, 6)) * null",                             Error{"At line 1, column 34: Cannot evaluate expression 'bbox(vec(1, 2, 3), vec(4, 5, 6)) * null': Invalid operand types BBox and Null"}},
+    {"bbox(vec(1, 2, 3), vec(4, 5, 6)) * []",                               Error{"At line 1, column 34: Cannot evaluate expression 'bbox(vec(1, 2, 3), vec(4, 5, 6)) * []': Invalid operand types BBox and Array"}},
+    {"bbox(vec(1, 2, 3), vec(4, 5, 6)) * {}",                               Error{"At line 1, column 34: Cannot evaluate expression 'bbox(vec(1, 2, 3), vec(4, 5, 6)) * {}': Invalid operand types BBox and Map"}},
+    {"bbox(vec(1, 2, 3), vec(4, 5, 6)) * vec(1, 2, 3)",                     Error{"At line 1, column 34: Cannot evaluate expression 'bbox(vec(1, 2, 3), vec(4, 5, 6)) * vec(1, 2, 3)': Invalid operand types BBox and Vec3"}},
+    {"true * bbox(vec(1, 2, 3), vec(4, 5, 6))",                             Error{"At line 1, column 6: Cannot evaluate expression 'true * bbox(vec(1, 2, 3), vec(4, 5, 6))': Invalid operand types Boolean and BBox"}},
+    {"2 * bbox(vec(1, 2, 3), vec(4, 5, 6))",                                Error{"At line 1, column 3: Cannot evaluate expression '2 * bbox(vec(1, 2, 3), vec(4, 5, 6))': Invalid operand types Number and BBox"}},
+    {"'test' * bbox(vec(1, 2, 3), vec(4, 5, 6))",                           Error{R"(At line 1, column 8: Cannot evaluate expression '"test" * bbox(vec(1, 2, 3), vec(4, 5, 6))': Invalid operand types String and BBox)"}},
+    {"null * bbox(vec(1, 2, 3), vec(4, 5, 6))",                             Error{"At line 1, column 6: Cannot evaluate expression 'null * bbox(vec(1, 2, 3), vec(4, 5, 6))': Invalid operand types Null and BBox"}},
+    {"[] * bbox(vec(1, 2, 3), vec(4, 5, 6))",                               Error{"At line 1, column 4: Cannot evaluate expression '[] * bbox(vec(1, 2, 3), vec(4, 5, 6))': Invalid operand types Array and BBox"}},
+    {"{} * bbox(vec(1, 2, 3), vec(4, 5, 6))",                               Error{"At line 1, column 4: Cannot evaluate expression '{} * bbox(vec(1, 2, 3), vec(4, 5, 6))': Invalid operand types Map and BBox"}},
+    {"vec(1, 2, 3) * bbox(vec(1, 2, 3), vec(4, 5, 6))",                     Error{"At line 1, column 14: Cannot evaluate expression 'vec(1, 2, 3) * bbox(vec(1, 2, 3), vec(4, 5, 6))': Invalid operand types Vec3 and BBox"}},
+
+    {"range * 1", Error{"At line 1, column 7: Cannot evaluate expression 'range * 1': Invalid operand types Range and Number"}},
+    {"1 * range", Error{"At line 1, column 3: Cannot evaluate expression '1 * range': Invalid operand types Number and Range"}},
 
     // Division
     {"true / true",     Value{1}},
@@ -460,12 +552,43 @@ TEST_CASE("Expression")
     {"{} / []",         Error{R"(At line 1, column 4: Cannot evaluate expression '{} / []': Invalid operand types Map and Array)"}},
     {"{} / {}",         Error{R"(At line 1, column 4: Cannot evaluate expression '{} / {}': Invalid operand types Map and Map)"}},
 
-    {"vec(1, 2, 3) / 2",            Value{Vec3Type{0.5, 1.0, 1.5}}},
     {"vec(1, 2, 3) / vec(4, 5, 6)", Value{Vec3Type{0.25, 0.4, 0.5}}},
+    {"vec(1, 2, 3) / true",         Value{Vec3Type{1, 2, 3}}},
+    {"vec(1, 2, 3) / 2",            Value{Vec3Type{0.5, 1.0, 1.5}}},
+    {"vec(1, 2, 3) / 'test'",       Error{R"(At line 1, column 14: Cannot evaluate expression 'vec(1, 2, 3) / "test"': Invalid operand types Vec3 and String)"}},
+    {"vec(1, 2, 3) / null",         Error{"At line 1, column 14: Cannot evaluate expression 'vec(1, 2, 3) / null': Invalid operand types Vec3 and Null"}},
+    {"vec(1, 2, 3) / []",           Error{"At line 1, column 14: Cannot evaluate expression 'vec(1, 2, 3) / []': Invalid operand types Vec3 and Array"}},
+    {"vec(1, 2, 3) / {}",           Error{"At line 1, column 14: Cannot evaluate expression 'vec(1, 2, 3) / {}': Invalid operand types Vec3 and Map"}},
+    {"true / vec(1, 2, 4)",         Value{Vec3Type{1, 0.5, 0.25}}},
     {"12 / vec(4, 5, 6)",           Value{Vec3Type{3.0, 2.4, 2.0}}},
+    {"'test' / vec(1, 2, 3)",       Error{R"(At line 1, column 8: Cannot evaluate expression '"test" / vec(1, 2, 3)': Invalid operand types String and Vec3)"}},
+    {"null / vec(1, 2, 3)",         Error{"At line 1, column 6: Cannot evaluate expression 'null / vec(1, 2, 3)': Invalid operand types Null and Vec3"}},
+    {"[] / vec(1, 2, 3)",           Error{"At line 1, column 4: Cannot evaluate expression '[] / vec(1, 2, 3)': Invalid operand types Array and Vec3"}},
+    {"{} / vec(1, 2, 3)",           Error{"At line 1, column 4: Cannot evaluate expression '{} / vec(1, 2, 3)': Invalid operand types Map and Vec3"}},
     // a string operand is converted to a vector, or to a number to scale a vector by
     {"'1 2 3' / vec(2, 2, 2)",      Value{Vec3Type{0.5, 1, 1.5}}},
+    {"vec(2, 4, 6) / '1 2 3'",      Value{Vec3Type{2, 2, 2}}},
     {"vec(2, 4, 6) / '2'",          Value{Vec3Type{1, 2, 3}}},
+    {"'12' / vec(4, 5, 6)",         Value{Vec3Type{3, 2.4, 2}}},
+
+    {"bbox(vec(1, 2, 3), vec(4, 5, 6)) / bbox(vec(1, 2, 3), vec(4, 5, 6))", Error{"At line 1, column 34: Cannot evaluate expression 'bbox(vec(1, 2, 3), vec(4, 5, 6)) / bbox(vec(1, 2, 3), vec(4, 5, 6))': Invalid operand types BBox and BBox"}},
+    {"bbox(vec(1, 2, 3), vec(4, 5, 6)) / true",                             Error{"At line 1, column 34: Cannot evaluate expression 'bbox(vec(1, 2, 3), vec(4, 5, 6)) / true': Invalid operand types BBox and Boolean"}},
+    {"bbox(vec(1, 2, 3), vec(4, 5, 6)) / 2",                                Error{"At line 1, column 34: Cannot evaluate expression 'bbox(vec(1, 2, 3), vec(4, 5, 6)) / 2': Invalid operand types BBox and Number"}},
+    {"bbox(vec(1, 2, 3), vec(4, 5, 6)) / 'test'",                           Error{R"(At line 1, column 34: Cannot evaluate expression 'bbox(vec(1, 2, 3), vec(4, 5, 6)) / "test"': Invalid operand types BBox and String)"}},
+    {"bbox(vec(1, 2, 3), vec(4, 5, 6)) / null",                             Error{"At line 1, column 34: Cannot evaluate expression 'bbox(vec(1, 2, 3), vec(4, 5, 6)) / null': Invalid operand types BBox and Null"}},
+    {"bbox(vec(1, 2, 3), vec(4, 5, 6)) / []",                               Error{"At line 1, column 34: Cannot evaluate expression 'bbox(vec(1, 2, 3), vec(4, 5, 6)) / []': Invalid operand types BBox and Array"}},
+    {"bbox(vec(1, 2, 3), vec(4, 5, 6)) / {}",                               Error{"At line 1, column 34: Cannot evaluate expression 'bbox(vec(1, 2, 3), vec(4, 5, 6)) / {}': Invalid operand types BBox and Map"}},
+    {"bbox(vec(1, 2, 3), vec(4, 5, 6)) / vec(1, 2, 3)",                     Error{"At line 1, column 34: Cannot evaluate expression 'bbox(vec(1, 2, 3), vec(4, 5, 6)) / vec(1, 2, 3)': Invalid operand types BBox and Vec3"}},
+    {"true / bbox(vec(1, 2, 3), vec(4, 5, 6))",                             Error{"At line 1, column 6: Cannot evaluate expression 'true / bbox(vec(1, 2, 3), vec(4, 5, 6))': Invalid operand types Boolean and BBox"}},
+    {"2 / bbox(vec(1, 2, 3), vec(4, 5, 6))",                                Error{"At line 1, column 3: Cannot evaluate expression '2 / bbox(vec(1, 2, 3), vec(4, 5, 6))': Invalid operand types Number and BBox"}},
+    {"'test' / bbox(vec(1, 2, 3), vec(4, 5, 6))",                           Error{R"(At line 1, column 8: Cannot evaluate expression '"test" / bbox(vec(1, 2, 3), vec(4, 5, 6))': Invalid operand types String and BBox)"}},
+    {"null / bbox(vec(1, 2, 3), vec(4, 5, 6))",                             Error{"At line 1, column 6: Cannot evaluate expression 'null / bbox(vec(1, 2, 3), vec(4, 5, 6))': Invalid operand types Null and BBox"}},
+    {"[] / bbox(vec(1, 2, 3), vec(4, 5, 6))",                               Error{"At line 1, column 4: Cannot evaluate expression '[] / bbox(vec(1, 2, 3), vec(4, 5, 6))': Invalid operand types Array and BBox"}},
+    {"{} / bbox(vec(1, 2, 3), vec(4, 5, 6))",                               Error{"At line 1, column 4: Cannot evaluate expression '{} / bbox(vec(1, 2, 3), vec(4, 5, 6))': Invalid operand types Map and BBox"}},
+    {"vec(1, 2, 3) / bbox(vec(1, 2, 3), vec(4, 5, 6))",                     Error{"At line 1, column 14: Cannot evaluate expression 'vec(1, 2, 3) / bbox(vec(1, 2, 3), vec(4, 5, 6))': Invalid operand types Vec3 and BBox"}},
+
+    {"range / 1", Error{"At line 1, column 7: Cannot evaluate expression 'range / 1': Invalid operand types Range and Number"}},
+    {"1 / range", Error{"At line 1, column 3: Cannot evaluate expression '1 / range': Invalid operand types Number and Range"}},
 
 
     // Modulus
@@ -514,6 +637,37 @@ TEST_CASE("Expression")
     {"{} % {}",         Error{R"(At line 1, column 4: Cannot evaluate expression '{} % {}': Invalid operand types Map and Map)"}},
 
     {"vec(1, 2, 3) % vec(4, 5, 6)", Error{"At line 1, column 14: Cannot evaluate expression 'vec(1, 2, 3) % vec(4, 5, 6)': Invalid operand types Vec3 and Vec3"}},
+    {"vec(1, 2, 3) % true",         Error{"At line 1, column 14: Cannot evaluate expression 'vec(1, 2, 3) % true': Invalid operand types Vec3 and Boolean"}},
+    {"vec(1, 2, 3) % 2",            Error{"At line 1, column 14: Cannot evaluate expression 'vec(1, 2, 3) % 2': Invalid operand types Vec3 and Number"}},
+    {"vec(1, 2, 3) % 'test'",       Error{R"(At line 1, column 14: Cannot evaluate expression 'vec(1, 2, 3) % "test"': Invalid operand types Vec3 and String)"}},
+    {"vec(1, 2, 3) % null",         Error{"At line 1, column 14: Cannot evaluate expression 'vec(1, 2, 3) % null': Invalid operand types Vec3 and Null"}},
+    {"vec(1, 2, 3) % []",           Error{"At line 1, column 14: Cannot evaluate expression 'vec(1, 2, 3) % []': Invalid operand types Vec3 and Array"}},
+    {"vec(1, 2, 3) % {}",           Error{"At line 1, column 14: Cannot evaluate expression 'vec(1, 2, 3) % {}': Invalid operand types Vec3 and Map"}},
+    {"true % vec(1, 2, 3)",         Error{"At line 1, column 6: Cannot evaluate expression 'true % vec(1, 2, 3)': Invalid operand types Boolean and Vec3"}},
+    {"2 % vec(1, 2, 3)",            Error{"At line 1, column 3: Cannot evaluate expression '2 % vec(1, 2, 3)': Invalid operand types Number and Vec3"}},
+    {"'test' % vec(1, 2, 3)",       Error{R"(At line 1, column 8: Cannot evaluate expression '"test" % vec(1, 2, 3)': Invalid operand types String and Vec3)"}},
+    {"null % vec(1, 2, 3)",         Error{"At line 1, column 6: Cannot evaluate expression 'null % vec(1, 2, 3)': Invalid operand types Null and Vec3"}},
+    {"[] % vec(1, 2, 3)",           Error{"At line 1, column 4: Cannot evaluate expression '[] % vec(1, 2, 3)': Invalid operand types Array and Vec3"}},
+    {"{} % vec(1, 2, 3)",           Error{"At line 1, column 4: Cannot evaluate expression '{} % vec(1, 2, 3)': Invalid operand types Map and Vec3"}},
+
+    {"bbox(vec(1, 2, 3), vec(4, 5, 6)) % bbox(vec(1, 2, 3), vec(4, 5, 6))", Error{"At line 1, column 34: Cannot evaluate expression 'bbox(vec(1, 2, 3), vec(4, 5, 6)) % bbox(vec(1, 2, 3), vec(4, 5, 6))': Invalid operand types BBox and BBox"}},
+    {"bbox(vec(1, 2, 3), vec(4, 5, 6)) % true",                             Error{"At line 1, column 34: Cannot evaluate expression 'bbox(vec(1, 2, 3), vec(4, 5, 6)) % true': Invalid operand types BBox and Boolean"}},
+    {"bbox(vec(1, 2, 3), vec(4, 5, 6)) % 2",                                Error{"At line 1, column 34: Cannot evaluate expression 'bbox(vec(1, 2, 3), vec(4, 5, 6)) % 2': Invalid operand types BBox and Number"}},
+    {"bbox(vec(1, 2, 3), vec(4, 5, 6)) % 'test'",                           Error{R"(At line 1, column 34: Cannot evaluate expression 'bbox(vec(1, 2, 3), vec(4, 5, 6)) % "test"': Invalid operand types BBox and String)"}},
+    {"bbox(vec(1, 2, 3), vec(4, 5, 6)) % null",                             Error{"At line 1, column 34: Cannot evaluate expression 'bbox(vec(1, 2, 3), vec(4, 5, 6)) % null': Invalid operand types BBox and Null"}},
+    {"bbox(vec(1, 2, 3), vec(4, 5, 6)) % []",                               Error{"At line 1, column 34: Cannot evaluate expression 'bbox(vec(1, 2, 3), vec(4, 5, 6)) % []': Invalid operand types BBox and Array"}},
+    {"bbox(vec(1, 2, 3), vec(4, 5, 6)) % {}",                               Error{"At line 1, column 34: Cannot evaluate expression 'bbox(vec(1, 2, 3), vec(4, 5, 6)) % {}': Invalid operand types BBox and Map"}},
+    {"bbox(vec(1, 2, 3), vec(4, 5, 6)) % vec(1, 2, 3)",                     Error{"At line 1, column 34: Cannot evaluate expression 'bbox(vec(1, 2, 3), vec(4, 5, 6)) % vec(1, 2, 3)': Invalid operand types BBox and Vec3"}},
+    {"true % bbox(vec(1, 2, 3), vec(4, 5, 6))",                             Error{"At line 1, column 6: Cannot evaluate expression 'true % bbox(vec(1, 2, 3), vec(4, 5, 6))': Invalid operand types Boolean and BBox"}},
+    {"2 % bbox(vec(1, 2, 3), vec(4, 5, 6))",                                Error{"At line 1, column 3: Cannot evaluate expression '2 % bbox(vec(1, 2, 3), vec(4, 5, 6))': Invalid operand types Number and BBox"}},
+    {"'test' % bbox(vec(1, 2, 3), vec(4, 5, 6))",                           Error{R"(At line 1, column 8: Cannot evaluate expression '"test" % bbox(vec(1, 2, 3), vec(4, 5, 6))': Invalid operand types String and BBox)"}},
+    {"null % bbox(vec(1, 2, 3), vec(4, 5, 6))",                             Error{"At line 1, column 6: Cannot evaluate expression 'null % bbox(vec(1, 2, 3), vec(4, 5, 6))': Invalid operand types Null and BBox"}},
+    {"[] % bbox(vec(1, 2, 3), vec(4, 5, 6))",                               Error{"At line 1, column 4: Cannot evaluate expression '[] % bbox(vec(1, 2, 3), vec(4, 5, 6))': Invalid operand types Array and BBox"}},
+    {"{} % bbox(vec(1, 2, 3), vec(4, 5, 6))",                               Error{"At line 1, column 4: Cannot evaluate expression '{} % bbox(vec(1, 2, 3), vec(4, 5, 6))': Invalid operand types Map and BBox"}},
+    {"vec(1, 2, 3) % bbox(vec(1, 2, 3), vec(4, 5, 6))",                     Error{"At line 1, column 14: Cannot evaluate expression 'vec(1, 2, 3) % bbox(vec(1, 2, 3), vec(4, 5, 6))': Invalid operand types Vec3 and BBox"}},
+
+    {"range % 1", Error{"At line 1, column 7: Cannot evaluate expression 'range % 1': Invalid operand types Range and Number"}},
+    {"1 % range", Error{"At line 1, column 3: Cannot evaluate expression '1 % range': Invalid operand types Number and Range"}},
 
     // Logical negation
     {"!true",           Value{false}},
@@ -525,6 +679,7 @@ TEST_CASE("Expression")
     {"!{}",             Error{R"(At line 1, column 1: Cannot evaluate expression '!{}': Invalid type Map)"}},
     {"!vec(1, 2, 3)",   Error{"At line 1, column 1: Cannot evaluate expression '!vec(1, 2, 3)': Invalid type Vec3"}},
     {"!bbox(vec(1, 2, 3), vec(4, 5, 6))", Error{"At line 1, column 1: Cannot evaluate expression '!bbox(vec(1, 2, 3), vec(4, 5, 6))': Invalid type BBox"}},
+    {"!range",          Error{"At line 1, column 1: Cannot evaluate expression '!range': Invalid type Range"}},
 
     // Logical conjunction
     {"false && false",  Value{false}},
@@ -554,6 +709,11 @@ TEST_CASE("Expression")
     {"true && 1",       Error{R"(At line 1, column 6: Cannot evaluate expression 'true && 1': Invalid operand types Boolean and Number)"}},
     {"true && 'a'",     Error{R"(At line 1, column 6: Cannot evaluate expression 'true && "a"': Invalid operand types Boolean and String)"}},
     {"false || []",     Error{R"(At line 1, column 7: Cannot evaluate expression 'false || []': Invalid operand types Boolean and Array)"}},
+    {"true && []",      Error{"At line 1, column 6: Cannot evaluate expression 'true && []': Invalid operand types Boolean and Array"}},
+    {"true && {}",      Error{"At line 1, column 6: Cannot evaluate expression 'true && {}': Invalid operand types Boolean and Map"}},
+    {"false || 1",      Error{"At line 1, column 7: Cannot evaluate expression 'false || 1': Invalid operand types Boolean and Number"}},
+    {"false || 'a'",    Error{R"(At line 1, column 7: Cannot evaluate expression 'false || "a"': Invalid operand types Boolean and String)"}},
+    {"false || {}",     Error{"At line 1, column 7: Cannot evaluate expression 'false || {}': Invalid operand types Boolean and Map"}},
 
     // A left operand that is neither boolean nor null is an error too, and the error
     // names the type of the right operand rather than a placeholder
@@ -562,6 +722,23 @@ TEST_CASE("Expression")
     {"[1] && true",     Error{R"(At line 1, column 5: Cannot evaluate expression '[1] && true': Invalid operand types Array and Boolean)"}},
     {"{} || false",     Error{R"(At line 1, column 4: Cannot evaluate expression '{} || false': Invalid operand types Map and Boolean)"}},
     {"1 && 'a'",        Error{R"(At line 1, column 3: Cannot evaluate expression '1 && "a"': Invalid operand types Number and String)"}},
+    {"'a' && true",     Error{R"(At line 1, column 5: Cannot evaluate expression '"a" && true': Invalid operand types String and Boolean)"}},
+    {"{} && true",      Error{"At line 1, column 4: Cannot evaluate expression '{} && true': Invalid operand types Map and Boolean"}},
+    {"1 || false",      Error{"At line 1, column 3: Cannot evaluate expression '1 || false': Invalid operand types Number and Boolean"}},
+    {"[] || false",     Error{"At line 1, column 4: Cannot evaluate expression '[] || false': Invalid operand types Array and Boolean"}},
+
+    {"true && vec(1, 2, 3)",                      Error{"At line 1, column 6: Cannot evaluate expression 'true && vec(1, 2, 3)': Invalid operand types Boolean and Vec3"}},
+    {"vec(1, 2, 3) && true",                      Error{"At line 1, column 14: Cannot evaluate expression 'vec(1, 2, 3) && true': Invalid operand types Vec3 and Boolean"}},
+    {"true && bbox(vec(1, 2, 3), vec(4, 5, 6))",  Error{"At line 1, column 6: Cannot evaluate expression 'true && bbox(vec(1, 2, 3), vec(4, 5, 6))': Invalid operand types Boolean and BBox"}},
+    {"bbox(vec(1, 2, 3), vec(4, 5, 6)) && true",  Error{"At line 1, column 34: Cannot evaluate expression 'bbox(vec(1, 2, 3), vec(4, 5, 6)) && true': Invalid operand types BBox and Boolean"}},
+    {"true && range",                             Error{"At line 1, column 6: Cannot evaluate expression 'true && range': Invalid operand types Boolean and Range"}},
+    {"range && true",                             Error{"At line 1, column 7: Cannot evaluate expression 'range && true': Invalid operand types Range and Boolean"}},
+    {"false || vec(1, 2, 3)",                     Error{"At line 1, column 7: Cannot evaluate expression 'false || vec(1, 2, 3)': Invalid operand types Boolean and Vec3"}},
+    {"vec(1, 2, 3) || false",                     Error{"At line 1, column 14: Cannot evaluate expression 'vec(1, 2, 3) || false': Invalid operand types Vec3 and Boolean"}},
+    {"false || bbox(vec(1, 2, 3), vec(4, 5, 6))", Error{"At line 1, column 7: Cannot evaluate expression 'false || bbox(vec(1, 2, 3), vec(4, 5, 6))': Invalid operand types Boolean and BBox"}},
+    {"bbox(vec(1, 2, 3), vec(4, 5, 6)) || false", Error{"At line 1, column 34: Cannot evaluate expression 'bbox(vec(1, 2, 3), vec(4, 5, 6)) || false': Invalid operand types BBox and Boolean"}},
+    {"false || range",                            Error{"At line 1, column 7: Cannot evaluate expression 'false || range': Invalid operand types Boolean and Range"}},
+    {"range || false",                            Error{"At line 1, column 7: Cannot evaluate expression 'range || false': Invalid operand types Range and Boolean"}},
 
     // Undefined on either side wins, whatever the other side is
     {"1 && undefined",  Value::Undefined},
@@ -579,18 +756,28 @@ TEST_CASE("Expression")
     {"1 + undefined",   Value::Undefined},
     {"undefined + 1",   Value::Undefined},
     {"1 - undefined",   Value::Undefined},
+    {"undefined - 1",   Value::Undefined},
     {"1 * undefined",   Value::Undefined},
+    {"undefined * 1",   Value::Undefined},
     {"1 / undefined",   Value::Undefined},
+    {"undefined / 1",   Value::Undefined},
     {"1 % undefined",   Value::Undefined},
+    {"undefined % 1",   Value::Undefined},
     {"1 & undefined",   Value::Undefined},
     {"undefined & 1",   Value::Undefined},
     {"1 ^ undefined",   Value::Undefined},
+    {"undefined ^ 1",   Value::Undefined},
     {"1 | undefined",   Value::Undefined},
+    {"undefined | 1",   Value::Undefined},
     {"1 << undefined",  Value::Undefined},
+    {"undefined << 1",  Value::Undefined},
     {"1 >> undefined",  Value::Undefined},
+    {"undefined >> 1",  Value::Undefined},
 
-    {"vec(1, 2, 3) + undefined", Value::Undefined},
-    {"undefined + vec(1, 2, 3)", Value::Undefined},
+    {"vec(1, 2, 3) + undefined",                     Value::Undefined},
+    {"undefined + vec(1, 2, 3)",                     Value::Undefined},
+    {"bbox(vec(1, 2, 3), vec(4, 5, 6)) + undefined", Value::Undefined},
+    {"undefined + bbox(vec(1, 2, 3), vec(4, 5, 6))", Value::Undefined},
 
     // Bitwise negation
     {"~23423",          Value{~23423}},
@@ -603,6 +790,8 @@ TEST_CASE("Expression")
     {"~[]",             Error{R"(At line 1, column 1: Cannot evaluate expression '~[]': Invalid type Array)"}},
     {"~{}",             Error{R"(At line 1, column 1: Cannot evaluate expression '~{}': Invalid type Map)"}},
     {"~vec(1, 2, 3)",   Error{"At line 1, column 1: Cannot evaluate expression '~vec(1, 2, 3)': Invalid type Vec3"}},
+    {"~bbox(vec(1, 2, 3), vec(4, 5, 6))", Error{"At line 1, column 1: Cannot evaluate expression '~bbox(vec(1, 2, 3), vec(4, 5, 6))': Invalid type BBox"}},
+    {"~range",          Error{"At line 1, column 1: Cannot evaluate expression '~range': Invalid type Range"}},
 
     // Bitwise and
     {"0 & 0",           Value{0 & 0}},
@@ -620,6 +809,13 @@ TEST_CASE("Expression")
     {"{} & 123",        Error{R"(At line 1, column 4: Cannot evaluate expression '{} & 123': Invalid operand types Map and Number)"}},
     {"123 & {}",        Error{R"(At line 1, column 5: Cannot evaluate expression '123 & {}': Invalid operand types Number and Map)"}},
 
+    {"vec(1, 2, 3) & 123",                     Error{"At line 1, column 14: Cannot evaluate expression 'vec(1, 2, 3) & 123': Invalid operand types Vec3 and Number"}},
+    {"123 & vec(1, 2, 3)",                     Error{"At line 1, column 5: Cannot evaluate expression '123 & vec(1, 2, 3)': Invalid operand types Number and Vec3"}},
+    {"bbox(vec(1, 2, 3), vec(4, 5, 6)) & 123", Error{"At line 1, column 34: Cannot evaluate expression 'bbox(vec(1, 2, 3), vec(4, 5, 6)) & 123': Invalid operand types BBox and Number"}},
+    {"123 & bbox(vec(1, 2, 3), vec(4, 5, 6))", Error{"At line 1, column 5: Cannot evaluate expression '123 & bbox(vec(1, 2, 3), vec(4, 5, 6))': Invalid operand types Number and BBox"}},
+    {"range & 123",                            Error{"At line 1, column 7: Cannot evaluate expression 'range & 123': Invalid operand types Range and Number"}},
+    {"123 & range",                            Error{"At line 1, column 5: Cannot evaluate expression '123 & range': Invalid operand types Number and Range"}},
+
     // Bitwise or
     {"0 | 0",           Value{0 | 0}},
     {"123 | 456",       Value{123 | 456}},
@@ -635,6 +831,13 @@ TEST_CASE("Expression")
     {"123 | []",        Error{R"(At line 1, column 5: Cannot evaluate expression '123 | []': Invalid operand types Number and Array)"}},
     {"{} | 123",        Error{R"(At line 1, column 4: Cannot evaluate expression '{} | 123': Invalid operand types Map and Number)"}},
     {"123 | {}",        Error{R"(At line 1, column 5: Cannot evaluate expression '123 | {}': Invalid operand types Number and Map)"}},
+
+    {"vec(1, 2, 3) | 123",                     Error{"At line 1, column 14: Cannot evaluate expression 'vec(1, 2, 3) | 123': Invalid operand types Vec3 and Number"}},
+    {"123 | vec(1, 2, 3)",                     Error{"At line 1, column 5: Cannot evaluate expression '123 | vec(1, 2, 3)': Invalid operand types Number and Vec3"}},
+    {"bbox(vec(1, 2, 3), vec(4, 5, 6)) | 123", Error{"At line 1, column 34: Cannot evaluate expression 'bbox(vec(1, 2, 3), vec(4, 5, 6)) | 123': Invalid operand types BBox and Number"}},
+    {"123 | bbox(vec(1, 2, 3), vec(4, 5, 6))", Error{"At line 1, column 5: Cannot evaluate expression '123 | bbox(vec(1, 2, 3), vec(4, 5, 6))': Invalid operand types Number and BBox"}},
+    {"range | 123",                            Error{"At line 1, column 7: Cannot evaluate expression 'range | 123': Invalid operand types Range and Number"}},
+    {"123 | range",                            Error{"At line 1, column 5: Cannot evaluate expression '123 | range': Invalid operand types Number and Range"}},
 
     // Bitwise xor
     {"0 ^ 0",           Value{0 ^ 0}},
@@ -652,6 +855,13 @@ TEST_CASE("Expression")
     {"{} ^ 123",        Error{R"(At line 1, column 4: Cannot evaluate expression '{} ^ 123': Invalid operand types Map and Number)"}},
     {"123 ^ {}",        Error{R"(At line 1, column 5: Cannot evaluate expression '123 ^ {}': Invalid operand types Number and Map)"}},
 
+    {"vec(1, 2, 3) ^ 123",                     Error{"At line 1, column 14: Cannot evaluate expression 'vec(1, 2, 3) ^ 123': Invalid operand types Vec3 and Number"}},
+    {"123 ^ vec(1, 2, 3)",                     Error{"At line 1, column 5: Cannot evaluate expression '123 ^ vec(1, 2, 3)': Invalid operand types Number and Vec3"}},
+    {"bbox(vec(1, 2, 3), vec(4, 5, 6)) ^ 123", Error{"At line 1, column 34: Cannot evaluate expression 'bbox(vec(1, 2, 3), vec(4, 5, 6)) ^ 123': Invalid operand types BBox and Number"}},
+    {"123 ^ bbox(vec(1, 2, 3), vec(4, 5, 6))", Error{"At line 1, column 5: Cannot evaluate expression '123 ^ bbox(vec(1, 2, 3), vec(4, 5, 6))': Invalid operand types Number and BBox"}},
+    {"range ^ 123",                            Error{"At line 1, column 7: Cannot evaluate expression 'range ^ 123': Invalid operand types Range and Number"}},
+    {"123 ^ range",                            Error{"At line 1, column 5: Cannot evaluate expression '123 ^ range': Invalid operand types Number and Range"}},
+
     // Bitwise shift left
     {"1 << 2",          Value{1 << 2}},
     {"true << 2",       Value{1 << 2}},
@@ -667,6 +877,13 @@ TEST_CASE("Expression")
     {"{} << 2",         Error{R"(At line 1, column 4: Cannot evaluate expression '{} << 2': Invalid operand types Map and Number)"}},
     {"1 << {}",         Error{R"(At line 1, column 3: Cannot evaluate expression '1 << {}': Invalid operand types Number and Map)"}},
 
+    {"vec(1, 2, 3) << 2",                     Error{"At line 1, column 14: Cannot evaluate expression 'vec(1, 2, 3) << 2': Invalid operand types Vec3 and Number"}},
+    {"1 << vec(1, 2, 3)",                     Error{"At line 1, column 3: Cannot evaluate expression '1 << vec(1, 2, 3)': Invalid operand types Number and Vec3"}},
+    {"bbox(vec(1, 2, 3), vec(4, 5, 6)) << 2", Error{"At line 1, column 34: Cannot evaluate expression 'bbox(vec(1, 2, 3), vec(4, 5, 6)) << 2': Invalid operand types BBox and Number"}},
+    {"1 << bbox(vec(1, 2, 3), vec(4, 5, 6))", Error{"At line 1, column 3: Cannot evaluate expression '1 << bbox(vec(1, 2, 3), vec(4, 5, 6))': Invalid operand types Number and BBox"}},
+    {"range << 2",                            Error{"At line 1, column 7: Cannot evaluate expression 'range << 2': Invalid operand types Range and Number"}},
+    {"1 << range",                            Error{"At line 1, column 3: Cannot evaluate expression '1 << range': Invalid operand types Number and Range"}},
+
     // Bitwise shift right
     {"1 >> 2",          Value{1 >> 2}},
     {"true >> 2",       Value{1 >> 2}},
@@ -681,6 +898,13 @@ TEST_CASE("Expression")
     {"1 >> []",         Error{R"(At line 1, column 3: Cannot evaluate expression '1 >> []': Invalid operand types Number and Array)"}},
     {"{} >> 2",         Error{R"(At line 1, column 4: Cannot evaluate expression '{} >> 2': Invalid operand types Map and Number)"}},
     {"1 >> {}",         Error{R"(At line 1, column 3: Cannot evaluate expression '1 >> {}': Invalid operand types Number and Map)"}},
+
+    {"vec(1, 2, 3) >> 2",                     Error{"At line 1, column 14: Cannot evaluate expression 'vec(1, 2, 3) >> 2': Invalid operand types Vec3 and Number"}},
+    {"1 >> vec(1, 2, 3)",                     Error{"At line 1, column 3: Cannot evaluate expression '1 >> vec(1, 2, 3)': Invalid operand types Number and Vec3"}},
+    {"bbox(vec(1, 2, 3), vec(4, 5, 6)) >> 2", Error{"At line 1, column 34: Cannot evaluate expression 'bbox(vec(1, 2, 3), vec(4, 5, 6)) >> 2': Invalid operand types BBox and Number"}},
+    {"1 >> bbox(vec(1, 2, 3), vec(4, 5, 6))", Error{"At line 1, column 3: Cannot evaluate expression '1 >> bbox(vec(1, 2, 3), vec(4, 5, 6))': Invalid operand types Number and BBox"}},
+    {"range >> 2",                            Error{"At line 1, column 7: Cannot evaluate expression 'range >> 2': Invalid operand types Range and Number"}},
+    {"1 >> range",                            Error{"At line 1, column 3: Cannot evaluate expression '1 >> range': Invalid operand types Number and Range"}},
 
     // Comparison
     {"false < false",   Value{false}},
@@ -764,6 +988,44 @@ TEST_CASE("Expression")
     {"{k1:1} < {k1:1, k2:2}", Value{true}},
     {"{k1:1} < {k1:2, k2:2}", Value{true}},
 
+    {"vec(1, 2, 3) < vec(4, 5, 6)", Value{true}},
+    {"vec(4, 5, 6) < vec(1, 2, 3)", Value{false}},
+    {"vec(1, 2, 3) < true",         Error{"At line 1, column 14: Cannot evaluate expression 'vec(1, 2, 3) < true': Invalid operand types Vec3 and Boolean"}},
+    {"vec(1, 2, 3) < 2",            Error{"At line 1, column 14: Cannot evaluate expression 'vec(1, 2, 3) < 2': Invalid operand types Vec3 and Number"}},
+    {"vec(1, 2, 3) < 'test'",       Error{R"(At line 1, column 14: Cannot evaluate expression 'vec(1, 2, 3) < "test"': At line 1, column 16: Cannot convert value '"test"' of type 'String' to type 'Vec3')"}},
+    {"vec(1, 2, 3) < null",         Value{false}},
+    {"vec(1, 2, 3) < []",           Error{"At line 1, column 14: Cannot evaluate expression 'vec(1, 2, 3) < []': Invalid operand types Vec3 and Array"}},
+    {"vec(1, 2, 3) < {}",           Error{"At line 1, column 14: Cannot evaluate expression 'vec(1, 2, 3) < {}': Invalid operand types Vec3 and Map"}},
+    {"true < vec(1, 2, 3)",         Error{"At line 1, column 6: Cannot evaluate expression 'true < vec(1, 2, 3)': Invalid operand types Boolean and Vec3"}},
+    {"2 < vec(1, 2, 3)",            Error{"At line 1, column 3: Cannot evaluate expression '2 < vec(1, 2, 3)': Invalid operand types Number and Vec3"}},
+    {"'test' < vec(1, 2, 3)",       Error{R"(At line 1, column 8: Cannot evaluate expression '"test" < vec(1, 2, 3)': At line 1, column 1: Cannot convert value '"test"' of type 'String' to type 'Vec3')"}},
+    {"null < vec(1, 2, 3)",         Value{true}},
+    {"[] < vec(1, 2, 3)",           Error{"At line 1, column 4: Cannot evaluate expression '[] < vec(1, 2, 3)': Invalid operand types Array and Vec3"}},
+    {"{} < vec(1, 2, 3)",           Error{"At line 1, column 4: Cannot evaluate expression '{} < vec(1, 2, 3)': Invalid operand types Map and Vec3"}},
+    // a string is converted to a vector
+    {"vec(1, 2, 3) < '1 2 4'",      Value{true}},
+    {"'1 2 3' < vec(1, 2, 4)",      Value{true}},
+
+    {"bbox(vec(1, 2, 3), vec(4, 5, 6)) < bbox(vec(1, 2, 3), vec(4, 5, 6))", Value{false}},
+    {"bbox(vec(0, 0, 0), vec(1, 1, 1)) < bbox(vec(1, 2, 3), vec(4, 5, 6))", Value{true}},
+    {"bbox(vec(1, 2, 3), vec(4, 5, 6)) < true",                             Error{"At line 1, column 34: Cannot evaluate expression 'bbox(vec(1, 2, 3), vec(4, 5, 6)) < true': Invalid operand types BBox and Boolean"}},
+    {"bbox(vec(1, 2, 3), vec(4, 5, 6)) < 2",                                Error{"At line 1, column 34: Cannot evaluate expression 'bbox(vec(1, 2, 3), vec(4, 5, 6)) < 2': Invalid operand types BBox and Number"}},
+    {"bbox(vec(1, 2, 3), vec(4, 5, 6)) < 'test'",                           Error{R"(At line 1, column 34: Cannot evaluate expression 'bbox(vec(1, 2, 3), vec(4, 5, 6)) < "test"': Invalid operand types BBox and String)"}},
+    {"bbox(vec(1, 2, 3), vec(4, 5, 6)) < null",                             Value{false}},
+    {"bbox(vec(1, 2, 3), vec(4, 5, 6)) < []",                               Error{"At line 1, column 34: Cannot evaluate expression 'bbox(vec(1, 2, 3), vec(4, 5, 6)) < []': Invalid operand types BBox and Array"}},
+    {"bbox(vec(1, 2, 3), vec(4, 5, 6)) < {}",                               Error{"At line 1, column 34: Cannot evaluate expression 'bbox(vec(1, 2, 3), vec(4, 5, 6)) < {}': Invalid operand types BBox and Map"}},
+    {"bbox(vec(1, 2, 3), vec(4, 5, 6)) < vec(1, 2, 3)",                     Error{"At line 1, column 34: Cannot evaluate expression 'bbox(vec(1, 2, 3), vec(4, 5, 6)) < vec(1, 2, 3)': Invalid operand types BBox and Vec3"}},
+    {"true < bbox(vec(1, 2, 3), vec(4, 5, 6))",                             Error{"At line 1, column 6: Cannot evaluate expression 'true < bbox(vec(1, 2, 3), vec(4, 5, 6))': Invalid operand types Boolean and BBox"}},
+    {"2 < bbox(vec(1, 2, 3), vec(4, 5, 6))",                                Error{"At line 1, column 3: Cannot evaluate expression '2 < bbox(vec(1, 2, 3), vec(4, 5, 6))': Invalid operand types Number and BBox"}},
+    {"'test' < bbox(vec(1, 2, 3), vec(4, 5, 6))",                           Error{R"(At line 1, column 8: Cannot evaluate expression '"test" < bbox(vec(1, 2, 3), vec(4, 5, 6))': Invalid operand types String and BBox)"}},
+    {"null < bbox(vec(1, 2, 3), vec(4, 5, 6))",                             Value{true}},
+    {"[] < bbox(vec(1, 2, 3), vec(4, 5, 6))",                               Error{"At line 1, column 4: Cannot evaluate expression '[] < bbox(vec(1, 2, 3), vec(4, 5, 6))': Invalid operand types Array and BBox"}},
+    {"{} < bbox(vec(1, 2, 3), vec(4, 5, 6))",                               Error{"At line 1, column 4: Cannot evaluate expression '{} < bbox(vec(1, 2, 3), vec(4, 5, 6))': Invalid operand types Map and BBox"}},
+    {"vec(1, 2, 3) < bbox(vec(1, 2, 3), vec(4, 5, 6))",                     Error{"At line 1, column 14: Cannot evaluate expression 'vec(1, 2, 3) < bbox(vec(1, 2, 3), vec(4, 5, 6))': Invalid operand types Vec3 and BBox"}},
+
+    {"range < 0", Error{"At line 1, column 7: Cannot evaluate expression 'range < 0': Invalid operand types Range and Number"}},
+    {"0 < range", Error{"At line 1, column 3: Cannot evaluate expression '0 < range': Invalid operand types Number and Range"}},
+
     {"false <= false",   Value{true}},
     {"false <= true",    Value{true}},
     {"true <= false",    Value{false}},
@@ -844,6 +1106,44 @@ TEST_CASE("Expression")
     {"{k1:1} <= {k1:2}",       Value{true}},
     {"{k1:1} <= {k1:1, k2:2}", Value{true}},
     {"{k1:1} <= {k1:2, k2:2}", Value{true}},
+
+    {"vec(1, 2, 3) <= vec(1, 2, 3)", Value{true}},
+    {"vec(4, 5, 6) <= vec(1, 2, 3)", Value{false}},
+    {"vec(1, 2, 3) <= true",         Error{"At line 1, column 14: Cannot evaluate expression 'vec(1, 2, 3) <= true': Invalid operand types Vec3 and Boolean"}},
+    {"vec(1, 2, 3) <= 2",            Error{"At line 1, column 14: Cannot evaluate expression 'vec(1, 2, 3) <= 2': Invalid operand types Vec3 and Number"}},
+    {"vec(1, 2, 3) <= 'test'",       Error{R"(At line 1, column 14: Cannot evaluate expression 'vec(1, 2, 3) <= "test"': At line 1, column 17: Cannot convert value '"test"' of type 'String' to type 'Vec3')"}},
+    {"vec(1, 2, 3) <= null",         Value{false}},
+    {"vec(1, 2, 3) <= []",           Error{"At line 1, column 14: Cannot evaluate expression 'vec(1, 2, 3) <= []': Invalid operand types Vec3 and Array"}},
+    {"vec(1, 2, 3) <= {}",           Error{"At line 1, column 14: Cannot evaluate expression 'vec(1, 2, 3) <= {}': Invalid operand types Vec3 and Map"}},
+    {"true <= vec(1, 2, 3)",         Error{"At line 1, column 6: Cannot evaluate expression 'true <= vec(1, 2, 3)': Invalid operand types Boolean and Vec3"}},
+    {"2 <= vec(1, 2, 3)",            Error{"At line 1, column 3: Cannot evaluate expression '2 <= vec(1, 2, 3)': Invalid operand types Number and Vec3"}},
+    {"'test' <= vec(1, 2, 3)",       Error{R"(At line 1, column 8: Cannot evaluate expression '"test" <= vec(1, 2, 3)': At line 1, column 1: Cannot convert value '"test"' of type 'String' to type 'Vec3')"}},
+    {"null <= vec(1, 2, 3)",         Value{true}},
+    {"[] <= vec(1, 2, 3)",           Error{"At line 1, column 4: Cannot evaluate expression '[] <= vec(1, 2, 3)': Invalid operand types Array and Vec3"}},
+    {"{} <= vec(1, 2, 3)",           Error{"At line 1, column 4: Cannot evaluate expression '{} <= vec(1, 2, 3)': Invalid operand types Map and Vec3"}},
+    // a string is converted to a vector
+    {"vec(1, 2, 3) <= '1 2 3'",      Value{true}},
+    {"'1 2 4' <= vec(1, 2, 3)",      Value{false}},
+
+    {"bbox(vec(1, 2, 3), vec(4, 5, 6)) <= bbox(vec(1, 2, 3), vec(4, 5, 6))", Value{true}},
+    {"bbox(vec(1, 2, 3), vec(4, 5, 6)) <= bbox(vec(0, 0, 0), vec(1, 1, 1))", Value{false}},
+    {"bbox(vec(1, 2, 3), vec(4, 5, 6)) <= true",                             Error{"At line 1, column 34: Cannot evaluate expression 'bbox(vec(1, 2, 3), vec(4, 5, 6)) <= true': Invalid operand types BBox and Boolean"}},
+    {"bbox(vec(1, 2, 3), vec(4, 5, 6)) <= 2",                                Error{"At line 1, column 34: Cannot evaluate expression 'bbox(vec(1, 2, 3), vec(4, 5, 6)) <= 2': Invalid operand types BBox and Number"}},
+    {"bbox(vec(1, 2, 3), vec(4, 5, 6)) <= 'test'",                           Error{R"(At line 1, column 34: Cannot evaluate expression 'bbox(vec(1, 2, 3), vec(4, 5, 6)) <= "test"': Invalid operand types BBox and String)"}},
+    {"bbox(vec(1, 2, 3), vec(4, 5, 6)) <= null",                             Value{false}},
+    {"bbox(vec(1, 2, 3), vec(4, 5, 6)) <= []",                               Error{"At line 1, column 34: Cannot evaluate expression 'bbox(vec(1, 2, 3), vec(4, 5, 6)) <= []': Invalid operand types BBox and Array"}},
+    {"bbox(vec(1, 2, 3), vec(4, 5, 6)) <= {}",                               Error{"At line 1, column 34: Cannot evaluate expression 'bbox(vec(1, 2, 3), vec(4, 5, 6)) <= {}': Invalid operand types BBox and Map"}},
+    {"bbox(vec(1, 2, 3), vec(4, 5, 6)) <= vec(1, 2, 3)",                     Error{"At line 1, column 34: Cannot evaluate expression 'bbox(vec(1, 2, 3), vec(4, 5, 6)) <= vec(1, 2, 3)': Invalid operand types BBox and Vec3"}},
+    {"true <= bbox(vec(1, 2, 3), vec(4, 5, 6))",                             Error{"At line 1, column 6: Cannot evaluate expression 'true <= bbox(vec(1, 2, 3), vec(4, 5, 6))': Invalid operand types Boolean and BBox"}},
+    {"2 <= bbox(vec(1, 2, 3), vec(4, 5, 6))",                                Error{"At line 1, column 3: Cannot evaluate expression '2 <= bbox(vec(1, 2, 3), vec(4, 5, 6))': Invalid operand types Number and BBox"}},
+    {"'test' <= bbox(vec(1, 2, 3), vec(4, 5, 6))",                           Error{R"(At line 1, column 8: Cannot evaluate expression '"test" <= bbox(vec(1, 2, 3), vec(4, 5, 6))': Invalid operand types String and BBox)"}},
+    {"null <= bbox(vec(1, 2, 3), vec(4, 5, 6))",                             Value{true}},
+    {"[] <= bbox(vec(1, 2, 3), vec(4, 5, 6))",                               Error{"At line 1, column 4: Cannot evaluate expression '[] <= bbox(vec(1, 2, 3), vec(4, 5, 6))': Invalid operand types Array and BBox"}},
+    {"{} <= bbox(vec(1, 2, 3), vec(4, 5, 6))",                               Error{"At line 1, column 4: Cannot evaluate expression '{} <= bbox(vec(1, 2, 3), vec(4, 5, 6))': Invalid operand types Map and BBox"}},
+    {"vec(1, 2, 3) <= bbox(vec(1, 2, 3), vec(4, 5, 6))",                     Error{"At line 1, column 14: Cannot evaluate expression 'vec(1, 2, 3) <= bbox(vec(1, 2, 3), vec(4, 5, 6))': Invalid operand types Vec3 and BBox"}},
+
+    {"range <= 0", Error{"At line 1, column 7: Cannot evaluate expression 'range <= 0': Invalid operand types Range and Number"}},
+    {"0 <= range", Error{"At line 1, column 3: Cannot evaluate expression '0 <= range': Invalid operand types Number and Range"}},
 
     {"false > false",   Value{false}},
     {"true > false",    Value{true}},
@@ -926,6 +1226,44 @@ TEST_CASE("Expression")
     {"{k1:1, k2:2} > {k1:1}", Value{true}},
     {"{k1:2, k2:2} > {k1:1}", Value{true}},
 
+    {"vec(4, 5, 6) > vec(1, 2, 3)", Value{true}},
+    {"vec(1, 2, 3) > vec(4, 5, 6)", Value{false}},
+    {"vec(1, 2, 3) > true",         Error{"At line 1, column 14: Cannot evaluate expression 'vec(1, 2, 3) > true': Invalid operand types Vec3 and Boolean"}},
+    {"vec(1, 2, 3) > 2",            Error{"At line 1, column 14: Cannot evaluate expression 'vec(1, 2, 3) > 2': Invalid operand types Vec3 and Number"}},
+    {"vec(1, 2, 3) > 'test'",       Error{R"(At line 1, column 14: Cannot evaluate expression 'vec(1, 2, 3) > "test"': At line 1, column 16: Cannot convert value '"test"' of type 'String' to type 'Vec3')"}},
+    {"vec(1, 2, 3) > null",         Value{true}},
+    {"vec(1, 2, 3) > []",           Error{"At line 1, column 14: Cannot evaluate expression 'vec(1, 2, 3) > []': Invalid operand types Vec3 and Array"}},
+    {"vec(1, 2, 3) > {}",           Error{"At line 1, column 14: Cannot evaluate expression 'vec(1, 2, 3) > {}': Invalid operand types Vec3 and Map"}},
+    {"true > vec(1, 2, 3)",         Error{"At line 1, column 6: Cannot evaluate expression 'true > vec(1, 2, 3)': Invalid operand types Boolean and Vec3"}},
+    {"2 > vec(1, 2, 3)",            Error{"At line 1, column 3: Cannot evaluate expression '2 > vec(1, 2, 3)': Invalid operand types Number and Vec3"}},
+    {"'test' > vec(1, 2, 3)",       Error{R"(At line 1, column 8: Cannot evaluate expression '"test" > vec(1, 2, 3)': At line 1, column 1: Cannot convert value '"test"' of type 'String' to type 'Vec3')"}},
+    {"null > vec(1, 2, 3)",         Value{false}},
+    {"[] > vec(1, 2, 3)",           Error{"At line 1, column 4: Cannot evaluate expression '[] > vec(1, 2, 3)': Invalid operand types Array and Vec3"}},
+    {"{} > vec(1, 2, 3)",           Error{"At line 1, column 4: Cannot evaluate expression '{} > vec(1, 2, 3)': Invalid operand types Map and Vec3"}},
+    // a string is converted to a vector
+    {"vec(1, 2, 3) > '1 2 2'",      Value{true}},
+    {"'1 2 3' > vec(1, 2, 4)",      Value{false}},
+
+    {"bbox(vec(1, 2, 3), vec(4, 5, 6)) > bbox(vec(1, 2, 3), vec(4, 5, 6))", Value{false}},
+    {"bbox(vec(1, 2, 3), vec(4, 5, 6)) > bbox(vec(0, 0, 0), vec(1, 1, 1))", Value{true}},
+    {"bbox(vec(1, 2, 3), vec(4, 5, 6)) > true",                             Error{"At line 1, column 34: Cannot evaluate expression 'bbox(vec(1, 2, 3), vec(4, 5, 6)) > true': Invalid operand types BBox and Boolean"}},
+    {"bbox(vec(1, 2, 3), vec(4, 5, 6)) > 2",                                Error{"At line 1, column 34: Cannot evaluate expression 'bbox(vec(1, 2, 3), vec(4, 5, 6)) > 2': Invalid operand types BBox and Number"}},
+    {"bbox(vec(1, 2, 3), vec(4, 5, 6)) > 'test'",                           Error{R"(At line 1, column 34: Cannot evaluate expression 'bbox(vec(1, 2, 3), vec(4, 5, 6)) > "test"': Invalid operand types BBox and String)"}},
+    {"bbox(vec(1, 2, 3), vec(4, 5, 6)) > null",                             Value{true}},
+    {"bbox(vec(1, 2, 3), vec(4, 5, 6)) > []",                               Error{"At line 1, column 34: Cannot evaluate expression 'bbox(vec(1, 2, 3), vec(4, 5, 6)) > []': Invalid operand types BBox and Array"}},
+    {"bbox(vec(1, 2, 3), vec(4, 5, 6)) > {}",                               Error{"At line 1, column 34: Cannot evaluate expression 'bbox(vec(1, 2, 3), vec(4, 5, 6)) > {}': Invalid operand types BBox and Map"}},
+    {"bbox(vec(1, 2, 3), vec(4, 5, 6)) > vec(1, 2, 3)",                     Error{"At line 1, column 34: Cannot evaluate expression 'bbox(vec(1, 2, 3), vec(4, 5, 6)) > vec(1, 2, 3)': Invalid operand types BBox and Vec3"}},
+    {"true > bbox(vec(1, 2, 3), vec(4, 5, 6))",                             Error{"At line 1, column 6: Cannot evaluate expression 'true > bbox(vec(1, 2, 3), vec(4, 5, 6))': Invalid operand types Boolean and BBox"}},
+    {"2 > bbox(vec(1, 2, 3), vec(4, 5, 6))",                                Error{"At line 1, column 3: Cannot evaluate expression '2 > bbox(vec(1, 2, 3), vec(4, 5, 6))': Invalid operand types Number and BBox"}},
+    {"'test' > bbox(vec(1, 2, 3), vec(4, 5, 6))",                           Error{R"(At line 1, column 8: Cannot evaluate expression '"test" > bbox(vec(1, 2, 3), vec(4, 5, 6))': Invalid operand types String and BBox)"}},
+    {"null > bbox(vec(1, 2, 3), vec(4, 5, 6))",                             Value{false}},
+    {"[] > bbox(vec(1, 2, 3), vec(4, 5, 6))",                               Error{"At line 1, column 4: Cannot evaluate expression '[] > bbox(vec(1, 2, 3), vec(4, 5, 6))': Invalid operand types Array and BBox"}},
+    {"{} > bbox(vec(1, 2, 3), vec(4, 5, 6))",                               Error{"At line 1, column 4: Cannot evaluate expression '{} > bbox(vec(1, 2, 3), vec(4, 5, 6))': Invalid operand types Map and BBox"}},
+    {"vec(1, 2, 3) > bbox(vec(1, 2, 3), vec(4, 5, 6))",                     Error{"At line 1, column 14: Cannot evaluate expression 'vec(1, 2, 3) > bbox(vec(1, 2, 3), vec(4, 5, 6))': Invalid operand types Vec3 and BBox"}},
+
+    {"range > 0", Error{"At line 1, column 7: Cannot evaluate expression 'range > 0': Invalid operand types Range and Number"}},
+    {"0 > range", Error{"At line 1, column 3: Cannot evaluate expression '0 > range': Invalid operand types Number and Range"}},
+
     {"false >= false",   Value{true}},
     {"true >= false",    Value{true}},
     {"false >= true",    Value{false}},
@@ -1006,6 +1344,44 @@ TEST_CASE("Expression")
     {"{k1:2} >= {k1:1}",       Value{true}},
     {"{k1:1, k2:2} >= {k1:1}", Value{true}},
     {"{k1:2, k2:2} >= {k1:1}", Value{true}},
+
+    {"vec(1, 2, 3) >= vec(1, 2, 3)", Value{true}},
+    {"vec(1, 2, 3) >= vec(4, 5, 6)", Value{false}},
+    {"vec(1, 2, 3) >= true",         Error{"At line 1, column 14: Cannot evaluate expression 'vec(1, 2, 3) >= true': Invalid operand types Vec3 and Boolean"}},
+    {"vec(1, 2, 3) >= 2",            Error{"At line 1, column 14: Cannot evaluate expression 'vec(1, 2, 3) >= 2': Invalid operand types Vec3 and Number"}},
+    {"vec(1, 2, 3) >= 'test'",       Error{R"(At line 1, column 14: Cannot evaluate expression 'vec(1, 2, 3) >= "test"': At line 1, column 17: Cannot convert value '"test"' of type 'String' to type 'Vec3')"}},
+    {"vec(1, 2, 3) >= null",         Value{true}},
+    {"vec(1, 2, 3) >= []",           Error{"At line 1, column 14: Cannot evaluate expression 'vec(1, 2, 3) >= []': Invalid operand types Vec3 and Array"}},
+    {"vec(1, 2, 3) >= {}",           Error{"At line 1, column 14: Cannot evaluate expression 'vec(1, 2, 3) >= {}': Invalid operand types Vec3 and Map"}},
+    {"true >= vec(1, 2, 3)",         Error{"At line 1, column 6: Cannot evaluate expression 'true >= vec(1, 2, 3)': Invalid operand types Boolean and Vec3"}},
+    {"2 >= vec(1, 2, 3)",            Error{"At line 1, column 3: Cannot evaluate expression '2 >= vec(1, 2, 3)': Invalid operand types Number and Vec3"}},
+    {"'test' >= vec(1, 2, 3)",       Error{R"(At line 1, column 8: Cannot evaluate expression '"test" >= vec(1, 2, 3)': At line 1, column 1: Cannot convert value '"test"' of type 'String' to type 'Vec3')"}},
+    {"null >= vec(1, 2, 3)",         Value{false}},
+    {"[] >= vec(1, 2, 3)",           Error{"At line 1, column 4: Cannot evaluate expression '[] >= vec(1, 2, 3)': Invalid operand types Array and Vec3"}},
+    {"{} >= vec(1, 2, 3)",           Error{"At line 1, column 4: Cannot evaluate expression '{} >= vec(1, 2, 3)': Invalid operand types Map and Vec3"}},
+    // a string is converted to a vector
+    {"vec(1, 2, 3) >= '1 2 3'",      Value{true}},
+    {"'1 2 2' >= vec(1, 2, 3)",      Value{false}},
+
+    {"bbox(vec(1, 2, 3), vec(4, 5, 6)) >= bbox(vec(1, 2, 3), vec(4, 5, 6))", Value{true}},
+    {"bbox(vec(0, 0, 0), vec(1, 1, 1)) >= bbox(vec(1, 2, 3), vec(4, 5, 6))", Value{false}},
+    {"bbox(vec(1, 2, 3), vec(4, 5, 6)) >= true",                             Error{"At line 1, column 34: Cannot evaluate expression 'bbox(vec(1, 2, 3), vec(4, 5, 6)) >= true': Invalid operand types BBox and Boolean"}},
+    {"bbox(vec(1, 2, 3), vec(4, 5, 6)) >= 2",                                Error{"At line 1, column 34: Cannot evaluate expression 'bbox(vec(1, 2, 3), vec(4, 5, 6)) >= 2': Invalid operand types BBox and Number"}},
+    {"bbox(vec(1, 2, 3), vec(4, 5, 6)) >= 'test'",                           Error{R"(At line 1, column 34: Cannot evaluate expression 'bbox(vec(1, 2, 3), vec(4, 5, 6)) >= "test"': Invalid operand types BBox and String)"}},
+    {"bbox(vec(1, 2, 3), vec(4, 5, 6)) >= null",                             Value{true}},
+    {"bbox(vec(1, 2, 3), vec(4, 5, 6)) >= []",                               Error{"At line 1, column 34: Cannot evaluate expression 'bbox(vec(1, 2, 3), vec(4, 5, 6)) >= []': Invalid operand types BBox and Array"}},
+    {"bbox(vec(1, 2, 3), vec(4, 5, 6)) >= {}",                               Error{"At line 1, column 34: Cannot evaluate expression 'bbox(vec(1, 2, 3), vec(4, 5, 6)) >= {}': Invalid operand types BBox and Map"}},
+    {"bbox(vec(1, 2, 3), vec(4, 5, 6)) >= vec(1, 2, 3)",                     Error{"At line 1, column 34: Cannot evaluate expression 'bbox(vec(1, 2, 3), vec(4, 5, 6)) >= vec(1, 2, 3)': Invalid operand types BBox and Vec3"}},
+    {"true >= bbox(vec(1, 2, 3), vec(4, 5, 6))",                             Error{"At line 1, column 6: Cannot evaluate expression 'true >= bbox(vec(1, 2, 3), vec(4, 5, 6))': Invalid operand types Boolean and BBox"}},
+    {"2 >= bbox(vec(1, 2, 3), vec(4, 5, 6))",                                Error{"At line 1, column 3: Cannot evaluate expression '2 >= bbox(vec(1, 2, 3), vec(4, 5, 6))': Invalid operand types Number and BBox"}},
+    {"'test' >= bbox(vec(1, 2, 3), vec(4, 5, 6))",                           Error{R"(At line 1, column 8: Cannot evaluate expression '"test" >= bbox(vec(1, 2, 3), vec(4, 5, 6))': Invalid operand types String and BBox)"}},
+    {"null >= bbox(vec(1, 2, 3), vec(4, 5, 6))",                             Value{false}},
+    {"[] >= bbox(vec(1, 2, 3), vec(4, 5, 6))",                               Error{"At line 1, column 4: Cannot evaluate expression '[] >= bbox(vec(1, 2, 3), vec(4, 5, 6))': Invalid operand types Array and BBox"}},
+    {"{} >= bbox(vec(1, 2, 3), vec(4, 5, 6))",                               Error{"At line 1, column 4: Cannot evaluate expression '{} >= bbox(vec(1, 2, 3), vec(4, 5, 6))': Invalid operand types Map and BBox"}},
+    {"vec(1, 2, 3) >= bbox(vec(1, 2, 3), vec(4, 5, 6))",                     Error{"At line 1, column 14: Cannot evaluate expression 'vec(1, 2, 3) >= bbox(vec(1, 2, 3), vec(4, 5, 6))': Invalid operand types Vec3 and BBox"}},
+
+    {"range >= 0", Error{"At line 1, column 7: Cannot evaluate expression 'range >= 0': Invalid operand types Range and Number"}},
+    {"0 >= range", Error{"At line 1, column 3: Cannot evaluate expression '0 >= range': Invalid operand types Number and Range"}},
 
     {"false == false",   Value{true}},
     {"false == true",    Value{false}},
@@ -1088,27 +1464,58 @@ TEST_CASE("Expression")
     {"vec(1, 2, 3) == vec(1, 2, 3)", Value{true}},
     {"vec(1, 2, 3) == vec(4, 5, 6)", Value{false}},
     {"vec(1, 2, 3) != vec(4, 5, 6)", Value{true}},
-    {"vec(1, 2, 3) < vec(4, 5, 6)",  Value{true}},
-    {"vec(4, 5, 6) > vec(1, 2, 3)",  Value{true}},
-    {"vec(1, 2, 3) == 1",            Error{"At line 1, column 14: Cannot evaluate expression 'vec(1, 2, 3) == 1': Invalid operand types Vec3 and Number"}},
+    {"vec(1, 2, 3) == true",         Error{"At line 1, column 14: Cannot evaluate expression 'vec(1, 2, 3) == true': Invalid operand types Vec3 and Boolean"}},
+    {"vec(1, 2, 3) == 2",            Error{"At line 1, column 14: Cannot evaluate expression 'vec(1, 2, 3) == 2': Invalid operand types Vec3 and Number"}},
+    {"vec(1, 2, 3) == 'test'",       Error{R"(At line 1, column 14: Cannot evaluate expression 'vec(1, 2, 3) == "test"': At line 1, column 17: Cannot convert value '"test"' of type 'String' to type 'Vec3')"}},
+    {"vec(1, 2, 3) == null",         Value{false}},
+    {"vec(1, 2, 3) == []",           Error{"At line 1, column 14: Cannot evaluate expression 'vec(1, 2, 3) == []': Invalid operand types Vec3 and Array"}},
+    {"vec(1, 2, 3) == {}",           Error{"At line 1, column 14: Cannot evaluate expression 'vec(1, 2, 3) == {}': Invalid operand types Vec3 and Map"}},
+    {"true == vec(1, 2, 3)",         Error{"At line 1, column 6: Cannot evaluate expression 'true == vec(1, 2, 3)': Invalid operand types Boolean and Vec3"}},
+    {"2 == vec(1, 2, 3)",            Error{"At line 1, column 3: Cannot evaluate expression '2 == vec(1, 2, 3)': Invalid operand types Number and Vec3"}},
+    {"'test' == vec(1, 2, 3)",       Error{R"(At line 1, column 8: Cannot evaluate expression '"test" == vec(1, 2, 3)': At line 1, column 1: Cannot convert value '"test"' of type 'String' to type 'Vec3')"}},
+    {"null == vec(1, 2, 3)",         Value{false}},
+    {"[] == vec(1, 2, 3)",           Error{"At line 1, column 4: Cannot evaluate expression '[] == vec(1, 2, 3)': Invalid operand types Array and Vec3"}},
+    {"{} == vec(1, 2, 3)",           Error{"At line 1, column 4: Cannot evaluate expression '{} == vec(1, 2, 3)': Invalid operand types Map and Vec3"}},
     // a string is converted to a vector
     {"vec(1, 2, 3) == '1 2 3'",      Value{true}},
     {"'1 2 3' == vec(1, 2, 3)",      Value{true}},
     {"vec(1, 2, 3) != '1 2 4'",      Value{true}},
-    {"'1 2 3' < vec(1, 2, 4)",       Value{true}},
-    {"vec(1, 2, 3) == 'a'",          Error{R"(At line 1, column 14: Cannot evaluate expression 'vec(1, 2, 3) == "a"': At line 1, column 17: Cannot convert value '"a"' of type 'String' to type 'Vec3')"}},
 
     {"bbox(vec(1, 2, 3), vec(4, 5, 6)) == bbox(vec(1, 2, 3), vec(4, 5, 6))", Value{true}},
     {"bbox(vec(1, 2, 3), vec(4, 5, 6)) == bbox(vec(0, 0, 0), vec(1, 1, 1))", Value{false}},
     {"bbox(vec(1, 2, 3), vec(4, 5, 6)) != bbox(vec(0, 0, 0), vec(1, 1, 1))", Value{true}},
-    {"bbox(vec(1, 2, 3), vec(4, 5, 6)) == 1",                                Error{"At line 1, column 34: Cannot evaluate expression 'bbox(vec(1, 2, 3), vec(4, 5, 6)) == 1': Invalid operand types BBox and Number"}},
+    {"bbox(vec(1, 2, 3), vec(4, 5, 6)) == true",                             Error{"At line 1, column 34: Cannot evaluate expression 'bbox(vec(1, 2, 3), vec(4, 5, 6)) == true': Invalid operand types BBox and Boolean"}},
+    {"bbox(vec(1, 2, 3), vec(4, 5, 6)) == 2",                                Error{"At line 1, column 34: Cannot evaluate expression 'bbox(vec(1, 2, 3), vec(4, 5, 6)) == 2': Invalid operand types BBox and Number"}},
+    {"bbox(vec(1, 2, 3), vec(4, 5, 6)) == 'test'",                           Error{R"(At line 1, column 34: Cannot evaluate expression 'bbox(vec(1, 2, 3), vec(4, 5, 6)) == "test"': Invalid operand types BBox and String)"}},
+    {"bbox(vec(1, 2, 3), vec(4, 5, 6)) == null",                             Value{false}},
+    {"bbox(vec(1, 2, 3), vec(4, 5, 6)) == []",                               Error{"At line 1, column 34: Cannot evaluate expression 'bbox(vec(1, 2, 3), vec(4, 5, 6)) == []': Invalid operand types BBox and Array"}},
+    {"bbox(vec(1, 2, 3), vec(4, 5, 6)) == {}",                               Error{"At line 1, column 34: Cannot evaluate expression 'bbox(vec(1, 2, 3), vec(4, 5, 6)) == {}': Invalid operand types BBox and Map"}},
+    {"bbox(vec(1, 2, 3), vec(4, 5, 6)) == vec(1, 2, 3)",                     Error{"At line 1, column 34: Cannot evaluate expression 'bbox(vec(1, 2, 3), vec(4, 5, 6)) == vec(1, 2, 3)': Invalid operand types BBox and Vec3"}},
+    {"true == bbox(vec(1, 2, 3), vec(4, 5, 6))",                             Error{"At line 1, column 6: Cannot evaluate expression 'true == bbox(vec(1, 2, 3), vec(4, 5, 6))': Invalid operand types Boolean and BBox"}},
+    {"2 == bbox(vec(1, 2, 3), vec(4, 5, 6))",                                Error{"At line 1, column 3: Cannot evaluate expression '2 == bbox(vec(1, 2, 3), vec(4, 5, 6))': Invalid operand types Number and BBox"}},
+    {"'test' == bbox(vec(1, 2, 3), vec(4, 5, 6))",                           Error{R"(At line 1, column 8: Cannot evaluate expression '"test" == bbox(vec(1, 2, 3), vec(4, 5, 6))': Invalid operand types String and BBox)"}},
+    {"null == bbox(vec(1, 2, 3), vec(4, 5, 6))",                             Value{false}},
+    {"[] == bbox(vec(1, 2, 3), vec(4, 5, 6))",                               Error{"At line 1, column 4: Cannot evaluate expression '[] == bbox(vec(1, 2, 3), vec(4, 5, 6))': Invalid operand types Array and BBox"}},
+    {"{} == bbox(vec(1, 2, 3), vec(4, 5, 6))",                               Error{"At line 1, column 4: Cannot evaluate expression '{} == bbox(vec(1, 2, 3), vec(4, 5, 6))': Invalid operand types Map and BBox"}},
+    {"vec(1, 2, 3) == bbox(vec(1, 2, 3), vec(4, 5, 6))",                     Error{"At line 1, column 14: Cannot evaluate expression 'vec(1, 2, 3) == bbox(vec(1, 2, 3), vec(4, 5, 6))': Invalid operand types Vec3 and BBox"}},
 
     // a range is not comparable to anything else, not even another range
     {"range == range", Error{"At line 1, column 7: Cannot evaluate expression 'range == range': Invalid operand types Range and Range"}},
     {"range == 0",     Error{"At line 1, column 7: Cannot evaluate expression 'range == 0': Invalid operand types Range and Number"}},
+    {"0 == range",     Error{"At line 1, column 3: Cannot evaluate expression '0 == range': Invalid operand types Number and Range"}},
     {"range == null",  Value{false}},
     {"null == range",  Value{false}},
     {"range > null",   Value{true}},
+
+    {"true != false",     Value{true}},
+    {"1 != 1",            Value{false}},
+    {"'a' != 'b'",        Value{true}},
+    {"null != null",      Value{false}},
+    {"[1] != [2]",        Value{true}},
+    {"{k1:1} != {k1:1}",  Value{false}},
+    {"range != 0",        Error{"At line 1, column 7: Cannot evaluate expression 'range != 0': Invalid operand types Range and Number"}},
+    {"0 != range",        Error{"At line 1, column 3: Cannot evaluate expression '0 != range': Invalid operand types Number and Range"}},
+    {"undefined != null", Value{true}},
 
     {"undefined == undefined", Value{true}},
     {"undefined == null",      Value{false}},
@@ -1120,6 +1527,9 @@ TEST_CASE("Expression")
     {"undefined == {}",        Value{false}},
     {"undefined == range",     Value{false}},
     {"range == undefined",     Value{false}},
+
+    {"undefined == vec(1, 2, 3)",                     Value{false}},
+    {"undefined == bbox(vec(1, 2, 3), vec(4, 5, 6))", Value{false}},
 
     // Undefined sorts below everything else, null included
     {"undefined < null",       Value{true}},
@@ -1137,10 +1547,37 @@ TEST_CASE("Expression")
     {"{} > undefined",         Value{true}},
     {"range > undefined",      Value{true}},
 
+    {"vec(1, 2, 3) > undefined",                     Value{true}},
+    {"bbox(vec(1, 2, 3), vec(4, 5, 6)) > undefined", Value{true}},
+
     // Case
     {"true -> 'asdf'",  Value{"asdf"}},
     {"false -> 'asdf'", Value::Undefined},
     {"false -> x[-1]",  Value::Undefined},
+
+    // the left operand is converted to a Boolean
+    {"1 -> 'asdf'",                                Value{"asdf"}},
+    {"0 -> 'asdf'",                                Value::Undefined},
+    {"'true' -> 'asdf'",                           Value{"asdf"}},
+    {"'a' -> 'asdf'",                              Value{"asdf"}},
+    {"null -> 'asdf'",                             Value::Undefined},
+    {"[] -> 'asdf'",                               Error{"At line 1, column 1: Cannot convert value '[]' of type 'Array' to type 'Boolean'"}},
+    {"{} -> 'asdf'",                               Error{"At line 1, column 1: Cannot convert value '{}' of type 'Map' to type 'Boolean'"}},
+    {"range -> 'asdf'",                            Error{"At line 1, column 1: Cannot convert value '[1..3]' of type 'Range' to type 'Boolean'"}},
+    {"vec(1, 2, 3) -> 'asdf'",                     Error{"At line 1, column 1: Cannot convert value 'vec(1, 2, 3)' of type 'Vec3' to type 'Boolean'"}},
+    {"bbox(vec(1, 2, 3), vec(4, 5, 6)) -> 'asdf'", Error{"At line 1, column 1: Cannot convert value 'bbox(vec(1, 2, 3), vec(4, 5, 6))' of type 'BBox' to type 'Boolean'"}},
+    {"undefined -> 'asdf'",                        Value::Undefined},
+
+    // the right operand can be of any type
+    {"true -> true",                             Value{true}},
+    {"true -> 1",                                Value{1}},
+    {"true -> null",                             Value::Null},
+    {"true -> []",                               Value{ArrayType{}}},
+    {"true -> {}",                               Value{MapType{}}},
+    {"true -> range",                            Value{RangeType{BoundedRange{1, 3}}}},
+    {"true -> vec(1, 2, 3)",                     Value{Vec3Type{1, 2, 3}}},
+    {"true -> bbox(vec(1, 2, 3), vec(4, 5, 6))", Value{BBoxType{Vec3Type{1, 2, 3}, Vec3Type{4, 5, 6}}}},
+    {"true -> undefined",                        Value::Undefined},
     }));
     // clang-format on
 
@@ -1199,6 +1636,7 @@ TEST_CASE("Expression")
     {"'asdf'[-4..4]",                    Value{"asdfasdf"}},
     {"'asdf'[-4..]",                     Value{"asdfasdf"}},
     {"'asdf'[..-4]",                     Value{"fdsafdsa"}},
+    {"'asdf'[range]",                    Value{"sdf"}},
 
     // Mixed
     {"'asdfxyz'[0, 1..3, 3..1, -1..-3]", Value{"asdffdszyx"}},
@@ -1234,10 +1672,12 @@ TEST_CASE("Expression")
     {"vec(1, 2, 3)['x']",                Value{1.0}},
     {"vec(1, 2, 3)['y']",                Value{2.0}},
     {"vec(1, 2, 3)['z']",                Value{3.0}},
+    {"vec(1, 2, 3)['w']",                Value::Undefined},
 
     // For BBoxes
     {"bbox(vec(1, 2, 3), vec(4, 5, 6))['min']", Value{Vec3Type{1, 2, 3}}},
     {"bbox(vec(1, 2, 3), vec(4, 5, 6))['max']", Value{Vec3Type{4, 5, 6}}},
+    {"bbox(vec(1, 2, 3), vec(4, 5, 6))['w']",   Value::Undefined},
 
     // Missing keys are dropped rather than reported
     {"{a: 1, b: 2, c: 3}['a', 'd']",     Value{MapType{{"a", Value{1}}}}},
@@ -1253,8 +1693,6 @@ TEST_CASE("Expression")
     {"[1, 2, 3][0..5]",                  Error{"At line 1, column 10: Cannot evaluate expression '[1, 2, 3][0..5]': Index 3 is out of bounds for '[1, 2, 3]'"}},
     {"{a: 1, b: 2, c: 3}['d']",          Value::Undefined},
     {"vec(1, 2, 3)[3]",                  Error{"At line 1, column 13: Cannot evaluate expression 'vec(1, 2, 3)[3]': Index 3 is out of bounds for 'vec(1, 2, 3)'"}},
-    {"vec(1, 2, 3)['w']",                Value::Undefined},
-    {"bbox(vec(1, 2, 3), vec(4, 5, 6))['w']", Value::Undefined},
 
     // An undefined range bound makes the whole range undefined, which cannot index
     {"'asdf'[undefined..1]",             Error{R"(At line 1, column 7: Cannot evaluate expression '"asdf"[undefined..1]': 'undefined' is not a compatible index for '"asdf"')"}},
@@ -1270,6 +1708,17 @@ TEST_CASE("Expression")
     {"'asdf'['a']",                      Error{R"(At line 1, column 7: Cannot evaluate expression '"asdf"["a"]': '"a"' is not a compatible index for '"asdf"')"}},
     {"{a: 1}[0]",                        Error{R"(At line 1, column 7: Cannot evaluate expression '{ "a": 1 }[0]': '0' is not a compatible index for '{ "a": 1 }')"}},
     {"range[0]",                         Error{"At line 1, column 6: Cannot evaluate expression 'range[0]': '0' is not a compatible index for '[1..3]'"}},
+    {"vec(1, 2, 3)[0, 2]",               Error{"At line 1, column 13: Cannot evaluate expression 'vec(1, 2, 3)[[0, 2]]': '[0, 2]' is not a compatible index for 'vec(1, 2, 3)'"}},
+    {"vec(1, 2, 3)[0..1]",               Error{"At line 1, column 13: Cannot evaluate expression 'vec(1, 2, 3)[0..1]': '[0..1]' is not a compatible index for 'vec(1, 2, 3)'"}},
+    {"vec(1, 2, 3)['x', 'z']",           Error{R"(At line 1, column 13: Cannot evaluate expression 'vec(1, 2, 3)[["x", "z"]]': '["x", "z"]' is not a compatible index for 'vec(1, 2, 3)')"}},
+    {"'asdf'[null]",                     Error{R"(At line 1, column 7: Cannot evaluate expression '"asdf"[null]': 'null' is not a compatible index for '"asdf"')"}},
+    {"'asdf'[{}]",                       Error{R"(At line 1, column 7: Cannot evaluate expression '"asdf"[{}]': '{}' is not a compatible index for '"asdf"')"}},
+    {"'asdf'[vec(1, 2, 3)]",             Error{R"(At line 1, column 7: Cannot evaluate expression '"asdf"[vec(1, 2, 3)]': 'vec(1, 2, 3)' is not a compatible index for '"asdf"')"}},
+    {"'asdf'[undefined]",                Error{R"(At line 1, column 7: Cannot evaluate expression '"asdf"[undefined]': 'undefined' is not a compatible index for '"asdf"')"}},
+
+    {"bbox(vec(1, 2, 3), vec(4, 5, 6))[0]",            Error{"At line 1, column 33: Cannot evaluate expression 'bbox(vec(1, 2, 3), vec(4, 5, 6))[0]': '0' is not a compatible index for 'bbox(vec(1, 2, 3), vec(4, 5, 6))'"}},
+    {"bbox(vec(1, 2, 3), vec(4, 5, 6))['min', 'max']", Error{R"(At line 1, column 33: Cannot evaluate expression 'bbox(vec(1, 2, 3), vec(4, 5, 6))[["min", "max"]]': '["min", "max"]' is not a compatible index for 'bbox(vec(1, 2, 3), vec(4, 5, 6))')"}},
+    {"'asdf'[bbox(vec(1, 2, 3), vec(4, 5, 6))]",       Error{R"(At line 1, column 7: Cannot evaluate expression '"asdf"[bbox(vec(1, 2, 3), vec(4, 5, 6))]': 'bbox(vec(1, 2, 3), vec(4, 5, 6))' is not a compatible index for '"asdf"')"}},
 
     // Subscripting Undefined
     {"undefined[0]",                     Value::Undefined},
@@ -1287,7 +1736,7 @@ TEST_CASE("Expression")
   {
     // clang-format off
     const auto
-    [expression,  variables,                                                       expectedValue] = GENERATE(table<std::string, MapType, Value>({
+    [expression,  variables,                                                       expectedResult] = GENERATE(table<std::string, MapType, Result<Value>>({
     // a.b evaluates identically to a["b"], for a bound Map variable
     {"m.b",       {{"m", Value{MapType{{"b", Value{1}}}}}},                        Value{1}},
     {R"(m["b"])", {{"m", Value{MapType{{"b", Value{1}}}}}},                        Value{1}},
@@ -1306,12 +1755,21 @@ TEST_CASE("Expression")
     {"bbox(vec(1, 2, 3), vec(4, 5, 6)).min", {}, Value{Vec3Type{1, 2, 3}}},
     {"bbox(vec(1, 2, 3), vec(4, 5, 6)).max", {}, Value{Vec3Type{4, 5, 6}}},
     {"bbox(vec(1, 2, 3), vec(4, 5, 6)).w",   {}, Value::Undefined},
+
+    // other types have no keys, but undefined propagates
+    {"'asdf'.a",    {},               Error{R"(At line 1, column 7: Cannot evaluate expression '"asdf".a': '"a"' is not a compatible index for '"asdf"')"}},
+    {"[1].a",       {},               Error{R"(At line 1, column 4: Cannot evaluate expression '[1].a': '"a"' is not a compatible index for '[1]')"}},
+    {"true.a",      {},               Error{R"(At line 1, column 5: Cannot evaluate expression 'true.a': '"a"' is not a compatible index for 'true')"}},
+    {"(1).a",       {},               Error{R"(At line 1, column 4: Cannot evaluate expression '( 1 ).a': '"a"' is not a compatible index for '1')"}},
+    {"null.a",      {},               Error{R"(At line 1, column 5: Cannot evaluate expression 'null.a': '"a"' is not a compatible index for 'null')"}},
+    {"undefined.a", {},               Value::Undefined},
+    {"range.a",     nonLiteralValues, Error{R"(At line 1, column 6: Cannot evaluate expression 'range.a': '"a"' is not a compatible index for '[1..3]')"}},
     }));
     // clang-format on
 
     CAPTURE(expression, variables);
 
-    CHECK(evaluate(expression, variables) == expectedValue);
+    CHECK(evaluate(expression, variables) == expectedResult);
   }
 
   SECTION("Function calls")
@@ -1515,6 +1973,8 @@ TEST_CASE("Expression")
       {R"(undefined like "x")",                          Value{false}},
       {R"("x" like undefined)",                          Value{false}},
       {R"(1 like "1")",                                  Value{false}},
+      {R"(vec(1, 2, 3) like "1")",                       Value{false}},
+      {R"(bbox(vec(1, 2, 3), vec(4, 5, 6)) like "1")",   Value{false}},
       {R"("x" like 1)",                                  Value{false}},
 
       {R"(like("a"))",                                   Error{R"(At line 1, column 1: Cannot evaluate expression 'like("a")': like() expects 2 arguments, but got 1)"}},
