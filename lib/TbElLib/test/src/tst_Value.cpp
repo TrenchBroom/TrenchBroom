@@ -101,7 +101,6 @@ TEST_CASE("Value")
       // clang-format off
       const auto
       [value,                                                 expectedType] = GENERATE(table<Value, ValueType>({
-      {Value{},                                               ValueType::Null},
       {Value{true},                                           ValueType::Boolean},
       {Value{false},                                          ValueType::Boolean},
       {Value{StringType{"test"}},                             ValueType::String},
@@ -116,6 +115,7 @@ TEST_CASE("Value")
       {Value{Vec3Type{1, 2, 3}},                              ValueType::Vec3},
       {Value{BBoxType{Vec3Type{1, 2, 3}, Vec3Type{4, 5, 6}}}, ValueType::BBox},
       {testLazyMap,                                           ValueType::LazyMap},
+      {Value{},                                               ValueType::Null},
       {Value{NullType::Value},                                ValueType::Null},
       {Value{UndefinedType::Value},                           ValueType::Undefined},
 
@@ -470,11 +470,11 @@ TEST_CASE("Value")
     const auto
     [value,                                                             expectedResult] = GENERATE(table<Value, Result<std::vector<std::string>>>({
     {Value{ArrayType{}},                                                std::vector<std::string>{}},
-    {Value::Null,                                                       std::vector<std::string>{}},
     {Value{ArrayType{Value{"b"}, Value{"a"}, Value{"b"}, Value::Null}}, std::vector<std::string>{"b", "a", "b", ""}},
+    {Value::Null,                                                       std::vector<std::string>{}},
 
-    {Value{ArrayType{Value{1.0}}},                                      Error{"At unknown location: Cannot dereference value '1' of type 'Number' as type 'String'"}},
     {Value{"test"},                                                     Error{R"(At unknown location: Cannot dereference value '"test"' of type 'String' as type 'Array')"}},
+    {Value{ArrayType{Value{1.0}}},                                      Error{"At unknown location: Cannot dereference value '1' of type 'Number' as type 'String'"}},
     }));
     // clang-format on
 
@@ -602,6 +602,10 @@ TEST_CASE("Value")
     {Value{"2"},                            ValueType::Number,    Value{2}},
     {Value{"-2.0"},                         ValueType::Number,    Value{-2}},
     {Value{" "},                            ValueType::Number,    Value{0}},
+    {Value{"asdf"},                         ValueType::Number,    Error{R"(At unknown location: Cannot convert value '"asdf"' of type 'String' to type 'Number')"}},
+    {Value{"asdf"},                         ValueType::Array,     Error{R"(At unknown location: Cannot convert value '"asdf"' of type 'String' to type 'Array')"}},
+    {Value{"asfd"},                         ValueType::Map,       Error{R"(At unknown location: Cannot convert value '"asfd"' of type 'String' to type 'Map')"}},
+    {Value{"asdf"},                         ValueType::Range,     Error{R"(At unknown location: Cannot convert value '"asdf"' of type 'String' to type 'Range')"}},
     // "1.2 3 4", the format entity properties like "origin" use
     {Value{"1 2 3"},                        ValueType::Vec3,      Value{Vec3Type{1, 2, 3}}},
     {Value{"1.2 3 4"},                      ValueType::Vec3,      Value{Vec3Type{1.2, 3.0, 4.0}}},
@@ -610,10 +614,6 @@ TEST_CASE("Value")
     {Value{"1 2 3 4"},                      ValueType::Vec3,      Error{R"(At unknown location: Cannot convert value '"1 2 3 4"' of type 'String' to type 'Vec3')"}},
     {Value{"1 2 3abc"},                     ValueType::Vec3,      Error{R"(At unknown location: Cannot convert value '"1 2 3abc"' of type 'String' to type 'Vec3')"}},
     {Value{"1abc 2 3"},                     ValueType::Vec3,      Error{R"(At unknown location: Cannot convert value '"1abc 2 3"' of type 'String' to type 'Vec3')"}},
-    {Value{"asdf"},                         ValueType::Number,    Error{R"(At unknown location: Cannot convert value '"asdf"' of type 'String' to type 'Number')"}},
-    {Value{"asdf"},                         ValueType::Array,     Error{R"(At unknown location: Cannot convert value '"asdf"' of type 'String' to type 'Array')"}},
-    {Value{"asfd"},                         ValueType::Map,       Error{R"(At unknown location: Cannot convert value '"asfd"' of type 'String' to type 'Map')"}},
-    {Value{"asdf"},                         ValueType::Range,     Error{R"(At unknown location: Cannot convert value '"asdf"' of type 'String' to type 'Range')"}},
     {Value{"asdf"},                         ValueType::Vec3,      Error{R"(At unknown location: Cannot convert value '"asdf"' of type 'String' to type 'Vec3')"}},
     {Value{"asdf"},                         ValueType::BBox,      Error{R"(At unknown location: Cannot convert value '"asdf"' of type 'String' to type 'BBox')"}},
     {Value{"asdf"},                         ValueType::LazyMap,   Error{R"(At unknown location: Cannot convert value '"asdf"' of type 'String' to type 'Map')"}},
@@ -863,9 +863,9 @@ TEST_CASE("Value")
       {Value{ArrayType{}},                0,     false},
 
       // every other type is not indexable by an integer
-      {Value{MapType{{"0", Value{1.0}}}}, 0,     false},
       {Value{true},                       0,     false},
       {Value{1.0},                        0,     false},
+      {Value{MapType{{"0", Value{1.0}}}}, 0,     false},
       {boundedRange,                      0,     false},
       {vec3,                              0,     false},
       {bbox,                              0,     false},
@@ -888,10 +888,10 @@ TEST_CASE("Value")
       {Value{MapType{{"a", Value{1.0}}}}, "a",       true},
       {Value{MapType{{"a", Value{1.0}}}}, "b",       false},
       {Value{MapType{}},                  "a",       false},
-      {Value::Null,                       "a",       false},
       {testLazyMap,                       "name",    true},
       {testLazyMap,                       "number",  true},
       {testLazyMap,                       "missing", false},
+      {Value::Null,                       "a",       false},
 
       {Value{"ab"},                       "a",       Error{R"(At unknown location: Cannot dereference value '"ab"' of type 'String' as type 'Map')"}},
       {Value{ArrayType{}},                "a",       Error{"At unknown location: Cannot dereference value '[]' of type 'Array' as type 'Map'"}},
@@ -914,8 +914,8 @@ TEST_CASE("Value")
     [value,                                                expectedResult] = GENERATE(table<Value, Result<std::vector<std::string>>>({
     {Value{MapType{{"b", Value{1.0}}, {"a", Value{2.0}}}}, std::vector<std::string>{"a", "b"}},
     {Value{MapType{}},                                     std::vector<std::string>{}},
-    {Value::Null,                                          std::vector<std::string>{}},
     {testLazyMap,                                          std::vector<std::string>{"name", "number"}},
+    {Value::Null,                                          std::vector<std::string>{}},
 
     {Value{ArrayType{}},                                   Error{"At unknown location: Cannot dereference value '[]' of type 'Array' as type 'Map'"}},
     }));
@@ -941,9 +941,9 @@ TEST_CASE("Value")
       {Value{ArrayType{Value{1.0}, Value{"a"}}}, 1,     Value{"a"}},
       {Value{ArrayType{Value{1.0}, Value{"a"}}}, 2,     Error{R"(At unknown location: Index 2 is out of bounds for '[1, "a"]')"}},
 
-      {Value{MapType{}},                         0,     Error{"At unknown location: 0 is not a compatible index for '{}'"}},
       {Value{true},                              0,     Error{"At unknown location: 0 is not a compatible index for 'true'"}},
       {Value{1.0},                               0,     Error{"At unknown location: 0 is not a compatible index for '1'"}},
+      {Value{MapType{}},                         0,     Error{"At unknown location: 0 is not a compatible index for '{}'"}},
       {boundedRange,                             0,     Error{"At unknown location: 0 is not a compatible index for '[1..3]'"}},
       {vec3,                                     0,     Error{"At unknown location: 0 is not a compatible index for 'vec(1, 2, 3)'"}},
       {bbox,                                     0,     Error{"At unknown location: 0 is not a compatible index for 'bbox(vec(1, 2, 3), vec(4, 5, 6))'"}},
@@ -969,10 +969,10 @@ TEST_CASE("Value")
       {testLazyMap,                       "name",    Value{"test"}},
       {testLazyMap,                       "missing", Error{R"(At unknown location: Key 'missing' not found in '{ "name": "test", "number": 42 }')"}},
 
-      {Value{"abc"},                      "a",       Error{R"(At unknown location: 'a' is not a compatible key for '"abc"')"}},
-      {Value{ArrayType{}},                "a",       Error{"At unknown location: 'a' is not a compatible key for '[]'"}},
       {Value{true},                       "a",       Error{"At unknown location: 'a' is not a compatible key for 'true'"}},
+      {Value{"abc"},                      "a",       Error{R"(At unknown location: 'a' is not a compatible key for '"abc"')"}},
       {Value{1.0},                        "a",       Error{"At unknown location: 'a' is not a compatible key for '1'"}},
+      {Value{ArrayType{}},                "a",       Error{"At unknown location: 'a' is not a compatible key for '[]'"}},
       {boundedRange,                      "a",       Error{"At unknown location: 'a' is not a compatible key for '[1..3]'"}},
       {vec3,                              "a",       Error{"At unknown location: 'a' is not a compatible key for 'vec(1, 2, 3)'"}},
       {bbox,                              "a",       Error{"At unknown location: 'a' is not a compatible key for 'bbox(vec(1, 2, 3), vec(4, 5, 6))'"}},
@@ -1004,9 +1004,9 @@ TEST_CASE("Value")
       {Value{ArrayType{Value{1.0}}}, 1,     Value{"x"},   Value{"x"}},
 
       // a value that is not indexable by an integer still throws
-      {Value{MapType{}},             0,     std::nullopt, Error{"At unknown location: 0 is not a compatible index for '{}'"}},
       {Value{true},                  0,     std::nullopt, Error{"At unknown location: 0 is not a compatible index for 'true'"}},
       {Value{1.0},                   0,     std::nullopt, Error{"At unknown location: 0 is not a compatible index for '1'"}},
+      {Value{MapType{}},             0,     std::nullopt, Error{"At unknown location: 0 is not a compatible index for '{}'"}},
       {boundedRange,                 0,     std::nullopt, Error{"At unknown location: 0 is not a compatible index for '[1..3]'"}},
       {vec3,                         0,     std::nullopt, Error{"At unknown location: 0 is not a compatible index for 'vec(1, 2, 3)'"}},
       {bbox,                         0,     std::nullopt, Error{"At unknown location: 0 is not a compatible index for 'bbox(vec(1, 2, 3), vec(4, 5, 6))'"}},
@@ -1038,10 +1038,10 @@ TEST_CASE("Value")
       {testLazyMap,                       "missing", std::nullopt, Value::Null},
       {testLazyMap,                       "missing", Value{"x"},   Value{"x"}},
 
-      {Value{"abc"},                      "a",       std::nullopt, Error{R"(At unknown location: 'a' is not a compatible key for '"abc"')"}},
-      {Value{ArrayType{}},                "a",       std::nullopt, Error{"At unknown location: 'a' is not a compatible key for '[]'"}},
       {Value{true},                       "a",       std::nullopt, Error{"At unknown location: 'a' is not a compatible key for 'true'"}},
+      {Value{"abc"},                      "a",       std::nullopt, Error{R"(At unknown location: 'a' is not a compatible key for '"abc"')"}},
       {Value{1.0},                        "a",       std::nullopt, Error{"At unknown location: 'a' is not a compatible key for '1'"}},
+      {Value{ArrayType{}},                "a",       std::nullopt, Error{"At unknown location: 'a' is not a compatible key for '[]'"}},
       {boundedRange,                      "a",       std::nullopt, Error{"At unknown location: 'a' is not a compatible key for '[1..3]'"}},
       {vec3,                              "a",       std::nullopt, Error{"At unknown location: 'a' is not a compatible key for 'vec(1, 2, 3)'"}},
       {bbox,                              "a",       std::nullopt, Error{"At unknown location: 'a' is not a compatible key for 'bbox(vec(1, 2, 3), vec(4, 5, 6))'"}},
@@ -1162,10 +1162,10 @@ TEST_CASE("Value")
       {Value::Undefined,                  Value{UndefinedType::Value},                           true},
 
       // values of different types are never equal
-      {Value::Null,                       Value::Undefined,                                      false},
-      {Value{1.0},                        Value{"1"},                                            false},
       {Value{true},                       Value{1.0},                                            false},
+      {Value{1.0},                        Value{"1"},                                            false},
       {testLazyMap,                       testLazyMap.convertTo(ValueType::Map),                 false},
+      {Value::Null,                       Value::Undefined,                                      false},
       }));
       // clang-format on
 
