@@ -233,6 +233,7 @@ protected:
 void EntityPropertyGrid::createGui()
 {
   m_table = new EntityPropertyTable{};
+  m_table->setObjectName("EntityPropertyGrid_Table");
 
   m_model = new EntityPropertyModel{m_document, this};
 
@@ -267,6 +268,7 @@ void EntityPropertyGrid::createGui()
     "Add.svg",
     tr("Add a new property (%1)").arg(EntityPropertyTable::insertRowShortcutString()),
     this);
+  m_addPropertyButton->setObjectName("EntityPropertyGrid_AddPropertyButton");
   connect(
     m_addPropertyButton, &QAbstractButton::clicked, this, [&](const bool /* checked */) {
       addProperty(false);
@@ -274,6 +276,8 @@ void EntityPropertyGrid::createGui()
 
   m_addProtectedPropertyButton =
     createBitmapButton("AddProtected.svg", tr("Add a new protected property"), this);
+  m_addProtectedPropertyButton->setObjectName(
+    "EntityPropertyGrid_AddProtectedPropertyButton");
   connect(
     m_addProtectedPropertyButton,
     &QAbstractButton::clicked,
@@ -285,6 +289,7 @@ void EntityPropertyGrid::createGui()
     tr("Remove the selected properties (%1)")
       .arg(EntityPropertyTable::removeRowShortcutString()),
     this);
+  m_removePropertiesButton->setObjectName("EntityPropertyGrid_RemovePropertiesButton");
   connect(
     m_removePropertiesButton,
     &QAbstractButton::clicked,
@@ -292,23 +297,40 @@ void EntityPropertyGrid::createGui()
     [&](const bool /* checked */) { removeSelectedProperties(); });
 
   auto* setDefaultPropertiesMenu = new QMenu{this};
-  setDefaultPropertiesMenu->addAction(tr("Set existing default properties"), this, [&]() {
-    setDefaultEntityProperties(
-      m_document.map(), mdl::SetDefaultPropertyMode::SetExisting);
-  });
-  setDefaultPropertiesMenu->addAction(tr("Set missing default properties"), this, [&]() {
-    setDefaultEntityProperties(m_document.map(), mdl::SetDefaultPropertyMode::SetMissing);
-  });
-  setDefaultPropertiesMenu->addAction(tr("Set all default properties"), this, [&]() {
-    setDefaultEntityProperties(m_document.map(), mdl::SetDefaultPropertyMode::SetMissing);
-  });
+  auto* setExistingDefaultPropertiesAction = setDefaultPropertiesMenu->addAction(
+    tr("Set existing default properties"), this, [&]() {
+      setDefaultEntityProperties(
+        m_document.map(), mdl::SetDefaultPropertyMode::SetExisting);
+    });
+  setExistingDefaultPropertiesAction->setObjectName(
+    "EntityPropertyGrid_SetExistingDefaultPropertiesAction");
+
+  auto* setMissingDefaultPropertiesAction = setDefaultPropertiesMenu->addAction(
+    tr("Set missing default properties"), this, [&]() {
+      setDefaultEntityProperties(
+        m_document.map(), mdl::SetDefaultPropertyMode::SetMissing);
+    });
+  setMissingDefaultPropertiesAction->setObjectName(
+    "EntityPropertyGrid_SetMissingDefaultPropertiesAction");
+
+  auto* setAllDefaultPropertiesAction =
+    setDefaultPropertiesMenu->addAction(tr("Set all default properties"), this, [&]() {
+      setDefaultEntityProperties(
+        m_document.map(), mdl::SetDefaultPropertyMode::SetMissing);
+    });
+  setAllDefaultPropertiesAction->setObjectName(
+    "EntityPropertyGrid_SetAllDefaultPropertiesAction");
 
   m_setDefaultPropertiesButton =
     createBitmapButton("SetDefaultProperties.svg", tr("Set default properties"), this);
+  m_setDefaultPropertiesButton->setObjectName(
+    "EntityPropertyGrid_SetDefaultPropertiesButton");
   m_setDefaultPropertiesButton->setPopupMode(QToolButton::InstantPopup);
   m_setDefaultPropertiesButton->setMenu(setDefaultPropertiesMenu);
 
   m_showDefaultPropertiesCheckBox = new QCheckBox{tr("Show default properties")};
+  m_showDefaultPropertiesCheckBox->setObjectName(
+    "EntityPropertyGrid_ShowDefaultPropertiesCheckBox");
   connect(
     m_showDefaultPropertiesCheckBox,
     &QCheckBox::checkStateChanged,
