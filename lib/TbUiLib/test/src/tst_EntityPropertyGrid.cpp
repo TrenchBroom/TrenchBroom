@@ -731,11 +731,10 @@ TEST_CASE("EntityPropertyGrid")
             {"some_key", "some_value"},
           });
 
-        // editing continues with the next cell, which is the key of the next row
         CHECK(
           cell(table->currentIndex())
-          == Cell{"killtarget", EntityPropertyModel::ColumnKey});
-        CHECK(table->indexWidget(table->currentIndex()) != nullptr);
+          == Cell{"target", EntityPropertyModel::ColumnValue});
+        CHECK(openEditors(*table).empty());
       }
 
       SECTION("Value of a default property")
@@ -760,7 +759,6 @@ TEST_CASE("EntityPropertyGrid")
             {"killtarget", "main_teleporter"},
           });
 
-        // killtarget was the last row, so there is no next cell to edit
         CHECK(
           cell(table->currentIndex())
           == Cell{"killtarget", EntityPropertyModel::ColumnValue});
@@ -787,11 +785,10 @@ TEST_CASE("EntityPropertyGrid")
             {"other_key", "some_value"},
           });
 
-        // editing continues with the next cell, which is the value of the same row
         CHECK(
           cell(table->currentIndex())
-          == Cell{"other_key", EntityPropertyModel::ColumnValue});
-        CHECK(table->indexWidget(table->currentIndex()) != nullptr);
+          == Cell{"other_key", EntityPropertyModel::ColumnKey});
+        CHECK(openEditors(*table).empty());
       }
     }
 
@@ -815,11 +812,9 @@ TEST_CASE("EntityPropertyGrid")
           {"some_key", "some_value"},
         });
 
-      // editing continues with the next cell, which is the key of the next row
       CHECK(
-        cell(table->currentIndex())
-        == Cell{"killtarget", EntityPropertyModel::ColumnKey});
-      CHECK(table->indexWidget(table->currentIndex()) != nullptr);
+        cell(table->currentIndex()) == Cell{"target", EntityPropertyModel::ColumnValue});
+      CHECK(openEditors(*table).empty());
     }
 
     SECTION("Accepting a completion by clicking it")
@@ -846,11 +841,9 @@ TEST_CASE("EntityPropertyGrid")
           {"some_key", "some_value"},
         });
 
-      // editing continues with the next cell, which is the key of the next row
       CHECK(
-        cell(table->currentIndex())
-        == Cell{"killtarget", EntityPropertyModel::ColumnKey});
-      CHECK(table->indexWidget(table->currentIndex()) != nullptr);
+        cell(table->currentIndex()) == Cell{"target", EntityPropertyModel::ColumnValue});
+      CHECK(openEditors(*table).empty());
     }
   }
 }
