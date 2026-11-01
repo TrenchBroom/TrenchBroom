@@ -735,12 +735,10 @@ TEST_CASE("EntityPropertyGrid")
             {"some_key", "some_value"},
           });
 
-        // Return is handled twice, once by QLineEdit::returnPressed and once by
-        // QCompleter::activated, and each time, editing continues with the next cell, so
-        // the value of the next row is edited now
+        // editing continues with the next cell, which is the key of the next row
         CHECK(
           cell(table->currentIndex())
-          == Cell{"killtarget", EntityPropertyModel::ColumnValue});
+          == Cell{"killtarget", EntityPropertyModel::ColumnKey});
         CHECK(table->indexWidget(table->currentIndex()) != nullptr);
       }
 
@@ -785,13 +783,18 @@ TEST_CASE("EntityPropertyGrid")
         QTest::keyClick(popup, Qt::Key_Return);
         processEvents();
 
-        CHECK(sourceEntity->entity().hasProperty("other_key", "some_value"));
-
-        // Return is handled twice, once by QLineEdit::returnPressed and once by
-        // QCompleter::activated, and each time, editing continues with the next cell, so
-        // the key of the next row is edited now
         CHECK(
-          cell(table->currentIndex()) == Cell{"target", EntityPropertyModel::ColumnKey});
+          sourceEntity->entity().properties()
+          == std::vector<mdl::EntityProperty>{
+            {"classname", "source_entity"},
+            {"target", "some_target"},
+            {"other_key", "some_value"},
+          });
+
+        // editing continues with the next cell, which is the value of the same row
+        CHECK(
+          cell(table->currentIndex())
+          == Cell{"other_key", EntityPropertyModel::ColumnValue});
         CHECK(table->indexWidget(table->currentIndex()) != nullptr);
       }
     }

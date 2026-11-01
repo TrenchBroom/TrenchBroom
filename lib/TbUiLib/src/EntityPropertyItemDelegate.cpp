@@ -98,7 +98,7 @@ void EntityPropertyItemDelegate::setupCompletions(
     [&, lineEdit](const QString& /* value */) { m_table->finishEditing(lineEdit); });
 
   connect(lineEdit, &QLineEdit::returnPressed, this, [&, lineEdit, completer]() {
-    if (completer->popup()->isVisible())
+    if (completer->popup()->isVisible() && !completer->popup()->currentIndex().isValid())
     {
       m_table->finishEditing(lineEdit);
     }
