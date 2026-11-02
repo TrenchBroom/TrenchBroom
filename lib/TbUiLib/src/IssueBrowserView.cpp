@@ -96,6 +96,7 @@ void IssueBrowserView::createGui()
   m_tableModel = new IssueBrowserModel{this};
 
   m_tableView = new QTableView{};
+  m_tableView->setObjectName("IssueBrowserView_TableView");
   m_tableView->setModel(m_tableModel);
   m_tableView->verticalHeader()->setVisible(false);
   m_tableView->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Fixed);
@@ -368,7 +369,9 @@ void IssueBrowserView::hideIssues()
 
 void IssueBrowserView::invalidate()
 {
+  m_tableModel->setIssues({});
   m_valid = false;
+
   m_tableView->setEnabled(false);
   m_tableView->setUpdatesEnabled(false);
   m_stackedLayout->setCurrentWidget(m_validatingLabel);
