@@ -54,6 +54,7 @@ private:
   bool m_showHiddenIssues = false;
 
   bool m_valid = false;
+  int m_scrollPosition = 0;
 
   QStackedLayout* m_stackedLayout = nullptr;
   QTableView* m_tableView = nullptr;

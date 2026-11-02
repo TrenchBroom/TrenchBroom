@@ -23,6 +23,7 @@
 
 #include "mdl/Entity.h"
 #include "mdl/EntityNode.h"
+#include "mdl/Map.h"
 #include "mdl/Map_Entities.h"
 #include "mdl/Map_Nodes.h"
 #include "mdl/Map_Selection.h"
@@ -73,6 +74,39 @@ TEST_CASE("IssueBrowserView")
 
       view.validate();
       CHECK(model->rowCount() > 0);
+    }
+
+    SECTION("preserves the scroll position")
+    {
+      auto entityNodes = std::vector<mdl::Node*>{};
+      for (size_t i = 0; i < 100; ++i)
+      {
+        entityNodes.push_back(new mdl::EntityNode{mdl::Entity{{
+          {"classname", "some_class"},
+          {"some_key", ""},
+        }}});
+      }
+      mdl::addNodes(map, {{&mdl::parentForNodes(map), entityNodes}});
+
+      view.reload();
+      view.validate();
+
+      view.resize(400, 200);
+      view.show();
+      QApplication::processEvents();
+
+      auto* scrollBar = tableView->verticalScrollBar();
+      REQUIRE(scrollBar->maximum() > 0);
+
+      scrollBar->setValue(scrollBar->maximum() / 2);
+      const auto scrollPosition = scrollBar->value();
+
+      // let the table view lay out its empty model while the view is invalid
+      view.reload();
+      QApplication::processEvents();
+
+      view.validate();
+      CHECK(scrollBar->value() == scrollPosition);
     }
   }
 }

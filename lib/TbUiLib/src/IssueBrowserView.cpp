@@ -23,6 +23,7 @@
 #include <QItemSelectionModel>
 #include <QLabel>
 #include <QMenu>
+#include <QScrollBar>
 #include <QStackedLayout>
 #include <QStandardItemModel>
 #include <QTableView>
@@ -369,6 +370,11 @@ void IssueBrowserView::hideIssues()
 
 void IssueBrowserView::invalidate()
 {
+  if (m_valid)
+  {
+    m_scrollPosition = m_tableView->verticalScrollBar()->value();
+  }
+
   m_tableModel->setIssues({});
   m_valid = false;
 
@@ -385,6 +391,9 @@ void IssueBrowserView::validate()
   {
     updateIssues();
     m_valid = true;
+
+    m_tableView->doItemsLayout();
+    m_tableView->verticalScrollBar()->setValue(m_scrollPosition);
     m_tableView->setEnabled(true);
     m_tableView->setUpdatesEnabled(true);
     m_stackedLayout->setCurrentWidget(m_tableView);
