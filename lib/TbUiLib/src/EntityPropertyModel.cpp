@@ -853,6 +853,11 @@ bool EntityPropertyModel::setData(
     return false;
   }
 
+  if (role == Qt::EditRole && value == data(index, Qt::EditRole))
+  {
+    return true;
+  }
+
   auto& map = m_document.map();
 
   const auto rowIndex = size_t(index.row());
