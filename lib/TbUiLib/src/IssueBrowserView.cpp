@@ -23,6 +23,7 @@
 #include <QItemSelectionModel>
 #include <QLabel>
 #include <QMenu>
+#include <QScrollBar>
 #include <QStackedLayout>
 #include <QStandardItemModel>
 #include <QTableView>
@@ -96,6 +97,7 @@ void IssueBrowserView::createGui()
   m_tableModel = new IssueBrowserModel{this};
 
   m_tableView = new QTableView{};
+  m_tableView->setObjectName("IssueBrowserView_TableView");
   m_tableView->setModel(m_tableModel);
   m_tableView->verticalHeader()->setVisible(false);
   m_tableView->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Fixed);
@@ -368,7 +370,14 @@ void IssueBrowserView::hideIssues()
 
 void IssueBrowserView::invalidate()
 {
+  if (m_valid)
+  {
+    m_scrollPosition = m_tableView->verticalScrollBar()->value();
+  }
+
+  m_tableModel->setIssues({});
   m_valid = false;
+
   m_tableView->setEnabled(false);
   m_tableView->setUpdatesEnabled(false);
   m_stackedLayout->setCurrentWidget(m_validatingLabel);
@@ -382,6 +391,9 @@ void IssueBrowserView::validate()
   {
     updateIssues();
     m_valid = true;
+
+    m_tableView->doItemsLayout();
+    m_tableView->verticalScrollBar()->setValue(m_scrollPosition);
     m_tableView->setEnabled(true);
     m_tableView->setUpdatesEnabled(true);
     m_stackedLayout->setCurrentWidget(m_tableView);
