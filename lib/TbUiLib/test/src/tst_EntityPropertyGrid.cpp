@@ -710,16 +710,12 @@ TEST_CASE("EntityPropertyGrid")
     {
       // While the completion popup is visible, it receives all key events, so the tests
       // send them to the popup as well.
-      //
-      // The tests type the entire completion because the line edit only takes the
-      // highlighted completion's text if it received a focus in event, which depends on
-      // whether the window is active.
 
       SECTION("Value of a set property")
       {
         const auto index = findIndex(model, "target", EntityPropertyModel::ColumnValue);
 
-        auto* popup = editCell(*table, index, "main_teleporter");
+        auto* popup = editCell(*table, index, "main");
         REQUIRE(popup != nullptr);
         REQUIRE(popup->isVisible());
 
@@ -747,7 +743,7 @@ TEST_CASE("EntityPropertyGrid")
         const auto index =
           findIndex(model, "killtarget", EntityPropertyModel::ColumnValue);
 
-        auto* popup = editCell(*table, index, "main_teleporter");
+        auto* popup = editCell(*table, index, "main");
         REQUIRE(popup != nullptr);
         REQUIRE(popup->isVisible());
 
@@ -775,7 +771,7 @@ TEST_CASE("EntityPropertyGrid")
       {
         const auto index = findIndex(model, "some_key", EntityPropertyModel::ColumnKey);
 
-        auto* popup = editCell(*table, index, "other_key");
+        auto* popup = editCell(*table, index, "other");
         REQUIRE(popup != nullptr);
         REQUIRE(popup->isVisible());
 
@@ -830,7 +826,7 @@ TEST_CASE("EntityPropertyGrid")
     {
       const auto index = findIndex(model, "target", EntityPropertyModel::ColumnValue);
 
-      auto* popup = editCell(*table, index, "main_teleporter");
+      auto* popup = editCell(*table, index, "main");
       REQUIRE(popup != nullptr);
       REQUIRE(popup->isVisible());
 

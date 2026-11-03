@@ -95,7 +95,10 @@ void EntityPropertyItemDelegate::setupCompletions(
     completer,
     QOverload<const QString&>::of(&QCompleter::activated),
     this,
-    [&, lineEdit](const QString& /* value */) { m_table->finishEditing(lineEdit); });
+    [&, lineEdit](const QString& value) {
+      lineEdit->setText(value);
+      m_table->finishEditing(lineEdit);
+    });
 
   connect(lineEdit, &QLineEdit::returnPressed, this, [&, lineEdit, completer]() {
     if (completer->popup()->isVisible() && !completer->popup()->currentIndex().isValid())
