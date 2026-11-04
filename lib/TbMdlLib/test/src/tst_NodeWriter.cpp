@@ -1171,7 +1171,7 @@ some_material
     worldNode.defaultLayer()->addChild(groupNode);
 
     auto* groupNodeClone =
-      static_cast<GroupNode*>(groupNode->cloneRecursively(worldBounds));
+      static_cast<GroupNode*>(groupNode->cloneRecursively(worldBounds).release());
     transformNode(
       *groupNodeClone, vm::translation_matrix(vm::vec3d(0.0, 16.0, 0.0)), worldBounds);
 

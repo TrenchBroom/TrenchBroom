@@ -345,7 +345,7 @@ void duplicateSelectedNodes(Map& map)
   for (auto* original : map.selection().nodes)
   {
     auto& suggestedParent = parentForNodes(map, {original});
-    auto* clone = original->cloneRecursively(map.worldBounds());
+    auto* clone = original->cloneRecursively(map.worldBounds()).release();
 
     if (shouldCloneParentWhenCloningNode(original))
     {
@@ -361,7 +361,7 @@ void duplicateSelectedNodes(Map& map)
       else
       {
         // parent was not cloned yet
-        newParent = originalParent->clone(map.worldBounds());
+        newParent = originalParent->clone(map.worldBounds()).release();
         newParentMap.emplace(originalParent, newParent);
         nodesToAdd[&suggestedParent].push_back(newParent);
       }

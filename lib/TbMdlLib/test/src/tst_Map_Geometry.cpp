@@ -143,8 +143,7 @@ TEST_CASE("Map_Geometry")
 
       addNodes(map, {{&parentForNodes(map), {node}}});
 
-      const auto originalNode =
-        std::unique_ptr<Node>{node->cloneRecursively(map.worldBounds())};
+      const auto originalNode = node->cloneRecursively(map.worldBounds());
       const auto transformation = vm::translation_matrix(vm::vec3d{1, 2, 3});
 
       WHEN("The node is transformed")

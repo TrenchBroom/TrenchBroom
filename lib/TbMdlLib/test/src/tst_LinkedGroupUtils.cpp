@@ -33,6 +33,7 @@
 #include "mdl/TestUtils.h"
 #include "mdl/WorldNode.h"
 
+#include "kd/memory_utils.h"
 #include "kd/ranges/adjacent_view.h"
 #include "kd/task_manager.h"
 
@@ -180,12 +181,12 @@ TEST_CASE("LinkedGroupUtils")
     setLinkId(*groupNode2, "group2");
 
     auto* linkedGroupNode1_1 =
-      static_cast<GroupNode*>(groupNode1->cloneRecursively(worldBounds));
+      static_cast<GroupNode*>(groupNode1->cloneRecursively(worldBounds).release());
 
     auto* linkedGroupNode2_1 =
-      static_cast<GroupNode*>(groupNode2->cloneRecursively(worldBounds));
+      static_cast<GroupNode*>(groupNode2->cloneRecursively(worldBounds).release());
     auto* linkedGroupNode2_2 =
-      static_cast<GroupNode*>(groupNode2->cloneRecursively(worldBounds));
+      static_cast<GroupNode*>(groupNode2->cloneRecursively(worldBounds).release());
 
     worldNode.defaultLayer()->addChild(groupNode1);
     worldNode.defaultLayer()->addChild(groupNode2);
@@ -259,8 +260,8 @@ TEST_CASE("LinkedGroupUtils")
 
       SECTION("Update a single target group")
       {
-        auto groupNodeClone = std::unique_ptr<GroupNode>{
-          static_cast<GroupNode*>(groupNode.cloneRecursively(worldBounds))};
+        auto groupNodeClone =
+          kdl::static_pointer_cast<GroupNode>(groupNode.cloneRecursively(worldBounds));
         REQUIRE(
           groupNodeClone->group().transformation()
           == vm::translation_matrix(vm::vec3d{1, 0, 0}));
@@ -309,8 +310,8 @@ TEST_CASE("LinkedGroupUtils")
       auto* innerGroupEntityNode = new EntityNode{Entity{}};
       innerGroupNode->addChild(innerGroupEntityNode);
 
-      auto innerGroupNodeClone = std::unique_ptr<GroupNode>{
-        static_cast<GroupNode*>(innerGroupNode->cloneRecursively(worldBounds))};
+      auto innerGroupNodeClone = kdl::static_pointer_cast<GroupNode>(
+        innerGroupNode->cloneRecursively(worldBounds));
       REQUIRE(innerGroupNodeClone->group().transformation() == vm::mat4x4d{});
 
       transformNode(
@@ -411,8 +412,8 @@ TEST_CASE("LinkedGroupUtils")
          +-innerGroupEntityNode
       */
 
-      auto outerGroupNodeClone = std::unique_ptr<GroupNode>{
-        static_cast<GroupNode*>(outerGroupNode.cloneRecursively(worldBounds))};
+      auto outerGroupNodeClone =
+        kdl::static_pointer_cast<GroupNode>(outerGroupNode.cloneRecursively(worldBounds));
       REQUIRE(outerGroupNodeClone->group().transformation() == vm::mat4x4d{});
       REQUIRE(outerGroupNodeClone->childCount() == 1u);
 
@@ -466,8 +467,8 @@ TEST_CASE("LinkedGroupUtils")
       auto* entityNode = new EntityNode{Entity{}};
       groupNode.addChild(entityNode);
 
-      auto groupNodeClone = std::unique_ptr<GroupNode>{
-        static_cast<GroupNode*>(groupNode.cloneRecursively(worldBounds))};
+      auto groupNodeClone =
+        kdl::static_pointer_cast<GroupNode>(groupNode.cloneRecursively(worldBounds));
 
       transformNode(
         *groupNodeClone, vm::translation_matrix(vm::vec3d{8192 - 8, 0, 0}), worldBounds);
@@ -492,12 +493,12 @@ TEST_CASE("LinkedGroupUtils")
       auto* innerGroupNode = new GroupNode{Group{"innerGroupNode"}};
       outerGroupNode.addChild(innerGroupNode);
 
-      auto innerGroupNodeClone = std::unique_ptr<GroupNode>(
-        static_cast<GroupNode*>(innerGroupNode->cloneRecursively(worldBounds)));
+      auto innerGroupNodeClone = kdl::static_pointer_cast<GroupNode>(
+        innerGroupNode->cloneRecursively(worldBounds));
       setGroupName(*innerGroupNodeClone, "innerGroupNodeClone");
 
-      auto outerGroupNodeClone = std::unique_ptr<GroupNode>(
-        static_cast<GroupNode*>(outerGroupNode.cloneRecursively(worldBounds)));
+      auto outerGroupNodeClone =
+        kdl::static_pointer_cast<GroupNode>(outerGroupNode.cloneRecursively(worldBounds));
       setGroupName(*outerGroupNodeClone, "outerGroupNodeClone");
 
       auto* innerGroupNodeNestedClone =
@@ -541,8 +542,8 @@ TEST_CASE("LinkedGroupUtils")
       auto* sourceEntityNode = new EntityNode{Entity{}};
       sourceGroupNode.addChild(sourceEntityNode);
 
-      auto targetGroupNode = std::unique_ptr<GroupNode>{
-        static_cast<GroupNode*>(sourceGroupNode.cloneRecursively(worldBounds))};
+      auto targetGroupNode = kdl::static_pointer_cast<GroupNode>(
+        sourceGroupNode.cloneRecursively(worldBounds));
 
       auto* targetEntityNode =
         static_cast<EntityNode*>(targetGroupNode->children().front());
@@ -695,8 +696,8 @@ TEST_CASE("LinkedGroupUtils")
 
       sourceGroupNode.addChildren({sourceBrushNode, sourceEntityNode});
 
-      auto targetGroupNode = std::unique_ptr<GroupNode>{
-        static_cast<GroupNode*>(sourceGroupNode.cloneRecursively(worldBounds))};
+      auto targetGroupNode = kdl::static_pointer_cast<GroupNode>(
+        sourceGroupNode.cloneRecursively(worldBounds));
 
       auto* targetEntityNode =
         dynamic_cast<EntityNode*>(targetGroupNode->children().back());
@@ -1084,8 +1085,8 @@ TEST_CASE("LinkedGroupUtils")
     innerGroupNode->addChildren({innerPatchNode, innerEntityNode});
     outerGroupNode->addChildren({outerEntityNode, outerBrushNode, innerGroupNode});
 
-    auto* linkedOuterGroupNode =
-      dynamic_cast<GroupNode*>(outerGroupNode->cloneRecursively(worldBounds));
+    const auto linkedOuterGroupNodePtr = outerGroupNode->cloneRecursively(worldBounds);
+    auto* linkedOuterGroupNode = dynamic_cast<GroupNode*>(linkedOuterGroupNodePtr.get());
     REQUIRE(linkedOuterGroupNode != nullptr);
 
     auto* linkedOuterEntityNode =

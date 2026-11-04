@@ -138,7 +138,7 @@ TEST_CASE("UpdateLinkedGroupsHelper")
     groupNode->addChild(entityNode);
 
     auto* linkedNode =
-      static_cast<GroupNode*>(groupNode->cloneRecursively(map.worldBounds()));
+      static_cast<GroupNode*>(groupNode->cloneRecursively(map.worldBounds()).release());
 
     addNodes(map, {{&parentForNodes(map), {groupNode, linkedNode}}});
 
@@ -173,7 +173,7 @@ TEST_CASE("UpdateLinkedGroupsHelper")
       groupNode->addChild(brushNode);
 
       auto* linkedGroupNode =
-        static_cast<GroupNode*>(groupNode->cloneRecursively(map.worldBounds()));
+        static_cast<GroupNode*>(groupNode->cloneRecursively(map.worldBounds()).release());
 
       REQUIRE(linkedGroupNode->children().size() == 1u);
       auto* linkedBrushNode =
@@ -274,13 +274,13 @@ TEST_CASE("UpdateLinkedGroupsHelper")
 
       // create a linked group of the inner group node so that cloning the outer group
       // node will create a linked clone of the inner group node
-      auto* linkedInnerGroupNode =
-        static_cast<GroupNode*>(innerGroupNode->cloneRecursively(map.worldBounds()));
+      auto* linkedInnerGroupNode = static_cast<GroupNode*>(
+        innerGroupNode->cloneRecursively(map.worldBounds()).release());
       setGroupName(*linkedInnerGroupNode, "linkedInnerGroupNode");
       REQUIRE(linkedInnerGroupNode->linkId() == innerGroupNode->linkId());
 
-      auto* linkedOuterGroupNode =
-        static_cast<GroupNode*>(outerGroupNode->cloneRecursively(map.worldBounds()));
+      auto* linkedOuterGroupNode = static_cast<GroupNode*>(
+        outerGroupNode->cloneRecursively(map.worldBounds()).release());
       setGroupName(*linkedOuterGroupNode, "linkedOuterGroupNode");
       REQUIRE(linkedOuterGroupNode->linkId() == outerGroupNode->linkId());
 

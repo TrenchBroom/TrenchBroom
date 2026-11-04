@@ -112,12 +112,12 @@ double Node::projectedArea(const vm::axis::type axis) const
   return doGetProjectedArea(axis);
 }
 
-Node* Node::clone(const vm::bbox3d& worldBounds) const
+std::unique_ptr<Node> Node::clone(const vm::bbox3d& worldBounds) const
 {
   return doClone(worldBounds);
 }
 
-Node* Node::cloneRecursively(const vm::bbox3d& worldBounds) const
+std::unique_ptr<Node> Node::cloneRecursively(const vm::bbox3d& worldBounds) const
 {
   return doCloneRecursively(worldBounds);
 }
@@ -126,25 +126,6 @@ void Node::cloneAttributes(Node& node) const
 {
   node.setVisibilityState(m_visibilityState);
   node.setLockState(m_lockState);
-}
-
-std::vector<Node*> Node::clone(
-  const vm::bbox3d& worldBounds, const std::vector<Node*>& nodes)
-{
-  auto clones = std::vector<Node*>{};
-  clones.reserve(nodes.size());
-  clone(worldBounds, std::begin(nodes), std::end(nodes), std::back_inserter(clones));
-  return clones;
-}
-
-std::vector<Node*> Node::cloneRecursively(
-  const vm::bbox3d& worldBounds, const std::vector<Node*>& nodes)
-{
-  auto clones = std::vector<Node*>{};
-  clones.reserve(nodes.size());
-  cloneRecursively(
-    worldBounds, std::begin(nodes), std::end(nodes), std::back_inserter(clones));
-  return clones;
 }
 
 size_t Node::depth() const
@@ -865,10 +846,13 @@ const EntityPropertyConfig& Node::entityPropertyConfig() const
   return doGetEntityPropertyConfig();
 }
 
-Node* Node::doCloneRecursively(const vm::bbox3d& worldBounds) const
+std::unique_ptr<Node> Node::doCloneRecursively(const vm::bbox3d& worldBounds) const
 {
-  auto* clone = Node::clone(worldBounds);
-  clone->addChildren(Node::cloneRecursively(worldBounds, m_children));
+  auto clone = Node::clone(worldBounds);
+  auto childClones = Node::cloneRecursively(worldBounds, children());
+  clone->addChildren(
+    childClones | std::views::transform([](auto& child) { return child.release(); })
+    | kdl::ranges::to<std::vector>());
   return clone;
 }
 

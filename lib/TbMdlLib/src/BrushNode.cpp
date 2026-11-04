@@ -299,12 +299,12 @@ double BrushNode::doGetProjectedArea(const vm::axis::type axis) const
   return result;
 }
 
-Node* BrushNode::doClone(const vm::bbox3d& /* worldBounds */) const
+std::unique_ptr<Node> BrushNode::doClone(const vm::bbox3d& /* worldBounds */) const
 {
   auto result = std::make_unique<BrushNode>(m_brush);
   cloneLinkId(*result);
   cloneAttributes(*result);
-  return result.release();
+  return result;
 }
 
 bool BrushNode::doCanAddChild(const Node&) const

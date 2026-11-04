@@ -35,6 +35,7 @@
 #include "mdl/PickResult.h"
 #include "mdl/TestUtils.h"
 
+#include "kd/memory_utils.h"
 #include "kd/result.h"
 
 #include "vm/approx.h"
@@ -149,8 +150,7 @@ TEST_CASE("BrushNode")
       brush.selectFace(1u);
       REQUIRE(brush.hasSelectedFaces());
 
-      auto clone =
-        std::unique_ptr<BrushNode>(static_cast<BrushNode*>(brush.clone(worldBounds)));
+      auto clone = kdl::static_pointer_cast<BrushNode>(brush.clone(worldBounds));
       CHECK(!clone->hasSelectedFaces());
     }
   }
@@ -329,8 +329,7 @@ TEST_CASE("BrushNode")
         })
       | kdl::value()};
 
-    auto clone =
-      std::unique_ptr<BrushNode>{static_cast<BrushNode*>(original.clone(worldBounds))};
+    auto clone = kdl::static_pointer_cast<BrushNode>(original.clone(worldBounds));
 
     CHECK(clone->brush().faceCount() == original.brush().faceCount());
     for (const auto& originalFace : original.brush().faces())

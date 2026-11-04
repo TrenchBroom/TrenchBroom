@@ -1107,8 +1107,8 @@ TEST_CASE("Map_Groups")
     auto* entityNode = new mdl::EntityNode{mdl::Entity{}};
     innerGroupNode->addChild(entityNode);
 
-    auto* linkedInnerGroupNode =
-      static_cast<mdl::GroupNode*>(innerGroupNode->cloneRecursively(map.worldBounds()));
+    auto* linkedInnerGroupNode = static_cast<mdl::GroupNode*>(
+      innerGroupNode->cloneRecursively(map.worldBounds()).release());
 
     auto* linkedEntityNode =
       dynamic_cast<mdl::EntityNode*>(linkedInnerGroupNode->children().front());

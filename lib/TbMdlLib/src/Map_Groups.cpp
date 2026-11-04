@@ -414,7 +414,7 @@ GroupNode* createLinkedDuplicate(Map& map)
 
   auto* groupNode = map.selection().groups.front();
   auto* groupNodeClone =
-    static_cast<GroupNode*>(groupNode->cloneRecursively(map.worldBounds()));
+    static_cast<GroupNode*>(groupNode->cloneRecursively(map.worldBounds()).release());
   auto& suggestedParent = parentForNodes(map, {groupNode});
 
   auto transaction = Transaction{map, "Create Linked Duplicate"};
