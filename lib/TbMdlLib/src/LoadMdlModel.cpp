@@ -256,20 +256,11 @@ gl::Material parseSkin(
   auto rgbaImage = gl::TextureBuffer{size * 4};
 
   const auto skinGroup = reader.readSize<int32_t>();
-  if (skinGroup == 0)
+  const auto pictureCount = skinGroup == 0 ? size_t(1) : reader.readSize<int32_t>();
+  if (skinGroup != 0)
   {
-    palette.indexedToRgba(reader, size, rgbaImage, transparency, avgColor);
-
-    auto texture = gl::Texture{
-      width, height, avgColor, GL_RGBA, gl::NoEmbeddedDefaults{}, std::move(rgbaImage)};
-    texture.setAlphaDomain(alphaDomain);
-
-    auto textureResource = createTextureResource(std::move(texture));
-    return gl::Material{std::move(skinName), std::move(textureResource)};
+    reader.seekForward(pictureCount * 4); // skip the picture times
   }
-
-  const auto pictureCount = reader.readSize<int32_t>();
-  reader.seekForward(pictureCount * 4); // skip the picture times
 
   palette.indexedToRgba(reader, size, rgbaImage, transparency, avgColor);
   reader.seekForward((pictureCount - 1) * size); // skip all remaining pictures
