@@ -1351,7 +1351,8 @@ void Map::initializeNodeIndex()
   addToNodeIndex({&worldNode()}, true);
 }
 
-void Map::addToNodeIndex(const std::vector<Node*>& nodes, const bool recurse)
+template <std::ranges::range R>
+void Map::addToNodeIndex(const R& nodes, const bool recurse)
 {
   for (auto* node : nodes)
   {
@@ -1364,7 +1365,8 @@ void Map::addToNodeIndex(const std::vector<Node*>& nodes, const bool recurse)
   }
 }
 
-void Map::removeFromNodeIndex(const std::vector<Node*>& nodes, const bool recurse)
+template <std::ranges::range R>
+void Map::removeFromNodeIndex(const R& nodes, const bool recurse)
 {
   for (auto* node : nodes)
   {
@@ -1387,7 +1389,8 @@ void Map::clearEntityLinks()
   m_entityLinkManager->clear();
 }
 
-void Map::addEntityLinks(const std::vector<Node*>& nodes, const bool recurse)
+template <std::ranges::range R>
+void Map::addEntityLinks(const R& nodes, const bool recurse)
 {
   for (auto* node : nodes)
   {
@@ -1406,7 +1409,8 @@ void Map::addEntityLinks(const std::vector<Node*>& nodes, const bool recurse)
   }
 }
 
-void Map::removeEntityLinks(const std::vector<Node*>& nodes, const bool recurse)
+template <std::ranges::range R>
+void Map::removeEntityLinks(const R& nodes, const bool recurse)
 {
   for (auto* node : nodes)
   {

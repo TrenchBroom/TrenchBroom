@@ -34,6 +34,7 @@
 #include <filesystem>
 #include <memory>
 #include <optional>
+#include <ranges>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -374,14 +375,18 @@ private:
 
 private: // index management
   void initializeNodeIndex();
-  void addToNodeIndex(const std::vector<Node*>& nodes, bool recurse);
-  void removeFromNodeIndex(const std::vector<Node*>& nodes, bool recurse);
+  template <std::ranges::range R = std::vector<Node*>>
+  void addToNodeIndex(const R& nodes, bool recurse);
+  template <std::ranges::range R = std::vector<Node*>>
+  void removeFromNodeIndex(const R& nodes, bool recurse);
 
 private: // entity link management
   void initializeEntityLinks();
   void clearEntityLinks();
-  void addEntityLinks(const std::vector<Node*>& nodes, bool recurse);
-  void removeEntityLinks(const std::vector<Node*>& nodes, bool recurse);
+  template <std::ranges::range R = std::vector<Node*>>
+  void addEntityLinks(const R& nodes, bool recurse);
+  template <std::ranges::range R = std::vector<Node*>>
+  void removeEntityLinks(const R& nodes, bool recurse);
 
 public: // command processing
   bool canUndoCommand() const;

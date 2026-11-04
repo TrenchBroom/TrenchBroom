@@ -38,6 +38,7 @@
 #include "kd/vector_utils.h"
 
 #include <algorithm>
+#include <ranges>
 #include <string_view>
 #include <unordered_map>
 
@@ -335,7 +336,8 @@ Result<std::vector<std::unique_ptr<Node>>> cloneAndTransformChildren(
            });
 }
 
-auto makeLinkIdToNodeMap(const std::vector<Node*>& nodes)
+template <std::ranges::range R>
+auto makeLinkIdToNodeMap(const R& nodes)
 {
   auto result = std::unordered_map<std::string_view, const Node*>{};
   Node::visitAll(

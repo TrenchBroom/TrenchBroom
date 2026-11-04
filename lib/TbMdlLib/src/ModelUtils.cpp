@@ -357,54 +357,6 @@ std::vector<Node*> collectSelectedNodes(const std::vector<Node*>& nodes)
     nodes, [](const auto& node) { return node.selected(); });
 }
 
-std::vector<Node*> collectSelectableNodes(
-  const std::vector<Node*>& nodes, const EditorContext& editorContext)
-{
-  auto result = std::vector<Node*>{};
-
-  for (auto* node : nodes)
-  {
-    node->accept(kdl::overload(
-      [&](
-        auto&& thisLambda, WorldNode& worldNode) { worldNode.visitChildren(thisLambda); },
-      [&](
-        auto&& thisLambda, LayerNode& layerNode) { layerNode.visitChildren(thisLambda); },
-      [&](auto&& thisLambda, GroupNode& groupNode) {
-        if (editorContext.selectable(groupNode))
-        {
-          // implies that any containing group is opened and that group itself is closed
-          // therefore we don't need to visit the group's children
-          result.push_back(&groupNode);
-        }
-        else
-        {
-          groupNode.visitChildren(thisLambda);
-        }
-      },
-      [&](auto&& thisLambda, EntityNode& entityNode) {
-        if (editorContext.selectable(entityNode))
-        {
-          result.push_back(&entityNode);
-        }
-        entityNode.visitChildren(thisLambda);
-      },
-      [&](BrushNode& brushNode) {
-        if (editorContext.selectable(brushNode))
-        {
-          result.push_back(&brushNode);
-        }
-      },
-      [&](PatchNode& patchNode) {
-        if (editorContext.selectable(patchNode))
-        {
-          result.push_back(&patchNode);
-        }
-      }));
-  }
-
-  return result;
-}
-
 std::vector<BrushFaceHandle> collectSelectedBrushFaces(const std::vector<Node*>& nodes)
 {
   return collectBrushFaces(
@@ -514,57 +466,6 @@ std::vector<BrushFaceHandle> collectConnectedCoplanarFaces(
   }
 
   return region;
-}
-
-vm::bbox3d computeLogicalBounds(
-  const std::vector<Node*>& nodes, const vm::bbox3d& defaultBounds)
-{
-  auto bounds = std::vector<vm::bbox3d>{};
-  Node::visitAll(
-    nodes,
-    kdl::overload(
-      [](const WorldNode&) {},
-      [](const LayerNode&) {},
-      [&](const GroupNode& groupNode) { bounds.push_back(groupNode.logicalBounds()); },
-      [&](const EntityNode& entityNode) { bounds.push_back(entityNode.logicalBounds()); },
-      [&](const BrushNode& brushNode) { bounds.push_back(brushNode.logicalBounds()); },
-      [&](const PatchNode& patchNode) { bounds.push_back(patchNode.logicalBounds()); }));
-  return vm::bbox3d::build(bounds).value_or(defaultBounds);
-}
-
-vm::bbox3d computePhysicalBounds(
-  const std::vector<Node*>& nodes, const vm::bbox3d& defaultBounds)
-{
-  auto bounds = std::vector<vm::bbox3d>{};
-  Node::visitAll(
-    nodes,
-    kdl::overload(
-      [](const WorldNode&) {},
-      [](const LayerNode&) {},
-      [&](const GroupNode& groupNode) { bounds.push_back(groupNode.physicalBounds()); },
-      [&](const EntityNode& entityNode) {
-        bounds.push_back(entityNode.physicalBounds());
-      },
-      [&](const BrushNode& brushNode) { bounds.push_back(brushNode.physicalBounds()); },
-      [&](const PatchNode& patchNode) { bounds.push_back(patchNode.physicalBounds()); }));
-  return vm::bbox3d::build(bounds).value_or(defaultBounds);
-}
-
-std::vector<BrushNode*> filterBrushNodes(const std::vector<Node*>& nodes)
-{
-  auto result = std::vector<BrushNode*>{};
-  result.reserve(nodes.size());
-  for (Node* node : nodes)
-  {
-    node->accept(kdl::overload(
-      [](WorldNode&) {},
-      [](LayerNode&) {},
-      [](GroupNode&) {},
-      [](EntityNode&) {},
-      [&](BrushNode& brushNode) { result.push_back(&brushNode); },
-      [](PatchNode&) {}));
-  }
-  return result;
 }
 
 std::vector<EntityNode*> filterEntityNodes(const std::vector<Node*>& nodes)

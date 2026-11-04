@@ -33,6 +33,7 @@
 #include "kd/vector_utils.h"
 
 #include <concepts>
+#include <ranges>
 #include <vector>
 
 namespace tb::mdl
@@ -84,9 +85,8 @@ N* findNode(const std::vector<T>& nodes, const std::function<bool(const N&)>& pr
   return nullptr;
 }
 
-template <typename N, typename T = Node*>
-N* findNodeOrDescendant(
-  const std::vector<T>& nodes, const std::function<bool(const N&)>& predicate)
+template <typename N, std::ranges::range R = std::vector<Node*>>
+N* findNodeOrDescendant(const R& nodes, const std::function<bool(const N&)>& predicate)
 {
   for (auto* node : nodes)
   {
