@@ -34,6 +34,7 @@ target_sources(KdLibTest PRIVATE
   "${CMAKE_CURRENT_SOURCE_DIR}/src/tst_intrusive_circular_list.cpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/src/tst_invoke.cpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/src/tst_map_utils.cpp"
+  "${CMAKE_CURRENT_SOURCE_DIR}/src/tst_memory_utils.cpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/src/tst_meta_utils.cpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/src/tst_optional_utils.cpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/src/tst_path_utils.cpp"
