@@ -82,4 +82,21 @@ std::shared_ptr<T> mem_lock(std::weak_ptr<T> ptr)
   return ptr.lock();
 }
 
+/**
+ * Casts the given unique pointer to a unique pointer to T using static_cast, transferring
+ * ownership of the pointee.
+ *
+ * Precondition: the pointee is either null or an instance of T
+ *
+ * @tparam T the type of the pointee of the result
+ * @tparam U the type of the pointee of the given pointer
+ * @param ptr the pointer to cast
+ * @return a unique pointer that owns the given pointer's pointee
+ */
+template <typename T, typename U>
+std::unique_ptr<T> static_pointer_cast(std::unique_ptr<U> ptr)
+{
+  return std::unique_ptr<T>{static_cast<T*>(ptr.release())};
+}
+
 } // namespace kdl
