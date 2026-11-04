@@ -25,6 +25,8 @@
 #include "mdl/Tag.h"
 #include "mdl/VisibilityState.h"
 
+#include "kd/ranges/to.h"
+
 #include "vm/bbox.h"
 #include "vm/ray.h"
 #include "vm/util.h"
@@ -33,6 +35,7 @@
 #include <memory>
 #include <ranges>
 #include <string>
+#include <utility>
 #include <vector>
 
 namespace tb::mdl
@@ -104,28 +107,30 @@ public: // getters
   double projectedArea(vm::axis::type axis) const;
 
 public: // cloning and snapshots
-  Node* clone(const vm::bbox3d& worldBounds) const;
-  Node* cloneRecursively(const vm::bbox3d& worldBounds) const;
+  std::unique_ptr<Node> clone(const vm::bbox3d& worldBounds) const;
+  std::unique_ptr<Node> cloneRecursively(const vm::bbox3d& worldBounds) const;
 
 protected:
   void cloneAttributes(Node& node) const;
 
-  static std::vector<Node*> clone(
-    const vm::bbox3d& worldBounds, const std::vector<Node*>& nodes);
-  static std::vector<Node*> cloneRecursively(
-    const vm::bbox3d& worldBounds, const std::vector<Node*>& nodes);
-
-  template <typename I, typename O>
-  static void clone(const vm::bbox3d& worldBounds, I cur, I end, O result)
+  template <std::ranges::range R>
+  static std::vector<std::unique_ptr<Node>> clone(
+    const vm::bbox3d& worldBounds, R&& nodes)
   {
-    std::for_each(cur, end, [&](auto* node) { result++ = node->clone(worldBounds); });
+    return std::forward<R>(nodes) | std::views::transform([&](const auto* node) {
+             return node->clone(worldBounds);
+           })
+           | kdl::ranges::to<std::vector>();
   }
 
-  template <typename I, typename O>
-  static void cloneRecursively(const vm::bbox3d& worldBounds, I cur, I end, O result)
+  template <std::ranges::range R>
+  static std::vector<std::unique_ptr<Node>> cloneRecursively(
+    const vm::bbox3d& worldBounds, R&& nodes)
   {
-    std::for_each(
-      cur, end, [&](auto* node) { result++ = node->cloneRecursively(worldBounds); });
+    return std::forward<R>(nodes) | std::views::transform([&](const auto* node) {
+             return node->cloneRecursively(worldBounds);
+           })
+           | kdl::ranges::to<std::vector>();
   }
 
 public: // tree management
@@ -471,8 +476,8 @@ private: // subclassing interface
 
   virtual double doGetProjectedArea(vm::axis::type axis) const = 0;
 
-  virtual Node* doClone(const vm::bbox3d& worldBounds) const = 0;
-  virtual Node* doCloneRecursively(const vm::bbox3d& worldBounds) const;
+  virtual std::unique_ptr<Node> doClone(const vm::bbox3d& worldBounds) const = 0;
+  virtual std::unique_ptr<Node> doCloneRecursively(const vm::bbox3d& worldBounds) const;
 
   virtual bool doCanAddChild(const Node& child) const = 0;
   virtual bool doCanRemoveChild(const Node& child) const = 0;

@@ -33,6 +33,7 @@
 #include "mdl/TestUtils.h"
 #include "mdl/WorldNode.h"
 
+#include "kd/memory_utils.h"
 #include "kd/result.h"
 
 #include <catch2/catch_test_macros.hpp>
@@ -455,17 +456,16 @@ TEST_CASE("WorldNode")
 
     SECTION("with only the default layer")
     {
-      auto* clone = static_cast<WorldNode*>(worldNode.cloneRecursively(worldBounds));
+      const auto clone =
+        kdl::static_pointer_cast<WorldNode>(worldNode.cloneRecursively(worldBounds));
 
-      CHECK(clone != &worldNode);
+      CHECK(clone.get() != &worldNode);
       CHECK(clone->entity() == worldNode.entity());
       CHECK(clone->mapFormat() == worldNode.mapFormat());
       CHECK(clone->defaultLayer() != worldNode.defaultLayer());
       CHECK(clone->children().size() == 1u);
       CHECK(clone->defaultLayer()->children().size() == 1u);
       CHECK(clone->defaultLayer()->children().front() != brushNode);
-
-      delete clone;
     }
 
     SECTION("with an additional custom layer")
@@ -476,7 +476,8 @@ TEST_CASE("WorldNode")
       auto* entityNode = new EntityNode{Entity{}};
       layerNode->addChild(entityNode);
 
-      auto* clone = static_cast<WorldNode*>(worldNode.cloneRecursively(worldBounds));
+      const auto clone =
+        kdl::static_pointer_cast<WorldNode>(worldNode.cloneRecursively(worldBounds));
 
       CHECK(clone->children().size() == 2u);
       CHECK(clone->defaultLayer()->children().size() == 1u);
@@ -485,8 +486,6 @@ TEST_CASE("WorldNode")
       CHECK(clonedLayerNode != layerNode);
       CHECK(clonedLayerNode->children().size() == 1u);
       CHECK(clonedLayerNode->children().front() != entityNode);
-
-      delete clone;
     }
   }
 }

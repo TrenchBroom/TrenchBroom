@@ -125,9 +125,9 @@ private:
   }
 
 private: // implement Node interface
-  Node* doClone(const vm::bbox3d& /* worldBounds */) const override
+  std::unique_ptr<Node> doClone(const vm::bbox3d& /* worldBounds */) const override
   {
-    return new MockNode{};
+    return std::make_unique<MockNode>();
   }
 
   const std::string& doGetName() const override
@@ -199,9 +199,9 @@ private: // implement Node interface
 class TestNode : public Node
 {
 private: // implement Node interface
-  Node* doClone(const vm::bbox3d& /* worldBounds */) const override
+  std::unique_ptr<Node> doClone(const vm::bbox3d& /* worldBounds */) const override
   {
-    return new TestNode{};
+    return std::make_unique<TestNode>();
   }
 
   const std::string& doGetName() const override
@@ -257,7 +257,7 @@ private: // implement Node interface
   void doAcceptTagVisitor(ConstTagVisitor& /* visitor */) const override {}
 
 public:
-  static std::vector<Node*> cloneNodes(
+  static std::vector<std::unique_ptr<Node>> cloneNodes(
     const vm::bbox3d& worldBounds, const std::vector<Node*>& nodes)
   {
     return clone(worldBounds, nodes);
@@ -360,10 +360,9 @@ TEST_CASE("Node")
     auto clones = TestNode::cloneNodes(worldBounds, std::vector<Node*>{nodeA, nodeB});
 
     CHECK(clones.size() == 2u);
-    CHECK(clones[0] != nodeA);
-    CHECK(clones[1] != nodeB);
+    CHECK(clones[0].get() != nodeA);
+    CHECK(clones[1].get() != nodeB);
 
-    kdl::vec_clear_and_delete(clones);
     delete nodeA;
     delete nodeB;
   }

@@ -33,12 +33,14 @@
 #include "kd/const_overload.h"
 #include "kd/contracts.h"
 #include "kd/k.h"
+#include "kd/memory_utils.h"
 #include "kd/overload.h"
 #include "kd/ranges/to.h"
 
 #include "vm/bbox_io.h" // IWYU pragma: keep
 
 #include <iterator>
+#include <ranges>
 #include <string>
 #include <vector>
 
@@ -269,34 +271,32 @@ double WorldNode::doGetProjectedArea(const vm::axis::type) const
   return static_cast<double>(0);
 }
 
-Node* WorldNode::doClone(const vm::bbox3d& /* worldBounds */) const
+std::unique_ptr<Node> WorldNode::doClone(const vm::bbox3d& /* worldBounds */) const
 {
   auto result =
     std::make_unique<WorldNode>(entityPropertyConfig(), entity(), mapFormat());
   cloneAttributes(*result);
-  return result.release();
+  return result;
 }
 
-Node* WorldNode::doCloneRecursively(const vm::bbox3d& worldBounds) const
+std::unique_ptr<Node> WorldNode::doCloneRecursively(const vm::bbox3d& worldBounds) const
 {
   contract_pre(children().front() == m_defaultLayer);
 
-  const auto& myChildren = children();
-  auto* worldNode = static_cast<WorldNode*>(clone(worldBounds));
-  worldNode->defaultLayer()->addChildren(cloneRecursively(
-    worldBounds, m_defaultLayer->children() | kdl::ranges::to<std::vector>()));
+  auto worldNode = kdl::static_pointer_cast<WorldNode>(clone(worldBounds));
 
-  if (myChildren.size() > 1)
-  {
-    auto childClones = std::vector<Node*>{};
-    childClones.reserve(myChildren.size() - 1);
-    cloneRecursively(
-      worldBounds,
-      std::next(std::begin(myChildren)),
-      std::end(myChildren),
-      std::back_inserter(childClones));
-    worldNode->addChildren(childClones);
-  }
+  auto defaultLayerChildClones =
+    cloneRecursively(worldBounds, m_defaultLayer->children());
+  worldNode->defaultLayer()->addChildren(
+    defaultLayerChildClones
+    | std::views::transform([](auto& child) { return child.release(); })
+    | kdl::ranges::to<std::vector>());
+
+  auto customLayerClones =
+    cloneRecursively(worldBounds, children() | std::views::drop(1));
+  worldNode->addChildren(
+    customLayerClones | std::views::transform([](auto& child) { return child.release(); })
+    | kdl::ranges::to<std::vector>());
 
   return worldNode;
 }
