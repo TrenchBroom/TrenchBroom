@@ -449,6 +449,81 @@ TEST_CASE("EntityPropertyModel")
     }
   }
 
+  SECTION("setData")
+  {
+    auto* unsetEntityNode = new mdl::EntityNode{mdl::Entity{{
+      {"classname", "source_entity"},
+    }}};
+
+    mdl::addNodes(map, {{&mdl::parentForNodes(map), {unsetEntityNode}}});
+
+    const auto valueIndex = [&](const std::string& propertyKey) {
+      return model.index(
+        model.rowIndexForPropertyKey(propertyKey), EntityPropertyModel::ColumnValue);
+    };
+
+    SECTION("Sets a changed value")
+    {
+      mdl::selectNodes(map, {unsetEntityNode});
+      model.updateFromMap();
+
+      CHECK(model.setData(valueIndex("target"), "some_target", Qt::EditRole));
+      CHECK(
+        unsetEntityNode->entity().properties()
+        == std::vector<mdl::EntityProperty>{
+          {"classname", "source_entity"},
+          {"target", "some_target"},
+        });
+    }
+
+    SECTION("Does nothing if the value is unchanged")
+    {
+      SECTION("Default property")
+      {
+        mdl::selectNodes(map, {unsetEntityNode});
+        model.updateFromMap();
+
+        const auto index = valueIndex("target");
+        REQUIRE(model.rows().at(size_t(index.row())).valueState == ValueState::Unset);
+
+        CHECK(model.setData(index, index.data(Qt::EditRole), Qt::EditRole));
+        CHECK(
+          unsetEntityNode->entity().properties()
+          == std::vector<mdl::EntityProperty>{
+            {"classname", "source_entity"},
+          });
+      }
+
+      SECTION("Property with multiple values")
+      {
+        mdl::selectNodes(map, {entityNode1, entityNode2});
+        model.updateFromMap();
+
+        const auto index = valueIndex("some_key");
+        REQUIRE(
+          model.rows().at(size_t(index.row())).valueState == ValueState::MultipleValues);
+
+        CHECK(model.setData(index, index.data(Qt::EditRole), Qt::EditRole));
+        CHECK(entityNode1->entity().hasProperty("some_key", "some_value"));
+        CHECK(entityNode2->entity().hasProperty("some_key", "some_other_value"));
+      }
+
+      SECTION("Property that is unset for some entities")
+      {
+        mdl::selectNodes(map, {entityNode1, entityNode2});
+        model.updateFromMap();
+
+        const auto index = valueIndex("some_other_key");
+        REQUIRE(
+          model.rows().at(size_t(index.row())).valueState
+          == ValueState::SingleValueAndUnset);
+
+        CHECK(model.setData(index, index.data(Qt::EditRole), Qt::EditRole));
+        CHECK(!entityNode1->entity().hasProperty("some_other_key"));
+      }
+    }
+  }
+
   SECTION("lessThan")
   {
     auto* entityNode = new mdl::EntityNode{mdl::Entity{{

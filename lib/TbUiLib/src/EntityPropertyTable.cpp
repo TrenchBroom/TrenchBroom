@@ -38,7 +38,7 @@ void EntityPropertyTable::finishEditing(QWidget* editor)
 {
   TABLE_LOG(qDebug() << "finish editing");
   commitData(editor);
-  closeEditor(editor, QAbstractItemDelegate::EditNextItem);
+  closeEditor(editor, QAbstractItemDelegate::SubmitModelCache);
 }
 
 /**
