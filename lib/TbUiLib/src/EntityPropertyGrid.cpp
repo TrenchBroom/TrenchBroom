@@ -315,8 +315,7 @@ void EntityPropertyGrid::createGui()
 
   auto* setAllDefaultPropertiesAction =
     setDefaultPropertiesMenu->addAction(tr("Set all default properties"), this, [&]() {
-      setDefaultEntityProperties(
-        m_document.map(), mdl::SetDefaultPropertyMode::SetMissing);
+      setDefaultEntityProperties(m_document.map(), mdl::SetDefaultPropertyMode::SetAll);
     });
   setAllDefaultPropertiesAction->setObjectName(
     "EntityPropertyGrid_SetAllDefaultPropertiesAction");

@@ -574,11 +574,10 @@ TEST_CASE("EntityPropertyGrid")
          {"existing_key", "existing_value"},
          {"missing_key", "missing_default"},
        }},
-      // only sets missing default properties
       {"EntityPropertyGrid_SetAllDefaultPropertiesAction",
        {
          {"classname", "default_entity"},
-         {"existing_key", "existing_value"},
+         {"existing_key", "existing_default"},
          {"missing_key", "missing_default"},
        }},
     }));
