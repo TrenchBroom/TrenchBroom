@@ -344,8 +344,8 @@ std::vector<mdl::Node*> selectableNodes(
   const std::vector<mdl::Node*>& nodes, const mdl::Map& map)
 {
   return mdl::collectSelectableNodes(
-    nodes | std::views::filter([&](const auto* node) { return node != &map.worldNode(); })
-      | kdl::ranges::to<std::vector>(),
+    nodes
+      | std::views::filter([&](const auto* node) { return node != &map.worldNode(); }),
     map.editorContext());
 }
 

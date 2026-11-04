@@ -106,8 +106,8 @@ TEST_CASE("WorldReader")
 
     const auto& worldNode = worldResult.value();
     CHECK(worldNode != nullptr);
-    CHECK(worldNode->childCount() == 1u);
-    auto* defaultLayer = dynamic_cast<mdl::LayerNode*>(worldNode->children().at(0));
+    REQUIRE(worldNode->childCount() == 1u);
+    auto* defaultLayer = dynamic_cast<mdl::LayerNode*>(worldNode->children()[0]);
     REQUIRE(defaultLayer != nullptr);
     REQUIRE(!defaultLayer->hasChildren());
 
@@ -162,7 +162,7 @@ TEST_CASE("WorldReader")
     const auto& world = worldResult.value();
     REQUIRE(world != nullptr);
     REQUIRE(world->childCount() == 1u);
-    auto* defaultLayer = dynamic_cast<mdl::LayerNode*>(world->children().at(0));
+    auto* defaultLayer = dynamic_cast<mdl::LayerNode*>(world->children()[0]);
     REQUIRE(defaultLayer != nullptr);
 
     CHECK(defaultLayer->layer().color() == Color{RgbF{0.0f, 1.0f, 0.0f}});
@@ -763,10 +763,10 @@ TEST_CASE("WorldReader")
     REQUIRE(worldResult);
 
     const auto& world = worldResult.value();
-    CHECK(world->childCount() == 2u);
+    REQUIRE(world->childCount() == 2u);
 
-    auto* defaultLayerNode = dynamic_cast<mdl::LayerNode*>(world->children().at(0));
-    auto* myLayerNode = dynamic_cast<mdl::LayerNode*>(world->children().at(1));
+    auto* defaultLayerNode = dynamic_cast<mdl::LayerNode*>(world->children()[0]);
+    auto* myLayerNode = dynamic_cast<mdl::LayerNode*>(world->children()[1]);
     CHECK(defaultLayerNode != nullptr);
     CHECK(myLayerNode != nullptr);
 
@@ -814,9 +814,9 @@ TEST_CASE("WorldReader")
     REQUIRE(world->childCount() == 3u);
 
     // NOTE: They are listed in world->children() in file order, not sort index order
-    auto* defaultLayerNode = dynamic_cast<mdl::LayerNode*>(world->children().at(0));
-    auto* sortNode1 = dynamic_cast<mdl::LayerNode*>(world->children().at(1));
-    auto* sortNode0 = dynamic_cast<mdl::LayerNode*>(world->children().at(2));
+    auto* defaultLayerNode = dynamic_cast<mdl::LayerNode*>(world->children()[0]);
+    auto* sortNode1 = dynamic_cast<mdl::LayerNode*>(world->children()[1]);
+    auto* sortNode0 = dynamic_cast<mdl::LayerNode*>(world->children()[2]);
 
     REQUIRE(defaultLayerNode != nullptr);
     REQUIRE(sortNode0 != nullptr);
@@ -873,13 +873,13 @@ TEST_CASE("WorldReader")
     REQUIRE(worldResult);
 
     const auto& world = worldResult.value();
-    CHECK(world->childCount() == 4u);
+    REQUIRE(world->childCount() == 4u);
 
     // NOTE: They are listed in world->children() in file order, not sort index order
-    auto* defaultLayerNode = dynamic_cast<mdl::LayerNode*>(world->children().at(0));
-    auto* sortNode5 = dynamic_cast<mdl::LayerNode*>(world->children().at(1));
-    auto* sortNode3 = dynamic_cast<mdl::LayerNode*>(world->children().at(2));
-    auto* sortNode1 = dynamic_cast<mdl::LayerNode*>(world->children().at(3));
+    auto* defaultLayerNode = dynamic_cast<mdl::LayerNode*>(world->children()[0]);
+    auto* sortNode5 = dynamic_cast<mdl::LayerNode*>(world->children()[1]);
+    auto* sortNode3 = dynamic_cast<mdl::LayerNode*>(world->children()[2]);
+    auto* sortNode1 = dynamic_cast<mdl::LayerNode*>(world->children()[3]);
 
     REQUIRE(nullptr != defaultLayerNode);
     REQUIRE(nullptr != sortNode1);
@@ -952,16 +952,16 @@ TEST_CASE("WorldReader")
     REQUIRE(worldResult);
 
     const auto& world = worldResult.value();
-    CHECK(world->childCount() == 7u);
+    REQUIRE(world->childCount() == 7u);
 
     // NOTE: They are listed in world->children() in file order, not sort index order
-    auto* defaultLayerNode = dynamic_cast<mdl::LayerNode*>(world->children().at(0));
-    auto* sortMinusOneNode = dynamic_cast<mdl::LayerNode*>(world->children().at(1));
-    auto* sortNode8 = dynamic_cast<mdl::LayerNode*>(world->children().at(2));
-    auto* sortNode8second = dynamic_cast<mdl::LayerNode*>(world->children().at(3));
-    auto* sortNode10 = dynamic_cast<mdl::LayerNode*>(world->children().at(4));
-    auto* sortNode10second = dynamic_cast<mdl::LayerNode*>(world->children().at(5));
-    auto* sortNode12 = dynamic_cast<mdl::LayerNode*>(world->children().at(6));
+    auto* defaultLayerNode = dynamic_cast<mdl::LayerNode*>(world->children()[0]);
+    auto* sortMinusOneNode = dynamic_cast<mdl::LayerNode*>(world->children()[1]);
+    auto* sortNode8 = dynamic_cast<mdl::LayerNode*>(world->children()[2]);
+    auto* sortNode8second = dynamic_cast<mdl::LayerNode*>(world->children()[3]);
+    auto* sortNode10 = dynamic_cast<mdl::LayerNode*>(world->children()[4]);
+    auto* sortNode10second = dynamic_cast<mdl::LayerNode*>(world->children()[5]);
+    auto* sortNode12 = dynamic_cast<mdl::LayerNode*>(world->children()[6]);
 
     REQUIRE(nullptr != defaultLayerNode);
     REQUIRE(nullptr != sortMinusOneNode);
@@ -1169,11 +1169,11 @@ TEST_CASE("WorldReader")
     REQUIRE(worldResult);
 
     const auto& world = worldResult.value();
-    CHECK(world->childCount() == 2u);
+    REQUIRE(world->childCount() == 2u);
 
     // NOTE: They are listed in world->children() in file order, not sort index order
-    auto* defaultLayerNode = dynamic_cast<mdl::LayerNode*>(world->children().at(0));
-    auto* customLayerNode = dynamic_cast<mdl::LayerNode*>(world->children().at(1));
+    auto* defaultLayerNode = dynamic_cast<mdl::LayerNode*>(world->children()[0]);
+    auto* customLayerNode = dynamic_cast<mdl::LayerNode*>(world->children()[1]);
 
     REQUIRE(defaultLayerNode != nullptr);
     REQUIRE(customLayerNode != nullptr);
@@ -1462,11 +1462,11 @@ common/caulk
     REQUIRE(worldNode != nullptr);
     REQUIRE(1u == worldNode->childCount());
 
-    auto* layerNode = dynamic_cast<mdl::LayerNode*>(worldNode->children().at(0));
+    auto* layerNode = dynamic_cast<mdl::LayerNode*>(worldNode->children()[0]);
     REQUIRE(layerNode != nullptr);
     REQUIRE(1u == layerNode->childCount());
 
-    auto* brushNode = dynamic_cast<mdl::BrushNode*>(layerNode->children().at(0));
+    auto* brushNode = dynamic_cast<mdl::BrushNode*>(layerNode->children()[0]);
     REQUIRE(brushNode != nullptr);
 
     CHECK(brushNode->logicalBounds() == vm::bbox3d{{-512, -512, -64}, {512, 512, 0}});

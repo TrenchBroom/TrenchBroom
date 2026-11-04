@@ -31,6 +31,7 @@
 #include "mdl/Validator.h"
 
 #include "kd/overload.h"
+#include "kd/ranges/to.h"
 
 #include "vm/bbox.h"
 #include "vm/intersection.h"
@@ -226,7 +227,7 @@ std::vector<Node*> EntityNode::nodesRequiredForViewSelection()
   if (hasChildren())
   {
     // Selecting a brush entity means selecting the children
-    return children();
+    return children() | kdl::ranges::to<std::vector>();
   }
   else
   {

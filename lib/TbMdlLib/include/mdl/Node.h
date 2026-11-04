@@ -31,6 +31,7 @@
 
 #include <algorithm>
 #include <memory>
+#include <ranges>
 #include <string>
 #include <vector>
 
@@ -140,7 +141,10 @@ public: // tree management
 
   bool hasChildren() const;
   size_t childCount() const;
-  const std::vector<Node*>& children() const;
+  auto children() const
+  {
+    return m_children | std::views::transform([](Node* child) { return child; });
+  }
   size_t descendantCount() const;
   size_t familySize() const;
 

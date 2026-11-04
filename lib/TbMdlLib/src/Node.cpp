@@ -170,11 +170,6 @@ size_t Node::childCount() const
   return m_children.size();
 }
 
-const std::vector<Node*>& Node::children() const
-{
-  return m_children;
-}
-
 size_t Node::descendantCount() const
 {
   return m_descendantCount;
@@ -859,7 +854,7 @@ const EntityPropertyConfig& Node::entityPropertyConfig() const
 Node* Node::doCloneRecursively(const vm::bbox3d& worldBounds) const
 {
   auto* clone = Node::clone(worldBounds);
-  clone->addChildren(Node::cloneRecursively(worldBounds, children()));
+  clone->addChildren(Node::cloneRecursively(worldBounds, m_children));
   return clone;
 }
 

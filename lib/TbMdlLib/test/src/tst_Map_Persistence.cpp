@@ -34,6 +34,7 @@
 #include <fmt/format.h>
 
 #include <catch2/catch_test_macros.hpp>
+#include <catch2/matchers/catch_matchers_range_equals.hpp>
 
 namespace tb::mdl
 {
@@ -110,7 +111,9 @@ TEST_CASE("Map_Persistence")
 
     auto* entityNode = new EntityNode{Entity{{{"key", "value"}}}};
     addNodes(map, {{&parentForNodes(map), {entityNode}}});
-    REQUIRE(map.worldNode().defaultLayer()->children() == std::vector<Node*>{entityNode});
+    REQUIRE_THAT(
+      map.worldNode().defaultLayer()->children(),
+      Catch::Matchers::RangeEquals(std::vector<Node*>{entityNode}));
 
     auto mapWasSaved = Observer<>{map.mapWasSavedNotifier};
     auto modificationStateDidChange = Observer<>{map.modificationStateDidChangeNotifier};

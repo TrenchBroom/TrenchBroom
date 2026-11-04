@@ -48,6 +48,7 @@
 
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/generators/catch_generators.hpp>
+#include <catch2/matchers/catch_matchers_range_equals.hpp>
 
 namespace tb::mdl
 {
@@ -454,8 +455,8 @@ TEST_CASE("Map_Groups")
       CHECK(brushNode1->selected());
 
       auto* groupNode = groupSelectedNodes(map, "Group");
-      CHECK_THAT(groupNode->children(), Equals(std::vector<Node*>{entityNode1}));
-      CHECK_THAT(entityNode1->children(), Equals(std::vector<Node*>{brushNode1}));
+      CHECK_THAT(groupNode->children(), RangeEquals(std::vector<Node*>{entityNode1}));
+      CHECK_THAT(entityNode1->children(), RangeEquals(std::vector<Node*>{brushNode1}));
       CHECK_THAT(map.selection().nodes, Equals(std::vector<Node*>{groupNode}));
       CHECK(map.selection().allBrushes() == std::vector<BrushNode*>{brushNode1});
       CHECK(!map.selection().hasBrushes());
@@ -520,7 +521,7 @@ TEST_CASE("Map_Groups")
 
       REQUIRE_THAT(
         map.worldNode().defaultLayer()->children(),
-        UnorderedEquals(
+        UnorderedRangeEquals(
           std::vector<Node*>{groupNode, linkedGroupNode, linkedGroupNode2}));
 
       SECTION(
@@ -531,7 +532,7 @@ TEST_CASE("Map_Groups")
         ungroupSelectedNodes(map);
         CHECK_THAT(
           map.worldNode().defaultLayer()->children(),
-          UnorderedEquals(
+          UnorderedRangeEquals(
             std::vector<Node*>{groupNode, linkedGroupNode, linkedBrushNode2}));
         CHECK(groupNode->linkId() == linkedGroupNode->linkId());
         CHECK(linkedGroupNode2->linkId() != groupNode->linkId());
@@ -548,7 +549,7 @@ TEST_CASE("Map_Groups")
         ungroupSelectedNodes(map);
         CHECK_THAT(
           map.worldNode().defaultLayer()->children(),
-          UnorderedEquals(
+          UnorderedRangeEquals(
             std::vector<Node*>{groupNode, linkedBrushNode, linkedBrushNode2}));
 
         CHECK(groupNode->linkId() == originalGroupLinkId);
@@ -570,7 +571,7 @@ TEST_CASE("Map_Groups")
         ungroupSelectedNodes(map);
         CHECK_THAT(
           map.worldNode().defaultLayer()->children(),
-          UnorderedEquals(
+          UnorderedRangeEquals(
             std::vector<Node*>{brushNode, linkedBrushNode, linkedBrushNode2}));
 
         CHECK(groupNode->linkId() != originalGroupLinkId);
@@ -585,7 +586,7 @@ TEST_CASE("Map_Groups")
       map.undoCommand();
       CHECK_THAT(
         map.worldNode().defaultLayer()->children(),
-        UnorderedEquals(
+        UnorderedRangeEquals(
           std::vector<Node*>{groupNode, linkedGroupNode, linkedGroupNode2}));
       CHECK(groupNode->linkId() == originalGroupLinkId);
       CHECK(linkedGroupNode->linkId() == originalGroupLinkId);
@@ -613,7 +614,7 @@ TEST_CASE("Map_Groups")
 
     CHECK_THAT(
       map.editorContext().currentLayer()->children(),
-      UnorderedEquals(std::vector<Node*>{groupNode1, groupNode2}));
+      UnorderedRangeEquals(std::vector<Node*>{groupNode1, groupNode2}));
 
     selectNodes(map, {groupNode1, groupNode2});
     mergeSelectedGroupsWithGroup(map, groupNode2);
@@ -621,12 +622,12 @@ TEST_CASE("Map_Groups")
     CHECK_THAT(map.selection().nodes, Equals(std::vector<Node*>{groupNode2}));
     CHECK_THAT(
       map.editorContext().currentLayer()->children(),
-      Equals(std::vector<Node*>{groupNode2}));
+      RangeEquals(std::vector<Node*>{groupNode2}));
 
-    CHECK_THAT(groupNode1->children(), UnorderedEquals(std::vector<Node*>{}));
+    CHECK_THAT(groupNode1->children(), UnorderedRangeEquals(std::vector<Node*>{}));
     CHECK_THAT(
       groupNode2->children(),
-      UnorderedEquals(std::vector<Node*>{entityNode1, entityNode2}));
+      UnorderedRangeEquals(std::vector<Node*>{entityNode1, entityNode2}));
   }
 
   SECTION("renameSelectedGroups")
@@ -953,11 +954,12 @@ TEST_CASE("Map_Groups")
         closeGroup(map);
 
         // Replicating the changes to the linked group has changed the original group
+        const auto groupChildren = groupNode->children();
         auto iUpdatedEntityNode =
-          std::ranges::find_if(groupNode->children(), [](const auto* node) {
+          std::ranges::find_if(groupChildren, [](const auto* node) {
             return dynamic_cast<const EntityNode*>(node) && !node->hasChildren();
           });
-        REQUIRE(iUpdatedEntityNode != groupNode->children().end());
+        REQUIRE(iUpdatedEntityNode != groupChildren.end());
         auto* updatedEntityNode = dynamic_cast<EntityNode*>(*iUpdatedEntityNode);
 
         REQUIRE(
@@ -1025,7 +1027,7 @@ TEST_CASE("Map_Groups")
 
         CHECK_THAT(
           groupNode->children(),
-          UnorderedEquals(std::vector<Node*>{groupedBrushNode, groupedEntityNode}));
+          UnorderedRangeEquals(std::vector<Node*>{groupedBrushNode, groupedEntityNode}));
       }
 
       SECTION("Extracting a brush entity partially")
@@ -1053,7 +1055,7 @@ TEST_CASE("Map_Groups")
 
         CHECK_THAT(
           groupNode->children(),
-          UnorderedEquals(std::vector<Node*>{
+          UnorderedRangeEquals(std::vector<Node*>{
             groupedBrushNode, groupedEntityNode, groupedBrushEntityNode}));
       }
 

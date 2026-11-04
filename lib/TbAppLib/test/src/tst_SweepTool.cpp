@@ -35,6 +35,8 @@
 #include "ui/MoveHandleDragTracker.h"
 #include "ui/SweepTool.h"
 
+#include "kd/ranges/to.h"
+
 #include "vm/approx.h"
 #include "vm/bbox.h"
 #include "vm/constants.h"
@@ -330,7 +332,7 @@ TEST_CASE("SweepTool")
 
     // opposing normals cancel out, so the S-Bend tangent is zero and every station sits
     // on the straight line between the source and destination caps
-    const auto& entityChildren = entityNode->children();
+    const auto entityChildren = entityNode->children() | kdl::ranges::to<std::vector>();
     REQUIRE(entityChildren.size() == entityChildCountBefore + 2);
     CHECK(
       entityChildren[entityChildCountBefore]->logicalBounds()
@@ -339,7 +341,8 @@ TEST_CASE("SweepTool")
       entityChildren[entityChildCountBefore + 1]->logicalBounds()
       == vm::bbox3d{{48, -16, -16}, {80, 16, 16}});
 
-    const auto& defaultChildren = defaultParent->children();
+    const auto defaultChildren =
+      defaultParent->children() | kdl::ranges::to<std::vector>();
     REQUIRE(defaultChildren.size() == defaultChildCountBefore + 2);
     CHECK(
       defaultChildren[defaultChildCountBefore]->logicalBounds()

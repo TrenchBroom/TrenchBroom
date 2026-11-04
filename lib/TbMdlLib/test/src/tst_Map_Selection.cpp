@@ -330,14 +330,15 @@ TEST_CASE("Map_Selection")
         UnorderedEquals(std::vector<BrushNode*>{brushNode1, brushNode2}));
       CHECK_THAT(
         map.editorContext().currentLayer()->children(),
-        Equals(std::vector<Node*>{brushNode1, brushNode2}));
+        RangeEquals(std::vector<Node*>{brushNode1, brushNode2}));
 
       selectTouchingNodes(map, true);
 
       // only this next line was failing
       CHECK_THAT(map.selection().brushes, UnorderedEquals(std::vector<BrushNode*>{}));
       CHECK_THAT(
-        map.editorContext().currentLayer()->children(), Equals(std::vector<Node*>{}));
+        map.editorContext().currentLayer()->children(),
+        RangeEquals(std::vector<Node*>{}));
 
       // brush1 and brush2 are deleted
       CHECK(brushNode1->parent() == nullptr);

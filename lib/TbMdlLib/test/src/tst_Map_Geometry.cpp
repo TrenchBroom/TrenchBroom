@@ -239,7 +239,7 @@ TEST_CASE("Map_Geometry")
       REQUIRE_THAT(
         map.selection().nodes, UnorderedEquals(std::vector<Node*>{linkedGroup}));
 
-      auto* linkedBrushNode = dynamic_cast<BrushNode*>(linkedGroup->children().at(0));
+      auto* linkedBrushNode = dynamic_cast<BrushNode*>(linkedGroup->children()[0]);
       REQUIRE(linkedBrushNode != nullptr);
 
       WHEN("One of the groups is transformed with aligment lock off")
@@ -1221,7 +1221,7 @@ TEST_CASE("Map_Geometry")
 
       REQUIRE(map.editorContext().currentLayer()->childCount() == 1);
       auto* result =
-        dynamic_cast<BrushNode*>(map.editorContext().currentLayer()->children().at(0));
+        dynamic_cast<BrushNode*>(map.editorContext().currentLayer()->children()[0]);
       REQUIRE(result);
       CHECK(result->brush().fullySpecified());
     }
@@ -1355,7 +1355,7 @@ TEST_CASE("Map_Geometry")
 
       REQUIRE(map.editorContext().currentLayer()->childCount() == 2);
       auto* subtrahendNode =
-        dynamic_cast<BrushNode*>(map.editorContext().currentLayer()->children().at(1));
+        dynamic_cast<BrushNode*>(map.editorContext().currentLayer()->children()[1]);
       REQUIRE(subtrahendNode);
       REQUIRE(subtrahendNode->brush().findFace("clip").has_value());
 
@@ -1365,7 +1365,7 @@ TEST_CASE("Map_Geometry")
 
       REQUIRE(map.editorContext().currentLayer()->childCount() == 1);
       auto* result =
-        dynamic_cast<BrushNode*>(map.editorContext().currentLayer()->children().at(0));
+        dynamic_cast<BrushNode*>(map.editorContext().currentLayer()->children()[0]);
 
       CHECK_THAT(
         result->brush().vertexPositions(),
@@ -1404,7 +1404,7 @@ TEST_CASE("Map_Geometry")
 
     SECTION("If no brushes are hollowed, the transaction isn't committed")
     {
-      auto* smallBrushNode = map.editorContext().currentLayer()->children().at(0);
+      auto* smallBrushNode = map.editorContext().currentLayer()->children()[0];
       selectNodes(map, {smallBrushNode});
 
       CHECK(!csgHollow(map));

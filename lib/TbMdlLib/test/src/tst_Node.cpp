@@ -759,7 +759,7 @@ TEST_CASE("Node")
     CHECK(childNode1->parent() == nullptr);
     CHECK(childNode2->parent() == nullptr);
 
-    CHECK_THAT(rootNode.children(), UnorderedEquals(std::vector<Node*>{childNode3}));
+    CHECK_THAT(rootNode.children(), UnorderedRangeEquals(std::vector<Node*>{childNode3}));
     CHECK(childNode3->parent() == &rootNode);
     CHECK(rootNode.childSelectionCount() == 1u);
     CHECK(rootNode.descendantSelectionCount() == 1u);

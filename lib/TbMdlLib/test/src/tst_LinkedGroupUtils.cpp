@@ -1089,23 +1089,23 @@ TEST_CASE("LinkedGroupUtils")
     REQUIRE(linkedOuterGroupNode != nullptr);
 
     auto* linkedOuterEntityNode =
-      dynamic_cast<EntityNode*>(linkedOuterGroupNode->children().at(0));
+      dynamic_cast<EntityNode*>(linkedOuterGroupNode->children()[0]);
     REQUIRE(linkedOuterEntityNode != nullptr);
 
     auto* linkedOuterBrushNode =
-      dynamic_cast<BrushNode*>(linkedOuterGroupNode->children().at(1));
+      dynamic_cast<BrushNode*>(linkedOuterGroupNode->children()[1]);
     REQUIRE(linkedOuterBrushNode != nullptr);
 
     auto* linkedInnerGroupNode =
-      dynamic_cast<GroupNode*>(linkedOuterGroupNode->children().at(2));
+      dynamic_cast<GroupNode*>(linkedOuterGroupNode->children()[2]);
     REQUIRE(linkedInnerGroupNode != nullptr);
 
     auto* linkedInnerPatchNode =
-      dynamic_cast<PatchNode*>(linkedInnerGroupNode->children().at(0));
+      dynamic_cast<PatchNode*>(linkedInnerGroupNode->children()[0]);
     REQUIRE(linkedInnerPatchNode != nullptr);
 
     auto* linkedInnerEntityNode =
-      dynamic_cast<EntityNode*>(linkedInnerGroupNode->children().at(1));
+      dynamic_cast<EntityNode*>(linkedInnerGroupNode->children()[1]);
     REQUIRE(linkedInnerGroupNode != nullptr);
 
     REQUIRE(outerGroupNode->linkId() == linkedOuterGroupNode->linkId());

@@ -53,6 +53,7 @@
 
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/generators/catch_generators.hpp>
+#include <catch2/matchers/catch_matchers_range_equals.hpp>
 
 namespace tb::mdl
 {
@@ -752,25 +753,31 @@ TEST_CASE("Map_Nodes")
       selectNodes(map, {outerGroupNode});
 
       auto* linkedOuterGroupNode = createLinkedDuplicate(map);
-      REQUIRE(
-        outerGroupNode->children()
-        == std::vector<Node*>{outerEntityNode, innerGroupNode});
+      REQUIRE_THAT(
+        outerGroupNode->children(),
+        Catch::Matchers::RangeEquals(
+          std::vector<Node*>{outerEntityNode, innerGroupNode}));
       REQUIRE_THAT(*linkedOuterGroupNode, MatchesNode(*outerGroupNode));
 
       deselectAll(map);
 
       reparentNodes(map, {{&parentForNodes(map), {innerEntityNode}}});
-      CHECK(outerGroupNode->children() == std::vector<Node*>{outerEntityNode});
+      CHECK_THAT(
+        outerGroupNode->children(),
+        Catch::Matchers::RangeEquals(std::vector<Node*>{outerEntityNode}));
       CHECK_THAT(*linkedOuterGroupNode, MatchesNode(*outerGroupNode));
 
       map.undoCommand();
-      CHECK(
-        outerGroupNode->children()
-        == std::vector<Node*>{outerEntityNode, innerGroupNode});
+      CHECK_THAT(
+        outerGroupNode->children(),
+        Catch::Matchers::RangeEquals(
+          std::vector<Node*>{outerEntityNode, innerGroupNode}));
       REQUIRE_THAT(*linkedOuterGroupNode, MatchesNode(*outerGroupNode));
 
       map.redoCommand();
-      CHECK(outerGroupNode->children() == std::vector<Node*>{outerEntityNode});
+      CHECK_THAT(
+        outerGroupNode->children(),
+        Catch::Matchers::RangeEquals(std::vector<Node*>{outerEntityNode}));
       CHECK_THAT(*linkedOuterGroupNode, MatchesNode(*outerGroupNode));
     }
 
@@ -1260,23 +1267,29 @@ TEST_CASE("Map_Nodes")
       auto* linkedOuterGroupNode = createLinkedDuplicate(map);
       deselectAll(map);
 
-      REQUIRE(
-        outerGroupNode->children()
-        == std::vector<Node*>{outerEntityNode, innerGroupNode});
+      REQUIRE_THAT(
+        outerGroupNode->children(),
+        Catch::Matchers::RangeEquals(
+          std::vector<Node*>{outerEntityNode, innerGroupNode}));
       REQUIRE_THAT(*linkedOuterGroupNode, MatchesNode(*outerGroupNode));
 
       removeNodes(map, {innerEntityNode});
-      REQUIRE(outerGroupNode->children() == std::vector<Node*>{outerEntityNode});
+      REQUIRE_THAT(
+        outerGroupNode->children(),
+        Catch::Matchers::RangeEquals(std::vector<Node*>{outerEntityNode}));
       CHECK_THAT(*linkedOuterGroupNode, MatchesNode(*outerGroupNode));
 
       map.undoCommand();
-      REQUIRE(
-        outerGroupNode->children()
-        == std::vector<Node*>{outerEntityNode, innerGroupNode});
+      REQUIRE_THAT(
+        outerGroupNode->children(),
+        Catch::Matchers::RangeEquals(
+          std::vector<Node*>{outerEntityNode, innerGroupNode}));
       CHECK_THAT(*linkedOuterGroupNode, MatchesNode(*outerGroupNode));
 
       map.redoCommand();
-      REQUIRE(outerGroupNode->children() == std::vector<Node*>{outerEntityNode});
+      REQUIRE_THAT(
+        outerGroupNode->children(),
+        Catch::Matchers::RangeEquals(std::vector<Node*>{outerEntityNode}));
       CHECK_THAT(*linkedOuterGroupNode, MatchesNode(*outerGroupNode));
     }
   }
@@ -1289,7 +1302,9 @@ TEST_CASE("Map_Nodes")
 
     removeSelectedNodes(map);
     CHECK(map.selection().nodes == std::vector<Node*>{});
-    CHECK(map.worldNode().defaultLayer()->children() == std::vector<Node*>{});
+    CHECK_THAT(
+      map.worldNode().defaultLayer()->children(),
+      Catch::Matchers::RangeEquals(std::vector<Node*>{}));
   }
 
   SECTION("updateNodeContents")

@@ -592,7 +592,7 @@ Result<void> visitChildrenPerPosition(
   }
 
   return kdl::views::zip_transform(
-           [&](auto& sourceChild, auto& targetChild) {
+           [&](auto* sourceChild, auto* targetChild) {
              return visitNodesPerPosition(
                *sourceChild, *targetChild, f, recursionMode, depth);
            },
