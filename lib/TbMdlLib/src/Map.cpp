@@ -495,8 +495,8 @@ bool updateLinkedGroups(Map& map)
   return true;
 }
 
-void addToNodeIndex(
-  NodeIndex& nodeIndex, const std::vector<Node*>& nodes, const bool recurse)
+template <std::ranges::range R>
+void addToNodeIndex(NodeIndex& nodeIndex, R&& nodes, const bool recurse)
 {
   for (auto* node : nodes)
   {
@@ -509,8 +509,8 @@ void addToNodeIndex(
   }
 }
 
-void removeFromNodeIndex(
-  NodeIndex& nodeIndex, const std::vector<Node*>& nodes, const bool recurse)
+template <std::ranges::range R>
+void removeFromNodeIndex(NodeIndex& nodeIndex, R&& nodes, const bool recurse)
 {
   for (auto* node : nodes)
   {
@@ -525,13 +525,11 @@ void removeFromNodeIndex(
 
 void initializeNodeIndex(NodeIndex& nodeIndex, WorldNode& worldNode)
 {
-  addToNodeIndex(nodeIndex, {&worldNode}, true);
+  addToNodeIndex(nodeIndex, std::vector{&worldNode}, true);
 }
 
-void addEntityLinks(
-  EntityLinkManager& entityLinkManager,
-  const std::vector<Node*>& nodes,
-  const bool recurse)
+template <std::ranges::range R>
+void addEntityLinks(EntityLinkManager& entityLinkManager, R&& nodes, const bool recurse)
 {
   for (auto* node : nodes)
   {
@@ -550,10 +548,9 @@ void addEntityLinks(
   }
 }
 
+template <std::ranges::range R>
 void removeEntityLinks(
-  EntityLinkManager& entityLinkManager,
-  const std::vector<Node*>& nodes,
-  const bool recurse)
+  EntityLinkManager& entityLinkManager, R&& nodes, const bool recurse)
 {
   for (auto* node : nodes)
   {
@@ -574,7 +571,7 @@ void removeEntityLinks(
 
 void initializeEntityLinks(EntityLinkManager& entityLinkManager, WorldNode& worldNode)
 {
-  addEntityLinks(entityLinkManager, {&worldNode}, true);
+  addEntityLinks(entityLinkManager, std::vector{&worldNode}, true);
 }
 
 void clearEntityLinks(EntityLinkManager& entityLinkManager)

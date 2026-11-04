@@ -41,13 +41,15 @@
 #include <fmt/ostream.h>
 
 #include <algorithm>
+#include <ranges>
 
 namespace tb::mdl
 {
 
 namespace
 {
-bool nodesMatch(const std::vector<Node*>& lhs, const std::vector<Node*>& rhs);
+template <std::ranges::range R1, std::ranges::range R2>
+bool nodesMatch(R1&& lhs, R2&& rhs);
 
 bool nodesMatch(const Node& lhs, const Node& rhs)
 {
@@ -91,7 +93,8 @@ bool nodesMatch(const Node& lhs, const Node& rhs)
     }));
 }
 
-bool nodesMatch(const std::vector<Node*>& lhs, const std::vector<Node*>& rhs)
+template <std::ranges::range R1, std::ranges::range R2>
+bool nodesMatch(R1&& lhs, R2&& rhs)
 {
   return std::ranges::equal(lhs, rhs, [](const auto* lhsChild, const auto* rhsChild) {
     return nodesMatch(*lhsChild, *rhsChild);

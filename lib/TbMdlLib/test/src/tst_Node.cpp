@@ -1077,6 +1077,14 @@ TEST_CASE("Node")
     Node::visitAll(toVisit, makeCollectVisitedNodesVisitor(visited));
 
     CHECK_THAT(visited, Equals(toVisit));
+
+    auto visitedFiltered = std::vector<Node*>{};
+    Node::visitAll(
+      toVisit | std::views::filter([&](const auto* node) { return node != &groupNode; }),
+      makeCollectVisitedNodesVisitor(visitedFiltered));
+
+    CHECK_THAT(
+      visitedFiltered, Equals(std::vector<Node*>{&worldNode, &layerNode, &entityNode}));
   }
 
   SECTION("visitChildren")

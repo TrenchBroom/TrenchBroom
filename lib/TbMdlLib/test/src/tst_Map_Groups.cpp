@@ -979,7 +979,7 @@ TEST_CASE("Map_Groups")
 
         const auto [newProtectedGroupNode, newUnprotectedGroupNode] =
           findNodeOrDescendant<EntityNode>(
-            {newGroupNodes[0]->children()},
+            newGroupNodes[0]->children(),
             [](const auto& entityNode) {
               return !entityNode.entity().protectedProperties().empty();
             })

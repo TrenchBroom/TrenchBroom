@@ -431,9 +431,9 @@ public: // visitors
    * Visit every node in the given vector with the given lambda.
    */
   template <typename R, typename L>
-  static void visitAll(const R& nodes, const L& lambda)
+  static void visitAll(R&& nodes, const L& lambda)
   {
-    for (auto& node : nodes)
+    for (const auto& node : nodes)
     {
       node->accept(lambda);
     }

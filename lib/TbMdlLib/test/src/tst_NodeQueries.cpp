@@ -34,6 +34,8 @@
 
 #include "kd/result.h"
 
+#include <ranges>
+
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers_vector.hpp>
 
@@ -111,6 +113,12 @@ TEST_CASE("NodeQueries")
     CHECK(
       findNodeOrDescendant<GroupNode>({&worldNode}, [](const GroupNode&) { return true; })
       == outerGroupNode);
+    CHECK(
+      findNodeOrDescendant<GroupNode>(
+        worldNode.children()
+          | std::views::filter([&](const auto* node) { return node != layerNode; }),
+        [](const GroupNode&) { return true; })
+      == nullptr);
   }
 
   SECTION("collectNodes")

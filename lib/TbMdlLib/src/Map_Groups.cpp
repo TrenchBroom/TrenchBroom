@@ -163,8 +163,8 @@ bool hasLinkIdOf(const Node& node, const std::unordered_set<std::string>& linkId
     [&](const PatchNode& patchNode) { return linkIds.contains(patchNode.linkId()); }));
 }
 
-bool recursivelyHasLinkIdOf(
-  const std::vector<Node*>& nodes, const std::unordered_set<std::string>& linkIds)
+template <std::ranges::range R>
+bool recursivelyHasLinkIdOf(R&& nodes, const std::unordered_set<std::string>& linkIds)
 {
   return std::ranges::any_of(nodes, [&](const auto* node) {
     return hasLinkIdOf(*node, linkIds)
