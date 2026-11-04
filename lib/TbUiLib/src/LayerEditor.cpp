@@ -44,6 +44,7 @@
 #include "ui/ViewUtils.h"
 
 #include "kd/contracts.h"
+#include "kd/ranges/to.h"
 #include "kd/vector_utils.h"
 
 #include <algorithm>
@@ -265,7 +266,9 @@ void LayerEditor::onRemoveLayer()
   deselectAll(map);
   if (layerNode->hasChildren())
   {
-    if (!reparentNodes(map, {{defaultLayerNode, layerNode->children()}}))
+    if (!reparentNodes(
+          map,
+          {{defaultLayerNode, layerNode->children() | kdl::ranges::to<std::vector>()}}))
     {
       transaction.cancel();
       return;

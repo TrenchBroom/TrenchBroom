@@ -34,6 +34,7 @@
 #include "kd/contracts.h"
 #include "kd/k.h"
 #include "kd/overload.h"
+#include "kd/ranges/to.h"
 
 #include "vm/bbox_io.h" // IWYU pragma: keep
 
@@ -282,8 +283,8 @@ Node* WorldNode::doCloneRecursively(const vm::bbox3d& worldBounds) const
 
   const auto& myChildren = children();
   auto* worldNode = static_cast<WorldNode*>(clone(worldBounds));
-  worldNode->defaultLayer()->addChildren(
-    cloneRecursively(worldBounds, m_defaultLayer->children()));
+  worldNode->defaultLayer()->addChildren(cloneRecursively(
+    worldBounds, m_defaultLayer->children() | kdl::ranges::to<std::vector>()));
 
   if (myChildren.size() > 1)
   {

@@ -29,6 +29,7 @@
 #include "mdl/Map_Selection.h"
 
 #include "kd/flat_map.h"
+#include "kd/ranges/to.h"
 #include "kd/vector_utils.h"
 
 #include <vector>
@@ -48,7 +49,8 @@ IssueQuickFix makeMoveBrushesToWorldQuickFix()
             for (const auto* issue : issues)
             {
               auto& node = issue->node();
-              nodesToReparent[node.parent()] = node.children();
+              nodesToReparent[node.parent()] =
+                node.children() | kdl::ranges::to<std::vector>();
 
               affectedNodes.push_back(&node);
               kdl::vec_append(affectedNodes, node.children());

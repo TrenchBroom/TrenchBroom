@@ -861,10 +861,10 @@ TEST_CASE("BrushNode")
 
       CHECK(nodes.value().size() == 1u);
       CHECK(nodes.value().at(0)->hasChildren());
-      CHECK(nodes.value().at(0)->children().size() == 2u);
+      REQUIRE(nodes.value().at(0)->children().size() == 2u);
 
-      auto* pipe = static_cast<BrushNode*>(nodes.value().at(0)->children().at(0));
-      auto* cube = static_cast<BrushNode*>(nodes.value().at(0)->children().at(1));
+      auto* pipe = static_cast<BrushNode*>(nodes.value().at(0)->children()[0]);
+      auto* cube = static_cast<BrushNode*>(nodes.value().at(0)->children()[1]);
 
       CHECK(pipe->intersects(*cube));
       CHECK(cube->intersects(*pipe));

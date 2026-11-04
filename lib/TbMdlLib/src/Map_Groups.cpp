@@ -330,7 +330,7 @@ void ungroupSelectedNodes(Map& map)
       [](LayerNode&) {},
       [&](GroupNode& groupNode) {
         auto* parent = groupNode.parent();
-        const auto children = groupNode.children();
+        const auto children = groupNode.children() | kdl::ranges::to<std::vector>();
         success = success && reparentNodes(map, {{parent, children}});
         kdl::vec_append(nodesToReselect, children);
       },
@@ -364,7 +364,7 @@ void mergeSelectedGroupsWithGroup(Map& map, GroupNode* group)
   {
     if (groupToMerge != group)
     {
-      const auto children = groupToMerge->children();
+      const auto children = groupToMerge->children() | kdl::ranges::to<std::vector>();
       if (!reparentNodes(map, {{group, children}}))
       {
         transaction.cancel();

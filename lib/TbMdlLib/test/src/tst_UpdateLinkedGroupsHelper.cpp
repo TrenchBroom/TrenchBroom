@@ -39,7 +39,7 @@
 
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/generators/catch_generators.hpp>
-#include <catch2/matchers/catch_matchers_vector.hpp>
+#include <catch2/matchers/catch_matchers_range_equals.hpp>
 
 namespace tb::mdl
 {
@@ -251,7 +251,7 @@ TEST_CASE("UpdateLinkedGroupsHelper")
 
       REQUIRE(linkedGroupNode->childCount() == 1u);
       CHECK_THAT(
-        linkedGroupNode->children(), Equals(std::vector<Node*>{linkedBrushNode}));
+        linkedGroupNode->children(), RangeEquals(std::vector<Node*>{linkedBrushNode}));
       CHECK(linkedBrushNode->parent() == linkedGroupNode);
       CHECK(
         linkedBrushNode->physicalBounds()

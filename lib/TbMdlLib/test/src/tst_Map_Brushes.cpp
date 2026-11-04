@@ -277,7 +277,7 @@ TEST_CASE("Map_Brushes")
       REQUIRE(map.editorContext().currentLayer() != nullptr);
 
       auto* lavabrush =
-        dynamic_cast<BrushNode*>(map.editorContext().currentLayer()->children().at(0));
+        dynamic_cast<BrushNode*>(map.editorContext().currentLayer()->children()[0]);
       REQUIRE(lavabrush);
       CHECK(getFace(*lavabrush, 0).surfaceAttributes().empty());
       CHECK(
@@ -285,7 +285,7 @@ TEST_CASE("Map_Brushes")
         == LavaFlag); // comes from the .wal texture
 
       auto* waterbrush =
-        dynamic_cast<BrushNode*>(map.editorContext().currentLayer()->children().at(1));
+        dynamic_cast<BrushNode*>(map.editorContext().currentLayer()->children()[1]);
       REQUIRE(waterbrush);
       CHECK(getFace(*waterbrush, 0).surfaceAttributes().empty());
       CHECK(
@@ -410,7 +410,7 @@ TEST_CASE("Map_Brushes")
         // check that the brushes in both linked groups got a material
         for (auto* g : std::vector<GroupNode*>{groupNode, linkedGroupNode})
         {
-          auto* brush = dynamic_cast<BrushNode*>(g->children().at(0));
+          auto* brush = dynamic_cast<BrushNode*>(g->children()[0]);
           REQUIRE(brush != nullptr);
 
           CHECK(getFace(*brush, 0).materialName() == "abc");

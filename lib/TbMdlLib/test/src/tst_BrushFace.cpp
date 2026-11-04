@@ -781,7 +781,7 @@ TEST_CASE("BrushFace")
       NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status, taskManager);
     REQUIRE(nodes);
 
-    auto* pyramidLight = dynamic_cast<BrushNode*>(nodes.value().at(0)->children().at(0));
+    auto* pyramidLight = dynamic_cast<BrushNode*>(nodes.value().at(0)->children()[0]);
     REQUIRE(pyramidLight != nullptr);
 
     auto brush = pyramidLight->brush();
@@ -845,7 +845,7 @@ TEST_CASE("BrushFace")
       NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status, taskManager);
     REQUIRE(nodes);
 
-    auto* pyramidLight = dynamic_cast<BrushNode*>(nodes.value().at(0)->children().at(0));
+    auto* pyramidLight = dynamic_cast<BrushNode*>(nodes.value().at(0)->children()[0]);
     REQUIRE(pyramidLight != nullptr);
 
     auto brush = pyramidLight->brush();
@@ -922,7 +922,7 @@ TEST_CASE("BrushFace")
       NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status, taskManager);
     REQUIRE(nodes);
 
-    auto* brushNode = dynamic_cast<BrushNode*>(nodes.value().at(0)->children().at(0));
+    auto* brushNode = dynamic_cast<BrushNode*>(nodes.value().at(0)->children()[0]);
     CHECK(brushNode != nullptr);
 
     auto brush = brushNode->brush();
@@ -1013,7 +1013,7 @@ TEST_CASE("BrushFace")
       NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status, taskManager);
     REQUIRE(nodes);
 
-    auto* brushNode = dynamic_cast<BrushNode*>(nodes.value().at(0)->children().at(0));
+    auto* brushNode = dynamic_cast<BrushNode*>(nodes.value().at(0)->children()[0]);
     REQUIRE(brushNode != nullptr);
 
     auto brush = brushNode->brush();

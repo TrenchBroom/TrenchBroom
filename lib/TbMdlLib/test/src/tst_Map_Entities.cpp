@@ -41,6 +41,7 @@
 
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/generators/catch_generators.hpp>
+#include <catch2/matchers/catch_matchers_range_equals.hpp>
 #include <catch2/matchers/catch_matchers_vector.hpp>
 
 namespace tb::mdl
@@ -110,7 +111,9 @@ TEST_CASE("Map_Entities")
       auto* entityNode =
         createPointEntity(map, *pointEntityDefinition, vm::vec3d{16.0, 32.0, 48.0});
       CHECK(entityNode != nullptr);
-      CHECK(map.worldNode().defaultLayer()->children() == std::vector<Node*>{entityNode});
+      CHECK_THAT(
+        map.worldNode().defaultLayer()->children(),
+        RangeEquals(std::vector<Node*>{entityNode}));
       CHECK(entityNode->entity().definition() == pointEntityDefinition);
       CHECK(entityNode->entity().origin() == vm::vec3d{16.0, 32.0, 48.0});
       CHECK(map.selection().nodes == std::vector<Node*>{entityNode});
@@ -118,12 +121,14 @@ TEST_CASE("Map_Entities")
       SECTION("Undo and redo")
       {
         map.undoCommand();
-        CHECK(map.worldNode().defaultLayer()->children() == std::vector<Node*>{});
+        CHECK_THAT(
+          map.worldNode().defaultLayer()->children(), RangeEquals(std::vector<Node*>{}));
         CHECK(map.selection().nodes == std::vector<Node*>{});
 
         map.redoCommand();
-        CHECK(
-          map.worldNode().defaultLayer()->children() == std::vector<Node*>{entityNode});
+        CHECK_THAT(
+          map.worldNode().defaultLayer()->children(),
+          RangeEquals(std::vector<Node*>{entityNode}));
         CHECK(entityNode->entity().definition() == pointEntityDefinition);
         CHECK(entityNode->entity().origin() == vm::vec3d{16.0, 32.0, 48.0});
         CHECK(map.selection().nodes == std::vector<Node*>{entityNode});
@@ -224,22 +229,26 @@ TEST_CASE("Map_Entities")
       selectNodes(map, {brushNode});
       auto* entityNode = createBrushEntity(map, *brushEntityDefinition);
       CHECK(entityNode != nullptr);
-      CHECK(map.worldNode().defaultLayer()->children() == std::vector<Node*>{entityNode});
-      CHECK(entityNode->children() == std::vector<Node*>{brushNode});
+      CHECK_THAT(
+        map.worldNode().defaultLayer()->children(),
+        RangeEquals(std::vector<Node*>{entityNode}));
+      CHECK_THAT(entityNode->children(), RangeEquals(std::vector<Node*>{brushNode}));
       CHECK(entityNode->entity().definition() == brushEntityDefinition);
       CHECK(map.selection().nodes == std::vector<Node*>{brushNode});
 
       SECTION("Undo and redo")
       {
         map.undoCommand();
-        CHECK(
-          map.worldNode().defaultLayer()->children() == std::vector<Node*>{brushNode});
+        CHECK_THAT(
+          map.worldNode().defaultLayer()->children(),
+          RangeEquals(std::vector<Node*>{brushNode}));
         CHECK(map.selection().nodes == std::vector<Node*>{brushNode});
 
         map.redoCommand();
-        CHECK(
-          map.worldNode().defaultLayer()->children() == std::vector<Node*>{entityNode});
-        CHECK(entityNode->children() == std::vector<Node*>{brushNode});
+        CHECK_THAT(
+          map.worldNode().defaultLayer()->children(),
+          RangeEquals(std::vector<Node*>{entityNode}));
+        CHECK_THAT(entityNode->children(), RangeEquals(std::vector<Node*>{brushNode}));
         CHECK(entityNode->entity().definition() == brushEntityDefinition);
         CHECK(map.selection().nodes == std::vector<Node*>{brushNode});
       }
@@ -253,22 +262,26 @@ TEST_CASE("Map_Entities")
       selectNodes(map, {patchNode});
       auto* entityNode = createBrushEntity(map, *brushEntityDefinition);
       CHECK(entityNode != nullptr);
-      CHECK(map.worldNode().defaultLayer()->children() == std::vector<Node*>{entityNode});
-      CHECK(entityNode->children() == std::vector<Node*>{patchNode});
+      CHECK_THAT(
+        map.worldNode().defaultLayer()->children(),
+        RangeEquals(std::vector<Node*>{entityNode}));
+      CHECK_THAT(entityNode->children(), RangeEquals(std::vector<Node*>{patchNode}));
       CHECK(entityNode->entity().definition() == brushEntityDefinition);
       CHECK(map.selection().nodes == std::vector<Node*>{patchNode});
 
       SECTION("Undo and redo")
       {
         map.undoCommand();
-        CHECK(
-          map.worldNode().defaultLayer()->children() == std::vector<Node*>{patchNode});
+        CHECK_THAT(
+          map.worldNode().defaultLayer()->children(),
+          RangeEquals(std::vector<Node*>{patchNode}));
         CHECK(map.selection().nodes == std::vector<Node*>{patchNode});
 
         map.redoCommand();
-        CHECK(
-          map.worldNode().defaultLayer()->children() == std::vector<Node*>{entityNode});
-        CHECK(entityNode->children() == std::vector<Node*>{patchNode});
+        CHECK_THAT(
+          map.worldNode().defaultLayer()->children(),
+          RangeEquals(std::vector<Node*>{entityNode}));
+        CHECK_THAT(entityNode->children(), RangeEquals(std::vector<Node*>{patchNode}));
         CHECK(entityNode->entity().definition() == brushEntityDefinition);
         CHECK(map.selection().nodes == std::vector<Node*>{patchNode});
       }
@@ -553,11 +566,11 @@ TEST_CASE("Map_Entities")
       // selected seems unlikely.
       CHECK(!setEntityProperty(map, "key", "value"));
 
-      auto* groupNodeEntity = dynamic_cast<EntityNode*>(groupNode->children().at(0));
+      auto* groupNodeEntity = dynamic_cast<EntityNode*>(groupNode->children()[0]);
       auto* linkedEntityNode1 =
-        dynamic_cast<EntityNode*>(linkedGroupNode1->children().at(0));
+        dynamic_cast<EntityNode*>(linkedGroupNode1->children()[0]);
       auto* linkedEntityNode2 =
-        dynamic_cast<EntityNode*>(linkedGroupNode2->children().at(0));
+        dynamic_cast<EntityNode*>(linkedGroupNode2->children()[0]);
       REQUIRE(groupNodeEntity != nullptr);
       REQUIRE(linkedEntityNode1 != nullptr);
       REQUIRE(linkedEntityNode2 != nullptr);

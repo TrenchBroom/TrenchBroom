@@ -33,6 +33,7 @@
 #include "mdl/WorldNode.h"
 
 #include "kd/overload.h"
+#include "kd/ranges/to.h"
 
 #include <sstream>
 
@@ -46,7 +47,7 @@ void printNodes(
 void printChildren(const Node& node, const std::string& indent, std::ostream& str)
 {
   str << indent << "m_children: ";
-  printNodes(node.children(), indent, str);
+  printNodes(node.children() | kdl::ranges::to<std::vector>(), indent, str);
 }
 
 void printWorldNode(
