@@ -570,10 +570,10 @@ void MapView3D::renderMap(
     auto boundsRenderer = render::SelectionBoundsRenderer{*bounds};
     boundsRenderer.render(renderContext, renderBatch);
 
-    auto* guideRenderer = new render::BoundsGuideRenderer{};
+    auto guideRenderer = std::make_unique<render::BoundsGuideRenderer>();
     guideRenderer->setColor(pref(Preferences::SelectionBoundsColor));
     guideRenderer->setBounds(*bounds);
-    renderBatch.addOneShot(guideRenderer);
+    renderBatch.addOneShot(std::move(guideRenderer));
   }
 }
 

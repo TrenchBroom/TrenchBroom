@@ -19,6 +19,8 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
+#include <concepts>
+#include <memory>
 #include <vector>
 
 namespace tb
@@ -43,13 +45,13 @@ private:
 
   using RenderableList = std::vector<Renderable*>;
   using DirectRenderableList = std::vector<DirectRenderable*>;
-  using IndexedRenderableList = std::vector<IndexedRenderable*>;
+  using IndexedRenderableList = std::vector<std::unique_ptr<IndexedRenderable>>;
 
   DirectRenderableList m_directRenderables;
   IndexedRenderableList m_indexedRenderables;
 
   RenderableList m_batch;
-  RenderableList m_oneshots;
+  std::vector<std::unique_ptr<Renderable>> m_oneshots;
 
 public:
   explicit RenderBatch(gl::VboManager& vboManager);
@@ -63,9 +65,12 @@ public:
    * Same as `add()`, but takes ownership of the given renderable and deletes it in
    * `~RenderBatch`.
    */
-  void addOneShot(Renderable* renderable);
-  void addOneShot(DirectRenderable* renderable);
-  void addOneShot(IndexedRenderable* renderable);
+  template <std::derived_from<Renderable> T>
+  void addOneShot(std::unique_ptr<T> renderable)
+  {
+    add(renderable.get());
+    m_oneshots.push_back(std::move(renderable));
+  }
 
   void render(RenderContext& renderContext);
 

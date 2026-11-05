@@ -403,9 +403,9 @@ void RenderService::renderFilledCircle(
 
 void RenderService::flush()
 {
-  m_renderBatch.addOneShot(m_primitiveRenderer.release());
-  m_renderBatch.addOneShot(m_pointHandleRenderer.release());
-  m_renderBatch.addOneShot(m_textRenderer.release());
+  m_renderBatch.addOneShot(std::move(m_primitiveRenderer));
+  m_renderBatch.addOneShot(std::move(m_pointHandleRenderer));
+  m_renderBatch.addOneShot(std::move(m_textRenderer));
 }
 
 } // namespace tb::render
