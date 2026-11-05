@@ -198,7 +198,7 @@ public:
   template <typename Index>
   static IndexArray copy(const std::vector<Index>& indices)
   {
-    return IndexArray(BaseHolder::Ptr(new ByValueHolder<Index>(indices)));
+    return IndexArray(std::make_shared<ByValueHolder<Index>>(indices));
   }
 
   /**
@@ -212,7 +212,7 @@ public:
   template <typename Index>
   static IndexArray move(std::vector<Index>&& indices)
   {
-    return IndexArray(BaseHolder::Ptr(new ByValueHolder<Index>(std::move(indices))));
+    return IndexArray(std::make_shared<ByValueHolder<Index>>(std::move(indices)));
   }
 
   /**
@@ -231,7 +231,7 @@ public:
   template <typename Index>
   static IndexArray ref(const std::vector<Index>& indices)
   {
-    return IndexArray(BaseHolder::Ptr(new ByRefHolder<Index>(indices)));
+    return IndexArray(std::make_shared<ByRefHolder<Index>>(indices));
   }
 
   /**

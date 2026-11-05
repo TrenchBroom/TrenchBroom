@@ -171,7 +171,7 @@ Result<void> CFile::read(char* val, const size_t position, const size_t size) co
 
 Result<CFile::BufferType> CFile::buffer(const size_t position, const size_t size) const
 {
-  auto buffer = std::shared_ptr<char[]>{new char[size]};
+  auto buffer = std::make_shared_for_overwrite<char[]>(size);
 
   return read(buffer.get(), position, size)
          | kdl::transform([&]() { return std::move(buffer); });

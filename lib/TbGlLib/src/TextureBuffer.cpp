@@ -33,7 +33,7 @@ TextureBuffer::TextureBuffer() = default;
  * Note, buffer is created defult-initialized (i.e., uninitialized) on purpose.
  */
 TextureBuffer::TextureBuffer(const size_t size)
-  : m_buffer{new unsigned char[size]}
+  : m_buffer{std::make_unique_for_overwrite<unsigned char[]>(size)}
   , m_size{size}
 {
 }
