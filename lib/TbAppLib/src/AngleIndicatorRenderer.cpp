@@ -34,6 +34,7 @@
 #include "vm/quat.h"
 #include "vm/vec.h"
 
+#include <memory>
 #include <sstream>
 
 namespace tb::ui
@@ -111,8 +112,8 @@ void renderAngleIndicator(
     const auto startAxis = vm::normalize(initialHandlePosition - center);
     const auto endAxis = vm::quatd{axis, angle} * startAxis;
 
-    renderBatch.addOneShot(new AngleIndicatorRenderer{
-      center, radius, vm::find_abs_max_component(axis), startAxis, endAxis});
+    renderBatch.addOneShot(std::make_unique<AngleIndicatorRenderer>(
+      center, radius, vm::find_abs_max_component(axis), startAxis, endAxis));
   }
 }
 

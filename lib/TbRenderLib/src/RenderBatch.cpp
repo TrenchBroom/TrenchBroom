@@ -24,7 +24,6 @@
 #include "render/Renderable.h"
 
 #include "kd/contracts.h"
-#include "kd/vector_utils.h"
 
 namespace tb::render
 {
@@ -58,11 +57,7 @@ RenderBatch::RenderBatch(gl::VboManager& vboManager)
 {
 }
 
-RenderBatch::~RenderBatch()
-{
-  kdl::vec_clear_and_delete(m_oneshots);
-  kdl::vec_clear_and_delete(m_indexedRenderables);
-}
+RenderBatch::~RenderBatch() = default;
 
 void RenderBatch::add(Renderable* renderable)
 {
@@ -77,30 +72,9 @@ void RenderBatch::add(DirectRenderable* renderable)
 
 void RenderBatch::add(IndexedRenderable* renderable)
 {
-  auto* wrapper = new IndexedRenderableWrapper{m_vboManager, *renderable};
-  doAdd(wrapper);
-  m_indexedRenderables.push_back(wrapper);
-}
-
-void RenderBatch::addOneShot(Renderable* renderable)
-{
-  doAdd(renderable);
-  m_oneshots.push_back(renderable);
-}
-
-void RenderBatch::addOneShot(DirectRenderable* renderable)
-{
-  doAdd(renderable);
-  m_directRenderables.push_back(renderable);
-  m_oneshots.push_back(renderable);
-}
-
-void RenderBatch::addOneShot(IndexedRenderable* renderable)
-{
-  auto* wrapper = new IndexedRenderableWrapper{m_vboManager, *renderable};
-  doAdd(wrapper);
-  m_indexedRenderables.push_back(wrapper);
-  m_oneshots.push_back(renderable);
+  const auto& wrapper = m_indexedRenderables.emplace_back(
+    std::make_unique<IndexedRenderableWrapper>(m_vboManager, *renderable));
+  doAdd(wrapper.get());
 }
 
 void RenderBatch::render(RenderContext& renderContext)
@@ -122,7 +96,7 @@ void RenderBatch::prepareRenderables(gl::Gl& gl)
   {
     renderable->prepare(gl, m_vboManager);
   }
-  for (auto* renderable : m_indexedRenderables)
+  for (const auto& renderable : m_indexedRenderables)
   {
     renderable->prepare(gl, m_vboManager);
   }

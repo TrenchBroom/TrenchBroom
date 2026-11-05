@@ -255,8 +255,8 @@ public:
   void render(const InputState&, render::RenderContext&, render::RenderBatch& renderBatch)
     const override
   {
-    renderBatch.addOneShot(
-      new Render{m_helper, float(CenterHandleRadius), float(RotateHandleRadius), true});
+    renderBatch.addOneShot(std::make_unique<Render>(
+      m_helper, float(CenterHandleRadius), float(RotateHandleRadius), true));
   }
 };
 
@@ -396,8 +396,8 @@ void UvRotateTool::render(
   const auto highlight =
     inputState.modifierKeysPressed(ModifierKeys::CtrlCmd)
     || inputState.pickResult().first(type(AngleHandleHitType)).isMatch();
-  renderBatch.addOneShot(new Render{
-    m_helper, float(CenterHandleRadius), float(RotateHandleRadius), highlight});
+  renderBatch.addOneShot(std::make_unique<Render>(
+    m_helper, float(CenterHandleRadius), float(RotateHandleRadius), highlight));
 }
 
 bool UvRotateTool::cancel()

@@ -324,7 +324,7 @@ void UvView::renderMaterial(render::RenderContext&, render::RenderBatch& renderB
 {
   if (getTexture(m_helper.face()->material()))
   {
-    renderBatch.addOneShot(new RenderMaterial{m_helper});
+    renderBatch.addOneShot(std::make_unique<RenderMaterial>(m_helper));
   }
 }
 

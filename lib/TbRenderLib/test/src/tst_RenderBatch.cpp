@@ -26,6 +26,7 @@
 #include "render/RenderContext.h"
 #include "render/Renderable.h"
 
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -112,17 +113,17 @@ TEST_CASE("RenderBatch")
     {
       auto order = std::vector<std::string>{};
       auto destroyed = false;
-      auto* renderable = new RecordingRenderable{order, destroyed};
+      auto renderable = std::make_unique<RecordingRenderable>(order, destroyed);
 
       {
         auto batch = RenderBatch{vboManager};
-        batch.add(renderable);
+        batch.add(renderable.get());
         batch.render(renderContext);
         CHECK(order == std::vector<std::string>{"rendered"});
       }
 
       CHECK(!destroyed);
-      delete renderable;
+      renderable.reset();
       CHECK(destroyed);
     }
 
@@ -130,17 +131,17 @@ TEST_CASE("RenderBatch")
     {
       auto order = std::vector<std::string>{};
       auto destroyed = false;
-      auto* renderable = new RecordingDirectRenderable{order, destroyed};
+      auto renderable = std::make_unique<RecordingDirectRenderable>(order, destroyed);
 
       {
         auto batch = RenderBatch{vboManager};
-        batch.add(renderable);
+        batch.add(renderable.get());
         batch.render(renderContext);
         CHECK(order == std::vector<std::string>{"prepared", "rendered"});
       }
 
       CHECK(!destroyed);
-      delete renderable;
+      renderable.reset();
       CHECK(destroyed);
     }
 
@@ -150,32 +151,30 @@ TEST_CASE("RenderBatch")
     {
       auto order = std::vector<std::string>{};
       auto destroyed = false;
-      auto* renderable = new RecordingIndexedRenderable{order, destroyed};
+      auto renderable = std::make_unique<RecordingIndexedRenderable>(order, destroyed);
 
       {
         auto batch = RenderBatch{vboManager};
-        batch.add(renderable);
+        batch.add(renderable.get());
         batch.render(renderContext);
         CHECK(order == std::vector<std::string>{"prepared", "rendered"});
       }
 
       CHECK(!destroyed);
-      delete renderable;
+      renderable.reset();
       CHECK(destroyed);
     }
   }
 
   SECTION("addOneShot")
   {
-    SECTION("Renderable* renders it and takes ownership")
+    SECTION("Renderable renders it and takes ownership")
     {
       auto order = std::vector<std::string>{};
       auto destroyed = false;
-      auto* renderable = new RecordingRenderable{order, destroyed};
-
       {
         auto batch = RenderBatch{vboManager};
-        batch.addOneShot(renderable);
+        batch.addOneShot(std::make_unique<RecordingRenderable>(order, destroyed));
         batch.render(renderContext);
         CHECK(order == std::vector<std::string>{"rendered"});
         CHECK(!destroyed);
@@ -184,15 +183,13 @@ TEST_CASE("RenderBatch")
       CHECK(destroyed); // the batch deleted it on destruction
     }
 
-    SECTION("DirectRenderable* prepares, renders and takes ownership")
+    SECTION("DirectRenderable prepares, renders and takes ownership")
     {
       auto order = std::vector<std::string>{};
       auto destroyed = false;
-      auto* renderable = new RecordingDirectRenderable{order, destroyed};
-
       {
         auto batch = RenderBatch{vboManager};
-        batch.addOneShot(renderable);
+        batch.addOneShot(std::make_unique<RecordingDirectRenderable>(order, destroyed));
         batch.render(renderContext);
         CHECK(order == std::vector<std::string>{"prepared", "rendered"});
         CHECK(!destroyed);
@@ -201,15 +198,13 @@ TEST_CASE("RenderBatch")
       CHECK(destroyed);
     }
 
-    SECTION("IndexedRenderable* prepares, renders and takes ownership of the original")
+    SECTION("IndexedRenderable prepares, renders and takes ownership of the original")
     {
       auto order = std::vector<std::string>{};
       auto destroyed = false;
-      auto* renderable = new RecordingIndexedRenderable{order, destroyed};
-
       {
         auto batch = RenderBatch{vboManager};
-        batch.addOneShot(renderable);
+        batch.addOneShot(std::make_unique<RecordingIndexedRenderable>(order, destroyed));
         batch.render(renderContext);
         CHECK(order == std::vector<std::string>{"prepared", "rendered"});
         CHECK(!destroyed);
