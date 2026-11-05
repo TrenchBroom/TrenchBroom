@@ -749,12 +749,14 @@ std::vector<Error> copyAndSetLinkIds(
 }
 
 std::vector<Error> copyAndSetLinkIdsBeforeAddingNodes(
-  const kdl::flat_map<Node*, std::vector<Node*>>& nodesToAdd, WorldNode& worldNode)
+  const kdl::flat_map<Node*, std::vector<std::unique_ptr<Node>>>& nodesToAdd,
+  WorldNode& worldNode)
 {
   // Recursively collect all groups to add
   const auto groupsToAdd = kdl::vec_sort(
     collectGroups(
       nodesToAdd | std::views::values | std::views::join
+      | std::views::transform([](const auto& node) { return node.get(); })
       | kdl::ranges::to<std::vector>()),
     compareGroupNodesByLinkId);
 

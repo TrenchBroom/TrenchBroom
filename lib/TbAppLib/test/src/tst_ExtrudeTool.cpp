@@ -45,6 +45,7 @@
 #include "ui/MapDocumentFixture.h"
 
 #include "kd/result.h"
+#include "kd/vector_utils.h"
 
 #include "vm/approx.h"
 #include "vm/ray.h"
@@ -52,6 +53,7 @@
 
 #include <algorithm>
 #include <filesystem>
+#include <memory>
 #include <ranges>
 
 #include <catch2/catch_test_macros.hpp>
@@ -136,10 +138,12 @@ TEST_CASE("ExtrudeTool")
     constexpr auto brushBounds = vm::bbox3d{16.0};
 
     auto builder = mdl::BrushBuilder{map.worldNode().mapFormat(), map.worldBounds()};
-    auto* brushNode1 =
-      new mdl::BrushNode{builder.createCuboid(brushBounds, "material") | kdl::value()};
 
-    addNodes(map, {{map.editorContext().currentLayer(), {brushNode1}}});
+    auto* brushNode1 = addNode(
+      map,
+      *map.editorContext().currentLayer(),
+      std::make_unique<mdl::BrushNode>(
+        builder.createCuboid(brushBounds, "material") | kdl::value()));
     selectNodes(map, {brushNode1});
 
     SECTION("Pick ray hits brush directly")
@@ -199,10 +203,12 @@ TEST_CASE("ExtrudeTool")
     constexpr auto brushBounds = vm::bbox3d{16.0};
 
     auto builder = mdl::BrushBuilder{map.worldNode().mapFormat(), map.worldBounds()};
-    auto* brushNode1 =
-      new mdl::BrushNode{builder.createCuboid(brushBounds, "material") | kdl::value()};
 
-    addNodes(map, {{map.editorContext().currentLayer(), {brushNode1}}});
+    auto* brushNode1 = addNode(
+      map,
+      *map.editorContext().currentLayer(),
+      std::make_unique<mdl::BrushNode>(
+        builder.createCuboid(brushBounds, "material") | kdl::value()));
     selectNodes(map, {brushNode1});
 
     SECTION("Pick ray hits brush directly")
@@ -273,14 +279,20 @@ TEST_CASE("ExtrudeTool")
     auto builder = mdl::BrushBuilder{map.worldNode().mapFormat(), map.worldBounds()};
 
     // two brushes side by side along the X axis, sharing a coplanar top face at z = 16
-    auto* brushNode1 = new mdl::BrushNode{
+    auto brushNode1Ptr = std::make_unique<mdl::BrushNode>(
       builder.createCuboid(vm::bbox3d{{-16, -16, -16}, {16, 16, 16}}, "material")
-      | kdl::value()};
-    auto* brushNode2 = new mdl::BrushNode{
+      | kdl::value());
+    auto* brushNode1 = brushNode1Ptr.get();
+    auto brushNode2Ptr = std::make_unique<mdl::BrushNode>(
       builder.createCuboid(vm::bbox3d{{16, -16, -16}, {48, 16, 16}}, "material")
-      | kdl::value()};
+      | kdl::value());
+    auto* brushNode2 = brushNode2Ptr.get();
 
-    addNodes(map, {{map.editorContext().currentLayer(), {brushNode1, brushNode2}}});
+    addNodes(
+      map,
+      *map.editorContext().currentLayer(),
+      kdl::vec_from<std::unique_ptr<mdl::Node>>(
+        std::move(brushNode1Ptr), std::move(brushNode2Ptr)));
     selectNodes(map, {brushNode1, brushNode2});
 
     // shoot straight down at the top face of the first brush
@@ -314,14 +326,20 @@ TEST_CASE("ExtrudeTool")
     // bottom face (-Z) are coincident at z = 16 but face in opposite directions.
     // brushNode2 is offset along +X so that the western half of brushNode1's top face
     // remains exposed and can be picked directly.
-    auto* brushNode1 = new mdl::BrushNode{
+    auto brushNode1Ptr = std::make_unique<mdl::BrushNode>(
       builder.createCuboid(vm::bbox3d{{-16, -16, -16}, {16, 16, 16}}, "material")
-      | kdl::value()};
-    auto* brushNode2 = new mdl::BrushNode{
+      | kdl::value());
+    auto* brushNode1 = brushNode1Ptr.get();
+    auto brushNode2Ptr = std::make_unique<mdl::BrushNode>(
       builder.createCuboid(vm::bbox3d{{0, -16, 16}, {32, 16, 48}}, "material")
-      | kdl::value()};
+      | kdl::value());
+    auto* brushNode2 = brushNode2Ptr.get();
 
-    addNodes(map, {{map.editorContext().currentLayer(), {brushNode1, brushNode2}}});
+    addNodes(
+      map,
+      *map.editorContext().currentLayer(),
+      kdl::vec_from<std::unique_ptr<mdl::Node>>(
+        std::move(brushNode1Ptr), std::move(brushNode2Ptr)));
     selectNodes(map, {brushNode1, brushNode2});
 
     // shoot straight down at the exposed part of the first brush's top face
@@ -356,14 +374,20 @@ TEST_CASE("ExtrudeTool")
     // z = 16 and face in opposite directions, but their footprints are disjoint in X
     // (brushNode1: x in [-16, 16], brushNode2: x in [64, 96]), so they don't actually
     // touch. They must NOT be linked as opposing drag handles.
-    auto* brushNode1 = new mdl::BrushNode{
+    auto brushNode1Ptr = std::make_unique<mdl::BrushNode>(
       builder.createCuboid(vm::bbox3d{{-16, -16, -16}, {16, 16, 16}}, "material")
-      | kdl::value()};
-    auto* brushNode2 = new mdl::BrushNode{
+      | kdl::value());
+    auto* brushNode1 = brushNode1Ptr.get();
+    auto brushNode2Ptr = std::make_unique<mdl::BrushNode>(
       builder.createCuboid(vm::bbox3d{{64, -16, 16}, {96, 16, 48}}, "material")
-      | kdl::value()};
+      | kdl::value());
+    auto* brushNode2 = brushNode2Ptr.get();
 
-    addNodes(map, {{map.editorContext().currentLayer(), {brushNode1, brushNode2}}});
+    addNodes(
+      map,
+      *map.editorContext().currentLayer(),
+      kdl::vec_from<std::unique_ptr<mdl::Node>>(
+        std::move(brushNode1Ptr), std::move(brushNode2Ptr)));
     selectNodes(map, {brushNode1, brushNode2});
 
     // shoot straight down onto brushNode1's top face
@@ -399,14 +423,20 @@ TEST_CASE("ExtrudeTool")
     // Two brushes meeting at the plane y = 16 with identical vertices: frontBrush's +Y
     // face and backBrush's -Y face are coincident but face in opposite directions. This
     // shared seam is hidden between the brushes and cannot be picked as a face.
-    auto* frontBrush = new mdl::BrushNode{
+    auto frontBrushPtr = std::make_unique<mdl::BrushNode>(
       builder.createCuboid(vm::bbox3d{{-16, -16, -16}, {16, 16, 16}}, "material")
-      | kdl::value()};
-    auto* backBrush = new mdl::BrushNode{
+      | kdl::value());
+    auto* frontBrush = frontBrushPtr.get();
+    auto backBrushPtr = std::make_unique<mdl::BrushNode>(
       builder.createCuboid(vm::bbox3d{{-16, 16, -16}, {16, 48, 16}}, "material")
-      | kdl::value()};
+      | kdl::value());
+    auto* backBrush = backBrushPtr.get();
 
-    addNodes(map, {{map.editorContext().currentLayer(), {frontBrush, backBrush}}});
+    addNodes(
+      map,
+      *map.editorContext().currentLayer(),
+      kdl::vec_from<std::unique_ptr<mdl::Node>>(
+        std::move(frontBrushPtr), std::move(backBrushPtr)));
     selectNodes(map, {frontBrush, backBrush});
 
     SECTION("edge handle wins over the adjacent face it shares")
@@ -443,10 +473,12 @@ TEST_CASE("ExtrudeTool")
       // A third brush sits in front of the seam, closer to the camera, so the ray hits
       // its face before reaching the seam edge. It is not adjacent to the edge and is
       // nearer, so it wins over the edge handle.
-      auto* occluderBrush = new mdl::BrushNode{
-        builder.createCuboid(vm::bbox3d{{-16, -100, 114}, {16, -68, 146}}, "material")
-        | kdl::value()};
-      addNodes(map, {{map.editorContext().currentLayer(), {occluderBrush}}});
+      auto* occluderBrush = addNode(
+        map,
+        *map.editorContext().currentLayer(),
+        std::make_unique<mdl::BrushNode>(
+          builder.createCuboid(vm::bbox3d{{-16, -100, 114}, {16, -68, 146}}, "material")
+          | kdl::value()));
       selectNodes(map, {occluderBrush});
 
       const auto pickRay = vm::ray3d{{0, -556, 586}, vm::normalize(vm::vec3d{0, 1, -1})};
@@ -486,14 +518,20 @@ TEST_CASE("ExtrudeTool")
 
     // Two brushes meeting at the plane x = 16: leftBrush's +X face and rightBrush's -X
     // face are coincident but face in opposite directions.
-    auto* leftBrush = new mdl::BrushNode{
+    auto leftBrushPtr = std::make_unique<mdl::BrushNode>(
       builder.createCuboid(vm::bbox3d{{-16, -16, -16}, {16, 16, 16}}, "material")
-      | kdl::value()};
-    auto* rightBrush = new mdl::BrushNode{
+      | kdl::value());
+    auto* leftBrush = leftBrushPtr.get();
+    auto rightBrushPtr = std::make_unique<mdl::BrushNode>(
       builder.createCuboid(vm::bbox3d{{16, -16, -16}, {48, 16, 16}}, "material")
-      | kdl::value()};
+      | kdl::value());
+    auto* rightBrush = rightBrushPtr.get();
 
-    addNodes(map, {{map.editorContext().currentLayer(), {leftBrush, rightBrush}}});
+    addNodes(
+      map,
+      *map.editorContext().currentLayer(),
+      kdl::vec_from<std::unique_ptr<mdl::Node>>(
+        std::move(leftBrushPtr), std::move(rightBrushPtr)));
     selectNodes(map, {leftBrush, rightBrush});
 
     // Top view (looking -Z). The ray hits leftBrush's top face just short of the seam at
@@ -537,11 +575,13 @@ TEST_CASE("ExtrudeTool")
     // adjacent face it shares" above, which does have a touching backBrush. With no other
     // brush to prove this is a genuine touching seam, the face must win instead of the
     // edge.
-    auto* frontBrush = new mdl::BrushNode{
-      builder.createCuboid(vm::bbox3d{{-16, -16, -16}, {16, 16, 16}}, "material")
-      | kdl::value()};
 
-    addNodes(map, {{map.editorContext().currentLayer(), {frontBrush}}});
+    auto* frontBrush = addNode(
+      map,
+      *map.editorContext().currentLayer(),
+      std::make_unique<mdl::BrushNode>(
+        builder.createCuboid(vm::bbox3d{{-16, -16, -16}, {16, 16, 16}}, "material")
+        | kdl::value()));
     selectNodes(map, {frontBrush});
 
     const auto pickRay = vm::ray3d{{0, -556, 586}, vm::normalize(vm::vec3d{0, 1, -1})};
@@ -566,17 +606,23 @@ TEST_CASE("ExtrudeTool")
 
     auto builder = mdl::BrushBuilder{map.worldNode().mapFormat(), map.worldBounds()};
 
-    auto* frontBrush = new mdl::BrushNode{
+    auto frontBrushPtr = std::make_unique<mdl::BrushNode>(
       builder.createCuboid(vm::bbox3d{{-16, -16, -16}, {16, 16, 16}}, "material")
-      | kdl::value()};
+      | kdl::value());
+    auto* frontBrush = frontBrushPtr.get();
 
     // Touches frontBrush's +X face, at a right angle to the +Y seam edge under test, so
     // its edges are not collinear with it and cannot prove that edge is a genuine seam.
-    auto* sideBrush = new mdl::BrushNode{
+    auto sideBrushPtr = std::make_unique<mdl::BrushNode>(
       builder.createCuboid(vm::bbox3d{{16, -16, -16}, {48, 16, 16}}, "material")
-      | kdl::value()};
+      | kdl::value());
+    auto* sideBrush = sideBrushPtr.get();
 
-    addNodes(map, {{map.editorContext().currentLayer(), {frontBrush, sideBrush}}});
+    addNodes(
+      map,
+      *map.editorContext().currentLayer(),
+      kdl::vec_from<std::unique_ptr<mdl::Node>>(
+        std::move(frontBrushPtr), std::move(sideBrushPtr)));
     selectNodes(map, {frontBrush, sideBrush});
 
     const auto pickRay = vm::ray3d{{0, -556, 586}, vm::normalize(vm::vec3d{0, 1, -1})};
@@ -893,11 +939,14 @@ TEST_CASE("ExtrudeTool")
     constexpr auto brushBounds = vm::bbox3d{16.0};
 
     auto builder = mdl::BrushBuilder{map.worldNode().mapFormat(), map.worldBounds()};
-    auto* brushNode1 = new mdl::BrushNode{
-      builder.createCuboid(brushBounds, "left", "right", "front", "back", "top", "bottom")
-      | kdl::value()};
 
-    addNodes(map, {{map.editorContext().currentLayer(), {brushNode1}}});
+    auto* brushNode1 = addNode(
+      map,
+      *map.editorContext().currentLayer(),
+      std::make_unique<mdl::BrushNode>(
+        builder.createCuboid(
+          brushBounds, "left", "right", "front", "back", "top", "bottom")
+        | kdl::value()));
     selectNodes(map, {brushNode1});
 
     // shoot straight down at the top face (+Z, material "top")
@@ -952,10 +1001,12 @@ TEST_CASE("ExtrudeTool")
     constexpr auto brushBounds = vm::bbox3d{16.0};
 
     auto builder = mdl::BrushBuilder{map.worldNode().mapFormat(), map.worldBounds()};
-    auto* brushNode =
-      new mdl::BrushNode{builder.createCuboid(brushBounds, "material") | kdl::value()};
 
-    addNodes(map, {{map.editorContext().currentLayer(), {brushNode}}});
+    auto* brushNode = addNode(
+      map,
+      *map.editorContext().currentLayer(),
+      std::make_unique<mdl::BrushNode>(
+        builder.createCuboid(brushBounds, "material") | kdl::value()));
     selectNodes(map, {brushNode});
 
     // shoot straight down at the top face (+Z)
@@ -994,14 +1045,20 @@ TEST_CASE("ExtrudeTool")
     // brushNode2's bottom face (-Z) are coincident at z=16 but face in opposite
     // directions. The upward delta (0,0,8) is outward for the +Z face but inward for
     // the -Z face, so stamping must be denied.
-    auto* brushNode1 = new mdl::BrushNode{
+    auto brushNode1Ptr = std::make_unique<mdl::BrushNode>(
       builder.createCuboid(vm::bbox3d{{-16, -16, -16}, {16, 16, 16}}, "material")
-      | kdl::value()};
-    auto* brushNode2 = new mdl::BrushNode{
+      | kdl::value());
+    auto* brushNode1 = brushNode1Ptr.get();
+    auto brushNode2Ptr = std::make_unique<mdl::BrushNode>(
       builder.createCuboid(vm::bbox3d{{0, -16, 16}, {32, 16, 48}}, "material")
-      | kdl::value()};
+      | kdl::value());
+    auto* brushNode2 = brushNode2Ptr.get();
 
-    addNodes(map, {{map.editorContext().currentLayer(), {brushNode1, brushNode2}}});
+    addNodes(
+      map,
+      *map.editorContext().currentLayer(),
+      kdl::vec_from<std::unique_ptr<mdl::Node>>(
+        std::move(brushNode1Ptr), std::move(brushNode2Ptr)));
     selectNodes(map, {brushNode1, brushNode2});
 
     const auto pickRay = vm::ray3d{{-8, 0, 32}, {0, 0, -1}};
@@ -1037,14 +1094,20 @@ TEST_CASE("ExtrudeTool")
 
     // Two side-by-side brushes whose top faces are coplanar at z=16 and both face +Z.
     // Any upward delta is outward for both handles, so stamping succeeds.
-    auto* brushNode1 = new mdl::BrushNode{
+    auto brushNode1Ptr = std::make_unique<mdl::BrushNode>(
       builder.createCuboid(vm::bbox3d{{-16, -16, -16}, {0, 16, 16}}, "material")
-      | kdl::value()};
-    auto* brushNode2 = new mdl::BrushNode{
+      | kdl::value());
+    auto* brushNode1 = brushNode1Ptr.get();
+    auto brushNode2Ptr = std::make_unique<mdl::BrushNode>(
       builder.createCuboid(vm::bbox3d{{0, -16, -16}, {16, 16, 16}}, "material")
-      | kdl::value()};
+      | kdl::value());
+    auto* brushNode2 = brushNode2Ptr.get();
 
-    addNodes(map, {{map.editorContext().currentLayer(), {brushNode1, brushNode2}}});
+    addNodes(
+      map,
+      *map.editorContext().currentLayer(),
+      kdl::vec_from<std::unique_ptr<mdl::Node>>(
+        std::move(brushNode1Ptr), std::move(brushNode2Ptr)));
     selectNodes(map, {brushNode1, brushNode2});
 
     // Pick from above — both top faces (coplanar at z=16, normal +Z) are selected
@@ -1090,10 +1153,12 @@ TEST_CASE("ExtrudeTool")
     constexpr auto brushBounds = vm::bbox3d{16.0};
 
     auto builder = mdl::BrushBuilder{map.worldNode().mapFormat(), map.worldBounds()};
-    auto* brushNode =
-      new mdl::BrushNode{builder.createCuboid(brushBounds, "material") | kdl::value()};
 
-    addNodes(map, {{map.editorContext().currentLayer(), {brushNode}}});
+    auto* brushNode = addNode(
+      map,
+      *map.editorContext().currentLayer(),
+      std::make_unique<mdl::BrushNode>(
+        builder.createCuboid(brushBounds, "material") | kdl::value()));
     selectNodes(map, {brushNode});
 
     // shoot straight down at the top face (+Z)

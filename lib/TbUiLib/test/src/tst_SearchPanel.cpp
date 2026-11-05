@@ -41,6 +41,7 @@
 #include "ui/SearchHelpPopup.h"
 #include "ui/SearchPanel.h"
 
+#include <memory>
 #include <vector>
 
 #include <catch2/catch_test_macros.hpp>
@@ -72,17 +73,22 @@ TEST_CASE("SearchPanel")
   auto& document = fixture.create();
   auto& map = document.map();
 
-  auto* playerStart =
-    new mdl::EntityNode{mdl::Entity{{{"classname", "info_player_start"}}}};
-  mdl::addNodes(map, {{&mdl::parentForNodes(map), {playerStart}}});
+  auto* playerStart = mdl::addNode(
+    map,
+    mdl::parentForNodes(map),
+    std::make_unique<mdl::EntityNode>(mdl::Entity{{{"classname", "info_player_start"}}}));
 
-  auto* detailEntity = new mdl::EntityNode{mdl::Entity{{{"classname", "func_detail"}}}};
-  mdl::addNodes(map, {{&mdl::parentForNodes(map), {detailEntity}}});
+  auto* detailEntity = mdl::addNode(
+    map,
+    mdl::parentForNodes(map),
+    std::make_unique<mdl::EntityNode>(mdl::Entity{{{"classname", "func_detail"}}}));
 
-  auto* combatGroup = new mdl::GroupNode{mdl::Group{"Combat"}};
-  mdl::addNodes(map, {{&mdl::parentForNodes(map), {combatGroup}}});
+  auto* combatGroup = mdl::addNode(
+    map,
+    mdl::parentForNodes(map),
+    std::make_unique<mdl::GroupNode>(mdl::Group{"Combat"}));
 
-  mdl::addNodes(map, {{combatGroup, {mdl::createBrushNode(map)}}});
+  mdl::addNode(map, *combatGroup, mdl::createBrushNode(map));
 
   auto panel = SearchPanel{appController, document};
   panel.resize(400, 40);

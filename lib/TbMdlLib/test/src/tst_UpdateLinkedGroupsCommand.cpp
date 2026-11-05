@@ -39,8 +39,7 @@ TEST_CASE("UpdateLinkedGroupsCommand")
   auto& map = fixture.create();
 
   const auto createLinkedGroup = [&]() {
-    auto brushNode = createBrushNode(map);
-    addNodes(map, {{&parentForNodes(map), {brushNode}}});
+    auto* brushNode = addNode(map, parentForNodes(map), createBrushNode(map));
     selectNodes(map, {brushNode});
 
     auto* groupNode = groupSelectedNodes(map, "group");

@@ -34,9 +34,11 @@
 #include "kd/ranges/concat_view.h"
 #include "kd/ranges/to.h"
 #include "kd/result.h"
+#include "kd/vector_utils.h"
 
 #include "vm/mat_ext.h"
 
+#include <memory>
 #include <vector>
 
 #include <catch2/catch_test_macros.hpp>
@@ -56,8 +58,10 @@ TEST_CASE("Map_Patches")
     auto& map = fixture.create();
 
     const auto builder = BrushBuilder{map.worldNode().mapFormat(), map.worldBounds()};
-    auto* brushNode = new BrushNode{builder.createCube(64.0, "material") | kdl::value()};
-    addNodes(map, {{&parentForNodes(map), {brushNode}}});
+    auto* brushNode = addNode(
+      map,
+      parentForNodes(map),
+      std::make_unique<BrushNode>(builder.createCube(64.0, "material") | kdl::value()));
 
     const auto firstFaceIndex = brushNode->brush().findFace(vm::vec3d{0, 0, 1});
     const auto secondFaceIndex = brushNode->brush().findFace(vm::vec3d{1, 0, 0});
@@ -93,8 +97,7 @@ TEST_CASE("Map_Patches")
 
     GIVEN("No patches are selected")
     {
-      auto* patchNode = createPatchNode();
-      addNodes(map, {{&parentForNodes(map), {patchNode}}});
+      auto* patchNode = addNode(map, parentForNodes(map), createPatchNode());
 
       const auto originalControlPoints = patchNode->patch().controlPoints();
 
@@ -111,9 +114,15 @@ TEST_CASE("Map_Patches")
 
     GIVEN("One selected and one unselected patch")
     {
-      auto* patchNode1 = createPatchNode();
-      auto* patchNode2 = createPatchNode();
-      addNodes(map, {{&parentForNodes(map), {patchNode1, patchNode2}}});
+      auto patchNode1Ptr = createPatchNode();
+      auto* patchNode1 = patchNode1Ptr.get();
+      auto patchNode2Ptr = createPatchNode();
+      auto* patchNode2 = patchNode2Ptr.get();
+      addNodes(
+        map,
+        parentForNodes(map),
+        kdl::vec_from<std::unique_ptr<Node>>(
+          std::move(patchNode1Ptr), std::move(patchNode2Ptr)));
       selectNodes(map, {patchNode1});
 
       const auto patch2OriginalControlPoints = patchNode2->patch().controlPoints();
@@ -134,9 +143,15 @@ TEST_CASE("Map_Patches")
 
     GIVEN("Two selected patches")
     {
-      auto* patchNode1 = createPatchNode();
-      auto* patchNode2 = createPatchNode();
-      addNodes(map, {{&parentForNodes(map), {patchNode1, patchNode2}}});
+      auto patchNode1Ptr = createPatchNode();
+      auto* patchNode1 = patchNode1Ptr.get();
+      auto patchNode2Ptr = createPatchNode();
+      auto* patchNode2 = patchNode2Ptr.get();
+      addNodes(
+        map,
+        parentForNodes(map),
+        kdl::vec_from<std::unique_ptr<Node>>(
+          std::move(patchNode1Ptr), std::move(patchNode2Ptr)));
       selectNodes(map, {patchNode1, patchNode2});
 
       WHEN("The patches are resampled")
@@ -186,9 +201,15 @@ TEST_CASE("Map_Patches")
 
     GIVEN("Two selected patches and no patch has any of the given control points")
     {
-      auto* patchNode1 = createPatchNode();
-      auto* patchNode2 = createPatchNode();
-      addNodes(map, {{&parentForNodes(map), {patchNode1, patchNode2}}});
+      auto patchNode1Ptr = createPatchNode();
+      auto* patchNode1 = patchNode1Ptr.get();
+      auto patchNode2Ptr = createPatchNode();
+      auto* patchNode2 = patchNode2Ptr.get();
+      addNodes(
+        map,
+        parentForNodes(map),
+        kdl::vec_from<std::unique_ptr<Node>>(
+          std::move(patchNode1Ptr), std::move(patchNode2Ptr)));
       selectNodes(map, {patchNode1, patchNode2});
 
       const auto patch1OriginalControlPoints = patchNode1->patch().controlPoints();
@@ -213,17 +234,23 @@ TEST_CASE("Map_Patches")
 
     GIVEN("Two selected patches and only one patch has one of the given control points")
     {
-      auto* patchNode1 = createPatchNode();
+      auto patchNode1Ptr = createPatchNode();
+      auto* patchNode1 = patchNode1Ptr.get();
 
       // clang-format off
-      auto* patchNode2 = new PatchNode{BezierPatch{3, 3, {
+      auto patchNode2Ptr = std::make_unique<PatchNode>(BezierPatch{3, 3, {
         {10, 0, 0}, {11, 0, 1}, {12, 0, 0},
         {10, 1, 1}, {11, 1, 2}, {12, 1, 1},
         {10, 2, 0}, {11, 2, 1}, {12, 2, 0},
-      }, "material"}};
+      }, "material"});
+      auto* patchNode2 = patchNode2Ptr.get();
       // clang-format on
 
-      addNodes(map, {{&parentForNodes(map), {patchNode1, patchNode2}}});
+      addNodes(
+        map,
+        parentForNodes(map),
+        kdl::vec_from<std::unique_ptr<Node>>(
+          std::move(patchNode1Ptr), std::move(patchNode2Ptr)));
       selectNodes(map, {patchNode1, patchNode2});
 
       const auto patch2OriginalControlPoints = patchNode2->patch().controlPoints();
@@ -247,9 +274,15 @@ TEST_CASE("Map_Patches")
 
     GIVEN("Two selected patches sharing the same control point")
     {
-      auto* patchNode1 = createPatchNode();
-      auto* patchNode2 = createPatchNode();
-      addNodes(map, {{&parentForNodes(map), {patchNode1, patchNode2}}});
+      auto patchNode1Ptr = createPatchNode();
+      auto* patchNode1 = patchNode1Ptr.get();
+      auto patchNode2Ptr = createPatchNode();
+      auto* patchNode2 = patchNode2Ptr.get();
+      addNodes(
+        map,
+        parentForNodes(map),
+        kdl::vec_from<std::unique_ptr<Node>>(
+          std::move(patchNode1Ptr), std::move(patchNode2Ptr)));
       selectNodes(map, {patchNode1, patchNode2});
 
       WHEN("Control points are transformed")
@@ -300,8 +333,8 @@ TEST_CASE("Map_Patches")
 
     SECTION("Sets the material of a selected patch")
     {
-      auto* patchNode = createPatchNode("some_material");
-      addNodes(map, {{&parentForNodes(map), {patchNode}}});
+      auto* patchNode =
+        addNode(map, parentForNodes(map), createPatchNode("some_material"));
       selectNodes(map, {patchNode});
 
       CHECK(setPatchMaterial(map, "new_material"));
@@ -319,8 +352,8 @@ TEST_CASE("Map_Patches")
 
     SECTION("Does nothing when nothing is selected")
     {
-      auto* patchNode = createPatchNode("some_material");
-      addNodes(map, {{&parentForNodes(map), {patchNode}}});
+      auto* patchNode =
+        addNode(map, parentForNodes(map), createPatchNode("some_material"));
 
       CHECK(setPatchMaterial(map, "new_material"));
       CHECK(patchNode->patch().materialName() == "some_material");

@@ -48,6 +48,7 @@
 #include "kd/vector_utils.h"
 
 #include <algorithm>
+#include <memory>
 #include <string>
 #include <utility>
 #include <vector>
@@ -236,10 +237,11 @@ void LayerEditor::onAddLayer()
     layer.setSortIndex(
       !customLayers.empty() ? customLayers.back()->layer().sortIndex() + 1 : 0);
 
-    auto* layerNode = new mdl::LayerNode{std::move(layer)};
+    auto layerNodePtr = std::make_unique<mdl::LayerNode>(std::move(layer));
 
-    auto transaction = mdl::Transaction{map, "Create Layer " + layerNode->name()};
-    if (addNodes(map, {{&map.worldNode(), {layerNode}}}).empty())
+    auto transaction = mdl::Transaction{map, "Create Layer " + layerNodePtr->name()};
+    auto* layerNode = addNode(map, map.worldNode(), std::move(layerNodePtr));
+    if (!layerNode)
     {
       transaction.cancel();
       return;

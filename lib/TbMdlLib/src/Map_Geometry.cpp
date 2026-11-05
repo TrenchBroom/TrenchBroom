@@ -665,11 +665,11 @@ bool csgConvexMerge(Map& map)
                                   ? *map.selection().brushFaces.front().node().parent()
                                   : parentForNodes(map);
 
-             auto* brushNode = new BrushNode{std::move(b)};
-
              auto transaction = Transaction{map, "CSG Convex Merge"};
              deselectAll(map);
-             if (addNodes(map, {{&parentNode, {brushNode}}}).empty())
+             auto* brushNode =
+               addNode(map, parentNode, std::make_unique<BrushNode>(std::move(b)));
+             if (!brushNode)
              {
                transaction.cancel();
                return;
@@ -702,7 +702,7 @@ bool csgSubtract(Map& map)
                              })
                            | kdl::ranges::to<std::vector>();
 
-  auto toAdd = kdl::flat_map<Node*, std::vector<Node*>>{};
+  auto toAdd = kdl::flat_map<Node*, std::vector<std::unique_ptr<Node>>>{};
   auto toRemove =
     std::vector<Node*>{std::begin(subtrahendNodes), std::end(subtrahendNodes)};
 
@@ -720,11 +720,12 @@ bool csgSubtract(Map& map)
                   | kdl::transform([&](auto currentBrushes) {
                       if (!currentBrushes.empty())
                       {
-                        auto resultNodes = currentBrushes | kdl::views::as_rvalue
-                                           | std::views::transform([&](auto b) {
-                                               return new BrushNode{std::move(b)};
-                                             })
-                                           | kdl::ranges::to<std::vector>();
+                        auto resultNodes =
+                          currentBrushes | kdl::views::as_rvalue
+                          | std::views::transform([&](auto b) {
+                              return std::make_unique<BrushNode>(std::move(b));
+                            })
+                          | kdl::ranges::to<std::vector>();
                         auto& toAddForParent = toAdd[minuendNode->parent()];
                         kdl::vec_append(toAddForParent, std::move(resultNodes));
                       }
@@ -734,7 +735,7 @@ bool csgSubtract(Map& map)
          })
          | kdl::fold | kdl::transform([&]() {
              deselectAll(map);
-             const auto added = addNodes(map, toAdd);
+             const auto added = addNodes(map, std::move(toAdd));
              removeNodes(map, toRemove);
              selectNodes(map, added);
 
@@ -778,8 +779,11 @@ bool csgIntersect(Map& map)
 
   if (valid)
   {
-    auto* intersectionNode = new BrushNode{std::move(intersection)};
-    if (addNodes(map, {{&parentForNodes(map, toRemove), {intersectionNode}}}).empty())
+    auto* intersectionNode = addNode(
+      map,
+      parentForNodes(map, toRemove),
+      std::make_unique<BrushNode>(std::move(intersection)));
+    if (!intersectionNode)
     {
       transaction.cancel();
       return false;
@@ -804,7 +808,7 @@ bool csgHollow(Map& map)
   }
 
   bool didHollowAnything = false;
-  auto toAdd = kdl::flat_map<Node*, std::vector<Node*>>{};
+  auto toAdd = kdl::flat_map<Node*, std::vector<std::unique_ptr<Node>>>{};
   auto toRemove = std::vector<Node*>{};
 
   for (auto* brushNode : brushNodes)
@@ -822,15 +826,15 @@ bool csgHollow(Map& map)
                    map.currentMaterialName(),
                    shrunkenBrush)
                  | kdl::fold | kdl::transform([&](auto fragments) {
-                     auto fragmentNodes =
-                       fragments | kdl::views::as_rvalue
-                       | std::views::transform([](auto&& b) {
-                           return new BrushNode{std::forward<decltype(b)>(b)};
-                         })
-                       | kdl::ranges::to<std::vector>();
+                     auto fragmentNodes = fragments | kdl::views::as_rvalue
+                                          | std::views::transform([](auto&& b) {
+                                              return std::make_unique<BrushNode>(
+                                                std::forward<decltype(b)>(b));
+                                            })
+                                          | kdl::ranges::to<std::vector>();
 
                      auto& toAddForParent = toAdd[brushNode->parent()];
-                     kdl::vec_append(toAddForParent, fragmentNodes);
+                     kdl::vec_append(toAddForParent, std::move(fragmentNodes));
                      toRemove.push_back(brushNode);
                    });
         })
@@ -845,7 +849,7 @@ bool csgHollow(Map& map)
 
   auto transaction = Transaction{map, "CSG Hollow"};
   deselectAll(map);
-  const auto added = addNodes(map, toAdd);
+  const auto added = addNodes(map, std::move(toAdd));
   if (added.empty())
   {
     transaction.cancel();

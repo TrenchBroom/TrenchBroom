@@ -39,6 +39,9 @@
 #include "ui/ToolController.h"
 
 #include "kd/result.h"
+#include "kd/vector_utils.h"
+
+#include <memory>
 
 #include <catch2/catch_test_macros.hpp>
 
@@ -69,13 +72,19 @@ TEST_CASE("SetBrushFaceAttributesTool")
 
   auto builder = mdl::BrushBuilder{map.worldNode().mapFormat(), map.worldBounds()};
 
-  auto* brushA = new mdl::BrushNode{
-    builder.createCuboid(vm::bbox3d{16.0}, "material_a") | kdl::value()};
-  auto* brushB = new mdl::BrushNode{
+  auto brushAPtr = std::make_unique<mdl::BrushNode>(
+    builder.createCuboid(vm::bbox3d{16.0}, "material_a") | kdl::value());
+  auto* brushA = brushAPtr.get();
+  auto brushBPtr = std::make_unique<mdl::BrushNode>(
     builder.createCuboid(vm::bbox3d{{100, -16, -16}, {132, 16, 16}}, "material_b")
-    | kdl::value()};
+    | kdl::value());
+  auto* brushB = brushBPtr.get();
 
-  mdl::addNodes(map, {{map.editorContext().currentLayer(), {brushA, brushB}}});
+  mdl::addNodes(
+    map,
+    *map.editorContext().currentLayer(),
+    kdl::vec_from<std::unique_ptr<mdl::Node>>(
+      std::move(brushAPtr), std::move(brushBPtr)));
   mdl::selectBrushFaces(
     map, {mdl::BrushFaceHandle{*brushA, *brushA->brush().findFace(vm::vec3d{0, 0, 1})}});
 

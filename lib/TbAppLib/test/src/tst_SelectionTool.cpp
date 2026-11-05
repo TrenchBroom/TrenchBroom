@@ -47,6 +47,9 @@
 #include "ui/SelectionTool.h"
 
 #include "kd/result.h"
+#include "kd/vector_utils.h"
+
+#include <memory>
 
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers_vector.hpp>
@@ -86,13 +89,18 @@ TEST_CASE("SelectionTool")
 
     GIVEN("A group node")
     {
-      auto* brushNode =
-        new mdl::BrushNode{builder.createCube(32.0, "some_face") | kdl::value()};
-      auto* entityNode = new mdl::EntityNode{mdl::Entity{{{"origin", "64 0 0"}}}};
-      auto* groupNode = new mdl::GroupNode(mdl::Group{"some_group"});
 
-      addNodes(map, {{&parentForNodes(map), {groupNode}}});
-      addNodes(map, {{groupNode, {brushNode, entityNode}}});
+      auto* groupNode = addNode(
+        map,
+        parentForNodes(map),
+        std::make_unique<mdl::GroupNode>(mdl::Group{"some_group"}));
+      addNodes(
+        map,
+        *groupNode,
+        kdl::vec_from<std::unique_ptr<mdl::Node>>(
+          std::make_unique<mdl::BrushNode>(
+            builder.createCube(32.0, "some_face") | kdl::value()),
+          std::make_unique<mdl::EntityNode>(mdl::Entity{{{"origin", "64 0 0"}}})));
 
       auto camera = gl::OrthographicCamera{};
 
@@ -153,14 +161,21 @@ TEST_CASE("SelectionTool")
                      "top_face",
                      "bottom_face")
                    | kdl::value();
-      auto* brushNode = new mdl::BrushNode{std::move(brush)};
+      auto brushNodePtr = std::make_unique<mdl::BrushNode>(std::move(brush));
+      auto* brushNode = brushNodePtr.get();
 
       const auto topFaceIndex = *brushNode->brush().findFace("top_face");
       const auto frontFaceIndex = *brushNode->brush().findFace("front_face");
 
-      auto* entityNode = new mdl::EntityNode{mdl::Entity{{{"origin", "64 0 0"}}}};
+      auto entityNodePtr =
+        std::make_unique<mdl::EntityNode>(mdl::Entity{{{"origin", "64 0 0"}}});
+      auto* entityNode = entityNodePtr.get();
 
-      addNodes(map, {{&parentForNodes(map), {brushNode, entityNode}}});
+      addNodes(
+        map,
+        parentForNodes(map),
+        kdl::vec_from<std::unique_ptr<mdl::Node>>(
+          std::move(brushNodePtr), std::move(entityNodePtr)));
 
       auto camera = gl::OrthographicCamera{};
 
@@ -351,8 +366,10 @@ TEST_CASE("SelectionTool")
                 })
               | kdl::value();
 
-            auto* coplanarBrushNode = new mdl::BrushNode{std::move(coplanarBrush)};
-            addNodes(map, {{&parentForNodes(map), {coplanarBrushNode}}});
+            auto* coplanarBrushNode = addNode(
+              map,
+              parentForNodes(map),
+              std::make_unique<mdl::BrushNode>(std::move(coplanarBrush)));
 
             const auto coplanarTopFaceIndex =
               *coplanarBrushNode->brush().findFace("top_face");
@@ -537,9 +554,11 @@ TEST_CASE("SelectionTool")
 
     GIVEN("A selected node")
     {
-      auto* entityNode = new mdl::EntityNode{mdl::Entity{{{"origin", "64 0 0"}}}};
 
-      addNodes(map, {{&parentForNodes(map), {entityNode}}});
+      auto* entityNode = addNode(
+        map,
+        parentForNodes(map),
+        std::make_unique<mdl::EntityNode>(mdl::Entity{{{"origin", "64 0 0"}}}));
       mdl::selectNodes(map, {entityNode});
 
       auto camera = gl::OrthographicCamera{};
@@ -616,11 +635,12 @@ TEST_CASE("SelectionTool")
 
     GIVEN("A selected brush face")
     {
-      auto* brushNode =
-        new mdl::BrushNode{builder.createCube(32.0, "some_face") | kdl::value()};
+      auto brushNodePtr = std::make_unique<mdl::BrushNode>(
+        builder.createCube(32.0, "some_face") | kdl::value());
+      auto* brushNode = brushNodePtr.get();
       const auto faceHandle = mdl::BrushFaceHandle{*brushNode, 0};
 
-      addNodes(map, {{&parentForNodes(map), {brushNode}}});
+      addNode(map, parentForNodes(map), std::move(brushNodePtr));
       mdl::selectBrushFaces(map, {faceHandle});
 
       auto camera = gl::OrthographicCamera{};
@@ -718,7 +738,9 @@ TEST_CASE("SelectionTool")
                             "top_face",
                             "bottom_face")
                           | kdl::value();
-      auto* visibleBrushNode = new mdl::BrushNode{std::move(visibleBrush)};
+      auto visibleBrushNodePtr =
+        std::make_unique<mdl::BrushNode>(std::move(visibleBrush));
+      auto* visibleBrushNode = visibleBrushNodePtr.get();
       const auto visibleTopFaceIndex = *visibleBrushNode->brush().findFace("top_face");
 
       auto hiddenBrush = builder.createCube(
@@ -730,10 +752,15 @@ TEST_CASE("SelectionTool")
                            "top_face",
                            "bottom_face")
                          | kdl::value();
-      auto* hiddenBrushNode = new mdl::BrushNode{std::move(hiddenBrush)};
+      auto hiddenBrushNodePtr = std::make_unique<mdl::BrushNode>(std::move(hiddenBrush));
+      auto* hiddenBrushNode = hiddenBrushNodePtr.get();
       const auto hiddenTopFaceIndex = *hiddenBrushNode->brush().findFace("top_face");
 
-      addNodes(map, {{&parentForNodes(map), {visibleBrushNode, hiddenBrushNode}}});
+      addNodes(
+        map,
+        parentForNodes(map),
+        kdl::vec_from<std::unique_ptr<mdl::Node>>(
+          std::move(visibleBrushNodePtr), std::move(hiddenBrushNodePtr)));
 
       const auto hiddenTag = mdl::Tag{"hidden", {}};
       auto taggedBrush = hiddenBrushNode->brush();
@@ -813,11 +840,17 @@ TEST_CASE("SelectionTool")
       // the larger brush's top face is higher up, so it is hit first (at the smaller
       // distance) by a ray looking straight down; the smaller brush's top face is hit
       // second
-      auto* largeBrushNode =
-        new mdl::BrushNode{builder.createCube(64.0, "material") | kdl::value()};
-      auto* smallBrushNode =
-        new mdl::BrushNode{builder.createCube(32.0, "material") | kdl::value()};
-      addNodes(map, {{&parentForNodes(map), {largeBrushNode, smallBrushNode}}});
+      auto largeBrushNodePtr = std::make_unique<mdl::BrushNode>(
+        builder.createCube(64.0, "material") | kdl::value());
+      auto* largeBrushNode = largeBrushNodePtr.get();
+      auto smallBrushNodePtr = std::make_unique<mdl::BrushNode>(
+        builder.createCube(32.0, "material") | kdl::value());
+      auto* smallBrushNode = smallBrushNodePtr.get();
+      addNodes(
+        map,
+        parentForNodes(map),
+        kdl::vec_from<std::unique_ptr<mdl::Node>>(
+          std::move(largeBrushNodePtr), std::move(smallBrushNodePtr)));
       selectNodes(map, {largeBrushNode});
 
       auto camera = gl::OrthographicCamera{};
@@ -914,14 +947,21 @@ TEST_CASE("SelectionTool")
                      "top_face",
                      "bottom_face")
                    | kdl::value();
-      auto* brushNode = new mdl::BrushNode{std::move(brush)};
+      auto brushNodePtr = std::make_unique<mdl::BrushNode>(std::move(brush));
+      auto* brushNode = brushNodePtr.get();
 
       const auto topFaceIndex = *brushNode->brush().findFace("top_face");
       const auto frontFaceIndex = *brushNode->brush().findFace("front_face");
 
-      auto* entityNode = new mdl::EntityNode{mdl::Entity{{{"origin", "64 0 0"}}}};
+      auto entityNodePtr =
+        std::make_unique<mdl::EntityNode>(mdl::Entity{{{"origin", "64 0 0"}}});
+      auto* entityNode = entityNodePtr.get();
 
-      addNodes(map, {{&parentForNodes(map), {brushNode, entityNode}}});
+      addNodes(
+        map,
+        parentForNodes(map),
+        kdl::vec_from<std::unique_ptr<mdl::Node>>(
+          std::move(brushNodePtr), std::move(entityNodePtr)));
 
       auto camera = gl::OrthographicCamera{};
       camera.moveTo({0, 0, 32});

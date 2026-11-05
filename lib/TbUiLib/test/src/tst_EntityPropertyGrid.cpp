@@ -46,6 +46,9 @@
 #include "kd/ranges/to.h"
 #include "kd/reflection_impl.h"
 #include "kd/unpack.h"
+#include "kd/vector_utils.h"
+
+#include <memory>
 
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/generators/catch_generators.hpp>
@@ -201,32 +204,40 @@ TEST_CASE("EntityPropertyGrid")
      }},
   });
 
-  auto* sourceEntity = new mdl::EntityNode{mdl::Entity{{
+  auto sourceEntityPtr = std::make_unique<mdl::EntityNode>(mdl::Entity{{
     {"classname", "source_entity"},
     {"target", "some_target"},
     {"some_key", "some_value"},
-  }}};
+  }});
+  auto* sourceEntity = sourceEntityPtr.get();
 
-  auto* targetEntity = new mdl::EntityNode{mdl::Entity{{
+  auto targetEntityPtr = std::make_unique<mdl::EntityNode>(mdl::Entity{{
     {"classname", "target_entity"},
     {"targetname", "main_teleporter"},
     {"other_key", "other_value"},
     {"readonly_key", "readonly_value"},
-  }}};
+  }});
+  auto* targetEntity = targetEntityPtr.get();
 
-  auto* defaultEntity = new mdl::EntityNode{mdl::Entity{{
+  auto defaultEntityPtr = std::make_unique<mdl::EntityNode>(mdl::Entity{{
     {"classname", "default_entity"},
     {"existing_key", "existing_value"},
-  }}};
+  }});
+  auto* defaultEntity = defaultEntityPtr.get();
 
-  auto* groupedEntity = new mdl::EntityNode{mdl::Entity{{
+  auto groupedEntityPtr = std::make_unique<mdl::EntityNode>(mdl::Entity{{
     {"some_key", "some_value"},
-  }}};
+  }});
+  auto* groupedEntity = groupedEntityPtr.get();
 
   mdl::addNodes(
     map,
-    {{&mdl::parentForNodes(map),
-      {sourceEntity, targetEntity, defaultEntity, groupedEntity}}});
+    mdl::parentForNodes(map),
+    kdl::vec_from<std::unique_ptr<mdl::Node>>(
+      std::move(sourceEntityPtr),
+      std::move(targetEntityPtr),
+      std::move(defaultEntityPtr),
+      std::move(groupedEntityPtr)));
 
   mdl::selectNodes(map, {groupedEntity});
   mdl::groupSelectedNodes(map, "group");

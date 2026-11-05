@@ -38,6 +38,7 @@
 
 #include <chrono>
 #include <filesystem>
+#include <memory>
 #include <ranges>
 #include <thread>
 
@@ -100,9 +101,8 @@ TEST_CASE("Autosaver")
     auto autosaver = Autosaver{map, 10s};
 
     // modify the map
-    addNodes(
-      map,
-      {{map.editorContext().currentLayer(), {createBrushNode(map, "some_material")}}});
+    addNode(
+      map, *map.editorContext().currentLayer(), createBrushNode(map, "some_material"));
 
     autosaver.triggerAutosave();
 
@@ -118,9 +118,8 @@ TEST_CASE("Autosaver")
     auto autosaver = Autosaver{map, 100ms};
 
     // modify the map
-    addNodes(
-      map,
-      {{map.editorContext().currentLayer(), {createBrushNode(map, "some_material")}}});
+    addNode(
+      map, *map.editorContext().currentLayer(), createBrushNode(map, "some_material"));
 
     std::this_thread::sleep_for(100ms);
     autosaver.triggerAutosave();
@@ -139,9 +138,8 @@ TEST_CASE("Autosaver")
     auto transaction = Transaction{map};
 
     // modify the map
-    addNodes(
-      map,
-      {{map.editorContext().currentLayer(), {createBrushNode(map, "some_material")}}});
+    addNode(
+      map, *map.editorContext().currentLayer(), createBrushNode(map, "some_material"));
 
     std::this_thread::sleep_for(100ms);
     autosaver.triggerAutosave();
@@ -165,9 +163,8 @@ TEST_CASE("Autosaver")
     auto autosaver = Autosaver{map, 100ms};
 
     // modify the map
-    addNodes(
-      map,
-      {{map.editorContext().currentLayer(), {createBrushNode(map, "some_material")}}});
+    addNode(
+      map, *map.editorContext().currentLayer(), createBrushNode(map, "some_material"));
 
     std::this_thread::sleep_for(100ms);
 
@@ -184,9 +181,8 @@ TEST_CASE("Autosaver")
     CHECK(!env.fileExists("autosave/test.2.map"));
 
     // modify the map
-    addNodes(
-      map,
-      {{map.editorContext().currentLayer(), {createBrushNode(map, "some_material")}}});
+    addNode(
+      map, *map.editorContext().currentLayer(), createBrushNode(map, "some_material"));
 
     autosaver.triggerAutosave();
     CHECK(env.fileExists("autosave/test.2.map"));
@@ -218,9 +214,8 @@ TEST_CASE("Autosaver")
     auto autosaver = Autosaver{map, 0s};
 
     // modify the map
-    addNodes(
-      map,
-      {{map.editorContext().currentLayer(), {createBrushNode(map, "some_material")}}});
+    addNode(
+      map, *map.editorContext().currentLayer(), createBrushNode(map, "some_material"));
 
     autosaver.triggerAutosave();
 
@@ -287,8 +282,8 @@ TEST_CASE("Autosaver")
       auto autosaver = Autosaver{map, 100ms, maxBackups};
 
       // modify the map
-      auto* entity = new EntityNode{{}};
-      addNodes(map, {{map.editorContext().currentLayer(), {entity}}});
+      addNode(
+        map, *map.editorContext().currentLayer(), std::make_unique<EntityNode>(Entity{}));
 
       std::this_thread::sleep_for(100ms);
       autosaver.triggerAutosave();
@@ -305,7 +300,8 @@ TEST_CASE("Autosaver")
         }));
 
       // modify the map again
-      addNodes(map, {{map.editorContext().currentLayer(), {new EntityNode{{}}}}});
+      addNode(
+        map, *map.editorContext().currentLayer(), std::make_unique<EntityNode>(Entity{}));
 
       std::this_thread::sleep_for(100ms);
       autosaver.triggerAutosave();
@@ -346,7 +342,8 @@ TEST_CASE("Autosaver")
       auto autosaver = Autosaver{map, 100ms, maxBackups};
 
       // modify the map
-      addNodes(map, {{map.editorContext().currentLayer(), {new EntityNode{{}}}}});
+      addNode(
+        map, *map.editorContext().currentLayer(), std::make_unique<EntityNode>(Entity{}));
 
       std::this_thread::sleep_for(100ms);
       autosaver.triggerAutosave();
@@ -389,7 +386,8 @@ TEST_CASE("Autosaver")
       auto autosaver = Autosaver{map, 100ms, maxBackups};
 
       // modify the map
-      addNodes(map, {{map.editorContext().currentLayer(), {new EntityNode{{}}}}});
+      addNode(
+        map, *map.editorContext().currentLayer(), std::make_unique<EntityNode>(Entity{}));
 
       std::this_thread::sleep_for(100ms);
       autosaver.triggerAutosave();
@@ -435,7 +433,8 @@ TEST_CASE("Autosaver")
       auto autosaver = Autosaver{map, 100ms, maxBackups};
 
       // modify the map
-      addNodes(map, {{map.editorContext().currentLayer(), {new EntityNode{{}}}}});
+      addNode(
+        map, *map.editorContext().currentLayer(), std::make_unique<EntityNode>(Entity{}));
 
       std::this_thread::sleep_for(100ms);
       autosaver.triggerAutosave();

@@ -47,6 +47,7 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 #include <chrono>
 #include <condition_variable>
 #include <filesystem>
+#include <memory>
 #include <mutex>
 
 #include <catch2/catch_test_macros.hpp>
@@ -446,8 +447,7 @@ TEST_CASE("CompilationExportMapTaskRunner")
 
     CAPTURE(exportSpec);
 
-    auto node = new mdl::EntityNode{mdl::Entity{}};
-    addNodes(map, {{&parentForNodes(map), {node}}});
+    addNode(map, parentForNodes(map), std::make_unique<mdl::EntityNode>(mdl::Entity{}));
 
     auto task = mdl::CompilationExportMap{
       K(enabled),
@@ -493,8 +493,7 @@ TEST_CASE("CompilationExportMapTaskRunner")
 
   SECTION("variable interpolation error")
   {
-    auto node = new mdl::EntityNode{mdl::Entity{}};
-    addNodes(map, {{&parentForNodes(map), {node}}});
+    addNode(map, parentForNodes(map), std::make_unique<mdl::EntityNode>(mdl::Entity{}));
 
     auto task = mdl::CompilationExportMap{
       K(enabled),

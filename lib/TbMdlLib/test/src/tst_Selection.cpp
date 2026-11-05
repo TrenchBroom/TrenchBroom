@@ -37,6 +37,7 @@
 #include "mdl/WorldNode.h"
 
 #include "kd/result.h"
+#include "kd/vector_utils.h"
 
 #include <ostream>
 #include <vector>
@@ -103,7 +104,8 @@ TEST_CASE("Selection")
   auto* innerGroupNode =
     &outerGroupNode->addChild(std::make_unique<GroupNode>(Group{"inner"}));
 
-  auto* entityNode = new EntityNode{{}};
+  auto entityNodePtr = std::make_unique<EntityNode>(Entity{});
+  auto* entityNode = entityNodePtr.get();
   auto* brushNode = &outerGroupNode->addChild(
     brushBuilder.createCube(64.0, "material")
       .transform([](auto brush) { return std::make_unique<BrushNode>(std::move(brush)); })
@@ -143,11 +145,12 @@ TEST_CASE("Selection")
 
   addNodes(
     map,
-    {{&parentForNodes(map),
-      {outerGroupNodePtr.release(),
-       entityNode,
-       brushEntityNodePtr.release(),
-       otherGroupNodePtr.release()}}});
+    parentForNodes(map),
+    kdl::vec_from<std::unique_ptr<Node>>(
+      std::move(outerGroupNodePtr),
+      std::move(entityNodePtr),
+      std::move(brushEntityNodePtr),
+      std::move(otherGroupNodePtr)));
 
   const auto selectItem = [&](const auto selectionItem) {
     switch (selectionItem)

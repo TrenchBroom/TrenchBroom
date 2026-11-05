@@ -29,10 +29,12 @@
 #include "mdl/PatchNode.h"
 #include "mdl/WorldNode.h"
 
+#include <memory>
+
 namespace tb::mdl
 {
 
-BrushNode* createBrushNode(
+std::unique_ptr<BrushNode> createBrushNode(
   const Map& map,
   const std::string& materialName,
   const std::function<void(Brush&)>& brushFunc)
@@ -46,16 +48,16 @@ BrushNode* createBrushNode(
 
   auto brush = builder.createCube(32.0, materialName) | kdl::value();
   brushFunc(brush);
-  return new BrushNode(std::move(brush));
+  return std::make_unique<BrushNode>(std::move(brush));
 }
 
-PatchNode* createPatchNode(const std::string& materialName)
+std::unique_ptr<PatchNode> createPatchNode(const std::string& materialName)
 {
   // clang-format off
-  return new PatchNode{BezierPatch{3, 3, {
+  return std::make_unique<PatchNode>(BezierPatch{3, 3, {
     {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
     {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
-    {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, materialName}};
+    {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, materialName});
   // clang-format on
 }
 

@@ -39,6 +39,8 @@
 
 #include "vm/approx.h"
 
+#include <memory>
+
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers_predicate.hpp>
 #include <catch2/matchers/catch_matchers_quantifiers.hpp>
@@ -59,8 +61,8 @@ TEST_CASE("Map_Commands")
       deselectAll(map);
       setEntityProperty(map, EntityPropertyKeys::Wad, "test/mdl/Map/cr8_czg.wad");
 
-      auto* brushNode = createBrushNode(map, "coffin1");
-      addNodes(map, {{&parentForNodes(map), {brushNode}}});
+      auto* brushNode =
+        addNode(map, parentForNodes(map), createBrushNode(map, "coffin1"));
 
       const auto* material = map.materialManager().material("coffin1");
       REQUIRE(material != nullptr);
@@ -123,8 +125,8 @@ TEST_CASE("Map_Commands")
 
     CHECK(!map.canRepeatCommands());
 
-    auto* entityNode = new EntityNode{Entity{}};
-    addNodes(map, {{&parentForNodes(map), {entityNode}}});
+    auto* entityNode =
+      addNode(map, parentForNodes(map), std::make_unique<EntityNode>(Entity{}));
     CHECK(!map.canRepeatCommands());
 
     selectNodes(map, {entityNode});
@@ -144,8 +146,8 @@ TEST_CASE("Map_Commands")
 
     SECTION("Repeat translation")
     {
-      auto* entityNode = new EntityNode{Entity{}};
-      addNodes(map, {{&parentForNodes(map), {entityNode}}});
+      auto* entityNode =
+        addNode(map, parentForNodes(map), std::make_unique<EntityNode>(Entity{}));
       selectNodes(map, {entityNode});
 
       REQUIRE_FALSE(map.canRepeatCommands());
@@ -162,9 +164,9 @@ TEST_CASE("Map_Commands")
       auto entity = Entity();
       entity.transform(vm::translation_matrix(vm::vec3d(1, 2, 3)), true);
 
-      auto* entityNode = new EntityNode(std::move(entity));
 
-      addNodes(map, {{&parentForNodes(map), {entityNode}}});
+      auto* entityNode = addNode(
+        map, parentForNodes(map), std::make_unique<EntityNode>(std::move(entity)));
       selectNodes(map, {entityNode});
 
       REQUIRE_FALSE(map.canRepeatCommands());
@@ -186,9 +188,8 @@ TEST_CASE("Map_Commands")
 
     SECTION("Scale with bounding box")
     {
-      auto* brushNode1 = createBrushNode(map);
 
-      addNodes(map, {{&parentForNodes(map), {brushNode1}}});
+      auto* brushNode1 = addNode(map, parentForNodes(map), createBrushNode(map));
       selectNodes(map, {brushNode1});
 
       REQUIRE_FALSE(map.canRepeatCommands());
@@ -197,8 +198,7 @@ TEST_CASE("Map_Commands")
       scaleSelection(map, oldBounds, newBounds);
       CHECK(map.canRepeatCommands());
 
-      auto* brushNode2 = createBrushNode(map);
-      addNodes(map, {{&parentForNodes(map), {brushNode2}}});
+      auto* brushNode2 = addNode(map, parentForNodes(map), createBrushNode(map));
       selectNodes(map, {brushNode2});
 
       map.repeatCommands();
@@ -207,17 +207,15 @@ TEST_CASE("Map_Commands")
 
     SECTION("Scale with factors")
     {
-      auto* brushNode1 = createBrushNode(map);
 
-      addNodes(map, {{&parentForNodes(map), {brushNode1}}});
+      auto* brushNode1 = addNode(map, parentForNodes(map), createBrushNode(map));
       selectNodes(map, {brushNode1});
 
       REQUIRE_FALSE(map.canRepeatCommands());
       scaleSelection(map, brushNode1->logicalBounds().center(), vm::vec3d(2, 2, 2));
       CHECK(map.canRepeatCommands());
 
-      auto* brushNode2 = createBrushNode(map);
-      addNodes(map, {{&parentForNodes(map), {brushNode2}}});
+      auto* brushNode2 = addNode(map, parentForNodes(map), createBrushNode(map));
       deselectAll(map);
       selectNodes(map, {brushNode2});
 
@@ -227,10 +225,11 @@ TEST_CASE("Map_Commands")
 
     SECTION("Shear")
     {
-      auto* brushNode1 = createBrushNode(map);
+      auto brushNode1Ptr = createBrushNode(map);
+      auto* brushNode1 = brushNode1Ptr.get();
       const auto originalBounds = brushNode1->logicalBounds();
 
-      addNodes(map, {{&parentForNodes(map), {brushNode1}}});
+      addNode(map, parentForNodes(map), std::move(brushNode1Ptr));
       selectNodes(map, {brushNode1});
 
       REQUIRE_FALSE(map.canRepeatCommands());
@@ -238,8 +237,7 @@ TEST_CASE("Map_Commands")
       REQUIRE(brushNode1->logicalBounds() != originalBounds);
       CHECK(map.canRepeatCommands());
 
-      auto* brushNode2 = createBrushNode(map);
-      addNodes(map, {{&parentForNodes(map), {brushNode2}}});
+      auto* brushNode2 = addNode(map, parentForNodes(map), createBrushNode(map));
       deselectAll(map);
       selectNodes(map, {brushNode2});
 
@@ -249,10 +247,11 @@ TEST_CASE("Map_Commands")
 
     SECTION("Flip")
     {
-      auto* brushNode1 = createBrushNode(map);
+      auto brushNode1Ptr = createBrushNode(map);
+      auto* brushNode1 = brushNode1Ptr.get();
       const auto originalBounds = brushNode1->logicalBounds();
 
-      addNodes(map, {{&parentForNodes(map), {brushNode1}}});
+      addNode(map, parentForNodes(map), std::move(brushNode1Ptr));
       selectNodes(map, {brushNode1});
 
       REQUIRE_FALSE(map.canRepeatCommands());
@@ -260,8 +259,7 @@ TEST_CASE("Map_Commands")
       REQUIRE(brushNode1->logicalBounds() != originalBounds);
       CHECK(map.canRepeatCommands());
 
-      auto* brushNode2 = createBrushNode(map);
-      addNodes(map, {{&parentForNodes(map), {brushNode2}}});
+      auto* brushNode2 = addNode(map, parentForNodes(map), createBrushNode(map));
       deselectAll(map);
       selectNodes(map, {brushNode2});
 
@@ -271,8 +269,8 @@ TEST_CASE("Map_Commands")
 
     SECTION("Duplicate and translate")
     {
-      auto* entityNode1 = new EntityNode({});
-      addNodes(map, {{&parentForNodes(map), {entityNode1}}});
+      auto* entityNode1 =
+        addNode(map, parentForNodes(map), std::make_unique<EntityNode>(Entity{}));
 
       selectNodes(map, {entityNode1});
       CHECK(entityNode1->entity().origin() == vm::vec3d(0, 0, 0));
@@ -333,8 +331,8 @@ TEST_CASE("Map_Commands")
 
     SECTION("Repeat applies to transactions")
     {
-      auto* entityNode1 = new EntityNode({});
-      addNodes(map, {{&parentForNodes(map), {entityNode1}}});
+      auto* entityNode1 =
+        addNode(map, parentForNodes(map), std::make_unique<EntityNode>(Entity{}));
 
       selectNodes(map, {entityNode1});
       CHECK(entityNode1->entity().origin() == vm::vec3d(0, 0, 0));
@@ -350,8 +348,8 @@ TEST_CASE("Map_Commands")
 
       // now repeat the transaction on a second entity
 
-      auto* entityNode2 = new EntityNode({});
-      addNodes(map, {{&parentForNodes(map), {entityNode2}}});
+      auto* entityNode2 =
+        addNode(map, parentForNodes(map), std::make_unique<EntityNode>(Entity{}));
 
       deselectAll(map);
       selectNodes(map, {entityNode2});
@@ -371,8 +369,8 @@ TEST_CASE("Map_Commands")
 
     SECTION("Undo")
     {
-      auto* entityNode1 = new EntityNode({});
-      addNodes(map, {{&parentForNodes(map), {entityNode1}}});
+      auto* entityNode1 =
+        addNode(map, parentForNodes(map), std::make_unique<EntityNode>(Entity{}));
 
       selectNodes(map, {entityNode1});
       CHECK(entityNode1->entity().origin() == vm::vec3d(0, 0, 0));

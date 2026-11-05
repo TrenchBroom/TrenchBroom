@@ -93,7 +93,7 @@ std::vector<GroupNode*> collectGroupsOrContainers(const std::vector<Node*>& node
 }
 
 void copyAndSetLinkIds(
-  const kdl::flat_map<Node*, std::vector<Node*>>& nodesToAdd,
+  const kdl::flat_map<Node*, std::vector<std::unique_ptr<Node>>>& nodesToAdd,
   WorldNode& worldNode,
   Logger& logger)
 {
@@ -121,7 +121,8 @@ bool shouldCloneParentWhenCloningNode(const Node* node)
     [](const PatchNode&) { return false; }));
 }
 
-void resetLinkIdsOfNonGroupedNodes(const kdl::flat_map<Node*, std::vector<Node*>>& nodes)
+void resetLinkIdsOfNonGroupedNodes(
+  const kdl::flat_map<Node*, std::vector<std::unique_ptr<Node>>>& nodes)
 {
   for (const auto& [parent, children] : nodes)
   {
@@ -307,35 +308,27 @@ Node& parentForNodes(const Map& map, const std::vector<Node*>& nodes)
 }
 
 std::vector<Node*> addNodes(
-  Map& map, const kdl::flat_map<Node*, std::vector<Node*>>& nodes)
+  Map& map, kdl::flat_map<Node*, std::vector<std::unique_ptr<Node>>> nodes)
 {
-  contract_assert(std::ranges::all_of(nodes, [&](const auto& parentAndChildren) {
-    const auto& [parent, children] = parentAndChildren;
+  contract_assert(std::ranges::all_of(nodes.keys(), [&](const auto* parent) {
     return parent == &map.worldNode() || parent->isDescendantOf(map.worldNode());
   }));
 
-  auto nodesToAdd = kdl::flat_map<Node*, std::vector<std::unique_ptr<Node>>>{};
-  for (const auto& [parent, children] : nodes)
-  {
-    nodesToAdd[parent] =
-      children
-      | std::views::transform([](auto* child) { return std::unique_ptr<Node>{child}; })
-      | kdl::ranges::to<std::vector>();
-  }
+  const auto parents = nodes.keys();
+  const auto addedNodes =
+    nodes.values() | std::views::join
+    | std::views::transform([](const auto& node) { return node.get(); })
+    | kdl::ranges::to<std::vector>();
 
   auto transaction = Transaction{map, "Add Objects"};
-  if (!map.executeAndStore(AddRemoveNodesCommand::add(std::move(nodesToAdd))))
+  if (!map.executeAndStore(AddRemoveNodesCommand::add(std::move(nodes))))
   {
     transaction.cancel();
     return {};
   }
 
-  setHasPendingChanges(
-    collectGroupsOrContainers(nodes | std::views::keys | kdl::ranges::to<std::vector>()),
-    true);
+  setHasPendingChanges(collectGroupsOrContainers(parents), true);
 
-  const auto addedNodes =
-    nodes | std::views::values | std::views::join | kdl::ranges::to<std::vector>();
   ensureNodesVisible(map, addedNodes);
   ensureNodesUnlocked(map, addedNodes);
   if (!transaction.commit())
@@ -346,9 +339,17 @@ std::vector<Node*> addNodes(
   return addedNodes;
 }
 
+std::vector<Node*> addNodes(
+  Map& map, Node& parent, std::vector<std::unique_ptr<Node>> nodes)
+{
+  auto nodesToAdd = kdl::flat_map<Node*, std::vector<std::unique_ptr<Node>>>{};
+  nodesToAdd[&parent] = std::move(nodes);
+  return addNodes(map, std::move(nodesToAdd));
+}
+
 void duplicateSelectedNodes(Map& map)
 {
-  auto nodesToAdd = kdl::flat_map<Node*, std::vector<Node*>>{};
+  auto nodesToAdd = kdl::flat_map<Node*, std::vector<std::unique_ptr<Node>>>{};
   auto nodesToSelect = std::vector<Node*>{};
   auto newParentMap = std::map<Node*, Node*>{};
 
@@ -372,9 +373,10 @@ void duplicateSelectedNodes(Map& map)
       else
       {
         // parent was not cloned yet
-        newParent = originalParent->clone(map.worldBounds()).release();
+        newParent = nodesToAdd[&suggestedParent]
+                      .emplace_back(originalParent->clone(map.worldBounds()))
+                      .get();
         newParentMap.emplace(originalParent, newParent);
-        nodesToAdd[&suggestedParent].push_back(newParent);
       }
 
       // hierarchy will look like (parent -> child): suggestedParent -> newParent -> clone
@@ -382,7 +384,7 @@ void duplicateSelectedNodes(Map& map)
     }
     else
     {
-      nodesToAdd[&suggestedParent].push_back(clonePtr.release());
+      nodesToAdd[&suggestedParent].push_back(std::move(clonePtr));
     }
 
     nodesToSelect.push_back(clone);
@@ -395,7 +397,7 @@ void duplicateSelectedNodes(Map& map)
     auto transaction = Transaction{map, "Duplicate Objects"};
     deselectAll(map);
 
-    if (addNodes(map, nodesToAdd).empty())
+    if (addNodes(map, std::move(nodesToAdd)).empty())
     {
       transaction.cancel();
       return;

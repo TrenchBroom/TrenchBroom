@@ -34,6 +34,8 @@
 #include "prefs/Preferences.h"
 #include "render/EntityLinkRenderer.h"
 
+#include "kd/vector_utils.h"
+
 #include "vm/vec.h"
 
 #include <memory>
@@ -87,18 +89,24 @@ TEST_CASE("EntityLinkRenderer")
         {Targetname, mdl::PropertyValueTypes::LinkTarget{}, {}, {}},
       }}});
 
-  auto* sourceNode = new mdl::EntityNode{mdl::Entity{{
+  auto sourceNodePtr = std::make_unique<mdl::EntityNode>(mdl::Entity{{
     {Classname, sourceClassname},
     {Target, "link"},
     {Origin, "0 0 0"},
-  }}};
-  auto* targetNode = new mdl::EntityNode{mdl::Entity{{
+  }});
+  auto* sourceNode = sourceNodePtr.get();
+  auto targetNodePtr = std::make_unique<mdl::EntityNode>(mdl::Entity{{
     {Classname, targetClassname},
     {Targetname, "link"},
     {Origin, "64 0 0"},
-  }}};
+  }});
+  auto* targetNode = targetNodePtr.get();
 
-  mdl::addNodes(map, {{&mdl::parentForNodes(map), {sourceNode, targetNode}}});
+  mdl::addNodes(
+    map,
+    mdl::parentForNodes(map),
+    kdl::vec_from<std::unique_ptr<mdl::Node>>(
+      std::move(sourceNodePtr), std::move(targetNodePtr)));
   REQUIRE(map.entityLinkManager().hasLink(*sourceNode, *targetNode, Target));
 
   const auto defaultColor = Color{RgbaF{0, 1, 0, 1}};

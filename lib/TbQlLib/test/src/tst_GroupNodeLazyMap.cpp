@@ -27,6 +27,7 @@
 #include "mdl/Map_Selection.h"
 #include "ql/GroupNodeLazyMap.h"
 
+#include <memory>
 #include <optional>
 #include <ranges>
 #include <string>
@@ -44,8 +45,10 @@ TEST_CASE("GroupNodeLazyMap")
   auto fixture = mdl::MapFixture{};
   auto& map = fixture.create();
 
-  auto* groupNode = new mdl::GroupNode{mdl::Group{"Hallway"}};
-  mdl::addNodes(map, {{&mdl::parentForNodes(map), {groupNode}}});
+  auto* groupNode = mdl::addNode(
+    map,
+    mdl::parentForNodes(map),
+    std::make_unique<mdl::GroupNode>(mdl::Group{"Hallway"}));
 
   const auto lazyMap = makeGroupNodeLazyMap(*groupNode);
 
