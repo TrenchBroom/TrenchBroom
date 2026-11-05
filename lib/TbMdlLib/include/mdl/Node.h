@@ -63,7 +63,7 @@ class Node : public Taggable
 {
 private:
   Node* m_parent = nullptr;
-  std::vector<Node*> m_children;
+  std::vector<std::unique_ptr<Node>> m_children;
   size_t m_descendantCount = 0;
   bool m_selected = false;
 
@@ -173,7 +173,8 @@ public: // tree management
   size_t childCount() const;
   auto children() const
   {
-    return m_children | std::views::transform([](Node* child) { return child; });
+    return m_children
+           | std::views::transform([](const auto& child) { return child.get(); });
   }
   size_t descendantCount() const;
   size_t familySize() const;
@@ -220,7 +221,6 @@ public:
 private:
   void doAddChild(std::unique_ptr<Node> child);
   std::unique_ptr<Node> doRemoveChild(Node* child);
-  void clearChildren();
 
   void childWillBeAdded(Node& node);
   void childWasAdded(Node& node);

@@ -30,11 +30,11 @@
 #include "kd/ranges/contains.h"
 #include "kd/ranges/to.h"
 #include "kd/reflection_impl.h"
-#include "kd/vector_utils.h"
 
 #include <algorithm>
 #include <ranges>
 #include <string>
+#include <utility>
 #include <vector>
 
 namespace tb::mdl
@@ -44,10 +44,7 @@ kdl_reflect_impl(NodePath);
 
 Node::Node() = default;
 
-Node::~Node()
-{
-  clearChildren();
-}
+Node::~Node() = default;
 
 const std::string& Node::name() const
 {
@@ -90,7 +87,7 @@ const Node* Node::resolvePath(const NodePath& path) const
       return nullptr;
     }
 
-    node = node->m_children[index];
+    node = node->m_children[index].get();
   }
   return node;
 }
@@ -227,7 +224,7 @@ std::vector<std::unique_ptr<Node>> Node::replaceChildren(
 {
   // nodeWillChange();
 
-  for (auto* child : m_children)
+  for (const auto& child : m_children)
   {
     contract_assert(child != nullptr);
     contract_assert(child->parent() == this);
@@ -237,11 +234,7 @@ std::vector<std::unique_ptr<Node>> Node::replaceChildren(
     child->setParent(nullptr);
   }
 
-  auto oldChildren =
-    m_children
-    | std::views::transform([](auto* child) { return std::unique_ptr<Node>(child); })
-    | kdl::ranges::to<std::vector>();
-  m_children.clear();
+  auto oldChildren = std::exchange(m_children, {});
 
   for (auto& child : oldChildren)
   {
@@ -296,13 +289,13 @@ void Node::doAddChild(std::unique_ptr<Node> child)
 {
   contract_pre(child != nullptr);
   contract_pre(child->parent() == nullptr);
-  contract_pre(!kdl::ranges::contains(m_children, child.get()));
+  contract_pre(!kdl::ranges::contains(children(), child.get()));
   contract_pre(canAddChild(*child));
 
   auto& newChild = *child;
   childWillBeAdded(newChild);
   // nodeWillChange();
-  m_children.push_back(child.release());
+  m_children.push_back(std::move(child));
   newChild.setParent(this);
   childWasAdded(newChild);
   // nodeDidChange();
@@ -317,16 +310,14 @@ std::unique_ptr<Node> Node::doRemoveChild(Node* child)
   childWillBeRemoved(*child);
   // nodeWillChange();
   child->setParent(nullptr);
-  m_children = kdl::vec_erase(std::move(m_children), child);
+  const auto it = std::ranges::find_if(
+    m_children, [&](const auto& existingChild) { return existingChild.get() == child; });
+  auto result = std::move(*it);
+  m_children.erase(it);
   childWasRemoved(*child);
   // nodeDidChange();
 
-  return std::unique_ptr<Node>{child};
-}
-
-void Node::clearChildren()
-{
-  kdl::vec_clear_and_delete(m_children);
+  return result;
 }
 
 void Node::childWillBeAdded(Node& node)
@@ -445,7 +436,7 @@ void Node::parentDidChange()
 void Node::ancestorWillChange()
 {
   doAncestorWillChange();
-  for (auto* child : m_children)
+  for (const auto& child : m_children)
   {
     child->ancestorWillChange();
   }
@@ -455,7 +446,7 @@ void Node::ancestorWillChange()
 void Node::ancestorDidChange()
 {
   doAncestorDidChange();
-  for (auto* child : m_children)
+  for (const auto& child : m_children)
   {
     child->ancestorDidChange();
   }
