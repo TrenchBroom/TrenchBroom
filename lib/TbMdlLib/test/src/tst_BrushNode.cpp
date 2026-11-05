@@ -35,6 +35,7 @@
 #include "mdl/PickResult.h"
 #include "mdl/TestUtils.h"
 
+#include "kd/memory_utils.h"
 #include "kd/result.h"
 
 #include "vm/approx.h"
@@ -54,14 +55,15 @@ TEST_CASE("BrushNode")
   {
     const auto worldBounds = vm::bbox3d{4096.0};
 
-    auto* brushNode = new BrushNode{
+    auto brushNodePtr = std::make_unique<BrushNode>(
       BrushBuilder{MapFormat::Quake3, worldBounds}.createCube(64.0, "testure")
-      | kdl::value()};
+      | kdl::value());
+    auto* brushNode = brushNodePtr.get();
     auto entityNode = EntityNode{Entity{}};
 
     CHECK(brushNode->entity() == nullptr);
 
-    entityNode.addChild(brushNode);
+    entityNode.addChild(std::move(brushNodePtr));
     CHECK(brushNode->entity() == &entityNode);
   }
 
@@ -149,8 +151,7 @@ TEST_CASE("BrushNode")
       brush.selectFace(1u);
       REQUIRE(brush.hasSelectedFaces());
 
-      auto clone =
-        std::unique_ptr<BrushNode>(static_cast<BrushNode*>(brush.clone(worldBounds)));
+      auto clone = kdl::static_pointer_cast<BrushNode>(brush.clone(worldBounds));
       CHECK(!clone->hasSelectedFaces());
     }
   }
@@ -329,8 +330,7 @@ TEST_CASE("BrushNode")
         })
       | kdl::value()};
 
-    auto clone =
-      std::unique_ptr<BrushNode>{static_cast<BrushNode*>(original.clone(worldBounds))};
+    auto clone = kdl::static_pointer_cast<BrushNode>(original.clone(worldBounds));
 
     CHECK(clone->brush().faceCount() == original.brush().faceCount());
     for (const auto& originalFace : original.brush().faces())
@@ -371,8 +371,6 @@ TEST_CASE("BrushNode")
       REQUIRE(nodes);
 
       CHECK(nodes.value().size() == 1u);
-
-      kdl::col_delete_all(nodes.value());
     }
 
     SECTION("1185")
@@ -396,8 +394,6 @@ TEST_CASE("BrushNode")
         NodeReader::read(data, MapFormat::Standard, worldBounds, {}, status, taskManager);
       REQUIRE(nodes);
       CHECK(nodes.value().size() == 1u);
-
-      kdl::col_delete_all(nodes.value());
     }
 
     SECTION("1697")
@@ -503,8 +499,6 @@ TEST_CASE("BrushNode")
         NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status, taskManager);
       REQUIRE(nodes);
       CHECK(nodes.value().size() == 1u);
-
-      kdl::col_delete_all(nodes.value());
     }
 
     SECTION("1194")
@@ -525,8 +519,6 @@ TEST_CASE("BrushNode")
         NodeReader::read(data, MapFormat::Standard, worldBounds, {}, status, taskManager);
       REQUIRE(nodes);
       CHECK(nodes.value().empty());
-
-      kdl::col_delete_all(nodes.value());
     }
 
     SECTION("1332")
@@ -559,7 +551,6 @@ TEST_CASE("BrushNode")
         {},
         status,
         taskManager); // assertion failure
-      kdl::col_delete_all(nodes.value());
     }
 
     SECTION("1395")
@@ -610,7 +601,6 @@ TEST_CASE("BrushNode")
         {},
         status,
         taskManager); // assertion failure
-      kdl::col_delete_all(nodes.value());
     }
 
     SECTION("1801")
@@ -638,7 +628,6 @@ TEST_CASE("BrushNode")
         {},
         status,
         taskManager); // assertion failure
-      kdl::col_delete_all(nodes.value());
     }
 
     SECTION("2361")
@@ -861,15 +850,13 @@ TEST_CASE("BrushNode")
 
       CHECK(nodes.value().size() == 1u);
       CHECK(nodes.value().at(0)->hasChildren());
-      CHECK(nodes.value().at(0)->children().size() == 2u);
+      REQUIRE(nodes.value().at(0)->children().size() == 2u);
 
-      auto* pipe = static_cast<BrushNode*>(nodes.value().at(0)->children().at(0));
-      auto* cube = static_cast<BrushNode*>(nodes.value().at(0)->children().at(1));
+      auto* pipe = static_cast<BrushNode*>(nodes.value().at(0)->children()[0]);
+      auto* cube = static_cast<BrushNode*>(nodes.value().at(0)->children()[1]);
 
       CHECK(pipe->intersects(*cube));
       CHECK(cube->intersects(*pipe));
-
-      kdl::col_delete_all(nodes.value());
     }
   }
 }

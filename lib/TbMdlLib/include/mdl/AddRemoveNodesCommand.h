@@ -41,17 +41,19 @@ private:
   };
 
   Action m_action;
-  kdl::flat_map<Node*, std::vector<Node*>> m_nodesToAdd;
+  kdl::flat_map<Node*, std::vector<std::unique_ptr<Node>>> m_nodesToAdd;
   kdl::flat_map<Node*, std::vector<Node*>> m_nodesToRemove;
 
 public:
   static std::unique_ptr<AddRemoveNodesCommand> add(
-    const kdl::flat_map<Node*, std::vector<Node*>>& nodes);
+    kdl::flat_map<Node*, std::vector<std::unique_ptr<Node>>> nodes);
   static std::unique_ptr<AddRemoveNodesCommand> remove(
     const kdl::flat_map<Node*, std::vector<Node*>>& nodes);
 
   AddRemoveNodesCommand(
-    Action action, const kdl::flat_map<Node*, std::vector<Node*>>& nodes);
+    Action action,
+    kdl::flat_map<Node*, std::vector<std::unique_ptr<Node>>> nodesToAdd,
+    kdl::flat_map<Node*, std::vector<Node*>> nodesToRemove);
   ~AddRemoveNodesCommand() override;
 
 private:

@@ -60,8 +60,7 @@ TEST_CASE("PatchNodeLazyMap")
 
   SECTION("Owned by worldspawn")
   {
-    auto* patchNode = mdl::createPatchNode();
-    mdl::addNodes(map, {{&mdl::parentForNodes(map), {patchNode}}});
+    auto* patchNode = mdl::addNode(map, mdl::parentForNodes(map), mdl::createPatchNode());
 
     const auto lazyMap = makePatchNodeLazyMap(map, *patchNode);
 
@@ -109,11 +108,13 @@ TEST_CASE("PatchNodeLazyMap")
 
   SECTION("Owned by a placed entity")
   {
-    auto* entityNode = new mdl::EntityNode{mdl::Entity{{{"classname", "func_detail"}}}};
-    mdl::addNodes(map, {{&mdl::parentForNodes(map), {entityNode}}});
+    auto* entityNode = mdl::addNode(
+      map,
+      mdl::parentForNodes(map),
+      std::make_unique<mdl::EntityNode>(mdl::Entity{{{"classname", "func_detail"}}}));
 
-    auto* patchNode = mdl::createPatchNode("tagged_material");
-    mdl::addNodes(map, {{entityNode, {patchNode}}});
+    auto* patchNode =
+      mdl::addNode(map, *entityNode, mdl::createPatchNode("tagged_material"));
 
     const auto lazyMap = makePatchNodeLazyMap(map, *patchNode);
 

@@ -60,8 +60,8 @@ TEST_CASE("BrushNodeLazyMap")
 
   SECTION("Owned by worldspawn")
   {
-    auto* brushNode = mdl::createBrushNode(map);
-    mdl::addNodes(map, {{&mdl::parentForNodes(map), {brushNode}}});
+    auto* brushNode =
+      mdl::addNode(map, mdl::parentForNodes(map), mdl::createBrushNode(map));
 
     const auto lazyMap = makeBrushNodeLazyMap(map, *brushNode);
 
@@ -109,11 +109,13 @@ TEST_CASE("BrushNodeLazyMap")
 
   SECTION("Owned by a placed entity")
   {
-    auto* entityNode = new mdl::EntityNode{mdl::Entity{{{"classname", "func_detail"}}}};
-    mdl::addNodes(map, {{&mdl::parentForNodes(map), {entityNode}}});
+    auto* entityNode = mdl::addNode(
+      map,
+      mdl::parentForNodes(map),
+      std::make_unique<mdl::EntityNode>(mdl::Entity{{{"classname", "func_detail"}}}));
 
-    auto* brushNode = mdl::createBrushNode(map, "tagged_material");
-    mdl::addNodes(map, {{entityNode, {brushNode}}});
+    auto* brushNode =
+      mdl::addNode(map, *entityNode, mdl::createBrushNode(map, "tagged_material"));
 
     const auto lazyMap = makeBrushNodeLazyMap(map, *brushNode);
 

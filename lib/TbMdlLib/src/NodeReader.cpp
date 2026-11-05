@@ -27,8 +27,10 @@
 #include "mdl/LinkedGroupUtils.h"
 #include "mdl/WorldNode.h"
 
-#include "kd/vector_utils.h"
+#include "kd/ranges/to.h"
 
+#include <memory>
+#include <ranges>
 #include <string>
 #include <vector>
 
@@ -44,7 +46,7 @@ NodeReader::NodeReader(
 {
 }
 
-Result<std::vector<Node*>> NodeReader::read(
+Result<std::vector<std::unique_ptr<Node>>> NodeReader::read(
   const std::string& str,
   const MapFormat preferredMapFormat,
   const vm::bbox3d& worldBounds,
@@ -66,7 +68,10 @@ Result<std::vector<Node*>> NodeReader::read(
         taskManager))
     {
       return std::move(result) | kdl::transform([&](auto nodes) {
-               for (const auto& error : initializeLinkIds(nodes))
+               for (const auto& error : initializeLinkIds(
+                      nodes
+                      | std::views::transform([](const auto& node) { return node.get(); })
+                      | kdl::ranges::to<std::vector>()))
                {
                  status.error("Could not restore linked groups: " + error.msg);
                }
@@ -86,9 +91,9 @@ Result<std::vector<Node*>> NodeReader::read(
  * Does not throw upon parsing failure, but instead logs the failure to `status` and
  * returns {}.
  *
- * @returns the parsed nodes; caller is responsible for freeing them.
+ * @returns the parsed nodes
  */
-Result<std::vector<Node*>> NodeReader::readAsFormat(
+Result<std::vector<std::unique_ptr<Node>>> NodeReader::readAsFormat(
   const MapFormat sourceMapFormat,
   const MapFormat targetMapFormat,
   const std::string& str,
@@ -103,13 +108,12 @@ Result<std::vector<Node*>> NodeReader::readAsFormat(
          | kdl::transform([&]() {
              status.info(
                "Parsed successfully as " + formatName(sourceMapFormat) + " entities");
-             return entityReader.m_nodes;
+             return std::move(entityReader.m_nodes);
            })
          | kdl::or_else([&](const auto& entityReaderError) {
              status.info(
                "Couldn't parse as " + formatName(sourceMapFormat)
                + " entities: " + entityReaderError.msg);
-             kdl::vec_clear_and_delete(entityReader.m_nodes);
 
              auto brushReader =
                NodeReader{str, sourceMapFormat, targetMapFormat, entityPropertyConfig};
@@ -118,13 +122,12 @@ Result<std::vector<Node*>> NodeReader::readAsFormat(
                         status.info(
                           "Parsed successfully as " + formatName(sourceMapFormat)
                           + " brushes");
-                        return brushReader.m_nodes;
+                        return std::move(brushReader.m_nodes);
                       })
                     | kdl::if_error([&](const auto& brushReaderError) {
                         status.info(
                           "Couldn't parse as " + formatName(sourceMapFormat)
                           + " brushes: " + brushReaderError.msg);
-                        kdl::vec_clear_and_delete(brushReader.m_nodes);
                       });
            });
 }
@@ -133,25 +136,24 @@ Node* NodeReader::onWorldNode(std::unique_ptr<WorldNode>, ParserStatus&)
 {
   // we create a fake layer node instead of using a proper world node
   // layers can contain any node we might parse
-  auto* layerNode = new LayerNode{Layer{""}};
-  m_nodes.insert(std::begin(m_nodes), layerNode);
-  return layerNode;
+  return m_nodes.insert(std::begin(m_nodes), std::make_unique<LayerNode>(Layer{""}))
+    ->get();
 }
 
 void NodeReader::onLayerNode(std::unique_ptr<Node> layerNode, ParserStatus&)
 {
-  m_nodes.push_back(layerNode.release());
+  m_nodes.push_back(std::move(layerNode));
 }
 
 void NodeReader::onNode(Node* parentNode, std::unique_ptr<Node> node, ParserStatus&)
 {
   if (parentNode != nullptr)
   {
-    parentNode->addChild(node.release());
+    parentNode->addChild(std::move(node));
   }
   else
   {
-    m_nodes.push_back(node.release());
+    m_nodes.push_back(std::move(node));
   }
 }
 

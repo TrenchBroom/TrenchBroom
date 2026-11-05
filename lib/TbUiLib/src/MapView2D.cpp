@@ -380,7 +380,8 @@ render::RenderMode MapView2D::renderMode()
 void MapView2D::renderGrid(render::RenderContext&, render::RenderBatch& renderBatch)
 {
   const auto& map = m_document.map();
-  renderBatch.addOneShot(new render::GridRenderer(*m_camera, map.worldBounds()));
+  renderBatch.addOneShot(
+    std::make_unique<render::GridRenderer>(*m_camera, map.worldBounds()));
 }
 
 void MapView2D::renderMap(

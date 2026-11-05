@@ -37,6 +37,7 @@
 #include "mdl/WorldNode.h"
 
 #include "kd/result.h"
+#include "kd/vector_utils.h"
 
 #include <ostream>
 #include <vector>
@@ -98,32 +99,36 @@ TEST_CASE("Selection")
   auto& worldNode = map.worldNode();
   auto brushBuilder = BrushBuilder{worldNode.mapFormat(), map.worldBounds()};
 
-  auto* outerGroupNode = new GroupNode{Group{"outer"}};
-  auto* innerGroupNode = new GroupNode{Group{"inner"}};
+  auto outerGroupNodePtr = std::make_unique<GroupNode>(Group{"outer"});
+  auto* outerGroupNode = outerGroupNodePtr.get();
+  auto* innerGroupNode =
+    &outerGroupNode->addChild(std::make_unique<GroupNode>(Group{"inner"}));
 
-  auto* entityNode = new EntityNode{{}};
-  auto* brushNode =
+  auto entityNodePtr = std::make_unique<EntityNode>(Entity{});
+  auto* entityNode = entityNodePtr.get();
+  auto* brushNode = &outerGroupNode->addChild(
     brushBuilder.createCube(64.0, "material")
       .transform([](auto brush) { return std::make_unique<BrushNode>(std::move(brush)); })
-      .value()
-      .release();
+      .value());
 
   // clang-format off
-  auto* patchNode = new PatchNode{BezierPatch{3, 3, {
+  auto* patchNode = &innerGroupNode->addChild(std::make_unique<PatchNode>(BezierPatch{3, 3, {
     {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
     {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
-    {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "material"}};
+    {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "material"}));
   // clang-format on
 
-  auto* brushEntityNode = new EntityNode{{}};
-  auto* entityBrushNode =
+  auto brushEntityNodePtr = std::make_unique<EntityNode>(Entity{});
+  auto* brushEntityNode = brushEntityNodePtr.get();
+  auto* entityBrushNode = &brushEntityNode->addChild(
     brushBuilder.createCube(64.0, "material")
       .transform([](auto brush) { return std::make_unique<BrushNode>(std::move(brush)); })
-      .value()
-      .release();
+      .value());
 
-  auto* otherGroupNode = new GroupNode{Group{"other"}};
-  auto* groupedEntityNode = new EntityNode{{}};
+  auto otherGroupNodePtr = std::make_unique<GroupNode>(Group{"other"});
+  auto* otherGroupNode = otherGroupNodePtr.get();
+  auto* groupedEntityNode =
+    &otherGroupNode->addChild(std::make_unique<EntityNode>(Entity{}));
 
   /*
    worldNode
@@ -138,15 +143,14 @@ TEST_CASE("Selection")
        groupedEntityNode
   */
 
-  innerGroupNode->addChildren({patchNode});
-  outerGroupNode->addChildren({innerGroupNode, brushNode});
-  brushEntityNode->addChildren({entityBrushNode});
-  otherGroupNode->addChildren({groupedEntityNode});
-
   addNodes(
     map,
-    {{&parentForNodes(map),
-      {outerGroupNode, entityNode, brushEntityNode, otherGroupNode}}});
+    parentForNodes(map),
+    kdl::vec_from<std::unique_ptr<Node>>(
+      std::move(outerGroupNodePtr),
+      std::move(entityNodePtr),
+      std::move(brushEntityNodePtr),
+      std::move(otherGroupNodePtr)));
 
   const auto selectItem = [&](const auto selectionItem) {
     switch (selectionItem)

@@ -151,7 +151,7 @@ TEST_CASE("ClipToolController")
   const auto& objects = map.worldNode().defaultLayer()->children();
   REQUIRE(objects.size() == 1u);
 
-  auto* brush = dynamic_cast<mdl::BrushNode*>(objects.at(0));
+  auto* brush = dynamic_cast<mdl::BrushNode*>(objects[0]);
   REQUIRE(brush != nullptr);
 
   CHECK(brush->logicalBounds() == vm::bbox3d{{-16, -16, 52}, {20, 16, 72}});

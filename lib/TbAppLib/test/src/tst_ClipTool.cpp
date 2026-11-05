@@ -42,6 +42,8 @@
 
 #include "kd/result.h"
 
+#include <memory>
+
 #include <catch2/catch_test_macros.hpp>
 
 namespace tb::ui
@@ -126,9 +128,11 @@ TEST_CASE("ClipTool")
     CHECK(!tool.hasBrushes());
 
     auto builder = mdl::BrushBuilder{map.worldNode().mapFormat(), map.worldBounds()};
-    auto* brushNode = new mdl::BrushNode{
-      builder.createCuboid(vm::bbox3d{16.0}, "material") | kdl::value()};
-    mdl::addNodes(map, {{map.editorContext().currentLayer(), {brushNode}}});
+    auto* brushNode = mdl::addNode(
+      map,
+      *map.editorContext().currentLayer(),
+      std::make_unique<mdl::BrushNode>(
+        builder.createCuboid(vm::bbox3d{16.0}, "material") | kdl::value()));
     mdl::selectNodes(map, {brushNode});
 
     CHECK(tool.hasBrushes());
@@ -140,9 +144,11 @@ TEST_CASE("ClipTool")
     CHECK(!tool.defaultClipPointPos().has_value());
 
     auto builder = mdl::BrushBuilder{map.worldNode().mapFormat(), map.worldBounds()};
-    auto* brushNode = new mdl::BrushNode{
-      builder.createCuboid(vm::bbox3d{16.0}, "material") | kdl::value()};
-    mdl::addNodes(map, {{map.editorContext().currentLayer(), {brushNode}}});
+    auto* brushNode = mdl::addNode(
+      map,
+      *map.editorContext().currentLayer(),
+      std::make_unique<mdl::BrushNode>(
+        builder.createCuboid(vm::bbox3d{16.0}, "material") | kdl::value()));
     mdl::selectNodes(map, {brushNode});
 
     CHECK(tool.defaultClipPointPos() == vm::vec3d{0, 0, 0});
@@ -151,9 +157,11 @@ TEST_CASE("ClipTool")
   SECTION("adding and removing points")
   {
     auto builder = mdl::BrushBuilder{map.worldNode().mapFormat(), map.worldBounds()};
-    auto* brushNode = new mdl::BrushNode{
-      builder.createCuboid(vm::bbox3d{16.0}, "material") | kdl::value()};
-    mdl::addNodes(map, {{map.editorContext().currentLayer(), {brushNode}}});
+    auto* brushNode = mdl::addNode(
+      map,
+      *map.editorContext().currentLayer(),
+      std::make_unique<mdl::BrushNode>(
+        builder.createCuboid(vm::bbox3d{16.0}, "material") | kdl::value()));
     mdl::selectNodes(map, {brushNode});
 
     auto tool = ClipTool{document};
@@ -191,9 +199,11 @@ TEST_CASE("ClipTool")
   SECTION("dragging a point")
   {
     auto builder = mdl::BrushBuilder{map.worldNode().mapFormat(), map.worldBounds()};
-    auto* brushNode = new mdl::BrushNode{
-      builder.createCuboid(vm::bbox3d{16.0}, "material") | kdl::value()};
-    mdl::addNodes(map, {{map.editorContext().currentLayer(), {brushNode}}});
+    auto* brushNode = mdl::addNode(
+      map,
+      *map.editorContext().currentLayer(),
+      std::make_unique<mdl::BrushNode>(
+        builder.createCuboid(vm::bbox3d{16.0}, "material") | kdl::value()));
     mdl::selectNodes(map, {brushNode});
 
     auto tool = ClipTool{document};
@@ -269,9 +279,11 @@ TEST_CASE("ClipTool")
   SECTION("setFace and reset")
   {
     auto builder = mdl::BrushBuilder{map.worldNode().mapFormat(), map.worldBounds()};
-    auto* brushNode = new mdl::BrushNode{
-      builder.createCuboid(vm::bbox3d{16.0}, "material") | kdl::value()};
-    mdl::addNodes(map, {{map.editorContext().currentLayer(), {brushNode}}});
+    auto* brushNode = mdl::addNode(
+      map,
+      *map.editorContext().currentLayer(),
+      std::make_unique<mdl::BrushNode>(
+        builder.createCuboid(vm::bbox3d{16.0}, "material") | kdl::value()));
     mdl::selectNodes(map, {brushNode});
 
     auto tool = ClipTool{document};
@@ -304,9 +316,11 @@ TEST_CASE("ClipTool")
   SECTION("deactivating clears the strategy")
   {
     auto builder = mdl::BrushBuilder{map.worldNode().mapFormat(), map.worldBounds()};
-    auto* brushNode = new mdl::BrushNode{
-      builder.createCuboid(vm::bbox3d{16.0}, "material") | kdl::value()};
-    mdl::addNodes(map, {{map.editorContext().currentLayer(), {brushNode}}});
+    auto* brushNode = mdl::addNode(
+      map,
+      *map.editorContext().currentLayer(),
+      std::make_unique<mdl::BrushNode>(
+        builder.createCuboid(vm::bbox3d{16.0}, "material") | kdl::value()));
     mdl::selectNodes(map, {brushNode});
 
     auto tool = ClipTool{document};
@@ -324,8 +338,10 @@ TEST_CASE("ClipTool")
     auto tool = ClipTool{document};
     CHECK(!tool.activate());
 
-    auto* entityNode = new mdl::EntityNode{mdl::Entity{}};
-    mdl::addNodes(map, {{map.editorContext().currentLayer(), {entityNode}}});
+    auto* entityNode = mdl::addNode(
+      map,
+      *map.editorContext().currentLayer(),
+      std::make_unique<mdl::EntityNode>(mdl::Entity{}));
     mdl::selectNodes(map, {entityNode});
 
     auto toolWithEntitySelected = ClipTool{document};

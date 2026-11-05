@@ -58,16 +58,20 @@ TEST_CASE("convertToString")
 
   auto brushBuilder = BrushBuilder{worldNode.mapFormat(), vm::bbox3d{8192.0}};
 
-  auto* groupNode = new GroupNode{Group{"group"}};
-  auto* entityNode = new EntityNode{Entity{}};
-  auto* brushNode =
-    new BrushNode{brushBuilder.createCube(64.0, "material") | kdl::value()};
+  auto groupNodePtr = std::make_unique<GroupNode>(Group{"group"});
+  auto* groupNode = groupNodePtr.get();
+  auto entityNodePtr = std::make_unique<EntityNode>(Entity{});
+  auto* entityNode = entityNodePtr.get();
+  auto brushNodePtr =
+    std::make_unique<BrushNode>(brushBuilder.createCube(64.0, "material") | kdl::value());
+  auto* brushNode = brushNodePtr.get();
 
   // clang-format off
-  auto* patchNode = new PatchNode{BezierPatch{3, 3, {
+  auto patchNodePtr = std::make_unique<PatchNode>(BezierPatch{3, 3, {
       {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
       {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
-      {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "material"}};
+      {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "material"});
+  auto* patchNode = patchNodePtr.get();
   // clang-format on
 
   // explicitly set link IDs
@@ -76,8 +80,10 @@ TEST_CASE("convertToString")
   setLinkId(*brushNode, "brush_link_id");
   setLinkId(*patchNode, "patch_link_id");
 
-  groupNode->addChildren({entityNode, brushNode, patchNode});
-  worldNode.defaultLayer()->addChild(groupNode);
+  groupNode->addChild(std::move(entityNodePtr));
+  groupNode->addChild(std::move(brushNodePtr));
+  groupNode->addChild(std::move(patchNodePtr));
+  worldNode.defaultLayer()->addChild(std::move(groupNodePtr));
 
   CHECK(convertToString(worldNode) == R"(WorldNode{
   m_entityPropertyConfig: EntityPropertyConfig{defaultModelScaleExpression: nullopt, setDefaultProperties: 0, updateAnglePropertyAfterTransform: 1},

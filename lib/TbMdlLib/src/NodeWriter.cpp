@@ -37,6 +37,7 @@
 #include "kd/string_utils.h"
 #include "kd/vector_utils.h"
 
+#include <ranges>
 #include <vector>
 
 namespace tb::mdl
@@ -44,10 +45,9 @@ namespace tb::mdl
 namespace
 {
 
+template <std::ranges::range R>
 void doWriteNodes(
-  NodeSerializer& serializer,
-  const std::vector<Node*>& nodes,
-  const Node* parent = nullptr)
+  NodeSerializer& serializer, const R& nodes, const Node* parent = nullptr)
 {
   auto parentStack = std::vector<const Node*>{parent};
   const auto parentProperties = [&]() {

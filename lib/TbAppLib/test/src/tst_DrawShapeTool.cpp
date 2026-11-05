@@ -38,8 +38,10 @@
 #include "vm/bbox.h"
 
 #include <algorithm>
+#include <memory>
 
 #include <catch2/catch_test_macros.hpp>
+#include <catch2/matchers/catch_matchers_range_equals.hpp>
 
 namespace tb::ui
 {
@@ -58,9 +60,11 @@ size_t indexOfExtensionNamed(
 mdl::BrushNode* addBrushNode(mdl::Map& map, const vm::bbox3d& bounds)
 {
   auto builder = mdl::BrushBuilder{map.worldNode().mapFormat(), map.worldBounds()};
-  auto* brushNode =
-    new mdl::BrushNode{builder.createCuboid(bounds, "material") | kdl::value()};
-  mdl::addNodes(map, {{&mdl::parentForNodes(map), {brushNode}}});
+  auto* brushNode = mdl::addNode(
+    map,
+    mdl::parentForNodes(map),
+    std::make_unique<mdl::BrushNode>(
+      builder.createCuboid(bounds, "material") | kdl::value()));
   return brushNode;
 }
 
@@ -160,7 +164,9 @@ TEST_CASE("DrawShapeTool")
     const auto& selectedNodes = map.selection().nodes;
     REQUIRE(selectedNodes.size() == 1);
     CHECK(selectedNodes.front() != brushNode);
-    CHECK(map.worldNode().defaultLayer()->children() == selectedNodes);
+    CHECK_THAT(
+      map.worldNode().defaultLayer()->children(),
+      Catch::Matchers::RangeEquals(selectedNodes));
   }
 
   SECTION("applying the parameters keeps the selection if the shape has no brushes")
@@ -176,8 +182,9 @@ TEST_CASE("DrawShapeTool")
     tool.extensionManager().applyParametersNotifier();
 
     CHECK(map.selection().nodes == std::vector<mdl::Node*>{brushNode});
-    CHECK(
-      map.worldNode().defaultLayer()->children() == std::vector<mdl::Node*>{brushNode});
+    CHECK_THAT(
+      map.worldNode().defaultLayer()->children(),
+      Catch::Matchers::RangeEquals(std::vector<mdl::Node*>{brushNode}));
   }
 }
 

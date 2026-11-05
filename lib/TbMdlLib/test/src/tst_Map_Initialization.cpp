@@ -33,7 +33,10 @@
 #include "mdl/PropertyDefinition.h"
 #include "mdl/TestUtils.h"
 
+#include <memory>
+
 #include <catch2/catch_test_macros.hpp>
+#include <catch2/matchers/catch_matchers_range_equals.hpp>
 
 namespace tb::mdl
 {
@@ -456,11 +459,11 @@ TEST_CASE("Map_Initialization")
           REQUIRE(map->path() == path);
           REQUIRE(map->persistent());
 
-          auto* transientEntityNode = new EntityNode{{}};
-          addNodes(*map, {{&parentForNodes(*map), {transientEntityNode}}});
-          REQUIRE(
-            map->worldNode().defaultLayer()->children()
-            == std::vector<Node*>{transientEntityNode});
+          auto* transientEntityNode =
+            addNode(*map, parentForNodes(*map), std::make_unique<EntityNode>(Entity{}));
+          REQUIRE_THAT(
+            map->worldNode().defaultLayer()->children(),
+            Catch::Matchers::RangeEquals(std::vector<Node*>{transientEntityNode}));
           REQUIRE(map->modified());
 
           return map->reload() | kdl::transform([&](auto reloadedMap) {
@@ -469,9 +472,9 @@ TEST_CASE("Map_Initialization")
                    CHECK(reloadedMap->path() == path);
                    CHECK(reloadedMap->persistent());
                    CHECK(!reloadedMap->modified());
-                   CHECK(
-                     reloadedMap->worldNode().defaultLayer()->children()
-                     == std::vector<Node*>{});
+                   CHECK_THAT(
+                     reloadedMap->worldNode().defaultLayer()->children(),
+                     Catch::Matchers::RangeEquals(std::vector<Node*>{}));
                  });
         })
       | kdl::transform_error([](auto e) { FAIL(e.msg); });

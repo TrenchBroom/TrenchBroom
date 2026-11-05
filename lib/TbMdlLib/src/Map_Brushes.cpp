@@ -35,6 +35,8 @@
 #include "mdl/UvUtils.h"
 #include "mdl/WorldNode.h"
 
+#include <memory>
+
 namespace tb::mdl
 {
 namespace
@@ -182,11 +184,11 @@ bool createBrush(Map& map, const std::vector<vm::vec3d>& points)
 
   return builder.createBrush(points, map.currentMaterialName())
          | kdl::and_then([&](auto b) -> Result<void> {
-             auto* brushNode = new BrushNode{std::move(b)};
-
              auto transaction = Transaction{map, "Create Brush"};
              deselectAll(map);
-             if (addNodes(map, {{&parentForNodes(map), {brushNode}}}).empty())
+             auto* brushNode = addNode(
+               map, parentForNodes(map), std::make_unique<BrushNode>(std::move(b)));
+             if (!brushNode)
              {
                transaction.cancel();
                return Error{"Could not add brush to document"};

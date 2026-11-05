@@ -37,6 +37,8 @@
 #include "mdl/TagMatcher.h"
 #include "mdl/TestFactory.h"
 
+#include "kd/vector_utils.h"
+
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/generators/catch_generators.hpp>
 #include <catch2/matchers/catch_matchers_predicate.hpp>
@@ -72,33 +74,45 @@ TEST_CASE("Map_EntityLinks")
 
   SECTION("Adding nodes adds their links")
   {
-    auto* sourceNode = new EntityNode{Entity{{
+    auto sourceNodePtr = std::make_unique<EntityNode>(Entity{{
       {Classname, sourceClassname},
       {Target, "some_value"},
-    }}};
+    }});
+    auto* sourceNode = sourceNodePtr.get();
 
-    auto* targetNode = new EntityNode{Entity{{
+    auto targetNodePtr = std::make_unique<EntityNode>(Entity{{
       {Classname, targetClassname},
       {Targetname, "some_value"},
-    }}};
+    }});
+    auto* targetNode = targetNodePtr.get();
 
-    addNodes(map, {{&parentForNodes(map), {sourceNode, targetNode}}});
+    addNodes(
+      map,
+      parentForNodes(map),
+      kdl::vec_from<std::unique_ptr<Node>>(
+        std::move(sourceNodePtr), std::move(targetNodePtr)));
     CHECK(map.entityLinkManager().hasLink(*sourceNode, *targetNode, Target));
   }
 
   SECTION("Removing nodes removes their links")
   {
-    auto* sourceNode = new EntityNode{Entity{{
+    auto sourceNodePtr = std::make_unique<EntityNode>(Entity{{
       {Classname, sourceClassname},
       {Target, "some_value"},
-    }}};
+    }});
+    auto* sourceNode = sourceNodePtr.get();
 
-    auto* targetNode = new EntityNode{Entity{{
+    auto targetNodePtr = std::make_unique<EntityNode>(Entity{{
       {Classname, targetClassname},
       {Targetname, "some_value"},
-    }}};
+    }});
+    auto* targetNode = targetNodePtr.get();
 
-    addNodes(map, {{&parentForNodes(map), {sourceNode, targetNode}}});
+    addNodes(
+      map,
+      parentForNodes(map),
+      kdl::vec_from<std::unique_ptr<Node>>(
+        std::move(sourceNodePtr), std::move(targetNodePtr)));
     REQUIRE(map.entityLinkManager().hasLink(*sourceNode, *targetNode, Target));
 
     SECTION("Remove source node")
@@ -118,17 +132,23 @@ TEST_CASE("Map_EntityLinks")
   {
     SECTION("When the entities are already linked")
     {
-      auto* sourceNode = new EntityNode{Entity{{
+      auto sourceNodePtr = std::make_unique<EntityNode>(Entity{{
         {Classname, sourceClassname},
         {Target, "some_value"},
-      }}};
+      }});
+      auto* sourceNode = sourceNodePtr.get();
 
-      auto* targetNode = new EntityNode{Entity{{
+      auto targetNodePtr = std::make_unique<EntityNode>(Entity{{
         {Classname, targetClassname},
         {Targetname, "some_value"},
-      }}};
+      }});
+      auto* targetNode = targetNodePtr.get();
 
-      addNodes(map, {{&parentForNodes(map), {sourceNode, targetNode}}});
+      addNodes(
+        map,
+        parentForNodes(map),
+        kdl::vec_from<std::unique_ptr<Node>>(
+          std::move(sourceNodePtr), std::move(targetNodePtr)));
       REQUIRE(map.entityLinkManager().hasLink(*sourceNode, *targetNode, Target));
 
       SECTION("Change source classname")
@@ -162,17 +182,23 @@ TEST_CASE("Map_EntityLinks")
 
     SECTION("When the entities are not linked")
     {
-      auto* sourceNode = new EntityNode{Entity{{
+      auto sourceNodePtr = std::make_unique<EntityNode>(Entity{{
         {Classname, "some_other_class"},
         {Target, "some_value"},
-      }}};
+      }});
+      auto* sourceNode = sourceNodePtr.get();
 
-      auto* targetNode = new EntityNode{Entity{{
+      auto targetNodePtr = std::make_unique<EntityNode>(Entity{{
         {Classname, "yet_anotehr_class"},
         {Targetname, "some_value"},
-      }}};
+      }});
+      auto* targetNode = targetNodePtr.get();
 
-      addNodes(map, {{&parentForNodes(map), {sourceNode, targetNode}}});
+      addNodes(
+        map,
+        parentForNodes(map),
+        kdl::vec_from<std::unique_ptr<Node>>(
+          std::move(sourceNodePtr), std::move(targetNodePtr)));
       REQUIRE(!map.entityLinkManager().hasLink(*sourceNode, *targetNode, Target));
 
       SECTION("Change source classname, then target classname")
@@ -203,14 +229,20 @@ TEST_CASE("Map_EntityLinks")
 
   SECTION("Setting properties updates links")
   {
-    auto* sourceNode = new EntityNode{Entity{{
+    auto sourceNodePtr = std::make_unique<EntityNode>(Entity{{
       {Classname, sourceClassname},
-    }}};
-    auto* targetNode = new EntityNode{Entity{{
+    }});
+    auto* sourceNode = sourceNodePtr.get();
+    auto targetNodePtr = std::make_unique<EntityNode>(Entity{{
       {Classname, targetClassname},
-    }}};
+    }});
+    auto* targetNode = targetNodePtr.get();
 
-    addNodes(map, {{&parentForNodes(map), {sourceNode, targetNode}}});
+    addNodes(
+      map,
+      parentForNodes(map),
+      kdl::vec_from<std::unique_ptr<Node>>(
+        std::move(sourceNodePtr), std::move(targetNodePtr)));
     REQUIRE(!map.entityLinkManager().hasLink(*sourceNode, *targetNode, Target));
 
     SECTION("First set target, then targetname")
@@ -240,17 +272,23 @@ TEST_CASE("Map_EntityLinks")
 
   SECTION("Unsetting properties removes links")
   {
-    auto* sourceNode = new EntityNode{Entity{{
+    auto sourceNodePtr = std::make_unique<EntityNode>(Entity{{
       {Classname, sourceClassname},
       {Target, "some_value"},
-    }}};
+    }});
+    auto* sourceNode = sourceNodePtr.get();
 
-    auto* targetNode = new EntityNode{Entity{{
+    auto targetNodePtr = std::make_unique<EntityNode>(Entity{{
       {Classname, targetClassname},
       {Targetname, "some_value"},
-    }}};
+    }});
+    auto* targetNode = targetNodePtr.get();
 
-    addNodes(map, {{&parentForNodes(map), {sourceNode, targetNode}}});
+    addNodes(
+      map,
+      parentForNodes(map),
+      kdl::vec_from<std::unique_ptr<Node>>(
+        std::move(sourceNodePtr), std::move(targetNodePtr)));
     REQUIRE(map.entityLinkManager().hasLink(*sourceNode, *targetNode, Target));
 
     SECTION("Unset target property")
@@ -270,20 +308,24 @@ TEST_CASE("Map_EntityLinks")
 
   SECTION("Grouped nodes")
   {
-    auto* sourceNode = new EntityNode{Entity{{
+    auto sourceGroupNodePtr = std::make_unique<GroupNode>(mdl::Group{"source"});
+    auto* sourceGroupNode = sourceGroupNodePtr.get();
+    auto* sourceNode = &sourceGroupNode->addChild(std::make_unique<EntityNode>(Entity{{
       {Classname, sourceClassname},
       {Target, "some_value"},
-    }}};
+    }}));
 
-    auto* targetNode = new EntityNode{Entity{{
+    auto targetNodePtr = std::make_unique<EntityNode>(Entity{{
       {Classname, targetClassname},
       {Targetname, "some_value"},
-    }}};
+    }});
+    auto* targetNode = targetNodePtr.get();
 
-    auto* sourceGroupNode = new GroupNode{mdl::Group{"source"}};
-    sourceGroupNode->addChild(sourceNode);
-
-    addNodes(map, {{&parentForNodes(map), {sourceGroupNode, targetNode}}});
+    addNodes(
+      map,
+      parentForNodes(map),
+      kdl::vec_from<std::unique_ptr<Node>>(
+        std::move(sourceGroupNodePtr), std::move(targetNodePtr)));
 
     SECTION("Adding a grouped node adds links")
     {

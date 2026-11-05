@@ -31,6 +31,8 @@
 #include "ui/MapDocument.h"
 #include "ui/MapDocumentFixture.h"
 
+#include <memory>
+
 #include <catch2/catch_test_macros.hpp>
 
 namespace tb::ui
@@ -46,8 +48,8 @@ TEST_CASE("LayerListBox")
 
   auto listBox = LayerListBox{document};
 
-  auto* customLayerNode = new mdl::LayerNode{mdl::Layer{"custom layer"}};
-  mdl::addNodes(map, {{&map.worldNode(), {customLayerNode}}});
+  auto* customLayerNode = mdl::addNode(
+    map, map.worldNode(), std::make_unique<mdl::LayerNode>(mdl::Layer{"custom layer"}));
 
   SECTION("updates the visibility icon when a layer is isolated")
   {

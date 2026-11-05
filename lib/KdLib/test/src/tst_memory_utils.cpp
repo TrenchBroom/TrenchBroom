@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010 Kristian Duske
+ Copyright (C) 2026 Kristian Duske
 
  Permission is hereby granted, free of charge, to any person obtaining a copy of this
  software and associated documentation files (the "Software"), to deal in the Software
@@ -18,20 +18,52 @@
  DEALINGS IN THE SOFTWARE.
 */
 
-#include "test_utils.h"
+#include "kd/memory_utils.h"
+
+#include <memory>
+
+#include <catch2/catch_test_macros.hpp>
 
 namespace kdl
 {
-
-deletable::deletable(bool& i_deleted)
-  : deleted(i_deleted)
+namespace
 {
-  deleted = false;
-}
 
-deletable::~deletable()
+struct Base
 {
-  deleted = true;
+  virtual ~Base() = default;
+};
+
+struct Derived : public Base
+{
+  int value = 0;
+};
+
+} // namespace
+
+TEST_CASE("memory_utils")
+{
+  SECTION("static_pointer_cast")
+  {
+    SECTION("null pointer")
+    {
+      CHECK(static_pointer_cast<Derived>(std::unique_ptr<Base>{}) == nullptr);
+    }
+
+    SECTION("non-null pointer")
+    {
+      auto derived = std::make_unique<Derived>();
+      derived->value = 7;
+      auto* pointee = derived.get();
+
+      auto base = std::unique_ptr<Base>{std::move(derived)};
+      auto result = static_pointer_cast<Derived>(std::move(base));
+
+      CHECK(base == nullptr);
+      CHECK(result.get() == pointee);
+      CHECK(result->value == 7);
+    }
+  }
 }
 
 } // namespace kdl

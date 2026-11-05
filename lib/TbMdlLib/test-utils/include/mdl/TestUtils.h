@@ -22,6 +22,7 @@
 #include "mdl/Node.h"
 #include "mdl/Selection.h"
 
+#include "kd/ranges/to.h"
 #include "kd/task_manager.h"
 
 #include "vm/polygon.h"
@@ -144,7 +145,7 @@ template <typename... Children>
 std::tuple<Children*...> getChildrenAs(const Node& node)
 {
   // take a copy
-  auto children = node.children();
+  auto children = node.children() | kdl::ranges::to<std::vector>();
   return std::tuple<Children*...>{getFirstChildOfType<Children>(children)...};
 }
 
@@ -152,7 +153,7 @@ template <typename Child>
 Child* getChildAs(const Node& node)
 {
   // take a copy
-  auto children = node.children();
+  auto children = node.children() | kdl::ranges::to<std::vector>();
   return getFirstChildOfType<Child>(children);
 }
 

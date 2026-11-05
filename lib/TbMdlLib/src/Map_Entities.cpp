@@ -40,6 +40,8 @@
 #include "kd/ranges/contains.h"
 #include "kd/string_utils.h"
 
+#include <memory>
+
 namespace tb::mdl
 {
 namespace
@@ -107,11 +109,11 @@ EntityNode* createPointEntity(
     mdl::setDefaultProperties(definition, entity, SetDefaultPropertyMode::SetAll);
   }
 
-  auto* entityNode = new EntityNode{std::move(entity)};
-
   auto transaction = Transaction{map, "Create " + definition.name};
   deselectAll(map);
-  if (addNodes(map, {{&parentForNodes(map), {entityNode}}}).empty())
+  auto* entityNode =
+    addNode(map, parentForNodes(map), std::make_unique<EntityNode>(std::move(entity)));
+  if (!entityNode)
   {
     transaction.cancel();
     return nullptr;
@@ -158,11 +160,11 @@ EntityNode* createBrushEntity(Map& map, const EntityDefinition& definition)
     mdl::setDefaultProperties(definition, entity, SetDefaultPropertyMode::SetAll);
   }
 
-  auto* entityNode = new EntityNode{std::move(entity)};
-
   auto transaction = Transaction{map, "Create " + definition.name};
   deselectAll(map);
-  if (addNodes(map, {{&parentForNodes(map), {entityNode}}}).empty())
+  auto* entityNode =
+    addNode(map, parentForNodes(map), std::make_unique<EntityNode>(std::move(entity)));
+  if (!entityNode)
   {
     transaction.cancel();
     return nullptr;

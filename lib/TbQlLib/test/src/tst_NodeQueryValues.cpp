@@ -34,6 +34,8 @@
 #include "mdl/WorldNode.h" // IWYU pragma: keep
 #include "ql/NodeQueryValues.h"
 
+#include "kd/vector_utils.h"
+
 #include <memory>
 
 #include <catch2/catch_test_macros.hpp>
@@ -65,46 +67,51 @@ TEST_CASE("NodeQueryValues")
   {
     CHECK(layerNameValue(map.worldNode()) == el::Value::Undefined);
 
-    auto* layerNode = new mdl::LayerNode{mdl::Layer{"Combat"}};
-    mdl::addNodes(map, {{&map.worldNode(), {layerNode}}});
+    auto* layerNode = mdl::addNode(
+      map, map.worldNode(), std::make_unique<mdl::LayerNode>(mdl::Layer{"Combat"}));
 
     // findContainingLayer treats a layer as containing itself
     CHECK(layerNameValue(*layerNode) == el::Value{"Combat"});
 
-    auto* brushNode = mdl::createBrushNode(map);
-    mdl::addNodes(map, {{layerNode, {brushNode}}});
+    auto* brushNode = mdl::addNode(map, *layerNode, mdl::createBrushNode(map));
     CHECK(layerNameValue(*brushNode) == el::Value{"Combat"});
   }
 
   SECTION("groupNameValue")
   {
-    auto* groupNode = new mdl::GroupNode{mdl::Group{"Hallway"}};
-    mdl::addNodes(map, {{&mdl::parentForNodes(map), {groupNode}}});
+    auto* groupNode = mdl::addNode(
+      map,
+      mdl::parentForNodes(map),
+      std::make_unique<mdl::GroupNode>(mdl::Group{"Hallway"}));
 
     // findContainingGroup looks at ancestors, not the group node itself
     CHECK(groupNameValue(*groupNode) == el::Value::Undefined);
     CHECK(groupNameValue(map.worldNode()) == el::Value::Undefined);
 
-    auto* brushNode = mdl::createBrushNode(map);
-    mdl::addNodes(map, {{groupNode, {brushNode}}});
+    auto* brushNode = mdl::addNode(map, *groupNode, mdl::createBrushNode(map));
     CHECK(groupNameValue(*brushNode) == el::Value{"Hallway"});
   }
 
   SECTION("tagsValue")
   {
-    auto* detailEntityNode =
-      new mdl::EntityNode{mdl::Entity{{{"classname", "func_detail"}}}};
-    auto* triggerEntityNode =
-      new mdl::EntityNode{mdl::Entity{{{"classname", "trigger_once"}}}};
+    auto detailEntityNodePtr =
+      std::make_unique<mdl::EntityNode>(mdl::Entity{{{"classname", "func_detail"}}});
+    auto* detailEntityNode = detailEntityNodePtr.get();
+    auto triggerEntityNodePtr =
+      std::make_unique<mdl::EntityNode>(mdl::Entity{{{"classname", "trigger_once"}}});
+    auto* triggerEntityNode = triggerEntityNodePtr.get();
     mdl::addNodes(
-      map, {{&mdl::parentForNodes(map), {detailEntityNode, triggerEntityNode}}});
+      map,
+      mdl::parentForNodes(map),
+      kdl::vec_from<std::unique_ptr<mdl::Node>>(
+        std::move(detailEntityNodePtr), std::move(triggerEntityNodePtr)));
 
-    auto* detailBrushNode = mdl::createBrushNode(map);
-    auto* triggerBrushNode = mdl::createBrushNode(map);
-    auto* worldBrushNode = mdl::createBrushNode(map);
-    mdl::addNodes(map, {{detailEntityNode, {detailBrushNode}}});
-    mdl::addNodes(map, {{triggerEntityNode, {triggerBrushNode}}});
-    mdl::addNodes(map, {{&mdl::parentForNodes(map), {worldBrushNode}}});
+    auto* detailBrushNode =
+      mdl::addNode(map, *detailEntityNode, mdl::createBrushNode(map));
+    auto* triggerBrushNode =
+      mdl::addNode(map, *triggerEntityNode, mdl::createBrushNode(map));
+    auto* worldBrushNode =
+      mdl::addNode(map, mdl::parentForNodes(map), mdl::createBrushNode(map));
 
     // only the smart tags a node actually has are listed
     CHECK(

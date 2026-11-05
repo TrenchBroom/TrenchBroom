@@ -33,7 +33,10 @@
 #include "mdl/WorldNode.h"
 #include "ui/MapDocument.h"
 
+#include <memory>
+
 #include <catch2/catch_test_macros.hpp>
+#include <catch2/matchers/catch_matchers_range_equals.hpp>
 
 namespace tb::ui
 {
@@ -182,12 +185,13 @@ TEST_CASE("MapDocument")
 
     REQUIRE(document->map().path() == path);
 
-    auto* transientEntityNode = new mdl::EntityNode{{}};
-    addNodes(
-      document->map(), {{&mdl::parentForNodes(document->map()), {transientEntityNode}}});
-    REQUIRE(
-      document->map().worldNode().defaultLayer()->children()
-      == std::vector<mdl::Node*>{transientEntityNode});
+    auto* transientEntityNode = addNode(
+      document->map(),
+      mdl::parentForNodes(document->map()),
+      std::make_unique<mdl::EntityNode>(mdl::Entity{}));
+    REQUIRE_THAT(
+      document->map().worldNode().defaultLayer()->children(),
+      Catch::Matchers::RangeEquals(std::vector<mdl::Node*>{transientEntityNode}));
     REQUIRE(document->map().modified());
 
     auto documentWasLoaded = Observer<>{document->documentWasLoadedNotifier};

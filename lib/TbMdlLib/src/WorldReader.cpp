@@ -199,18 +199,18 @@ Node* WorldReader::onWorldNode(std::unique_ptr<WorldNode> worldNode, ParserStatu
 
 void WorldReader::onLayerNode(std::unique_ptr<Node> layerNode, ParserStatus&)
 {
-  m_worldNode->addChild(layerNode.release());
+  m_worldNode->addChild(std::move(layerNode));
 }
 
 void WorldReader::onNode(Node* parentNode, std::unique_ptr<Node> node, ParserStatus&)
 {
   if (parentNode)
   {
-    parentNode->addChild(node.release());
+    parentNode->addChild(std::move(node));
   }
   else
   {
-    m_worldNode->defaultLayer()->addChild(node.release());
+    m_worldNode->defaultLayer()->addChild(std::move(node));
   }
 }
 

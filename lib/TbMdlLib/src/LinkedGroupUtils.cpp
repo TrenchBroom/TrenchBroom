@@ -38,6 +38,7 @@
 #include "kd/vector_utils.h"
 
 #include <algorithm>
+#include <ranges>
 #include <string_view>
 #include <unordered_map>
 
@@ -252,7 +253,7 @@ Result<std::unique_ptr<Node>> cloneAndTransformRecursive(
          | kdl::fold | kdl::transform([&](auto childClones) {
              for (auto& childClone : childClones)
              {
-               clone->addChild(childClone.release());
+               clone->addChild(std::move(childClone));
              }
 
              return std::move(clone);
@@ -335,7 +336,8 @@ Result<std::vector<std::unique_ptr<Node>>> cloneAndTransformChildren(
            });
 }
 
-auto makeLinkIdToNodeMap(const std::vector<Node*>& nodes)
+template <std::ranges::range R>
+auto makeLinkIdToNodeMap(const R& nodes)
 {
   auto result = std::unordered_map<std::string_view, const Node*>{};
   Node::visitAll(
@@ -590,7 +592,7 @@ Result<void> visitChildrenPerPosition(
   }
 
   return kdl::views::zip_transform(
-           [&](auto& sourceChild, auto& targetChild) {
+           [&](auto* sourceChild, auto* targetChild) {
              return visitNodesPerPosition(
                *sourceChild, *targetChild, f, recursionMode, depth);
            },
@@ -747,12 +749,14 @@ std::vector<Error> copyAndSetLinkIds(
 }
 
 std::vector<Error> copyAndSetLinkIdsBeforeAddingNodes(
-  const kdl::flat_map<Node*, std::vector<Node*>>& nodesToAdd, WorldNode& worldNode)
+  const kdl::flat_map<Node*, std::vector<std::unique_ptr<Node>>>& nodesToAdd,
+  WorldNode& worldNode)
 {
   // Recursively collect all groups to add
   const auto groupsToAdd = kdl::vec_sort(
     collectGroups(
       nodesToAdd | std::views::values | std::views::join
+      | std::views::transform([](const auto& node) { return node.get(); })
       | kdl::ranges::to<std::vector>()),
     compareGroupNodesByLinkId);
 

@@ -19,17 +19,18 @@
 
 #pragma once
 
+#include "mdl/Node.h"
 #include "mdl/NodeContents.h"
 
 #include "kd/flat_map.h"
 
+#include <memory>
 #include <vector>
 
 namespace tb::mdl
 {
 class GroupNode;
 class Map;
-class Node;
 class TagMatcherCallback;
 
 /**
@@ -43,7 +44,22 @@ class TagMatcherCallback;
 Node& parentForNodes(const Map& map, const std::vector<Node*>& nodes = {});
 
 std::vector<Node*> addNodes(
-  Map& map, const kdl::flat_map<Node*, std::vector<Node*>>& nodes);
+  Map& map, kdl::flat_map<Node*, std::vector<std::unique_ptr<Node>>> nodes);
+std::vector<Node*> addNodes(
+  Map& map, Node& parent, std::vector<std::unique_ptr<Node>> nodes);
+
+/**
+ * Adds the given node to the given parent and returns it, or returns null if the node
+ * could not be added.
+ */
+template <typename T>
+T* addNode(Map& map, Node& parent, std::unique_ptr<T> node)
+{
+  auto* result = node.get();
+  auto nodes = std::vector<std::unique_ptr<Node>>{};
+  nodes.push_back(std::move(node));
+  return !addNodes(map, parent, std::move(nodes)).empty() ? result : nullptr;
+}
 
 void duplicateSelectedNodes(Map& map);
 

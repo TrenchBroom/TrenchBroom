@@ -30,6 +30,8 @@
 #include "render/RenderBatch.h"
 #include "render/RenderContext.h"
 
+#include <memory>
+
 namespace tb::render
 {
 
@@ -232,7 +234,7 @@ DirectEdgeRenderer::DirectEdgeRenderer(
 void DirectEdgeRenderer::doRender(
   RenderBatch& renderBatch, const EdgeRenderer::Params& params)
 {
-  renderBatch.addOneShot(new Render{params, m_vertexArray, m_indexRanges});
+  renderBatch.addOneShot(std::make_unique<Render>(params, m_vertexArray, m_indexRanges));
 }
 
 // IndexedEdgeRenderer::Render
@@ -291,7 +293,7 @@ IndexedEdgeRenderer::IndexedEdgeRenderer(
 void IndexedEdgeRenderer::doRender(
   RenderBatch& renderBatch, const EdgeRenderer::Params& params)
 {
-  renderBatch.addOneShot(new Render{params, m_vertexArray, m_indexArray});
+  renderBatch.addOneShot(std::make_unique<Render>(params, m_vertexArray, m_indexArray));
 }
 
 } // namespace tb::render

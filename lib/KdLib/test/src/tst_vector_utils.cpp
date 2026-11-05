@@ -18,8 +18,6 @@
  DEALINGS IN THE SOFTWARE.
 */
 
-#include "test_utils.h"
-
 #include "kd/vector_utils.h"
 
 #include <memory>
@@ -397,24 +395,6 @@ TEST_CASE("vector_utils")
     vec_clear_to_zero(v);
     CHECK(v.empty());
     CHECK(v.capacity() == 0u);
-  }
-
-  SECTION("vec_clear_and_delete")
-  {
-    bool d1 = false;
-    bool d2 = false;
-    bool d3 = false;
-    auto v = std::vector<deletable*>({
-      new deletable(d1),
-      new deletable(d2),
-      new deletable(d3),
-    });
-
-    vec_clear_and_delete(v);
-    CHECK(v.empty());
-    CHECK(d1);
-    CHECK(d2);
-    CHECK(d3);
   }
 }
 

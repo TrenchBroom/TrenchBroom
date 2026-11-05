@@ -35,10 +35,14 @@
 #include "ui/MoveHandleDragTracker.h"
 #include "ui/SweepTool.h"
 
+#include "kd/ranges/to.h"
+
 #include "vm/approx.h"
 #include "vm/bbox.h"
 #include "vm/constants.h"
 #include "vm/quat.h"
+
+#include <memory>
 
 #include <catch2/catch_test_macros.hpp>
 
@@ -58,8 +62,7 @@ TEST_CASE("SweepTool")
 
   SECTION("applies")
   {
-    auto* brushNode = createBrushNode(map);
-    addNodes(map, {{&parentForNodes(map), {brushNode}}});
+    auto* brushNode = addNode(map, parentForNodes(map), createBrushNode(map));
 
     CHECK(!tool.applies());
 
@@ -79,8 +82,7 @@ TEST_CASE("SweepTool")
 
   SECTION("with a selected face")
   {
-    auto* brushNode = createBrushNode(map);
-    addNodes(map, {{&parentForNodes(map), {brushNode}}});
+    auto* brushNode = addNode(map, parentForNodes(map), createBrushNode(map));
 
     const auto faceIndex = *brushNode->brush().findFace(vm::vec3d{1, 0, 0});
     selectBrushFaces(map, {{*brushNode, faceIndex}});
@@ -281,11 +283,10 @@ TEST_CASE("SweepTool")
 
   SECTION("removing the source face's parent while the tool is active")
   {
-    auto* entityNode = new mdl::EntityNode{mdl::Entity{}};
-    addNodes(map, {{&parentForNodes(map), {entityNode}}});
+    auto* entityNode =
+      addNode(map, parentForNodes(map), std::make_unique<mdl::EntityNode>(mdl::Entity{}));
 
-    auto* brushNode = createBrushNode(map);
-    addNodes(map, {{entityNode, {brushNode}}});
+    auto* brushNode = addNode(map, *entityNode, createBrushNode(map));
 
     const auto faceIndex = *brushNode->brush().findFace(vm::vec3d{1, 0, 0});
     selectBrushFaces(map, {{*brushNode, faceIndex}});
@@ -307,16 +308,14 @@ TEST_CASE("SweepTool")
   SECTION(
     "sweeping faces with cancelling normals falls back to a straight path in S-Bend mode")
   {
-    auto* entityNode = new mdl::EntityNode{mdl::Entity{}};
-    addNodes(map, {{&parentForNodes(map), {entityNode}}});
+    auto* entityNode =
+      addNode(map, parentForNodes(map), std::make_unique<mdl::EntityNode>(mdl::Entity{}));
 
-    auto* brushNodeA = createBrushNode(map);
-    addNodes(map, {{entityNode, {brushNodeA}}});
+    auto* brushNodeA = addNode(map, *entityNode, createBrushNode(map));
     const auto entityChildCountBefore = entityNode->childCount();
 
     auto* defaultParent = &parentForNodes(map);
-    auto* brushNodeB = createBrushNode(map);
-    addNodes(map, {{defaultParent, {brushNodeB}}});
+    auto* brushNodeB = addNode(map, *defaultParent, createBrushNode(map));
     const auto defaultChildCountBefore = defaultParent->childCount();
 
     const auto faceIndexA = *brushNodeA->brush().findFace(vm::vec3d{1, 0, 0});
@@ -330,7 +329,7 @@ TEST_CASE("SweepTool")
 
     // opposing normals cancel out, so the S-Bend tangent is zero and every station sits
     // on the straight line between the source and destination caps
-    const auto& entityChildren = entityNode->children();
+    const auto entityChildren = entityNode->children() | kdl::ranges::to<std::vector>();
     REQUIRE(entityChildren.size() == entityChildCountBefore + 2);
     CHECK(
       entityChildren[entityChildCountBefore]->logicalBounds()
@@ -339,7 +338,8 @@ TEST_CASE("SweepTool")
       entityChildren[entityChildCountBefore + 1]->logicalBounds()
       == vm::bbox3d{{48, -16, -16}, {80, 16, 16}});
 
-    const auto& defaultChildren = defaultParent->children();
+    const auto defaultChildren =
+      defaultParent->children() | kdl::ranges::to<std::vector>();
     REQUIRE(defaultChildren.size() == defaultChildCountBefore + 2);
     CHECK(
       defaultChildren[defaultChildCountBefore]->logicalBounds()

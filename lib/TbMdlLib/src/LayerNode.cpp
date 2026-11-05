@@ -113,11 +113,11 @@ double LayerNode::doGetProjectedArea(const vm::axis::type) const
   return static_cast<double>(0);
 }
 
-Node* LayerNode::doClone(const vm::bbox3d&) const
+std::unique_ptr<Node> LayerNode::doClone(const vm::bbox3d&) const
 {
   auto result = std::make_unique<LayerNode>(m_layer);
   cloneAttributes(*result);
-  return result.release();
+  return result;
 }
 
 bool LayerNode::doCanAddChild(const Node& child) const

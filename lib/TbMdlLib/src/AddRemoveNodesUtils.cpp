@@ -24,24 +24,31 @@
 #include "mdl/Node.h"
 
 #include "kd/ranges/to.h"
-#include "kd/vector_utils.h"
+
+#include <ranges>
 
 namespace tb::mdl
 {
 
-void addNodesAndNotify(const kdl::flat_map<Node*, std::vector<Node*>>& nodes, Map& map)
+kdl::flat_map<Node*, std::vector<Node*>> addNodesAndNotify(
+  kdl::flat_map<Node*, std::vector<std::unique_ptr<Node>>> nodes, Map& map)
 {
-  auto addedNodes = std::vector<Node*>{};
-  for (const auto& [parent, children] : nodes)
+  auto addedNodes = kdl::flat_map<Node*, std::vector<Node*>>{};
+  for (auto&& [parent, children] : nodes)
   {
-    parent->addChildren(children);
-    kdl::vec_append(addedNodes, children);
+    addedNodes[parent] =
+      children | std::views::transform([](const auto& child) { return child.get(); })
+      | kdl::ranges::to<std::vector>();
+    parent->addChildren(std::move(children));
   }
 
-  map.nodesWereAddedNotifier(addedNodes);
+  map.nodesWereAddedNotifier(
+    addedNodes.values() | std::views::join | kdl::ranges::to<std::vector>());
+  return addedNodes;
 }
 
-void removeNodesAndNotify(const kdl::flat_map<Node*, std::vector<Node*>>& nodes, Map& map)
+kdl::flat_map<Node*, std::vector<std::unique_ptr<Node>>> removeNodesAndNotify(
+  const kdl::flat_map<Node*, std::vector<Node*>>& nodes, Map& map)
 {
   const auto allChildren =
     nodes | std::views::values | std::views::join | kdl::ranges::to<std::vector>();
@@ -49,10 +56,12 @@ void removeNodesAndNotify(const kdl::flat_map<Node*, std::vector<Node*>>& nodes,
   auto notifyChildren = NotifyBeforeAndAfter{
     map.nodesWillBeRemovedNotifier, map.nodesWereRemovedNotifier, allChildren};
 
+  auto removedNodes = kdl::flat_map<Node*, std::vector<std::unique_ptr<Node>>>{};
   for (const auto& [parent, children] : nodes)
   {
-    parent->removeChildren(std::begin(children), std::end(children));
+    removedNodes[parent] = parent->removeChildren(children);
   }
+  return removedNodes;
 }
 
 } // namespace tb::mdl

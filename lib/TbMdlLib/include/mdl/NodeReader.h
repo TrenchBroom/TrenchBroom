@@ -22,6 +22,7 @@
 #include "base/Result.h"
 #include "mdl/MapReader.h"
 
+#include <memory>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -44,7 +45,7 @@ namespace mdl
 class NodeReader : public MapReader
 {
 private:
-  std::vector<Node*> m_nodes;
+  std::vector<std::unique_ptr<Node>> m_nodes;
 
 public:
   /**
@@ -62,7 +63,7 @@ public:
     MapFormat targetMapFormat,
     const EntityPropertyConfig& entityPropertyConfig);
 
-  static Result<std::vector<Node*>> read(
+  static Result<std::vector<std::unique_ptr<Node>>> read(
     const std::string& str,
     MapFormat preferredMapFormat,
     const vm::bbox3d& worldBounds,
@@ -71,7 +72,7 @@ public:
     kdl::task_manager& taskManager);
 
 private:
-  static Result<std::vector<Node*>> readAsFormat(
+  static Result<std::vector<std::unique_ptr<Node>>> readAsFormat(
     MapFormat sourceMapFormat,
     MapFormat targetMapFormat,
     const std::string& str,
