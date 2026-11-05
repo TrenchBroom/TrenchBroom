@@ -27,11 +27,12 @@
 #include "kd/contracts.h"
 #include "kd/ranges/contains.h"
 #include "kd/ranges/to.h"
-#include "kd/vector_utils.h"
 
 #include <algorithm>
 #include <ranges>
 #include <string>
+#include <unordered_map>
+#include <utility>
 #include <vector>
 
 namespace tb::mdl
@@ -39,10 +40,7 @@ namespace tb::mdl
 
 Node::Node() = default;
 
-Node::~Node()
-{
-  clearChildren();
-}
+Node::~Node() = default;
 
 const std::string& Node::name() const
 {
@@ -188,7 +186,7 @@ std::vector<std::unique_ptr<Node>> Node::replaceChildren(
 {
   // nodeWillChange();
 
-  for (auto* child : m_children)
+  for (const auto& child : m_children)
   {
     contract_assert(child != nullptr);
     contract_assert(child->parent() == this);
@@ -198,11 +196,7 @@ std::vector<std::unique_ptr<Node>> Node::replaceChildren(
     child->setParent(nullptr);
   }
 
-  auto oldChildren =
-    m_children
-    | std::views::transform([](auto* child) { return std::unique_ptr<Node>(child); })
-    | kdl::ranges::to<std::vector>();
-  m_children.clear();
+  auto oldChildren = std::exchange(m_children, {});
 
   for (auto& child : oldChildren)
   {
@@ -238,13 +232,22 @@ std::vector<std::unique_ptr<Node>> Node::removeChildren(
     descendantSelectionCountDelta += child->descendantSelectionCount();
   }
 
-  std::erase_if(m_children, [&](const auto* child) { return child->parent() != this; });
+  const auto removedRange = std::ranges::stable_partition(
+    m_children, [&](const auto& child) { return child->parent() == this; });
+
+  auto removedChildren = std::unordered_map<Node*, std::unique_ptr<Node>>{};
+  for (auto& child : removedRange)
+  {
+    auto* childPtr = child.get();
+    removedChildren.emplace(childPtr, std::move(child));
+  }
+  m_children.erase(removedRange.begin(), removedRange.end());
 
   auto result = std::vector<std::unique_ptr<Node>>{};
   result.reserve(children.size());
   for (auto* child : children)
   {
-    result.push_back(std::unique_ptr<Node>{child});
+    result.push_back(std::move(removedChildren.extract(child).mapped()));
     childWasRemoved(*child);
   }
 
@@ -278,13 +281,13 @@ void Node::doAddChild(std::unique_ptr<Node> child)
 {
   contract_pre(child != nullptr);
   contract_pre(child->parent() == nullptr);
-  contract_pre(!kdl::ranges::contains(m_children, child.get()));
+  contract_pre(!kdl::ranges::contains(children(), child.get()));
   contract_pre(canAddChild(*child));
 
   auto& newChild = *child;
   childWillBeAdded(newChild);
   // nodeWillChange();
-  m_children.push_back(child.release());
+  m_children.push_back(std::move(child));
   newChild.setParent(this);
   childWasAdded(newChild);
   // nodeDidChange();
@@ -299,16 +302,14 @@ std::unique_ptr<Node> Node::doRemoveChild(Node* child)
   childWillBeRemoved(*child);
   // nodeWillChange();
   child->setParent(nullptr);
-  m_children = kdl::vec_erase(std::move(m_children), child);
+  const auto it = std::ranges::find_if(
+    m_children, [&](const auto& existingChild) { return existingChild.get() == child; });
+  auto result = std::move(*it);
+  m_children.erase(it);
   childWasRemoved(*child);
   // nodeDidChange();
 
-  return std::unique_ptr<Node>{child};
-}
-
-void Node::clearChildren()
-{
-  kdl::vec_clear_and_delete(m_children);
+  return result;
 }
 
 void Node::childWillBeAdded(Node& node)
@@ -427,7 +428,7 @@ void Node::parentDidChange()
 void Node::ancestorWillChange()
 {
   doAncestorWillChange();
-  for (auto* child : m_children)
+  for (const auto& child : m_children)
   {
     child->ancestorWillChange();
   }
@@ -437,7 +438,7 @@ void Node::ancestorWillChange()
 void Node::ancestorDidChange()
 {
   doAncestorDidChange();
-  for (auto* child : m_children)
+  for (const auto& child : m_children)
   {
     child->ancestorDidChange();
   }

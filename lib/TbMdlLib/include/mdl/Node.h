@@ -25,6 +25,7 @@
 #include "mdl/Tag.h"
 #include "mdl/VisibilityState.h"
 
+#include "kd/ranges/raw_pointers_view.h"
 #include "kd/ranges/to.h"
 
 #include "vm/bbox.h"
@@ -56,7 +57,7 @@ class Node : public Taggable
 {
 private:
   Node* m_parent = nullptr;
-  std::vector<Node*> m_children;
+  std::vector<std::unique_ptr<Node>> m_children;
   size_t m_descendantCount = 0;
   bool m_selected = false;
 
@@ -147,10 +148,7 @@ public: // tree management
 
   bool hasChildren() const;
   size_t childCount() const;
-  auto children() const
-  {
-    return m_children | std::views::transform([](Node* child) { return child; });
-  }
+  auto children() const { return m_children | kdl::views::raw_pointers; }
   size_t descendantCount() const;
   size_t familySize() const;
 
@@ -196,7 +194,6 @@ public:
 private:
   void doAddChild(std::unique_ptr<Node> child);
   std::unique_ptr<Node> doRemoveChild(Node* child);
-  void clearChildren();
 
   void childWillBeAdded(Node& node);
   void childWasAdded(Node& node);
