@@ -120,20 +120,20 @@ TEST_CASE("Map_Geometry")
 
       const auto createNode = GENERATE_COPY(
         CreateNode{[](const auto& m) -> Node* {
-          auto* groupNode = new GroupNode{Group{"group"}};
-          auto* brushNode = createBrushNode(m);
-          auto* patchNode = createPatchNode();
-          auto* entityNode = new EntityNode{Entity{}};
-          groupNode->addChildren({brushNode, patchNode, entityNode});
-          return groupNode;
+          auto groupNode = std::make_unique<GroupNode>(Group{"group"});
+          groupNode->addChildren(kdl::vec_from<std::unique_ptr<Node>>(
+            std::unique_ptr<BrushNode>{createBrushNode(m)},
+            std::unique_ptr<PatchNode>{createPatchNode()},
+            std::make_unique<EntityNode>(Entity{})));
+          return groupNode.release();
         }},
         CreateNode{[](const auto&) -> Node* { return new EntityNode{Entity{}}; }},
         CreateNode{[](const auto& m) -> Node* {
-          auto* entityNode = new EntityNode{Entity{}};
-          auto* brushNode = createBrushNode(m);
-          auto* patchNode = createPatchNode();
-          entityNode->addChildren({brushNode, patchNode});
-          return entityNode;
+          auto entityNode = std::make_unique<EntityNode>(Entity{});
+          entityNode->addChildren(kdl::vec_from<std::unique_ptr<Node>>(
+            std::unique_ptr<BrushNode>{createBrushNode(m)},
+            std::unique_ptr<PatchNode>{createPatchNode()}));
+          return entityNode.release();
         }},
         CreateNode{[](const auto& m) -> Node* { return createBrushNode(m); }},
         CreateNode{[](const auto&) -> Node* { return createPatchNode(); }});

@@ -161,17 +161,21 @@ TEST_CASE("Validation")
 
   SECTION("PointEntityWithBrushesValidator")
   {
-    auto* entityNode1 = new EntityNode{
-      Entity{{{EntityPropertyKeys::Classname, pointEntityDefinition.name}}}};
-    auto* brushNode1 = createBrushNode(map);
-    entityNode1->addChild(brushNode1);
+    auto entityNode1Ptr = std::make_unique<EntityNode>(
+      Entity{{{EntityPropertyKeys::Classname, pointEntityDefinition.name}}});
+    auto* entityNode1 = entityNode1Ptr.get();
+    auto* brushNode1 =
+      &entityNode1->addChild(std::unique_ptr<BrushNode>{createBrushNode(map)});
 
-    auto* entityNode2 = new EntityNode{
-      Entity{{{EntityPropertyKeys::Classname, pointEntityDefinition.name}}}};
-    auto* brushNode2 = createBrushNode(map);
-    entityNode2->addChild(brushNode2);
+    auto entityNode2Ptr = std::make_unique<EntityNode>(
+      Entity{{{EntityPropertyKeys::Classname, pointEntityDefinition.name}}});
+    auto* entityNode2 = entityNode2Ptr.get();
+    auto* brushNode2 =
+      &entityNode2->addChild(std::unique_ptr<BrushNode>{createBrushNode(map)});
 
-    addNodes(map, {{&parentForNodes(map), {entityNode1, entityNode2}}});
+    addNodes(
+      map,
+      {{&parentForNodes(map), {entityNode1Ptr.release(), entityNode2Ptr.release()}}});
 
     auto pointEntityWithBrushesValidator =
       std::make_unique<PointEntityWithBrushesValidator>();

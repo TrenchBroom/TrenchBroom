@@ -226,28 +226,30 @@ TEST_CASE("Map")
         auto* topLevelEntityNode = new EntityNode{Entity{}};
 
         auto* emptyGroupNode = new GroupNode{Group{"empty"}};
-        auto* groupNodeWithEntity = new GroupNode{Group{"group"}};
-        auto* groupedEntityNode = new EntityNode{Entity{}};
-        groupNodeWithEntity->addChild(groupedEntityNode);
+        auto groupNodeWithEntityPtr = std::make_unique<GroupNode>(Group{"group"});
+        auto* groupNodeWithEntity = groupNodeWithEntityPtr.get();
+        auto* groupedEntityNode =
+          &groupNodeWithEntity->addChild(std::make_unique<EntityNode>(Entity{}));
 
         auto* topLevelBrushNode = createBrushNode(map);
         auto* topLevelPatchNode = createPatchNode();
 
-        auto* topLevelBrushEntityNode = new EntityNode{Entity{}};
-        auto* brushEntityBrushNode = createBrushNode(map);
-        auto* brushEntityPatchNode = createPatchNode();
-        topLevelBrushEntityNode->addChildren(
-          {brushEntityBrushNode, brushEntityPatchNode});
+        auto topLevelBrushEntityNodePtr = std::make_unique<EntityNode>(Entity{});
+        auto* topLevelBrushEntityNode = topLevelBrushEntityNodePtr.get();
+        auto* brushEntityBrushNode = &topLevelBrushEntityNode->addChild(
+          std::unique_ptr<BrushNode>{createBrushNode(map)});
+        auto* brushEntityPatchNode = &topLevelBrushEntityNode->addChild(
+          std::unique_ptr<PatchNode>{createPatchNode()});
 
         addNodes(
           map,
           {{&parentForNodes(map),
             {topLevelEntityNode,
-             topLevelBrushEntityNode,
+             topLevelBrushEntityNodePtr.release(),
              topLevelBrushNode,
              topLevelPatchNode,
              emptyGroupNode,
-             groupNodeWithEntity}}});
+             groupNodeWithEntityPtr.release()}}});
 
         deselectAll(map);
 
@@ -507,11 +509,12 @@ TEST_CASE("Map")
 
     SECTION("Grouped nodes")
     {
-      auto* entityNode = new EntityNode{Entity{}};
-      auto* brushNode = createBrushNode(map);
-      entityNode->addChild(brushNode);
+      auto entityNodePtr = std::make_unique<EntityNode>(Entity{});
+      auto* entityNode = entityNodePtr.get();
+      auto* brushNode =
+        &entityNode->addChild(std::unique_ptr<BrushNode>{createBrushNode(map)});
 
-      addNodes(map, {{&parentForNodes(map), {entityNode}}});
+      addNodes(map, {{&parentForNodes(map), {entityNodePtr.release()}}});
       selectNodes(map, {entityNode});
 
       auto* groupNode = groupSelectedNodes(map, "test");

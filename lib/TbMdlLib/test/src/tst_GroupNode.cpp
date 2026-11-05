@@ -47,13 +47,12 @@ TEST_CASE("GroupNode")
   SECTION("open and close")
   {
     auto grandParentGroupNode = GroupNode{Group{"grandparent"}};
-    auto* parentGroupNode = new GroupNode{Group{"parent"}};
-    auto* groupNode = new GroupNode{Group{"group"}};
-    auto* childGroupNode = new GroupNode{Group{"child"}};
-
-    grandParentGroupNode.addChild(parentGroupNode);
-    parentGroupNode->addChild(groupNode);
-    groupNode->addChild(childGroupNode);
+    auto* parentGroupNode =
+      &grandParentGroupNode.addChild(std::make_unique<GroupNode>(Group{"parent"}));
+    auto* groupNode =
+      &parentGroupNode->addChild(std::make_unique<GroupNode>(Group{"group"}));
+    auto* childGroupNode =
+      &groupNode->addChild(std::make_unique<GroupNode>(Group{"child"}));
 
     REQUIRE_FALSE(grandParentGroupNode.opened());
     REQUIRE(grandParentGroupNode.closed());
@@ -134,7 +133,7 @@ TEST_CASE("GroupNode")
       CHECK(!groupNode.canAddChild(*linkedGroupNode));
 
       auto outerGroupNode = GroupNode{Group{"outer_group"}};
-      outerGroupNode.addChild(linkedGroupNode.release());
+      outerGroupNode.addChild(std::move(linkedGroupNode));
       CHECK(!groupNode.canAddChild(outerGroupNode));
     }
   }

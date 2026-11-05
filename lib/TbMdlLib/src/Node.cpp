@@ -25,13 +25,11 @@
 #include "mdl/Validator.h"
 
 #include "kd/contracts.h"
-#include "kd/ranges/as_rvalue_view.h"
 #include "kd/ranges/contains.h"
 #include "kd/ranges/to.h"
 #include "kd/vector_utils.h"
 
 #include <algorithm>
-#include <iterator>
 #include <ranges>
 #include <string>
 #include <vector>
@@ -166,18 +164,23 @@ bool Node::shouldAddToSpacialIndex() const
   return doShouldAddToSpacialIndex();
 }
 
-void Node::addChildren(const std::vector<Node*>& children)
+void Node::addChildren(std::vector<std::unique_ptr<Node>> children)
 {
-  addChildren(std::begin(children), std::end(children), children.size());
-}
-
-Node& Node::addChild(Node* child)
-{
-  doAddChild(child);
-  incDescendantCount(child->descendantCount() + 1u);
-  incChildSelectionCount(child->selected() ? 1u : 0u);
-  incDescendantSelectionCount(child->descendantSelectionCount());
-  return *child;
+  m_children.reserve(m_children.size() + children.size());
+  auto descendantCountDelta = size_t(0);
+  auto childSelectionCountDelta = size_t(0);
+  auto descendantSelectionCountDelta = size_t(0);
+  for (auto& child : children)
+  {
+    auto* newChild = child.get();
+    doAddChild(std::move(child));
+    descendantCountDelta += newChild->descendantCount() + 1;
+    childSelectionCountDelta += newChild->selected() ? 1u : 0u;
+    descendantSelectionCountDelta += newChild->descendantSelectionCount();
+  }
+  incDescendantCount(descendantCountDelta);
+  incChildSelectionCount(childSelectionCountDelta);
+  incDescendantSelectionCount(descendantSelectionCountDelta);
 }
 
 std::vector<std::unique_ptr<Node>> Node::replaceChildren(
@@ -209,17 +212,15 @@ std::vector<std::unique_ptr<Node>> Node::replaceChildren(
   decDescendantCount(descendantCount());
   decChildSelectionCount(childSelectionCount());
   decDescendantSelectionCount(descendantSelectionCount());
-  addChildren(
-    newChildren | kdl::views::as_rvalue
-    | std::views::transform([](auto&& child) { return child.release(); })
-    | kdl::ranges::to<std::vector>());
+  addChildren(std::move(newChildren));
 
   // nodeDidChange();
 
   return oldChildren;
 }
 
-void Node::removeChildren(const std::vector<Node*>& children)
+std::vector<std::unique_ptr<Node>> Node::removeChildren(
+  const std::vector<Node*>& children)
 {
   auto descendantCountDelta = size_t(0);
   auto childSelectionCountDelta = size_t(0);
@@ -239,22 +240,28 @@ void Node::removeChildren(const std::vector<Node*>& children)
 
   std::erase_if(m_children, [&](const auto* child) { return child->parent() != this; });
 
+  auto result = std::vector<std::unique_ptr<Node>>{};
+  result.reserve(children.size());
   for (auto* child : children)
   {
+    result.push_back(std::unique_ptr<Node>{child});
     childWasRemoved(*child);
   }
 
   decDescendantCount(descendantCountDelta);
   decChildSelectionCount(childSelectionCountDelta);
   decDescendantSelectionCount(descendantSelectionCountDelta);
+
+  return result;
 }
 
-void Node::removeChild(Node* child)
+std::unique_ptr<Node> Node::removeChild(Node* child)
 {
-  doRemoveChild(child);
-  decDescendantCount(child->descendantCount() + 1u);
-  decChildSelectionCount(child->selected() ? 1u : 0u);
-  decDescendantSelectionCount(child->descendantSelectionCount());
+  auto result = doRemoveChild(child);
+  decDescendantCount(result->descendantCount() + 1u);
+  decChildSelectionCount(result->selected() ? 1u : 0u);
+  decDescendantSelectionCount(result->descendantSelectionCount());
+  return result;
 }
 
 bool Node::canAddChild(const Node& child) const
@@ -267,22 +274,23 @@ bool Node::canRemoveChild(const Node& child) const
   return doCanRemoveChild(child);
 }
 
-void Node::doAddChild(Node* child)
+void Node::doAddChild(std::unique_ptr<Node> child)
 {
   contract_pre(child != nullptr);
   contract_pre(child->parent() == nullptr);
-  contract_pre(!kdl::ranges::contains(m_children, child));
+  contract_pre(!kdl::ranges::contains(m_children, child.get()));
   contract_pre(canAddChild(*child));
 
-  childWillBeAdded(*child);
+  auto& newChild = *child;
+  childWillBeAdded(newChild);
   // nodeWillChange();
-  m_children.push_back(child);
-  child->setParent(this);
-  childWasAdded(*child);
+  m_children.push_back(child.release());
+  newChild.setParent(this);
+  childWasAdded(newChild);
   // nodeDidChange();
 }
 
-void Node::doRemoveChild(Node* child)
+std::unique_ptr<Node> Node::doRemoveChild(Node* child)
 {
   contract_pre(child != nullptr);
   contract_pre(child->parent() == this);
@@ -294,6 +302,8 @@ void Node::doRemoveChild(Node* child)
   m_children = kdl::vec_erase(std::move(m_children), child);
   childWasRemoved(*child);
   // nodeDidChange();
+
+  return std::unique_ptr<Node>{child};
 }
 
 void Node::clearChildren()
@@ -835,10 +845,7 @@ const EntityPropertyConfig& Node::entityPropertyConfig() const
 std::unique_ptr<Node> Node::doCloneRecursively(const vm::bbox3d& worldBounds) const
 {
   auto clone = Node::clone(worldBounds);
-  auto childClones = Node::cloneRecursively(worldBounds, children());
-  clone->addChildren(
-    childClones | std::views::transform([](auto& child) { return child.release(); })
-    | kdl::ranges::to<std::vector>());
+  clone->addChildren(Node::cloneRecursively(worldBounds, children()));
   return clone;
 }
 

@@ -253,7 +253,7 @@ Result<std::unique_ptr<Node>> cloneAndTransformRecursive(
          | kdl::fold | kdl::transform([&](auto childClones) {
              for (auto& childClone : childClones)
              {
-               clone->addChild(childClone.release());
+               clone->addChild(std::move(childClone));
              }
 
              return std::move(clone);

@@ -270,20 +270,19 @@ TEST_CASE("Map_EntityLinks")
 
   SECTION("Grouped nodes")
   {
-    auto* sourceNode = new EntityNode{Entity{{
+    auto sourceGroupNodePtr = std::make_unique<GroupNode>(mdl::Group{"source"});
+    auto* sourceGroupNode = sourceGroupNodePtr.get();
+    auto* sourceNode = &sourceGroupNode->addChild(std::make_unique<EntityNode>(Entity{{
       {Classname, sourceClassname},
       {Target, "some_value"},
-    }}};
+    }}));
 
     auto* targetNode = new EntityNode{Entity{{
       {Classname, targetClassname},
       {Targetname, "some_value"},
     }}};
 
-    auto* sourceGroupNode = new GroupNode{mdl::Group{"source"}};
-    sourceGroupNode->addChild(sourceNode);
-
-    addNodes(map, {{&parentForNodes(map), {sourceGroupNode, targetNode}}});
+    addNodes(map, {{&parentForNodes(map), {sourceGroupNodePtr.release(), targetNode}}});
 
     SECTION("Adding a grouped node adds links")
     {

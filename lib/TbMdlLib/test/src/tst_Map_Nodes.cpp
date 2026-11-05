@@ -217,10 +217,10 @@ TEST_CASE("Map_Nodes")
     {
       SECTION("Child nodes are added to linked groups")
       {
-        auto* groupNode = new GroupNode{Group{"test"}};
-        auto* brushNode = createBrushNode(map);
-        groupNode->addChild(brushNode);
-        addNodes(map, {{&parentForNodes(map), {groupNode}}});
+        auto groupNodePtr = std::make_unique<GroupNode>(Group{"test"});
+        auto* groupNode = groupNodePtr.get();
+        groupNode->addChild(std::unique_ptr<BrushNode>{createBrushNode(map)});
+        addNodes(map, {{&parentForNodes(map), {groupNodePtr.release()}}});
 
         selectNodes(map, {groupNode});
         auto* linkedGroupNode = createLinkedDuplicate(map);
@@ -558,11 +558,12 @@ TEST_CASE("Map_Nodes")
       auto* linkedNestedGroupNode = createLinkedDuplicate(map);
 
       auto* brushNode = createBrushNode(map);
-      auto* entityNode = new EntityNode{Entity{}};
-      auto* entityBrushNode = createBrushNode(map);
-      entityNode->addChild(entityBrushNode);
+      auto entityNodePtr = std::make_unique<EntityNode>(Entity{});
+      auto* entityNode = entityNodePtr.get();
+      auto* entityBrushNode =
+        &entityNode->addChild(std::unique_ptr<BrushNode>{createBrushNode(map)});
 
-      addNodes(map, {{&parentForNodes(map), {brushNode, entityNode}}});
+      addNodes(map, {{&parentForNodes(map), {brushNode, entityNodePtr.release()}}});
 
       selectNodes(map, {brushNode, entityNode, nestedGroupNode});
       auto* groupNode = groupSelectedNodes(map, "group");
@@ -632,10 +633,10 @@ TEST_CASE("Map_Nodes")
 
     SECTION("Linked groups")
     {
-      auto* groupNode = new GroupNode{Group{"group"}};
-      auto* brushNode = createBrushNode(map);
-      groupNode->addChild(brushNode);
-      addNodes(map, {{&parentForNodes(map), {groupNode}}});
+      auto groupNodePtr = std::make_unique<GroupNode>(Group{"group"});
+      auto* groupNode = groupNodePtr.get();
+      groupNode->addChild(std::unique_ptr<BrushNode>{createBrushNode(map)});
+      addNodes(map, {{&parentForNodes(map), {groupNodePtr.release()}}});
 
       selectNodes(map, {groupNode});
       auto* linkedGroupNode = createLinkedDuplicate(map);
@@ -807,11 +808,12 @@ TEST_CASE("Map_Nodes")
 
     SECTION("Cannot reparent between linked groups")
     {
-      auto* groupNode = new GroupNode{Group{"group"}};
-      auto* brushNode = createBrushNode(map);
-      groupNode->addChild(brushNode);
+      auto groupNodePtr = std::make_unique<GroupNode>(Group{"group"});
+      auto* groupNode = groupNodePtr.get();
+      auto* brushNode =
+        &groupNode->addChild(std::unique_ptr<BrushNode>{createBrushNode(map)});
 
-      addNodes(map, {{&parentForNodes(map), {groupNode}}});
+      addNodes(map, {{&parentForNodes(map), {groupNodePtr.release()}}});
 
       selectNodes(map, {groupNode});
       auto* linkedGroupNode = createLinkedDuplicate(map);
@@ -1216,8 +1218,9 @@ TEST_CASE("Map_Nodes")
 
     SECTION("Update linked groups")
     {
-      auto* groupNode = new GroupNode{Group{"test"}};
-      auto* brushNode = createBrushNode(map);
+      auto groupNodePtr = std::make_unique<GroupNode>(Group{"test"});
+      auto* groupNode = groupNodePtr.get();
+      groupNode->addChild(std::unique_ptr<BrushNode>{createBrushNode(map)});
 
       using CreateNode = std::function<Node*(const Map&)>;
       const auto createNode = GENERATE_COPY(
@@ -1225,9 +1228,8 @@ TEST_CASE("Map_Nodes")
         CreateNode{[](const auto& m) -> Node* { return createBrushNode(m); }},
         CreateNode{[](const auto&) -> Node* { return createPatchNode(); }});
 
-      auto* nodeToRemove = createNode(map);
-      groupNode->addChildren({brushNode, nodeToRemove});
-      addNodes(map, {{&parentForNodes(map), {groupNode}}});
+      auto* nodeToRemove = &groupNode->addChild(std::unique_ptr<Node>{createNode(map)});
+      addNodes(map, {{&parentForNodes(map), {groupNodePtr.release()}}});
 
       selectNodes(map, {groupNode});
       auto* linkedGroupNode = createLinkedDuplicate(map);
@@ -1405,10 +1407,11 @@ TEST_CASE("Map_Nodes")
 
     SECTION("Update linked groups")
     {
-      auto* groupNode = new GroupNode{Group{"group"}};
-      auto* brushNode = createBrushNode(map);
-      groupNode->addChild(brushNode);
-      addNodes(map, {{&parentForNodes(map), {groupNode}}});
+      auto groupNodePtr = std::make_unique<GroupNode>(Group{"group"});
+      auto* groupNode = groupNodePtr.get();
+      auto* brushNode =
+        &groupNode->addChild(std::unique_ptr<BrushNode>{createBrushNode(map)});
+      addNodes(map, {{&parentForNodes(map), {groupNodePtr.release()}}});
 
       selectNodes(map, {groupNode});
       auto* linkedGroupNode = createLinkedDuplicate(map);
@@ -1450,10 +1453,11 @@ TEST_CASE("Map_Nodes")
 
     SECTION("Update linked groups failure")
     {
-      auto* groupNode = new GroupNode{Group{"group"}};
-      auto* brushNode = createBrushNode(map);
-      groupNode->addChild(brushNode);
-      addNodes(map, {{&parentForNodes(map), {groupNode}}});
+      auto groupNodePtr = std::make_unique<GroupNode>(Group{"group"});
+      auto* groupNode = groupNodePtr.get();
+      auto* brushNode =
+        &groupNode->addChild(std::unique_ptr<BrushNode>{createBrushNode(map)});
+      addNodes(map, {{&parentForNodes(map), {groupNodePtr.release()}}});
 
       selectNodes(map, {groupNode});
       auto* linkedGroupNode = createLinkedDuplicate(map);

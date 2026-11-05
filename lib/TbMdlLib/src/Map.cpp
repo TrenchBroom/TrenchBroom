@@ -251,8 +251,9 @@ Result<std::unique_ptr<WorldNode>> createWorldNode(
       config.faceAttribsConfig.defaultUvAttributes,
       config.faceAttribsConfig.defaultSurfaceAttributes};
     builder.createCuboid({128.0, 128.0, 32.0}, BrushFace::NoMaterialName)
-      | kdl::transform(
-        [&](auto b) { worldNode->defaultLayer()->addChild(new BrushNode{std::move(b)}); })
+      | kdl::transform([&](auto b) {
+          worldNode->defaultLayer()->addChild(std::make_unique<BrushNode>(std::move(b)));
+        })
       | kdl::transform_error(
         [&](auto e) { logger.error() << "Could not create default brush: " << e.msg; });
   }

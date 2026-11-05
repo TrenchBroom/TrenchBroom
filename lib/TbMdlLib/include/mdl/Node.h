@@ -32,6 +32,7 @@
 #include "vm/util.h"
 
 #include <algorithm>
+#include <concepts>
 #include <memory>
 #include <ranges>
 #include <string>
@@ -156,34 +157,25 @@ public: // tree management
   bool shouldAddToSpacialIndex() const;
 
 public:
-  void addChildren(const std::vector<Node*>& children);
+  void addChildren(std::vector<std::unique_ptr<Node>> children);
 
-  template <typename I>
-  void addChildren(I cur, I end, size_t count = 0)
+  template <std::derived_from<Node> T>
+  T& addChild(std::unique_ptr<T> child)
   {
-    m_children.reserve(m_children.size() + count);
-    size_t descendantCountDelta = 0;
-    size_t childSelectionCountDelta = 0;
-    size_t descendantSelectionCountDelta = 0;
-    std::for_each(cur, end, [&](auto* child) {
-      doAddChild(child);
-      descendantCountDelta += child->descendantCount() + 1;
-      childSelectionCountDelta += child->selected() ? 1u : 0u;
-      descendantSelectionCountDelta += child->descendantSelectionCount();
-    });
-    incDescendantCount(descendantCountDelta);
-    incChildSelectionCount(childSelectionCountDelta);
-    incDescendantSelectionCount(descendantSelectionCountDelta);
+    auto* result = child.get();
+    doAddChild(std::move(child));
+    incDescendantCount(result->descendantCount() + 1u);
+    incChildSelectionCount(result->selected() ? 1u : 0u);
+    incDescendantSelectionCount(result->descendantSelectionCount());
+    return *result;
   }
-
-  Node& addChild(Node* child);
 
   std::vector<std::unique_ptr<Node>> replaceChildren(
     std::vector<std::unique_ptr<Node>> newChildren);
 
-  void removeChildren(const std::vector<Node*>& children);
+  std::vector<std::unique_ptr<Node>> removeChildren(const std::vector<Node*>& children);
 
-  void removeChild(Node* child);
+  std::unique_ptr<Node> removeChild(Node* child);
 
   bool canAddChild(const Node& child) const;
   bool canRemoveChild(const Node& child) const;
@@ -202,8 +194,8 @@ public:
   }
 
 private:
-  void doAddChild(Node* child);
-  void doRemoveChild(Node* child);
+  void doAddChild(std::unique_ptr<Node> child);
+  std::unique_ptr<Node> doRemoveChild(Node* child);
   void clearChildren();
 
   void childWillBeAdded(Node& node);

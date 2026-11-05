@@ -24,43 +24,36 @@
 #include "mdl/Map.h"
 #include "mdl/Node.h"
 
-#include "kd/map_utils.h"
+#include <utility>
 
 namespace tb::mdl
 {
 
 std::unique_ptr<AddRemoveNodesCommand> AddRemoveNodesCommand::add(
-  const kdl::flat_map<Node*, std::vector<Node*>>& nodes)
+  kdl::flat_map<Node*, std::vector<std::unique_ptr<Node>>> nodes)
 {
-  return std::make_unique<AddRemoveNodesCommand>(Action::Add, nodes);
+  return std::make_unique<AddRemoveNodesCommand>(
+    Action::Add, std::move(nodes), kdl::flat_map<Node*, std::vector<Node*>>{});
 }
 
 std::unique_ptr<AddRemoveNodesCommand> AddRemoveNodesCommand::remove(
   const kdl::flat_map<Node*, std::vector<Node*>>& nodes)
 {
-  return std::make_unique<AddRemoveNodesCommand>(Action::Remove, nodes);
+  return std::make_unique<AddRemoveNodesCommand>(
+    Action::Remove, kdl::flat_map<Node*, std::vector<std::unique_ptr<Node>>>{}, nodes);
 }
 
-AddRemoveNodesCommand::~AddRemoveNodesCommand()
-{
-  kdl::map_clear_and_delete(m_nodesToAdd);
-}
+AddRemoveNodesCommand::~AddRemoveNodesCommand() = default;
 
 AddRemoveNodesCommand::AddRemoveNodesCommand(
-  const Action action, const kdl::flat_map<Node*, std::vector<Node*>>& nodes)
+  const Action action,
+  kdl::flat_map<Node*, std::vector<std::unique_ptr<Node>>> nodesToAdd,
+  kdl::flat_map<Node*, std::vector<Node*>> nodesToRemove)
   : UpdateLinkedGroupsCommandBase{makeName(action), true}
   , m_action{action}
+  , m_nodesToAdd{std::move(nodesToAdd)}
+  , m_nodesToRemove{std::move(nodesToRemove)}
 {
-  switch (m_action)
-  {
-  case Action::Add:
-    m_nodesToAdd = nodes;
-    break;
-  case Action::Remove:
-    m_nodesToRemove = nodes;
-    break;
-    switchDefault();
-  }
 }
 
 std::string AddRemoveNodesCommand::makeName(const Action action)
@@ -92,15 +85,12 @@ void AddRemoveNodesCommand::doAction(Map& map)
   switch (m_action)
   {
   case Action::Add:
-    addNodesAndNotify(m_nodesToAdd, map);
+    m_nodesToRemove = addNodesAndNotify(std::exchange(m_nodesToAdd, {}), map);
     break;
   case Action::Remove:
-    removeNodesAndNotify(m_nodesToRemove, map);
+    m_nodesToAdd = removeNodesAndNotify(std::exchange(m_nodesToRemove, {}), map);
     break;
   }
-
-  using std::swap;
-  swap(m_nodesToAdd, m_nodesToRemove);
 }
 
 void AddRemoveNodesCommand::undoAction(Map& map)
@@ -108,15 +98,12 @@ void AddRemoveNodesCommand::undoAction(Map& map)
   switch (m_action)
   {
   case Action::Add:
-    removeNodesAndNotify(m_nodesToRemove, map);
+    m_nodesToAdd = removeNodesAndNotify(std::exchange(m_nodesToRemove, {}), map);
     break;
   case Action::Remove:
-    addNodesAndNotify(m_nodesToAdd, map);
+    m_nodesToRemove = addNodesAndNotify(std::exchange(m_nodesToAdd, {}), map);
     break;
   }
-
-  using std::swap;
-  swap(m_nodesToAdd, m_nodesToRemove);
 }
 
 } // namespace tb::mdl

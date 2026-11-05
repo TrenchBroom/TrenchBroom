@@ -147,7 +147,7 @@ void NodeReader::onNode(Node* parentNode, std::unique_ptr<Node> node, ParserStat
 {
   if (parentNode != nullptr)
   {
-    parentNode->addChild(node.release());
+    parentNode->addChild(std::move(node));
   }
   else
   {
