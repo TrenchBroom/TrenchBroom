@@ -26,12 +26,6 @@
 
 namespace kdl
 {
-template <typename T>
-struct deleter
-{
-  void operator()(T ptr) const { delete ptr; }
-};
-
 template <typename First>
 auto combine_cmp(First first)
 {
@@ -106,24 +100,6 @@ I1 range_remove_all(I1 first1, I1 last1, I2 first2, I2 last2)
     result = std::remove(first1, result, *first2++);
   }
   return result;
-}
-
-/**
- * Applies the given deleter to all elements in range [first, last).
- *
- * @tparam I the iterator type
- * @tparam D the deleter type, defaults to Deleter
- * @param first the start of the range of values to delete
- * @param last the end of the range of values to delete (past-the-end iterator)
- * @param deleter the deleter to apply
- */
-template <typename I, typename D = deleter<typename I::value_type>>
-void range_delete_all(I first, I last, const D& deleter = D())
-{
-  while (first != last)
-  {
-    deleter(*first++);
-  }
 }
 
 /**
@@ -251,20 +227,6 @@ template <typename C, typename... Args>
 auto col_total_size(const C& c, Args&&... args)
 {
   return (c.size() + ... + args.size());
-}
-
-/**
- * Applies the given deleter to all elements the given container.
- *
- * @tparam C the container type
- * @tparam D the deleter type, defaults to deleter
- * @param c the container
- * @param deleter the deleter to apply
- */
-template <typename C, typename D = deleter<typename C::value_type>>
-void col_delete_all(C& c, const D& deleter = D())
-{
-  kdl::range_delete_all(std::begin(c), std::end(c), deleter);
 }
 
 /**
