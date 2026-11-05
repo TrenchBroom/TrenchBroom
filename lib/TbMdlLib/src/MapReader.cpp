@@ -37,6 +37,7 @@
 #include "mdl/WorldNode.h"
 
 #include "kd/contracts.h"
+#include "kd/memory_utils.h"
 #include "kd/result.h"
 #include "kd/string_format.h"
 #include "kd/string_utils.h"
@@ -965,9 +966,8 @@ void MapReader::createNodes(ParserStatus& status, kdl::task_manager& taskManager
       {
         if (!defaultParent)
         {
-          auto worldNode =
-            std::unique_ptr<WorldNode>{static_cast<WorldNode*>(nodeInfo->node.release())};
-          defaultParent = onWorldNode(std::move(worldNode), status);
+          defaultParent = onWorldNode(
+            kdl::static_pointer_cast<WorldNode>(std::move(nodeInfo->node)), status);
         }
         nodeInfo.reset();
       }

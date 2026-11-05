@@ -439,27 +439,24 @@ TEST_CASE("Map_TagManagement")
   {
     SECTION("matches")
     {
-      auto nodeA =
-        std::unique_ptr<BrushNode>{createBrushNode(map, materialA->name(), [&](auto& b) {
-          for (auto& face : b.faces())
-          {
-            face.setMaterial(materialA);
-          }
-        })};
-      auto nodeB =
-        std::unique_ptr<BrushNode>{createBrushNode(map, materialB->name(), [&](auto& b) {
-          for (auto& face : b.faces())
-          {
-            face.setMaterial(materialB);
-          }
-        })};
-      auto nodeC =
-        std::unique_ptr<BrushNode>{createBrushNode(map, materialC->name(), [&](auto& b) {
-          for (auto& face : b.faces())
-          {
-            face.setMaterial(materialC);
-          }
-        })};
+      auto nodeA = createBrushNode(map, materialA->name(), [&](auto& b) {
+        for (auto& face : b.faces())
+        {
+          face.setMaterial(materialA);
+        }
+      });
+      auto nodeB = createBrushNode(map, materialB->name(), [&](auto& b) {
+        for (auto& face : b.faces())
+        {
+          face.setMaterial(materialB);
+        }
+      });
+      auto nodeC = createBrushNode(map, materialC->name(), [&](auto& b) {
+        for (auto& face : b.faces())
+        {
+          face.setMaterial(materialC);
+        }
+      });
       const auto& singleTag = tagManager.smartTag("surfaceparm_single");
       const auto& multiTag = tagManager.smartTag("surfaceparm_multi");
       for (const auto& face : nodeA->brush().faces())
@@ -509,20 +506,18 @@ TEST_CASE("Map_TagManagement")
   {
     SECTION("matches")
     {
-      auto matchingBrushNode =
-        std::unique_ptr<BrushNode>{createBrushNode(map, "asdf", [](auto& b) {
-          for (auto& face : b.faces())
-          {
-            face.setSurfaceAttributes({.contents = 1});
-          }
-        })};
-      auto nonMatchingBrushNode =
-        std::unique_ptr<BrushNode>{createBrushNode(map, "asdf", [](auto& b) {
-          for (auto& face : b.faces())
-          {
-            face.setSurfaceAttributes({.contents = 2});
-          }
-        })};
+      auto matchingBrushNode = createBrushNode(map, "asdf", [](auto& b) {
+        for (auto& face : b.faces())
+        {
+          face.setSurfaceAttributes({.contents = 1});
+        }
+      });
+      auto nonMatchingBrushNode = createBrushNode(map, "asdf", [](auto& b) {
+        for (auto& face : b.faces())
+        {
+          face.setSurfaceAttributes({.contents = 2});
+        }
+      });
 
       const auto& tag = tagManager.smartTag("contentflags");
       for (const auto& face : matchingBrushNode->brush().faces())
@@ -584,20 +579,18 @@ TEST_CASE("Map_TagManagement")
   {
     SECTION("matches")
     {
-      auto matchingBrushNode =
-        std::unique_ptr<BrushNode>{createBrushNode(map, "asdf", [](auto& b) {
-          for (auto& face : b.faces())
-          {
-            face.setSurfaceAttributes({.flags = 1});
-          }
-        })};
-      auto nonMatchingBrushNode =
-        std::unique_ptr<BrushNode>{createBrushNode(map, "asdf", [](auto& b) {
-          for (auto& face : b.faces())
-          {
-            face.setSurfaceAttributes({.flags = 2});
-          }
-        })};
+      auto matchingBrushNode = createBrushNode(map, "asdf", [](auto& b) {
+        for (auto& face : b.faces())
+        {
+          face.setSurfaceAttributes({.flags = 1});
+        }
+      });
+      auto nonMatchingBrushNode = createBrushNode(map, "asdf", [](auto& b) {
+        for (auto& face : b.faces())
+        {
+          face.setSurfaceAttributes({.flags = 2});
+        }
+      });
 
       const auto& tag = tagManager.smartTag("surfaceflags");
       for (const auto& face : matchingBrushNode->brush().faces())
