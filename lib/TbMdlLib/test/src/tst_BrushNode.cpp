@@ -371,8 +371,6 @@ TEST_CASE("BrushNode")
       REQUIRE(nodes);
 
       CHECK(nodes.value().size() == 1u);
-
-      kdl::col_delete_all(nodes.value());
     }
 
     SECTION("1185")
@@ -396,8 +394,6 @@ TEST_CASE("BrushNode")
         NodeReader::read(data, MapFormat::Standard, worldBounds, {}, status, taskManager);
       REQUIRE(nodes);
       CHECK(nodes.value().size() == 1u);
-
-      kdl::col_delete_all(nodes.value());
     }
 
     SECTION("1697")
@@ -503,8 +499,6 @@ TEST_CASE("BrushNode")
         NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status, taskManager);
       REQUIRE(nodes);
       CHECK(nodes.value().size() == 1u);
-
-      kdl::col_delete_all(nodes.value());
     }
 
     SECTION("1194")
@@ -525,8 +519,6 @@ TEST_CASE("BrushNode")
         NodeReader::read(data, MapFormat::Standard, worldBounds, {}, status, taskManager);
       REQUIRE(nodes);
       CHECK(nodes.value().empty());
-
-      kdl::col_delete_all(nodes.value());
     }
 
     SECTION("1332")
@@ -559,7 +551,6 @@ TEST_CASE("BrushNode")
         {},
         status,
         taskManager); // assertion failure
-      kdl::col_delete_all(nodes.value());
     }
 
     SECTION("1395")
@@ -610,7 +601,6 @@ TEST_CASE("BrushNode")
         {},
         status,
         taskManager); // assertion failure
-      kdl::col_delete_all(nodes.value());
     }
 
     SECTION("1801")
@@ -638,7 +628,6 @@ TEST_CASE("BrushNode")
         {},
         status,
         taskManager); // assertion failure
-      kdl::col_delete_all(nodes.value());
     }
 
     SECTION("2361")
@@ -868,8 +857,6 @@ TEST_CASE("BrushNode")
 
       CHECK(pipe->intersects(*cube));
       CHECK(cube->intersects(*pipe));
-
-      kdl::col_delete_all(nodes.value());
     }
   }
 }

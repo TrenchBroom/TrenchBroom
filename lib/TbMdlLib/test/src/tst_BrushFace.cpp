@@ -34,7 +34,6 @@
 #include "mdl/TestUtils.h"
 #include "mdl/UvAttributes.h"
 
-#include "kd/collection_utils.h"
 #include "kd/contracts.h"
 #include "kd/result.h"
 #include "kd/task_manager.h"
@@ -816,8 +815,6 @@ TEST_CASE("BrushFace")
 
     CHECK(negXFace->uAxis() == vm::approx{newXAxis});
     CHECK(negXFace->vAxis() == vm::approx{newYAxis});
-
-    kdl::col_delete_all(nodes.value());
   }
 
   // https://github.com/TrenchBroom/TrenchBroom/issues/1995
@@ -892,8 +889,6 @@ TEST_CASE("BrushFace")
       *snapshot, negYFace->uvAttributes(), negYFace->boundary(), WrapStyle::Projection);
     CHECK(posXFace->uAxis() == vm::approx{vm::vec3d{0, -1, 0}});
     CHECK(posXFace->vAxis() == vm::approx{vm::vec3d{0, 0, -1}});
-
-    kdl::col_delete_all(nodes.value());
   }
 
   // https://github.com/TrenchBroom/TrenchBroom/issues/2315
@@ -937,8 +932,6 @@ TEST_CASE("BrushFace")
       *angledFaceIndex,
       vm::vec3d{-7.9999999999999973, 7.9999999999999973, 0},
       true));
-
-    kdl::col_delete_all(nodes.value());
   }
 
   SECTION("converting between Standard and Valve format preserves UVs")
