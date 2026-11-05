@@ -60,9 +60,9 @@ TEST_CASE("Map_NodeVisibility")
         using CreateNode = std::function<Node*(const Map&)>;
         const auto createNode = GENERATE_COPY(
           CreateNode{[](const auto& m) {
-            auto* groupNode = new GroupNode{Group{"group"}};
-            groupNode->addChild(createBrushNode(m));
-            return groupNode;
+            auto groupNode = std::make_unique<GroupNode>(Group{"group"});
+            groupNode->addChild(std::unique_ptr<BrushNode>{createBrushNode(m)});
+            return groupNode.release();
           }},
           CreateNode{[](const auto&) { return new EntityNode{Entity{}}; }},
           CreateNode{[](const auto& m) { return createBrushNode(m); }},
@@ -104,13 +104,14 @@ TEST_CASE("Map_NodeVisibility")
 
       AND_GIVEN("A top level brush entity")
       {
-        auto* childNode1 = createBrushNode(map);
-        auto* childNode2 = createPatchNode();
+        auto entityNodePtr = std::make_unique<EntityNode>(Entity{});
+        auto* entityNode = entityNodePtr.get();
+        auto* childNode1 =
+          &entityNode->addChild(std::unique_ptr<BrushNode>{createBrushNode(map)});
+        auto* childNode2 =
+          &entityNode->addChild(std::unique_ptr<PatchNode>{createPatchNode()});
 
-        auto* entityNode = new EntityNode{Entity{}};
-        entityNode->addChildren({childNode1, childNode2});
-
-        addNodes(map, {{&parentForNodes(map), {entityNode}}});
+        addNodes(map, {{&parentForNodes(map), {entityNodePtr.release()}}});
 
         // Check initial state
         REQUIRE_FALSE(nodeToHide->hidden());

@@ -51,6 +51,7 @@
 
 #include <algorithm>
 #include <ranges>
+#include <tuple>
 
 namespace tb::mdl
 {
@@ -106,7 +107,7 @@ auto extractNodesToPaste(const std::vector<Node*>& nodes, Node& parent)
   {
     if (auto* nodeParent = node->parent())
     {
-      nodeParent->removeChild(node);
+      std::ignore = nodeParent->removeChild(node).release();
     }
   }
   kdl::vec_clear_and_delete(nodesToDelete);

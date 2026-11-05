@@ -131,16 +131,16 @@ TEST_CASE("UpdateLinkedGroupsHelper")
 
   SECTION("Ownership")
   {
-    auto* groupNode = new GroupNode{Group{""}};
+    auto groupNodePtr = std::make_unique<GroupNode>(Group{""});
+    auto* groupNode = groupNodePtr.get();
     setLinkId(*groupNode, "asdf");
 
-    auto* entityNode = new TestNode{Entity{}, deleted};
-    groupNode->addChild(entityNode);
+    groupNode->addChild(std::make_unique<TestNode>(Entity{}, deleted));
 
     auto* linkedNode =
       static_cast<GroupNode*>(groupNode->cloneRecursively(map.worldBounds()).release());
 
-    addNodes(map, {{&parentForNodes(map), {groupNode, linkedNode}}});
+    addNodes(map, {{&parentForNodes(map), {groupNodePtr.release(), linkedNode}}});
 
     SECTION("Helper takes ownership of replaced child nodes")
     {
@@ -166,11 +166,12 @@ TEST_CASE("UpdateLinkedGroupsHelper")
   {
     SECTION("Sibling linked groups")
     {
-      auto* groupNode = new GroupNode{Group{"test"}};
+      auto groupNodePtr = std::make_unique<GroupNode>(Group{"test"});
+      auto* groupNode = groupNodePtr.get();
       setLinkId(*groupNode, "asdf");
 
-      auto* brushNode = createBrushNode(map);
-      groupNode->addChild(brushNode);
+      auto* brushNode =
+        &groupNode->addChild(std::unique_ptr<BrushNode>{createBrushNode(map)});
 
       auto* linkedGroupNode =
         static_cast<GroupNode*>(groupNode->cloneRecursively(map.worldBounds()).release());
@@ -188,7 +189,7 @@ TEST_CASE("UpdateLinkedGroupsHelper")
         linkedBrushNode->physicalBounds()
         == brushNode->physicalBounds().translate(vm::vec3d(32.0, 0.0, 0.0)));
 
-      addNodes(map, {{&parentForNodes(map), {groupNode, linkedGroupNode}}});
+      addNodes(map, {{&parentForNodes(map), {groupNodePtr.release(), linkedGroupNode}}});
 
       /*
       world
@@ -260,17 +261,18 @@ TEST_CASE("UpdateLinkedGroupsHelper")
 
     SECTION("Nested linked groups")
     {
-      auto* outerGroupNode = new GroupNode{Group{"outerGroupNode"}};
+      auto outerGroupNodePtr = std::make_unique<GroupNode>(Group{"outerGroupNode"});
+      auto* outerGroupNode = outerGroupNodePtr.get();
       setLinkId(*outerGroupNode, "outerGroupNode");
 
-      auto* innerGroupNode = new GroupNode{Group{"innerGroupNode"}};
+      auto* innerGroupNode =
+        &outerGroupNode->addChild(std::make_unique<GroupNode>(Group{"innerGroupNode"}));
       setLinkId(*innerGroupNode, "innerGroupNode");
 
-      auto* brushNode = createBrushNode(map);
-      innerGroupNode->addChild(brushNode);
-      outerGroupNode->addChild(innerGroupNode);
+      auto* brushNode =
+        &innerGroupNode->addChild(std::unique_ptr<BrushNode>{createBrushNode(map)});
 
-      addNodes(map, {{&parentForNodes(map), {outerGroupNode}}});
+      addNodes(map, {{&parentForNodes(map), {outerGroupNodePtr.release()}}});
 
       // create a linked group of the inner group node so that cloning the outer group
       // node will create a linked clone of the inner group node

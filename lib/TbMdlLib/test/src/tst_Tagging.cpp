@@ -38,11 +38,9 @@ TEST_CASE("TaggingTest.testTagBrush")
   auto worldNode = WorldNode{{}, {}, MapFormat::Standard};
 
   auto builder = BrushBuilder{MapFormat::Standard, worldBounds};
-  auto* brushNode = new BrushNode{
+  auto* brushNode = &worldNode.defaultLayer()->addChild(std::make_unique<BrushNode>(
     builder.createCube(64.0, "left", "right", "front", "back", "top", "bottom")
-    | kdl::value()};
-
-  worldNode.defaultLayer()->addChild(brushNode);
+    | kdl::value()));
 
   auto tag1 = Tag{"tag1", {}};
   auto tag2 = Tag{"tag2", {}};

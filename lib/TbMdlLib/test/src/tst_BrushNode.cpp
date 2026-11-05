@@ -55,14 +55,15 @@ TEST_CASE("BrushNode")
   {
     const auto worldBounds = vm::bbox3d{4096.0};
 
-    auto* brushNode = new BrushNode{
+    auto brushNodePtr = std::make_unique<BrushNode>(
       BrushBuilder{MapFormat::Quake3, worldBounds}.createCube(64.0, "testure")
-      | kdl::value()};
+      | kdl::value());
+    auto* brushNode = brushNodePtr.get();
     auto entityNode = EntityNode{Entity{}};
 
     CHECK(brushNode->entity() == nullptr);
 
-    entityNode.addChild(brushNode);
+    entityNode.addChild(std::move(brushNodePtr));
     CHECK(brushNode->entity() == &entityNode);
   }
 

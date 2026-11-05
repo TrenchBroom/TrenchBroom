@@ -55,6 +55,7 @@
 #include "kd/string_format.h"
 
 #include <algorithm>
+#include <memory>
 #include <ranges>
 
 namespace tb::mdl
@@ -313,8 +314,17 @@ std::vector<Node*> addNodes(
     return parent == &map.worldNode() || parent->isDescendantOf(map.worldNode());
   }));
 
+  auto nodesToAdd = kdl::flat_map<Node*, std::vector<std::unique_ptr<Node>>>{};
+  for (const auto& [parent, children] : nodes)
+  {
+    nodesToAdd[parent] =
+      children
+      | std::views::transform([](auto* child) { return std::unique_ptr<Node>{child}; })
+      | kdl::ranges::to<std::vector>();
+  }
+
   auto transaction = Transaction{map, "Add Objects"};
-  if (!map.executeAndStore(AddRemoveNodesCommand::add(nodes)))
+  if (!map.executeAndStore(AddRemoveNodesCommand::add(std::move(nodesToAdd))))
   {
     transaction.cancel();
     return {};
@@ -345,7 +355,8 @@ void duplicateSelectedNodes(Map& map)
   for (auto* original : map.selection().nodes)
   {
     auto& suggestedParent = parentForNodes(map, {original});
-    auto* clone = original->cloneRecursively(map.worldBounds()).release();
+    auto clonePtr = original->cloneRecursively(map.worldBounds());
+    auto* clone = clonePtr.get();
 
     if (shouldCloneParentWhenCloningNode(original))
     {
@@ -367,11 +378,11 @@ void duplicateSelectedNodes(Map& map)
       }
 
       // hierarchy will look like (parent -> child): suggestedParent -> newParent -> clone
-      newParent->addChild(clone);
+      newParent->addChild(std::move(clonePtr));
     }
     else
     {
-      nodesToAdd[&suggestedParent].push_back(clone);
+      nodesToAdd[&suggestedParent].push_back(clonePtr.release());
     }
 
     nodesToSelect.push_back(clone);

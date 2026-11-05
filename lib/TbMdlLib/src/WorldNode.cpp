@@ -35,7 +35,6 @@
 #include "kd/k.h"
 #include "kd/memory_utils.h"
 #include "kd/overload.h"
-#include "kd/ranges/to.h"
 
 #include "vm/bbox_io.h" // IWYU pragma: keep
 
@@ -170,8 +169,10 @@ std::vector<const LayerNode*> WorldNode::customLayersUserSorted() const
 
 void WorldNode::createDefaultLayer()
 {
-  m_defaultLayer = new LayerNode{Layer{"Default Layer", K(defaultLayer)}};
-  addChild(m_defaultLayer);
+  auto defaultLayerNode =
+    std::make_unique<LayerNode>(Layer{"Default Layer", K(defaultLayer)});
+  m_defaultLayer = defaultLayerNode.get();
+  addChild(std::move(defaultLayerNode));
 
   contract_post(m_defaultLayer->layer().sortIndex() == Layer::defaultLayerSortIndex());
 }
@@ -284,19 +285,9 @@ std::unique_ptr<Node> WorldNode::doCloneRecursively(const vm::bbox3d& worldBound
   contract_pre(children().front() == m_defaultLayer);
 
   auto worldNode = kdl::static_pointer_cast<WorldNode>(clone(worldBounds));
-
-  auto defaultLayerChildClones =
-    cloneRecursively(worldBounds, m_defaultLayer->children());
   worldNode->defaultLayer()->addChildren(
-    defaultLayerChildClones
-    | std::views::transform([](auto& child) { return child.release(); })
-    | kdl::ranges::to<std::vector>());
-
-  auto customLayerClones =
-    cloneRecursively(worldBounds, children() | std::views::drop(1));
-  worldNode->addChildren(
-    customLayerClones | std::views::transform([](auto& child) { return child.release(); })
-    | kdl::ranges::to<std::vector>());
+    cloneRecursively(worldBounds, m_defaultLayer->children()));
+  worldNode->addChildren(cloneRecursively(worldBounds, children() | std::views::drop(1)));
 
   return worldNode;
 }

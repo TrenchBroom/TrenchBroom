@@ -329,11 +329,12 @@ TEST_CASE("Map_Groups")
       auto* linkedNestedGroupNode = createLinkedDuplicate(map);
 
       auto* brushNode = createBrushNode(map);
-      auto* entityNode = new EntityNode{Entity{}};
-      auto* entityBrushNode = createBrushNode(map);
-      entityNode->addChild(entityBrushNode);
+      auto entityNodePtr = std::make_unique<EntityNode>(Entity{});
+      auto* entityNode = entityNodePtr.get();
+      auto* entityBrushNode =
+        &entityNode->addChild(std::unique_ptr<BrushNode>{createBrushNode(map)});
 
-      addNodes(map, {{&parentForNodes(map), {brushNode, entityNode}}});
+      addNodes(map, {{&parentForNodes(map), {brushNode, entityNodePtr.release()}}});
 
       selectNodes(map, {brushNode, entityNode, nestedGroupNode});
       auto* groupNode = groupSelectedNodes(map, "group");
@@ -787,10 +788,10 @@ TEST_CASE("Map_Groups")
        *     linkedNestedLinkedEntityNode
        */
 
-      auto* nestedGroupNode = new GroupNode{Group{"nestedGroupNode"}};
-      auto* nestedEntityNode = new EntityNode{Entity{}};
-      nestedGroupNode->addChild(nestedEntityNode);
-      addNodes(map, {{groupNode, {nestedGroupNode}}});
+      auto nestedGroupNodePtr = std::make_unique<GroupNode>(Group{"nestedGroupNode"});
+      auto* nestedGroupNode = nestedGroupNodePtr.get();
+      nestedGroupNode->addChild(std::make_unique<EntityNode>(Entity{}));
+      addNodes(map, {{groupNode, {nestedGroupNodePtr.release()}}});
 
       openGroup(map, *groupNode);
       deselectAll(map);
@@ -1103,21 +1104,22 @@ TEST_CASE("Map_Groups")
 
   SECTION("canUpdateLinkedGroups")
   {
-    auto* innerGroupNode = new mdl::GroupNode{mdl::Group{"inner"}};
-    auto* entityNode = new mdl::EntityNode{mdl::Entity{}};
-    innerGroupNode->addChild(entityNode);
+    auto innerGroupNode = std::make_unique<mdl::GroupNode>(mdl::Group{"inner"});
+    auto* entityNode =
+      &innerGroupNode->addChild(std::make_unique<mdl::EntityNode>(mdl::Entity{}));
 
-    auto* linkedInnerGroupNode = static_cast<mdl::GroupNode*>(
-      innerGroupNode->cloneRecursively(map.worldBounds()).release());
+    auto linkedInnerGroupNode = innerGroupNode->cloneRecursively(map.worldBounds());
 
     auto* linkedEntityNode =
       dynamic_cast<mdl::EntityNode*>(linkedInnerGroupNode->children().front());
     REQUIRE(linkedEntityNode != nullptr);
 
-    auto* outerGroupNode = new mdl::GroupNode{mdl::Group{"outer"}};
-    outerGroupNode->addChildren({innerGroupNode, linkedInnerGroupNode});
+    auto outerGroupNodePtr = std::make_unique<mdl::GroupNode>(mdl::Group{"outer"});
+    auto* outerGroupNode = outerGroupNodePtr.get();
+    outerGroupNode->addChildren(kdl::vec_from<std::unique_ptr<mdl::Node>>(
+      std::move(innerGroupNode), std::move(linkedInnerGroupNode)));
 
-    addNodes(map, {{&parentForNodes(map), {outerGroupNode}}});
+    addNodes(map, {{&parentForNodes(map), {outerGroupNodePtr.release()}}});
     selectNodes(map, {outerGroupNode});
 
     const auto entityNodes = map.selection().allEntities();

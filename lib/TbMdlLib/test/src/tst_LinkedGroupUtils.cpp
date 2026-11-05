@@ -63,13 +63,13 @@ void setGroupName(GroupNode& groupNode, const std::string& name)
   groupNode.setGroup(std::move(group));
 }
 
-auto* createPatchNode()
+auto createPatchNode()
 {
   // clang-format off
-    return new PatchNode{BezierPatch{3, 3, {
+    return std::make_unique<PatchNode>(BezierPatch{3, 3, {
       {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
       {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
-      {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "material"}};
+      {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "material"});
   // clang-format on
 }
 
@@ -173,30 +173,22 @@ TEST_CASE("LinkedGroupUtils")
 
     auto worldNode = WorldNode{{}, {}, mapFormat};
 
-    auto* groupNode1 = new GroupNode{Group{"Group 1"}};
-    auto* groupNode2 = new GroupNode{Group{"Group 2"}};
-    auto* groupNode3 = new GroupNode{Group{"Group 3"}};
+    auto& layerNode = *worldNode.defaultLayer();
+    auto* groupNode1 = &layerNode.addChild(std::make_unique<GroupNode>(Group{"Group 1"}));
+    auto* groupNode2 = &layerNode.addChild(std::make_unique<GroupNode>(Group{"Group 2"}));
+    layerNode.addChild(std::make_unique<GroupNode>(Group{"Group 3"}));
 
     setLinkId(*groupNode1, "group1");
     setLinkId(*groupNode2, "group2");
 
-    auto* linkedGroupNode1_1 =
-      static_cast<GroupNode*>(groupNode1->cloneRecursively(worldBounds).release());
+    auto* linkedGroupNode1_1 = &layerNode.addChild(
+      kdl::static_pointer_cast<GroupNode>(groupNode1->cloneRecursively(worldBounds)));
+    auto* linkedGroupNode2_1 = &layerNode.addChild(
+      kdl::static_pointer_cast<GroupNode>(groupNode2->cloneRecursively(worldBounds)));
+    auto* linkedGroupNode2_2 = &layerNode.addChild(
+      kdl::static_pointer_cast<GroupNode>(groupNode2->cloneRecursively(worldBounds)));
 
-    auto* linkedGroupNode2_1 =
-      static_cast<GroupNode*>(groupNode2->cloneRecursively(worldBounds).release());
-    auto* linkedGroupNode2_2 =
-      static_cast<GroupNode*>(groupNode2->cloneRecursively(worldBounds).release());
-
-    worldNode.defaultLayer()->addChild(groupNode1);
-    worldNode.defaultLayer()->addChild(groupNode2);
-    worldNode.defaultLayer()->addChild(groupNode3);
-    worldNode.defaultLayer()->addChild(linkedGroupNode1_1);
-    worldNode.defaultLayer()->addChild(linkedGroupNode2_1);
-    worldNode.defaultLayer()->addChild(linkedGroupNode2_2);
-
-    auto* entityNode = new EntityNode{Entity{}};
-    worldNode.defaultLayer()->addChild(entityNode);
+    layerNode.addChild(std::make_unique<EntityNode>(Entity{}));
 
     CHECK_THAT(
       collectGroupsWithLinkId({&worldNode}, "asdf"),
@@ -219,8 +211,7 @@ TEST_CASE("LinkedGroupUtils")
       const auto worldBounds = vm::bbox3d{8192.0};
 
       auto groupNode = GroupNode{Group{"name"}};
-      auto* entityNode = new EntityNode{Entity{}};
-      groupNode.addChild(entityNode);
+      groupNode.addChild(std::make_unique<EntityNode>(Entity{}));
 
       transformNode(groupNode, vm::scaling_matrix(vm::vec3d{0, 1, 1}), worldBounds);
       REQUIRE(!vm::invert(groupNode.group().transformation()).has_value());
@@ -236,8 +227,7 @@ TEST_CASE("LinkedGroupUtils")
       const auto worldBounds = vm::bbox3d{8192.0};
 
       auto groupNode = GroupNode{Group{"name"}};
-      auto* entityNode = new EntityNode{Entity{}};
-      groupNode.addChild(entityNode);
+      auto* entityNode = &groupNode.addChild(std::make_unique<EntityNode>(Entity{}));
 
       transformNode(groupNode, vm::translation_matrix(vm::vec3d{1, 0, 0}), worldBounds);
       REQUIRE(
@@ -304,11 +294,11 @@ TEST_CASE("LinkedGroupUtils")
       const auto worldBounds = vm::bbox3d{8192.0};
 
       auto outerGroupNode = GroupNode{Group{"outer"}};
-      auto* innerGroupNode = new GroupNode{Group{"inner"}};
-      outerGroupNode.addChild(innerGroupNode);
+      auto* innerGroupNode =
+        &outerGroupNode.addChild(std::make_unique<GroupNode>(Group{"inner"}));
 
-      auto* innerGroupEntityNode = new EntityNode{Entity{}};
-      innerGroupNode->addChild(innerGroupEntityNode);
+      auto* innerGroupEntityNode =
+        &innerGroupNode->addChild(std::make_unique<EntityNode>(Entity{}));
 
       auto innerGroupNodeClone = kdl::static_pointer_cast<GroupNode>(
         innerGroupNode->cloneRecursively(worldBounds));
@@ -395,16 +385,16 @@ TEST_CASE("LinkedGroupUtils")
       outerGroupNode
       */
 
-      auto* innerGroupNode = new GroupNode{Group{"inner"}};
-      outerGroupNode.addChild(innerGroupNode);
+      auto* innerGroupNode =
+        &outerGroupNode.addChild(std::make_unique<GroupNode>(Group{"inner"}));
 
       /*
       outerGroupNode
       +- innerGroupNode
       */
 
-      auto* innerGroupEntityNode = new EntityNode{Entity{}};
-      innerGroupNode->addChild(innerGroupEntityNode);
+      auto* innerGroupEntityNode =
+        &innerGroupNode->addChild(std::make_unique<EntityNode>(Entity{}));
 
       /*
       outerGroupNode
@@ -464,8 +454,7 @@ TEST_CASE("LinkedGroupUtils")
       const auto worldBounds = vm::bbox3d{8192.0};
 
       auto groupNode = GroupNode{Group{"name"}};
-      auto* entityNode = new EntityNode{Entity{}};
-      groupNode.addChild(entityNode);
+      auto* entityNode = &groupNode.addChild(std::make_unique<EntityNode>(Entity{}));
 
       auto groupNodeClone =
         kdl::static_pointer_cast<GroupNode>(groupNode.cloneRecursively(worldBounds));
@@ -490,8 +479,8 @@ TEST_CASE("LinkedGroupUtils")
       const auto worldBounds = vm::bbox3d{8192.0};
 
       auto outerGroupNode = GroupNode{Group{"outerGroupNode"}};
-      auto* innerGroupNode = new GroupNode{Group{"innerGroupNode"}};
-      outerGroupNode.addChild(innerGroupNode);
+      auto* innerGroupNode =
+        &outerGroupNode.addChild(std::make_unique<GroupNode>(Group{"innerGroupNode"}));
 
       auto innerGroupNodeClone = kdl::static_pointer_cast<GroupNode>(
         innerGroupNode->cloneRecursively(worldBounds));
@@ -539,8 +528,8 @@ TEST_CASE("LinkedGroupUtils")
       const auto worldBounds = vm::bbox3d{8192.0};
 
       auto sourceGroupNode = GroupNode{Group{"name"}};
-      auto* sourceEntityNode = new EntityNode{Entity{}};
-      sourceGroupNode.addChild(sourceEntityNode);
+      auto* sourceEntityNode =
+        &sourceGroupNode.addChild(std::make_unique<EntityNode>(Entity{}));
 
       auto targetGroupNode = kdl::static_pointer_cast<GroupNode>(
         sourceGroupNode.cloneRecursively(worldBounds));
@@ -688,13 +677,12 @@ TEST_CASE("LinkedGroupUtils")
       const auto brushBuilder = BrushBuilder{MapFormat::Quake3, worldBounds};
 
       auto sourceGroupNode = GroupNode{Group{"name"}};
-      auto* sourceBrushNode =
-        new BrushNode{brushBuilder.createCube(64.0, "material") | kdl::value()};
-      auto* sourceEntityNode = new EntityNode{Entity{{
-        {"light", "400"},
-      }}};
-
-      sourceGroupNode.addChildren({sourceBrushNode, sourceEntityNode});
+      auto* sourceBrushNode = &sourceGroupNode.addChild(std::make_unique<BrushNode>(
+        brushBuilder.createCube(64.0, "material") | kdl::value()));
+      auto* sourceEntityNode =
+        &sourceGroupNode.addChild(std::make_unique<EntityNode>(Entity{{
+          {"light", "400"},
+        }}));
 
       auto targetGroupNode = kdl::static_pointer_cast<GroupNode>(
         sourceGroupNode.cloneRecursively(worldBounds));
@@ -711,10 +699,9 @@ TEST_CASE("LinkedGroupUtils")
         targetEntityNode->setEntity(std::move(targetEntity));
       }
 
-      auto* sourceBrushEntity = new EntityNode{Entity{}};
-      sourceGroupNode.removeChild(sourceBrushNode);
-      sourceBrushEntity->addChildren({sourceBrushNode});
-      sourceGroupNode.addChildren({sourceBrushEntity});
+      auto sourceBrushEntity = std::make_unique<EntityNode>(Entity{});
+      sourceBrushEntity->addChild(sourceGroupNode.removeChild(sourceBrushNode));
+      sourceGroupNode.addChild(std::move(sourceBrushEntity));
 
       updateLinkedGroups(
         sourceGroupNode, {targetGroupNode.get()}, worldBounds, taskManager)
@@ -749,45 +736,55 @@ TEST_CASE("LinkedGroupUtils")
     auto worldNode = WorldNode{{}, {}, MapFormat::Standard};
     auto& layerNode = *worldNode.defaultLayer();
 
-    auto* unlinkedGroupNode = new GroupNode{Group{"unlinked"}};
-    auto* unlinkedEntityNode = new EntityNode{Entity{}};
+    auto* unlinkedGroupNode =
+      &layerNode.addChild(std::make_unique<GroupNode>(Group{"unlinked"}));
+    auto* unlinkedEntityNode =
+      &unlinkedGroupNode->addChild(std::make_unique<EntityNode>(Entity{}));
 
-    unlinkedGroupNode->addChildren({unlinkedEntityNode});
-    layerNode.addChildren({unlinkedGroupNode});
+    auto* outerGroupNode =
+      &layerNode.addChild(std::make_unique<GroupNode>(Group{"outer"}));
+    auto* outerEntityNode =
+      &outerGroupNode->addChild(std::make_unique<EntityNode>(Entity{}));
+    auto* outerBrushNode = &outerGroupNode->addChild(std::make_unique<BrushNode>(
+      brushBuilder.createCube(64.0, "material") | kdl::value()));
 
-    auto* outerGroupNode = new GroupNode{Group{"outer"}};
-    auto* outerEntityNode = new EntityNode{Entity{}};
-    auto* outerBrushNode =
-      new BrushNode{brushBuilder.createCube(64.0, "material") | kdl::value()};
+    auto* innerGroupNode =
+      &outerGroupNode->addChild(std::make_unique<GroupNode>(Group{"inner"}));
+    auto* innerPatchNode = &innerGroupNode->addChild(createPatchNode());
+    auto* innerEntityNode =
+      &innerGroupNode->addChild(std::make_unique<EntityNode>(Entity{}));
 
-    auto* innerGroupNode = new GroupNode{Group{"inner"}};
-    auto* innerPatchNode = createPatchNode();
-    auto* innerEntityNode = new EntityNode{Entity{}};
+    auto linkedOuterGroupNodePtr = std::make_unique<GroupNode>(Group{"outer"});
+    auto linkedOuterEntityNodePtr = std::make_unique<EntityNode>(Entity{});
+    auto linkedOuterBrushNodePtr = std::make_unique<BrushNode>(
+      brushBuilder.createCube(64.0, "material") | kdl::value());
 
-    innerGroupNode->addChildren({innerPatchNode, innerEntityNode});
-    outerGroupNode->addChildren({outerEntityNode, outerBrushNode, innerGroupNode});
+    auto linkedInnerGroupNodePtr = std::make_unique<GroupNode>(Group{"inner"});
+    auto linkedInnerPatchNodePtr = createPatchNode();
+    auto linkedInnerEntityNodePtr = std::make_unique<EntityNode>(Entity{});
 
-    auto* linkedOuterGroupNode = new GroupNode{Group{"outer"}};
-    auto* linkedOuterEntityNode = new EntityNode{Entity{}};
-    auto* linkedOuterBrushNode =
-      new BrushNode{brushBuilder.createCube(64.0, "material") | kdl::value()};
-
-    auto* linkedInnerGroupNode = new GroupNode{Group{"inner"}};
-    auto* linkedInnerPatchNode = createPatchNode();
-    auto* linkedInnerEntityNode = new EntityNode{Entity{}};
+    auto* linkedOuterGroupNode = linkedOuterGroupNodePtr.get();
+    auto* linkedOuterEntityNode = linkedOuterEntityNodePtr.get();
+    auto* linkedOuterBrushNode = linkedOuterBrushNodePtr.get();
+    auto* linkedInnerGroupNode = linkedInnerGroupNodePtr.get();
+    auto* linkedInnerPatchNode = linkedInnerPatchNodePtr.get();
+    auto* linkedInnerEntityNode = linkedInnerEntityNodePtr.get();
 
     setLinkId(*outerGroupNode, "outerGroupLinkId");
     setLinkId(*linkedOuterGroupNode, "outerGroupLinkId");
     setLinkId(*innerGroupNode, "innerGroupLinkId");
     setLinkId(*linkedInnerGroupNode, "innerGroupLinkId");
 
-    layerNode.addChildren({outerGroupNode, linkedOuterGroupNode});
+    layerNode.addChild(std::move(linkedOuterGroupNodePtr));
 
     SECTION("If both groups have the same structure")
     {
-      linkedInnerGroupNode->addChildren({linkedInnerPatchNode, linkedInnerEntityNode});
-      linkedOuterGroupNode->addChildren(
-        {linkedOuterEntityNode, linkedOuterBrushNode, linkedInnerGroupNode});
+      linkedInnerGroupNode->addChildren(kdl::vec_from<std::unique_ptr<Node>>(
+        std::move(linkedInnerPatchNodePtr), std::move(linkedInnerEntityNodePtr)));
+      linkedOuterGroupNode->addChildren(kdl::vec_from<std::unique_ptr<Node>>(
+        std::move(linkedOuterEntityNodePtr),
+        std::move(linkedOuterBrushNodePtr),
+        std::move(linkedInnerGroupNodePtr)));
 
       REQUIRE_THAT(
         worldNode,
@@ -826,20 +823,19 @@ TEST_CASE("LinkedGroupUtils")
 
       SECTION("With three groups")
       {
-        auto* linkedOuterGroupNode2 = new GroupNode{Group{"outer"}};
-        auto* linkedOuterEntityNode2 = new EntityNode{Entity{}};
+        auto* linkedOuterGroupNode2 =
+          &layerNode.addChild(std::make_unique<GroupNode>(Group{"outer"}));
+        auto* linkedOuterEntityNode2 =
+          &linkedOuterGroupNode2->addChild(std::make_unique<EntityNode>(Entity{}));
         auto* linkedOuterBrushNode2 =
-          new BrushNode{brushBuilder.createCube(64.0, "material") | kdl::value()};
+          &linkedOuterGroupNode2->addChild(std::make_unique<BrushNode>(
+            brushBuilder.createCube(64.0, "material") | kdl::value()));
 
-        auto* linkedInnerGroupNode2 = new GroupNode{Group{"inner"}};
-        auto* linkedInnerPatchNode2 = createPatchNode();
-        auto* linkedInnerEntityNode2 = new EntityNode{Entity{}};
-
-        linkedInnerGroupNode2->addChildren(
-          {linkedInnerPatchNode2, linkedInnerEntityNode2});
-        linkedOuterGroupNode2->addChildren(
-          {linkedOuterEntityNode2, linkedOuterBrushNode2, linkedInnerGroupNode2});
-        layerNode.addChildren({linkedOuterGroupNode2});
+        auto* linkedInnerGroupNode2 =
+          &linkedOuterGroupNode2->addChild(std::make_unique<GroupNode>(Group{"inner"}));
+        auto* linkedInnerPatchNode2 = &linkedInnerGroupNode2->addChild(createPatchNode());
+        auto* linkedInnerEntityNode2 =
+          &linkedInnerGroupNode2->addChild(std::make_unique<EntityNode>(Entity{}));
 
         setLinkId(*linkedOuterGroupNode2, "outerGroupLinkId");
         setLinkId(*linkedInnerGroupNode2, "innerGroupLinkId");
@@ -882,15 +878,16 @@ TEST_CASE("LinkedGroupUtils")
 
       SECTION("If a nested group is linked to a top level duplicate")
       {
-        auto* topLevelLinkedInnerGroupNode = new GroupNode{Group{"inner"}};
-        auto* topLevelLinkedInnerPatchNode = createPatchNode();
-        auto* topLevelLinkedInnerEntityNode = new EntityNode{Entity{}};
-
-        topLevelLinkedInnerGroupNode->addChildren(
-          {topLevelLinkedInnerPatchNode, topLevelLinkedInnerEntityNode});
+        auto topLevelLinkedInnerGroupNodePtr =
+          std::make_unique<GroupNode>(Group{"inner"});
+        auto* topLevelLinkedInnerGroupNode = topLevelLinkedInnerGroupNodePtr.get();
+        auto* topLevelLinkedInnerPatchNode =
+          &topLevelLinkedInnerGroupNode->addChild(createPatchNode());
+        auto* topLevelLinkedInnerEntityNode =
+          &topLevelLinkedInnerGroupNode->addChild(std::make_unique<EntityNode>(Entity{}));
 
         setLinkId(*topLevelLinkedInnerGroupNode, "innerGroupLinkId");
-        layerNode.addChildren({topLevelLinkedInnerGroupNode});
+        layerNode.addChild(std::move(topLevelLinkedInnerGroupNodePtr));
 
         REQUIRE_THAT(
           worldNode,
@@ -953,7 +950,8 @@ TEST_CASE("LinkedGroupUtils")
 
       SECTION("One outer group node has fewer children")
       {
-        linkedOuterGroupNode->addChildren({linkedOuterEntityNode, linkedOuterBrushNode});
+        linkedOuterGroupNode->addChildren(kdl::vec_from<std::unique_ptr<Node>>(
+          std::move(linkedOuterEntityNodePtr), std::move(linkedOuterBrushNodePtr)));
 
         CHECK(
           initializeLinkIds({&worldNode})
@@ -978,9 +976,12 @@ TEST_CASE("LinkedGroupUtils")
 
       SECTION("One inner group node has fewer children")
       {
-        linkedOuterGroupNode->addChildren(
-          {linkedOuterEntityNode, linkedOuterBrushNode, linkedInnerGroupNode});
-        linkedInnerGroupNode->addChildren({linkedInnerPatchNode});
+        linkedOuterGroupNode->addChildren(kdl::vec_from<std::unique_ptr<Node>>(
+          std::move(linkedOuterEntityNodePtr),
+          std::move(linkedOuterBrushNodePtr),
+          std::move(linkedInnerGroupNodePtr)));
+        linkedInnerGroupNode->addChildren(
+          kdl::vec_from<std::unique_ptr<Node>>(std::move(linkedInnerPatchNodePtr)));
 
         CHECK_THAT(
           initializeLinkIds({&worldNode}),
@@ -1009,9 +1010,12 @@ TEST_CASE("LinkedGroupUtils")
 
       SECTION("One outer group node has children in different order")
       {
-        linkedInnerGroupNode->addChildren({linkedInnerPatchNode, linkedInnerEntityNode});
-        linkedOuterGroupNode->addChildren(
-          {linkedOuterEntityNode, linkedInnerGroupNode, linkedOuterBrushNode});
+        linkedInnerGroupNode->addChildren(kdl::vec_from<std::unique_ptr<Node>>(
+          std::move(linkedInnerPatchNodePtr), std::move(linkedInnerEntityNodePtr)));
+        linkedOuterGroupNode->addChildren(kdl::vec_from<std::unique_ptr<Node>>(
+          std::move(linkedOuterEntityNodePtr),
+          std::move(linkedInnerGroupNodePtr),
+          std::move(linkedOuterBrushNodePtr)));
 
         CHECK(
           initializeLinkIds({&worldNode})
@@ -1036,9 +1040,12 @@ TEST_CASE("LinkedGroupUtils")
 
       SECTION("One inner group node has children in different order")
       {
-        linkedInnerGroupNode->addChildren({linkedInnerEntityNode, linkedInnerPatchNode});
-        linkedOuterGroupNode->addChildren(
-          {linkedOuterEntityNode, linkedOuterBrushNode, linkedInnerGroupNode});
+        linkedInnerGroupNode->addChildren(kdl::vec_from<std::unique_ptr<Node>>(
+          std::move(linkedInnerEntityNodePtr), std::move(linkedInnerPatchNodePtr)));
+        linkedOuterGroupNode->addChildren(kdl::vec_from<std::unique_ptr<Node>>(
+          std::move(linkedOuterEntityNodePtr),
+          std::move(linkedOuterBrushNodePtr),
+          std::move(linkedInnerGroupNodePtr)));
 
         CHECK_THAT(
           initializeLinkIds({&worldNode}),
@@ -1073,17 +1080,17 @@ TEST_CASE("LinkedGroupUtils")
     const auto worldBounds = vm::bbox3d{8192.0};
     auto brushBuilder = BrushBuilder{MapFormat::Quake3, worldBounds};
 
-    auto* outerGroupNode = new GroupNode{Group{"outer"}};
-    auto* outerEntityNode = new EntityNode{Entity{}};
-    auto* outerBrushNode =
-      new BrushNode{brushBuilder.createCube(64.0, "material") | kdl::value()};
+    const auto outerGroupNode = std::make_unique<GroupNode>(Group{"outer"});
+    auto* outerEntityNode =
+      &outerGroupNode->addChild(std::make_unique<EntityNode>(Entity{}));
+    auto* outerBrushNode = &outerGroupNode->addChild(std::make_unique<BrushNode>(
+      brushBuilder.createCube(64.0, "material") | kdl::value()));
 
-    auto* innerGroupNode = new GroupNode{Group{"inner"}};
-    auto* innerPatchNode = createPatchNode();
-    auto* innerEntityNode = new EntityNode{Entity{}};
-
-    innerGroupNode->addChildren({innerPatchNode, innerEntityNode});
-    outerGroupNode->addChildren({outerEntityNode, outerBrushNode, innerGroupNode});
+    auto* innerGroupNode =
+      &outerGroupNode->addChild(std::make_unique<GroupNode>(Group{"inner"}));
+    auto* innerPatchNode = &innerGroupNode->addChild(createPatchNode());
+    auto* innerEntityNode =
+      &innerGroupNode->addChild(std::make_unique<EntityNode>(Entity{}));
 
     const auto linkedOuterGroupNodePtr = outerGroupNode->cloneRecursively(worldBounds);
     auto* linkedOuterGroupNode = dynamic_cast<GroupNode*>(linkedOuterGroupNodePtr.get());

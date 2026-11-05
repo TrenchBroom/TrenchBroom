@@ -38,6 +38,7 @@
 #include "kd/result.h"
 
 #include <functional>
+#include <memory>
 #include <tuple>
 
 #include <catch2/catch_test_macros.hpp>
@@ -53,146 +54,130 @@ const auto worldBounds = vm::bbox3d{8192.0};
 
 EntityNode* createTopLevelPointEntity(WorldNode& worldNode)
 {
-  auto* entityNode = new EntityNode{Entity{}};
-  worldNode.defaultLayer()->addChild(entityNode);
-  return entityNode;
+  return &worldNode.defaultLayer()->addChild(std::make_unique<EntityNode>(Entity{}));
 }
 
 std::tuple<EntityNode*, BrushNode*> createTopLevelBrushEntity(WorldNode& worldNode)
 {
-  BrushBuilder builder(worldNode.mapFormat(), worldBounds);
-  auto* brushNode = new BrushNode{builder.createCube(32.0, "sometex") | kdl::value()};
-  auto* entityNode = new EntityNode{Entity{}};
-  entityNode->addChild(brushNode);
-  worldNode.defaultLayer()->addChild(entityNode);
-  return std::make_tuple(entityNode, brushNode);
+  const auto builder = BrushBuilder{worldNode.mapFormat(), worldBounds};
+  auto& entityNode =
+    worldNode.defaultLayer()->addChild(std::make_unique<EntityNode>(Entity{}));
+  auto& brushNode = entityNode.addChild(
+    std::make_unique<BrushNode>(builder.createCube(32.0, "sometex") | kdl::value()));
+  return std::make_tuple(&entityNode, &brushNode);
 }
 
 std::tuple<EntityNode*, PatchNode*> createTopLevelPatchEntity(WorldNode& worldNode)
 {
+  auto& entityNode =
+    worldNode.defaultLayer()->addChild(std::make_unique<EntityNode>(Entity{}));
+
   // clang-format off
-  auto* patchNode = new PatchNode{BezierPatch{3, 3, {
+  auto& patchNode = entityNode.addChild(std::make_unique<PatchNode>(BezierPatch{3, 3, {
     {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
     {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
-    {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "material"}};
+    {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "material"}));
   // clang-format on
 
-  auto* entityNode = new EntityNode{Entity{}};
-  entityNode->addChild(patchNode);
-  worldNode.defaultLayer()->addChild(entityNode);
-  return std::make_tuple(entityNode, patchNode);
+  return std::make_tuple(&entityNode, &patchNode);
 }
 
 BrushNode* createTopLevelBrush(WorldNode& worldNode)
 {
-  BrushBuilder builder(worldNode.mapFormat(), worldBounds);
-  auto* brushNode = new BrushNode{builder.createCube(32.0, "sometex") | kdl::value()};
-  worldNode.defaultLayer()->addChild(brushNode);
-  return brushNode;
+  const auto builder = BrushBuilder{worldNode.mapFormat(), worldBounds};
+  return &worldNode.defaultLayer()->addChild(
+    std::make_unique<BrushNode>(builder.createCube(32.0, "sometex") | kdl::value()));
 }
 
 PatchNode* createTopLevelPatch(WorldNode& worldNode)
 {
   // clang-format off
-  auto* patchNode = new PatchNode{BezierPatch{3, 3, {
+  auto& patchNode = worldNode.defaultLayer()->addChild(std::make_unique<PatchNode>(BezierPatch{3, 3, {
     {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
     {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
-    {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "material"}};
+    {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "material"}));
   // clang-format on
 
-  worldNode.defaultLayer()->addChild(patchNode);
-  return patchNode;
+  return &patchNode;
 }
 
 std::tuple<GroupNode*, BrushNode*> createGroupedBrush(WorldNode& worldNode)
 {
-  BrushBuilder builder(worldNode.mapFormat(), worldBounds);
-  auto* brushNode = new BrushNode{builder.createCube(32.0, "sometex") | kdl::value()};
-  auto* groupNode = new GroupNode{Group{"somegroup"}};
+  const auto builder = BrushBuilder{worldNode.mapFormat(), worldBounds};
+  auto& groupNode =
+    worldNode.defaultLayer()->addChild(std::make_unique<GroupNode>(Group{"somegroup"}));
+  auto& brushNode = groupNode.addChild(
+    std::make_unique<BrushNode>(builder.createCube(32.0, "sometex") | kdl::value()));
 
-  groupNode->addChild(brushNode);
-  worldNode.defaultLayer()->addChild(groupNode);
-
-  return std::make_tuple(groupNode, brushNode);
+  return std::make_tuple(&groupNode, &brushNode);
 }
 
 std::tuple<GroupNode*, EntityNode*> createGroupedPointEntity(WorldNode& worldNode)
 {
-  auto* entityNode = new EntityNode{Entity{}};
-  auto* groupNode = new GroupNode{Group{"somegroup"}};
+  auto& groupNode =
+    worldNode.defaultLayer()->addChild(std::make_unique<GroupNode>(Group{"somegroup"}));
+  auto& entityNode = groupNode.addChild(std::make_unique<EntityNode>(Entity{}));
 
-  groupNode->addChild(entityNode);
-  worldNode.defaultLayer()->addChild(groupNode);
-
-  return std::make_tuple(groupNode, entityNode);
+  return std::make_tuple(&groupNode, &entityNode);
 }
 
 std::tuple<GroupNode*, PatchNode*> createGroupedPatch(WorldNode& worldNode)
 {
+  auto& groupNode =
+    worldNode.defaultLayer()->addChild(std::make_unique<GroupNode>(Group{"somegroup"}));
+
   // clang-format off
-  auto* patchNode = new PatchNode{BezierPatch{3, 3, {
+  auto& patchNode = groupNode.addChild(std::make_unique<PatchNode>(BezierPatch{3, 3, {
     {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
     {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
-    {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "material"}};
+    {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "material"}));
   // clang-format on
 
-  auto* groupNode = new GroupNode{Group{"somegroup"}};
-
-  groupNode->addChild(patchNode);
-  worldNode.defaultLayer()->addChild(groupNode);
-
-  return std::make_tuple(groupNode, patchNode);
+  return std::make_tuple(&groupNode, &patchNode);
 }
 
 std::tuple<GroupNode*, EntityNode*, BrushNode*> createGroupedBrushEntity(
   WorldNode& worldNode)
 {
-  BrushBuilder builder(worldNode.mapFormat(), worldBounds);
-  auto* brushNode = new BrushNode{builder.createCube(32.0, "sometex") | kdl::value()};
-  auto* entityNode = new EntityNode{Entity{}};
-  auto* groupNode = new GroupNode{Group{"somegroup"}};
+  const auto builder = BrushBuilder{worldNode.mapFormat(), worldBounds};
+  auto& groupNode =
+    worldNode.defaultLayer()->addChild(std::make_unique<GroupNode>(Group{"somegroup"}));
+  auto& entityNode = groupNode.addChild(std::make_unique<EntityNode>(Entity{}));
+  auto& brushNode = entityNode.addChild(
+    std::make_unique<BrushNode>(builder.createCube(32.0, "sometex") | kdl::value()));
 
-  entityNode->addChild(brushNode);
-  groupNode->addChild(entityNode);
-  worldNode.defaultLayer()->addChild(groupNode);
-
-  return std::make_tuple(groupNode, entityNode, brushNode);
+  return std::make_tuple(&groupNode, &entityNode, &brushNode);
 }
 
 std::tuple<GroupNode*, EntityNode*, PatchNode*> createGroupedPatchEntity(
   WorldNode& worldNode)
 {
+  auto& groupNode =
+    worldNode.defaultLayer()->addChild(std::make_unique<GroupNode>(Group{"somegroup"}));
+  auto& entityNode = groupNode.addChild(std::make_unique<EntityNode>(Entity{}));
+
   // clang-format off
-  auto* patchNode = new PatchNode{BezierPatch{3, 3, {
+  auto& patchNode = entityNode.addChild(std::make_unique<PatchNode>(BezierPatch{3, 3, {
     {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
     {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
-    {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "material"}};
+    {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "material"}));
   // clang-format on
 
-  auto* entityNode = new EntityNode{Entity{}};
-  auto* groupNode = new GroupNode{Group{"somegroup"}};
-
-  entityNode->addChild(patchNode);
-  groupNode->addChild(entityNode);
-  worldNode.defaultLayer()->addChild(groupNode);
-
-  return std::make_tuple(groupNode, entityNode, patchNode);
+  return std::make_tuple(&groupNode, &entityNode, &patchNode);
 }
 
 std::tuple<GroupNode*, GroupNode*, BrushNode*> createdNestedGroupedBrush(
   WorldNode& worldNode)
 {
-  BrushBuilder builder(worldNode.mapFormat(), worldBounds);
-  auto* innerBrushNode =
-    new BrushNode{builder.createCube(32.0, "sometex") | kdl::value()};
-  auto* innerGroupNode = new GroupNode{Group{"inner"}};
-  auto* outerGroupNode = new GroupNode{Group{"outer"}};
+  const auto builder = BrushBuilder{worldNode.mapFormat(), worldBounds};
+  auto& outerGroupNode =
+    worldNode.defaultLayer()->addChild(std::make_unique<GroupNode>(Group{"outer"}));
+  auto& innerGroupNode =
+    outerGroupNode.addChild(std::make_unique<GroupNode>(Group{"inner"}));
+  auto& innerBrushNode = innerGroupNode.addChild(
+    std::make_unique<BrushNode>(builder.createCube(32.0, "sometex") | kdl::value()));
 
-  innerGroupNode->addChild(innerBrushNode);
-  outerGroupNode->addChild(innerGroupNode);
-  worldNode.defaultLayer()->addChild(outerGroupNode);
-
-  return std::make_tuple(outerGroupNode, innerGroupNode, innerBrushNode);
+  return std::make_tuple(&outerGroupNode, &innerGroupNode, &innerBrushNode);
 }
 
 } // namespace
@@ -1243,8 +1228,8 @@ TEST_CASE("EditorContext")
     tag.setIndex(0);
     REQUIRE(brush.face(0).addTag(tag));
 
-    auto* brushNode = new BrushNode{std::move(brush)};
-    worldNode.defaultLayer()->addChild(brushNode);
+    auto* brushNode =
+      &worldNode.defaultLayer()->addChild(std::make_unique<BrushNode>(std::move(brush)));
 
     const auto& face = brushNode->brush().face(0);
     REQUIRE(context.visible(*brushNode, face));

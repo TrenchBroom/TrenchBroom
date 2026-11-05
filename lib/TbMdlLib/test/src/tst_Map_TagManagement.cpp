@@ -648,19 +648,19 @@ TEST_CASE("Map_TagManagement")
   {
     SECTION("matches")
     {
-      auto* matchingBrushNode = createBrushNode(map, "asdf");
-      auto* nonMatchingBrushNode = createBrushNode(map, "asdf");
-
-      auto* matchingPatchNode = createPatchNode();
-      auto* nonMatchingPatchNode = createPatchNode();
-
       auto matchingEntity =
         std::make_unique<EntityNode>(Entity{{{"classname", "brush_entity"}}});
-      matchingEntity->addChildren({matchingBrushNode, matchingPatchNode});
+      auto* matchingBrushNode = &matchingEntity->addChild(
+        std::unique_ptr<BrushNode>{createBrushNode(map, "asdf")});
+      auto* matchingPatchNode =
+        &matchingEntity->addChild(std::unique_ptr<PatchNode>{createPatchNode()});
 
       auto nonMatchingEntity =
         std::make_unique<EntityNode>(Entity{{{"classname", "something"}}});
-      nonMatchingEntity->addChildren({nonMatchingBrushNode, nonMatchingPatchNode});
+      auto* nonMatchingBrushNode = &nonMatchingEntity->addChild(
+        std::unique_ptr<BrushNode>{createBrushNode(map, "asdf")});
+      auto* nonMatchingPatchNode =
+        &nonMatchingEntity->addChild(std::unique_ptr<PatchNode>{createPatchNode()});
 
       const auto& tag = tagManager.smartTag("entity");
       CHECK(tag.matches(*matchingBrushNode));

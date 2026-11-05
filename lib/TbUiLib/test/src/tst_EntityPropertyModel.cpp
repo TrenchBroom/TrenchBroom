@@ -49,12 +49,11 @@ TEST_CASE("EntityPropertyModel")
     {"some_other_key", "yet_another_value"},
   }}};
 
-  auto* groupedEntityNode = new mdl::EntityNode{mdl::Entity{{
-    {"some_key", "some_value"},
-  }}};
-
-  auto* groupNode = new mdl::GroupNode{mdl::Group{"group"}};
-  groupNode->addChild(groupedEntityNode);
+  auto groupNode = std::make_unique<mdl::GroupNode>(mdl::Group{"group"});
+  auto* groupedEntityNode =
+    &groupNode->addChild(std::make_unique<mdl::EntityNode>(mdl::Entity{{
+      {"some_key", "some_value"},
+    }}));
 
   map.entityDefinitionManager().setDefinitions({
     {"source_entity",
@@ -115,7 +114,7 @@ TEST_CASE("EntityPropertyModel")
        {
          entityNode1,
          entityNode2,
-         groupNode,
+         groupNode.release(),
          sourceEntity,
          targetEntity,
          readonlyEntity,

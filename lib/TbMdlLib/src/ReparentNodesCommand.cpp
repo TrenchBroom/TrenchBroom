@@ -20,9 +20,46 @@
 #include "mdl/ReparentNodesCommand.h"
 
 #include "mdl/AddRemoveNodesUtils.h"
+#include "mdl/Node.h"
+
+#include "kd/contracts.h"
+#include "kd/ranges/to.h"
+
+#include <ranges>
+#include <unordered_map>
 
 namespace tb::mdl
 {
+namespace
+{
+
+auto regroupNodes(
+  kdl::flat_map<Node*, std::vector<std::unique_ptr<Node>>> nodes,
+  const kdl::flat_map<Node*, std::vector<Node*>>& newParents)
+{
+  auto nodesByPointer = std::unordered_map<Node*, std::unique_ptr<Node>>{};
+  for (auto&& [parent, children] : nodes)
+  {
+    for (auto& child : children)
+    {
+      auto* childPtr = child.get();
+      nodesByPointer.emplace(childPtr, std::move(child));
+    }
+  }
+
+  auto result = kdl::flat_map<Node*, std::vector<std::unique_ptr<Node>>>{};
+  for (const auto& [newParent, children] : newParents)
+  {
+    result[newParent] = children | std::views::transform([&](auto* child) {
+                          contract_assert(nodesByPointer.contains(child));
+                          return std::move(nodesByPointer.extract(child).mapped());
+                        })
+                        | kdl::ranges::to<std::vector>();
+  }
+  return result;
+}
+
+} // namespace
 
 std::unique_ptr<ReparentNodesCommand> ReparentNodesCommand::reparent(
   kdl::flat_map<Node*, std::vector<Node*>> nodesToAdd,
@@ -43,15 +80,15 @@ ReparentNodesCommand::ReparentNodesCommand(
 
 bool ReparentNodesCommand::doPerformDo(Map& map)
 {
-  removeNodesAndNotify(m_nodesToRemove, map);
-  addNodesAndNotify(m_nodesToAdd, map);
+  addNodesAndNotify(
+    regroupNodes(removeNodesAndNotify(m_nodesToRemove, map), m_nodesToAdd), map);
   return true;
 }
 
 bool ReparentNodesCommand::doPerformUndo(Map& map)
 {
-  removeNodesAndNotify(m_nodesToAdd, map);
-  addNodesAndNotify(m_nodesToRemove, map);
+  addNodesAndNotify(
+    regroupNodes(removeNodesAndNotify(m_nodesToAdd, map), m_nodesToRemove), map);
   return true;
 }
 

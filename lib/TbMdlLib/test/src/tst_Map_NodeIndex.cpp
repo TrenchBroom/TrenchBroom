@@ -59,14 +59,13 @@ TEST_CASE("Map_NodeIndex")
 
   SECTION("adding nodes updates the index")
   {
-    auto* groupNode = new GroupNode{Group{"group"}};
-    auto* entityNode = new EntityNode{Entity{{
+    auto groupNodePtr = std::make_unique<GroupNode>(Group{"group"});
+    auto* groupNode = groupNodePtr.get();
+    auto* entityNode = &groupNode->addChild(std::make_unique<EntityNode>(Entity{{
       {"some_key", "some_value"},
-    }}};
+    }}));
 
-    groupNode->addChild(entityNode);
-
-    addNodes(map, {{&parentForNodes(map), {groupNode}}});
+    addNodes(map, {{&parentForNodes(map), {groupNodePtr.release()}}});
 
     REQUIRE(map.findNodes("classname") == std::vector<Node*>{&map.worldNode()});
 
@@ -95,14 +94,13 @@ TEST_CASE("Map_NodeIndex")
 
   SECTION("Removing nodes updates the index")
   {
-    auto* groupNode = new GroupNode{Group{"group"}};
-    auto* entityNode = new EntityNode{Entity{{
+    auto groupNodePtr = std::make_unique<GroupNode>(Group{"group"});
+    auto* groupNode = groupNodePtr.get();
+    auto* entityNode = &groupNode->addChild(std::make_unique<EntityNode>(Entity{{
       {"some_key", "some_value"},
-    }}};
+    }}));
 
-    groupNode->addChild(entityNode);
-
-    addNodes(map, {{&parentForNodes(map), {groupNode}}});
+    addNodes(map, {{&parentForNodes(map), {groupNodePtr.release()}}});
 
     REQUIRE(map.findNodes("classname") == std::vector<Node*>{&map.worldNode()});
     REQUIRE(map.findNodes("some_key") == std::vector<Node*>{entityNode});
@@ -135,14 +133,13 @@ TEST_CASE("Map_NodeIndex")
 
   SECTION("Updating nodes updates the index")
   {
-    auto* groupNode = new GroupNode{Group{"group"}};
-    auto* entityNode = new EntityNode{Entity{{
+    auto groupNodePtr = std::make_unique<GroupNode>(Group{"group"});
+    auto* groupNode = groupNodePtr.get();
+    auto* entityNode = &groupNode->addChild(std::make_unique<EntityNode>(Entity{{
       {"some_key", "some_value"},
-    }}};
+    }}));
 
-    groupNode->addChild(entityNode);
-
-    addNodes(map, {{&parentForNodes(map), {groupNode}}});
+    addNodes(map, {{&parentForNodes(map), {groupNodePtr.release()}}});
     selectNodes(map, {entityNode});
 
     REQUIRE(map.findNodes("classname") == std::vector<Node*>{&map.worldNode()});
@@ -160,14 +157,13 @@ TEST_CASE("Map_NodeIndex")
 
   SECTION("Linked Groups")
   {
-    auto* groupNode = new GroupNode{Group{"group"}};
-    auto* entityNode = new EntityNode{Entity{{
+    auto groupNodePtr = std::make_unique<GroupNode>(Group{"group"});
+    auto* groupNode = groupNodePtr.get();
+    auto* entityNode = &groupNode->addChild(std::make_unique<EntityNode>(Entity{{
       {"some_key", "some_value"},
-    }}};
+    }}));
 
-    groupNode->addChild(entityNode);
-
-    addNodes(map, {{&parentForNodes(map), {groupNode}}});
+    addNodes(map, {{&parentForNodes(map), {groupNodePtr.release()}}});
     selectNodes(map, {groupNode});
 
     auto* linkedGroupNode = createLinkedDuplicate(map);

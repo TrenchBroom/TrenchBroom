@@ -33,6 +33,7 @@
 #include "vm/util.h"
 
 #include <algorithm>
+#include <concepts>
 #include <memory>
 #include <ranges>
 #include <string>
@@ -180,37 +181,25 @@ public: // tree management
   bool shouldAddToSpacialIndex() const;
 
 public:
-  void addChildren(const std::vector<Node*>& children);
+  void addChildren(std::vector<std::unique_ptr<Node>> children);
 
-  template <typename I>
-  void addChildren(I cur, I end, size_t count = 0)
+  template <std::derived_from<Node> T>
+  T& addChild(std::unique_ptr<T> child)
   {
-    m_children.reserve(m_children.size() + count);
-    size_t descendantCountDelta = 0;
-    std::for_each(cur, end, [&](auto* child) {
-      doAddChild(child);
-      descendantCountDelta += child->descendantCount() + 1;
-    });
-    incDescendantCount(descendantCountDelta);
+    auto& result = *child;
+    doAddChild(std::move(child));
+    incDescendantCount(result.descendantCount() + 1u);
+    incChildSelectionCount(result.selected() ? 1u : 0u);
+    incDescendantSelectionCount(result.descendantSelectionCount());
+    return result;
   }
-
-  Node& addChild(Node* child);
 
   std::vector<std::unique_ptr<Node>> replaceChildren(
     std::vector<std::unique_ptr<Node>> newChildren);
 
-  template <typename I>
-  void removeChildren(I cur, I end)
-  {
-    size_t descendantCountDelta = 0;
-    std::for_each(cur, end, [&](auto* child) {
-      doRemoveChild(child);
-      descendantCountDelta += child->descendantCount() + 1;
-    });
-    decDescendantCount(descendantCountDelta);
-  }
+  std::vector<std::unique_ptr<Node>> removeChildren(const std::vector<Node*>& children);
 
-  void removeChild(Node* child);
+  std::unique_ptr<Node> removeChild(Node* child);
 
   bool canAddChild(const Node& child) const;
   bool canRemoveChild(const Node& child) const;
@@ -229,8 +218,8 @@ public:
   }
 
 private:
-  void doAddChild(Node* child);
-  void doRemoveChild(Node* child);
+  void doAddChild(std::unique_ptr<Node> child);
+  std::unique_ptr<Node> doRemoveChild(Node* child);
   void clearChildren();
 
   void childWillBeAdded(Node& node);
