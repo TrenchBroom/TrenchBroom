@@ -50,67 +50,51 @@
 #include "kd/vector_utils.h"
 
 #include <algorithm>
+#include <memory>
 #include <ranges>
-#include <tuple>
 
 namespace tb::mdl
 {
 namespace
 {
 
-auto extractNodesToPaste(const std::vector<Node*>& nodes, Node& parent)
+auto extractNodesToPaste(std::vector<std::unique_ptr<Node>> nodes, Node& parent)
 {
-  auto nodesToDetach = std::vector<Node*>{};
-  auto nodesToDelete = std::vector<Node*>{};
-  auto nodesToAdd = kdl::flat_map<Node*, std::vector<Node*>>{};
+  auto nodesToExtract = std::vector<Node*>{};
 
-  for (auto* node : nodes)
+  for (const auto& node : nodes)
   {
     node->accept(kdl::overload(
-      [&](auto&& thisLambda, WorldNode& worldNode) {
-        worldNode.visitChildren(thisLambda);
-        nodesToDelete.push_back(&worldNode);
-      },
-      [&](auto&& thisLambda, LayerNode& layerNode) {
-        layerNode.visitChildren(thisLambda);
-        nodesToDetach.push_back(&layerNode);
-        nodesToDelete.push_back(&layerNode);
-      },
-      [&](GroupNode& groupNode) {
-        nodesToDetach.push_back(&groupNode);
-        nodesToAdd[&parent].push_back(&groupNode);
-      },
+      [&](
+        auto&& thisLambda, WorldNode& worldNode) { worldNode.visitChildren(thisLambda); },
+      [&](
+        auto&& thisLambda, LayerNode& layerNode) { layerNode.visitChildren(thisLambda); },
+      [&](GroupNode& groupNode) { nodesToExtract.push_back(&groupNode); },
       [&](auto&& thisLambda, EntityNode& entityNode) {
         if (isWorldspawn(entityNode.entity().classname()))
         {
           entityNode.visitChildren(thisLambda);
-          nodesToDetach.push_back(&entityNode);
-          nodesToDelete.push_back(&entityNode);
         }
         else
         {
-          nodesToDetach.push_back(&entityNode);
-          nodesToAdd[&parent].push_back(&entityNode);
+          nodesToExtract.push_back(&entityNode);
         }
       },
-      [&](BrushNode& brushNode) {
-        nodesToDetach.push_back(&brushNode);
-        nodesToAdd[&parent].push_back(&brushNode);
-      },
-      [&](PatchNode& patchNode) {
-        nodesToDetach.push_back(&patchNode);
-        nodesToAdd[&parent].push_back(&patchNode);
-      }));
+      [&](BrushNode& brushNode) { nodesToExtract.push_back(&brushNode); },
+      [&](PatchNode& patchNode) { nodesToExtract.push_back(&patchNode); }));
   }
 
-  for (auto* node : nodesToDetach)
+  auto nodesToAdd = kdl::flat_map<Node*, std::vector<Node*>>{};
+  for (auto* node : nodesToExtract)
   {
-    if (auto* nodeParent = node->parent())
-    {
-      std::ignore = nodeParent->removeChild(node).release();
-    }
+    auto* nodeParent = node->parent();
+    auto extractedNode =
+      nodeParent
+        ? nodeParent->removeChild(node)
+        : std::move(*std::ranges::find(
+            nodes, node, [](const auto& topLevelNode) { return topLevelNode.get(); }));
+    nodesToAdd[&parent].push_back(extractedNode.release());
   }
-  kdl::vec_clear_and_delete(nodesToDelete);
 
   return nodesToAdd;
 }
@@ -222,9 +206,9 @@ void copyAndSetLinkIds(
   }
 }
 
-bool pasteNodes(Map& map, const std::vector<Node*>& nodes)
+bool pasteNodes(Map& map, std::vector<std::unique_ptr<Node>> nodes)
 {
-  const auto nodesToAdd = extractNodesToPaste(nodes, parentForNodes(map));
+  const auto nodesToAdd = extractNodesToPaste(std::move(nodes), parentForNodes(map));
   fixRedundantPersistentIds(nodesToAdd, allPersistentGroupIds(map.worldNode()));
   fixRecursiveLinkedGroups(nodesToAdd, map.logger());
   copyAndSetLinkIds(nodesToAdd, map.worldNode(), map.logger());
@@ -288,7 +272,8 @@ PasteType paste(Map& map, const std::string& str)
            parserStatus,
            map.taskManager())
          | kdl::transform([&](auto nodes) {
-             return pasteNodes(map, nodes) ? PasteType::Node : PasteType::Failed;
+             return pasteNodes(map, std::move(nodes)) ? PasteType::Node
+                                                      : PasteType::Failed;
            })
          | kdl::or_else([&](const auto& nodeError) {
              // Try parsing as brush faces

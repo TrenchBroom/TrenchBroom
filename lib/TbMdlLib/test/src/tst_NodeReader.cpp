@@ -102,7 +102,7 @@ TEST_CASE("NodeReader")
       NodeReader::read(data, MapFormat::Standard, worldBounds, {}, status, taskManager);
     REQUIRE(nodes);
 
-    auto* groupNode = dynamic_cast<GroupNode*>(nodes.value().at(0));
+    auto* groupNode = dynamic_cast<GroupNode*>(nodes.value().at(0).get());
     REQUIRE(groupNode != nullptr);
 
     auto* brushNode = dynamic_cast<BrushNode*>(groupNode->children()[0]);
