@@ -22,7 +22,6 @@ target_sources(KdLibTest PRIVATE
   "${CMAKE_CURRENT_SOURCE_DIR}/src/ranges/tst_tuple_common_reference.cpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/src/ranges/tst_zip_transform_view.cpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/src/ranges/tst_zip_view.cpp"
-  "${CMAKE_CURRENT_SOURCE_DIR}/src/test_utils.cpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/src/tst_binary_relation.cpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/src/tst_cmd_utils.cpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/src/tst_collection_utils.cpp"

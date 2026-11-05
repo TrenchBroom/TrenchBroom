@@ -18,15 +18,12 @@
  DEALINGS IN THE SOFTWARE.
 */
 
-#include "test_utils.h"
-
 #include "kd/flat_map.h"
 #include "kd/map_utils.h"
 
 #include <map>
 #include <string>
 #include <unordered_map>
-#include <vector>
 
 #include <catch2/catch_test_macros.hpp>
 
@@ -57,13 +54,6 @@ template <typename K, typename V>
 std::map<K, V> unionOf(const std::map<K, V>& m1, const std::map<K, V>& m2)
 {
   return map_union(m1, m2);
-}
-
-template <typename K, typename V>
-std::map<K, std::vector<V>> mergeOf(
-  const std::map<K, std::vector<V>>& m1, const std::map<K, std::vector<V>>& m2)
-{
-  return map_merge(m1, m2);
 }
 
 TEST_CASE("map_utils")
@@ -139,84 +129,6 @@ TEST_CASE("map_utils")
     CHECK(
       map_union(kdl::flat_map<int, int>{{1, 2}}, kdl::flat_map<int, int>{{1, 3}, {2, 4}})
       == kdl::flat_map<int, int>{{1, 3}, {2, 4}});
-  }
-
-  SECTION("map_merge")
-  {
-    CHECK(mergeOf<int, int>({}, {}) == (std::map<int, std::vector<int>>{}));
-    CHECK(
-      mergeOf<int, int>({{1, {1, 2}}}, {})
-      == (std::map<int, std::vector<int>>{{1, {1, 2}}}));
-    CHECK(
-      mergeOf<int, int>({}, {{1, {1, 2}}})
-      == (std::map<int, std::vector<int>>{{1, {1, 2}}}));
-    CHECK(
-      mergeOf<int, int>({{1, {1, 2}}}, {{2, {3, 4}}})
-      == (std::map<int, std::vector<int>>{{1, {1, 2}}, {2, {3, 4}}}));
-    CHECK(
-      mergeOf<int, int>({{1, {1, 2}}}, {{1, {3, 4}}})
-      == (std::map<int, std::vector<int>>{{1, {1, 2, 3, 4}}}));
-
-    CHECK(
-      map_merge(
-        std::unordered_map<int, std::vector<int>>{{1, {1, 2}}},
-        std::unordered_map<int, std::vector<int>>{{1, {3, 4}}})
-      == (std::unordered_map<int, std::vector<int>>{{1, {1, 2, 3, 4}}}));
-    CHECK(
-      map_merge(
-        kdl::flat_map<int, std::vector<int>>{{1, {1, 2}}},
-        kdl::flat_map<int, std::vector<int>>{{2, {3, 4}}})
-      == (kdl::flat_map<int, std::vector<int>>{{1, {1, 2}}, {2, {3, 4}}}));
-  }
-
-  SECTION("map_clear_and_delete")
-  {
-    bool d1 = false;
-    bool d2 = false;
-    bool d3 = false;
-    bool d4 = false;
-
-    auto m = std::map<int, std::vector<deletable*>>(
-      {{1, {}},
-       {2, {new deletable{d1}, new deletable{d2}}},
-       {3, {}},
-       {4, {new deletable{d3}}},
-       {5, {new deletable{d4}}}});
-
-    map_clear_and_delete(m);
-    CHECK(m.empty());
-    CHECK(d1);
-    CHECK(d2);
-    CHECK(d3);
-    CHECK(d4);
-  }
-
-  SECTION("map_clear_and_delete with unordered_map")
-  {
-    bool d1 = false;
-    bool d2 = false;
-
-    auto m = std::unordered_map<int, std::vector<deletable*>>(
-      {{1, {new deletable{d1}}}, {2, {new deletable{d2}}}});
-
-    map_clear_and_delete(m);
-    CHECK(m.empty());
-    CHECK(d1);
-    CHECK(d2);
-  }
-
-  SECTION("map_clear_and_delete with flat_map")
-  {
-    bool d1 = false;
-    bool d2 = false;
-
-    auto m = kdl::flat_map<int, std::vector<deletable*>>{
-      {1, {new deletable{d1}}}, {2, {new deletable{d2}}}};
-
-    map_clear_and_delete(m);
-    CHECK(m.empty());
-    CHECK(d1);
-    CHECK(d2);
   }
 }
 
