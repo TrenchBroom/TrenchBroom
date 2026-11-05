@@ -39,6 +39,7 @@
 #include "mdl/WorldNode.h" // IWYU pragma: keep
 
 #include "kd/contracts.h"
+#include "kd/memory_utils.h"
 #include "kd/ranges/as_rvalue_view.h"
 #include "kd/ranges/concat_view.h"
 #include "kd/ranges/to.h"
@@ -285,13 +286,11 @@ GroupNode* groupSelectedNodes(Map& map, const std::string& name)
     return nullptr;
   }
 
-  auto* group = new GroupNode{Group{name}};
-
   auto transaction = Transaction{map, "Group Selected Objects"};
   deselectAll(map);
-  if (
-    addNodes(map, {{&parentForNodes(map, nodes), {group}}}).empty()
-    || !reparentNodes(map, {{group, nodes}}))
+  auto* group =
+    addNode(map, parentForNodes(map, nodes), std::make_unique<GroupNode>(Group{name}));
+  if (!group || !reparentNodes(map, {{group, nodes}}))
   {
     transaction.cancel();
     return nullptr;
@@ -412,12 +411,14 @@ GroupNode* createLinkedDuplicate(Map& map)
   }
 
   auto* groupNode = map.selection().groups.front();
-  auto* groupNodeClone =
-    static_cast<GroupNode*>(groupNode->cloneRecursively(map.worldBounds()).release());
   auto& suggestedParent = parentForNodes(map, {groupNode});
 
   auto transaction = Transaction{map, "Create Linked Duplicate"};
-  if (addNodes(map, {{&suggestedParent, {groupNodeClone}}}).empty())
+  auto* groupNodeClone = addNode(
+    map,
+    suggestedParent,
+    kdl::static_pointer_cast<GroupNode>(groupNode->cloneRecursively(map.worldBounds())));
+  if (!groupNodeClone)
   {
     transaction.cancel();
     return nullptr;

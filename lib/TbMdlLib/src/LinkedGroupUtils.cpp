@@ -30,6 +30,7 @@
 #include "kd/overload.h"
 #include "kd/ranges/chunk_by_view.h"
 #include "kd/ranges/concat_view.h"
+#include "kd/ranges/raw_pointers_view.h"
 #include "kd/ranges/to.h"
 #include "kd/ranges/zip_transform_view.h"
 #include "kd/result.h"
@@ -749,12 +750,13 @@ std::vector<Error> copyAndSetLinkIds(
 }
 
 std::vector<Error> copyAndSetLinkIdsBeforeAddingNodes(
-  const kdl::flat_map<Node*, std::vector<Node*>>& nodesToAdd, WorldNode& worldNode)
+  const kdl::flat_map<Node*, std::vector<std::unique_ptr<Node>>>& nodesToAdd,
+  WorldNode& worldNode)
 {
   // Recursively collect all groups to add
   const auto groupsToAdd = kdl::vec_sort(
     collectGroups(
-      nodesToAdd | std::views::values | std::views::join
+      nodesToAdd | std::views::values | std::views::join | kdl::views::raw_pointers
       | kdl::ranges::to<std::vector>()),
     compareGroupNodesByLinkId);
 

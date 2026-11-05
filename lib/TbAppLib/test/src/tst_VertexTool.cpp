@@ -40,6 +40,8 @@
 
 #include "kd/result.h"
 
+#include <memory>
+
 #include <catch2/catch_test_macros.hpp>
 
 namespace tb::ui
@@ -65,9 +67,11 @@ TEST_CASE("VertexTool")
   auto& map = document.map();
 
   auto builder = mdl::BrushBuilder{map.worldNode().mapFormat(), map.worldBounds()};
-  auto* brushNode =
-    new mdl::BrushNode{builder.createCuboid(vm::bbox3d{16.0}, "material") | kdl::value()};
-  mdl::addNodes(map, {{map.editorContext().currentLayer(), {brushNode}}});
+  auto* brushNode = mdl::addNode(
+    map,
+    *map.editorContext().currentLayer(),
+    std::make_unique<mdl::BrushNode>(
+      builder.createCuboid(vm::bbox3d{16.0}, "material") | kdl::value()));
   mdl::selectNodes(map, {brushNode});
 
   auto tool = VertexTool{document};

@@ -39,6 +39,8 @@
 #include "mdl/TestUtils.h"
 #include "mdl/WorldNode.h"
 
+#include "kd/vector_utils.h"
+
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/generators/catch_generators.hpp>
 #include <catch2/matchers/catch_matchers_range_equals.hpp>
@@ -72,8 +74,8 @@ TEST_CASE("Map_Layers")
       auto currentLayerDidChange = Observer<>{map.currentLayerDidChangeNotifier};
 
       auto* defaultLayerNode = map.worldNode().defaultLayer();
-      auto* layerNode = new LayerNode{Layer{"test1"}};
-      addNodes(map, {{&map.worldNode(), {layerNode}}});
+      auto* layerNode =
+        addNode(map, map.worldNode(), std::make_unique<LayerNode>(Layer{"test1"}));
 
       REQUIRE(map.editorContext().currentLayer() == defaultLayerNode);
 
@@ -95,10 +97,10 @@ TEST_CASE("Map_Layers")
     SECTION("Switching layers is collated into a single undo step")
     {
       auto* defaultLayerNode = map.worldNode().defaultLayer();
-      auto* layerNode1 = new LayerNode{Layer{"test1"}};
-      auto* layerNode2 = new LayerNode{Layer{"test2"}};
-      addNodes(map, {{&map.worldNode(), {layerNode1}}});
-      addNodes(map, {{&map.worldNode(), {layerNode2}}});
+      auto* layerNode1 =
+        addNode(map, map.worldNode(), std::make_unique<LayerNode>(Layer{"test1"}));
+      auto* layerNode2 =
+        addNode(map, map.worldNode(), std::make_unique<LayerNode>(Layer{"test2"}));
       CHECK(map.editorContext().currentLayer() == defaultLayerNode);
 
       setCurrentLayer(map, layerNode1);
@@ -119,16 +121,16 @@ TEST_CASE("Map_Layers")
 
     SECTION("Switching away from a hidden layer with visible nodes hides them")
     {
-      auto* layerNode1 = new LayerNode{Layer{"test1"}};
-      auto* layerNode2 = new LayerNode{Layer{"test2"}};
-      addNodes(map, {{&map.worldNode(), {layerNode1}}});
-      addNodes(map, {{&map.worldNode(), {layerNode2}}});
+      auto* layerNode1 =
+        addNode(map, map.worldNode(), std::make_unique<LayerNode>(Layer{"test1"}));
+      auto* layerNode2 =
+        addNode(map, map.worldNode(), std::make_unique<LayerNode>(Layer{"test2"}));
 
       setCurrentLayer(map, layerNode1);
 
       // Create an entity in layer1
-      auto* entityNode1 = new EntityNode{Entity{}};
-      addNodes(map, {{&parentForNodes(map), {entityNode1}}});
+      auto* entityNode1 =
+        addNode(map, parentForNodes(map), std::make_unique<EntityNode>(Entity{}));
 
       // Hide layer1. The entity now inherits its visibility state and is hidden
       hideLayers(map, {layerNode1});
@@ -138,8 +140,8 @@ TEST_CASE("Map_Layers")
 
       // Create another entity in layer1. It will be visible, while entity1 will still be
       // hidden.
-      auto* entityNode2 = new EntityNode{Entity{}};
-      addNodes(map, {{&parentForNodes(map), {entityNode2}}});
+      auto* entityNode2 =
+        addNode(map, parentForNodes(map), std::make_unique<EntityNode>(Entity{}));
 
       REQUIRE(entityNode2->parent() == layerNode1);
 
@@ -169,16 +171,16 @@ TEST_CASE("Map_Layers")
 
     SECTION("Switching away from a locked layer with unlocked nodes locks them")
     {
-      auto* layerNode1 = new LayerNode{Layer{"test1"}};
-      auto* layerNode2 = new LayerNode{Layer{"test2"}};
-      addNodes(map, {{&map.worldNode(), {layerNode1}}});
-      addNodes(map, {{&map.worldNode(), {layerNode2}}});
+      auto* layerNode1 =
+        addNode(map, map.worldNode(), std::make_unique<LayerNode>(Layer{"test1"}));
+      auto* layerNode2 =
+        addNode(map, map.worldNode(), std::make_unique<LayerNode>(Layer{"test2"}));
 
       setCurrentLayer(map, layerNode1);
 
       // Create an entity in layer1
-      auto* entityNode1 = new EntityNode{Entity{}};
-      addNodes(map, {{&parentForNodes(map), {entityNode1}}});
+      auto* entityNode1 =
+        addNode(map, parentForNodes(map), std::make_unique<EntityNode>(Entity{}));
 
       lockNodes(map, {layerNode1});
 
@@ -187,8 +189,8 @@ TEST_CASE("Map_Layers")
 
       // Create another entity in layer1. It will be unlocked, while entity1 will still be
       // locked.
-      auto* entityNode2 = new EntityNode{Entity{}};
-      addNodes(map, {{&parentForNodes(map), {entityNode2}}});
+      auto* entityNode2 =
+        addNode(map, parentForNodes(map), std::make_unique<EntityNode>(Entity{}));
 
       REQUIRE(entityNode2->parent() == layerNode1);
 
@@ -219,8 +221,8 @@ TEST_CASE("Map_Layers")
 
   SECTION("renameLayer")
   {
-    auto* layerNode = new LayerNode{Layer{"test1"}};
-    addNodes(map, {{&map.worldNode(), {layerNode}}});
+    auto* layerNode =
+      addNode(map, map.worldNode(), std::make_unique<LayerNode>(Layer{"test1"}));
     CHECK(layerNode->name() == "test1");
 
     renameLayer(map, layerNode, "test2");
@@ -232,15 +234,22 @@ TEST_CASE("Map_Layers")
 
   SECTION("moveLayer")
   {
-    auto* layerNode0 = new LayerNode{Layer{"layer0"}};
-    auto* layerNode1 = new LayerNode{Layer{"layer1"}};
-    auto* layerNode2 = new LayerNode{Layer{"layer2"}};
+    auto layerNode0Ptr = std::make_unique<LayerNode>(Layer{"layer0"});
+    auto* layerNode0 = layerNode0Ptr.get();
+    auto layerNode1Ptr = std::make_unique<LayerNode>(Layer{"layer1"});
+    auto* layerNode1 = layerNode1Ptr.get();
+    auto layerNode2Ptr = std::make_unique<LayerNode>(Layer{"layer2"});
+    auto* layerNode2 = layerNode2Ptr.get();
 
     setLayerSortIndex(*layerNode0, 0);
     setLayerSortIndex(*layerNode1, 1);
     setLayerSortIndex(*layerNode2, 2);
 
-    addNodes(map, {{&map.worldNode(), {layerNode0, layerNode1, layerNode2}}});
+    addNodes(
+      map,
+      map.worldNode(),
+      kdl::vec_from<std::unique_ptr<Node>>(
+        std::move(layerNode0Ptr), std::move(layerNode1Ptr), std::move(layerNode2Ptr)));
 
     SECTION("canMoveLayer")
     {
@@ -288,26 +297,25 @@ TEST_CASE("Map_Layers")
 
   SECTION("moveSelectedNodesToLayer")
   {
-    auto* customLayer = new LayerNode{Layer{"layer"}};
-    addNodes(map, {{&map.worldNode(), {customLayer}}});
+    auto* customLayer =
+      addNode(map, map.worldNode(), std::make_unique<LayerNode>(Layer{"layer"}));
 
     auto* defaultLayer = map.worldNode().defaultLayer();
 
     GIVEN("A top level node")
     {
-      using CreateNode = std::function<Node*(const Map&)>;
+      using CreateNode = std::function<std::unique_ptr<Node>(const Map&)>;
       const auto createNode = GENERATE_COPY(
         CreateNode{[](const auto& m) {
           auto groupNode = std::make_unique<GroupNode>(Group{"group"});
-          groupNode->addChild(std::unique_ptr<BrushNode>{createBrushNode(m)});
-          return groupNode.release();
+          groupNode->addChild(createBrushNode(m));
+          return groupNode;
         }},
-        CreateNode{[](const auto&) { return new EntityNode{Entity{}}; }},
+        CreateNode{[](const auto&) { return std::make_unique<EntityNode>(Entity{}); }},
         CreateNode{[](const auto& m) { return createBrushNode(m); }},
         CreateNode{[](const auto&) { return createPatchNode(); }});
 
-      auto* node = createNode(map);
-      addNodes(map, {{&parentForNodes(map), {node}}});
+      auto* node = addNode(map, parentForNodes(map), createNode(map));
 
       REQUIRE(findContainingLayer(*node) == defaultLayer);
 
@@ -347,12 +355,10 @@ TEST_CASE("Map_Layers")
     {
       auto entityNodePtr = std::make_unique<EntityNode>(Entity{});
       auto* entityNode = entityNodePtr.get();
-      auto* childNode1 =
-        &entityNode->addChild(std::unique_ptr<BrushNode>{createBrushNode(map)});
-      auto* childNode2 =
-        &entityNode->addChild(std::unique_ptr<PatchNode>{createPatchNode()});
+      auto* childNode1 = &entityNode->addChild(createBrushNode(map));
+      auto* childNode2 = &entityNode->addChild(createPatchNode());
 
-      addNodes(map, {{&parentForNodes(map), {entityNodePtr.release()}}});
+      addNode(map, parentForNodes(map), std::move(entityNodePtr));
 
       REQUIRE(findContainingLayer(*entityNode) == defaultLayer);
 
@@ -412,12 +418,13 @@ TEST_CASE("Map_Layers")
 
   SECTION("hideLayers")
   {
-    auto* entityNode = new EntityNode{Entity{}};
+    auto entityNodePtr = std::make_unique<EntityNode>(Entity{});
+    auto* entityNode = entityNodePtr.get();
 
     SECTION("Hide default layer")
     {
       auto& layerNode = *map.worldNode().defaultLayer();
-      addNodes(map, {{&layerNode, {entityNode}}});
+      addNode(map, layerNode, std::move(entityNodePtr));
       REQUIRE(layerNode.visible());
       REQUIRE(entityNode->visible());
 
@@ -439,9 +446,9 @@ TEST_CASE("Map_Layers")
 
     SECTION("Hide custom layer")
     {
-      auto* layerNode = new LayerNode{Layer{"custom layer"}};
-      addNodes(map, {{&map.worldNode(), {layerNode}}});
-      addNodes(map, {{layerNode, {entityNode}}});
+      auto* layerNode =
+        addNode(map, map.worldNode(), std::make_unique<LayerNode>(Layer{"custom layer"}));
+      addNode(map, *layerNode, std::move(entityNodePtr));
       REQUIRE(layerNode->visible());
       REQUIRE(entityNode->visible());
 
@@ -454,14 +461,20 @@ TEST_CASE("Map_Layers")
   SECTION("isolateLayers")
   {
     auto& defaultLayerNode = *map.worldNode().defaultLayer();
-    auto* defaultLayerEntityNode = new EntityNode{Entity{}};
-    auto* customLayerNode = new LayerNode{Layer{"custom layer"}};
-    auto* customLayerEntityNode = new EntityNode{Entity{}};
-    auto* otherLayerNode = new LayerNode{Layer{"other layer"}};
+    auto customLayerNodePtr = std::make_unique<LayerNode>(Layer{"custom layer"});
+    auto* customLayerNode = customLayerNodePtr.get();
+    auto otherLayerNodePtr = std::make_unique<LayerNode>(Layer{"other layer"});
+    auto* otherLayerNode = otherLayerNodePtr.get();
 
-    addNodes(map, {{&defaultLayerNode, {defaultLayerEntityNode}}});
-    addNodes(map, {{&map.worldNode(), {customLayerNode, otherLayerNode}}});
-    addNodes(map, {{customLayerNode, {customLayerEntityNode}}});
+    auto* defaultLayerEntityNode =
+      addNode(map, defaultLayerNode, std::make_unique<EntityNode>(Entity{}));
+    addNodes(
+      map,
+      map.worldNode(),
+      kdl::vec_from<std::unique_ptr<Node>>(
+        std::move(customLayerNodePtr), std::move(otherLayerNodePtr)));
+    auto* customLayerEntityNode =
+      addNode(map, *customLayerNode, std::make_unique<EntityNode>(Entity{}));
 
     REQUIRE(defaultLayerNode.visible());
     REQUIRE(defaultLayerEntityNode->visible());

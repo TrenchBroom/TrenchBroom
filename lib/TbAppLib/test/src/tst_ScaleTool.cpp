@@ -42,8 +42,11 @@
 #include "kd/ranges/contains.h"
 #include "kd/ranges/to.h"
 #include "kd/result.h"
+#include "kd/vector_utils.h"
 
 #include "vm/approx.h"
+
+#include <memory>
 
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/generators/catch_generators.hpp>
@@ -92,12 +95,13 @@ TEST_CASE("ScaleTool")
   auto& document = fixture.create();
   auto& map = document.map();
 
-  auto* entityNode = new mdl::EntityNode{mdl::Entity{}};
-  auto* brushNode = mdl::createBrushNode(map);
-  auto* patchNode = mdl::createPatchNode("some_material");
-
-  auto nodes = std::vector<mdl::Node*>{entityNode, brushNode, patchNode};
-  mdl::addNodes(map, {{&mdl::parentForNodes(map), nodes}});
+  const auto nodes = mdl::addNodes(
+    map,
+    mdl::parentForNodes(map),
+    kdl::vec_from<std::unique_ptr<mdl::Node>>(
+      std::make_unique<mdl::EntityNode>(mdl::Entity{}),
+      mdl::createBrushNode(map),
+      mdl::createPatchNode("some_material")));
 
   constexpr size_t iEntityNode = 0;
   constexpr size_t iBrushNode = 1;
@@ -131,9 +135,11 @@ TEST_CASE("ScaleTool")
   {
     constexpr auto brushBounds = vm::bbox3d{16.0};
     auto builder = mdl::BrushBuilder{map.worldNode().mapFormat(), map.worldBounds()};
-    auto* boundedBrush =
-      new mdl::BrushNode{builder.createCuboid(brushBounds, "material") | kdl::value()};
-    mdl::addNodes(map, {{map.editorContext().currentLayer(), {boundedBrush}}});
+    auto* boundedBrush = mdl::addNode(
+      map,
+      *map.editorContext().currentLayer(),
+      std::make_unique<mdl::BrushNode>(
+        builder.createCuboid(brushBounds, "material") | kdl::value()));
     mdl::selectNodes(map, {boundedBrush});
 
     CHECK(tool.bounds() == brushBounds);
@@ -143,9 +149,11 @@ TEST_CASE("ScaleTool")
   {
     constexpr auto brushBounds = vm::bbox3d{16.0};
     auto builder = mdl::BrushBuilder{map.worldNode().mapFormat(), map.worldBounds()};
-    auto* boundedBrush =
-      new mdl::BrushNode{builder.createCuboid(brushBounds, "material") | kdl::value()};
-    mdl::addNodes(map, {{map.editorContext().currentLayer(), {boundedBrush}}});
+    auto* boundedBrush = mdl::addNode(
+      map,
+      *map.editorContext().currentLayer(),
+      std::make_unique<mdl::BrushNode>(
+        builder.createCuboid(brushBounds, "material") | kdl::value()));
     mdl::selectNodes(map, {boundedBrush});
 
     SECTION("origin inside bounds is ignored")
@@ -186,9 +194,11 @@ TEST_CASE("ScaleTool")
   {
     constexpr auto brushBounds = vm::bbox3d{16.0};
     auto builder = mdl::BrushBuilder{map.worldNode().mapFormat(), map.worldBounds()};
-    auto* boundedBrush =
-      new mdl::BrushNode{builder.createCuboid(brushBounds, "material") | kdl::value()};
-    mdl::addNodes(map, {{map.editorContext().currentLayer(), {boundedBrush}}});
+    auto* boundedBrush = mdl::addNode(
+      map,
+      *map.editorContext().currentLayer(),
+      std::make_unique<mdl::BrushNode>(
+        builder.createCuboid(brushBounds, "material") | kdl::value()));
     mdl::selectNodes(map, {boundedBrush});
 
     SECTION("origin inside bounds is ignored")
@@ -259,9 +269,11 @@ TEST_CASE("ScaleTool")
   {
     constexpr auto brushBounds = vm::bbox3d{16.0};
     auto builder = mdl::BrushBuilder{map.worldNode().mapFormat(), map.worldBounds()};
-    auto* boundedBrush =
-      new mdl::BrushNode{builder.createCuboid(brushBounds, "material") | kdl::value()};
-    mdl::addNodes(map, {{map.editorContext().currentLayer(), {boundedBrush}}});
+    auto* boundedBrush = mdl::addNode(
+      map,
+      *map.editorContext().currentLayer(),
+      std::make_unique<mdl::BrushNode>(
+        builder.createCuboid(brushBounds, "material") | kdl::value()));
     mdl::selectNodes(map, {boundedBrush});
 
     SECTION("no drag hit")
@@ -337,9 +349,11 @@ TEST_CASE("ScaleTool")
     {
       constexpr auto brushBounds = vm::bbox3d{16.0};
       auto builder = mdl::BrushBuilder{map.worldNode().mapFormat(), map.worldBounds()};
-      auto* boundedBrush =
-        new mdl::BrushNode{builder.createCuboid(brushBounds, "material") | kdl::value()};
-      mdl::addNodes(map, {{map.editorContext().currentLayer(), {boundedBrush}}});
+      auto* boundedBrush = mdl::addNode(
+        map,
+        *map.editorContext().currentLayer(),
+        std::make_unique<mdl::BrushNode>(
+          builder.createCuboid(brushBounds, "material") | kdl::value()));
       mdl::selectNodes(map, {boundedBrush});
 
       CHECK(tool.cornerHandles().size() == 8);
@@ -351,9 +365,11 @@ TEST_CASE("ScaleTool")
   {
     constexpr auto brushBounds = vm::bbox3d{16.0};
     auto builder = mdl::BrushBuilder{map.worldNode().mapFormat(), map.worldBounds()};
-    auto* boundedBrush =
-      new mdl::BrushNode{builder.createCuboid(brushBounds, "material") | kdl::value()};
-    mdl::addNodes(map, {{map.editorContext().currentLayer(), {boundedBrush}}});
+    auto* boundedBrush = mdl::addNode(
+      map,
+      *map.editorContext().currentLayer(),
+      std::make_unique<mdl::BrushNode>(
+        builder.createCuboid(brushBounds, "material") | kdl::value()));
     mdl::selectNodes(map, {boundedBrush});
 
     auto refreshCount = 0;
@@ -392,9 +408,11 @@ TEST_CASE("ScaleTool")
   {
     constexpr auto brushBounds = vm::bbox3d{16.0};
     auto builder = mdl::BrushBuilder{map.worldNode().mapFormat(), map.worldBounds()};
-    auto* boundedBrush =
-      new mdl::BrushNode{builder.createCuboid(brushBounds, "material") | kdl::value()};
-    mdl::addNodes(map, {{map.editorContext().currentLayer(), {boundedBrush}}});
+    auto* boundedBrush = mdl::addNode(
+      map,
+      *map.editorContext().currentLayer(),
+      std::make_unique<mdl::BrushNode>(
+        builder.createCuboid(brushBounds, "material") | kdl::value()));
     mdl::selectNodes(map, {boundedBrush});
 
     const auto hit =

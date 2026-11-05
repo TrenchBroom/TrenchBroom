@@ -43,9 +43,11 @@
 
 #include "kd/ranges/to.h"
 #include "kd/result.h"
+#include "kd/vector_utils.h"
 
 #include "vm/approx.h"
 
+#include <memory>
 #include <ranges>
 
 #include <catch2/catch_test_macros.hpp>
@@ -73,10 +75,17 @@ TEST_CASE("ShearTool")
   auto& document = fixture.create();
   auto& map = document.map();
 
-  auto* entityNode = new mdl::EntityNode{mdl::Entity{}};
-  auto* brushNode = mdl::createBrushNode(map);
-  auto* patchNode = mdl::createPatchNode("some_material");
-  mdl::addNodes(map, {{&mdl::parentForNodes(map), {brushNode, entityNode, patchNode}}});
+  auto entityNodePtr = std::make_unique<mdl::EntityNode>(mdl::Entity{});
+  auto* entityNode = entityNodePtr.get();
+  auto brushNodePtr = mdl::createBrushNode(map);
+  auto* brushNode = brushNodePtr.get();
+  auto patchNodePtr = mdl::createPatchNode("some_material");
+  auto* patchNode = patchNodePtr.get();
+  mdl::addNodes(
+    map,
+    mdl::parentForNodes(map),
+    kdl::vec_from<std::unique_ptr<mdl::Node>>(
+      std::move(brushNodePtr), std::move(entityNodePtr), std::move(patchNodePtr)));
 
   auto nodes = std::vector<mdl::Node*>{entityNode, brushNode, patchNode};
   constexpr size_t iEntityNode = 0;
@@ -117,9 +126,11 @@ TEST_CASE("ShearTool")
   {
     constexpr auto brushBounds = vm::bbox3d{16.0};
     auto builder = mdl::BrushBuilder{map.worldNode().mapFormat(), map.worldBounds()};
-    auto* boundedBrush =
-      new mdl::BrushNode{builder.createCuboid(brushBounds, "material") | kdl::value()};
-    mdl::addNodes(map, {{map.editorContext().currentLayer(), {boundedBrush}}});
+    auto* boundedBrush = mdl::addNode(
+      map,
+      *map.editorContext().currentLayer(),
+      std::make_unique<mdl::BrushNode>(
+        builder.createCuboid(brushBounds, "material") | kdl::value()));
     mdl::selectNodes(map, {boundedBrush});
 
     SECTION("bounds")

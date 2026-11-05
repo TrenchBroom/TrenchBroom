@@ -36,6 +36,7 @@
 #include "vm/vec.h"
 
 #include <cmath>
+#include <memory>
 
 #include <catch2/catch_test_macros.hpp>
 
@@ -275,8 +276,8 @@ TEST_CASE("SweepToolUtils functions")
 
     SECTION("groups the brushes by the parent of their source face")
     {
-      auto* entityNode = new mdl::EntityNode{mdl::Entity{}};
-      addNodes(map, {{&defaultParent, {entityNode}}});
+      auto* entityNode =
+        addNode(map, defaultParent, std::make_unique<mdl::EntityNode>(mdl::Entity{}));
 
       source.faces = {
         SweepFace{squareAt(0.0), entityNode},

@@ -45,6 +45,9 @@
 #include "ui/ToolController.h"
 
 #include "kd/result.h"
+#include "kd/vector_utils.h"
+
+#include <memory>
 
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers_range_equals.hpp>
@@ -87,9 +90,11 @@ TEST_CASE("ExtrudeToolController")
   auto& map = document.map();
 
   auto builder = mdl::BrushBuilder{map.worldNode().mapFormat(), map.worldBounds()};
-  auto* brushNode =
-    new mdl::BrushNode{builder.createCuboid(vm::bbox3d{16.0}, "material") | kdl::value()};
-  addNodes(map, {{map.editorContext().currentLayer(), {brushNode}}});
+  auto* brushNode = addNode(
+    map,
+    *map.editorContext().currentLayer(),
+    std::make_unique<mdl::BrushNode>(
+      builder.createCuboid(vm::bbox3d{16.0}, "material") | kdl::value()));
   selectNodes(map, {brushNode});
 
   auto tool = ExtrudeTool{document};
@@ -326,13 +331,19 @@ TEST_CASE("ExtrudeToolController")
     // face and rightBrush's -X face are coincident but face in opposite directions.
     deselectAll(map);
 
-    auto* leftBrush = new mdl::BrushNode{
+    auto leftBrushPtr = std::make_unique<mdl::BrushNode>(
       builder.createCuboid(vm::bbox3d{{-16, -16, -16}, {16, 16, 16}}, "material")
-      | kdl::value()};
-    auto* rightBrush = new mdl::BrushNode{
+      | kdl::value());
+    auto* leftBrush = leftBrushPtr.get();
+    auto rightBrushPtr = std::make_unique<mdl::BrushNode>(
       builder.createCuboid(vm::bbox3d{{16, -16, -16}, {48, 16, 16}}, "material")
-      | kdl::value()};
-    addNodes(map, {{map.editorContext().currentLayer(), {leftBrush, rightBrush}}});
+      | kdl::value());
+    auto* rightBrush = rightBrushPtr.get();
+    addNodes(
+      map,
+      *map.editorContext().currentLayer(),
+      kdl::vec_from<std::unique_ptr<mdl::Node>>(
+        std::move(leftBrushPtr), std::move(rightBrushPtr)));
     selectNodes(map, {leftBrush, rightBrush});
 
     auto extrudeController = ExtrudeToolController2D{tool};

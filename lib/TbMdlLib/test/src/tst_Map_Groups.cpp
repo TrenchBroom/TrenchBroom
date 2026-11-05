@@ -78,13 +78,12 @@ TEST_CASE("Map_Groups")
 
     SECTION("Map contains nodes")
     {
-      auto* entityNode = new EntityNode{Entity{}};
-      auto* innerGroupNode = new GroupNode{Group{"inner"}};
-      auto* outerGroupNode = new GroupNode{Group{"outer"}};
 
-      addNodes(map, {{&parentForNodes(map), {outerGroupNode}}});
-      addNodes(map, {{outerGroupNode, {innerGroupNode}}});
-      addNodes(map, {{innerGroupNode, {entityNode}}});
+      auto* outerGroupNode =
+        addNode(map, parentForNodes(map), std::make_unique<GroupNode>(Group{"outer"}));
+      auto* innerGroupNode =
+        addNode(map, *outerGroupNode, std::make_unique<GroupNode>(Group{"inner"}));
+      addNode(map, *innerGroupNode, std::make_unique<EntityNode>(Entity{}));
 
       SECTION("No group is opened")
       {
@@ -108,13 +107,12 @@ TEST_CASE("Map_Groups")
 
   SECTION("openGroup")
   {
-    auto* entityNode1 = new EntityNode{Entity{}};
-    auto* innerGroupNode = new GroupNode{Group{"inner"}};
-    auto* outerGroupNode = new GroupNode{Group{"outer"}};
 
-    addNodes(map, {{&parentForNodes(map), {outerGroupNode}}});
-    addNodes(map, {{outerGroupNode, {innerGroupNode}}});
-    addNodes(map, {{innerGroupNode, {entityNode1}}});
+    auto* outerGroupNode =
+      addNode(map, parentForNodes(map), std::make_unique<GroupNode>(Group{"outer"}));
+    auto* innerGroupNode =
+      addNode(map, *outerGroupNode, std::make_unique<GroupNode>(Group{"inner"}));
+    addNode(map, *innerGroupNode, std::make_unique<EntityNode>(Entity{}));
 
     REQUIRE(outerGroupNode->closed());
     REQUIRE(innerGroupNode->closed());
@@ -150,13 +148,12 @@ TEST_CASE("Map_Groups")
 
   SECTION("closeGroup")
   {
-    auto* entityNode1 = new EntityNode{Entity{}};
-    auto* innerGroupNode = new GroupNode{Group{"inner"}};
-    auto* outerGroupNode = new GroupNode{Group{"outer"}};
 
-    addNodes(map, {{&parentForNodes(map), {outerGroupNode}}});
-    addNodes(map, {{outerGroupNode, {innerGroupNode}}});
-    addNodes(map, {{innerGroupNode, {entityNode1}}});
+    auto* outerGroupNode =
+      addNode(map, parentForNodes(map), std::make_unique<GroupNode>(Group{"outer"}));
+    auto* innerGroupNode =
+      addNode(map, *outerGroupNode, std::make_unique<GroupNode>(Group{"inner"}));
+    addNode(map, *innerGroupNode, std::make_unique<EntityNode>(Entity{}));
 
     openGroup(map, *outerGroupNode);
 
@@ -203,13 +200,12 @@ TEST_CASE("Map_Groups")
 
     SECTION("Create group with one node")
     {
-      using CreateNode = std::function<Node*(const Map&)>;
+      using CreateNode = std::function<std::unique_ptr<Node>(const Map&)>;
       auto createNode = GENERATE_COPY(
         CreateNode{[](const auto& m) { return createBrushNode(m); }},
         CreateNode{[](const auto&) { return createPatchNode(); }});
 
-      auto* node = createNode(map);
-      addNodes(map, {{&parentForNodes(map), {node}}});
+      auto* node = addNode(map, parentForNodes(map), createNode(map));
       selectNodes(map, {node});
 
       auto* groupNode = groupSelectedNodes(map, "test");
@@ -227,14 +223,12 @@ TEST_CASE("Map_Groups")
 
     SECTION("Create group with partial brush entity")
     {
-      auto* childNode1 = createBrushNode(map);
-      addNodes(map, {{&parentForNodes(map), {childNode1}}});
+      auto* childNode1 = addNode(map, parentForNodes(map), createBrushNode(map));
 
-      auto* childNode2 = createPatchNode();
-      addNodes(map, {{&parentForNodes(map), {childNode2}}});
+      auto* childNode2 = addNode(map, parentForNodes(map), createPatchNode());
 
-      auto* entityNode = new EntityNode{Entity{}};
-      addNodes(map, {{&parentForNodes(map), {entityNode}}});
+      auto* entityNode =
+        addNode(map, parentForNodes(map), std::make_unique<EntityNode>(Entity{}));
       reparentNodes(map, {{entityNode, {childNode1, childNode2}}});
 
       selectNodes(map, {childNode1});
@@ -259,14 +253,12 @@ TEST_CASE("Map_Groups")
 
     SECTION("Create group with full brush entity")
     {
-      auto* childNode1 = createBrushNode(map);
-      addNodes(map, {{&parentForNodes(map), {childNode1}}});
+      auto* childNode1 = addNode(map, parentForNodes(map), createBrushNode(map));
 
-      auto* childNode2 = createPatchNode();
-      addNodes(map, {{&parentForNodes(map), {childNode2}}});
+      auto* childNode2 = addNode(map, parentForNodes(map), createPatchNode());
 
-      auto* entityNode = new EntityNode{Entity{}};
-      addNodes(map, {{&parentForNodes(map), {entityNode}}});
+      auto* entityNode =
+        addNode(map, parentForNodes(map), std::make_unique<EntityNode>(Entity{}));
       reparentNodes(map, {{entityNode, {childNode1, childNode2}}});
 
       selectNodes(map, {childNode1, childNode2});
@@ -293,10 +285,10 @@ TEST_CASE("Map_Groups")
 
     SECTION("New groups are added to the source layer")
     {
-      auto* layerNode1 = new LayerNode{Layer{"test1"}};
-      auto* layerNode2 = new LayerNode{Layer{"test2"}};
-      addNodes(map, {{&map.worldNode(), {layerNode1}}});
-      addNodes(map, {{&map.worldNode(), {layerNode2}}});
+      auto* layerNode1 =
+        addNode(map, map.worldNode(), std::make_unique<LayerNode>(Layer{"test1"}));
+      auto* layerNode2 =
+        addNode(map, map.worldNode(), std::make_unique<LayerNode>(Layer{"test2"}));
 
       setCurrentLayer(map, layerNode1);
       auto* entityNode = createPointEntity(map, pointEntityDefinition, {0, 0, 0});
@@ -315,10 +307,16 @@ TEST_CASE("Map_Groups")
 
     SECTION("Grouping objects within a linked group keeps their link IDs")
     {
-      auto* nestedBrushNode = createBrushNode(map);
-      auto* nestedEntityNode = new EntityNode{Entity{}};
+      auto nestedBrushNodePtr = createBrushNode(map);
+      auto* nestedBrushNode = nestedBrushNodePtr.get();
+      auto nestedEntityNodePtr = std::make_unique<EntityNode>(Entity{});
+      auto* nestedEntityNode = nestedEntityNodePtr.get();
 
-      addNodes(map, {{&parentForNodes(map), {nestedBrushNode, nestedEntityNode}}});
+      addNodes(
+        map,
+        parentForNodes(map),
+        kdl::vec_from<std::unique_ptr<Node>>(
+          std::move(nestedBrushNodePtr), std::move(nestedEntityNodePtr)));
       selectNodes(map, {nestedBrushNode, nestedEntityNode});
 
       auto* nestedGroupNode = groupSelectedNodes(map, "nested");
@@ -328,13 +326,17 @@ TEST_CASE("Map_Groups")
 
       auto* linkedNestedGroupNode = createLinkedDuplicate(map);
 
-      auto* brushNode = createBrushNode(map);
+      auto brushNodePtr = createBrushNode(map);
+      auto* brushNode = brushNodePtr.get();
       auto entityNodePtr = std::make_unique<EntityNode>(Entity{});
       auto* entityNode = entityNodePtr.get();
-      auto* entityBrushNode =
-        &entityNode->addChild(std::unique_ptr<BrushNode>{createBrushNode(map)});
+      auto* entityBrushNode = &entityNode->addChild(createBrushNode(map));
 
-      addNodes(map, {{&parentForNodes(map), {brushNode, entityNodePtr.release()}}});
+      addNodes(
+        map,
+        parentForNodes(map),
+        kdl::vec_from<std::unique_ptr<Node>>(
+          std::move(brushNodePtr), std::move(entityNodePtr)));
 
       selectNodes(map, {brushNode, entityNode, nestedGroupNode});
       auto* groupNode = groupSelectedNodes(map, "group");
@@ -373,20 +375,20 @@ TEST_CASE("Map_Groups")
     {
       // https://github.com/TrenchBroom/TrenchBroom/issues/2050
 
-      auto* outerEntityNode1 = new EntityNode{Entity{}};
-      auto* outerEntityNode2 = new EntityNode{Entity{}};
-      auto* innerEntityNode1 = new EntityNode{Entity{}};
-      auto* innerEntityNode2 = new EntityNode{Entity{}};
 
-      addNodes(map, {{&parentForNodes(map), {innerEntityNode1}}});
-      addNodes(map, {{&parentForNodes(map), {innerEntityNode2}}});
+      auto* innerEntityNode1 =
+        addNode(map, parentForNodes(map), std::make_unique<EntityNode>(Entity{}));
+      auto* innerEntityNode2 =
+        addNode(map, parentForNodes(map), std::make_unique<EntityNode>(Entity{}));
       selectNodes(map, {innerEntityNode1, innerEntityNode2});
 
       auto* innerGroupNode = groupSelectedNodes(map, "Inner");
 
       deselectAll(map);
-      addNodes(map, {{&parentForNodes(map), {outerEntityNode1}}});
-      addNodes(map, {{&parentForNodes(map), {outerEntityNode2}}});
+      auto* outerEntityNode1 =
+        addNode(map, parentForNodes(map), std::make_unique<EntityNode>(Entity{}));
+      auto* outerEntityNode2 =
+        addNode(map, parentForNodes(map), std::make_unique<EntityNode>(Entity{}));
       selectNodes(map, {innerGroupNode, outerEntityNode1, outerEntityNode2});
 
       auto* outerGroupNode = groupSelectedNodes(map, "Outer");
@@ -427,9 +429,9 @@ TEST_CASE("Map_Groups")
 
     SECTION("Ungrouping leaves a point entity selected")
     {
-      auto* entityNode1 = new EntityNode{Entity{}};
 
-      addNodes(map, {{&parentForNodes(map), {entityNode1}}});
+      auto* entityNode1 =
+        addNode(map, parentForNodes(map), std::make_unique<EntityNode>(Entity{}));
       selectNodes(map, {entityNode1});
 
       auto* groupNode = groupSelectedNodes(map, "Group");
@@ -443,13 +445,15 @@ TEST_CASE("Map_Groups")
     {
       const auto builder = BrushBuilder{map.worldNode().mapFormat(), map.worldBounds()};
 
-      auto* entityNode1 = new EntityNode{Entity{}};
-      addNodes(map, {{&parentForNodes(map), {entityNode1}}});
+      auto* entityNode1 =
+        addNode(map, parentForNodes(map), std::make_unique<EntityNode>(Entity{}));
 
-      auto* brushNode1 = new BrushNode{
-        builder.createCuboid(vm::bbox3d{{0, 0, 0}, {64, 64, 64}}, "material")
-        | kdl::value()};
-      addNodes(map, {{entityNode1, {brushNode1}}});
+      auto* brushNode1 = addNode(
+        map,
+        *entityNode1,
+        std::make_unique<BrushNode>(
+          builder.createCuboid(vm::bbox3d{{0, 0, 0}, {64, 64, 64}}, "material")
+          | kdl::value()));
       selectNodes(map, {entityNode1});
       CHECK_THAT(map.selection().nodes, Equals(std::vector<Node*>{brushNode1}));
       CHECK(!entityNode1->selected());
@@ -471,11 +475,11 @@ TEST_CASE("Map_Groups")
     SECTION("Ungrouping works in a mixed selection")
     {
       // https://github.com/TrenchBroom/TrenchBroom/issues/3824
-      auto* entityNode1 = new EntityNode{Entity{}};
-      auto* entityNode2 = new EntityNode{Entity{}};
 
-      addNodes(map, {{&parentForNodes(map), {entityNode1}}});
-      addNodes(map, {{&parentForNodes(map), {entityNode2}}});
+      auto* entityNode1 =
+        addNode(map, parentForNodes(map), std::make_unique<EntityNode>(Entity{}));
+      auto* entityNode2 =
+        addNode(map, parentForNodes(map), std::make_unique<EntityNode>(Entity{}));
       selectNodes(map, {entityNode1});
 
       auto* groupNode = groupSelectedNodes(map, "Group");
@@ -492,8 +496,7 @@ TEST_CASE("Map_Groups")
 
     SECTION("Ungrouping linked groups")
     {
-      auto* brushNode = createBrushNode(map);
-      addNodes(map, {{&parentForNodes(map), {brushNode}}});
+      auto* brushNode = addNode(map, parentForNodes(map), createBrushNode(map));
 
       selectNodes(map, {brushNode});
 
@@ -601,14 +604,14 @@ TEST_CASE("Map_Groups")
 
   SECTION("mergeSelectedGroupsWithGroup")
   {
-    auto* entityNode1 = new EntityNode{Entity{}};
-    addNodes(map, {{&parentForNodes(map), {entityNode1}}});
+    auto* entityNode1 =
+      addNode(map, parentForNodes(map), std::make_unique<EntityNode>(Entity{}));
     deselectAll(map);
     selectNodes(map, {entityNode1});
     auto* groupNode1 = groupSelectedNodes(map, "group1");
 
-    auto* entityNode2 = new EntityNode{Entity{}};
-    addNodes(map, {{&parentForNodes(map), {entityNode2}}});
+    auto* entityNode2 =
+      addNode(map, parentForNodes(map), std::make_unique<EntityNode>(Entity{}));
     deselectAll(map);
     selectNodes(map, {entityNode2});
     auto* groupNode2 = groupSelectedNodes(map, "group2");
@@ -633,8 +636,7 @@ TEST_CASE("Map_Groups")
 
   SECTION("renameSelectedGroups")
   {
-    auto* brushNode1 = createBrushNode(map);
-    addNodes(map, {{&parentForNodes(map), {brushNode1}}});
+    auto* brushNode1 = addNode(map, parentForNodes(map), createBrushNode(map));
     selectNodes(map, {brushNode1});
 
     auto* groupNode = groupSelectedNodes(map, "test");
@@ -651,8 +653,7 @@ TEST_CASE("Map_Groups")
 
   SECTION("createLinkedDuplicate")
   {
-    auto* brushNode = createBrushNode(map);
-    addNodes(map, {{&parentForNodes(map), {brushNode}}});
+    auto* brushNode = addNode(map, parentForNodes(map), createBrushNode(map));
     selectNodes(map, {brushNode});
 
     auto* groupNode = groupSelectedNodes(map, "test");
@@ -672,8 +673,7 @@ TEST_CASE("Map_Groups")
 
   SECTION("separateSelectedLinkedGroups")
   {
-    auto* brushNode = createBrushNode(map);
-    addNodes(map, {{&parentForNodes(map), {brushNode}}});
+    auto* brushNode = addNode(map, parentForNodes(map), createBrushNode(map));
     selectNodes(map, {brushNode});
 
     auto* groupNode = groupSelectedNodes(map, "test");
@@ -791,7 +791,7 @@ TEST_CASE("Map_Groups")
       auto nestedGroupNodePtr = std::make_unique<GroupNode>(Group{"nestedGroupNode"});
       auto* nestedGroupNode = nestedGroupNodePtr.get();
       nestedGroupNode->addChild(std::make_unique<EntityNode>(Entity{}));
-      addNodes(map, {{groupNode, {nestedGroupNodePtr.release()}}});
+      addNode(map, *groupNode, std::move(nestedGroupNodePtr));
 
       openGroup(map, *groupNode);
       deselectAll(map);
@@ -846,22 +846,35 @@ TEST_CASE("Map_Groups")
 
   SECTION("extractLinkedGroups")
   {
-    auto* ungroupedNode = new EntityNode{Entity{}};
-    auto* groupedBrushNode = createBrushNode(map);
-    auto* groupedEntityNode = new EntityNode{Entity{{{"some key", "some value"}}}};
-    auto* groupedBrushEntityBrushNode1 = createBrushNode(map);
-    auto* groupedBrushEntityBrushNode2 = createBrushNode(map);
-    auto* groupedBrushEntityNode =
-      new EntityNode{Entity{{{"some other key", "some other value"}}}};
+    auto ungroupedNodePtr = std::make_unique<EntityNode>(Entity{});
+    auto* ungroupedNode = ungroupedNodePtr.get();
+    auto groupedBrushNodePtr = createBrushNode(map);
+    auto* groupedBrushNode = groupedBrushNodePtr.get();
+    auto groupedEntityNodePtr =
+      std::make_unique<EntityNode>(Entity{{{"some key", "some value"}}});
+    auto* groupedEntityNode = groupedEntityNodePtr.get();
+    auto groupedBrushEntityBrushNode1Ptr = createBrushNode(map);
+    auto* groupedBrushEntityBrushNode1 = groupedBrushEntityBrushNode1Ptr.get();
+    auto groupedBrushEntityBrushNode2Ptr = createBrushNode(map);
+    auto* groupedBrushEntityBrushNode2 = groupedBrushEntityBrushNode2Ptr.get();
+    auto groupedBrushEntityNodePtr =
+      std::make_unique<EntityNode>(Entity{{{"some other key", "some other value"}}});
+    auto* groupedBrushEntityNode = groupedBrushEntityNodePtr.get();
 
     addNodes(
       map,
-      {{&parentForNodes(map),
-        {groupedBrushNode, groupedEntityNode, groupedBrushEntityNode, ungroupedNode}}});
+      parentForNodes(map),
+      kdl::vec_from<std::unique_ptr<Node>>(
+        std::move(groupedBrushNodePtr),
+        std::move(groupedEntityNodePtr),
+        std::move(groupedBrushEntityNodePtr),
+        std::move(ungroupedNodePtr)));
     addNodes(
       map,
-      {{groupedBrushEntityNode,
-        {groupedBrushEntityBrushNode1, groupedBrushEntityBrushNode2}}});
+      *groupedBrushEntityNode,
+      kdl::vec_from<std::unique_ptr<Node>>(
+        std::move(groupedBrushEntityBrushNode1Ptr),
+        std::move(groupedBrushEntityBrushNode2Ptr)));
     selectNodes(map, {groupedBrushNode, groupedEntityNode, groupedBrushEntityNode});
 
     auto* groupNode = groupSelectedNodes(map, "original group");
@@ -1119,7 +1132,7 @@ TEST_CASE("Map_Groups")
     outerGroupNode->addChildren(kdl::vec_from<std::unique_ptr<mdl::Node>>(
       std::move(innerGroupNode), std::move(linkedInnerGroupNode)));
 
-    addNodes(map, {{&parentForNodes(map), {outerGroupNodePtr.release()}}});
+    addNode(map, parentForNodes(map), std::move(outerGroupNodePtr));
     selectNodes(map, {outerGroupNode});
 
     const auto entityNodes = map.selection().allEntities();

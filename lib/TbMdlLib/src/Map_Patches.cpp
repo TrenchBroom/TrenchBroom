@@ -54,17 +54,16 @@ void convertSelectionToPatches(
       return createPatch(faceHandle.face(), pointRowCount, pointColumnCount);
     })
     | std::views::join | std::views::transform([](auto patch) {
-        return static_cast<Node*>(
-          std::make_unique<PatchNode>(std::move(patch)).release());
+        return std::make_unique<PatchNode>(std::move(patch));
       })
-    | kdl::ranges::to<std::vector>();
+    | kdl::ranges::to<std::vector<std::unique_ptr<Node>>>();
 
   auto nodesToRemove = kdl::vec_static_cast<Node*>(toNodes(selection.allBrushFaces()));
   kdl::vec_sort_and_remove_duplicates(nodesToRemove);
 
   auto transaction = Transaction{map, "Convert Selection to Patches"};
 
-  auto addedNodes = addNodes(map, {{&parentForNodes(map), patchNodes}});
+  auto addedNodes = addNodes(map, parentForNodes(map), std::move(patchNodes));
   deselectAll(map);
   removeNodes(map, nodesToRemove);
   selectNodes(map, addedNodes);

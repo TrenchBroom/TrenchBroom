@@ -164,18 +164,18 @@ TEST_CASE("Validation")
     auto entityNode1Ptr = std::make_unique<EntityNode>(
       Entity{{{EntityPropertyKeys::Classname, pointEntityDefinition.name}}});
     auto* entityNode1 = entityNode1Ptr.get();
-    auto* brushNode1 =
-      &entityNode1->addChild(std::unique_ptr<BrushNode>{createBrushNode(map)});
+    auto* brushNode1 = &entityNode1->addChild(createBrushNode(map));
 
     auto entityNode2Ptr = std::make_unique<EntityNode>(
       Entity{{{EntityPropertyKeys::Classname, pointEntityDefinition.name}}});
     auto* entityNode2 = entityNode2Ptr.get();
-    auto* brushNode2 =
-      &entityNode2->addChild(std::unique_ptr<BrushNode>{createBrushNode(map)});
+    auto* brushNode2 = &entityNode2->addChild(createBrushNode(map));
 
     addNodes(
       map,
-      {{&parentForNodes(map), {entityNode1Ptr.release(), entityNode2Ptr.release()}}});
+      parentForNodes(map),
+      kdl::vec_from<std::unique_ptr<Node>>(
+        std::move(entityNode1Ptr), std::move(entityNode2Ptr)));
 
     auto pointEntityWithBrushesValidator =
       std::make_unique<PointEntityWithBrushesValidator>();

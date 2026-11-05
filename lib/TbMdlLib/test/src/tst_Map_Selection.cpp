@@ -44,8 +44,10 @@
 #include "kd/map_utils.h"
 #include "kd/ranges/concat_view.h"
 #include "kd/ranges/to.h"
+#include "kd/vector_utils.h"
 
 #include <map>
+#include <memory>
 #include <ranges>
 #include <vector>
 
@@ -73,20 +75,29 @@ TEST_CASE("Map_Selection")
 
   SECTION("selectAllNodes")
   {
-    auto* entityNode = new EntityNode{Entity{}};
-    auto* brushNode = createBrushNode(map);
-    auto* groupedEntityNode = new EntityNode{Entity{}};
-    auto* groupNode = new GroupNode{Group{"group"}};
-    auto* patchNode = createPatchNode();
-    auto* brushEntityNode = new EntityNode{Entity{}};
-    auto* entityBrushNode = createBrushNode(map);
+    auto entityNodePtr = std::make_unique<EntityNode>(Entity{});
+    auto* entityNode = entityNodePtr.get();
+    auto brushNodePtr = createBrushNode(map);
+    auto* brushNode = brushNodePtr.get();
+    auto groupNodePtr = std::make_unique<GroupNode>(Group{"group"});
+    auto* groupNode = groupNodePtr.get();
+    auto patchNodePtr = createPatchNode();
+    auto* patchNode = patchNodePtr.get();
+    auto brushEntityNodePtr = std::make_unique<EntityNode>(Entity{});
+    auto* brushEntityNode = brushEntityNodePtr.get();
 
     addNodes(
       map,
-      {{&parentForNodes(map),
-        {entityNode, brushNode, groupNode, patchNode, brushEntityNode}}});
-    addNodes(map, {{groupNode, {groupedEntityNode}}});
-    addNodes(map, {{brushEntityNode, {entityBrushNode}}});
+      parentForNodes(map),
+      kdl::vec_from<std::unique_ptr<Node>>(
+        std::move(entityNodePtr),
+        std::move(brushNodePtr),
+        std::move(groupNodePtr),
+        std::move(patchNodePtr),
+        std::move(brushEntityNodePtr)));
+    auto* groupedEntityNode =
+      addNode(map, *groupNode, std::make_unique<EntityNode>(Entity{}));
+    auto* entityBrushNode = addNode(map, *brushEntityNode, createBrushNode(map));
 
     SECTION("No group is opened")
     {
@@ -124,9 +135,15 @@ TEST_CASE("Map_Selection")
   {
     SECTION("Linked groups")
     {
-      auto* entityNode = new EntityNode{Entity{}};
-      auto* brushNode = createBrushNode(map);
-      addNodes(map, {{&parentForNodes(map), {brushNode, entityNode}}});
+      auto entityNodePtr = std::make_unique<EntityNode>(Entity{});
+      auto* entityNode = entityNodePtr.get();
+      auto brushNodePtr = createBrushNode(map);
+      auto* brushNode = brushNodePtr.get();
+      addNodes(
+        map,
+        parentForNodes(map),
+        kdl::vec_from<std::unique_ptr<Node>>(
+          std::move(brushNodePtr), std::move(entityNodePtr)));
       selectNodes(map, {brushNode});
 
       auto* groupNode = groupSelectedNodes(map, "test");
@@ -179,11 +196,11 @@ TEST_CASE("Map_Selection")
 
     SECTION("A non-selectable node kind is not recorded as selected")
     {
-      auto* layerNode = new LayerNode{Layer{"Layer"}};
-      addNodes(map, {{&map.worldNode(), {layerNode}}});
+      auto* layerNode =
+        addNode(map, map.worldNode(), std::make_unique<LayerNode>(Layer{"Layer"}));
 
-      auto* entityNode = new EntityNode{Entity{}};
-      addNodes(map, {{&parentForNodes(map), {entityNode}}});
+      auto* entityNode =
+        addNode(map, parentForNodes(map), std::make_unique<EntityNode>(Entity{}));
 
       selectNodes(map, {layerNode, entityNode});
 
@@ -198,16 +215,26 @@ TEST_CASE("Map_Selection")
   SECTION("selectSiblingNodes")
   {
     const auto box = vm::bbox3d{{0, 0, 0}, {64, 64, 64}};
-    auto* brushNode1 =
-      new BrushNode{builder.createCuboid(box, "material") | kdl::value()};
-    auto* brushNode2 = new BrushNode{
-      builder.createCuboid(box.translate({1, 1, 1}), "material") | kdl::value()};
-    auto* brushNode3 = new BrushNode{
-      builder.createCuboid(box.translate({2, 2, 2}), "material") | kdl::value()};
-    auto* patchNode = createPatchNode();
+    auto brushNode1Ptr =
+      std::make_unique<BrushNode>(builder.createCuboid(box, "material") | kdl::value());
+    auto* brushNode1 = brushNode1Ptr.get();
+    auto brushNode2Ptr = std::make_unique<BrushNode>(
+      builder.createCuboid(box.translate({1, 1, 1}), "material") | kdl::value());
+    auto* brushNode2 = brushNode2Ptr.get();
+    auto brushNode3Ptr = std::make_unique<BrushNode>(
+      builder.createCuboid(box.translate({2, 2, 2}), "material") | kdl::value());
+    auto* brushNode3 = brushNode3Ptr.get();
+    auto patchNodePtr = createPatchNode();
+    auto* patchNode = patchNodePtr.get();
 
     addNodes(
-      map, {{&parentForNodes(map), {brushNode1, brushNode2, brushNode3, patchNode}}});
+      map,
+      parentForNodes(map),
+      kdl::vec_from<std::unique_ptr<Node>>(
+        std::move(brushNode1Ptr),
+        std::move(brushNode2Ptr),
+        std::move(brushNode3Ptr),
+        std::move(patchNodePtr)));
 
     selectNodes(map, {brushNode1, brushNode2});
     createBrushEntity(map, brushEntityDefinition);
@@ -256,9 +283,15 @@ TEST_CASE("Map_Selection")
   {
     SECTION("Select touching brushes")
     {
-      auto* brushNode1 = new BrushNode{builder.createCube(64.0, "none") | kdl::value()};
-      auto* brushNode2 = new BrushNode{builder.createCube(64.0, "none") | kdl::value()};
-      auto* brushNode3 = new BrushNode{builder.createCube(64.0, "none") | kdl::value()};
+      auto brushNode1Ptr =
+        std::make_unique<BrushNode>(builder.createCube(64.0, "none") | kdl::value());
+      auto* brushNode1 = brushNode1Ptr.get();
+      auto brushNode2Ptr =
+        std::make_unique<BrushNode>(builder.createCube(64.0, "none") | kdl::value());
+      auto* brushNode2 = brushNode2Ptr.get();
+      auto brushNode3Ptr =
+        std::make_unique<BrushNode>(builder.createCube(64.0, "none") | kdl::value());
+      auto* brushNode3 = brushNode3Ptr.get();
 
       transformNode(
         *brushNode2,
@@ -269,7 +302,11 @@ TEST_CASE("Map_Selection")
         vm::translation_matrix(vm::vec3d{100.0, 0.0, 0.0}),
         map.worldBounds());
 
-      addNodes(map, {{&parentForNodes(map), {brushNode1, brushNode2, brushNode3}}});
+      addNodes(
+        map,
+        parentForNodes(map),
+        kdl::vec_from<std::unique_ptr<Node>>(
+          std::move(brushNode1Ptr), std::move(brushNode2Ptr), std::move(brushNode3Ptr)));
 
       REQUIRE(brushNode1->intersects(*brushNode2));
       REQUIRE(brushNode2->intersects(*brushNode1));
@@ -286,23 +323,27 @@ TEST_CASE("Map_Selection")
 
     SECTION("Select touching group")
     {
-      auto* layerNode = new LayerNode{Layer{"Layer 1"}};
-      addNodes(map, {{&map.worldNode(), {layerNode}}});
+      auto* layerNode =
+        addNode(map, map.worldNode(), std::make_unique<LayerNode>(Layer{"Layer 1"}));
 
-      auto* groupNode = new GroupNode{Group{"Unnamed"}};
-      addNodes(map, {{layerNode, {groupNode}}});
+      auto* groupNode =
+        addNode(map, *layerNode, std::make_unique<GroupNode>(Group{"Unnamed"}));
 
       const auto brushBounds = vm::bbox3d{{-32.0, -32.0, -32.0}, {+32.0, +32.0, +32.0}};
-      auto* brushNode =
-        new BrushNode{builder.createCuboid(brushBounds, "material") | kdl::value()};
-      addNodes(map, {{groupNode, {brushNode}}});
+      addNode(
+        map,
+        *groupNode,
+        std::make_unique<BrushNode>(
+          builder.createCuboid(brushBounds, "material") | kdl::value()));
 
       const auto selectionBounds =
         vm::bbox3d{{-16.0, -16.0, -48.0}, {+16.0, +16.0, +48.0}};
 
-      auto* selectionBrush =
-        new BrushNode{builder.createCuboid(selectionBounds, "material") | kdl::value()};
-      addNodes(map, {{layerNode, {selectionBrush}}});
+      auto* selectionBrush = addNode(
+        map,
+        *layerNode,
+        std::make_unique<BrushNode>(
+          builder.createCuboid(selectionBounds, "material") | kdl::value()));
 
       selectNodes(map, {selectionBrush});
       selectTouchingNodes(map, true);
@@ -315,13 +356,17 @@ TEST_CASE("Map_Selection")
       // https://github.com/TrenchBroom/TrenchBroom/issues/2476
       const auto box = vm::bbox3d{{0, 0, 0}, {64, 64, 64}};
 
-      auto* brushNode1 =
-        new BrushNode{builder.createCuboid(box, "material") | kdl::value()};
-      addNodes(map, {{&parentForNodes(map), {brushNode1}}});
+      auto* brushNode1 = addNode(
+        map,
+        parentForNodes(map),
+        std::make_unique<BrushNode>(
+          builder.createCuboid(box, "material") | kdl::value()));
 
-      auto* brushNode2 = new BrushNode{
-        builder.createCuboid(box.translate({1, 1, 1}), "material") | kdl::value()};
-      addNodes(map, {{&parentForNodes(map), {brushNode2}}});
+      auto* brushNode2 = addNode(
+        map,
+        parentForNodes(map),
+        std::make_unique<BrushNode>(
+          builder.createCuboid(box.translate({1, 1, 1}), "material") | kdl::value()));
 
       selectAllNodes(map);
 
@@ -349,15 +394,21 @@ TEST_CASE("Map_Selection")
     {
       // https://github.com/TrenchBroom/TrenchBroom/issues/3826
 
-      auto* brushNode1 = createBrushNode(map);
-      auto* brushNode2 = createBrushNode(map);
+      auto brushNode1Ptr = createBrushNode(map);
+      auto* brushNode1 = brushNode1Ptr.get();
+      auto brushNode2Ptr = createBrushNode(map);
+      auto* brushNode2 = brushNode2Ptr.get();
 
-      auto* outerGroup = new GroupNode{Group{"outerGroup"}};
-      auto* innerGroup = new GroupNode{Group{"innerGroup"}};
 
-      addNodes(map, {{&parentForNodes(map), {outerGroup}}});
-      addNodes(map, {{outerGroup, {innerGroup}}});
-      addNodes(map, {{innerGroup, {brushNode1, brushNode2}}});
+      auto* outerGroup = addNode(
+        map, parentForNodes(map), std::make_unique<GroupNode>(Group{"outerGroup"}));
+      auto* innerGroup =
+        addNode(map, *outerGroup, std::make_unique<GroupNode>(Group{"innerGroup"}));
+      addNodes(
+        map,
+        *innerGroup,
+        kdl::vec_from<std::unique_ptr<Node>>(
+          std::move(brushNode1Ptr), std::move(brushNode2Ptr)));
 
       // worldspawn {
       //   outerGroup {
@@ -377,9 +428,15 @@ TEST_CASE("Map_Selection")
 
     SECTION("Select touching nodes along axis")
     {
-      auto* brushNode1 = new BrushNode{builder.createCube(64.0, "none") | kdl::value()};
-      auto* brushNode2 = new BrushNode{builder.createCube(64.0, "none") | kdl::value()};
-      auto* brushNode3 = new BrushNode{builder.createCube(64.0, "none") | kdl::value()};
+      auto brushNode1Ptr =
+        std::make_unique<BrushNode>(builder.createCube(64.0, "none") | kdl::value());
+      auto* brushNode1 = brushNode1Ptr.get();
+      auto brushNode2Ptr =
+        std::make_unique<BrushNode>(builder.createCube(64.0, "none") | kdl::value());
+      auto* brushNode2 = brushNode2Ptr.get();
+      auto brushNode3Ptr =
+        std::make_unique<BrushNode>(builder.createCube(64.0, "none") | kdl::value());
+      auto* brushNode3 = brushNode3Ptr.get();
 
       transformNode(
         *brushNode2,
@@ -393,7 +450,11 @@ TEST_CASE("Map_Selection")
       REQUIRE(!brushNode1->intersects(*brushNode2));
       REQUIRE(!brushNode1->intersects(*brushNode3));
 
-      addNodes(map, {{&parentForNodes(map), {brushNode1, brushNode2, brushNode3}}});
+      addNodes(
+        map,
+        parentForNodes(map),
+        kdl::vec_from<std::unique_ptr<Node>>(
+          std::move(brushNode1Ptr), std::move(brushNode2Ptr), std::move(brushNode3Ptr)));
       selectNodes(map, {brushNode1});
 
       SECTION("z camera")
@@ -417,23 +478,27 @@ TEST_CASE("Map_Selection")
   {
     SECTION("Select contained group")
     {
-      auto* layerNode = new LayerNode{Layer{"Layer 1"}};
-      addNodes(map, {{&map.worldNode(), {layerNode}}});
+      auto* layerNode =
+        addNode(map, map.worldNode(), std::make_unique<LayerNode>(Layer{"Layer 1"}));
 
-      auto* groupNode = new GroupNode{Group{"Unnamed"}};
-      addNodes(map, {{layerNode, {groupNode}}});
+      auto* groupNode =
+        addNode(map, *layerNode, std::make_unique<GroupNode>(Group{"Unnamed"}));
 
       const auto brushBounds = vm::bbox3d{{-32.0, -32.0, -32.0}, {+32.0, +32.0, +32.0}};
-      auto* brushNode =
-        new BrushNode{builder.createCuboid(brushBounds, "material") | kdl::value()};
-      addNodes(map, {{groupNode, {brushNode}}});
+      addNode(
+        map,
+        *groupNode,
+        std::make_unique<BrushNode>(
+          builder.createCuboid(brushBounds, "material") | kdl::value()));
 
       const auto selectionBounds =
         vm::bbox3d{{-48.0, -48.0, -48.0}, {+48.0, +48.0, +48.0}};
 
-      auto* selectionBrush =
-        new BrushNode{builder.createCuboid(selectionBounds, "material") | kdl::value()};
-      addNodes(map, {{layerNode, {selectionBrush}}});
+      auto* selectionBrush = addNode(
+        map,
+        *layerNode,
+        std::make_unique<BrushNode>(
+          builder.createCuboid(selectionBounds, "material") | kdl::value()));
 
       selectNodes(map, {selectionBrush});
       selectContainedNodes(map, true);
@@ -458,18 +523,28 @@ TEST_CASE("Map_Selection")
           - brushInInnerGroup   43, 48
     */
 
-    auto* brush = createBrushNode(map, "brush");
-    auto* pointEntity = new EntityNode{Entity{}};
-    auto* patch = createPatchNode("patch");
+    auto brushPtr = createBrushNode(map, "brush");
+    auto* brush = brushPtr.get();
+    auto pointEntityPtr = std::make_unique<EntityNode>(Entity{});
+    auto* pointEntity = pointEntityPtr.get();
+    auto patchPtr = createPatchNode("patch");
+    auto* patch = patchPtr.get();
 
-    auto* brushEntity = new EntityNode{Entity{}};
-    auto* brushInEntity1 = createBrushNode(map, "brushInEntity1");
-    auto* brushInEntity2 = createBrushNode(map, "brushInEntity2");
+    auto brushEntityPtr = std::make_unique<EntityNode>(Entity{});
+    auto* brushEntity = brushEntityPtr.get();
+    auto brushInEntity1Ptr = createBrushNode(map, "brushInEntity1");
+    auto* brushInEntity1 = brushInEntity1Ptr.get();
+    auto brushInEntity2Ptr = createBrushNode(map, "brushInEntity2");
+    auto* brushInEntity2 = brushInEntity2Ptr.get();
 
-    auto* outerGroup = new GroupNode{Group{"outerGroup"}};
-    auto* brushInOuterGroup = createBrushNode(map, "brushInOuterGroup");
-    auto* innerGroup = new GroupNode{Group{"innerGroup"}};
-    auto* brushInInnerGroup = createBrushNode(map, "brushInInnerGroup");
+    auto outerGroupPtr = std::make_unique<GroupNode>(Group{"outerGroup"});
+    auto* outerGroup = outerGroupPtr.get();
+    auto brushInOuterGroupPtr = createBrushNode(map, "brushInOuterGroup");
+    auto* brushInOuterGroup = brushInOuterGroupPtr.get();
+    auto innerGroupPtr = std::make_unique<GroupNode>(Group{"innerGroup"});
+    auto* innerGroup = innerGroupPtr.get();
+    auto brushInInnerGroupPtr = createBrushNode(map, "brushInInnerGroup");
+    auto* brushInInnerGroup = brushInInnerGroupPtr.get();
 
     brush->setFilePosition(4, 2);
     pointEntity->setFilePosition(10, 5);
@@ -504,19 +579,26 @@ TEST_CASE("Map_Selection")
 
     addNodes(
       map,
-      {
-        {map.worldNode().defaultLayer(),
-         {brush, pointEntity, patch, brushEntity, outerGroup}},
-      });
+      *map.worldNode().defaultLayer(),
+      kdl::vec_from<std::unique_ptr<Node>>(
+        std::move(brushPtr),
+        std::move(pointEntityPtr),
+        std::move(patchPtr),
+        std::move(brushEntityPtr),
+        std::move(outerGroupPtr)));
 
     addNodes(
       map,
-      {
-        {brushEntity, {brushInEntity1, brushInEntity2}},
-        {outerGroup, {brushInOuterGroup, innerGroup}},
-      });
+      *brushEntity,
+      kdl::vec_from<std::unique_ptr<Node>>(
+        std::move(brushInEntity1Ptr), std::move(brushInEntity2Ptr)));
+    addNodes(
+      map,
+      *outerGroup,
+      kdl::vec_from<std::unique_ptr<Node>>(
+        std::move(brushInOuterGroupPtr), std::move(innerGroupPtr)));
 
-    addNodes(map, {{innerGroup, {brushInInnerGroup}}});
+    addNode(map, *innerGroup, std::move(brushInInnerGroupPtr));
 
     deselectAll(map);
 
@@ -590,21 +672,27 @@ TEST_CASE("Map_Selection")
 
   SECTION("selectBrushesWithMaterial")
   {
-    auto* entityNode = new EntityNode{Entity{}};
-    auto* brushNodeM1 = createBrushNode(map, "material1");
-    auto* brushNodeM2 = createBrushNode(map, "material2");
-    auto* groupedBrushNodeM1 = createBrushNode(map, "material1");
-    auto* groupNode = new GroupNode{Group{"group"}};
-    auto* patchNode = createPatchNode();
-    auto* brushEntityNode = new EntityNode{Entity{}};
-    auto* entityBrushNodeM1 = createBrushNode(map, "material1");
+    auto brushNodeM1Ptr = createBrushNode(map, "material1");
+    auto* brushNodeM1 = brushNodeM1Ptr.get();
+    auto groupNodePtr = std::make_unique<GroupNode>(Group{"group"});
+    auto* groupNode = groupNodePtr.get();
+    auto brushEntityNodePtr = std::make_unique<EntityNode>(Entity{});
+    auto* brushEntityNode = brushEntityNodePtr.get();
 
     addNodes(
       map,
-      {{&parentForNodes(map),
-        {entityNode, brushNodeM1, brushNodeM2, groupNode, patchNode, brushEntityNode}}});
-    addNodes(map, {{groupNode, {groupedBrushNodeM1}}});
-    addNodes(map, {{brushEntityNode, {entityBrushNodeM1}}});
+      parentForNodes(map),
+      kdl::vec_from<std::unique_ptr<Node>>(
+        std::make_unique<EntityNode>(Entity{}),
+        std::move(brushNodeM1Ptr),
+        createBrushNode(map, "material2"),
+        std::move(groupNodePtr),
+        createPatchNode(),
+        std::move(brushEntityNodePtr)));
+    auto* groupedBrushNodeM1 =
+      addNode(map, *groupNode, createBrushNode(map, "material1"));
+    auto* entityBrushNodeM1 =
+      addNode(map, *brushEntityNode, createBrushNode(map, "material1"));
 
     SECTION("Case insensitivity")
     {
@@ -639,23 +727,35 @@ TEST_CASE("Map_Selection")
 
   SECTION("selectEntitiesWithClassname")
   {
-    auto* pointEntityNode = new EntityNode{Entity{{{"classname", "trigger_secret"}}}};
-    auto* otherPointEntityNode =
-      new EntityNode{Entity{{{"classname", "info_player_start"}}}};
-    auto* brushNode = createBrushNode(map);
-    auto* groupNode = new GroupNode{Group{"group"}};
-    auto* groupedEntityNode = new EntityNode{Entity{{{"classname", "trigger_secret"}}}};
-    auto* otherGroupedEntityNode =
-      new EntityNode{Entity{{{"classname", "info_player_start"}}}};
-    auto* brushEntityNode = new EntityNode{Entity{{{"classname", "trigger_secret"}}}};
-    auto* entityBrushNode = createBrushNode(map);
+    auto pointEntityNodePtr =
+      std::make_unique<EntityNode>(Entity{{{"classname", "trigger_secret"}}});
+    auto* pointEntityNode = pointEntityNodePtr.get();
+    auto groupNodePtr = std::make_unique<GroupNode>(Group{"group"});
+    auto* groupNode = groupNodePtr.get();
+    auto groupedEntityNodePtr =
+      std::make_unique<EntityNode>(Entity{{{"classname", "trigger_secret"}}});
+    auto* groupedEntityNode = groupedEntityNodePtr.get();
+    auto otherGroupedEntityNodePtr =
+      std::make_unique<EntityNode>(Entity{{{"classname", "info_player_start"}}});
+    auto brushEntityNodePtr =
+      std::make_unique<EntityNode>(Entity{{{"classname", "trigger_secret"}}});
+    auto* brushEntityNode = brushEntityNodePtr.get();
 
     addNodes(
       map,
-      {{&parentForNodes(map),
-        {pointEntityNode, otherPointEntityNode, brushNode, groupNode, brushEntityNode}}});
-    addNodes(map, {{groupNode, {groupedEntityNode, otherGroupedEntityNode}}});
-    addNodes(map, {{brushEntityNode, {entityBrushNode}}});
+      parentForNodes(map),
+      kdl::vec_from<std::unique_ptr<Node>>(
+        std::move(pointEntityNodePtr),
+        std::make_unique<EntityNode>(Entity{{{"classname", "info_player_start"}}}),
+        createBrushNode(map),
+        std::move(groupNodePtr),
+        std::move(brushEntityNodePtr)));
+    addNodes(
+      map,
+      *groupNode,
+      kdl::vec_from<std::unique_ptr<Node>>(
+        std::move(groupedEntityNodePtr), std::move(otherGroupedEntityNodePtr)));
+    auto* entityBrushNode = addNode(map, *brushEntityNode, createBrushNode(map));
 
     SECTION("Case insensitivity")
     {
@@ -747,20 +847,24 @@ TEST_CASE("Map_Selection")
   {
     const auto box = vm::bbox3d{{0, 0, 0}, {64, 64, 64}};
 
-    auto* brushNode1 =
-      new BrushNode{builder.createCuboid(box, "material") | kdl::value()};
-    addNodes(map, {{&parentForNodes(map), {brushNode1}}});
+    auto* brushNode1 = addNode(
+      map,
+      parentForNodes(map),
+      std::make_unique<BrushNode>(builder.createCuboid(box, "material") | kdl::value()));
 
-    auto* brushNode2 = new BrushNode{
-      builder.createCuboid(box.translate({1, 1, 1}), "material") | kdl::value()};
-    addNodes(map, {{&parentForNodes(map), {brushNode2}}});
+    auto* brushNode2 = addNode(
+      map,
+      parentForNodes(map),
+      std::make_unique<BrushNode>(
+        builder.createCuboid(box.translate({1, 1, 1}), "material") | kdl::value()));
 
-    auto* brushNode3 = new BrushNode{
-      builder.createCuboid(box.translate({2, 2, 2}), "material") | kdl::value()};
-    addNodes(map, {{&parentForNodes(map), {brushNode3}}});
+    auto* brushNode3 = addNode(
+      map,
+      parentForNodes(map),
+      std::make_unique<BrushNode>(
+        builder.createCuboid(box.translate({2, 2, 2}), "material") | kdl::value()));
 
-    auto* patchNode = createPatchNode();
-    addNodes(map, {{&parentForNodes(map), {patchNode}}});
+    auto* patchNode = addNode(map, parentForNodes(map), createPatchNode());
 
     selectNodes(map, {brushNode1, brushNode2});
     auto* brushEnt = createBrushEntity(map, brushEntityDefinition);
@@ -795,21 +899,22 @@ TEST_CASE("Map_Selection")
   SECTION("selectAllInLayers")
   {
     auto* defaultLayer = map.worldNode().defaultLayer();
-    auto* customLayer1 = new LayerNode{Layer{"1"}};
-    auto* customLayer2 = new LayerNode{Layer{"2"}};
+    auto customLayer1Ptr = std::make_unique<LayerNode>(Layer{"1"});
+    auto* customLayer1 = customLayer1Ptr.get();
+    auto customLayer2Ptr = std::make_unique<LayerNode>(Layer{"2"});
+    auto* customLayer2 = customLayer2Ptr.get();
 
-    auto* entityNodeInDefaultLayer = new EntityNode{{}};
-    auto* entityNodeInCustomLayer1 = new EntityNode{{}};
-    auto* entityNodeInCustomLayer2 = new EntityNode{{}};
 
-    addNodes(map, {{&map.worldNode(), {customLayer1, customLayer2}}});
     addNodes(
       map,
-      {
-        {defaultLayer, {entityNodeInDefaultLayer}},
-        {customLayer1, {entityNodeInCustomLayer1}},
-        {customLayer2, {entityNodeInCustomLayer2}},
-      });
+      map.worldNode(),
+      kdl::vec_from<std::unique_ptr<Node>>(
+        std::move(customLayer1Ptr), std::move(customLayer2Ptr)));
+    auto* entityNodeInDefaultLayer =
+      addNode(map, *defaultLayer, std::make_unique<EntityNode>(Entity{}));
+    auto* entityNodeInCustomLayer1 =
+      addNode(map, *customLayer1, std::make_unique<EntityNode>(Entity{}));
+    addNode(map, *customLayer2, std::make_unique<EntityNode>(Entity{}));
 
     selectAllInLayers(map, {defaultLayer});
     CHECK(map.selection().nodes == std::vector<Node*>{entityNodeInDefaultLayer});
@@ -823,19 +928,22 @@ TEST_CASE("Map_Selection")
 
   SECTION("selectLinkedGroups")
   {
-    auto* entityNode = new EntityNode{{}};
-    auto* groupedEntityNode = new EntityNode{{}};
-    auto* groupNode = new GroupNode{Group{"group"}};
-    auto* linkedEntityNode1 = new EntityNode{{}};
-    auto* linkedGroupNode1 = new GroupNode{Group{"linked group"}};
+    auto entityNodePtr = std::make_unique<EntityNode>(Entity{});
+    auto* entityNode = entityNodePtr.get();
+    auto groupNodePtr = std::make_unique<GroupNode>(Group{"group"});
+    auto* groupNode = groupNodePtr.get();
+    auto linkedGroupNode1Ptr = std::make_unique<GroupNode>(Group{"linked group"});
+    auto* linkedGroupNode1 = linkedGroupNode1Ptr.get();
 
-    addNodes(map, {{&parentForNodes(map), {entityNode, groupNode, linkedGroupNode1}}});
     addNodes(
       map,
-      {
-        {groupNode, {groupedEntityNode}},
-        {linkedGroupNode1, {linkedEntityNode1}},
-      });
+      parentForNodes(map),
+      kdl::vec_from<std::unique_ptr<Node>>(
+        std::move(entityNodePtr),
+        std::move(groupNodePtr),
+        std::move(linkedGroupNode1Ptr)));
+    addNode(map, *groupNode, std::make_unique<EntityNode>(Entity{}));
+    addNode(map, *linkedGroupNode1, std::make_unique<EntityNode>(Entity{}));
 
     selectNodes(map, {linkedGroupNode1});
     auto* linkedGroupNode2 = createLinkedDuplicate(map);
@@ -892,10 +1000,16 @@ TEST_CASE("Map_Selection")
   {
     SECTION("Basic selection")
     {
-      auto* brushNode1 = createBrushNode(map);
-      auto* brushNode2 = createBrushNode(map);
+      auto brushNode1Ptr = createBrushNode(map);
+      auto* brushNode1 = brushNode1Ptr.get();
+      auto brushNode2Ptr = createBrushNode(map);
+      auto* brushNode2 = brushNode2Ptr.get();
 
-      addNodes(map, {{&parentForNodes(map), {brushNode1, brushNode2}}});
+      addNodes(
+        map,
+        parentForNodes(map),
+        kdl::vec_from<std::unique_ptr<Node>>(
+          std::move(brushNode1Ptr), std::move(brushNode2Ptr)));
 
       selectBrushFaces(map, {{*brushNode1, 0}, {*brushNode1, 2}, {*brushNode2, 5}});
 
@@ -923,8 +1037,7 @@ TEST_CASE("Map_Selection")
     {
       // https://github.com/TrenchBroom/TrenchBroom/issues/3768
 
-      auto* brushNode = createBrushNode(map);
-      addNodes(map, {{&parentForNodes(map), {brushNode}}});
+      auto* brushNode = addNode(map, parentForNodes(map), createBrushNode(map));
       selectNodes(map, {brushNode});
 
       auto* groupNode = groupSelectedNodes(map, "test");
@@ -950,9 +1063,10 @@ TEST_CASE("Map_Selection")
 
   SECTION("selectBrushFacesWithMaterial")
   {
-    auto* brushNodeM1 = createBrushNode(map, "material1");
-    auto* brushNodeM2 = createBrushNode(map, "material2");
-    auto* brushNodeM13 = createBrushNode(map, "material3");
+    auto brushNodeM1Ptr = createBrushNode(map, "material1");
+    auto* brushNodeM1 = brushNodeM1Ptr.get();
+    auto brushNodeM13Ptr = createBrushNode(map, "material3");
+    auto* brushNodeM13 = brushNodeM13Ptr.get();
 
     {
       auto brushM13 = brushNodeM13->brush();
@@ -963,22 +1077,25 @@ TEST_CASE("Map_Selection")
       brushNodeM13->setBrush(std::move(brushM13));
     }
 
-    auto* groupedBrushNodeM1 = createBrushNode(map, "material1");
-    auto* groupNode = new GroupNode{Group{"group"}};
+    auto groupNodePtr = std::make_unique<GroupNode>(Group{"group"});
+    auto* groupNode = groupNodePtr.get();
 
-    auto* brushEntityNode = new EntityNode{Entity{}};
-    auto* entityBrushNodeM1 = createBrushNode(map, "material1");
+    auto brushEntityNodePtr = std::make_unique<EntityNode>(Entity{});
+    auto* brushEntityNode = brushEntityNodePtr.get();
 
     addNodes(
       map,
-      {{&parentForNodes(map),
-        {brushNodeM1, brushNodeM2, brushNodeM13, groupNode, brushEntityNode}}});
-    addNodes(
-      map,
-      {
-        {groupNode, {groupedBrushNodeM1}},
-        {brushEntityNode, {entityBrushNodeM1}},
-      });
+      parentForNodes(map),
+      kdl::vec_from<std::unique_ptr<Node>>(
+        std::move(brushNodeM1Ptr),
+        createBrushNode(map, "material2"),
+        std::move(brushNodeM13Ptr),
+        std::move(groupNodePtr),
+        std::move(brushEntityNodePtr)));
+    auto* groupedBrushNodeM1 =
+      addNode(map, *groupNode, createBrushNode(map, "material1"));
+    auto* entityBrushNodeM1 =
+      addNode(map, *brushEntityNode, createBrushNode(map, "material1"));
 
     SECTION("Case insensitivity")
     {
@@ -1030,15 +1147,22 @@ TEST_CASE("Map_Selection")
 
   SECTION("deselectAll")
   {
-    auto* entityNode = new EntityNode{Entity{}};
-    auto* groupedEntityNode = new EntityNode{Entity{}};
-    auto* groupNode = new GroupNode{Group{"group"}};
-    auto* brushEntityNode = new EntityNode{Entity{}};
-    auto* entityBrushNode = createBrushNode(map);
+    auto entityNodePtr = std::make_unique<EntityNode>(Entity{});
+    auto* entityNode = entityNodePtr.get();
+    auto groupNodePtr = std::make_unique<GroupNode>(Group{"group"});
+    auto* groupNode = groupNodePtr.get();
+    auto brushEntityNodePtr = std::make_unique<EntityNode>(Entity{});
+    auto* brushEntityNode = brushEntityNodePtr.get();
 
-    addNodes(map, {{&parentForNodes(map), {entityNode, groupNode, brushEntityNode}}});
-    addNodes(map, {{groupNode, {groupedEntityNode}}});
-    addNodes(map, {{brushEntityNode, {entityBrushNode}}});
+    addNodes(
+      map,
+      parentForNodes(map),
+      kdl::vec_from<std::unique_ptr<Node>>(
+        std::move(entityNodePtr),
+        std::move(groupNodePtr),
+        std::move(brushEntityNodePtr)));
+    addNode(map, *groupNode, std::make_unique<EntityNode>(Entity{}));
+    auto* entityBrushNode = addNode(map, *brushEntityNode, createBrushNode(map));
 
     SECTION("Node selection")
     {
@@ -1065,19 +1189,25 @@ TEST_CASE("Map_Selection")
 
   SECTION("deselectNodes")
   {
-    auto* entityNode = new EntityNode{Entity{}};
-    auto* unselectedEntityNode = new EntityNode{Entity{}};
-    auto* groupedEntityNode = new EntityNode{Entity{}};
-    auto* groupNode = new GroupNode{Group{"group"}};
-    auto* brushEntityNode = new EntityNode{Entity{}};
-    auto* entityBrushNode = createBrushNode(map);
+    auto entityNodePtr = std::make_unique<EntityNode>(Entity{});
+    auto* entityNode = entityNodePtr.get();
+    auto unselectedEntityNodePtr = std::make_unique<EntityNode>(Entity{});
+    auto* unselectedEntityNode = unselectedEntityNodePtr.get();
+    auto groupNodePtr = std::make_unique<GroupNode>(Group{"group"});
+    auto* groupNode = groupNodePtr.get();
+    auto brushEntityNodePtr = std::make_unique<EntityNode>(Entity{});
+    auto* brushEntityNode = brushEntityNodePtr.get();
 
     addNodes(
       map,
-      {{&parentForNodes(map),
-        {entityNode, unselectedEntityNode, groupNode, brushEntityNode}}});
-    addNodes(map, {{groupNode, {groupedEntityNode}}});
-    addNodes(map, {{brushEntityNode, {entityBrushNode}}});
+      parentForNodes(map),
+      kdl::vec_from<std::unique_ptr<Node>>(
+        std::move(entityNodePtr),
+        std::move(unselectedEntityNodePtr),
+        std::move(groupNodePtr),
+        std::move(brushEntityNodePtr)));
+    addNode(map, *groupNode, std::make_unique<EntityNode>(Entity{}));
+    auto* entityBrushNode = addNode(map, *brushEntityNode, createBrushNode(map));
 
     SECTION("Node selection")
     {
@@ -1140,10 +1270,16 @@ TEST_CASE("Map_Selection")
 
   SECTION("deselectBrushFaces")
   {
-    auto* brushNode1 = createBrushNode(map);
-    auto* brushNode2 = createBrushNode(map);
+    auto brushNode1Ptr = createBrushNode(map);
+    auto* brushNode1 = brushNode1Ptr.get();
+    auto brushNode2Ptr = createBrushNode(map);
+    auto* brushNode2 = brushNode2Ptr.get();
 
-    addNodes(map, {{&parentForNodes(map), {brushNode1, brushNode2}}});
+    addNodes(
+      map,
+      parentForNodes(map),
+      kdl::vec_from<std::unique_ptr<Node>>(
+        std::move(brushNode1Ptr), std::move(brushNode2Ptr)));
 
     selectBrushFaces(map, {{*brushNode1, 0}, {*brushNode1, 2}, {*brushNode2, 5}});
 
@@ -1209,11 +1345,11 @@ TEST_CASE("Map_Selection")
 
   SECTION("Selection clears repeat stack")
   {
-    auto* entityNode1 = new EntityNode{Entity{}};
-    addNodes(map, {{&parentForNodes(map), {entityNode1}}});
+    auto* entityNode1 =
+      addNode(map, parentForNodes(map), std::make_unique<EntityNode>(Entity{}));
 
-    auto* entityNode2 = new EntityNode{Entity{}};
-    addNodes(map, {{&parentForNodes(map), {entityNode2}}});
+    auto* entityNode2 =
+      addNode(map, parentForNodes(map), std::make_unique<EntityNode>(Entity{}));
 
     selectNodes(map, {entityNode1});
 
@@ -1246,8 +1382,10 @@ TEST_CASE("Map_Selection")
 
   SECTION("lastSelectionBounds")
   {
-    auto* entityNode = new EntityNode{Entity{{{"classname", "point_entity"}}}};
-    addNodes(map, {{&parentForNodes(map), {entityNode}}});
+    auto* entityNode = addNode(
+      map,
+      parentForNodes(map),
+      std::make_unique<EntityNode>(Entity{{{"classname", "point_entity"}}}));
     REQUIRE(!entityNode->logicalBounds().is_empty());
 
     selectAllNodes(map);
@@ -1259,8 +1397,7 @@ TEST_CASE("Map_Selection")
     deselectAll(map);
     CHECK(map.lastSelectionBounds() == bounds);
 
-    auto* brushNode = createBrushNode(map);
-    addNodes(map, {{&parentForNodes(map), {brushNode}}});
+    auto* brushNode = addNode(map, parentForNodes(map), createBrushNode(map));
 
     selectNodes(map, {brushNode});
     CHECK(map.lastSelectionBounds() == bounds);
@@ -1280,8 +1417,7 @@ TEST_CASE("Map_Selection")
 
     SECTION("with a selection")
     {
-      auto* brushNode = createBrushNode(map);
-      addNodes(map, {{&parentForNodes(map), {brushNode}}});
+      auto* brushNode = addNode(map, parentForNodes(map), createBrushNode(map));
       selectNodes(map, {brushNode});
 
       CHECK(map.referenceBounds() == brushNode->logicalBounds());
@@ -1289,8 +1425,7 @@ TEST_CASE("Map_Selection")
 
     SECTION("with a previous but no current selection")
     {
-      auto* brushNode = createBrushNode(map);
-      addNodes(map, {{&parentForNodes(map), {brushNode}}});
+      auto* brushNode = addNode(map, parentForNodes(map), createBrushNode(map));
       selectNodes(map, {brushNode});
       const auto bounds = brushNode->logicalBounds();
 

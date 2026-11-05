@@ -47,6 +47,8 @@
 
 #include "kd/result.h"
 
+#include <memory>
+
 #include <catch2/catch_test_macros.hpp>
 
 namespace tb::ui
@@ -70,8 +72,10 @@ TEST_CASE("UvShearTool")
   auto brush = builder.createCuboid(vm::bbox3d{16.0}, "material") | kdl::value();
   const auto topFaceIndex = *brush.findFace(vm::vec3d{0, 0, 1});
 
-  auto* brushNode = new mdl::BrushNode{std::move(brush)};
-  mdl::addNodes(map, {{map.editorContext().currentLayer(), {brushNode}}});
+  auto* brushNode = mdl::addNode(
+    map,
+    *map.editorContext().currentLayer(),
+    std::make_unique<mdl::BrushNode>(std::move(brush)));
 
   // addNodes resolves materials by name against the (empty, in this fixture) material
   // collection, which would clear a material set before insertion. Set it afterwards,

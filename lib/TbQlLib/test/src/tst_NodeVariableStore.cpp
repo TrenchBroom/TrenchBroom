@@ -33,6 +33,8 @@
 #include "mdl/WorldNode.h" // IWYU pragma: keep
 #include "ql/NodeVariableStore.h"
 
+#include <memory>
+
 #include <catch2/catch_test_macros.hpp>
 
 namespace tb::ql
@@ -48,38 +50,43 @@ TEST_CASE("NodeVariableStore")
     CHECK(
       makeNodeVariableStore(map, map.worldNode()).value("type") == el::Value{"world"});
 
-    auto* layerNode = new mdl::LayerNode{mdl::Layer{"Combat"}};
-    mdl::addNodes(map, {{&map.worldNode(), {layerNode}}});
+    auto* layerNode = mdl::addNode(
+      map, map.worldNode(), std::make_unique<mdl::LayerNode>(mdl::Layer{"Combat"}));
     CHECK(makeNodeVariableStore(map, *layerNode).value("type") == el::Value{"layer"});
     CHECK(makeNodeVariableStore(map, *layerNode).value("name") == el::Value{"Combat"});
 
-    auto* groupNode = new mdl::GroupNode{mdl::Group{"Hallway"}};
-    mdl::addNodes(map, {{&mdl::parentForNodes(map), {groupNode}}});
+    auto* groupNode = mdl::addNode(
+      map,
+      mdl::parentForNodes(map),
+      std::make_unique<mdl::GroupNode>(mdl::Group{"Hallway"}));
     CHECK(makeNodeVariableStore(map, *groupNode).value("type") == el::Value{"group"});
     CHECK(makeNodeVariableStore(map, *groupNode).value("name") == el::Value{"Hallway"});
 
-    auto* entityNode =
-      new mdl::EntityNode{mdl::Entity{{{"classname", "info_player_start"}}}};
-    mdl::addNodes(map, {{&mdl::parentForNodes(map), {entityNode}}});
+    auto* entityNode = mdl::addNode(
+      map,
+      mdl::parentForNodes(map),
+      std::make_unique<mdl::EntityNode>(
+        mdl::Entity{{{"classname", "info_player_start"}}}));
     CHECK(makeNodeVariableStore(map, *entityNode).value("type") == el::Value{"entity"});
     CHECK(
       makeNodeVariableStore(map, *entityNode).value("classname")
       == el::Value{"info_player_start"});
 
-    auto* brushNode = mdl::createBrushNode(map);
-    mdl::addNodes(map, {{&mdl::parentForNodes(map), {brushNode}}});
+    auto* brushNode =
+      mdl::addNode(map, mdl::parentForNodes(map), mdl::createBrushNode(map));
     CHECK(makeNodeVariableStore(map, *brushNode).value("type") == el::Value{"brush"});
 
-    auto* patchNode = mdl::createPatchNode();
-    mdl::addNodes(map, {{&mdl::parentForNodes(map), {patchNode}}});
+    auto* patchNode = mdl::addNode(map, mdl::parentForNodes(map), mdl::createPatchNode());
     CHECK(makeNodeVariableStore(map, *patchNode).value("type") == el::Value{"patch"});
   }
 
   SECTION("behaves as a VariableStore")
   {
-    auto* entityNode =
-      new mdl::EntityNode{mdl::Entity{{{"classname", "info_player_start"}}}};
-    mdl::addNodes(map, {{&mdl::parentForNodes(map), {entityNode}}});
+    auto* entityNode = mdl::addNode(
+      map,
+      mdl::parentForNodes(map),
+      std::make_unique<mdl::EntityNode>(
+        mdl::Entity{{{"classname", "info_player_start"}}}));
 
     auto store = makeNodeVariableStore(map, *entityNode);
     CHECK(store.size() == store.names().size());

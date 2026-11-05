@@ -33,6 +33,8 @@
 #include "mdl/PropertyDefinition.h"
 #include "mdl/TestUtils.h"
 
+#include <memory>
+
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers_range_equals.hpp>
 
@@ -457,8 +459,8 @@ TEST_CASE("Map_Initialization")
           REQUIRE(map->path() == path);
           REQUIRE(map->persistent());
 
-          auto* transientEntityNode = new EntityNode{{}};
-          addNodes(*map, {{&parentForNodes(*map), {transientEntityNode}}});
+          auto* transientEntityNode =
+            addNode(*map, parentForNodes(*map), std::make_unique<EntityNode>(Entity{}));
           REQUIRE_THAT(
             map->worldNode().defaultLayer()->children(),
             Catch::Matchers::RangeEquals(std::vector<Node*>{transientEntityNode}));

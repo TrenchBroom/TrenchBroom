@@ -240,14 +240,15 @@ TEST_CASE("Map_TagManagement")
 
   SECTION("addNodes initializes brush tags")
   {
-    auto* entityNode = new EntityNode{Entity{{
-      {"classname", "brush_entity"},
-    }}};
-    addNodes(map, {{&parentForNodes(map), {entityNode}}});
+    auto* entityNode = addNode(
+      map,
+      parentForNodes(map),
+      std::make_unique<EntityNode>(Entity{{
+        {"classname", "brush_entity"},
+      }}));
     REQUIRE(entityNode->entity().definition() == brushEntityDefinition);
 
-    auto* brush = createBrushNode(map, "some_material");
-    addNodes(map, {{entityNode, {brush}}});
+    auto* brush = addNode(map, *entityNode, createBrushNode(map, "some_material"));
 
     const auto& tag = tagManager.smartTag("entity");
     CHECK(brush->hasTag(tag));
@@ -257,14 +258,15 @@ TEST_CASE("Map_TagManagement")
   {
     SECTION("Brush tags")
     {
-      auto* entityNode = new EntityNode{Entity{{
-        {"classname", "brush_entity"},
-      }}};
-      addNodes(map, {{&parentForNodes(map), {entityNode}}});
+      auto* entityNode = addNode(
+        map,
+        parentForNodes(map),
+        std::make_unique<EntityNode>(Entity{{
+          {"classname", "brush_entity"},
+        }}));
       REQUIRE(entityNode->entity().definition() == brushEntityDefinition);
 
-      auto* brush = createBrushNode(map, "some_material");
-      addNodes(map, {{entityNode, {brush}}});
+      auto* brush = addNode(map, *entityNode, createBrushNode(map, "some_material"));
 
       removeNodes(map, {brush});
 
@@ -274,8 +276,8 @@ TEST_CASE("Map_TagManagement")
 
     SECTION("Brush face tags")
     {
-      auto* brushNodeWithTags = createBrushNode(map, "some_material");
-      addNodes(map, {{&parentForNodes(map), {brushNodeWithTags}}});
+      auto* brushNodeWithTags =
+        addNode(map, parentForNodes(map), createBrushNode(map, "some_material"));
       removeNodes(map, {brushNodeWithTags});
 
       const auto& tag = tagManager.smartTag("material");
@@ -290,13 +292,15 @@ TEST_CASE("Map_TagManagement")
   {
     SECTION("Reparent from world to entity")
     {
-      auto* brushNode = createBrushNode(map, "some_material");
-      addNodes(map, {{&parentForNodes(map), {brushNode}}});
+      auto* brushNode =
+        addNode(map, parentForNodes(map), createBrushNode(map, "some_material"));
 
-      auto* entityNode = new EntityNode{Entity{{
-        {"classname", "brush_entity"},
-      }}};
-      addNodes(map, {{&parentForNodes(map), {entityNode}}});
+      auto* entityNode = addNode(
+        map,
+        parentForNodes(map),
+        std::make_unique<EntityNode>(Entity{{
+          {"classname", "brush_entity"},
+        }}));
       REQUIRE(entityNode->entity().definition() == brushEntityDefinition);
 
       const auto& tag = tagManager.smartTag("entity");
@@ -308,17 +312,23 @@ TEST_CASE("Map_TagManagement")
 
     SECTION("Reparent between entities")
     {
-      auto* lightEntityNode = new EntityNode{Entity{{
+      auto lightEntityNodePtr = std::make_unique<EntityNode>(Entity{{
         {"classname", "brush_entity"},
-      }}};
-      auto* otherEntityNode = new EntityNode{Entity{{
+      }});
+      auto* lightEntityNode = lightEntityNodePtr.get();
+      auto otherEntityNodePtr = std::make_unique<EntityNode>(Entity{{
         {"classname", "other"},
-      }}};
-      addNodes(map, {{&parentForNodes(map), {lightEntityNode, otherEntityNode}}});
+      }});
+      auto* otherEntityNode = otherEntityNodePtr.get();
+      addNodes(
+        map,
+        parentForNodes(map),
+        kdl::vec_from<std::unique_ptr<Node>>(
+          std::move(lightEntityNodePtr), std::move(otherEntityNodePtr)));
       REQUIRE(lightEntityNode->entity().definition() == brushEntityDefinition);
 
-      auto* brushNode = createBrushNode(map, "some_material");
-      addNodes(map, {{otherEntityNode, {brushNode}}});
+      auto* brushNode =
+        addNode(map, *otherEntityNode, createBrushNode(map, "some_material"));
 
       const auto& tag = tagManager.smartTag("entity");
       CHECK(!brushNode->hasTag(tag));
@@ -330,13 +340,15 @@ TEST_CASE("Map_TagManagement")
 
   SECTION("setEntityProperty updates tags")
   {
-    auto* lightEntityNode = new EntityNode{Entity{{
-      {"classname", "asdf"},
-    }}};
-    addNodes(map, {{&parentForNodes(map), {lightEntityNode}}});
+    auto* lightEntityNode = addNode(
+      map,
+      parentForNodes(map),
+      std::make_unique<EntityNode>(Entity{{
+        {"classname", "asdf"},
+      }}));
 
-    auto* brushNode = createBrushNode(map, "some_material");
-    addNodes(map, {{lightEntityNode, {brushNode}}});
+    auto* brushNode =
+      addNode(map, *lightEntityNode, createBrushNode(map, "some_material"));
 
     const auto& tag = tagManager.smartTag("entity");
     CHECK(!brushNode->hasTag(tag));
@@ -350,8 +362,7 @@ TEST_CASE("Map_TagManagement")
 
   SECTION("setBrushFaceAttributes updates tags")
   {
-    auto* brushNode = createBrushNode(map, "asdf");
-    addNodes(map, {{&parentForNodes(map), {brushNode}}});
+    auto* brushNode = addNode(map, parentForNodes(map), createBrushNode(map, "asdf"));
 
     const auto& tag = tagManager.smartTag("contentflags");
 
@@ -376,9 +387,9 @@ TEST_CASE("Map_TagManagement")
   {
     SECTION("matches")
     {
-      auto nodeA = std::unique_ptr<BrushNode>{createBrushNode(map, materialA->name())};
-      auto nodeB = std::unique_ptr<BrushNode>{createBrushNode(map, materialB->name())};
-      auto nodeC = std::unique_ptr<BrushNode>{createBrushNode(map, materialC->name())};
+      auto nodeA = createBrushNode(map, materialA->name());
+      auto nodeB = createBrushNode(map, materialB->name());
+      auto nodeC = createBrushNode(map, materialC->name());
       const auto& tag = tagManager.smartTag("material");
       const auto& patternTag = tagManager.smartTag("materialPattern");
       for (const auto& face : nodeA->brush().faces())
@@ -400,8 +411,8 @@ TEST_CASE("Map_TagManagement")
 
     SECTION("enable")
     {
-      auto* nonMatchingBrushNode = createBrushNode(map, "asdf");
-      addNodes(map, {{&parentForNodes(map), {nonMatchingBrushNode}}});
+      auto* nonMatchingBrushNode =
+        addNode(map, parentForNodes(map), createBrushNode(map, "asdf"));
 
       const auto& tag = tagManager.smartTag("material");
       CHECK(tag.canEnable());
@@ -470,8 +481,8 @@ TEST_CASE("Map_TagManagement")
 
     SECTION("enable")
     {
-      auto* nonMatchingBrushNode = createBrushNode(map, "asdf");
-      addNodes(map, {{&parentForNodes(map), {nonMatchingBrushNode}}});
+      auto* nonMatchingBrushNode =
+        addNode(map, parentForNodes(map), createBrushNode(map, "asdf"));
 
       const auto& tag = tagManager.smartTag("surfaceparm_single");
       CHECK(tag.canEnable());
@@ -526,8 +537,8 @@ TEST_CASE("Map_TagManagement")
 
     SECTION("enable")
     {
-      auto* nonMatchingBrushNode = createBrushNode(map, "asdf");
-      addNodes(map, {{&parentForNodes(map), {nonMatchingBrushNode}}});
+      auto* nonMatchingBrushNode =
+        addNode(map, parentForNodes(map), createBrushNode(map, "asdf"));
 
       const auto& tag = tagManager.smartTag("contentflags");
       CHECK(tag.canEnable());
@@ -545,14 +556,14 @@ TEST_CASE("Map_TagManagement")
 
     SECTION("disable")
     {
-      auto* matchingBrushNode = createBrushNode(map, "asdf", [](auto& b) {
-        for (auto& face : b.faces())
-        {
-          face.setSurfaceAttributes({.contents = 1});
-        }
-      });
 
-      addNodes(map, {{&parentForNodes(map), {matchingBrushNode}}});
+      auto* matchingBrushNode =
+        addNode(map, parentForNodes(map), createBrushNode(map, "asdf", [](auto& b) {
+                  for (auto& face : b.faces())
+                  {
+                    face.setSurfaceAttributes({.contents = 1});
+                  }
+                }));
 
       const auto& tag = tagManager.smartTag("contentflags");
       CHECK(tag.canDisable());
@@ -601,8 +612,8 @@ TEST_CASE("Map_TagManagement")
 
     SECTION("enable")
     {
-      auto* nonMatchingBrushNode = createBrushNode(map, "asdf");
-      addNodes(map, {{&parentForNodes(map), {nonMatchingBrushNode}}});
+      auto* nonMatchingBrushNode =
+        addNode(map, parentForNodes(map), createBrushNode(map, "asdf"));
 
       const auto& tag = tagManager.smartTag("surfaceflags");
       CHECK(tag.canEnable());
@@ -620,14 +631,14 @@ TEST_CASE("Map_TagManagement")
 
     SECTION("disable")
     {
-      auto* matchingBrushNode = createBrushNode(map, "asdf", [](auto& b) {
-        for (auto& face : b.faces())
-        {
-          face.setSurfaceAttributes({.flags = 1});
-        }
-      });
 
-      addNodes(map, {{&parentForNodes(map), {matchingBrushNode}}});
+      auto* matchingBrushNode =
+        addNode(map, parentForNodes(map), createBrushNode(map, "asdf", [](auto& b) {
+                  for (auto& face : b.faces())
+                  {
+                    face.setSurfaceAttributes({.flags = 1});
+                  }
+                }));
 
       const auto& tag = tagManager.smartTag("surfaceflags");
       CHECK(tag.canDisable());
@@ -650,17 +661,14 @@ TEST_CASE("Map_TagManagement")
     {
       auto matchingEntity =
         std::make_unique<EntityNode>(Entity{{{"classname", "brush_entity"}}});
-      auto* matchingBrushNode = &matchingEntity->addChild(
-        std::unique_ptr<BrushNode>{createBrushNode(map, "asdf")});
-      auto* matchingPatchNode =
-        &matchingEntity->addChild(std::unique_ptr<PatchNode>{createPatchNode()});
+      auto* matchingBrushNode = &matchingEntity->addChild(createBrushNode(map, "asdf"));
+      auto* matchingPatchNode = &matchingEntity->addChild(createPatchNode());
 
       auto nonMatchingEntity =
         std::make_unique<EntityNode>(Entity{{{"classname", "something"}}});
-      auto* nonMatchingBrushNode = &nonMatchingEntity->addChild(
-        std::unique_ptr<BrushNode>{createBrushNode(map, "asdf")});
-      auto* nonMatchingPatchNode =
-        &nonMatchingEntity->addChild(std::unique_ptr<PatchNode>{createPatchNode()});
+      auto* nonMatchingBrushNode =
+        &nonMatchingEntity->addChild(createBrushNode(map, "asdf"));
+      auto* nonMatchingPatchNode = &nonMatchingEntity->addChild(createPatchNode());
 
       const auto& tag = tagManager.smartTag("entity");
       CHECK(tag.matches(*matchingBrushNode));
@@ -671,9 +679,15 @@ TEST_CASE("Map_TagManagement")
 
     SECTION("enable")
     {
-      auto* patchNode = createPatchNode();
-      auto* brushNode = createBrushNode(map, "asdf");
-      addNodes(map, {{&parentForNodes(map), {brushNode, patchNode}}});
+      auto patchNodePtr = createPatchNode();
+      auto* patchNode = patchNodePtr.get();
+      auto brushNodePtr = createBrushNode(map, "asdf");
+      auto* brushNode = brushNodePtr.get();
+      addNodes(
+        map,
+        parentForNodes(map),
+        kdl::vec_from<std::unique_ptr<Node>>(
+          std::move(brushNodePtr), std::move(patchNodePtr)));
 
       const auto& tag = tagManager.smartTag("entity");
       CHECK(!tag.matches(*brushNode));
@@ -691,8 +705,8 @@ TEST_CASE("Map_TagManagement")
 
     SECTION("enable sets patch material")
     {
-      auto* patchNode = createPatchNode("some_material");
-      addNodes(map, {{&parentForNodes(map), {patchNode}}});
+      auto* patchNode =
+        addNode(map, parentForNodes(map), createPatchNode("some_material"));
       selectNodes(map, {patchNode});
 
       const auto matcherWithMaterial =
@@ -705,15 +719,16 @@ TEST_CASE("Map_TagManagement")
 
     SECTION("enable retains entity properties")
     {
-      auto* brushNode = createBrushNode(map, "asdf");
 
-      auto* oldEntity = new EntityNode{Entity{{
-        {"classname", "something"},
-        {"some_attr", "some_value"},
-      }}};
 
-      addNodes(map, {{&parentForNodes(map), {oldEntity}}});
-      addNodes(map, {{oldEntity, {brushNode}}});
+      auto* oldEntity = addNode(
+        map,
+        parentForNodes(map),
+        std::make_unique<EntityNode>(Entity{{
+          {"classname", "something"},
+          {"some_attr", "some_value"},
+        }}));
+      auto* brushNode = addNode(map, *oldEntity, createBrushNode(map, "asdf"));
 
       const auto& tag = tagManager.smartTag("entity");
       selectNodes(map, {brushNode});
@@ -732,14 +747,15 @@ TEST_CASE("Map_TagManagement")
 
     SECTION("disable")
     {
-      auto* brushNode = createBrushNode(map, "asdf");
 
-      auto* oldEntityNode = new EntityNode{Entity{{
-        {"classname", "brush_entity"},
-      }}};
 
-      addNodes(map, {{&parentForNodes(map), {oldEntityNode}}});
-      addNodes(map, {{oldEntityNode, {brushNode}}});
+      auto* oldEntityNode = addNode(
+        map,
+        parentForNodes(map),
+        std::make_unique<EntityNode>(Entity{{
+          {"classname", "brush_entity"},
+        }}));
+      auto* brushNode = addNode(map, *oldEntityNode, createBrushNode(map, "asdf"));
       REQUIRE(oldEntityNode->entity().definition() == brushEntityDefinition);
 
       const auto& tag = tagManager.smartTag("entity");
@@ -756,14 +772,15 @@ TEST_CASE("Map_TagManagement")
 
     SECTION("disable (patch)")
     {
-      auto* patchNode = createPatchNode();
 
-      auto* oldEntityNode = new EntityNode{Entity{{
-        {"classname", "brush_entity"},
-      }}};
 
-      addNodes(map, {{&parentForNodes(map), {oldEntityNode}}});
-      addNodes(map, {{oldEntityNode, {patchNode}}});
+      auto* oldEntityNode = addNode(
+        map,
+        parentForNodes(map),
+        std::make_unique<EntityNode>(Entity{{
+          {"classname", "brush_entity"},
+        }}));
+      auto* patchNode = addNode(map, *oldEntityNode, createPatchNode());
       REQUIRE(oldEntityNode->entity().definition() == brushEntityDefinition);
 
       const auto& tag = tagManager.smartTag("entity");

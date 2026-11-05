@@ -43,6 +43,7 @@
 #include <fmt/format.h>
 #include <fmt/ranges.h>
 
+#include <memory>
 #include <ranges>
 #include <string>
 #include <vector>
@@ -225,30 +226,36 @@ TEST_CASE("Query")
     auto fixture = mdl::MapFixture{};
     auto& map = fixture.create();
 
-    auto* playerStart =
-      new mdl::EntityNode{mdl::Entity{{{"classname", "info_player_start"}}}};
-    mdl::addNodes(map, {{&mdl::parentForNodes(map), {playerStart}}});
+    auto* playerStart = mdl::addNode(
+      map,
+      mdl::parentForNodes(map),
+      std::make_unique<mdl::EntityNode>(
+        mdl::Entity{{{"classname", "info_player_start"}}}));
 
-    auto* detailEntity = new mdl::EntityNode{mdl::Entity{{
-      {"classname", "func_detail"},
-      {"message", "Careful, trap ahead"},
-    }}};
-    mdl::addNodes(map, {{&mdl::parentForNodes(map), {detailEntity}}});
+    auto* detailEntity = mdl::addNode(
+      map,
+      mdl::parentForNodes(map),
+      std::make_unique<mdl::EntityNode>(mdl::Entity{{
+        {"classname", "func_detail"},
+        {"message", "Careful, trap ahead"},
+      }}));
 
-    auto* triggerBrush = mdl::createBrushNode(map, "trigger_material");
-    mdl::addNodes(map, {{detailEntity, {triggerBrush}}});
+    auto* triggerBrush =
+      mdl::addNode(map, *detailEntity, mdl::createBrushNode(map, "trigger_material"));
 
-    auto* wallBrush = mdl::createBrushNode(map, "wall_material");
-    mdl::addNodes(map, {{&mdl::parentForNodes(map), {wallBrush}}});
+    auto* wallBrush = mdl::addNode(
+      map, mdl::parentForNodes(map), mdl::createBrushNode(map, "wall_material"));
 
-    auto* floorLayer = new mdl::LayerNode{mdl::Layer{"Floor"}};
-    mdl::addNodes(map, {{&map.worldNode(), {floorLayer}}});
+    auto* floorLayer = mdl::addNode(
+      map, map.worldNode(), std::make_unique<mdl::LayerNode>(mdl::Layer{"Floor"}));
 
-    auto* floorGroup = new mdl::GroupNode{mdl::Group{"Floor"}};
-    mdl::addNodes(map, {{&mdl::parentForNodes(map), {floorGroup}}});
+    auto* floorGroup = mdl::addNode(
+      map,
+      mdl::parentForNodes(map),
+      std::make_unique<mdl::GroupNode>(mdl::Group{"Floor"}));
 
-    auto* floorBrush = mdl::createBrushNode(map, "floor_material");
-    mdl::addNodes(map, {{floorGroup, {floorBrush}}});
+    auto* floorBrush =
+      mdl::addNode(map, *floorGroup, mdl::createBrushNode(map, "floor_material"));
 
     SECTION("a query matches by classname")
     {
@@ -401,21 +408,26 @@ TEST_CASE("Query")
     auto fixture = mdl::MapFixture{};
     auto& map = fixture.create();
 
-    auto* playerStart =
-      new mdl::EntityNode{mdl::Entity{{{"classname", "info_player_start"}}}};
-    mdl::addNodes(map, {{&mdl::parentForNodes(map), {playerStart}}});
+    auto* playerStart = mdl::addNode(
+      map,
+      mdl::parentForNodes(map),
+      std::make_unique<mdl::EntityNode>(
+        mdl::Entity{{{"classname", "info_player_start"}}}));
 
-    auto* doorEntity = new mdl::EntityNode{mdl::Entity{{{"classname", "func_door"}}}};
-    mdl::addNodes(map, {{&mdl::parentForNodes(map), {doorEntity}}});
+    auto* doorEntity = mdl::addNode(
+      map,
+      mdl::parentForNodes(map),
+      std::make_unique<mdl::EntityNode>(mdl::Entity{{{"classname", "func_door"}}}));
 
-    auto* doorBrush = mdl::createBrushNode(map, "door_material");
-    mdl::addNodes(map, {{doorEntity, {doorBrush}}});
+    auto* doorBrush =
+      mdl::addNode(map, *doorEntity, mdl::createBrushNode(map, "door_material"));
 
-    auto* combatGroup = new mdl::GroupNode{mdl::Group{"Combat"}};
-    mdl::addNodes(map, {{&mdl::parentForNodes(map), {combatGroup}}});
+    auto* combatGroup = mdl::addNode(
+      map,
+      mdl::parentForNodes(map),
+      std::make_unique<mdl::GroupNode>(mdl::Group{"Combat"}));
 
-    auto* combatBrush = mdl::createBrushNode(map, "combat_material");
-    mdl::addNodes(map, {{combatGroup, {combatBrush}}});
+    mdl::addNode(map, *combatGroup, mdl::createBrushNode(map, "combat_material"));
 
     SECTION("the current selection is replaced by the matches")
     {
@@ -461,9 +473,9 @@ TEST_CASE("Query")
 
     SECTION("a nested group is selected only if its containing group is opened")
     {
-      auto* ambushGroup = new mdl::GroupNode{mdl::Group{"Ambush"}};
-      mdl::addNodes(map, {{combatGroup, {ambushGroup}}});
-      mdl::addNodes(map, {{ambushGroup, {mdl::createBrushNode(map)}}});
+      auto* ambushGroup = mdl::addNode(
+        map, *combatGroup, std::make_unique<mdl::GroupNode>(mdl::Group{"Ambush"}));
+      mdl::addNode(map, *ambushGroup, mdl::createBrushNode(map));
 
       SECTION("the containing group is closed")
       {
@@ -501,11 +513,13 @@ TEST_CASE("Query")
     SECTION(
       "a layer is not selected via its contents if the query can match other objects")
     {
-      auto* light = new mdl::EntityNode{mdl::Entity{{
-        {"classname", "light"},
-        {"origin", "512 0 0"},
-      }}};
-      mdl::addNodes(map, {{&mdl::parentForNodes(map), {light}}});
+      auto* light = mdl::addNode(
+        map,
+        mdl::parentForNodes(map),
+        std::make_unique<mdl::EntityNode>(mdl::Entity{{
+          {"classname", "light"},
+          {"origin", "512 0 0"},
+        }}));
 
       // the box lies between the objects at the origin and the light, but the bounds of
       // the default layer contain all of them and therefore intersect the box as well

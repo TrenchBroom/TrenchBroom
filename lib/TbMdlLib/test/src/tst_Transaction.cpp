@@ -29,6 +29,8 @@
 
 #include "vm/mat_ext.h"
 
+#include <memory>
+
 #include <catch2/catch_test_macros.hpp>
 
 namespace tb::mdl
@@ -41,12 +43,12 @@ TEST_CASE("Transaction")
 
   REQUIRE_FALSE(map.selection().hasNodes());
 
-  auto* entityNode = new EntityNode{Entity{}};
 
   auto transaction = Transaction{map};
   CHECK(transaction.state() == Transaction::State::Running);
 
-  addNodes(map, {{&parentForNodes(map), {entityNode}}});
+  auto* entityNode =
+    addNode(map, parentForNodes(map), std::make_unique<EntityNode>(Entity{}));
   selectNodes(map, {entityNode});
   transformSelection(map, "translate", vm::translation_matrix(vm::vec3d{1, 0, 0}));
 

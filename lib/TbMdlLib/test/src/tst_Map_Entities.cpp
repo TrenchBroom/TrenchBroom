@@ -39,6 +39,10 @@
 #include "mdl/Transaction.h"
 #include "mdl/WorldNode.h"
 
+#include "kd/vector_utils.h"
+
+#include <memory>
+
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/generators/catch_generators.hpp>
 #include <catch2/matchers/catch_matchers_range_equals.hpp>
@@ -185,8 +189,8 @@ TEST_CASE("Map_Entities")
 
     SECTION("Linked group update failure")
     {
-      auto* entityNode = new EntityNode{Entity{}};
-      addNodes(map, {{&parentForNodes(map), {entityNode}}});
+      auto* entityNode =
+        addNode(map, parentForNodes(map), std::make_unique<EntityNode>(Entity{}));
       selectNodes(map, {entityNode});
 
       // move the entity down
@@ -223,8 +227,8 @@ TEST_CASE("Map_Entities")
   {
     SECTION("Brush entity is created and selected")
     {
-      auto* brushNode = createBrushNode(map, "some_material");
-      addNodes(map, {{&parentForNodes(map), {brushNode}}});
+      auto* brushNode =
+        addNode(map, parentForNodes(map), createBrushNode(map, "some_material"));
 
       selectNodes(map, {brushNode});
       auto* entityNode = createBrushEntity(map, *brushEntityDefinition);
@@ -256,8 +260,7 @@ TEST_CASE("Map_Entities")
 
     SECTION("Patch entity is created and selected")
     {
-      auto* patchNode = createPatchNode();
-      addNodes(map, {{&parentForNodes(map), {patchNode}}});
+      auto* patchNode = addNode(map, parentForNodes(map), createPatchNode());
 
       selectNodes(map, {patchNode});
       auto* entityNode = createBrushEntity(map, *brushEntityDefinition);
@@ -289,10 +292,17 @@ TEST_CASE("Map_Entities")
 
     SECTION("Copies properties from existing brush entity")
     {
-      auto* brushNode1 = createBrushNode(map, "some_material");
-      auto* brushNode2 = createBrushNode(map, "some_material");
-      auto* brushNode3 = createBrushNode(map, "some_material");
-      addNodes(map, {{&parentForNodes(map), {brushNode1, brushNode2, brushNode3}}});
+      auto brushNode1Ptr = createBrushNode(map, "some_material");
+      auto* brushNode1 = brushNode1Ptr.get();
+      auto brushNode2Ptr = createBrushNode(map, "some_material");
+      auto* brushNode2 = brushNode2Ptr.get();
+      auto brushNode3Ptr = createBrushNode(map, "some_material");
+      auto* brushNode3 = brushNode3Ptr.get();
+      addNodes(
+        map,
+        parentForNodes(map),
+        kdl::vec_from<std::unique_ptr<Node>>(
+          std::move(brushNode1Ptr), std::move(brushNode2Ptr), std::move(brushNode3Ptr)));
 
       selectNodes(map, {brushNode1, brushNode2, brushNode3});
       auto* previousEntityNode = createBrushEntity(map, *brushEntityDefinition);
@@ -310,9 +320,15 @@ TEST_CASE("Map_Entities")
 
     SECTION("Copies properties from mixed brush and patch entity")
     {
-      auto* brushNode = createBrushNode(map, "some_material");
-      auto* patchNode = createPatchNode();
-      addNodes(map, {{&parentForNodes(map), {brushNode, patchNode}}});
+      auto brushNodePtr = createBrushNode(map, "some_material");
+      auto* brushNode = brushNodePtr.get();
+      auto patchNodePtr = createPatchNode();
+      auto* patchNode = patchNodePtr.get();
+      addNodes(
+        map,
+        parentForNodes(map),
+        kdl::vec_from<std::unique_ptr<Node>>(
+          std::move(brushNodePtr), std::move(patchNodePtr)));
 
       selectNodes(map, {brushNode, patchNode});
       auto* previousEntityNode = createBrushEntity(map, *brushEntityDefinition);
@@ -348,10 +364,10 @@ TEST_CASE("Map_Entities")
       const auto& definitionWithDefaults =
         mapWithDefaultProperties.entityDefinitionManager().definitions().front();
 
-      auto* brushNode = createBrushNode(mapWithDefaultProperties, "some_material");
-      addNodes(
+      auto* brushNode = addNode(
         mapWithDefaultProperties,
-        {{&parentForNodes(mapWithDefaultProperties), {brushNode}}});
+        parentForNodes(mapWithDefaultProperties),
+        createBrushNode(mapWithDefaultProperties, "some_material"));
 
       selectNodes(mapWithDefaultProperties, {brushNode});
       auto* entityNode =
@@ -367,8 +383,8 @@ TEST_CASE("Map_Entities")
 
     SECTION("Linked group update failure")
     {
-      auto* entityNode = new EntityNode{Entity{}};
-      addNodes(map, {{&parentForNodes(map), {entityNode}}});
+      auto* entityNode =
+        addNode(map, parentForNodes(map), std::make_unique<EntityNode>(Entity{}));
       selectNodes(map, {entityNode});
 
       // move the entity down
@@ -392,12 +408,13 @@ TEST_CASE("Map_Entities")
       openGroup(map, *groupNode);
       deselectAll(map);
 
-      auto* brushNode = createBrushNode(map);
+      auto brushNodePtr = createBrushNode(map);
+      auto* brushNode = brushNodePtr.get();
       transformNode(
         *brushNode, vm::translation_matrix(vm::vec3d{0, 0, -32}), map.worldBounds());
       REQUIRE(brushNode->physicalBounds() == vm::bbox3d{{-16, -16, -48}, {16, 16, -16}});
 
-      addNodes(map, {{&parentForNodes(map), {brushNode}}});
+      addNode(map, parentForNodes(map), std::move(brushNodePtr));
       deselectAll(map);
       selectNodes(map, {brushNode});
 
@@ -433,10 +450,16 @@ TEST_CASE("Map_Entities")
         expectedEntity2.setProtectedProperties({"some_key"});
       }
 
-      const auto entityNode1 = new EntityNode{originalEntity1};
-      const auto entityNode2 = new EntityNode{originalEntity2};
+      auto entityNode1Ptr = std::make_unique<EntityNode>(originalEntity1);
+      auto* entityNode1 = entityNode1Ptr.get();
+      auto entityNode2Ptr = std::make_unique<EntityNode>(originalEntity2);
+      auto* entityNode2 = entityNode2Ptr.get();
 
-      addNodes(map, {{&parentForNodes(map), {entityNode1, entityNode2}}});
+      addNodes(
+        map,
+        parentForNodes(map),
+        kdl::vec_from<std::unique_ptr<Node>>(
+          std::move(entityNode1Ptr), std::move(entityNode2Ptr)));
 
       selectNodes(map, {entityNode1, entityNode2});
       CHECK(setEntityProperty(map, "some_key", "some_value", defaultToProtected));
@@ -469,8 +492,8 @@ TEST_CASE("Map_Entities")
         {"some_key", "some_value"},
       }};
 
-      const auto entityNode = new EntityNode{originalEntity};
-      addNodes(map, {{&parentForNodes(map), {entityNode}}});
+      auto* entityNode =
+        addNode(map, parentForNodes(map), std::make_unique<EntityNode>(originalEntity));
 
       selectNodes(map, {entityNode});
       CHECK(setEntityProperty(map, "some_key", "some_value", defaultToProtected));
@@ -490,9 +513,11 @@ TEST_CASE("Map_Entities")
 
     SECTION("Change entity class name")
     {
-      auto* entityNode = new EntityNode(Entity{{{"classname", "large_entity"}}});
 
-      addNodes(map, {{&parentForNodes(map), {entityNode}}});
+      auto* entityNode = addNode(
+        map,
+        parentForNodes(map),
+        std::make_unique<EntityNode>(Entity{{{"classname", "large_entity"}}}));
       REQUIRE(entityNode->entity().definition() == largeEntityDefinition);
 
       deselectAll(map);
@@ -541,8 +566,8 @@ TEST_CASE("Map_Entities")
     {
       // https://github.com/TrenchBroom/TrenchBroom/issues/3768
 
-      auto* entityNode = new EntityNode{Entity{}};
-      addNodes(map, {{&parentForNodes(map), {entityNode}}});
+      auto* entityNode =
+        addNode(map, parentForNodes(map), std::make_unique<EntityNode>(Entity{}));
       selectNodes(map, {entityNode});
 
       auto* groupNode = groupSelectedNodes(map, "test");
@@ -600,10 +625,16 @@ TEST_CASE("Map_Entities")
         {"some_other_key", "some_value"},
       }};
 
-      const auto entityNode1 = new EntityNode{originalEntity1};
-      const auto entityNode2 = new EntityNode{originalEntity2};
+      auto entityNode1Ptr = std::make_unique<EntityNode>(originalEntity1);
+      auto* entityNode1 = entityNode1Ptr.get();
+      auto entityNode2Ptr = std::make_unique<EntityNode>(originalEntity2);
+      auto* entityNode2 = entityNode2Ptr.get();
 
-      addNodes(map, {{&parentForNodes(map), {entityNode1, entityNode2}}});
+      addNodes(
+        map,
+        parentForNodes(map),
+        kdl::vec_from<std::unique_ptr<Node>>(
+          std::move(entityNode1Ptr), std::move(entityNode2Ptr)));
 
       selectNodes(map, {entityNode1, entityNode2});
       CHECK(renameEntityProperty(map, "some_key", "some_other_key"));
@@ -626,9 +657,11 @@ TEST_CASE("Map_Entities")
 
     SECTION("Rename entity class name")
     {
-      auto* entityNode = new EntityNode(Entity{{{"classname", "large_entity"}}});
 
-      addNodes(map, {{&parentForNodes(map), {entityNode}}});
+      auto* entityNode = addNode(
+        map,
+        parentForNodes(map),
+        std::make_unique<EntityNode>(Entity{{{"classname", "large_entity"}}}));
       REQUIRE(entityNode->entity().definition() == largeEntityDefinition);
 
       deselectAll(map);
@@ -694,10 +727,16 @@ TEST_CASE("Map_Entities")
         {"some_other_key", "some_other_value"},
       }};
 
-      const auto entityNode1 = new EntityNode{originalEntity1};
-      const auto entityNode2 = new EntityNode{originalEntity2};
+      auto entityNode1Ptr = std::make_unique<EntityNode>(originalEntity1);
+      auto* entityNode1 = entityNode1Ptr.get();
+      auto entityNode2Ptr = std::make_unique<EntityNode>(originalEntity2);
+      auto* entityNode2 = entityNode2Ptr.get();
 
-      addNodes(map, {{&parentForNodes(map), {entityNode1, entityNode2}}});
+      addNodes(
+        map,
+        parentForNodes(map),
+        kdl::vec_from<std::unique_ptr<Node>>(
+          std::move(entityNode1Ptr), std::move(entityNode2Ptr)));
 
       selectNodes(map, {entityNode1, entityNode2});
       CHECK(removeEntityProperty(map, "some_key"));
@@ -720,9 +759,11 @@ TEST_CASE("Map_Entities")
 
     SECTION("Remove entity class name")
     {
-      auto* entityNode = new EntityNode{Entity{{{"classname", "large_entity"}}}};
 
-      addNodes(map, {{&parentForNodes(map), {entityNode}}});
+      auto* entityNode = addNode(
+        map,
+        parentForNodes(map),
+        std::make_unique<EntityNode>(Entity{{{"classname", "large_entity"}}}));
       REQUIRE(entityNode->entity().definition() == largeEntityDefinition);
 
       deselectAll(map);
@@ -762,8 +803,8 @@ TEST_CASE("Map_Entities")
       {"colorAny", "0.1 0.2 0.3 0.4 0.5"},
     }};
 
-    auto* entityNode = new EntityNode{originalEntity1};
-    addNodes(map, {{&parentForNodes(map), {entityNode}}});
+    auto* entityNode =
+      addNode(map, parentForNodes(map), std::make_unique<EntityNode>(originalEntity1));
     selectNodes(map, {entityNode});
 
     SECTION("single entity selected")
@@ -822,8 +863,8 @@ TEST_CASE("Map_Entities")
         {"color", "1 2 3 4"},
       }};
 
-      auto* entityNode2 = new EntityNode{originalEntity2};
-      addNodes(map, {{&parentForNodes(map), {entityNode2}}});
+      auto* entityNode2 =
+        addNode(map, parentForNodes(map), std::make_unique<EntityNode>(originalEntity2));
       selectNodes(map, {entityNode2});
 
       REQUIRE(setEntityColorProperty(map, "color", RgbF{0.0f, 0.5f, 1.0f}));
@@ -863,8 +904,8 @@ TEST_CASE("Map_Entities")
 
     CAPTURE(key, range);
 
-    auto* entityNode = new EntityNode{originalEntity};
-    addNodes(map, {{&parentForNodes(map), {entityNode}}});
+    auto* entityNode =
+      addNode(map, parentForNodes(map), std::make_unique<EntityNode>(originalEntity));
     selectNodes(map, {entityNode});
 
     REQUIRE(convertEntityColorRange(map, key, range));
@@ -876,10 +917,12 @@ TEST_CASE("Map_Entities")
   {
     SECTION("Brush entity")
     {
-      auto* brushNode = new BrushNode{
-        builder.createCuboid(vm::bbox3d{{0, 0, 0}, {64, 64, 64}}, "material")
-        | kdl::value()};
-      addNodes(map, {{&parentForNodes(map), {brushNode}}});
+      auto* brushNode = addNode(
+        map,
+        parentForNodes(map),
+        std::make_unique<BrushNode>(
+          builder.createCuboid(vm::bbox3d{{0, 0, 0}, {64, 64, 64}}, "material")
+          | kdl::value()));
 
       selectAllNodes(map);
 
@@ -910,8 +953,8 @@ TEST_CASE("Map_Entities")
   {
     SECTION("Toggle protected state")
     {
-      auto* entityNode = new EntityNode{Entity{}};
-      addNodes(map, {{&parentForNodes(map), {entityNode}}});
+      auto* entityNode =
+        addNode(map, parentForNodes(map), std::make_unique<EntityNode>(Entity{}));
 
       selectNodes(map, {entityNode});
 
@@ -969,8 +1012,10 @@ TEST_CASE("Map_Entities")
 
     SECTION("Setting protected entity properties restores their values")
     {
-      auto* entityNode = new EntityNode{Entity{{{"some_key", "some_value"}}}};
-      addNodes(map, {{&parentForNodes(map), {entityNode}}});
+      auto* entityNode = addNode(
+        map,
+        parentForNodes(map),
+        std::make_unique<EntityNode>(Entity{{{"some_key", "some_value"}}}));
 
       selectNodes(map, {entityNode});
       auto* groupNode = groupSelectedNodes(map, "test");
@@ -1102,11 +1147,13 @@ TEST_CASE("Map_Entities")
 
   SECTION("clearProtectedEntityProperties")
   {
-    auto* entityNode = new EntityNode{Entity{{
-      {"some_key", "some_value"},
-      {"another_key", "another_value"},
-    }}};
-    addNodes(map, {{&parentForNodes(map), {entityNode}}});
+    auto* entityNode = addNode(
+      map,
+      parentForNodes(map),
+      std::make_unique<EntityNode>(Entity{{
+        {"some_key", "some_value"},
+        {"another_key", "another_value"},
+      }}));
 
     CHECK(!canClearProtectedEntityProperties(map));
 
@@ -1280,10 +1327,12 @@ TEST_CASE("Map_Entities")
       map.entityDefinitionManager().definition("some_name");
     REQUIRE(definitionWithDefaults);
 
-    auto* entityNodeWithoutDefinition = new EntityNode{Entity{{
-      {"classname", "some_class"},
-    }}};
-    addNodes(map, {{&parentForNodes(map), {entityNodeWithoutDefinition}}});
+    auto* entityNodeWithoutDefinition = addNode(
+      map,
+      parentForNodes(map),
+      std::make_unique<EntityNode>(Entity{{
+        {"classname", "some_class"},
+      }}));
     selectNodes(map, {entityNodeWithoutDefinition});
     setEntityProperty(map, "some_prop", "some_value");
     deselectAll(map);
