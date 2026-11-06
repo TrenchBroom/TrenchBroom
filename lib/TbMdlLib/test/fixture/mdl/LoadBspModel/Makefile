@@ -7,7 +7,7 @@
 # Due to the way paths work differently in TrenchBroom and ericw, WADs would
 # need to be moved to the .map directory to be displayed properly in TrenchBroom.
 # Encased in a SKIP box for VIS purposes.
-all: hl.bsp invalid_version.bsp
+all: hl.bsp invalid_version.bsp quake.bsp
 
 embedded/embedded.wad: skip.png embedded.png
 	mkdir -p "$(dir $@)"
@@ -28,3 +28,9 @@ invalid_version.bsp: hl.bsp
 	cp "$<" "$@"
 	# First byte is the BSP version, use 0x3F ('?') as an arbitrary canary value.
 	printf '?' | dd of="$@" bs=1 count=1 seek=0 conv=notrunc
+
+quake.bsp: hl.bsp
+	cp "$<" "$@"
+	# The parts of the layout that TrenchBroom reads are the same for Quake and
+	# Half-Life BSPs, so patch the version (first byte) to 29 (0x1D) for Quake.
+	printf '\035' | dd of="$@" bs=1 count=1 seek=0 conv=notrunc

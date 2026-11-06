@@ -19,6 +19,7 @@
 
 #include "TestEnvironment.h"
 #include "fs/DiskFileSystem.h"
+#include "fs/Reader.h"
 #include "gl/Texture.h"
 #include "mdl/CatchConfig.h"
 #include "mdl/LoadWalTexture.h"
@@ -26,6 +27,7 @@
 
 #include "kd/result.h"
 
+#include <array>
 #include <filesystem>
 
 #include <catch2/catch_test_macros.hpp>
@@ -49,6 +51,18 @@ TEST_CASE("LoadWalTexture")
     CHECK(isWalTexture("path/to/texture.wal"));
     CHECK(!isWalTexture("texture.d"));
     CHECK(!isWalTexture("texture"));
+  }
+
+  SECTION("walTextureRequiresPalette")
+  {
+    const auto q2File = fs.openFile(basePath / "rtz/b_pv_v1a1.wal") | kdl::value();
+    CHECK(walTextureRequiresPalette(q2File->reader()));
+
+    const auto dkFile = fs.openFile(basePath / "dk_opaque.wal") | kdl::value();
+    CHECK(!walTextureRequiresPalette(dkFile->reader()));
+
+    const auto empty = std::array<char, 1>{};
+    CHECK(!walTextureRequiresPalette(fs::Reader::from(empty.data(), empty.data())));
   }
 
   SECTION("loadWalTexture")

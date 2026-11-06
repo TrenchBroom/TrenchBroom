@@ -86,7 +86,7 @@ struct FaceInfo
 std::vector<gl::Material> parseMaterials(
   fs::Reader reader,
   const int version,
-  const Palette& palette,
+  const std::optional<Palette>& palette,
   const fs::FileSystem& fs,
   Logger& logger)
 {
@@ -105,11 +105,17 @@ std::vector<gl::Material> parseMaterials(
     }
 
     auto materialName = readMipTextureName(reader);
+    if (version == 29 && !palette)
+    {
+      result.push_back(loadDefaultMaterial(fs, std::move(materialName), logger));
+      continue;
+    }
+
     auto textureReader = reader.subReaderFromBegin(size_t(offset)).buffer();
     const auto isMasked = isMaskedTextureName(materialName);
 
     result.push_back(
-      (version == 29 ? loadIdMipTexture(textureReader, palette, isMasked)
+      (version == 29 ? loadIdMipTexture(textureReader, *palette, isMasked)
                      : loadHlMipTexture(textureReader, isMasked))
       | kdl::or_else(makeReadTextureErrorHandler(fs, logger))
       | kdl::transform([&](auto texture) {
@@ -284,7 +290,7 @@ bool canLoadBspModel(const std::filesystem::path& path, fs::Reader reader)
 Result<EntityModelData> loadBspModel(
   const std::string& name,
   fs::Reader reader,
-  const Palette& palette,
+  const std::optional<Palette>& palette,
   const fs::FileSystem& fs,
   Logger& logger)
 {

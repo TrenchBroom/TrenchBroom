@@ -95,7 +95,7 @@ TEST_CASE("EntityModelManager")
       CHECK(model1 == model2);
     }
 
-    SECTION("fails to load a model that requires the palette if the palette is missing")
+    SECTION("loads a model that requires the palette if the palette is missing")
     {
       auto managerWithoutPalette = EntityModelManager{
         gameInfo,
@@ -106,7 +106,7 @@ TEST_CASE("EntityModelManager")
 
       const auto* model = managerWithoutPalette.model("armor.mdl");
       REQUIRE(model != nullptr);
-      CHECK(model->data() == nullptr);
+      CHECK(model->data() != nullptr);
     }
 
     SECTION("loads a model whose data is null if the underlying file does not exist")

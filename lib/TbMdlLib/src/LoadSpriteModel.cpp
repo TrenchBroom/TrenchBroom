@@ -24,6 +24,7 @@
 #include "gl/IndexRangeMap.h"
 #include "gl/IndexRangeMapBuilder.h"
 #include "gl/Material.h"
+#include "mdl/MaterialUtils.h"
 #include "mdl/Palette.h"
 
 #include "kd/path_utils.h"
@@ -44,16 +45,27 @@ struct SprPicture
 };
 
 SprPicture parsePicture(
-  fs::Reader& reader, const Palette& palette, const img::ImageAlphaDomain alphaDomain)
+  fs::Reader& reader,
+  const std::optional<Palette>& palette,
+  const img::ImageAlphaDomain alphaDomain,
+  const fs::FileSystem& fs,
+  Logger& logger)
 {
   const auto xOffset = reader.readInt<int32_t>();
   const auto yOffset = reader.readInt<int32_t>();
   const auto width = reader.readSize<int32_t>();
   const auto height = reader.readSize<int32_t>();
 
+  if (!palette)
+  {
+    reader.seekForward(width * height);
+    return SprPicture{
+      loadDefaultMaterial(fs, "", logger), xOffset, yOffset, width, height};
+  }
+
   auto rgbaImage = gl::TextureBuffer{4 * width * height};
   auto averageColor = Color{RgbaF{}};
-  palette.indexedToRgba(
+  palette->indexedToRgba(
     reader,
     width * height,
     rgbaImage,
@@ -81,19 +93,23 @@ void skipPicture(fs::Reader& reader)
 }
 
 SprPicture parsePictureFrame(
-  fs::Reader& reader, const Palette& palette, const img::ImageAlphaDomain alphaDomain)
+  fs::Reader& reader,
+  const std::optional<Palette>& palette,
+  const img::ImageAlphaDomain alphaDomain,
+  const fs::FileSystem& fs,
+  Logger& logger)
 {
   const auto group = reader.readInt<int32_t>();
   if (group == 0)
   { // single picture frame
-    return parsePicture(reader, palette, alphaDomain);
+    return parsePicture(reader, palette, alphaDomain, fs, logger);
   }
 
   // multiple picture frame
   const auto pictureCount = reader.readSize<int32_t>();
   reader.seekForward(pictureCount * sizeof(float));
 
-  auto picture = parsePicture(reader, palette, alphaDomain);
+  auto picture = parsePicture(reader, palette, alphaDomain, fs, logger);
   for (size_t i = 0; i < pictureCount - 1; ++i)
   {
     skipPicture(reader);
@@ -193,11 +209,11 @@ std::vector<unsigned char> processGoldsourcePalette(
   return processed;
 }
 
-Result<Palette> parseEmbeddedPalette(
+Result<std::optional<Palette>> parseEmbeddedPalette(
   fs::Reader& reader,
   const RenderMode renderMode,
   const int version,
-  const Palette& defaultPalette)
+  const std::optional<Palette>& defaultPalette)
 {
   if (version != 2)
   {
@@ -213,7 +229,8 @@ Result<Palette> parseEmbeddedPalette(
   auto data = std::vector<unsigned char>(paletteSize * 3);
   reader.read(data.data(), data.size());
   data = processGoldsourcePalette(renderMode, data);
-  return makePalette(data, PaletteColorFormat::Rgba);
+  return makePalette(data, PaletteColorFormat::Rgba)
+         | kdl::transform([](auto palette) { return std::optional{std::move(palette)}; });
 }
 
 /**
@@ -334,7 +351,11 @@ bool canLoadSpriteModel(const std::filesystem::path& path, fs::Reader reader)
 }
 
 Result<EntityModelData> loadSpriteModel(
-  const std::string& name, fs::Reader reader, const Palette& palette, Logger&)
+  const std::string& name,
+  fs::Reader reader,
+  const std::optional<Palette>& palette,
+  const fs::FileSystem& fs,
+  Logger& logger)
 {
   // see https://www.gamers.org/dEngine/quake/spec/quake-spec34/qkspec_6.htm#CSPRF
 
@@ -381,8 +402,8 @@ Result<EntityModelData> loadSpriteModel(
 
                        for (size_t i = 0; i < frameCount; ++i)
                        {
-                         auto pictureFrame =
-                           parsePictureFrame(reader, embeddedPalette, alphaDomain);
+                         auto pictureFrame = parsePictureFrame(
+                           reader, embeddedPalette, alphaDomain, fs, logger);
                          materials.push_back(std::move(pictureFrame.material));
 
                          const auto w = static_cast<float>(pictureFrame.width);

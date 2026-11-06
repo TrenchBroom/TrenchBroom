@@ -31,6 +31,8 @@
 
 #include "kd/result.h"
 
+#include <optional>
+
 #include <catch2/catch_test_macros.hpp>
 
 namespace tb::mdl
@@ -62,6 +64,56 @@ TEST_CASE("loadBspModel")
           CHECK(surface.frameCount() == 1u);
         })
       | kdl::transform_error([](const auto& e) { FAIL(e); });
+  }
+
+  SECTION("valid Quake BSP")
+  {
+    const auto bspPath = getFixtureRoot() / "test/mdl/LoadBspModel/quake.bsp";
+    const auto bspFile = fs::Disk::openFile(bspPath) | kdl::value();
+
+    auto reader = bspFile->reader().buffer();
+    loadBspModel("quake", reader, palette, fs, logger)
+      | kdl::transform([](const auto& bspData) {
+          CHECK(bspData.surfaceCount() == 1u);
+          CHECK(bspData.frameCount() == 1u);
+
+          const auto& surfaces = bspData.surfaces();
+          const auto& surface = surfaces.front();
+          CHECK(surface.skinCount() == 3u);
+          CHECK(surface.frameCount() == 1u);
+        })
+      | kdl::transform_error([](const auto& e) { FAIL(e); });
+  }
+
+  SECTION("missing palette")
+  {
+    SECTION("Quake BSPs require the palette")
+    {
+      const auto bspPath = getFixtureRoot() / "test/mdl/LoadBspModel/quake.bsp";
+      const auto bspFile = fs::Disk::openFile(bspPath) | kdl::value();
+
+      auto reader = bspFile->reader().buffer();
+      loadBspModel("quake", reader, std::nullopt, fs, logger)
+        | kdl::transform([](const auto& bspData) {
+            CHECK(bspData.surfaceCount() == 1u);
+            CHECK(bspData.frameCount() == 1u);
+
+            const auto& surfaces = bspData.surfaces();
+            const auto& surface = surfaces.front();
+            CHECK(surface.skinCount() == 3u);
+            CHECK(surface.frameCount() == 1u);
+          })
+        | kdl::transform_error([](const auto& e) { FAIL(e); });
+    }
+
+    SECTION("Half-Life BSPs have embedded palettes")
+    {
+      const auto bspPath = getFixtureRoot() / "test/mdl/LoadBspModel/hl.bsp";
+      const auto bspFile = fs::Disk::openFile(bspPath) | kdl::value();
+
+      auto reader = bspFile->reader().buffer();
+      CHECK(loadBspModel("hl", reader, std::nullopt, fs, logger).is_success());
+    }
   }
 
   SECTION("invalid BSP")
