@@ -104,14 +104,14 @@ std::vector<gl::Material> parseMaterials(
       continue;
     }
 
-    auto materialName = readMipTextureName(reader);
+    auto textureReader = reader.subReaderFromBegin(size_t(offset)).buffer();
+    auto materialName = readMipTextureName(textureReader);
     if (version == 29 && !palette)
     {
       result.push_back(loadDefaultMaterial(fs, std::move(materialName), logger));
       continue;
     }
 
-    auto textureReader = reader.subReaderFromBegin(size_t(offset)).buffer();
     const auto isMasked = isMaskedTextureName(materialName);
 
     result.push_back(
