@@ -19,11 +19,14 @@
 
 #include "TestEnvironment.h"
 #include "base/Result.h"
+#include "fs/DiskFileSystem.h"
 #include "fs/DiskIO.h"
 #include "mdl/CatchConfig.h"
 #include "mdl/Palette.h"
 
 #include "kd/result.h"
+
+#include <optional>
 
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/generators/catch_generators.hpp>
@@ -230,6 +233,31 @@ TEST_CASE("Palette")
       makePalette(expectedPaletteData, PaletteColorFormat::Rgb);
 
     CHECK(loadPalette(*file, filePath) == expectedPalette);
+  }
+
+  SECTION("loadPalette(FileSystem, path)")
+  {
+    const auto fs = fs::DiskFileSystem{getFixtureRoot() / "test/mdl/Palette"};
+
+    SECTION("loads the palette at the given path")
+    {
+      const auto file = fs.openFile("palette.lmp") | kdl::value();
+      const auto expectedPalette = loadPalette(*file, "palette.lmp") | kdl::value();
+
+      CHECK(
+        loadPalette(fs, "palette.lmp")
+        == Result<std::optional<Palette>>{expectedPalette});
+    }
+
+    SECTION("returns no palette if the path is empty")
+    {
+      CHECK(loadPalette(fs, "") == Result<std::optional<Palette>>{std::nullopt});
+    }
+
+    SECTION("returns an error if the palette file does not exist")
+    {
+      CHECK(loadPalette(fs, "missing.lmp").is_error());
+    }
   }
 }
 
