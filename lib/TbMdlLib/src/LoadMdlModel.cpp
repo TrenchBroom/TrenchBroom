@@ -19,6 +19,7 @@
 
 #include "mdl/LoadMdlModel.h"
 
+#include "base/Logger.h"
 #include "fs/ReaderException.h"
 #include "gl/IndexRangeMap.h"
 #include "gl/IndexRangeMapBuilder.h"
@@ -246,7 +247,7 @@ gl::Material parseSkin(
   const size_t height,
   const int flags,
   std::string skinName,
-  const Palette& palette,
+  const std::optional<Palette>& palette,
   const fs::FileSystem& fs,
   Logger& logger)
 {
@@ -269,9 +270,16 @@ gl::Material parseSkin(
     return loadDefaultMaterial(fs, std::move(skinName), logger);
   }
 
+  if (!palette)
+  {
+    logger.error() << "Could not load skin '" << skinName << "': Missing palette";
+    reader.seekForward(pictureCount * size); // skip all pictures
+    return loadDefaultMaterial(fs, std::move(skinName), logger);
+  }
+
   auto avgColor = Color{RgbaF{}};
   auto rgbaImage = gl::TextureBuffer{size * 4};
-  palette.indexedToRgba(reader, size, rgbaImage, transparency, avgColor);
+  palette->indexedToRgba(reader, size, rgbaImage, transparency, avgColor);
   reader.seekForward((pictureCount - 1) * size); // skip all remaining pictures
 
   auto texture = gl::Texture{
@@ -290,7 +298,7 @@ void parseSkins(
   const size_t height,
   const int flags,
   const std::string& modelName,
-  const Palette& palette,
+  const std::optional<Palette>& palette,
   const fs::FileSystem& fs,
   Logger& logger)
 {
@@ -325,7 +333,7 @@ bool canLoadMdlModel(const std::filesystem::path& path, fs::Reader reader)
 Result<EntityModelData> loadMdlModel(
   const std::string& name,
   fs::Reader reader,
-  const Palette& palette,
+  const std::optional<Palette>& palette,
   const fs::FileSystem& fs,
   Logger& logger)
 {

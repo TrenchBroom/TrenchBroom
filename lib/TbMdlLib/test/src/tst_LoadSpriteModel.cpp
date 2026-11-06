@@ -18,6 +18,7 @@
  */
 
 #include "TestEnvironment.h"
+#include "TestLogger.h"
 #include "base/Logger.h"
 #include "fs/DiskFileSystem.h"
 #include "fs/DiskIO.h"
@@ -46,7 +47,7 @@ namespace tb::mdl
 
 TEST_CASE("loadSpriteModel")
 {
-  auto logger = NullLogger{};
+  auto logger = TestLogger{};
 
   const auto palettePath = "palette.lmp";
   auto diskFs = fs::DiskFileSystem{getFixtureRoot() / "test/mdl/LoadSpriteModel"};
@@ -60,11 +61,17 @@ TEST_CASE("loadSpriteModel")
   const auto y1 = -256.0f;
   const auto y2 = 256.0f;
 
+  const auto loadFixtureWithPalette =
+    [&](const std::string& name, const std::optional<Palette>& defaultPalette) {
+      const auto sprPath =
+        getFixtureRoot() / "test/mdl/LoadSpriteModel" / (name + ".spr");
+      auto sprFile = fs::Disk::openFile(sprPath) | kdl::value();
+      auto reader = sprFile->reader().buffer();
+      return loadSpriteModel(name, reader, defaultPalette, diskFs, logger);
+    };
+
   const auto loadFixture = [&](const std::string& name) {
-    const auto sprPath = getFixtureRoot() / "test/mdl/LoadSpriteModel" / (name + ".spr");
-    auto sprFile = fs::Disk::openFile(sprPath) | kdl::value();
-    auto reader = sprFile->reader().buffer();
-    return loadSpriteModel(name, reader, palette, diskFs, logger);
+    return loadFixtureWithPalette(name, palette);
   };
 
   SECTION("billboard orientations")
@@ -196,6 +203,39 @@ TEST_CASE("loadSpriteModel")
       CHECK(surface.skin(1u)->texture()->width() == 2u);
       CHECK(modelData.frames()[1].bounds() == vm::bbox3f{{-1, -1, -1}, {1, 1, 1}});
     }) | kdl::transform_error([](const auto& e) { FAIL(e); });
+  }
+
+  SECTION("missing palette")
+  {
+    SECTION("Quake1 sprites require the palette")
+    {
+      loadFixtureWithPalette("ViewPlaneParallelUpright", std::nullopt)
+        | kdl::transform([&](const auto& modelData) {
+            CHECK(modelData.frameCount() == 1u);
+
+            const auto& surface = modelData.surfaces().front();
+            REQUIRE(surface.skinCount() == 1u);
+
+            // the picture gets the default texture, which has pixel data unlike the
+            // empty texture that replaces it if it cannot be loaded
+            const auto* texture = surface.skin(0u)->texture();
+            CHECK(texture->width() == 32u);
+            CHECK(!texture->buffersIfLoaded().empty());
+
+            const auto& frame = modelData.frames().front();
+            CHECK(frame.bounds() == vm::bbox3f{{x1, x1, y1}, {x2, x2, y2}});
+          })
+        | kdl::transform_error([](const auto& e) { FAIL(e); });
+
+      // the frame that requires the missing palette is reported
+      CHECK(logger.countMessages(LogLevel::Error) == 1);
+    }
+
+    SECTION("Half-Life sprites have an embedded palette")
+    {
+      CHECK(loadFixtureWithPalette("RenderModeNormal", std::nullopt).is_success());
+      CHECK(logger.countMessages(LogLevel::Error) == 0);
+    }
   }
 }
 

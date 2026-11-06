@@ -18,6 +18,7 @@
  */
 
 #include "TestEnvironment.h"
+#include "TestLogger.h"
 #include "base/Logger.h"
 #include "fs/DiskFileSystem.h"
 #include "fs/TestEnvironment.h"
@@ -65,7 +66,7 @@ GameInfo makeTestGameInfo()
 
 TEST_CASE("EntityModelManager")
 {
-  auto logger = NullLogger{};
+  auto logger = TestLogger{};
   auto fileSystem = fs::DiskFileSystem{getFixtureRoot() / "test/mdl/LoadMdlModel"};
   const auto gameInfo = makeTestGameInfo();
   const auto palette = loadPalette(fileSystem, "palette.lmp") | kdl::value();
@@ -98,7 +99,7 @@ TEST_CASE("EntityModelManager")
       CHECK(model1 == model2);
     }
 
-    SECTION("fails to load a model that requires the palette if the palette is missing")
+    SECTION("loads a model that requires the palette if the palette is missing")
     {
       auto managerWithoutPalette = EntityModelManager{
         gameInfo,
@@ -109,7 +110,20 @@ TEST_CASE("EntityModelManager")
 
       const auto* model = managerWithoutPalette.model("armor.mdl");
       REQUIRE(model != nullptr);
-      CHECK(model->data() == nullptr);
+      REQUIRE(model->data() != nullptr);
+
+      // armor.mdl's 128x128 skins are replaced by the 32x32 default texture
+      const auto& surface = model->data()->surfaces().front();
+      REQUIRE(surface.skinCount() == 3u);
+
+      // NOLINTNEXTLINE(misc-const-correctness)
+      for (size_t i = 0; i < surface.skinCount(); ++i)
+      {
+        CHECK(surface.skin(i)->texture()->width() == 32u);
+      }
+
+      // each skin that requires the missing palette is reported
+      CHECK(logger.countMessages(LogLevel::Error) == 3);
     }
 
     SECTION("loads materials that require the palette with the palette")

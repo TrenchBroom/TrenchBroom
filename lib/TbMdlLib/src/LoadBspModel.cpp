@@ -86,7 +86,7 @@ struct FaceInfo
 std::vector<gl::Material> parseMaterials(
   fs::Reader reader,
   const int version,
-  const Palette& palette,
+  const std::optional<Palette>& palette,
   const fs::FileSystem& fs,
   Logger& logger)
 {
@@ -284,7 +284,7 @@ bool canLoadBspModel(const std::filesystem::path& path, fs::Reader reader)
 Result<EntityModelData> loadBspModel(
   const std::string& name,
   fs::Reader reader,
-  const Palette& palette,
+  const std::optional<Palette>& palette,
   const fs::FileSystem& fs,
   Logger& logger)
 {

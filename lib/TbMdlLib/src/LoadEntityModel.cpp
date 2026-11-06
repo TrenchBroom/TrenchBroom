@@ -46,15 +46,6 @@ namespace tb::mdl
 namespace
 {
 
-Result<Palette> requirePalette(const std::optional<Palette>& palette)
-{
-  if (palette)
-  {
-    return *palette;
-  }
-  return Error{"Missing palette"};
-}
-
 Result<EntityModelData> loadEntityModelData(
   const fs::FileSystem& fs,
   const std::optional<Palette>& palette,
@@ -68,35 +59,19 @@ Result<EntityModelData> loadEntityModelData(
 
            if (canLoadMdlModel(path, reader))
            {
-             return requirePalette(palette)
-                    | kdl::and_then([&](const auto& requiredPalette) {
-                        return loadMdlModel(
-                          modelName, reader, requiredPalette, fs, logger);
-                      });
+             return loadMdlModel(modelName, reader, palette, fs, logger);
            }
            if (canLoadMd2Model(path, reader))
            {
-             return requirePalette(palette)
-                    | kdl::and_then([&](const auto& requiredPalette) {
-                        return loadMd2Model(
-                          modelName, reader, requiredPalette, fs, logger);
-                      });
+             return loadMd2Model(modelName, reader, palette, fs, logger);
            }
            if (canLoadBspModel(path, reader))
            {
-             return requirePalette(palette)
-                    | kdl::and_then([&](const auto& requiredPalette) {
-                        return loadBspModel(
-                          modelName, reader, requiredPalette, fs, logger);
-                      });
+             return loadBspModel(modelName, reader, palette, fs, logger);
            }
            if (canLoadSpriteModel(path, reader))
            {
-             return requirePalette(palette)
-                    | kdl::and_then([&](const auto& requiredPalette) {
-                        return loadSpriteModel(
-                          modelName, reader, requiredPalette, fs, logger);
-                      });
+             return loadSpriteModel(modelName, reader, palette, fs, logger);
            }
            if (canLoadMd3Model(path, reader))
            {
