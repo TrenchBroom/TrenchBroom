@@ -58,8 +58,12 @@ TEST_CASE("loadBspModel")
 
           const auto& surfaces = bspData.surfaces();
           const auto& surface = surfaces.front();
-          CHECK(surface.skinCount() == 3u);
+          REQUIRE(surface.skinCount() == 3u);
           CHECK(surface.frameCount() == 1u);
+
+          CHECK(surface.skin(0u)->name() == "skip");
+          CHECK(surface.skin(1u)->name() == "embedded");
+          CHECK(surface.skin(2u)->name() == "EXTERNAL");
         })
       | kdl::transform_error([](const auto& e) { FAIL(e); });
   }
