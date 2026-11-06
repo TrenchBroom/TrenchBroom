@@ -32,7 +32,11 @@
 #include "mdl/BrushFace.h" // IWYU pragma: keep
 #include "mdl/BrushNode.h"
 #include "mdl/CatchConfig.h"
+#include "mdl/EntityDefinition.h"
 #include "mdl/EntityDefinitionManager.h"
+#include "mdl/EntityModel.h"
+#include "mdl/EntityModelManager.h"
+#include "mdl/EntityNode.h"
 #include "mdl/GameConfigFixture.h"
 #include "mdl/LayerNode.h"
 #include "mdl/Map.h"
@@ -44,6 +48,8 @@
 
 #include "kd/path_utils.h"
 #include "kd/ranges/to.h"
+
+#include "vm/vec.h"
 
 #include <algorithm>
 #include <atomic>
@@ -538,6 +544,54 @@ TEST_CASE("Map_Assets")
 
     REQUIRE(map.materialManager().collections().size() == 1);
     CHECK(textureWidths() == std::vector<size_t>{128, 64});
+  }
+
+  SECTION("reloadAssets reloads entity models if the palette changes")
+  {
+    auto env = fs::TestEnvironment{};
+    env.createDirectory("progs");
+    std::filesystem::copy_file(
+      getFixtureRoot() / "test/mdl/LoadMdlModel/armor.mdl",
+      env.dir() / "progs/armor.mdl");
+
+    env.createFile(
+      "Test.fgd", R"(@PointClass model("progs/armor.mdl") = item_armor1 : "Armor" [])");
+
+    auto gameConfig = DefaultGameInfo.gameConfig;
+    gameConfig.materialConfig.palette = "palette.lmp";
+
+    auto fixtureConfig = MapFixtureConfig{};
+    fixtureConfig.gameInfo = detail::makeGameInfoFixture(gameConfig, env.dir());
+
+    auto& map = fixture.create(fixtureConfig);
+    setEntityDefinitionFile(
+      map, EntityDefinitionFileSpec::makeExternal(env.dir() / "Test.fgd"));
+
+    const auto* definition = map.entityDefinitionManager().definition("item_armor1");
+    REQUIRE(definition != nullptr);
+
+    auto* entityNode = createPointEntity(map, *definition, vm::vec3d{0, 0, 0});
+    REQUIRE(entityNode != nullptr);
+
+    auto gl = gl::TestGl{};
+    const auto processContext = gl::ProcessContext{gl, [](auto, auto) {}};
+
+    // load the model without the palette
+    REQUIRE(entityNode->entity().model() != nullptr);
+    gl::processResourcesSync(map.resourceManager(), processContext);
+
+    std::filesystem::copy_file(
+      getFixtureRoot() / "test/mdl/Palette/palette.lmp", env.dir() / "palette.lmp");
+    reloadAssets(map);
+    gl::processResourcesSync(map.resourceManager(), processContext);
+
+    // the entity uses the model that was loaded with the palette
+    const auto* model = entityNode->entity().model();
+    REQUIRE(model != nullptr);
+    CHECK(model == map.entityModelManager().model("progs/armor.mdl"));
+
+    REQUIRE(model->data() != nullptr);
+    CHECK(model->data()->surfaces().front().skin(0)->texture()->width() == 128);
   }
 
   SECTION("reloadAssets picks up entity definition changes on disk")

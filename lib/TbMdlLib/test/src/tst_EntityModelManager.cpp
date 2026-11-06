@@ -20,12 +20,21 @@
 #include "TestEnvironment.h"
 #include "base/Logger.h"
 #include "fs/DiskFileSystem.h"
+#include "fs/TestEnvironment.h"
+#include "fs/VirtualFileSystem.h"
 #include "gl/CreateResource.h"
+#include "gl/Material.h"
+#include "gl/Texture.h"
 #include "mdl/EntityModel.h"
 #include "mdl/EntityModelManager.h"
 #include "mdl/GameConfig.h"
 #include "mdl/GameInfo.h"
 #include "mdl/ModelSpecification.h"
+#include "mdl/Palette.h"
+
+#include "kd/result.h"
+
+#include <optional>
 
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers_vector.hpp>
@@ -59,10 +68,12 @@ TEST_CASE("EntityModelManager")
   auto logger = NullLogger{};
   auto fileSystem = fs::DiskFileSystem{getFixtureRoot() / "test/mdl/LoadMdlModel"};
   const auto gameInfo = makeTestGameInfo();
+  const auto palette = loadPalette(fileSystem, "palette.lmp") | kdl::value();
 
   auto manager = EntityModelManager{
     gameInfo,
     fileSystem,
+    palette,
     [](auto resourceLoader) { return gl::createResourceSync(std::move(resourceLoader)); },
     logger};
 
@@ -85,6 +96,86 @@ TEST_CASE("EntityModelManager")
       const auto* model1 = manager.model("armor.mdl");
       const auto* model2 = manager.model("armor.mdl");
       CHECK(model1 == model2);
+    }
+
+    SECTION("fails to load a model that requires the palette if the palette is missing")
+    {
+      auto managerWithoutPalette = EntityModelManager{
+        gameInfo,
+        fileSystem,
+        std::nullopt,
+        gl::createResourceSync<EntityModelData>,
+        logger};
+
+      const auto* model = managerWithoutPalette.model("armor.mdl");
+      REQUIRE(model != nullptr);
+      CHECK(model->data() == nullptr);
+    }
+
+    SECTION("loads materials that require the palette with the palette")
+    {
+      // an ASE model whose material is a Quake 2 WAL texture
+      auto env = fs::TestEnvironment{};
+      env.createFile("wal_material.ase", R"(*3DSMAX_ASCIIEXPORT	200
+*MATERIAL_LIST	{
+	*MATERIAL_COUNT	1
+	*MATERIAL	0	{
+		*MATERIAL_NAME	"lavatest.wal"
+	}
+}
+*GEOMOBJECT	{
+	*NODE_NAME	"triangle"
+	*MESH	{
+		*TIMEVALUE	0
+		*MESH_NUMVERTEX	3
+		*MESH_NUMFACES	1
+		*MESH_VERTEX_LIST	{
+			*MESH_VERTEX	0	0.0	0.0	0.0
+			*MESH_VERTEX	1	1.0	0.0	0.0
+			*MESH_VERTEX	2	0.0	1.0	0.0
+		}
+		*MESH_FACE_LIST	{
+			*MESH_FACE	0	A:	0	B:	1	C:	2	AB:	1	BC:	1	CA:	1	*MESH_SMOOTHING	0	*MESH_MTLID	0
+		}
+		*MESH_NUMTVERTEX	3
+		*MESH_TVERTLIST	{
+			*MESH_TVERT	0	0.0	0.0	0.0
+			*MESH_TVERT	1	1.0	0.0	0.0
+			*MESH_TVERT	2	0.0	1.0	0.0
+		}
+		*MESH_NUMTVFACES	1
+		*MESH_TFACELIST	{
+			*MESH_TFACE	0	0	1	2
+		}
+	}
+	*MATERIAL_REF	0
+}
+)");
+
+      auto quake2FileSystem = fs::VirtualFileSystem{};
+      quake2FileSystem.mount(
+        "",
+        std::make_unique<fs::DiskFileSystem>(
+          getFixtureRoot() / "test/mdl/LoadWalTexture"));
+      quake2FileSystem.mount("", std::make_unique<fs::DiskFileSystem>(env.dir()));
+
+      const auto quake2Palette =
+        loadPalette(quake2FileSystem, "colormap.pcx") | kdl::value();
+      auto quake2Manager = EntityModelManager{
+        gameInfo,
+        quake2FileSystem,
+        quake2Palette,
+        gl::createResourceSync<EntityModelData>,
+        logger};
+
+      const auto* model = quake2Manager.model("wal_material.ase");
+      REQUIRE(model != nullptr);
+      REQUIRE(model->data() != nullptr);
+
+      // the WAL texture is 64*64
+      const auto* texture = model->data()->surfaces().front().skin(0)->texture();
+      REQUIRE(texture != nullptr);
+      CHECK(texture->width() == 64u);
     }
 
     SECTION("loads a model whose data is null if the underlying file does not exist")
@@ -152,6 +243,28 @@ TEST_CASE("EntityModelManager")
       // second call takes the cached-mismatch path instead of trying to build again
       CHECK(manager.renderer(badSpec) == nullptr);
     }
+  }
+
+  SECTION("setPalette")
+  {
+    auto managerWithoutPalette = EntityModelManager{
+      gameInfo,
+      fileSystem,
+      std::nullopt,
+      gl::createResourceSync<EntityModelData>,
+      logger};
+
+    managerWithoutPalette.setPalette(palette);
+
+    const auto* model = managerWithoutPalette.model("armor.mdl");
+    REQUIRE(model != nullptr);
+    REQUIRE(model->data() != nullptr);
+
+    // armor.mdl's skins are 128x128 and can only be decoded with the palette
+    const auto* skin = model->data()->surfaces().front().skin(0u);
+    REQUIRE(skin != nullptr);
+    REQUIRE(skin->texture() != nullptr);
+    CHECK(skin->texture()->width() == 128u);
   }
 
   SECTION("clear allows a model to be reloaded")

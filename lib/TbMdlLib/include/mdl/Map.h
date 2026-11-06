@@ -104,7 +104,7 @@ private:
   std::unique_ptr<GameFileSystem> m_gameFileSystem;
 
   // the palette is shared by the materials and the entity models
-  Result<std::optional<Palette>> m_palette;
+  std::optional<Palette> m_palette;
 
   kdl::task_manager& m_taskManager;
   gl::ResourceManager& m_resourceManager;

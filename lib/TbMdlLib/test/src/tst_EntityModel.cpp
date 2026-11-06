@@ -33,6 +33,8 @@
 #include "mdl/LoadEntityModel.h"
 #include "mdl/TestUtils.h"
 
+#include "kd/result.h"
+
 #include "vm/approx.h"
 #include "vm/bbox.h"
 #include "vm/intersection.h"
@@ -86,8 +88,10 @@ TEST_CASE("EntityModel")
       throw std::runtime_error{"should not be called"};
     };
 
-    auto model = loadEntityModelSync(
-      fs, gameInfo.gameConfig.materialConfig, path, loadMaterial, logger);
+    const auto palette =
+      mdl::loadPalette(fs, gameInfo.gameConfig.materialConfig.palette) | kdl::value();
+
+    auto model = loadEntityModelSync(fs, palette, path, loadMaterial, logger);
 
     auto& frame = model.value().data()->frames().at(0);
 
