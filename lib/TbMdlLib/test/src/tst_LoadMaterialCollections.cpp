@@ -292,9 +292,11 @@ TEST_CASE("LoadMaterialCollections")
         "",
         {},
       };
+      const auto palette = loadPalette(fs, materialConfig.palette) | kdl::value();
 
       CHECK_THAT(
-        loadMaterialCollections(fs, materialConfig, createResource, taskManager, logger),
+        loadMaterialCollections(
+          fs, materialConfig, createResource, palette, taskManager, logger),
         MatchesMaterialCollections({
           {
             "cr8_czg.wad",
@@ -335,7 +337,7 @@ TEST_CASE("LoadMaterialCollections")
         // are sorted by name and not by load order!
         CHECK_THAT(
           loadMaterialCollections(
-            fs, materialConfig, createResource, taskManager, logger),
+            fs, materialConfig, createResource, palette, taskManager, logger),
           MatchesMaterialCollections({
             {
               "cr8_a_excerpt.wad", // sorting does not depend on load order
@@ -397,7 +399,7 @@ TEST_CASE("LoadMaterialCollections")
 
           CHECK_THAT(
             loadMaterialCollections(
-              fs, materialConfig, createResource, taskManager, logger),
+              fs, materialConfig, createResource, std::nullopt, taskManager, logger),
             MatchesMaterialCollections({
               {
                 "textures/test",
@@ -428,7 +430,7 @@ TEST_CASE("LoadMaterialCollections")
 
           CHECK_THAT(
             loadMaterialCollections(
-              fs, materialConfig, createResource, taskManager, logger),
+              fs, materialConfig, createResource, std::nullopt, taskManager, logger),
             MatchesMaterialCollections({
               {
                 "textures/test",
@@ -464,7 +466,7 @@ TEST_CASE("LoadMaterialCollections")
 
           CHECK_THAT(
             loadMaterialCollections(
-              fs, materialConfig, createResource, taskManager, logger),
+              fs, materialConfig, createResource, std::nullopt, taskManager, logger),
             MatchesMaterialCollections({
               {
                 "textures",
@@ -499,7 +501,7 @@ TEST_CASE("LoadMaterialCollections")
 
         CHECK_THAT(
           loadMaterialCollections(
-            fs, materialConfig, createResource, taskManager, logger),
+            fs, materialConfig, createResource, std::nullopt, taskManager, logger),
           MatchesMaterialCollections({
             {
               "textures/test",
@@ -533,7 +535,7 @@ TEST_CASE("LoadMaterialCollections")
 
         CHECK_THAT(
           loadMaterialCollections(
-            fs, materialConfig, createResource, taskManager, logger),
+            fs, materialConfig, createResource, std::nullopt, taskManager, logger),
           MatchesMaterialCollections({
             {
               "textures",

@@ -64,20 +64,6 @@ namespace tb::mdl
 namespace
 {
 
-Result<std::optional<Palette>> loadPalette(
-  const fs::FileSystem& fs, const MaterialConfig& materialConfig)
-{
-  if (materialConfig.palette.empty())
-  {
-    return Result<std::optional<Palette>>{std::nullopt};
-  }
-
-  return fs.openFile(materialConfig.palette) | kdl::and_then([&](auto file) {
-           return mdl::loadPalette(*file, materialConfig.palette);
-         })
-         | kdl::transform([](auto palette) { return std::optional{std::move(palette)}; });
-}
-
 bool shouldExclude(
   const std::string& materialName, const std::vector<std::string>& patterns)
 {
@@ -414,6 +400,7 @@ Result<std::vector<gl::MaterialCollection>> loadMaterialCollections(
   const fs::FileSystem& fs,
   const MaterialConfig& materialConfig,
   const gl::CreateTextureResource& createResource,
+  const std::optional<Palette>& palette,
   kdl::task_manager& taskManager,
   Logger& logger)
 {
@@ -424,8 +411,7 @@ Result<std::vector<gl::MaterialCollection>> loadMaterialCollections(
                     })
                     | kdl::views::as_rvalue | kdl::ranges::to<std::vector>();
            })
-         | kdl::join(loadPalette(fs, materialConfig))
-         | kdl::and_then([&](auto shaders, auto palette) {
+         | kdl::and_then([&](auto shaders) {
              return findAllMaterialPaths(fs, materialConfig, shaders)
                     | kdl::and_then([&](const auto& materialPaths) {
                         return materialPaths

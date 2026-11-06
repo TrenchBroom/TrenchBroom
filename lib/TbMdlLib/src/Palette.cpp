@@ -21,6 +21,7 @@
 
 #include "base/Macros.h"
 #include "fs/File.h"
+#include "fs/FileSystem.h"
 #include "fs/Reader.h"
 #include "fs/ReaderException.h"
 #include "gl/TextureBuffer.h"
@@ -241,6 +242,19 @@ Result<Palette> loadPalette(const fs::File& file, const std::filesystem::path& p
   {
     return Error{fmt::format("Could not load palette file {}: {}", path, e.what())};
   }
+}
+
+Result<std::optional<Palette>> loadPalette(
+  const fs::FileSystem& fs, const std::filesystem::path& path)
+{
+  if (path.empty())
+  {
+    return Result<std::optional<Palette>>{std::nullopt};
+  }
+
+  return fs.openFile(path)
+         | kdl::and_then([&](auto file) { return loadPalette(*file, path); })
+         | kdl::transform([](auto palette) { return std::optional{std::move(palette)}; });
 }
 
 Result<Palette> loadPalette(fs::Reader& reader, const PaletteColorFormat colorFormat)
