@@ -22,12 +22,18 @@
 #include "fs/DiskFileSystem.h"
 #include "fs/DiskIO.h"
 #include "fs/Reader.h"
+#include "gl/Texture.h"
 #include "mdl/CatchConfig.h"
 #include "mdl/EntityModel.h"
 #include "mdl/LoadMdlModel.h"
 #include "mdl/Palette.h"
 
 #include "kd/result.h"
+
+#include "vm/bbox.h"
+#include "vm/bbox_io.h" // IWYU pragma: keep
+#include "vm/vec.h"
+#include "vm/vec_io.h" // IWYU pragma: keep
 
 #include <optional>
 
@@ -102,6 +108,58 @@ TEST_CASE("loadMdlModel")
           CHECK(modelData.frames().front().bounds() == expectedBounds);
         })
       | kdl::transform_error([](const auto& e) { FAIL(e); });
+  }
+
+  SECTION("skin groups")
+  {
+    // a 2x2 model with an empty skin group, a skin group with two pictures and a single
+    // skin, followed by three vertices, one triangle and one frame
+    const auto mdlPath = getFixtureRoot() / "test/mdl/LoadMdlModel/skin_groups.mdl";
+    const auto mdlFile = fs::Disk::openFile(mdlPath) | kdl::value();
+
+    auto reader = mdlFile->reader().buffer();
+
+    SECTION("with palette")
+    {
+      loadMdlModel("skin_groups", reader, palette, fs, logger)
+        | kdl::transform([](const auto& modelData) {
+            const auto& surface = modelData.surfaces().front();
+            REQUIRE(surface.skinCount() == 3u);
+
+            // the empty skin group gets the default texture
+            CHECK(surface.skin(0u)->texture()->width() == 32u);
+            CHECK(surface.skin(1u)->texture()->width() == 2u);
+            CHECK(surface.skin(2u)->texture()->width() == 2u);
+
+            // the frame is only parsed correctly if the skin data was skipped correctly
+            REQUIRE(modelData.frameCount() == 1u);
+            CHECK(modelData.frames().front().name() == "frame");
+            CHECK(
+              modelData.frames().front().bounds()
+              == vm::bbox3f{vm::vec3f{1, 2, 3}, vm::vec3f{7, 8, 9}});
+          })
+        | kdl::transform_error([](const auto& e) { FAIL(e); });
+    }
+
+    SECTION("missing palette")
+    {
+      loadMdlModel("skin_groups", reader, std::nullopt, fs, logger)
+        | kdl::transform([](const auto& modelData) {
+            const auto& surface = modelData.surfaces().front();
+            REQUIRE(surface.skinCount() == 3u);
+
+            CHECK(surface.skin(0u)->texture()->width() == 32u);
+            CHECK(surface.skin(1u)->texture()->width() == 32u);
+            CHECK(surface.skin(2u)->texture()->width() == 32u);
+
+            REQUIRE(modelData.frameCount() == 1u);
+            CHECK(modelData.frames().front().name() == "frame");
+            CHECK(
+              modelData.frames().front().bounds()
+              == vm::bbox3f{vm::vec3f{1, 2, 3}, vm::vec3f{7, 8, 9}});
+          })
+        | kdl::transform_error([](const auto& e) { FAIL(e); });
+    }
   }
 
   SECTION("invalid MDL file")

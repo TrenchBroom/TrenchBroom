@@ -263,7 +263,8 @@ gl::Material parseSkin(
     reader.seekForward(pictureCount * 4); // skip the picture times
   }
 
-  if (!palette)
+  // without a palette or a picture, there is nothing to decode
+  if (!palette || pictureCount == 0)
   {
     reader.seekForward(pictureCount * size); // skip all pictures
     return loadDefaultMaterial(fs, std::move(skinName), logger);
