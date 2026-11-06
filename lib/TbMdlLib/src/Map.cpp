@@ -563,6 +563,7 @@ Map::Map(
   , m_entityModelManager{std::make_unique<EntityModelManager>(
       m_gameInfo,
       *m_gameFileSystem,
+      m_palette | kdl::value_or(std::optional<Palette>{}),
       makeCreateResource<EntityModelDataResource>(m_resourceManager),
       logger)}
   , m_materialManager{std::make_unique<gl::MaterialManager>(logger)}
@@ -1355,6 +1356,7 @@ void Map::reloadPalette()
 {
   m_palette =
     loadPalette(*m_gameFileSystem, gameInfo().gameConfig.materialConfig.palette);
+  entityModelManager().setPalette(m_palette | kdl::value_or(std::optional<Palette>{}));
 }
 
 void Map::initializeNodeIndex()

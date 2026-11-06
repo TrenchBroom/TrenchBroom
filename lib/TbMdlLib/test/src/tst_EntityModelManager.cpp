@@ -21,11 +21,17 @@
 #include "base/Logger.h"
 #include "fs/DiskFileSystem.h"
 #include "gl/CreateResource.h"
+#include "gl/Texture.h"
 #include "mdl/EntityModel.h"
 #include "mdl/EntityModelManager.h"
 #include "mdl/GameConfig.h"
 #include "mdl/GameInfo.h"
 #include "mdl/ModelSpecification.h"
+#include "mdl/Palette.h"
+
+#include "kd/result.h"
+
+#include <optional>
 
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers_vector.hpp>
@@ -59,10 +65,12 @@ TEST_CASE("EntityModelManager")
   auto logger = NullLogger{};
   auto fileSystem = fs::DiskFileSystem{getFixtureRoot() / "test/mdl/LoadMdlModel"};
   const auto gameInfo = makeTestGameInfo();
+  const auto palette = loadPalette(fileSystem, "palette.lmp") | kdl::value();
 
   auto manager = EntityModelManager{
     gameInfo,
     fileSystem,
+    palette,
     [](auto resourceLoader) { return gl::createResourceSync(std::move(resourceLoader)); },
     logger};
 
@@ -85,6 +93,20 @@ TEST_CASE("EntityModelManager")
       const auto* model1 = manager.model("armor.mdl");
       const auto* model2 = manager.model("armor.mdl");
       CHECK(model1 == model2);
+    }
+
+    SECTION("fails to load a model that requires the palette if the palette is missing")
+    {
+      auto managerWithoutPalette = EntityModelManager{
+        gameInfo,
+        fileSystem,
+        std::nullopt,
+        gl::createResourceSync<EntityModelData>,
+        logger};
+
+      const auto* model = managerWithoutPalette.model("armor.mdl");
+      REQUIRE(model != nullptr);
+      CHECK(model->data() == nullptr);
     }
 
     SECTION("loads a model whose data is null if the underlying file does not exist")
@@ -152,6 +174,28 @@ TEST_CASE("EntityModelManager")
       // second call takes the cached-mismatch path instead of trying to build again
       CHECK(manager.renderer(badSpec) == nullptr);
     }
+  }
+
+  SECTION("setPalette")
+  {
+    auto managerWithoutPalette = EntityModelManager{
+      gameInfo,
+      fileSystem,
+      std::nullopt,
+      gl::createResourceSync<EntityModelData>,
+      logger};
+
+    managerWithoutPalette.setPalette(palette);
+
+    const auto* model = managerWithoutPalette.model("armor.mdl");
+    REQUIRE(model != nullptr);
+    REQUIRE(model->data() != nullptr);
+
+    // armor.mdl's skins are 128x128 and can only be decoded with the palette
+    const auto* skin = model->data()->surfaces().front().skin(0u);
+    REQUIRE(skin != nullptr);
+    REQUIRE(skin->texture() != nullptr);
+    CHECK(skin->texture()->width() == 128u);
   }
 
   SECTION("clear allows a model to be reloaded")
