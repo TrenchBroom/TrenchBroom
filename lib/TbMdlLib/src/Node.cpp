@@ -289,6 +289,36 @@ std::vector<std::unique_ptr<Node>> Node::replaceChildren(
   return oldChildren;
 }
 
+void Node::removeChildren(const std::vector<Node*>& children)
+{
+  auto descendantCountDelta = size_t(0);
+  auto childSelectionCountDelta = size_t(0);
+  auto descendantSelectionCountDelta = size_t(0);
+  for (auto* child : children)
+  {
+    contract_pre(child != nullptr);
+    contract_pre(child->parent() == this);
+    contract_pre(canRemoveChild(*child));
+
+    childWillBeRemoved(*child);
+    child->setParent(nullptr);
+    descendantCountDelta += child->descendantCount() + 1;
+    childSelectionCountDelta += child->selected() ? 1u : 0u;
+    descendantSelectionCountDelta += child->descendantSelectionCount();
+  }
+
+  std::erase_if(m_children, [&](const auto* child) { return child->parent() != this; });
+
+  for (auto* child : children)
+  {
+    childWasRemoved(*child);
+  }
+
+  decDescendantCount(descendantCountDelta);
+  decChildSelectionCount(childSelectionCountDelta);
+  decDescendantSelectionCount(descendantSelectionCountDelta);
+}
+
 void Node::removeChild(Node* child)
 {
   doRemoveChild(child);
