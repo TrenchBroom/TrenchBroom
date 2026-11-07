@@ -19,6 +19,7 @@
 
 #include "TestEnvironment.h"
 #include "fs/DiskFileSystem.h"
+#include "fs/Reader.h"
 #include "gl/Texture.h"
 #include "mdl/CatchConfig.h"
 #include "mdl/LoadWalTexture.h"
@@ -26,6 +27,7 @@
 
 #include "kd/result.h"
 
+#include <array>
 #include <filesystem>
 
 #include <catch2/catch_test_macros.hpp>
@@ -38,7 +40,7 @@ namespace
 const auto basePath = std::filesystem::path{"test/mdl/LoadWalTexture"};
 }
 
-TEST_CASE("loadWalTexture")
+TEST_CASE("LoadWalTexture")
 {
   auto fs = fs::DiskFileSystem{getFixtureRoot()};
 
@@ -51,74 +53,89 @@ TEST_CASE("loadWalTexture")
     CHECK(!isWalTexture("texture"));
   }
 
-  SECTION("Quake2")
+  SECTION("walTextureRequiresPalette")
   {
-    const auto palettePath = basePath / "colormap.pcx";
-    auto paletteFile = fs.openFile(palettePath) | kdl::value();
-    const auto palette = mdl::loadPalette(*paletteFile, palettePath) | kdl::value();
+    const auto q2File = fs.openFile(basePath / "rtz/b_pv_v1a1.wal") | kdl::value();
+    CHECK(walTextureRequiresPalette(q2File->reader()));
 
-    using TexInfo =
-      std::tuple<std::filesystem::path, size_t, size_t, gl::EmbeddedDefaults>;
+    const auto dkFile = fs.openFile(basePath / "dk_opaque.wal") | kdl::value();
+    CHECK(!walTextureRequiresPalette(dkFile->reader()));
 
-    // clang-format off
-    const auto
-    [path,                  width, height, embeddedDefaults] = GENERATE(values<TexInfo>({
-    { "rtz/b_pv_v1a1.wal",  128,   256,    gl::Q2EmbeddedDefaults{0, 0, 0} },
-    { "rtz/b_pv_v1a2.wal",  128,   256,    gl::Q2EmbeddedDefaults{0, 0, 0} },
-    { "rtz/b_pv_v1a3.wal",  128,   128,    gl::Q2EmbeddedDefaults{0, 0, 0} },
-    { "rtz/b_rc_v16.wal",   128,   128,    gl::Q2EmbeddedDefaults{0, 0, 0} },
-    { "rtz/b_rc_v16w.wal",  128,   128,    gl::Q2EmbeddedDefaults{0, 0, 0} },
-    { "rtz/b_rc_v28.wal",   128,    64,    gl::Q2EmbeddedDefaults{0, 0, 0} },
-    { "rtz/b_rc_v4.wal",    128,   128,    gl::Q2EmbeddedDefaults{0, 0, 0} },
-    { "lavatest.wal",       64,     64,    gl::Q2EmbeddedDefaults{9, 8, 700} },
-    { "watertest.wal",      64,     64,    gl::Q2EmbeddedDefaults{9, 32, 120} },
-    }));
-    // clang-format on
-
-    INFO(path);
-    INFO(width);
-    INFO(height);
-
-    const auto file = fs.openFile(basePath / path) | kdl::value();
-    auto reader = file->reader().buffer();
-
-    const auto name = path.stem().generic_string();
-    const auto texture = loadWalTexture(reader, palette) | kdl::value();
-    CHECK(texture.width() == width);
-    CHECK(texture.height() == height);
-    CHECK(texture.embeddedDefaults() == embeddedDefaults);
-
-    // Quake2 WAL textures never carry transparency in TrenchBroom's loader
-    CHECK(texture.alphaDomain() == img::ImageAlphaDomain::Opaque);
+    const auto empty = std::array<char, 1>{};
+    CHECK(!walTextureRequiresPalette(fs::Reader::from(empty.data(), empty.data())));
   }
 
-  // Daikatana WAL textures (version 3) carry their own embedded palette and use the
-  // classic index-255-is-transparent convention, computed while decoding pixel data
-  // (i.e. lazily, unlike the `{`-prefixed name convention used by Quake1/Half-Life).
-  // Since that convention only ever produces fully transparent or fully opaque pixels,
-  // it can never classify as Graduated.
-  SECTION("Daikatana")
+  SECTION("loadWalTexture")
   {
-    SECTION("without a transparent index")
+    SECTION("Quake2")
     {
-      const auto file = fs.openFile(basePath / "dk_opaque.wal") | kdl::value();
+      const auto palettePath = basePath / "colormap.pcx";
+      auto paletteFile = fs.openFile(palettePath) | kdl::value();
+      const auto palette = mdl::loadPalette(*paletteFile, palettePath) | kdl::value();
+
+      using TexInfo =
+        std::tuple<std::filesystem::path, size_t, size_t, gl::EmbeddedDefaults>;
+
+      // clang-format off
+      const auto
+      [path,                  width, height, embeddedDefaults] = GENERATE(values<TexInfo>({
+      { "rtz/b_pv_v1a1.wal",  128,   256,    gl::Q2EmbeddedDefaults{0, 0, 0} },
+      { "rtz/b_pv_v1a2.wal",  128,   256,    gl::Q2EmbeddedDefaults{0, 0, 0} },
+      { "rtz/b_pv_v1a3.wal",  128,   128,    gl::Q2EmbeddedDefaults{0, 0, 0} },
+      { "rtz/b_rc_v16.wal",   128,   128,    gl::Q2EmbeddedDefaults{0, 0, 0} },
+      { "rtz/b_rc_v16w.wal",  128,   128,    gl::Q2EmbeddedDefaults{0, 0, 0} },
+      { "rtz/b_rc_v28.wal",   128,    64,    gl::Q2EmbeddedDefaults{0, 0, 0} },
+      { "rtz/b_rc_v4.wal",    128,   128,    gl::Q2EmbeddedDefaults{0, 0, 0} },
+      { "lavatest.wal",       64,     64,    gl::Q2EmbeddedDefaults{9, 8, 700} },
+      { "watertest.wal",      64,     64,    gl::Q2EmbeddedDefaults{9, 32, 120} },
+      }));
+      // clang-format on
+
+      INFO(path);
+      INFO(width);
+      INFO(height);
+
+      const auto file = fs.openFile(basePath / path) | kdl::value();
       auto reader = file->reader().buffer();
 
-      const auto texture = loadWalTexture(reader, std::nullopt) | kdl::value();
-      CHECK(texture.width() == 2);
-      CHECK(texture.height() == 2);
+      const auto name = path.stem().generic_string();
+      const auto texture = loadWalTexture(reader, palette) | kdl::value();
+      CHECK(texture.width() == width);
+      CHECK(texture.height() == height);
+      CHECK(texture.embeddedDefaults() == embeddedDefaults);
+
+      // Quake2 WAL textures never carry transparency in TrenchBroom's loader
       CHECK(texture.alphaDomain() == img::ImageAlphaDomain::Opaque);
     }
 
-    SECTION("with a transparent index")
+    // Daikatana WAL textures (version 3) carry their own embedded palette and use the
+    // classic index-255-is-transparent convention, computed while decoding pixel data
+    // (i.e. lazily, unlike the `{`-prefixed name convention used by Quake1/Half-Life).
+    // Since that convention only ever produces fully transparent or fully opaque pixels,
+    // it can never classify as Graduated.
+    SECTION("Daikatana")
     {
-      const auto file = fs.openFile(basePath / "dk_binaryAlpha.wal") | kdl::value();
-      auto reader = file->reader().buffer();
+      SECTION("without a transparent index")
+      {
+        const auto file = fs.openFile(basePath / "dk_opaque.wal") | kdl::value();
+        auto reader = file->reader().buffer();
 
-      const auto texture = loadWalTexture(reader, std::nullopt) | kdl::value();
-      CHECK(texture.width() == 2);
-      CHECK(texture.height() == 2);
-      CHECK(texture.alphaDomain() == img::ImageAlphaDomain::Binary);
+        const auto texture = loadWalTexture(reader, std::nullopt) | kdl::value();
+        CHECK(texture.width() == 2);
+        CHECK(texture.height() == 2);
+        CHECK(texture.alphaDomain() == img::ImageAlphaDomain::Opaque);
+      }
+
+      SECTION("with a transparent index")
+      {
+        const auto file = fs.openFile(basePath / "dk_binaryAlpha.wal") | kdl::value();
+        auto reader = file->reader().buffer();
+
+        const auto texture = loadWalTexture(reader, std::nullopt) | kdl::value();
+        CHECK(texture.width() == 2);
+        CHECK(texture.height() == 2);
+        CHECK(texture.alphaDomain() == img::ImageAlphaDomain::Binary);
+      }
     }
   }
 }

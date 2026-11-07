@@ -60,11 +60,17 @@ TEST_CASE("loadSpriteModel")
   const auto y1 = -256.0f;
   const auto y2 = 256.0f;
 
+  const auto loadFixtureWithPalette =
+    [&](const std::string& name, const std::optional<Palette>& defaultPalette) {
+      const auto sprPath =
+        getFixtureRoot() / "test/mdl/LoadSpriteModel" / (name + ".spr");
+      auto sprFile = fs::Disk::openFile(sprPath) | kdl::value();
+      auto reader = sprFile->reader().buffer();
+      return loadSpriteModel(name, reader, defaultPalette, diskFs, logger);
+    };
+
   const auto loadFixture = [&](const std::string& name) {
-    const auto sprPath = getFixtureRoot() / "test/mdl/LoadSpriteModel" / (name + ".spr");
-    auto sprFile = fs::Disk::openFile(sprPath) | kdl::value();
-    auto reader = sprFile->reader().buffer();
-    return loadSpriteModel(name, reader, palette, logger);
+    return loadFixtureWithPalette(name, palette);
   };
 
   SECTION("billboard orientations")
@@ -176,6 +182,29 @@ TEST_CASE("loadSpriteModel")
         (skin->effectiveBlendFunc().enable == gl::MaterialBlendFunc::Enable::UseFactors)
         == (expectedAlphaDomain == img::ImageAlphaDomain::Graduated));
     }) | kdl::transform_error([](const auto& e) { FAIL(e); });
+  }
+
+  SECTION("missing palette")
+  {
+    SECTION("Quake1 sprites require the palette")
+    {
+      loadFixtureWithPalette("ViewPlaneParallelUpright", std::nullopt)
+        | kdl::transform([&](const auto& modelData) {
+            CHECK(modelData.frameCount() == 1u);
+
+            const auto& surface = modelData.surfaces().front();
+            CHECK(surface.skinCount() == 1u);
+
+            const auto& frame = modelData.frames().front();
+            CHECK(frame.bounds() == vm::bbox3f{{x1, x1, y1}, {x2, x2, y2}});
+          })
+        | kdl::transform_error([](const auto& e) { FAIL(e); });
+    }
+
+    SECTION("Half-Life sprites have an embedded palette")
+    {
+      CHECK(loadFixtureWithPalette("RenderModeNormal", std::nullopt).is_success());
+    }
   }
 }
 

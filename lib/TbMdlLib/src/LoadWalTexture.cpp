@@ -37,7 +37,9 @@ namespace tb::mdl
 namespace WalLayout
 {
 const size_t TextureNameLength = 32;
-}
+// Quake 2 WAL textures start with their name instead of a version
+const char DkVersion = 3;
+} // namespace WalLayout
 
 namespace
 {
@@ -238,6 +240,11 @@ bool isWalTexture(const std::filesystem::path& path)
   return kdl::path_to_lower(path.extension()) == ".wal";
 }
 
+bool walTextureRequiresPalette(fs::Reader reader)
+{
+  return reader.canRead(1) && reader.readChar<char>() != WalLayout::DkVersion;
+}
+
 Result<gl::Texture> loadWalTexture(
   fs::Reader& reader, const std::optional<Palette>& palette)
 {
@@ -246,7 +253,7 @@ Result<gl::Texture> loadWalTexture(
     const auto version = reader.readChar<char>();
     reader.seekFromBegin(0);
 
-    if (version == 3)
+    if (version == WalLayout::DkVersion)
     {
       return readDkWal(reader);
     }

@@ -42,6 +42,12 @@ namespace mdl
 
 bool isWalTexture(const std::filesystem::path& path);
 
+/**
+ * Returns whether the given WAL texture requires a palette to be loaded. Quake 2 WAL
+ * textures require a palette, while Daikatana WAL textures have an embedded palette.
+ */
+bool walTextureRequiresPalette(fs::Reader reader);
+
 Result<gl::Texture> loadWalTexture(
   fs::Reader& reader, const std::optional<Palette>& palette);
 

@@ -554,6 +554,8 @@ Map::Map(
   , m_gamePath{gamePath}
   , m_gameFileSystem{createGameFileSystem(
       m_environmentConfig, m_gameInfo, m_gamePath, searchPaths(*worldNode), logger)}
+  , m_palette{loadPalette(
+      *m_gameFileSystem, m_gameInfo.gameConfig.materialConfig.palette)}
   , m_taskManager{taskManager}
   , m_resourceManager{resourceManager}
   , m_logger{logger}
@@ -561,6 +563,7 @@ Map::Map(
   , m_entityModelManager{std::make_unique<EntityModelManager>(
       m_gameInfo,
       *m_gameFileSystem,
+      m_palette | kdl::value_or(std::optional<Palette>{}),
       makeCreateResource<EntityModelDataResource>(m_resourceManager),
       logger)}
   , m_materialManager{std::make_unique<gl::MaterialManager>(logger)}
@@ -1223,21 +1226,23 @@ void Map::loadMaterials()
   m_gameFileSystem->reload() | kdl::transform_error([&](auto e) {
     m_logger.error() << "Could not reload game file systems: " + e.msg;
   });
+  reloadPalette();
 
   m_materialManager->clear();
 
-  loadMaterialCollections(
-    *m_gameFileSystem,
-    gameInfo().gameConfig.materialConfig,
-    makeCreateResource<gl::TextureResource>(m_resourceManager),
-    taskManager(),
-    m_logger)
-    | kdl::transform([&](auto materialCollections) {
-        m_materialManager->setMaterialCollections(std::move(materialCollections));
-      })
-    | kdl::transform_error([&](auto e) {
-        m_logger.error() << "Could not reload material collections: " + e.msg;
-      });
+  m_palette | kdl::and_then([&](const auto& palette) {
+    return loadMaterialCollections(
+      *m_gameFileSystem,
+      gameInfo().gameConfig.materialConfig,
+      makeCreateResource<gl::TextureResource>(m_resourceManager),
+      palette,
+      taskManager(),
+      m_logger);
+  }) | kdl::transform([&](auto materialCollections) {
+    m_materialManager->setMaterialCollections(std::move(materialCollections));
+  }) | kdl::transform_error([&](auto e) {
+    m_logger.error() << "Could not reload material collections: " + e.msg;
+  });
 }
 
 void Map::clearMaterials()
@@ -1342,8 +1347,16 @@ void Map::updateGameFileSystem()
     gamePath(),
     searchPaths(*m_worldNode),
     logger());
+  reloadPalette();
 
   entityModelManager().reloadShaders(m_taskManager);
+}
+
+void Map::reloadPalette()
+{
+  m_palette =
+    loadPalette(*m_gameFileSystem, gameInfo().gameConfig.materialConfig.palette);
+  entityModelManager().setPalette(m_palette | kdl::value_or(std::optional<Palette>{}));
 }
 
 void Map::initializeNodeIndex()

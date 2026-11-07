@@ -40,12 +40,14 @@ namespace tb::mdl
 EntityModelManager::EntityModelManager(
   const GameInfo& gameInfo,
   const fs::FileSystem& gameFileSystem,
+  std::optional<Palette> palette,
   CreateEntityModelDataResource createResource,
   Logger& logger)
   : m_gameInfo{gameInfo}
   , m_gameFileSystem{gameFileSystem}
   , m_createResource{std::move(createResource)}
   , m_logger{logger}
+  , m_palette{std::move(palette)}
 {
 }
 
@@ -75,6 +77,11 @@ void EntityModelManager::reloadShaders(kdl::task_manager& taskManager)
     | kdl::if_error(
       [&](const auto& e) { m_logger.error() << "Failed to reload shaders: " << e.msg; })
     | kdl::value_or(std::vector<Quake3Shader>{});
+}
+
+void EntityModelManager::setPalette(std::optional<Palette> palette)
+{
+  m_palette = std::move(palette);
 }
 
 gl::MaterialRenderer* EntityModelManager::renderer(const ModelSpecification& spec) const
@@ -174,18 +181,14 @@ const std::vector<const EntityModel*> EntityModelManager::
 Result<EntityModel> EntityModelManager::loadModel(
   const std::filesystem::path& modelPath) const
 {
-  const auto& materialConfig = m_gameInfo.gameConfig.materialConfig;
-
-  const auto createResource = [](auto resourceLoader) {
-    return gl::createResourceSync(std::move(resourceLoader));
-  };
-
-  const auto loadMaterial = [&](const auto& materialPath) {
+  // This function is called by the model loader, possibly after this function has
+  // returned, so it must not capture any locals.
+  const auto loadMaterial = [this](const auto& materialPath) {
     return mdl::loadMaterial(
              m_gameFileSystem,
-             materialConfig,
+             m_gameInfo.gameConfig.materialConfig,
              materialPath,
-             createResource,
+             gl::createResourceSync<gl::Texture>,
              m_shaders,
              std::nullopt)
            | kdl::or_else(makeReadMaterialErrorHandler(m_gameFileSystem, m_logger))
@@ -193,12 +196,7 @@ Result<EntityModel> EntityModelManager::loadModel(
   };
 
   return mdl::loadEntityModelAsync(
-    m_gameFileSystem,
-    materialConfig,
-    modelPath,
-    loadMaterial,
-    m_createResource,
-    m_logger);
+    m_gameFileSystem, m_palette, modelPath, loadMaterial, m_createResource, m_logger);
 }
 
 void EntityModelManager::prepare(gl::Gl& gl, gl::VboManager& vboManager)

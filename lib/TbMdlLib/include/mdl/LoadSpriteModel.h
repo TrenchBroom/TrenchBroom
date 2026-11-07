@@ -22,22 +22,32 @@
 #include "base/Result.h"
 #include "fs/Reader.h"
 #include "mdl/EntityModel.h"
+#include "mdl/Palette.h"
 
 #include <filesystem>
+#include <optional>
 #include <string>
 
 namespace tb
 {
 class Logger;
 
+namespace fs
+{
+class FileSystem;
+} // namespace fs
+
 namespace mdl
 {
-class Palette;
 
 bool canLoadSpriteModel(const std::filesystem::path& path, fs::Reader reader);
 
 Result<EntityModelData> loadSpriteModel(
-  const std::string& name, fs::Reader reader, const Palette& palette, Logger& logger);
+  const std::string& name,
+  fs::Reader reader,
+  const std::optional<Palette>& palette,
+  const fs::FileSystem& fs,
+  Logger& logger);
 
 } // namespace mdl
 } // namespace tb

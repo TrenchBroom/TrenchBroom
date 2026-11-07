@@ -28,6 +28,7 @@
 #include <filesystem>
 #include <iosfwd>
 #include <memory>
+#include <optional>
 #include <vector>
 
 namespace tb
@@ -40,6 +41,7 @@ class TextureBuffer;
 namespace fs
 {
 class File;
+class FileSystem;
 class Reader;
 } // namespace fs
 
@@ -116,6 +118,10 @@ Result<Palette> makePalette(
   const std::vector<unsigned char>& data, PaletteColorFormat colorFormat);
 
 Result<Palette> loadPalette(const fs::File& file, const std::filesystem::path& path);
+
+Result<std::optional<Palette>> loadPalette(
+  const fs::FileSystem& fs, const std::filesystem::path& path);
+
 Result<Palette> loadPalette(fs::Reader& reader, PaletteColorFormat colorFormat);
 
 } // namespace mdl

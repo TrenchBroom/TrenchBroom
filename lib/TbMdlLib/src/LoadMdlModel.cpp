@@ -23,6 +23,7 @@
 #include "gl/IndexRangeMap.h"
 #include "gl/IndexRangeMapBuilder.h"
 #include "gl/Material.h"
+#include "mdl/MaterialUtils.h"
 #include "mdl/Palette.h"
 
 #include "kd/path_utils.h"
@@ -245,33 +246,33 @@ gl::Material parseSkin(
   const size_t height,
   const int flags,
   std::string skinName,
-  const Palette& palette)
+  const std::optional<Palette>& palette,
+  const fs::FileSystem& fs,
+  Logger& logger)
 {
   const auto size = width * height;
   const auto transparency = (flags & MF_HOLEY) ? PaletteTransparency::Index255Transparent
                                                : PaletteTransparency::Opaque;
   const auto alphaDomain =
     (flags & MF_HOLEY) ? img::ImageAlphaDomain::Binary : img::ImageAlphaDomain::Opaque;
-  auto avgColor = Color{RgbaF{}};
-  auto rgbaImage = gl::TextureBuffer{size * 4};
 
   const auto skinGroup = reader.readSize<int32_t>();
-  if (skinGroup == 0)
+  const auto pictureCount = skinGroup == 0 ? size_t(1) : reader.readSize<int32_t>();
+  if (skinGroup != 0)
   {
-    palette.indexedToRgba(reader, size, rgbaImage, transparency, avgColor);
-
-    auto texture = gl::Texture{
-      width, height, avgColor, GL_RGBA, gl::NoEmbeddedDefaults{}, std::move(rgbaImage)};
-    texture.setAlphaDomain(alphaDomain);
-
-    auto textureResource = createTextureResource(std::move(texture));
-    return gl::Material{std::move(skinName), std::move(textureResource)};
+    reader.seekForward(pictureCount * 4); // skip the picture times
   }
 
-  const auto pictureCount = reader.readSize<int32_t>();
-  reader.seekForward(pictureCount * 4); // skip the picture times
+  // without a palette or a picture, there is nothing to decode
+  if (!palette || pictureCount == 0)
+  {
+    reader.seekForward(pictureCount * size); // skip all pictures
+    return loadDefaultMaterial(fs, std::move(skinName), logger);
+  }
 
-  palette.indexedToRgba(reader, size, rgbaImage, transparency, avgColor);
+  auto avgColor = Color{RgbaF{}};
+  auto rgbaImage = gl::TextureBuffer{size * 4};
+  palette->indexedToRgba(reader, size, rgbaImage, transparency, avgColor);
   reader.seekForward((pictureCount - 1) * size); // skip all remaining pictures
 
   auto texture = gl::Texture{
@@ -290,7 +291,9 @@ void parseSkins(
   const size_t height,
   const int flags,
   const std::string& modelName,
-  const Palette& palette)
+  const std::optional<Palette>& palette,
+  const fs::FileSystem& fs,
+  Logger& logger)
 {
   auto skins = std::vector<gl::Material>{};
   skins.reserve(count);
@@ -299,7 +302,7 @@ void parseSkins(
   {
     auto skinName = fmt::format("{}_{}", modelName, i);
     skins.push_back(
-      parseSkin(reader, width, height, flags, std::move(skinName), palette));
+      parseSkin(reader, width, height, flags, std::move(skinName), palette, fs, logger));
   }
 
   surface.setSkins(std::move(skins));
@@ -321,7 +324,11 @@ bool canLoadMdlModel(const std::filesystem::path& path, fs::Reader reader)
 }
 
 Result<EntityModelData> loadMdlModel(
-  const std::string& name, fs::Reader reader, const Palette& palette, Logger&)
+  const std::string& name,
+  fs::Reader reader,
+  const std::optional<Palette>& palette,
+  const fs::FileSystem& fs,
+  Logger& logger)
 {
   try
   {
@@ -354,7 +361,17 @@ Result<EntityModelData> loadMdlModel(
     auto& surface = data.addSurface(name, frameCount);
 
     reader.seekFromBegin(MdlLayout::Skins);
-    parseSkins(reader, surface, skinCount, skinWidth, skinHeight, flags, name, palette);
+    parseSkins(
+      reader,
+      surface,
+      skinCount,
+      skinWidth,
+      skinHeight,
+      flags,
+      name,
+      palette,
+      fs,
+      logger);
 
     const auto vertices = parseVertices(reader, vertexCount);
     const auto triangles = parseTriangles(reader, triangleCount);

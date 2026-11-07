@@ -19,17 +19,24 @@
 
 #include "mdl/LoadMd2Model.h"
 
+#include "fs/File.h"
 #include "fs/FileSystem.h"
 #include "fs/ReaderException.h"
 #include "gl/IndexRangeMap.h"
 #include "gl/IndexRangeMapBuilder.h"
 #include "gl/Material.h"
 #include "gl/PrimType.h"
+#include "mdl/LoadMipTexture.h"
 #include "mdl/LoadSkin.h"
+#include "mdl/LoadWalTexture.h"
+#include "mdl/MaterialUtils.h"
 
 #include "kd/path_utils.h"
+#include "kd/ranges/to.h"
+#include "kd/result.h"
 
 #include <array>
+#include <filesystem>
 #include <optional>
 #include <ranges>
 #include <vector>
@@ -246,10 +253,28 @@ auto parseMeshes(fs::Reader reader, const size_t /* commandCount */)
   return meshes;
 }
 
+bool requiresPalette(const std::filesystem::path& path, const fs::FileSystem& fs)
+{
+  if (isIdMipTexture(path))
+  {
+    return true;
+  }
+
+  if (isWalTexture(path))
+  {
+    return fs.openFile(path) | kdl::transform([](auto file) {
+             return walTextureRequiresPalette(file->reader());
+           })
+           | kdl::value_or(false);
+  }
+
+  return false;
+}
+
 void loadSkins(
   EntityModelSurface& surface,
   const std::vector<std::string>& skins,
-  const Palette& palette,
+  const std::optional<Palette>& palette,
   const fs::FileSystem& fs,
   Logger& logger)
 {
@@ -258,7 +283,11 @@ void loadSkins(
 
   for (const auto& skin : skins)
   {
-    materials.push_back(loadSkin(skin, fs, palette, logger));
+    const auto path = std::filesystem::path{skin};
+    auto material = !palette && requiresPalette(path, fs)
+                      ? loadDefaultMaterial(fs, path.stem().string(), logger)
+                      : loadSkin(path, fs, palette, logger);
+    materials.push_back(std::move(material));
   }
 
   surface.setSkins(std::move(materials));
@@ -346,7 +375,7 @@ bool canLoadMd2Model(const std::filesystem::path& path, fs::Reader reader)
 Result<EntityModelData> loadMd2Model(
   std::string name,
   fs::Reader reader,
-  const Palette& palette,
+  const std::optional<Palette>& palette,
   const fs::FileSystem& fs,
   Logger& logger)
 {

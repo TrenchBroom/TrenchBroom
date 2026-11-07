@@ -18,6 +18,7 @@
  */
 
 #include "Observer.h"
+#include "TestEnvironment.h"
 #include "fs/TestEnvironment.h"
 #include "gl/MaterialCollection.h"
 #include "gl/MaterialManager.h"
@@ -36,6 +37,7 @@
 #include "kd/path_utils.h"
 
 #include <algorithm>
+#include <filesystem>
 #include <optional>
 #include <ranges>
 #include <string>
@@ -445,6 +447,31 @@ TEST_CASE("Map_Assets")
 
     REQUIRE(map.materialManager().collections().size() == 1);
     CHECK(map.materialManager().collections().front().materials().size() == 2);
+  }
+
+  SECTION("reloadMaterialCollections picks up a palette added to disk")
+  {
+    auto env = fs::TestEnvironment{};
+    env.createDirectory("textures");
+    env.createFile("textures/tex1.png", "tex1");
+
+    auto gameConfig = DefaultGameInfo.gameConfig;
+    gameConfig.materialConfig.extensions = {".png"};
+    gameConfig.materialConfig.palette = "palette.lmp";
+
+    auto fixtureConfig = MapFixtureConfig{};
+    fixtureConfig.gameInfo = detail::makeGameInfoFixture(gameConfig, env.dir());
+
+    auto& map = fixture.create(fixtureConfig);
+
+    // the materials cannot be loaded without the palette
+    REQUIRE(map.materialManager().collections().empty());
+
+    std::filesystem::copy_file(
+      getFixtureRoot() / "test/mdl/Palette/palette.lmp", env.dir() / "palette.lmp");
+    reloadMaterialCollections(map);
+
+    CHECK(map.materialManager().collections().size() == 1);
   }
 
   SECTION("reloadEntityDefinitions")

@@ -64,6 +64,7 @@ Result<std::vector<gl::MaterialCollection>> loadMaterialCollections(
   const fs::FileSystem& fs,
   const MaterialConfig& materialConfig,
   const gl::CreateTextureResource& createResource,
+  const std::optional<Palette>& palette,
   kdl::task_manager& taskManager,
   Logger& logger);
 
