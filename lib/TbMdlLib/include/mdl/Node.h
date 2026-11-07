@@ -180,11 +180,17 @@ public:
   {
     m_children.reserve(m_children.size() + count);
     size_t descendantCountDelta = 0;
+    size_t childSelectionCountDelta = 0;
+    size_t descendantSelectionCountDelta = 0;
     std::for_each(cur, end, [&](auto* child) {
       doAddChild(child);
       descendantCountDelta += child->descendantCount() + 1;
+      childSelectionCountDelta += child->selected() ? 1u : 0u;
+      descendantSelectionCountDelta += child->descendantSelectionCount();
     });
     incDescendantCount(descendantCountDelta);
+    incChildSelectionCount(childSelectionCountDelta);
+    incDescendantSelectionCount(descendantSelectionCountDelta);
   }
 
   Node& addChild(Node* child);
@@ -196,11 +202,17 @@ public:
   void removeChildren(I cur, I end)
   {
     size_t descendantCountDelta = 0;
+    size_t childSelectionCountDelta = 0;
+    size_t descendantSelectionCountDelta = 0;
     std::for_each(cur, end, [&](auto* child) {
       doRemoveChild(child);
       descendantCountDelta += child->descendantCount() + 1;
+      childSelectionCountDelta += child->selected() ? 1u : 0u;
+      descendantSelectionCountDelta += child->descendantSelectionCount();
     });
     decDescendantCount(descendantCountDelta);
+    decChildSelectionCount(childSelectionCountDelta);
+    decDescendantSelectionCount(descendantSelectionCountDelta);
   }
 
   void removeChild(Node* child);

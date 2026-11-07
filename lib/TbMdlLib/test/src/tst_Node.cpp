@@ -599,6 +599,40 @@ TEST_CASE("Node")
     CHECK(kdl::ranges::contains(childNode->children(), grandChildNode2));
   }
 
+  SECTION("addChildren")
+  {
+    auto rootNode = TestNode{};
+    auto* parentNode = &rootNode.addChild(new TestNode{});
+
+    auto* childNode1 = new TestNode{};
+    auto* childNode2 = new TestNode{};
+    auto* grandChildNode = &childNode2->addChild(new TestNode{});
+
+    childNode1->select();
+    grandChildNode->select();
+
+    REQUIRE(parentNode->children().empty());
+    REQUIRE(childNode1->parent() == nullptr);
+    REQUIRE(childNode2->parent() == nullptr);
+    REQUIRE(parentNode->familySize() == 1u);
+    REQUIRE(rootNode.familySize() == 2u);
+    REQUIRE(parentNode->childSelectionCount() == 0u);
+    REQUIRE(parentNode->descendantSelectionCount() == 0u);
+    REQUIRE(rootNode.descendantSelectionCount() == 0u);
+
+    parentNode->addChildren({childNode1, childNode2});
+
+    CHECK_THAT(
+      parentNode->children(), RangeEquals(std::vector<Node*>{childNode1, childNode2}));
+    CHECK(childNode1->parent() == parentNode);
+    CHECK(childNode2->parent() == parentNode);
+    CHECK(parentNode->familySize() == 4u);
+    CHECK(rootNode.familySize() == 5u);
+    CHECK(parentNode->childSelectionCount() == 1u);
+    CHECK(parentNode->descendantSelectionCount() == 2u);
+    CHECK(rootNode.descendantSelectionCount() == 2u);
+  }
+
   SECTION("removeChild")
   {
     SECTION("removing a child detaches it and its descendants remain intact")
@@ -690,19 +724,70 @@ TEST_CASE("Node")
     }
   }
 
+  SECTION("removeChildren")
+  {
+    auto rootNode = TestNode{};
+    auto* parentNode = &rootNode.addChild(new TestNode{});
+    auto* childNode1 = &parentNode->addChild(new TestNode{});
+    auto* childNode2 = &parentNode->addChild(new TestNode{});
+    auto* childNode3 = &parentNode->addChild(new TestNode{});
+    auto* grandChildNode = &childNode2->addChild(new TestNode{});
+
+    childNode1->select();
+    grandChildNode->select();
+    childNode3->select();
+
+    REQUIRE(childNode1->parent() == parentNode);
+    REQUIRE(childNode2->parent() == parentNode);
+    REQUIRE_THAT(
+      parentNode->children(),
+      RangeEquals(std::vector<Node*>{childNode1, childNode2, childNode3}));
+    REQUIRE(parentNode->familySize() == 5u);
+    REQUIRE(rootNode.familySize() == 6u);
+    REQUIRE(parentNode->childSelectionCount() == 2u);
+    REQUIRE(parentNode->descendantSelectionCount() == 3u);
+    REQUIRE(rootNode.descendantSelectionCount() == 3u);
+    REQUIRE(childNode1->selected());
+    REQUIRE(childNode2->descendantSelectionCount() == 1u);
+
+    const auto nodesToRemove = std::vector<Node*>{childNode1, childNode2};
+    parentNode->removeChildren(std::begin(nodesToRemove), std::end(nodesToRemove));
+
+    CHECK(childNode1->parent() == nullptr);
+    CHECK(childNode2->parent() == nullptr);
+    CHECK_THAT(parentNode->children(), RangeEquals(std::vector<Node*>{childNode3}));
+    CHECK(parentNode->familySize() == 2u);
+    CHECK(rootNode.familySize() == 3u);
+    CHECK(parentNode->childSelectionCount() == 1u);
+    CHECK(parentNode->descendantSelectionCount() == 1u);
+    CHECK(rootNode.descendantSelectionCount() == 1u);
+    CHECK(childNode1->selected());
+    CHECK(childNode2->descendantSelectionCount() == 1u);
+
+    delete childNode1;
+    delete childNode2;
+  }
+
   SECTION("replaceChildren")
   {
     auto rootNode = TestNode{};
     auto* childNode1 = new TestNode{};
     auto* childNode2 = new TestNode{};
+    auto* grandChildNode = &childNode2->addChild(new TestNode{});
 
     rootNode.addChildren({childNode1, childNode2});
+    childNode1->select();
+    grandChildNode->select();
 
     auto childNode3Ptr = std::make_unique<TestNode>();
     auto* childNode3 = childNode3Ptr.get();
+    childNode3->select();
 
     auto newChildren = std::vector<std::unique_ptr<Node>>{};
     newChildren.push_back(std::move(childNode3Ptr));
+
+    REQUIRE(rootNode.childSelectionCount() == 1u);
+    REQUIRE(rootNode.descendantSelectionCount() == 2u);
 
     const auto oldChildren = rootNode.replaceChildren(std::move(newChildren));
 
@@ -715,6 +800,8 @@ TEST_CASE("Node")
 
     CHECK_THAT(rootNode.children(), UnorderedEquals(std::vector<Node*>{childNode3}));
     CHECK(childNode3->parent() == &rootNode);
+    CHECK(rootNode.childSelectionCount() == 1u);
+    CHECK(rootNode.descendantSelectionCount() == 1u);
   }
 
   SECTION("select")
