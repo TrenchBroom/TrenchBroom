@@ -495,6 +495,93 @@ bool updateLinkedGroups(Map& map)
   return true;
 }
 
+void addToNodeIndex(
+  NodeIndex& nodeIndex, const std::vector<Node*>& nodes, const bool recurse)
+{
+  for (auto* node : nodes)
+  {
+    nodeIndex.addNode(*node);
+
+    if (recurse)
+    {
+      addToNodeIndex(nodeIndex, node->children(), true);
+    }
+  }
+}
+
+void removeFromNodeIndex(
+  NodeIndex& nodeIndex, const std::vector<Node*>& nodes, const bool recurse)
+{
+  for (auto* node : nodes)
+  {
+    nodeIndex.removeNode(*node);
+
+    if (recurse)
+    {
+      removeFromNodeIndex(nodeIndex, node->children(), true);
+    }
+  }
+}
+
+void initializeNodeIndex(NodeIndex& nodeIndex, WorldNode& worldNode)
+{
+  addToNodeIndex(nodeIndex, {&worldNode}, true);
+}
+
+void addEntityLinks(
+  EntityLinkManager& entityLinkManager,
+  const std::vector<Node*>& nodes,
+  const bool recurse)
+{
+  for (auto* node : nodes)
+  {
+    node->accept(kdl::overload(
+      [&](WorldNode& worldNode) { entityLinkManager.addEntityNode(worldNode); },
+      [](LayerNode&) {},
+      [](GroupNode&) {},
+      [&](EntityNode& entityNode) { entityLinkManager.addEntityNode(entityNode); },
+      [](BrushNode&) {},
+      [](PatchNode&) {}));
+
+    if (recurse)
+    {
+      addEntityLinks(entityLinkManager, node->children(), true);
+    }
+  }
+}
+
+void removeEntityLinks(
+  EntityLinkManager& entityLinkManager,
+  const std::vector<Node*>& nodes,
+  const bool recurse)
+{
+  for (auto* node : nodes)
+  {
+    node->accept(kdl::overload(
+      [&](WorldNode& worldNode) { entityLinkManager.removeEntityNode(worldNode); },
+      [](LayerNode&) {},
+      [](GroupNode&) {},
+      [&](EntityNode& entityNode) { entityLinkManager.removeEntityNode(entityNode); },
+      [](BrushNode&) {},
+      [](PatchNode&) {}));
+
+    if (recurse)
+    {
+      removeEntityLinks(entityLinkManager, node->children(), true);
+    }
+  }
+}
+
+void initializeEntityLinks(EntityLinkManager& entityLinkManager, WorldNode& worldNode)
+{
+  addEntityLinks(entityLinkManager, {&worldNode}, true);
+}
+
+void clearEntityLinks(EntityLinkManager& entityLinkManager)
+{
+  entityLinkManager.clear();
+}
+
 class ThrowExceptionCommand : public UndoableCommand
 {
 public:
@@ -593,8 +680,8 @@ Map::Map(
   registerSmartTags();
 
   initializeAllNodeTags();
-  initializeNodeIndex();
-  initializeEntityLinks();
+  initializeNodeIndex(*m_nodeIndex, *m_worldNode);
+  initializeEntityLinks(*m_entityLinkManager, *m_worldNode);
 }
 
 Map::~Map() = default;
@@ -1346,86 +1433,6 @@ void Map::updateGameFileSystem()
   entityModelManager().reloadShaders(m_taskManager);
 }
 
-void Map::initializeNodeIndex()
-{
-  addToNodeIndex({&worldNode()}, true);
-}
-
-void Map::addToNodeIndex(const std::vector<Node*>& nodes, const bool recurse)
-{
-  for (auto* node : nodes)
-  {
-    m_nodeIndex->addNode(*node);
-
-    if (recurse)
-    {
-      addToNodeIndex(node->children(), true);
-    }
-  }
-}
-
-void Map::removeFromNodeIndex(const std::vector<Node*>& nodes, const bool recurse)
-{
-  for (auto* node : nodes)
-  {
-    m_nodeIndex->removeNode(*node);
-
-    if (recurse)
-    {
-      removeFromNodeIndex(node->children(), true);
-    }
-  }
-}
-
-void Map::initializeEntityLinks()
-{
-  addEntityLinks({&worldNode()}, true);
-}
-
-void Map::clearEntityLinks()
-{
-  m_entityLinkManager->clear();
-}
-
-void Map::addEntityLinks(const std::vector<Node*>& nodes, const bool recurse)
-{
-  for (auto* node : nodes)
-  {
-    node->accept(kdl::overload(
-      [&](WorldNode& worldNode) { m_entityLinkManager->addEntityNode(worldNode); },
-      [](LayerNode&) {},
-      [](GroupNode&) {},
-      [&](EntityNode& entityNode) { m_entityLinkManager->addEntityNode(entityNode); },
-      [](BrushNode&) {},
-      [](PatchNode&) {}));
-
-    if (recurse)
-    {
-      addEntityLinks(node->children(), true);
-    }
-  }
-}
-
-void Map::removeEntityLinks(const std::vector<Node*>& nodes, const bool recurse)
-{
-  for (auto* node : nodes)
-  {
-    node->accept(kdl::overload(
-      [&](WorldNode& worldNode) { m_entityLinkManager->removeEntityNode(worldNode); },
-      [](LayerNode&) {},
-      [](GroupNode&) {},
-      [&](EntityNode& entityNode) { m_entityLinkManager->removeEntityNode(entityNode); },
-      [](BrushNode&) {},
-      [](PatchNode&) {}));
-
-
-    if (recurse)
-    {
-      removeEntityLinks(node->children(), true);
-    }
-  }
-}
-
 bool Map::canUndoCommand() const
 {
   return m_commandProcessor->undoCommandName() != nullptr;
@@ -1651,8 +1658,8 @@ void Map::nodesWereAdded(const std::vector<Node*>& nodes)
   setEntityModels(nodes);
   setMaterials(nodes);
   initializeNodeTags(nodes);
-  addToNodeIndex(nodes, true);
-  addEntityLinks(nodes, true);
+  addToNodeIndex(*m_nodeIndex, nodes, true);
+  addEntityLinks(*m_entityLinkManager, nodes, true);
 
   m_selection.update(computeSelectionChangeForAddedNodes(nodes));
   m_cachedSelectionBounds = std::nullopt;
@@ -1660,8 +1667,8 @@ void Map::nodesWereAdded(const std::vector<Node*>& nodes)
 
 void Map::nodesWillBeRemoved(const std::vector<Node*>& nodes)
 {
-  removeEntityLinks(nodes, true);
-  removeFromNodeIndex(nodes, true);
+  removeEntityLinks(*m_entityLinkManager, nodes, true);
+  removeFromNodeIndex(*m_nodeIndex, nodes, true);
   clearNodeTags(nodes);
 }
 
@@ -1677,8 +1684,8 @@ void Map::nodesWereRemoved(const std::vector<Node*>& nodes)
 
 void Map::nodesWillChange(const std::vector<Node*>& nodes)
 {
-  removeEntityLinks(nodes, false);
-  removeFromNodeIndex(nodes, false);
+  removeEntityLinks(*m_entityLinkManager, nodes, false);
+  removeFromNodeIndex(*m_nodeIndex, nodes, false);
 }
 
 void Map::nodesDidChange(const std::vector<Node*>& nodes)
@@ -1687,8 +1694,8 @@ void Map::nodesDidChange(const std::vector<Node*>& nodes)
   setEntityModels(nodes);
   setMaterials(nodes);
   updateNodeTags(collectNodesAndDescendants(nodes));
-  addToNodeIndex(nodes, false);
-  addEntityLinks(nodes, false);
+  addToNodeIndex(*m_nodeIndex, nodes, false);
+  addEntityLinks(*m_entityLinkManager, nodes, false);
 
   m_selection.invalidate();
   m_cachedSelectionBounds = std::nullopt;
@@ -1735,7 +1742,7 @@ void Map::entityDefinitionsWillChange()
 {
   clearEntityDefinitions();
   clearEntityModels();
-  clearEntityLinks();
+  clearEntityLinks(*m_entityLinkManager);
 }
 
 void Map::entityDefinitionsDidChange()
@@ -1743,7 +1750,7 @@ void Map::entityDefinitionsDidChange()
   loadEntityDefinitions();
   setEntityDefinitions();
   setEntityModels();
-  initializeEntityLinks();
+  initializeEntityLinks(*m_entityLinkManager, *m_worldNode);
 }
 
 void Map::modsWillChange()
