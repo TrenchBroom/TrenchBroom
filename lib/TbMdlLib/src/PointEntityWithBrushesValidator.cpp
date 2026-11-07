@@ -48,7 +48,7 @@ IssueQuickFix makeMoveBrushesToWorldQuickFix()
             for (const auto* issue : issues)
             {
               auto& node = issue->node();
-              nodesToReparent[node.parent()] = node.children();
+              kdl::vec_append(nodesToReparent[node.parent()], node.children());
 
               affectedNodes.push_back(&node);
               kdl::vec_append(affectedNodes, node.children());

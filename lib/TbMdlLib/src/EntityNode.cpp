@@ -118,7 +118,7 @@ bool EntityNode::doCanRemoveChild(const Node&) const
 
 bool EntityNode::doRemoveIfEmpty() const
 {
-  return true;
+  return getPointEntityDefinition(m_entity.definition()) == nullptr;
 }
 
 bool EntityNode::doShouldAddToSpacialIndex() const
