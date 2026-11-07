@@ -401,6 +401,7 @@ Node* PatchNode::doClone(const vm::bbox3d&) const
 {
   auto result = std::make_unique<PatchNode>(m_patch);
   cloneLinkId(*result);
+  cloneAttributes(*result);
   return result.release();
 }
 

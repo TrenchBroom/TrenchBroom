@@ -20,14 +20,17 @@
 #include "mdl/BezierPatch.h"
 #include "mdl/CatchConfig.h"
 #include "mdl/EditorContext.h"
+#include "mdl/LockState.h"
 #include "mdl/PatchNode.h"
 #include "mdl/PickResult.h"
+#include "mdl/VisibilityState.h"
 
 #include "kd/contracts.h"
 
 #include "vm/approx.h"
 #include "vm/vec.h"
 
+#include <memory>
 #include <ranges>
 
 #include <catch2/catch_test_macros.hpp>
@@ -234,6 +237,26 @@ TEST_CASE("PatchNode")
     CHECK(patchNode.projectedArea(vm::axis::y) == 64.0);
     CHECK(patchNode.projectedArea(vm::axis::z) == 32.0);
     CHECK(patchNode.projectedArea(static_cast<vm::axis::type>(3)) == 0.0);
+  }
+
+  SECTION("clone")
+  {
+    // clang-format off
+    auto patchNode = PatchNode{BezierPatch{3, 3, {
+      {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
+      {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
+      {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "material"}};
+    // clang-format on
+
+    patchNode.setVisibilityState(VisibilityState::Hidden);
+    patchNode.setLockState(LockState::Locked);
+
+    const auto clone = std::unique_ptr<PatchNode>{
+      static_cast<PatchNode*>(patchNode.clone(vm::bbox3d{8192.0}))};
+
+    CHECK(clone->patch() == patchNode.patch());
+    CHECK(clone->visibilityState() == VisibilityState::Hidden);
+    CHECK(clone->lockState() == LockState::Locked);
   }
 }
 
