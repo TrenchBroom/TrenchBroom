@@ -22,9 +22,9 @@
 #include "ui/DrawShapeToolExtensions.h"
 
 #include "kd/contracts.h"
+#include "kd/ranges/raw_pointers_view.h"
 #include "kd/ranges/to.h"
 
-#include <ranges>
 
 namespace tb::ui
 {
@@ -49,9 +49,7 @@ DrawShapeToolParameters& DrawShapeToolExtensionManager::parameters()
 const std::vector<DrawShapeToolExtension*> DrawShapeToolExtensionManager::extensions()
   const
 {
-  return m_extensions
-         | std::views::transform([](const auto& extension) { return extension.get(); })
-         | kdl::ranges::to<std::vector>();
+  return m_extensions | kdl::views::raw_pointers | kdl::ranges::to<std::vector>();
 }
 
 const DrawShapeToolExtension& DrawShapeToolExtensionManager::currentExtension() const
