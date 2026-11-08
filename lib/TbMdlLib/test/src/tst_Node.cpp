@@ -731,6 +731,7 @@ TEST_CASE("Node")
     auto* childNode1 = &parentNode->addChild(new TestNode{});
     auto* childNode2 = &parentNode->addChild(new TestNode{});
     auto* childNode3 = &parentNode->addChild(new TestNode{});
+    auto* childNode4 = &parentNode->addChild(new TestNode{});
     auto* grandChildNode = &childNode2->addChild(new TestNode{});
 
     childNode1->select();
@@ -741,23 +742,23 @@ TEST_CASE("Node")
     REQUIRE(childNode2->parent() == parentNode);
     REQUIRE_THAT(
       parentNode->children(),
-      RangeEquals(std::vector<Node*>{childNode1, childNode2, childNode3}));
-    REQUIRE(parentNode->familySize() == 5u);
-    REQUIRE(rootNode.familySize() == 6u);
+      RangeEquals(std::vector<Node*>{childNode1, childNode2, childNode3, childNode4}));
+    REQUIRE(parentNode->familySize() == 6u);
+    REQUIRE(rootNode.familySize() == 7u);
     REQUIRE(parentNode->childSelectionCount() == 2u);
     REQUIRE(parentNode->descendantSelectionCount() == 3u);
     REQUIRE(rootNode.descendantSelectionCount() == 3u);
     REQUIRE(childNode1->selected());
     REQUIRE(childNode2->descendantSelectionCount() == 1u);
 
-    const auto nodesToRemove = std::vector<Node*>{childNode1, childNode2};
-    parentNode->removeChildren(std::begin(nodesToRemove), std::end(nodesToRemove));
+    parentNode->removeChildren({childNode2, childNode1});
 
     CHECK(childNode1->parent() == nullptr);
     CHECK(childNode2->parent() == nullptr);
-    CHECK_THAT(parentNode->children(), RangeEquals(std::vector<Node*>{childNode3}));
-    CHECK(parentNode->familySize() == 2u);
-    CHECK(rootNode.familySize() == 3u);
+    CHECK_THAT(
+      parentNode->children(), RangeEquals(std::vector<Node*>{childNode3, childNode4}));
+    CHECK(parentNode->familySize() == 3u);
+    CHECK(rootNode.familySize() == 4u);
     CHECK(parentNode->childSelectionCount() == 1u);
     CHECK(parentNode->descendantSelectionCount() == 1u);
     CHECK(rootNode.descendantSelectionCount() == 1u);

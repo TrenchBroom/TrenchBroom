@@ -51,7 +51,7 @@ void removeNodesAndNotify(const kdl::flat_map<Node*, std::vector<Node*>>& nodes,
 
   for (const auto& [parent, children] : nodes)
   {
-    parent->removeChildren(std::begin(children), std::end(children));
+    parent->removeChildren(children);
   }
 }
 

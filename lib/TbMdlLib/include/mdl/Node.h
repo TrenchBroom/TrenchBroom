@@ -198,22 +198,7 @@ public:
   std::vector<std::unique_ptr<Node>> replaceChildren(
     std::vector<std::unique_ptr<Node>> newChildren);
 
-  template <typename I>
-  void removeChildren(I cur, I end)
-  {
-    size_t descendantCountDelta = 0;
-    size_t childSelectionCountDelta = 0;
-    size_t descendantSelectionCountDelta = 0;
-    std::for_each(cur, end, [&](auto* child) {
-      doRemoveChild(child);
-      descendantCountDelta += child->descendantCount() + 1;
-      childSelectionCountDelta += child->selected() ? 1u : 0u;
-      descendantSelectionCountDelta += child->descendantSelectionCount();
-    });
-    decDescendantCount(descendantCountDelta);
-    decChildSelectionCount(childSelectionCountDelta);
-    decDescendantSelectionCount(descendantSelectionCountDelta);
-  }
+  void removeChildren(const std::vector<Node*>& children);
 
   void removeChild(Node* child);
 
