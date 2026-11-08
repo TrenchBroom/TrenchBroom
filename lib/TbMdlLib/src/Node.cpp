@@ -277,6 +277,8 @@ std::vector<std::unique_ptr<Node>> Node::replaceChildren(
   }
 
   decDescendantCount(descendantCount());
+  decChildSelectionCount(childSelectionCount());
+  decDescendantSelectionCount(descendantSelectionCount());
   addChildren(
     newChildren | kdl::views::as_rvalue
     | std::views::transform([](auto&& child) { return child.release(); })
