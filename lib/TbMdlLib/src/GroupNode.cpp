@@ -180,12 +180,12 @@ double GroupNode::doGetProjectedArea(const vm::axis::type) const
   return static_cast<double>(0);
 }
 
-Node* GroupNode::doClone(const vm::bbox3d& /* worldBounds */) const
+std::unique_ptr<Node> GroupNode::doClone(const vm::bbox3d& /* worldBounds */) const
 {
   auto result = std::make_unique<GroupNode>(m_group);
   cloneLinkId(*result);
   cloneAttributes(*result);
-  return result.release();
+  return result;
 }
 
 namespace

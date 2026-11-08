@@ -604,18 +604,4 @@ void vec_clear_to_zero(std::vector<T>& v)
   v.shrink_to_fit();
 }
 
-/**
- * Applies the given deleter to every element of the given vector, and clears the vector
- * afterwards.
- *
- * @tparam T the type of the vector elements
- * @param v the vector
- */
-template <typename T, typename D = deleter<T*>>
-void vec_clear_and_delete(std::vector<T*>& v, const D& deleter = D())
-{
-  kdl::col_delete_all(v, deleter);
-  v.clear();
-}
-
 } // namespace kdl

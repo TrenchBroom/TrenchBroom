@@ -397,12 +397,12 @@ double PatchNode::doGetProjectedArea(const vm::axis::type axis) const
   }
 }
 
-Node* PatchNode::doClone(const vm::bbox3d&) const
+std::unique_ptr<Node> PatchNode::doClone(const vm::bbox3d&) const
 {
   auto result = std::make_unique<PatchNode>(m_patch);
   cloneLinkId(*result);
   cloneAttributes(*result);
-  return result.release();
+  return result;
 }
 
 bool PatchNode::doCanAddChild(const Node&) const

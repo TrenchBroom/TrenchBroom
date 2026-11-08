@@ -35,6 +35,10 @@
 #include "mdl/TestUtils.h"
 #include "mdl/WorldNode.h"
 
+#include "kd/vector_utils.h"
+
+#include <memory>
+
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers_vector.hpp>
 
@@ -51,8 +55,8 @@ TEST_CASE("Map_NodeLocking")
   {
     SECTION("Layer nodes")
     {
-      auto* layerNode = new LayerNode{Layer{"layer"}};
-      addNodes(map, {{&map.worldNode(), {layerNode}}});
+      auto* layerNode =
+        addNode(map, map.worldNode(), std::make_unique<LayerNode>(Layer{"layer"}));
 
       REQUIRE_FALSE(layerNode->locked());
 
@@ -65,15 +69,24 @@ TEST_CASE("Map_NodeLocking")
 
     SECTION("Object nodes")
     {
-      auto* brushNode = createBrushNode(map);
-      auto* entityNode = new EntityNode{Entity{}};
-      auto* patchNode = createPatchNode();
+      auto brushNodePtr = createBrushNode(map);
+      auto* brushNode = brushNodePtr.get();
+      auto entityNodePtr = std::make_unique<EntityNode>(Entity{});
+      auto* entityNode = entityNodePtr.get();
+      auto patchNodePtr = createPatchNode();
+      auto* patchNode = patchNodePtr.get();
 
-      auto* entityNodeInGroup = new EntityNode{Entity{}};
+      auto entityNodeInGroupPtr = std::make_unique<EntityNode>(Entity{});
+      auto* entityNodeInGroup = entityNodeInGroupPtr.get();
 
       addNodes(
         map,
-        {{&parentForNodes(map), {brushNode, entityNode, patchNode, entityNodeInGroup}}});
+        parentForNodes(map),
+        kdl::vec_from<std::unique_ptr<Node>>(
+          std::move(brushNodePtr),
+          std::move(entityNodePtr),
+          std::move(patchNodePtr),
+          std::move(entityNodeInGroupPtr)));
       deselectAll(map);
       selectNodes(map, {entityNodeInGroup});
 
@@ -109,23 +122,32 @@ TEST_CASE("Map_NodeLocking")
 
     SECTION("Locking increases modification count")
     {
-      auto* brushNode = createBrushNode(map);
-      auto* entityNode = new EntityNode{Entity{}};
-      auto* patchNode = createPatchNode();
+      auto brushNodePtr = createBrushNode(map);
+      auto* brushNode = brushNodePtr.get();
+      auto entityNodePtr = std::make_unique<EntityNode>(Entity{});
+      auto* entityNode = entityNodePtr.get();
+      auto patchNodePtr = createPatchNode();
+      auto* patchNode = patchNodePtr.get();
 
-      auto* entityNodeInGroup = new EntityNode{Entity{}};
+      auto entityNodeInGroupPtr = std::make_unique<EntityNode>(Entity{});
+      auto* entityNodeInGroup = entityNodeInGroupPtr.get();
 
       addNodes(
         map,
-        {{&parentForNodes(map), {brushNode, entityNode, patchNode, entityNodeInGroup}}});
+        parentForNodes(map),
+        kdl::vec_from<std::unique_ptr<Node>>(
+          std::move(brushNodePtr),
+          std::move(entityNodePtr),
+          std::move(patchNodePtr),
+          std::move(entityNodeInGroupPtr)));
       deselectAll(map);
       selectNodes(map, {entityNodeInGroup});
 
       auto* groupNode = groupSelectedNodes(map, "group");
       deselectAll(map);
 
-      auto* layerNode = new LayerNode{Layer{"layer"}};
-      addNodes(map, {{&map.worldNode(), {layerNode}}});
+      auto* layerNode =
+        addNode(map, map.worldNode(), std::make_unique<LayerNode>(Layer{"layer"}));
 
       const auto originalModificationCount = map.modificationCount();
 
@@ -144,17 +166,18 @@ TEST_CASE("Map_NodeLocking")
 
     SECTION("Locked nodes are deselected")
     {
-      auto* selectedBrushNode = createBrushNode(map);
-      auto* unselectedBrushNode = createBrushNode(map);
-      auto* unlockedBrushNode = createBrushNode(map);
+      auto selectedBrushNodePtr = createBrushNode(map);
+      auto* selectedBrushNode = selectedBrushNodePtr.get();
 
-      auto* layerNode = new LayerNode{Layer{"layer"}};
-      addNodes(map, {{&map.worldNode(), {layerNode}}});
+      auto* layerNode =
+        addNode(map, map.worldNode(), std::make_unique<LayerNode>(Layer{"layer"}));
 
-      addNodes(map, {{layerNode, {unlockedBrushNode}}});
+      auto* unlockedBrushNode = addNode(map, *layerNode, createBrushNode(map));
       addNodes(
         map,
-        {{map.worldNode().defaultLayer(), {selectedBrushNode, unselectedBrushNode}}});
+        *map.worldNode().defaultLayer(),
+        kdl::vec_from<std::unique_ptr<Node>>(
+          std::move(selectedBrushNodePtr), createBrushNode(map)));
 
       SECTION("Node selection")
       {
@@ -218,8 +241,10 @@ TEST_CASE("Map_NodeLocking")
 
   SECTION("unlockNodes")
   {
-    auto* brushNode = createBrushNode(map);
-    auto* entityNode = new EntityNode{Entity{}};
+    const auto brushNodePtr = createBrushNode(map);
+    const auto entityNodePtr = std::make_unique<EntityNode>(Entity{});
+    auto* brushNode = brushNodePtr.get();
+    auto* entityNode = entityNodePtr.get();
 
     lockNodes(map, {brushNode, entityNode});
     REQUIRE(brushNode->locked());
@@ -243,9 +268,15 @@ TEST_CASE("Map_NodeLocking")
 
   SECTION("ensureNodesUnlocked")
   {
-    auto* brushNode = createBrushNode(map);
-    auto* entityNode = new EntityNode{Entity{}};
-    addNodes(map, {{&parentForNodes(map), {brushNode, entityNode}}});
+    auto brushNodePtr = createBrushNode(map);
+    auto* brushNode = brushNodePtr.get();
+    auto entityNodePtr = std::make_unique<EntityNode>(Entity{});
+    auto* entityNode = entityNodePtr.get();
+    addNodes(
+      map,
+      parentForNodes(map),
+      kdl::vec_from<std::unique_ptr<Node>>(
+        std::move(brushNodePtr), std::move(entityNodePtr)));
 
     lockNodes(map, {brushNode});
     REQUIRE(brushNode->locked());
@@ -269,10 +300,19 @@ TEST_CASE("Map_NodeLocking")
 
   SECTION("resetNodeLockingState")
   {
-    auto* lockedNode = new EntityNode{Entity{}};
-    auto* unlockedNode = new EntityNode{Entity{}};
-    auto* inheritedNode = new EntityNode{Entity{}};
-    addNodes(map, {{&parentForNodes(map), {lockedNode, unlockedNode, inheritedNode}}});
+    auto lockedNodePtr = std::make_unique<EntityNode>(Entity{});
+    auto* lockedNode = lockedNodePtr.get();
+    auto unlockedNodePtr = std::make_unique<EntityNode>(Entity{});
+    auto* unlockedNode = unlockedNodePtr.get();
+    auto inheritedNodePtr = std::make_unique<EntityNode>(Entity{});
+    auto* inheritedNode = inheritedNodePtr.get();
+    addNodes(
+      map,
+      parentForNodes(map),
+      kdl::vec_from<std::unique_ptr<Node>>(
+        std::move(lockedNodePtr),
+        std::move(unlockedNodePtr),
+        std::move(inheritedNodePtr)));
 
     lockNodes(map, {lockedNode});
     unlockNodes(map, {unlockedNode});
@@ -301,10 +341,19 @@ TEST_CASE("Map_NodeLocking")
 
   SECTION("downgradeUnlockedToInherit")
   {
-    auto* lockedNode = new EntityNode{Entity{}};
-    auto* unlockedNode = new EntityNode{Entity{}};
-    auto* inheritedNode = new EntityNode{Entity{}};
-    addNodes(map, {{&parentForNodes(map), {lockedNode, unlockedNode, inheritedNode}}});
+    auto lockedNodePtr = std::make_unique<EntityNode>(Entity{});
+    auto* lockedNode = lockedNodePtr.get();
+    auto unlockedNodePtr = std::make_unique<EntityNode>(Entity{});
+    auto* unlockedNode = unlockedNodePtr.get();
+    auto inheritedNodePtr = std::make_unique<EntityNode>(Entity{});
+    auto* inheritedNode = inheritedNodePtr.get();
+    addNodes(
+      map,
+      parentForNodes(map),
+      kdl::vec_from<std::unique_ptr<Node>>(
+        std::move(lockedNodePtr),
+        std::move(unlockedNodePtr),
+        std::move(inheritedNodePtr)));
 
     lockNodes(map, {lockedNode});
     unlockNodes(map, {unlockedNode});

@@ -20,6 +20,7 @@
 #pragma once
 
 #include <functional>
+#include <memory>
 #include <string>
 
 namespace tb::mdl
@@ -29,11 +30,11 @@ class BrushNode;
 class Map;
 class PatchNode;
 
-BrushNode* createBrushNode(
+std::unique_ptr<BrushNode> createBrushNode(
   const Map& map,
   const std::string& materialName = "material",
   const std::function<void(mdl::Brush&)>& brushFunc = [](mdl::Brush&) {});
 
-PatchNode* createPatchNode(const std::string& materialName = "material");
+std::unique_ptr<PatchNode> createPatchNode(const std::string& materialName = "material");
 
 } // namespace tb::mdl

@@ -33,7 +33,10 @@
 
 #include <fmt/format.h>
 
+#include <memory>
+
 #include <catch2/catch_test_macros.hpp>
+#include <catch2/matchers/catch_matchers_range_equals.hpp>
 
 namespace tb::mdl
 {
@@ -71,8 +74,10 @@ TEST_CASE("Map_Persistence")
     REQUIRE(map.persistent());
     REQUIRE(map.path() == path);
 
-    auto* entityNode = new EntityNode{Entity{{{"name", "entity2"}}}};
-    addNodes(map, {{&parentForNodes(map), {entityNode}}});
+    addNode(
+      map,
+      parentForNodes(map),
+      std::make_unique<EntityNode>(Entity{{{"name", "entity2"}}}));
 
     auto mapWasSaved = Observer<>{map.mapWasSavedNotifier};
     auto modificationStateDidChange = Observer<>{map.modificationStateDidChangeNotifier};
@@ -108,9 +113,11 @@ TEST_CASE("Map_Persistence")
     auto fixture = MapFixture{};
     auto& map = fixture.create();
 
-    auto* entityNode = new EntityNode{Entity{{{"key", "value"}}}};
-    addNodes(map, {{&parentForNodes(map), {entityNode}}});
-    REQUIRE(map.worldNode().defaultLayer()->children() == std::vector<Node*>{entityNode});
+    auto* entityNode = addNode(
+      map, parentForNodes(map), std::make_unique<EntityNode>(Entity{{{"key", "value"}}}));
+    REQUIRE_THAT(
+      map.worldNode().defaultLayer()->children(),
+      Catch::Matchers::RangeEquals(std::vector<Node*>{entityNode}));
 
     auto mapWasSaved = Observer<>{map.mapWasSavedNotifier};
     auto modificationStateDidChange = Observer<>{map.modificationStateDidChangeNotifier};
@@ -151,10 +158,12 @@ TEST_CASE("Map_Persistence")
 
       const auto builder = BrushBuilder{map.worldNode().mapFormat(), map.worldBounds()};
 
-      auto* brushNode = new BrushNode{
-        builder.createCuboid(vm::bbox3d{{0, 0, 0}, {64, 64, 64}}, "material")
-        | kdl::value()};
-      addNodes(map, {{&parentForNodes(map), {brushNode}}});
+      addNode(
+        map,
+        parentForNodes(map),
+        std::make_unique<BrushNode>(
+          builder.createCuboid(vm::bbox3d{{0, 0, 0}, {64, 64, 64}}, "material")
+          | kdl::value()));
 
       const auto objFilename = "test.obj";
       const auto mtlFilename = "test.mtl";
@@ -174,8 +183,10 @@ TEST_CASE("Map_Persistence")
     {
       auto& map = fixture.create();
 
-      auto* entityNode = new EntityNode{Entity{{{"key", "value"}}}};
-      addNodes(map, {{&parentForNodes(map), {entityNode}}});
+      addNode(
+        map,
+        parentForNodes(map),
+        std::make_unique<EntityNode>(Entity{{{"key", "value"}}}));
 
       const auto filename = "test.map";
       REQUIRE(map.exportAs(MapExportOptions{
@@ -206,8 +217,7 @@ TEST_CASE("Map_Persistence")
       auto layer = mdl::Layer{"Layer"};
       layer.setOmitFromExport(true);
 
-      auto* layerNode = new mdl::LayerNode{std::move(layer)};
-      addNodes(map, {{&map.worldNode(), {layerNode}}});
+      addNode(map, map.worldNode(), std::make_unique<mdl::LayerNode>(std::move(layer)));
 
       REQUIRE(map.exportAs(MapExportOptions{
         env.dir() / newDocumentPath,
@@ -229,8 +239,8 @@ TEST_CASE("Map_Persistence")
 
       auto& map = fixture.create(QuakeFixtureConfig);
 
-      auto* layerNode = new mdl::LayerNode{mdl::Layer{"Layer"}};
-      addNodes(map, {{&map.worldNode(), {layerNode}}});
+      addNode(
+        map, map.worldNode(), std::make_unique<mdl::LayerNode>(mdl::Layer{"Layer"}));
 
       REQUIRE(map.exportAs(MapExportOptions{
         env.dir() / newDocumentPath,
@@ -256,8 +266,10 @@ TEST_CASE("Map_Persistence")
 
       auto& map = fixture.create(QuakeFixtureConfig);
 
-      auto* entityNode = new mdl::EntityNode{mdl::Entity{{{"classname", "light"}}}};
-      addNodes(map, {{&parentForNodes(map), {entityNode}}});
+      addNode(
+        map,
+        parentForNodes(map),
+        std::make_unique<mdl::EntityNode>(mdl::Entity{{{"classname", "light"}}}));
 
       REQUIRE(map.exportAs(MapExportOptions{
         env.dir() / newDocumentPath,
@@ -279,8 +291,10 @@ TEST_CASE("Map_Persistence")
 
       auto& map = fixture.create(QuakeFixtureConfig);
 
-      auto* entityNode = new mdl::EntityNode{mdl::Entity{{{"classname", "light"}}}};
-      addNodes(map, {{&parentForNodes(map), {entityNode}}});
+      addNode(
+        map,
+        parentForNodes(map),
+        std::make_unique<mdl::EntityNode>(mdl::Entity{{{"classname", "light"}}}));
 
       REQUIRE(map.exportAs(MapExportOptions{
         env.dir() / newDocumentPath,

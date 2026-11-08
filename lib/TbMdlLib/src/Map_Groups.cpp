@@ -39,6 +39,7 @@
 #include "mdl/WorldNode.h" // IWYU pragma: keep
 
 #include "kd/contracts.h"
+#include "kd/memory_utils.h"
 #include "kd/ranges/as_rvalue_view.h"
 #include "kd/ranges/concat_view.h"
 #include "kd/ranges/to.h"
@@ -163,8 +164,8 @@ bool hasLinkIdOf(const Node& node, const std::unordered_set<std::string>& linkId
     [&](const PatchNode& patchNode) { return linkIds.contains(patchNode.linkId()); }));
 }
 
-bool recursivelyHasLinkIdOf(
-  const std::vector<Node*>& nodes, const std::unordered_set<std::string>& linkIds)
+template <std::ranges::range R>
+bool recursivelyHasLinkIdOf(R&& nodes, const std::unordered_set<std::string>& linkIds)
 {
   return std::ranges::any_of(nodes, [&](const auto* node) {
     return hasLinkIdOf(*node, linkIds)
@@ -285,13 +286,11 @@ GroupNode* groupSelectedNodes(Map& map, const std::string& name)
     return nullptr;
   }
 
-  auto* group = new GroupNode{Group{name}};
-
   auto transaction = Transaction{map, "Group Selected Objects"};
   deselectAll(map);
-  if (
-    addNodes(map, {{&parentForNodes(map, nodes), {group}}}).empty()
-    || !reparentNodes(map, {{group, nodes}}))
+  auto* group =
+    addNode(map, parentForNodes(map, nodes), std::make_unique<GroupNode>(Group{name}));
+  if (!group || !reparentNodes(map, {{group, nodes}}))
   {
     transaction.cancel();
     return nullptr;
@@ -329,7 +328,7 @@ void ungroupSelectedNodes(Map& map)
       [](LayerNode&) {},
       [&](GroupNode& groupNode) {
         auto* parent = groupNode.parent();
-        const auto children = groupNode.children();
+        const auto children = groupNode.children() | kdl::ranges::to<std::vector>();
         success = success && reparentNodes(map, {{parent, children}});
         kdl::vec_append(nodesToReselect, children);
       },
@@ -363,7 +362,7 @@ void mergeSelectedGroupsWithGroup(Map& map, GroupNode* group)
   {
     if (groupToMerge != group)
     {
-      const auto children = groupToMerge->children();
+      const auto children = groupToMerge->children() | kdl::ranges::to<std::vector>();
       if (!reparentNodes(map, {{group, children}}))
       {
         transaction.cancel();
@@ -412,12 +411,14 @@ GroupNode* createLinkedDuplicate(Map& map)
   }
 
   auto* groupNode = map.selection().groups.front();
-  auto* groupNodeClone =
-    static_cast<GroupNode*>(groupNode->cloneRecursively(map.worldBounds()));
   auto& suggestedParent = parentForNodes(map, {groupNode});
 
   auto transaction = Transaction{map, "Create Linked Duplicate"};
-  if (addNodes(map, {{&suggestedParent, {groupNodeClone}}}).empty())
+  auto* groupNodeClone = addNode(
+    map,
+    suggestedParent,
+    kdl::static_pointer_cast<GroupNode>(groupNode->cloneRecursively(map.worldBounds())));
+  if (!groupNodeClone)
   {
     transaction.cancel();
     return nullptr;

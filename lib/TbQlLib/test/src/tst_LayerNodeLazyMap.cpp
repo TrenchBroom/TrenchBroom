@@ -26,6 +26,7 @@
 #include "mdl/WorldNode.h" // IWYU pragma: keep
 #include "ql/LayerNodeLazyMap.h"
 
+#include <memory>
 #include <optional>
 #include <ranges>
 #include <string>
@@ -43,8 +44,8 @@ TEST_CASE("LayerNodeLazyMap")
   auto fixture = mdl::MapFixture{};
   auto& map = fixture.create();
 
-  auto* layerNode = new mdl::LayerNode{mdl::Layer{"Combat"}};
-  mdl::addNodes(map, {{&map.worldNode(), {layerNode}}});
+  auto* layerNode = mdl::addNode(
+    map, map.worldNode(), std::make_unique<mdl::LayerNode>(mdl::Layer{"Combat"}));
 
   const auto lazyMap = makeLayerNodeLazyMap(*layerNode);
 

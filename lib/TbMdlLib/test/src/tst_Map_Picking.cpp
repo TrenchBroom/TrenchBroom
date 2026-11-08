@@ -37,7 +37,11 @@
 #include "mdl/TestUtils.h"
 #include "mdl/WorldNode.h"
 
+#include "kd/vector_utils.h"
+
 #include "vm/approx.h"
+
+#include <memory>
 
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers_vector.hpp>
@@ -57,10 +61,12 @@ TEST_CASE("Map_Picking")
   {
     SECTION("Single brush")
     {
-      auto* brushNode1 = new BrushNode{
-        builder.createCuboid(vm::bbox3d{{0, 0, 0}, {64, 64, 64}}, "material")
-        | kdl::value()};
-      addNodes(map, {{&parentForNodes(map), {brushNode1}}});
+      auto* brushNode1 = addNode(
+        map,
+        parentForNodes(map),
+        std::make_unique<BrushNode>(
+          builder.createCuboid(vm::bbox3d{{0, 0, 0}, {64, 64, 64}}, "material")
+          | kdl::value()));
 
       auto pickResult = PickResult{};
       pick(map, vm::ray3d{{-32, 0, 0}, {1, 0, 0}}, pickResult);
@@ -81,8 +87,8 @@ TEST_CASE("Map_Picking")
 
     SECTION("Single entity")
     {
-      auto* entityNode1 = new EntityNode{Entity{}};
-      addNodes(map, {{&parentForNodes(map), {entityNode1}}});
+      auto* entityNode1 =
+        addNode(map, parentForNodes(map), std::make_unique<EntityNode>(Entity{}));
 
       const auto origin = entityNode1->entity().origin();
       const auto bounds = entityNode1->logicalBounds();
@@ -108,16 +114,20 @@ TEST_CASE("Map_Picking")
     {
       using namespace HitFilters;
 
-      auto* brushNode1 = new BrushNode{
-        builder.createCuboid(vm::bbox3d{{0, 0, 0}, {64, 64, 64}}, "material")
-        | kdl::value()};
-      addNodes(map, {{&parentForNodes(map), {brushNode1}}});
+      auto* brushNode1 = addNode(
+        map,
+        parentForNodes(map),
+        std::make_unique<BrushNode>(
+          builder.createCuboid(vm::bbox3d{{0, 0, 0}, {64, 64, 64}}, "material")
+          | kdl::value()));
 
-      auto* brushNode2 = new BrushNode{
-        builder.createCuboid(
-          vm::bbox3d{{0, 0, 0}, {64, 64, 64}}.translate({0, 0, 128}), "material")
-        | kdl::value()};
-      addNodes(map, {{&parentForNodes(map), {brushNode2}}});
+      addNode(
+        map,
+        parentForNodes(map),
+        std::make_unique<BrushNode>(
+          builder.createCuboid(
+            vm::bbox3d{{0, 0, 0}, {64, 64, 64}}.translate({0, 0, 128}), "material")
+          | kdl::value()));
 
       selectAllNodes(map);
       auto* group = groupSelectedNodes(map, "test");
@@ -178,26 +188,32 @@ TEST_CASE("Map_Picking")
     {
       using namespace HitFilters;
 
-      auto* brushNode1 = new BrushNode{
-        builder.createCuboid(vm::bbox3d{{0, 0, 0}, {64, 64, 64}}, "material")
-        | kdl::value()};
-      addNodes(map, {{&parentForNodes(map), {brushNode1}}});
+      auto* brushNode1 = addNode(
+        map,
+        parentForNodes(map),
+        std::make_unique<BrushNode>(
+          builder.createCuboid(vm::bbox3d{{0, 0, 0}, {64, 64, 64}}, "material")
+          | kdl::value()));
 
-      auto* brushNode2 = new BrushNode{
-        builder.createCuboid(
-          vm::bbox3d{{0, 0, 0}, {64, 64, 64}}.translate({0, 0, 128}), "material")
-        | kdl::value()};
-      addNodes(map, {{&parentForNodes(map), {brushNode2}}});
+      addNode(
+        map,
+        parentForNodes(map),
+        std::make_unique<BrushNode>(
+          builder.createCuboid(
+            vm::bbox3d{{0, 0, 0}, {64, 64, 64}}.translate({0, 0, 128}), "material")
+          | kdl::value()));
 
       selectAllNodes(map);
       auto* innerGroup = groupSelectedNodes(map, "inner");
 
       deselectAll(map);
-      auto* brushNode3 = new BrushNode{
-        builder.createCuboid(
-          vm::bbox3d{{0, 0, 0}, {64, 64, 64}}.translate({0, 0, 256}), "material")
-        | kdl::value()};
-      addNodes(map, {{&parentForNodes(map), {brushNode3}}});
+      auto* brushNode3 = addNode(
+        map,
+        parentForNodes(map),
+        std::make_unique<BrushNode>(
+          builder.createCuboid(
+            vm::bbox3d{{0, 0, 0}, {64, 64, 64}}.translate({0, 0, 256}), "material")
+          | kdl::value()));
 
       selectAllNodes(map);
       auto* outerGroup = groupSelectedNodes(map, "outer");
@@ -341,16 +357,20 @@ TEST_CASE("Map_Picking")
       const auto& brushEntityDefinition =
         map.entityDefinitionManager().definitions().front();
 
-      auto* brushNode1 = new mdl::BrushNode{
-        builder.createCuboid(vm::bbox3d{{0, 0, 0}, {64, 64, 64}}, "material")
-        | kdl::value()};
-      addNodes(map, {{&parentForNodes(map), {brushNode1}}});
+      auto* brushNode1 = addNode(
+        map,
+        parentForNodes(map),
+        std::make_unique<mdl::BrushNode>(
+          builder.createCuboid(vm::bbox3d{{0, 0, 0}, {64, 64, 64}}, "material")
+          | kdl::value()));
 
-      auto* brushNode2 = new mdl::BrushNode{
-        builder.createCuboid(
-          vm::bbox3d{{0, 0, 0}, {64, 64, 64}}.translate({0, 0, 128}), "material")
-        | kdl::value()};
-      addNodes(map, {{&parentForNodes(map), {brushNode2}}});
+      addNode(
+        map,
+        parentForNodes(map),
+        std::make_unique<mdl::BrushNode>(
+          builder.createCuboid(
+            vm::bbox3d{{0, 0, 0}, {64, 64, 64}}.translate({0, 0, 128}), "material")
+          | kdl::value()));
 
       selectAllNodes(map);
 
@@ -375,18 +395,27 @@ TEST_CASE("Map_Picking")
 
   SECTION("findNodesContaining")
   {
-    auto* brushNode = new BrushNode{
+    auto brushNodePtr = std::make_unique<BrushNode>(
       builder.createCuboid(vm::bbox3d{{0, 0, 0}, {64, 64, 64}}, "material")
-      | kdl::value()};
+      | kdl::value());
+    auto* brushNode = brushNodePtr.get();
 
-    auto* entityNode = new EntityNode{Entity{}};
+    auto entityNodePtr = std::make_unique<EntityNode>(Entity{});
+    auto* entityNode = entityNodePtr.get();
     REQUIRE(entityNode->logicalBounds() == vm::bbox3d{{-8, -8, -8}, {8, 8, 8}});
 
-    auto* groupedBrushNode = new BrushNode{
+    auto groupedBrushNodePtr = std::make_unique<BrushNode>(
       builder.createCuboid(
         vm::bbox3d{{0, 0, 0}, {64, 64, 64}}.translate({0, 0, 32}), "material")
-      | kdl::value()};
-    addNodes(map, {{&parentForNodes(map), {brushNode, entityNode, groupedBrushNode}}});
+      | kdl::value());
+    auto* groupedBrushNode = groupedBrushNodePtr.get();
+    addNodes(
+      map,
+      parentForNodes(map),
+      kdl::vec_from<std::unique_ptr<Node>>(
+        std::move(brushNodePtr),
+        std::move(entityNodePtr),
+        std::move(groupedBrushNodePtr)));
 
     selectNodes(map, {groupedBrushNode});
     groupSelectedNodes(map, "test");

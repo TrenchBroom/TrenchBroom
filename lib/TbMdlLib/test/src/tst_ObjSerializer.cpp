@@ -57,9 +57,8 @@ TEST_CASE("ObjSerializer")
     auto map = mdl::WorldNode{{}, {}, mdl::MapFormat::Quake3};
 
     auto builder = mdl::BrushBuilder{map.mapFormat(), worldBounds};
-    auto* brushNode =
-      new mdl::BrushNode{builder.createCube(64.0, "some_material") | kdl::value()};
-    map.defaultLayer()->addChild(brushNode);
+    map.defaultLayer()->addChild(std::make_unique<mdl::BrushNode>(
+      builder.createCube(64.0, "some_material") | kdl::value()));
 
     auto objStream = std::ostringstream{};
     auto mtlStream = std::ostringstream{};
@@ -123,7 +122,7 @@ f  8/4/6  5/3/6  6/2/6  7/1/6
     auto taskManager = kdl::task_manager{};
     auto map = mdl::WorldNode{{}, {}, mdl::MapFormat::Quake3};
 
-    auto* patchNode = new mdl::PatchNode{mdl::BezierPatch{
+    map.defaultLayer()->addChild(std::make_unique<mdl::PatchNode>(mdl::BezierPatch{
       3,
       3,
       {{0, 0, 0},
@@ -135,8 +134,7 @@ f  8/4/6  5/3/6  6/2/6  7/1/6
        {0, 2, 0},
        {1, 2, 1},
        {2, 2, 0}},
-      "some_material"}};
-    map.defaultLayer()->addChild(patchNode);
+      "some_material"}));
 
     auto objStream = std::ostringstream{};
     auto mtlStream = std::ostringstream{};
@@ -407,9 +405,8 @@ f  71/1/71  80/1/80  81/1/81  72/1/72
     auto map = mdl::WorldNode{{}, {}, mdl::MapFormat::Quake3};
 
     auto builder = mdl::BrushBuilder{map.mapFormat(), worldBounds};
-    auto* brushNode =
-      new mdl::BrushNode{builder.createCube(64.0, "some_material") | kdl::value()};
-    map.defaultLayer()->addChild(brushNode);
+    auto* brushNode = &map.defaultLayer()->addChild(std::make_unique<mdl::BrushNode>(
+      builder.createCube(64.0, "some_material") | kdl::value()));
 
     for (size_t i = 0; i < brushNode->brush().faceCount(); ++i)
     {

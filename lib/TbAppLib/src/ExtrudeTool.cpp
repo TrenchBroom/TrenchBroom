@@ -43,7 +43,6 @@
 #include "kd/contracts.h"
 #include "kd/flat_map.h"
 #include "kd/k.h"
-#include "kd/map_utils.h"
 #include "kd/overload.h"
 #include "kd/ranges/concat_view.h"
 #include "kd/ranges/to.h"
@@ -60,6 +59,7 @@
 
 #include <algorithm>
 #include <map>
+#include <memory>
 #include <ranges>
 #include <vector>
 
@@ -375,7 +375,7 @@ bool splitBrushesOutward(
   }
 
   auto newDragFaces = std::vector<mdl::BrushFaceHandle>{};
-  auto newNodes = kdl::flat_map<mdl::Node*, std::vector<mdl::Node*>>{};
+  auto newNodes = kdl::flat_map<mdl::Node*, std::vector<std::unique_ptr<mdl::Node>>>{};
 
   return dragState.initialDragHandles
          | std::views::transform([&](const auto& dragHandle) {
@@ -394,8 +394,8 @@ bool splitBrushesOutward(
                         return newBrush.clip(worldBounds, std::move(clipFace));
                       })
                     | kdl::transform([&]() {
-                        auto* newBrushNode = new mdl::BrushNode(std::move(newBrush));
-                        newNodes[brushNode.parent()].push_back(newBrushNode);
+                        auto newBrushNode =
+                          std::make_unique<mdl::BrushNode>(std::move(newBrush));
 
                         // Look up the new face index of the new drag handle
                         if (
@@ -405,6 +405,8 @@ bool splitBrushesOutward(
                           newDragFaces.push_back(
                             mdl::BrushFaceHandle(*newBrushNode, *newDragFaceIndex));
                         }
+
+                        newNodes[brushNode.parent()].push_back(std::move(newBrushNode));
                       });
            })
          | kdl::fold | kdl::transform([&]() {
@@ -412,15 +414,13 @@ bool splitBrushesOutward(
              map.rollbackTransaction();
 
              deselectAll(map);
-             const auto addedNodes = addNodes(map, newNodes);
+             const auto addedNodes = addNodes(map, std::move(newNodes));
              selectNodes(map, addedNodes);
              dragState.currentDragFaces = std::move(newDragFaces);
              dragState.totalDelta = delta;
            })
-         | kdl::transform_error([&](auto e) {
-             map.logger().error() << "Could not extrude brush: " << e;
-             kdl::map_clear_and_delete(newNodes);
-           })
+         | kdl::transform_error(
+           [&](auto e) { map.logger().error() << "Could not extrude brush: " << e; })
          | kdl::is_success();
 }
 
@@ -457,7 +457,7 @@ bool splitBrushesInward(
   // extruded have different parents (e.g. different brush entities),
   // so each newly created brush should be made a sibling of the brush it was cloned
   // from.
-  auto newNodes = kdl::flat_map<mdl::Node*, std::vector<mdl::Node*>>{};
+  auto newNodes = kdl::flat_map<mdl::Node*, std::vector<std::unique_ptr<mdl::Node>>>{};
   auto nodesToUpdate = std::vector<std::pair<mdl::Node*, mdl::NodeContents>>{};
 
   for (const auto& dragHandle : dragState.initialDragHandles)
@@ -473,7 +473,6 @@ bool splitBrushesInward(
     if (clipFace.transform(vm::translation_matrix(delta), lockAlignment).is_error())
     {
       map.logger().error() << "Could not extrude inwards: Error transforming face";
-      kdl::map_clear_and_delete(newNodes);
       return false;
     }
 
@@ -484,7 +483,6 @@ bool splitBrushesInward(
     if (frontBrush.clip(worldBounds, clipFaceInverted).is_error())
     {
       map.logger().error() << "Could not extrude inwards: Front brush is empty";
-      kdl::map_clear_and_delete(newNodes);
       return false;
     }
 
@@ -493,14 +491,15 @@ bool splitBrushesInward(
     // Back brush
     if (backBrush.clip(worldBounds, clipFace))
     {
-      auto* newBrushNode = new mdl::BrushNode(std::move(backBrush));
-      newNodes[brushNode.parent()].push_back(newBrushNode);
+      auto newBrushNode = std::make_unique<mdl::BrushNode>(std::move(backBrush));
 
       // Look up the new face index of the new drag handle
       if (const auto newDragFaceIndex = newBrushNode->brush().findFace(clipFace.normal()))
       {
         newDragFaces.emplace_back(*newBrushNode, *newDragFaceIndex);
       }
+
+      newNodes[brushNode.parent()].push_back(std::move(newBrushNode));
     }
   }
 
@@ -516,7 +515,7 @@ bool splitBrushesInward(
   // Add the newly split off brushes and select them (keeping the original brushes
   // selected).
   // FIXME: deal with linked group update failure (needed for #3647)
-  const auto addedNodes = addNodes(map, newNodes);
+  const auto addedNodes = addNodes(map, std::move(newNodes));
   selectNodes(map, addedNodes);
 
   dragState.currentDragFaces = std::move(newDragFaces);
@@ -551,7 +550,7 @@ bool stampBrushes(mdl::Map& map, const vm::vec3d& delta, ExtrudeDragState& dragS
     mdl::BrushBuilder{map.worldNode().mapFormat(), map.worldBounds()};
 
   auto newDragFaces = std::vector<mdl::BrushFaceHandle>{};
-  auto newNodes = kdl::flat_map<mdl::Node*, std::vector<mdl::Node*>>{};
+  auto newNodes = kdl::flat_map<mdl::Node*, std::vector<std::unique_ptr<mdl::Node>>>{};
 
   return dragState.initialDragHandles
          | std::views::transform([&](const auto& dragHandle) {
@@ -568,8 +567,8 @@ bool stampBrushes(mdl::Map& map, const vm::vec3d& delta, ExtrudeDragState& dragS
 
              return brushBuilder.createBrush(points, face.materialName())
                     | kdl::transform([&](auto brush) {
-                        auto* newBrushNode = new mdl::BrushNode(std::move(brush));
-                        newNodes[brushNode.parent()].push_back(newBrushNode);
+                        auto newBrushNode =
+                          std::make_unique<mdl::BrushNode>(std::move(brush));
 
                         if (
                           const auto newDragFaceIndex =
@@ -577,6 +576,8 @@ bool stampBrushes(mdl::Map& map, const vm::vec3d& delta, ExtrudeDragState& dragS
                         {
                           newDragFaces.emplace_back(*newBrushNode, *newDragFaceIndex);
                         }
+
+                        newNodes[brushNode.parent()].push_back(std::move(newBrushNode));
                       });
            })
          | kdl::fold | kdl::transform([&]() {
@@ -585,16 +586,14 @@ bool stampBrushes(mdl::Map& map, const vm::vec3d& delta, ExtrudeDragState& dragS
 
              deselectAll(map);
 
-             const auto addedNodes = addNodes(map, newNodes);
+             const auto addedNodes = addNodes(map, std::move(newNodes));
              selectNodes(map, addedNodes);
 
              dragState.currentDragFaces = std::move(newDragFaces);
              dragState.totalDelta = delta;
            })
-         | kdl::transform_error([&](auto e) {
-             map.logger().error() << "Failed to stamp brush: " << e.msg;
-             kdl::map_clear_and_delete(newNodes);
-           })
+         | kdl::transform_error(
+           [&](auto e) { map.logger().error() << "Failed to stamp brush: " << e.msg; })
          | kdl::is_success();
 }
 

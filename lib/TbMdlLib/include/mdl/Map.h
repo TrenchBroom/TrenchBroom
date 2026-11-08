@@ -372,17 +372,6 @@ private: // Asset management
 private:
   void updateGameFileSystem();
 
-private: // index management
-  void initializeNodeIndex();
-  void addToNodeIndex(const std::vector<Node*>& nodes, bool recurse);
-  void removeFromNodeIndex(const std::vector<Node*>& nodes, bool recurse);
-
-private: // entity link management
-  void initializeEntityLinks();
-  void clearEntityLinks();
-  void addEntityLinks(const std::vector<Node*>& nodes, bool recurse);
-  void removeEntityLinks(const std::vector<Node*>& nodes, bool recurse);
-
 public: // command processing
   bool canUndoCommand() const;
   bool canRedoCommand() const;

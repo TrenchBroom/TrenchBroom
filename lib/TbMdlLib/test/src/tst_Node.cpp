@@ -39,6 +39,7 @@
 
 #include "kd/overload.h"
 #include "kd/ranges/contains.h"
+#include "kd/ranges/raw_pointers_view.h"
 #include "kd/result.h"
 #include "kd/vector_utils.h"
 
@@ -125,9 +126,9 @@ private:
   }
 
 private: // implement Node interface
-  Node* doClone(const vm::bbox3d& /* worldBounds */) const override
+  std::unique_ptr<Node> doClone(const vm::bbox3d& /* worldBounds */) const override
   {
-    return new MockNode{};
+    return std::make_unique<MockNode>();
   }
 
   const std::string& doGetName() const override
@@ -199,9 +200,9 @@ private: // implement Node interface
 class TestNode : public Node
 {
 private: // implement Node interface
-  Node* doClone(const vm::bbox3d& /* worldBounds */) const override
+  std::unique_ptr<Node> doClone(const vm::bbox3d& /* worldBounds */) const override
   {
-    return new TestNode{};
+    return std::make_unique<TestNode>();
   }
 
   const std::string& doGetName() const override
@@ -257,7 +258,7 @@ private: // implement Node interface
   void doAcceptTagVisitor(ConstTagVisitor& /* visitor */) const override {}
 
 public:
-  static std::vector<Node*> cloneNodes(
+  static std::vector<std::unique_ptr<Node>> cloneNodes(
     const vm::bbox3d& worldBounds, const std::vector<Node*>& nodes)
   {
     return clone(worldBounds, nodes);
@@ -344,7 +345,7 @@ TEST_CASE("Node")
     auto rootNode = std::make_unique<TestNode>();
 
     auto childDestroyed = false;
-    rootNode->addChild(new DestroyableNode{childDestroyed});
+    rootNode->addChild(std::make_unique<DestroyableNode>(childDestroyed));
 
     rootNode.reset();
     CHECK(childDestroyed);
@@ -354,47 +355,50 @@ TEST_CASE("Node")
   {
     const auto worldBounds = vm::bbox3d{8192.0};
 
-    auto* nodeA = new TestNode{};
-    auto* nodeB = new TestNode{};
+    const auto nodeA = std::make_unique<TestNode>();
+    const auto nodeB = std::make_unique<TestNode>();
 
-    auto clones = TestNode::cloneNodes(worldBounds, std::vector<Node*>{nodeA, nodeB});
+    auto clones =
+      TestNode::cloneNodes(worldBounds, std::vector<Node*>{nodeA.get(), nodeB.get()});
 
     CHECK(clones.size() == 2u);
     CHECK(clones[0] != nodeA);
     CHECK(clones[1] != nodeB);
-
-    kdl::vec_clear_and_delete(clones);
-    delete nodeA;
-    delete nodeB;
   }
 
   SECTION("depth")
   {
     auto rootNode = TestNode{};
-    auto* childNode = new TestNode{};
-    auto* grandChildNode = new TestNode{};
+    auto childNodePtr = std::make_unique<TestNode>();
+    auto* childNode = childNodePtr.get();
+    auto grandChildNodePtr = std::make_unique<TestNode>();
+    auto* grandChildNode = grandChildNodePtr.get();
 
     CHECK(rootNode.depth() == 0u);
 
-    rootNode.addChild(childNode);
+    rootNode.addChild(std::move(childNodePtr));
     CHECK(childNode->depth() == 1u);
 
-    childNode->addChild(grandChildNode);
+    childNode->addChild(std::move(grandChildNodePtr));
     CHECK(grandChildNode->depth() == 2u);
   }
 
   SECTION("isAncestorOf")
   {
     auto rootNode = TestNode{};
-    auto* childNode1 = new TestNode{};
-    auto* childNode2 = new TestNode{};
-    auto* grandChildNode1_1 = new TestNode{};
-    auto* grandChildNode1_2 = new TestNode{};
+    auto childNode1Ptr = std::make_unique<TestNode>();
+    auto* childNode1 = childNode1Ptr.get();
+    auto childNode2Ptr = std::make_unique<TestNode>();
+    auto* childNode2 = childNode2Ptr.get();
+    auto grandChildNode1_1Ptr = std::make_unique<TestNode>();
+    auto* grandChildNode1_1 = grandChildNode1_1Ptr.get();
+    auto grandChildNode1_2Ptr = std::make_unique<TestNode>();
+    auto* grandChildNode1_2 = grandChildNode1_2Ptr.get();
 
-    rootNode.addChild(childNode1);
-    rootNode.addChild(childNode2);
-    childNode1->addChild(grandChildNode1_1);
-    childNode1->addChild(grandChildNode1_2);
+    rootNode.addChild(std::move(childNode1Ptr));
+    rootNode.addChild(std::move(childNode2Ptr));
+    childNode1->addChild(std::move(grandChildNode1_1Ptr));
+    childNode1->addChild(std::move(grandChildNode1_2Ptr));
 
     CHECK(!rootNode.isAncestorOf(rootNode));
     CHECK(rootNode.isAncestorOf(*childNode1));
@@ -441,15 +445,19 @@ TEST_CASE("Node")
   SECTION("isDescendantOf")
   {
     auto rootNode = TestNode{};
-    auto* childNode1 = new TestNode{};
-    auto* childNode2 = new TestNode{};
-    auto* grandChildNode1_1 = new TestNode{};
-    auto* grandChildNode1_2 = new TestNode{};
+    auto childNode1Ptr = std::make_unique<TestNode>();
+    auto* childNode1 = childNode1Ptr.get();
+    auto childNode2Ptr = std::make_unique<TestNode>();
+    auto* childNode2 = childNode2Ptr.get();
+    auto grandChildNode1_1Ptr = std::make_unique<TestNode>();
+    auto* grandChildNode1_1 = grandChildNode1_1Ptr.get();
+    auto grandChildNode1_2Ptr = std::make_unique<TestNode>();
+    auto* grandChildNode1_2 = grandChildNode1_2Ptr.get();
 
-    rootNode.addChild(childNode1);
-    rootNode.addChild(childNode2);
-    childNode1->addChild(grandChildNode1_1);
-    childNode1->addChild(grandChildNode1_2);
+    rootNode.addChild(std::move(childNode1Ptr));
+    rootNode.addChild(std::move(childNode2Ptr));
+    childNode1->addChild(std::move(grandChildNode1_1Ptr));
+    childNode1->addChild(std::move(grandChildNode1_2Ptr));
 
     CHECK(!rootNode.isDescendantOf(rootNode));
     CHECK(!rootNode.isDescendantOf(*childNode1));
@@ -496,12 +504,14 @@ TEST_CASE("Node")
   SECTION("findDescendants")
   {
     auto rootNode = TestNode{};
-    auto* childNode = new TestNode{};
-    auto* grandChildNode = new TestNode{};
+    auto childNodePtr = std::make_unique<TestNode>();
+    auto* childNode = childNodePtr.get();
+    auto grandChildNodePtr = std::make_unique<TestNode>();
+    auto* grandChildNode = grandChildNodePtr.get();
     auto unrelatedNode = TestNode{};
 
-    rootNode.addChild(childNode);
-    childNode->addChild(grandChildNode);
+    rootNode.addChild(std::move(childNodePtr));
+    childNode->addChild(std::move(grandChildNodePtr));
 
     CHECK_THAT(
       rootNode.findDescendants({childNode, grandChildNode, &unrelatedNode}),
@@ -516,16 +526,19 @@ TEST_CASE("Node")
   SECTION("addChild")
   {
     auto rootNode = MockNode{};
-    auto* childNode = new MockNode{};
-    auto* grandChildNode1 = new MockNode{};
-    auto* grandChildNode2 = new MockNode{};
+    auto childNodePtr = std::make_unique<MockNode>();
+    auto* childNode = childNodePtr.get();
+    auto grandChildNode1Ptr = std::make_unique<MockNode>();
+    auto* grandChildNode1 = grandChildNode1Ptr.get();
+    auto grandChildNode2Ptr = std::make_unique<MockNode>();
+    auto* grandChildNode2 = grandChildNode2Ptr.get();
 
     childNode->expectCall(DoCanAddChild{true, grandChildNode1});
     grandChildNode1->expectCall(DoParentWillChange{});
     grandChildNode1->expectCall(DoAncestorWillChange{});
     grandChildNode1->expectCall(DoParentDidChange{});
     grandChildNode1->expectCall(DoAncestorDidChange{});
-    childNode->addChild(grandChildNode1);
+    childNode->addChild(std::move(grandChildNode1Ptr));
     CHECK(childNode->childCount() == 1u);
     CHECK(childNode->familySize() == 2u);
     CHECK(grandChildNode1->parent() == childNode);
@@ -539,7 +552,7 @@ TEST_CASE("Node")
     grandChildNode1->expectCall(DoAncestorWillChange{});
     grandChildNode1->expectCall(DoAncestorDidChange{});
 
-    rootNode.addChild(childNode);
+    rootNode.addChild(std::move(childNodePtr));
     CHECK(rootNode.childCount() == 1u);
     CHECK(rootNode.familySize() == 3u);
     CHECK(childNode->parent() == &rootNode);
@@ -550,7 +563,7 @@ TEST_CASE("Node")
     grandChildNode2->expectCall(DoAncestorWillChange{});
     grandChildNode2->expectCall(DoParentDidChange{});
     grandChildNode2->expectCall(DoAncestorDidChange{});
-    childNode->addChild(grandChildNode2);
+    childNode->addChild(std::move(grandChildNode2Ptr));
     CHECK(rootNode.childCount() == 1u);
     CHECK(rootNode.familySize() == 4u);
     CHECK(childNode->childCount() == 2u);
@@ -562,11 +575,13 @@ TEST_CASE("Node")
   SECTION("addChildren")
   {
     auto rootNode = TestNode{};
-    auto* parentNode = &rootNode.addChild(new TestNode{});
+    auto* parentNode = &rootNode.addChild(std::make_unique<TestNode>());
 
-    auto* childNode1 = new TestNode{};
-    auto* childNode2 = new TestNode{};
-    auto* grandChildNode = &childNode2->addChild(new TestNode{});
+    auto childNode1Ptr = std::make_unique<TestNode>();
+    auto* childNode1 = childNode1Ptr.get();
+    auto childNode2Ptr = std::make_unique<TestNode>();
+    auto* childNode2 = childNode2Ptr.get();
+    auto* grandChildNode = &childNode2->addChild(std::make_unique<TestNode>());
 
     childNode1->select();
     grandChildNode->select();
@@ -580,7 +595,8 @@ TEST_CASE("Node")
     REQUIRE(parentNode->descendantSelectionCount() == 0u);
     REQUIRE(rootNode.descendantSelectionCount() == 0u);
 
-    parentNode->addChildren({childNode1, childNode2});
+    parentNode->addChildren(kdl::vec_from<std::unique_ptr<Node>>(
+      std::move(childNode1Ptr), std::move(childNode2Ptr)));
 
     CHECK_THAT(
       parentNode->children(), RangeEquals(std::vector<Node*>{childNode1, childNode2}));
@@ -598,16 +614,19 @@ TEST_CASE("Node")
     SECTION("removing a child detaches it and its descendants remain intact")
     {
       auto rootNode = MockNode{};
-      auto* childNode = new MockNode{};
-      auto* grandChildNode1 = new MockNode{};
-      auto* grandChildNode2 = new MockNode{};
+      auto childNodePtr = std::make_unique<MockNode>();
+      auto* childNode = childNodePtr.get();
+      auto grandChildNode1Ptr = std::make_unique<MockNode>();
+      auto* grandChildNode1 = grandChildNode1Ptr.get();
+      auto grandChildNode2Ptr = std::make_unique<MockNode>();
+      auto* grandChildNode2 = grandChildNode2Ptr.get();
 
       childNode->expectCall(DoCanAddChild{true, grandChildNode1});
       grandChildNode1->expectCall(DoParentWillChange{});
       grandChildNode1->expectCall(DoAncestorWillChange{});
       grandChildNode1->expectCall(DoParentDidChange{});
       grandChildNode1->expectCall(DoAncestorDidChange{});
-      childNode->addChild(grandChildNode1);
+      childNode->addChild(std::move(grandChildNode1Ptr));
 
       rootNode.expectCall(DoCanAddChild{true, childNode});
       childNode->expectCall(DoParentWillChange{});
@@ -616,14 +635,14 @@ TEST_CASE("Node")
       childNode->expectCall(DoAncestorDidChange{});
       grandChildNode1->expectCall(DoAncestorWillChange{});
       grandChildNode1->expectCall(DoAncestorDidChange{});
-      rootNode.addChild(childNode);
+      rootNode.addChild(std::move(childNodePtr));
 
       childNode->expectCall(DoCanAddChild{true, grandChildNode2});
       grandChildNode2->expectCall(DoParentWillChange{});
       grandChildNode2->expectCall(DoAncestorWillChange{});
       grandChildNode2->expectCall(DoParentDidChange{});
       grandChildNode2->expectCall(DoAncestorDidChange{});
-      childNode->addChild(grandChildNode2);
+      childNode->addChild(std::move(grandChildNode2Ptr));
 
       rootNode.expectCall(DoCanRemoveChild{true, childNode});
       childNode->expectCall(DoParentWillChange{});
@@ -635,7 +654,7 @@ TEST_CASE("Node")
       grandChildNode2->expectCall(DoAncestorWillChange{});
       grandChildNode2->expectCall(DoAncestorDidChange{});
 
-      rootNode.removeChild(childNode);
+      auto removedChildNode = rootNode.removeChild(childNode);
       CHECK(childNode->parent() == nullptr);
       CHECK(!kdl::ranges::contains(rootNode.children(), childNode));
       CHECK(rootNode.childCount() == 0u);
@@ -655,7 +674,7 @@ TEST_CASE("Node")
         grandChildNode2->expectCall(DoAncestorWillChange{});
         grandChildNode2->expectCall(DoAncestorDidChange{});
 
-        rootNode.addChild(childNode);
+        rootNode.addChild(std::move(removedChildNode));
         CHECK(childNode->parent() == &rootNode);
         CHECK(kdl::ranges::contains(rootNode.children(), childNode));
         CHECK(rootNode.childCount() == 1u);
@@ -669,30 +688,27 @@ TEST_CASE("Node")
       "removing a selected child decrements the parent's descendant selection count")
     {
       auto rootNode = TestNode{};
-      auto* childNode = new TestNode{};
-      rootNode.addChild(childNode);
+      auto* childNode = &rootNode.addChild(std::make_unique<TestNode>());
       childNode->select();
 
       CHECK(rootNode.descendantSelectionCount() == 1u);
 
-      rootNode.removeChild(childNode);
+      const auto removedChildNode = rootNode.removeChild(childNode);
 
       CHECK(rootNode.descendantSelectionCount() == 0u);
       CHECK(childNode->selected());
-
-      delete childNode;
     }
   }
 
   SECTION("removeChildren")
   {
     auto rootNode = TestNode{};
-    auto* parentNode = &rootNode.addChild(new TestNode{});
-    auto* childNode1 = &parentNode->addChild(new TestNode{});
-    auto* childNode2 = &parentNode->addChild(new TestNode{});
-    auto* childNode3 = &parentNode->addChild(new TestNode{});
-    auto* childNode4 = &parentNode->addChild(new TestNode{});
-    auto* grandChildNode = &childNode2->addChild(new TestNode{});
+    auto* parentNode = &rootNode.addChild(std::make_unique<TestNode>());
+    auto* childNode1 = &parentNode->addChild(std::make_unique<TestNode>());
+    auto* childNode2 = &parentNode->addChild(std::make_unique<TestNode>());
+    auto* childNode3 = &parentNode->addChild(std::make_unique<TestNode>());
+    auto* childNode4 = &parentNode->addChild(std::make_unique<TestNode>());
+    auto* grandChildNode = &childNode2->addChild(std::make_unique<TestNode>());
 
     childNode1->select();
     grandChildNode->select();
@@ -711,8 +727,11 @@ TEST_CASE("Node")
     REQUIRE(childNode1->selected());
     REQUIRE(childNode2->descendantSelectionCount() == 1u);
 
-    parentNode->removeChildren({childNode2, childNode1});
+    const auto removedNodes = parentNode->removeChildren({childNode2, childNode1});
 
+    CHECK_THAT(
+      removedNodes | kdl::views::raw_pointers,
+      RangeEquals(std::vector<Node*>{childNode2, childNode1}));
     CHECK(childNode1->parent() == nullptr);
     CHECK(childNode2->parent() == nullptr);
     CHECK_THAT(
@@ -724,19 +743,18 @@ TEST_CASE("Node")
     CHECK(rootNode.descendantSelectionCount() == 1u);
     CHECK(childNode1->selected());
     CHECK(childNode2->descendantSelectionCount() == 1u);
-
-    delete childNode1;
-    delete childNode2;
   }
 
   SECTION("replaceChildren")
   {
     auto rootNode = TestNode{};
-    auto* childNode1 = new TestNode{};
-    auto* childNode2 = new TestNode{};
-    auto* grandChildNode = &childNode2->addChild(new TestNode{});
+    auto childNodes = kdl::vec_from<std::unique_ptr<Node>>(
+      std::make_unique<TestNode>(), std::make_unique<TestNode>());
+    auto* childNode1 = childNodes[0].get();
+    auto* childNode2 = childNodes[1].get();
+    auto* grandChildNode = &childNode2->addChild(std::make_unique<TestNode>());
 
-    rootNode.addChildren({childNode1, childNode2});
+    rootNode.addChildren(std::move(childNodes));
     childNode1->select();
     grandChildNode->select();
 
@@ -754,12 +772,12 @@ TEST_CASE("Node")
 
     CHECK(oldChildren.size() == 2u);
     CHECK_THAT(
-      oldChildren | std::views::transform([](const auto& c) { return c.get(); }),
+      oldChildren | kdl::views::raw_pointers,
       UnorderedRangeEquals(std::vector{childNode1, childNode2}));
     CHECK(childNode1->parent() == nullptr);
     CHECK(childNode2->parent() == nullptr);
 
-    CHECK_THAT(rootNode.children(), UnorderedEquals(std::vector<Node*>{childNode3}));
+    CHECK_THAT(rootNode.children(), UnorderedRangeEquals(std::vector<Node*>{childNode3}));
     CHECK(childNode3->parent() == &rootNode);
     CHECK(rootNode.childSelectionCount() == 1u);
     CHECK(rootNode.descendantSelectionCount() == 1u);
@@ -786,8 +804,7 @@ TEST_CASE("Node")
     SECTION("selecting a child updates the parent's counters")
     {
       auto rootNode = TestNode{};
-      auto* childNode = new TestNode{};
-      rootNode.addChild(childNode);
+      auto* childNode = &rootNode.addChild(std::make_unique<TestNode>());
 
       CHECK(!rootNode.childSelected());
       CHECK(rootNode.childSelectionCount() == 0u);
@@ -822,8 +839,7 @@ TEST_CASE("Node")
     SECTION("deselecting a child updates the parent's counters")
     {
       auto rootNode = TestNode{};
-      auto* childNode = new TestNode{};
-      rootNode.addChild(childNode);
+      auto* childNode = &rootNode.addChild(std::make_unique<TestNode>());
       childNode->select();
 
       childNode->deselect();
@@ -845,8 +861,7 @@ TEST_CASE("Node")
     SECTION("a node whose direct parent is selected is transitively selected")
     {
       auto rootNode = TestNode{};
-      auto* childNode = new TestNode{};
-      rootNode.addChild(childNode);
+      auto* childNode = &rootNode.addChild(std::make_unique<TestNode>());
 
       rootNode.select();
       CHECK(childNode->parentSelected());
@@ -856,10 +871,12 @@ TEST_CASE("Node")
     SECTION("a node whose grandparent is selected is transitively selected")
     {
       auto rootNode = TestNode{};
-      auto* childNode = new TestNode{};
-      auto* grandChildNode = new TestNode{};
-      rootNode.addChild(childNode);
-      childNode->addChild(grandChildNode);
+      auto childNodePtr = std::make_unique<TestNode>();
+      auto* childNode = childNodePtr.get();
+      auto grandChildNodePtr = std::make_unique<TestNode>();
+      auto* grandChildNode = grandChildNodePtr.get();
+      rootNode.addChild(std::move(childNodePtr));
+      childNode->addChild(std::move(grandChildNodePtr));
 
       rootNode.select();
       CHECK(!childNode->selected());
@@ -871,13 +888,17 @@ TEST_CASE("Node")
   SECTION("descendantSelectionCount")
   {
     auto rootNode = TestNode{};
-    auto* childNode1 = new TestNode{};
-    auto* childNode2 = new TestNode{};
-    auto* grandChildNode1_1 = new TestNode{};
-    auto* grandChildNode1_2 = new TestNode{};
+    auto childNode1Ptr = std::make_unique<TestNode>();
+    auto* childNode1 = childNode1Ptr.get();
+    auto childNode2Ptr = std::make_unique<TestNode>();
+    auto* childNode2 = childNode2Ptr.get();
+    auto grandChildNode1_1Ptr = std::make_unique<TestNode>();
+    auto* grandChildNode1_1 = grandChildNode1_1Ptr.get();
+    auto grandChildNode1_2Ptr = std::make_unique<TestNode>();
+    auto* grandChildNode1_2 = grandChildNode1_2Ptr.get();
 
-    rootNode.addChild(childNode1);
-    rootNode.addChild(childNode2);
+    rootNode.addChild(std::move(childNode1Ptr));
+    rootNode.addChild(std::move(childNode2Ptr));
 
     CHECK(rootNode.descendantSelectionCount() == 0u);
     childNode1->select();
@@ -893,11 +914,11 @@ TEST_CASE("Node")
     CHECK(rootNode.descendantSelectionCount() == 1u);
 
     grandChildNode1_1->select();
-    childNode1->addChild(grandChildNode1_1);
+    childNode1->addChild(std::move(grandChildNode1_1Ptr));
     CHECK(childNode1->descendantSelectionCount() == 1u);
     CHECK(rootNode.descendantSelectionCount() == 2u);
 
-    childNode1->addChild(grandChildNode1_2);
+    childNode1->addChild(std::move(grandChildNode1_2Ptr));
     CHECK(childNode1->descendantSelectionCount() == 1u);
     CHECK(rootNode.descendantSelectionCount() == 2u);
     grandChildNode1_2->select();
@@ -998,15 +1019,12 @@ TEST_CASE("Node")
     {
       auto* layerNode1 = worldNode.defaultLayer();
 
-      auto* entityNode1 = new EntityNode{Entity{}};
-      auto* entityNode2 = new EntityNode{Entity{}};
-      auto* groupNode1 = new GroupNode(Group{"name"});
-      auto* groupEntityNode = new EntityNode{Entity{}};
-
-      layerNode1->addChild(entityNode1);
-      layerNode1->addChild(entityNode2);
-      layerNode1->addChild(groupNode1);
-      groupNode1->addChild(groupEntityNode);
+      auto* entityNode1 = &layerNode1->addChild(std::make_unique<EntityNode>(Entity{}));
+      auto* entityNode2 = &layerNode1->addChild(std::make_unique<EntityNode>(Entity{}));
+      auto* groupNode1 =
+        &layerNode1->addChild(std::make_unique<GroupNode>(Group{"name"}));
+      auto* groupEntityNode =
+        &groupNode1->addChild(std::make_unique<EntityNode>(Entity{}));
 
       const auto collectRecursively = [](auto& node) {
         auto result = std::vector<Node*>{};
@@ -1077,6 +1095,14 @@ TEST_CASE("Node")
     Node::visitAll(toVisit, makeCollectVisitedNodesVisitor(visited));
 
     CHECK_THAT(visited, Equals(toVisit));
+
+    auto visitedFiltered = std::vector<Node*>{};
+    Node::visitAll(
+      toVisit | std::views::filter([&](const auto* node) { return node != &groupNode; }),
+      makeCollectVisitedNodesVisitor(visitedFiltered));
+
+    CHECK_THAT(
+      visitedFiltered, Equals(std::vector<Node*>{&worldNode, &layerNode, &entityNode}));
   }
 
   SECTION("visitChildren")
@@ -1084,10 +1110,12 @@ TEST_CASE("Node")
     auto worldNode = WorldNode{{}, {}, MapFormat::Standard};
     auto* layerNode = worldNode.defaultLayer();
 
-    auto* entityNode1 = new EntityNode{Entity{}};
-    auto* entityNode2 = new EntityNode{Entity{}};
-    layerNode->addChild(entityNode1);
-    layerNode->addChild(entityNode2);
+    auto entityNode1Ptr = std::make_unique<EntityNode>(Entity{});
+    auto* entityNode1 = entityNode1Ptr.get();
+    auto entityNode2Ptr = std::make_unique<EntityNode>(Entity{});
+    auto* entityNode2 = entityNode2Ptr.get();
+    layerNode->addChild(std::move(entityNode1Ptr));
+    layerNode->addChild(std::move(entityNode2Ptr));
 
     SECTION("Visit children of world node")
     {
@@ -1139,7 +1167,7 @@ TEST_CASE("Node")
     auto node = std::make_unique<TestNode>();
     CHECK(node->entityPropertyConfig() == EntityPropertyConfig{});
 
-    root->addChild(node.release());
+    root->addChild(std::move(node));
 
     auto nodePtr = root->children().front();
     CHECK(nodePtr->entityPropertyConfig() == config);

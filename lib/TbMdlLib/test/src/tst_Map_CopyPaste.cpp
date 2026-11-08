@@ -37,6 +37,10 @@
 #include "mdl/TestUtils.h"
 #include "mdl/WorldNode.h"
 
+#include "kd/vector_utils.h"
+
+#include <memory>
+
 #include <catch2/catch_test_macros.hpp>
 
 namespace tb::mdl
@@ -56,10 +60,18 @@ TEST_CASE("Map_CopyPaste")
       map.gameInfo().gameConfig.faceAttribsConfig.defaultUvAttributes,
       map.gameInfo().gameConfig.faceAttribsConfig.defaultSurfaceAttributes};
 
-    auto* brushNode = new BrushNode{builder.createCube(64.0, "some_material").value()};
-    auto* entityNode = new EntityNode{Entity{{{"some_key", "some_value"}}}};
+    auto brushNodePtr =
+      std::make_unique<BrushNode>(builder.createCube(64.0, "some_material").value());
+    auto* brushNode = brushNodePtr.get();
+    auto entityNodePtr =
+      std::make_unique<EntityNode>(Entity{{{"some_key", "some_value"}}});
+    auto* entityNode = entityNodePtr.get();
 
-    addNodes(map, {{&parentForNodes(map), {brushNode, entityNode}}});
+    addNodes(
+      map,
+      parentForNodes(map),
+      kdl::vec_from<std::unique_ptr<Node>>(
+        std::move(brushNodePtr), std::move(entityNodePtr)));
 
     SECTION("nothing is selected")
     {
@@ -105,8 +117,7 @@ TEST_CASE("Map_CopyPaste")
     {
       // https://github.com/TrenchBroom/TrenchBroom/issues/5367
 
-      auto* patchNode = createPatchNode();
-      addNodes(map, {{&parentForNodes(map), {patchNode}}});
+      auto* patchNode = addNode(map, parentForNodes(map), createPatchNode());
       selectNodes(map, {patchNode});
 
       CHECK(serializeSelectedNodes(map) != R"()");
@@ -123,9 +134,11 @@ TEST_CASE("Map_CopyPaste")
       map.gameInfo().gameConfig.faceAttribsConfig.defaultUvAttributes,
       map.gameInfo().gameConfig.faceAttribsConfig.defaultSurfaceAttributes};
 
-    auto* brushNode = new BrushNode{builder.createCube(64.0, "some_material").value()};
 
-    addNodes(map, {{&parentForNodes(map), {brushNode}}});
+    auto* brushNode = addNode(
+      map,
+      parentForNodes(map),
+      std::make_unique<BrushNode>(builder.createCube(64.0, "some_material").value()));
 
     SECTION("nothing is selected")
     {
@@ -363,8 +376,7 @@ common/caulk
 
       auto& map = fixture.create({.mapFormat = MapFormat::Quake3});
 
-      auto* patchNode = createPatchNode();
-      addNodes(map, {{&parentForNodes(map), {patchNode}}});
+      auto* patchNode = addNode(map, parentForNodes(map), createPatchNode());
       selectNodes(map, {patchNode});
 
       const auto copied = serializeSelectedNodes(map);
@@ -389,9 +401,11 @@ common/caulk
       const auto builder = BrushBuilder{map.worldNode().mapFormat(), map.worldBounds()};
       const auto box = vm::bbox3d{{0, 0, 0}, {64, 64, 64}};
 
-      auto* brushNode1 =
-        new BrushNode{builder.createCuboid(box, "material") | kdl::value()};
-      addNodes(map, {{&parentForNodes(map), {brushNode1}}});
+      auto* brushNode1 = addNode(
+        map,
+        parentForNodes(map),
+        std::make_unique<BrushNode>(
+          builder.createCuboid(box, "material") | kdl::value()));
       selectNodes(map, {brushNode1});
 
       const auto groupName = std::string{"testGroup"};
@@ -421,9 +435,8 @@ common/caulk
 })"};
 
       auto& map = fixture.create();
-      auto* brushNode = createBrushNode(map);
 
-      addNodes(map, {{&parentForNodes(map), {brushNode}}});
+      auto* brushNode = addNode(map, parentForNodes(map), createBrushNode(map));
       selectNodes(map, {brushNode});
 
       auto* groupNode = groupSelectedNodes(map, "test");
@@ -478,8 +491,8 @@ common/caulk
     {
       auto& map = fixture.create();
 
-      auto* entityNode = new EntityNode{Entity{}};
-      addNodes(map, {{&parentForNodes(map), {entityNode}}});
+      auto* entityNode =
+        addNode(map, parentForNodes(map), std::make_unique<EntityNode>(Entity{}));
 
       selectNodes(map, {entityNode});
       auto* groupNode = groupSelectedNodes(map, "test");
@@ -524,8 +537,7 @@ common/caulk
     {
       auto& map = fixture.create();
 
-      auto* brushNode = createBrushNode(map);
-      addNodes(map, {{&parentForNodes(map), {brushNode}}});
+      auto* brushNode = addNode(map, parentForNodes(map), createBrushNode(map));
       selectNodes(map, {brushNode});
 
       auto* groupNode = groupSelectedNodes(map, "test");

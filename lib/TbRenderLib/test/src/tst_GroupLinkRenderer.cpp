@@ -66,8 +66,8 @@ TEST_CASE("GroupLinkRenderer")
   auto fixture = mdl::MapFixture{};
   auto& map = fixture.create();
 
-  auto* brushNode = mdl::createBrushNode(map);
-  mdl::addNodes(map, {{&mdl::parentForNodes(map), {brushNode}}});
+  auto* brushNode =
+    mdl::addNode(map, mdl::parentForNodes(map), mdl::createBrushNode(map));
   mdl::selectNodes(map, {brushNode});
 
   auto* groupA = mdl::groupSelectedNodes(map, "group A");

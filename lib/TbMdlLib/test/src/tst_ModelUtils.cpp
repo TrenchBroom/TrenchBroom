@@ -59,22 +59,19 @@ TEST_CASE("ModelUtils")
 
     auto worldNode = WorldNode{{}, {}, mapFormat};
 
-    auto* layerNode = new LayerNode{Layer{"layer"}};
-    auto* groupNode = new GroupNode{Group{"group"}};
-    auto* entityNode = new EntityNode{Entity{}};
-    auto* brushNode = new BrushNode{
-      BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material") | kdl::value()};
+    auto* layerNode = &worldNode.addChild(std::make_unique<LayerNode>(Layer{"layer"}));
+    auto* groupNode = &layerNode->addChild(std::make_unique<GroupNode>(Group{"group"}));
+    auto* entityNode = &groupNode->addChild(std::make_unique<EntityNode>(Entity{}));
+    auto* brushNode = &groupNode->addChild(std::make_unique<BrushNode>(
+      BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material") | kdl::value()));
 
     // clang-format off
-    auto* patchNode = new PatchNode{BezierPatch{3, 3, {
+    auto* patchNode = &layerNode->addChild(std::make_unique<PatchNode>(BezierPatch{3, 3, {
       {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
       {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
-      {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "material"}};
+      {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "material"}));
     // clang-format on
 
-    groupNode->addChildren({entityNode, brushNode});
-    layerNode->addChildren({groupNode, patchNode});
-    worldNode.addChild(layerNode);
 
     CHECK(findContainingLayer(worldNode) == nullptr);
     CHECK(findContainingLayer(*layerNode) == layerNode);
@@ -91,23 +88,22 @@ TEST_CASE("ModelUtils")
 
     auto worldNode = WorldNode{{}, {}, mapFormat};
 
-    auto* layerNode = new LayerNode{Layer{"layer"}};
-    auto* outerGroupNode = new GroupNode{Group{"outer"}};
-    auto* innerGroupNode = new GroupNode{Group{"inner"}};
-    auto* entityNode = new EntityNode{Entity{}};
-    auto* brushNode = new BrushNode{
-      BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material") | kdl::value()};
+    const auto layerNode = std::make_unique<LayerNode>(Layer{"layer"});
+    auto* outerGroupNode =
+      &worldNode.defaultLayer()->addChild(std::make_unique<GroupNode>(Group{"outer"}));
+    auto* innerGroupNode =
+      &outerGroupNode->addChild(std::make_unique<GroupNode>(Group{"inner"}));
+    auto* entityNode = &innerGroupNode->addChild(std::make_unique<EntityNode>(Entity{}));
+    auto* brushNode = &innerGroupNode->addChild(std::make_unique<BrushNode>(
+      BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material") | kdl::value()));
 
     // clang-format off
-    auto* patchNode = new PatchNode{BezierPatch{3, 3, {
+    auto* patchNode = &outerGroupNode->addChild(std::make_unique<PatchNode>(BezierPatch{3, 3, {
       {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
       {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
-      {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "material"}};
+      {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "material"}));
     // clang-format on
 
-    innerGroupNode->addChildren({entityNode, brushNode});
-    outerGroupNode->addChildren({innerGroupNode, patchNode});
-    worldNode.defaultLayer()->addChild(outerGroupNode);
 
     CHECK(findContainingGroup(worldNode) == nullptr);
     CHECK(findContainingGroup(*layerNode) == nullptr);
@@ -125,29 +121,25 @@ TEST_CASE("ModelUtils")
 
     auto worldNode = WorldNode{{}, {}, mapFormat};
 
-    auto* layerNode = new LayerNode{Layer{"layer"}};
-    auto* groupNode = new GroupNode{Group{"group"}};
-    auto* entityNode = new EntityNode{Entity{}};
-    auto* structuralBrushNode = new BrushNode{
-      BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material") | kdl::value()};
-    auto* entityBrushNode = new BrushNode{
-      BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material") | kdl::value()};
+    auto* layerNode = &worldNode.addChild(std::make_unique<LayerNode>(Layer{"layer"}));
+    auto* groupNode = &layerNode->addChild(std::make_unique<GroupNode>(Group{"group"}));
+    auto* entityNode = &groupNode->addChild(std::make_unique<EntityNode>(Entity{}));
+    auto* structuralBrushNode = &groupNode->addChild(std::make_unique<BrushNode>(
+      BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material") | kdl::value()));
+    auto* entityBrushNode = &entityNode->addChild(std::make_unique<BrushNode>(
+      BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material") | kdl::value()));
 
     // clang-format off
-    auto* structuralPatchNode = new PatchNode{BezierPatch{3, 3, {
+    auto* structuralPatchNode = &groupNode->addChild(std::make_unique<PatchNode>(BezierPatch{3, 3, {
       {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
       {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
-      {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "material"}};
-    auto* entityPatchNode = new PatchNode{BezierPatch{3, 3, {
+      {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "material"}));
+    auto* entityPatchNode = &entityNode->addChild(std::make_unique<PatchNode>(BezierPatch{3, 3, {
       {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
       {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
-      {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "material"}};
+      {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "material"}));
     // clang-format on
 
-    entityNode->addChildren({entityBrushNode, entityPatchNode});
-    groupNode->addChildren({entityNode, structuralBrushNode, structuralPatchNode});
-    layerNode->addChild(groupNode);
-    worldNode.addChild(layerNode);
 
     CHECK(findContainingEntity(worldNode) == nullptr);
     CHECK(findContainingEntity(*layerNode) == nullptr);
@@ -166,23 +158,22 @@ TEST_CASE("ModelUtils")
 
     auto worldNode = WorldNode{{}, {}, mapFormat};
 
-    auto* layerNode = new LayerNode{Layer{"layer"}};
-    auto* outerGroupNode = new GroupNode{Group{"outer"}};
-    auto* innerGroupNode = new GroupNode{Group{"inner"}};
-    auto* entityNode = new EntityNode{Entity{}};
-    auto* brushNode = new BrushNode{
-      BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material") | kdl::value()};
+    const auto layerNode = std::make_unique<LayerNode>(Layer{"layer"});
+    auto* outerGroupNode =
+      &worldNode.defaultLayer()->addChild(std::make_unique<GroupNode>(Group{"outer"}));
+    auto* innerGroupNode =
+      &outerGroupNode->addChild(std::make_unique<GroupNode>(Group{"inner"}));
+    auto* entityNode = &innerGroupNode->addChild(std::make_unique<EntityNode>(Entity{}));
+    auto* brushNode = &innerGroupNode->addChild(std::make_unique<BrushNode>(
+      BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material") | kdl::value()));
 
     // clang-format off
-    auto* patchNode = new PatchNode{BezierPatch{3, 3, {
+    auto* patchNode = &outerGroupNode->addChild(std::make_unique<PatchNode>(BezierPatch{3, 3, {
       {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
       {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
-      {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "material"}};
+      {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "material"}));
     // clang-format on
 
-    innerGroupNode->addChildren({entityNode, brushNode});
-    outerGroupNode->addChildren({innerGroupNode, patchNode});
-    worldNode.defaultLayer()->addChild(outerGroupNode);
 
     SECTION("All groups closed")
     {
@@ -249,7 +240,7 @@ TEST_CASE("ModelUtils")
        {2, 2, 0}},
       "material"}};
 
-    groupNode.addChild(new EntityNode{Entity{}});
+    groupNode.addChild(std::make_unique<EntityNode>(Entity{}));
 
     auto touchesAll = BrushNode{
       BrushBuilder{mapFormat, worldBounds}.createCube(24.0, "material") | kdl::value()};
@@ -324,7 +315,7 @@ TEST_CASE("ModelUtils")
        {2, 2, 0}},
       "material"}};
 
-    groupNode.addChild(new EntityNode{Entity{}});
+    groupNode.addChild(std::make_unique<EntityNode>(Entity{}));
 
     auto containsAll = BrushNode{
       BrushBuilder{mapFormat, worldBounds}.createCube(128.0, "material") | kdl::value()};
@@ -380,24 +371,22 @@ TEST_CASE("ModelUtils")
 
     auto worldNode = WorldNode{{}, {}, mapFormat};
 
-    auto* layerNode = new LayerNode{Layer{"layer"}};
-    auto* outerGroupNode = new GroupNode{Group{"outer"}};
-    auto* innerGroupNode = new GroupNode{Group{"inner"}};
-    auto* entityNode = new EntityNode{Entity{}};
-    auto* brushNode = new BrushNode{
-      BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material") | kdl::value()};
+    worldNode.addChild(std::make_unique<LayerNode>(Layer{"layer"}));
+    auto* outerGroupNode =
+      &worldNode.defaultLayer()->addChild(std::make_unique<GroupNode>(Group{"outer"}));
+    auto* innerGroupNode =
+      &outerGroupNode->addChild(std::make_unique<GroupNode>(Group{"inner"}));
+    innerGroupNode->addChild(std::make_unique<EntityNode>(Entity{}));
+    auto* brushNode = &innerGroupNode->addChild(std::make_unique<BrushNode>(
+      BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material") | kdl::value()));
 
     // clang-format off
-    auto* patchNode = new PatchNode{BezierPatch{3, 3, {
+    auto* patchNode = &outerGroupNode->addChild(std::make_unique<PatchNode>(BezierPatch{3, 3, {
       {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
       {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
-      {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "material"}};
+      {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "material"}));
     // clang-format on
 
-    innerGroupNode->addChildren({entityNode, brushNode});
-    outerGroupNode->addChildren({innerGroupNode, patchNode});
-    worldNode.defaultLayer()->addChild(outerGroupNode);
-    worldNode.addChild(layerNode);
 
     /*
     worldNode
@@ -447,24 +436,22 @@ TEST_CASE("ModelUtils")
 
     auto worldNode = WorldNode{{}, {}, mapFormat};
 
-    auto* layerNode = new LayerNode{Layer{"layer"}};
-    auto* outerGroupNode = new GroupNode{Group{"outer"}};
-    auto* innerGroupNode = new GroupNode{Group{"inner"}};
-    auto* entityNode = new EntityNode{Entity{}};
-    auto* brushNode = new BrushNode{
-      BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material") | kdl::value()};
+    worldNode.addChild(std::make_unique<LayerNode>(Layer{"layer"}));
+    auto* outerGroupNode =
+      &worldNode.defaultLayer()->addChild(std::make_unique<GroupNode>(Group{"outer"}));
+    auto* innerGroupNode =
+      &outerGroupNode->addChild(std::make_unique<GroupNode>(Group{"inner"}));
+    auto* entityNode = &innerGroupNode->addChild(std::make_unique<EntityNode>(Entity{}));
+    auto* brushNode = &innerGroupNode->addChild(std::make_unique<BrushNode>(
+      BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material") | kdl::value()));
 
     // clang-format off
-    auto* patchNode = new PatchNode{BezierPatch{3, 3, {
+    auto* patchNode = &outerGroupNode->addChild(std::make_unique<PatchNode>(BezierPatch{3, 3, {
       {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
       {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
-      {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "material"}};
+      {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "material"}));
     // clang-format on
 
-    innerGroupNode->addChildren({entityNode, brushNode});
-    outerGroupNode->addChildren({innerGroupNode, patchNode});
-    worldNode.defaultLayer()->addChild(outerGroupNode);
-    worldNode.addChild(layerNode);
 
     auto editorContext = EditorContext{};
 
@@ -498,10 +485,10 @@ TEST_CASE("ModelUtils")
 
     SECTION("Face selection")
     {
-      auto* brushNode = new BrushNode{
-        BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material") | kdl::value()};
+      auto* brushNode = &worldNode.defaultLayer()->addChild(std::make_unique<BrushNode>(
+        BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material")
+        | kdl::value()));
 
-      worldNode.defaultLayer()->addChild(brushNode);
       brushNode->selectFace(0);
       brushNode->selectFace(1);
 
@@ -513,13 +500,14 @@ TEST_CASE("ModelUtils")
 
     SECTION("Node selection")
     {
-      auto* selectedBrushNode = new BrushNode{
-        BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material") | kdl::value()};
-      auto* unselectedBrushNode = new BrushNode{
-        BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material") | kdl::value()};
+      auto* selectedBrushNode =
+        &worldNode.defaultLayer()->addChild(std::make_unique<BrushNode>(
+          BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material")
+          | kdl::value()));
+      worldNode.defaultLayer()->addChild(std::make_unique<BrushNode>(
+        BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material")
+        | kdl::value()));
 
-      worldNode.defaultLayer()->addChild(selectedBrushNode);
-      worldNode.defaultLayer()->addChild(unselectedBrushNode);
       selectedBrushNode->select();
 
       CHECK(collectSelectedBrushFaces({&worldNode}).empty());
@@ -532,13 +520,15 @@ TEST_CASE("ModelUtils")
     constexpr auto mapFormat = MapFormat::Quake3;
 
     auto worldNode = WorldNode{{}, {}, mapFormat};
-    auto* selectableBrushNode = new BrushNode{
-      BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material") | kdl::value()};
-    auto* unselectableBrushNode = new BrushNode{
-      BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material") | kdl::value()};
+    auto* selectableBrushNode =
+      &worldNode.defaultLayer()->addChild(std::make_unique<BrushNode>(
+        BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material")
+        | kdl::value()));
+    auto* unselectableBrushNode =
+      &worldNode.defaultLayer()->addChild(std::make_unique<BrushNode>(
+        BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material")
+        | kdl::value()));
 
-    worldNode.defaultLayer()->addChild(selectableBrushNode);
-    worldNode.defaultLayer()->addChild(unselectableBrushNode);
     unselectableBrushNode->setLockState(LockState::Locked);
 
     auto editorContext = EditorContext{};
@@ -555,24 +545,22 @@ TEST_CASE("ModelUtils")
 
     auto worldNode = WorldNode{{}, {}, mapFormat};
 
-    auto* layerNode = new LayerNode{Layer{"layer"}};
-    auto* outerGroupNode = new GroupNode{Group{"outer"}};
-    auto* innerGroupNode = new GroupNode{Group{"inner"}};
-    auto* entityNode = new EntityNode{Entity{}};
-    auto* brushNode = new BrushNode{
-      BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material") | kdl::value()};
+    auto* layerNode = &worldNode.addChild(std::make_unique<LayerNode>(Layer{"layer"}));
+    auto* outerGroupNode =
+      &worldNode.defaultLayer()->addChild(std::make_unique<GroupNode>(Group{"outer"}));
+    auto* innerGroupNode =
+      &outerGroupNode->addChild(std::make_unique<GroupNode>(Group{"inner"}));
+    auto* entityNode = &innerGroupNode->addChild(std::make_unique<EntityNode>(Entity{}));
+    auto* brushNode = &innerGroupNode->addChild(std::make_unique<BrushNode>(
+      BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material") | kdl::value()));
 
     // clang-format off
-    auto* patchNode = new PatchNode{BezierPatch{3, 3, {
+    auto* patchNode = &outerGroupNode->addChild(std::make_unique<PatchNode>(BezierPatch{3, 3, {
       {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
       {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
-      {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "material"}};
+      {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "material"}));
     // clang-format on
 
-    innerGroupNode->addChildren({entityNode, brushNode});
-    outerGroupNode->addChildren({innerGroupNode, patchNode});
-    worldNode.defaultLayer()->addChild(outerGroupNode);
-    worldNode.addChild(layerNode);
 
     transformNode(*brushNode, vm::translation_matrix(vm::vec3d{64, 0, 0}), worldBounds);
 
@@ -599,24 +587,22 @@ TEST_CASE("ModelUtils")
 
     auto worldNode = WorldNode{{}, {}, mapFormat};
 
-    auto* layerNode = new LayerNode{Layer{"layer"}};
-    auto* outerGroupNode = new GroupNode{Group{"outer"}};
-    auto* innerGroupNode = new GroupNode{Group{"inner"}};
-    auto* entityNode = new EntityNode{Entity{}};
-    auto* brushNode = new BrushNode{
-      BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material") | kdl::value()};
+    auto* layerNode = &worldNode.addChild(std::make_unique<LayerNode>(Layer{"layer"}));
+    auto* outerGroupNode =
+      &worldNode.defaultLayer()->addChild(std::make_unique<GroupNode>(Group{"outer"}));
+    auto* innerGroupNode =
+      &outerGroupNode->addChild(std::make_unique<GroupNode>(Group{"inner"}));
+    auto* entityNode = &innerGroupNode->addChild(std::make_unique<EntityNode>(Entity{}));
+    auto* brushNode = &innerGroupNode->addChild(std::make_unique<BrushNode>(
+      BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material") | kdl::value()));
 
     // clang-format off
-    auto* patchNode = new PatchNode{BezierPatch{3, 3, {
+    auto* patchNode = &outerGroupNode->addChild(std::make_unique<PatchNode>(BezierPatch{3, 3, {
       {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
       {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
-      {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "material"}};
+      {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "material"}));
     // clang-format on
 
-    innerGroupNode->addChildren({entityNode, brushNode});
-    outerGroupNode->addChildren({innerGroupNode, patchNode});
-    worldNode.defaultLayer()->addChild(outerGroupNode);
-    worldNode.addChild(layerNode);
 
     transformNode(*brushNode, vm::translation_matrix(vm::vec3d{64, 0, 0}), worldBounds);
 
@@ -695,8 +681,8 @@ TEST_CASE("ModelUtils")
     // Boxes are 64 tall sitting on z=0, so every top face lands on the same plane (z=64).
     // Laying them out in xy makes the coplanar regions easy to reason about.
     const auto boxBounds = [&](const vm::bbox3d& bounds) {
-      auto* node = new BrushNode{builder.createCuboid(bounds, "material") | kdl::value()};
-      worldNode.defaultLayer()->addChild(node);
+      auto* node = &worldNode.defaultLayer()->addChild(std::make_unique<BrushNode>(
+        builder.createCuboid(bounds, "material") | kdl::value()));
       return node;
     };
 

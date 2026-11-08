@@ -39,7 +39,6 @@
 #include "ui/MapDocument.h"
 
 #include "kd/flat_map.h"
-#include "kd/map_utils.h"
 #include "kd/optional_utils.h"
 #include "kd/overload.h"
 #include "kd/ranges/to.h"
@@ -55,6 +54,7 @@
 #include <algorithm>
 #include <optional>
 #include <ranges>
+#include <utility>
 
 namespace tb::ui
 {
@@ -503,11 +503,7 @@ ClipTool::ClipTool(MapDocument& document)
 {
 }
 
-ClipTool::~ClipTool()
-{
-  kdl::map_clear_and_delete(m_frontBrushes);
-  kdl::map_clear_and_delete(m_backBrushes);
-}
+ClipTool::~ClipTool() = default;
 
 const mdl::Grid& ClipTool::grid() const
 {
@@ -622,9 +618,9 @@ void ClipTool::performClip()
     auto transaction = mdl::Transaction{map, "Clip Brushes"};
 
     // need to make a copies here so that we are not affected by the deselection
-    const auto toAdd = clipBrushes();
+    auto toAdd = clipBrushes();
     const auto toRemove = map.selection().nodes;
-    const auto addedNodes = addNodes(map, toAdd);
+    const auto addedNodes = addNodes(map, std::move(toAdd));
 
     deselectAll(map);
     removeNodes(map, toRemove);
@@ -635,32 +631,19 @@ void ClipTool::performClip()
   }
 }
 
-kdl::flat_map<mdl::Node*, std::vector<mdl::Node*>> ClipTool::clipBrushes()
+kdl::flat_map<mdl::Node*, std::vector<std::unique_ptr<mdl::Node>>> ClipTool::clipBrushes()
 {
-  auto result = kdl::flat_map<mdl::Node*, std::vector<mdl::Node*>>{};
-  if (!m_frontBrushes.empty())
+  auto result = kdl::flat_map<mdl::Node*, std::vector<std::unique_ptr<mdl::Node>>>{};
+  if (keepFrontBrushes())
   {
-    if (keepFrontBrushes())
-    {
-      result = kdl::map_merge(result, m_frontBrushes);
-      m_frontBrushes.clear();
-    }
-    else
-    {
-      kdl::map_clear_and_delete(m_frontBrushes);
-    }
+    result = std::exchange(m_frontBrushes, {});
   }
 
-  if (!m_backBrushes.empty())
+  if (keepBackBrushes())
   {
-    if (keepBackBrushes())
+    for (auto&& [parent, nodes] : m_backBrushes)
     {
-      result = kdl::map_merge(result, m_backBrushes);
-      m_backBrushes.clear();
-    }
-    else
-    {
-      kdl::map_clear_and_delete(m_backBrushes);
+      kdl::vec_append(result[parent], std::move(nodes));
     }
   }
 
@@ -814,8 +797,8 @@ void ClipTool::update()
 
 void ClipTool::clearBrushes()
 {
-  kdl::map_clear_and_delete(m_frontBrushes);
-  kdl::map_clear_and_delete(m_backBrushes);
+  m_frontBrushes.clear();
+  m_backBrushes.clear();
 }
 
 void ClipTool::updateBrushes()
@@ -840,7 +823,8 @@ void ClipTool::updateBrushes()
             return brush.clip(worldBounds, std::move(clipFace));
           })
         | kdl::transform([&]() {
-            brushMap[node->parent()].push_back(new mdl::BrushNode(std::move(brush)));
+            brushMap[node->parent()].push_back(
+              std::make_unique<mdl::BrushNode>(std::move(brush)));
           })
         | kdl::transform_error(
           [&](auto e) { map.logger().error() << "Could not clip brush: " << e.msg; });
@@ -862,7 +846,8 @@ void ClipTool::updateBrushes()
     for (auto* brushNode : brushNodes)
     {
       auto* parent = brushNode->parent();
-      m_frontBrushes[parent].push_back(new mdl::BrushNode{brushNode->brush()});
+      m_frontBrushes[parent].push_back(
+        std::make_unique<mdl::BrushNode>(brushNode->brush()));
     }
   }
 }
@@ -929,12 +914,12 @@ void ClipTool::updateRenderers()
 }
 
 void ClipTool::addBrushesToRenderer(
-  const kdl::flat_map<mdl::Node*, std::vector<mdl::Node*>>& map,
+  const kdl::flat_map<mdl::Node*, std::vector<std::unique_ptr<mdl::Node>>>& map,
   render::BrushRenderer& renderer)
 {
   for (const auto& [parent, nodes] : map)
   {
-    for (auto* node : nodes)
+    for (const auto& node : nodes)
     {
       node->accept(kdl::overload(
         [](const mdl::WorldNode&) {},

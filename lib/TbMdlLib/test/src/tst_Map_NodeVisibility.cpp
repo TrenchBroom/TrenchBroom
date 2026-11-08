@@ -33,6 +33,8 @@
 #include "mdl/TestFactory.h"
 #include "mdl/TestUtils.h"
 
+#include "kd/vector_utils.h"
+
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/generators/catch_generators.hpp>
 #include <catch2/matchers/catch_matchers_vector.hpp>
@@ -50,26 +52,25 @@ TEST_CASE("Map_NodeVisibility")
   {
     GIVEN("An unrelated top level node")
     {
-      auto* nodeToHide = new EntityNode{Entity{}};
-      addNodes(map, {{&parentForNodes(map), {nodeToHide}}});
+      auto* nodeToHide =
+        addNode(map, parentForNodes(map), std::make_unique<EntityNode>(Entity{}));
 
       REQUIRE(!nodeToHide->hidden());
 
       AND_GIVEN("Another top level node that should be isolated")
       {
-        using CreateNode = std::function<Node*(const Map&)>;
+        using CreateNode = std::function<std::unique_ptr<Node>(const Map&)>;
         const auto createNode = GENERATE_COPY(
           CreateNode{[](const auto& m) {
-            auto* groupNode = new GroupNode{Group{"group"}};
+            auto groupNode = std::make_unique<GroupNode>(Group{"group"});
             groupNode->addChild(createBrushNode(m));
             return groupNode;
           }},
-          CreateNode{[](const auto&) { return new EntityNode{Entity{}}; }},
+          CreateNode{[](const auto&) { return std::make_unique<EntityNode>(Entity{}); }},
           CreateNode{[](const auto& m) { return createBrushNode(m); }},
           CreateNode{[](const auto&) { return createPatchNode(); }});
 
-        auto* nodeToIsolate = createNode(map);
-        addNodes(map, {{&parentForNodes(map), {nodeToIsolate}}});
+        auto* nodeToIsolate = addNode(map, parentForNodes(map), createNode(map));
 
         REQUIRE(!nodeToIsolate->hidden());
 
@@ -104,13 +105,12 @@ TEST_CASE("Map_NodeVisibility")
 
       AND_GIVEN("A top level brush entity")
       {
-        auto* childNode1 = createBrushNode(map);
-        auto* childNode2 = createPatchNode();
+        auto entityNodePtr = std::make_unique<EntityNode>(Entity{});
+        auto* entityNode = entityNodePtr.get();
+        auto* childNode1 = &entityNode->addChild(createBrushNode(map));
+        auto* childNode2 = &entityNode->addChild(createPatchNode());
 
-        auto* entityNode = new EntityNode{Entity{}};
-        entityNode->addChildren({childNode1, childNode2});
-
-        addNodes(map, {{&parentForNodes(map), {entityNode}}});
+        addNode(map, parentForNodes(map), std::move(entityNodePtr));
 
         // Check initial state
         REQUIRE_FALSE(nodeToHide->hidden());
@@ -176,12 +176,18 @@ TEST_CASE("Map_NodeVisibility")
 
   SECTION("hideSelectedNodes")
   {
-    auto* entityNode = new EntityNode{Entity{}};
-    auto* groupNode = new GroupNode{Group{"group"}};
-    auto* groupedEntityNode = new EntityNode{Entity{}};
+    auto entityNodePtr = std::make_unique<EntityNode>(Entity{});
+    auto* entityNode = entityNodePtr.get();
+    auto groupNodePtr = std::make_unique<GroupNode>(Group{"group"});
+    auto* groupNode = groupNodePtr.get();
 
-    addNodes(map, {{&parentForNodes(map), {entityNode, groupNode}}});
-    addNodes(map, {{groupNode, {groupedEntityNode}}});
+    addNodes(
+      map,
+      parentForNodes(map),
+      kdl::vec_from<std::unique_ptr<Node>>(
+        std::move(entityNodePtr), std::move(groupNodePtr)));
+    auto* groupedEntityNode =
+      addNode(map, *groupNode, std::make_unique<EntityNode>(Entity{}));
 
     showNodes(map, {groupedEntityNode});
     REQUIRE(groupedEntityNode->visibilityState() == VisibilityState::Shown);
@@ -196,16 +202,29 @@ TEST_CASE("Map_NodeVisibility")
 
   SECTION("hideNodes")
   {
-    auto* pointEntityNode = new EntityNode{Entity{}};
-    auto* selectedEntityNode = new EntityNode{Entity{}};
-    auto* brushEntityNode = new EntityNode{Entity{}};
-    auto* brushNode = createBrushNode(map);
-    auto* selectedBrushNode = createBrushNode(map);
+    auto pointEntityNodePtr = std::make_unique<EntityNode>(Entity{});
+    auto* pointEntityNode = pointEntityNodePtr.get();
+    auto selectedEntityNodePtr = std::make_unique<EntityNode>(Entity{});
+    auto* selectedEntityNode = selectedEntityNodePtr.get();
+    auto brushEntityNodePtr = std::make_unique<EntityNode>(Entity{});
+    auto* brushEntityNode = brushEntityNodePtr.get();
+    auto brushNodePtr = createBrushNode(map);
+    auto* brushNode = brushNodePtr.get();
+    auto selectedBrushNodePtr = createBrushNode(map);
+    auto* selectedBrushNode = selectedBrushNodePtr.get();
 
     addNodes(
       map,
-      {{&parentForNodes(map), {pointEntityNode, selectedEntityNode, brushEntityNode}}});
-    addNodes(map, {{brushEntityNode, {brushNode, selectedBrushNode}}});
+      parentForNodes(map),
+      kdl::vec_from<std::unique_ptr<Node>>(
+        std::move(pointEntityNodePtr),
+        std::move(selectedEntityNodePtr),
+        std::move(brushEntityNodePtr)));
+    addNodes(
+      map,
+      *brushEntityNode,
+      kdl::vec_from<std::unique_ptr<Node>>(
+        std::move(brushNodePtr), std::move(selectedBrushNodePtr)));
 
     showNodes(map, {selectedBrushNode});
     REQUIRE(selectedBrushNode->visibilityState() == VisibilityState::Shown);
@@ -240,16 +259,29 @@ TEST_CASE("Map_NodeVisibility")
 
   SECTION("showAllNodes")
   {
-    auto* shownEntityNode = new EntityNode{Entity{}};
-    auto* hiddenEntityNode = new EntityNode{Entity{}};
-    auto* brushEntityNode = new EntityNode{Entity{}};
-    auto* brushNode = createBrushNode(map);
-    auto* hiddenBrushNode = createBrushNode(map);
+    auto shownEntityNodePtr = std::make_unique<EntityNode>(Entity{});
+    auto* shownEntityNode = shownEntityNodePtr.get();
+    auto hiddenEntityNodePtr = std::make_unique<EntityNode>(Entity{});
+    auto* hiddenEntityNode = hiddenEntityNodePtr.get();
+    auto brushEntityNodePtr = std::make_unique<EntityNode>(Entity{});
+    auto* brushEntityNode = brushEntityNodePtr.get();
+    auto brushNodePtr = createBrushNode(map);
+    auto* brushNode = brushNodePtr.get();
+    auto hiddenBrushNodePtr = createBrushNode(map);
+    auto* hiddenBrushNode = hiddenBrushNodePtr.get();
 
     addNodes(
       map,
-      {{&parentForNodes(map), {shownEntityNode, hiddenEntityNode, brushEntityNode}}});
-    addNodes(map, {{brushEntityNode, {brushNode, hiddenBrushNode}}});
+      parentForNodes(map),
+      kdl::vec_from<std::unique_ptr<Node>>(
+        std::move(shownEntityNodePtr),
+        std::move(hiddenEntityNodePtr),
+        std::move(brushEntityNodePtr)));
+    addNodes(
+      map,
+      *brushEntityNode,
+      kdl::vec_from<std::unique_ptr<Node>>(
+        std::move(brushNodePtr), std::move(hiddenBrushNodePtr)));
 
     shownEntityNode->setVisibilityState(VisibilityState::Shown);
     hiddenEntityNode->setVisibilityState(VisibilityState::Hidden);
@@ -289,16 +321,29 @@ TEST_CASE("Map_NodeVisibility")
 
   SECTION("showNodes")
   {
-    auto* shownEntityNode = new EntityNode{Entity{}};
-    auto* hiddenEntityNode = new EntityNode{Entity{}};
-    auto* brushEntityNode = new EntityNode{Entity{}};
-    auto* brushNode = createBrushNode(map);
-    auto* hiddenBrushNode = createBrushNode(map);
+    auto shownEntityNodePtr = std::make_unique<EntityNode>(Entity{});
+    auto* shownEntityNode = shownEntityNodePtr.get();
+    auto hiddenEntityNodePtr = std::make_unique<EntityNode>(Entity{});
+    auto* hiddenEntityNode = hiddenEntityNodePtr.get();
+    auto brushEntityNodePtr = std::make_unique<EntityNode>(Entity{});
+    auto* brushEntityNode = brushEntityNodePtr.get();
+    auto brushNodePtr = createBrushNode(map);
+    auto* brushNode = brushNodePtr.get();
+    auto hiddenBrushNodePtr = createBrushNode(map);
+    auto* hiddenBrushNode = hiddenBrushNodePtr.get();
 
     addNodes(
       map,
-      {{&parentForNodes(map), {shownEntityNode, hiddenEntityNode, brushEntityNode}}});
-    addNodes(map, {{brushEntityNode, {brushNode, hiddenBrushNode}}});
+      parentForNodes(map),
+      kdl::vec_from<std::unique_ptr<Node>>(
+        std::move(shownEntityNodePtr),
+        std::move(hiddenEntityNodePtr),
+        std::move(brushEntityNodePtr)));
+    addNodes(
+      map,
+      *brushEntityNode,
+      kdl::vec_from<std::unique_ptr<Node>>(
+        std::move(brushNodePtr), std::move(hiddenBrushNodePtr)));
 
     shownEntityNode->setVisibilityState(VisibilityState::Shown);
     hiddenEntityNode->setVisibilityState(VisibilityState::Hidden);
@@ -337,16 +382,29 @@ TEST_CASE("Map_NodeVisibility")
 
   SECTION("ensureNodesVisible")
   {
-    auto* shownEntityNode = new EntityNode{Entity{}};
-    auto* hiddenEntityNode = new EntityNode{Entity{}};
-    auto* brushEntityNode = new EntityNode{Entity{}};
-    auto* brushNode = createBrushNode(map);
-    auto* hiddenBrushNode = createBrushNode(map);
+    auto shownEntityNodePtr = std::make_unique<EntityNode>(Entity{});
+    auto* shownEntityNode = shownEntityNodePtr.get();
+    auto hiddenEntityNodePtr = std::make_unique<EntityNode>(Entity{});
+    auto* hiddenEntityNode = hiddenEntityNodePtr.get();
+    auto brushEntityNodePtr = std::make_unique<EntityNode>(Entity{});
+    auto* brushEntityNode = brushEntityNodePtr.get();
+    auto brushNodePtr = createBrushNode(map);
+    auto* brushNode = brushNodePtr.get();
+    auto hiddenBrushNodePtr = createBrushNode(map);
+    auto* hiddenBrushNode = hiddenBrushNodePtr.get();
 
     addNodes(
       map,
-      {{&parentForNodes(map), {shownEntityNode, hiddenEntityNode, brushEntityNode}}});
-    addNodes(map, {{brushEntityNode, {brushNode, hiddenBrushNode}}});
+      parentForNodes(map),
+      kdl::vec_from<std::unique_ptr<Node>>(
+        std::move(shownEntityNodePtr),
+        std::move(hiddenEntityNodePtr),
+        std::move(brushEntityNodePtr)));
+    addNodes(
+      map,
+      *brushEntityNode,
+      kdl::vec_from<std::unique_ptr<Node>>(
+        std::move(brushNodePtr), std::move(hiddenBrushNodePtr)));
 
     shownEntityNode->setVisibilityState(VisibilityState::Shown);
     hiddenEntityNode->setVisibilityState(VisibilityState::Hidden);
@@ -385,16 +443,29 @@ TEST_CASE("Map_NodeVisibility")
 
   SECTION("resetNodeVisibility")
   {
-    auto* shownEntityNode = new EntityNode{Entity{}};
-    auto* hiddenEntityNode = new EntityNode{Entity{}};
-    auto* brushEntityNode = new EntityNode{Entity{}};
-    auto* brushNode = createBrushNode(map);
-    auto* hiddenBrushNode = createBrushNode(map);
+    auto shownEntityNodePtr = std::make_unique<EntityNode>(Entity{});
+    auto* shownEntityNode = shownEntityNodePtr.get();
+    auto hiddenEntityNodePtr = std::make_unique<EntityNode>(Entity{});
+    auto* hiddenEntityNode = hiddenEntityNodePtr.get();
+    auto brushEntityNodePtr = std::make_unique<EntityNode>(Entity{});
+    auto* brushEntityNode = brushEntityNodePtr.get();
+    auto brushNodePtr = createBrushNode(map);
+    auto* brushNode = brushNodePtr.get();
+    auto hiddenBrushNodePtr = createBrushNode(map);
+    auto* hiddenBrushNode = hiddenBrushNodePtr.get();
 
     addNodes(
       map,
-      {{&parentForNodes(map), {shownEntityNode, hiddenEntityNode, brushEntityNode}}});
-    addNodes(map, {{brushEntityNode, {brushNode, hiddenBrushNode}}});
+      parentForNodes(map),
+      kdl::vec_from<std::unique_ptr<Node>>(
+        std::move(shownEntityNodePtr),
+        std::move(hiddenEntityNodePtr),
+        std::move(brushEntityNodePtr)));
+    addNodes(
+      map,
+      *brushEntityNode,
+      kdl::vec_from<std::unique_ptr<Node>>(
+        std::move(brushNodePtr), std::move(hiddenBrushNodePtr)));
 
     shownEntityNode->setVisibilityState(VisibilityState::Shown);
     hiddenEntityNode->setVisibilityState(VisibilityState::Hidden);
@@ -433,16 +504,29 @@ TEST_CASE("Map_NodeVisibility")
 
   SECTION("downgradeShownToInherit")
   {
-    auto* shownEntityNode = new EntityNode{Entity{}};
-    auto* hiddenEntityNode = new EntityNode{Entity{}};
-    auto* brushEntityNode = new EntityNode{Entity{}};
-    auto* brushNode = createBrushNode(map);
-    auto* hiddenBrushNode = createBrushNode(map);
+    auto shownEntityNodePtr = std::make_unique<EntityNode>(Entity{});
+    auto* shownEntityNode = shownEntityNodePtr.get();
+    auto hiddenEntityNodePtr = std::make_unique<EntityNode>(Entity{});
+    auto* hiddenEntityNode = hiddenEntityNodePtr.get();
+    auto brushEntityNodePtr = std::make_unique<EntityNode>(Entity{});
+    auto* brushEntityNode = brushEntityNodePtr.get();
+    auto brushNodePtr = createBrushNode(map);
+    auto* brushNode = brushNodePtr.get();
+    auto hiddenBrushNodePtr = createBrushNode(map);
+    auto* hiddenBrushNode = hiddenBrushNodePtr.get();
 
     addNodes(
       map,
-      {{&parentForNodes(map), {shownEntityNode, hiddenEntityNode, brushEntityNode}}});
-    addNodes(map, {{brushEntityNode, {brushNode, hiddenBrushNode}}});
+      parentForNodes(map),
+      kdl::vec_from<std::unique_ptr<Node>>(
+        std::move(shownEntityNodePtr),
+        std::move(hiddenEntityNodePtr),
+        std::move(brushEntityNodePtr)));
+    addNodes(
+      map,
+      *brushEntityNode,
+      kdl::vec_from<std::unique_ptr<Node>>(
+        std::move(brushNodePtr), std::move(hiddenBrushNodePtr)));
 
     shownEntityNode->setVisibilityState(VisibilityState::Shown);
     hiddenEntityNode->setVisibilityState(VisibilityState::Hidden);

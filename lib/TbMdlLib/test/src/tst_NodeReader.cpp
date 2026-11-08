@@ -70,7 +70,7 @@ TEST_CASE("NodeReader")
       NodeReader::read(data, MapFormat::Standard, worldBounds, {}, status, taskManager);
     REQUIRE(nodes);
 
-    auto* brushNode = dynamic_cast<BrushNode*>(nodes.value().at(0)->children().at(0));
+    auto* brushNode = dynamic_cast<BrushNode*>(nodes.value().at(0)->children()[0]);
     REQUIRE(brushNode != nullptr);
 
     auto brush = brushNode->brush();
@@ -102,10 +102,10 @@ TEST_CASE("NodeReader")
       NodeReader::read(data, MapFormat::Standard, worldBounds, {}, status, taskManager);
     REQUIRE(nodes);
 
-    auto* groupNode = dynamic_cast<GroupNode*>(nodes.value().at(0));
+    auto* groupNode = dynamic_cast<GroupNode*>(nodes.value().at(0).get());
     REQUIRE(groupNode != nullptr);
 
-    auto* brushNode = dynamic_cast<BrushNode*>(groupNode->children().at(0));
+    auto* brushNode = dynamic_cast<BrushNode*>(groupNode->children()[0]);
     REQUIRE(brushNode != nullptr);
 
     const auto brush = brushNode->brush();
@@ -179,7 +179,7 @@ TEST_CASE("NodeReader")
     const auto& children = nodes.value().at(0)->children();
     REQUIRE(children.size() == 1u);
 
-    auto* brushNode = dynamic_cast<BrushNode*>(children.at(0));
+    auto* brushNode = dynamic_cast<BrushNode*>(children[0]);
     REQUIRE(brushNode != nullptr);
     CHECK(brushNode->brush().bounds() == vm::bbox3d{{-256, -256, -256}, {256, 256, 256}});
   }
@@ -207,7 +207,7 @@ TEST_CASE("NodeReader")
     REQUIRE(nodes);
     CHECK(status.messages(LogLevel::Error).empty());
 
-    auto* brushNode = dynamic_cast<BrushNode*>(nodes.value().at(0)->children().at(0));
+    auto* brushNode = dynamic_cast<BrushNode*>(nodes.value().at(0)->children()[0]);
     REQUIRE(brushNode != nullptr);
   }
 

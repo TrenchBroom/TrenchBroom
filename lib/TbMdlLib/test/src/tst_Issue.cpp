@@ -61,27 +61,26 @@ TEST_CASE("Issue.addSelectableNodes")
 
   auto outerGroupNode = GroupNode{Group{"outer"}};
 
-  auto* innerGroupNode = new GroupNode{Group{"inner"}};
-  auto* pointEntityNode = new EntityNode{Entity{}};
-  auto* brushNode = new BrushNode{
+  auto* innerGroupNode =
+    &outerGroupNode.addChild(std::make_unique<GroupNode>(Group{"inner"}));
+  auto* pointEntityNode =
+    &outerGroupNode.addChild(std::make_unique<EntityNode>(Entity{}));
+  auto* brushNode = &outerGroupNode.addChild(std::make_unique<BrushNode>(
     BrushBuilder{MapFormat::Quake3, worldBounds}.createCube(64.0, "material")
-    | kdl::value()};
+    | kdl::value()));
 
-  auto* brushEntityNode = new EntityNode{Entity{}};
-  auto* entityBrushNode = new BrushNode{
+  auto* brushEntityNode =
+    &outerGroupNode.addChild(std::make_unique<EntityNode>(Entity{}));
+  auto* entityBrushNode = &brushEntityNode->addChild(std::make_unique<BrushNode>(
     BrushBuilder{MapFormat::Quake3, worldBounds}.createCube(64.0, "material")
-    | kdl::value()};
-  brushEntityNode->addChild(entityBrushNode);
+    | kdl::value()));
 
   // clang-format off
-  auto* patchNode = new PatchNode{BezierPatch{3, 3, {
+  auto* patchNode = &outerGroupNode.addChild(std::make_unique<PatchNode>(BezierPatch{3, 3, {
     {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
     {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
-    {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "material"}};
+    {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "material"}));
   // clang-format on
-
-  outerGroupNode.addChildren(
-    {innerGroupNode, pointEntityNode, brushNode, brushEntityNode, patchNode});
 
   const auto getSelectableNodes = [](const auto& issue) {
     auto nodes = std::vector<Node*>{};

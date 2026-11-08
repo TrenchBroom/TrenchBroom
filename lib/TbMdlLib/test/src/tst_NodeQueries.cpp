@@ -34,6 +34,8 @@
 
 #include "kd/result.h"
 
+#include <ranges>
+
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers_vector.hpp>
 
@@ -48,24 +50,21 @@ TEST_CASE("NodeQueries")
 
   auto worldNode = WorldNode{{}, {}, mapFormat};
 
-  auto* layerNode = new LayerNode{Layer{"layer"}};
-  auto* outerGroupNode = new GroupNode{Group{"outer"}};
-  auto* innerGroupNode = new GroupNode{Group{"inner"}};
-  auto* entityNode = new EntityNode{Entity{}};
-  auto* brushNode = new BrushNode{
-    BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material") | kdl::value()};
+  auto* layerNode = &worldNode.addChild(std::make_unique<LayerNode>(Layer{"layer"}));
+  auto* outerGroupNode =
+    &layerNode->addChild(std::make_unique<GroupNode>(Group{"outer"}));
+  auto* innerGroupNode =
+    &outerGroupNode->addChild(std::make_unique<GroupNode>(Group{"inner"}));
+  auto* entityNode = &innerGroupNode->addChild(std::make_unique<EntityNode>(Entity{}));
+  auto* brushNode = &innerGroupNode->addChild(std::make_unique<BrushNode>(
+    BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material") | kdl::value()));
 
   // clang-format off
-  auto* patchNode = new PatchNode{BezierPatch{3, 3, {
+  auto* patchNode = &outerGroupNode->addChild(std::make_unique<PatchNode>(BezierPatch{3, 3, {
     {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
     {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
-    {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "material"}};
+    {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "material"}));
   // clang-format on
-
-  innerGroupNode->addChildren({entityNode, brushNode});
-  outerGroupNode->addChildren({innerGroupNode, patchNode});
-  layerNode->addChild(outerGroupNode);
-  worldNode.addChild(layerNode);
 
   /*
   worldNode
@@ -111,6 +110,12 @@ TEST_CASE("NodeQueries")
     CHECK(
       findNodeOrDescendant<GroupNode>({&worldNode}, [](const GroupNode&) { return true; })
       == outerGroupNode);
+    CHECK(
+      findNodeOrDescendant<GroupNode>(
+        worldNode.children()
+          | std::views::filter([&](const auto* node) { return node != layerNode; }),
+        [](const GroupNode&) { return true; })
+      == nullptr);
   }
 
   SECTION("collectNodes")

@@ -157,6 +157,7 @@ std::vector<Error> copyAndSetLinkIds(
   const GroupNode& sourceGroupNode, const std::vector<GroupNode*>& targetGroupNodes);
 
 std::vector<Error> copyAndSetLinkIdsBeforeAddingNodes(
-  const kdl::flat_map<Node*, std::vector<Node*>>& nodesToAdd, WorldNode& worldNode);
+  const kdl::flat_map<Node*, std::vector<std::unique_ptr<Node>>>& nodesToAdd,
+  WorldNode& worldNode);
 
 } // namespace tb::mdl

@@ -35,6 +35,7 @@
 #include "mdl/VisibilityState.h"
 #include "mdl/WorldNode.h"
 
+#include "kd/memory_utils.h"
 #include "kd/result.h"
 #include "kd/task_manager.h"
 
@@ -148,22 +149,19 @@ TEST_CASE("NodeWriter")
   {
     auto worldNode = WorldNode{{}, {}, MapFormat::Standard};
 
-    auto* matchingPointEntityNode = new EntityNode{Entity{{
+    worldNode.defaultLayer()->addChild(std::make_unique<EntityNode>(Entity{{
       {"classname", "info_player_start"},
       {"origin", "0 0 0"},
-    }}};
-    auto* caseMatchingPointEntityNode = new EntityNode{Entity{{
+    }}));
+    worldNode.defaultLayer()->addChild(std::make_unique<EntityNode>(Entity{{
       {"classname", "INFO_PLAYER_DEATHMATCH"},
       {"origin", "64 0 0"},
-    }}};
-    auto* nonMatchingPointEntityNode = new EntityNode{Entity{{
+    }}));
+    worldNode.defaultLayer()->addChild(std::make_unique<EntityNode>(Entity{{
       {"classname", "light"},
       {"origin", "128 0 0"},
-    }}};
+    }}));
 
-    worldNode.defaultLayer()->addChild(matchingPointEntityNode);
-    worldNode.defaultLayer()->addChild(caseMatchingPointEntityNode);
-    worldNode.defaultLayer()->addChild(nonMatchingPointEntityNode);
 
     auto str = std::stringstream{};
     auto writer = NodeWriter{worldNode, str};
@@ -192,13 +190,13 @@ TEST_CASE("NodeWriter")
     auto worldNode = WorldNode{{}, {}, MapFormat::Standard};
     auto builder = BrushBuilder{worldNode.mapFormat(), worldBounds};
 
-    auto* matchingBrushEntityNode = new EntityNode{Entity{{
-      {"classname", "info_brush_entity"},
-    }}};
+    auto* matchingBrushEntityNode =
+      &worldNode.defaultLayer()->addChild(std::make_unique<EntityNode>(Entity{{
+        {"classname", "info_brush_entity"},
+      }}));
     matchingBrushEntityNode->addChild(
-      new BrushNode{builder.createCube(64.0, "none") | kdl::value()});
+      std::make_unique<BrushNode>(builder.createCube(64.0, "none") | kdl::value()));
 
-    worldNode.defaultLayer()->addChild(matchingBrushEntityNode);
 
     auto str = std::stringstream{};
     auto writer = NodeWriter{worldNode, str};
@@ -219,10 +217,9 @@ TEST_CASE("NodeWriter")
   {
     auto worldNode = WorldNode{{}, {}, MapFormat::Standard};
 
-    auto* entityNodeWithoutClassname = new EntityNode{Entity{{
+    worldNode.defaultLayer()->addChild(std::make_unique<EntityNode>(Entity{{
       {"some_key", "some_value"},
-    }}};
-    worldNode.defaultLayer()->addChild(entityNodeWithoutClassname);
+    }}));
 
     auto str = std::stringstream{};
     auto writer = NodeWriter{worldNode, str};
@@ -284,11 +281,10 @@ TEST_CASE("NodeWriter")
     {
       face.setSurfaceAttributes({.color = RgbF{1.0f, 0.5f, 0.25f}});
     }
-    auto* brushNode1 = new BrushNode{std::move(brush1)};
-    worldNode.defaultLayer()->addChild(brushNode1);
+    worldNode.defaultLayer()->addChild(std::make_unique<BrushNode>(std::move(brush1)));
 
-    auto* brushNode2 = new BrushNode{builder.createCube(64.0, "none") | kdl::value()};
-    worldNode.defaultLayer()->addChild(brushNode2);
+    worldNode.defaultLayer()->addChild(
+      std::make_unique<BrushNode>(builder.createCube(64.0, "none") | kdl::value()));
 
     auto str = std::stringstream{};
     auto writer = NodeWriter{worldNode, str};
@@ -351,8 +347,7 @@ TEST_CASE("NodeWriter")
     }
     // other faces are e1u1/alarm0 with unset contents/flags/value
 
-    auto* brushNode1 = new BrushNode{std::move(brush1)};
-    worldNode.defaultLayer()->addChild(brushNode1);
+    worldNode.defaultLayer()->addChild(std::make_unique<BrushNode>(std::move(brush1)));
 
     auto str = std::stringstream{};
     auto writer = NodeWriter{worldNode, str};
@@ -385,8 +380,8 @@ TEST_CASE("NodeWriter")
     auto worldNode = WorldNode{{}, {}, MapFormat::Quake3_Valve};
 
     auto builder = BrushBuilder{worldNode.mapFormat(), worldBounds};
-    auto* brushNode1 = new BrushNode{builder.createCube(64.0, "none") | kdl::value()};
-    worldNode.defaultLayer()->addChild(brushNode1);
+    worldNode.defaultLayer()->addChild(
+      std::make_unique<BrushNode>(builder.createCube(64.0, "none") | kdl::value()));
 
     auto str = std::stringstream{};
     auto writer = NodeWriter{worldNode, str};
@@ -419,8 +414,8 @@ TEST_CASE("NodeWriter")
     auto worldNode = WorldNode{{}, {}, MapFormat::Standard};
 
     auto builder = BrushBuilder{worldNode.mapFormat(), worldBounds};
-    auto* brushNode = new BrushNode{builder.createCube(64.0, "none") | kdl::value()};
-    worldNode.defaultLayer()->addChild(brushNode);
+    worldNode.defaultLayer()->addChild(
+      std::make_unique<BrushNode>(builder.createCube(64.0, "none") | kdl::value()));
 
     auto str = std::stringstream{};
     auto writer = NodeWriter{worldNode, str};
@@ -455,12 +450,11 @@ TEST_CASE("NodeWriter")
     REQUIRE(layer.sortIndex() == Layer::invalidSortIndex());
     layer.setSortIndex(0);
 
-    auto* layerNode = new LayerNode{std::move(layer)};
-    worldNode.addChild(layerNode);
+    auto* layerNode = &worldNode.addChild(std::make_unique<LayerNode>(std::move(layer)));
 
     auto builder = BrushBuilder{worldNode.mapFormat(), worldBounds};
-    auto* brushNode = new BrushNode{builder.createCube(64.0, "none") | kdl::value()};
-    layerNode->addChild(brushNode);
+    layerNode->addChild(
+      std::make_unique<BrushNode>(builder.createCube(64.0, "none") | kdl::value()));
 
     auto str = std::stringstream{};
     auto writer = NodeWriter{worldNode, str};
@@ -502,11 +496,12 @@ TEST_CASE("NodeWriter")
     layer.setSortIndex(1);
     layer.setOmitFromExport(true);
 
-    auto* layerNode = new LayerNode{std::move(layer)};
+    auto layerNodePtr = std::make_unique<LayerNode>(std::move(layer));
+    auto* layerNode = layerNodePtr.get();
     layerNode->setLockState(LockState::Locked);
     layerNode->setVisibilityState(VisibilityState::Hidden);
 
-    worldNode.addChild(layerNode);
+    worldNode.addChild(std::move(layerNodePtr));
 
     auto str = std::stringstream{};
     auto writer = NodeWriter{worldNode, str};
@@ -540,13 +535,14 @@ TEST_CASE("NodeWriter")
 
     auto worldNode = WorldNode{{}, {}, MapFormat::Standard};
 
-    auto* groupNode = new GroupNode{Group{"Group"}};
+    auto groupNodePtr = std::make_unique<GroupNode>(Group{"Group"});
+    auto* groupNode = groupNodePtr.get();
     setLinkId(*groupNode, "group_link_id");
-    worldNode.defaultLayer()->addChild(groupNode);
+    worldNode.defaultLayer()->addChild(std::move(groupNodePtr));
 
     auto builder = BrushBuilder{worldNode.mapFormat(), worldBounds};
-    auto* brushNode = new BrushNode{builder.createCube(64.0, "none") | kdl::value()};
-    groupNode->addChild(brushNode);
+    groupNode->addChild(
+      std::make_unique<BrushNode>(builder.createCube(64.0, "none") | kdl::value()));
 
     auto str = std::stringstream{};
     auto writer = NodeWriter{worldNode, str};
@@ -586,16 +582,17 @@ TEST_CASE("NodeWriter")
 
     auto worldNode = WorldNode{{}, {}, MapFormat::Standard};
 
-    auto* layerNode = new LayerNode{Layer{"Custom Layer"}};
-    worldNode.addChild(layerNode);
+    auto* layerNode =
+      &worldNode.addChild(std::make_unique<LayerNode>(Layer{"Custom Layer"}));
 
-    auto* groupNode = new GroupNode{Group{"Group"}};
+    auto groupNodePtr = std::make_unique<GroupNode>(Group{"Group"});
+    auto* groupNode = groupNodePtr.get();
     setLinkId(*groupNode, "group_link_id");
-    layerNode->addChild(groupNode);
+    layerNode->addChild(std::move(groupNodePtr));
 
     auto builder = BrushBuilder{worldNode.mapFormat(), worldBounds};
-    auto* brushNode = new BrushNode{builder.createCube(64.0, "none") | kdl::value()};
-    groupNode->addChild(brushNode);
+    groupNode->addChild(
+      std::make_unique<BrushNode>(builder.createCube(64.0, "none") | kdl::value()));
 
     auto str = std::stringstream{};
     auto writer = NodeWriter{worldNode, str};
@@ -644,20 +641,22 @@ TEST_CASE("NodeWriter")
 
     auto worldNode = WorldNode{{}, {}, MapFormat::Standard};
 
-    auto* layerNode = new LayerNode{Layer{"Custom Layer"}};
-    worldNode.addChild(layerNode);
+    auto* layerNode =
+      &worldNode.addChild(std::make_unique<LayerNode>(Layer{"Custom Layer"}));
 
-    auto* outerGroupNode = new GroupNode{Group{"Outer Group"}};
+    auto outerGroupNodePtr = std::make_unique<GroupNode>(Group{"Outer Group"});
+    auto* outerGroupNode = outerGroupNodePtr.get();
     setLinkId(*outerGroupNode, "outer_group_link_id");
-    layerNode->addChild(outerGroupNode);
+    layerNode->addChild(std::move(outerGroupNodePtr));
 
-    auto* innerGroupNode = new GroupNode{Group{"Inner Group"}};
+    auto innerGroupNodePtr = std::make_unique<GroupNode>(Group{"Inner Group"});
+    auto* innerGroupNode = innerGroupNodePtr.get();
     setLinkId(*innerGroupNode, "inner_group_link_id");
-    outerGroupNode->addChild(innerGroupNode);
+    outerGroupNode->addChild(std::move(innerGroupNodePtr));
 
     auto builder = BrushBuilder{worldNode.mapFormat(), worldBounds};
-    auto* brushNode = new BrushNode{builder.createCube(64.0, "none") | kdl::value()};
-    innerGroupNode->addChild(brushNode);
+    innerGroupNode->addChild(
+      std::make_unique<BrushNode>(builder.createCube(64.0, "none") | kdl::value()));
 
     auto str = std::stringstream{};
     auto writer = NodeWriter{worldNode, str};
@@ -716,27 +715,31 @@ TEST_CASE("NodeWriter")
 
     auto worldNode = WorldNode{{}, {}, MapFormat::Standard};
 
-    auto* layerNode1 = new LayerNode{Layer{"Custom Layer 1"}};
+    auto layerNode1Ptr = std::make_unique<LayerNode>(Layer{"Custom Layer 1"});
+    auto* layerNode1 = layerNode1Ptr.get();
     layerNode1->setPersistentId(1u);
-    worldNode.addChild(layerNode1);
+    worldNode.addChild(std::move(layerNode1Ptr));
 
-    auto* outerGroupNode = new GroupNode{Group{"Outer Group"}};
+    auto outerGroupNodePtr = std::make_unique<GroupNode>(Group{"Outer Group"});
+    auto* outerGroupNode = outerGroupNodePtr.get();
     outerGroupNode->setPersistentId(21u);
     setLinkId(*outerGroupNode, "outer_group_link_id");
-    layerNode1->addChild(outerGroupNode);
+    layerNode1->addChild(std::move(outerGroupNodePtr));
 
-    auto* innerGroupNode = new GroupNode{Group{"Inner Group"}};
+    auto innerGroupNodePtr = std::make_unique<GroupNode>(Group{"Inner Group"});
+    auto* innerGroupNode = innerGroupNodePtr.get();
     innerGroupNode->setPersistentId(7u);
     setLinkId(*innerGroupNode, "inner_group_link_id");
-    outerGroupNode->addChild(innerGroupNode);
+    outerGroupNode->addChild(std::move(innerGroupNodePtr));
 
-    auto* layerNode2 = new LayerNode{Layer{"Custom Layer 2"}};
+    auto layerNode2Ptr = std::make_unique<LayerNode>(Layer{"Custom Layer 2"});
+    auto* layerNode2 = layerNode2Ptr.get();
     layerNode2->setPersistentId(12u);
-    worldNode.addChild(layerNode2);
+    worldNode.addChild(std::move(layerNode2Ptr));
 
     auto builder = BrushBuilder{worldNode.mapFormat(), worldBounds};
-    auto* brushNode = new BrushNode{builder.createCube(64.0, "none") | kdl::value()};
-    innerGroupNode->addChild(brushNode);
+    innerGroupNode->addChild(
+      std::make_unique<BrushNode>(builder.createCube(64.0, "none") | kdl::value()));
 
     auto str = std::stringstream{};
     auto writer = NodeWriter{worldNode, str};
@@ -805,40 +808,34 @@ TEST_CASE("NodeWriter")
     defaultLayer.setOmitFromExport(true);
     worldNode.defaultLayer()->setLayer(std::move(defaultLayer));
 
-    auto* defaultLayerPointEntityNode =
-      new EntityNode{Entity{{{"classname", "defaultLayerPointEntity"}}}};
+    worldNode.defaultLayer()->addChild(
+      std::make_unique<EntityNode>(Entity{{{"classname", "defaultLayerPointEntity"}}}));
 
-    auto* defaultLayerBrushNode =
-      new BrushNode{builder.createCube(64.0, "defaultMaterial") | kdl::value()};
-    worldNode.defaultLayer()->addChild(defaultLayerPointEntityNode);
-    worldNode.defaultLayer()->addChild(defaultLayerBrushNode);
+    worldNode.defaultLayer()->addChild(std::make_unique<BrushNode>(
+      builder.createCube(64.0, "defaultMaterial") | kdl::value()));
 
     // layer1 (omit from export)
     auto layer1 = Layer{"Custom Layer 1"};
     layer1.setOmitFromExport(true);
 
-    auto* layerNode1 = new LayerNode{std::move(layer1)};
-    worldNode.addChild(layerNode1);
+    auto* layerNode1 =
+      &worldNode.addChild(std::make_unique<LayerNode>(std::move(layer1)));
 
-    auto* layer1PointEntityNode =
-      new EntityNode{Entity{{{"classname", "layer1PointEntity"}}}};
-    layerNode1->addChild(layer1PointEntityNode);
+    layerNode1->addChild(
+      std::make_unique<EntityNode>(Entity{{{"classname", "layer1PointEntity"}}}));
 
-    auto* layer1BrushNode =
-      new BrushNode{builder.createCube(64.0, "layer1Material") | kdl::value()};
-    layerNode1->addChild(layer1BrushNode);
+    layerNode1->addChild(std::make_unique<BrushNode>(
+      builder.createCube(64.0, "layer1Material") | kdl::value()));
 
     // layer2
-    auto* layerNode2 = new LayerNode{Layer{"Custom Layer 2"}};
-    worldNode.addChild(layerNode2);
+    auto* layerNode2 =
+      &worldNode.addChild(std::make_unique<LayerNode>(Layer{"Custom Layer 2"}));
 
-    auto* layer2PointEntityNode =
-      new EntityNode{Entity{{{"classname", "layer2PointEntity"}}}};
-    layerNode2->addChild(layer2PointEntityNode);
+    layerNode2->addChild(
+      std::make_unique<EntityNode>(Entity{{{"classname", "layer2PointEntity"}}}));
 
-    auto* layer2BrushNode =
-      new BrushNode{builder.createCube(64.0, "layer2Material") | kdl::value()};
-    layerNode2->addChild(layer2BrushNode);
+    layerNode2->addChild(std::make_unique<BrushNode>(
+      builder.createCube(64.0, "layer2Material") | kdl::value()));
 
     auto str = std::stringstream{};
     auto writer = NodeWriter{worldNode, str};
@@ -881,8 +878,8 @@ TEST_CASE("NodeWriter")
   {
     auto worldNode = WorldNode{{}, {}, MapFormat::Standard};
 
-    auto* layerNode = new LayerNode{Layer{"Custom Layer"}};
-    worldNode.addChild(layerNode);
+    auto* layerNode =
+      &worldNode.addChild(std::make_unique<LayerNode>(Layer{"Custom Layer"}));
 
     // WorldNode's lock state is not persisted.
     // TB uses it e.g. for locking everything when opening a group.
@@ -922,18 +919,20 @@ TEST_CASE("NodeWriter")
 
     auto builder = BrushBuilder{worldNode.mapFormat(), worldBounds};
 
-    auto* worldBrushNode = new BrushNode{builder.createCube(64.0, "some") | kdl::value()};
-    auto* outerGroupNode = new GroupNode{Group{"Outer Group"}};
-    auto* innerGroupNode = new GroupNode{Group{"Inner Group"}};
-    auto* innerBrushNode = new BrushNode{builder.createCube(64.0, "none") | kdl::value()};
+    auto* worldBrushNode = &worldNode.defaultLayer()->addChild(
+      std::make_unique<BrushNode>(builder.createCube(64.0, "some") | kdl::value()));
+    auto outerGroupNodePtr = std::make_unique<GroupNode>(Group{"Outer Group"});
+    auto* outerGroupNode = outerGroupNodePtr.get();
+    auto innerGroupNodePtr = std::make_unique<GroupNode>(Group{"Inner Group"});
+    auto* innerGroupNode = innerGroupNodePtr.get();
+    innerGroupNode->addChild(
+      std::make_unique<BrushNode>(builder.createCube(64.0, "none") | kdl::value()));
 
     setLinkId(*outerGroupNode, "outer_group_link_id");
     setLinkId(*innerGroupNode, "inner_group_link_id");
 
-    innerGroupNode->addChild(innerBrushNode);
-    outerGroupNode->addChild(innerGroupNode);
-    worldNode.defaultLayer()->addChild(worldBrushNode);
-    worldNode.defaultLayer()->addChild(outerGroupNode);
+    outerGroupNode->addChild(std::move(innerGroupNodePtr));
+    worldNode.defaultLayer()->addChild(std::move(outerGroupNodePtr));
 
     auto str = std::stringstream{};
     auto writer = NodeWriter{worldNode, str};
@@ -983,12 +982,11 @@ TEST_CASE("NodeWriter")
     auto worldNode = WorldNode{{}, {}, MapFormat::Standard};
 
     // clang-format off
-    auto* patchNode = new PatchNode{BezierPatch{3, 3, {
+    auto* patchNode = &worldNode.defaultLayer()->addChild(std::make_unique<PatchNode>(BezierPatch{3, 3, {
       {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
       {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
-      {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "some_material"}};
+      {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "some_material"}));
     // clang-format on
-    worldNode.defaultLayer()->addChild(patchNode);
 
     auto str = std::stringstream{};
     auto writer = NodeWriter{worldNode, str};
@@ -1020,16 +1018,15 @@ some_material
 
     auto worldNode = WorldNode{{}, {}, MapFormat::Standard};
 
-    auto* entityNode = new EntityNode{Entity{{{"classname", "func_detail"}}}};
-    worldNode.defaultLayer()->addChild(entityNode);
+    auto* entityNode = &worldNode.defaultLayer()->addChild(
+      std::make_unique<EntityNode>(Entity{{{"classname", "func_detail"}}}));
 
     // clang-format off
-    auto* patchNode = new PatchNode{BezierPatch{3, 3, {
+    auto* patchNode = &entityNode->addChild(std::make_unique<PatchNode>(BezierPatch{3, 3, {
       {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
       {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
-      {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "some_material"}};
+      {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "some_material"}));
     // clang-format on
-    entityNode->addChild(patchNode);
 
     auto str = std::stringstream{};
     auto writer = NodeWriter{worldNode, str};
@@ -1063,20 +1060,19 @@ some_material
     auto worldNode = WorldNode{{}, {}, MapFormat::Standard};
     auto builder = BrushBuilder{worldNode.mapFormat(), vm::bbox3d{8192.0}};
 
-    auto* entityNode = new EntityNode{Entity{{{"classname", "func_detail"}}}};
-    worldNode.defaultLayer()->addChild(entityNode);
+    auto* entityNode = &worldNode.defaultLayer()->addChild(
+      std::make_unique<EntityNode>(Entity{{{"classname", "func_detail"}}}));
 
     // clang-format off
-    auto* patchNode = new PatchNode{BezierPatch{3, 3, {
+    auto* patchNode = &entityNode->addChild(std::make_unique<PatchNode>(BezierPatch{3, 3, {
       {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
       {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
-      {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "some_material"}};
+      {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "some_material"}));
     // clang-format on
-    auto* brushNode = new BrushNode{builder.createCube(64.0, "some") | kdl::value()};
+    auto* brushNode = &entityNode->addChild(
+      std::make_unique<BrushNode>(builder.createCube(64.0, "some") | kdl::value()));
 
     // the patch precedes the brush among the entity's children
-    entityNode->addChild(patchNode);
-    entityNode->addChild(brushNode);
 
     auto str = std::stringstream{};
     auto writer = NodeWriter{worldNode, str};
@@ -1100,9 +1096,10 @@ some_material
 
     auto worldNode = WorldNode{{}, {}, MapFormat::Standard};
 
-    auto* groupNode = new GroupNode{Group{"Group"}};
+    auto groupNodePtr = std::make_unique<GroupNode>(Group{"Group"});
+    auto* groupNode = groupNodePtr.get();
     setLinkId(*groupNode, "group_link_id");
-    worldNode.defaultLayer()->addChild(groupNode);
+    worldNode.defaultLayer()->addChild(std::move(groupNodePtr));
 
     SECTION("Group node with identity transformation does not write transformation")
     {
@@ -1164,18 +1161,20 @@ some_material
 
     auto worldNode = WorldNode{{}, {}, MapFormat::Standard};
 
-    auto* groupNode = new GroupNode{Group{"Group"}};
+    auto groupNodePtr = std::make_unique<GroupNode>(Group{"Group"});
+    auto* groupNode = groupNodePtr.get();
     setLinkId(*groupNode, "asdf");
     transformNode(
       *groupNode, vm::translation_matrix(vm::vec3d(32.0, 0.0, 0.0)), worldBounds);
-    worldNode.defaultLayer()->addChild(groupNode);
+    worldNode.defaultLayer()->addChild(std::move(groupNodePtr));
 
-    auto* groupNodeClone =
-      static_cast<GroupNode*>(groupNode->cloneRecursively(worldBounds));
+    auto groupNodeClonePtr =
+      kdl::static_pointer_cast<GroupNode>(groupNode->cloneRecursively(worldBounds));
+    auto* groupNodeClone = groupNodeClonePtr.get();
     transformNode(
       *groupNodeClone, vm::translation_matrix(vm::vec3d(0.0, 16.0, 0.0)), worldBounds);
 
-    worldNode.defaultLayer()->addChild(groupNodeClone);
+    worldNode.defaultLayer()->addChild(std::move(groupNodeClonePtr));
     REQUIRE(groupNodeClone->linkId() == groupNode->linkId());
 
     auto str = std::stringstream{};
@@ -1206,8 +1205,8 @@ some_material
     {
       auto entity = Entity{};
       entity.setProtectedProperties({});
-      auto* entityNode = new EntityNode{std::move(entity)};
-      worldNode.defaultLayer()->addChild(entityNode);
+      auto* entityNode = &worldNode.defaultLayer()->addChild(
+        std::make_unique<EntityNode>(std::move(entity)));
 
       auto str = std::stringstream{};
       auto writer = NodeWriter{worldNode, str};
@@ -1226,8 +1225,8 @@ some_material
     {
       auto entity = Entity{};
       entity.setProtectedProperties({"asdf", "some", "with;semicolon"});
-      auto* entityNode = new EntityNode{std::move(entity)};
-      worldNode.defaultLayer()->addChild(entityNode);
+      auto* entityNode = &worldNode.defaultLayer()->addChild(
+        std::make_unique<EntityNode>(std::move(entity)));
 
       auto str = std::stringstream{};
       auto writer = NodeWriter{worldNode, str};
@@ -1250,7 +1249,8 @@ some_material
 
     auto worldNode = WorldNode{{}, {}, MapFormat::Standard};
     auto builder = BrushBuilder{worldNode.mapFormat(), worldBounds};
-    auto* brushNode = new BrushNode{builder.createCube(64.0, "none") | kdl::value()};
+    const auto brushNode =
+      std::make_unique<BrushNode>(builder.createCube(64.0, "none") | kdl::value());
 
     auto str = std::stringstream{};
     auto writer = NodeWriter{worldNode, str};
@@ -1267,8 +1267,6 @@ some_material
 )";
 
     CHECK(actual == expected);
-
-    delete brushNode;
   }
 
   SECTION("writePropertiesWithQuotationMarks")

@@ -26,11 +26,11 @@
 #include "mdl/VisibilityState.h"
 
 #include "kd/contracts.h"
+#include "kd/memory_utils.h"
 
 #include "vm/approx.h"
 #include "vm/vec.h"
 
-#include <memory>
 #include <ranges>
 
 #include <catch2/catch_test_macros.hpp>
@@ -251,8 +251,8 @@ TEST_CASE("PatchNode")
     patchNode.setVisibilityState(VisibilityState::Hidden);
     patchNode.setLockState(LockState::Locked);
 
-    const auto clone = std::unique_ptr<PatchNode>{
-      static_cast<PatchNode*>(patchNode.clone(vm::bbox3d{8192.0}))};
+    const auto clone =
+      kdl::static_pointer_cast<PatchNode>(patchNode.clone(vm::bbox3d{8192.0}));
 
     CHECK(clone->patch() == patchNode.patch());
     CHECK(clone->visibilityState() == VisibilityState::Hidden);

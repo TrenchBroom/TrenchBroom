@@ -24,6 +24,7 @@
 #include "mdl/Map_Nodes.h"
 #include "ql/EntityNodeLazyMap.h"
 
+#include <memory>
 #include <optional>
 #include <ranges>
 #include <string>
@@ -98,8 +99,8 @@ TEST_CASE("EntityNodeLazyMap")
     auto fixture = mdl::MapFixture{};
     auto& map = fixture.create();
 
-    auto* entityNode = new mdl::EntityNode{entity};
-    mdl::addNodes(map, {{&mdl::parentForNodes(map), {entityNode}}});
+    auto* entityNode = mdl::addNode(
+      map, mdl::parentForNodes(map), std::make_unique<mdl::EntityNode>(entity));
 
     const auto lazyMap = makeEntityNodeLazyMap(map, *entityNode);
 

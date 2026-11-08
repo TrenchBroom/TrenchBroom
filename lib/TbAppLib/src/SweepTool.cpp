@@ -44,6 +44,7 @@
 #include "kd/ranges/concat_view.h"
 #include "kd/ranges/contains.h"
 #include "kd/ranges/to.h"
+#include "kd/vector_utils.h"
 
 #include "vm/bbox.h"
 #include "vm/line.h"
@@ -329,14 +330,11 @@ void SweepTool::commitSweep()
 {
   if (!m_previewBrushes.empty())
   {
-    auto nodesToAdd = kdl::flat_map<mdl::Node*, std::vector<mdl::Node*>>{};
-    for (auto&& [parent, childrenPtrs] : m_previewBrushes)
+    auto nodesToAdd =
+      kdl::flat_map<mdl::Node*, std::vector<std::unique_ptr<mdl::Node>>>{};
+    for (auto&& [parent, children] : m_previewBrushes)
     {
-      auto childrenRaw = childrenPtrs | std::views::transform([](auto& childPtr) {
-                           return static_cast<mdl::Node*>(childPtr.release());
-                         })
-                         | kdl::ranges::to<std::vector>();
-      nodesToAdd.insert({parent, std::move(childrenRaw)});
+      kdl::vec_append(nodesToAdd[parent], std::move(children));
     }
 
     m_previewBrushes.clear();
@@ -344,7 +342,7 @@ void SweepTool::commitSweep()
 
     auto& map = m_document.map();
     auto transaction = mdl::Transaction{map, "Sweep"};
-    const auto addedNodes = mdl::addNodes(map, nodesToAdd);
+    const auto addedNodes = mdl::addNodes(map, std::move(nodesToAdd));
     mdl::deselectAll(map);
     mdl::selectNodes(map, addedNodes);
     transaction.commit();

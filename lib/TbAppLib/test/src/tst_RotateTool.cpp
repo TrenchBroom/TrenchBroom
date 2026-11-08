@@ -30,6 +30,10 @@
 #include "ui/MapDocumentFixture.h"
 #include "ui/RotateTool.h"
 
+#include "kd/vector_utils.h"
+
+#include <memory>
+
 #include <catch2/catch_test_macros.hpp>
 
 namespace tb::ui
@@ -52,11 +56,18 @@ TEST_CASE("RotateTool")
     auto entity2 = mdl::Entity{};
     entity2.setOrigin(vm::vec3d{16, 24, 32});
 
-    auto* entityNode1 = new mdl::EntityNode{std::move(entity1)};
-    auto* entityNode2 = new mdl::EntityNode{std::move(entity2)};
-    auto* brushNode = createBrushNode(map);
+    auto entityNode1Ptr = std::make_unique<mdl::EntityNode>(std::move(entity1));
+    auto* entityNode1 = entityNode1Ptr.get();
+    auto entityNode2Ptr = std::make_unique<mdl::EntityNode>(std::move(entity2));
+    auto* entityNode2 = entityNode2Ptr.get();
+    auto brushNodePtr = createBrushNode(map);
+    auto* brushNode = brushNodePtr.get();
 
-    addNodes(map, {{&parentForNodes(map), {entityNode1, entityNode2, brushNode}}});
+    addNodes(
+      map,
+      parentForNodes(map),
+      kdl::vec_from<std::unique_ptr<mdl::Node>>(
+        std::move(entityNode1Ptr), std::move(entityNode2Ptr), std::move(brushNodePtr)));
 
     SECTION("If nothing is selected")
     {

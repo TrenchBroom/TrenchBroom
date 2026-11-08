@@ -116,35 +116,38 @@ TEST_CASE("Map_Geometry")
 
     GIVEN("A node to transform")
     {
-      using CreateNode = std::function<Node*(const Map&)>;
+      using CreateNode = std::function<std::unique_ptr<Node>(const Map&)>;
 
       const auto createNode = GENERATE_COPY(
-        CreateNode{[](const auto& m) -> Node* {
-          auto* groupNode = new GroupNode{Group{"group"}};
-          auto* brushNode = createBrushNode(m);
-          auto* patchNode = createPatchNode();
-          auto* entityNode = new EntityNode{Entity{}};
-          groupNode->addChildren({brushNode, patchNode, entityNode});
+        CreateNode{[](const auto& m) -> std::unique_ptr<Node> {
+          auto groupNode = std::make_unique<GroupNode>(Group{"group"});
+          groupNode->addChildren(kdl::vec_from<std::unique_ptr<Node>>(
+            createBrushNode(m),
+            createPatchNode(),
+            std::make_unique<EntityNode>(Entity{})));
           return groupNode;
         }},
-        CreateNode{[](const auto&) -> Node* { return new EntityNode{Entity{}}; }},
-        CreateNode{[](const auto& m) -> Node* {
-          auto* entityNode = new EntityNode{Entity{}};
-          auto* brushNode = createBrushNode(m);
-          auto* patchNode = createPatchNode();
-          entityNode->addChildren({brushNode, patchNode});
+        CreateNode{[](const auto&) -> std::unique_ptr<Node> {
+          return std::make_unique<EntityNode>(Entity{});
+        }},
+        CreateNode{[](const auto& m) -> std::unique_ptr<Node> {
+          auto entityNode = std::make_unique<EntityNode>(Entity{});
+          entityNode->addChildren(
+            kdl::vec_from<std::unique_ptr<Node>>(createBrushNode(m), createPatchNode()));
           return entityNode;
         }},
-        CreateNode{[](const auto& m) -> Node* { return createBrushNode(m); }},
-        CreateNode{[](const auto&) -> Node* { return createPatchNode(); }});
+        CreateNode{
+          [](const auto& m) -> std::unique_ptr<Node> { return createBrushNode(m); }},
+        CreateNode{
+          [](const auto&) -> std::unique_ptr<Node> { return createPatchNode(); }});
 
-      auto* node = createNode(map);
+      auto nodePtr = createNode(map);
+      auto* node = nodePtr.get();
       CAPTURE(node->name());
 
-      addNodes(map, {{&parentForNodes(map), {node}}});
+      addNode(map, parentForNodes(map), std::move(nodePtr));
 
-      const auto originalNode =
-        std::unique_ptr<Node>{node->cloneRecursively(map.worldBounds())};
+      const auto originalNode = node->cloneRecursively(map.worldBounds());
       const auto transformation = vm::translation_matrix(vm::vec3d{1, 2, 3});
 
       WHEN("The node is transformed")
@@ -183,11 +186,10 @@ TEST_CASE("Map_Geometry")
     {
       // https://github.com/TrenchBroom/TrenchBroom/issues/1715
 
-      auto* brushNode1 = createBrushNode(map);
-      addNodes(map, {{&parentForNodes(map), {brushNode1}}});
+      auto* brushNode1 = addNode(map, parentForNodes(map), createBrushNode(map));
 
-      auto* entityNode = new EntityNode{Entity{}};
-      addNodes(map, {{&parentForNodes(map), {entityNode}}});
+      auto* entityNode =
+        addNode(map, parentForNodes(map), std::make_unique<EntityNode>(Entity{}));
       reparentNodes(map, {{entityNode, {brushNode1}}});
 
       selectNodes(map, {brushNode1});
@@ -225,9 +227,11 @@ TEST_CASE("Map_Geometry")
 
       const auto box = vm::bbox3d{{0, 0, 0}, {64, 64, 64}};
 
-      auto* brushNode1 =
-        new BrushNode{builder.createCuboid(box, "material") | kdl::value()};
-      addNodes(map, {{&parentForNodes(map), {brushNode1}}});
+      auto* brushNode1 = addNode(
+        map,
+        parentForNodes(map),
+        std::make_unique<BrushNode>(
+          builder.createCuboid(box, "material") | kdl::value()));
       selectNodes(map, {brushNode1});
 
       auto* group = groupSelectedNodes(map, "testGroup");
@@ -239,7 +243,7 @@ TEST_CASE("Map_Geometry")
       REQUIRE_THAT(
         map.selection().nodes, UnorderedEquals(std::vector<Node*>{linkedGroup}));
 
-      auto* linkedBrushNode = dynamic_cast<BrushNode*>(linkedGroup->children().at(0));
+      auto* linkedBrushNode = dynamic_cast<BrushNode*>(linkedGroup->children()[0]);
       REQUIRE(linkedBrushNode != nullptr);
 
       WHEN("One of the groups is transformed with aligment lock off")
@@ -275,8 +279,8 @@ TEST_CASE("Map_Geometry")
 
     GIVEN("An entity")
     {
-      auto* entityNode = new EntityNode{Entity{}};
-      addNodes(map, {{&parentForNodes(map), {entityNode}}});
+      auto* entityNode =
+        addNode(map, parentForNodes(map), std::make_unique<EntityNode>(Entity{}));
       selectNodes(map, {entityNode});
 
       WHEN("The entity is translated")
@@ -301,19 +305,25 @@ TEST_CASE("Map_Geometry")
     {
       const auto builder = BrushBuilder{map.worldNode().mapFormat(), map.worldBounds()};
 
-      auto* brushNode1 = new BrushNode{
+      auto brushNode1Ptr = std::make_unique<BrushNode>(
         builder.createCuboid(vm::bbox3d{{0, 0, 0}, {30, 31, 31}}, "material")
-        | kdl::value()};
-      auto* brushNode2 = new BrushNode{
+        | kdl::value());
+      auto* brushNode1 = brushNode1Ptr.get();
+      auto brushNode2Ptr = std::make_unique<BrushNode>(
         builder.createCuboid(vm::bbox3d{{30, 0, 0}, {31, 31, 31}}, "material")
-        | kdl::value()};
+        | kdl::value());
+      auto* brushNode2 = brushNode2Ptr.get();
 
       REQUIRE(checkBrushIntegral(brushNode1));
       REQUIRE(checkBrushIntegral(brushNode2));
 
       SECTION("two brushes")
       {
-        addNodes(map, {{&parentForNodes(map), {brushNode1, brushNode2}}});
+        addNodes(
+          map,
+          parentForNodes(map),
+          kdl::vec_from<std::unique_ptr<Node>>(
+            std::move(brushNode1Ptr), std::move(brushNode2Ptr)));
         selectNodes(map, {brushNode1, brushNode2});
 
         const auto boundsCenter = map.selectionBounds()->center();
@@ -335,13 +345,19 @@ TEST_CASE("Map_Geometry")
 
       SECTION("brush entity")
       {
-        auto* entityNode = new EntityNode{Entity{{
-          {"classname", "func_door"},
-          {"angle", "45"},
-        }}};
 
-        addNodes(map, {{&parentForNodes(map), {entityNode}}});
-        addNodes(map, {{entityNode, {brushNode1, brushNode2}}});
+        auto* entityNode = addNode(
+          map,
+          parentForNodes(map),
+          std::make_unique<EntityNode>(Entity{{
+            {"classname", "func_door"},
+            {"angle", "45"},
+          }}));
+        addNodes(
+          map,
+          *entityNode,
+          kdl::vec_from<std::unique_ptr<Node>>(
+            std::move(brushNode1Ptr), std::move(brushNode2Ptr)));
 
         REQUIRE(*entityNode->entity().property("angle") == "45");
 
@@ -391,11 +407,13 @@ TEST_CASE("Map_Geometry")
     {
       const auto builder = BrushBuilder{map.worldNode().mapFormat(), map.worldBounds()};
 
-      auto* brushNode = new BrushNode{
-        builder.createCuboid(vm::bbox3d{{-32, -32, -32}, {32, 32, 32}}, "material")
-        | kdl::value()};
 
-      addNodes(map, {{&parentForNodes(map), {brushNode}}});
+      auto* brushNode = addNode(
+        map,
+        parentForNodes(map),
+        std::make_unique<BrushNode>(
+          builder.createCuboid(vm::bbox3d{{-32, -32, -32}, {32, 32, 32}}, "material")
+          | kdl::value()));
       selectNodes(map, {brushNode});
 
       auto& vertexHandles = map.nodeHandles();
@@ -427,11 +445,10 @@ TEST_CASE("Map_Geometry")
     {
       // https://github.com/TrenchBroom/TrenchBroom/issues/1754
 
-      auto* brushNode1 = createBrushNode(map);
-      addNodes(map, {{&parentForNodes(map), {brushNode1}}});
+      auto* brushNode1 = addNode(map, parentForNodes(map), createBrushNode(map));
 
-      auto* entityNode = new EntityNode{Entity{}};
-      addNodes(map, {{&parentForNodes(map), {entityNode}}});
+      auto* entityNode =
+        addNode(map, parentForNodes(map), std::make_unique<EntityNode>(Entity{}));
       reparentNodes(map, {{entityNode, {brushNode1}}});
 
       selectNodes(map, {brushNode1});
@@ -450,11 +467,13 @@ TEST_CASE("Map_Geometry")
 
     SECTION("Undoing a rotation removes angle key")
     {
-      auto* entityNode = new EntityNode{Entity{{
-        {EntityPropertyKeys::Classname, "test"},
-      }}};
 
-      addNodes(map, {{&parentForNodes(map), {entityNode}}});
+      auto* entityNode = addNode(
+        map,
+        parentForNodes(map),
+        std::make_unique<EntityNode>(Entity{{
+          {EntityPropertyKeys::Classname, "test"},
+        }}));
       CHECK(!entityNode->entity().hasProperty("angle"));
 
       selectNodes(map, {entityNode});
@@ -476,10 +495,12 @@ TEST_CASE("Map_Geometry")
     const auto doubleBBox = vm::bbox3d{2.0 * initialBBox.min, 2.0 * initialBBox.max};
     const auto invalidBBox = vm::bbox3d{{0, -100, -100}, {0, 100, 100}};
 
-    auto* brushNode =
-      new BrushNode{builder.createCuboid(initialBBox, "material") | kdl::value()};
 
-    addNodes(map, {{&parentForNodes(map), {brushNode}}});
+    auto* brushNode = addNode(
+      map,
+      parentForNodes(map),
+      std::make_unique<BrushNode>(
+        builder.createCuboid(initialBBox, "material") | kdl::value()));
     selectNodes(map, {brushNode});
 
     REQUIRE(brushNode->logicalBounds().size() == vm::vec3d{200, 200, 200});
@@ -537,10 +558,12 @@ TEST_CASE("Map_Geometry")
     {
       const auto initialBBox = vm::bbox3d{{100, 100, 100}, {200, 200, 200}};
 
-      auto* brushNode =
-        new BrushNode{builder.createCuboid(initialBBox, "material") | kdl::value()};
 
-      addNodes(map, {{&parentForNodes(map), {brushNode}}});
+      auto* brushNode = addNode(
+        map,
+        parentForNodes(map),
+        std::make_unique<BrushNode>(
+          builder.createCuboid(initialBBox, "material") | kdl::value()));
       selectNodes(map, {brushNode});
 
       CHECK_THAT(
@@ -582,10 +605,12 @@ TEST_CASE("Map_Geometry")
     {
       const auto initialBBox = vm::bbox3d{{0, 0, 0}, {100, 100, 400}};
 
-      auto* brushNode =
-        new BrushNode{builder.createCuboid(initialBBox, "material") | kdl::value()};
 
-      addNodes(map, {{&parentForNodes(map), {brushNode}}});
+      auto* brushNode = addNode(
+        map,
+        parentForNodes(map),
+        std::make_unique<BrushNode>(
+          builder.createCuboid(initialBBox, "material") | kdl::value()));
       selectNodes(map, {brushNode});
 
       CHECK_THAT(
@@ -629,18 +654,20 @@ TEST_CASE("Map_Geometry")
     auto& map = fixture.create();
     const auto builder = BrushBuilder{map.worldNode().mapFormat(), map.worldBounds()};
 
-    auto* brushNode1 = new BrushNode{
+    auto brushNode1Ptr = std::make_unique<BrushNode>(
       builder.createCuboid(vm::bbox3d{{0, 0, 0}, {30, 31, 31}}, "material")
-      | kdl::value()};
-    auto* brushNode2 = new BrushNode{
+      | kdl::value());
+    auto* brushNode1 = brushNode1Ptr.get();
+    auto brushNode2Ptr = std::make_unique<BrushNode>(
       builder.createCuboid(vm::bbox3d{{30, 0, 0}, {31, 31, 31}}, "material")
-      | kdl::value()};
+      | kdl::value());
+    auto* brushNode2 = brushNode2Ptr.get();
 
     CHECK(checkBrushIntegral(brushNode1));
     CHECK(checkBrushIntegral(brushNode2));
 
-    addNodes(map, {{&parentForNodes(map), {brushNode1}}});
-    addNodes(map, {{&parentForNodes(map), {brushNode2}}});
+    addNode(map, parentForNodes(map), std::move(brushNode1Ptr));
+    addNode(map, parentForNodes(map), std::move(brushNode2Ptr));
 
     selectNodes(map, {brushNode1, brushNode2});
 
@@ -661,11 +688,13 @@ TEST_CASE("Map_Geometry")
     auto& map = fixture.create();
     const auto builder = BrushBuilder{map.worldNode().mapFormat(), map.worldBounds()};
 
-    auto* brushNode = new BrushNode{
-      builder.createCuboid(vm::bbox3d{{-32, -32, -32}, {32, 32, 32}}, "material")
-      | kdl::value()};
 
-    addNodes(map, {{&parentForNodes(map), {brushNode}}});
+    auto* brushNode = addNode(
+      map,
+      parentForNodes(map),
+      std::make_unique<BrushNode>(
+        builder.createCuboid(vm::bbox3d{{-32, -32, -32}, {32, 32, 32}}, "material")
+        | kdl::value()));
     selectNodes(map, {brushNode});
 
     SECTION("no vertex gets deleted")
@@ -741,11 +770,13 @@ TEST_CASE("Map_Geometry")
     auto& map = fixture.create();
     const auto builder = BrushBuilder{map.worldNode().mapFormat(), map.worldBounds()};
 
-    auto* brushNode = new BrushNode{
-      builder.createCuboid(vm::bbox3d{{-32, -32, -32}, {32, 32, 32}}, "material")
-      | kdl::value()};
 
-    addNodes(map, {{&parentForNodes(map), {brushNode}}});
+    auto* brushNode = addNode(
+      map,
+      parentForNodes(map),
+      std::make_unique<BrushNode>(
+        builder.createCuboid(vm::bbox3d{{-32, -32, -32}, {32, 32, 32}}, "material")
+        | kdl::value()));
     selectNodes(map, {brushNode});
 
     SECTION("Edge transform is valid")
@@ -828,11 +859,13 @@ TEST_CASE("Map_Geometry")
     auto& map = fixture.create();
     const auto builder = BrushBuilder{map.worldNode().mapFormat(), map.worldBounds()};
 
-    auto* brushNode = new BrushNode{
-      builder.createCuboid(vm::bbox3d{{-32, -32, -32}, {32, 32, 32}}, "material")
-      | kdl::value()};
 
-    addNodes(map, {{&parentForNodes(map), {brushNode}}});
+    auto* brushNode = addNode(
+      map,
+      parentForNodes(map),
+      std::make_unique<BrushNode>(
+        builder.createCuboid(vm::bbox3d{{-32, -32, -32}, {32, 32, 32}}, "material")
+        | kdl::value()));
     selectNodes(map, {brushNode});
 
     SECTION("Face transform is valid")
@@ -927,11 +960,13 @@ TEST_CASE("Map_Geometry")
     auto& map = fixture.create();
     const auto builder = BrushBuilder{map.worldNode().mapFormat(), map.worldBounds()};
 
-    auto* brushNode = new BrushNode{
-      builder.createCuboid(vm::bbox3d{{-32, -32, -32}, {32, 32, 32}}, "material")
-      | kdl::value()};
 
-    addNodes(map, {{&parentForNodes(map), {brushNode}}});
+    auto* brushNode = addNode(
+      map,
+      parentForNodes(map),
+      std::make_unique<BrushNode>(
+        builder.createCuboid(vm::bbox3d{{-32, -32, -32}, {32, 32, 32}}, "material")
+        | kdl::value()));
     selectNodes(map, {brushNode});
 
     SECTION("Vertex can be added")
@@ -968,11 +1003,13 @@ TEST_CASE("Map_Geometry")
     auto& map = fixture.create();
     const auto builder = BrushBuilder{map.worldNode().mapFormat(), map.worldBounds()};
 
-    auto* brushNode = new BrushNode{
-      builder.createCuboid(vm::bbox3d{{-32, -32, -32}, {32, 32, 32}}, "material")
-      | kdl::value()};
 
-    addNodes(map, {{&parentForNodes(map), {brushNode}}});
+    auto* brushNode = addNode(
+      map,
+      parentForNodes(map),
+      std::make_unique<BrushNode>(
+        builder.createCuboid(vm::bbox3d{{-32, -32, -32}, {32, 32, 32}}, "material")
+        | kdl::value()));
     selectNodes(map, {brushNode});
 
     SECTION("Remove single vertex")
@@ -1067,8 +1104,7 @@ TEST_CASE("Map_Geometry")
     {
       // https://github.com/TrenchBroom/TrenchBroom/issues/3768
 
-      auto* brushNode = createBrushNode(map);
-      addNodes(map, {{&parentForNodes(map), {brushNode}}});
+      auto* brushNode = addNode(map, parentForNodes(map), createBrushNode(map));
       selectNodes(map, {brushNode});
 
       auto* groupNode = groupSelectedNodes(map, "test");
@@ -1100,17 +1136,21 @@ TEST_CASE("Map_Geometry")
       auto& map = fixture.create();
       const auto builder = BrushBuilder{map.worldNode().mapFormat(), map.worldBounds()};
 
-      auto* entityNode = new EntityNode{Entity{}};
-      addNodes(map, {{&parentForNodes(map), {entityNode}}});
+      auto* entityNode =
+        addNode(map, parentForNodes(map), std::make_unique<EntityNode>(Entity{}));
 
-      auto* brushNode1 = new BrushNode{
-        builder.createCuboid(vm::bbox3d{{0, 0, 0}, {32, 64, 64}}, "material")
-        | kdl::value()};
-      auto* brushNode2 = new BrushNode{
-        builder.createCuboid(vm::bbox3d{{32, 0, 0}, {64, 64, 64}}, "material")
-        | kdl::value()};
-      addNodes(map, {{entityNode, {brushNode1}}});
-      addNodes(map, {{&parentForNodes(map), {brushNode2}}});
+      auto* brushNode1 = addNode(
+        map,
+        *entityNode,
+        std::make_unique<BrushNode>(
+          builder.createCuboid(vm::bbox3d{{0, 0, 0}, {32, 64, 64}}, "material")
+          | kdl::value()));
+      auto* brushNode2 = addNode(
+        map,
+        parentForNodes(map),
+        std::make_unique<BrushNode>(
+          builder.createCuboid(vm::bbox3d{{32, 0, 0}, {64, 64, 64}}, "material")
+          | kdl::value()));
       CHECK(entityNode->children().size() == 1u);
 
       selectNodes(map, {brushNode1, brushNode2});
@@ -1126,17 +1166,21 @@ TEST_CASE("Map_Geometry")
       auto& map = fixture.create();
       const auto builder = BrushBuilder{map.worldNode().mapFormat(), map.worldBounds()};
 
-      auto* entityNode = new EntityNode{Entity{}};
-      addNodes(map, {{&parentForNodes(map), {entityNode}}});
+      auto* entityNode =
+        addNode(map, parentForNodes(map), std::make_unique<EntityNode>(Entity{}));
 
-      auto* brushNode1 = new BrushNode{
-        builder.createCuboid(vm::bbox3d{{0, 0, 0}, {32, 64, 64}}, "material")
-        | kdl::value()};
-      auto* brushNode2 = new BrushNode{
-        builder.createCuboid(vm::bbox3d{{32, 0, 0}, {64, 64, 64}}, "material")
-        | kdl::value()};
-      addNodes(map, {{entityNode, {brushNode1}}});
-      addNodes(map, {{&parentForNodes(map), {brushNode2}}});
+      auto* brushNode1 = addNode(
+        map,
+        *entityNode,
+        std::make_unique<BrushNode>(
+          builder.createCuboid(vm::bbox3d{{0, 0, 0}, {32, 64, 64}}, "material")
+          | kdl::value()));
+      auto* brushNode2 = addNode(
+        map,
+        parentForNodes(map),
+        std::make_unique<BrushNode>(
+          builder.createCuboid(vm::bbox3d{{32, 0, 0}, {64, 64, 64}}, "material")
+          | kdl::value()));
       REQUIRE(entityNode->children().size() == 1u);
 
       const auto oFace1Index = brushNode1->brush().findFace(vm::vec3d{-1, 0, 0});
@@ -1171,8 +1215,8 @@ TEST_CASE("Map_Geometry")
       auto& map = fixture.create({.mapFormat = MapFormat::Valve});
       const auto builder = BrushBuilder{map.worldNode().mapFormat(), map.worldBounds()};
 
-      auto* entityNode = new EntityNode{Entity{}};
-      addNodes(map, {{&parentForNodes(map), {entityNode}}});
+      auto* entityNode =
+        addNode(map, parentForNodes(map), std::make_unique<EntityNode>(Entity{}));
 
       const auto texAlignmentSnapshot =
         UvCoordSystemSnapshot{vm::vec3d{1, 0, 0}, vm::vec3d{0, 1, 0}};
@@ -1187,11 +1231,11 @@ TEST_CASE("Map_Geometry")
       brush2.face(*brush2.findFace(vm::vec3d{0, 0, 1}))
         .restoreUvCoordSystemSnapshot(texAlignmentSnapshot);
 
-      auto* brushNode1 = new BrushNode{std::move(brush1)};
-      auto* brushNode2 = new BrushNode{std::move(brush2)};
 
-      addNodes(map, {{entityNode, {brushNode1}}});
-      addNodes(map, {{entityNode, {brushNode2}}});
+      auto* brushNode1 =
+        addNode(map, *entityNode, std::make_unique<BrushNode>(std::move(brush1)));
+      auto* brushNode2 =
+        addNode(map, *entityNode, std::make_unique<BrushNode>(std::move(brush2)));
       CHECK(entityNode->children().size() == 2u);
 
       selectNodes(map, {brushNode1, brushNode2});
@@ -1221,7 +1265,7 @@ TEST_CASE("Map_Geometry")
 
       REQUIRE(map.editorContext().currentLayer()->childCount() == 1);
       auto* result =
-        dynamic_cast<BrushNode*>(map.editorContext().currentLayer()->children().at(0));
+        dynamic_cast<BrushNode*>(map.editorContext().currentLayer()->children()[0]);
       REQUIRE(result);
       CHECK(result->brush().fullySpecified());
     }
@@ -1234,23 +1278,30 @@ TEST_CASE("Map_Geometry")
       auto& map = fixture.create();
       const auto builder = BrushBuilder{map.worldNode().mapFormat(), map.worldBounds()};
 
-      auto* entityNode = new EntityNode{Entity{}};
-      addNodes(map, {{&parentForNodes(map), {entityNode}}});
+      auto* entityNode =
+        addNode(map, parentForNodes(map), std::make_unique<EntityNode>(Entity{}));
 
-      auto* minuendNode = new BrushNode{
-        builder.createCuboid(
-          vm::bbox3d{vm::vec3d{0, 0, 0}, vm::vec3d{64, 64, 64}}, "material")
-        | kdl::value()};
-      auto* subtrahendNode1 = new BrushNode{
+      auto subtrahendNode1Ptr = std::make_unique<BrushNode>(
         builder.createCuboid(
           vm::bbox3d{vm::vec3d{0, 0, 0}, vm::vec3d{32, 32, 64}}, "material")
-        | kdl::value()};
-      auto* subtrahendNode2 = new BrushNode{
+        | kdl::value());
+      auto* subtrahendNode1 = subtrahendNode1Ptr.get();
+      auto subtrahendNode2Ptr = std::make_unique<BrushNode>(
         builder.createCuboid(
           vm::bbox3d{vm::vec3d{32, 32, 0}, vm::vec3d{64, 64, 64}}, "material")
-        | kdl::value()};
+        | kdl::value());
+      auto* subtrahendNode2 = subtrahendNode2Ptr.get();
 
-      addNodes(map, {{entityNode, {minuendNode, subtrahendNode1, subtrahendNode2}}});
+      addNodes(
+        map,
+        *entityNode,
+        kdl::vec_from<std::unique_ptr<Node>>(
+          std::make_unique<BrushNode>(
+            builder.createCuboid(
+              vm::bbox3d{vm::vec3d{0, 0, 0}, vm::vec3d{64, 64, 64}}, "material")
+            | kdl::value()),
+          std::move(subtrahendNode1Ptr),
+          std::move(subtrahendNode2Ptr)));
       CHECK(entityNode->children().size() == 3u);
 
       // we want to compute minuend - {subtrahendNode1, subtrahendNode2}
@@ -1280,14 +1331,16 @@ TEST_CASE("Map_Geometry")
       auto& map = fixture.create();
       const auto builder = BrushBuilder{map.worldNode().mapFormat(), map.worldBounds()};
 
-      auto* entityNode = new EntityNode{Entity{}};
-      addNodes(map, {{&parentForNodes(map), {entityNode}}});
+      auto* entityNode =
+        addNode(map, parentForNodes(map), std::make_unique<EntityNode>(Entity{}));
 
-      auto* subtrahend1 = new BrushNode{
-        builder.createCuboid(
-          vm::bbox3d{vm::vec3d{0, 0, 0}, vm::vec3d{64, 64, 64}}, "material")
-        | kdl::value()};
-      addNodes(map, {{entityNode, {subtrahend1}}});
+      auto* subtrahend1 = addNode(
+        map,
+        *entityNode,
+        std::make_unique<BrushNode>(
+          builder.createCuboid(
+            vm::bbox3d{vm::vec3d{0, 0, 0}, vm::vec3d{64, 64, 64}}, "material")
+          | kdl::value()));
 
       selectNodes(map, {subtrahend1});
       CHECK(csgSubtract(map));
@@ -1307,8 +1360,8 @@ TEST_CASE("Map_Geometry")
 
       const auto builder = BrushBuilder{map.worldNode().mapFormat(), map.worldBounds()};
 
-      auto* entityNode = new EntityNode{Entity{}};
-      addNodes(map, {{&parentForNodes(map), {entityNode}}});
+      auto* entityNode =
+        addNode(map, parentForNodes(map), std::make_unique<EntityNode>(Entity{}));
 
       const auto texAlignmentSnapshot =
         UvCoordSystemSnapshot{vm::vec3d{1, 0, 0}, vm::vec3d{0, 1, 0}};
@@ -1322,11 +1375,10 @@ TEST_CASE("Map_Geometry")
       brush2.face(*brush2.findFace(vm::vec3d{0, 0, 1}))
         .restoreUvCoordSystemSnapshot(texAlignmentSnapshot);
 
-      auto* brushNode1 = new BrushNode{std::move(brush1)};
-      auto* brushNode2 = new BrushNode{std::move(brush2)};
 
-      addNodes(map, {{entityNode, {brushNode1}}});
-      addNodes(map, {{entityNode, {brushNode2}}});
+      addNode(map, *entityNode, std::make_unique<BrushNode>(std::move(brush1)));
+      auto* brushNode2 =
+        addNode(map, *entityNode, std::make_unique<BrushNode>(std::move(brush2)));
       CHECK(entityNode->children().size() == 2u);
 
       // we want to compute brush1 - brush2
@@ -1355,7 +1407,7 @@ TEST_CASE("Map_Geometry")
 
       REQUIRE(map.editorContext().currentLayer()->childCount() == 2);
       auto* subtrahendNode =
-        dynamic_cast<BrushNode*>(map.editorContext().currentLayer()->children().at(1));
+        dynamic_cast<BrushNode*>(map.editorContext().currentLayer()->children()[1]);
       REQUIRE(subtrahendNode);
       REQUIRE(subtrahendNode->brush().findFace("clip").has_value());
 
@@ -1365,7 +1417,7 @@ TEST_CASE("Map_Geometry")
 
       REQUIRE(map.editorContext().currentLayer()->childCount() == 1);
       auto* result =
-        dynamic_cast<BrushNode*>(map.editorContext().currentLayer()->children().at(0));
+        dynamic_cast<BrushNode*>(map.editorContext().currentLayer()->children()[0]);
 
       CHECK_THAT(
         result->brush().vertexPositions(),
@@ -1404,7 +1456,7 @@ TEST_CASE("Map_Geometry")
 
     SECTION("If no brushes are hollowed, the transaction isn't committed")
     {
-      auto* smallBrushNode = map.editorContext().currentLayer()->children().at(0);
+      auto* smallBrushNode = map.editorContext().currentLayer()->children()[0];
       selectNodes(map, {smallBrushNode});
 
       CHECK(!csgHollow(map));
@@ -1418,15 +1470,21 @@ TEST_CASE("Map_Geometry")
     auto& map = fixture.create();
     const auto builder = BrushBuilder{map.worldNode().mapFormat(), map.worldBounds()};
 
-    auto* brushNode1 = new BrushNode{
+    auto brushNode1Ptr = std::make_unique<BrushNode>(
       builder.createCuboid(vm::bbox3d{{-64, -32, -32}, {0, 32, 32}}, "material")
-      | kdl::value()};
+      | kdl::value());
+    auto* brushNode1 = brushNode1Ptr.get();
 
-    auto* brushNode2 = new BrushNode{
+    auto brushNode2Ptr = std::make_unique<BrushNode>(
       builder.createCuboid(vm::bbox3d{{0, -32, -32}, {64, 32, 32}}, "material")
-      | kdl::value()};
+      | kdl::value());
+    auto* brushNode2 = brushNode2Ptr.get();
 
-    addNodes(map, {{&parentForNodes(map), {brushNode1, brushNode2}}});
+    addNodes(
+      map,
+      parentForNodes(map),
+      kdl::vec_from<std::unique_ptr<Node>>(
+        std::move(brushNode1Ptr), std::move(brushNode2Ptr)));
     selectNodes(map, {brushNode1, brushNode2});
 
     SECTION("Extrude one brush")

@@ -48,20 +48,20 @@ const auto TestHitType = HitType::freeType();
 
 const auto worldBounds = vm::bbox3d{8192.0};
 
-BrushNode* createBrushNode()
+std::unique_ptr<BrushNode> createBrushNode()
 {
-  return new BrushNode{
+  return std::make_unique<BrushNode>(
     BrushBuilder{MapFormat::Quake3, worldBounds}.createCube(32.0, "material")
-    | kdl::value()};
+    | kdl::value());
 }
 
-PatchNode* createPatchNode()
+std::unique_ptr<PatchNode> createPatchNode()
 {
   // clang-format off
-  return new PatchNode{BezierPatch{3, 3, {
+  return std::make_unique<PatchNode>(BezierPatch{3, 3, {
     {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
     {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
-    {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "material"}};
+    {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "material"});
   // clang-format on
 }
 
@@ -129,8 +129,7 @@ TEST_CASE("HitFilter")
 
     SECTION("brush hits")
     {
-      auto* brushNode = createBrushNode();
-      worldNode.defaultLayer()->addChild(brushNode);
+      auto* brushNode = &worldNode.defaultLayer()->addChild(createBrushNode());
 
       const auto hit = makeBrushHit(brushNode);
       CHECK(!filter(hit));
@@ -155,8 +154,8 @@ TEST_CASE("HitFilter")
 
     SECTION("entity hits")
     {
-      auto* entityNode = new EntityNode{Entity{}};
-      worldNode.defaultLayer()->addChild(entityNode);
+      auto* entityNode =
+        &worldNode.defaultLayer()->addChild(std::make_unique<EntityNode>(Entity{}));
 
       const auto hit = makeHit(EntityNode::EntityHitType, entityNode);
       CHECK(!filter(hit));
@@ -167,8 +166,7 @@ TEST_CASE("HitFilter")
 
     SECTION("patch hits")
     {
-      auto* patchNode = createPatchNode();
-      worldNode.defaultLayer()->addChild(patchNode);
+      auto* patchNode = &worldNode.defaultLayer()->addChild(createPatchNode());
 
       const auto hit = makeHit(PatchNode::PatchHitType, patchNode);
       CHECK(!filter(hit));
@@ -185,10 +183,9 @@ TEST_CASE("HitFilter")
 
     SECTION("does not consider the selection of the containing group")
     {
-      auto* groupNode = new GroupNode{Group{"group"}};
-      auto* brushNode = createBrushNode();
-      groupNode->addChild(brushNode);
-      worldNode.defaultLayer()->addChild(groupNode);
+      auto* groupNode =
+        &worldNode.defaultLayer()->addChild(std::make_unique<GroupNode>(Group{"group"}));
+      auto* brushNode = &groupNode->addChild(createBrushNode());
 
       groupNode->select();
       CHECK(!filter(makeBrushHit(brushNode)));
@@ -201,10 +198,9 @@ TEST_CASE("HitFilter")
 
     SECTION("brush hits")
     {
-      auto* groupNode = new GroupNode{Group{"group"}};
-      auto* brushNode = createBrushNode();
-      groupNode->addChild(brushNode);
-      worldNode.defaultLayer()->addChild(groupNode);
+      auto* groupNode =
+        &worldNode.defaultLayer()->addChild(std::make_unique<GroupNode>(Group{"group"}));
+      auto* brushNode = &groupNode->addChild(createBrushNode());
 
       const auto hit = makeBrushHit(brushNode);
       CHECK(!filter(hit));
@@ -235,10 +231,9 @@ TEST_CASE("HitFilter")
 
     SECTION("entity hits")
     {
-      auto* groupNode = new GroupNode{Group{"group"}};
-      auto* entityNode = new EntityNode{Entity{}};
-      groupNode->addChild(entityNode);
-      worldNode.defaultLayer()->addChild(groupNode);
+      auto* groupNode =
+        &worldNode.defaultLayer()->addChild(std::make_unique<GroupNode>(Group{"group"}));
+      auto* entityNode = &groupNode->addChild(std::make_unique<EntityNode>(Entity{}));
 
       const auto hit = makeHit(EntityNode::EntityHitType, entityNode);
       CHECK(!filter(hit));
@@ -249,10 +244,9 @@ TEST_CASE("HitFilter")
 
     SECTION("patch hits")
     {
-      auto* groupNode = new GroupNode{Group{"group"}};
-      auto* patchNode = createPatchNode();
-      groupNode->addChild(patchNode);
-      worldNode.defaultLayer()->addChild(groupNode);
+      auto* groupNode =
+        &worldNode.defaultLayer()->addChild(std::make_unique<GroupNode>(Group{"group"}));
+      auto* patchNode = &groupNode->addChild(createPatchNode());
 
       const auto hit = makeHit(PatchNode::PatchHitType, patchNode);
       CHECK(!filter(hit));

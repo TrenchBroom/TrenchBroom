@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010 Kristian Duske
+ Copyright (C) 2026 Kristian Duske
 
  Permission is hereby granted, free of charge, to any person obtaining a copy of this
  software and associated documentation files (the "Software"), to deal in the Software
@@ -18,17 +18,28 @@
  DEALINGS IN THE SOFTWARE.
 */
 
-#pragma once
+#include "kd/ranges/raw_pointers_view.h"
+
+#include <memory>
+#include <vector>
+
+#include <catch2/catch_test_macros.hpp>
+#include <catch2/matchers/catch_matchers_range_equals.hpp>
 
 namespace kdl
 {
 
-struct deletable
+TEST_CASE("raw_pointers")
 {
-  bool& deleted;
+  using Catch::Matchers::RangeEquals;
 
-  explicit deletable(bool& i_deleted);
-  ~deletable();
-};
+  auto ptrs = std::vector<std::unique_ptr<int>>{};
+  ptrs.push_back(std::make_unique<int>(1));
+  ptrs.push_back(std::make_unique<int>(2));
+
+  const auto expected = std::vector<int*>{ptrs[0].get(), ptrs[1].get()};
+  CHECK_THAT(ptrs | views::raw_pointers, RangeEquals(expected));
+  CHECK_THAT(views::raw_pointers(ptrs), RangeEquals(expected));
+}
 
 } // namespace kdl

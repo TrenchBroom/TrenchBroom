@@ -79,8 +79,8 @@ private:
   ClipSide m_clipSide = ClipSide::Front;
   std::unique_ptr<ClipStrategy> m_strategy;
 
-  kdl::flat_map<mdl::Node*, std::vector<mdl::Node*>> m_frontBrushes;
-  kdl::flat_map<mdl::Node*, std::vector<mdl::Node*>> m_backBrushes;
+  kdl::flat_map<mdl::Node*, std::vector<std::unique_ptr<mdl::Node>>> m_frontBrushes;
+  kdl::flat_map<mdl::Node*, std::vector<std::unique_ptr<mdl::Node>>> m_backBrushes;
 
   std::unique_ptr<render::BrushRenderer> m_remainingBrushRenderer;
   std::unique_ptr<render::BrushRenderer> m_clippedBrushRenderer;
@@ -126,7 +126,7 @@ public:
   void performClip();
 
 private:
-  kdl::flat_map<mdl::Node*, std::vector<mdl::Node*>> clipBrushes();
+  kdl::flat_map<mdl::Node*, std::vector<std::unique_ptr<mdl::Node>>> clipBrushes();
 
 public:
   std::optional<vm::vec3d> defaultClipPointPos() const;
@@ -160,7 +160,7 @@ private:
   void clearRenderers();
   void updateRenderers();
   void addBrushesToRenderer(
-    const kdl::flat_map<mdl::Node*, std::vector<mdl::Node*>>& map,
+    const kdl::flat_map<mdl::Node*, std::vector<std::unique_ptr<mdl::Node>>>& map,
     render::BrushRenderer& renderer);
 
   bool keepFrontBrushes() const;

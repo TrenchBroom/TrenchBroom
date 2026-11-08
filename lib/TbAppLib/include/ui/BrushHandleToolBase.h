@@ -32,6 +32,8 @@
 
 #include "kd/result.h"
 
+#include <memory>
+
 namespace tb::ui
 {
 template <typename HandleType>
@@ -77,7 +79,7 @@ public:
           auto& newParent = parentForNodes(map, map.selection().nodes);
           auto transaction = mdl::Transaction{map, "CSG Convex Merge"};
           this->deselectAll();
-          if (addNodes(map, {{&newParent, {new mdl::BrushNode{std::move(b)}}}}).empty())
+          if (!addNode(map, newParent, std::make_unique<mdl::BrushNode>(std::move(b))))
           {
             transaction.cancel();
             return;

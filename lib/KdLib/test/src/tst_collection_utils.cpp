@@ -18,8 +18,6 @@
  DEALINGS IN THE SOFTWARE.
 */
 
-#include "test_utils.h"
-
 #include "kd/collection_utils.h"
 
 #include <vector>
@@ -98,20 +96,6 @@ TEST_CASE("collection_utils")
       {1, 2, 3, 4, 5, 6, 7, 8, 9}, {7, 3, 4}, {1, 2, 5, 6, 8, 9});
   }
 
-  SECTION("range_delete_all")
-  {
-    bool d1 = false;
-    bool d2 = false;
-    bool d3 = false;
-    auto d =
-      std::vector<deletable*>({new deletable(d1), new deletable(d2), new deletable(d3)});
-    range_delete_all(std::begin(d), std::end(d));
-
-    CHECK(d1);
-    CHECK(d2);
-    CHECK(d3);
-  }
-
   SECTION("range_lexicographical_compare")
   {
     test_range_lexicographical_compare<int>({}, {}, 0);
@@ -130,20 +114,6 @@ TEST_CASE("collection_utils")
   {
     CHECK(col_size<int>(std::vector<int>({1, 2})) == 2);
     CHECK(col_size<unsigned>(std::vector<int>({1, 2})) == 2u);
-  }
-
-  SECTION("col_delete_all")
-  {
-    bool d1 = false;
-    bool d2 = false;
-    bool d3 = false;
-    auto d =
-      std::vector<deletable*>({new deletable(d1), new deletable(d2), new deletable(d3)});
-    col_delete_all(d);
-
-    CHECK(d1);
-    CHECK(d2);
-    CHECK(d3);
   }
 
   SECTION("col_is_equivalent")

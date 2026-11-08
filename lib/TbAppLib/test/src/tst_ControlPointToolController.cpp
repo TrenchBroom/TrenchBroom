@@ -43,6 +43,7 @@
 #include "ui/PickRequest.h"
 #include "ui/ToolController.h"
 
+#include <memory>
 #include <utility>
 #include <vector>
 
@@ -61,14 +62,26 @@ TEST_CASE("ControlPointToolController")
   auto& map = document.map();
 
   // clang-format off
-  auto* patchNode = new mdl::PatchNode{mdl::BezierPatch{3, 3, {
-    {-16, -16, -16}, {0, -16,  0}, {16, -16, -16},
-    {-16,   0,   0}, {0,   0, 16}, {16,   0,   0},
-    {-16,  16, -16}, {0,  16,  0}, {16,  16, -16},
-  }, "material"}};
   // clang-format on
 
-  mdl::addNodes(map, {{&mdl::parentForNodes(map), {patchNode}}});
+  auto* patchNode = mdl::addNode(
+    map,
+    mdl::parentForNodes(map),
+    std::make_unique<mdl::PatchNode>(mdl::BezierPatch{
+      3,
+      3,
+      {
+        {-16, -16, -16},
+        {0, -16, 0},
+        {16, -16, -16},
+        {-16, 0, 0},
+        {0, 0, 16},
+        {16, 0, 0},
+        {-16, 16, -16},
+        {0, 16, 0},
+        {16, 16, -16},
+      },
+      "material"}));
   mdl::selectNodes(map, {patchNode});
 
   auto tool = ControlPointTool{document};

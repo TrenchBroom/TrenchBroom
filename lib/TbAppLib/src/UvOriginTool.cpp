@@ -252,7 +252,7 @@ void renderOriginHandle(
   const UvViewHelper& helper, const bool highlight, render::RenderBatch& renderBatch)
 {
   renderBatch.addOneShot(
-    new RenderOrigin{helper, UvOriginTool::OriginHandleRadius, highlight});
+    std::make_unique<RenderOrigin>(helper, UvOriginTool::OriginHandleRadius, highlight));
 }
 
 class UvOriginDragTracker : public GestureTracker

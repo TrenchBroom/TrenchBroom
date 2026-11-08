@@ -33,13 +33,15 @@
 #include "mdl/UpdateLinkedGroupsHelper.h"
 #include "mdl/WorldNode.h"
 
+#include "kd/memory_utils.h"
 #include "kd/overload.h"
+#include "kd/vector_utils.h"
 
 #include <algorithm>
 
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/generators/catch_generators.hpp>
-#include <catch2/matchers/catch_matchers_vector.hpp>
+#include <catch2/matchers/catch_matchers_range_equals.hpp>
 
 namespace tb::mdl
 {
@@ -131,16 +133,21 @@ TEST_CASE("UpdateLinkedGroupsHelper")
 
   SECTION("Ownership")
   {
-    auto* groupNode = new GroupNode{Group{""}};
+    auto groupNodePtr = std::make_unique<GroupNode>(Group{""});
+    auto* groupNode = groupNodePtr.get();
     setLinkId(*groupNode, "asdf");
 
-    auto* entityNode = new TestNode{Entity{}, deleted};
-    groupNode->addChild(entityNode);
+    groupNode->addChild(std::make_unique<TestNode>(Entity{}, deleted));
 
-    auto* linkedNode =
-      static_cast<GroupNode*>(groupNode->cloneRecursively(map.worldBounds()));
+    auto linkedNodePtr =
+      kdl::static_pointer_cast<GroupNode>(groupNode->cloneRecursively(map.worldBounds()));
+    auto* linkedNode = linkedNodePtr.get();
 
-    addNodes(map, {{&parentForNodes(map), {groupNode, linkedNode}}});
+    addNodes(
+      map,
+      parentForNodes(map),
+      kdl::vec_from<std::unique_ptr<Node>>(
+        std::move(groupNodePtr), std::move(linkedNodePtr)));
 
     SECTION("Helper takes ownership of replaced child nodes")
     {
@@ -166,14 +173,15 @@ TEST_CASE("UpdateLinkedGroupsHelper")
   {
     SECTION("Sibling linked groups")
     {
-      auto* groupNode = new GroupNode{Group{"test"}};
+      auto groupNodePtr = std::make_unique<GroupNode>(Group{"test"});
+      auto* groupNode = groupNodePtr.get();
       setLinkId(*groupNode, "asdf");
 
-      auto* brushNode = createBrushNode(map);
-      groupNode->addChild(brushNode);
+      auto* brushNode = &groupNode->addChild(createBrushNode(map));
 
-      auto* linkedGroupNode =
-        static_cast<GroupNode*>(groupNode->cloneRecursively(map.worldBounds()));
+      auto linkedGroupNodePtr = kdl::static_pointer_cast<GroupNode>(
+        groupNode->cloneRecursively(map.worldBounds()));
+      auto* linkedGroupNode = linkedGroupNodePtr.get();
 
       REQUIRE(linkedGroupNode->children().size() == 1u);
       auto* linkedBrushNode =
@@ -188,7 +196,11 @@ TEST_CASE("UpdateLinkedGroupsHelper")
         linkedBrushNode->physicalBounds()
         == brushNode->physicalBounds().translate(vm::vec3d(32.0, 0.0, 0.0)));
 
-      addNodes(map, {{&parentForNodes(map), {groupNode, linkedGroupNode}}});
+      addNodes(
+        map,
+        parentForNodes(map),
+        kdl::vec_from<std::unique_ptr<Node>>(
+          std::move(groupNodePtr), std::move(linkedGroupNodePtr)));
 
       /*
       world
@@ -251,7 +263,7 @@ TEST_CASE("UpdateLinkedGroupsHelper")
 
       REQUIRE(linkedGroupNode->childCount() == 1u);
       CHECK_THAT(
-        linkedGroupNode->children(), Equals(std::vector<Node*>{linkedBrushNode}));
+        linkedGroupNode->children(), RangeEquals(std::vector<Node*>{linkedBrushNode}));
       CHECK(linkedBrushNode->parent() == linkedGroupNode);
       CHECK(
         linkedBrushNode->physicalBounds()
@@ -260,27 +272,29 @@ TEST_CASE("UpdateLinkedGroupsHelper")
 
     SECTION("Nested linked groups")
     {
-      auto* outerGroupNode = new GroupNode{Group{"outerGroupNode"}};
+      auto outerGroupNodePtr = std::make_unique<GroupNode>(Group{"outerGroupNode"});
+      auto* outerGroupNode = outerGroupNodePtr.get();
       setLinkId(*outerGroupNode, "outerGroupNode");
 
-      auto* innerGroupNode = new GroupNode{Group{"innerGroupNode"}};
+      auto* innerGroupNode =
+        &outerGroupNode->addChild(std::make_unique<GroupNode>(Group{"innerGroupNode"}));
       setLinkId(*innerGroupNode, "innerGroupNode");
 
-      auto* brushNode = createBrushNode(map);
-      innerGroupNode->addChild(brushNode);
-      outerGroupNode->addChild(innerGroupNode);
+      auto* brushNode = &innerGroupNode->addChild(createBrushNode(map));
 
-      addNodes(map, {{&parentForNodes(map), {outerGroupNode}}});
+      addNode(map, parentForNodes(map), std::move(outerGroupNodePtr));
 
       // create a linked group of the inner group node so that cloning the outer group
       // node will create a linked clone of the inner group node
-      auto* linkedInnerGroupNode =
-        static_cast<GroupNode*>(innerGroupNode->cloneRecursively(map.worldBounds()));
+      auto linkedInnerGroupNodePtr = kdl::static_pointer_cast<GroupNode>(
+        innerGroupNode->cloneRecursively(map.worldBounds()));
+      auto* linkedInnerGroupNode = linkedInnerGroupNodePtr.get();
       setGroupName(*linkedInnerGroupNode, "linkedInnerGroupNode");
       REQUIRE(linkedInnerGroupNode->linkId() == innerGroupNode->linkId());
 
-      auto* linkedOuterGroupNode =
-        static_cast<GroupNode*>(outerGroupNode->cloneRecursively(map.worldBounds()));
+      auto linkedOuterGroupNodePtr = kdl::static_pointer_cast<GroupNode>(
+        outerGroupNode->cloneRecursively(map.worldBounds()));
+      auto* linkedOuterGroupNode = linkedOuterGroupNodePtr.get();
       setGroupName(*linkedOuterGroupNode, "linkedOuterGroupNode");
       REQUIRE(linkedOuterGroupNode->linkId() == outerGroupNode->linkId());
 
@@ -290,7 +304,10 @@ TEST_CASE("UpdateLinkedGroupsHelper")
       REQUIRE(nestedLinkedInnerGroupNode->linkId() == innerGroupNode->linkId());
 
       addNodes(
-        map, {{&parentForNodes(map), {linkedInnerGroupNode, linkedOuterGroupNode}}});
+        map,
+        parentForNodes(map),
+        kdl::vec_from<std::unique_ptr<Node>>(
+          std::move(linkedInnerGroupNodePtr), std::move(linkedOuterGroupNodePtr)));
 
       /*
       world

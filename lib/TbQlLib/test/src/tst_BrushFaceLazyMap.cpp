@@ -58,8 +58,8 @@ TEST_CASE("BrushFaceLazyMap")
   auto fixture = mdl::MapFixture{};
   auto& map = fixture.create(fixtureConfig);
 
-  auto* brushNode = mdl::createBrushNode(map, "tagged_material");
-  mdl::addNodes(map, {{&mdl::parentForNodes(map), {brushNode}}});
+  auto* brushNode = mdl::addNode(
+    map, mdl::parentForNodes(map), mdl::createBrushNode(map, "tagged_material"));
 
   const auto handle = mdl::toHandles(*brushNode).front();
   const auto lazyMap = makeBrushFaceLazyMap(map, handle);

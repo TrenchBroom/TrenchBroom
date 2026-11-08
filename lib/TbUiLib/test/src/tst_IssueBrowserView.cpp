@@ -32,6 +32,7 @@
 #include "ui/MapDocument.h"
 #include "ui/MapDocumentFixture.h"
 
+#include <memory>
 #include <vector>
 
 #include <catch2/catch_test_macros.hpp>
@@ -45,11 +46,13 @@ TEST_CASE("IssueBrowserView")
   auto& document = fixture.create();
   auto& map = document.map();
 
-  auto* entityNode = new mdl::EntityNode{mdl::Entity{{
-    {"classname", "some_class"},
-    {"some_key", ""},
-  }}};
-  mdl::addNodes(map, {{&mdl::parentForNodes(map), {entityNode}}});
+  auto* entityNode = mdl::addNode(
+    map,
+    mdl::parentForNodes(map),
+    std::make_unique<mdl::EntityNode>(mdl::Entity{{
+      {"classname", "some_class"},
+      {"some_key", ""},
+    }}));
 
   auto view = IssueBrowserView{document};
   view.validate();
@@ -78,15 +81,15 @@ TEST_CASE("IssueBrowserView")
 
     SECTION("preserves the scroll position")
     {
-      auto entityNodes = std::vector<mdl::Node*>{};
+      auto entityNodes = std::vector<std::unique_ptr<mdl::Node>>{};
       for (size_t i = 0; i < 100; ++i)
       {
-        entityNodes.push_back(new mdl::EntityNode{mdl::Entity{{
+        entityNodes.push_back(std::make_unique<mdl::EntityNode>(mdl::Entity{{
           {"classname", "some_class"},
           {"some_key", ""},
-        }}});
+        }}));
       }
-      mdl::addNodes(map, {{&mdl::parentForNodes(map), entityNodes}});
+      mdl::addNodes(map, mdl::parentForNodes(map), std::move(entityNodes));
 
       view.reload();
       view.validate();

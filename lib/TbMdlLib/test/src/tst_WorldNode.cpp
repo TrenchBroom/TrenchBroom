@@ -33,6 +33,7 @@
 #include "mdl/TestUtils.h"
 #include "mdl/WorldNode.h"
 
+#include "kd/memory_utils.h"
 #include "kd/result.h"
 
 #include <catch2/catch_test_macros.hpp>
@@ -100,71 +101,82 @@ TEST_CASE("WorldNode")
   SECTION("nodeTree")
   {
     auto worldNode = WorldNode{{}, {}, mapFormat};
-    auto* layerNode = new LayerNode{Layer{"layer"}};
-    auto* groupNode = new GroupNode{Group{"group"}};
-    auto* entityNode = new EntityNode{Entity{}};
-    auto* brushNode = new BrushNode{
-      BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material") | kdl::value()};
+    auto layerNodePtr = std::make_unique<LayerNode>(Layer{"layer"});
+    auto* layerNode = layerNodePtr.get();
+    auto groupNodePtr = std::make_unique<GroupNode>(Group{"group"});
+    auto* groupNode = groupNodePtr.get();
 
     // clang-format off
-    auto* patchNode = new PatchNode{BezierPatch{3, 3, {
+    auto childNodes = kdl::vec_from<std::unique_ptr<Node>>(
+      std::make_unique<EntityNode>(Entity{}),
+      std::make_unique<BrushNode>(
+        BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material") | kdl::value()),
+      std::make_unique<PatchNode>(BezierPatch{3, 3, {
       {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
       {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
-      {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "material"}};
+      {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "material"}));
     // clang-format on
 
-    const auto nodes = std::vector<Node*>{entityNode, brushNode, patchNode};
     constexpr size_t entityNodeIndex = 0;
     constexpr size_t brushNodeIndex = 1;
     constexpr size_t patchNodeIndex = 2;
+    auto* entityNode = childNodes[entityNodeIndex].get();
+    auto* brushNode = childNodes[brushNodeIndex].get();
+    auto* patchNode = childNodes[patchNodeIndex].get();
+    const auto nodes = std::vector<Node*>{entityNode, brushNode, patchNode};
 
     const auto& nodeTree = worldNode.nodeTree();
 
+    // Each section moves from childNodes, but Catch2 runs the setup above again for
+    // every section.
+    // NOLINTBEGIN(bugprone-use-after-move)
     SECTION("Adding a single node inserts into node tree")
     {
-      auto* node = nodes[GENERATE_COPY(entityNodeIndex, brushNodeIndex, patchNodeIndex)];
+      const auto index = GENERATE_COPY(entityNodeIndex, brushNodeIndex, patchNodeIndex);
+      auto* node = nodes[index];
 
       REQUIRE_FALSE(nodeTree.contains(node));
-      worldNode.defaultLayer()->addChild(node);
+      worldNode.defaultLayer()->addChild(std::move(childNodes[index]));
       CHECK(nodeTree.contains(node));
     }
 
     SECTION("Adding a nested node inserts into node tree")
     {
-      worldNode.defaultLayer()->addChild(groupNode);
+      worldNode.defaultLayer()->addChild(std::move(groupNodePtr));
 
-      auto* node = nodes[GENERATE_COPY(entityNodeIndex, brushNodeIndex, patchNodeIndex)];
+      const auto index = GENERATE_COPY(entityNodeIndex, brushNodeIndex, patchNodeIndex);
+      auto* node = nodes[index];
 
       REQUIRE_FALSE(nodeTree.contains(node));
-      groupNode->addChild(node);
+      groupNode->addChild(std::move(childNodes[index]));
       CHECK(nodeTree.contains(node));
     }
 
     SECTION("Adding a layer does not insert it into node tree")
     {
       REQUIRE_FALSE(nodeTree.contains(layerNode));
-      worldNode.addChild(layerNode);
+      worldNode.addChild(std::move(layerNodePtr));
       CHECK(!nodeTree.contains(layerNode));
     }
 
     SECTION("Adding a group node does not insert it into node tree")
     {
-      groupNode->addChild(entityNode);
+      groupNode->addChild(std::move(childNodes[entityNodeIndex]));
 
       REQUIRE_FALSE(nodeTree.contains(groupNode));
-      worldNode.defaultLayer()->addChild(groupNode);
+      worldNode.defaultLayer()->addChild(std::move(groupNodePtr));
       CHECK(!nodeTree.contains(groupNode));
     }
 
     SECTION("Adding a subtree inserts all children into node tree")
     {
-      groupNode->addChildren({entityNode, brushNode, patchNode});
+      groupNode->addChildren(std::move(childNodes));
 
       REQUIRE_FALSE(nodeTree.contains(groupNode));
       REQUIRE_FALSE(nodeTree.contains(entityNode));
       REQUIRE_FALSE(nodeTree.contains(brushNode));
       REQUIRE_FALSE(nodeTree.contains(patchNode));
-      worldNode.defaultLayer()->addChild(groupNode);
+      worldNode.defaultLayer()->addChild(std::move(groupNodePtr));
       CHECK(!nodeTree.contains(groupNode));
       CHECK(nodeTree.contains(entityNode));
       CHECK(nodeTree.contains(brushNode));
@@ -173,37 +185,38 @@ TEST_CASE("WorldNode")
 
     SECTION("Removing a single node removes from node tree")
     {
-      auto* node = nodes[GENERATE_COPY(entityNodeIndex, brushNodeIndex, patchNodeIndex)];
+      const auto index = GENERATE_COPY(entityNodeIndex, brushNodeIndex, patchNodeIndex);
+      auto* node = nodes[index];
 
-      worldNode.defaultLayer()->addChild(node);
+      worldNode.defaultLayer()->addChild(std::move(childNodes[index]));
       REQUIRE(nodeTree.contains(node));
 
-      worldNode.defaultLayer()->removeChild(node);
+      const auto removedNode = worldNode.defaultLayer()->removeChild(node);
       CHECK(!nodeTree.contains(node));
     }
 
     SECTION("Removing a nested node removes from node tree")
     {
-      groupNode->addChildren({entityNode, brushNode, patchNode});
-      worldNode.defaultLayer()->addChild(groupNode);
+      groupNode->addChildren(std::move(childNodes));
+      worldNode.defaultLayer()->addChild(std::move(groupNodePtr));
 
       auto* node = nodes[GENERATE_COPY(entityNodeIndex, brushNodeIndex, patchNodeIndex)];
       REQUIRE(nodeTree.contains(node));
 
-      groupNode->removeChild(node);
+      const auto removedNode = groupNode->removeChild(node);
       CHECK(!nodeTree.contains(node));
     }
 
     SECTION("Removing a subtree removes all children from node tree")
     {
-      groupNode->addChildren({entityNode, brushNode, patchNode});
+      groupNode->addChildren(std::move(childNodes));
 
-      worldNode.defaultLayer()->addChild(groupNode);
+      worldNode.defaultLayer()->addChild(std::move(groupNodePtr));
       REQUIRE(nodeTree.contains(entityNode));
       REQUIRE(nodeTree.contains(brushNode));
       REQUIRE(nodeTree.contains(patchNode));
 
-      worldNode.defaultLayer()->removeChild(groupNode);
+      const auto removedNode = worldNode.defaultLayer()->removeChild(groupNode);
       CHECK(!nodeTree.contains(entityNode));
       CHECK(!nodeTree.contains(brushNode));
       CHECK(!nodeTree.contains(patchNode));
@@ -211,8 +224,8 @@ TEST_CASE("WorldNode")
 
     SECTION("Updating a descendant updates it in node tree")
     {
-      groupNode->addChildren({entityNode, brushNode, patchNode});
-      worldNode.defaultLayer()->addChild(groupNode);
+      groupNode->addChildren(std::move(childNodes));
+      worldNode.defaultLayer()->addChild(std::move(groupNodePtr));
 
       REQUIRE(nodeTree.contains(entityNode));
       REQUIRE(nodeTree.contains(brushNode));
@@ -241,29 +254,26 @@ TEST_CASE("WorldNode")
         nodeTree.find_containers(vm::vec3d{384, 384, 384}),
         UnorderedEquals(std::vector<Node*>{entityNode, brushNode, patchNode}));
     }
+    // NOLINTEND(bugprone-use-after-move)
   }
 
   SECTION("rebuildNodeTree")
   {
     auto worldNode = WorldNode{{}, {}, mapFormat};
-    auto* layerNode = new LayerNode{Layer{"layer"}};
-    auto* groupNode = new GroupNode{Group{"group"}};
-    auto* entityNode = new EntityNode{Entity{}};
-    auto* brushNode = new BrushNode{
-      BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material") | kdl::value()};
+    auto* layerNode = &worldNode.addChild(std::make_unique<LayerNode>(Layer{"layer"}));
+    auto* entityNode =
+      &worldNode.defaultLayer()->addChild(std::make_unique<EntityNode>(Entity{}));
+    auto* groupNode =
+      &worldNode.defaultLayer()->addChild(std::make_unique<GroupNode>(Group{"group"}));
+    auto* brushNode = &groupNode->addChild(std::make_unique<BrushNode>(
+      BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material") | kdl::value()));
 
     // clang-format off
-    auto* patchNode = new PatchNode{BezierPatch{3, 3, {
+    auto* patchNode = &groupNode->addChild(std::make_unique<PatchNode>(BezierPatch{3, 3, {
       {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
       {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
-      {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "material"}};
+      {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "material"}));
     // clang-format on
-
-    worldNode.addChild(layerNode);
-    worldNode.defaultLayer()->addChild(entityNode);
-    worldNode.defaultLayer()->addChild(groupNode);
-    groupNode->addChild(brushNode);
-    groupNode->addChild(patchNode);
 
     const auto& nodeTree = worldNode.nodeTree();
 
@@ -284,54 +294,52 @@ TEST_CASE("WorldNode")
   SECTION("disableNodeTreeUpdates")
   {
     auto worldNode = WorldNode{{}, {}, mapFormat};
-    auto* layerNode = new LayerNode{Layer{"layer"}};
-    auto* groupNode = new GroupNode{Group{"group"}};
-    auto* entityNode = new EntityNode{Entity{}};
-    auto* brushNode = new BrushNode{
-      BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material") | kdl::value()};
 
     // clang-format off
-    auto* patchNode = new PatchNode{BezierPatch{3, 3, {
+    const auto patchNode = std::make_unique<PatchNode>(BezierPatch{3, 3, {
       {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
       {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
-      {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "material"}};
+      {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "material"});
     // clang-format on
 
     worldNode.disableNodeTreeUpdates();
-    worldNode.addChild(layerNode);
-    worldNode.defaultLayer()->addChild(entityNode);
-    worldNode.defaultLayer()->addChild(groupNode);
-    groupNode->addChild(brushNode);
+    worldNode.addChild(std::make_unique<LayerNode>(Layer{"layer"}));
+    auto* entityNode =
+      &worldNode.defaultLayer()->addChild(std::make_unique<EntityNode>(Entity{}));
+    auto* groupNode =
+      &worldNode.defaultLayer()->addChild(std::make_unique<GroupNode>(Group{"group"}));
+    auto* brushNode = &groupNode->addChild(std::make_unique<BrushNode>(
+      BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material") | kdl::value()));
 
     const auto& nodeTree = worldNode.nodeTree();
 
     CHECK(!nodeTree.contains(entityNode));
     CHECK(!nodeTree.contains(brushNode));
-    CHECK(!nodeTree.contains(patchNode));
+    CHECK(!nodeTree.contains(patchNode.get()));
   }
 
   SECTION("enableNodeTreeUpdates")
   {
     auto worldNode = WorldNode{{}, {}, mapFormat};
-    auto* layerNode = new LayerNode{Layer{"layer"}};
-    auto* groupNode = new GroupNode{Group{"group"}};
 
     // clang-format off
-    auto* patchNode = new PatchNode{BezierPatch{3, 3, {
+    auto patchNodePtr = std::make_unique<PatchNode>(BezierPatch{3, 3, {
       {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
       {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
-      {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "material"}};
+      {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "material"});
     // clang-format on
+    auto* patchNode = patchNodePtr.get();
 
     worldNode.disableNodeTreeUpdates();
-    worldNode.addChild(layerNode);
-    worldNode.defaultLayer()->addChild(groupNode);
+    worldNode.addChild(std::make_unique<LayerNode>(Layer{"layer"}));
+    auto* groupNode =
+      &worldNode.defaultLayer()->addChild(std::make_unique<GroupNode>(Group{"group"}));
 
     const auto& nodeTree = worldNode.nodeTree();
     REQUIRE_FALSE(nodeTree.contains(patchNode));
 
     worldNode.enableNodeTreeUpdates();
-    groupNode->addChild(patchNode);
+    groupNode->addChild(std::move(patchNodePtr));
     CHECK(nodeTree.contains(patchNode));
   }
 
@@ -346,25 +354,26 @@ TEST_CASE("WorldNode")
     SECTION("adding a layer assigns it a persistent ID")
     {
       auto worldNode = WorldNode{{}, {}, MapFormat::Standard};
-      auto* initialLayerNode = new LayerNode{Layer{"name"}};
+      auto initialLayerNodePtr = std::make_unique<LayerNode>(Layer{"name"});
+      auto* initialLayerNode = initialLayerNodePtr.get();
 
       REQUIRE(initialLayerNode->persistentId() == std::nullopt);
-      worldNode.addChild(initialLayerNode);
+      worldNode.addChild(std::move(initialLayerNodePtr));
       CHECK(initialLayerNode->persistentId() == 1u);
 
       SECTION("Adding a layer node that already has a persistent ID")
       {
         const auto id = *initialLayerNode->persistentId() + 10u;
 
-        auto* layerNodeWithId = new LayerNode{Layer{"name"}};
+        auto layerNodeWithIdPtr = std::make_unique<LayerNode>(Layer{"name"});
+        auto* layerNodeWithId = layerNodeWithIdPtr.get();
         layerNodeWithId->setPersistentId(id);
 
-        worldNode.addChild(layerNodeWithId);
+        worldNode.addChild(std::move(layerNodeWithIdPtr));
         CHECK(layerNodeWithId->persistentId() == id);
 
-        auto* layerNodeWithoutId = new LayerNode{Layer{"name"}};
-
-        worldNode.addChild(layerNodeWithoutId);
+        auto* layerNodeWithoutId =
+          &worldNode.addChild(std::make_unique<LayerNode>(Layer{"name"}));
         REQUIRE(layerNodeWithoutId->persistentId() != std::nullopt);
         CHECK(*layerNodeWithoutId->persistentId() == id + 1u);
 
@@ -372,15 +381,15 @@ TEST_CASE("WorldNode")
         {
           const auto lowerId = id - 1u;
 
-          auto* layerNodeWithLowerId = new LayerNode{Layer{"name"}};
+          auto layerNodeWithLowerIdPtr = std::make_unique<LayerNode>(Layer{"name"});
+          auto* layerNodeWithLowerId = layerNodeWithLowerIdPtr.get();
           layerNodeWithLowerId->setPersistentId(lowerId);
 
-          worldNode.addChild(layerNodeWithLowerId);
+          worldNode.addChild(std::move(layerNodeWithLowerIdPtr));
           REQUIRE(layerNodeWithLowerId->persistentId() == lowerId);
 
-          layerNodeWithoutId = new LayerNode{Layer{"name"}};
-
-          worldNode.addChild(layerNodeWithoutId);
+          layerNodeWithoutId =
+            &worldNode.addChild(std::make_unique<LayerNode>(Layer{"name"}));
           REQUIRE(layerNodeWithoutId->persistentId() != std::nullopt);
           CHECK(*layerNodeWithoutId->persistentId() == id + 2u);
         }
@@ -390,25 +399,26 @@ TEST_CASE("WorldNode")
     SECTION("adding a group assigns it a persistent ID")
     {
       auto worldNode = WorldNode{{}, {}, MapFormat::Standard};
-      auto* initialGroupNode = new GroupNode{Group{"name"}};
+      auto initialGroupNodePtr = std::make_unique<GroupNode>(Group{"name"});
+      auto* initialGroupNode = initialGroupNodePtr.get();
 
       REQUIRE(initialGroupNode->persistentId() == std::nullopt);
-      worldNode.defaultLayer()->addChild(initialGroupNode);
+      worldNode.defaultLayer()->addChild(std::move(initialGroupNodePtr));
       CHECK(initialGroupNode->persistentId() == 1u);
 
       SECTION("Adding a layer node that already has a persistent ID")
       {
         const auto id = *initialGroupNode->persistentId() + 10u;
 
-        auto* groupNodeWithId = new GroupNode{Group{"name"}};
+        auto groupNodeWithIdPtr = std::make_unique<GroupNode>(Group{"name"});
+        auto* groupNodeWithId = groupNodeWithIdPtr.get();
         groupNodeWithId->setPersistentId(id);
 
-        worldNode.defaultLayer()->addChild(groupNodeWithId);
+        worldNode.defaultLayer()->addChild(std::move(groupNodeWithIdPtr));
         CHECK(groupNodeWithId->persistentId() == id);
 
-        auto* groupNodeWithoutId = new GroupNode{Group{"name"}};
-
-        worldNode.defaultLayer()->addChild(groupNodeWithoutId);
+        auto* groupNodeWithoutId =
+          &worldNode.defaultLayer()->addChild(std::make_unique<GroupNode>(Group{"name"}));
         REQUIRE(groupNodeWithoutId->persistentId() != std::nullopt);
         CHECK(*groupNodeWithoutId->persistentId() == id + 1u);
 
@@ -416,15 +426,15 @@ TEST_CASE("WorldNode")
         {
           const auto lowerId = id - 1u;
 
-          auto* groupNodeWithLowerId = new GroupNode{Group{"name"}};
+          auto groupNodeWithLowerIdPtr = std::make_unique<GroupNode>(Group{"name"});
+          auto* groupNodeWithLowerId = groupNodeWithLowerIdPtr.get();
           groupNodeWithLowerId->setPersistentId(lowerId);
 
-          worldNode.defaultLayer()->addChild(groupNodeWithLowerId);
+          worldNode.defaultLayer()->addChild(std::move(groupNodeWithLowerIdPtr));
           REQUIRE(groupNodeWithLowerId->persistentId() == lowerId);
 
-          groupNodeWithoutId = new GroupNode{Group{"name"}};
-
-          worldNode.defaultLayer()->addChild(groupNodeWithoutId);
+          groupNodeWithoutId = &worldNode.defaultLayer()->addChild(
+            std::make_unique<GroupNode>(Group{"name"}));
           REQUIRE(groupNodeWithoutId->persistentId() != std::nullopt);
           CHECK(*groupNodeWithoutId->persistentId() == id + 2u);
         }
@@ -435,12 +445,10 @@ TEST_CASE("WorldNode")
     {
       auto worldNode = WorldNode{{}, {}, MapFormat::Standard};
 
-      auto* layerNode = new LayerNode{Layer{"name"}};
-      worldNode.addChild(layerNode);
+      auto* layerNode = &worldNode.addChild(std::make_unique<LayerNode>(Layer{"name"}));
       CHECK(layerNode->persistentId() == 1u);
 
-      auto* groupNode = new GroupNode{Group{"name"}};
-      layerNode->addChild(groupNode);
+      auto* groupNode = &layerNode->addChild(std::make_unique<GroupNode>(Group{"name"}));
       CHECK(groupNode->persistentId() == 2u);
     }
   }
@@ -449,34 +457,30 @@ TEST_CASE("WorldNode")
   {
     auto worldNode = WorldNode{{}, Entity{{{"classname", "worldspawn"}}}, mapFormat};
 
-    auto* brushNode = new BrushNode{
-      BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material") | kdl::value()};
-    worldNode.defaultLayer()->addChild(brushNode);
+    auto* brushNode = &worldNode.defaultLayer()->addChild(std::make_unique<BrushNode>(
+      BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material") | kdl::value()));
 
     SECTION("with only the default layer")
     {
-      auto* clone = static_cast<WorldNode*>(worldNode.cloneRecursively(worldBounds));
+      const auto clone =
+        kdl::static_pointer_cast<WorldNode>(worldNode.cloneRecursively(worldBounds));
 
-      CHECK(clone != &worldNode);
+      CHECK(clone.get() != &worldNode);
       CHECK(clone->entity() == worldNode.entity());
       CHECK(clone->mapFormat() == worldNode.mapFormat());
       CHECK(clone->defaultLayer() != worldNode.defaultLayer());
       CHECK(clone->children().size() == 1u);
       CHECK(clone->defaultLayer()->children().size() == 1u);
       CHECK(clone->defaultLayer()->children().front() != brushNode);
-
-      delete clone;
     }
 
     SECTION("with an additional custom layer")
     {
-      auto* layerNode = new LayerNode{Layer{"custom"}};
-      worldNode.addChild(layerNode);
+      auto* layerNode = &worldNode.addChild(std::make_unique<LayerNode>(Layer{"custom"}));
+      auto* entityNode = &layerNode->addChild(std::make_unique<EntityNode>(Entity{}));
 
-      auto* entityNode = new EntityNode{Entity{}};
-      layerNode->addChild(entityNode);
-
-      auto* clone = static_cast<WorldNode*>(worldNode.cloneRecursively(worldBounds));
+      const auto clone =
+        kdl::static_pointer_cast<WorldNode>(worldNode.cloneRecursively(worldBounds));
 
       CHECK(clone->children().size() == 2u);
       CHECK(clone->defaultLayer()->children().size() == 1u);
@@ -485,8 +489,6 @@ TEST_CASE("WorldNode")
       CHECK(clonedLayerNode != layerNode);
       CHECK(clonedLayerNode->children().size() == 1u);
       CHECK(clonedLayerNode->children().front() != entityNode);
-
-      delete clone;
     }
   }
 }

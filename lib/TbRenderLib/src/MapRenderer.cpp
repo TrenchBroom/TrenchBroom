@@ -262,7 +262,7 @@ class SetupGL : public Renderable
 
 void MapRenderer::setupGL(RenderBatch& renderBatch)
 {
-  renderBatch.addOneShot(new SetupGL{});
+  renderBatch.addOneShot(std::make_unique<SetupGL>());
 }
 
 void MapRenderer::renderDefaultOpaque(

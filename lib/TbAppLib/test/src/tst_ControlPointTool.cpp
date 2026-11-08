@@ -32,9 +32,12 @@
 #include "ui/MapDocument.h"
 #include "ui/MapDocumentFixture.h"
 
+#include "kd/vector_utils.h"
+
 #include "vm/ray.h"
 #include "vm/vec.h"
 
+#include <memory>
 #include <ranges>
 
 #include <catch2/catch_test_macros.hpp>
@@ -50,14 +53,14 @@ namespace
 // createPatchNode() always returns the same fixed geometry, so a second call would sit at
 // the exact same control point positions as the first and its handles would collapse into
 // the same clumps. Offset it so its handles are spatially distinct.
-mdl::PatchNode* createOffsetPatchNode()
+std::unique_ptr<mdl::PatchNode> createOffsetPatchNode()
 {
   // clang-format off
-  return new mdl::PatchNode{mdl::BezierPatch{3, 3, {
+  return std::make_unique<mdl::PatchNode>(mdl::BezierPatch{3, 3, {
     {10, 0, 0}, {11, 0, 1}, {12, 0, 0},
     {10, 1, 1}, {11, 1, 2}, {12, 1, 1},
     {10, 2, 0}, {11, 2, 1}, {12, 2, 0},
-  }, "material"}};
+  }, "material"});
   // clang-format on
 }
 
@@ -71,8 +74,7 @@ TEST_CASE("ControlPointTool")
 
   SECTION("pick")
   {
-    auto* patchNode = mdl::createPatchNode();
-    mdl::addNodes(map, {{&mdl::parentForNodes(map), {patchNode}}});
+    auto* patchNode = mdl::addNode(map, mdl::parentForNodes(map), mdl::createPatchNode());
     mdl::selectNodes(map, {patchNode});
 
     auto tool = ControlPointTool{document};
@@ -125,8 +127,7 @@ TEST_CASE("ControlPointTool")
 
   SECTION("handlePositionAndHitPoint")
   {
-    auto* patchNode = mdl::createPatchNode();
-    mdl::addNodes(map, {{&mdl::parentForNodes(map), {patchNode}}});
+    auto* patchNode = mdl::addNode(map, mdl::parentForNodes(map), mdl::createPatchNode());
     mdl::selectNodes(map, {patchNode});
 
     auto tool = ControlPointTool{document};
@@ -149,9 +150,15 @@ TEST_CASE("ControlPointTool")
 
   SECTION("addHandles")
   {
-    auto* patchNode1 = mdl::createPatchNode();
-    auto* patchNode2 = createOffsetPatchNode();
-    mdl::addNodes(map, {{&mdl::parentForNodes(map), {patchNode1, patchNode2}}});
+    auto patchNode1Ptr = mdl::createPatchNode();
+    auto* patchNode1 = patchNode1Ptr.get();
+    auto patchNode2Ptr = createOffsetPatchNode();
+    auto* patchNode2 = patchNode2Ptr.get();
+    mdl::addNodes(
+      map,
+      mdl::parentForNodes(map),
+      kdl::vec_from<std::unique_ptr<mdl::Node>>(
+        std::move(patchNode1Ptr), std::move(patchNode2Ptr)));
     mdl::selectNodes(map, {patchNode1});
 
     auto tool = ControlPointTool{document};
@@ -171,9 +178,15 @@ TEST_CASE("ControlPointTool")
 
   SECTION("removeHandles")
   {
-    auto* patchNode1 = mdl::createPatchNode();
-    auto* patchNode2 = createOffsetPatchNode();
-    mdl::addNodes(map, {{&mdl::parentForNodes(map), {patchNode1, patchNode2}}});
+    auto patchNode1Ptr = mdl::createPatchNode();
+    auto* patchNode1 = patchNode1Ptr.get();
+    auto patchNode2Ptr = createOffsetPatchNode();
+    auto* patchNode2 = patchNode2Ptr.get();
+    mdl::addNodes(
+      map,
+      mdl::parentForNodes(map),
+      kdl::vec_from<std::unique_ptr<mdl::Node>>(
+        std::move(patchNode1Ptr), std::move(patchNode2Ptr)));
     mdl::selectNodes(map, {patchNode1, patchNode2});
 
     auto tool = ControlPointTool{document};
@@ -193,8 +206,7 @@ TEST_CASE("ControlPointTool")
 
   SECTION("move")
   {
-    auto* patchNode = mdl::createPatchNode();
-    mdl::addNodes(map, {{&mdl::parentForNodes(map), {patchNode}}});
+    auto* patchNode = mdl::addNode(map, mdl::parentForNodes(map), mdl::createPatchNode());
     mdl::selectNodes(map, {patchNode});
 
     auto tool = ControlPointTool{document};

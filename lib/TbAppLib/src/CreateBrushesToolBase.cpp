@@ -63,16 +63,14 @@ void CreateBrushesToolBase::createBrushes(std::optional<std::string> groupName)
 {
   if (!m_brushNodes.empty())
   {
-    auto nodesToAdd =
-      m_brushNodes | kdl::views::as_rvalue
-      | std::views::transform([](auto brushNode) { return brushNode.release(); })
-      | kdl::ranges::to<std::vector<mdl::Node*>>();
+    auto nodesToAdd = m_brushNodes | kdl::views::as_rvalue
+                      | kdl::ranges::to<std::vector<std::unique_ptr<mdl::Node>>>();
     clearBrushes();
 
     auto transaction = mdl::Transaction{m_document.map(), "Create Brush"};
     deselectAll(m_document.map());
     auto addedNodes =
-      addNodes(m_document.map(), {{&parentForNodes(m_document.map()), nodesToAdd}});
+      addNodes(m_document.map(), parentForNodes(m_document.map()), std::move(nodesToAdd));
     selectNodes(m_document.map(), addedNodes);
     if (groupName && addedNodes.size() > 1)
     {
