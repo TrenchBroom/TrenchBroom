@@ -113,6 +113,42 @@ TEST_CASE("EntityNode")
     CHECK(entityNode.canRemoveChild(patchNode));
   }
 
+  SECTION("removeIfEmpty")
+  {
+    SECTION("without definition")
+    {
+      const auto entityNode = EntityNode{Entity{}};
+
+      CHECK(entityNode.removeIfEmpty());
+    }
+
+    SECTION("with brush entity definition")
+    {
+      const auto definition = EntityDefinition{"some_name", Color{}, "", {}};
+
+      auto entityNode = EntityNode{Entity{}};
+      entityNode.setDefinition(&definition);
+
+      CHECK(entityNode.removeIfEmpty());
+    }
+
+    SECTION("with point entity definition")
+    {
+      const auto definition = EntityDefinition{
+        "some_name",
+        Color{},
+        "",
+        {},
+        PointEntityDefinition{vm::bbox3d{16.0}, {}, {}},
+      };
+
+      auto entityNode = EntityNode{Entity{}};
+      entityNode.setDefinition(&definition);
+
+      CHECK(!entityNode.removeIfEmpty());
+    }
+  }
+
   SECTION("pointEntity")
   {
     auto entityNode = EntityNode{Entity{}};

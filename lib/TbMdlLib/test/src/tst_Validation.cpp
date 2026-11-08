@@ -33,8 +33,11 @@
 #include "mdl/Map.h"
 #include "mdl/MapFixture.h"
 #include "mdl/Map_Entities.h"
+#include "mdl/Map_Nodes.h"
 #include "mdl/Map_Selection.h"
 #include "mdl/PatchNode.h"
+#include "mdl/PointEntityWithBrushesValidator.h"
+#include "mdl/TestFactory.h"
 #include "mdl/TestUtils.h"
 #include "mdl/WorldNode.h"
 #include "mdl/WorldNodePathSeparatorValidator.h"
@@ -154,6 +157,45 @@ TEST_CASE("Validation")
 
     // The fix should have deleted the property
     CHECK(!entityNode->entity().hasProperty(""));
+  }
+
+  SECTION("PointEntityWithBrushesValidator")
+  {
+    auto* entityNode1 = new EntityNode{
+      Entity{{{EntityPropertyKeys::Classname, pointEntityDefinition.name}}}};
+    auto* brushNode1 = createBrushNode(map);
+    entityNode1->addChild(brushNode1);
+
+    auto* entityNode2 = new EntityNode{
+      Entity{{{EntityPropertyKeys::Classname, pointEntityDefinition.name}}}};
+    auto* brushNode2 = createBrushNode(map);
+    entityNode2->addChild(brushNode2);
+
+    addNodes(map, {{&parentForNodes(map), {entityNode1, entityNode2}}});
+
+    auto pointEntityWithBrushesValidator =
+      std::make_unique<PointEntityWithBrushesValidator>();
+    auto validators =
+      std::vector<const Validator*>{pointEntityWithBrushesValidator.get()};
+
+    const auto issues = collectIssues(map.worldNode(), validators);
+    REQUIRE(issues.size() == 2);
+
+    auto fixes = map.worldNode().quickFixes(pointEntityWithBrushesValidator->type());
+    REQUIRE(fixes.size() == 1);
+
+    const auto* quickFix = fixes.at(0);
+    quickFix->apply(map, issues);
+
+    CHECK(entityNode1->parent() == &parentForNodes(map));
+    CHECK(entityNode2->parent() == &parentForNodes(map));
+    CHECK(brushNode1->parent() == &parentForNodes(map));
+    CHECK(brushNode2->parent() == &parentForNodes(map));
+    CHECK_THAT(
+      map.selection().nodes,
+      UnorderedRangeEquals(
+        std::vector<Node*>{entityNode1, brushNode1, entityNode2, brushNode2}));
+    CHECK(collectIssues(map.worldNode(), validators).empty());
   }
 
   SECTION("WorldNodePathSeparatorValidator")
