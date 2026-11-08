@@ -25,8 +25,6 @@
 #include "mdl/Tag.h"
 #include "mdl/VisibilityState.h"
 
-#include "kd/reflection_decl.h"
-
 #include "vm/bbox.h"
 #include "vm/ray.h"
 #include "vm/util.h"
@@ -48,13 +46,6 @@ class NodeVisitor;
 class PickResult;
 class Validator;
 class Object;
-
-struct NodePath
-{
-  std::vector<std::size_t> indices;
-
-  kdl_reflect_decl(NodePath, indices);
-};
 
 class Node : public Taggable
 {
@@ -90,23 +81,6 @@ public:
 
 public: // getters
   const std::string& name() const;
-
-  /**
-   * Returns a path from the given ancestor to this node.
-   *
-   * If the given node is not an ancestor of this node, then the returned path is
-   * undefined.
-   */
-  NodePath pathFrom(const Node& fromAncestor) const;
-
-  /**
-   * Resolves the given path starting at this node.
-   *
-   * Returns the descendant of this node to which the given path resolves or null if the
-   * given path is not valid from this node.
-   */
-  Node* resolvePath(const NodePath& path);
-  const Node* resolvePath(const NodePath& path) const;
 
   /**
    * Returns a box that encloses the "logical" part of this node and its children; these

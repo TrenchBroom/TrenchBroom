@@ -368,46 +368,6 @@ TEST_CASE("Node")
     delete nodeB;
   }
 
-  SECTION("pathFrom")
-  {
-    auto rootNode = TestNode{};
-    auto& childNode1 = rootNode.addChild(new TestNode{});
-    auto& childNode2 = rootNode.addChild(new TestNode{});
-    auto& childNode1_1 = childNode1.addChild(new TestNode{});
-    auto& childNode1_2 = childNode1.addChild(new TestNode{});
-    auto& childNode1_1_1 = childNode1_1.addChild(new TestNode{});
-
-    CHECK(childNode1_1_1.pathFrom(rootNode) == NodePath{{0, 0, 0}});
-    CHECK(childNode1_1_1.pathFrom(childNode1) == NodePath{{0, 0}});
-    CHECK(childNode1_1_1.pathFrom(childNode1_1) == NodePath{{0}});
-    CHECK(childNode1_1_1.pathFrom(childNode1_1_1) == NodePath{{}});
-
-    CHECK(childNode2.pathFrom(rootNode) == NodePath{{1}});
-    CHECK(childNode1_2.pathFrom(rootNode) == NodePath{{0, 1}});
-    CHECK(rootNode.pathFrom(rootNode) == NodePath{{}});
-  }
-
-  SECTION("resolvePath")
-  {
-    auto rootNode = TestNode{};
-    auto& childNode1 = rootNode.addChild(new TestNode{});
-    auto& childNode2 = rootNode.addChild(new TestNode{});
-    auto& childNode1_1 = childNode1.addChild(new TestNode{});
-    auto& childNode1_2 = childNode1.addChild(new TestNode{});
-    auto& childNode1_1_1 = childNode1_1.addChild(new TestNode{});
-
-    CHECK(rootNode.resolvePath(NodePath{{}}) == &rootNode);
-    CHECK(rootNode.resolvePath(NodePath{{0}}) == &childNode1);
-    CHECK(rootNode.resolvePath(NodePath{{1}}) == &childNode2);
-    CHECK(rootNode.resolvePath(NodePath{{2}}) == nullptr);
-    CHECK(rootNode.resolvePath(NodePath{{0, 0}}) == &childNode1_1);
-    CHECK(rootNode.resolvePath(NodePath{{0, 0, 0}}) == &childNode1_1_1);
-    CHECK(rootNode.resolvePath(NodePath{{0, 1}}) == &childNode1_2);
-    CHECK(childNode1.resolvePath(NodePath{{0, 0}}) == &childNode1_1_1);
-    CHECK(childNode1_1.resolvePath(NodePath{{0}}) == &childNode1_1_1);
-    CHECK(childNode1_1_1.resolvePath(NodePath{{}}) == &childNode1_1_1);
-  }
-
   SECTION("depth")
   {
     auto rootNode = TestNode{};
