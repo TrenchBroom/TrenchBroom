@@ -24,13 +24,10 @@
 #include "mdl/Issue.h"
 #include "mdl/Validator.h"
 
-#include "kd/const_overload.h"
 #include "kd/contracts.h"
-#include "kd/range_utils.h"
 #include "kd/ranges/as_rvalue_view.h"
 #include "kd/ranges/contains.h"
 #include "kd/ranges/to.h"
-#include "kd/reflection_impl.h"
 #include "kd/vector_utils.h"
 
 #include <algorithm>
@@ -42,8 +39,6 @@
 namespace tb::mdl
 {
 
-kdl_reflect_impl(NodePath);
-
 Node::Node() = default;
 
 Node::~Node()
@@ -54,47 +49,6 @@ Node::~Node()
 const std::string& Node::name() const
 {
   return doGetName();
-}
-
-NodePath Node::pathFrom(const Node& ancestor) const
-{
-  auto result = NodePath{};
-
-  auto* parent = m_parent;
-  auto* child = this;
-  while (parent && child != &ancestor)
-  {
-    const auto index = kdl::index_of(parent->children(), child);
-
-    result.indices.push_back(*index);
-    child = parent;
-    parent = parent->m_parent;
-  }
-
-  contract_assert(child == &ancestor);
-
-  std::ranges::reverse(result.indices);
-  return result;
-}
-
-Node* Node::resolvePath(const NodePath& path)
-{
-  return KDL_CONST_OVERLOAD(resolvePath(path));
-}
-
-const Node* Node::resolvePath(const NodePath& path) const
-{
-  const auto* node = this;
-  for (const auto index : path.indices)
-  {
-    if (index >= node->childCount())
-    {
-      return nullptr;
-    }
-
-    node = node->children()[index];
-  }
-  return node;
 }
 
 const vm::bbox3d& Node::logicalBounds() const

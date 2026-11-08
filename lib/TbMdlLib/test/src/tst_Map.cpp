@@ -421,34 +421,25 @@ TEST_CASE("Map")
 
       addNodes(map, {{innerGroupNode, {brushNodeInNestedGroup}}});
 
-      const auto getPath = [&](const Node* node) {
-        return node->pathFrom(map.worldNode());
+      // the nodes are recreated for every generated value, so the generator yields
+      // indices into this vector instead of the nodes themselves
+      const auto allBrushNodes = std::vector<BrushNode*>{
+        brushNodeInDefaultLayer,
+        brushNodeInCustomLayer,
+        brushNodeInEntity,
+        brushNodeInGroup,
+        brushNodeInNestedGroup,
       };
-      const auto resolvePaths = [&](const auto& paths) {
-        return paths | std::views::transform([&](const auto& path) {
-                 return map.worldNode().resolvePath(path);
-               })
-               | kdl::ranges::to<std::vector>();
-      };
 
-      using T = std::vector<NodePath>;
+      using T = std::vector<size_t>;
+      const auto indices = GENERATE(values<T>({{}, {0}, {0, 1}, {0, 1, 2}, {3}, {3, 4}}));
 
-      // clang-format off
-      const auto 
-      paths = GENERATE_COPY(values<T>({
-      {},
-      {getPath(brushNodeInDefaultLayer)},
-      {getPath(brushNodeInDefaultLayer), getPath(brushNodeInCustomLayer)},
-      {getPath(brushNodeInDefaultLayer), getPath(brushNodeInCustomLayer), getPath(brushNodeInEntity)},
-      {getPath(brushNodeInGroup)},
-      {getPath(brushNodeInGroup), getPath(brushNodeInNestedGroup)},
-      }));
-      // clang-format on
+      const auto brushNodes =
+        indices
+        | std::views::transform([&](const auto index) { return allBrushNodes[index]; })
+        | kdl::ranges::to<std::vector>();
 
-      const auto nodes = resolvePaths(paths);
-      const auto brushNodes = kdl::vec_static_cast<BrushNode*>(nodes);
-
-      selectNodes(map, nodes);
+      selectNodes(map, kdl::vec_static_cast<Node*>(brushNodes));
 
       CHECK_THAT(map.selection().allBrushes(), UnorderedEquals(brushNodes));
     }
