@@ -427,6 +427,7 @@ void AppController::showWelcomeWindow()
 {
   m_welcomeWindow->show();
   m_welcomeWindow->raise();
+  m_welcomeWindow->activateWindow();
 }
 
 void AppController::showManual(const QString& fragment)

@@ -22,6 +22,7 @@
 #include <QCommandLineParser>
 #include <QEvent>
 #include <QFile>
+#include <QFileInfo>
 #include <QMenuBar>
 #include <QMessageBox>
 #include <QPalette>
@@ -31,6 +32,7 @@
 #include <QStyleHints>
 #include <QStyleOption>
 #include <QSurfaceFormat>
+#include <QTimer>
 #include <QtGlobal>
 
 #include "base/PreferenceManager.h"
@@ -42,12 +44,21 @@
 #include "ui/Contracts.h"
 #include "ui/CrashReporter.h"
 #include "ui/FileEventFilter.h"
+#include "ui/MapWindow.h"
 #include "ui/MapWindowManager.h"
 #include "ui/QPathUtils.h"
 #include "ui/QPreferenceStore.h"
 #include "ui/RecentDocuments.h"
 #include "ui/SystemPaths.h"
 
+#if !defined(Q_OS_MACOS)
+#include "singleinstance/SingleInstance.h"
+
+#include <chrono>
+#include <deque>
+#endif
+
+using namespace std::chrono_literals;
 using namespace tb;
 using namespace tb::ui;
 
@@ -286,7 +297,10 @@ bool openFiles(AppController& appController, const QStringList& fileNames)
   return anyDocumentOpened;
 }
 
-bool parseCommandLineAndOpenFiles(AppController& appController)
+/**
+ * Parses the command line, applies any options, and returns the files to open.
+ */
+QStringList parseCommandLine()
 {
   auto parser = QCommandLineParser{};
   parser.addOption(QCommandLineOption("portable"));
@@ -301,8 +315,140 @@ bool parseCommandLineAndOpenFiles(AppController& appController)
     prefs.saveChanges();
   }
 
-  return openFiles(appController, parser.positionalArguments());
+  return parser.positionalArguments();
 }
+
+#if !defined(Q_OS_MACOS)
+
+/**
+ * Returns the key that identifies instances of TrenchBroom which should not run at the
+ * same time.
+ *
+ * Separate installations of TrenchBroom can run side by side, but the same executable
+ * can only run once, since the updater cannot replace it otherwise. A portable instance
+ * uses its own user data, so it may run alongside a regular instance.
+ */
+QString singleInstanceKey()
+{
+  // the AppImage is mounted at a different path every time it is started
+  const auto appPath =
+    pathAsQString(SystemPaths::appImageFile().value_or(SystemPaths::appFile()));
+
+  auto canonicalAppPath = QFileInfo{appPath}.canonicalFilePath();
+  if (canonicalAppPath.isEmpty())
+  {
+    canonicalAppPath = appPath;
+  }
+
+#if defined(Q_OS_WIN)
+  // paths are case insensitive on Windows
+  canonicalAppPath = canonicalAppPath.toLower();
+#endif
+
+  return singleinstance::makeKey(
+    u"TrenchBroom",
+    {canonicalAppPath, SystemPaths::isPortable() ? "portable" : "regular"});
+}
+
+QStringList toAbsolutePaths(const QStringList& fileNames)
+{
+  auto result = QStringList{};
+  for (const auto& fileName : fileNames)
+  {
+    result.push_back(QFileInfo{fileName}.absoluteFilePath());
+  }
+  return result;
+}
+
+void activateWindow(QWidget& window)
+{
+  window.setWindowState(window.windowState() & ~Qt::WindowMinimized);
+  window.show();
+  window.raise();
+  window.activateWindow();
+}
+
+/**
+ * Opens the files sent by other instances of TrenchBroom.
+ *
+ * Requests are handled one at a time, and only when no modal dialog is open. Opening a
+ * file can show dialogs of its own, and new requests can arrive while they are open, e.g.
+ * when several files are opened from the file explorer at once.
+ */
+class ForwardedFileOpener : public QObject
+{
+private:
+  AppController& m_appController;
+  std::deque<QStringList> m_pendingRequests;
+  bool m_processing = false;
+
+public:
+  explicit ForwardedFileOpener(AppController& appController)
+    : m_appController{appController}
+  {
+  }
+
+  void enqueue(QStringList fileNames)
+  {
+    m_pendingRequests.push_back(std::move(fileNames));
+
+    if (auto* modalWidget = QApplication::activeModalWidget();
+        modalWidget && !m_processing)
+    {
+      // let the user know why the request isn't handled yet
+      activateWindow(*modalWidget);
+    }
+
+    scheduleProcessing(0ms);
+  }
+
+private:
+  void scheduleProcessing(const std::chrono::milliseconds delay)
+  {
+    QTimer::singleShot(delay, this, [this]() { processNextRequest(); });
+  }
+
+  void processNextRequest()
+  {
+    if (m_processing || m_pendingRequests.empty())
+    {
+      return;
+    }
+
+    if (QApplication::activeModalWidget())
+    {
+      scheduleProcessing(250ms);
+      return;
+    }
+
+    m_processing = true;
+
+    const auto fileNames = std::move(m_pendingRequests.front());
+    m_pendingRequests.pop_front();
+
+    if (!openFiles(m_appController, fileNames))
+    {
+      // the other instance was started without files, or none of them could be opened
+      if (auto* mapWindow = m_appController.mapWindowManager().topMapWindow())
+      {
+        activateWindow(*mapWindow);
+      }
+      else
+      {
+        m_appController.showWelcomeWindow();
+      }
+    }
+
+    m_processing = false;
+
+    if (!m_pendingRequests.empty())
+    {
+      scheduleProcessing(0ms);
+    }
+  }
+};
+
+#endif
 
 
 } // namespace
@@ -383,6 +529,20 @@ int main(int argc, char* argv[])
   PreferenceManager::createInstance(
     std::make_unique<QPreferenceStore>(pathAsQString(SystemPaths::preferenceFilePath())));
 
+  const auto fileNames = parseCommandLine();
+
+#if !defined(Q_OS_MACOS)
+  // On macOS, the system ensures that only one instance is running and sends the files
+  // to open via QFileOpenEvent instead (see FileEventFilter).
+  auto singleInstance = singleinstance::SingleInstance{singleInstanceKey(), 5s};
+  if (
+    singleInstance.role() == singleinstance::Role::Secondary
+    && singleInstance.sendMessage(toAbsolutePaths(fileNames), 10s))
+  {
+    return 0;
+  }
+#endif
+
   // Style sheets must be loaded before creating the app controller, or they won't apply
   // to the welcome window, which the app controller creates
   loadStyleSheets();
@@ -391,6 +551,16 @@ int main(int argc, char* argv[])
   auto appController = createAppController();
   auto crashReporter = CrashReporter{*appController};
   setContractViolationHandler(crashReporter);
+
+#if !defined(Q_OS_MACOS)
+  // Connect before any event loop runs, or messages could be lost.
+  auto forwardedFileOpener = ForwardedFileOpener{*appController};
+  QObject::connect(
+    &singleInstance,
+    &singleinstance::SingleInstance::messageReceived,
+    &forwardedFileOpener,
+    &ForwardedFileOpener::enqueue);
+#endif
 
 #if defined(Q_OS_MACOS)
   app.setQuitOnLastWindowClosed(false);
@@ -401,7 +571,7 @@ int main(int argc, char* argv[])
   appController->askForAutoUpdates();
   appController->triggerAutoUpdateCheck();
 
-  if (!parseCommandLineAndOpenFiles(*appController))
+  if (!openFiles(*appController, fileNames))
   {
     appController->showWelcomeWindow();
   }
