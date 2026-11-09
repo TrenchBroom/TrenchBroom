@@ -1301,19 +1301,25 @@ void Map::loadMaterials()
 
   m_materialManager->clear();
 
-  m_palette | kdl::and_then([&](const auto& palette) {
-    return loadMaterialCollections(
-      *m_gameFileSystem,
-      gameInfo().gameConfig.materialConfig,
-      makeCreateResource<gl::TextureResource>(m_resourceManager),
-      palette,
-      taskManager(),
-      m_logger);
-  }) | kdl::transform([&](auto materialCollections) {
-    m_materialManager->setMaterialCollections(std::move(materialCollections));
-  }) | kdl::transform_error([&](auto e) {
-    m_logger.error() << "Could not reload material collections: " + e.msg;
-  });
+  const auto palette = m_palette | kdl::transform_error([&](auto e) {
+                         m_logger.error() << e.msg;
+                         return std::optional<Palette>{};
+                       })
+                       | kdl::value();
+
+  loadMaterialCollections(
+    *m_gameFileSystem,
+    gameInfo().gameConfig.materialConfig,
+    makeCreateResource<gl::TextureResource>(m_resourceManager),
+    palette,
+    taskManager(),
+    m_logger)
+    | kdl::transform([&](auto materialCollections) {
+        m_materialManager->setMaterialCollections(std::move(materialCollections));
+      })
+    | kdl::transform_error([&](auto e) {
+        m_logger.error() << "Could not reload material collections: " + e.msg;
+      });
 }
 
 void Map::clearMaterials()

@@ -73,7 +73,13 @@ TEST_CASE("loadMd3Model")
 
     const auto loadMaterial = [&](const auto& materialPath) {
       return mdl::loadMaterial(
-               fs, materialConfig, materialPath, createResource, shaders, std::nullopt)
+               fs,
+               materialConfig,
+               materialPath,
+               createResource,
+               shaders,
+               std::nullopt,
+               logger)
              | kdl::or_else(makeReadMaterialErrorHandler(fs, logger)) | kdl::value();
     };
 
@@ -132,7 +138,13 @@ TEST_CASE("loadMd3Model")
 
       const auto loadMaterial = [&](const auto& materialPath) {
         return mdl::loadMaterial(
-                 fs, materialConfig, materialPath, createResource, shaders, std::nullopt)
+                 fs,
+                 materialConfig,
+                 materialPath,
+                 createResource,
+                 shaders,
+                 std::nullopt,
+                 logger)
                | kdl::or_else(makeReadMaterialErrorHandler(fs, logger)) | kdl::value();
       };
 

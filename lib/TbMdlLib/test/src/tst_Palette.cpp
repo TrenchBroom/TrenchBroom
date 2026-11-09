@@ -26,6 +26,10 @@
 
 #include "kd/result.h"
 
+#include <fmt/format.h>
+#include <fmt/std.h>
+
+#include <filesystem>
 #include <optional>
 
 #include <catch2/catch_test_macros.hpp>
@@ -256,7 +260,11 @@ TEST_CASE("Palette")
 
     SECTION("returns an error if the palette file does not exist")
     {
-      CHECK(loadPalette(fs, "missing.lmp").is_error());
+      CHECK(
+        loadPalette(fs, "missing.lmp")
+        == Result<std::optional<Palette>>{Error{fmt::format(
+          "Could not load palette: {} not found",
+          std::filesystem::path{"missing.lmp"})}});
     }
   }
 }

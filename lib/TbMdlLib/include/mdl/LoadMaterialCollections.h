@@ -58,7 +58,8 @@ Result<gl::Material> loadMaterial(
   const std::filesystem::path& materialPath,
   const gl::CreateTextureResource& createResource,
   const std::vector<Quake3Shader>& shaders,
-  const std::optional<Palette>& palette);
+  const std::optional<Palette>& palette,
+  Logger& logger);
 
 Result<std::vector<gl::MaterialCollection>> loadMaterialCollections(
   const fs::FileSystem& fs,

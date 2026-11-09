@@ -18,6 +18,7 @@
  */
 
 #include "TestEnvironment.h"
+#include "TestLogger.h"
 #include "base/Logger.h"
 #include "fs/DiskFileSystem.h"
 #include "fs/TestUtils.h"
@@ -152,13 +153,13 @@ TEST_CASE("LoadMaterialCollections")
       {},
     };
 
-    CHECK(
-      loadMaterial(fs, materialConfig, "material.jpg", createResource, {}, std::nullopt));
+    CHECK(loadMaterial(
+      fs, materialConfig, "material.jpg", createResource, {}, std::nullopt, logger));
 
     SECTION("find alternative file extensions")
     {
       CHECK(loadMaterial(
-        fs, materialConfig, "material.png", createResource, {}, std::nullopt));
+        fs, materialConfig, "material.png", createResource, {}, std::nullopt, logger));
     }
 
     SECTION(
@@ -184,7 +185,8 @@ TEST_CASE("LoadMaterialCollections")
                               "textures/{fence.D",
                               lazyCreateResource,
                               {},
-                              std::nullopt)
+                              std::nullopt,
+                              logger)
                             | kdl::value();
 
       // the resource must still be unresolved, or the check below could also be
@@ -207,7 +209,8 @@ TEST_CASE("LoadMaterialCollections")
                               "textures/{material.jpg",
                               lazyCreateResource,
                               {},
-                              std::nullopt)
+                              std::nullopt,
+                              logger)
                             | kdl::value();
 
       CHECK(!material.effectiveAlphaFunc());
@@ -223,7 +226,7 @@ TEST_CASE("LoadMaterialCollections")
 
       const auto material =
         loadMaterial(
-          fs, materialConfig, "material", createResource, {shader}, std::nullopt)
+          fs, materialConfig, "material", createResource, {shader}, std::nullopt, logger)
         | kdl::value();
       CHECK(
         material.effectiveAlphaFunc()
@@ -240,7 +243,7 @@ TEST_CASE("LoadMaterialCollections")
 
       const auto material =
         loadMaterial(
-          fs, materialConfig, "material", createResource, {shader}, std::nullopt)
+          fs, materialConfig, "material", createResource, {shader}, std::nullopt, logger)
         | kdl::value();
       CHECK(
         material.effectiveAlphaFunc()
@@ -259,7 +262,7 @@ TEST_CASE("LoadMaterialCollections")
 
       const auto material =
         loadMaterial(
-          fs, materialConfig, "material", createResource, {shader}, std::nullopt)
+          fs, materialConfig, "material", createResource, {shader}, std::nullopt, logger)
         | kdl::value();
       CHECK(
         material.effectiveAlphaFunc()
@@ -376,6 +379,47 @@ TEST_CASE("LoadMaterialCollections")
             },
           }));
       }
+    }
+
+    SECTION("Missing palette")
+    {
+      const auto wadPath =
+        fixtureRoot / "test/mdl/LoadMaterialCollections/wads/cr8_a_excerpt.wad";
+      const auto fallbackDir =
+        fixtureRoot
+        / "test/mdl/LoadMaterialCollections/shaders/shader_with_missing_image/fallback";
+
+      // The fallback dir provides "__TB_empty.png", which replaces the textures that
+      // cannot be loaded without the palette.
+      fs.mount("", std::make_unique<fs::DiskFileSystem>(fallbackDir));
+      fs.mount("textures", fs::openFS<fs::WadFileSystem>(wadPath));
+
+      const auto materialConfig = mdl::MaterialConfig{
+        "textures",
+        {".D"},
+        "",
+        "wad",
+        "",
+        {},
+      };
+
+      auto testLogger = TestLogger{};
+
+      CHECK_THAT(
+        loadMaterialCollections(
+          fs, materialConfig, createResource, std::nullopt, taskManager, testLogger),
+        MatchesMaterialCollections({
+          {
+            "cr8_a_excerpt.wad",
+            {
+              MaterialInfo{"added", 32, 32},
+              MaterialInfo{"cr8_czg_1", 32, 32},
+            },
+          },
+        }));
+
+      // each texture that cannot be loaded is reported
+      CHECK(testLogger.countMessages(LogLevel::Error) == 2);
     }
 
     SECTION("Quake 3 shaders")

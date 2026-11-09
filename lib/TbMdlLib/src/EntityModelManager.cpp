@@ -183,7 +183,8 @@ Result<EntityModel> EntityModelManager::loadModel(
              materialPath,
              gl::createResourceSync<gl::Texture>,
              m_shaders,
-             std::nullopt)
+             std::nullopt,
+             m_logger)
            | kdl::or_else(makeReadMaterialErrorHandler(m_gameFileSystem, m_logger))
            | kdl::value();
   };

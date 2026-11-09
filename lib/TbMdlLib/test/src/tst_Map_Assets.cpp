@@ -21,11 +21,14 @@
 #include "TestEnvironment.h"
 #include "base/Result.h"
 #include "fs/TestEnvironment.h"
+#include "gl/Material.h"
 #include "gl/MaterialCollection.h"
 #include "gl/MaterialManager.h"
 #include "gl/Resource.h"
 #include "gl/ResourceManager.h"
 #include "gl/TestGl.h"
+#include "gl/TestUtils.h"
+#include "gl/Texture.h"
 #include "mdl/BrushFace.h" // IWYU pragma: keep
 #include "mdl/BrushNode.h"
 #include "mdl/CatchConfig.h"
@@ -40,6 +43,7 @@
 #include "mdl/WorldNode.h"
 
 #include "kd/path_utils.h"
+#include "kd/ranges/to.h"
 
 #include <algorithm>
 #include <atomic>
@@ -51,6 +55,7 @@
 #include <ranges>
 #include <string>
 #include <thread>
+#include <vector>
 
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/generators/catch_generators.hpp>
@@ -467,7 +472,7 @@ TEST_CASE("Map_Assets")
     CHECK(map.materialManager().collections().front().materials().size() == 2);
   }
 
-  SECTION("reloadAssets picks up a palette added to disk")
+  SECTION("loads materials that don't require the palette if it is missing")
   {
     auto env = fs::TestEnvironment{};
     env.createDirectory("textures");
@@ -482,14 +487,57 @@ TEST_CASE("Map_Assets")
 
     auto& map = fixture.create(fixtureConfig);
 
-    // the materials cannot be loaded without the palette
-    REQUIRE(map.materialManager().collections().empty());
+    REQUIRE(map.materialManager().collections().size() == 1);
+    CHECK(map.materialManager().collections().front().materials().size() == 1);
+  }
+
+  SECTION("reloadAssets picks up a palette added to disk")
+  {
+    auto env = fs::TestEnvironment{};
+    std::filesystem::copy_file(
+      getFixtureRoot() / "test/mdl/Map/folder/cr8_a_excerpt.wad",
+      env.dir() / "cr8_a_excerpt.wad");
+    env.createDirectory("textures");
+    std::filesystem::copy_file(
+      getFixtureRoot()
+        / "test/mdl/LoadMaterialCollections/shaders/shader_with_missing_image/fallback/"
+          "textures/__TB_empty.png",
+      env.dir() / "textures/__TB_empty.png");
+
+    auto gameConfig = DefaultGameInfo.gameConfig;
+    gameConfig.materialConfig.palette = "palette.lmp";
+    gameConfig.materialConfig.property = "wad";
+
+    auto fixtureConfig = MapFixtureConfig{};
+    fixtureConfig.gameInfo = detail::makeGameInfoFixture(gameConfig, env.dir());
+
+    auto& map = fixture.create(fixtureConfig);
+    REQUIRE(setEntityProperty(map, EntityPropertyKeys::Wad, "cr8_a_excerpt.wad"));
+
+    const auto textureWidths = [&]() {
+      return map.materialManager().collections().front().materials()
+             | std::views::transform([](const auto& material) {
+                 const auto* texture = material.texture();
+                 return texture ? texture->width() : size_t(0);
+               })
+             | kdl::ranges::to<std::vector>();
+    };
+
+    auto gl = gl::TestGl{};
+    const auto processContext = gl::ProcessContext{gl, [](auto, auto) {}};
+    gl::processResourcesSync(map.resourceManager(), processContext);
+
+    // the materials are loaded, but they show the default texture without the palette
+    REQUIRE(map.materialManager().collections().size() == 1);
+    REQUIRE(textureWidths() == std::vector<size_t>{32, 32});
 
     std::filesystem::copy_file(
       getFixtureRoot() / "test/mdl/Palette/palette.lmp", env.dir() / "palette.lmp");
     reloadAssets(map);
+    gl::processResourcesSync(map.resourceManager(), processContext);
 
-    CHECK(map.materialManager().collections().size() == 1);
+    REQUIRE(map.materialManager().collections().size() == 1);
+    CHECK(textureWidths() == std::vector<size_t>{128, 64});
   }
 
   SECTION("reloadAssets picks up entity definition changes on disk")

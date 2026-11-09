@@ -252,7 +252,10 @@ Result<std::optional<Palette>> loadPalette(
     return Result<std::optional<Palette>>{std::nullopt};
   }
 
-  return fs.openFile(path)
+  return fs.openFile(path) | kdl::or_else([](auto e) {
+           return Result<std::shared_ptr<fs::File>>{
+             Error{"Could not load palette: " + e.msg}};
+         })
          | kdl::and_then([&](auto file) { return loadPalette(*file, path); })
          | kdl::transform([](auto palette) { return std::optional{std::move(palette)}; });
 }
