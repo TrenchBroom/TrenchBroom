@@ -498,13 +498,18 @@ std::vector<MapFormatConfig> parseMapFormatConfigs(const el::Value& value)
 Result<GameConfig> parseGameConfig(
   el::EvaluationContext& context,
   const el::ExpressionNode& expression,
-  const std::filesystem::path& configFilePath)
+  const std::filesystem::path& configFilePath,
+  el::IntegerType* configVersion)
 {
   try
   {
     const auto root = expression.evaluate(context);
 
     checkVersion(root.at("version"));
+    if (configVersion)
+    {
+      *configVersion = root.at("version").convertTo(el::ValueType::Number).integerValue();
+    }
 
     auto gameName = root.at("name").stringValue();
 
@@ -544,12 +549,16 @@ Result<GameConfig> parseGameConfig(
 
 
 Result<GameConfig> parseGameConfig(
-  std::string_view str, const std::filesystem::path& path)
+  std::string_view str,
+  const std::filesystem::path& path,
+  el::IntegerType* configVersion)
 {
   return parseConfigExpression(str, 9)
          | kdl::and_then([&](const auto& expression) -> Result<GameConfig> {
              return el::withEvaluationContext(
-               [&](auto& context) { return parseGameConfig(context, expression, path); });
+               [&](auto& context) {
+                 return parseGameConfig(context, expression, path, configVersion);
+               });
            });
 }
 

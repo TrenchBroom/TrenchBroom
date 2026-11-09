@@ -135,7 +135,7 @@ kdl_reflect_impl(CompilationConfig);
 el::Value toValue(const CompilationConfig& compilationConfig)
 {
   return el::Value{el::MapType{
-    {"version", el::Value{1.0}},
+    {"version", el::Value{2.0}},
     {"profiles", toValue(compilationConfig.profiles)},
   }};
 }

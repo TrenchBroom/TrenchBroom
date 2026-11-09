@@ -58,26 +58,35 @@ std::vector<GameEngineProfile> toProfiles(const el::Value& value)
 }
 
 Result<GameEngineConfig> toGameEngineConfig(
-  el::EvaluationContext& context, const el::ExpressionNode& expression)
+  el::EvaluationContext& context,
+  const el::ExpressionNode& expression,
+  el::IntegerType* configVersion)
 {
   const auto root = expression.evaluate(context);
 
-  if (const auto version = root.at("version").numberValue();
-      version != 1.0 && version != 2.0)
+  const auto version = root.at("version").numberValue();
+  if (version != 1.0 && version != 2.0)
   {
     return Error{fmt::format("Unsupported game engine config version {}", version)};
   }
 
+  if (configVersion)
+  {
+    *configVersion = static_cast<el::IntegerType>(version);
+  }
   return GameEngineConfig{toProfiles(root.at("profiles"))};
 }
 
 } // namespace
 
-Result<GameEngineConfig> parseGameEngineConfig(const std::string_view str)
+Result<GameEngineConfig> parseGameEngineConfig(
+  const std::string_view str, el::IntegerType* configVersion)
 {
   return parseConfigExpression(str, 1) | kdl::and_then([&](const auto& expression) {
            return el::withEvaluationContext(
-             [&](auto& context) { return toGameEngineConfig(context, expression); });
+             [&](auto& context) {
+               return toGameEngineConfig(context, expression, configVersion);
+             });
          });
 }
 

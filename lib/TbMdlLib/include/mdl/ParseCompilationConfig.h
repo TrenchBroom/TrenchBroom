@@ -20,6 +20,7 @@
 #pragma once
 
 #include "base/Result.h"
+#include "el/Types.h"
 #include "mdl/CompilationConfig.h"
 
 #include <string_view>
@@ -28,6 +29,7 @@
 namespace tb::mdl
 {
 
-Result<CompilationConfig> parseCompilationConfig(std::string_view str);
+Result<CompilationConfig> parseCompilationConfig(
+  std::string_view str, el::IntegerType* configVersion = nullptr);
 
 } // namespace tb::mdl

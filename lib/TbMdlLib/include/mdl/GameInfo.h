@@ -42,6 +42,8 @@ struct GameInfo
   GameEngineConfig gameEngineConfig = {};
   bool compilationConfigParseFailed = false;
   bool gameEngineConfigParseFailed = false;
+  bool compilationConfigNeedsMigration = false;
+  bool gameEngineConfigNeedsMigration = false;
 
   kdl_reflect_decl(
     GameInfo,

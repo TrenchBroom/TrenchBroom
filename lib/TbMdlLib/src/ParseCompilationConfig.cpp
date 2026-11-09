@@ -191,17 +191,23 @@ std::vector<CompilationProfile> toProfiles(const el::Value& value)
 }
 
 Result<CompilationConfig> toCompilationConfig(
-  el::EvaluationContext& context, const el::ExpressionNode& expression)
+  el::EvaluationContext& context,
+  const el::ExpressionNode& expression,
+  el::IntegerType* configVersion)
 {
   try
   {
     const auto root = expression.evaluate(context);
-    if (const auto version = root.at("version").numberValue();
-        version != 1.0 && version != 2.0)
+    const auto version = root.at("version").numberValue();
+    if (version != 1.0 && version != 2.0)
     {
       return Error{fmt::format("Unsupported compilation config version {}", version)};
     }
 
+    if (configVersion)
+    {
+      *configVersion = static_cast<el::IntegerType>(version);
+    }
     return CompilationConfig{toProfiles(root.at("profiles"))};
   }
   catch (const ParserException& e)
@@ -213,11 +219,14 @@ Result<CompilationConfig> toCompilationConfig(
 } // namespace
 
 
-Result<CompilationConfig> parseCompilationConfig(const std::string_view str)
+Result<CompilationConfig> parseCompilationConfig(
+  const std::string_view str, el::IntegerType* configVersion)
 {
   return parseConfigExpression(str, 1) | kdl::and_then([&](const auto& expression) {
            return el::withEvaluationContext(
-             [&](auto& context) { return toCompilationConfig(context, expression); });
+             [&](auto& context) {
+               return toCompilationConfig(context, expression, configVersion);
+             });
          });
 }
 

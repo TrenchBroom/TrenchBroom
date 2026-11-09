@@ -52,7 +52,7 @@ kdl_reflect_impl(GameEngineConfig);
 el::Value toValue(const GameEngineConfig& config)
 {
   return el::Value{el::MapType{
-    {"version", el::Value{1.0}},
+    {"version", el::Value{2.0}},
     {"profiles", toValue(config.profiles)},
   }};
 }

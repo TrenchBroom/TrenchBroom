@@ -28,6 +28,8 @@
 #include <catch2/matchers/catch_matchers_range_equals.hpp>
 #include <catch2/matchers/catch_matchers_string.hpp>
 
+#include <algorithm>
+
 namespace tb::mdl
 {
 namespace
@@ -135,7 +137,7 @@ TEST_CASE("GameManager")
         gameConfigSearchDirs.front() / "Quake" / "GameConfig.cfg";
 
       initializeGameManager(gameConfigSearchDirs, userGameDir)
-        | kdl::transform([&](const auto& gameManager, const auto&) {
+        | kdl::transform([&](const auto& gameManager, const auto& warnings) {
             const auto& gameInfos = gameManager.gameInfos();
             REQUIRE(gameInfos.size() == 1);
 
@@ -148,9 +150,20 @@ TEST_CASE("GameManager")
 
             CHECK(!gameInfo.compilationConfigParseFailed);
             CHECK(gameInfo.compilationConfig.profiles.size() == 1);
+            CHECK_THAT(
+              env.loadFile(userPath / "Quake/CompilationProfiles.cfg"),
+              ContainsSubstring("\"version\": 2"));
+            CHECK(env.fileExists(userPath / "Quake/CompilationProfiles.cfg.bak"));
 
             CHECK(!gameInfo.gameEngineConfigParseFailed);
             CHECK(gameInfo.gameEngineConfig.profiles.size() == 1);
+            CHECK_THAT(
+              env.loadFile(userPath / "Quake/GameEngineProfiles.cfg"),
+              ContainsSubstring("\"version\": 2"));
+            CHECK(env.fileExists(userPath / "Quake/GameEngineProfiles.cfg.bak"));
+            CHECK(std::ranges::any_of(warnings, [](const auto& warning) {
+              return warning.second.find("version 9 is deprecated") != std::string::npos;
+            }));
           })
         | kdl::transform_error([](const auto& e) { FAIL(e); });
     }
@@ -443,10 +456,9 @@ TEST_CASE("GameManager")
       | kdl::transform_error([](const auto& e) { FAIL(e); });
   }
 
-  SECTION("writes configs with legacy string escaping")
+  SECTION("writes configs with current string escaping")
   {
-    // configs are written as version 1 so that earlier versions of TrenchBroom can read
-    // them, and version 1 escapes every backslash
+    // Configs are written as version 2 and use the current string escaping rules.
     auto env = fs::TestEnvironment{};
 
     env.createDirectory(gamesPath);
@@ -476,9 +488,9 @@ TEST_CASE("GameManager")
 
     CHECK_THAT(
       env.loadFile(userPath / "Quake/GameEngineProfiles.cfg"),
-      ContainsSubstring("\"version\": 1")
-        && ContainsSubstring("\"path\": \"C:\\\\Quake\\\\quake.exe\"")
-        && ContainsSubstring("\"parameters\": \"-basedir \\\\\\\\server\\\\quake\""));
+      ContainsSubstring("\"version\": 2")
+        && ContainsSubstring("\"path\": \"C:\\Quake\\quake.exe\"")
+        && ContainsSubstring("\"parameters\": \"-basedir \\\\server\\quake\""));
 
     initializeGameManager(gameConfigSearchDirs, userGameDir)
       | kdl::transform([&](const auto& gameManager, const auto&) {

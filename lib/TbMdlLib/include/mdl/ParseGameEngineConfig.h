@@ -20,6 +20,7 @@
 #pragma once
 
 #include "base/Result.h"
+#include "el/Types.h"
 #include "mdl/GameEngineConfig.h"
 
 #include <string_view>
@@ -27,6 +28,7 @@
 namespace tb::mdl
 {
 
-Result<GameEngineConfig> parseGameEngineConfig(std::string_view str);
+Result<GameEngineConfig> parseGameEngineConfig(
+  std::string_view str, el::IntegerType* configVersion = nullptr);
 
 } // namespace tb::mdl

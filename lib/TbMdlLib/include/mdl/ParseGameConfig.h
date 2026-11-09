@@ -20,6 +20,7 @@
 #pragma once
 
 #include "base/Result.h"
+#include "el/Types.h"
 #include "mdl/GameConfig.h"
 
 #include <filesystem>
@@ -31,6 +32,8 @@ namespace tb::mdl
 {
 
 Result<GameConfig> parseGameConfig(
-  std::string_view str, const std::filesystem::path& path = {});
+  std::string_view str,
+  const std::filesystem::path& path = {},
+  el::IntegerType* configVersion = nullptr);
 
 } // namespace tb::mdl

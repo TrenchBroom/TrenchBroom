@@ -115,15 +115,17 @@ Result<void> migrateConfigFiles(
 LoadConfigResult<void> loadCompilationConfig(const fs::FileSystem& fs, GameInfo& gameInfo)
 {
   const auto path = gameInfo.gameConfig.configFileFolder() / compilationConfigFilename;
+  auto configVersion = el::IntegerType{};
   if (fs.pathInfo(path) == fs::PathInfo::File)
   {
     return fs.openFile(path) | kdl::and_then([&](auto profilesFile) {
              auto reader = profilesFile->reader().buffer();
-             return parseCompilationConfig(reader.stringView());
+             return parseCompilationConfig(reader.stringView(), &configVersion);
            })
            | toLoadConfigResult<CompilationConfig>(path)
            | kdl::transform([&](auto compilationConfig) {
                gameInfo.compilationConfig = std::move(compilationConfig);
+               gameInfo.compilationConfigNeedsMigration = configVersion == 1;
              })
            | kdl::if_error(
              [&](const auto&) { gameInfo.compilationConfigParseFailed = true; });
@@ -135,15 +137,17 @@ LoadConfigResult<void> loadCompilationConfig(const fs::FileSystem& fs, GameInfo&
 LoadConfigResult<void> loadGameEngineConfig(const fs::FileSystem& fs, GameInfo& gameInfo)
 {
   const auto path = gameInfo.gameConfig.configFileFolder() / gameEngineConfigFilename;
+  auto configVersion = el::IntegerType{};
   if (fs.pathInfo(path) == fs::PathInfo::File)
   {
     return fs.openFile(path) | kdl::and_then([&](auto profilesFile) {
              auto reader = profilesFile->reader().buffer();
-             return parseGameEngineConfig(reader.stringView());
+             return parseGameEngineConfig(reader.stringView(), &configVersion);
            })
            | toLoadConfigResult<GameEngineConfig>(path)
            | kdl::transform([&](auto gameEngineConfig) {
                gameInfo.gameEngineConfig = std::move(gameEngineConfig);
+               gameInfo.gameEngineConfigNeedsMigration = configVersion == 1;
              })
            | kdl::if_error(
              [&](const auto&) { gameInfo.gameEngineConfigParseFailed = true; });
@@ -155,12 +159,13 @@ LoadConfigResult<void> loadGameEngineConfig(const fs::FileSystem& fs, GameInfo& 
 Result<GameConfig> loadGameConfig(
   fs::FileSystem& fs,
   const std::filesystem::path& userGameDir,
-  const std::filesystem::path& path)
+  const std::filesystem::path& path,
+  el::IntegerType* configVersion)
 {
   return fs.openFile(path).join(fs.makeAbsolute(path))
          | kdl::and_then([&](auto configFile, auto absolutePath) {
              auto reader = configFile->reader().buffer();
-             return parseGameConfig(reader.stringView(), absolutePath);
+             return parseGameConfig(reader.stringView(), absolutePath, configVersion);
            })
          | kdl::transform([&](auto config) {
              migrateConfigFiles(fs, userGameDir, config)
@@ -181,14 +186,23 @@ LoadConfigResult<GameInfo> loadGameInfo(
     warnings.emplace(std::move(e.path), std::move(e.msg));
   };
 
-  return loadGameConfig(fs, userGameDir, path) | kdl::transform([&](auto gameConfig) {
-           auto gameInfo = makeGameInfo(std::move(gameConfig));
+  auto configVersion = el::IntegerType{};
+  return loadGameConfig(fs, userGameDir, path, &configVersion)
+         | kdl::transform([&](auto gameConfig) {
+             if (configVersion == 9)
+             {
+               warnings.emplace(
+                 path,
+                 "Game configuration version 9 is deprecated. Update this file to version 10 "
+                 "and check strings containing backslashes.");
+             }
+             auto gameInfo = makeGameInfo(std::move(gameConfig));
 
-           loadCompilationConfig(fs, gameInfo) | kdl::transform_error(saveWarning);
-           loadGameEngineConfig(fs, gameInfo) | kdl::transform_error(saveWarning);
+             loadCompilationConfig(fs, gameInfo) | kdl::transform_error(saveWarning);
+             loadGameEngineConfig(fs, gameInfo) | kdl::transform_error(saveWarning);
 
-           return gameInfo;
-         })
+             return gameInfo;
+           })
          | toLoadConfigResult<GameInfo>(path);
 }
 
@@ -249,12 +263,13 @@ Result<bool> writeConfig(
   Config newConfig,
   const std::filesystem::path& filename,
   const std::string_view configLabel,
-  Logger& logger)
+  Logger& logger,
+  const bool forceWrite = false)
 {
   auto& currentConfig = gameInfo.*configField;
   auto& parseFailed = gameInfo.*parseFailedField;
 
-  if (!parseFailed && currentConfig == newConfig)
+  if (!forceWrite && !parseFailed && currentConfig == newConfig)
   {
     // NOTE: this is not just an optimization, but important for ensuring that
     // we don't clobber data saved by a newer version of TB, unless we actually
@@ -266,12 +281,19 @@ Result<bool> writeConfig(
   }
 
   const auto profilesPath = gameInfo.gameConfig.configFileFolder() / filename;
-  backupFile(fs, profilesPath, parseFailed, logger);
+  if (forceWrite)
+  {
+    auto needsBackup = true;
+    backupFile(fs, profilesPath, needsBackup, logger);
+  }
+  else
+  {
+    backupFile(fs, profilesPath, parseFailed, logger);
+  }
 
   return fs.createDirectory(profilesPath.parent_path()) | kdl::and_then([&](auto) {
            auto stream = std::stringstream{};
-           toValue(newConfig).appendToStream(
-             stream, true, "", el::StringEscaping::Legacy);
+           toValue(newConfig).appendToStream(stream, true);
            stream << "\n";
            return fs.createFileAtomic(profilesPath, stream.str());
          })
@@ -286,7 +308,8 @@ Result<bool> writeCompilationConfig(
   fs::WritableFileSystem& fs,
   GameInfo& gameInfo,
   CompilationConfig compilationConfig,
-  Logger& logger)
+  Logger& logger,
+  const bool forceWrite = false)
 {
   return writeConfig(
     fs,
@@ -296,7 +319,8 @@ Result<bool> writeCompilationConfig(
     std::move(compilationConfig),
     compilationConfigFilename,
     "compilation config",
-    logger);
+    logger,
+    forceWrite);
 }
 
 // Returns whether gameInfo.gameEngineConfig was actually updated (false if the write
@@ -305,7 +329,8 @@ Result<bool> writeGameEngineConfig(
   fs::WritableFileSystem& fs,
   GameInfo& gameInfo,
   GameEngineConfig gameEngineConfig,
-  Logger& logger)
+  Logger& logger,
+  const bool forceWrite = false)
 {
   return writeConfig(
     fs,
@@ -315,7 +340,8 @@ Result<bool> writeGameEngineConfig(
     std::move(gameEngineConfig),
     gameEngineConfigFilename,
     "game engine config",
-    logger);
+    logger,
+    forceWrite);
 }
 
 } // namespace
@@ -325,6 +351,29 @@ GameManager::GameManager(
   : m_configFs{std::move(configFs)}
   , m_gameInfos{std::move(gameInfos)}
 {
+  auto logger = NullLogger{};
+  for (auto& gameInfo : m_gameInfos)
+  {
+    const auto compilationProfilesPath =
+      gameInfo.gameConfig.configFileFolder() / compilationConfigFilename;
+    if (gameInfo.compilationConfigNeedsMigration
+        && m_configFs->pathInfo(compilationProfilesPath) == fs::PathInfo::File)
+    {
+      writeCompilationConfig(
+        *m_configFs, gameInfo, gameInfo.compilationConfig, logger, true)
+        | kdl::transform_error([&](const auto& e) { logger.error() << e.msg; });
+    }
+
+    const auto gameEngineProfilesPath =
+      gameInfo.gameConfig.configFileFolder() / gameEngineConfigFilename;
+    if (gameInfo.gameEngineConfigNeedsMigration
+        && m_configFs->pathInfo(gameEngineProfilesPath) == fs::PathInfo::File)
+    {
+      writeGameEngineConfig(
+        *m_configFs, gameInfo, gameInfo.gameEngineConfig, logger, true)
+        | kdl::transform_error([&](const auto& e) { logger.error() << e.msg; });
+    }
+  }
   std::ranges::sort(
     m_gameInfos, kdl::ci::string_less_natural{}, [](const auto& gameInfo) {
       return gameInfo.gameConfig.name;

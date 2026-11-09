@@ -70,7 +70,7 @@ TEST_CASE("toValue")
   SECTION("empty config")
   {
     CHECK(toValue(CompilationConfig{}) == parse(R"({
-      "version": 1.0,
+      "version": 2.0,
       "profiles": []
     })"));
   }
@@ -82,7 +82,7 @@ TEST_CASE("toValue")
         {"name", "workDirSpec", {}},
       }})
       == parse(R"({
-        "version": 1.0,
+        "version": 2.0,
         "profiles": [
           {
             "name": "name",
@@ -131,7 +131,7 @@ TEST_CASE("toValue")
       }})
       == parse(fmt::format(
         R"({{
-        "version": 1.0,
+        "version": 2.0,
         "profiles": [
           {{
             "name": "name",
@@ -173,7 +173,7 @@ TEST_CASE("toValue")
       }})
       == parse(fmt::format(
         R"({{
-        "version": 1.0,
+        "version": 2.0,
         "profiles": [
           {{
             "name": "name",
@@ -210,7 +210,7 @@ TEST_CASE("toValue")
       }})
       == parse(fmt::format(
         R"({{
-        "version": 1.0,
+        "version": 2.0,
         "profiles": [
           {{
             "name": "name",
@@ -246,7 +246,7 @@ TEST_CASE("toValue")
       }})
       == parse(fmt::format(
         R"({{
-        "version": 1.0,
+        "version": 2.0,
         "profiles": [
           {{
             "name": "name",
@@ -284,7 +284,7 @@ TEST_CASE("toValue")
       }})
       == parse(fmt::format(
         R"({{
-        "version": 1.0,
+        "version": 2.0,
         "profiles": [
           {{
             "name": "name",
@@ -324,7 +324,7 @@ TEST_CASE("toValue")
       }})
       == parse(fmt::format(
         R"({{
-        "version": 1.0,
+        "version": 2.0,
         "profiles": [
           {{
             "name": "name",
