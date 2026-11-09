@@ -22,6 +22,9 @@
 		8 : "hazard_respawn" : 0
 	]
 	team(string) : "The team name for alternating item spawns"
+	quetoo(string) : "Replacement item classname in quetoo mode; absent uses table, empty suppresses"
+	quake(string) : "Replacement item classname in quake mode; absent uses table, empty suppresses"
+	quake2(string) : "Replacement item classname in quake2 mode; absent uses table, empty suppresses"
 ]
 
 @PointClass base(Item) color(0 255 0) size(-4 -4 -6, 4 4 6) studio("") = item_armor_shard : "Shard armor (+3)" []
@@ -36,11 +39,11 @@
 @PointClass base(Item) color(220 180 0) studio("") = item_health : "Health (+15)" []
 @PointClass base(Item) color(240 60 40) studio("") = item_health_large : "Large health (+25)" []
 @PointClass base(Item) color(30 100 200) studio("") = item_health_mega : "Megahealth (+75)" []
-@PointClass base(Item) color(255 0 0) studio("") = item_health_quake_large : "Quake Large Health (+25)." []
-@PointClass base(Item) color(204 204 0) studio("") = item_health_quake_medium : "Quake Health (+15)." []
-@PointClass base(Item) color(76 76 255) studio("") = item_health_quake_mega : "Quake Mega Health (+100)." []
+@PointClass base(Item) color(255 0 0) studio("") = item_quake_health_large : "Quake Large Health (+25)." []
+@PointClass base(Item) color(204 204 0) studio("") = item_quake_health_medium : "Quake Health (+15)." []
+@PointClass base(Item) color(76 76 255) studio("") = item_quake_health_mega : "Quake Mega Health (+100)." []
 
-@PointClass base(Item) color(80 100 255) studio("") = item_adrenaline : "Adrenaline" []
+@PointClass base(Item) color(80 100 255) studio("") = item_adrenaline : "Adrenaline. Boosts health to 120% of max, decaying back over time." []
 @PointClass base(Item) color(20 180 180) studio("") = item_quad : "Quad damage" []
 @PointClass base(Item) color(204 26 26) studio("") = item_invulnerability : "Invulnerability. Grants full invulnerability for 30 seconds." []
 @PointClass base(Item) color(51 51 102) studio("") = item_invisibility : "Invisibility. Makes the player nearly invisible for 30 seconds." []
@@ -84,6 +87,35 @@
 @PointClass base(Ammo) color(153 153 26) studio("") = ammo_quake_nails : "Nails for the Quake Nailgun and Super Nailgun." []
 @PointClass base(Ammo) color(204 51 51) studio("") = ammo_quake_rockets : "Rockets for the Quake Grenade Launcher and Rocket Launcher." []
 @PointClass base(Ammo) color(153 153 26) studio("") = ammo_quake_shells : "Shells for the Quake Super Shotgun." []
+
+@PointClass base(Weapon) color(180 180 80) studio("") = weapon_quake2_blaster : "Quake II Blaster" []
+@PointClass base(Weapon) color(180 180 80) studio("") = weapon_quake2_shotgun : "Quake II Shotgun" []
+@PointClass base(Weapon) color(180 180 80) studio("") = weapon_quake2_supershotgun : "Quake II Super Shotgun" []
+@PointClass base(Weapon) color(180 180 80) studio("") = weapon_quake2_machinegun : "Quake II Machinegun" []
+@PointClass base(Weapon) color(180 180 80) studio("") = weapon_quake2_chaingun : "Quake II Chaingun" []
+@PointClass base(Weapon) color(180 180 80) studio("") = weapon_quake2_handgrenades : "Quake II Hand Grenades" []
+@PointClass base(Weapon) color(180 180 80) studio("") = weapon_quake2_grenadelauncher : "Quake II Grenade Launcher" []
+@PointClass base(Weapon) color(180 180 80) studio("") = weapon_quake2_rocketlauncher : "Quake II Rocket Launcher" []
+@PointClass base(Weapon) color(180 180 80) studio("") = weapon_quake2_hyperblaster : "Quake II Hyperblaster" []
+@PointClass base(Weapon) color(180 180 80) studio("") = weapon_quake2_railgun : "Quake II Railgun" []
+@PointClass base(Weapon) color(180 180 80) studio("") = weapon_quake2_bfg : "Quake II BFG10K" []
+@PointClass base(Ammo) color(180 180 80) studio("") = ammo_quake2_shells : "Quake II Shells (+10)" []
+@PointClass base(Ammo) color(180 180 80) studio("") = ammo_quake2_bullets : "Quake II Bullets (+50)" []
+@PointClass base(Ammo) color(180 180 80) studio("") = ammo_quake2_grenades : "Quake II Grenades (+5)" []
+@PointClass base(Ammo) color(180 180 80) studio("") = ammo_quake2_rockets : "Quake II Rockets (+5)" []
+@PointClass base(Ammo) color(180 180 80) studio("") = ammo_quake2_cells : "Quake II Cells (+50)" []
+@PointClass base(Ammo) color(180 180 80) studio("") = ammo_quake2_slugs : "Quake II Slugs (+10)" []
+@PointClass base(Item) color(180 180 80) studio("") = item_quake2_armor_shard : "Quake II Armor Shard (+2)" []
+@PointClass base(Item) color(180 180 80) studio("") = item_quake2_armor_jacket : "Quake II Jacket Armor (+25)" []
+@PointClass base(Item) color(180 180 80) studio("") = item_quake2_armor_combat : "Quake II Combat Armor (+50)" []
+@PointClass base(Item) color(180 180 80) studio("") = item_quake2_armor_body : "Quake II Body Armor (+100)" []
+@PointClass base(Item) color(180 180 80) studio("") = item_quake2_health_small : "Quake II Small Health (+2)" []
+@PointClass base(Item) color(180 180 80) studio("") = item_quake2_health_medium : "Quake II Medium Health (+10)" []
+@PointClass base(Item) color(180 180 80) studio("") = item_quake2_health_large : "Quake II Large Health (+25)" []
+@PointClass base(Item) color(180 180 80) studio("") = item_quake2_health_mega : "Quake II Mega Health (+100)" []
+@PointClass base(Item) color(180 180 80) studio("") = item_quake2_backpack : "Quake II Ammo Pack (raises ammo capacity)" []
+@PointClass base(Item) color(180 180 80) studio("") = item_quake2_adrenaline : "Quake II Adrenaline (health to 120%)" []
+@PointClass base(Item) color(180 180 80) studio("") = item_quake2_invulnerability : "Quake II Invulnerability (30 seconds)" []
 
 @SolidClass base(Phong, Targetname) color(0 255 255) = func_bob : "A solid brush that bobs continuously back and forth along a vector. Unlike func_train, no path_corners or triggers are required, making it cheap to place in quantity (e.g. an array of small ambient platforms)."
 [
@@ -876,7 +908,7 @@
 
 @SolidClass base(Phong, Target) color(0 255 40) = trigger_teleporter : "Touching this will warp players to the targeted misc_teleporter_dest entity. This is the brush form of misc_teleporter." []
 
-@SolidClass base(Phong) = worldspawn : "The worldspawn entity defines global conditions and behavior for the entire level. All brushes not belonging to an explicit entity implicitly belong to worldspawn. The map list's entry for the level takes precedence over the gameplay, movement, gravity, min_clients, ai, frag_limit, capture_limit, time_limit and music given here. A server setting other than 'default' takes precedence over both, except for ai and music, which have no server setting."
+@SolidClass base(Phong) = worldspawn : "The worldspawn entity defines global conditions and behavior for the entire level. All brushes not belonging to an explicit entity implicitly belong to worldspawn. The map list's entry for the level takes precedence over the gameplay, movement, gravity, min_clients, ai, num_teams, frag_limit, capture_limit, time_limit and music given here. A server setting other than 'default' takes precedence over both, except for ai and music, which have no server setting."
 [
 	message(string) : "The map title"
 	games(string) : "Space-delimited games this map is made for, shown as badges in the Create Server map browser: dm tdm duel ctf instagib race" : "dm"
@@ -900,13 +932,16 @@
 		"quake2" : "Quake2"
 		"quake3" : "Quake3"
 	]
-	items(choices) : "The item set for this map" : "default" =
+	items(choices) : "Item conversion; overridden by map-list items and a named g_items" : "default" =
 	[
-		"default" : "Quetoo"
+		"default" : "As authored (no conversion)"
+		"quetoo" : "Convert to Quetoo"
 		"quake" : "Quake"
+		"quake2" : "Quake II"
 	]
 	min_clients(integer) : "The number of clients, humans and AI, the game fills to; unset, 0"
 	ai(string) : "The AI players, by name and separated by spaces, that join the level first. They always join, even beyond min_clients; any others that min_clients asks for are picked at random"
+	num_teams(integer) : "The number of teams, 2 to 4, in team gameplays; unset, the teams that the map has spawn points or flags for. In CTF, at most the teams that the map has flags for"
 	frag_limit(integer) : "The frag limit; unset, 30"
 	capture_limit(integer) : "The capture limit, in CTF; unset, 8"
 	time_limit(float) : "The time limit in minutes; unset, 20"
