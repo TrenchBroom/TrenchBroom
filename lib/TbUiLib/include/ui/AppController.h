@@ -100,13 +100,6 @@ public:
     std::unique_ptr<mdl::EnvironmentConfig> environmentConfig,
     std::unique_ptr<mdl::GameManager> gameManager);
 
-  static constexpr auto useSDI =
-#if defined(Q_OS_WIN)
-    true;
-#else
-    false;
-#endif
-
   static Result<std::unique_ptr<AppController>> create();
 
   ~AppController() override;

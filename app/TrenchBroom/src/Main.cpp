@@ -273,12 +273,8 @@ auto createAppController()
 
 bool openFiles(AppController& appController, const QStringList& fileNames)
 {
-  const auto filesToOpen = AppController::useSDI && !fileNames.empty()
-                             ? QStringList{fileNames.front()}
-                             : fileNames;
-
   auto anyDocumentOpened = false;
-  for (const auto& fileName : filesToOpen)
+  for (const auto& fileName : fileNames)
   {
     const auto path = ui::pathFromQString(fileName);
     if (!path.empty() && appController.openDocument(path))

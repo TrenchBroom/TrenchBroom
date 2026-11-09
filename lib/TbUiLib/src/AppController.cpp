@@ -126,7 +126,7 @@ auto createGameManager()
 
 auto createMapWindowManager(AppController& appController)
 {
-  return new MapWindowManager{appController, AppController::useSDI};
+  return new MapWindowManager{appController};
 }
 
 auto createRecentDocuments(QObject* parent)
