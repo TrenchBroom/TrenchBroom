@@ -935,9 +935,9 @@
 	items(choices) : "Item conversion; overridden by map-list items and a named g_items" : "default" =
 	[
 		"default" : "As authored (no conversion)"
-		"quetoo" : "Convert to Quetoo"
-		"quake" : "Quake"
-		"quake2" : "Quake II"
+		"quetoo" : "Use Quetoo item equivalents where possible"
+		"quake" : "Use Quake item equivalents where possible"
+		"quake2" : "Use Quake II item equivalents where possible"
 	]
 	min_clients(integer) : "The number of clients, humans and AI, the game fills to; unset, 0"
 	ai(string) : "The AI players, by name and separated by spaces, that join the level first. They always join, even beyond min_clients; any others that min_clients asks for are picked at random"
