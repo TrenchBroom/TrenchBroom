@@ -233,9 +233,9 @@ public:
   bool canReloadPortalFile() const;
   bool canUnloadPointFile() const;
 
-  void reloadMaterialCollections();
+  void reloadAssets();
   void reloadEntityDefinitions();
-  bool canReloadMaterialCollections() const;
+  bool canReloadAssets() const;
   bool canReloadEntityDefinitions() const;
 
   void closeDocument();

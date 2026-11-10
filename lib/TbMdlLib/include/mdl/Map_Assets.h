@@ -40,6 +40,7 @@ std::vector<std::filesystem::path> disabledMaterialCollections(const Map& map);
 void setEnabledMaterialCollections(
   Map& map, const std::vector<std::filesystem::path>& enabledMaterialCollections);
 
+void reloadAssets(Map& map);
 void reloadMaterialCollections(Map& map);
 void reloadEntityDefinitions(Map& map);
 

@@ -65,7 +65,7 @@ private:
   void connectObservers();
 
   void documentWasLoaded();
-  void modsDidChange();
+  void assetsDidChange();
   void preferenceDidChange(const std::filesystem::path& path);
 
   void updateAvailableMods();

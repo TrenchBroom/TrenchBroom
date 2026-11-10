@@ -36,8 +36,7 @@ namespace tb::mdl
 namespace
 {
 
-auto notifySpecialWorldProperties(
-  const std::vector<std::pair<Node*, NodeContents>>& nodesToSwap)
+bool notifyAssetsChange(const std::vector<std::pair<Node*, NodeContents>>& nodesToSwap)
 {
   for (const auto& [node, contents] : nodesToSwap)
   {
@@ -62,12 +61,11 @@ auto notifySpecialWorldProperties(
       const auto newMods = enabledMods(newEntity);
       const bool notifyModsChange = oldMods != newMods;
 
-      return std::tuple{
-        notifyWadsChange, notifyEntityDefinitionsChange, notifyModsChange};
+      return notifyWadsChange || notifyEntityDefinitionsChange || notifyModsChange;
     }
   }
 
-  return std::tuple{false, false, false};
+  return false;
 }
 
 void doSwapNodeContents(
@@ -78,18 +76,10 @@ void doSwapNodeContents(
   auto notifyNodes =
     NotifyBeforeAndAfter{map.nodesWillChangeNotifier, map.nodesDidChangeNotifier, nodes};
 
-  const auto [notifyWadsChange, notifyEntityDefinitionsChange, notifyModsChange] =
-    notifySpecialWorldProperties(nodesToSwap);
-  auto notifyWads = NotifyBeforeAndAfter{
-    notifyWadsChange,
-    map.materialCollectionsWillChangeNotifier,
-    map.materialCollectionsDidChangeNotifier};
-  auto notifyEntityDefinitions = NotifyBeforeAndAfter{
-    notifyEntityDefinitionsChange,
-    map.entityDefinitionsWillChangeNotifier,
-    map.entityDefinitionsDidChangeNotifier};
-  auto notifyMods = NotifyBeforeAndAfter{
-    notifyModsChange, map.modsWillChangeNotifier, map.modsDidChangeNotifier};
+  auto notifyAssets = NotifyBeforeAndAfter{
+    notifyAssetsChange(nodesToSwap),
+    map.assetsWillChangeNotifier,
+    map.assetsDidChangeNotifier};
 
   for (auto& pair : nodesToSwap)
   {

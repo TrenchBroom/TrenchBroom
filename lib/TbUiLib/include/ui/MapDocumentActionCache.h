@@ -77,7 +77,7 @@ private:
 
   void connectObservers();
   void documentWasLoaded();
-  void entityDefinitionsDidChange();
+  void assetsDidChange();
 };
 
 } // namespace tb::ui

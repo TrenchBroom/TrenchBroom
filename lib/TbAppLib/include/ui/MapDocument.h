@@ -119,6 +119,9 @@ public:
 
   Notifier<const std::vector<gl::ResourceId>&> resourcesWereProcessedNotifier;
 
+  Notifier<> assetsWillChangeNotifier;
+  Notifier<> assetsDidChangeNotifier;
+
   Notifier<> materialCollectionsWillChangeNotifier;
   Notifier<> materialCollectionsDidChangeNotifier;
 

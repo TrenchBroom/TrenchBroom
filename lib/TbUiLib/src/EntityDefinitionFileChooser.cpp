@@ -135,7 +135,8 @@ void EntityDefinitionFileChooser::createGui()
   m_browseExternal = new QPushButton{tr("Browse...")};
   m_browseExternal->setToolTip(tr("Click to browse for an entity definition file"));
   m_reloadExternal = new QPushButton{tr("Reload")};
-  m_reloadExternal->setToolTip(tr("Reload the currently loaded entity definition file"));
+  m_reloadExternal->setToolTip(
+    tr("Reload all assets, including the entity definition file"));
 
   auto* externalLayout = new QHBoxLayout{};
   externalLayout->addWidget(m_externalLabel, 1);
@@ -179,8 +180,7 @@ void EntityDefinitionFileChooser::connectObservers()
   m_notifierConnection +=
     m_document.documentWasLoadedNotifier.connect([&] { refresh(); });
 
-  m_notifierConnection +=
-    m_document.entityDefinitionsDidChangeNotifier.connect([&] { refresh(); });
+  m_notifierConnection += m_document.assetsDidChangeNotifier.connect([&] { refresh(); });
 }
 
 void EntityDefinitionFileChooser::refresh()
@@ -287,7 +287,7 @@ void EntityDefinitionFileChooser::chooseExternalClicked()
 
 void EntityDefinitionFileChooser::reloadExternalClicked()
 {
-  reloadEntityDefinitions(m_document.map());
+  reloadAssets(m_document.map());
 }
 
 } // namespace tb::ui

@@ -81,9 +81,7 @@ void IssueBrowser::connectObservers()
   m_notifierConnection +=
     m_document.documentDidChangeNotifier.connect([&] { m_view->reload(); });
   m_notifierConnection +=
-    m_document.materialCollectionsDidChangeNotifier.connect([&] { m_view->reload(); });
-  m_notifierConnection +=
-    m_document.entityDefinitionsDidChangeNotifier.connect([&] { m_view->reload(); });
+    m_document.assetsDidChangeNotifier.connect([&] { m_view->reload(); });
 }
 
 void IssueBrowser::updateFilterFlags()

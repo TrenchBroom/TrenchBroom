@@ -260,8 +260,8 @@ void ViewEditor::connectObservers()
 
   m_notifierConnection += m_document.editorContextDidChangeNotifier.connect(
     this, &ViewEditor::editorContextDidChange);
-  m_notifierConnection += m_document.entityDefinitionsDidChangeNotifier.connect(
-    this, &ViewEditor::entityDefinitionsDidChange);
+  m_notifierConnection +=
+    m_document.assetsDidChangeNotifier.connect(this, &ViewEditor::assetsDidChange);
 
   auto& prefs = PreferenceManager::instance();
   m_notifierConnection +=
@@ -279,7 +279,7 @@ void ViewEditor::editorContextDidChange()
   refreshGui();
 }
 
-void ViewEditor::entityDefinitionsDidChange()
+void ViewEditor::assetsDidChange()
 {
   createGui();
   refreshGui();

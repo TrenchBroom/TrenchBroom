@@ -167,6 +167,9 @@ public: // notification
   Notifier<> groupWasOpenedNotifier;
   Notifier<> groupWasClosedNotifier;
 
+  Notifier<> assetsWillChangeNotifier;
+  Notifier<> assetsDidChangeNotifier;
+
   Notifier<> materialCollectionsWillChangeNotifier;
   Notifier<> materialCollectionsDidChangeNotifier;
 
@@ -418,6 +421,8 @@ private: // observers
   void entityDefinitionsDidChange();
   void modsWillChange();
   void modsDidChange();
+  void assetsWillChange();
+  void assetsDidChange();
 };
 
 } // namespace mdl

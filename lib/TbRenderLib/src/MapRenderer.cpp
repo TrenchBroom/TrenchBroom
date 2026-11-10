@@ -664,12 +664,10 @@ void MapRenderer::connectObservers()
     m_map.groupWasClosedNotifier.connect(this, &MapRenderer::groupWasClosed);
   m_notifierConnection +=
     m_map.selectionDidChangeNotifier.connect(this, &MapRenderer::selectionDidChange);
-  m_notifierConnection += m_map.materialCollectionsWillChangeNotifier.connect(
-    this, &MapRenderer::materialCollectionsWillChange);
-  m_notifierConnection += m_map.entityDefinitionsDidChangeNotifier.connect(
-    this, &MapRenderer::entityDefinitionsDidChange);
   m_notifierConnection +=
-    m_map.modsDidChangeNotifier.connect(this, &MapRenderer::modsDidChange);
+    m_map.assetsWillChangeNotifier.connect(this, &MapRenderer::assetsWillChange);
+  m_notifierConnection +=
+    m_map.assetsDidChangeNotifier.connect(this, &MapRenderer::assetsDidChange);
   m_notifierConnection += m_map.editorContextDidChangeNotifier.connect(
     this, &MapRenderer::editorContextDidChange);
 
@@ -791,19 +789,12 @@ void MapRenderer::resourcesWereProcessed(const std::vector<gl::ResourceId>& reso
   m_lockedRenderer->invalidateEntityModels(entityModels);
 }
 
-void MapRenderer::materialCollectionsWillChange()
+void MapRenderer::assetsWillChange()
 {
   invalidateRenderers(Renderer::All);
 }
 
-void MapRenderer::entityDefinitionsDidChange()
-{
-  reloadEntityModels();
-  invalidateRenderers(Renderer::All);
-  invalidateEntityLinkRenderer();
-}
-
-void MapRenderer::modsDidChange()
+void MapRenderer::assetsDidChange()
 {
   reloadEntityModels();
   invalidateRenderers(Renderer::All);

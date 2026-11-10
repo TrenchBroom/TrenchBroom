@@ -387,6 +387,9 @@ void MapDocument::connectMapObservers()
     m_map->nodeLockingDidChangeNotifier.connect(nodeLockingDidChangeNotifier);
   m_notifierConnection += m_map->groupWasOpenedNotifier.connect(groupWasOpenedNotifier);
   m_notifierConnection += m_map->groupWasClosedNotifier.connect(groupWasClosedNotifier);
+  m_notifierConnection +=
+    m_map->assetsWillChangeNotifier.connect(assetsWillChangeNotifier);
+  m_notifierConnection += m_map->assetsDidChangeNotifier.connect(assetsDidChangeNotifier);
   m_notifierConnection += m_map->materialCollectionsWillChangeNotifier.connect(
     materialCollectionsWillChangeNotifier);
   m_notifierConnection += m_map->materialCollectionsDidChangeNotifier.connect(

@@ -18,11 +18,16 @@
  */
 
 #include "fs/TestEnvironment.h"
+#include "gl/MaterialCollection.h"
+#include "gl/MaterialManager.h"
 #include "mdl/CatchConfig.h"
+#include "mdl/GameConfigFixture.h"
 #include "mdl/Map.h"
 #include "mdl/MapFixture.h"
 #include "mdl/Map_World.h"
 #include "mdl/WorldNode.h"
+
+#include <filesystem>
 
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/generators/catch_generators.hpp>
@@ -230,6 +235,32 @@ TEST_CASE("Map_World")
         CHECK(*world.property(EntityPropertyKeys::TbMods) == "mod1;mod3;mod4");
       }
     }
+  }
+
+  SECTION("setEnabledMods reloads the material collections")
+  {
+    auto env = fs::TestEnvironment{};
+    env.createDirectory("textures");
+    env.createFile("textures/tex1.png", "tex1");
+    env.createDirectory("mod1/textures");
+    env.createFile("mod1/textures/tex2.png", "tex2");
+
+    auto gameConfig = DefaultGameInfo.gameConfig;
+    gameConfig.materialConfig.extensions = {".png"};
+    gameConfig.materialConfig.palette = std::filesystem::path{};
+
+    auto fixtureConfig = MapFixtureConfig{};
+    fixtureConfig.gameInfo = detail::makeGameInfoFixture(gameConfig, env.dir());
+
+    auto& map = fixture.create(fixtureConfig);
+
+    REQUIRE(map.materialManager().collections().size() == 1);
+    REQUIRE(map.materialManager().collections().front().materials().size() == 1);
+
+    setEnabledMods(map, {"mod1"});
+
+    REQUIRE(map.materialManager().collections().size() == 1);
+    CHECK(map.materialManager().collections().front().materials().size() == 2);
   }
 
   SECTION("defaultMod")

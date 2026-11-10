@@ -197,7 +197,7 @@ void ModEditor::connectObservers()
   m_notifierConnection +=
     m_document.documentWasLoadedNotifier.connect(this, &ModEditor::documentWasLoaded);
   m_notifierConnection +=
-    m_document.modsDidChangeNotifier.connect(this, &ModEditor::modsDidChange);
+    m_document.assetsDidChangeNotifier.connect(this, &ModEditor::assetsDidChange);
 
   auto& prefs = PreferenceManager::instance();
   m_notifierConnection +=
@@ -210,7 +210,7 @@ void ModEditor::documentWasLoaded()
   updateMods();
 }
 
-void ModEditor::modsDidChange()
+void ModEditor::assetsDidChange()
 {
   updateMods();
 }

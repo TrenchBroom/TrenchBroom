@@ -161,12 +161,8 @@ void MapViewBase::connectObservers()
   m_notifierConnection +=
     m_document.selectionDidChangeNotifier.connect(this, &MapViewBase::selectionDidChange);
 
-  m_notifierConnection += m_document.materialCollectionsDidChangeNotifier.connect(
-    this, &MapViewBase::materialCollectionsDidChange);
-  m_notifierConnection += m_document.entityDefinitionsDidChangeNotifier.connect(
-    this, &MapViewBase::entityDefinitionsDidChange);
   m_notifierConnection +=
-    m_document.modsDidChangeNotifier.connect(this, &MapViewBase::modsDidChange);
+    m_document.assetsDidChangeNotifier.connect(this, &MapViewBase::assetsDidChange);
   m_notifierConnection += m_document.editorContextDidChangeNotifier.connect(
     this, &MapViewBase::editorContextDidChange);
   m_notifierConnection += m_document.nodeVisibilityDidChangeNotifier.connect(
@@ -232,18 +228,9 @@ void MapViewBase::toolChanged(Tool&)
   update();
 }
 
-void MapViewBase::materialCollectionsDidChange()
-{
-  update();
-}
-
-void MapViewBase::entityDefinitionsDidChange()
+void MapViewBase::assetsDidChange()
 {
   createActions();
-}
-
-void MapViewBase::modsDidChange()
-{
   update();
 }
 

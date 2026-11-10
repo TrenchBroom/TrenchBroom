@@ -157,6 +157,15 @@ void setEnabledMaterialCollections(
   transaction.finish(success);
 }
 
+void reloadAssets(Map& map)
+{
+  const auto notifyAssets =
+    NotifyBeforeAndAfter{map.assetsWillChangeNotifier, map.assetsDidChangeNotifier};
+
+  map.logger().info() << "Reloading assets";
+  // assetsDidChange will load the assets again
+}
+
 void reloadMaterialCollections(Map& map)
 {
   const auto nodes = std::vector<Node*>{&map.worldNode()};

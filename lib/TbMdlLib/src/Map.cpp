@@ -902,15 +902,9 @@ void Map::setGamePath(std::filesystem::path gamePath)
 {
   if (gamePath != m_gamePath)
   {
+    const auto notifyAssets =
+      NotifyBeforeAndAfter{assetsWillChangeNotifier, assetsDidChangeNotifier};
     m_gamePath = std::move(gamePath);
-
-    updateGameFileSystem();
-
-    clearEntityModels();
-    setEntityModels();
-
-    reloadMaterials();
-    setMaterials();
   }
 }
 
@@ -1573,6 +1567,9 @@ void Map::connectObservers()
   m_notifierConnection +=
     selectionWillChangeNotifier.connect(this, &Map::selectionWillChange);
 
+  m_notifierConnection += assetsWillChangeNotifier.connect(this, &Map::assetsWillChange);
+  m_notifierConnection += assetsDidChangeNotifier.connect(this, &Map::assetsDidChange);
+
   m_notifierConnection += materialCollectionsWillChangeNotifier.connect(
     this, &Map::materialCollectionsWillChange);
   m_notifierConnection += materialCollectionsDidChangeNotifier.connect(
@@ -1763,6 +1760,21 @@ void Map::modsDidChange()
   updateGameSearchPaths();
   setEntityDefinitions();
   setEntityModels();
+  updateAllFaceTags();
+}
+
+void Map::assetsWillChange()
+{
+  m_resourceManager.waitForLoading();
+  clearAssets();
+  clearEntityLinks(*m_entityLinkManager);
+}
+
+void Map::assetsDidChange()
+{
+  updateGameFileSystem();
+  loadAssets();
+  initializeEntityLinks(*m_entityLinkManager, *m_worldNode);
   updateAllFaceTags();
 }
 
