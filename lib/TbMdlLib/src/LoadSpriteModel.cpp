@@ -24,6 +24,7 @@
 #include "gl/IndexRangeMap.h"
 #include "gl/IndexRangeMapBuilder.h"
 #include "gl/Material.h"
+#include "mdl/MaterialUtils.h"
 #include "mdl/Palette.h"
 
 #include "kd/path_utils.h"
@@ -81,7 +82,11 @@ void skipPicture(fs::Reader& reader)
 }
 
 SprPicture parsePictureFrame(
-  fs::Reader& reader, const Palette& palette, const img::ImageAlphaDomain alphaDomain)
+  fs::Reader& reader,
+  const Palette& palette,
+  const img::ImageAlphaDomain alphaDomain,
+  const fs::FileSystem& fs,
+  Logger& logger)
 {
   const auto group = reader.readInt<int32_t>();
   if (group == 0)
@@ -92,6 +97,11 @@ SprPicture parsePictureFrame(
   // multiple picture frame
   const auto pictureCount = reader.readSize<int32_t>();
   reader.seekForward(pictureCount * sizeof(float));
+
+  if (pictureCount == 0)
+  {
+    return SprPicture{loadDefaultMaterial(fs, "", logger), 0, 0, 0, 0};
+  }
 
   auto picture = parsePicture(reader, palette, alphaDomain);
   for (size_t i = 0; i < pictureCount - 1; ++i)
@@ -334,7 +344,11 @@ bool canLoadSpriteModel(const std::filesystem::path& path, fs::Reader reader)
 }
 
 Result<EntityModelData> loadSpriteModel(
-  const std::string& name, fs::Reader reader, const Palette& palette, Logger&)
+  const std::string& name,
+  fs::Reader reader,
+  const Palette& palette,
+  const fs::FileSystem& fs,
+  Logger& logger)
 {
   // see https://www.gamers.org/dEngine/quake/spec/quake-spec34/qkspec_6.htm#CSPRF
 
@@ -381,8 +395,8 @@ Result<EntityModelData> loadSpriteModel(
 
                        for (size_t i = 0; i < frameCount; ++i)
                        {
-                         auto pictureFrame =
-                           parsePictureFrame(reader, embeddedPalette, alphaDomain);
+                         auto pictureFrame = parsePictureFrame(
+                           reader, embeddedPalette, alphaDomain, fs, logger);
                          materials.push_back(std::move(pictureFrame.material));
 
                          const auto w = static_cast<float>(pictureFrame.width);

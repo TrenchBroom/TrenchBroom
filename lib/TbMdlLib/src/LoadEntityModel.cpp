@@ -69,7 +69,7 @@ Result<EntityModelData> loadEntityModelData(
            if (canLoadMdlModel(path, reader))
            {
              return loadPalette(fs, materialConfig) | kdl::and_then([&](auto palette) {
-                      return loadMdlModel(modelName, reader, palette, logger);
+                      return loadMdlModel(modelName, reader, palette, fs, logger);
                     });
            }
            if (canLoadMd2Model(path, reader))
@@ -87,7 +87,7 @@ Result<EntityModelData> loadEntityModelData(
            if (canLoadSpriteModel(path, reader))
            {
              return loadPalette(fs, materialConfig) | kdl::and_then([&](auto palette) {
-                      return loadSpriteModel(modelName, reader, palette, logger);
+                      return loadSpriteModel(modelName, reader, palette, fs, logger);
                     });
            }
            if (canLoadMd3Model(path, reader))

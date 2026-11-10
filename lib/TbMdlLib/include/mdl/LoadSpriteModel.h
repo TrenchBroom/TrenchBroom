@@ -30,6 +30,11 @@ namespace tb
 {
 class Logger;
 
+namespace fs
+{
+class FileSystem;
+} // namespace fs
+
 namespace mdl
 {
 class Palette;
@@ -37,7 +42,11 @@ class Palette;
 bool canLoadSpriteModel(const std::filesystem::path& path, fs::Reader reader);
 
 Result<EntityModelData> loadSpriteModel(
-  const std::string& name, fs::Reader reader, const Palette& palette, Logger& logger);
+  const std::string& name,
+  fs::Reader reader,
+  const Palette& palette,
+  const fs::FileSystem& fs,
+  Logger& logger);
 
 } // namespace mdl
 } // namespace tb
