@@ -46,6 +46,7 @@ public:
 
   virtual bool isDropped() const = 0;
   virtual bool needsProcessing() const = 0;
+  virtual void waitForLoading() const = 0;
 
   virtual void drop() = 0;
   virtual bool process(TaskRunner taskRunner, const ProcessContext& processContext) = 0;
@@ -69,6 +70,7 @@ public:
   long useCount() const override { return m_resource.use_count(); }
   bool isDropped() const override { return m_resource->isDropped(); }
   bool needsProcessing() const override { return m_resource->needsProcessing(); }
+  void waitForLoading() const override { m_resource->waitForLoading(); }
   void drop() override { m_resource->drop(); }
   bool process(TaskRunner taskRunner, const ProcessContext& processContext) override
   {
@@ -98,6 +100,14 @@ public:
     return std::ranges::any_of(m_resources, [](const auto& resourceWrapper) {
       return resourceWrapper->useCount() == 1 || resourceWrapper->needsProcessing();
     });
+  }
+
+  void waitForLoading() const
+  {
+    for (const auto& resourceWrapper : m_resources)
+    {
+      resourceWrapper->waitForLoading();
+    }
   }
 
   std::vector<const ResourceWrapperBase*> resources() const
