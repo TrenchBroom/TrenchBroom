@@ -174,18 +174,14 @@ const std::vector<const EntityModel*> EntityModelManager::
 Result<EntityModel> EntityModelManager::loadModel(
   const std::filesystem::path& modelPath) const
 {
-  const auto& materialConfig = m_gameInfo.gameConfig.materialConfig;
-
-  const auto createResource = [](auto resourceLoader) {
-    return gl::createResourceSync(std::move(resourceLoader));
-  };
-
-  const auto loadMaterial = [&](const auto& materialPath) {
+  // This function is called by the model loader, possibly after this function has
+  // returned, so it must not capture any locals.
+  const auto loadMaterial = [this](const auto& materialPath) {
     return mdl::loadMaterial(
              m_gameFileSystem,
-             materialConfig,
+             m_gameInfo.gameConfig.materialConfig,
              materialPath,
-             createResource,
+             gl::createResourceSync<gl::Texture>,
              m_shaders,
              std::nullopt)
            | kdl::or_else(makeReadMaterialErrorHandler(m_gameFileSystem, m_logger))
@@ -194,7 +190,7 @@ Result<EntityModel> EntityModelManager::loadModel(
 
   return mdl::loadEntityModelAsync(
     m_gameFileSystem,
-    materialConfig,
+    m_gameInfo.gameConfig.materialConfig,
     modelPath,
     loadMaterial,
     m_createResource,
