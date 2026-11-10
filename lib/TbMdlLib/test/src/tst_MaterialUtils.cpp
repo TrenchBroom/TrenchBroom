@@ -19,9 +19,11 @@
 
 #include "Matchers.h"
 #include "TestEnvironment.h"
+#include "TestLogger.h"
 #include "base/Logger.h"
 #include "fs/DiskFileSystem.h"
 #include "fs/TestEnvironment.h"
+#include "gl/Texture.h"
 #include "mdl/CatchConfig.h"
 #include "mdl/LoadImageTexture.h"
 #include "mdl/MaterialUtils.h"
@@ -30,6 +32,7 @@
 #include "kd/result_io.h" // IWYU pragma: keep
 
 #include <filesystem>
+#include <vector>
 
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/generators/catch_generators.hpp>
@@ -92,6 +95,33 @@ TEST_CASE("MaterialUtils")
     CHECK(
       findMaterialFile(diskFS, "textures/mixed.skin", extensions)
       == Result<std::filesystem::path>{std::filesystem::path{"textures/mixed.jpg"}});
+  }
+
+  SECTION("loadDefaultTexture")
+  {
+    SECTION("loads the default texture")
+    {
+      auto logger = TestLogger{};
+      auto fs = fs::DiskFileSystem{
+        getFixtureRoot() / "test/mdl/MaterialUtils/loadDefaultTexture"};
+
+      const auto texture = loadDefaultTexture(fs, logger);
+      CHECK(!texture.buffersIfLoaded().empty());
+      CHECK(logger.countMessages(LogLevel::Error) == 0);
+    }
+
+    SECTION("returns an empty texture if the default texture is missing")
+    {
+      auto logger = TestLogger{};
+      auto env = fs::TestEnvironment{};
+      auto fs = fs::DiskFileSystem{env.dir()};
+
+      const auto texture = loadDefaultTexture(fs, logger);
+      CHECK(texture.width() == 32);
+      CHECK(texture.height() == 32);
+      CHECK(texture.buffersIfLoaded().empty());
+      CHECK(logger.countMessages(LogLevel::Error) == 1);
+    }
   }
 
   SECTION("loadDefaultMaterial")

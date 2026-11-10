@@ -32,7 +32,6 @@
 #include "kd/functional.h"
 #include "kd/path_utils.h"
 #include "kd/reflection_impl.h"
-#include "kd/set_temp.h"
 #include "kd/string_compare.h"
 
 #include <fmt/format.h>
@@ -109,28 +108,15 @@ bool isMaskedTextureName(std::string_view name)
 
 gl::Texture loadDefaultTexture(const fs::FileSystem& fs, Logger& logger)
 {
-  // recursion guard
-  static auto executing = false;
-  if (!executing)
-  {
-    const auto set_executing = kdl::set_temp{executing};
-
-    return fs.openFile(DefaultTexturePath) | kdl::and_then([&](auto file) {
-             auto reader = file->reader().buffer();
-             return loadImageTexture(reader);
+  return fs.openFile(DefaultTexturePath) | kdl::and_then([&](auto file) {
+           auto reader = file->reader().buffer();
+           return loadImageTexture(reader);
+         })
+         | kdl::transform_error([&](auto e) {
+             logger.error() << "Could not load default texture: " << e.msg;
+             return gl::Texture{32, 32};
            })
-           | kdl::transform_error([&](auto e) {
-               logger.error() << "Could not load default texture: " << e.msg;
-               return gl::Texture{32, 32};
-             })
-           | kdl::value();
-  }
-  else
-  {
-    logger.error() << "Could not load default texture";
-  }
-
-  return gl::Texture{32, 32};
+         | kdl::value();
 }
 
 gl::Material loadDefaultMaterial(
