@@ -48,8 +48,8 @@ TEST_CASE("loadSpriteModel")
 {
   auto logger = NullLogger{};
 
-  const auto palettePath = "test/mdl/LoadSpriteModel/palette.lmp";
-  auto diskFs = fs::DiskFileSystem{getFixtureRoot()};
+  const auto palettePath = "palette.lmp";
+  auto diskFs = fs::DiskFileSystem{getFixtureRoot() / "test/mdl/LoadSpriteModel"};
   auto paletteFile = diskFs.openFile(palettePath) | kdl::value();
   const auto palette = mdl::loadPalette(*paletteFile, palettePath) | kdl::value();
 
@@ -64,7 +64,7 @@ TEST_CASE("loadSpriteModel")
     const auto sprPath = getFixtureRoot() / "test/mdl/LoadSpriteModel" / (name + ".spr");
     auto sprFile = fs::Disk::openFile(sprPath) | kdl::value();
     auto reader = sprFile->reader().buffer();
-    return loadSpriteModel(name, reader, palette, logger);
+    return loadSpriteModel(name, reader, palette, diskFs, logger);
   };
 
   SECTION("billboard orientations")
@@ -175,6 +175,26 @@ TEST_CASE("loadSpriteModel")
       CHECK(
         (skin->effectiveBlendFunc().enable == gl::MaterialBlendFunc::Enable::UseFactors)
         == (expectedAlphaDomain == img::ImageAlphaDomain::Graduated));
+    }) | kdl::transform_error([](const auto& e) { FAIL(e); });
+  }
+
+  SECTION("empty picture groups")
+  {
+    // a frame with an empty picture group, followed by a frame with a 2*2 picture
+    loadFixture("EmptyPictureGroup") | kdl::transform([&](const auto& modelData) {
+      REQUIRE(modelData.frameCount() == 2u);
+
+      const auto& surface = modelData.surfaces().front();
+      REQUIRE(surface.skinCount() == 2u);
+
+      // the empty picture group gets the default texture, which has pixel data unlike the
+      // empty texture that replaces it if it cannot be loaded
+      CHECK(surface.skin(0u)->texture()->width() == 32u);
+      CHECK(!surface.skin(0u)->texture()->buffersIfLoaded().empty());
+
+      // the next frame is only parsed correctly if the empty group was skipped correctly
+      CHECK(surface.skin(1u)->texture()->width() == 2u);
+      CHECK(modelData.frames()[1].bounds() == vm::bbox3f{{-1, -1, -1}, {1, 1, 1}});
     }) | kdl::transform_error([](const auto& e) { FAIL(e); });
   }
 }
