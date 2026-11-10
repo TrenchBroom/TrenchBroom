@@ -936,7 +936,13 @@ Result<void> Map::saveAs(const std::filesystem::path& path)
 {
   return saveTo(path).transform([&]() {
     setLastSaveModificationCount();
-    setPath(path);
+    {
+      const auto notifyAssets = NotifyBeforeAndAfter{
+        path.parent_path() != m_path.parent_path(),
+        assetsWillChangeNotifier,
+        assetsDidChangeNotifier};
+      setPath(path);
+    }
     mapWasSavedNotifier();
   });
 }
