@@ -121,31 +121,6 @@ TEST_CASE("MapWindow")
     REQUIRE(!appController.glManager().resourceManager().needsProcessing());
     CHECK(window.canReloadAssets());
   }
-
-  SECTION("canReloadEntityDefinitions returns false when resources need processing")
-  {
-    using TestResourceT = gl::Resource<TestResource>;
-
-    // Verify initial state: no resources pending processing
-    REQUIRE(!appController.glManager().resourceManager().needsProcessing());
-    CHECK(window.canReloadEntityDefinitions());
-
-    // Add a resource that needs processing
-    auto testResource = std::make_shared<TestResourceT>(
-      []() { return Result<TestResource>{TestResource{}}; });
-    appController.glManager().resourceManager().addResource(testResource);
-
-    REQUIRE(appController.glManager().resourceManager().needsProcessing());
-    CHECK(!window.canReloadEntityDefinitions());
-
-    // Process all resources synchronously
-    auto testGl = gl::TestGl{};
-    const auto processContext = gl::ProcessContext{testGl, [](auto, auto) {}};
-    gl::processResourcesSync(appController.glManager().resourceManager(), processContext);
-
-    REQUIRE(!appController.glManager().resourceManager().needsProcessing());
-    CHECK(window.canReloadEntityDefinitions());
-  }
 }
 
 } // namespace tb::ui

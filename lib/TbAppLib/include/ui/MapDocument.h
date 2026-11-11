@@ -122,16 +122,7 @@ public:
   Notifier<> assetsWillChangeNotifier;
   Notifier<> assetsDidChangeNotifier;
 
-  Notifier<> materialCollectionsWillChangeNotifier;
-  Notifier<> materialCollectionsDidChangeNotifier;
-
   Notifier<> materialUsageCountsDidChangeNotifier;
-
-  Notifier<> entityDefinitionsWillChangeNotifier;
-  Notifier<> entityDefinitionsDidChangeNotifier;
-
-  Notifier<> modsWillChangeNotifier;
-  Notifier<> modsDidChangeNotifier;
 
   Notifier<mdl::VisualEffect> triggerVisualEffectNotifier;
 

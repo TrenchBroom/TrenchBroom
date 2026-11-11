@@ -234,9 +234,7 @@ public:
   bool canUnloadPointFile() const;
 
   void reloadAssets();
-  void reloadEntityDefinitions();
   bool canReloadAssets() const;
-  bool canReloadEntityDefinitions() const;
 
   void closeDocument();
 

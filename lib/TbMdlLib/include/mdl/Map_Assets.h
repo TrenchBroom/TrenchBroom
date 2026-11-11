@@ -41,7 +41,5 @@ void setEnabledMaterialCollections(
   Map& map, const std::vector<std::filesystem::path>& enabledMaterialCollections);
 
 void reloadAssets(Map& map);
-void reloadMaterialCollections(Map& map);
-void reloadEntityDefinitions(Map& map);
 
 } // namespace tb::mdl

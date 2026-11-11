@@ -29,7 +29,6 @@
 #include "mdl/EditorContext.h"
 #include "mdl/EntityModelManager.h"
 #include "mdl/EntityNode.h"
-#include "mdl/GameInfo.h"
 #include "mdl/GroupNode.h"
 #include "mdl/LayerNode.h"
 #include "mdl/Map.h"
@@ -811,14 +810,6 @@ void MapRenderer::editorContextDidChange()
 void MapRenderer::preferenceDidChange(const std::filesystem::path& path)
 {
   setupRenderers();
-
-  if (path == m_map.gameInfo().gamePathPreference.path)
-  {
-    reloadEntityModels();
-    invalidateRenderers(Renderer::All);
-    invalidateEntityLinkRenderer();
-    invalidateGroupLinkRenderer();
-  }
 
   if (kdl::path_has_prefix(path, "Map view"))
   {
