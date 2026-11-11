@@ -53,6 +53,11 @@ size_t TextureBuffer::size() const
   return m_size;
 }
 
+bool operator==(const TextureBuffer& lhs, const TextureBuffer& rhs)
+{
+  return lhs.data() == rhs.data();
+}
+
 std::ostream& operator<<(std::ostream& lhs, const TextureBuffer& rhs)
 {
   lhs << "TextureBuffer{" << rhs.size() << " bytes}";
