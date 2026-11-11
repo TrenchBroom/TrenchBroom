@@ -23,9 +23,10 @@
 #include "fs/DiskFileSystem.h"
 #include "fs/DiskIO.h"
 #include "fs/WadFileSystem.h"
+#include "gl/Texture.h"
+#include "img/ImageAlphaDomain.h"
 #include "mdl/CatchConfig.h"
 #include "mdl/LoadMipTexture.h"
-#include "mdl/MaterialUtils.h"
 #include "mdl/Palette.h"
 
 #include "kd/result.h"
@@ -146,7 +147,7 @@ TEST_CASE("LoadMipTexture")
                  auto reader = textureFile->reader().buffer();
                  return loadIdMipTexture(reader, palette, isMasked);
                })
-             | kdl::transform([&](auto texture) {
+             | kdl::transform([&](const auto& texture) {
                  CHECK(
                    texture.alphaDomain()
                    == (isMasked ? img::ImageAlphaDomain::Binary : img::ImageAlphaDomain::Opaque));

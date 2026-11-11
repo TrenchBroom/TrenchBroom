@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "gl/GlUtils.h"
+#include "gl/MiniGl.h"
 
 #include "vm/vec.h"
 
