@@ -167,16 +167,10 @@ public: // notification
   Notifier<> groupWasOpenedNotifier;
   Notifier<> groupWasClosedNotifier;
 
-  Notifier<> materialCollectionsWillChangeNotifier;
-  Notifier<> materialCollectionsDidChangeNotifier;
+  Notifier<> assetsWillChangeNotifier;
+  Notifier<> assetsDidChangeNotifier;
 
   Notifier<> materialUsageCountsDidChangeNotifier;
-
-  Notifier<> entityDefinitionsWillChangeNotifier;
-  Notifier<> entityDefinitionsDidChangeNotifier;
-
-  Notifier<> modsWillChangeNotifier;
-  Notifier<> modsDidChangeNotifier;
 
   Notifier<VisualEffect> triggerVisualEffectNotifier;
 
@@ -345,7 +339,6 @@ private: // Asset management
   void loadEntityDefinitions();
   void clearEntityDefinitions();
 
-  void reloadMaterials();
   void loadMaterials();
   void clearMaterials();
 
@@ -366,8 +359,6 @@ private: // Asset management
   void setEntityModels(const std::vector<Node*>& nodes);
   void unsetEntityModels();
   void unsetEntityModels(const std::vector<Node*>& nodes);
-
-  void updateGameSearchPaths();
 
 private:
   void updateGameFileSystem();
@@ -412,12 +403,8 @@ private: // observers
   void resourcesWereProcessed(const std::vector<gl::ResourceId>&);
   void selectionWillChange();
   void selectionDidChange(const SelectionChange& selectionChange);
-  void materialCollectionsWillChange();
-  void materialCollectionsDidChange();
-  void entityDefinitionsWillChange();
-  void entityDefinitionsDidChange();
-  void modsWillChange();
-  void modsDidChange();
+  void assetsWillChange();
+  void assetsDidChange();
 };
 
 } // namespace mdl

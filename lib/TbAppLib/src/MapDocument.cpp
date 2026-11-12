@@ -387,18 +387,11 @@ void MapDocument::connectMapObservers()
     m_map->nodeLockingDidChangeNotifier.connect(nodeLockingDidChangeNotifier);
   m_notifierConnection += m_map->groupWasOpenedNotifier.connect(groupWasOpenedNotifier);
   m_notifierConnection += m_map->groupWasClosedNotifier.connect(groupWasClosedNotifier);
-  m_notifierConnection += m_map->materialCollectionsWillChangeNotifier.connect(
-    materialCollectionsWillChangeNotifier);
-  m_notifierConnection += m_map->materialCollectionsDidChangeNotifier.connect(
-    materialCollectionsDidChangeNotifier);
+  m_notifierConnection +=
+    m_map->assetsWillChangeNotifier.connect(assetsWillChangeNotifier);
+  m_notifierConnection += m_map->assetsDidChangeNotifier.connect(assetsDidChangeNotifier);
   m_notifierConnection += m_map->materialUsageCountsDidChangeNotifier.connect(
     materialUsageCountsDidChangeNotifier);
-  m_notifierConnection += m_map->entityDefinitionsWillChangeNotifier.connect(
-    entityDefinitionsWillChangeNotifier);
-  m_notifierConnection +=
-    m_map->entityDefinitionsDidChangeNotifier.connect(entityDefinitionsDidChangeNotifier);
-  m_notifierConnection += m_map->modsWillChangeNotifier.connect(modsWillChangeNotifier);
-  m_notifierConnection += m_map->modsDidChangeNotifier.connect(modsDidChangeNotifier);
   m_notifierConnection +=
     m_map->triggerVisualEffectNotifier.connect(triggerVisualEffectNotifier);
 

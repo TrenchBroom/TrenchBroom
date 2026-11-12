@@ -17,11 +17,17 @@
  along with TrenchBroom. If not, see <http:www.gnu.org/licenses/>.
  */
 
+#include "Observer.h"
 #include "TestEnvironment.h"
 #include "TestLogger.h"
 #include "base/Logger.h"
 #include "fs/TestEnvironment.h"
+#include "gl/MaterialCollection.h"
+#include "gl/MaterialManager.h"
+#include "gl/Resource.h"
 #include "gl/ResourceManager.h"
+#include "gl/TestGl.h"
+#include "gl/TestUtils.h"
 #include "mdl/Brush.h"
 #include "mdl/BrushBuilder.h"
 #include "mdl/BrushFace.h"
@@ -29,14 +35,18 @@
 #include "mdl/CatchConfig.h"
 #include "mdl/EditorContext.h"
 #include "mdl/Entity.h"
+#include "mdl/EntityDefinition.h"
 #include "mdl/EntityDefinitionManager.h"
+#include "mdl/EntityModel.h"
 #include "mdl/EntityModelManager.h"
 #include "mdl/EntityNode.h"
+#include "mdl/GameConfigFixture.h"
 #include "mdl/GameInfo.h"
 #include "mdl/GroupNode.h"
 #include "mdl/LayerNode.h"
 #include "mdl/Map.h"
 #include "mdl/MapFixture.h"
+#include "mdl/Map_Assets.h"
 #include "mdl/Map_Brushes.h"
 #include "mdl/Map_CopyPaste.h"
 #include "mdl/Map_Entities.h"
@@ -57,6 +67,8 @@
 #include "vm/vec_io.h" // IWYU pragma: keep
 
 #include <fmt/format.h>
+
+#include <filesystem>
 
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/generators/catch_generators.hpp>
@@ -165,6 +177,69 @@ TEST_CASE("Map")
     const auto expectedGenerator =
       fmt::format("// Generator: TrenchBroom {} (Build {})", VERSION_STR, BUILD_ID_STR);
     CHECK_THAT(env.loadFile("test.map"), ContainsSubstring(expectedGenerator));
+  }
+
+  SECTION("saveAs reloads the assets if the map's folder changes")
+  {
+    auto env = fs::TestEnvironment{};
+    env.createDirectory("folder1");
+    env.createDirectory("folder2");
+    std::filesystem::copy_file(
+      getFixtureRoot() / "test/mdl/Map/folder/cr8_a_excerpt.wad",
+      env.dir() / "folder2/cr8_a_excerpt.wad");
+
+    env.createFile(
+      "Test.fgd", R"(@PointClass model("progs/armor.mdl") = item_armor1 : "Armor" [])");
+
+    auto fixture = MapFixture{};
+    auto& map = fixture.create(QuakeFixtureConfig);
+    REQUIRE(setEntityProperty(map, EntityPropertyKeys::Wad, "cr8_a_excerpt.wad"));
+    REQUIRE(map.materialManager().collections().empty());
+
+    setEntityDefinitionFile(
+      map, EntityDefinitionFileSpec::makeExternal(env.dir() / "Test.fgd"));
+
+    const auto* definition = map.entityDefinitionManager().definition("item_armor1");
+    REQUIRE(definition != nullptr);
+
+    auto* entityNode = createPointEntity(map, *definition, vm::vec3d{0, 0, 0});
+    REQUIRE(entityNode != nullptr);
+
+    auto assetsDidChange = Observer<>{map.assetsDidChangeNotifier};
+
+    // the first save moves the new map into folder1
+    REQUIRE(map.saveAs(env.dir() / "folder1/test.map"));
+    REQUIRE(assetsDidChange.notifications == std::vector<std::tuple<>>{{}});
+    REQUIRE(map.materialManager().collections().empty());
+
+    assetsDidChange.reset();
+
+    SECTION("Saving in place doesn't reload the assets")
+    {
+      REQUIRE(map.save());
+      CHECK(assetsDidChange.notifications.empty());
+    }
+
+    SECTION("Saving to the same folder doesn't reload the assets")
+    {
+      REQUIRE(map.saveAs(env.dir() / "folder1/other.map"));
+      CHECK(assetsDidChange.notifications.empty());
+    }
+
+    SECTION("Saving to another folder reloads the assets")
+    {
+      REQUIRE(map.saveAs(env.dir() / "folder2/test.map"));
+      CHECK(assetsDidChange.notifications == std::vector<std::tuple<>>{{}});
+
+      REQUIRE(map.materialManager().collections().size() == 1);
+      CHECK(map.materialManager().collections().front().path() == "cr8_a_excerpt.wad");
+
+      // the entity uses the reloaded model
+      REQUIRE(entityNode->entity().model() != nullptr);
+      CHECK(
+        entityNode->entity().model()
+        == map.entityModelManager().model("progs/armor.mdl"));
+    }
   }
 
   SECTION("selection")
@@ -446,6 +521,54 @@ TEST_CASE("Map")
 
       CHECK_THAT(map.selection().allBrushes(), UnorderedEquals(brushNodes));
     }
+  }
+
+  SECTION("setGamePath reloads the entity models")
+  {
+    auto env = fs::TestEnvironment{};
+    env.createDirectory("game1");
+    env.createDirectory("game2/progs");
+    std::filesystem::copy_file(
+      getFixtureRoot() / "test/mdl/LoadMdlModel/armor.mdl",
+      env.dir() / "game2/progs/armor.mdl");
+    std::filesystem::copy_file(
+      getFixtureRoot() / "test/mdl/Palette/palette.lmp", env.dir() / "game2/palette.lmp");
+    env.createFile(
+      "Test.fgd", R"(@PointClass model("progs/armor.mdl") = item_armor1 : "Armor" [])");
+
+    auto gameConfig = DefaultGameInfo.gameConfig;
+    gameConfig.materialConfig.palette = "palette.lmp";
+
+    auto fixtureConfig = MapFixtureConfig{};
+    fixtureConfig.gameInfo = detail::makeGameInfoFixture(gameConfig, env.dir() / "game1");
+
+    auto fixture = MapFixture{};
+    auto& map = fixture.create(fixtureConfig);
+    setEntityDefinitionFile(
+      map, EntityDefinitionFileSpec::makeExternal(env.dir() / "Test.fgd"));
+
+    const auto* definition = map.entityDefinitionManager().definition("item_armor1");
+    REQUIRE(definition != nullptr);
+
+    auto* entityNode = createPointEntity(map, *definition, vm::vec3d{0, 0, 0});
+    REQUIRE(entityNode != nullptr);
+
+    auto gl = gl::TestGl{};
+    const auto processContext = gl::ProcessContext{gl, [](auto, auto) {}};
+
+    // the first game path doesn't contain the model
+    gl::processResourcesSync(map.resourceManager(), processContext);
+    REQUIRE(entityNode->entity().model() != nullptr);
+    REQUIRE(entityNode->entity().model()->data() == nullptr);
+
+    map.setGamePath(env.dir() / "game2");
+    gl::processResourcesSync(map.resourceManager(), processContext);
+
+    // the entity uses the model loaded from the second game path
+    const auto* model = entityNode->entity().model();
+    REQUIRE(model != nullptr);
+    CHECK(model == map.entityModelManager().model("progs/armor.mdl"));
+    CHECK(model->data() != nullptr);
   }
 
   SECTION("setGamePath reloads model shaders")

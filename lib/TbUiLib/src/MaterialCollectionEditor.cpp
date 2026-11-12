@@ -92,7 +92,7 @@ void MaterialCollectionEditor::removeSelectedMaterialCollections()
 
 void MaterialCollectionEditor::reloadMaterialCollections()
 {
-  mdl::reloadMaterialCollections(m_document.map());
+  mdl::reloadAssets(m_document.map());
 }
 
 void MaterialCollectionEditor::availableMaterialCollectionSelectionChanged()
@@ -157,7 +157,7 @@ void MaterialCollectionEditor::createGui()
   m_removeCollectionsButton = createBitmapButton(
     "Remove.svg", tr("Disable the selected material collections"), this);
   m_reloadCollectionsButton = createBitmapButton(
-    "Refresh.svg", tr("Reload all enabled material collections"), this);
+    "Refresh.svg", tr("Reload all assets, including the material collections"), this);
 
   auto* toolBar = createMiniToolBarLayout(
     m_addCollectionsButton,
@@ -229,6 +229,7 @@ void MaterialCollectionEditor::connectObservers()
     m_document.documentWasLoadedNotifier.connect([&] { updateUi(); });
   m_notifierConnection +=
     m_document.documentDidChangeNotifier.connect([&] { updateUi(); });
+  m_notifierConnection += m_document.assetsDidChangeNotifier.connect([&] { updateUi(); });
 
   auto& prefs = PreferenceManager::instance();
   m_notifierConnection +=

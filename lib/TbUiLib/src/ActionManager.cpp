@@ -942,24 +942,17 @@ void ActionManager::createFileMenu()
   }));
   fileMenu.addSeparator();
   fileMenu.addItem(addAction(Action{
-    "Menu/File/Reload Material Collections",
-    "Reload Material Collections",
+    "Menu/File/Reload Assets",
+    "Reload Assets",
     ActionContext::Any,
     KeySequence{"F5"},
-    [](auto& context) { context.mapWindow().reloadMaterialCollections(); },
+    [](auto& context) { context.mapWindow().reloadAssets(); },
     [](const auto& context) {
-      return context.hasDocument() && context.mapWindow().canReloadMaterialCollections();
+      return context.hasDocument() && context.mapWindow().canReloadAssets();
     },
-  }));
-  fileMenu.addItem(addAction(Action{
-    "Menu/File/Reload Entity Definitions",
-    "Reload Entity Definitions",
-    ActionContext::Any,
-    KeySequence{"F6"},
-    [](auto& context) { context.mapWindow().reloadEntityDefinitions(); },
-    [](const auto& context) {
-      return context.hasDocument() && context.mapWindow().canReloadEntityDefinitions();
-    },
+    std::nullopt,
+    std::nullopt,
+    "Reloads the game file system, materials, entity definitions and entity models.",
   }));
   fileMenu.addSeparator();
   fileMenu.addItem(addAction(Action{

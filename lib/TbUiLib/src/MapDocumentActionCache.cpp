@@ -38,8 +38,8 @@ void MapDocumentActionCache::connectObservers()
 {
   m_notifierConnection += m_document.documentWasLoadedNotifier.connect(
     this, &MapDocumentActionCache::documentWasLoaded);
-  m_notifierConnection += m_document.entityDefinitionsDidChangeNotifier.connect(
-    this, &MapDocumentActionCache::entityDefinitionsDidChange);
+  m_notifierConnection += m_document.assetsDidChangeNotifier.connect(
+    this, &MapDocumentActionCache::assetsDidChange);
 }
 
 std::vector<Action>& MapDocumentActionCache::cacheTagActions(
@@ -80,7 +80,7 @@ void MapDocumentActionCache::documentWasLoaded()
   clearEntityDefinitionActions();
 }
 
-void MapDocumentActionCache::entityDefinitionsDidChange()
+void MapDocumentActionCache::assetsDidChange()
 {
   clearEntityDefinitionActions();
 }

@@ -185,8 +185,7 @@ void MaterialBrowser::connectObservers()
 {
   m_notifierConnection += m_document.documentWasLoadedNotifier.connect([&] { reload(); });
   m_notifierConnection += m_document.documentDidChangeNotifier.connect([&] { reload(); });
-  m_notifierConnection +=
-    m_document.materialCollectionsDidChangeNotifier.connect([&] { reload(); });
+  m_notifierConnection += m_document.assetsDidChangeNotifier.connect([&] { reload(); });
   m_notifierConnection += m_document.currentMaterialNameDidChangeNotifier.connect(
     [&] { updateSelectedMaterial(); });
 

@@ -290,6 +290,15 @@ public:
            && !std::holds_alternative<ResourceFailed>(m_state);
   }
 
+  void waitForLoading() const
+  {
+    if (const auto* state = std::get_if<ResourceLoading<T>>(&m_state);
+        state && state->future.valid())
+    {
+      state->future.wait();
+    }
+  }
+
   bool process(TaskRunner taskRunner, const ProcessContext& context)
   {
     const auto previousStateIndex = m_state.index();

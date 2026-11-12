@@ -29,7 +29,6 @@
 #include "mdl/EditorContext.h"
 #include "mdl/EntityModelManager.h"
 #include "mdl/EntityNode.h"
-#include "mdl/GameInfo.h"
 #include "mdl/GroupNode.h"
 #include "mdl/LayerNode.h"
 #include "mdl/Map.h"
@@ -664,12 +663,10 @@ void MapRenderer::connectObservers()
     m_map.groupWasClosedNotifier.connect(this, &MapRenderer::groupWasClosed);
   m_notifierConnection +=
     m_map.selectionDidChangeNotifier.connect(this, &MapRenderer::selectionDidChange);
-  m_notifierConnection += m_map.materialCollectionsWillChangeNotifier.connect(
-    this, &MapRenderer::materialCollectionsWillChange);
-  m_notifierConnection += m_map.entityDefinitionsDidChangeNotifier.connect(
-    this, &MapRenderer::entityDefinitionsDidChange);
   m_notifierConnection +=
-    m_map.modsDidChangeNotifier.connect(this, &MapRenderer::modsDidChange);
+    m_map.assetsWillChangeNotifier.connect(this, &MapRenderer::assetsWillChange);
+  m_notifierConnection +=
+    m_map.assetsDidChangeNotifier.connect(this, &MapRenderer::assetsDidChange);
   m_notifierConnection += m_map.editorContextDidChangeNotifier.connect(
     this, &MapRenderer::editorContextDidChange);
 
@@ -791,19 +788,12 @@ void MapRenderer::resourcesWereProcessed(const std::vector<gl::ResourceId>& reso
   m_lockedRenderer->invalidateEntityModels(entityModels);
 }
 
-void MapRenderer::materialCollectionsWillChange()
+void MapRenderer::assetsWillChange()
 {
   invalidateRenderers(Renderer::All);
 }
 
-void MapRenderer::entityDefinitionsDidChange()
-{
-  reloadEntityModels();
-  invalidateRenderers(Renderer::All);
-  invalidateEntityLinkRenderer();
-}
-
-void MapRenderer::modsDidChange()
+void MapRenderer::assetsDidChange()
 {
   reloadEntityModels();
   invalidateRenderers(Renderer::All);
@@ -820,14 +810,6 @@ void MapRenderer::editorContextDidChange()
 void MapRenderer::preferenceDidChange(const std::filesystem::path& path)
 {
   setupRenderers();
-
-  if (path == m_map.gameInfo().gamePathPreference.path)
-  {
-    reloadEntityModels();
-    invalidateRenderers(Renderer::All);
-    invalidateEntityLinkRenderer();
-    invalidateGroupLinkRenderer();
-  }
 
   if (kdl::path_has_prefix(path, "Map view"))
   {

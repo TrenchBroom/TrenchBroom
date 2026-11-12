@@ -81,7 +81,8 @@ SmartWadEditor::SmartWadEditor(MapDocument& document, QWidget* parent)
   m_removeWadsButton = createBitmapButton("Remove.svg", "Remove the selected wad files");
   m_moveWadUpButton = createBitmapButton("Up.svg", "Move the selected wad file up");
   m_moveWadDownButton = createBitmapButton("Down.svg", "Move the selected wad file down");
-  m_reloadWadsButton = createBitmapButton("Refresh.svg", "Reload all wad files");
+  m_reloadWadsButton =
+    createBitmapButton("Refresh.svg", "Reload all assets, including the wad files");
 
   auto* toolBar = createMiniToolBarLayout(
     m_addWadsButton,
@@ -219,7 +220,7 @@ void SmartWadEditor::moveSelectedWadsDown()
 
 void SmartWadEditor::reloadWads()
 {
-  reloadMaterialCollections(document().map());
+  reloadAssets(document().map());
 }
 
 bool SmartWadEditor::canRemoveWads() const

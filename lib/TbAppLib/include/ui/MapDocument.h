@@ -119,16 +119,10 @@ public:
 
   Notifier<const std::vector<gl::ResourceId>&> resourcesWereProcessedNotifier;
 
-  Notifier<> materialCollectionsWillChangeNotifier;
-  Notifier<> materialCollectionsDidChangeNotifier;
+  Notifier<> assetsWillChangeNotifier;
+  Notifier<> assetsDidChangeNotifier;
 
   Notifier<> materialUsageCountsDidChangeNotifier;
-
-  Notifier<> entityDefinitionsWillChangeNotifier;
-  Notifier<> entityDefinitionsDidChangeNotifier;
-
-  Notifier<> modsWillChangeNotifier;
-  Notifier<> modsDidChangeNotifier;
 
   Notifier<mdl::VisualEffect> triggerVisualEffectNotifier;
 

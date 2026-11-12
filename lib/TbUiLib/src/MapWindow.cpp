@@ -1271,22 +1271,12 @@ bool MapWindow::canReloadPortalFile() const
   return m_document->canReloadPortalFile();
 }
 
-void MapWindow::reloadMaterialCollections()
+void MapWindow::reloadAssets()
 {
-  mdl::reloadMaterialCollections(m_document->map());
+  mdl::reloadAssets(m_document->map());
 }
 
-void MapWindow::reloadEntityDefinitions()
-{
-  mdl::reloadEntityDefinitions(m_document->map());
-}
-
-bool MapWindow::canReloadMaterialCollections() const
-{
-  return !m_appController.glManager().resourceManager().needsProcessing();
-}
-
-bool MapWindow::canReloadEntityDefinitions() const
+bool MapWindow::canReloadAssets() const
 {
   return !m_appController.glManager().resourceManager().needsProcessing();
 }

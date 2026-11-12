@@ -150,9 +150,7 @@ private:
   void selectionDidChange(const mdl::SelectionChange&);
 
   void toolChanged(Tool& tool);
-  void materialCollectionsDidChange();
-  void entityDefinitionsDidChange();
-  void modsDidChange();
+  void assetsDidChange();
   void editorContextDidChange();
   void nodeVisibilityDidChange(const std::vector<mdl::Node*>&);
   void nodeLockingDidChange(const std::vector<mdl::Node*>&);

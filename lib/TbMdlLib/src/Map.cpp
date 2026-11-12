@@ -902,15 +902,9 @@ void Map::setGamePath(std::filesystem::path gamePath)
 {
   if (gamePath != m_gamePath)
   {
+    const auto notifyAssets =
+      NotifyBeforeAndAfter{assetsWillChangeNotifier, assetsDidChangeNotifier};
     m_gamePath = std::move(gamePath);
-
-    updateGameFileSystem();
-
-    clearEntityModels();
-    setEntityModels();
-
-    reloadMaterials();
-    setMaterials();
   }
 }
 
@@ -942,7 +936,13 @@ Result<void> Map::saveAs(const std::filesystem::path& path)
 {
   return saveTo(path).transform([&]() {
     setLastSaveModificationCount();
-    setPath(path);
+    {
+      const auto notifyAssets = NotifyBeforeAndAfter{
+        path.parent_path() != m_path.parent_path(),
+        assetsWillChangeNotifier,
+        assetsDidChangeNotifier};
+      setPath(path);
+    }
     mapWasSavedNotifier();
   });
 }
@@ -1278,12 +1278,6 @@ void Map::clearEntityDefinitions()
   m_entityDefinitionManager->clear();
 }
 
-void Map::reloadMaterials()
-{
-  clearMaterials();
-  loadMaterials();
-}
-
 void Map::loadMaterials()
 {
   if (const auto* wadStr = m_worldNode->entity().property(EntityPropertyKeys::Wad))
@@ -1302,12 +1296,6 @@ void Map::loadMaterials()
     m_gameFileSystem->reloadWads(
       gameInfo().gameConfig.materialConfig.root, searchPaths, wadPaths, logger());
   }
-
-  // rescans the loose-file search path mounts (e.g. reloadWads above only replaces the
-  // wad mounts, it doesn't pick up files added to or removed from disk directories)
-  m_gameFileSystem->reload() | kdl::transform_error([&](auto e) {
-    m_logger.error() << "Could not reload game file systems: " + e.msg;
-  });
 
   m_materialManager->clear();
 
@@ -1411,11 +1399,6 @@ void Map::unsetEntityModels()
 void Map::unsetEntityModels(const std::vector<Node*>& nodes)
 {
   Node::visitAll(nodes, makeUnsetEntityModelsVisitor());
-}
-
-void Map::updateGameSearchPaths()
-{
-  updateGameFileSystem();
 }
 
 void Map::updateGameFileSystem()
@@ -1573,18 +1556,8 @@ void Map::connectObservers()
   m_notifierConnection +=
     selectionWillChangeNotifier.connect(this, &Map::selectionWillChange);
 
-  m_notifierConnection += materialCollectionsWillChangeNotifier.connect(
-    this, &Map::materialCollectionsWillChange);
-  m_notifierConnection += materialCollectionsDidChangeNotifier.connect(
-    this, &Map::materialCollectionsDidChange);
-
-  m_notifierConnection +=
-    entityDefinitionsWillChangeNotifier.connect(this, &Map::entityDefinitionsWillChange);
-  m_notifierConnection +=
-    entityDefinitionsDidChangeNotifier.connect(this, &Map::entityDefinitionsDidChange);
-
-  m_notifierConnection += modsWillChangeNotifier.connect(this, &Map::modsWillChange);
-  m_notifierConnection += modsDidChangeNotifier.connect(this, &Map::modsDidChange);
+  m_notifierConnection += assetsWillChangeNotifier.connect(this, &Map::assetsWillChange);
+  m_notifierConnection += assetsDidChangeNotifier.connect(this, &Map::assetsDidChange);
 
   m_notifierConnection += m_editorContext->editorContextDidChangeNotifier.connect(
     editorContextDidChangeNotifier);
@@ -1724,45 +1697,18 @@ void Map::selectionDidChange(const SelectionChange& selectionChange)
   m_cachedSelectionBounds = std::nullopt;
 }
 
-void Map::materialCollectionsWillChange()
+void Map::assetsWillChange()
 {
-  unsetMaterials();
-}
-
-void Map::materialCollectionsDidChange()
-{
-  loadMaterials();
-  setMaterials();
-  updateAllFaceTags();
-}
-
-void Map::entityDefinitionsWillChange()
-{
-  clearEntityDefinitions();
-  clearEntityModels();
+  m_resourceManager.waitForLoading();
+  clearAssets();
   clearEntityLinks(*m_entityLinkManager);
 }
 
-void Map::entityDefinitionsDidChange()
+void Map::assetsDidChange()
 {
-  loadEntityDefinitions();
-  setEntityDefinitions();
-  setEntityModels();
+  updateGameFileSystem();
+  loadAssets();
   initializeEntityLinks(*m_entityLinkManager, *m_worldNode);
-}
-
-void Map::modsWillChange()
-{
-  unsetEntityModels();
-  unsetEntityDefinitions();
-  clearEntityModels();
-}
-
-void Map::modsDidChange()
-{
-  updateGameSearchPaths();
-  setEntityDefinitions();
-  setEntityModels();
   updateAllFaceTags();
 }
 

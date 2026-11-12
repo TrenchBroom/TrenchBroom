@@ -157,27 +157,13 @@ void setEnabledMaterialCollections(
   transaction.finish(success);
 }
 
-void reloadMaterialCollections(Map& map)
+void reloadAssets(Map& map)
 {
-  const auto nodes = std::vector<Node*>{&map.worldNode()};
-  const auto notifyNodes =
-    NotifyBeforeAndAfter{map.nodesWillChangeNotifier, map.nodesDidChangeNotifier, nodes};
-  const auto notifyMaterialCollections = NotifyBeforeAndAfter{
-    map.materialCollectionsWillChangeNotifier, map.materialCollectionsDidChangeNotifier};
+  const auto notifyAssets =
+    NotifyBeforeAndAfter{map.assetsWillChangeNotifier, map.assetsDidChangeNotifier};
 
-  map.logger().info() << "Reloading material collections";
-  // materialCollectionsDidChange will load the collections again
-}
-
-void reloadEntityDefinitions(Map& map)
-{
-  const auto nodes = std::vector<Node*>{&map.worldNode()};
-  const auto notifyNodes =
-    NotifyBeforeAndAfter{map.nodesWillChangeNotifier, map.nodesDidChangeNotifier, nodes};
-  const auto notifyEntityDefinitions = NotifyBeforeAndAfter{
-    map.entityDefinitionsWillChangeNotifier, map.entityDefinitionsDidChangeNotifier};
-
-  map.logger().info() << "Reloading entity definitions";
+  map.logger().info() << "Reloading assets";
+  // assetsDidChange will load the assets again
 }
 
 } // namespace tb::mdl

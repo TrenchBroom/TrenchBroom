@@ -117,7 +117,7 @@ private:
 
   void documentWasLoaded();
   void editorContextDidChange();
-  void entityDefinitionsDidChange();
+  void assetsDidChange();
   void preferenceDidChange(const std::filesystem::path& path);
 
   void createGui();

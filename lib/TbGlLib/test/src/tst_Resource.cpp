@@ -24,6 +24,8 @@
 
 #include "kd/reflection_impl.h"
 
+#include <thread>
+
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/generators/catch_generators.hpp>
 
@@ -216,6 +218,17 @@ TEST_CASE("Resource")
         CHECK(resource.get() == nullptr);
         CHECK(std::holds_alternative<ResourceDropped>(resource.state()));
         CHECK(resource.isDropped());
+        CHECK(mockTaskRunner.tasks.empty());
+        CHECK(!mockUploadCall);
+        CHECK(!mockDropCall);
+      }
+
+      SECTION("waitForLoading")
+      {
+        resource.waitForLoading();
+        CHECK(resource.get() == nullptr);
+        CHECK(std::holds_alternative<ResourceUnloaded<MockResource>>(resource.state()));
+        CHECK(!resource.isDropped());
         CHECK(mockTaskRunner.tasks.empty());
         CHECK(!mockUploadCall);
         CHECK(!mockDropCall);
@@ -426,6 +439,39 @@ TEST_CASE("Resource")
           CHECK(!mockDropCall);
         }
       }
+
+      SECTION("waitForLoading")
+      {
+        SECTION("TaskRunner has not resolved promise")
+        {
+          auto resolver = std::thread{[&]() { mockTaskRunner.resolveNextPromise(); }};
+          resource.waitForLoading();
+
+          // the promise must have been resolved by the time waitForLoading returns
+          CHECK(resource.process(taskRunner, processContext));
+          CHECK(resource.get() != nullptr);
+          CHECK(std::holds_alternative<ResourceLoaded<MockResource>>(resource.state()));
+          CHECK(!resource.isDropped());
+          CHECK(!mockUploadCall);
+          CHECK(!mockDropCall);
+
+          resolver.join();
+          CHECK(mockTaskRunner.tasks.empty());
+        }
+
+        SECTION("TaskRunner resolves promise")
+        {
+          mockTaskRunner.resolveNextPromise();
+
+          resource.waitForLoading();
+          CHECK(resource.get() == nullptr);
+          CHECK(std::holds_alternative<ResourceLoading<MockResource>>(resource.state()));
+          CHECK(!resource.isDropped());
+          CHECK(mockTaskRunner.tasks.empty());
+          CHECK(!mockUploadCall);
+          CHECK(!mockDropCall);
+        }
+      }
     }
 
     SECTION("ResourceLoaded state")
@@ -485,6 +531,17 @@ TEST_CASE("Resource")
         CHECK(resource.get() == nullptr);
         CHECK(std::holds_alternative<ResourceDropped>(resource.state()));
         CHECK(resource.isDropped());
+        CHECK(mockTaskRunner.tasks.empty());
+        CHECK(!mockUploadCall);
+        CHECK(!mockDropCall);
+      }
+
+      SECTION("waitForLoading")
+      {
+        resource.waitForLoading();
+        CHECK(resource.get() != nullptr);
+        CHECK(std::holds_alternative<ResourceLoaded<MockResource>>(resource.state()));
+        CHECK(!resource.isDropped());
         CHECK(mockTaskRunner.tasks.empty());
         CHECK(!mockUploadCall);
         CHECK(!mockDropCall);
@@ -550,6 +607,17 @@ TEST_CASE("Resource")
         CHECK(!mockUploadCall);
         CHECK(mockDropCall);
       }
+
+      SECTION("waitForLoading")
+      {
+        resource.waitForLoading();
+        CHECK(resource.get() != nullptr);
+        CHECK(std::holds_alternative<ResourceReady<MockResource>>(resource.state()));
+        CHECK(!resource.isDropped());
+        CHECK(mockTaskRunner.tasks.empty());
+        CHECK(!mockUploadCall);
+        CHECK(!mockDropCall);
+      }
     }
 
     SECTION("ResourceDropping state")
@@ -614,6 +682,17 @@ TEST_CASE("Resource")
         CHECK(!mockUploadCall);
         CHECK(mockDropCall);
       }
+
+      SECTION("waitForLoading")
+      {
+        resource.waitForLoading();
+        CHECK(resource.get() == nullptr);
+        CHECK(std::holds_alternative<ResourceDropping<MockResource>>(resource.state()));
+        CHECK(!resource.isDropped());
+        CHECK(mockTaskRunner.tasks.empty());
+        CHECK(!mockUploadCall);
+        CHECK(!mockDropCall);
+      }
     }
 
     SECTION("ResourceDropped state")
@@ -671,6 +750,17 @@ TEST_CASE("Resource")
       SECTION("dropSync")
       {
         resource.dropSync(testGl);
+        CHECK(resource.get() == nullptr);
+        CHECK(std::holds_alternative<ResourceDropped>(resource.state()));
+        CHECK(resource.isDropped());
+        CHECK(mockTaskRunner.tasks.empty());
+        CHECK(!mockUploadCall);
+        CHECK(!mockDropCall);
+      }
+
+      SECTION("waitForLoading")
+      {
+        resource.waitForLoading();
         CHECK(resource.get() == nullptr);
         CHECK(std::holds_alternative<ResourceDropped>(resource.state()));
         CHECK(resource.isDropped());

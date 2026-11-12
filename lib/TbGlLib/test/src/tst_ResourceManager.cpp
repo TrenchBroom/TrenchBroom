@@ -27,7 +27,10 @@
 #include "kd/ranges/to.h"
 #include "kd/reflection_impl.h"
 
+#include <chrono>
+#include <future>
 #include <ranges>
+#include <thread>
 
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/generators/catch_generators.hpp>
@@ -146,6 +149,38 @@ TEST_CASE("ResourceManager")
 
     resourceManager.process(taskRunner, processContext);
     CHECK(!resourceManager.needsProcessing());
+  }
+
+  SECTION("waitForLoading")
+  {
+    auto resource1 = std::make_shared<ResourceT>(mockResourceLoader);
+    auto resource2 = std::make_shared<ResourceT>(mockResourceLoader);
+    resourceManager.addResource(resource1);
+    resourceManager.addResource(resource2);
+
+    resourceManager.process(taskRunner, processContext);
+    REQUIRE(std::holds_alternative<ResourceLoading<MockResource>>(resource1->state()));
+    REQUIRE(std::holds_alternative<ResourceLoading<MockResource>>(resource2->state()));
+
+    auto resource3 = std::make_shared<ResourceT>(mockResourceLoader);
+    resourceManager.addResource(resource3);
+
+    const auto finishedLoading = [](const auto& resource) {
+      const auto& state = std::get<ResourceLoading<MockResource>>(resource->state());
+      return state.future.wait_for(std::chrono::seconds{0}) == std::future_status::ready;
+    };
+
+    auto resolver = std::thread{[&]() {
+      mockTaskRunner.resolveNextPromise();
+      mockTaskRunner.resolveNextPromise();
+    }};
+    resourceManager.waitForLoading();
+
+    CHECK(finishedLoading(resource1));
+    CHECK(finishedLoading(resource2));
+    CHECK(std::holds_alternative<ResourceUnloaded<MockResource>>(resource3->state()));
+
+    resolver.join();
   }
 
   SECTION("addResource")

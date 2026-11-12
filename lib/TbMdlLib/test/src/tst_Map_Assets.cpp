@@ -18,12 +18,17 @@
  */
 
 #include "Observer.h"
+#include "base/Result.h"
 #include "fs/TestEnvironment.h"
 #include "gl/MaterialCollection.h"
 #include "gl/MaterialManager.h"
+#include "gl/Resource.h"
+#include "gl/ResourceManager.h"
+#include "gl/TestGl.h"
 #include "mdl/BrushFace.h" // IWYU pragma: keep
 #include "mdl/BrushNode.h"
 #include "mdl/CatchConfig.h"
+#include "mdl/EntityDefinitionManager.h"
 #include "mdl/GameConfigFixture.h"
 #include "mdl/LayerNode.h"
 #include "mdl/Map.h"
@@ -36,9 +41,14 @@
 #include "kd/path_utils.h"
 
 #include <algorithm>
+#include <atomic>
+#include <chrono>
+#include <future>
+#include <memory>
 #include <optional>
 #include <ranges>
 #include <string>
+#include <thread>
 
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/generators/catch_generators.hpp>
@@ -47,6 +57,17 @@
 namespace tb::mdl
 {
 using namespace Catch::Matchers;
+
+namespace
+{
+
+struct TestResource
+{
+  void upload(gl::Gl&) const {}
+  void drop(gl::Gl&) const {}
+};
+
+} // namespace
 
 TEST_CASE("Map_Assets")
 {
@@ -118,14 +139,13 @@ TEST_CASE("Map_Assets")
 
     auto& map = fixture.create(fixtureConfig);
 
-    auto entityDefinitionsWillChange =
-      Observer<>{map.entityDefinitionsWillChangeNotifier};
-    auto entityDefinitionsDidChange = Observer<>{map.entityDefinitionsDidChangeNotifier};
+    auto assetsWillChange = Observer<>{map.assetsWillChangeNotifier};
+    auto assetsDidChange = Observer<>{map.assetsDidChangeNotifier};
 
     setEntityDefinitionFile(map, entityDefinitionFileSpec);
 
-    CHECK(entityDefinitionsWillChange.notifications == std::vector<std::tuple<>>{{}});
-    CHECK(entityDefinitionsDidChange.notifications == std::vector<std::tuple<>>{{}});
+    CHECK(assetsWillChange.notifications == std::vector<std::tuple<>>{{}});
+    CHECK(assetsDidChange.notifications == std::vector<std::tuple<>>{{}});
 
     const auto& worldNode = map.worldNode();
     const auto& entity = worldNode.entity();
@@ -385,15 +405,13 @@ TEST_CASE("Map_Assets")
       RangeEquals(expectedMaterialCollections));
   }
 
-  SECTION("reloadMaterialCollections")
+  SECTION("reloadAssets")
   {
     auto& map =
       fixture.load("test/mdl/Map/reloadMaterialCollectionsQ2.map", Quake2FixtureConfig);
 
-    auto materialCollectionsWillChange =
-      Observer<>{map.materialCollectionsWillChangeNotifier};
-    auto materialCollectionsDidChange =
-      Observer<>{map.materialCollectionsDidChangeNotifier};
+    auto assetsWillChange = Observer<>{map.assetsWillChangeNotifier};
+    auto assetsDidChange = Observer<>{map.assetsDidChangeNotifier};
 
     const auto faces = map.worldNode().defaultLayer()->children()
                        | std::views::transform([&](const auto* node) {
@@ -414,15 +432,15 @@ TEST_CASE("Map_Assets")
     REQUIRE(std::ranges::none_of(
       faces, [](const auto* face) { return face->material() == nullptr; }));
 
-    reloadMaterialCollections(map);
-    CHECK(materialCollectionsWillChange.notifications == std::vector<std::tuple<>>{{}});
-    CHECK(materialCollectionsDidChange.notifications == std::vector<std::tuple<>>{{}});
+    reloadAssets(map);
+    CHECK(assetsWillChange.notifications == std::vector<std::tuple<>>{{}});
+    CHECK(assetsDidChange.notifications == std::vector<std::tuple<>>{{}});
 
     CHECK(std::ranges::none_of(
       faces, [](const auto* face) { return face->material() == nullptr; }));
   }
 
-  SECTION("reloadMaterialCollections picks up materials added to disk")
+  SECTION("reloadAssets picks up materials added to disk")
   {
     auto env = fs::TestEnvironment{};
     env.createDirectory("textures");
@@ -441,13 +459,13 @@ TEST_CASE("Map_Assets")
     REQUIRE(map.materialManager().collections().front().materials().size() == 1);
 
     env.createFile("textures/tex2.png", "tex2");
-    reloadMaterialCollections(map);
+    reloadAssets(map);
 
     REQUIRE(map.materialManager().collections().size() == 1);
     CHECK(map.materialManager().collections().front().materials().size() == 2);
   }
 
-  SECTION("reloadEntityDefinitions")
+  SECTION("reloadAssets picks up entity definition changes on disk")
   {
     const auto fgdFilename = "Test.fgd";
 
@@ -461,27 +479,62 @@ TEST_CASE("Map_Assets")
 
     auto& map = fixture.create();
 
-    auto entityDefinitionsWillChange =
-      Observer<>{map.entityDefinitionsWillChangeNotifier};
-    auto entityDefinitionsDidChange = Observer<>{map.entityDefinitionsDidChangeNotifier};
-
     setEntityDefinitionFile(
       map, EntityDefinitionFileSpec::makeExternal(env.dir() / fgdFilename));
-
-    REQUIRE(entityDefinitionsWillChange.notifications == std::vector<std::tuple<>>{{}});
-    REQUIRE(entityDefinitionsDidChange.notifications == std::vector<std::tuple<>>{{}});
-
-    entityDefinitionsWillChange.reset();
-    entityDefinitionsDidChange.reset();
 
     REQUIRE(
       entityDefinitionFile(map)
       == EntityDefinitionFileSpec::makeExternal(env.dir() / fgdFilename));
+    REQUIRE(map.entityDefinitionManager().definition("worldspawn") != nullptr);
+    REQUIRE(map.entityDefinitionManager().definition("info_player_start") == nullptr);
 
-    reloadEntityDefinitions(map);
+    env.createFile(fgdFilename, R"x(
+@SolidClass = worldspawn : "World entity"
+[
+  message(string) : "Text on entering the world"
+]
+@PointClass = info_player_start : "Player start" []
+    )x");
 
-    CHECK(entityDefinitionsWillChange.notifications == std::vector<std::tuple<>>{{}});
-    CHECK(entityDefinitionsDidChange.notifications == std::vector<std::tuple<>>{{}});
+    reloadAssets(map);
+
+    CHECK(map.entityDefinitionManager().definition("worldspawn") != nullptr);
+    CHECK(map.entityDefinitionManager().definition("info_player_start") != nullptr);
+  }
+
+  SECTION("reloading assets waits for resources that are still loading")
+  {
+    using namespace std::chrono_literals;
+
+    auto& map = fixture.create();
+
+    auto loaderFinished = std::make_shared<std::atomic<bool>>(false);
+    auto resource = std::make_shared<gl::Resource<TestResource>>([=]() {
+      std::this_thread::sleep_for(50ms);
+      *loaderFinished = true;
+      return Result<TestResource>{TestResource{}};
+    });
+    map.resourceManager().addResource(resource);
+
+    auto gl = gl::TestGl{};
+    const auto processContext = gl::ProcessContext{gl, [](auto, auto) {}};
+    const auto taskRunner = [](auto task) {
+      return std::async(std::launch::async, std::move(task));
+    };
+    map.resourceManager().process(taskRunner, processContext);
+    REQUIRE(std::holds_alternative<gl::ResourceLoading<TestResource>>(resource->state()));
+
+    SECTION("reloadAssets")
+    {
+      reloadAssets(map);
+    }
+
+    SECTION("setEntityDefinitionFile")
+    {
+      setEntityDefinitionFile(map, EntityDefinitionFileSpec::makeExternal("Test.fgd"));
+    }
+
+    CHECK(*loaderFinished);
   }
 }
 

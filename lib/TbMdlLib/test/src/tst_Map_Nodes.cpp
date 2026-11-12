@@ -41,7 +41,6 @@
 #include "mdl/Map_Selection.h"
 #include "mdl/Matchers.h"
 #include "mdl/PatchNode.h"
-#include "mdl/SurfaceAttributes.h"
 #include "mdl/TagManager.h"
 #include "mdl/TagMatcher.h"
 #include "mdl/TestFactory.h"
@@ -1408,6 +1407,33 @@ TEST_CASE("Map_Nodes")
 
       map.undoCommand();
       CHECK(material->usageCount() == 6u);
+    }
+
+    SECTION("Update patch material usage counts")
+    {
+      deselectAll(map);
+      setEntityProperty(map, EntityPropertyKeys::Wad, "test/mdl/Map/cr8_czg.wad");
+
+      constexpr auto MaterialName = "bongs2";
+      const auto* material = map.materialManager().material(MaterialName);
+      REQUIRE(material != nullptr);
+
+      auto* patchNode = addNode(map, parentForNodes(map), createPatchNode(MaterialName));
+
+      const auto& originalPatch = patchNode->patch();
+      auto modifiedPatch = originalPatch;
+      modifiedPatch.transform(vm::translation_matrix(vm::vec3d{16, 0, 0}));
+
+      auto nodesToSwap = std::vector<std::pair<Node*, NodeContents>>{};
+      nodesToSwap.emplace_back(patchNode, std::move(modifiedPatch));
+
+      REQUIRE(material->usageCount() == 1u);
+
+      updateNodeContents(map, "Update Nodes", std::move(nodesToSwap), {});
+      CHECK(material->usageCount() == 1u);
+
+      map.undoCommand();
+      CHECK(material->usageCount() == 1u);
     }
 
     SECTION("Update entity definition usage counts")
