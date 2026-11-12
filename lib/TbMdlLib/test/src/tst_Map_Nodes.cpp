@@ -41,7 +41,6 @@
 #include "mdl/Map_Selection.h"
 #include "mdl/Matchers.h"
 #include "mdl/PatchNode.h"
-#include "mdl/SurfaceAttributes.h"
 #include "mdl/TagManager.h"
 #include "mdl/TagMatcher.h"
 #include "mdl/TestFactory.h"
