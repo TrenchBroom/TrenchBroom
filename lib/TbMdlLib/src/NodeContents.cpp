@@ -41,7 +41,7 @@ NodeContents::NodeContents(
           face.setMaterial(nullptr);
         }
       },
-      [](BezierPatch&) {}),
+      [](BezierPatch& patch) { patch.setMaterial(nullptr); }),
     m_contents);
 }
 
