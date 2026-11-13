@@ -396,7 +396,7 @@ int main(int argc, char* argv[])
   auto crashReporter = CrashReporter{*appController};
   setContractViolationHandler(crashReporter);
 
-#ifdef __APPLE__
+#if defined(Q_OS_MACOS)
   app.setQuitOnLastWindowClosed(false);
   populateMainMenu(*appController);
   installFileEventFilter(*appController);
