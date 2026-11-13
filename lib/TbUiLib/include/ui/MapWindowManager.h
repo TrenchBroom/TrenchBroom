@@ -60,11 +60,10 @@ class MapWindowManager : public QObject
   Q_OBJECT
 private:
   AppController& m_appController;
-  bool m_singleMapWindow;
   std::vector<MapWindow*> m_mapWindows;
 
 public:
-  MapWindowManager(AppController& appController, bool singleMapWindow);
+  explicit MapWindowManager(AppController& appController);
   ~MapWindowManager() override;
 
   Result<void> createDocument(
@@ -85,7 +84,6 @@ public:
 private:
   void onFocusChange(QWidget* old, QWidget* now);
 
-  bool shouldCreateWindowForDocument() const;
   MapWindow* createMapWindow(std::unique_ptr<MapDocument> document);
   void removeMapWindow(MapWindow* mapWindow);
 
