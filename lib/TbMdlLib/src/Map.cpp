@@ -154,6 +154,17 @@ auto createGameFileSystem(
   return fs;
 }
 
+std::optional<Palette> loadPaletteAndLogErrors(
+  const GameFileSystem& fs, const GameInfo& gameInfo, Logger& logger)
+{
+  return loadPalette(fs, gameInfo.gameConfig.materialConfig.palette)
+         | kdl::transform_error([&](auto e) {
+             logger.error() << e.msg;
+             return std::optional<Palette>{};
+           })
+         | kdl::value();
+}
+
 template <typename Resource>
 auto makeCreateResource(gl::ResourceManager& resourceManager)
 {
@@ -639,6 +650,7 @@ Map::Map(
   , m_gamePath{gamePath}
   , m_gameFileSystem{createGameFileSystem(
       m_environmentConfig, m_gameInfo, m_gamePath, searchPaths(*worldNode), logger)}
+  , m_palette{loadPaletteAndLogErrors(*m_gameFileSystem, m_gameInfo, logger)}
   , m_taskManager{taskManager}
   , m_resourceManager{resourceManager}
   , m_logger{logger}
@@ -646,6 +658,7 @@ Map::Map(
   , m_entityModelManager{std::make_unique<EntityModelManager>(
       m_gameInfo,
       *m_gameFileSystem,
+      m_palette,
       makeCreateResource<EntityModelDataResource>(m_resourceManager),
       logger)}
   , m_materialManager{std::make_unique<gl::MaterialManager>(logger)}
@@ -1303,6 +1316,7 @@ void Map::loadMaterials()
     *m_gameFileSystem,
     gameInfo().gameConfig.materialConfig,
     makeCreateResource<gl::TextureResource>(m_resourceManager),
+    m_palette,
     taskManager(),
     m_logger)
     | kdl::transform([&](auto materialCollections) {
@@ -1410,8 +1424,15 @@ void Map::updateGameFileSystem()
     gamePath(),
     searchPaths(*m_worldNode),
     logger());
+  reloadPalette();
 
   entityModelManager().reloadShaders(m_taskManager);
+}
+
+void Map::reloadPalette()
+{
+  m_palette = loadPaletteAndLogErrors(*m_gameFileSystem, gameInfo(), m_logger);
+  entityModelManager().setPalette(m_palette);
 }
 
 bool Map::canUndoCommand() const

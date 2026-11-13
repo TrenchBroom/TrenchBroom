@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "gl/GlUtils.h"
+#include "gl/MiniGl.h"
 
 #include "vm/vec.h"
 
@@ -45,6 +45,7 @@ public:
   size_t size() const;
 };
 
+bool operator==(const TextureBuffer& lhs, const TextureBuffer& rhs);
 std::ostream& operator<<(std::ostream& lhs, const TextureBuffer& rhs);
 
 using TextureBufferList = std::vector<TextureBuffer>;

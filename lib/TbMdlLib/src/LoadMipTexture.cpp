@@ -158,9 +158,14 @@ bool isMipTexture(const std::filesystem::path& path)
 }
 
 Result<gl::Texture> loadIdMipTexture(
-  fs::Reader& reader, const Palette& palette, const bool isMasked)
+  fs::Reader& reader, const std::optional<Palette>& palette, const bool isMasked)
 {
-  return readMipTexture(reader, [&](fs::Reader&) { return palette; }, isMasked);
+  if (!palette)
+  {
+    return Error{"Missing palette"};
+  }
+
+  return readMipTexture(reader, [&](fs::Reader&) { return *palette; }, isMasked);
 }
 
 Result<gl::Texture> loadHlMipTexture(fs::Reader& reader, const bool isMasked)

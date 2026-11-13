@@ -64,20 +64,6 @@ namespace tb::mdl
 namespace
 {
 
-Result<std::optional<Palette>> loadPalette(
-  const fs::FileSystem& fs, const MaterialConfig& materialConfig)
-{
-  if (materialConfig.palette.empty())
-  {
-    return Result<std::optional<Palette>>{std::nullopt};
-  }
-
-  return fs.openFile(materialConfig.palette) | kdl::and_then([&](auto file) {
-           return mdl::loadPalette(*file, materialConfig.palette);
-         })
-         | kdl::transform([](auto palette) { return std::optional{std::move(palette)}; });
-}
-
 bool shouldExclude(
   const std::string& materialName, const std::vector<std::string>& patterns)
 {
@@ -276,12 +262,15 @@ gl::ResourceLoader<gl::Texture> makeTextureResourceLoader(
   const std::string& name,
   const std::vector<std::filesystem::path>& extensions,
   const fs::FileSystem& fs,
-  const std::optional<Palette>& palette)
+  const std::optional<Palette>& palette,
+  Logger& logger)
 {
   return [&, path, name, palette]() -> Result<gl::Texture> {
     return findAndLoadTexture(path, name, extensions, fs, palette)
            | kdl::or_else([&](auto e) -> Result<gl::Texture> {
-               return Error{fmt::format("Could not load texture '{}': {}", path, e.msg)};
+               logger.error() << fmt::format(
+                 "Could not load texture '{}': {}", path, e.msg);
+               return loadDefaultTexture(fs, logger);
              });
   };
 }
@@ -291,7 +280,8 @@ Result<gl::Material> loadTextureMaterial(
   const fs::FileSystem& fs,
   const MaterialConfig& materialConfig,
   const gl::CreateTextureResource& createResource,
-  const std::optional<Palette>& palette)
+  const std::optional<Palette>& palette,
+  Logger& logger)
 {
   const auto prefixLength = kdl::path_length(materialConfig.root);
   const auto pathMatcher = !materialConfig.extensions.empty()
@@ -299,8 +289,8 @@ Result<gl::Material> loadTextureMaterial(
                              : fs::matchAnyPath;
   auto name = getMaterialNameFromPathSuffix(texturePath, prefixLength);
 
-  auto textureLoader =
-    makeTextureResourceLoader(texturePath, name, materialConfig.extensions, fs, palette);
+  auto textureLoader = makeTextureResourceLoader(
+    texturePath, name, materialConfig.extensions, fs, palette, logger);
   auto textureResource = createResource(std::move(textureLoader));
 
   // For the classic id-tech miptex formats, the `{`-prefixed fence-texture naming
@@ -389,7 +379,8 @@ Result<gl::Material> loadMaterial(
   const std::filesystem::path& materialPath,
   const gl::CreateTextureResource& createResource,
   const std::vector<Quake3Shader>& shaders,
-  const std::optional<Palette>& palette)
+  const std::optional<Palette>& palette,
+  Logger& logger)
 {
   const auto materialPathStem = kdl::path_remove_extension(materialPath);
   const auto iShader = std::ranges::find_if(
@@ -398,7 +389,7 @@ Result<gl::Material> loadMaterial(
   return (iShader != shaders.end()
             ? loadShaderMaterial(*iShader, fs, materialConfig, createResource)
             : loadTextureMaterial(
-                materialPath, fs, materialConfig, createResource, palette))
+                materialPath, fs, materialConfig, createResource, palette, logger))
          | kdl::transform([&](auto material) {
              fs.makeAbsolute(materialPath)
                | kdl::transform([&](auto absPath) { material.setAbsolutePath(absPath); })
@@ -414,6 +405,7 @@ Result<std::vector<gl::MaterialCollection>> loadMaterialCollections(
   const fs::FileSystem& fs,
   const MaterialConfig& materialConfig,
   const gl::CreateTextureResource& createResource,
+  const std::optional<Palette>& palette,
   kdl::task_manager& taskManager,
   Logger& logger)
 {
@@ -424,8 +416,7 @@ Result<std::vector<gl::MaterialCollection>> loadMaterialCollections(
                     })
                     | kdl::views::as_rvalue | kdl::ranges::to<std::vector>();
            })
-         | kdl::join(loadPalette(fs, materialConfig))
-         | kdl::and_then([&](auto shaders, auto palette) {
+         | kdl::and_then([&](auto shaders) {
              return findAllMaterialPaths(fs, materialConfig, shaders)
                     | kdl::and_then([&](const auto& materialPaths) {
                         return materialPaths
@@ -436,7 +427,8 @@ Result<std::vector<gl::MaterialCollection>> loadMaterialCollections(
                                      materialPath,
                                      createResource,
                                      shaders,
-                                     palette);
+                                     palette,
+                                     logger);
                                  })
                                | kdl::fold;
                       });
