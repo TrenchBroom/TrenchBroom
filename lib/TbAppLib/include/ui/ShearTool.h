@@ -76,10 +76,6 @@ public:
 
   bool applies() const;
 
-  void pickBackSides(
-    const vm::ray3d& pickRay,
-    const gl::Camera& camera,
-    mdl::PickResult& pickResult) const;
   void pick2D(
     const vm::ray3d& pickRay,
     const gl::Camera& camera,

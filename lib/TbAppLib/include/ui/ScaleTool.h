@@ -235,6 +235,17 @@ BackSide pickBackSideOfBox(
   const vm::ray3d& pickRay, const gl::Camera& camera, const vm::bbox3d& box);
 
 /**
+ * Adds a hit of the given type for the back side of the given bounds that the pick ray
+ * comes closest to, unless the given pick result already contains a hit.
+ */
+void pickBackSides(
+  const vm::ray3d& pickRay,
+  const gl::Camera& camera,
+  const vm::bbox3d& bounds,
+  mdl::HitType::Type hitType,
+  mdl::PickResult& pickResult);
+
+/**
  * Picks the side, edge, and corner handles of the given bounds in a 3D view. If nothing
  * is hit, picks a back side of the bounds.
  */
