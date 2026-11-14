@@ -235,6 +235,7 @@ private:
   bool m_resizing = false;
   AnchorPos m_anchorPos = AnchorPos::Opposite;
   vm::bbox3d m_bboxAtDragStart;
+  vm::bbox3d m_bboxDuringDrag;
   mdl::Hit m_dragStartHit = mdl::Hit::NoHit;
   vm::vec3d m_dragCumulativeDelta;
   ProportionalAxes m_proportionalAxes = ProportionalAxes::None();

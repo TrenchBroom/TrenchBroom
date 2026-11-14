@@ -28,6 +28,7 @@
 #include "vm/util.h"
 #include "vm/vec.h"
 
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -46,6 +47,19 @@ bool scaleSelection(Map& map, const vm::vec3d& center, const vm::vec3d& scaleFac
 bool shearSelection(
   Map& map, const vm::bbox3d& box, const vm::vec3d& sideToShear, const vm::vec3d& delta);
 bool flipSelection(Map& map, const vm::vec3d& center, vm::axis::type axis);
+
+/**
+ * Returns the bounds of what transformSelection transforms.
+ *
+ * If any vertices are selected, these are the bounds of the selected vertices. Since the
+ * selected vertices can have zero extent along some axes, e.g. if they all lie in an axis
+ * aligned plane, the bounds are extended along those axes to the farther side of the
+ * selection bounds, or to the min side if both sides are equally far away. This keeps
+ * the selected vertices on the boundary of the returned bounds.
+ *
+ * Otherwise, these are the selection bounds.
+ */
+std::optional<vm::bbox3d> transformationBounds(const Map& map);
 
 struct TransformVerticesResult
 {

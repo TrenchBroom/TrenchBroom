@@ -32,6 +32,8 @@
 #include "mdl/Map_Nodes.h"
 #include "mdl/Map_Selection.h"
 #include "mdl/Node.h"
+#include "mdl/NodeHandleManager.h"
+#include "mdl/NodeHandles.h"
 #include "mdl/PatchNode.h" // IWYU pragma: keep
 #include "mdl/PickResult.h"
 #include "mdl/TestFactory.h"
@@ -40,6 +42,7 @@
 #include "ui/MapDocumentFixture.h"
 #include "ui/ScaleTool.h"
 #include "ui/ShearTool.h"
+#include "ui/VertexTool.h"
 
 #include "kd/ranges/to.h"
 #include "kd/result.h"
@@ -49,12 +52,16 @@
 
 #include <memory>
 #include <ranges>
+#include <vector>
 
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/generators/catch_generators.hpp>
+#include <catch2/matchers/catch_matchers_vector.hpp>
 
 namespace tb::ui
 {
+using namespace Catch::Matchers;
+
 namespace
 {
 
@@ -268,6 +275,68 @@ TEST_CASE("ShearTool")
 
         CHECK(tool.bounds() == brushBounds);
       }
+    }
+  }
+
+  SECTION("with selected vertices")
+  {
+    // a pyramid stump whose top face is off center along X
+    auto builder = mdl::BrushBuilder{map.worldNode().mapFormat(), map.worldBounds()};
+    auto* stumpNode = mdl::addNode(
+      map,
+      *map.editorContext().currentLayer(),
+      std::make_unique<mdl::BrushNode>(
+        builder.createBrush(
+          std::vector<vm::vec3d>{
+            {-32, -32, -32},
+            {-32, 32, -32},
+            {32, -32, -32},
+            {32, 32, -32},
+            {0, -16, 32},
+            {0, 16, 32},
+            {16, -16, 32},
+            {16, 16, 32},
+          },
+          "material")
+        | kdl::value()));
+    mdl::selectNodes(map, {stumpNode});
+
+    // the vertex tool keeps the vertex handles in sync with the brush
+    auto vertexTool = VertexTool{document};
+    REQUIRE(vertexTool.activate());
+    map.nodeHandles().selectHandles<mdl::VertexHandle>(std::vector<mdl::VertexHandle>{
+      {{0, -16, 32}},
+      {{0, 16, 32}},
+      {{16, -16, 32}},
+      {{16, 16, 32}},
+    });
+
+    SECTION("bounds")
+    {
+      // along Z, the vertices have no extent, so their bounds extend to the bottom of the
+      // brush
+      CHECK(tool.bounds() == vm::bbox3d{{0, -16, -32}, {16, 16, 32}});
+    }
+
+    SECTION("shearing")
+    {
+      tool.startShearWithHit(
+        mdl::Hit{ShearTool::ShearToolSideHitType, 0.0, {16, 0, 0}, BBoxSide{{1, 0, 0}}});
+      tool.shearByDelta({0, 0, 4});
+      tool.shearByDelta({0, 0, 4});
+      tool.commitShear();
+
+      // the vertices on the sheared side move by the full delta, and the vertices on the
+      // opposite side stay put
+      CHECK_THAT(
+        mdl::VertexHandle::getPositions(
+          map.nodeHandles().selectedHandles<mdl::VertexHandle>()),
+        UnorderedEquals(std::vector<vm::vec3d>{
+          {0, -16, 32},
+          {0, 16, 32},
+          {16, -16, 40},
+          {16, 16, 40},
+        }));
     }
   }
 }

@@ -31,6 +31,8 @@
 #include "mdl/Map.h"
 #include "mdl/Map_Nodes.h"
 #include "mdl/Map_Selection.h"
+#include "mdl/NodeHandleManager.h"
+#include "mdl/NodeHandles.h"
 #include "mdl/PatchNode.h" // IWYU pragma: keep
 #include "mdl/PickResult.h"
 #include "mdl/TestFactory.h"
@@ -38,6 +40,7 @@
 #include "ui/MapDocument.h"
 #include "ui/MapDocumentFixture.h"
 #include "ui/ScaleTool.h"
+#include "ui/VertexTool.h"
 
 #include "kd/ranges/contains.h"
 #include "kd/ranges/to.h"
@@ -47,12 +50,16 @@
 #include "vm/approx.h"
 
 #include <memory>
+#include <tuple>
 
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/generators/catch_generators.hpp>
+#include <catch2/matchers/catch_matchers_vector.hpp>
 
 namespace tb::ui
 {
+using namespace Catch::Matchers;
+
 namespace
 {
 
@@ -446,6 +453,86 @@ TEST_CASE("ScaleTool")
       tool.cancelScale();
 
       CHECK(tool.bounds() == brushBounds);
+    }
+
+    SECTION("scaling selected vertices")
+    {
+      // Only the top face's vertices are selected, so the selection bounds (the brush's
+      // bounds) no longer match the scaled box once the top face shrinks along an axis.
+      // The vertex tool keeps the vertex handles in sync with the brush.
+      auto vertexTool = VertexTool{document};
+      REQUIRE(vertexTool.activate());
+      map.nodeHandles().selectHandles<mdl::VertexHandle>(std::vector<mdl::VertexHandle>{
+        {{-16, -16, 16}},
+        {{-16, 16, 16}},
+        {{16, -16, 16}},
+        {{16, 16, 16}},
+      });
+
+      using T = std::tuple<mdl::Hit, std::vector<vm::vec3d>, std::vector<vm::vec3d>>;
+
+      const auto [dragHit, deltas, expectedTopVertices] = GENERATE(values<T>({
+        // shrink a side
+        {
+          mdl::Hit{ScaleTool::SideHitType, 0.0, {16, 0, 0}, BBoxSide{{1, 0, 0}}},
+          {{-8, 0, 0}, {-8, 0, 0}},
+          {{-16, -16, 16}, {-16, 16, 16}, {0, -16, 16}, {0, 16, 16}},
+        },
+        // drag a vertical edge (a corner in the top view) out along X and in along Y,
+        // then back out along Y
+        {
+          mdl::Hit{
+            ScaleTool::EdgeHitType, 0.0, {16, 16, 0}, BBoxEdge{{1, 1, -1}, {1, 1, 1}}},
+          {{8, -8, 0}, {0, 8, 0}},
+          {{-16, -16, 16}, {-16, 16, 16}, {24, -16, 16}, {24, 16, 16}},
+        },
+      }));
+
+      CAPTURE(dragHit.type(), deltas);
+
+      tool.startScaleWithHit(dragHit);
+      for (const auto& delta : deltas)
+      {
+        tool.scaleByDelta(delta);
+      }
+      tool.commitScale();
+
+      CHECK_THAT(
+        mdl::VertexHandle::getPositions(
+          map.nodeHandles().selectedHandles<mdl::VertexHandle>()),
+        UnorderedEquals(expectedTopVertices));
+    }
+
+    SECTION("bounds while scaling selected vertices")
+    {
+      auto vertexTool = VertexTool{document};
+      REQUIRE(vertexTool.activate());
+      map.nodeHandles().selectHandle(mdl::VertexHandle{{16, 16, 16}});
+      REQUIRE(tool.bounds() == brushBounds);
+
+      tool.startScaleWithHit(
+        mdl::Hit{ScaleTool::CornerHitType, 0.0, {16, 16, 16}, BBoxCorner{{1, 1, 1}}});
+
+      // Moving the vertex past the center of the brush along X flips the side of the
+      // brush that the bounds of the vertex extend to, but the bounds must follow the
+      // dragged box until the drag ends.
+      tool.scaleByDelta({-24, 0, 0});
+      CHECK(tool.bounds() == vm::bbox3d{{-16, -16, -16}, {-8, 16, 16}});
+
+      SECTION("failing to scale resets the bounds to the bounds at drag start")
+      {
+        // moves the vertex out of the world bounds
+        tool.scaleByDelta({2.0 * map.worldBounds().max.x(), 0, 0});
+        CHECK(tool.bounds() == brushBounds);
+
+        tool.cancelScale();
+      }
+
+      SECTION("committing fits the bounds to the selected vertex")
+      {
+        tool.commitScale();
+        CHECK(tool.bounds() == vm::bbox3d{{-8, -16, -16}, {16, 16, 16}});
+      }
     }
   }
 }

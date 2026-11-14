@@ -769,7 +769,12 @@ void ScaleTool::pick3D(
 
 vm::bbox3d ScaleTool::bounds() const
 {
-  const auto& bounds = m_document.map().selectionBounds();
+  if (m_resizing)
+  {
+    return m_bboxDuringDrag;
+  }
+
+  const auto bounds = mdl::transformationBounds(m_document.map());
   contract_assert(bounds != std::nullopt);
 
   return *bounds;
@@ -1004,6 +1009,7 @@ void ScaleTool::startScaleWithHit(const mdl::Hit& hit)
   contract_pre(!m_resizing);
 
   m_bboxAtDragStart = bounds();
+  m_bboxDuringDrag = m_bboxAtDragStart;
   m_dragStartHit = hit;
   m_dragCumulativeDelta = vm::vec3d{0, 0, 0};
 
@@ -1026,7 +1032,10 @@ void ScaleTool::scaleByDelta(const vm::vec3d& delta)
 
   if (!newBox.is_empty())
   {
-    scaleSelection(m_document.map(), bounds(), newBox);
+    auto& map = m_document.map();
+    map.rollbackTransaction();
+    m_bboxDuringDrag =
+      scaleSelection(map, m_bboxAtDragStart, newBox) ? newBox : m_bboxAtDragStart;
   }
 }
 

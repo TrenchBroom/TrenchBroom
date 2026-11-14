@@ -36,6 +36,7 @@
 #include "mdl/Map_Nodes.h"
 #include "mdl/Map_Selection.h"
 #include "mdl/Matchers.h"
+#include "mdl/NodeHandleManager.h"
 #include "mdl/NodeHandles.h"
 #include "mdl/TestFactory.h"
 #include "mdl/TestUtils.h"
@@ -49,6 +50,7 @@
 #include "vm/vec_io.h" // IWYU pragma: keep
 
 #include <ranges>
+#include <tuple>
 
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/generators/catch_generators.hpp>
@@ -681,6 +683,82 @@ TEST_CASE("Map_Geometry")
 
     CHECK(brushNode1->logicalBounds() == vm::bbox3d{{1, 0, 0}, {31, 31, 31}});
     CHECK(brushNode2->logicalBounds() == vm::bbox3d{{0, 0, 0}, {1, 31, 31}});
+  }
+
+  SECTION("transformationBounds")
+  {
+    auto& map = fixture.create();
+    const auto builder = BrushBuilder{map.worldNode().mapFormat(), map.worldBounds()};
+
+    // a pyramid stump
+    auto* brushNode = addNode(
+      map,
+      parentForNodes(map),
+      std::make_unique<BrushNode>(
+        builder.createBrush(
+          std::vector<vm::vec3d>{
+            {-32, -32, -32},
+            {-32, 32, -32},
+            {32, -32, -32},
+            {32, 32, -32},
+            {-16, -16, 32},
+            {-16, 16, 32},
+            {16, -16, 32},
+            {16, 16, 32},
+          },
+          "material")
+        | kdl::value()));
+
+    SECTION("nothing selected")
+    {
+      CHECK(transformationBounds(map) == std::nullopt);
+    }
+
+    SECTION("no vertices selected")
+    {
+      selectNodes(map, {brushNode});
+
+      CHECK(transformationBounds(map) == vm::bbox3d{{-32, -32, -32}, {32, 32, 32}});
+    }
+
+    SECTION("vertices selected")
+    {
+      selectNodes(map, {brushNode});
+      map.nodeHandles().addHandles<VertexHandle>(*brushNode);
+
+      using T = std::tuple<std::vector<VertexHandle>, vm::bbox3d>;
+
+      // along the axes where the vertices have no extent, the bounds extend to the
+      // farther side of the selection bounds
+      const auto [verticesToSelect, expectedBounds] = GENERATE(values<T>({
+        {
+          {{{-32, -32, -32}}, {{16, 16, 32}}},
+          {{-32, -32, -32}, {16, 16, 32}},
+        },
+        {
+          {{{-16, -16, 32}}, {{-16, 16, 32}}, {{16, -16, 32}}, {{16, 16, 32}}},
+          {{-16, -16, -32}, {16, 16, 32}},
+        },
+        {
+          {{{16, -16, 32}}, {{16, 16, 32}}},
+          {{-32, -16, -32}, {16, 16, 32}},
+        },
+        {
+          {{{16, 16, 32}}},
+          {{-32, -32, -32}, {16, 16, 32}},
+        },
+        {
+          {{{-16, -16, 32}}},
+          {{-16, -16, -32}, {32, 32, 32}},
+        },
+      }));
+
+      CAPTURE(VertexHandle::getPositions(verticesToSelect));
+
+      map.nodeHandles().selectHandles<VertexHandle>(verticesToSelect);
+
+      CHECK(transformationBounds(map) == expectedBounds);
+    }
   }
 
   SECTION("transformVertices")

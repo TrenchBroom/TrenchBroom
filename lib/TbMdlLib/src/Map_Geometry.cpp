@@ -228,6 +228,38 @@ bool flipSelection(mdl::Map& map, const vm::vec3d& center, const vm::axis::type 
   return transformSelection(map, "Flip Objects", transformation);
 }
 
+std::optional<vm::bbox3d> transformationBounds(const Map& map)
+{
+  const auto& selectionBounds = map.selectionBounds();
+  if (!selectionBounds || !map.nodeHandles().anyHandleSelected<VertexHandle>())
+  {
+    return selectionBounds;
+  }
+
+  auto bounds = *vm::bbox3d::build(
+    map.nodeHandles().selectedHandles<VertexHandle>()
+    | std::views::transform(&VertexHandle::position));
+
+  for (size_t i = 0; i < 3; ++i)
+  {
+    if (vm::is_zero(bounds.size()[i], vm::Cd::almost_zero()))
+    {
+      if (
+        bounds.min[i] - selectionBounds->min[i]
+        >= selectionBounds->max[i] - bounds.max[i])
+      {
+        bounds.min[i] = selectionBounds->min[i];
+      }
+      else
+      {
+        bounds.max[i] = selectionBounds->max[i];
+      }
+    }
+  }
+
+  return bounds;
+}
+
 
 TransformVerticesResult transformVertices(
   Map& map, const std::vector<vm::vec3d>& vertexPositions, const vm::mat4x4d& transform)
