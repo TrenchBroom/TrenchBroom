@@ -203,6 +203,18 @@ vm::bbox3d moveBBoxForHit(
   const ProportionalAxes& proportional,
   AnchorPos anchor);
 
+/**
+ * Returns the sides of the given bbox that move when the side, edge, or corner handle
+ * identified by `hit` is dragged with the given proportional axes and anchor.
+ *
+ * Returns an empty vector if `hit` is not a side, edge, or corner hit.
+ */
+std::vector<vm::polygon3f> polygonsHighlightedByDrag(
+  const vm::bbox3d& bounds,
+  const mdl::Hit& hit,
+  const ProportionalAxes& proportional,
+  AnchorPos anchor);
+
 struct BackSide
 {
   double distAlongRay;
@@ -222,6 +234,20 @@ struct BackSide
 BackSide pickBackSideOfBox(
   const vm::ray3d& pickRay, const gl::Camera& camera, const vm::bbox3d& box);
 
+struct ScaleDragState
+{
+  /** The hit that identifies the side, edge, or corner being dragged. */
+  mdl::Hit dragStartHit;
+  /** The bounds of the selection when the drag started. */
+  vm::bbox3d bboxAtDragStart;
+  /** The anchor position of the drag. */
+  AnchorPos anchorPos = AnchorPos::Opposite;
+  /** The axes that are scaled proportionally. */
+  ProportionalAxes proportionalAxes = ProportionalAxes::None();
+  /** The total drag distance so far. */
+  vm::vec3d totalDelta = {0, 0, 0};
+};
+
 class ScaleTool : public Tool
 {
 public:
@@ -232,11 +258,9 @@ public:
 
 private:
   MapDocument& m_document;
-  bool m_resizing = false;
+  bool m_dragging = false;
   AnchorPos m_anchorPos = AnchorPos::Opposite;
-  vm::bbox3d m_bboxAtDragStart;
-  mdl::Hit m_dragStartHit = mdl::Hit::NoHit;
-  vm::vec3d m_dragCumulativeDelta;
+  mdl::Hit m_pickedHandle = mdl::Hit::NoHit;
   ProportionalAxes m_proportionalAxes = ProportionalAxes::None();
 
 public:
@@ -245,7 +269,10 @@ public:
 
   const mdl::Grid& grid() const;
 
-  const mdl::Hit& dragStartHit() const;
+  /**
+   * Returns the handle that was picked by the last call to updatePickedHandle.
+   */
+  const mdl::Hit& pickedHandle() const;
   bool applies() const;
 
   void pickBackSides(
@@ -265,26 +292,6 @@ public:
   vm::bbox3d bounds() const;
 
 public:
-  std::vector<vm::polygon3f> polygonsHighlightedByDrag() const;
-
-  bool hasDragSide() const;
-  vm::polygon3f dragSide() const;
-
-  bool hasDragEdge() const;
-  vm::segment3f dragEdge() const;
-
-  bool hasDragCorner() const;
-  vm::vec3f dragCorner() const;
-
-  bool hasDragAnchor() const;
-  vm::vec3f dragAnchor() const;
-
-  /**
-   * Returns the bbox at the start of the drag. Only allowed to call while m_resizing is
-   * true.
-   */
-  vm::bbox3d bboxAtDragStart() const;
-
   std::vector<vm::vec3d> cornerHandles() const;
 
   void updatePickedHandle(const mdl::PickResult& pickResult);
@@ -296,9 +303,11 @@ public:
   const ProportionalAxes& proportionalAxes() const;
 
 public:
-  void startScaleWithHit(const mdl::Hit& hit);
-  void scaleByDelta(const vm::vec3d& delta);
-  void commitScale();
+  bool dragging() const;
+
+  void beginScale();
+  void scaleByDelta(const vm::vec3d& delta, ScaleDragState& dragState);
+  void commitScale(const ScaleDragState& dragState);
   void cancelScale();
 };
 

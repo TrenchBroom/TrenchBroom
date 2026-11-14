@@ -18,6 +18,7 @@ target_sources(TbAppLibTest
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_MoveHandleDragTracker.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_RotateTool.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_ScaleTool.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_ScaleToolController.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_SelectionTool.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_SetBrushFaceAttributesTool.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_ShearTool.cpp

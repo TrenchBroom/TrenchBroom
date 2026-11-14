@@ -561,6 +561,66 @@ vm::bbox3d moveBBoxForHit(
   return moveBBoxCorner(bboxAtDragStart, endCorner, delta, anchor);
 }
 
+std::vector<vm::polygon3f> polygonsHighlightedByDrag(
+  const vm::bbox3d& bounds,
+  const mdl::Hit& hit,
+  const ProportionalAxes& proportional,
+  const AnchorPos anchor)
+{
+  auto sides = std::vector<BBoxSide>{};
+
+  if (hit.type() == ScaleTool::SideHitType)
+  {
+    const auto side = hit.target<BBoxSide>();
+    sides = {side};
+
+    // Add additional highlights when Shift is pressed, to indicate the other axes that
+    // are being scaled proportionally.
+    for (size_t i = 0; i < 3; ++i)
+    {
+      // Don't highlight `side` or its opposite
+      if (i == vm::find_abs_max_component(side.normal))
+      {
+        continue;
+      }
+
+      if (proportional.isAxisProportional(i))
+      {
+        // Highlight the + and - sides on this axis
+        auto side1 = vm::vec3d{};
+        side1[i] = 1.0;
+        sides.emplace_back(side1);
+
+        auto side2 = vm::vec3d{};
+        side2[i] = -1.0;
+        sides.emplace_back(side2);
+      }
+    }
+  }
+  else if (hit.type() == ScaleTool::EdgeHitType)
+  {
+    const auto edge = hit.target<BBoxEdge>();
+    sides = sidesForEdgeSelection(edge);
+  }
+  else if (hit.type() == ScaleTool::CornerHitType)
+  {
+    const auto corner = hit.target<BBoxCorner>();
+    sides = sidesForCornerSelection(corner);
+  }
+  else
+  {
+    return {};
+  }
+
+  // When the anchor point is the center, highlight the opposite sides also.
+  if (anchor == AnchorPos::Center)
+  {
+    sides = sidesWithOppositeSides(sides);
+  }
+
+  return polysForSides(bounds, sides);
+}
+
 // ScaleTool
 
 ScaleTool::ScaleTool(MapDocument& document)
@@ -576,9 +636,9 @@ const mdl::Grid& ScaleTool::grid() const
   return m_document.map().grid();
 }
 
-const mdl::Hit& ScaleTool::dragStartHit() const
+const mdl::Hit& ScaleTool::pickedHandle() const
 {
-  return m_dragStartHit;
+  return m_pickedHandle;
 }
 
 bool ScaleTool::applies() const
@@ -775,158 +835,6 @@ vm::bbox3d ScaleTool::bounds() const
   return *bounds;
 }
 
-std::vector<vm::polygon3f> ScaleTool::polygonsHighlightedByDrag() const
-{
-  auto sides = std::vector<BBoxSide>{};
-
-  if (m_dragStartHit.type() == SideHitType)
-  {
-    const auto side = m_dragStartHit.target<BBoxSide>();
-    sides = {side};
-
-    // Add additional highlights when Shift is pressed, to indicate the other axes that
-    // are being scaled proportionally.
-    for (size_t i = 0; i < 3; ++i)
-    {
-      // Don't highlight `side` or its opposite
-      if (i == vm::find_abs_max_component(side.normal))
-      {
-        continue;
-      }
-
-      if (m_proportionalAxes.isAxisProportional(i))
-      {
-        // Highlight the + and - sides on this axis
-        auto side1 = vm::vec3d{};
-        side1[i] = 1.0;
-        sides.emplace_back(side1);
-
-        auto side2 = vm::vec3d{};
-        side2[i] = -1.0;
-        sides.emplace_back(side2);
-      }
-    }
-  }
-  else if (m_dragStartHit.type() == EdgeHitType)
-  {
-    const auto edge = m_dragStartHit.target<BBoxEdge>();
-    sides = sidesForEdgeSelection(edge);
-  }
-  else if (m_dragStartHit.type() == CornerHitType)
-  {
-    const auto corner = m_dragStartHit.target<BBoxCorner>();
-    sides = sidesForCornerSelection(corner);
-  }
-  else
-  {
-    return {};
-  }
-
-  // When the anchor point is the center, highlight the opposite sides also.
-  if (m_anchorPos == AnchorPos::Center)
-  {
-    sides = sidesWithOppositeSides(sides);
-  }
-
-  return polysForSides(bounds(), sides);
-}
-
-bool ScaleTool::hasDragSide() const
-{
-  return dragSide().vertexCount() > 0;
-}
-
-vm::polygon3f ScaleTool::dragSide() const
-{
-  if (m_dragStartHit.type() == SideHitType)
-  {
-    const auto side = m_dragStartHit.target<BBoxSide>();
-    return vm::polygon3f{polygonForBBoxSide(bounds(), side)};
-  }
-
-  return {};
-}
-
-bool ScaleTool::hasDragEdge() const
-{
-  return m_dragStartHit.type() == EdgeHitType;
-}
-
-vm::segment3f ScaleTool::dragEdge() const
-{
-  contract_pre(hasDragEdge());
-
-  auto whichEdge = m_dragStartHit.target<BBoxEdge>();
-  return vm::segment3f{pointsForBBoxEdge(bounds(), whichEdge)};
-}
-
-bool ScaleTool::hasDragCorner() const
-{
-  return m_dragStartHit.type() == CornerHitType;
-}
-
-vm::vec3f ScaleTool::dragCorner() const
-{
-  contract_pre(hasDragCorner());
-
-  auto whichCorner = m_dragStartHit.target<BBoxCorner>();
-  return vm::vec3f{pointForBBoxCorner(bounds(), whichCorner)};
-}
-
-bool ScaleTool::hasDragAnchor() const
-{
-  if (bounds().is_empty())
-  {
-    return false;
-  }
-
-  const auto type = m_dragStartHit.type();
-  return type == EdgeHitType || type == CornerHitType || type == SideHitType;
-}
-
-vm::vec3f ScaleTool::dragAnchor() const
-{
-  contract_pre(m_dragStartHit.hasType(ScaleTool::AnyHitType));
-
-  if (m_anchorPos == AnchorPos::Center)
-  {
-    return vm::vec3f{bounds().center()};
-  }
-
-  if (m_dragStartHit.type() == SideHitType)
-  {
-    const auto endSide = m_dragStartHit.target<BBoxSide>();
-    const auto startSide = oppositeSide(endSide);
-
-    return vm::vec3f{centerForBBoxSide(bounds(), startSide)};
-  }
-
-  if (m_dragStartHit.type() == EdgeHitType)
-  {
-    const auto endEdge = m_dragStartHit.target<BBoxEdge>();
-    const auto startEdge = oppositeEdge(endEdge);
-
-    const auto startEdgeActual = pointsForBBoxEdge(bounds(), startEdge);
-
-    return vm::vec3f{startEdgeActual.center()};
-  }
-
-  contract_assert(m_dragStartHit.type() == CornerHitType);
-
-  const auto endCorner = m_dragStartHit.target<BBoxCorner>();
-  const auto startCorner = oppositeCorner(endCorner);
-
-  const auto startCornerActual = pointForBBoxCorner(bounds(), startCorner);
-  return vm::vec3f{startCornerActual};
-}
-
-vm::bbox3d ScaleTool::bboxAtDragStart() const
-{
-  contract_pre(m_resizing);
-
-  return m_bboxAtDragStart;
-}
-
 std::vector<vm::vec3d> ScaleTool::cornerHandles() const
 {
   auto result = std::vector<vm::vec3d>{};
@@ -947,30 +855,29 @@ void ScaleTool::updatePickedHandle(const mdl::PickResult& pickResult)
 
   // extract the highlighted handle from the hit here, and only refresh views if it
   // changed
-  if (hit.type() == SideHitType && m_dragStartHit.type() == SideHitType)
+  if (hit.type() == SideHitType && m_pickedHandle.type() == SideHitType)
   {
-    if (hit.target<BBoxSide>() == m_dragStartHit.target<BBoxSide>())
+    if (hit.target<BBoxSide>() == m_pickedHandle.target<BBoxSide>())
     {
       return;
     }
   }
-  else if (hit.type() == EdgeHitType && m_dragStartHit.type() == EdgeHitType)
+  else if (hit.type() == EdgeHitType && m_pickedHandle.type() == EdgeHitType)
   {
-    if (hit.target<BBoxEdge>() == m_dragStartHit.target<BBoxEdge>())
+    if (hit.target<BBoxEdge>() == m_pickedHandle.target<BBoxEdge>())
     {
       return;
     }
   }
-  else if (hit.type() == CornerHitType && m_dragStartHit.type() == CornerHitType)
+  else if (hit.type() == CornerHitType && m_pickedHandle.type() == CornerHitType)
   {
-    if (hit.target<BBoxCorner>() == m_dragStartHit.target<BBoxCorner>())
+    if (hit.target<BBoxCorner>() == m_pickedHandle.target<BBoxCorner>())
     {
       return;
     }
   }
 
-  // hack for highlighting on mouseover
-  m_dragStartHit = hit;
+  m_pickedHandle = hit;
 
   refreshViews();
 }
@@ -995,34 +902,31 @@ const ProportionalAxes& ScaleTool::proportionalAxes() const
   return m_proportionalAxes;
 }
 
-void ScaleTool::startScaleWithHit(const mdl::Hit& hit)
+bool ScaleTool::dragging() const
 {
-  contract_pre(hit.isMatch());
-  contract_pre(
-    hit.type() == CornerHitType || hit.type() == EdgeHitType
-    || hit.type() == SideHitType);
-  contract_pre(!m_resizing);
-
-  m_bboxAtDragStart = bounds();
-  m_dragStartHit = hit;
-  m_dragCumulativeDelta = vm::vec3d{0, 0, 0};
-
-  m_document.map().startTransaction("Scale Objects", mdl::TransactionScope::LongRunning);
-  m_resizing = true;
+  return m_dragging;
 }
 
-void ScaleTool::scaleByDelta(const vm::vec3d& delta)
+void ScaleTool::beginScale()
 {
-  contract_pre(m_resizing);
+  contract_pre(!m_dragging);
 
-  m_dragCumulativeDelta = m_dragCumulativeDelta + delta;
+  m_document.map().startTransaction("Scale Objects", mdl::TransactionScope::LongRunning);
+  m_dragging = true;
+}
+
+void ScaleTool::scaleByDelta(const vm::vec3d& delta, ScaleDragState& dragState)
+{
+  contract_pre(m_dragging);
+
+  dragState.totalDelta = dragState.totalDelta + delta;
 
   const auto newBox = moveBBoxForHit(
-    m_bboxAtDragStart,
-    m_dragStartHit,
-    m_dragCumulativeDelta,
-    m_proportionalAxes,
-    m_anchorPos);
+    dragState.bboxAtDragStart,
+    dragState.dragStartHit,
+    dragState.totalDelta,
+    dragState.proportionalAxes,
+    dragState.anchorPos);
 
   if (!newBox.is_empty())
   {
@@ -1030,11 +934,13 @@ void ScaleTool::scaleByDelta(const vm::vec3d& delta)
   }
 }
 
-void ScaleTool::commitScale()
+void ScaleTool::commitScale(const ScaleDragState& dragState)
 {
+  contract_pre(m_dragging);
+
   auto& map = m_document.map();
 
-  if (vm::is_zero(m_dragCumulativeDelta, vm::Cd::almost_zero()))
+  if (vm::is_zero(dragState.totalDelta, vm::Cd::almost_zero()))
   {
     map.cancelTransaction();
   }
@@ -1042,13 +948,15 @@ void ScaleTool::commitScale()
   {
     map.commitTransaction();
   }
-  m_resizing = false;
+  m_dragging = false;
 }
 
 void ScaleTool::cancelScale()
 {
+  contract_pre(m_dragging);
+
   m_document.map().cancelTransaction();
-  m_resizing = false;
+  m_dragging = false;
 }
 
 } // namespace tb::ui

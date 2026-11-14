@@ -265,84 +265,6 @@ TEST_CASE("ScaleTool")
     }
   }
 
-  SECTION("polygonsHighlightedByDrag, drag handle accessors and drag anchor")
-  {
-    constexpr auto brushBounds = vm::bbox3d{16.0};
-    auto builder = mdl::BrushBuilder{map.worldNode().mapFormat(), map.worldBounds()};
-    auto* boundedBrush = mdl::addNode(
-      map,
-      *map.editorContext().currentLayer(),
-      std::make_unique<mdl::BrushNode>(
-        builder.createCuboid(brushBounds, "material") | kdl::value()));
-    mdl::selectNodes(map, {boundedBrush});
-
-    SECTION("no drag hit")
-    {
-      CHECK(tool.polygonsHighlightedByDrag().empty());
-      CHECK(!tool.hasDragSide());
-      CHECK(!tool.hasDragEdge());
-      CHECK(!tool.hasDragCorner());
-      CHECK(!tool.hasDragAnchor());
-    }
-
-    SECTION("side drag hit")
-    {
-      auto pickResult = mdl::PickResult{};
-      pickResult.addHit(
-        mdl::Hit{ScaleTool::SideHitType, 0.0, {0, 0, 16}, BBoxSide{{0, 0, 1}}});
-      tool.updatePickedHandle(pickResult);
-
-      CHECK(tool.hasDragSide());
-      CHECK(tool.dragSide().vertexCount() == 4);
-      CHECK(!tool.hasDragEdge());
-      CHECK(!tool.hasDragCorner());
-      CHECK(tool.hasDragAnchor());
-      CHECK(tool.dragAnchor() == vm::vec3f{0, 0, -16});
-      CHECK(!tool.polygonsHighlightedByDrag().empty());
-
-      SECTION("center anchor also highlights the opposite side")
-      {
-        tool.setAnchorPos(AnchorPos::Center);
-        CHECK(tool.dragAnchor() == vm::vec3f{0, 0, 0});
-        CHECK(tool.polygonsHighlightedByDrag().size() == 2);
-      }
-    }
-
-    SECTION("edge drag hit")
-    {
-      const auto edge = BBoxEdge{{1, 1, -1}, {1, 1, 1}};
-      auto pickResult = mdl::PickResult{};
-      pickResult.addHit(mdl::Hit{ScaleTool::EdgeHitType, 0.0, {16, 16, 0}, edge});
-      tool.updatePickedHandle(pickResult);
-
-      CHECK(!tool.hasDragSide());
-      CHECK(tool.hasDragEdge());
-      CHECK(tool.dragEdge() == vm::segment3f{{16, 16, -16}, {16, 16, 16}});
-      CHECK(!tool.hasDragCorner());
-      CHECK(tool.hasDragAnchor());
-      CHECK(tool.dragAnchor() == vm::vec3f{-16, -16, 0});
-      // the highlighted sides are the two sides touching this edge
-      CHECK(tool.polygonsHighlightedByDrag().size() == 2);
-    }
-
-    SECTION("corner drag hit")
-    {
-      const auto corner = BBoxCorner{{1, 1, 1}};
-      auto pickResult = mdl::PickResult{};
-      pickResult.addHit(mdl::Hit{ScaleTool::CornerHitType, 0.0, {16, 16, 16}, corner});
-      tool.updatePickedHandle(pickResult);
-
-      CHECK(!tool.hasDragSide());
-      CHECK(!tool.hasDragEdge());
-      CHECK(tool.hasDragCorner());
-      CHECK(tool.dragCorner() == vm::vec3f{16, 16, 16});
-      CHECK(tool.hasDragAnchor());
-      CHECK(tool.dragAnchor() == vm::vec3f{-16, -16, -16});
-      // the highlighted sides are the three sides touching this corner
-      CHECK(tool.polygonsHighlightedByDrag().size() == 3);
-    }
-  }
-
   SECTION("cornerHandles")
   {
     SECTION("selected brush has 8 corner handles")
@@ -375,11 +297,14 @@ TEST_CASE("ScaleTool")
     auto refreshCount = 0;
     auto connection = tool.refreshViewsNotifier.connect([&](Tool&) { ++refreshCount; });
 
+    CHECK(!tool.pickedHandle().isMatch());
+
     auto pickResult = mdl::PickResult{};
     pickResult.addHit(
       mdl::Hit{ScaleTool::SideHitType, 0.0, {0, 0, 16}, BBoxSide{{0, 0, 1}}});
     tool.updatePickedHandle(pickResult);
     CHECK(refreshCount == 1);
+    CHECK(tool.pickedHandle().target<BBoxSide>() == BBoxSide{{0, 0, 1}});
 
     // hitting the same side again should not trigger another refresh
     tool.updatePickedHandle(pickResult);
@@ -391,6 +316,7 @@ TEST_CASE("ScaleTool")
       mdl::Hit{ScaleTool::SideHitType, 0.0, {16, 0, 0}, BBoxSide{{1, 0, 0}}});
     tool.updatePickedHandle(otherPickResult);
     CHECK(refreshCount == 2);
+    CHECK(tool.pickedHandle().target<BBoxSide>() == BBoxSide{{1, 0, 0}});
   }
 
   SECTION("anchor position and proportional axes")
@@ -415,35 +341,49 @@ TEST_CASE("ScaleTool")
         builder.createCuboid(brushBounds, "material") | kdl::value()));
     mdl::selectNodes(map, {boundedBrush});
 
-    const auto hit =
-      mdl::Hit{ScaleTool::SideHitType, 0.0, {16, 0, 0}, BBoxSide{{1, 0, 0}}};
+    auto dragState = ScaleDragState{
+      mdl::Hit{ScaleTool::SideHitType, 0.0, {16, 0, 0}, BBoxSide{{1, 0, 0}}},
+      brushBounds};
+
+    CHECK(!tool.dragging());
+    tool.beginScale();
+    CHECK(tool.dragging());
 
     SECTION("scaling and committing changes the selection bounds")
     {
-      tool.startScaleWithHit(hit);
-      CHECK(tool.dragStartHit().type() == ScaleTool::SideHitType);
-      CHECK(tool.bboxAtDragStart() == brushBounds);
-
-      tool.scaleByDelta({25, 0, 0});
+      tool.scaleByDelta({25, 0, 0}, dragState);
+      CHECK(dragState.totalDelta == vm::vec3d{25, 0, 0});
       CHECK(tool.bounds() == vm::bbox3d{{-16, -16, -16}, {41, 16, 16}});
 
-      tool.commitScale();
+      tool.commitScale(dragState);
+      CHECK(!tool.dragging());
       CHECK(tool.bounds() == vm::bbox3d{{-16, -16, -16}, {41, 16, 16}});
+    }
+
+    SECTION("scaling uses the anchor position and proportional axes of the drag state")
+    {
+      dragState.anchorPos = AnchorPos::Center;
+      dragState.proportionalAxes = ProportionalAxes::All();
+
+      tool.scaleByDelta({25, 0, 0}, dragState);
+      CHECK(tool.bounds() == vm::bbox3d{{-41, -41, -41}, {41, 41, 41}});
+
+      tool.commitScale(dragState);
     }
 
     SECTION("committing with zero delta cancels the transaction")
     {
-      tool.startScaleWithHit(hit);
-      tool.commitScale();
+      tool.commitScale(dragState);
+      CHECK(!tool.dragging());
 
       CHECK(tool.bounds() == brushBounds);
     }
 
     SECTION("cancelling discards the scale")
     {
-      tool.startScaleWithHit(hit);
-      tool.scaleByDelta({25, 0, 0});
+      tool.scaleByDelta({25, 0, 0}, dragState);
       tool.cancelScale();
+      CHECK(!tool.dragging());
 
       CHECK(tool.bounds() == brushBounds);
     }
@@ -681,6 +621,67 @@ TEST_CASE("bbox handle geometry")
       const auto result = moveBBoxForHit(
         box, hit, {25, 25, 25}, ProportionalAxes::None(), AnchorPos::Opposite);
       CHECK(result == moveBBoxCorner(box, corner, {25, 25, 25}, AnchorPos::Opposite));
+    }
+  }
+
+  SECTION("polygonsHighlightedByDrag")
+  {
+    const auto polygonFor = [&](const vm::vec3d& normal) {
+      return vm::polygon3f{polygonForBBoxSide(box, BBoxSide{normal})};
+    };
+
+    SECTION("no hit")
+    {
+      CHECK(polygonsHighlightedByDrag(
+              box, mdl::Hit::NoHit, ProportionalAxes::None(), AnchorPos::Opposite)
+              .empty());
+    }
+
+    SECTION("side hit")
+    {
+      const auto hit = mdl::Hit{ScaleTool::SideHitType, 0.0, {}, BBoxSide{{0, 0, 1}}};
+
+      CHECK(
+        polygonsHighlightedByDrag(box, hit, ProportionalAxes::None(), AnchorPos::Opposite)
+        == std::vector{polygonFor({0, 0, 1})});
+
+      // proportionally scaled axes are highlighted, too
+      CHECK(
+        polygonsHighlightedByDrag(
+          box, hit, ProportionalAxes{true, false, false}, AnchorPos::Opposite)
+        == std::vector{
+          polygonFor({0, 0, 1}), polygonFor({1, 0, 0}), polygonFor({-1, 0, 0})});
+
+      // a center anchor also highlights the opposite side
+      const auto polygons =
+        polygonsHighlightedByDrag(box, hit, ProportionalAxes::None(), AnchorPos::Center);
+      CHECK(polygons.size() == 2);
+      CHECK(kdl::ranges::contains(polygons, polygonFor({0, 0, 1})));
+      CHECK(kdl::ranges::contains(polygons, polygonFor({0, 0, -1})));
+    }
+
+    SECTION("edge hit")
+    {
+      const auto hit =
+        mdl::Hit{ScaleTool::EdgeHitType, 0.0, {}, BBoxEdge{{1, 1, -1}, {1, 1, 1}}};
+
+      // the sides touching the edge are highlighted
+      const auto polygons = polygonsHighlightedByDrag(
+        box, hit, ProportionalAxes::None(), AnchorPos::Opposite);
+      CHECK(polygons.size() == 2);
+      CHECK(kdl::ranges::contains(polygons, polygonFor({1, 0, 0})));
+      CHECK(kdl::ranges::contains(polygons, polygonFor({0, 1, 0})));
+    }
+
+    SECTION("corner hit")
+    {
+      const auto hit = mdl::Hit{ScaleTool::CornerHitType, 0.0, {}, BBoxCorner{{1, 1, 1}}};
+
+      // the sides touching the corner are highlighted
+      CHECK(
+        polygonsHighlightedByDrag(box, hit, ProportionalAxes::None(), AnchorPos::Opposite)
+        == std::vector{
+          polygonFor({1, 0, 0}), polygonFor({0, 1, 0}), polygonFor({0, 0, 1})});
     }
   }
 }
