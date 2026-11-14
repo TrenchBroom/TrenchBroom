@@ -38,7 +38,12 @@ varying vec4 faceColor;
 varying vec3 viewVector;
 
 float grid(
-  vec3 coords, vec3 normal, float gridSize, float minGridSize, vec3 lineWidthFactor);
+  vec3 coords,
+  vec3 normal,
+  float gridSize,
+  vec3 minGridSize,
+  float minorGridSizeFactor,
+  vec3 lineWidthFactor);
 vec3 applySoftMapBoundsTint(vec3 inputFragColor, vec3 worldCoords);
 vec3 adaptiveGridColor(vec3 background);
 float texturedGridAlpha(float alpha);
@@ -120,16 +125,17 @@ void main()
     vec3 dx = dFdx(coords);
     vec3 dy = dFdy(coords);
 
-    // get the maximum distance in world space between this and the neighbouring fragments
-    float maxWorldSpaceChange = max(length(dx), length(dy));
-
-    // apply the Nyquist theorem to get the smallest grid size that would make sense to
-    // render for this fragment
-    float minGridSize = 2.0 * maxWorldSpaceChange;
-
     // the world size of a screen pixel measured across the grid lines of each world axis,
     // i.e. the length of the screen space gradient of that coordinate
     vec3 pixelSize = sqrt(dx * dx + dy * dy);
+
+    // apply the Nyquist theorem to get the smallest grid size that would make sense to
+    // render for this fragment
+    vec3 minGridSize = 2.0 * pixelSize;
+
+    // fade out the minor grids long before they would alias so they don't clutter the
+    // view; the major grids only fade out to prevent aliasing
+    float minorGridSizeFactor = 4.0;
 
     // The line width is the smaller of two factors:
     //  - a screen-relative width (4.0 * pixelSize) that keeps a constant apparent width
@@ -141,8 +147,13 @@ void main()
     // distance-based thinning: lines never get thicker than the close-up width.
     vec3 lineWidthFactor = min(4.0 * pixelSize, 1.0);
 
-    float gridValue =
-      grid(coords, modelNormal.xyz, GridSize, minGridSize, lineWidthFactor);
+    float gridValue = grid(
+      coords,
+      modelNormal.xyz,
+      GridSize,
+      minGridSize,
+      minorGridSizeFactor,
+      lineWidthFactor);
 
     // Fade the grid with distance so distant lines don't pile up into visual noise.
     // Ramp the opacity down over the fragment's distance from the camera, in world units.
