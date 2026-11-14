@@ -117,12 +117,11 @@ private:
   MapDocument& m_document;
 
   /**
-   * Propsed drag handles for the next drag. Should only be accessed when m_dragging is
-   * false. This needs to be cached here so that it is shared between multiple views.
+   * Propsed drag handles for the next drag. Should only be accessed when no gesture is in
+   * progress. This needs to be cached here so that it is shared between multiple views.
    * Otherwise, we cannot show the proposed drag handles in all views.
    */
   std::vector<ExtrudeDragHandle> m_proposedDragHandles;
-  bool m_dragging;
 
   NotifierConnection m_notifierConnection;
 

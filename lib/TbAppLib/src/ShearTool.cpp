@@ -149,23 +149,13 @@ vm::bbox3d ShearTool::bounds() const
   return *bounds;
 }
 
-bool ShearTool::dragging() const
-{
-  return m_dragging;
-}
-
 void ShearTool::beginShear()
 {
-  contract_pre(!m_dragging);
-
   m_document.map().startTransaction("Shear Objects", mdl::TransactionScope::LongRunning);
-  m_dragging = true;
 }
 
 void ShearTool::commitShear(const ShearDragState& dragState)
 {
-  contract_pre(m_dragging);
-
   auto& map = m_document.map();
   if (vm::is_zero(dragState.totalDelta, vm::Cd::almost_zero()))
   {
@@ -175,21 +165,15 @@ void ShearTool::commitShear(const ShearDragState& dragState)
   {
     map.commitTransaction();
   }
-  m_dragging = false;
 }
 
 void ShearTool::cancelShear()
 {
-  contract_pre(m_dragging);
-
   m_document.map().cancelTransaction();
-  m_dragging = false;
 }
 
 bool ShearTool::shearByDelta(const vm::vec3d& delta, ShearDragState& dragState)
 {
-  contract_pre(m_dragging);
-
   auto& map = m_document.map();
   const auto& bboxAtDragStart = dragState.bboxAtDragStart;
   const auto& normal = dragState.side.normal;

@@ -230,9 +230,7 @@ TEST_CASE("ShearTool")
     {
       auto dragState = ShearDragState{BBoxSide{{1, 0, 0}}, brushBounds};
 
-      CHECK(!tool.dragging());
       tool.beginShear();
-      CHECK(tool.dragging());
 
       SECTION("shearing and committing changes the brush's geometry")
       {
@@ -240,7 +238,6 @@ TEST_CASE("ShearTool")
         CHECK(dragState.totalDelta == vm::vec3d{0, 0, 10});
 
         tool.commitShear(dragState);
-        CHECK(!tool.dragging());
 
         // the +X side (the one sheared) moves by the full delta; the opposite (-X)
         // side is the shear's fixed pivot and stays put
@@ -266,7 +263,6 @@ TEST_CASE("ShearTool")
       SECTION("committing with zero delta cancels the transaction")
       {
         tool.commitShear(dragState);
-        CHECK(!tool.dragging());
 
         CHECK(tool.bounds() == brushBounds);
       }
@@ -275,7 +271,6 @@ TEST_CASE("ShearTool")
       {
         tool.shearByDelta({0, 0, 10}, dragState);
         tool.cancelShear();
-        CHECK(!tool.dragging());
 
         CHECK(tool.bounds() == brushBounds);
       }

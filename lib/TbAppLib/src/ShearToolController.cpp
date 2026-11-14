@@ -323,7 +323,7 @@ void ShearToolController::render(
   render::RenderContext& renderContext,
   render::RenderBatch& renderBatch)
 {
-  if (m_tool.applies() && !m_tool.dragging())
+  if (m_tool.applies() && !m_tool.gestureInProgress())
   {
     renderBox(renderContext, renderBatch, m_tool.bounds(), vm::mat4x4d::identity());
     if (const auto handle = m_tool.shearHandle())

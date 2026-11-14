@@ -610,7 +610,7 @@ bool ClipTool::canClip() const
 
 void ClipTool::performClip()
 {
-  if (!m_dragging && canClip())
+  if (!gestureInProgress() && canClip())
   {
     const auto ignoreNotifications = kdl::set_temp{m_ignoreNotifications};
 
@@ -700,15 +700,12 @@ bool ClipTool::removeLastPoint()
 std::optional<std::tuple<vm::vec3d, vm::vec3d>> ClipTool::beginDragPoint(
   const mdl::PickResult& pickResult)
 {
-  contract_pre(!m_dragging);
-
   if (m_strategy)
   {
     const auto handlePositionAndHitPoint = m_strategy->canDragPoint(pickResult);
     if (handlePositionAndHitPoint)
     {
       m_strategy->beginDragPoint(pickResult);
-      m_dragging = true;
       return handlePositionAndHitPoint;
     }
   }
@@ -718,17 +715,14 @@ std::optional<std::tuple<vm::vec3d, vm::vec3d>> ClipTool::beginDragPoint(
 
 void ClipTool::beginDragLastPoint()
 {
-  contract_pre(!m_dragging);
   contract_pre(m_strategy != nullptr);
 
   m_strategy->beginDragLastPoint();
-  m_dragging = true;
 }
 
 bool ClipTool::dragPoint(
   const vm::vec3d& newPosition, const std::vector<vm::vec3d>& helpVectors)
 {
-  contract_pre(m_dragging);
   contract_pre(m_strategy != nullptr);
 
   if (!m_strategy->dragPoint(newPosition, helpVectors))
@@ -742,21 +736,17 @@ bool ClipTool::dragPoint(
 
 void ClipTool::endDragPoint()
 {
-  contract_pre(m_dragging);
   contract_pre(m_strategy != nullptr);
 
   m_strategy->endDragPoint();
-  m_dragging = false;
   refreshViews();
 }
 
 void ClipTool::cancelDragPoint()
 {
-  contract_pre(m_dragging);
   contract_pre(m_strategy != nullptr);
 
   m_strategy->cancelDragPoint();
-  m_dragging = false;
   refreshViews();
 }
 

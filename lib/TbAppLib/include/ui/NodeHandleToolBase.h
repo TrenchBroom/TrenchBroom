@@ -98,7 +98,6 @@ private:
 
 protected:
   typename HandleType::Position m_dragHandlePosition;
-  bool m_dragging = false;
 
 protected:
   explicit NodeHandleToolBase(MapDocument& document)
@@ -286,7 +285,6 @@ public: // performing moves
     m_document.map().startTransaction(actionName(), mdl::TransactionScope::LongRunning);
 
     m_dragHandlePosition = getHandlePosition(hits.front());
-    m_dragging = true;
     ++m_ignoreChangeNotifications;
     return true;
   }
@@ -296,14 +294,12 @@ public: // performing moves
   virtual void endMove()
   {
     m_document.map().commitTransaction();
-    m_dragging = false;
     --m_ignoreChangeNotifications;
   }
 
   virtual void cancelMove()
   {
     m_document.map().cancelTransaction();
-    m_dragging = false;
     --m_ignoreChangeNotifications;
   }
 

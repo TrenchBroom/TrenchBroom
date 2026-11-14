@@ -335,9 +335,7 @@ TEST_CASE("ScaleTool")
       mdl::Hit{ScaleTool::SideHitType, 0.0, {16, 0, 0}, BBoxSide{{1, 0, 0}}},
       brushBounds};
 
-    CHECK(!tool.dragging());
     tool.beginScale();
-    CHECK(tool.dragging());
 
     SECTION("scaling and committing changes the selection bounds")
     {
@@ -346,7 +344,6 @@ TEST_CASE("ScaleTool")
       CHECK(tool.bounds() == vm::bbox3d{{-16, -16, -16}, {41, 16, 16}});
 
       tool.commitScale(dragState);
-      CHECK(!tool.dragging());
       CHECK(tool.bounds() == vm::bbox3d{{-16, -16, -16}, {41, 16, 16}});
     }
 
@@ -364,7 +361,6 @@ TEST_CASE("ScaleTool")
     SECTION("committing with zero delta cancels the transaction")
     {
       tool.commitScale(dragState);
-      CHECK(!tool.dragging());
 
       CHECK(tool.bounds() == brushBounds);
     }
@@ -373,7 +369,6 @@ TEST_CASE("ScaleTool")
     {
       tool.scaleByDelta({25, 0, 0}, dragState);
       tool.cancelScale();
-      CHECK(!tool.dragging());
 
       CHECK(tool.bounds() == brushBounds);
     }

@@ -66,7 +66,6 @@ public:
 
 private:
   MapDocument& m_document;
-  bool m_dragging = false;
   mdl::Hit m_pickedSide = mdl::Hit::NoHit;
 
 public:
@@ -92,8 +91,6 @@ public:
 
 public:
   vm::bbox3d bounds() const;
-
-  bool dragging() const;
 
   void beginShear();
   void commitShear(const ShearDragState& dragState);

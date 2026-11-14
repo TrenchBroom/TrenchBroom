@@ -276,7 +276,6 @@ public:
 
 private:
   MapDocument& m_document;
-  bool m_dragging = false;
   AnchorPos m_anchorPos = AnchorPos::Opposite;
   mdl::Hit m_pickedHandle = mdl::Hit::NoHit;
   ProportionalAxes m_proportionalAxes = ProportionalAxes::None();
@@ -315,8 +314,6 @@ public:
   const ProportionalAxes& proportionalAxes() const;
 
 public:
-  bool dragging() const;
-
   void beginScale();
 
   /**

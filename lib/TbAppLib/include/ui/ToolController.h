@@ -66,6 +66,10 @@ public:
   virtual void mouseMove(const InputState& inputState);
   virtual void mouseScroll(const InputState& inputState);
 
+  /**
+   * Returns a gesture tracker if this controller accepts the mouse drag or gesture. The
+   * tool's gestureInProgress flag is set until the gesture ends or is cancelled.
+   */
   std::unique_ptr<GestureTracker> acceptMouseDrag(const InputState& inputState);
   std::unique_ptr<GestureTracker> acceptGesture(const InputState& inputState);
 

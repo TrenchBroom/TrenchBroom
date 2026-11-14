@@ -25,8 +25,83 @@
 
 #include "kd/contracts.h"
 
+#include <memory>
+#include <utility>
+
 namespace tb::ui
 {
+namespace
+{
+
+/**
+ * Wraps the gesture tracker created by a tool controller and marks the controller's tool
+ * as having a gesture in progress until the gesture ends or is cancelled.
+ */
+class ToolGestureTracker : public GestureTracker
+{
+private:
+  Tool& m_tool;
+  std::unique_ptr<GestureTracker> m_gestureTracker;
+
+public:
+  ToolGestureTracker(Tool& tool, std::unique_ptr<GestureTracker> gestureTracker)
+    : m_tool{tool}
+    , m_gestureTracker{std::move(gestureTracker)}
+  {
+    m_tool.setGestureInProgress(true);
+  }
+
+  void modifierKeyChange(const InputState& inputState) override
+  {
+    m_gestureTracker->modifierKeyChange(inputState);
+  }
+
+  void mouseScroll(const InputState& inputState) override
+  {
+    m_gestureTracker->mouseScroll(inputState);
+  }
+
+  bool update(const InputState& inputState) override
+  {
+    return m_gestureTracker->update(inputState);
+  }
+
+  void end(const InputState& inputState) override
+  {
+    m_tool.setGestureInProgress(false);
+    m_gestureTracker->end(inputState);
+  }
+
+  void cancel() override
+  {
+    m_tool.setGestureInProgress(false);
+    m_gestureTracker->cancel();
+  }
+
+  void setRenderOptions(
+    const InputState& inputState, render::RenderContext& renderContext) const override
+  {
+    m_gestureTracker->setRenderOptions(inputState, renderContext);
+  }
+
+  void render(
+    const InputState& inputState,
+    render::RenderContext& renderContext,
+    render::RenderBatch& renderBatch) const override
+  {
+    m_gestureTracker->render(inputState, renderContext, renderBatch);
+  }
+};
+
+std::unique_ptr<GestureTracker> trackGesture(
+  Tool& tool, std::unique_ptr<GestureTracker> gestureTracker)
+{
+  return gestureTracker
+           ? std::make_unique<ToolGestureTracker>(tool, std::move(gestureTracker))
+           : nullptr;
+}
+
+} // namespace
 
 ToolController::~ToolController() = default;
 
@@ -60,13 +135,13 @@ void ToolController::mouseScroll(const InputState&) {}
 std::unique_ptr<GestureTracker> ToolController::acceptMouseDrag(
   const InputState& inputState)
 {
-  return doAcceptMouseDrag(inputState);
+  return trackGesture(tool(), doAcceptMouseDrag(inputState));
 }
 
 std::unique_ptr<GestureTracker> ToolController::acceptGesture(
   const InputState& inputState)
 {
-  return doAcceptGesture(inputState);
+  return trackGesture(tool(), doAcceptGesture(inputState));
 }
 
 bool ToolController::shouldAcceptDrop(const InputState&, const std::string&) const

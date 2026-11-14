@@ -467,7 +467,7 @@ void ScaleToolController::render(
   render::RenderContext& renderContext,
   render::RenderBatch& renderBatch)
 {
-  if (m_tool.applies() && !m_tool.dragging())
+  if (m_tool.applies() && !m_tool.gestureInProgress())
   {
     renderBoundsAndHandles(
       renderContext,

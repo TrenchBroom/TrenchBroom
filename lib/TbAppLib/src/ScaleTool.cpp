@@ -919,23 +919,13 @@ const ProportionalAxes& ScaleTool::proportionalAxes() const
   return m_proportionalAxes;
 }
 
-bool ScaleTool::dragging() const
-{
-  return m_dragging;
-}
-
 void ScaleTool::beginScale()
 {
-  contract_pre(!m_dragging);
-
   m_document.map().startTransaction("Scale Objects", mdl::TransactionScope::LongRunning);
-  m_dragging = true;
 }
 
 bool ScaleTool::scaleByDelta(const vm::vec3d& delta, ScaleDragState& dragState)
 {
-  contract_pre(m_dragging);
-
   const auto totalDelta = dragState.totalDelta + delta;
 
   const auto newBox = moveBBoxForHit(
@@ -965,8 +955,6 @@ bool ScaleTool::scaleByDelta(const vm::vec3d& delta, ScaleDragState& dragState)
 
 void ScaleTool::commitScale(const ScaleDragState& dragState)
 {
-  contract_pre(m_dragging);
-
   auto& map = m_document.map();
 
   if (vm::is_zero(dragState.totalDelta, vm::Cd::almost_zero()))
@@ -977,15 +965,11 @@ void ScaleTool::commitScale(const ScaleDragState& dragState)
   {
     map.commitTransaction();
   }
-  m_dragging = false;
 }
 
 void ScaleTool::cancelScale()
 {
-  contract_pre(m_dragging);
-
   m_document.map().cancelTransaction();
-  m_dragging = false;
 }
 
 } // namespace tb::ui

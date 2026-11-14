@@ -27,6 +27,7 @@ class Tool
 {
 private:
   bool m_active = false;
+  bool m_gestureInProgress = false;
 
 public:
   Notifier<Tool&> toolActivatedNotifier;
@@ -43,6 +44,17 @@ public:
   bool active() const;
   bool activate();
   bool deactivate();
+
+  /**
+   * Indicates whether a gesture tracker created by one of this tool's controllers is
+   * active, e.g. because the user is dragging one of this tool's handles.
+   *
+   * The tool's controllers set this when they accept a mouse drag or gesture, and reset
+   * it before the gesture tracker is notified that the gesture has ended or was
+   * cancelled.
+   */
+  bool gestureInProgress() const;
+  void setGestureInProgress(bool gestureInProgress);
 
   void refreshViews();
   void notifyToolHandleSelectionChanged();

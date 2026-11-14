@@ -60,6 +60,16 @@ bool Tool::deactivate()
   return !m_active;
 }
 
+bool Tool::gestureInProgress() const
+{
+  return m_gestureInProgress;
+}
+
+void Tool::setGestureInProgress(const bool gestureInProgress)
+{
+  m_gestureInProgress = gestureInProgress;
+}
+
 void Tool::refreshViews()
 {
   refreshViewsNotifier(*this);

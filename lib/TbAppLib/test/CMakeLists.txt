@@ -26,6 +26,7 @@ target_sources(TbAppLibTest
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_SweepTool.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_SweepToolUtils.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_ToolChain.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_ToolController.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_UvOffsetTool.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_UvOriginTool.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_UvRotateTool.cpp

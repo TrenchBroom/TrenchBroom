@@ -169,6 +169,8 @@ bool ToolBox::dragging() const
 
 void ToolBox::startMouseDrag(ToolChain& chain, const InputState& inputState)
 {
+  contract_pre(!dragging());
+
   if (m_enabled)
   {
     m_gestureTracker = chain.acceptMouseDrag(inputState);
