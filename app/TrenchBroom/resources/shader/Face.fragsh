@@ -144,13 +144,15 @@ void main()
     float gridValue =
       grid(coords, modelNormal.xyz, GridSize, minGridSize, lineWidthFactor);
 
-    // Fade the grid out with distance so distant lines don't pile up into visual noise.
+    // Fade the grid with distance so distant lines don't pile up into visual noise.
     // Ramp the opacity down over the fragment's distance from the camera, in world units.
     // Lowering fadeEnd (or fadeStart) makes the lines fade out quicker with distance.
     float cameraDistance = length(viewVector);
     float fadeStart = 512.0; // full opacity closer than this
-    float fadeEnd = 1024.0;  // fully faded beyond this
-    float distanceFade = 1.0 - smoothstep(fadeStart, fadeEnd, cameraDistance);
+    float fadeEnd = 1024.0;  // farOpacity beyond this
+    float farOpacity = 0.5;  // keeps the grid visible across large maps
+    float distanceFade =
+      mix(1.0, farOpacity, smoothstep(fadeStart, fadeEnd, cameraDistance));
     gridValue *= distanceFade;
 
     // Base the light/dark choice on a coarse mip of the texture rather than the
