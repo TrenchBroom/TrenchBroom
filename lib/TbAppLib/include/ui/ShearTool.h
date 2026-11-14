@@ -22,6 +22,7 @@
 
 #include "mdl/Hit.h"
 #include "mdl/HitType.h"
+#include "ui/ScaleTool.h"
 #include "ui/Tool.h"
 
 #include "vm/bbox.h"
@@ -48,6 +49,16 @@ namespace ui
 {
 class MapDocument;
 
+struct ShearDragState
+{
+  /** The side being dragged. */
+  BBoxSide side;
+  /** The bounds of the selection when the drag started. */
+  vm::bbox3d bboxAtDragStart;
+  /** The total drag distance so far. */
+  vm::vec3d totalDelta = {0, 0, 0};
+};
+
 class ShearTool : public Tool
 {
 public:
@@ -55,11 +66,8 @@ public:
 
 private:
   MapDocument& m_document;
-  bool m_resizing = false;
-  bool m_constrainVertical = false;
-  vm::bbox3d m_bboxAtDragStart;
-  mdl::Hit m_dragStartHit = mdl::Hit::NoHit;
-  vm::vec3d m_dragCumulativeDelta;
+  bool m_dragging = false;
+  mdl::Hit m_pickedSide = mdl::Hit::NoHit;
 
 public:
   explicit ShearTool(MapDocument& document);
@@ -85,26 +93,20 @@ public:
 public:
   vm::bbox3d bounds() const;
 
-  /**
-   * If inside a drag, returns the bbox at the start of the drag.
-   * Otherwise, returns the current bounds(). for rendering sheared bbox.
-   */
-  vm::bbox3d bboxAtDragStart() const;
+  bool dragging() const;
 
-  void startShearWithHit(const mdl::Hit& hit);
-  void commitShear();
+  void beginShear();
+  void commitShear(const ShearDragState& dragState);
   void cancelShear();
-  void shearByDelta(const vm::vec3d& delta);
+  void shearByDelta(const vm::vec3d& delta, ShearDragState& dragState);
 
-  const mdl::Hit& dragStartHit() const;
-
-  vm::mat4x4d bboxShearMatrix() const;
+  /**
+   * Returns the side of the current bounds that was picked by the last call to
+   * updatePickedSide, if any.
+   */
   std::optional<vm::polygon3f> shearHandle() const;
 
   void updatePickedSide(const mdl::PickResult& pickResult);
-
-  bool constrainVertical() const;
-  void setConstrainVertical(bool constrainVertical);
 };
 
 } // namespace ui

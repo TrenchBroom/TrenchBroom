@@ -36,7 +36,10 @@
 #include "kd/contracts.h"
 
 #include "vm/line.h"
+#include "vm/mat.h"
+#include "vm/mat_ext.h"
 #include "vm/plane.h"
+#include "vm/polygon.h"
 
 namespace tb::ui
 {
@@ -56,14 +59,13 @@ std::tuple<vm::vec3d, vm::vec3d> getInitialHandlePositionAndHitPoint(
 HandlePositionProposer makeHandlePositionProposer(
   const InputState& inputState,
   const mdl::Grid& grid,
-  const mdl::Hit& dragStartHit,
+  const BBoxSide& side,
   const vm::bbox3d& bboxAtDragStart,
   const vm::vec3d& handleOffset)
 {
   const auto vertical = inputState.modifierKeysDown(ModifierKeys::Alt);
   const auto& camera = inputState.camera();
 
-  const auto side = dragStartHit.target<BBoxSide>();
   const auto sideCenter = centerForBBoxSide(bboxAtDragStart, side);
 
   if (camera.perspectiveProjection())
@@ -95,14 +97,55 @@ HandlePositionProposer makeHandlePositionProposer(
     makeLineHandlePicker(sideways, handleOffset), makeRelativeHandleSnapper(grid));
 }
 
+void renderBox(
+  render::RenderContext& renderContext,
+  render::RenderBatch& renderBatch,
+  const vm::bbox3d& box,
+  const vm::mat4x4d& transform)
+{
+  auto renderService = render::RenderService{renderContext, renderBatch};
+  renderService.setForegroundColor(pref(Preferences::SelectionBoundsColor));
+  const auto op = [&](const vm::vec3d& start, const vm::vec3d& end) {
+    renderService.renderLine(vm::vec3f(transform * start), vm::vec3f(transform * end));
+  };
+  box.for_each_edge(op);
+}
+
+void renderHandle(
+  render::RenderContext& renderContext,
+  render::RenderBatch& renderBatch,
+  const vm::polygon3f& handle)
+{
+  // fill
+  {
+    auto renderService = render::RenderService{renderContext, renderBatch};
+    renderService.setShowBackfaces();
+    renderService.setForegroundColor(pref(Preferences::ShearFillColor));
+    renderService.renderFilledPolygon(handle.vertices());
+  }
+
+  // outline
+  {
+    auto renderService = render::RenderService{renderContext, renderBatch};
+    renderService.setLineWidth(2.0);
+    renderService.setForegroundColor(pref(Preferences::ShearOutlineColor));
+    renderService.renderPolygonOutline(handle.vertices());
+  }
+}
+
 class ShearDragDelegate : public HandleDragTrackerDelegate
 {
 private:
   ShearTool& m_tool;
+  ShearDragState m_shearDragState;
+  bool m_constrainVertical;
 
 public:
-  explicit ShearDragDelegate(ShearTool& tool)
+  ShearDragDelegate(
+    ShearTool& tool, ShearDragState shearDragState, const bool constrainVertical)
     : m_tool{tool}
+    , m_shearDragState{std::move(shearDragState)}
+    , m_constrainVertical{constrainVertical}
   {
   }
 
@@ -114,8 +157,8 @@ public:
     return makeHandlePositionProposer(
       inputState,
       m_tool.grid(),
-      m_tool.dragStartHit(),
-      m_tool.bboxAtDragStart(),
+      m_shearDragState.side,
+      m_shearDragState.bboxAtDragStart,
       handleOffset);
   }
 
@@ -129,13 +172,13 @@ public:
     }
 
     const bool vertical = inputState.modifierKeysDown(ModifierKeys::Alt);
-    if (vertical == m_tool.constrainVertical())
+    if (vertical == m_constrainVertical)
     {
       return std::nullopt;
     }
 
     // Can't do vertical restraint on these
-    const auto side = m_tool.dragStartHit().target<BBoxSide>();
+    const auto& side = m_shearDragState.side;
     if (side.normal == vm::vec3d{0, 0, 1} || side.normal == vm::vec3d{0, 0, -1})
     {
       return std::nullopt;
@@ -144,13 +187,13 @@ public:
     // Mouse might be over a different handle afterwards
     m_tool.refreshViews();
 
-    m_tool.setConstrainVertical(vertical);
+    m_constrainVertical = vertical;
     return UpdateDragConfig{
       makeHandlePositionProposer(
         inputState,
         m_tool.grid(),
-        m_tool.dragStartHit(),
-        m_tool.bboxAtDragStart(),
+        m_shearDragState.side,
+        m_shearDragState.bboxAtDragStart,
         dragState.handleOffset),
       ResetInitialHandlePosition::Keep};
   }
@@ -161,19 +204,37 @@ public:
     const vm::vec3d& proposedHandlePosition) override
   {
     const auto delta = proposedHandlePosition - dragState.currentHandlePosition;
-    m_tool.shearByDelta(delta);
+    m_tool.shearByDelta(delta, m_shearDragState);
     return DragStatus::Continue;
   }
 
   void end(const InputState& inputState, const DragState&) override
   {
-    m_tool.commitShear();
+    m_tool.commitShear(m_shearDragState);
 
     // The mouse is in a different place now so update the highlighted side
     m_tool.updatePickedSide(inputState.pickResult());
   }
 
   void cancel(const DragState&) override { m_tool.cancelShear(); }
+
+  void render(
+    const InputState&,
+    const DragState&,
+    render::RenderContext& renderContext,
+    render::RenderBatch& renderBatch) const override
+  {
+    const auto& side = m_shearDragState.side;
+    const auto& bboxAtDragStart = m_shearDragState.bboxAtDragStart;
+    const auto shearMatrix =
+      vm::shear_bbox_matrix(bboxAtDragStart, side.normal, m_shearDragState.totalDelta);
+
+    renderBox(renderContext, renderBatch, bboxAtDragStart, shearMatrix);
+    renderHandle(
+      renderContext,
+      renderBatch,
+      vm::polygon3f{polygonForBBoxSide(bboxAtDragStart, side).transform(shearMatrix)});
+  }
 };
 
 } // namespace
@@ -239,13 +300,16 @@ std::unique_ptr<GestureTracker> ShearToolController::acceptMouseDrag(
     return nullptr;
   }
 
-  m_tool.startShearWithHit(hit);
-  m_tool.setConstrainVertical(vertical);
+  m_tool.beginShear();
 
   const auto [handlePosition, hitPoint] =
     getInitialHandlePositionAndHitPoint(m_tool.bounds(), hit);
   return createHandleDragTracker(
-    ShearDragDelegate{m_tool}, inputState, handlePosition, hitPoint);
+    ShearDragDelegate{
+      m_tool, ShearDragState{hit.target<BBoxSide>(), m_tool.bounds()}, vertical},
+    inputState,
+    handlePosition,
+    hitPoint);
 }
 
 void ShearToolController::setRenderOptions(
@@ -259,51 +323,19 @@ void ShearToolController::render(
   render::RenderContext& renderContext,
   render::RenderBatch& renderBatch)
 {
-  if (m_tool.applies())
+  if (m_tool.applies() && !m_tool.dragging())
   {
-    renderBox(renderContext, renderBatch);
-    renderHandle(renderContext, renderBatch);
+    renderBox(renderContext, renderBatch, m_tool.bounds(), vm::mat4x4d::identity());
+    if (const auto handle = m_tool.shearHandle())
+    {
+      renderHandle(renderContext, renderBatch, *handle);
+    }
   }
 }
 
 bool ShearToolController::cancel()
 {
   return false;
-}
-
-void ShearToolController::renderBox(
-  render::RenderContext& renderContext, render::RenderBatch& renderBatch)
-{
-  auto renderService = render::RenderService{renderContext, renderBatch};
-  renderService.setForegroundColor(pref(Preferences::SelectionBoundsColor));
-  const auto mat = m_tool.bboxShearMatrix();
-  const auto op = [&](const vm::vec3d& start, const vm::vec3d& end) {
-    renderService.renderLine(vm::vec3f(mat * start), vm::vec3f(mat * end));
-  };
-  m_tool.bboxAtDragStart().for_each_edge(op);
-}
-
-void ShearToolController::renderHandle(
-  render::RenderContext& renderContext, render::RenderBatch& renderBatch)
-{
-  if (const auto poly = m_tool.shearHandle())
-  {
-    // fill
-    {
-      auto renderService = render::RenderService{renderContext, renderBatch};
-      renderService.setShowBackfaces();
-      renderService.setForegroundColor(pref(Preferences::ShearFillColor));
-      renderService.renderFilledPolygon(poly->vertices());
-    }
-
-    // outline
-    {
-      auto renderService = render::RenderService{renderContext, renderBatch};
-      renderService.setLineWidth(2.0);
-      renderService.setForegroundColor(pref(Preferences::ShearOutlineColor));
-      renderService.renderPolygonOutline(poly->vertices());
-    }
-  }
 }
 
 // ShearToolController2D

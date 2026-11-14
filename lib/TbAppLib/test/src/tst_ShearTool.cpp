@@ -115,13 +115,6 @@ TEST_CASE("ShearTool")
     CHECK(tool.applies() == expectedApplies);
   }
 
-  SECTION("constrainVertical")
-  {
-    CHECK(!tool.constrainVertical());
-    tool.setConstrainVertical(true);
-    CHECK(tool.constrainVertical());
-  }
-
   SECTION("with a selected brush of known bounds")
   {
     constexpr auto brushBounds = vm::bbox3d{16.0};
@@ -137,7 +130,6 @@ TEST_CASE("ShearTool")
     {
       CHECK(tool.bounds() == brushBounds);
       CHECK(&tool.grid() == &map.grid());
-      CHECK(tool.bboxAtDragStart() == brushBounds);
     }
 
     SECTION("pick2D")
@@ -204,12 +196,16 @@ TEST_CASE("ShearTool")
       auto refreshCount = 0;
       auto connection = tool.refreshViewsNotifier.connect([&](Tool&) { ++refreshCount; });
 
+      CHECK(!tool.shearHandle());
+
       auto pickResult = mdl::PickResult{};
       pickResult.addHit(
         mdl::Hit{ShearTool::ShearToolSideHitType, 0.0, {0, 0, 16}, BBoxSide{{0, 0, 1}}});
       tool.updatePickedSide(pickResult);
       CHECK(refreshCount == 1);
-      CHECK(tool.dragStartHit().target<BBoxSide>() == BBoxSide{{0, 0, 1}});
+      CHECK(
+        tool.shearHandle()
+        == vm::polygon3f{polygonForBBoxSide(brushBounds, BBoxSide{{0, 0, 1}})});
 
       // hitting the same side again should not trigger another refresh
       tool.updatePickedSide(pickResult);
@@ -225,26 +221,20 @@ TEST_CASE("ShearTool")
 
     SECTION("shear lifecycle")
     {
-      const auto hit =
-        mdl::Hit{ShearTool::ShearToolSideHitType, 0.0, {16, 0, 0}, BBoxSide{{1, 0, 0}}};
+      auto dragState = ShearDragState{BBoxSide{{1, 0, 0}}, brushBounds};
 
-      SECTION("before a drag starts, the shear handle and matrix are trivial")
-      {
-        CHECK(tool.bboxShearMatrix() == vm::mat4x4d::identity());
-        CHECK(!tool.shearHandle());
-      }
+      CHECK(!tool.dragging());
+      tool.beginShear();
+      CHECK(tool.dragging());
 
       SECTION("shearing and committing changes the brush's geometry")
       {
-        tool.startShearWithHit(hit);
-        CHECK(tool.dragStartHit().type() == ShearTool::ShearToolSideHitType);
-        CHECK(tool.bboxAtDragStart() == brushBounds);
+        tool.shearByDelta({0, 0, 10}, dragState);
+        CHECK(dragState.totalDelta == vm::vec3d{0, 0, 10});
 
-        tool.shearByDelta({0, 0, 10});
-        CHECK(tool.bboxShearMatrix() != vm::mat4x4d::identity());
-        REQUIRE(tool.shearHandle());
+        tool.commitShear(dragState);
+        CHECK(!tool.dragging());
 
-        tool.commitShear();
         // the +X side (the one sheared) moves by the full delta; the opposite (-X)
         // side is the shear's fixed pivot and stays put
         CHECK(boundedBrush->brush().hasVertex(vm::vec3d{-16, -16, -16}));
@@ -254,17 +244,17 @@ TEST_CASE("ShearTool")
 
       SECTION("committing with zero delta cancels the transaction")
       {
-        tool.startShearWithHit(hit);
-        tool.commitShear();
+        tool.commitShear(dragState);
+        CHECK(!tool.dragging());
 
         CHECK(tool.bounds() == brushBounds);
       }
 
       SECTION("cancelling discards the shear")
       {
-        tool.startShearWithHit(hit);
-        tool.shearByDelta({0, 0, 10});
+        tool.shearByDelta({0, 0, 10}, dragState);
         tool.cancelShear();
+        CHECK(!tool.dragging());
 
         CHECK(tool.bounds() == brushBounds);
       }

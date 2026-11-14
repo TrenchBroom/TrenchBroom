@@ -149,32 +149,25 @@ vm::bbox3d ShearTool::bounds() const
   return *bounds;
 }
 
-// for rendering sheared bbox
-vm::bbox3d ShearTool::bboxAtDragStart() const
+bool ShearTool::dragging() const
 {
-  return m_resizing ? m_bboxAtDragStart : bounds();
+  return m_dragging;
 }
 
-void ShearTool::startShearWithHit(const mdl::Hit& hit)
+void ShearTool::beginShear()
 {
-  contract_pre(hit.isMatch());
-  contract_pre(hit.type() == ShearToolSideHitType);
-  contract_pre(!m_resizing);
-
-  m_bboxAtDragStart = bounds();
-  m_dragStartHit = hit;
-  m_dragCumulativeDelta = vm::vec3d{0, 0, 0};
+  contract_pre(!m_dragging);
 
   m_document.map().startTransaction("Shear Objects", mdl::TransactionScope::LongRunning);
-  m_resizing = true;
+  m_dragging = true;
 }
 
-void ShearTool::commitShear()
+void ShearTool::commitShear(const ShearDragState& dragState)
 {
-  contract_pre(m_resizing);
+  contract_pre(m_dragging);
 
   auto& map = m_document.map();
-  if (vm::is_zero(m_dragCumulativeDelta, vm::Cd::almost_zero()))
+  if (vm::is_zero(dragState.totalDelta, vm::Cd::almost_zero()))
   {
     map.cancelTransaction();
   }
@@ -182,62 +175,38 @@ void ShearTool::commitShear()
   {
     map.commitTransaction();
   }
-  m_resizing = false;
+  m_dragging = false;
 }
 
 void ShearTool::cancelShear()
 {
-  contract_pre(m_resizing);
+  contract_pre(m_dragging);
 
   m_document.map().cancelTransaction();
-  m_resizing = false;
+  m_dragging = false;
 }
 
-void ShearTool::shearByDelta(const vm::vec3d& delta)
+void ShearTool::shearByDelta(const vm::vec3d& delta, ShearDragState& dragState)
 {
-  contract_pre(m_resizing);
+  contract_pre(m_dragging);
 
-  m_dragCumulativeDelta = m_dragCumulativeDelta + delta;
+  dragState.totalDelta = dragState.totalDelta + delta;
 
   if (!vm::is_zero(delta, vm::Cd::almost_zero()))
   {
-    const auto side = m_dragStartHit.target<BBoxSide>();
-    shearSelection(m_document.map(), bounds(), side.normal, delta);
+    shearSelection(m_document.map(), bounds(), dragState.side.normal, delta);
   }
-}
-
-const mdl::Hit& ShearTool::dragStartHit() const
-{
-  return m_dragStartHit;
-}
-
-vm::mat4x4d ShearTool::bboxShearMatrix() const
-{
-  // happens if you cmd+drag on an edge or corner
-  if (!m_resizing || m_dragStartHit.type() != ShearToolSideHitType)
-  {
-    return vm::mat4x4d::identity();
-  }
-
-  const auto side = m_dragStartHit.target<BBoxSide>();
-  return vm::shear_bbox_matrix(m_bboxAtDragStart, side.normal, m_dragCumulativeDelta);
 }
 
 std::optional<vm::polygon3f> ShearTool::shearHandle() const
 {
-  // happens if you cmd+drag on an edge or corner
-  if (m_dragStartHit.type() != ShearToolSideHitType)
+  if (m_pickedSide.type() != ShearToolSideHitType)
   {
     return std::nullopt;
   }
 
-  const auto side = m_dragStartHit.target<BBoxSide>();
-  // use the bboxAtDragStart() function so we get bounds() if we're not currently inside a
-  // drag.
-  const auto polyAtDragStart = polygonForBBoxSide(bboxAtDragStart(), side);
-
-  const auto handle = polyAtDragStart.transform(bboxShearMatrix());
-  return vm::polygon3f{handle};
+  const auto side = m_pickedSide.target<BBoxSide>();
+  return vm::polygon3f{polygonForBBoxSide(bounds(), side)};
 }
 
 void ShearTool::updatePickedSide(const mdl::PickResult& pickResult)
@@ -249,26 +218,15 @@ void ShearTool::updatePickedSide(const mdl::PickResult& pickResult)
   // extract the highlighted handle from the hit here, and only refresh views if it
   // changed
   if (
-    hit.type() == ShearToolSideHitType && m_dragStartHit.type() == ShearToolSideHitType
-    && hit.target<BBoxSide>() == m_dragStartHit.target<BBoxSide>())
+    hit.type() == ShearToolSideHitType && m_pickedSide.type() == ShearToolSideHitType
+    && hit.target<BBoxSide>() == m_pickedSide.target<BBoxSide>())
   {
     return;
   }
 
-  // hack for highlighting on mouseover
-  m_dragStartHit = hit;
+  m_pickedSide = hit;
 
   refreshViews();
-}
-
-bool ShearTool::constrainVertical() const
-{
-  return m_constrainVertical;
-}
-
-void ShearTool::setConstrainVertical(const bool constrainVertical)
-{
-  m_constrainVertical = constrainVertical;
 }
 
 } // namespace tb::ui

@@ -21,6 +21,7 @@ target_sources(TbAppLibTest
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_SelectionTool.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_SetBrushFaceAttributesTool.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_ShearTool.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_ShearToolController.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_SweepTool.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_SweepToolUtils.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_ToolChain.cpp
