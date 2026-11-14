@@ -66,7 +66,7 @@ void ScaleToolPage::connectObservers(ScaleTool& tool)
 void ScaleToolPage::activate()
 {
   const auto suggestedSize =
-    m_document.map().selectionBounds().value_or(vm::bbox3d{}).size();
+    transformationBounds(m_document.map()).value_or(vm::bbox3d{}).size();
 
   m_sizeTextBox->setText(toString(suggestedSize));
   m_factorsTextBox->setText(toString(vm::vec3d{1, 1, 1}));
@@ -78,7 +78,9 @@ void ScaleToolPage::createGui()
 
   m_book = new QStackedLayout{};
   m_sizeTextBox = new QLineEdit{};
+  m_sizeTextBox->setObjectName("ScaleToolPage_SizeText");
   m_factorsTextBox = new QLineEdit{};
+  m_factorsTextBox->setObjectName("ScaleToolPage_FactorsText");
   m_book->addWidget(m_sizeTextBox);
   m_book->addWidget(m_factorsTextBox);
 
@@ -86,6 +88,7 @@ void ScaleToolPage::createGui()
   connect(m_factorsTextBox, &QLineEdit::returnPressed, this, &ScaleToolPage::applyScale);
 
   m_scaleFactorsOrSize = new QComboBox{};
+  m_scaleFactorsOrSize->setObjectName("ScaleToolPage_ModeChoice");
   m_scaleFactorsOrSize->addItem(tr("to size"));
   m_scaleFactorsOrSize->addItem(tr("by factors"));
 
@@ -97,6 +100,7 @@ void ScaleToolPage::createGui()
     &QStackedLayout::setCurrentIndex);
 
   m_button = new QPushButton(tr("Apply"));
+  m_button->setObjectName("ScaleToolPage_ApplyButton");
   connect(m_button, &QAbstractButton::clicked, this, &ScaleToolPage::applyScale);
 
   auto* layout = new QHBoxLayout{};
@@ -127,11 +131,11 @@ std::optional<vm::vec3d> ScaleToolPage::getScaleFactors() const
   switch (m_scaleFactorsOrSize->currentIndex())
   {
   case 0:
-    if (const auto& selectionBounds = m_document.map().selectionBounds())
+    if (const auto bounds = transformationBounds(m_document.map()))
     {
       if (const auto desiredSize = parse<double, 3>(m_sizeTextBox->text()))
       {
-        return *desiredSize / selectionBounds->size();
+        return *desiredSize / bounds->size();
       }
     }
     return std::nullopt;
@@ -148,9 +152,9 @@ void ScaleToolPage::applyScale()
     {
       auto& map = m_document.map();
 
-      if (const auto& selectionBounds = map.selectionBounds())
+      if (const auto bounds = transformationBounds(map))
       {
-        scaleSelection(map, selectionBounds->center(), *scaleFactors);
+        scaleSelection(map, bounds->center(), *scaleFactors);
       }
     }
   }
