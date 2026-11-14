@@ -502,6 +502,38 @@ TEST_CASE("ScaleTool")
           map.nodeHandles().selectedHandles<mdl::VertexHandle>()),
         UnorderedEquals(expectedTopVertices));
     }
+
+    SECTION("bounds while scaling selected vertices")
+    {
+      auto vertexTool = VertexTool{document};
+      REQUIRE(vertexTool.activate());
+      map.nodeHandles().selectHandle(mdl::VertexHandle{{16, 16, 16}});
+      REQUIRE(tool.bounds() == brushBounds);
+
+      tool.startScaleWithHit(
+        mdl::Hit{ScaleTool::CornerHitType, 0.0, {16, 16, 16}, BBoxCorner{{1, 1, 1}}});
+
+      // Moving the vertex past the center of the brush along X flips the side of the
+      // brush that the bounds of the vertex extend to, but the bounds must follow the
+      // dragged box until the drag ends.
+      tool.scaleByDelta({-24, 0, 0});
+      CHECK(tool.bounds() == vm::bbox3d{{-16, -16, -16}, {-8, 16, 16}});
+
+      SECTION("failing to scale resets the bounds to the bounds at drag start")
+      {
+        // moves the vertex out of the world bounds
+        tool.scaleByDelta({2.0 * map.worldBounds().max.x(), 0, 0});
+        CHECK(tool.bounds() == brushBounds);
+
+        tool.cancelScale();
+      }
+
+      SECTION("committing fits the bounds to the selected vertex")
+      {
+        tool.commitScale();
+        CHECK(tool.bounds() == vm::bbox3d{{-8, -16, -16}, {16, 16, 16}});
+      }
+    }
   }
 }
 
