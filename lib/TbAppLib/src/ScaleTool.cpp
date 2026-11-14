@@ -915,23 +915,35 @@ void ScaleTool::beginScale()
   m_dragging = true;
 }
 
-void ScaleTool::scaleByDelta(const vm::vec3d& delta, ScaleDragState& dragState)
+bool ScaleTool::scaleByDelta(const vm::vec3d& delta, ScaleDragState& dragState)
 {
   contract_pre(m_dragging);
 
-  dragState.totalDelta = dragState.totalDelta + delta;
+  const auto totalDelta = dragState.totalDelta + delta;
 
   const auto newBox = moveBBoxForHit(
     dragState.bboxAtDragStart,
     dragState.dragStartHit,
-    dragState.totalDelta,
+    totalDelta,
     dragState.proportionalAxes,
     dragState.anchorPos);
 
-  if (!newBox.is_empty())
+  if (newBox.is_empty())
   {
-    scaleSelection(m_document.map(), bounds(), newBox);
+    return false;
   }
+
+  auto& map = m_document.map();
+  map.rollbackTransaction();
+  if (!scaleSelection(map, dragState.bboxAtDragStart, newBox))
+  {
+    scaleSelection(map, dragState.bboxAtDragStart, dragState.bboxDuringDrag);
+    return false;
+  }
+
+  dragState.totalDelta = totalDelta;
+  dragState.bboxDuringDrag = newBox;
+  return true;
 }
 
 void ScaleTool::commitScale(const ScaleDragState& dragState)

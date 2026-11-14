@@ -246,6 +246,8 @@ struct ScaleDragState
   ProportionalAxes proportionalAxes = ProportionalAxes::None();
   /** The total drag distance so far. */
   vm::vec3d totalDelta = {0, 0, 0};
+  /** The box that the selection was last scaled to. */
+  vm::bbox3d bboxDuringDrag = bboxAtDragStart;
 };
 
 class ScaleTool : public Tool
@@ -306,7 +308,14 @@ public:
   bool dragging() const;
 
   void beginScale();
-  void scaleByDelta(const vm::vec3d& delta, ScaleDragState& dragState);
+
+  /**
+   * Scales the selection to the box given by the total delta of the given drag state
+   * plus the given delta. Returns false if the selection cannot be scaled to that box, in
+   * which case the selection and the drag state remain unchanged.
+   */
+  bool scaleByDelta(const vm::vec3d& delta, ScaleDragState& dragState);
+
   void commitScale(const ScaleDragState& dragState);
   void cancelScale();
 };

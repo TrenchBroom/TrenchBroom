@@ -276,8 +276,8 @@ public:
     const vm::vec3d& proposedHandlePosition) override
   {
     const auto delta = proposedHandlePosition - dragState.currentHandlePosition;
-    m_tool.scaleByDelta(delta, m_scaleDragState);
-    return DragStatus::Continue;
+    return m_tool.scaleByDelta(delta, m_scaleDragState) ? DragStatus::Continue
+                                                        : DragStatus::Deny;
   }
 
   void end(const InputState& inputState, const DragState&) override

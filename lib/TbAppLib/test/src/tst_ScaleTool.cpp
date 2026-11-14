@@ -31,6 +31,8 @@
 #include "mdl/Map.h"
 #include "mdl/Map_Nodes.h"
 #include "mdl/Map_Selection.h"
+#include "mdl/NodeHandleManager.h"
+#include "mdl/NodeHandles.h"
 #include "mdl/PatchNode.h" // IWYU pragma: keep
 #include "mdl/PickResult.h"
 #include "mdl/TestFactory.h"
@@ -38,6 +40,7 @@
 #include "ui/MapDocument.h"
 #include "ui/MapDocumentFixture.h"
 #include "ui/ScaleTool.h"
+#include "ui/VertexTool.h"
 
 #include "kd/ranges/contains.h"
 #include "kd/ranges/to.h"
@@ -47,12 +50,16 @@
 #include "vm/approx.h"
 
 #include <memory>
+#include <tuple>
 
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/generators/catch_generators.hpp>
+#include <catch2/matchers/catch_matchers_vector.hpp>
 
 namespace tb::ui
 {
+using namespace Catch::Matchers;
+
 namespace
 {
 
@@ -386,6 +393,95 @@ TEST_CASE("ScaleTool")
       CHECK(!tool.dragging());
 
       CHECK(tool.bounds() == brushBounds);
+    }
+  }
+
+  SECTION("with selected vertices")
+  {
+    constexpr auto brushBounds = vm::bbox3d{16.0};
+    auto builder = mdl::BrushBuilder{map.worldNode().mapFormat(), map.worldBounds()};
+    auto* boundedBrush = mdl::addNode(
+      map,
+      *map.editorContext().currentLayer(),
+      std::make_unique<mdl::BrushNode>(
+        builder.createCuboid(brushBounds, "material") | kdl::value()));
+    mdl::selectNodes(map, {boundedBrush});
+
+    // The vertex tool keeps the vertex handles in sync with the brush.
+    auto vertexTool = VertexTool{document};
+    REQUIRE(vertexTool.activate());
+
+    SECTION("scaling selected vertices")
+    {
+      // Only the top face's vertices are selected, so the selection bounds (the brush's
+      // bounds) no longer match the scaled box once the top face shrinks along an axis.
+      map.nodeHandles().selectHandles<mdl::VertexHandle>(std::vector<mdl::VertexHandle>{
+        {{-16, -16, 16}},
+        {{-16, 16, 16}},
+        {{16, -16, 16}},
+        {{16, 16, 16}},
+      });
+
+      const auto [dragHit, deltas, expectedTopVertices] =
+        GENERATE(table<mdl::Hit, std::vector<vm::vec3d>, std::vector<vm::vec3d>>({
+          // shrink a side
+          {
+            {ScaleTool::SideHitType, 0.0, {16, 0, 0}, BBoxSide{{1, 0, 0}}},
+            {{-8, 0, 0}, {-8, 0, 0}},
+            {{-16, -16, 16}, {-16, 16, 16}, {0, -16, 16}, {0, 16, 16}},
+          },
+          // drag a vertical edge (a corner in the top view) out along X and in along Y,
+          // then back out along Y
+          {
+            {ScaleTool::EdgeHitType, 0.0, {16, 16, 0}, BBoxEdge{{1, 1, -1}, {1, 1, 1}}},
+            {{8, -8, 0}, {0, 8, 0}},
+            {{-16, -16, 16}, {-16, 16, 16}, {24, -16, 16}, {24, 16, 16}},
+          },
+        }));
+
+      CAPTURE(dragHit.type(), deltas);
+
+      auto dragState = ScaleDragState{dragHit, tool.bounds()};
+      tool.beginScale();
+      for (const auto& delta : deltas)
+      {
+        tool.scaleByDelta(delta, dragState);
+      }
+      tool.commitScale(dragState);
+
+      CHECK_THAT(
+        mdl::VertexHandle::getPositions(
+          map.nodeHandles().selectedHandles<mdl::VertexHandle>()),
+        UnorderedEquals(expectedTopVertices));
+    }
+
+    SECTION("a failed step keeps the last successful scale")
+    {
+      map.nodeHandles().selectHandle(mdl::VertexHandle{{16, 16, 16}});
+      REQUIRE(tool.bounds() == brushBounds);
+
+      auto dragState = ScaleDragState{
+        mdl::Hit{ScaleTool::CornerHitType, 0.0, {16, 16, 16}, BBoxCorner{{1, 1, 1}}},
+        tool.bounds()};
+      tool.beginScale();
+
+      CHECK(tool.scaleByDelta({-24, 0, 0}, dragState));
+      CHECK(dragState.bboxDuringDrag == vm::bbox3d{{-16, -16, -16}, {-8, 16, 16}});
+
+      // moves the vertex out of the world bounds
+      CHECK(!tool.scaleByDelta({2.0 * map.worldBounds().max.x(), 0, 0}, dragState));
+      CHECK(dragState.totalDelta == vm::vec3d{-24, 0, 0});
+      CHECK(dragState.bboxDuringDrag == vm::bbox3d{{-16, -16, -16}, {-8, 16, 16}});
+      CHECK(
+        mdl::VertexHandle::getPositions(
+          map.nodeHandles().selectedHandles<mdl::VertexHandle>())
+        == std::vector<vm::vec3d>{{-8, 16, 16}});
+
+      CHECK(tool.scaleByDelta({8, 0, 0}, dragState));
+      CHECK(dragState.totalDelta == vm::vec3d{-16, 0, 0});
+      CHECK(dragState.bboxDuringDrag == vm::bbox3d{{-16, -16, -16}, {0, 16, 16}});
+
+      tool.cancelScale();
     }
   }
 }
