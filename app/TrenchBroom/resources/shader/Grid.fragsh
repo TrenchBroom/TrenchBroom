@@ -41,24 +41,24 @@ float getSoftStripes(float value, float gridRatio, float stripeSize)
  * @param gridRatio the reciprocal of the first grid size, e.g. (1/16) for a 16 unit grid
  * @param gridRatio2 the reciprocal of the second grid size, e.g. (1/16) for a 16 unit
  * grid
- * @param lineWidth the line width (TODO: document units)
+ * @param lineWidth the line width for each axis of inCoords (TODO: document units)
  * @param gridBlend the fraction of the two grids to draw, between 0 and 1,
  *                  where 0.0 means 100% of grid one, and 1.0 means 100% of grid two.
  */
 float gridLinesSoft(
-  vec2 inCoords, float gridRatio, float gridRatio2, float lineWidth, float gridBlend)
+  vec2 inCoords, float gridRatio, float gridRatio2, vec2 lineWidth, float gridBlend)
 {
-  float stripeRatio = lineWidth * gridRatio;
-  float stripeRatio2 = lineWidth * gridRatio2;
-  float stripeSize = 1.0 - stripeRatio;
-  float stripeSize2 = 1.0 - stripeRatio2;
+  vec2 stripeRatio = lineWidth * gridRatio;
+  vec2 stripeRatio2 = lineWidth * gridRatio2;
+  vec2 stripeSize = 1.0 - stripeRatio;
+  vec2 stripeSize2 = 1.0 - stripeRatio2;
 
   float theGrid, nextGrid;
 
-  theGrid = getSoftStripes(inCoords.x, gridRatio, stripeSize);
-  theGrid = max(theGrid, getSoftStripes(inCoords.y, gridRatio, stripeSize));
-  nextGrid = getSoftStripes(inCoords.x, gridRatio2, stripeSize2);
-  nextGrid = max(nextGrid, getSoftStripes(inCoords.y, gridRatio2, stripeSize2));
+  theGrid = getSoftStripes(inCoords.x, gridRatio, stripeSize.x);
+  theGrid = max(theGrid, getSoftStripes(inCoords.y, gridRatio, stripeSize.y));
+  nextGrid = getSoftStripes(inCoords.x, gridRatio2, stripeSize2.x);
+  nextGrid = max(nextGrid, getSoftStripes(inCoords.y, gridRatio2, stripeSize2.y));
 
   theGrid = mix(theGrid, nextGrid, gridBlend);
 
@@ -82,6 +82,33 @@ float gridFloor(float size)
   return exp2(floor(log2(size)));
 }
 
+/**
+ * Projects the given vector onto the axis plane in which the grid is drawn for a surface
+ * with the given normal.
+ */
+vec2 gridPlane(vec3 v, vec3 normal)
+{
+  if (abs(normal.x) > abs(normal.y))
+  {
+    if (abs(normal.x) > abs(normal.z))
+    {
+      return v.yz;
+    }
+    else
+    {
+      return v.xy;
+    }
+  }
+  else if (abs(normal.y) > abs(normal.z))
+  {
+    return v.xz;
+  }
+  else
+  {
+    return v.xy;
+  }
+}
+
 /*
  * Computes the grid for the current fragment with the given parameters.
  *
@@ -90,15 +117,17 @@ float gridFloor(float size)
  * @param gridSize the actual size of the grid (e.g. 16, 32, 64, etc.)
  * @param minGridSize the minimal grid size to render (to fade out smaller grids to
  * prevent moire etc.)
- * @param lineWidthFactor a factor for the line width of the grid
+ * @param lineWidthFactor a factor for the line width of the grid per world axis; each
+ * component applies to the lines on which that coordinate is constant, e.g. the x
+ * component applies to the lines x = n * gridSize
  *
  * @return opacity of the grid line to draw on this fragment, in [0..1]
  */
 float grid(
-  vec3 coords, vec3 normal, float gridSize, float minGridSize, float lineWidthFactor)
+  vec3 coords, vec3 normal, float gridSize, float minGridSize, vec3 lineWidthFactor)
 {
-  float lineWidth =
-    (gridSize < 1.0 ? (1.0 / 32.0) : (gridSize < 4.0 ? 0.25 : 0.5)) * lineWidthFactor;
+  vec2 lineWidth = (gridSize < 1.0 ? (1.0 / 32.0) : (gridSize < 4.0 ? 0.25 : 0.5))
+                   * gridPlane(lineWidthFactor, normal);
 
   // magic number to make the grid fade sooner, preventing aliasing
   float minGridSizeToRender = minGridSize * 2.0;
@@ -117,27 +146,6 @@ float grid(
   float gridRatio = 1.0 / baseGridSize;
   float gridRatio2 = 1.0 / nextGridSize;
 
-  vec2 baseCoords; // coordinates used for overlay creation
-
-  if (abs(normal.x) > abs(normal.y))
-  {
-    if (abs(normal.x) > abs(normal.z))
-    {
-      baseCoords = coords.yz;
-    }
-    else
-    {
-      baseCoords = coords.xy;
-    }
-  }
-  else if (abs(normal.y) > abs(normal.z))
-  {
-    baseCoords = coords.xz;
-  }
-  else
-  {
-    baseCoords = coords.xy;
-  }
-
-  return gridLinesSoft(baseCoords, gridRatio, gridRatio2, lineWidth, gridBlend);
+  return gridLinesSoft(
+    gridPlane(coords, normal), gridRatio, gridRatio2, lineWidth, gridBlend);
 }
