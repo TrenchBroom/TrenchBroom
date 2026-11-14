@@ -1026,7 +1026,9 @@ void ScaleTool::scaleByDelta(const vm::vec3d& delta)
 
   if (!newBox.is_empty())
   {
-    scaleSelection(m_document.map(), bounds(), newBox);
+    auto& map = m_document.map();
+    map.rollbackTransaction();
+    scaleSelection(map, m_bboxAtDragStart, newBox);
   }
 }
 
