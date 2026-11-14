@@ -273,6 +273,38 @@ TEST_CASE("Map_Geometry")
         }
       }
     }
+
+    SECTION("selected vertices that the transformation doesn't move")
+    {
+      const auto builder = BrushBuilder{map.worldNode().mapFormat(), map.worldBounds()};
+      auto* brushNode = addNode(
+        map,
+        parentForNodes(map),
+        std::make_unique<BrushNode>(
+          builder.createCuboid(vm::bbox3d{{-32, -32, -32}, {32, 32, 32}}, "material")
+          | kdl::value()));
+      selectNodes(map, {brushNode});
+
+      map.nodeHandles().addHandles<VertexHandle>(*brushNode);
+      map.nodeHandles().selectHandles<VertexHandle>(std::vector<VertexHandle>{
+        {{-32, -32, 32}},
+        {{-32, 32, 32}},
+        {{32, -32, 32}},
+        {{32, 32, 32}},
+      });
+
+      REQUIRE(map.undoCommandName());
+      const auto undoCommandName = *map.undoCommandName();
+
+      // scales along Z, keeping the plane of the selected vertices fixed
+      const auto transformation = vm::translation_matrix(vm::vec3d{0, 0, 32})
+                                  * vm::scaling_matrix(vm::vec3d{1, 1, 2})
+                                  * vm::translation_matrix(vm::vec3d{0, 0, -32});
+
+      CHECK(transformSelection(map, "Transform Objects", transformation));
+      CHECK(*map.undoCommandName() == undoCommandName);
+      CHECK(brushNode->logicalBounds() == vm::bbox3d{{-32, -32, -32}, {32, 32, 32}});
+    }
   }
 
   SECTION("translateSelection")

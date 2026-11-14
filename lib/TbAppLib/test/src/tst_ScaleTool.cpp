@@ -433,6 +433,30 @@ TEST_CASE("ScaleTool")
         UnorderedEquals(expectedTopVertices));
     }
 
+    SECTION("dragging a side that no selected vertex lies on")
+    {
+      map.nodeHandles().selectHandles<mdl::VertexHandle>(std::vector<mdl::VertexHandle>{
+        {{-16, -16, 16}},
+        {{-16, 16, 16}},
+        {{16, -16, 16}},
+        {{16, 16, 16}},
+      });
+      REQUIRE(tool.bounds() == brushBounds);
+
+      REQUIRE(map.undoCommandName());
+      const auto undoCommandName = *map.undoCommandName();
+
+      // scaling with the top side as the anchor doesn't move the selected vertices
+      auto dragState = ScaleDragState{
+        mdl::Hit{ScaleTool::SideHitType, 0.0, {0, 0, -16}, BBoxSide{{0, 0, -1}}},
+        tool.bounds()};
+      tool.beginScale();
+      CHECK(tool.scaleByDelta({0, 0, -8}, dragState));
+      tool.commitScale(dragState);
+
+      CHECK(*map.undoCommandName() == undoCommandName);
+    }
+
     SECTION("bounds while scaling selected vertices")
     {
       map.nodeHandles().selectHandle(mdl::VertexHandle{{16, 16, 16}});

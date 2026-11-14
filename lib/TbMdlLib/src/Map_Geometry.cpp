@@ -73,6 +73,13 @@ bool transformSelection(
   {
     const auto selectedVertexPositions =
       VertexHandle::getPositions(map.nodeHandles().selectedHandles<VertexHandle>());
+    const auto isMoved = [&](const auto& position) {
+      return !vm::is_equal(transformation * position, position, vm::Cd::almost_zero());
+    };
+    if (!std::ranges::any_of(selectedVertexPositions, isMoved))
+    {
+      return true;
+    }
     return transformVertices(map, selectedVertexPositions, transformation).success;
   }
 
