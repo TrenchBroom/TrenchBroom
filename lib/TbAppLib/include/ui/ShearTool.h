@@ -98,7 +98,13 @@ public:
   void beginShear();
   void commitShear(const ShearDragState& dragState);
   void cancelShear();
-  void shearByDelta(const vm::vec3d& delta, ShearDragState& dragState);
+
+  /**
+   * Shears the selection by the given delta in addition to the total delta of the given
+   * drag state. Returns false if the selection cannot be sheared that far, in which case
+   * the selection and the drag state remain unchanged.
+   */
+  bool shearByDelta(const vm::vec3d& delta, ShearDragState& dragState);
 
   /**
    * Returns the side of the current bounds that was picked by the last call to

@@ -204,8 +204,8 @@ public:
     const vm::vec3d& proposedHandlePosition) override
   {
     const auto delta = proposedHandlePosition - dragState.currentHandlePosition;
-    m_tool.shearByDelta(delta, m_shearDragState);
-    return DragStatus::Continue;
+    return m_tool.shearByDelta(delta, m_shearDragState) ? DragStatus::Continue
+                                                        : DragStatus::Deny;
   }
 
   void end(const InputState& inputState, const DragState&) override

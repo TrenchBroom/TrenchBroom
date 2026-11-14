@@ -242,6 +242,20 @@ TEST_CASE("ShearTool")
         CHECK(!boundedBrush->brush().hasVertex(vm::vec3d{16, -16, -16}));
       }
 
+      SECTION("a failed step keeps the last successful shear")
+      {
+        CHECK(tool.shearByDelta({0, 0, 10}, dragState));
+
+        // this would move the +X side out of the world bounds
+        CHECK(!tool.shearByDelta({0, 0, 100000}, dragState));
+        CHECK(dragState.totalDelta == vm::vec3d{0, 0, 10});
+        CHECK(boundedBrush->brush().hasVertex(vm::vec3d{16, -16, -6}));
+
+        CHECK(tool.shearByDelta({0, 0, 5}, dragState));
+        CHECK(dragState.totalDelta == vm::vec3d{0, 0, 15});
+        CHECK(boundedBrush->brush().hasVertex(vm::vec3d{16, -16, -1}));
+      }
+
       SECTION("committing with zero delta cancels the transaction")
       {
         tool.commitShear(dragState);

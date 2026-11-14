@@ -186,16 +186,24 @@ void ShearTool::cancelShear()
   m_dragging = false;
 }
 
-void ShearTool::shearByDelta(const vm::vec3d& delta, ShearDragState& dragState)
+bool ShearTool::shearByDelta(const vm::vec3d& delta, ShearDragState& dragState)
 {
   contract_pre(m_dragging);
 
-  dragState.totalDelta = dragState.totalDelta + delta;
+  auto& map = m_document.map();
+  const auto& bboxAtDragStart = dragState.bboxAtDragStart;
+  const auto& normal = dragState.side.normal;
+  const auto totalDelta = dragState.totalDelta + delta;
 
-  if (!vm::is_zero(delta, vm::Cd::almost_zero()))
+  map.rollbackTransaction();
+  if (!shearSelection(map, bboxAtDragStart, normal, totalDelta))
   {
-    shearSelection(m_document.map(), bounds(), dragState.side.normal, delta);
+    shearSelection(map, bboxAtDragStart, normal, dragState.totalDelta);
+    return false;
   }
+
+  dragState.totalDelta = totalDelta;
+  return true;
 }
 
 std::optional<vm::polygon3f> ShearTool::shearHandle() const
