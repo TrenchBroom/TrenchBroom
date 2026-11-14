@@ -296,7 +296,8 @@ void UvScaleTool::pick(const InputState& inputState, mdl::PickResult& pickResult
   }
 }
 
-std::unique_ptr<GestureTracker> UvScaleTool::acceptMouseDrag(const InputState& inputState)
+std::unique_ptr<GestureTracker> UvScaleTool::doAcceptMouseDrag(
+  const InputState& inputState)
 {
   using namespace mdl::HitFilters;
 

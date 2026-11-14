@@ -57,14 +57,16 @@ void ToolController::mouseMove(const InputState&) {}
 
 void ToolController::mouseScroll(const InputState&) {}
 
-std::unique_ptr<GestureTracker> ToolController::acceptMouseDrag(const InputState&)
+std::unique_ptr<GestureTracker> ToolController::acceptMouseDrag(
+  const InputState& inputState)
 {
-  return nullptr;
+  return doAcceptMouseDrag(inputState);
 }
 
-std::unique_ptr<GestureTracker> ToolController::acceptGesture(const InputState&)
+std::unique_ptr<GestureTracker> ToolController::acceptGesture(
+  const InputState& inputState)
 {
-  return nullptr;
+  return doAcceptGesture(inputState);
 }
 
 bool ToolController::shouldAcceptDrop(const InputState&, const std::string&) const
@@ -87,6 +89,16 @@ bool ToolController::cancel()
 void ToolController::refreshViews()
 {
   tool().refreshViews();
+}
+
+std::unique_ptr<GestureTracker> ToolController::doAcceptMouseDrag(const InputState&)
+{
+  return nullptr;
+}
+
+std::unique_ptr<GestureTracker> ToolController::doAcceptGesture(const InputState&)
+{
+  return nullptr;
 }
 
 std::unique_ptr<DropTracker> ToolController::acceptDrop(
@@ -146,7 +158,7 @@ void ToolControllerGroup::mouseScroll(const InputState& inputState)
   m_chain.mouseScroll(inputState);
 }
 
-std::unique_ptr<GestureTracker> ToolControllerGroup::acceptMouseDrag(
+std::unique_ptr<GestureTracker> ToolControllerGroup::doAcceptMouseDrag(
   const InputState& inputState)
 {
   return doShouldHandleMouseDrag(inputState) ? m_chain.acceptMouseDrag(inputState)

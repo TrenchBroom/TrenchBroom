@@ -246,7 +246,7 @@ const Tool& DrawShapeToolController3D::tool() const
   return m_tool;
 }
 
-std::unique_ptr<GestureTracker> DrawShapeToolController3D::acceptMouseDrag(
+std::unique_ptr<GestureTracker> DrawShapeToolController3D::doAcceptMouseDrag(
   const InputState& inputState)
 {
   using namespace mdl::HitFilters;

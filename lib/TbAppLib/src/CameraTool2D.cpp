@@ -155,7 +155,7 @@ void CameraTool2D::mouseScroll(const InputState& inputState)
   }
 }
 
-std::unique_ptr<GestureTracker> CameraTool2D::acceptMouseDrag(
+std::unique_ptr<GestureTracker> CameraTool2D::doAcceptMouseDrag(
   const InputState& inputState)
 {
   if (shouldPan(inputState))

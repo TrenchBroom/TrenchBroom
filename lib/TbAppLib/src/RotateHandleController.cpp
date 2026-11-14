@@ -191,7 +191,7 @@ private:
     return true;
   }
 
-  std::unique_ptr<GestureTracker> acceptMouseDrag(const InputState& inputState) override
+  std::unique_ptr<GestureTracker> doAcceptMouseDrag(const InputState& inputState) override
   {
     using namespace mdl::HitFilters;
 
@@ -378,7 +378,7 @@ private:
 
   const Tool& tool() const override { return m_delegate.tool(); }
 
-  std::unique_ptr<GestureTracker> acceptMouseDrag(const InputState& inputState) override
+  std::unique_ptr<GestureTracker> doAcceptMouseDrag(const InputState& inputState) override
   {
     if (!m_acceptDrag(inputState))
     {

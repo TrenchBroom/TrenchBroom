@@ -304,7 +304,7 @@ void CameraTool3D::mouseScroll(const InputState& inputState)
   }
 }
 
-std::unique_ptr<GestureTracker> CameraTool3D::acceptMouseDrag(
+std::unique_ptr<GestureTracker> CameraTool3D::doAcceptMouseDrag(
   const InputState& inputState)
 {
   using namespace mdl::HitFilters;

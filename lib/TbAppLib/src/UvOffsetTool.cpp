@@ -147,7 +147,7 @@ const Tool& UvOffsetTool::tool() const
   return *this;
 }
 
-std::unique_ptr<GestureTracker> UvOffsetTool::acceptMouseDrag(
+std::unique_ptr<GestureTracker> UvOffsetTool::doAcceptMouseDrag(
   const InputState& inputState)
 {
   contract_pre(m_helper.valid());

@@ -413,7 +413,7 @@ private:
     return m_delegate->setClipFace(inputState);
   }
 
-  std::unique_ptr<GestureTracker> acceptMouseDrag(const InputState& inputState) override
+  std::unique_ptr<GestureTracker> doAcceptMouseDrag(const InputState& inputState) override
   {
     if (
       inputState.mouseButtons() != MouseButtons::Left
@@ -502,7 +502,7 @@ private:
 
   const Tool& tool() const override { return m_delegate->tool(); }
 
-  std::unique_ptr<GestureTracker> acceptMouseDrag(const InputState& inputState) override
+  std::unique_ptr<GestureTracker> doAcceptMouseDrag(const InputState& inputState) override
   {
     if (
       inputState.mouseButtons() != MouseButtons::Left

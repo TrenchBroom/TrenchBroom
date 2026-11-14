@@ -273,7 +273,7 @@ void ShearToolController::mouseMove(const InputState& inputState)
   }
 }
 
-std::unique_ptr<GestureTracker> ShearToolController::acceptMouseDrag(
+std::unique_ptr<GestureTracker> ShearToolController::doAcceptMouseDrag(
   const InputState& inputState)
 {
   using namespace mdl::HitFilters;

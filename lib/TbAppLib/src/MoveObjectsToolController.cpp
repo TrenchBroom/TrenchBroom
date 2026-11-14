@@ -102,7 +102,7 @@ const Tool& MoveObjectsToolController::tool() const
   return m_tool;
 }
 
-std::unique_ptr<GestureTracker> MoveObjectsToolController::acceptMouseDrag(
+std::unique_ptr<GestureTracker> MoveObjectsToolController::doAcceptMouseDrag(
   const InputState& inputState)
 {
   using namespace mdl::HitFilters;

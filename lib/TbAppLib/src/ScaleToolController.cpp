@@ -422,7 +422,7 @@ void ScaleToolController::mouseMove(const InputState& inputState)
   }
 }
 
-std::unique_ptr<GestureTracker> ScaleToolController::acceptMouseDrag(
+std::unique_ptr<GestureTracker> ScaleToolController::doAcceptMouseDrag(
   const InputState& inputState)
 {
   using namespace mdl::HitFilters;

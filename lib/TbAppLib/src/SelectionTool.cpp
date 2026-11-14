@@ -511,7 +511,7 @@ void SelectionTool::mouseScroll(const InputState& inputState)
   }
 }
 
-std::unique_ptr<GestureTracker> SelectionTool::acceptMouseDrag(
+std::unique_ptr<GestureTracker> SelectionTool::doAcceptMouseDrag(
   const InputState& inputState)
 {
   using namespace mdl::HitFilters;

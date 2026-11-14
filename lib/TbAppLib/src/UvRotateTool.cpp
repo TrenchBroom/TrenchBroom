@@ -354,7 +354,7 @@ void UvRotateTool::pick(const InputState& inputState, mdl::PickResult& pickResul
   }
 }
 
-std::unique_ptr<GestureTracker> UvRotateTool::acceptMouseDrag(
+std::unique_ptr<GestureTracker> UvRotateTool::doAcceptMouseDrag(
   const InputState& inputState)
 {
   contract_pre(m_helper.valid());

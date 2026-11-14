@@ -107,7 +107,7 @@ void UvCameraTool::mouseScroll(const InputState& inputState)
   m_camera.moveBy(delta);
 }
 
-std::unique_ptr<GestureTracker> UvCameraTool::acceptMouseDrag(
+std::unique_ptr<GestureTracker> UvCameraTool::doAcceptMouseDrag(
   const InputState& inputState)
 {
   if (

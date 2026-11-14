@@ -66,8 +66,8 @@ public:
   virtual void mouseMove(const InputState& inputState);
   virtual void mouseScroll(const InputState& inputState);
 
-  virtual std::unique_ptr<GestureTracker> acceptMouseDrag(const InputState& inputState);
-  virtual std::unique_ptr<GestureTracker> acceptGesture(const InputState& inputState);
+  std::unique_ptr<GestureTracker> acceptMouseDrag(const InputState& inputState);
+  std::unique_ptr<GestureTracker> acceptGesture(const InputState& inputState);
 
   virtual bool shouldAcceptDrop(
     const InputState& inputState, const std::string& payload) const;
@@ -85,6 +85,10 @@ public:
 
 protected:
   void refreshViews();
+
+private: // subclassing interface
+  virtual std::unique_ptr<GestureTracker> doAcceptMouseDrag(const InputState& inputState);
+  virtual std::unique_ptr<GestureTracker> doAcceptGesture(const InputState& inputState);
 };
 
 class ToolControllerGroup : public ToolController
@@ -111,7 +115,6 @@ public:
   void mouseMove(const InputState& inputState) override;
   void mouseScroll(const InputState& inputState) override;
 
-  std::unique_ptr<GestureTracker> acceptMouseDrag(const InputState& inputState) override;
   std::unique_ptr<DropTracker> acceptDrop(
     const InputState& inputState, const std::string& payload) override;
 
@@ -123,6 +126,10 @@ public:
     render::RenderBatch& renderBatch) override;
 
   bool cancel() override;
+
+private:
+  std::unique_ptr<GestureTracker> doAcceptMouseDrag(
+    const InputState& inputState) override;
 
 private: // subclassing interface
   virtual bool doShouldHandleMouseDrag(const InputState& inputState) const;

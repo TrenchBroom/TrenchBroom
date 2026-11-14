@@ -56,7 +56,8 @@ public:
   bool mouseDoubleClick(const InputState& inputState) override;
   void mouseScroll(const InputState& inputState) override;
 
-  std::unique_ptr<GestureTracker> acceptMouseDrag(const InputState& inputState) override;
+  std::unique_ptr<GestureTracker> doAcceptMouseDrag(
+    const InputState& inputState) override;
 
   void setRenderOptions(
     const InputState& inputState, render::RenderContext& renderContext) const override;
