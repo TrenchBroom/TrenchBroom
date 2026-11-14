@@ -67,19 +67,6 @@ bool validCorner(const vm::vec3d& corner)
 }
 
 /**
- * For dragging a corner retursn the 3 sides that touch that corner
- */
-std::vector<BBoxSide> sidesForCornerSelection(const BBoxCorner& corner)
-{
-  return std::views::iota(0u, 3u) | std::views::transform([&](const auto i) {
-           auto sideNormal = vm::vec3d{};
-           sideNormal[i] = corner.corner[i];
-           return BBoxSide{sideNormal};
-         })
-         | kdl::ranges::to<std::vector>();
-}
-
-/**
  * For dragging an edge, returns the 2 bbox sides that contain that edge
  */
 std::vector<BBoxSide> sidesForEdgeSelection(const BBoxEdge& edge)
@@ -108,11 +95,15 @@ std::vector<BBoxSide> sidesForEdgeSelection(const BBoxEdge& edge)
   return result;
 }
 
-std::vector<vm::polygon3f> polysForSides(
-  const vm::bbox3d& box, const std::vector<BBoxSide>& sides)
+/**
+ * For dragging a corner retursn the 3 sides that touch that corner
+ */
+std::vector<BBoxSide> sidesForCornerSelection(const BBoxCorner& corner)
 {
-  return sides | std::views::transform([&](const auto& side) {
-           return vm::polygon3f{polygonForBBoxSide(box, side)};
+  return std::views::iota(0u, 3u) | std::views::transform([&](const auto i) {
+           auto sideNormal = vm::vec3d{};
+           sideNormal[i] = corner.corner[i];
+           return BBoxSide{sideNormal};
          })
          | kdl::ranges::to<std::vector>();
 }
@@ -127,6 +118,15 @@ std::vector<BBoxSide> sidesWithOppositeSides(const std::vector<BBoxSide>& sides)
   }
 
   return {result.begin(), result.end()};
+}
+
+std::vector<vm::polygon3f> polysForSides(
+  const vm::bbox3d& box, const std::vector<BBoxSide>& sides)
+{
+  return sides | std::views::transform([&](const auto& side) {
+           return vm::polygon3f{polygonForBBoxSide(box, side)};
+         })
+         | kdl::ranges::to<std::vector>();
 }
 
 } // namespace

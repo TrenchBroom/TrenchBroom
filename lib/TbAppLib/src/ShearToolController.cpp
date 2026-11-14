@@ -43,6 +43,16 @@ namespace tb::ui
 namespace
 {
 
+std::tuple<vm::vec3d, vm::vec3d> getInitialHandlePositionAndHitPoint(
+  const vm::bbox3d& bounds, const auto& hit)
+{
+  contract_pre(hit.isMatch());
+  contract_pre(hit.hasType(ShearTool::ShearToolSideHitType));
+
+  const auto side = hit.template target<BBoxSide>();
+  return {centerForBBoxSide(bounds, side), hit.hitPoint()};
+}
+
 HandlePositionProposer makeHandlePositionProposer(
   const InputState& inputState,
   const mdl::Grid& grid,
@@ -165,16 +175,6 @@ public:
 
   void cancel(const DragState&) override { m_tool.cancelShear(); }
 };
-
-std::tuple<vm::vec3d, vm::vec3d> getInitialHandlePositionAndHitPoint(
-  const vm::bbox3d& bounds, const auto& hit)
-{
-  contract_pre(hit.isMatch());
-  contract_pre(hit.hasType(ShearTool::ShearToolSideHitType));
-
-  const auto side = hit.template target<BBoxSide>();
-  return {centerForBBoxSide(bounds, side), hit.hitPoint()};
-}
 
 } // namespace
 
