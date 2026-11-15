@@ -20,6 +20,7 @@
 #include "ui/SearchHelpPopup.h"
 
 #include <QLabel>
+#include <QListWidget>
 #include <QVBoxLayout>
 
 #include "ui/AppController.h"
@@ -30,6 +31,12 @@
 
 namespace tb::ui
 {
+namespace
+{
+
+constexpr auto MaxVisibleCompletions = qsizetype{8};
+
+} // namespace
 
 SearchHelpPopup::SearchHelpPopup(AppController& appController, QWidget* parent)
   // Qt::Tool windows are plain top-level windows, and on Wayland, clients cannot
@@ -48,6 +55,51 @@ SearchHelpPopup::SearchHelpPopup(AppController& appController, QWidget* parent)
   // activated by a click, Qt clears the focus instead of moving it into that window, and
   // the popup is hidden before the click is processed.
   setFocus();
+}
+
+QStringList SearchHelpPopup::completions() const
+{
+  auto result = QStringList{};
+  for (int row = 0; row < m_completionList->count(); ++row)
+  {
+    result.append(m_completionList->item(row)->text());
+  }
+  return result;
+}
+
+void SearchHelpPopup::setCompletions(const QStringList& completions)
+{
+  m_completionList->clear();
+  m_completionList->addItems(completions);
+  m_completionList->setVisible(!completions.isEmpty());
+
+  if (!completions.isEmpty())
+  {
+    const auto visibleRows = int(std::min(completions.size(), MaxVisibleCompletions));
+    m_completionList->setFixedHeight(
+      visibleRows * m_completionList->sizeHintForRow(0)
+      + 2 * m_completionList->frameWidth());
+  }
+
+  resize(width(), sizeHint().height());
+}
+
+QString SearchHelpPopup::selectedCompletion() const
+{
+  const auto* item = m_completionList->currentItem();
+  return item ? item->text() : QString{};
+}
+
+void SearchHelpPopup::selectNextCompletion()
+{
+  const auto row = m_completionList->currentRow();
+  m_completionList->setCurrentRow(row + 1 < m_completionList->count() ? row + 1 : 0);
+}
+
+void SearchHelpPopup::selectPreviousCompletion()
+{
+  const auto row = m_completionList->currentRow();
+  m_completionList->setCurrentRow(row > 0 ? row - 1 : m_completionList->count() - 1);
 }
 
 QString SearchHelpPopup::status() const
@@ -71,6 +123,18 @@ void SearchHelpPopup::showBelow(const QWidget& anchor)
 
 void SearchHelpPopup::createGui()
 {
+  m_completionList = new QListWidget{};
+  m_completionList->setObjectName("SearchHelpPopup_CompletionList");
+  // the search box keeps the focus while the completions are navigated with the keyboard
+  m_completionList->setFocusPolicy(Qt::NoFocus);
+  m_completionList->setUniformItemSizes(true);
+  m_completionList->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+  m_completionList->setVisible(false);
+
+  connect(m_completionList, &QListWidget::itemClicked, this, [&](const auto* item) {
+    emit completionClicked(item->text());
+  });
+
   m_statusLabel = new QLabel{};
   m_statusLabel->setObjectName("SearchHelpPopup_StatusLabel");
   m_statusLabel->setTextFormat(Qt::PlainText);
@@ -117,6 +181,7 @@ contain it, or whose layer or group name contains it. Use <code>*</code> and
     LayoutConstants::WideHMargin,
     LayoutConstants::WideVMargin);
   layout->setSpacing(LayoutConstants::MediumVMargin);
+  layout->addWidget(m_completionList);
   layout->addWidget(m_statusLabel);
   layout->addWidget(helpLabel);
   setLayout(layout);

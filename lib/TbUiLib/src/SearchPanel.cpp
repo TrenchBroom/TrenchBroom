@@ -23,18 +23,24 @@
 #include <QHBoxLayout>
 #include <QKeyEvent>
 #include <QLineEdit>
+#include <QStringList>
 
 #include "mdl/EditorContext.h"
 #include "mdl/Map.h"
+#include "mdl/Map_Entities.h"
 #include "mdl/Map_Selection.h"
 #include "mdl/Selection.h"
 #include "ql/Query.h"
+#include "ql/QueryCompletion.h"
 #include "ui/MapDocument.h"
 #include "ui/SearchBox.h"
 #include "ui/SearchHelpPopup.h"
 #include "ui/SignalDelayer.h"
 
+#include "kd/ranges/to.h"
+
 #include <chrono> // IWYU pragma: keep
+#include <ranges>
 
 namespace tb::ui
 {
@@ -94,7 +100,12 @@ bool SearchPanel::eventFilter(QObject* watched, QEvent* event)
 
   if (watched == m_searchBox && event->type() == QEvent::KeyPress)
   {
-    if (static_cast<QKeyEvent*>(event)->key() == Qt::Key_Escape)
+    const auto key = static_cast<QKeyEvent*>(event)->key();
+    if (handleCompletionKey(key))
+    {
+      return true;
+    }
+    if (key == Qt::Key_Escape)
     {
       m_popup->hide();
       return true;
@@ -126,6 +137,19 @@ void SearchPanel::createGui(AppController& appController)
 
   connect(
     m_searchBox, &QLineEdit::textEdited, m_searchDelayer, &SignalDelayer::queueSignal);
+  connect(m_searchBox, &QLineEdit::textEdited, this, &SearchPanel::updateCompletions);
+  connect(m_searchBox, &QLineEdit::cursorPositionChanged, this, [&] {
+    // moving the cursor only updates the completions that are already shown
+    if (!m_popup->completions().isEmpty())
+    {
+      updateCompletions();
+    }
+  });
+  connect(
+    m_popup, &SearchHelpPopup::completionClicked, this, [&](const auto& completion) {
+      insertCompletion(completion);
+      m_searchBox->setFocus();
+    });
   connect(m_searchBox, &QLineEdit::textChanged, this, &SearchPanel::updateExpanded);
   connect(m_searchBox, &QLineEdit::returnPressed, this, [&] {
     // run the search even if it isn't pending, since the selection may have changed
@@ -148,6 +172,9 @@ void SearchPanel::focusChanged(QWidget*, QWidget* now)
   const auto popupHasFocus = now && (now == m_popup || m_popup->isAncestorOf(now));
   if (searchBoxHasFocus)
   {
+    // the map can only change while the focus is elsewhere
+    m_propertyKeys = mdl::allEntityPropertyKeys(m_document.map());
+    m_popup->setCompletions({});
     showPopup();
   }
   else if (!popupHasFocus)
@@ -180,6 +207,84 @@ void SearchPanel::updateExpanded()
     m_expanded = expanded;
     emit expandedChanged(m_expanded);
   }
+}
+
+void SearchPanel::updateCompletions()
+{
+  // the completions are shown in the popup, which stays hidden after escape
+  if (!m_popup->isVisible())
+  {
+    return;
+  }
+
+  // the query is completed as UTF-8, but the search box counts UTF-16 code units
+  const auto text = m_searchBox->text();
+  const auto cursorPosition = m_searchBox->cursorPosition();
+  const auto utf8Text = text.toStdString();
+  const auto completion = ql::completeQuery(
+    utf8Text, size_t(text.left(cursorPosition).toUtf8().size()), m_propertyKeys);
+
+  const auto toPosition = [&](const size_t offset) {
+    return int(QString::fromStdString(utf8Text.substr(0, offset)).size());
+  };
+  m_completionStart = toPosition(completion.start);
+  m_completionEnd = toPosition(completion.end);
+
+  const auto typedName = text.mid(m_completionStart, cursorPosition - m_completionStart);
+  const auto words = completion.words | std::views::transform(QString::fromStdString)
+                     | kdl::ranges::to<QStringList>();
+
+  // keys are offered as soon as a dot is typed, other words once a name is begun
+  const auto afterDot = m_completionStart > 0 && text[m_completionStart - 1] == u'.';
+  const auto onlyTypedName = words == QStringList{typedName};
+  m_popup->setCompletions(
+    (!typedName.isEmpty() || afterDot) && !onlyTypedName ? words : QStringList{});
+}
+
+bool SearchPanel::handleCompletionKey(const int key)
+{
+  const auto completions = m_popup->completions();
+  if (completions.isEmpty())
+  {
+    return false;
+  }
+
+  switch (key)
+  {
+  case Qt::Key_Down:
+    m_popup->selectNextCompletion();
+    return true;
+  case Qt::Key_Up:
+    m_popup->selectPreviousCompletion();
+    return true;
+  case Qt::Key_Tab: {
+    const auto selected = m_popup->selectedCompletion();
+    insertCompletion(!selected.isEmpty() ? selected : completions.front());
+    return true;
+  }
+  case Qt::Key_Return:
+  case Qt::Key_Enter:
+    if (const auto selected = m_popup->selectedCompletion(); !selected.isEmpty())
+    {
+      insertCompletion(selected);
+      return true;
+    }
+    // without a selected completion, return runs the search
+    m_popup->setCompletions({});
+    return false;
+  case Qt::Key_Escape:
+    m_popup->setCompletions({});
+    return true;
+  default:
+    return false;
+  }
+}
+
+void SearchPanel::insertCompletion(const QString& completion)
+{
+  m_searchBox->setSelection(m_completionStart, m_completionEnd - m_completionStart);
+  m_searchBox->insert(completion);
+  m_popup->setCompletions({});
 }
 
 void SearchPanel::runQuery(const std::string& queryText)

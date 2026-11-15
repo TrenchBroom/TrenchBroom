@@ -20,6 +20,8 @@
 #include <QApplication>
 #include <QLabel>
 #include <QLineEdit>
+#include <QListWidget>
+#include <QStringList>
 #include <QWidget>
 #include <QtTest/QTest>
 
@@ -325,6 +327,158 @@ TEST_CASE("SearchPanel")
     emit qApp->focusChanged(searchBox, nullptr);
     emit qApp->focusChanged(nullptr, searchBox);
     CHECK(popup->isVisible());
+  }
+
+  SECTION("typing a name shows the words that complete it")
+  {
+    emit qApp->focusChanged(nullptr, searchBox);
+    REQUIRE(popup->isVisible());
+
+    QTest::keyClicks(searchBox, "c");
+    CHECK(popup->completions() == QStringList{"center", "classname"});
+
+    QTest::keyClicks(searchBox, "la");
+    CHECK(popup->completions() == QStringList{"classname"});
+
+    // nothing is left to complete
+    QTest::keyClicks(searchBox, "ssname");
+    CHECK(popup->completions().isEmpty());
+
+    QTest::keyClicks(searchBox, " ");
+    CHECK(popup->completions().isEmpty());
+
+    QTest::keyClicks(searchBox, "i");
+    CHECK(popup->completions() == QStringList{"in", "intersects", "is"});
+  }
+
+  SECTION("the property keys of the map's entities are offered after properties")
+  {
+    mdl::addNode(
+      map,
+      mdl::parentForNodes(map),
+      std::make_unique<mdl::EntityNode>(mdl::Entity{{
+        {"classname", "trigger_once"},
+        {"target", "door1"},
+      }}));
+
+    // the keys are collected when the search box gets focus
+    emit qApp->focusChanged(nullptr, searchBox);
+
+    QTest::keyClicks(searchBox, "properties.");
+    CHECK(popup->completions().contains("target"));
+
+    QTest::keyClicks(searchBox, "ta");
+    CHECK(popup->completions() == QStringList{"target"});
+  }
+
+  SECTION("up and down select the completions")
+  {
+    emit qApp->focusChanged(nullptr, searchBox);
+    QTest::keyClicks(searchBox, "c");
+    REQUIRE(popup->completions() == QStringList{"center", "classname"});
+    REQUIRE(popup->selectedCompletion().isEmpty());
+
+    QTest::keyClick(searchBox, Qt::Key_Down);
+    CHECK(popup->selectedCompletion() == "center");
+
+    QTest::keyClick(searchBox, Qt::Key_Down);
+    CHECK(popup->selectedCompletion() == "classname");
+
+    QTest::keyClick(searchBox, Qt::Key_Down);
+    CHECK(popup->selectedCompletion() == "center");
+
+    QTest::keyClick(searchBox, Qt::Key_Up);
+    CHECK(popup->selectedCompletion() == "classname");
+
+    CHECK(searchBox->text() == "c");
+  }
+
+  SECTION("tab inserts the first completion in place of the name around the cursor")
+  {
+    emit qApp->focusChanged(nullptr, searchBox);
+    QTest::keyClicks(searchBox, "visible && loc");
+    QTest::keyClick(searchBox, Qt::Key_Left);
+    REQUIRE(popup->completions() == QStringList{"locked"});
+
+    QTest::keyClick(searchBox, Qt::Key_Tab);
+    CHECK(searchBox->text() == "visible && locked");
+    CHECK(searchBox->cursorPosition() == 17);
+    CHECK(popup->completions().isEmpty());
+  }
+
+  SECTION("return inserts the selected completion instead of running the search")
+  {
+    emit qApp->focusChanged(nullptr, searchBox);
+    QTest::keyClicks(searchBox, "c");
+    QTest::keyClick(searchBox, Qt::Key_Up);
+    REQUIRE(popup->selectedCompletion() == "classname");
+
+    QTest::keyClick(searchBox, Qt::Key_Return);
+    CHECK(searchBox->text() == "classname");
+    CHECK(popup->completions().isEmpty());
+    CHECK(popup->status().isEmpty());
+  }
+
+  SECTION("return runs the search if no completion is selected")
+  {
+    emit qApp->focusChanged(nullptr, searchBox);
+    QTest::keyClicks(searchBox, "ce");
+    REQUIRE(popup->completions() == QStringList{"center"});
+
+    QTest::keyClick(searchBox, Qt::Key_Return);
+    CHECK(searchBox->text() == "ce");
+    CHECK(popup->completions().isEmpty());
+    CHECK(popup->status() == "'ce' did not match anything");
+  }
+
+  SECTION("clicking a completion inserts it")
+  {
+    emit qApp->focusChanged(nullptr, searchBox);
+    QTest::keyClicks(searchBox, "c");
+    QApplication::processEvents();
+
+    auto* completionList =
+      popup->findChild<QListWidget*>("SearchHelpPopup_CompletionList");
+    REQUIRE(completionList != nullptr);
+    REQUIRE(completionList->count() == 2);
+
+    const auto itemCenter =
+      completionList->visualItemRect(completionList->item(1)).center();
+    QTest::mouseClick(completionList->viewport(), Qt::LeftButton, {}, itemCenter);
+
+    CHECK(searchBox->text() == "classname");
+    CHECK(popup->completions().isEmpty());
+  }
+
+  SECTION("an inserted completion is searched for once typing pauses")
+  {
+    emit qApp->focusChanged(nullptr, searchBox);
+    setQueryText(*searchBox, "classname == 'info_player_start' && vis");
+    REQUIRE(popup->completions() == QStringList{"visible"});
+
+    // let the search for the text as typed run first
+    REQUIRE(QTest::qWaitFor([&] { return !popup->status().isEmpty(); }, 5000));
+    REQUIRE(map.selection().nodes == std::vector<mdl::Node*>{});
+
+    QTest::keyClick(searchBox, Qt::Key_Tab);
+    REQUIRE(searchBox->text() == "classname == 'info_player_start' && visible");
+
+    REQUIRE(QTest::qWaitFor([&] { return map.selection().hasNodes(); }, 5000));
+    CHECK(map.selection().nodes == std::vector<mdl::Node*>{playerStart});
+  }
+
+  SECTION("escape hides the completions before it hides the popup")
+  {
+    emit qApp->focusChanged(nullptr, searchBox);
+    QTest::keyClicks(searchBox, "c");
+    REQUIRE(!popup->completions().isEmpty());
+
+    QTest::keyClick(searchBox, Qt::Key_Escape);
+    CHECK(popup->completions().isEmpty());
+    CHECK(popup->isVisible());
+
+    QTest::keyClick(searchBox, Qt::Key_Escape);
+    CHECK(!popup->isVisible());
   }
 
   SECTION("the popup follows the search box when a widget containing it moves")
