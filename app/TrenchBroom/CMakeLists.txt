@@ -133,6 +133,7 @@ target_link_libraries(TrenchBroom
     Qt6::Widgets
     TbBaseLib
     TbPreferencesLib
+    TbSingleInstanceLib
     TbUiLib
 )
 

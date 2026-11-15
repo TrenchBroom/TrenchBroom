@@ -35,11 +35,9 @@
 namespace tb::ui
 {
 
-MapWindowManager::MapWindowManager(
-  AppController& appController, const bool singleMapWindow)
+MapWindowManager::MapWindowManager(AppController& appController)
   : QObject{&appController}
   , m_appController{appController}
-  , m_singleMapWindow{singleMapWindow}
 {
   connect(qApp, &QApplication::focusChanged, this, &MapWindowManager::onFocusChange);
 }
@@ -59,23 +57,14 @@ MapWindow* MapWindowManager::topMapWindow() const
 Result<void> MapWindowManager::createDocument(
   const mdl::GameInfo& gameInfo, mdl::MapFormat mapFormat, const vm::bbox3d& worldBounds)
 {
-  if (shouldCreateWindowForDocument())
-  {
-    return MapDocument::createDocument(
-             m_appController.environmentConfig(),
-             gameInfo,
-             mapFormat,
-             worldBounds,
-             m_appController.taskManager(),
-             m_appController.glManager().resourceManager())
-           | kdl::transform([&](auto document) { createMapWindow(std::move(document)); });
-  }
-
-  auto* mapWindow = topMapWindow();
-  contract_assert(mapWindow != nullptr);
-
-  return mapWindow->document().create(
-    m_appController.environmentConfig(), gameInfo, mapFormat, worldBounds);
+  return MapDocument::createDocument(
+           m_appController.environmentConfig(),
+           gameInfo,
+           mapFormat,
+           worldBounds,
+           m_appController.taskManager(),
+           m_appController.glManager().resourceManager())
+         | kdl::transform([&](auto document) { createMapWindow(std::move(document)); });
 }
 
 Result<void> MapWindowManager::loadDocument(
@@ -84,28 +73,15 @@ Result<void> MapWindowManager::loadDocument(
   const vm::bbox3d& worldBounds,
   std::filesystem::path path)
 {
-  if (shouldCreateWindowForDocument())
-  {
-    return MapDocument::loadDocument(
-             m_appController.environmentConfig(),
-             gameInfo,
-             mapFormat,
-             worldBounds,
-             std::move(path),
-             m_appController.taskManager(),
-             m_appController.glManager().resourceManager())
-           | kdl::transform([&](auto document) { createMapWindow(std::move(document)); });
-  }
-
-  auto* mapWindow = topMapWindow();
-  contract_assert(mapWindow != nullptr);
-
-  return mapWindow->document().load(
-    m_appController.environmentConfig(),
-    gameInfo,
-    mapFormat,
-    worldBounds,
-    std::move(path));
+  return MapDocument::loadDocument(
+           m_appController.environmentConfig(),
+           gameInfo,
+           mapFormat,
+           worldBounds,
+           std::move(path),
+           m_appController.taskManager(),
+           m_appController.glManager().resourceManager())
+         | kdl::transform([&](auto document) { createMapWindow(std::move(document)); });
 }
 
 bool MapWindowManager::allMapWindowsClosed() const
@@ -128,11 +104,6 @@ void MapWindowManager::onFocusChange(QWidget* /* old */, QWidget* now)
       }
     }
   }
-}
-
-bool MapWindowManager::shouldCreateWindowForDocument() const
-{
-  return !m_singleMapWindow || m_mapWindows.empty();
 }
 
 MapWindow* MapWindowManager::createMapWindow(std::unique_ptr<MapDocument> document)

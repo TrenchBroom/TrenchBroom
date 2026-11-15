@@ -126,7 +126,7 @@ auto createGameManager()
 
 auto createMapWindowManager(AppController& appController)
 {
-  return new MapWindowManager{appController, AppController::useSDI};
+  return new MapWindowManager{appController};
 }
 
 auto createRecentDocuments(QObject* parent)
@@ -427,6 +427,7 @@ void AppController::showWelcomeWindow()
 {
   m_welcomeWindow->show();
   m_welcomeWindow->raise();
+  m_welcomeWindow->activateWindow();
 }
 
 void AppController::showManual(const QString& fragment)
