@@ -275,6 +275,25 @@ void renderDragHighlights(
   }
 }
 
+void renderBoundsAndHandles(
+  render::RenderContext& renderContext,
+  render::RenderBatch& renderBatch,
+  const vm::bbox3d& bounds,
+  const mdl::Hit& hit,
+  const ProportionalAxes& proportionalAxes,
+  const AnchorPos anchorPos)
+{
+  if (!bounds.is_empty())
+  {
+    renderBounds(renderContext, renderBatch, bounds);
+    renderCornerHandles(
+      renderContext, renderBatch, visibleCornerHandles(bounds, renderContext.camera()));
+  }
+
+  renderDragHighlights(
+    renderContext, renderBatch, bounds, hit, proportionalAxes, anchorPos);
+}
+
 class ScaleDragDelegate : public HandleDragTrackerDelegate
 {
 private:
@@ -343,10 +362,10 @@ public:
     render::RenderContext& renderContext,
     render::RenderBatch& renderBatch) const override
   {
-    renderDragHighlights(
+    renderBoundsAndHandles(
       renderContext,
       renderBatch,
-      m_tool.bounds(),
+      m_scaleDragState.bboxDuringDrag,
       m_scaleDragState.dragStartHit,
       m_scaleDragState.proportionalAxes,
       m_scaleDragState.anchorPos);
@@ -448,27 +467,15 @@ void ScaleToolController::render(
   render::RenderContext& renderContext,
   render::RenderBatch& renderBatch)
 {
-  if (m_tool.applies())
+  if (m_tool.applies() && !m_tool.dragging())
   {
-    if (!m_tool.bounds().is_empty())
-    {
-      renderBounds(renderContext, renderBatch, m_tool.bounds());
-      renderCornerHandles(
-        renderContext,
-        renderBatch,
-        visibleCornerHandles(m_tool.bounds(), renderContext.camera()));
-    }
-
-    if (!m_tool.dragging())
-    {
-      renderDragHighlights(
-        renderContext,
-        renderBatch,
-        m_tool.bounds(),
-        m_tool.pickedHandle(),
-        m_tool.proportionalAxes(),
-        m_tool.anchorPos());
-    }
+    renderBoundsAndHandles(
+      renderContext,
+      renderBatch,
+      m_tool.bounds(),
+      m_tool.pickedHandle(),
+      m_tool.proportionalAxes(),
+      m_tool.anchorPos());
   }
 }
 
