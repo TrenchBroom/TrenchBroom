@@ -12,6 +12,7 @@ target_sources(TbQlLib
     ${CMAKE_CURRENT_SOURCE_DIR}/src/NodeVariableStore.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/PatchNodeLazyMap.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Query.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/QueryCompletion.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/QueryDomainInference.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/WorldNodeLazyMap.cpp
 
