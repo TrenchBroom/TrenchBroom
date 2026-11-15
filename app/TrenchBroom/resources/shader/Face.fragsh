@@ -38,7 +38,7 @@ varying vec4 faceColor;
 varying vec3 viewVector;
 
 float grid(
-  vec3 coords, vec3 normal, float gridSize, float minGridSize, float lineWidthFactor);
+  vec3 coords, vec3 normal, float gridSize, float minGridSize, vec3 lineWidthFactor);
 vec3 applySoftMapBoundsTint(vec3 inputFragColor, vec3 worldCoords);
 vec3 adaptiveGridColor(vec3 background);
 float texturedGridAlpha(float alpha);
@@ -117,24 +117,29 @@ void main()
   if (RenderGrid && GridAlpha > 0.0)
   {
     vec3 coords = modelCoordinates.xyz;
+    vec3 dx = dFdx(coords);
+    vec3 dy = dFdy(coords);
 
     // get the maximum distance in world space between this and the neighbouring fragments
-    float maxWorldSpaceChange = max(length(dFdx(coords)), length(dFdy(coords)));
+    float maxWorldSpaceChange = max(length(dx), length(dy));
 
     // apply the Nyquist theorem to get the smallest grid size that would make sense to
     // render for this fragment
     float minGridSize = 2.0 * maxWorldSpaceChange;
 
+    // the world size of a screen pixel measured across the grid lines of each world axis,
+    // i.e. the length of the screen space gradient of that coordinate
+    vec3 pixelSize = sqrt(dx * dx + dy * dy);
+
     // The line width is the smaller of two factors:
-    //  - a screen-relative width (4.0 * maxWorldSpaceChange, the world size of a screen
-    //    pixel) that keeps a constant apparent width up close, so lines don't get thicker
-    //    as the camera approaches (mirrors the 2D grid's 1/CameraZoom, see
-    //    Grid2D.fragsh);
+    //  - a screen-relative width (4.0 * pixelSize) that keeps a constant apparent width
+    //    up close, so lines don't get thicker as the camera approaches (mirrors the 2D
+    //    grid's 1/CameraZoom, see Grid2D.fragsh);
     //  - a fixed world-space width (1.0) that shrinks in screen space with distance, so
     //    far-away lines thin out to sub-pixel instead of cluttering the view.
     // Taking the min caps the width at the constant-apparent value while restoring the
     // distance-based thinning: lines never get thicker than the close-up width.
-    float lineWidthFactor = min(4.0 * maxWorldSpaceChange, 1.0);
+    vec3 lineWidthFactor = min(4.0 * pixelSize, 1.0);
 
     float gridValue =
       grid(coords, modelNormal.xyz, GridSize, minGridSize, lineWidthFactor);
