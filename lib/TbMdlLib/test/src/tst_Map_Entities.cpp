@@ -1540,6 +1540,37 @@ TEST_CASE("Map_Entities")
         }));
     }
   }
+
+  SECTION("allEntityPropertyKeys")
+  {
+    addNode(
+      map,
+      parentForNodes(map),
+      std::make_unique<EntityNode>(Entity{{
+        {"classname", "light"},
+        {"light", "300"},
+      }}));
+
+    auto* groupedEntityNode = addNode(
+      map,
+      parentForNodes(map),
+      std::make_unique<EntityNode>(Entity{{
+        {"classname", "func_door"},
+        {"target", "door1"},
+        {"light", "200"},
+      }}));
+
+    selectNodes(map, {groupedEntityNode});
+    groupSelectedNodes(map, "group");
+
+    // with nothing selected, the property is set on the world
+    deselectAll(map);
+    setEntityProperty(map, "message", "hello");
+
+    CHECK(
+      allEntityPropertyKeys(map)
+      == std::vector<std::string>{"classname", "light", "message", "target"});
+  }
 }
 
 } // namespace tb::mdl
