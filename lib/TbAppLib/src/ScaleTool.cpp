@@ -131,6 +131,74 @@ std::vector<vm::polygon3f> polysForSides(
 
 } // namespace
 
+void ScaleTool::pickBackSides(
+  const vm::ray3d& pickRay, const gl::Camera& camera, mdl::PickResult& pickResult) const
+{
+  // select back sides. Used for both 2D and 3D.
+  if (pickResult.empty())
+  {
+    const auto result = pickBackSideOfBox(pickRay, camera, bounds());
+
+    // The hit point is the closest point on the pick ray to one of the edges of the face.
+    // For face dragging, we'll project the pick ray onto the line through this point and
+    // having the face normal.
+    contract_assert(result.pickedSideNormal != vm::vec3d(0, 0, 0));
+
+    pickResult.addHit(mdl::Hit{
+      SideHitType,
+      result.distAlongRay,
+      vm::point_at_distance(pickRay, result.distAlongRay),
+      BBoxSide{result.pickedSideNormal}});
+  }
+}
+
+void ScaleTool::pick2D(
+  const vm::ray3d& pickRay, const gl::Camera& camera, mdl::PickResult& pickResult) const
+{
+  using namespace mdl::HitFilters;
+
+  const auto& myBounds = bounds();
+
+  // origin in bbox
+  if (myBounds.contains(pickRay.origin))
+  {
+    return;
+  }
+
+  auto localPickResult = mdl::PickResult{};
+
+  // bbox corners in 2d views
+  contract_assert(camera.orthographicProjection());
+
+  for (const auto& edge : allEdges())
+  {
+    const auto points = pointsForBBoxEdge(myBounds, edge);
+
+    // in 2d views, only use edges that are parallel to the camera
+    if (vm::is_parallel(points.direction(), vm::vec3d{camera.direction()}))
+    {
+      // could figure out which endpoint is closer to camera, or just test both.
+      for (const auto& point : {points.start(), points.end()})
+      {
+        if (
+          const auto dist = camera.pickPointHandle(
+            pickRay, point, double(pref(Preferences::HandleRadius))))
+        {
+          const auto hitPoint = vm::point_at_distance(pickRay, *dist);
+          localPickResult.addHit(mdl::Hit{EdgeHitType, *dist, hitPoint, edge});
+        }
+      }
+    }
+  }
+
+  pickBackSides(pickRay, camera, localPickResult);
+
+  if (!localPickResult.empty())
+  {
+    pickResult.addHit(localPickResult.all().front());
+  }
+}
+
 const mdl::HitType::Type ScaleTool::SideHitType = mdl::HitType::freeType();
 const mdl::HitType::Type ScaleTool::EdgeHitType = mdl::HitType::freeType();
 const mdl::HitType::Type ScaleTool::CornerHitType = mdl::HitType::freeType();
@@ -690,74 +758,6 @@ BackSide pickBackSideOfBox(
   };
 }
 
-void ScaleTool::pickBackSides(
-  const vm::ray3d& pickRay, const gl::Camera& camera, mdl::PickResult& pickResult) const
-{
-  // select back sides. Used for both 2D and 3D.
-  if (pickResult.empty())
-  {
-    const auto result = pickBackSideOfBox(pickRay, camera, bounds());
-
-    // The hit point is the closest point on the pick ray to one of the edges of the face.
-    // For face dragging, we'll project the pick ray onto the line through this point and
-    // having the face normal.
-    contract_assert(result.pickedSideNormal != vm::vec3d(0, 0, 0));
-
-    pickResult.addHit(mdl::Hit{
-      SideHitType,
-      result.distAlongRay,
-      vm::point_at_distance(pickRay, result.distAlongRay),
-      BBoxSide{result.pickedSideNormal}});
-  }
-}
-
-void ScaleTool::pick2D(
-  const vm::ray3d& pickRay, const gl::Camera& camera, mdl::PickResult& pickResult) const
-{
-  using namespace mdl::HitFilters;
-
-  const auto& myBounds = bounds();
-
-  // origin in bbox
-  if (myBounds.contains(pickRay.origin))
-  {
-    return;
-  }
-
-  auto localPickResult = mdl::PickResult{};
-
-  // bbox corners in 2d views
-  contract_assert(camera.orthographicProjection());
-
-  for (const auto& edge : allEdges())
-  {
-    const auto points = pointsForBBoxEdge(myBounds, edge);
-
-    // in 2d views, only use edges that are parallel to the camera
-    if (vm::is_parallel(points.direction(), vm::vec3d{camera.direction()}))
-    {
-      // could figure out which endpoint is closer to camera, or just test both.
-      for (const auto& point : {points.start(), points.end()})
-      {
-        if (
-          const auto dist = camera.pickPointHandle(
-            pickRay, point, double(pref(Preferences::HandleRadius))))
-        {
-          const auto hitPoint = vm::point_at_distance(pickRay, *dist);
-          localPickResult.addHit(mdl::Hit{EdgeHitType, *dist, hitPoint, edge});
-        }
-      }
-    }
-  }
-
-  pickBackSides(pickRay, camera, localPickResult);
-
-  if (!localPickResult.empty())
-  {
-    pickResult.addHit(localPickResult.all().front());
-  }
-}
-
 void ScaleTool::pick3D(
   const vm::ray3d& pickRay, const gl::Camera& camera, mdl::PickResult& pickResult) const
 {
@@ -827,14 +827,6 @@ void ScaleTool::pick3D(
   }
 }
 
-vm::bbox3d ScaleTool::bounds() const
-{
-  const auto& bounds = m_document.map().selectionBounds();
-  contract_assert(bounds != std::nullopt);
-
-  return *bounds;
-}
-
 std::vector<vm::vec3d> ScaleTool::cornerHandles() const
 {
   auto result = std::vector<vm::vec3d>{};
@@ -845,6 +837,14 @@ std::vector<vm::vec3d> ScaleTool::cornerHandles() const
     bounds().for_each_vertex(op);
   }
   return result;
+}
+
+vm::bbox3d ScaleTool::bounds() const
+{
+  const auto& bounds = m_document.map().selectionBounds();
+  contract_assert(bounds != std::nullopt);
+
+  return *bounds;
 }
 
 void ScaleTool::updatePickedHandle(const mdl::PickResult& pickResult)
