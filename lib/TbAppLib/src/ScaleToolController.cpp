@@ -111,6 +111,53 @@ HandlePositionProposer makeHandlePositionProposer(
   }
 }
 
+void renderBounds(
+  render::RenderContext& renderContext,
+  render::RenderBatch& renderBatch,
+  const vm::bbox3d& bounds)
+{
+  auto renderService = render::RenderService{renderContext, renderBatch};
+  renderService.setForegroundColor(pref(Preferences::SelectionBoundsColor));
+  renderService.renderBounds(vm::bbox3f{bounds});
+}
+
+void renderCornerHandles(
+  render::RenderContext& renderContext,
+  render::RenderBatch& renderBatch,
+  const std::vector<vm::vec3d>& corners)
+{
+  auto renderService = render::RenderService{renderContext, renderBatch};
+  renderService.setForegroundColor(pref(Preferences::ScaleHandleColor));
+
+  for (const auto& corner : corners)
+  {
+    renderService.renderHandle(vm::vec3f{corner});
+  }
+}
+
+std::vector<vm::vec3d> visibleCornerHandles(
+  const vm::bbox3d& bounds, const gl::Camera& camera)
+{
+  using namespace mdl::HitFilters;
+
+  const auto corners = cornerHandles(bounds);
+  if (!camera.perspectiveProjection())
+  {
+    return corners;
+  }
+
+  const auto isVisible = [&](const auto& corner) {
+    const auto ray = vm::ray3d{camera.pickRay(vm::vec3f{corner})};
+
+    auto pr = mdl::PickResult{};
+    pickBBoxHandles3D(ray, camera, bounds, pr);
+
+    return !pr.empty() && pr.all().front().type() == ScaleTool::CornerHitType;
+  };
+
+  return corners | std::views::filter(isVisible) | kdl::ranges::to<std::vector>();
+}
+
 void renderDragSideHighlights(
   render::RenderContext& renderContext,
   render::RenderBatch& renderBatch,
@@ -305,53 +352,6 @@ public:
       m_scaleDragState.anchorPos);
   }
 };
-
-void renderBounds(
-  render::RenderContext& renderContext,
-  render::RenderBatch& renderBatch,
-  const vm::bbox3d& bounds)
-{
-  auto renderService = render::RenderService{renderContext, renderBatch};
-  renderService.setForegroundColor(pref(Preferences::SelectionBoundsColor));
-  renderService.renderBounds(vm::bbox3f{bounds});
-}
-
-void renderCornerHandles(
-  render::RenderContext& renderContext,
-  render::RenderBatch& renderBatch,
-  const std::vector<vm::vec3d>& corners)
-{
-  auto renderService = render::RenderService{renderContext, renderBatch};
-  renderService.setForegroundColor(pref(Preferences::ScaleHandleColor));
-
-  for (const auto& corner : corners)
-  {
-    renderService.renderHandle(vm::vec3f{corner});
-  }
-}
-
-std::vector<vm::vec3d> visibleCornerHandles(
-  const vm::bbox3d& bounds, const gl::Camera& camera)
-{
-  using namespace mdl::HitFilters;
-
-  const auto corners = cornerHandles(bounds);
-  if (!camera.perspectiveProjection())
-  {
-    return corners;
-  }
-
-  const auto isVisible = [&](const auto& corner) {
-    const auto ray = vm::ray3d{camera.pickRay(vm::vec3f{corner})};
-
-    auto pr = mdl::PickResult{};
-    pickBBoxHandles3D(ray, camera, bounds, pr);
-
-    return !pr.empty() && pr.all().front().type() == ScaleTool::CornerHitType;
-  };
-
-  return corners | std::views::filter(isVisible) | kdl::ranges::to<std::vector>();
-}
 
 } // namespace
 
