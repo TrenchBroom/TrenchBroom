@@ -331,33 +331,26 @@ void renderCornerHandles(
 }
 
 std::vector<vm::vec3d> visibleCornerHandles(
-  const ScaleTool& tool, const gl::Camera& camera)
+  const vm::bbox3d& bounds, const gl::Camera& camera)
 {
   using namespace mdl::HitFilters;
 
-  const auto cornerHandles = tool.cornerHandles();
+  const auto corners = cornerHandles(bounds);
   if (!camera.perspectiveProjection())
   {
-    return cornerHandles;
+    return corners;
   }
 
   const auto isVisible = [&](const auto& corner) {
     const auto ray = vm::ray3d{camera.pickRay(vm::vec3f{corner})};
 
     auto pr = mdl::PickResult{};
-    if (camera.orthographicProjection())
-    {
-      tool.pick2D(ray, camera, pr);
-    }
-    else
-    {
-      tool.pick3D(ray, camera, pr);
-    }
+    pickBBoxHandles3D(ray, camera, bounds, pr);
 
     return !pr.empty() && pr.all().front().type() == ScaleTool::CornerHitType;
   };
 
-  return cornerHandles | std::views::filter(isVisible) | kdl::ranges::to<std::vector>();
+  return corners | std::views::filter(isVisible) | kdl::ranges::to<std::vector>();
 }
 
 } // namespace
@@ -461,7 +454,9 @@ void ScaleToolController::render(
     {
       renderBounds(renderContext, renderBatch, m_tool.bounds());
       renderCornerHandles(
-        renderContext, renderBatch, visibleCornerHandles(m_tool, renderContext.camera()));
+        renderContext,
+        renderBatch,
+        visibleCornerHandles(m_tool.bounds(), renderContext.camera()));
     }
 
     if (!m_tool.dragging())

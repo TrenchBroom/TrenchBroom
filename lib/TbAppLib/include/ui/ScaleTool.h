@@ -234,6 +234,22 @@ struct BackSide
 BackSide pickBackSideOfBox(
   const vm::ray3d& pickRay, const gl::Camera& camera, const vm::bbox3d& box);
 
+/**
+ * Picks the side, edge, and corner handles of the given bounds in a 3D view. If nothing
+ * is hit, picks a back side of the bounds.
+ */
+void pickBBoxHandles3D(
+  const vm::ray3d& pickRay,
+  const gl::Camera& camera,
+  const vm::bbox3d& bounds,
+  mdl::PickResult& pickResult);
+
+/**
+ * Returns the positions of the corner handles of the given bounds, or an empty vector if
+ * the bounds are empty.
+ */
+std::vector<vm::vec3d> cornerHandles(const vm::bbox3d& bounds);
+
 struct ScaleDragState
 {
   /** The hit that identifies the side, edge, or corner being dragged. */
@@ -277,10 +293,6 @@ public:
   const mdl::Hit& pickedHandle() const;
   bool applies() const;
 
-  void pickBackSides(
-    const vm::ray3d& pickRay,
-    const gl::Camera& camera,
-    mdl::PickResult& pickResult) const;
   void pick2D(
     const vm::ray3d& pickRay,
     const gl::Camera& camera,
@@ -294,8 +306,6 @@ public:
   vm::bbox3d bounds() const;
 
 public:
-  std::vector<vm::vec3d> cornerHandles() const;
-
   void updatePickedHandle(const mdl::PickResult& pickResult);
 
   void setAnchorPos(AnchorPos pos);

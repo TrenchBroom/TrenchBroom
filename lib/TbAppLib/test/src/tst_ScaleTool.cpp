@@ -272,23 +272,6 @@ TEST_CASE("ScaleTool")
     }
   }
 
-  SECTION("cornerHandles")
-  {
-    SECTION("selected brush has 8 corner handles")
-    {
-      constexpr auto brushBounds = vm::bbox3d{16.0};
-      auto builder = mdl::BrushBuilder{map.worldNode().mapFormat(), map.worldBounds()};
-      auto* boundedBrush = mdl::addNode(
-        map,
-        *map.editorContext().currentLayer(),
-        std::make_unique<mdl::BrushNode>(
-          builder.createCuboid(brushBounds, "material") | kdl::value()));
-      mdl::selectNodes(map, {boundedBrush});
-
-      CHECK(tool.cornerHandles().size() == 8);
-    }
-  }
-
   SECTION(
     "updatePickedHandle does not refresh views for a repeated hit on the same handle")
   {
@@ -779,6 +762,24 @@ TEST_CASE("bbox handle geometry")
         == std::vector{
           polygonFor({1, 0, 0}), polygonFor({0, 1, 0}), polygonFor({0, 0, 1})});
     }
+  }
+
+  SECTION("cornerHandles")
+  {
+    const auto corners = cornerHandles(box);
+    CHECK(corners.size() == 8);
+    for (const auto x : {-16.0, 16.0})
+    {
+      for (const auto y : {-16.0, 16.0})
+      {
+        for (const auto z : {-16.0, 16.0})
+        {
+          CHECK(kdl::ranges::contains(corners, vm::vec3d{x, y, z}));
+        }
+      }
+    }
+
+    CHECK(cornerHandles(vm::bbox3d{{0, 0, 0}, {16, 16, 0}}).empty());
   }
 }
 

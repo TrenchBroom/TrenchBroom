@@ -129,15 +129,16 @@ std::vector<vm::polygon3f> polysForSides(
          | kdl::ranges::to<std::vector>();
 }
 
-} // namespace
-
-void ScaleTool::pickBackSides(
-  const vm::ray3d& pickRay, const gl::Camera& camera, mdl::PickResult& pickResult) const
+void pickBackSides(
+  const vm::ray3d& pickRay,
+  const gl::Camera& camera,
+  const vm::bbox3d& bounds,
+  mdl::PickResult& pickResult)
 {
   // select back sides. Used for both 2D and 3D.
   if (pickResult.empty())
   {
-    const auto result = pickBackSideOfBox(pickRay, camera, bounds());
+    const auto result = pickBackSideOfBox(pickRay, camera, bounds);
 
     // The hit point is the closest point on the pick ray to one of the edges of the face.
     // For face dragging, we'll project the pick ray onto the line through this point and
@@ -145,22 +146,23 @@ void ScaleTool::pickBackSides(
     contract_assert(result.pickedSideNormal != vm::vec3d(0, 0, 0));
 
     pickResult.addHit(mdl::Hit{
-      SideHitType,
+      ScaleTool::SideHitType,
       result.distAlongRay,
       vm::point_at_distance(pickRay, result.distAlongRay),
       BBoxSide{result.pickedSideNormal}});
   }
 }
 
-void ScaleTool::pick2D(
-  const vm::ray3d& pickRay, const gl::Camera& camera, mdl::PickResult& pickResult) const
+void pickBBoxHandles2D(
+  const vm::ray3d& pickRay,
+  const gl::Camera& camera,
+  const vm::bbox3d& bounds,
+  mdl::PickResult& pickResult)
 {
   using namespace mdl::HitFilters;
 
-  const auto& myBounds = bounds();
-
   // origin in bbox
-  if (myBounds.contains(pickRay.origin))
+  if (bounds.contains(pickRay.origin))
   {
     return;
   }
@@ -172,7 +174,7 @@ void ScaleTool::pick2D(
 
   for (const auto& edge : allEdges())
   {
-    const auto points = pointsForBBoxEdge(myBounds, edge);
+    const auto points = pointsForBBoxEdge(bounds, edge);
 
     // in 2d views, only use edges that are parallel to the camera
     if (vm::is_parallel(points.direction(), vm::vec3d{camera.direction()}))
@@ -185,19 +187,21 @@ void ScaleTool::pick2D(
             pickRay, point, double(pref(Preferences::HandleRadius))))
         {
           const auto hitPoint = vm::point_at_distance(pickRay, *dist);
-          localPickResult.addHit(mdl::Hit{EdgeHitType, *dist, hitPoint, edge});
+          localPickResult.addHit(mdl::Hit{ScaleTool::EdgeHitType, *dist, hitPoint, edge});
         }
       }
     }
   }
 
-  pickBackSides(pickRay, camera, localPickResult);
+  pickBackSides(pickRay, camera, bounds, localPickResult);
 
   if (!localPickResult.empty())
   {
     pickResult.addHit(localPickResult.all().front());
   }
 }
+
+} // namespace
 
 const mdl::HitType::Type ScaleTool::SideHitType = mdl::HitType::freeType();
 const mdl::HitType::Type ScaleTool::EdgeHitType = mdl::HitType::freeType();
@@ -758,15 +762,16 @@ BackSide pickBackSideOfBox(
   };
 }
 
-void ScaleTool::pick3D(
-  const vm::ray3d& pickRay, const gl::Camera& camera, mdl::PickResult& pickResult) const
+void pickBBoxHandles3D(
+  const vm::ray3d& pickRay,
+  const gl::Camera& camera,
+  const vm::bbox3d& bounds,
+  mdl::PickResult& pickResult)
 {
   using namespace mdl::HitFilters;
 
-  const auto& myBounds = bounds();
-
   // origin in bbox
-  if (myBounds.contains(pickRay.origin))
+  if (bounds.contains(pickRay.origin))
   {
     return;
   }
@@ -779,7 +784,7 @@ void ScaleTool::pick3D(
   // corners
   for (const auto& corner : allCorners())
   {
-    const auto point = pointForBBoxCorner(myBounds, corner);
+    const auto point = pointForBBoxCorner(bounds, corner);
 
     // make the spheres for the corner handles slightly larger than the
     // cylinders of the edge handles, so they take priority where they overlap.
@@ -787,39 +792,39 @@ void ScaleTool::pick3D(
     if (const auto dist = camera.pickPointHandle(pickRay, point, cornerRadius))
     {
       const auto hitPoint = vm::point_at_distance(pickRay, *dist);
-      localPickResult.addHit(mdl::Hit{CornerHitType, *dist, hitPoint, corner});
+      localPickResult.addHit(mdl::Hit{ScaleTool::CornerHitType, *dist, hitPoint, corner});
     }
   }
 
   // edges
   for (const auto& edge : allEdges())
   {
-    const auto points = pointsForBBoxEdge(myBounds, edge);
+    const auto points = pointsForBBoxEdge(bounds, edge);
 
     if (
       const auto dist = camera.pickLineSegmentHandle(
         pickRay, points, double(pref(Preferences::HandleRadius))))
     {
       const auto hitPoint = vm::point_at_distance(pickRay, *dist);
-      localPickResult.addHit(mdl::Hit{EdgeHitType, *dist, hitPoint, edge});
+      localPickResult.addHit(mdl::Hit{ScaleTool::EdgeHitType, *dist, hitPoint, edge});
     }
   }
 
   // sides
   for (const auto& side : allSides())
   {
-    const auto poly = polygonForBBoxSide(myBounds, side);
+    const auto poly = polygonForBBoxSide(bounds, side);
 
     if (
       const auto dist = vm::intersect_ray_polygon(
         pickRay, poly.vertices().begin(), poly.vertices().end()))
     {
       const auto hitPoint = vm::point_at_distance(pickRay, *dist);
-      localPickResult.addHit(mdl::Hit{SideHitType, *dist, hitPoint, side});
+      localPickResult.addHit(mdl::Hit{ScaleTool::SideHitType, *dist, hitPoint, side});
     }
   }
 
-  pickBackSides(pickRay, camera, localPickResult);
+  pickBackSides(pickRay, camera, bounds, localPickResult);
 
   if (!localPickResult.empty())
   {
@@ -827,16 +832,28 @@ void ScaleTool::pick3D(
   }
 }
 
-std::vector<vm::vec3d> ScaleTool::cornerHandles() const
+std::vector<vm::vec3d> cornerHandles(const vm::bbox3d& bounds)
 {
   auto result = std::vector<vm::vec3d>{};
-  if (!bounds().is_empty())
+  if (!bounds.is_empty())
   {
     result.reserve(8);
     auto op = [&](const auto& point) { result.push_back(point); };
-    bounds().for_each_vertex(op);
+    bounds.for_each_vertex(op);
   }
   return result;
+}
+
+void ScaleTool::pick2D(
+  const vm::ray3d& pickRay, const gl::Camera& camera, mdl::PickResult& pickResult) const
+{
+  pickBBoxHandles2D(pickRay, camera, bounds(), pickResult);
+}
+
+void ScaleTool::pick3D(
+  const vm::ray3d& pickRay, const gl::Camera& camera, mdl::PickResult& pickResult) const
+{
+  pickBBoxHandles3D(pickRay, camera, bounds(), pickResult);
 }
 
 vm::bbox3d ScaleTool::bounds() const
