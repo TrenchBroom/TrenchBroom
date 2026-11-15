@@ -64,10 +64,13 @@ struct QueryCompletion
  * - Where an object type name is compared with `type` and therefore doesn't need quotes,
  *   as in `type is brush`, these are only the object type names.
  * - After a dot, these are the keys of the value before the dot: `x`, `y` and `z` for a
- *   vector, `min` and `max` for a bounding box, and the fields of the entity map that
- *   `entity` refers to. The value must be a field, a key of another such value, or the
- *   result of calling a built-in function, also in parentheses, as in `bounds.min.`,
- *   `vec(1, 2, 3).` or `(center).`, since the keys of any other value are unknown.
+ *   vector, `min` and `max` for a bounding box, the fields of the entity map that
+ *   `entity` refers to, and the given `propertyKeys` for `properties`, such as the keys
+ *   of the properties of the map's entities. The value must be a field, a key of another
+ *   such value, or the result of calling a built-in function, also in parentheses, as in
+ *   `bounds.min.`, `entity.properties.`, `vec(1, 2, 3).` or `(center).`, since the keys
+ *   of any other value are unknown. Only the property keys that are names are offered,
+ *   since no other key can follow a dot.
  *
  * Nothing is offered for the key of an entry in a map such as `{key: 1}`, within a string
  * or a comment, or if the text before the cursor isn't the beginning of a valid query.
@@ -75,6 +78,9 @@ struct QueryCompletion
  * ignoring case. Apart from the rest of the name that the cursor is in, the text after
  * the cursor is ignored.
  */
-QueryCompletion completeQuery(std::string_view inputText, size_t cursorPosition);
+QueryCompletion completeQuery(
+  std::string_view inputText,
+  size_t cursorPosition,
+  const std::vector<std::string>& propertyKeys);
 
 } // namespace tb::ql

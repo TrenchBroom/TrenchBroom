@@ -200,12 +200,24 @@ std::optional<el::ExpressionNode> dotAccessOperand(
 
 using KeyTypes = kdl::flat_map<std::string, el::ValueType>;
 
+// only names can follow a dot, and the values of entity properties are strings
+KeyTypes propertyKeyTypes(const std::vector<std::string>& propertyKeys)
+{
+  return propertyKeys | std::views::filter(el::isName)
+         | std::views::transform(
+           [](const auto& key) { return std::pair{key, el::ValueType::String}; })
+         | kdl::ranges::to<kdl::flat_map>();
+}
+
 /**
  * Returns the keys of a value of the given type that is stored under the given name, and
  * the types of their values. The keys of a lazy map depend on what it represents, so they
  * are looked up by its name.
  */
-KeyTypes keyTypes(const std::string& name, const el::ValueType type)
+KeyTypes keyTypes(
+  const std::string& name,
+  const el::ValueType type,
+  const std::vector<std::string>& propertyKeys)
 {
   switch (type)
   {
@@ -221,7 +233,15 @@ KeyTypes keyTypes(const std::string& name, const el::ValueType type)
       {"max", el::ValueType::Vec3},
     };
   case el::ValueType::LazyMap:
-    return name == "entity" ? entityFieldTypes() : KeyTypes{};
+    if (name == "entity")
+    {
+      return entityFieldTypes();
+    }
+    if (name == "properties")
+    {
+      return propertyKeyTypes(propertyKeys);
+    }
+    return KeyTypes{};
   default:
     return KeyTypes{};
   }
@@ -243,12 +263,14 @@ KeyTypes fieldTypes()
  * They are known if the expression is a field, a key of a value whose keys are known, or
  * a call of a built-in function, also in parentheses, and unknown otherwise.
  */
-KeyTypes keyTypes(const el::ExpressionNode& expression)
+KeyTypes keyTypes(
+  const el::ExpressionNode& expression, const std::vector<std::string>& propertyKeys)
 {
   // the keys of the value that is stored under `key` in a value with `outerKeyTypes`
   const auto keyTypesAt = [&](const KeyTypes& outerKeyTypes, const std::string& key) {
     const auto iKey = outerKeyTypes.find(key);
-    return iKey != outerKeyTypes.end() ? keyTypes(key, iKey->second) : KeyTypes{};
+    return iKey != outerKeyTypes.end() ? keyTypes(key, iKey->second, propertyKeys)
+                                       : KeyTypes{};
   };
 
   return expression.accept(kdl::overload(
@@ -257,14 +279,16 @@ KeyTypes keyTypes(const el::ExpressionNode& expression)
       return keyTypesAt(fieldTypes(), v.variableName);
     },
     [&](const el::UnaryExpression& u) {
-      return u.operation == el::UnaryOperation::Group ? keyTypes(u.operand) : KeyTypes{};
+      return u.operation == el::UnaryOperation::Group ? keyTypes(u.operand, propertyKeys)
+                                                      : KeyTypes{};
     },
     [&](const el::DotExpression& d) {
-      return keyTypesAt(keyTypes(d.operand), d.fieldName);
+      return keyTypesAt(keyTypes(d.operand, propertyKeys), d.fieldName);
     },
     [&](const el::CallExpression& c) {
       // the result of a call isn't stored under a name
-      return c.cachedFunction ? keyTypes("", c.cachedFunction->resultType) : KeyTypes{};
+      return c.cachedFunction ? keyTypes("", c.cachedFunction->resultType, propertyKeys)
+                              : KeyTypes{};
     },
     [](const auto&) { return KeyTypes{}; }));
 }
@@ -308,7 +332,8 @@ std::vector<std::string> builtinFunctionNames(const el::FunctionNotation notatio
 
 // see completeQuery's doc comment for which words are offered where; `text` is the text
 // before the name at the cursor
-std::vector<std::string> completionWords(const std::string_view text)
+std::vector<std::string> completionWords(
+  const std::string_view text, const std::vector<std::string>& propertyKeys)
 {
   const auto tokens = tokenizeBeforeName(text);
   if (!tokens)
@@ -335,7 +360,7 @@ std::vector<std::string> completionWords(const std::string_view text)
                // the parser reads nothing but a dot access from a dot
                const auto operand = dotAccessOperand(expression, tokens->back().location);
                contract_assert(operand != std::nullopt);
-               return keyTypes(*operand).keys();
+               return keyTypes(*operand, propertyKeys).keys();
              })
            | kdl::value_or(std::vector<std::string>{});
   }
@@ -378,7 +403,9 @@ std::vector<std::string> completionWords(const std::string_view text)
 kdl_reflect_impl(QueryCompletion);
 
 QueryCompletion completeQuery(
-  const std::string_view inputText, const size_t cursorPosition)
+  const std::string_view inputText,
+  const size_t cursorPosition,
+  const std::vector<std::string>& propertyKeys)
 {
   contract_pre(cursorPosition <= inputText.size());
 
@@ -395,8 +422,8 @@ QueryCompletion completeQuery(
     return kdl::ci::str_is_prefix(word, prefix);
   };
 
-  auto words = completionWords(inputText.substr(0, start)) | std::views::filter(isPrefix)
-               | kdl::ranges::to<std::vector>();
+  auto words = completionWords(inputText.substr(0, start), propertyKeys)
+               | std::views::filter(isPrefix) | kdl::ranges::to<std::vector>();
   std::ranges::sort(words, kdl::ci::string_less{});
 
   return {start, end, std::move(words)};

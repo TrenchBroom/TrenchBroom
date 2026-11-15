@@ -34,12 +34,14 @@ namespace
 {
 
 // completes the text at the position of the `$` in it
-QueryCompletion completeQueryAtCursor(const std::string_view textWithCursor)
+QueryCompletion completeQueryAtCursor(
+  const std::string_view textWithCursor,
+  const std::vector<std::string>& propertyKeys = {})
 {
   const auto cursorPosition = textWithCursor.find('$');
   auto inputText = std::string{textWithCursor};
   inputText.erase(cursorPosition, 1);
-  return completeQuery(inputText, cursorPosition);
+  return completeQuery(inputText, cursorPosition, propertyKeys);
 }
 
 } // namespace
@@ -151,11 +153,36 @@ TEST_CASE("QueryCompletion")
       CHECK(completeQueryAtCursor(inputText).words == expectedWords);
     }
 
+    SECTION("after properties, the given property keys that are names are offered")
+    {
+      const auto propertyKeys = Words{
+        "",
+        "1key",
+        "_tb_id",
+        "light",
+        "light-color",
+        "target",
+        "targetname",
+        "true",
+      };
+
+      const auto [inputText, expectedWords] = GENERATE(table<std::string, Words>({
+        {"properties.$", {"_tb_id", "light", "target", "targetname"}},
+        {"properties.t$", {"target", "targetname"}},
+        {"entity.properties.l$", {"light"}},
+        {"classname is 'light' && properties.TARGET$", {"target", "targetname"}},
+        // a property value is a string, which has no keys
+        {"properties.target.$", {}},
+      }));
+      CAPTURE(inputText);
+
+      CHECK(completeQueryAtCursor(inputText, propertyKeys).words == expectedWords);
+    }
+
     SECTION("after a dot, nothing is offered if the keys of the value are unknown")
     {
       const auto inputText = GENERATE(
         "classname.$"sv,
-        "properties.t$"sv,
         "center.x.$"sv,
         "bounds.mid.$"sv,
         "foo.$"sv,
