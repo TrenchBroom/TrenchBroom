@@ -60,6 +60,11 @@ el::Value makeEntityLazyMap(const mdl::Entity& entity);
 el::Value makeEntityLazyMap(const mdl::Entity&& entity) = delete;
 
 /**
+ * The fields makeEntityLazyMap's result exposes and the types of their values.
+ */
+const kdl::flat_map<std::string, el::ValueType>& entityFieldTypes();
+
+/**
  * A lazy map exposing an entity node's data.
  */
 el::LazyMap makeEntityNodeLazyMap(const mdl::Map& map, const mdl::EntityNode& node);

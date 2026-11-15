@@ -123,9 +123,48 @@ TEST_CASE("QueryCompletion")
       CHECK(completeQueryAtCursor(inputText).words == expectedWords);
     }
 
-    SECTION("nothing is offered after a dot")
+    SECTION("after a dot, the keys of the value before it are offered")
     {
-      const auto inputText = GENERATE("classname.$"sv, "properties.t$"sv);
+      const auto [inputText, expectedWords] = GENERATE(table<std::string, Words>({
+        {"center.$", {"x", "y", "z"}},
+        {"normal.y$", {"y"}},
+        {"center . $", {"x", "y", "z"}},
+        {"bounds.$", {"max", "min"}},
+        {"bounds.min.$", {"x", "y", "z"}},
+        {"entity.$", {"classname", "properties"}},
+        {"entity.c$", {"classname"}},
+        {"!(center.$", {"x", "y", "z"}},
+        {"classname is 'light' && bounds.max.z$", {"z"}},
+        {"vec(1, 2, 3).$", {"x", "y", "z"}},
+        {"bbox(center, center).$", {"max", "min"}},
+        {"bbox(center, center).min.$", {"x", "y", "z"}},
+        {"(center).$", {"x", "y", "z"}},
+        {"[1, center.$", {"x", "y", "z"}},
+        // the entries of a map are ordered by key rather than as written
+        {"{b: 1, a: center.$", {"x", "y", "z"}},
+        {"vec(center.$", {"x", "y", "z"}},
+        {"properties[center.$", {"x", "y", "z"}},
+        {"{{ center.$", {"x", "y", "z"}},
+      }));
+      CAPTURE(inputText);
+
+      CHECK(completeQueryAtCursor(inputText).words == expectedWords);
+    }
+
+    SECTION("after a dot, nothing is offered if the keys of the value are unknown")
+    {
+      const auto inputText = GENERATE(
+        "classname.$"sv,
+        "properties.t$"sv,
+        "center.x.$"sv,
+        "bounds.mid.$"sv,
+        "foo.$"sv,
+        "foo(1).$"sv,
+        "vec(1, 2, 3).x.$"sv,
+        "(center + center).$"sv,
+        "properties['a'].$"sv,
+        "classname center.$"sv,
+        "{center.$"sv);
       CAPTURE(inputText);
 
       CHECK(completeQueryAtCursor(inputText).words.empty());

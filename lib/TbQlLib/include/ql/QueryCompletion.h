@@ -63,11 +63,17 @@ struct QueryCompletion
  *   such as `is` and `like`.
  * - Where an object type name is compared with `type` and therefore doesn't need quotes,
  *   as in `type is brush`, these are only the object type names.
+ * - After a dot, these are the keys of the value before the dot: `x`, `y` and `z` for a
+ *   vector, `min` and `max` for a bounding box, and the fields of the entity map that
+ *   `entity` refers to. The value must be a field, a key of another such value, or the
+ *   result of calling a built-in function, also in parentheses, as in `bounds.min.`,
+ *   `vec(1, 2, 3).` or `(center).`, since the keys of any other value are unknown.
  *
- * Nothing is offered after a dot, for a key of a map, within a string or a comment, or if
- * the text before the cursor isn't the beginning of a valid query. Only the words that
- * begin with the part of the name before the cursor are returned, ignoring case. Apart
- * from the rest of the name that the cursor is in, the text after the cursor is ignored.
+ * Nothing is offered for the key of an entry in a map such as `{key: 1}`, within a string
+ * or a comment, or if the text before the cursor isn't the beginning of a valid query.
+ * Only the words that begin with the part of the name before the cursor are returned,
+ * ignoring case. Apart from the rest of the name that the cursor is in, the text after
+ * the cursor is ignored.
  */
 QueryCompletion completeQuery(std::string_view inputText, size_t cursorPosition);
 

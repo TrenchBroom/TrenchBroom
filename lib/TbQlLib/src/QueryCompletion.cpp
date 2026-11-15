@@ -19,6 +19,7 @@
 
 #include "ql/QueryCompletion.h"
 
+#include "base/FileLocation.h"
 #include "base/ParserException.h"
 #include "base/Result.h"
 #include "el/Expression.h"
@@ -26,10 +27,13 @@
 #include "el/ParseExpression.h"
 #include "el/ParseMode.h"
 #include "el/Parser.h"
+#include "ql/EntityNodeLazyMap.h"
 #include "ql/Query.h"
 #include "ql/QueryDomainInference.h"
 
 #include "kd/contracts.h"
+#include "kd/flat_map.h"
+#include "kd/overload.h"
 #include "kd/ranges/concat_view.h"
 #include "kd/ranges/to.h"
 #include "kd/reflection_impl.h"
@@ -41,6 +45,7 @@
 #include <fmt/ranges.h>
 
 #include <algorithm>
+#include <array>
 #include <optional>
 #include <ranges>
 #include <string>
@@ -70,6 +75,7 @@ struct CompletionToken
 {
   el::ElToken::Type type;
   std::string data;
+  FileLocation location;
 };
 
 /**
@@ -94,7 +100,7 @@ std::optional<std::vector<CompletionToken>> tokenizeBeforeName(
       {
         return tokens;
       }
-      tokens.push_back({token.type(), token.data()});
+      tokens.push_back({token.type(), token.data(), token.location()});
     }
   }
   catch (const ParserException&)
@@ -144,6 +150,123 @@ std::optional<std::string> closingDelimiters(const std::vector<CompletionToken>&
   }
 
   return fmt::format("{}", fmt::join(closers | std::views::reverse, " "));
+}
+
+/**
+ * Returns the operand of the dot access in the given expression whose dot is at the given
+ * location, such as `vec(0, 0, 0)` in `vec(0, 0, 0).x`, or nothing if there is no such
+ * dot access.
+ */
+std::optional<el::ExpressionNode> dotAccessOperand(
+  const el::ExpressionNode& expression, const FileLocation& dotLocation)
+{
+  const auto inAny = [&](const auto& expressions) -> std::optional<el::ExpressionNode> {
+    for (const auto& subExpression : expressions)
+    {
+      if (auto operand = dotAccessOperand(subExpression, dotLocation))
+      {
+        return operand;
+      }
+    }
+    return std::nullopt;
+  };
+
+  return expression.accept(kdl::overload(
+    [](const el::LiteralExpression&) -> std::optional<el::ExpressionNode> {
+      return std::nullopt;
+    },
+    [](const el::VariableExpression&) -> std::optional<el::ExpressionNode> {
+      return std::nullopt;
+    },
+    [&](const el::ArrayExpression& a) { return inAny(a.elements); },
+    [&](const el::MapExpression& m) { return inAny(m.elements | std::views::values); },
+    [&](const el::UnaryExpression& u) {
+      return dotAccessOperand(u.operand, dotLocation);
+    },
+    [&](const el::BinaryExpression& b) {
+      return inAny(std::array{b.leftOperand, b.rightOperand});
+    },
+    [&](const el::SubscriptExpression& s) {
+      return inAny(std::array{s.leftOperand, s.rightOperand});
+    },
+    [&](const el::DotExpression& d) {
+      return expression.location() == dotLocation
+               ? std::optional{d.operand}
+               : dotAccessOperand(d.operand, dotLocation);
+    },
+    [&](const el::CallExpression& c) { return inAny(c.arguments); },
+    [&](const el::SwitchExpression& s) { return inAny(s.cases); }));
+}
+
+using KeyTypes = kdl::flat_map<std::string, el::ValueType>;
+
+/**
+ * Returns the keys of a value of the given type that is stored under the given name, and
+ * the types of their values. The keys of a lazy map depend on what it represents, so they
+ * are looked up by its name.
+ */
+KeyTypes keyTypes(const std::string& name, const el::ValueType type)
+{
+  switch (type)
+  {
+  case el::ValueType::Vec3:
+    return KeyTypes{
+      {"x", el::ValueType::Number},
+      {"y", el::ValueType::Number},
+      {"z", el::ValueType::Number},
+    };
+  case el::ValueType::BBox:
+    return KeyTypes{
+      {"min", el::ValueType::Vec3},
+      {"max", el::ValueType::Vec3},
+    };
+  case el::ValueType::LazyMap:
+    return name == "entity" ? entityFieldTypes() : KeyTypes{};
+  default:
+    return KeyTypes{};
+  }
+}
+
+// the fields and the types of their values
+KeyTypes fieldTypes()
+{
+  return queryFields()
+         | std::views::transform(
+           kdl::unpack([](const auto& fieldName, const auto& field) {
+             return std::pair{fieldName, field.valueType};
+           }))
+         | kdl::ranges::to<kdl::flat_map>();
+}
+
+/**
+ * Returns the keys of the value of the given expression and the types of their values.
+ * They are known if the expression is a field, a key of a value whose keys are known, or
+ * a call of a built-in function, also in parentheses, and unknown otherwise.
+ */
+KeyTypes keyTypes(const el::ExpressionNode& expression)
+{
+  // the keys of the value that is stored under `key` in a value with `outerKeyTypes`
+  const auto keyTypesAt = [&](const KeyTypes& outerKeyTypes, const std::string& key) {
+    const auto iKey = outerKeyTypes.find(key);
+    return iKey != outerKeyTypes.end() ? keyTypes(key, iKey->second) : KeyTypes{};
+  };
+
+  return expression.accept(kdl::overload(
+    // a field is like a key of the object that the query is evaluated against
+    [&](const el::VariableExpression& v) {
+      return keyTypesAt(fieldTypes(), v.variableName);
+    },
+    [&](const el::UnaryExpression& u) {
+      return u.operation == el::UnaryOperation::Group ? keyTypes(u.operand) : KeyTypes{};
+    },
+    [&](const el::DotExpression& d) {
+      return keyTypesAt(keyTypes(d.operand), d.fieldName);
+    },
+    [&](const el::CallExpression& c) {
+      // the result of a call isn't stored under a name
+      return c.cachedFunction ? keyTypes("", c.cachedFunction->resultType) : KeyTypes{};
+    },
+    [](const auto&) { return KeyTypes{}; }));
 }
 
 /**
@@ -201,6 +324,20 @@ std::vector<std::string> completionWords(const std::string_view text)
     // a closing delimiter doesn't match an open one, so the text isn't the beginning of a
     // valid query
     return {};
+  }
+
+  if (!tokens->empty() && tokens->back().type == el::ElToken::Dot)
+  {
+    // nothing but a name can follow a dot, so no other words are offered, and while any
+    // name is valid, which keys are useful depends on the value
+    return parseWithWord(text, "x", *closers)
+           | kdl::transform([&](const auto& expression) {
+               // the parser reads nothing but a dot access from a dot
+               const auto operand = dotAccessOperand(expression, tokens->back().location);
+               contract_assert(operand != std::nullopt);
+               return keyTypes(*operand).keys();
+             })
+           | kdl::value_or(std::vector<std::string>{});
   }
 
   if (isTypeNamePosition(text, *closers))
