@@ -858,7 +858,7 @@ void ScaleTool::pick3D(
 
 vm::bbox3d ScaleTool::bounds() const
 {
-  const auto& bounds = m_document.map().selectionBounds();
+  const auto bounds = mdl::transformationBounds(m_document.map());
   contract_assert(bounds != std::nullopt);
 
   return *bounds;
