@@ -210,7 +210,8 @@ el::ExpressionNode quoteTypeName(const el::ExpressionNode& expression)
     [&](const auto&) { return expression; }));
 }
 
-// see parseQuery's doc comment for where type names don't need quotes
+} // namespace
+
 el::ExpressionNode quoteTypeNames(const el::ExpressionNode& expression)
 {
   const auto withLocation = [&](auto quotedExpression) {
@@ -264,6 +265,9 @@ el::ExpressionNode quoteTypeNames(const el::ExpressionNode& expression)
       return withLocation(el::SwitchExpression{quoteAll(s.cases)});
     }));
 }
+
+namespace
+{
 
 // see parseQuery's doc comment for which expressions are treated as fuzzy text; the
 // given text is the trimmed text that the expression was parsed from
