@@ -21,7 +21,6 @@
 
 #include "vm/vec.h"
 
-#include <sstream>
 #include <utility>
 
 #include <catch2/catch_test_macros.hpp>
@@ -47,6 +46,21 @@ TEST_CASE("TextureBuffer")
     buffer.data()[0] = 42;
     CHECK(buffer.data()[0] == 42);
     CHECK(std::as_const(buffer).data()[0] == 42);
+  }
+
+  SECTION("operator==")
+  {
+    auto buffer = TextureBuffer{1u};
+    auto otherBuffer = TextureBuffer{1u};
+    buffer.data()[0] = 42;
+    otherBuffer.data()[0] = 42;
+
+    const auto& sameBuffer = buffer;
+
+    // buffers are compared by identity, not by contents
+    CHECK(buffer == sameBuffer);
+    CHECK(buffer != otherBuffer);
+    CHECK(TextureBuffer{} == TextureBuffer{});
   }
 }
 

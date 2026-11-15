@@ -23,14 +23,16 @@
 #include "fs/DiskFileSystem.h"
 #include "fs/DiskIO.h"
 #include "fs/WadFileSystem.h"
+#include "gl/Texture.h"
+#include "img/ImageAlphaDomain.h"
 #include "mdl/CatchConfig.h"
 #include "mdl/LoadMipTexture.h"
-#include "mdl/MaterialUtils.h"
 #include "mdl/Palette.h"
 
 #include "kd/result.h"
 
 #include <filesystem>
+#include <optional>
 #include <string>
 
 #include <catch2/catch_test_macros.hpp>
@@ -146,12 +148,25 @@ TEST_CASE("LoadMipTexture")
                  auto reader = textureFile->reader().buffer();
                  return loadIdMipTexture(reader, palette, isMasked);
                })
-             | kdl::transform([&](auto texture) {
+             | kdl::transform([&](const auto& texture) {
                  CHECK(
                    texture.alphaDomain()
                    == (isMasked ? img::ImageAlphaDomain::Binary : img::ImageAlphaDomain::Opaque));
                });
     }) | kdl::transform_error([](const auto& e) { FAIL(e); });
+  }
+
+  SECTION("loadIdMipTexture returns an error if the palette is missing")
+  {
+    const auto wadPath = getFixtureRoot() / "test/mdl/LoadMipTexture/cr8_czg.wad";
+    auto wadFS = fs::WadFileSystem{fs::Disk::openFile(wadPath) | kdl::value()};
+    REQUIRE(wadFS.reload());
+
+    const auto file = wadFS.openFile("cr8_czg_1.D") | kdl::value();
+    auto reader = file->reader().buffer();
+    CHECK(
+      loadIdMipTexture(reader, std::nullopt, false)
+      == Result<gl::Texture>{Error{"Missing palette"}});
   }
 
   SECTION("loadHlMipTexture")

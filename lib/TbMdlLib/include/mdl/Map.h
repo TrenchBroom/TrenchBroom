@@ -27,6 +27,7 @@
 #include "mdl/ExportOptions.h"
 #include "mdl/NodeHandleManager.h"
 #include "mdl/NodeIndex.h"
+#include "mdl/Palette.h"
 #include "mdl/Selection.h"
 
 #include "vm/bbox.h"
@@ -101,6 +102,9 @@ private:
   const GameInfo& m_gameInfo;
   std::filesystem::path m_gamePath;
   std::unique_ptr<GameFileSystem> m_gameFileSystem;
+
+  // the palette is shared by the materials and the entity models
+  std::optional<Palette> m_palette;
 
   kdl::task_manager& m_taskManager;
   gl::ResourceManager& m_resourceManager;
@@ -362,6 +366,7 @@ private: // Asset management
 
 private:
   void updateGameFileSystem();
+  void reloadPalette();
 
 public: // command processing
   bool canUndoCommand() const;

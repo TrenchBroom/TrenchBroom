@@ -50,15 +50,10 @@ Result<gl::Texture> loadTexture(
 {
   if (isIdMipTexture(path))
   {
-    if (!palette)
-    {
-      return Error{"Palette is required for mip textures"};
-    }
-
     return fs.openFile(path) | kdl::and_then([&](auto file) {
              auto reader = file->reader().buffer();
              const auto isMasked = isMaskedTextureName(name);
-             return loadIdMipTexture(reader, *palette, isMasked);
+             return loadIdMipTexture(reader, palette, isMasked);
            });
   }
   else if (isHlMipTexture(path))

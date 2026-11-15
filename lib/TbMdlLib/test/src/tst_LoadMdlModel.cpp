@@ -18,6 +18,7 @@
  */
 
 #include "TestEnvironment.h"
+#include "TestLogger.h"
 #include "base/Logger.h"
 #include "fs/DiskFileSystem.h"
 #include "fs/DiskIO.h"
@@ -31,6 +32,13 @@
 
 #include "kd/result.h"
 
+#include "vm/bbox.h"
+#include "vm/bbox_io.h" // IWYU pragma: keep
+#include "vm/vec.h"
+#include "vm/vec_io.h" // IWYU pragma: keep
+
+#include <optional>
+
 #include <catch2/catch_test_macros.hpp>
 
 namespace tb::mdl
@@ -38,7 +46,7 @@ namespace tb::mdl
 
 TEST_CASE("loadMdlModel")
 {
-  auto logger = NullLogger{};
+  auto logger = TestLogger{};
 
   const auto palettePath = "palette.lmp";
   auto fs = fs::DiskFileSystem{getFixtureRoot() / "test/mdl/LoadMdlModel"};
@@ -76,6 +84,46 @@ TEST_CASE("loadMdlModel")
       | kdl::transform_error([](const auto& e) { FAIL(e); });
   }
 
+  SECTION("missing palette")
+  {
+    const auto mdlPath = getFixtureRoot() / "test/mdl/LoadMdlModel/armor.mdl";
+    const auto mdlFile = fs::Disk::openFile(mdlPath) | kdl::value();
+
+    auto reader = mdlFile->reader().buffer();
+    const auto expectedBounds = loadMdlModel("armor", reader, palette, fs, logger)
+                                | kdl::transform([](const auto& modelData) {
+                                    return modelData.frames().front().bounds();
+                                  })
+                                | kdl::value();
+
+    loadMdlModel("armor", reader, std::nullopt, fs, logger)
+      | kdl::transform([&](const auto& modelData) {
+          CHECK(modelData.surfaceCount() == 1u);
+          CHECK(modelData.frameCount() == 1u);
+
+          const auto& surfaces = modelData.surfaces();
+          const auto& surface = surfaces.front();
+          REQUIRE(surface.skinCount() == 3u);
+          CHECK(surface.frameCount() == 1u);
+
+          // the skins get the default texture, which has pixel data unlike the empty
+          // texture that replaces it if it cannot be loaded
+          for (size_t i = 0; i < surface.skinCount(); ++i)
+          {
+            const auto* texture = surface.skin(i)->texture();
+            CHECK(texture->width() == 32u);
+            CHECK(!texture->buffersIfLoaded().empty());
+          }
+
+          // the frame is only parsed correctly if the skin data was skipped correctly
+          CHECK(modelData.frames().front().bounds() == expectedBounds);
+        })
+      | kdl::transform_error([](const auto& e) { FAIL(e); });
+
+    // each skin that requires the missing palette is reported
+    CHECK(logger.countMessages(LogLevel::Error) == 3);
+  }
+
   SECTION("skin groups")
   {
     // a 2x2 model with an empty skin group, a skin group with two pictures and a single
@@ -107,6 +155,34 @@ TEST_CASE("loadMdlModel")
               == vm::bbox3f{vm::vec3f{1, 2, 3}, vm::vec3f{7, 8, 9}});
           })
         | kdl::transform_error([](const auto& e) { FAIL(e); });
+    }
+
+    SECTION("missing palette")
+    {
+      loadMdlModel("skin_groups", reader, std::nullopt, fs, logger)
+        | kdl::transform([](const auto& modelData) {
+            const auto& surface = modelData.surfaces().front();
+            REQUIRE(surface.skinCount() == 3u);
+
+            // all skins get the default texture
+            for (size_t i = 0; i < surface.skinCount(); ++i)
+            {
+              const auto* texture = surface.skin(i)->texture();
+              CHECK(texture->width() == 32u);
+              CHECK(!texture->buffersIfLoaded().empty());
+            }
+
+            REQUIRE(modelData.frameCount() == 1u);
+            CHECK(modelData.frames().front().name() == "frame");
+            CHECK(
+              modelData.frames().front().bounds()
+              == vm::bbox3f{vm::vec3f{1, 2, 3}, vm::vec3f{7, 8, 9}});
+          })
+        | kdl::transform_error([](const auto& e) { FAIL(e); });
+
+      // only the skins that require the missing palette are reported, but not the empty
+      // skin group
+      CHECK(logger.countMessages(LogLevel::Error) == 2);
     }
   }
 

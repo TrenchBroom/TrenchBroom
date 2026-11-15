@@ -77,7 +77,13 @@ TEST_CASE("loadAseModel")
 
     const auto loadMaterial = [&](const auto& materialPath) {
       return mdl::loadMaterial(
-               fs, materialConfig, materialPath, createResource, shaders, std::nullopt)
+               fs,
+               materialConfig,
+               materialPath,
+               createResource,
+               shaders,
+               std::nullopt,
+               logger)
              | kdl::or_else(makeReadMaterialErrorHandler(fs, logger)) | kdl::value();
     };
 
@@ -118,7 +124,13 @@ TEST_CASE("loadAseModel")
 
     const auto loadMaterial = [&](const auto& materialPath) {
       return mdl::loadMaterial(
-               fs, materialConfig, materialPath, createResource, shaders, std::nullopt)
+               fs,
+               materialConfig,
+               materialPath,
+               createResource,
+               shaders,
+               std::nullopt,
+               logger)
              | kdl::or_else(makeReadMaterialErrorHandler(fs, logger)) | kdl::value();
     };
 
@@ -148,7 +160,13 @@ TEST_CASE("loadAseModel")
 
     const auto loadMaterial = [&](const auto& materialPath) {
       return mdl::loadMaterial(
-               fs, materialConfig, materialPath, createResource, shaders, std::nullopt)
+               fs,
+               materialConfig,
+               materialPath,
+               createResource,
+               shaders,
+               std::nullopt,
+               logger)
              | kdl::or_else(makeReadMaterialErrorHandler(fs, logger)) | kdl::value();
     };
 
@@ -193,7 +211,8 @@ TEST_CASE("loadAseModel")
                  materialPath,
                  createResource,
                  shaders,
-                 std::nullopt)
+                 std::nullopt,
+                 logger)
                | kdl::or_else(makeReadMaterialErrorHandler(regressionFs, logger))
                | kdl::value();
       };
@@ -223,7 +242,8 @@ TEST_CASE("loadAseModel")
                  materialPath,
                  createResource,
                  shaders,
-                 std::nullopt)
+                 std::nullopt,
+                 logger)
                | kdl::or_else(makeReadMaterialErrorHandler(regressionFs, logger))
                | kdl::value();
       };
@@ -254,7 +274,8 @@ TEST_CASE("loadAseModel")
                  materialPath,
                  createResource,
                  shaders,
-                 std::nullopt)
+                 std::nullopt,
+                 logger)
                | kdl::or_else(makeReadMaterialErrorHandler(regressionFs, logger))
                | kdl::value();
       };

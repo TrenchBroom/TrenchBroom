@@ -20,8 +20,10 @@
 #pragma once
 
 #include "base/Result.h"
+#include "mdl/Palette.h"
 
 #include <filesystem>
+#include <optional>
 #include <string>
 
 namespace tb
@@ -38,7 +40,6 @@ class Reader;
 
 namespace mdl
 {
-class Palette;
 
 std::string readMipTextureName(fs::Reader& reader);
 
@@ -47,7 +48,7 @@ bool isHlMipTexture(const std::filesystem::path& path);
 bool isMipTexture(const std::filesystem::path& path);
 
 Result<gl::Texture> loadIdMipTexture(
-  fs::Reader& reader, const Palette& palette, bool isMasked);
+  fs::Reader& reader, const std::optional<Palette>& palette, bool isMasked);
 
 Result<gl::Texture> loadHlMipTexture(fs::Reader& reader, bool isMasked);
 

@@ -40,12 +40,14 @@ namespace tb::mdl
 EntityModelManager::EntityModelManager(
   const GameInfo& gameInfo,
   const fs::FileSystem& gameFileSystem,
+  std::optional<Palette> palette,
   CreateEntityModelDataResource createResource,
   Logger& logger)
   : m_gameInfo{gameInfo}
   , m_gameFileSystem{gameFileSystem}
   , m_createResource{std::move(createResource)}
   , m_logger{logger}
+  , m_palette{std::move(palette)}
 {
 }
 
@@ -75,6 +77,11 @@ void EntityModelManager::reloadShaders(kdl::task_manager& taskManager)
     | kdl::if_error(
       [&](const auto& e) { m_logger.error() << "Failed to reload shaders: " << e.msg; })
     | kdl::value_or(std::vector<Quake3Shader>{});
+}
+
+void EntityModelManager::setPalette(std::optional<Palette> palette)
+{
+  m_palette = std::move(palette);
 }
 
 gl::MaterialRenderer* EntityModelManager::renderer(const ModelSpecification& spec) const
@@ -175,26 +182,23 @@ Result<EntityModel> EntityModelManager::loadModel(
   const std::filesystem::path& modelPath) const
 {
   // This function is called by the model loader, possibly after this function has
-  // returned, so it must not capture any locals.
-  const auto loadMaterial = [this](const auto& materialPath) {
-    return mdl::loadMaterial(
-             m_gameFileSystem,
-             m_gameInfo.gameConfig.materialConfig,
-             materialPath,
-             gl::createResourceSync<gl::Texture>,
-             m_shaders,
-             std::nullopt)
-           | kdl::or_else(makeReadMaterialErrorHandler(m_gameFileSystem, m_logger))
-           | kdl::value();
-  };
+  // returned, so it must not capture any locals by reference.
+  const auto loadMaterial =
+    LoadMaterialFunc{[this, palette = m_palette](const auto& materialPath) {
+      return mdl::loadMaterial(
+               m_gameFileSystem,
+               m_gameInfo.gameConfig.materialConfig,
+               materialPath,
+               gl::createResourceSync<gl::Texture>,
+               m_shaders,
+               palette,
+               m_logger)
+             | kdl::or_else(makeReadMaterialErrorHandler(m_gameFileSystem, m_logger))
+             | kdl::value();
+    }};
 
   return mdl::loadEntityModelAsync(
-    m_gameFileSystem,
-    m_gameInfo.gameConfig.materialConfig,
-    modelPath,
-    loadMaterial,
-    m_createResource,
-    m_logger);
+    m_gameFileSystem, m_palette, modelPath, loadMaterial, m_createResource, m_logger);
 }
 
 void EntityModelManager::prepare(gl::Gl& gl, gl::VboManager& vboManager)

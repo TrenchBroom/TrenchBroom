@@ -19,6 +19,7 @@
 
 #include "mdl/LoadSpriteModel.h"
 
+#include "base/Logger.h"
 #include "base/Macros.h"
 #include "fs/ReaderException.h"
 #include "gl/IndexRangeMap.h"
@@ -37,7 +38,7 @@ namespace
 
 struct SprPicture
 {
-  gl::Material material;
+  Result<gl::Material> material;
   int x;
   int y;
   size_t width;
@@ -45,16 +46,24 @@ struct SprPicture
 };
 
 SprPicture parsePicture(
-  fs::Reader& reader, const Palette& palette, const img::ImageAlphaDomain alphaDomain)
+  fs::Reader& reader,
+  const std::optional<Palette>& palette,
+  const img::ImageAlphaDomain alphaDomain)
 {
   const auto xOffset = reader.readInt<int32_t>();
   const auto yOffset = reader.readInt<int32_t>();
   const auto width = reader.readSize<int32_t>();
   const auto height = reader.readSize<int32_t>();
 
+  if (!palette)
+  {
+    reader.seekForward(width * height);
+    return SprPicture{Error{"Missing palette"}, xOffset, yOffset, width, height};
+  }
+
   auto rgbaImage = gl::TextureBuffer{4 * width * height};
   auto averageColor = Color{RgbaF{}};
-  palette.indexedToRgba(
+  palette->indexedToRgba(
     reader,
     width * height,
     rgbaImage,
@@ -83,7 +92,7 @@ void skipPicture(fs::Reader& reader)
 
 SprPicture parsePictureFrame(
   fs::Reader& reader,
-  const Palette& palette,
+  const std::optional<Palette>& palette,
   const img::ImageAlphaDomain alphaDomain,
   const fs::FileSystem& fs,
   Logger& logger)
@@ -203,11 +212,11 @@ std::vector<unsigned char> processGoldsourcePalette(
   return processed;
 }
 
-Result<Palette> parseEmbeddedPalette(
+Result<std::optional<Palette>> parseEmbeddedPalette(
   fs::Reader& reader,
   const RenderMode renderMode,
   const int version,
-  const Palette& defaultPalette)
+  const std::optional<Palette>& defaultPalette)
 {
   if (version != 2)
   {
@@ -223,7 +232,8 @@ Result<Palette> parseEmbeddedPalette(
   auto data = std::vector<unsigned char>(paletteSize * 3);
   reader.read(data.data(), data.size());
   data = processGoldsourcePalette(renderMode, data);
-  return makePalette(data, PaletteColorFormat::Rgba);
+  return makePalette(data, PaletteColorFormat::Rgba)
+         | kdl::transform([](auto palette) { return std::optional{std::move(palette)}; });
 }
 
 /**
@@ -346,7 +356,7 @@ bool canLoadSpriteModel(const std::filesystem::path& path, fs::Reader reader)
 Result<EntityModelData> loadSpriteModel(
   const std::string& name,
   fs::Reader reader,
-  const Palette& palette,
+  const std::optional<Palette>& palette,
   const fs::FileSystem& fs,
   Logger& logger)
 {
@@ -397,7 +407,14 @@ Result<EntityModelData> loadSpriteModel(
                        {
                          auto pictureFrame = parsePictureFrame(
                            reader, embeddedPalette, alphaDomain, fs, logger);
-                         materials.push_back(std::move(pictureFrame.material));
+                         materials.push_back(
+                           std::move(pictureFrame.material)
+                           | kdl::transform_error([&](const auto& e) {
+                               logger.error() << "Could not load frame " << i
+                                              << " of sprite '" << name << "': " << e.msg;
+                               return loadDefaultMaterial(fs, "", logger);
+                             })
+                           | kdl::value());
 
                          const auto w = static_cast<float>(pictureFrame.width);
                          const auto h = static_cast<float>(pictureFrame.height);

@@ -249,7 +249,7 @@ auto parseMeshes(fs::Reader reader, const size_t /* commandCount */)
 void loadSkins(
   EntityModelSurface& surface,
   const std::vector<std::string>& skins,
-  const Palette& palette,
+  const std::optional<Palette>& palette,
   const fs::FileSystem& fs,
   Logger& logger)
 {
@@ -346,7 +346,7 @@ bool canLoadMd2Model(const std::filesystem::path& path, fs::Reader reader)
 Result<EntityModelData> loadMd2Model(
   std::string name,
   fs::Reader reader,
-  const Palette& palette,
+  const std::optional<Palette>& palette,
   const fs::FileSystem& fs,
   Logger& logger)
 {

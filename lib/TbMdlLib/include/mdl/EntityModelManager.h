@@ -23,11 +23,13 @@
 #include "gl/ResourceId.h"
 #include "mdl/EntityModel.h"
 #include "mdl/ModelSpecification.h"
+#include "mdl/Palette.h"
 
 #include "kd/path_hash.h"
 
 #include <filesystem>
 #include <memory>
+#include <optional>
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
@@ -75,6 +77,9 @@ private:
   // Cache Quake 3 shaders to use when loading models
   std::vector<Quake3Shader> m_shaders;
 
+  // The palette to use when loading models
+  std::optional<Palette> m_palette;
+
   mutable std::unordered_map<std::filesystem::path, EntityModel, kdl::path_hash> m_models;
   mutable std::unordered_map<ModelSpecification, std::unique_ptr<gl::MaterialRenderer>>
     m_renderers;
@@ -86,12 +91,14 @@ public:
   EntityModelManager(
     const GameInfo& gameInfo,
     const fs::FileSystem& gameFilesystem,
+    std::optional<Palette> palette,
     CreateEntityModelDataResource createResource,
     Logger& logger);
   ~EntityModelManager();
 
   void clear();
   void reloadShaders(kdl::task_manager& taskManager);
+  void setPalette(std::optional<Palette> palette);
 
   gl::MaterialRenderer* renderer(const ModelSpecification& spec) const;
 

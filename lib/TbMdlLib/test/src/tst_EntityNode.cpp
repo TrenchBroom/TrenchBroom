@@ -209,9 +209,10 @@ TEST_CASE("EntityNode")
       throw std::runtime_error{"should not be called"};
     };
 
-    auto model = loadEntityModelSync(
-                   fs, gameInfo.gameConfig.materialConfig, path, loadMaterial, logger)
-                   .value();
+    const auto palette =
+      mdl::loadPalette(fs, gameInfo.gameConfig.materialConfig.palette) | kdl::value();
+
+    auto model = loadEntityModelSync(fs, palette, path, loadMaterial, logger).value();
 
     auto entityNode = EntityNode{Entity{}};
     entityNode.setModel(&model);
