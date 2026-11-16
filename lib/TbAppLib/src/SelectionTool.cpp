@@ -461,23 +461,17 @@ bool SelectionTool::mouseDoubleClick(const InputState& inputState)
           const auto* node = mdl::hitToNode(hit);
           if (editorContext.selectable(*node))
           {
+            auto transaction = mdl::Transaction{map, "Select Brushes"};
+
             const auto* container = node->parent();
             const auto siblings = collectSelectableChildren(editorContext, container);
-            if (isMultiClick(inputState))
+            if (!isMultiClick(inputState) || map.selection().hasBrushFaces())
             {
-              if (map.selection().hasBrushFaces())
-              {
-                deselectAll(map);
-              }
-              selectNodes(map, siblings);
-            }
-            else
-            {
-              auto transaction = mdl::Transaction{map, "Select Brushes"};
               deselectAll(map);
-              selectNodes(map, siblings);
-              transaction.commit();
             }
+            selectNodes(map, siblings);
+
+            transaction.commit();
           }
         }
       }
