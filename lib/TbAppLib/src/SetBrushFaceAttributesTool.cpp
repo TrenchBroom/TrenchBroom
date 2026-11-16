@@ -357,7 +357,7 @@ public:
 };
 } // namespace
 
-std::unique_ptr<GestureTracker> SetBrushFaceAttributesTool::acceptMouseDrag(
+std::unique_ptr<GestureTracker> SetBrushFaceAttributesTool::doAcceptMouseDrag(
   const InputState& inputState)
 {
   if (!applies(inputState))

@@ -58,6 +58,7 @@
 #include "kd/task_manager.h"
 #include "kd/vector_utils.h"
 
+#include <algorithm>
 #include <ranges>
 
 namespace tb::mdl
@@ -72,6 +73,13 @@ bool transformSelection(
   {
     const auto selectedVertexPositions =
       VertexHandle::getPositions(map.nodeHandles().selectedHandles<VertexHandle>());
+    const auto isMoved = [&](const auto& position) {
+      return !vm::is_equal(transformation * position, position, vm::Cd::almost_zero());
+    };
+    if (!std::ranges::any_of(selectedVertexPositions, isMoved))
+    {
+      return true;
+    }
     return transformVertices(map, selectedVertexPositions, transformation).success;
   }
 
@@ -226,6 +234,47 @@ bool flipSelection(mdl::Map& map, const vm::vec3d& center, const vm::axis::type 
                               * vm::mirror_matrix<double>(axis)
                               * vm::translation_matrix(-center);
   return transformSelection(map, "Flip Objects", transformation);
+}
+
+std::optional<vm::bbox3d> transformationBounds(const Map& map)
+{
+  const auto& selectionBounds = map.selectionBounds();
+  if (!selectionBounds || !map.nodeHandles().anyHandleSelected<VertexHandle>())
+  {
+    return selectionBounds;
+  }
+
+  const auto vertexPositions =
+    VertexHandle::getPositions(map.nodeHandles().selectedHandles<VertexHandle>());
+  auto bounds = *vm::bbox3d::build(vertexPositions);
+
+  const auto containsSelectedVertex = [&](const BrushNode* brushNode) {
+    return std::ranges::any_of(vertexPositions, [&](const auto& position) {
+      return brushNode->brush().hasVertex(position);
+    });
+  };
+  const auto brushBounds =
+    vm::bbox3d::build(
+      map.selection().brushes | std::views::filter(containsSelectedVertex)
+      | std::views::transform(&BrushNode::logicalBounds))
+      .value_or(*selectionBounds);
+
+  for (size_t i = 0; i < 3; ++i)
+  {
+    if (vm::is_zero(bounds.size()[i], vm::Cd::almost_zero()))
+    {
+      if (bounds.min[i] - brushBounds.min[i] >= brushBounds.max[i] - bounds.max[i])
+      {
+        bounds.min[i] = brushBounds.min[i];
+      }
+      else
+      {
+        bounds.max[i] = brushBounds.max[i];
+      }
+    }
+  }
+
+  return bounds;
 }
 
 

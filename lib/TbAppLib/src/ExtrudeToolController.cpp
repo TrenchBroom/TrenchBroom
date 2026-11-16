@@ -627,7 +627,7 @@ auto createStampDragTracker(
 }
 } // namespace
 
-std::unique_ptr<GestureTracker> ExtrudeToolController::acceptMouseDrag(
+std::unique_ptr<GestureTracker> ExtrudeToolController::doAcceptMouseDrag(
   const InputState& inputState)
 {
   using namespace mdl::HitFilters;

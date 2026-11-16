@@ -61,7 +61,8 @@ private:
 
   void mouseMove(const InputState& inputState) override;
 
-  std::unique_ptr<GestureTracker> acceptMouseDrag(const InputState& inputState) override;
+  std::unique_ptr<GestureTracker> doAcceptMouseDrag(
+    const InputState& inputState) override;
 
   void setRenderOptions(
     const InputState& inputState, render::RenderContext& renderContext) const override;
@@ -72,11 +73,6 @@ private:
     render::RenderBatch& renderBatch) override;
 
   bool cancel() override;
-
-private:
-  void renderBox(render::RenderContext& renderContext, render::RenderBatch& renderBatch);
-  void renderHandle(
-    render::RenderContext& renderContext, render::RenderBatch& renderBatch);
 };
 
 class ShearToolController2D : public ShearToolController

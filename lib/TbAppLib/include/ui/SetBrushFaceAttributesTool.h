@@ -59,7 +59,8 @@ private:
 
   bool cancel() override;
 
-  std::unique_ptr<GestureTracker> acceptMouseDrag(const InputState& inputState) override;
+  std::unique_ptr<GestureTracker> doAcceptMouseDrag(
+    const InputState& inputState) override;
 
   void copyAttributesFromSelection(const InputState& inputState, bool applyToBrush);
   bool canCopyAttributesFromSelection(const InputState& inputState) const;

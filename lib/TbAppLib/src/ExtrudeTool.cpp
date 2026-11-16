@@ -639,7 +639,6 @@ const mdl::HitType::Type ExtrudeTool::ExtrudeHitType = mdl::HitType::freeType();
 ExtrudeTool::ExtrudeTool(MapDocument& document)
   : Tool{true}
   , m_document{document}
-  , m_dragging{false}
 {
   connectObservers();
 }
@@ -783,7 +782,7 @@ void ExtrudeTool::updateProposedDragHandles(const mdl::PickResult& pickResult)
   using namespace mdl::HitFilters;
 
   auto& map = m_document.map();
-  if (m_dragging)
+  if (gestureInProgress())
   {
     // FIXME: this should be turned into an ensure failure, but it's easy to make it
     // fail currently by spamming drags/modifiers. Indicates a bug in
@@ -827,16 +826,11 @@ std::vector<mdl::BrushFaceHandle> ExtrudeTool::getDragFaces(
  */
 void ExtrudeTool::beginExtrude()
 {
-  contract_pre(!m_dragging);
-
-  m_dragging = true;
   m_document.map().startTransaction("Resize Brushes", mdl::TransactionScope::LongRunning);
 }
 
 bool ExtrudeTool::extrude(const vm::vec3d& handleDelta, ExtrudeDragState& dragState)
 {
-  contract_pre(m_dragging);
-
   auto& map = m_document.map();
   if (dragState.splitBrushes)
   {
@@ -870,16 +864,11 @@ bool ExtrudeTool::extrude(const vm::vec3d& handleDelta, ExtrudeDragState& dragSt
 
 void ExtrudeTool::beginSlide()
 {
-  contract_pre(!m_dragging);
-
-  m_dragging = true;
   m_document.map().startTransaction("Slide Faces", mdl::TransactionScope::LongRunning);
 }
 
 bool ExtrudeTool::slide(const vm::vec3d& delta, ExtrudeDragState& dragState)
 {
-  contract_pre(m_dragging);
-
   auto& map = m_document.map();
   map.rollbackTransaction();
   if (
@@ -905,24 +894,17 @@ bool ExtrudeTool::slide(const vm::vec3d& delta, ExtrudeDragState& dragState)
 
 void ExtrudeTool::beginStamp()
 {
-  contract_pre(!m_dragging);
-
-  m_dragging = true;
   m_document.map().startTransaction("Stamp Brush", mdl::TransactionScope::LongRunning);
 }
 
 bool ExtrudeTool::stamp(const vm::vec3d& handleDelta, ExtrudeDragState& dragState)
 {
-  contract_pre(m_dragging);
-
   auto& map = m_document.map();
   return stampBrushes(map, handleDelta, dragState);
 }
 
 void ExtrudeTool::commit(const ExtrudeDragState& dragState)
 {
-  contract_pre(m_dragging);
-
   auto& map = m_document.map();
   if (vm::is_zero(dragState.totalDelta, vm::Cd::almost_zero()))
   {
@@ -933,16 +915,12 @@ void ExtrudeTool::commit(const ExtrudeDragState& dragState)
     map.commitTransaction();
   }
   m_proposedDragHandles.clear();
-  m_dragging = false;
 }
 
 void ExtrudeTool::cancel()
 {
-  contract_pre(m_dragging);
-
   m_document.map().cancelTransaction();
   m_proposedDragHandles.clear();
-  m_dragging = false;
 }
 
 void ExtrudeTool::connectObservers()
@@ -957,7 +935,7 @@ void ExtrudeTool::connectObservers()
 
 void ExtrudeTool::clearDragHandlesIfNotDragging()
 {
-  if (!m_dragging)
+  if (!gestureInProgress())
   {
     m_proposedDragHandles.clear();
   }

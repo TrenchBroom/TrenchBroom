@@ -18,12 +18,15 @@ target_sources(TbAppLibTest
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_MoveHandleDragTracker.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_RotateTool.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_ScaleTool.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_ScaleToolController.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_SelectionTool.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_SetBrushFaceAttributesTool.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_ShearTool.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_ShearToolController.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_SweepTool.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_SweepToolUtils.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_ToolChain.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_ToolController.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_UvOffsetTool.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_UvOriginTool.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_UvRotateTool.cpp

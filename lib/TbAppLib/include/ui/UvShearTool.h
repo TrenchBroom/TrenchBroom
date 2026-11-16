@@ -50,7 +50,8 @@ private:
 
   void pick(const InputState& inputState, mdl::PickResult& pickResult) override;
 
-  std::unique_ptr<GestureTracker> acceptMouseDrag(const InputState& inputState) override;
+  std::unique_ptr<GestureTracker> doAcceptMouseDrag(
+    const InputState& inputState) override;
 
   bool cancel() override;
 };

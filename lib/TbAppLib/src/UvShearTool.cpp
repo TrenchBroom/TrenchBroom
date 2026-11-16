@@ -244,7 +244,8 @@ void UvShearTool::pick(const InputState& inputState, mdl::PickResult& pickResult
   }
 }
 
-std::unique_ptr<GestureTracker> UvShearTool::acceptMouseDrag(const InputState& inputState)
+std::unique_ptr<GestureTracker> UvShearTool::doAcceptMouseDrag(
+  const InputState& inputState)
 {
   using namespace mdl::HitFilters;
 

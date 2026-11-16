@@ -137,7 +137,7 @@ private:
     return !modifySelection && m_tool.deselectAll();
   }
 
-  std::unique_ptr<GestureTracker> acceptMouseDrag(const InputState& inputState) override
+  std::unique_ptr<GestureTracker> doAcceptMouseDrag(const InputState& inputState) override
   {
     if (
       !inputState.mouseButtonsPressed(MouseButtons::Left)
@@ -287,7 +287,7 @@ protected:
 
   const Tool& tool() const override { return m_tool; }
 
-  std::unique_ptr<GestureTracker> acceptMouseDrag(const InputState& inputState) override
+  std::unique_ptr<GestureTracker> doAcceptMouseDrag(const InputState& inputState) override
   {
     if (!shouldStartMove(inputState))
     {

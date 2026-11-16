@@ -92,9 +92,9 @@ TEST_CASE("SetBrushFaceAttributesTool")
   const auto brushBSideFaceIndex = *brushB->brush().findFace(vm::vec3d{1, 0, 0});
 
   auto tool = SetBrushFaceAttributesTool{document};
-  // mouseClick, mouseDoubleClick, acceptMouseDrag and cancel are private overrides of
-  // the public ToolController interface, so they must be called through the base
-  // class, just like the real dispatcher (ToolBoxConnector/ToolChain) does.
+  // mouseClick, mouseDoubleClick and cancel are private overrides of the public
+  // ToolController interface, so they must be called through the base class, just like
+  // the real dispatcher (ToolBoxConnector/ToolChain) does.
   auto& controller = static_cast<ToolController&>(tool);
 
   SECTION("cancel always returns false")

@@ -58,27 +58,6 @@ bool ShearTool::applies() const
   return m_document.map().selection().hasNodes();
 }
 
-void ShearTool::pickBackSides(
-  const vm::ray3d& pickRay, const gl::Camera& camera, mdl::PickResult& pickResult) const
-{
-  // select back sides. Used for both 2D and 3D.
-  if (pickResult.empty())
-  {
-    const auto result = pickBackSideOfBox(pickRay, camera, bounds());
-
-    // The hit point is the closest point on the pick ray to one of the edges of the face.
-    // For face dragging, we'll project the pick ray onto the line through this point and
-    // having the face normal.
-    contract_assert(result.pickedSideNormal != vm::vec3d(0, 0, 0));
-
-    pickResult.addHit(mdl::Hit{
-      ShearToolSideHitType,
-      result.distAlongRay,
-      vm::point_at_distance(pickRay, result.distAlongRay),
-      BBoxSide{result.pickedSideNormal}});
-  }
-}
-
 void ShearTool::pick2D(
   const vm::ray3d& pickRay, const gl::Camera& camera, mdl::PickResult& pickResult) const
 {
@@ -93,7 +72,7 @@ void ShearTool::pick2D(
   }
 
   auto localPickResult = mdl::PickResult{};
-  pickBackSides(pickRay, camera, localPickResult);
+  pickBackSides(pickRay, camera, myBounds, ShearToolSideHitType, localPickResult);
 
   if (!localPickResult.empty())
   {
@@ -133,7 +112,7 @@ void ShearTool::pick3D(
     }
   }
 
-  pickBackSides(pickRay, camera, localPickResult);
+  pickBackSides(pickRay, camera, myBounds, ShearToolSideHitType, localPickResult);
 
   if (!localPickResult.empty())
   {
@@ -143,38 +122,21 @@ void ShearTool::pick3D(
 
 vm::bbox3d ShearTool::bounds() const
 {
-  const auto& bounds = m_document.map().selectionBounds();
+  const auto bounds = mdl::transformationBounds(m_document.map());
   contract_assert(bounds != std::nullopt);
 
   return *bounds;
 }
 
-// for rendering sheared bbox
-vm::bbox3d ShearTool::bboxAtDragStart() const
+void ShearTool::beginShear()
 {
-  return m_resizing ? m_bboxAtDragStart : bounds();
-}
-
-void ShearTool::startShearWithHit(const mdl::Hit& hit)
-{
-  contract_pre(hit.isMatch());
-  contract_pre(hit.type() == ShearToolSideHitType);
-  contract_pre(!m_resizing);
-
-  m_bboxAtDragStart = bounds();
-  m_dragStartHit = hit;
-  m_dragCumulativeDelta = vm::vec3d{0, 0, 0};
-
   m_document.map().startTransaction("Shear Objects", mdl::TransactionScope::LongRunning);
-  m_resizing = true;
 }
 
-void ShearTool::commitShear()
+void ShearTool::commitShear(const ShearDragState& dragState)
 {
-  contract_pre(m_resizing);
-
   auto& map = m_document.map();
-  if (vm::is_zero(m_dragCumulativeDelta, vm::Cd::almost_zero()))
+  if (vm::is_zero(dragState.totalDelta, vm::Cd::almost_zero()))
   {
     map.cancelTransaction();
   }
@@ -182,62 +144,40 @@ void ShearTool::commitShear()
   {
     map.commitTransaction();
   }
-  m_resizing = false;
 }
 
 void ShearTool::cancelShear()
 {
-  contract_pre(m_resizing);
-
   m_document.map().cancelTransaction();
-  m_resizing = false;
 }
 
-void ShearTool::shearByDelta(const vm::vec3d& delta)
+bool ShearTool::shearByDelta(const vm::vec3d& delta, ShearDragState& dragState)
 {
-  contract_pre(m_resizing);
+  auto& map = m_document.map();
+  const auto& bboxAtDragStart = dragState.bboxAtDragStart;
+  const auto& normal = dragState.side.normal;
+  const auto totalDelta = dragState.totalDelta + delta;
 
-  m_dragCumulativeDelta = m_dragCumulativeDelta + delta;
-
-  if (!vm::is_zero(delta, vm::Cd::almost_zero()))
+  map.rollbackTransaction();
+  if (!shearSelection(map, bboxAtDragStart, normal, totalDelta))
   {
-    const auto side = m_dragStartHit.target<BBoxSide>();
-    shearSelection(m_document.map(), bounds(), side.normal, delta);
-  }
-}
-
-const mdl::Hit& ShearTool::dragStartHit() const
-{
-  return m_dragStartHit;
-}
-
-vm::mat4x4d ShearTool::bboxShearMatrix() const
-{
-  // happens if you cmd+drag on an edge or corner
-  if (!m_resizing || m_dragStartHit.type() != ShearToolSideHitType)
-  {
-    return vm::mat4x4d::identity();
+    shearSelection(map, bboxAtDragStart, normal, dragState.totalDelta);
+    return false;
   }
 
-  const auto side = m_dragStartHit.target<BBoxSide>();
-  return vm::shear_bbox_matrix(m_bboxAtDragStart, side.normal, m_dragCumulativeDelta);
+  dragState.totalDelta = totalDelta;
+  return true;
 }
 
 std::optional<vm::polygon3f> ShearTool::shearHandle() const
 {
-  // happens if you cmd+drag on an edge or corner
-  if (m_dragStartHit.type() != ShearToolSideHitType)
+  if (m_pickedSide.type() != ShearToolSideHitType)
   {
     return std::nullopt;
   }
 
-  const auto side = m_dragStartHit.target<BBoxSide>();
-  // use the bboxAtDragStart() function so we get bounds() if we're not currently inside a
-  // drag.
-  const auto polyAtDragStart = polygonForBBoxSide(bboxAtDragStart(), side);
-
-  const auto handle = polyAtDragStart.transform(bboxShearMatrix());
-  return vm::polygon3f{handle};
+  const auto side = m_pickedSide.target<BBoxSide>();
+  return vm::polygon3f{polygonForBBoxSide(bounds(), side)};
 }
 
 void ShearTool::updatePickedSide(const mdl::PickResult& pickResult)
@@ -249,26 +189,15 @@ void ShearTool::updatePickedSide(const mdl::PickResult& pickResult)
   // extract the highlighted handle from the hit here, and only refresh views if it
   // changed
   if (
-    hit.type() == ShearToolSideHitType && m_dragStartHit.type() == ShearToolSideHitType
-    && hit.target<BBoxSide>() == m_dragStartHit.target<BBoxSide>())
+    hit.type() == ShearToolSideHitType && m_pickedSide.type() == ShearToolSideHitType
+    && hit.target<BBoxSide>() == m_pickedSide.target<BBoxSide>())
   {
     return;
   }
 
-  // hack for highlighting on mouseover
-  m_dragStartHit = hit;
+  m_pickedSide = hit;
 
   refreshViews();
-}
-
-bool ShearTool::constrainVertical() const
-{
-  return m_constrainVertical;
-}
-
-void ShearTool::setConstrainVertical(const bool constrainVertical)
-{
-  m_constrainVertical = constrainVertical;
 }
 
 } // namespace tb::ui

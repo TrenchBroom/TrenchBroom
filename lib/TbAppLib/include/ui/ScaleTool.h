@@ -203,6 +203,18 @@ vm::bbox3d moveBBoxForHit(
   const ProportionalAxes& proportional,
   AnchorPos anchor);
 
+/**
+ * Returns the sides of the given bbox that move when the side, edge, or corner handle
+ * identified by `hit` is dragged with the given proportional axes and anchor.
+ *
+ * Returns an empty vector if `hit` is not a side, edge, or corner hit.
+ */
+std::vector<vm::polygon3f> polygonsHighlightedByDrag(
+  const vm::bbox3d& bounds,
+  const mdl::Hit& hit,
+  const ProportionalAxes& proportional,
+  AnchorPos anchor);
+
 struct BackSide
 {
   double distAlongRay;
@@ -222,6 +234,49 @@ struct BackSide
 BackSide pickBackSideOfBox(
   const vm::ray3d& pickRay, const gl::Camera& camera, const vm::bbox3d& box);
 
+/**
+ * Adds a hit of the given type for the back side of the given bounds that the pick ray
+ * comes closest to, unless the given pick result already contains a hit.
+ */
+void pickBackSides(
+  const vm::ray3d& pickRay,
+  const gl::Camera& camera,
+  const vm::bbox3d& bounds,
+  mdl::HitType::Type hitType,
+  mdl::PickResult& pickResult);
+
+/**
+ * Picks the side, edge, and corner handles of the given bounds in a 3D view. If nothing
+ * is hit, picks a back side of the bounds.
+ */
+void pickBBoxHandles3D(
+  const vm::ray3d& pickRay,
+  const gl::Camera& camera,
+  const vm::bbox3d& bounds,
+  mdl::PickResult& pickResult);
+
+/**
+ * Returns the positions of the corner handles of the given bounds, or an empty vector if
+ * the bounds are empty.
+ */
+std::vector<vm::vec3d> cornerHandles(const vm::bbox3d& bounds);
+
+struct ScaleDragState
+{
+  /** The hit that identifies the side, edge, or corner being dragged. */
+  mdl::Hit dragStartHit;
+  /** The bounds of the selection when the drag started. */
+  vm::bbox3d bboxAtDragStart;
+  /** The anchor position of the drag. */
+  AnchorPos anchorPos = AnchorPos::Opposite;
+  /** The axes that are scaled proportionally. */
+  ProportionalAxes proportionalAxes = ProportionalAxes::None();
+  /** The total drag distance so far. */
+  vm::vec3d totalDelta = {0, 0, 0};
+  /** The box that the selection was last scaled to. */
+  vm::bbox3d bboxDuringDrag = bboxAtDragStart;
+};
+
 class ScaleTool : public Tool
 {
 public:
@@ -232,11 +287,8 @@ public:
 
 private:
   MapDocument& m_document;
-  bool m_resizing = false;
   AnchorPos m_anchorPos = AnchorPos::Opposite;
-  vm::bbox3d m_bboxAtDragStart;
-  mdl::Hit m_dragStartHit = mdl::Hit::NoHit;
-  vm::vec3d m_dragCumulativeDelta;
+  mdl::Hit m_pickedHandle = mdl::Hit::NoHit;
   ProportionalAxes m_proportionalAxes = ProportionalAxes::None();
 
 public:
@@ -245,13 +297,12 @@ public:
 
   const mdl::Grid& grid() const;
 
-  const mdl::Hit& dragStartHit() const;
+  /**
+   * Returns the handle that was picked by the last call to updatePickedHandle.
+   */
+  const mdl::Hit& pickedHandle() const;
   bool applies() const;
 
-  void pickBackSides(
-    const vm::ray3d& pickRay,
-    const gl::Camera& camera,
-    mdl::PickResult& pickResult) const;
   void pick2D(
     const vm::ray3d& pickRay,
     const gl::Camera& camera,
@@ -265,28 +316,6 @@ public:
   vm::bbox3d bounds() const;
 
 public:
-  std::vector<vm::polygon3f> polygonsHighlightedByDrag() const;
-
-  bool hasDragSide() const;
-  vm::polygon3f dragSide() const;
-
-  bool hasDragEdge() const;
-  vm::segment3f dragEdge() const;
-
-  bool hasDragCorner() const;
-  vm::vec3f dragCorner() const;
-
-  bool hasDragAnchor() const;
-  vm::vec3f dragAnchor() const;
-
-  /**
-   * Returns the bbox at the start of the drag. Only allowed to call while m_resizing is
-   * true.
-   */
-  vm::bbox3d bboxAtDragStart() const;
-
-  std::vector<vm::vec3d> cornerHandles() const;
-
   void updatePickedHandle(const mdl::PickResult& pickResult);
 
   void setAnchorPos(AnchorPos pos);
@@ -296,9 +325,16 @@ public:
   const ProportionalAxes& proportionalAxes() const;
 
 public:
-  void startScaleWithHit(const mdl::Hit& hit);
-  void scaleByDelta(const vm::vec3d& delta);
-  void commitScale();
+  void beginScale();
+
+  /**
+   * Scales the selection to the box given by the total delta of the given drag state
+   * plus the given delta. Returns false if the selection cannot be scaled to that box, in
+   * which case the selection and the drag state remain unchanged.
+   */
+  bool scaleByDelta(const vm::vec3d& delta, ScaleDragState& dragState);
+
+  void commitScale(const ScaleDragState& dragState);
   void cancelScale();
 };
 

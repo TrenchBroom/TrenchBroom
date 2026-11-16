@@ -375,7 +375,7 @@ void UvOriginTool::pick(const InputState& inputState, mdl::PickResult& pickResul
   }
 }
 
-std::unique_ptr<GestureTracker> UvOriginTool::acceptMouseDrag(
+std::unique_ptr<GestureTracker> UvOriginTool::doAcceptMouseDrag(
   const InputState& inputState)
 {
   using namespace mdl::HitFilters;

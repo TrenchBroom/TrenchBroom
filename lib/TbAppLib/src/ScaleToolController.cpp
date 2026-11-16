@@ -41,36 +41,46 @@
 
 #include <cassert>
 #include <ranges>
+#include <tuple>
 #include <utility>
 
 namespace tb::ui
 {
-ScaleToolController::ScaleToolController(ScaleTool& tool)
-  : m_tool{tool}
+namespace
 {
-}
 
-ScaleToolController::~ScaleToolController() = default;
-
-Tool& ScaleToolController::tool()
+std::pair<AnchorPos, ProportionalAxes> modifierSettingsForInputState(
+  const InputState& inputState)
 {
-  return m_tool;
-}
+  const auto centerAnchor = inputState.modifierKeysDown(ModifierKeys::Alt)
+                              ? AnchorPos::Center
+                              : AnchorPos::Opposite;
 
-const Tool& ScaleToolController::tool() const
-{
-  return m_tool;
-}
-
-void ScaleToolController::pick(const InputState& inputState, mdl::PickResult& pickResult)
-{
-  if (m_tool.applies())
+  auto scaleAllAxes = ProportionalAxes::None();
+  if (inputState.modifierKeysDown(ModifierKeys::Shift))
   {
-    doPick(inputState.pickRay(), inputState.camera(), pickResult);
+    scaleAllAxes = ProportionalAxes::All();
+
+    const auto& camera = inputState.camera();
+    if (camera.orthographicProjection())
+    {
+      // special case for 2D: don't scale along the axis of the camera
+      const size_t cameraComponent = vm::find_abs_max_component(camera.direction());
+      scaleAllAxes.setAxisProportional(cameraComponent, false);
+    }
   }
+
+  return {centerAnchor, scaleAllAxes};
 }
 
-static HandlePositionProposer makeHandlePositionProposer(
+std::tuple<vm::vec3d, vm::vec3d> getInitialHandlePositionAndHitPoint(
+  const vm::bbox3d& bboxAtDragStart, const mdl::Hit& dragStartHit)
+{
+  const auto handleLine = handleLineForHit(bboxAtDragStart, dragStartHit);
+  return {handleLine.get_origin(), dragStartHit.hitPoint()};
+}
+
+HandlePositionProposer makeHandlePositionProposer(
   const InputState& inputState,
   const mdl::Grid& grid,
   const mdl::Hit& dragStartHit,
@@ -101,162 +111,7 @@ static HandlePositionProposer makeHandlePositionProposer(
   }
 }
 
-static std::pair<AnchorPos, ProportionalAxes> modifierSettingsForInputState(
-  const InputState& inputState)
-{
-  const auto centerAnchor = inputState.modifierKeysDown(ModifierKeys::Alt)
-                              ? AnchorPos::Center
-                              : AnchorPos::Opposite;
-
-  auto scaleAllAxes = ProportionalAxes::None();
-  if (inputState.modifierKeysDown(ModifierKeys::Shift))
-  {
-    scaleAllAxes = ProportionalAxes::All();
-
-    const auto& camera = inputState.camera();
-    if (camera.orthographicProjection())
-    {
-      // special case for 2D: don't scale along the axis of the camera
-      const size_t cameraComponent = vm::find_abs_max_component(camera.direction());
-      scaleAllAxes.setAxisProportional(cameraComponent, false);
-    }
-  }
-
-  return {centerAnchor, scaleAllAxes};
-}
-
-void ScaleToolController::modifierKeyChange(const InputState& inputState)
-{
-  const auto [centerAnchor, scaleAllAxes] = modifierSettingsForInputState(inputState);
-
-  if ((centerAnchor != m_tool.anchorPos()) || (scaleAllAxes != m_tool.proportionalAxes()))
-  {
-    // update state
-    m_tool.setProportionalAxes(scaleAllAxes);
-    m_tool.setAnchorPos(centerAnchor);
-  }
-
-  // Mouse might be over a different handle now
-  m_tool.refreshViews();
-}
-
-void ScaleToolController::mouseMove(const InputState& inputState)
-{
-  if (m_tool.applies() && !inputState.anyToolDragging())
-  {
-    m_tool.updatePickedHandle(inputState.pickResult());
-  }
-}
-
-namespace
-{
-class ScaleDragDelegate : public HandleDragTrackerDelegate
-{
-private:
-  ScaleTool& m_tool;
-
-public:
-  explicit ScaleDragDelegate(ScaleTool& tool)
-    : m_tool{tool}
-  {
-  }
-
-  HandlePositionProposer start(
-    const InputState& inputState,
-    const vm::vec3d& /* initialHandlePosition */,
-    const vm::vec3d& handleOffset) override
-  {
-    // update modifier settings
-    const auto [centerAnchor, scaleAllAxes] = modifierSettingsForInputState(inputState);
-    m_tool.setAnchorPos(centerAnchor);
-    m_tool.setProportionalAxes(scaleAllAxes);
-
-    return makeHandlePositionProposer(
-      inputState,
-      m_tool.grid(),
-      m_tool.dragStartHit(),
-      m_tool.bboxAtDragStart(),
-      handleOffset);
-  }
-
-  std::optional<UpdateDragConfig> modifierKeyChange(
-    const InputState& inputState, const DragState& dragState) override
-  {
-    return UpdateDragConfig{
-      makeHandlePositionProposer(
-        inputState,
-        m_tool.grid(),
-        m_tool.dragStartHit(),
-        m_tool.bboxAtDragStart(),
-        dragState.handleOffset),
-      ResetInitialHandlePosition::Keep};
-  }
-
-  DragStatus update(
-    const InputState&,
-    const DragState& dragState,
-    const vm::vec3d& proposedHandlePosition) override
-  {
-    const auto delta = proposedHandlePosition - dragState.currentHandlePosition;
-    m_tool.scaleByDelta(delta);
-    return DragStatus::Continue;
-  }
-
-  void end(const InputState& inputState, const DragState&) override
-  {
-    m_tool.commitScale();
-
-    // The mouse is in a different place now so update the highlighted side
-    m_tool.updatePickedHandle(inputState.pickResult());
-  }
-
-  void cancel(const DragState&) override { m_tool.cancelScale(); }
-};
-} // namespace
-
-static std::tuple<vm::vec3d, vm::vec3d> getInitialHandlePositionAndHitPoint(
-  const vm::bbox3d& bboxAtDragStart, const mdl::Hit& dragStartHit)
-{
-  const auto handleLine = handleLineForHit(bboxAtDragStart, dragStartHit);
-  return {handleLine.get_origin(), dragStartHit.hitPoint()};
-}
-
-std::unique_ptr<GestureTracker> ScaleToolController::acceptMouseDrag(
-  const InputState& inputState)
-{
-  using namespace mdl::HitFilters;
-
-  if (!inputState.mouseButtonsPressed(MouseButtons::Left))
-  {
-    return nullptr;
-  }
-
-  if (!m_tool.applies())
-  {
-    return nullptr;
-  }
-
-  const auto& hit = inputState.pickResult().first(type(ScaleTool::AnyHitType));
-  if (!hit.isMatch())
-  {
-    return nullptr;
-  }
-
-  m_tool.startScaleWithHit(hit);
-
-  const auto [handlePosition, hitPoint] =
-    getInitialHandlePositionAndHitPoint(m_tool.bounds(), hit);
-  return createHandleDragTracker(
-    ScaleDragDelegate{m_tool}, inputState, handlePosition, hitPoint);
-}
-
-void ScaleToolController::setRenderOptions(
-  const InputState&, render::RenderContext& renderContext) const
-{
-  renderContext.setForceHideSelectionGuide();
-}
-
-static void renderBounds(
+void renderBounds(
   render::RenderContext& renderContext,
   render::RenderBatch& renderBatch,
   const vm::bbox3d& bounds)
@@ -266,7 +121,7 @@ static void renderBounds(
   renderService.renderBounds(vm::bbox3f{bounds});
 }
 
-static void renderCornerHandles(
+void renderCornerHandles(
   render::RenderContext& renderContext,
   render::RenderBatch& renderBatch,
   const std::vector<vm::vec3d>& corners)
@@ -280,7 +135,30 @@ static void renderCornerHandles(
   }
 }
 
-static void renderDragSideHighlights(
+std::vector<vm::vec3d> visibleCornerHandles(
+  const vm::bbox3d& bounds, const gl::Camera& camera)
+{
+  using namespace mdl::HitFilters;
+
+  const auto corners = cornerHandles(bounds);
+  if (!camera.perspectiveProjection())
+  {
+    return corners;
+  }
+
+  const auto isVisible = [&](const auto& corner) {
+    const auto ray = vm::ray3d{camera.pickRay(vm::vec3f{corner})};
+
+    auto pr = mdl::PickResult{};
+    pickBBoxHandles3D(ray, camera, bounds, pr);
+
+    return !pr.empty() && pr.all().front().type() == ScaleTool::CornerHitType;
+  };
+
+  return corners | std::views::filter(isVisible) | kdl::ranges::to<std::vector>();
+}
+
+void renderDragSideHighlights(
   render::RenderContext& renderContext,
   render::RenderBatch& renderBatch,
   const std::vector<vm::polygon3f>& sides)
@@ -310,7 +188,7 @@ static void renderDragSideHighlights(
   }
 }
 
-static void renderDragSide(
+void renderDragSide(
   render::RenderContext& renderContext,
   render::RenderBatch& renderBatch,
   const vm::polygon3f& side)
@@ -322,7 +200,7 @@ static void renderDragSide(
   renderService.renderPolygonOutline(side.vertices());
 }
 
-static void renderDragEdge(
+void renderDragEdge(
   render::RenderContext& renderContext,
   render::RenderBatch& renderBatch,
   const vm::segment3f& edge)
@@ -348,7 +226,7 @@ static void renderDragEdge(
   }
 }
 
-static void renderDragCorner(
+void renderDragCorner(
   render::RenderContext& renderContext,
   render::RenderBatch& renderBatch,
   const vm::vec3f& corner)
@@ -364,34 +242,224 @@ static void renderDragCorner(
   renderService.renderHandleHighlight(corner);
 }
 
-static std::vector<vm::vec3d> visibleCornerHandles(
-  const ScaleTool& tool, const gl::Camera& camera)
+void renderDragHighlights(
+  render::RenderContext& renderContext,
+  render::RenderBatch& renderBatch,
+  const vm::bbox3d& bounds,
+  const mdl::Hit& hit,
+  const ProportionalAxes& proportionalAxes,
+  const AnchorPos anchorPos)
+{
+  renderDragSideHighlights(
+    renderContext,
+    renderBatch,
+    polygonsHighlightedByDrag(bounds, hit, proportionalAxes, anchorPos));
+
+  if (hit.type() == ScaleTool::SideHitType)
+  {
+    const auto side = hit.target<BBoxSide>();
+    renderDragSide(
+      renderContext, renderBatch, vm::polygon3f{polygonForBBoxSide(bounds, side)});
+  }
+  else if (hit.type() == ScaleTool::EdgeHitType)
+  {
+    const auto edge = hit.target<BBoxEdge>();
+    renderDragEdge(
+      renderContext, renderBatch, vm::segment3f{pointsForBBoxEdge(bounds, edge)});
+  }
+  else if (hit.type() == ScaleTool::CornerHitType)
+  {
+    const auto corner = hit.target<BBoxCorner>();
+    renderDragCorner(
+      renderContext, renderBatch, vm::vec3f{pointForBBoxCorner(bounds, corner)});
+  }
+}
+
+void renderBoundsAndHandles(
+  render::RenderContext& renderContext,
+  render::RenderBatch& renderBatch,
+  const vm::bbox3d& bounds,
+  const mdl::Hit& hit,
+  const ProportionalAxes& proportionalAxes,
+  const AnchorPos anchorPos)
+{
+  if (!bounds.is_empty())
+  {
+    renderBounds(renderContext, renderBatch, bounds);
+    renderCornerHandles(
+      renderContext, renderBatch, visibleCornerHandles(bounds, renderContext.camera()));
+  }
+
+  renderDragHighlights(
+    renderContext, renderBatch, bounds, hit, proportionalAxes, anchorPos);
+}
+
+class ScaleDragDelegate : public HandleDragTrackerDelegate
+{
+private:
+  ScaleTool& m_tool;
+  ScaleDragState m_scaleDragState;
+
+public:
+  ScaleDragDelegate(ScaleTool& tool, ScaleDragState scaleDragState)
+    : m_tool{tool}
+    , m_scaleDragState{std::move(scaleDragState)}
+  {
+  }
+
+  HandlePositionProposer start(
+    const InputState& inputState,
+    const vm::vec3d& /* initialHandlePosition */,
+    const vm::vec3d& handleOffset) override
+  {
+    return makeHandlePositionProposer(
+      inputState,
+      m_tool.grid(),
+      m_scaleDragState.dragStartHit,
+      m_scaleDragState.bboxAtDragStart,
+      handleOffset);
+  }
+
+  std::optional<UpdateDragConfig> modifierKeyChange(
+    const InputState& inputState, const DragState& dragState) override
+  {
+    std::tie(m_scaleDragState.anchorPos, m_scaleDragState.proportionalAxes) =
+      modifierSettingsForInputState(inputState);
+
+    return UpdateDragConfig{
+      makeHandlePositionProposer(
+        inputState,
+        m_tool.grid(),
+        m_scaleDragState.dragStartHit,
+        m_scaleDragState.bboxAtDragStart,
+        dragState.handleOffset),
+      ResetInitialHandlePosition::Keep};
+  }
+
+  DragStatus update(
+    const InputState&,
+    const DragState& dragState,
+    const vm::vec3d& proposedHandlePosition) override
+  {
+    const auto delta = proposedHandlePosition - dragState.currentHandlePosition;
+    return m_tool.scaleByDelta(delta, m_scaleDragState) ? DragStatus::Continue
+                                                        : DragStatus::Deny;
+  }
+
+  void end(const InputState& inputState, const DragState&) override
+  {
+    m_tool.commitScale(m_scaleDragState);
+
+    // The mouse is in a different place now so update the highlighted side
+    m_tool.updatePickedHandle(inputState.pickResult());
+  }
+
+  void cancel(const DragState&) override { m_tool.cancelScale(); }
+
+  void render(
+    const InputState&,
+    const DragState&,
+    render::RenderContext& renderContext,
+    render::RenderBatch& renderBatch) const override
+  {
+    renderBoundsAndHandles(
+      renderContext,
+      renderBatch,
+      m_scaleDragState.bboxDuringDrag,
+      m_scaleDragState.dragStartHit,
+      m_scaleDragState.proportionalAxes,
+      m_scaleDragState.anchorPos);
+  }
+};
+
+} // namespace
+
+ScaleToolController::ScaleToolController(ScaleTool& tool)
+  : m_tool{tool}
+{
+}
+
+ScaleToolController::~ScaleToolController() = default;
+
+Tool& ScaleToolController::tool()
+{
+  return m_tool;
+}
+
+const Tool& ScaleToolController::tool() const
+{
+  return m_tool;
+}
+
+void ScaleToolController::pick(const InputState& inputState, mdl::PickResult& pickResult)
+{
+  if (m_tool.applies())
+  {
+    doPick(inputState.pickRay(), inputState.camera(), pickResult);
+  }
+}
+
+void ScaleToolController::modifierKeyChange(const InputState& inputState)
+{
+  const auto [centerAnchor, scaleAllAxes] = modifierSettingsForInputState(inputState);
+
+  if ((centerAnchor != m_tool.anchorPos()) || (scaleAllAxes != m_tool.proportionalAxes()))
+  {
+    // update state
+    m_tool.setProportionalAxes(scaleAllAxes);
+    m_tool.setAnchorPos(centerAnchor);
+  }
+
+  // Mouse might be over a different handle now
+  m_tool.refreshViews();
+}
+
+void ScaleToolController::mouseMove(const InputState& inputState)
+{
+  if (m_tool.applies() && !inputState.anyToolDragging())
+  {
+    m_tool.updatePickedHandle(inputState.pickResult());
+  }
+}
+
+std::unique_ptr<GestureTracker> ScaleToolController::doAcceptMouseDrag(
+  const InputState& inputState)
 {
   using namespace mdl::HitFilters;
 
-  const auto cornerHandles = tool.cornerHandles();
-  if (!camera.perspectiveProjection())
+  if (!inputState.mouseButtonsPressed(MouseButtons::Left))
   {
-    return cornerHandles;
+    return nullptr;
   }
 
-  const auto isVisible = [&](const auto& corner) {
-    const auto ray = vm::ray3d{camera.pickRay(vm::vec3f{corner})};
+  if (!m_tool.applies())
+  {
+    return nullptr;
+  }
 
-    auto pr = mdl::PickResult{};
-    if (camera.orthographicProjection())
-    {
-      tool.pick2D(ray, camera, pr);
-    }
-    else
-    {
-      tool.pick3D(ray, camera, pr);
-    }
+  const auto& hit = inputState.pickResult().first(type(ScaleTool::AnyHitType));
+  if (!hit.isMatch())
+  {
+    return nullptr;
+  }
 
-    return !pr.empty() && pr.all().front().type() == ScaleTool::CornerHitType;
-  };
+  m_tool.beginScale();
 
-  return cornerHandles | std::views::filter(isVisible) | kdl::ranges::to<std::vector>();
+  const auto [anchorPos, proportionalAxes] = modifierSettingsForInputState(inputState);
+  const auto [handlePosition, hitPoint] =
+    getInitialHandlePositionAndHitPoint(m_tool.bounds(), hit);
+  return createHandleDragTracker(
+    ScaleDragDelegate{
+      m_tool, ScaleDragState{hit, m_tool.bounds(), anchorPos, proportionalAxes}},
+    inputState,
+    handlePosition,
+    hitPoint);
+}
+
+void ScaleToolController::setRenderOptions(
+  const InputState&, render::RenderContext& renderContext) const
+{
+  renderContext.setForceHideSelectionGuide();
 }
 
 void ScaleToolController::render(
@@ -399,32 +467,15 @@ void ScaleToolController::render(
   render::RenderContext& renderContext,
   render::RenderBatch& renderBatch)
 {
-  if (m_tool.applies())
+  if (m_tool.applies() && !m_tool.gestureInProgress())
   {
-    if (!m_tool.bounds().is_empty())
-    {
-      renderBounds(renderContext, renderBatch, m_tool.bounds());
-      renderCornerHandles(
-        renderContext, renderBatch, visibleCornerHandles(m_tool, renderContext.camera()));
-    }
-
-    renderDragSideHighlights(
-      renderContext, renderBatch, m_tool.polygonsHighlightedByDrag());
-
-    if (m_tool.hasDragSide())
-    {
-      renderDragSide(renderContext, renderBatch, m_tool.dragSide());
-    }
-
-    if (m_tool.hasDragEdge())
-    {
-      renderDragEdge(renderContext, renderBatch, m_tool.dragEdge());
-    }
-
-    if (m_tool.hasDragCorner())
-    {
-      renderDragCorner(renderContext, renderBatch, m_tool.dragCorner());
-    }
+    renderBoundsAndHandles(
+      renderContext,
+      renderBatch,
+      m_tool.bounds(),
+      m_tool.pickedHandle(),
+      m_tool.proportionalAxes(),
+      m_tool.anchorPos());
   }
 }
 

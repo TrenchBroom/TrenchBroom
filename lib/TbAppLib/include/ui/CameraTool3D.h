@@ -48,7 +48,8 @@ public:
 
   void mouseScroll(const InputState& inputState) override;
 
-  std::unique_ptr<GestureTracker> acceptMouseDrag(const InputState& inputState) override;
+  std::unique_ptr<GestureTracker> doAcceptMouseDrag(
+    const InputState& inputState) override;
 
   bool cancel() override;
 };

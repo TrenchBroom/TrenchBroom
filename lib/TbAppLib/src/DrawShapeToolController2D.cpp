@@ -218,7 +218,7 @@ const Tool& DrawShapeToolController2D::tool() const
   return m_tool;
 }
 
-std::unique_ptr<GestureTracker> DrawShapeToolController2D::acceptMouseDrag(
+std::unique_ptr<GestureTracker> DrawShapeToolController2D::doAcceptMouseDrag(
   const InputState& inputState)
 {
   if (!inputState.mouseButtonsPressed(MouseButtons::Left))

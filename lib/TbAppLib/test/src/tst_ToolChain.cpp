@@ -172,14 +172,14 @@ public:
     logCall();
   }
 
-  std::unique_ptr<GestureTracker> acceptMouseDrag(const InputState&) override
+  std::unique_ptr<GestureTracker> doAcceptMouseDrag(const InputState&) override
   {
     ++acceptMouseDragCount;
     logCall();
     return acceptMouseDragResult ? std::make_unique<FakeGestureTracker>() : nullptr;
   }
 
-  std::unique_ptr<GestureTracker> acceptGesture(const InputState&) override
+  std::unique_ptr<GestureTracker> doAcceptGesture(const InputState&) override
   {
     ++acceptGestureCount;
     logCall();

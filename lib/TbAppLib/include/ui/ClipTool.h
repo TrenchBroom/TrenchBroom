@@ -86,7 +86,6 @@ private:
   std::unique_ptr<render::BrushRenderer> m_clippedBrushRenderer;
 
   bool m_ignoreNotifications = false;
-  bool m_dragging = false;
 
   NotifierConnection m_notifierConnection;
 
