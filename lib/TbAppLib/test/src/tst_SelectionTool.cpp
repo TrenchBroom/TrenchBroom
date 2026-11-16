@@ -335,6 +335,113 @@ TEST_CASE("SelectionTool")
       }
     }
 
+    GIVEN("A brush entity with two brushes")
+    {
+      auto* entityNode = addNode(
+        map, parentForNodes(map), std::make_unique<mdl::EntityNode>(mdl::Entity{}));
+      auto* brushNode1 = addNode(
+        map,
+        *entityNode,
+        std::make_unique<mdl::BrushNode>(
+          builder.createCuboid(vm::bbox3d{{-16, -16, -16}, {16, 16, 16}}, "some_face")
+          | kdl::value()));
+      auto* brushNode2 = addNode(
+        map,
+        *entityNode,
+        std::make_unique<mdl::BrushNode>(
+          builder.createCuboid(vm::bbox3d{{48, -16, -16}, {80, 16, 16}}, "some_face")
+          | kdl::value()));
+
+      auto camera = gl::OrthographicCamera{};
+
+      AND_GIVEN("A pick ray that points at the top face of the first brush")
+      {
+        camera.moveTo({0, 0, 32});
+        camera.setDirection({0, 0, -1}, {0, 1, 0});
+
+        const auto pickRay = vm::ray3d{camera.pickRay({0, 0, 0})};
+
+        auto pickResult = mdl::PickResult{};
+        pick(map, pickRay, pickResult);
+        REQUIRE(pickResult.all().size() == 1);
+
+        auto inputState = InputState{0.0f, 0.0f};
+        inputState.setPickRequest({pickRay, camera});
+        inputState.setPickResult(std::move(pickResult));
+
+        WHEN("I double click")
+        {
+          inputState.mouseDown(MouseButtons::Left);
+          tool.mouseClick(inputState);
+          inputState.mouseUp(MouseButtons::Left);
+
+          inputState.mouseDown(MouseButtons::Left);
+          tool.mouseDoubleClick(inputState);
+          inputState.mouseUp(MouseButtons::Left);
+
+          THEN("All brushes of the entity are selected")
+          {
+            CHECK(map.selection().brushFaces.empty());
+            CHECK(
+              map.selection()
+              == mdl::makeSelection(
+                map, std::vector<mdl::Node*>{brushNode1, brushNode2}));
+          }
+        }
+
+        AND_GIVEN("Another brush is selected")
+        {
+          auto* otherBrushNode = addNode(
+            map,
+            parentForNodes(map),
+            std::make_unique<mdl::BrushNode>(
+              builder.createCuboid(
+                vm::bbox3d{{112, -16, -16}, {144, 16, 16}}, "some_face")
+              | kdl::value()));
+          selectNodes(map, {otherBrushNode});
+
+          WHEN("I ctrl double click")
+          {
+            inputState.setModifierKeys(ModifierKeys::CtrlCmd);
+            inputState.mouseDown(MouseButtons::Left);
+            tool.mouseDoubleClick(inputState);
+            inputState.mouseUp(MouseButtons::Left);
+
+            THEN("All brushes of the entity are added to the selection")
+            {
+              CHECK(map.selection().brushFaces.empty());
+              CHECK(
+                map.selection()
+                == mdl::makeSelection(
+                  map, std::vector<mdl::Node*>{otherBrushNode, brushNode1, brushNode2}));
+            }
+          }
+        }
+
+        AND_GIVEN("A face of the first brush is selected")
+        {
+          selectBrushFaces(map, {{*brushNode1, 0}});
+
+          WHEN("I ctrl double click")
+          {
+            inputState.setModifierKeys(ModifierKeys::CtrlCmd);
+            inputState.mouseDown(MouseButtons::Left);
+            tool.mouseDoubleClick(inputState);
+            inputState.mouseUp(MouseButtons::Left);
+
+            THEN("The face is deselected and all brushes of the entity are selected")
+            {
+              CHECK(map.selection().brushFaces.empty());
+              CHECK(
+                map.selection()
+                == mdl::makeSelection(
+                  map, std::vector<mdl::Node*>{brushNode1, brushNode2}));
+            }
+          }
+        }
+      }
+    }
+
     GIVEN("A brush node and an entity node")
     {
       auto brush = builder.createCube(
@@ -484,13 +591,17 @@ TEST_CASE("SelectionTool")
         WHEN("I double click")
         {
           inputState.mouseDown(MouseButtons::Left);
+          tool.mouseClick(inputState);
+          inputState.mouseUp(MouseButtons::Left);
+
+          inputState.mouseDown(MouseButtons::Left);
           tool.mouseDoubleClick(inputState);
           inputState.mouseUp(MouseButtons::Left);
 
-          THEN("All nodes are selected")
+          THEN("Only the brush is selected because its siblings are in a layer")
           {
             CHECK(map.selection().brushFaces.empty());
-            CHECK(map.selection() == mdl::makeSelection(map, {brushNode, entityNode}));
+            CHECK(map.selection() == mdl::makeSelection(map, {brushNode}));
           }
         }
 
@@ -537,10 +648,10 @@ TEST_CASE("SelectionTool")
             tool.mouseDoubleClick(inputState);
             inputState.mouseUp(MouseButtons::Left);
 
-            THEN("All nodes are selected")
+            THEN("Only the brush is selected because its siblings are in a layer")
             {
               CHECK(map.selection().brushFaces.empty());
-              CHECK(map.selection() == mdl::makeSelection(map, {brushNode, entityNode}));
+              CHECK(map.selection() == mdl::makeSelection(map, {brushNode}));
             }
           }
         }
@@ -674,20 +785,6 @@ TEST_CASE("SelectionTool")
             {
               CHECK(map.selection().brushFaces.empty());
               CHECK(map.selection() == mdl::makeSelection(map, {brushNode}));
-            }
-          }
-
-          WHEN("I ctrl double click")
-          {
-            inputState.setModifierKeys(ModifierKeys::CtrlCmd);
-            inputState.mouseDown(MouseButtons::Left);
-            tool.mouseDoubleClick(inputState);
-            inputState.mouseUp(MouseButtons::Left);
-
-            THEN("All nodes are selected")
-            {
-              CHECK(map.selection().brushFaces.empty());
-              CHECK(map.selection() == mdl::makeSelection(map, {brushNode, entityNode}));
             }
           }
         }

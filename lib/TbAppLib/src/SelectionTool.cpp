@@ -23,16 +23,19 @@
 #include "mdl/BrushFace.h"
 #include "mdl/BrushNode.h"
 #include "mdl/EditorContext.h"
+#include "mdl/EntityNode.h"
 #include "mdl/Grid.h"
 #include "mdl/GroupNode.h" // IWYU pragma: keep
 #include "mdl/Hit.h"
 #include "mdl/HitAdapter.h"
 #include "mdl/HitFilter.h"
+#include "mdl/LayerNode.h"
 #include "mdl/Map.h"
 #include "mdl/Map_Groups.h"
 #include "mdl/Map_Selection.h"
 #include "mdl/ModelUtils.h"
 #include "mdl/Node.h"
+#include "mdl/PatchNode.h"
 #include "mdl/Transaction.h"
 #include "mdl/TransactionScope.h"
 #include "mdl/WorldNode.h"
@@ -43,6 +46,7 @@
 #include "ui/MapDocument.h"
 
 #include "kd/contracts.h"
+#include "kd/overload.h"
 
 #include <algorithm>
 #include <string>
@@ -98,6 +102,17 @@ std::vector<mdl::Node*> collectSelectableChildren(
   const mdl::EditorContext& editorContext, const mdl::Node* node)
 {
   return mdl::collectSelectableNodes(node->children(), editorContext);
+}
+
+bool canSelectSiblingsIn(const mdl::Node& container)
+{
+  return container.accept(kdl::overload(
+    [](const mdl::WorldNode&) { return false; },
+    [](const mdl::LayerNode&) { return false; },
+    [](const mdl::GroupNode&) { return true; },
+    [](const mdl::EntityNode&) { return true; },
+    [](const mdl::BrushNode&) { return false; },
+    [](const mdl::PatchNode&) { return false; }));
 }
 
 bool canHandleLeftClick(
@@ -445,17 +460,20 @@ bool SelectionTool::mouseDoubleClick(const InputState& inputState)
         else
         {
           const auto* node = mdl::hitToNode(hit);
-          auto transaction = mdl::Transaction{map, "Select Brushes"};
-
           const auto* container = node->parent();
-          const auto siblings = collectSelectableChildren(editorContext, container);
-          if (!isMultiClick(inputState) || map.selection().hasBrushFaces())
+          if (canSelectSiblingsIn(*container))
           {
-            deselectAll(map);
-          }
-          selectNodes(map, siblings);
+            auto transaction = mdl::Transaction{map, "Select Brushes"};
 
-          transaction.commit();
+            const auto siblings = collectSelectableChildren(editorContext, container);
+            if (!isMultiClick(inputState) || map.selection().hasBrushFaces())
+            {
+              deselectAll(map);
+            }
+            selectNodes(map, siblings);
+
+            transaction.commit();
+          }
         }
       }
       else if (inGroup)
