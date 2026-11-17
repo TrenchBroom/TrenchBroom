@@ -29,13 +29,15 @@
  * line. Returns the line's opacity before the overall grid alpha is applied.
  *
  * @param coord      the coordinate in grid-cell units (integer values fall on grid lines)
+ * @param coordWidth the screen space change of coord, i.e. fwidth(coord) if the grid cell
+ *                   size is the same for the neighbouring fragments
  * @param stripeSize 1 minus the relative line width; larger values mean thinner lines
  * @param isMajor    1.0 for a major grid line, 0.0 for a minor one
  */
-float gridLine(float coord, float stripeSize, float isMajor)
+float gridLine(float coord, float coordWidth, float stripeSize, float isMajor)
 {
   // antialiasing half-width, in grid-cell units
-  float edge = 2.0 * fwidth(coord);
+  float edge = 2.0 * coordWidth;
   // triangle wave: 1.0 on a grid line, 0.0 exactly between two adjacent lines
   float triangle = abs(2.0 * fract(coord) - 1.0);
 
