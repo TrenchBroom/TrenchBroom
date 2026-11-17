@@ -498,6 +498,24 @@ TEST_CASE("SelectionTool")
         {
           selectNodes(map, {brushNode});
 
+          WHEN("I shift+ctrl click once")
+          {
+            inputState.setModifierKeys(ModifierKeys::Shift | ModifierKeys::CtrlCmd);
+            inputState.mouseDown(MouseButtons::Left);
+            tool.mouseClick(inputState);
+            inputState.mouseUp(MouseButtons::Left);
+
+            THEN("All faces except for the top face are selected")
+            {
+              CHECK_THAT(
+                map.selection().brushFaces,
+                UnorderedEquals(kdl::vec_erase(
+                  mdl::toHandles(*brushNode),
+                  mdl::BrushFaceHandle{*brushNode, topFaceIndex})));
+              CHECK(!map.selection().hasNodes());
+            }
+          }
+
           WHEN("I shift+ctrl double click")
           {
             inputState.setModifierKeys(ModifierKeys::Shift | ModifierKeys::CtrlCmd);
@@ -1884,6 +1902,29 @@ TEST_CASE("SelectionTool")
       WHEN("I shift+ctrl click the top face while the entity is selected")
       {
         selectNodes(map, {entityNode});
+        const auto selectionBefore = map.selection();
+
+        inputState.setModifierKeys(ModifierKeys::Shift | ModifierKeys::CtrlCmd);
+        inputState.mouseDown(MouseButtons::Left);
+        tool.mouseClick(inputState);
+        inputState.mouseUp(MouseButtons::Left);
+
+        const auto selectionAfter = map.selection();
+        REQUIRE(selectionAfter != selectionBefore);
+
+        THEN("Undo and redo each take a single step")
+        {
+          map.undoCommand();
+          CHECK(map.selection() == selectionBefore);
+
+          map.redoCommand();
+          CHECK(map.selection() == selectionAfter);
+        }
+      }
+
+      WHEN("I shift+ctrl click the top face while the brush is selected")
+      {
+        selectNodes(map, {brushNode});
         const auto selectionBefore = map.selection();
 
         inputState.setModifierKeys(ModifierKeys::Shift | ModifierKeys::CtrlCmd);

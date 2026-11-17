@@ -306,7 +306,10 @@ bool SelectionTool::mouseClick(const InputState& inputState)
           {
             if (brushNode.selected())
             {
+              auto transaction = mdl::Transaction{map, "Deselect Brush Face"};
+              convertToFaceSelection(map);
               deselectBrushFaces(map, {*faceHandle});
+              transaction.commit();
             }
             else
             {
