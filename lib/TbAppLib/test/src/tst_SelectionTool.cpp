@@ -1134,6 +1134,59 @@ TEST_CASE("SelectionTool")
             CHECK(map.selection() == mdl::makeSelection(map, {visibleBrushNode}));
           }
         }
+
+        WHEN("I shift double click")
+        {
+          inputState.setModifierKeys(ModifierKeys::Shift);
+          inputState.mouseDown(MouseButtons::Left);
+          tool.mouseDoubleClick(inputState);
+          inputState.mouseUp(MouseButtons::Left);
+
+          THEN("All faces of the visible brush get selected")
+          {
+            CHECK(!map.selection().hasNodes());
+            CHECK_THAT(
+              map.selection().brushFaces,
+              UnorderedEquals(mdl::toHandles(*visibleBrushNode)));
+          }
+        }
+
+        WHEN("I shift+alt double click")
+        {
+          inputState.setModifierKeys(ModifierKeys::Shift | ModifierKeys::Alt);
+          inputState.mouseDown(MouseButtons::Left);
+          tool.mouseDoubleClick(inputState);
+          inputState.mouseUp(MouseButtons::Left);
+
+          THEN("The top face of the visible brush gets selected")
+          {
+            CHECK(!map.selection().hasNodes());
+            CHECK(
+              map.selection().brushFaces
+              == std::vector<mdl::BrushFaceHandle>{
+                {*visibleBrushNode, visibleTopFaceIndex}});
+          }
+        }
+
+        WHEN("I shift+ctrl drag")
+        {
+          inputState.setModifierKeys(ModifierKeys::Shift | ModifierKeys::CtrlCmd);
+          inputState.mouseDown(MouseButtons::Left);
+
+          auto tracker = tool.acceptMouseDrag(inputState);
+          REQUIRE(tracker != nullptr);
+
+          THEN("The top face of the visible brush gets selected")
+          {
+            CHECK(!map.selection().hasNodes());
+            CHECK(
+              map.selection().brushFaces
+              == std::vector<mdl::BrushFaceHandle>{
+                {*visibleBrushNode, visibleTopFaceIndex}});
+          }
+
+          tracker->cancel();
+        }
       }
     }
   }

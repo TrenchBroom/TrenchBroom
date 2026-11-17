@@ -405,7 +405,8 @@ bool SelectionTool::mouseDoubleClick(const InputState& inputState)
       return false;
     }
 
-    const auto hit = firstHit(inputState, type(mdl::BrushNode::BrushHitType));
+    const auto hit = firstHit(
+      inputState, type(mdl::BrushNode::BrushHitType) && isNodeSelectable(editorContext));
     if (const auto faceHandle = mdl::hitToFaceHandle(hit))
     {
       if (editorContext.selectable(faceHandle->node(), faceHandle->face()))
@@ -426,7 +427,8 @@ bool SelectionTool::mouseDoubleClick(const InputState& inputState)
 
   if (isFaceClick(inputState))
   {
-    const auto hit = firstHit(inputState, type(mdl::BrushNode::BrushHitType));
+    const auto hit = firstHit(
+      inputState, type(mdl::BrushNode::BrushHitType) && isNodeSelectable(editorContext));
     if (const auto faceHandle = mdl::hitToFaceHandle(hit))
     {
       auto& brushNode = faceHandle->node();
@@ -523,7 +525,8 @@ std::unique_ptr<GestureTracker> SelectionTool::acceptMouseDrag(
 
   if (isFaceClick(inputState))
   {
-    const auto hit = firstHit(inputState, type(mdl::BrushNode::BrushHitType));
+    const auto hit = firstHit(
+      inputState, type(mdl::BrushNode::BrushHitType) && isNodeSelectable(editorContext));
     if (const auto faceHandle = mdl::hitToFaceHandle(hit))
     {
       const auto& brushNode = faceHandle->node();
