@@ -17,7 +17,11 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "base/PreferenceManager.h"
+#include "gl/FontManager.h"
 #include "gl/OrthographicCamera.h"
+#include "gl/ShaderManager.h"
+#include "gl/TestGl.h"
 #include "mdl/Brush.h"
 #include "mdl/BrushBuilder.h"
 #include "mdl/BrushFace.h"
@@ -33,12 +37,16 @@
 #include "mdl/GroupNode.h"
 #include "mdl/Hit.h"
 #include "mdl/Map.h"
+#include "mdl/Map_Groups.h"
 #include "mdl/Map_Nodes.h"
 #include "mdl/Map_Picking.h"
 #include "mdl/Map_Selection.h"
 #include "mdl/PickResult.h"
+#include "mdl/Selection.h"
 #include "mdl/TestUtils.h"
 #include "mdl/WorldNode.h"
+#include "prefs/Preferences.h"
+#include "render/RenderContext.h"
 #include "ui/GestureTracker.h"
 #include "ui/InputState.h"
 #include "ui/MapDocument.h"
@@ -46,8 +54,12 @@
 #include "ui/PickRequest.h"
 #include "ui/SelectionTool.h"
 
+#include "kd/invoke.h"
+#include "kd/ranges/to.h"
 #include "kd/result.h"
 #include "kd/vector_utils.h"
+
+#include "vm/bbox.h"
 
 #include <memory>
 
@@ -68,12 +80,113 @@ TEST_CASE("SelectionTool")
   {
     auto tool = SelectionTool{document};
     CHECK(&tool.tool() == static_cast<Tool*>(&tool));
+
+    const auto& constTool = tool;
+    CHECK(&constTool.tool() == static_cast<const Tool*>(&tool));
   }
 
   SECTION("cancel always returns false")
   {
     auto tool = SelectionTool{document};
     CHECK(!tool.cancel());
+  }
+
+  SECTION("unhandledInput")
+  {
+    const auto& worldNode = map.worldNode();
+    auto builder = mdl::BrushBuilder{
+      worldNode.mapFormat(),
+      map.worldBounds(),
+      map.gameInfo().gameConfig.faceAttribsConfig.defaultUvAttributes,
+      map.gameInfo().gameConfig.faceAttribsConfig.defaultSurfaceAttributes};
+
+    auto tool = SelectionTool{document};
+
+    GIVEN("A brush node")
+    {
+      addNode(
+        map,
+        parentForNodes(map),
+        std::make_unique<mdl::BrushNode>(
+          builder.createCube(32.0, "some_face") | kdl::value()));
+
+      auto camera = gl::OrthographicCamera{};
+
+      AND_GIVEN("A pick ray that points at the top face of the brush")
+      {
+        camera.moveTo({0, 0, 32});
+        camera.setDirection({0, 0, -1}, {0, 1, 0});
+
+        const auto pickRay = vm::ray3d{camera.pickRay({0, 0, 0})};
+
+        auto pickResult = mdl::PickResult{};
+        pick(map, pickRay, pickResult);
+        REQUIRE(pickResult.all().size() == 1);
+
+        auto inputState = InputState{0.0f, 0.0f};
+        inputState.setPickRequest({pickRay, camera});
+        inputState.setPickResult(std::move(pickResult));
+
+        WHEN("I ctrl click with the right mouse button")
+        {
+          inputState.setModifierKeys(ModifierKeys::CtrlCmd);
+          inputState.mouseDown(MouseButtons::Right);
+
+          THEN("Neither clicks nor drags are handled")
+          {
+            CHECK(!tool.mouseClick(inputState));
+            CHECK(!tool.mouseDoubleClick(inputState));
+            CHECK(tool.acceptMouseDrag(inputState) == nullptr);
+            CHECK(!map.selection().hasAny());
+          }
+        }
+
+        WHEN("I shift+alt double click with the right mouse button")
+        {
+          inputState.setModifierKeys(ModifierKeys::Shift | ModifierKeys::Alt);
+          inputState.mouseDown(MouseButtons::Right);
+
+          THEN("The double click is not handled")
+          {
+            CHECK(!tool.mouseDoubleClick(inputState));
+            CHECK(!map.selection().hasAny());
+          }
+        }
+
+        WHEN("I ctrl+alt click")
+        {
+          inputState.setModifierKeys(ModifierKeys::CtrlCmd | ModifierKeys::Alt);
+          inputState.mouseDown(MouseButtons::Left);
+
+          THEN("Neither clicks nor drags are handled")
+          {
+            CHECK(!tool.mouseClick(inputState));
+            CHECK(!tool.mouseDoubleClick(inputState));
+            CHECK(tool.acceptMouseDrag(inputState) == nullptr);
+            CHECK(!map.selection().hasAny());
+          }
+        }
+
+        WHEN("Selection changes are blocked")
+        {
+          map.editorContext().setBlockSelection(true);
+          inputState.mouseDown(MouseButtons::Left);
+
+          THEN("Neither clicks nor drags are handled")
+          {
+            CHECK(!tool.mouseClick(inputState));
+
+            inputState.setModifierKeys(ModifierKeys::Shift | ModifierKeys::Alt);
+            CHECK(!tool.mouseDoubleClick(inputState));
+
+            inputState.setModifierKeys(ModifierKeys::CtrlCmd);
+            CHECK(tool.acceptMouseDrag(inputState) == nullptr);
+
+            CHECK(!map.selection().hasAny());
+          }
+        }
+      }
+    }
   }
 
   SECTION("clicking")
@@ -145,6 +258,78 @@ TEST_CASE("SelectionTool")
             CHECK(map.selection().brushFaces.empty());
             CHECK(!map.selection().hasNodes());
             CHECK(map.editorContext().currentGroup() == groupNode);
+          }
+        }
+      }
+
+      AND_GIVEN("An entity outside of the group and the group is open")
+      {
+        addNode(
+          map,
+          parentForNodes(map),
+          std::make_unique<mdl::EntityNode>(mdl::Entity{{{"origin", "0 128 0"}}}));
+
+        openGroup(map, *groupNode);
+        REQUIRE(map.editorContext().currentGroup() == groupNode);
+
+        AND_GIVEN("A pick ray that points at the top face of the brush in the group")
+        {
+          camera.moveTo({0, 0, 32});
+          camera.setDirection({0, 0, -1}, {0, 1, 0});
+
+          const auto pickRay = vm::ray3d{camera.pickRay({0, 0, 0})};
+
+          auto pickResult = mdl::PickResult{};
+          pick(map, pickRay, pickResult);
+          REQUIRE(pickResult.all().size() == 1);
+
+          auto inputState = InputState{0.0f, 0.0f};
+          inputState.setPickRequest({pickRay, camera});
+          inputState.setPickResult(std::move(pickResult));
+
+          WHEN("I double click")
+          {
+            inputState.mouseDown(MouseButtons::Left);
+            tool.mouseDoubleClick(inputState);
+            inputState.mouseUp(MouseButtons::Left);
+
+            THEN("All nodes in the group are selected and the group remains open")
+            {
+              CHECK(
+                map.selection()
+                == mdl::makeSelection(
+                  map, groupNode->children() | kdl::ranges::to<std::vector>()));
+              CHECK(map.editorContext().currentGroup() == groupNode);
+            }
+          }
+        }
+
+        AND_GIVEN("A pick ray that points at the entity outside of the group")
+        {
+          camera.moveTo({0, 128, 32});
+          camera.setDirection({0, 0, -1}, {0, 1, 0});
+
+          const auto pickRay = vm::ray3d{camera.pickRay({0, 128, 0})};
+
+          auto pickResult = mdl::PickResult{};
+          pick(map, pickRay, pickResult);
+          REQUIRE(pickResult.all().size() == 1);
+
+          auto inputState = InputState{0.0f, 0.0f};
+          inputState.setPickRequest({pickRay, camera});
+          inputState.setPickResult(std::move(pickResult));
+
+          WHEN("I double click")
+          {
+            inputState.mouseDown(MouseButtons::Left);
+            tool.mouseDoubleClick(inputState);
+            inputState.mouseUp(MouseButtons::Left);
+
+            THEN("The group is closed")
+            {
+              CHECK(!map.selection().hasAny());
+              CHECK(map.editorContext().currentGroup() == nullptr);
+            }
           }
         }
       }
@@ -309,6 +494,39 @@ TEST_CASE("SelectionTool")
           }
         }
 
+        AND_GIVEN("The brush is selected")
+        {
+          selectNodes(map, {brushNode});
+
+          WHEN("I shift+ctrl double click")
+          {
+            inputState.setModifierKeys(ModifierKeys::Shift | ModifierKeys::CtrlCmd);
+            inputState.mouseDown(MouseButtons::Left);
+            tool.mouseDoubleClick(inputState);
+            inputState.mouseUp(MouseButtons::Left);
+
+            THEN("All brush faces are selected")
+            {
+              CHECK(map.selection().brushFaces.size() == 6);
+              CHECK(!map.selection().hasNodes());
+            }
+          }
+
+          WHEN("I ctrl double click")
+          {
+            inputState.setModifierKeys(ModifierKeys::CtrlCmd);
+            inputState.mouseDown(MouseButtons::Left);
+            tool.mouseDoubleClick(inputState);
+            inputState.mouseUp(MouseButtons::Left);
+
+            THEN("All nodes are selected")
+            {
+              CHECK(map.selection().brushFaces.empty());
+              CHECK(map.selection() == mdl::makeSelection(map, {brushNode, entityNode}));
+            }
+          }
+        }
+
         AND_GIVEN("The front face of the brush is selected")
         {
           selectBrushFaces(map, {{*brushNode, frontFaceIndex}});
@@ -440,6 +658,20 @@ TEST_CASE("SelectionTool")
               CHECK(map.selection() == mdl::makeSelection(map, {brushNode}));
             }
           }
+
+          WHEN("I ctrl double click")
+          {
+            inputState.setModifierKeys(ModifierKeys::CtrlCmd);
+            inputState.mouseDown(MouseButtons::Left);
+            tool.mouseDoubleClick(inputState);
+            inputState.mouseUp(MouseButtons::Left);
+
+            THEN("All nodes are selected")
+            {
+              CHECK(map.selection().brushFaces.empty());
+              CHECK(map.selection() == mdl::makeSelection(map, {brushNode, entityNode}));
+            }
+          }
         }
 
         AND_GIVEN("The entity is selected")
@@ -548,6 +780,44 @@ TEST_CASE("SelectionTool")
               CHECK(!map.selection().hasNodes());
             }
           }
+
+          WHEN("I shift double click")
+          {
+            inputState.setModifierKeys(ModifierKeys::Shift);
+            inputState.mouseDown(MouseButtons::Left);
+            tool.mouseDoubleClick(inputState);
+            inputState.mouseUp(MouseButtons::Left);
+
+            THEN("Nothing happens")
+            {
+              CHECK(!map.selection().hasAny());
+            }
+          }
+
+          WHEN("I shift+alt double click")
+          {
+            inputState.setModifierKeys(ModifierKeys::Shift | ModifierKeys::Alt);
+            inputState.mouseDown(MouseButtons::Left);
+            tool.mouseDoubleClick(inputState);
+            inputState.mouseUp(MouseButtons::Left);
+
+            THEN("Nothing happens")
+            {
+              CHECK(!map.selection().hasAny());
+            }
+          }
+
+          WHEN("I double click")
+          {
+            inputState.mouseDown(MouseButtons::Left);
+            tool.mouseDoubleClick(inputState);
+            inputState.mouseUp(MouseButtons::Left);
+
+            THEN("Nothing happens")
+            {
+              CHECK(!map.selection().hasAny());
+            }
+          }
         }
       }
     }
@@ -623,6 +893,32 @@ TEST_CASE("SelectionTool")
           inputState.setModifierKeys(ModifierKeys::CtrlCmd);
           inputState.mouseDown(MouseButtons::Left);
           tool.mouseClick(inputState);
+          inputState.mouseUp(MouseButtons::Left);
+
+          THEN("Nothing happens")
+          {
+            CHECK(map.selection().nodes == std::vector<mdl::Node*>{entityNode});
+          }
+        }
+
+        WHEN("I shift double click")
+        {
+          inputState.setModifierKeys(ModifierKeys::Shift);
+          inputState.mouseDown(MouseButtons::Left);
+          tool.mouseDoubleClick(inputState);
+          inputState.mouseUp(MouseButtons::Left);
+
+          THEN("Nothing happens")
+          {
+            CHECK(map.selection().nodes == std::vector<mdl::Node*>{entityNode});
+          }
+        }
+
+        WHEN("I shift+alt double click")
+        {
+          inputState.setModifierKeys(ModifierKeys::Shift | ModifierKeys::Alt);
+          inputState.mouseDown(MouseButtons::Left);
+          CHECK(tool.mouseDoubleClick(inputState));
           inputState.mouseUp(MouseButtons::Left);
 
           THEN("Nothing happens")
@@ -922,6 +1218,113 @@ TEST_CASE("SelectionTool")
           CHECK(map.selection() == mdl::makeSelection(map, {largeBrushNode}));
         }
       }
+
+      WHEN("I scroll backward with CtrlCmd+Alt held")
+      {
+        const auto sizeBefore = map.grid().size();
+
+        inputState.setModifierKeys(ModifierKeys::CtrlCmd | ModifierKeys::Alt);
+        inputState.scroll(ScrollSource::Mouse, 0.0f, -1.0f);
+        tool.mouseScroll(inputState);
+
+        THEN("The grid size increases")
+        {
+          CHECK(map.grid().size() == sizeBefore + 1);
+        }
+      }
+
+      WHEN("I scroll horizontally with CtrlCmd+Alt held")
+      {
+        const auto sizeBefore = map.grid().size();
+
+        inputState.setModifierKeys(ModifierKeys::CtrlCmd | ModifierKeys::Alt);
+        inputState.scroll(ScrollSource::Mouse, 1.0f, 0.0f);
+        tool.mouseScroll(inputState);
+
+        THEN("The grid size does not change")
+        {
+          CHECK(map.grid().size() == sizeBefore);
+        }
+      }
+
+      WHEN("I scroll forward with just CtrlCmd held and the last node is selected")
+      {
+        deselectAll(map);
+        selectNodes(map, {smallBrushNode});
+
+        inputState.setModifierKeys(ModifierKeys::CtrlCmd);
+        inputState.scroll(ScrollSource::Mouse, 0.0f, 1.0f);
+        tool.mouseScroll(inputState);
+
+        THEN("The selection does not change")
+        {
+          CHECK(map.selection() == mdl::makeSelection(map, {smallBrushNode}));
+        }
+      }
+
+      WHEN("I scroll backward with just CtrlCmd held and the first node is selected")
+      {
+        inputState.setModifierKeys(ModifierKeys::CtrlCmd);
+        inputState.scroll(ScrollSource::Mouse, 0.0f, -1.0f);
+        tool.mouseScroll(inputState);
+
+        THEN("The selection does not change")
+        {
+          CHECK(map.selection() == mdl::makeSelection(map, {largeBrushNode}));
+        }
+      }
+
+      WHEN("I scroll with just CtrlCmd held and no node under the ray is selected")
+      {
+        deselectAll(map);
+
+        inputState.setModifierKeys(ModifierKeys::CtrlCmd);
+        inputState.scroll(ScrollSource::Mouse, 0.0f, 1.0f);
+        tool.mouseScroll(inputState);
+
+        THEN("Nothing gets selected")
+        {
+          CHECK(!map.selection().hasAny());
+        }
+      }
+
+      AND_GIVEN("The mouse wheel is inverted")
+      {
+        setPref(Preferences::CameraMouseWheelInvert, true);
+        auto resetPref = kdl::invoke_later{[] {
+          PreferenceManager::instance().resetToDefault(
+            Preferences::CameraMouseWheelInvert);
+        }};
+
+        WHEN("I scroll forward with just CtrlCmd held")
+        {
+          deselectAll(map);
+          selectNodes(map, {smallBrushNode});
+
+          inputState.setModifierKeys(ModifierKeys::CtrlCmd);
+          inputState.scroll(ScrollSource::Mouse, 0.0f, 1.0f);
+          tool.mouseScroll(inputState);
+
+          THEN("The selection drills through to the previous node under the ray")
+          {
+            CHECK(map.selection() == mdl::makeSelection(map, {largeBrushNode}));
+          }
+        }
+
+        WHEN("I scroll forward with CtrlCmd+Alt held")
+        {
+          const auto sizeBefore = map.grid().size();
+
+          inputState.setModifierKeys(ModifierKeys::CtrlCmd | ModifierKeys::Alt);
+          inputState.scroll(ScrollSource::Mouse, 0.0f, 1.0f);
+          tool.mouseScroll(inputState);
+
+          THEN("The grid size increases")
+          {
+            CHECK(map.grid().size() == sizeBefore + 1);
+          }
+        }
+      }
     }
   }
 
@@ -1029,6 +1432,39 @@ TEST_CASE("SelectionTool")
 
           tracker->end(dragInputState);
         }
+
+        AND_WHEN("The drag moves into the void")
+        {
+          auto dragInputState = InputState{0.0f, 0.0f};
+          dragInputState.setPickRequest({pickRay, camera});
+          dragInputState.setModifierKeys(ModifierKeys::Shift | ModifierKeys::CtrlCmd);
+          dragInputState.mouseDown(MouseButtons::Left);
+
+          CHECK(tracker->update(dragInputState));
+
+          THEN("The selection does not change")
+          {
+            CHECK(
+              map.selection().brushFaces
+              == std::vector<mdl::BrushFaceHandle>{{*brushNode, topFaceIndex}});
+          }
+
+          tracker->end(dragInputState);
+        }
+
+        AND_WHEN("The drag stays on the top face")
+        {
+          CHECK(tracker->update(inputState));
+
+          THEN("The selection does not change")
+          {
+            CHECK(
+              map.selection().brushFaces
+              == std::vector<mdl::BrushFaceHandle>{{*brushNode, topFaceIndex}});
+          }
+
+          tracker->end(inputState);
+        }
       }
 
       WHEN("I ctrl drag starting on the brush")
@@ -1064,6 +1500,735 @@ TEST_CASE("SelectionTool")
           }
 
           tracker->cancel();
+        }
+
+        AND_WHEN("The drag moves into the void")
+        {
+          auto dragInputState = InputState{0.0f, 0.0f};
+          dragInputState.setPickRequest({pickRay, camera});
+          dragInputState.setModifierKeys(ModifierKeys::CtrlCmd);
+          dragInputState.mouseDown(MouseButtons::Left);
+
+          CHECK(tracker->update(dragInputState));
+
+          THEN("The selection does not change")
+          {
+            CHECK(map.selection() == mdl::makeSelection(map, {brushNode}));
+          }
+
+          tracker->cancel();
+        }
+
+        AND_WHEN("The drag stays on the brush")
+        {
+          CHECK(tracker->update(inputState));
+
+          THEN("The selection does not change")
+          {
+            CHECK(map.selection() == mdl::makeSelection(map, {brushNode}));
+          }
+
+          tracker->cancel();
+        }
+
+        AND_WHEN("The drag ends")
+        {
+          tracker->end(inputState);
+
+          THEN("The drag is recorded as a single undoable step")
+          {
+            CHECK(map.selection() == mdl::makeSelection(map, {brushNode}));
+            REQUIRE(map.undoCommandName() != nullptr);
+            CHECK(*map.undoCommandName() == "Drag Select Objects");
+          }
+        }
+
+        AND_WHEN("The drag is cancelled")
+        {
+          tracker->cancel();
+
+          THEN("The selection is restored")
+          {
+            CHECK(!map.selection().hasAny());
+          }
+        }
+      }
+
+      WHEN("I shift+ctrl drag starting on the top face while the brush is selected")
+      {
+        selectNodes(map, {brushNode});
+
+        inputState.setModifierKeys(ModifierKeys::Shift | ModifierKeys::CtrlCmd);
+        inputState.mouseDown(MouseButtons::Left);
+
+        auto tracker = tool.acceptMouseDrag(inputState);
+        REQUIRE(tracker != nullptr);
+
+        THEN("Only the top face is selected")
+        {
+          CHECK(!map.selection().hasNodes());
+          CHECK(
+            map.selection().brushFaces
+            == std::vector<mdl::BrushFaceHandle>{{*brushNode, topFaceIndex}});
+        }
+
+        tracker->end(inputState);
+      }
+
+      WHEN("I shift+ctrl drag starting on the selected top face")
+      {
+        selectBrushFaces(map, {{*brushNode, topFaceIndex}});
+
+        inputState.setModifierKeys(ModifierKeys::Shift | ModifierKeys::CtrlCmd);
+        inputState.mouseDown(MouseButtons::Left);
+
+        auto tracker = tool.acceptMouseDrag(inputState);
+        REQUIRE(tracker != nullptr);
+
+        THEN("The top face remains selected")
+        {
+          CHECK(
+            map.selection().brushFaces
+            == std::vector<mdl::BrushFaceHandle>{{*brushNode, topFaceIndex}});
+        }
+
+        tracker->end(inputState);
+      }
+
+      WHEN("I ctrl drag starting on the brush while a face is selected")
+      {
+        selectBrushFaces(map, {{*brushNode, frontFaceIndex}});
+
+        inputState.setModifierKeys(ModifierKeys::CtrlCmd);
+        inputState.mouseDown(MouseButtons::Left);
+
+        auto tracker = tool.acceptMouseDrag(inputState);
+        REQUIRE(tracker != nullptr);
+
+        THEN("Only the brush is selected")
+        {
+          CHECK(map.selection().brushFaces.empty());
+          CHECK(map.selection() == mdl::makeSelection(map, {brushNode}));
+        }
+
+        tracker->end(inputState);
+      }
+
+      WHEN("I ctrl drag starting on the selected brush")
+      {
+        selectNodes(map, {brushNode});
+
+        inputState.setModifierKeys(ModifierKeys::CtrlCmd);
+        inputState.mouseDown(MouseButtons::Left);
+
+        auto tracker = tool.acceptMouseDrag(inputState);
+        REQUIRE(tracker != nullptr);
+
+        THEN("The brush remains selected")
+        {
+          CHECK(map.selection() == mdl::makeSelection(map, {brushNode}));
+        }
+
+        tracker->end(inputState);
+      }
+
+      WHEN("I shift+ctrl drag starting in the void")
+      {
+        inputState.setPickResult(mdl::PickResult{});
+        inputState.setModifierKeys(ModifierKeys::Shift | ModifierKeys::CtrlCmd);
+        inputState.mouseDown(MouseButtons::Left);
+
+        THEN("No drag is accepted")
+        {
+          CHECK(tool.acceptMouseDrag(inputState) == nullptr);
+          CHECK(!map.selection().hasAny());
+        }
+      }
+
+      WHEN("I ctrl drag starting in the void")
+      {
+        inputState.setPickResult(mdl::PickResult{});
+        inputState.setModifierKeys(ModifierKeys::CtrlCmd);
+        inputState.mouseDown(MouseButtons::Left);
+
+        THEN("No drag is accepted")
+        {
+          CHECK(tool.acceptMouseDrag(inputState) == nullptr);
+          CHECK(!map.selection().hasAny());
+        }
+      }
+    }
+  }
+
+  SECTION("setRenderOptions")
+  {
+    const auto& worldNode = map.worldNode();
+    auto builder = mdl::BrushBuilder{
+      worldNode.mapFormat(),
+      map.worldBounds(),
+      map.gameInfo().gameConfig.faceAttribsConfig.defaultUvAttributes,
+      map.gameInfo().gameConfig.faceAttribsConfig.defaultSurfaceAttributes};
+
+    auto tool = SelectionTool{document};
+
+    auto camera = gl::OrthographicCamera{};
+    camera.moveTo({0, 0, 32});
+    camera.setDirection({0, 0, -1}, {0, 1, 0});
+
+    const auto pickRay = vm::ray3d{camera.pickRay({0, 0, 0})};
+
+    auto testGl = gl::TestGl{};
+    auto fontManager = gl::FontManager{[](const auto& path) { return path; }};
+    auto shaderManager = gl::ShaderManager{[](const auto& path) { return path; }};
+    auto renderContext = render::RenderContext{
+      testGl, render::RenderMode::Render3D, camera, fontManager, shaderManager};
+
+    GIVEN("A brush node under the pick ray")
+    {
+      auto* brushNode = addNode(
+        map,
+        parentForNodes(map),
+        std::make_unique<mdl::BrushNode>(
+          builder.createCube(32.0, "some_face") | kdl::value()));
+
+      auto pickResult = mdl::PickResult{};
+      pick(map, pickRay, pickResult);
+      REQUIRE(pickResult.all().size() == 1);
+
+      auto inputState = InputState{0.0f, 0.0f};
+      inputState.setPickRequest({pickRay, camera});
+      inputState.setPickResult(std::move(pickResult));
+
+      WHEN("The brush is not selected")
+      {
+        tool.setRenderOptions(inputState, renderContext);
+
+        THEN("The selection guide is not shown")
+        {
+          CHECK(!renderContext.showSelectionGuide());
+        }
+      }
+
+      WHEN("The brush is selected")
+      {
+        selectNodes(map, {brushNode});
+        tool.setRenderOptions(inputState, renderContext);
+
+        THEN("The selection guide is shown")
+        {
+          CHECK(renderContext.showSelectionGuide());
+        }
+      }
+
+      WHEN("The brush is selected, but the pick ray hits nothing")
+      {
+        selectNodes(map, {brushNode});
+        inputState.setPickResult(mdl::PickResult{});
+        tool.setRenderOptions(inputState, renderContext);
+
+        THEN("The selection guide is not shown")
+        {
+          CHECK(!renderContext.showSelectionGuide());
+        }
+      }
+    }
+
+    GIVEN("A closed group containing a brush node under the pick ray")
+    {
+      auto* groupNode = addNode(
+        map,
+        parentForNodes(map),
+        std::make_unique<mdl::GroupNode>(mdl::Group{"some_group"}));
+      addNode(
+        map,
+        *groupNode,
+        std::make_unique<mdl::BrushNode>(
+          builder.createCube(32.0, "some_face") | kdl::value()));
+
+      auto pickResult = mdl::PickResult{};
+      pick(map, pickRay, pickResult);
+      REQUIRE(pickResult.all().size() == 1);
+
+      auto inputState = InputState{0.0f, 0.0f};
+      inputState.setPickRequest({pickRay, camera});
+      inputState.setPickResult(std::move(pickResult));
+
+      WHEN("The group is selected")
+      {
+        selectNodes(map, {groupNode});
+        tool.setRenderOptions(inputState, renderContext);
+
+        THEN("The selection guide is shown")
+        {
+          CHECK(renderContext.showSelectionGuide());
+        }
+      }
+    }
+  }
+
+  SECTION("undoRedo")
+  {
+    const auto& worldNode = map.worldNode();
+    auto builder = mdl::BrushBuilder{
+      worldNode.mapFormat(),
+      map.worldBounds(),
+      map.gameInfo().gameConfig.faceAttribsConfig.defaultUvAttributes,
+      map.gameInfo().gameConfig.faceAttribsConfig.defaultSurfaceAttributes};
+
+    auto tool = SelectionTool{document};
+
+    auto camera = gl::OrthographicCamera{};
+    camera.moveTo({0, 0, 128});
+    camera.setDirection({0, 0, -1}, {0, 1, 0});
+
+    const auto pickRay = vm::ray3d{camera.pickRay({0, 0, 0})};
+
+    GIVEN("A brush node and an entity node")
+    {
+      auto* brushNode = addNode(
+        map,
+        parentForNodes(map),
+        std::make_unique<mdl::BrushNode>(
+          builder.createCube(
+            32.0,
+            "left_face",
+            "right_face",
+            "front_face",
+            "back_face",
+            "top_face",
+            "bottom_face")
+          | kdl::value()));
+      auto* entityNode = addNode(
+        map,
+        parentForNodes(map),
+        std::make_unique<mdl::EntityNode>(mdl::Entity{{{"origin", "64 0 0"}}}));
+
+      const auto frontFaceIndex = *brushNode->brush().findFace("front_face");
+
+      auto pickResult = mdl::PickResult{};
+      pick(map, pickRay, pickResult);
+      REQUIRE(pickResult.all().size() == 1);
+
+      auto inputState = InputState{0.0f, 0.0f};
+      inputState.setPickRequest({pickRay, camera});
+      inputState.setPickResult(std::move(pickResult));
+
+      WHEN("I click the brush while a face is selected")
+      {
+        selectBrushFaces(map, {{*brushNode, frontFaceIndex}});
+        const auto selectionBefore = map.selection();
+
+        inputState.mouseDown(MouseButtons::Left);
+        tool.mouseClick(inputState);
+        inputState.mouseUp(MouseButtons::Left);
+
+        const auto selectionAfter = map.selection();
+        REQUIRE(selectionAfter != selectionBefore);
+
+        THEN("Undo and redo each take a single step")
+        {
+          map.undoCommand();
+          CHECK(map.selection() == selectionBefore);
+
+          map.redoCommand();
+          CHECK(map.selection() == selectionAfter);
+        }
+      }
+
+      WHEN("I ctrl click the brush while a face is selected")
+      {
+        selectBrushFaces(map, {{*brushNode, frontFaceIndex}});
+        const auto selectionBefore = map.selection();
+
+        inputState.setModifierKeys(ModifierKeys::CtrlCmd);
+        inputState.mouseDown(MouseButtons::Left);
+        tool.mouseClick(inputState);
+        inputState.mouseUp(MouseButtons::Left);
+
+        const auto selectionAfter = map.selection();
+        REQUIRE(selectionAfter != selectionBefore);
+
+        THEN("Undo and redo each take a single step")
+        {
+          map.undoCommand();
+          CHECK(map.selection() == selectionBefore);
+
+          map.redoCommand();
+          CHECK(map.selection() == selectionAfter);
+        }
+      }
+
+      WHEN("I shift click the top face while the entity is selected")
+      {
+        selectNodes(map, {entityNode});
+        const auto selectionBefore = map.selection();
+
+        inputState.setModifierKeys(ModifierKeys::Shift);
+        inputState.mouseDown(MouseButtons::Left);
+        tool.mouseClick(inputState);
+        inputState.mouseUp(MouseButtons::Left);
+
+        const auto selectionAfter = map.selection();
+        REQUIRE(selectionAfter != selectionBefore);
+
+        THEN("Undo and redo each take a single step")
+        {
+          map.undoCommand();
+          CHECK(map.selection() == selectionBefore);
+
+          map.redoCommand();
+          CHECK(map.selection() == selectionAfter);
+        }
+      }
+
+      WHEN("I shift+ctrl click the top face while the entity is selected")
+      {
+        selectNodes(map, {entityNode});
+        const auto selectionBefore = map.selection();
+
+        inputState.setModifierKeys(ModifierKeys::Shift | ModifierKeys::CtrlCmd);
+        inputState.mouseDown(MouseButtons::Left);
+        tool.mouseClick(inputState);
+        inputState.mouseUp(MouseButtons::Left);
+
+        const auto selectionAfter = map.selection();
+        REQUIRE(selectionAfter != selectionBefore);
+
+        THEN("Undo and redo each take a single step")
+        {
+          map.undoCommand();
+          CHECK(map.selection() == selectionBefore);
+
+          map.redoCommand();
+          CHECK(map.selection() == selectionAfter);
+        }
+      }
+
+      WHEN("I shift double click the top face while the entity is selected")
+      {
+        selectNodes(map, {entityNode});
+        const auto selectionBefore = map.selection();
+
+        inputState.setModifierKeys(ModifierKeys::Shift);
+        inputState.mouseDown(MouseButtons::Left);
+        tool.mouseDoubleClick(inputState);
+        inputState.mouseUp(MouseButtons::Left);
+
+        const auto selectionAfter = map.selection();
+        REQUIRE(selectionAfter != selectionBefore);
+
+        THEN("Undo and redo each take a single step")
+        {
+          map.undoCommand();
+          CHECK(map.selection() == selectionBefore);
+
+          map.redoCommand();
+          CHECK(map.selection() == selectionAfter);
+        }
+      }
+
+      WHEN("I shift+ctrl double click the top face while the entity is selected")
+      {
+        selectNodes(map, {entityNode});
+        const auto selectionBefore = map.selection();
+
+        inputState.setModifierKeys(ModifierKeys::Shift | ModifierKeys::CtrlCmd);
+        inputState.mouseDown(MouseButtons::Left);
+        tool.mouseDoubleClick(inputState);
+        inputState.mouseUp(MouseButtons::Left);
+
+        const auto selectionAfter = map.selection();
+        REQUIRE(selectionAfter != selectionBefore);
+
+        THEN("Undo and redo each take a single step")
+        {
+          map.undoCommand();
+          CHECK(map.selection() == selectionBefore);
+
+          map.redoCommand();
+          CHECK(map.selection() == selectionAfter);
+        }
+      }
+
+      WHEN("I shift+alt double click the top face while the entity is selected")
+      {
+        selectNodes(map, {entityNode});
+        const auto selectionBefore = map.selection();
+
+        inputState.setModifierKeys(ModifierKeys::Shift | ModifierKeys::Alt);
+        inputState.mouseDown(MouseButtons::Left);
+        tool.mouseDoubleClick(inputState);
+        inputState.mouseUp(MouseButtons::Left);
+
+        const auto selectionAfter = map.selection();
+        REQUIRE(selectionAfter != selectionBefore);
+
+        THEN("Undo and redo each take a single step")
+        {
+          map.undoCommand();
+          CHECK(map.selection() == selectionBefore);
+
+          map.redoCommand();
+          CHECK(map.selection() == selectionAfter);
+        }
+      }
+
+      WHEN("I shift+ctrl drag across two faces while the brush is selected")
+      {
+        selectNodes(map, {brushNode});
+        const auto selectionBefore = map.selection();
+
+        inputState.setModifierKeys(ModifierKeys::Shift | ModifierKeys::CtrlCmd);
+        inputState.mouseDown(MouseButtons::Left);
+
+        auto tracker = tool.acceptMouseDrag(inputState);
+        REQUIRE(tracker != nullptr);
+
+        auto frontPickResult = mdl::PickResult{};
+        frontPickResult.addHit(mdl::Hit{
+          mdl::BrushNode::BrushHitType,
+          0.0,
+          vm::vec3d{0, 0, 0},
+          mdl::BrushFaceHandle{*brushNode, frontFaceIndex}});
+        inputState.setPickResult(std::move(frontPickResult));
+
+        tracker->update(inputState);
+        tracker->end(inputState);
+
+        const auto selectionAfter = map.selection();
+        REQUIRE(selectionAfter.brushFaces.size() == 2);
+
+        THEN("Undo and redo each take a single step")
+        {
+          map.undoCommand();
+          CHECK(map.selection() == selectionBefore);
+
+          map.redoCommand();
+          CHECK(map.selection() == selectionAfter);
+        }
+      }
+
+      WHEN("I ctrl drag across the brush and the entity while a face is selected")
+      {
+        selectBrushFaces(map, {{*brushNode, frontFaceIndex}});
+        const auto selectionBefore = map.selection();
+
+        inputState.setModifierKeys(ModifierKeys::CtrlCmd);
+        inputState.mouseDown(MouseButtons::Left);
+
+        auto tracker = tool.acceptMouseDrag(inputState);
+        REQUIRE(tracker != nullptr);
+
+        auto entityPickResult = mdl::PickResult{};
+        entityPickResult.addHit(
+          mdl::Hit{mdl::EntityNode::EntityHitType, 0.0, vm::vec3d{64, 0, 0}, entityNode});
+        inputState.setPickResult(std::move(entityPickResult));
+
+        tracker->update(inputState);
+        tracker->end(inputState);
+
+        const auto selectionAfter = map.selection();
+        REQUIRE(selectionAfter == mdl::makeSelection(map, {brushNode, entityNode}));
+
+        THEN("Undo and redo each take a single step")
+        {
+          map.undoCommand();
+          CHECK(map.selection() == selectionBefore);
+
+          map.redoCommand();
+          CHECK(map.selection() == selectionAfter);
+        }
+      }
+    }
+
+    GIVEN("A brush entity with two brushes and a brush outside of it")
+    {
+      auto* entityNode = addNode(
+        map, parentForNodes(map), std::make_unique<mdl::EntityNode>(mdl::Entity{}));
+      addNode(
+        map,
+        *entityNode,
+        std::make_unique<mdl::BrushNode>(
+          builder.createCuboid(vm::bbox3d{{-16, -16, -16}, {16, 16, 16}}, "some_face")
+          | kdl::value()));
+      addNode(
+        map,
+        *entityNode,
+        std::make_unique<mdl::BrushNode>(
+          builder.createCuboid(vm::bbox3d{{48, -16, -16}, {80, 16, 16}}, "some_face")
+          | kdl::value()));
+      auto* otherBrushNode = addNode(
+        map,
+        parentForNodes(map),
+        std::make_unique<mdl::BrushNode>(
+          builder.createCuboid(vm::bbox3d{{112, -16, -16}, {144, 16, 16}}, "some_face")
+          | kdl::value()));
+
+      auto pickResult = mdl::PickResult{};
+      pick(map, pickRay, pickResult);
+      REQUIRE(pickResult.all().size() == 1);
+
+      auto inputState = InputState{0.0f, 0.0f};
+      inputState.setPickRequest({pickRay, camera});
+      inputState.setPickResult(std::move(pickResult));
+
+      WHEN("I double click a brush of the entity while the other brush is selected")
+      {
+        selectNodes(map, {otherBrushNode});
+        const auto selectionBefore = map.selection();
+
+        inputState.mouseDown(MouseButtons::Left);
+        tool.mouseDoubleClick(inputState);
+        inputState.mouseUp(MouseButtons::Left);
+
+        const auto selectionAfter = map.selection();
+        REQUIRE(selectionAfter != selectionBefore);
+
+        THEN("Undo and redo each take a single step")
+        {
+          map.undoCommand();
+          CHECK(map.selection() == selectionBefore);
+
+          map.redoCommand();
+          CHECK(map.selection() == selectionAfter);
+        }
+      }
+
+      WHEN("I ctrl double click a brush of the entity while a face is selected")
+      {
+        selectBrushFaces(map, {{*otherBrushNode, 0}});
+        const auto selectionBefore = map.selection();
+
+        inputState.setModifierKeys(ModifierKeys::CtrlCmd);
+        inputState.mouseDown(MouseButtons::Left);
+        tool.mouseDoubleClick(inputState);
+        inputState.mouseUp(MouseButtons::Left);
+
+        const auto selectionAfter = map.selection();
+        REQUIRE(selectionAfter != selectionBefore);
+
+        THEN("Undo and redo each take a single step")
+        {
+          map.undoCommand();
+          CHECK(map.selection() == selectionBefore);
+
+          map.redoCommand();
+          CHECK(map.selection() == selectionAfter);
+        }
+      }
+    }
+
+    GIVEN("A group containing a brush")
+    {
+      auto* groupNode = addNode(
+        map,
+        parentForNodes(map),
+        std::make_unique<mdl::GroupNode>(mdl::Group{"some_group"}));
+      auto* brushNode = addNode(
+        map,
+        *groupNode,
+        std::make_unique<mdl::BrushNode>(
+          builder.createCube(32.0, "some_face") | kdl::value()));
+
+      auto pickResult = mdl::PickResult{};
+      pick(map, pickRay, pickResult);
+      REQUIRE(pickResult.all().size() == 1);
+
+      auto inputState = InputState{0.0f, 0.0f};
+      inputState.setPickRequest({pickRay, camera});
+      inputState.setPickResult(std::move(pickResult));
+
+      WHEN("I double click the selected group")
+      {
+        selectNodes(map, {groupNode});
+        const auto selectionBefore = map.selection();
+
+        inputState.mouseDown(MouseButtons::Left);
+        tool.mouseDoubleClick(inputState);
+        inputState.mouseUp(MouseButtons::Left);
+
+        const auto selectionAfter = map.selection();
+        REQUIRE(map.editorContext().currentGroup() == groupNode);
+
+        THEN("Undo and redo each take a single step")
+        {
+          map.undoCommand();
+          CHECK(map.editorContext().currentGroup() == nullptr);
+          CHECK(map.selection() == selectionBefore);
+
+          map.redoCommand();
+          CHECK(map.editorContext().currentGroup() == groupNode);
+          CHECK(map.selection() == selectionAfter);
+        }
+      }
+
+      WHEN("I double click the void while the group is open and its brush is selected")
+      {
+        openGroup(map, *groupNode);
+        selectNodes(map, {brushNode});
+        const auto selectionBefore = map.selection();
+
+        inputState.setPickResult(mdl::PickResult{});
+        inputState.mouseDown(MouseButtons::Left);
+        tool.mouseDoubleClick(inputState);
+        inputState.mouseUp(MouseButtons::Left);
+
+        const auto selectionAfter = map.selection();
+        REQUIRE(map.editorContext().currentGroup() == nullptr);
+
+        THEN("Undo and redo each take a single step")
+        {
+          map.undoCommand();
+          CHECK(map.editorContext().currentGroup() == groupNode);
+          CHECK(map.selection() == selectionBefore);
+
+          map.redoCommand();
+          CHECK(map.editorContext().currentGroup() == nullptr);
+          CHECK(map.selection() == selectionAfter);
+        }
+      }
+    }
+
+    GIVEN("Two nested brushes along the pick ray")
+    {
+      auto* largeBrushNode = addNode(
+        map,
+        parentForNodes(map),
+        std::make_unique<mdl::BrushNode>(
+          builder.createCube(64.0, "material") | kdl::value()));
+      addNode(
+        map,
+        parentForNodes(map),
+        std::make_unique<mdl::BrushNode>(
+          builder.createCube(32.0, "material") | kdl::value()));
+
+      auto pickResult = mdl::PickResult{};
+      pick(map, pickRay, pickResult);
+      REQUIRE(pickResult.all().size() == 2);
+
+      auto inputState = InputState{0.0f, 0.0f};
+      inputState.setPickRequest({pickRay, camera});
+      inputState.setPickResult(std::move(pickResult));
+
+      WHEN("I drill the selection")
+      {
+        selectNodes(map, {largeBrushNode});
+        const auto selectionBefore = map.selection();
+
+        inputState.setModifierKeys(ModifierKeys::CtrlCmd);
+        inputState.scroll(ScrollSource::Mouse, 0.0f, 1.0f);
+        tool.mouseScroll(inputState);
+
+        const auto selectionAfter = map.selection();
+        REQUIRE(selectionAfter != selectionBefore);
+
+        THEN("Undo and redo each take a single step")
+        {
+          map.undoCommand();
+          CHECK(map.selection() == selectionBefore);
+
+          map.redoCommand();
+          CHECK(map.selection() == selectionAfter);
         }
       }
     }
