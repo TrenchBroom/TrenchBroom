@@ -2326,13 +2326,17 @@ The following table explains the supported combinations of container and value t
 
 Container   Value     Effect
 ---------   -----     ------
+`String`    `String`  `true` if the string contains `value` as a substring.
 `Array`     any type  `true` if the array contains an element equal to `value`.
 `Map`       `String`  `true` if the map contains a key equal to `value`.
 `BBox`      `Vec3`    `true` if the box contains the point.
 `BBox`      `BBox`    `true` if the box fully contains the other box.
 
+A string is searched for the substring with case sensitivity, and the characters `*`, `?`, and `%` have no special meaning, so `"func_detail" contains "detail"` is `true`, but `"func_detail" contains "Detail"` and `"func_detail" contains "func_*"` are `false`. To search a string ignoring case or with wildcards, use `like` instead.
+
 The elements of an array are compared with `value` like `==` does, including its type conversions, so `[1, 2, 3] contains "2"` is `true`.
 
+    "asdf" contains "sd"                                                // true
     [1, 2, 3] contains 2                                                // true
     { a: 1, b: 2 } contains "a"                                         // true
     bbox(vec(0, 0, 0), vec(2, 2, 2)) contains vec(1, 1, 1)              // true
@@ -2733,7 +2737,7 @@ Syntax                                  Meaning
 `(a)`                                   Parentheses group a part of a query.
 `a is b`                                The same as `a == b`.
 `a like p`                              Whether `a` matches the pattern `p`, ignoring case; see [Pattern Matching](#el_pattern_matching).
-`a contains b`                          Whether the array, map, or bounding box `a` contains `b`.
+`a contains b`                          Whether the string, array, map, or bounding box `a` contains `b`.
 `b in a`                                The same as `a contains b`.
 `vec(x, y, z)`                          A vector.
 `bbox(min, max)`                        A bounding box with the corners `min` and `max`.
@@ -2743,7 +2747,7 @@ Syntax                                  Meaning
 Keep the following in mind when writing queries.
 
 - The functions `is`, `like`, `contains`, `in`, `distanceTo`, and `intersects` bind more tightly than any operator, so `classname is "light" && visible` works without parentheses. To negate such a term, enclose it in parentheses: `!(classname is "light")`.
-- Strings are compared case sensitively by `==`, `!=`, and `is`, but `like` ignores case.
+- Strings are compared case sensitively by `==`, `!=`, `is`, `contains`, and `in`, but `like` ignores case.
 - Property values are strings, but they are converted to numbers when compared with a number, so `properties.light > 300` works as expected.
 - A field that the object doesn't have, or a property that the entity doesn't have, evaluates to `undefined`. `undefined` is not equal to any other value, and it is less than any other value, so `properties.light < 100` also finds lights without a `light` property. To test whether an entity has a property, use `properties contains "light"`.
 - If evaluating a query for an object results in an error, or in any value other than `true`, the object doesn't match. For example, `properties.light > 300` doesn't match a light whose `light` property is not a number.

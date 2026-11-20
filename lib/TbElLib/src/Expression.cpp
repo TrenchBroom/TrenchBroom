@@ -1550,6 +1550,10 @@ Value evaluateContains(
       return evaluateEqual(element, rhs, expressionNode);
     })};
   }
+  case ValueType::String:
+    return Value{
+      rhs.hasType(ValueType::String)
+      && kdl::cs::str_contains(lhs.stringValue(), rhs.stringValue())};
   case ValueType::Map:
   case ValueType::LazyMap:
     return Value{rhs.hasType(ValueType::String) && lhs.contains(rhs.stringValue())};
@@ -1564,7 +1568,6 @@ Value evaluateContains(
     }
     return Value{false};
   case ValueType::Boolean:
-  case ValueType::String:
   case ValueType::Number:
   case ValueType::Range:
   case ValueType::Vec3:

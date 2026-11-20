@@ -2096,6 +2096,18 @@ TEST_CASE("Expression")
       // a non-String rhs against a Map is simply false, not an error
       {R"({a: 1, b: 2} contains 1)",                                                 Value{false}},
 
+      // String contains String: case sensitive substring, wildcards are literal
+      {R"("asdf" contains "sd")",                                                    Value{true}},
+      {R"("asdf" contains "asdf")",                                                  Value{true}},
+      {R"("asdf" contains "")",                                                      Value{true}},
+      {R"("asdf" contains "xy")",                                                    Value{false}},
+      {R"("sd" contains "asdf")",                                                    Value{false}},
+      {R"("asdf" contains "SD")",                                                    Value{false}},
+      {R"("asdf" contains "a*f")",                                                   Value{false}},
+      {R"("a*f" contains "a*f")",                                                    Value{true}},
+      // a non-String rhs against a String is simply false, not an error
+      {R"("a1" contains 1)",                                                         Value{false}},
+
       // BBox contains Vec3: point containment
       {"bbox(vec(0, 0, 0), vec(2, 2, 2)) contains vec(1, 1, 1)",                     Value{true}},
       {"bbox(vec(0, 0, 0), vec(2, 2, 2)) contains vec(3, 3, 3)",                     Value{false}},
@@ -2138,6 +2150,9 @@ TEST_CASE("Expression")
       {R"("a" in {a: 1, b: 2})",                                               Value{true}},
       {R"("c" in {a: 1, b: 2})",                                               Value{false}},
       {"1 in {a: 1, b: 2}",                                                    Value{false}},
+
+      {R"("sd" in "asdf")",                                                    Value{true}},
+      {R"("xy" in "asdf")",                                                    Value{false}},
 
       {"vec(1, 1, 1) in bbox(vec(0, 0, 0), vec(2, 2, 2))",                     Value{true}},
       {"vec(3, 3, 3) in bbox(vec(0, 0, 0), vec(2, 2, 2))",                     Value{false}},
