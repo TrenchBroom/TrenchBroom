@@ -24,6 +24,7 @@
 #include "kd/result_io.h" // IWYU pragma: keep
 
 #include <string>
+#include <vector>
 
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/generators/catch_generators.hpp>
@@ -750,6 +751,93 @@ asdf)",                                                                         
     CAPTURE(expression);
 
     CHECK(parse(expression) == expectedResult);
+  }
+
+  SECTION("isNameStartChar")
+  {
+    // clang-format off
+    const auto
+    [c,      expectedResult] = GENERATE(table<char, bool>({
+    {'a',    true},
+    {'z',    true},
+    {'A',    true},
+    {'Z',    true},
+    {'_',    true},
+    {'0',    false},
+    {'9',    false},
+    {'.',    false},
+    {'$',    false},
+    {' ',    false},
+
+    // the first byte of a non-ASCII character
+    {'\xC3', false},
+    }));
+    // clang-format on
+
+    CAPTURE(c);
+
+    CHECK(isNameStartChar(c) == expectedResult);
+  }
+
+  SECTION("isNameChar")
+  {
+    // clang-format off
+    const auto
+    [c,      expectedResult] = GENERATE(table<char, bool>({
+    {'a',    true},
+    {'z',    true},
+    {'A',    true},
+    {'Z',    true},
+    {'_',    true},
+    {'0',    true},
+    {'9',    true},
+    {'.',    false},
+    {'$',    false},
+    {' ',    false},
+
+    // the first byte of a non-ASCII character
+    {'\xC3', false},
+    }));
+    // clang-format on
+
+    CAPTURE(c);
+
+    CHECK(isNameChar(c) == expectedResult);
+  }
+
+  SECTION("isName")
+  {
+    // clang-format off
+    const auto
+    [text,        expectedResult] = GENERATE(table<std::string, bool>({
+    {"a",         true},
+    {"_",         true},
+    {"_1",        true},
+    {"a_1B",      true},
+    {"",          false},
+    {"1a",        false},
+    {"a.b",       false},
+    {"a-b",       false},
+    {"a b",       false},
+    {"\xC3\xA4",  false},
+
+    // keywords are not names, but a name may begin with a keyword
+    {"true",      false},
+    {"false",     false},
+    {"null",      false},
+    {"undefined", false},
+    {"trueValue", true},
+    }));
+    // clang-format on
+
+    CAPTURE(text);
+
+    CHECK(isName(text) == expectedResult);
+  }
+
+  SECTION("keywords")
+  {
+    CHECK(keywords() == std::vector<std::string>{"false", "null", "true", "undefined"});
   }
 }
 

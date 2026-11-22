@@ -26,14 +26,19 @@
 #include "el/Expression.h"
 #include "el/Value.h"
 
+#include "kd/flat_map.h"
+#include "kd/ranges/to.h"
 #include "kd/string_format.h"
 
 #include <fmt/format.h>
 
+#include <algorithm>
 #include <optional>
+#include <ranges>
 #include <string>
 #include <string_view>
 #include <unordered_map>
+#include <vector>
 
 namespace tb::el
 {
@@ -85,7 +90,49 @@ auto tokenNames()
     {Dot, "'.'"},
   };
 }
+
+const auto& keywordTypes()
+{
+  static const auto keywordTypes = kdl::flat_map<std::string_view, ElToken::Type>{
+    {"true", ElToken::Boolean},
+    {"false", ElToken::Boolean},
+    {"null", ElToken::Null},
+    {"undefined", ElToken::Undefined},
+  };
+  return keywordTypes;
+}
 } // namespace
+
+bool isNameStartChar(const char c)
+{
+  return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_';
+}
+
+bool isNameChar(const char c)
+{
+  return isNameStartChar(c) || (c >= '0' && c <= '9');
+}
+
+bool isName(const std::string_view text)
+{
+  return !text.empty() && isNameStartChar(text.front())
+         && std::ranges::all_of(text.substr(1), isNameChar)
+         && !keywordTypes().contains(text);
+}
+
+const std::vector<std::string>& keywords()
+{
+  static const auto keywords = [] {
+    auto result =
+      keywordTypes() | std::views::keys
+      | std::views::transform([](const auto keyword) { return std::string{keyword}; })
+      | kdl::ranges::to<std::vector>();
+    std::ranges::sort(result);
+    return result;
+  }();
+
+  return keywords;
+}
 
 const std::string& Tokenizer::NumberDelim() const
 {
@@ -285,21 +332,16 @@ Tokenizer::Token Tokenizer::emitToken()
         return Token{ElToken::Number, c, e, offset(c), line, column};
       }
 
-      if (isLetter(*c) || *c == '_')
+      if (isNameStartChar(*c))
       {
         const char* e = nullptr;
         do
         {
           advance();
           e = curPos();
-        } while (!eof() && (isLetter(*e) || isDigit(*e) || *e == '_'));
+        } while (!eof() && isNameChar(*e));
 
-        static const auto keywords = std::unordered_map<std::string_view, ElToken::Type>{
-          {"true", ElToken::Boolean},
-          {"false", ElToken::Boolean},
-          {"null", ElToken::Null},
-          {"undefined", ElToken::Undefined},
-        };
+        const auto& keywords = keywordTypes();
         const auto iKeyword = keywords.find(std::string_view{c, e});
         const auto type = iKeyword != keywords.end() ? iKeyword->second : ElToken::Name;
         return Token{type, c, e, offset(c), line, column};

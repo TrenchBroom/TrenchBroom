@@ -29,6 +29,8 @@
 
 #include <cstdint>
 #include <string>
+#include <string_view>
+#include <vector>
 
 namespace tb::el
 {
@@ -85,6 +87,26 @@ constexpr auto CompoundTerm =
   | Less | LessOrEqual | Equal | NotEqual | GreaterOrEqual | Greater | Case | BitwiseAnd
   | BitwiseXOr | BitwiseOr | BitwiseShiftLeft | BitwiseShiftRight | Name;
 } // namespace ElToken
+
+/**
+ * Checks whether the given character can begin a name.
+ */
+bool isNameStartChar(char c);
+
+/**
+ * Checks whether the given character can continue a name.
+ */
+bool isNameChar(char c);
+
+/**
+ * Checks whether the given text is a name.
+ */
+bool isName(std::string_view text);
+
+/**
+ * Returns the keywords, such as `true` and `null`, sorted alphabetically.
+ */
+const std::vector<std::string>& keywords();
 
 class Tokenizer : public tb::Tokenizer<ElToken::Type>
 {
