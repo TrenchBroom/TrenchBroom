@@ -304,11 +304,23 @@ bool operator==(const CallExpression& lhs, const CallExpression& rhs);
 std::ostream& operator<<(std::ostream& lhs, const CallExpression& rhs);
 
 /**
+ * How a built-in function is usually called. Every built-in function can be called with
+ * prefix notation, as in `f(a, b)`, and one that takes two arguments can also be called
+ * with infix notation, as in `a f b`.
+ */
+enum class FunctionNotation
+{
+  Prefix,
+  Infix,
+};
+
+/**
  * A function that an expression can call by name.
  */
 struct BuiltinFunction
 {
   size_t arity;
+  FunctionNotation notation;
   Value (*evaluate)(std::span<const Value>, const ExpressionNode&);
 };
 

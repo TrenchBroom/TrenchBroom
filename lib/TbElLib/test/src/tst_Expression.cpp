@@ -2611,6 +2611,22 @@ TEST_CASE("Expression")
       (builtinFunctions() | std::views::keys | kdl::ranges::to<std::vector>())
       == std::vector<std::string>{
         "bbox", "contains", "distanceTo", "in", "intersects", "is", "like", "vec"});
+
+    CHECK(builtinFunctions().at("bbox").notation == FunctionNotation::Prefix);
+    CHECK(builtinFunctions().at("vec").notation == FunctionNotation::Prefix);
+    CHECK(builtinFunctions().at("contains").notation == FunctionNotation::Infix);
+    CHECK(builtinFunctions().at("distanceTo").notation == FunctionNotation::Infix);
+    CHECK(builtinFunctions().at("in").notation == FunctionNotation::Infix);
+    CHECK(builtinFunctions().at("intersects").notation == FunctionNotation::Infix);
+    CHECK(builtinFunctions().at("is").notation == FunctionNotation::Infix);
+    CHECK(builtinFunctions().at("like").notation == FunctionNotation::Infix);
+
+    // only a function that takes two arguments can be called with infix notation
+    for (const auto& [name, function] : builtinFunctions())
+    {
+      CAPTURE(name);
+      CHECK((function.notation != FunctionNotation::Infix || function.arity == 2u));
+    }
   }
 
   SECTION("findBuiltinFunction")
