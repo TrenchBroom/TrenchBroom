@@ -26,10 +26,12 @@
 #include "el/Value.h"
 #include "el/VariableStore.h"
 
+#include "kd/ranges/to.h"
 #include "kd/result_io.h" // IWYU pragma: keep
 
 #include <fmt/ostream.h>
 
+#include <ranges>
 #include <string>
 #include <vector>
 
@@ -2601,6 +2603,20 @@ TEST_CASE("Expression")
     CAPTURE(expression);
 
     CHECK(preorderVisit(expression) == expectedVisits);
+  }
+
+  SECTION("builtinFunctions")
+  {
+    CHECK(
+      (builtinFunctions() | std::views::keys | kdl::ranges::to<std::vector>())
+      == std::vector<std::string>{
+        "bbox", "contains", "distanceTo", "in", "intersects", "is", "like", "vec"});
+  }
+
+  SECTION("findBuiltinFunction")
+  {
+    CHECK(findBuiltinFunction("vec") == &builtinFunctions().at("vec"));
+    CHECK(findBuiltinFunction("unknown") == nullptr);
   }
 }
 

@@ -163,8 +163,7 @@ bool usesOnlyKnownNames(const el::ExpressionNode& expression)
     // the name after the dot is a key, not a field
     [](const el::DotExpression& d) { return usesOnlyKnownNames(d.operand); },
     [&](const el::CallExpression& c) {
-      return el::builtinFunctionArity(c.name).has_value()
-             && allUseOnlyKnownNames(c.arguments);
+      return el::builtinFunctions().contains(c.name) && allUseOnlyKnownNames(c.arguments);
     },
     [&](const el::SwitchExpression& s) { return allUseOnlyKnownNames(s.cases); }));
 }

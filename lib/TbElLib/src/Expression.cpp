@@ -37,6 +37,7 @@
 
 #include <algorithm>
 #include <array>
+#include <optional>
 #include <ranges>
 #include <span>
 #include <sstream>
@@ -44,13 +45,6 @@
 
 namespace tb::el
 {
-
-struct BuiltinFunction
-{
-  size_t arity;
-  Value (*evaluate)(std::span<const Value>, const ExpressionNode&);
-};
-
 namespace
 {
 
@@ -1585,7 +1579,7 @@ bool hasUndefinedArgument(const std::span<const Value> arguments)
   });
 }
 
-const auto builtinFunctions = kdl::flat_map<std::string, BuiltinFunction>{
+const auto builtinFunctionsByName = kdl::flat_map<std::string, BuiltinFunction>{
   {"vec",
    {3,
     [](const std::span<const Value> arguments, const ExpressionNode&) {
@@ -2366,16 +2360,15 @@ std::ostream& operator<<(std::ostream& lhs, const CallExpression& rhs)
   return lhs << ")";
 }
 
-const BuiltinFunction* findBuiltinFunction(const std::string& name)
+const kdl::flat_map<std::string, BuiltinFunction>& builtinFunctions()
 {
-  const auto it = builtinFunctions.find(name);
-  return it != builtinFunctions.end() ? &it->second : nullptr;
+  return builtinFunctionsByName;
 }
 
-std::optional<size_t> builtinFunctionArity(const std::string& name)
+const BuiltinFunction* findBuiltinFunction(const std::string& name)
 {
-  const auto* function = findBuiltinFunction(name);
-  return function ? std::optional{function->arity} : std::nullopt;
+  const auto it = builtinFunctionsByName.find(name);
+  return it != builtinFunctionsByName.end() ? &it->second : nullptr;
 }
 
 

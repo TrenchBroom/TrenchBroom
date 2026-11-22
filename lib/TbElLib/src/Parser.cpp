@@ -761,8 +761,12 @@ ExpressionNode Parser::parseCompoundTerm(ExpressionNode lhs)
   // takes two arguments, so in `a b c`, the term ends before `b` unless `b` is such a
   // function
   const auto continuesTerm = [](const auto& token) {
-    return token.hasType(ElToken::CompoundTerm)
-           && (!token.hasType(ElToken::Name) || builtinFunctionArity(token.data()) == 2u);
+    if (!token.hasType(ElToken::Name))
+    {
+      return token.hasType(ElToken::CompoundTerm);
+    }
+    const auto* function = findBuiltinFunction(token.data());
+    return function && function->arity == 2u;
   };
 
   while (continuesTerm(m_tokenizer.peekToken()))
