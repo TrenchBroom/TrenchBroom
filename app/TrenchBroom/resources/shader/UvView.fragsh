@@ -36,7 +36,7 @@ varying vec3 modelNormal;
 varying vec4 faceColor;
 
 // Shared with the other grid shaders (see GridCommon.fragsh).
-float gridLine(float coord, float stripeSize, float isMajor);
+float gridLine(float coord, float coordWidth, float stripeSize, float isMajor);
 vec3 adaptiveGridColor(vec3 background);
 float texturedGridAlpha(float alpha);
 bool passesAlphaFunc(float alpha);
@@ -51,7 +51,7 @@ float getSoftStripes(float coord, float gridDivider, float gridSize, float strip
   float majorCloseness = abs(2.0 * fract(coord / gridSize) - 1.0);
   float isMajor = step(1.0 - 1.0 / gridDivider, majorCloseness);
 
-  return gridLine(minorCoord, stripeSize, isMajor);
+  return gridLine(minorCoord, fwidth(minorCoord), stripeSize, isMajor);
 }
 
 void gridLinesSoft(vec2 inCoords)
