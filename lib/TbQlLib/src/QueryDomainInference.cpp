@@ -59,24 +59,6 @@ namespace
  */
 
 /**
- * Returns every object type. Domain inference checks each of these types to decide
- * whether it belongs to the domain, and a condition that doesn't refer to any field
- * applies to all of them.
- */
-QueryDomain fullDomain()
-{
-  return {
-    QueryObjectType::World,
-    QueryObjectType::Layer,
-    QueryObjectType::Group,
-    QueryObjectType::Entity,
-    QueryObjectType::Brush,
-    QueryObjectType::Patch,
-    QueryObjectType::Face,
-  };
-}
-
-/**
  * Returns the names of the variables that the given expression refers to, including names
  * that aren't fields of any object type.
  *
@@ -377,6 +359,24 @@ std::optional<QueryObjectType> queryObjectTypeFromName(const std::string& name)
     return QueryObjectType::Face;
   }
   return std::nullopt;
+}
+
+/**
+ * Returns every object type. Domain inference checks each of these types to decide
+ * whether it belongs to the domain, and a condition that doesn't refer to any field
+ * applies to all of them.
+ */
+QueryDomain fullDomain()
+{
+  return {
+    QueryObjectType::World,
+    QueryObjectType::Layer,
+    QueryObjectType::Group,
+    QueryObjectType::Entity,
+    QueryObjectType::Brush,
+    QueryObjectType::Patch,
+    QueryObjectType::Face,
+  };
 }
 
 /**
