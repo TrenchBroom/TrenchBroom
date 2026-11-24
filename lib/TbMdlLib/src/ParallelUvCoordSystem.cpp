@@ -72,28 +72,6 @@ std::tuple<vm::vec3d, vm::vec3d> applyRotation(
 
 kdl_reflect_impl(ParallelUvCoordSystem);
 
-/**
- * Constructs a parallel tex coord system where the texture is projected form the face
- * plane
- *
- * @param point0 a point defining the face plane
- * @param point1 a point defining the face plane
- * @param point2 a point defining the face plane
- * @param uvAttributes face attributes
- */
-ParallelUvCoordSystem::ParallelUvCoordSystem(
-  const vm::vec3d& point0,
-  const vm::vec3d& point1,
-  const vm::vec3d& point2,
-  const UvAttributes& uvAttributes)
-  : m_uvAttributes{uvAttributes}
-{
-  const auto normal = vm::normalize(vm::cross(point2 - point0, point1 - point0));
-  std::tie(m_uAxis, m_vAxis) = computeInitialAxes(normal);
-  std::tie(m_uAxis, m_vAxis) =
-    applyRotation(uAxis(), vAxis(), normal, double(uvAttributes.rotation));
-}
-
 ParallelUvCoordSystem::ParallelUvCoordSystem(
   const vm::vec3d& uAxis, const vm::vec3d& vAxis, const UvAttributes& uvAttributes)
   : m_uAxis{uAxis}
