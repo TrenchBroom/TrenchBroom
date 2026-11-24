@@ -55,6 +55,7 @@
 #include <vector>
 
 #include <catch2/catch_test_macros.hpp>
+#include <catch2/generators/catch_generators.hpp>
 #include <catch2/matchers/catch_matchers_vector.hpp>
 
 namespace tb::mdl
@@ -1024,6 +1025,51 @@ TEST_CASE("BrushFace")
 
       CHECK(face.uAxis() == vm::approx{newXAxis});
       CHECK(face.vAxis() == vm::approx{newYAxis});
+    }
+  }
+
+  SECTION("copyAttributes")
+  {
+    const auto mapFormat = GENERATE(MapFormat::Standard, MapFormat::Valve);
+    CAPTURE(mapFormat);
+
+    const auto source =
+      BrushFace::create(
+        {0, 0, 64},
+        {0, 1, 64},
+        {1, 0, 64},
+        "source",
+        UvAttributes{.offset = {7, 3}, .scale = {0.5f, 2.0f}, .rotation = 30.0f},
+        SurfaceAttributes{.flags = 4},
+        mapFormat)
+      | kdl::value();
+
+    const auto p0 = vm::vec3d{48, 0, 0};
+    const auto p1 = vm::vec3d{48, 64, 0};
+    const auto p2 = vm::vec3d{0, 0, 48};
+
+    auto face =
+      BrushFace::create(p0, p1, p2, "", UvAttributes{}, SurfaceAttributes{}, mapFormat)
+      | kdl::value();
+    REQUIRE(face.copyAttributes(source).is_success());
+
+    SECTION("copies the material and the UV and surface attributes")
+    {
+      CHECK(face.materialName() == "source");
+      CHECK(face.uvAttributes() == source.uvAttributes());
+      CHECK(face.surfaceAttributes() == source.surfaceAttributes());
+    }
+
+    // https://github.com/TrenchBroom/TrenchBroom/issues/5583
+    SECTION("rotates the UV axes to match the copied rotation")
+    {
+      const auto expected =
+        BrushFace::create(
+          p0, p1, p2, "", source.uvAttributes(), SurfaceAttributes{}, mapFormat)
+        | kdl::value();
+
+      CHECK(face.uAxis() == vm::approx{expected.uAxis()});
+      CHECK(face.vAxis() == vm::approx{expected.vAxis()});
     }
   }
 

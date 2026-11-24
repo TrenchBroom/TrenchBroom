@@ -228,13 +228,11 @@ public:
   void setSurfaceAttributes(const SurfaceAttributes& surfaceAttributes);
 
   /**
-   * Copies the material name and the UV and surface attributes from the given face.
-   * Unlike setUvAttributes, this does not update the rotation of the UV coordinate
-   * system.
-   *
-   * @return true if any attribute changed
+   * Copies the material name and the UV and surface attributes from the given face. The
+   * UV attributes are applied as by setUvAttributes, so the UV axes are rotated to
+   * match the copied rotation.
    */
-  bool copyAttributes(const BrushFace& other);
+  Result<void> copyAttributes(const BrushFace& other);
 
   int resolvedSurfaceContents() const;
   int resolvedSurfaceFlags() const;
