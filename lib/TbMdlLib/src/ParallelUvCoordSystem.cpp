@@ -115,8 +115,8 @@ Result<ParallelUvCoordSystem> ParallelUvCoordSystem::createFromPoints(
   }
 
   auto [uAxis, vAxis] = computeInitialAxes(*normal);
-  std::tie(uAxis, vAxis) =
-    applyRotation(uAxis, vAxis, *normal, double(uvAttributes.rotation));
+  std::tie(uAxis, vAxis) = applyRotation(
+    uAxis, vAxis, vm::cross(uAxis, vAxis), vm::to_radians(double(uvAttributes.rotation)));
   return createFromAxes(uAxis, vAxis, uvAttributes);
 }
 
