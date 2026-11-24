@@ -34,7 +34,6 @@
 #include "mdl/TestUtils.h"
 #include "mdl/UvAttributes.h"
 
-#include "kd/contracts.h"
 #include "kd/result.h"
 #include "kd/task_manager.h"
 
@@ -154,16 +153,6 @@ void checkFaceUvsEqual(const BrushFace& face, const BrushFace& other)
   }
 
   checkUvListsEqual(faceUvs, otherFaceUvs, face);
-}
-
-void checkBrushUvsEqual(const Brush& brush, const Brush& other)
-{
-  contract_pre(brush.faceCount() == other.faceCount());
-
-  for (size_t i = 0; i < brush.faceCount(); ++i)
-  {
-    checkFaceUvsEqual(brush.face(i), other.face(i));
-  }
 }
 
 /**
@@ -456,11 +445,86 @@ void checkAlignmentLockOffWithScale(const Brush& cube)
   CHECK(transformed_U_width.y() == vm::approx{orig_U_width.y()});
 }
 
+/**
+ * Runs the given lambda of type `const BrushFace& -> void` with each face of a Standard
+ * format cube transformed by each of the alignment lock test transforms.
+ */
+template <class L>
+void doWithTransformedStandardCubeFaces(L&& lambda)
+{
+  const auto worldBounds = vm::bbox3d{4096.0};
+  auto material =
+    gl::Material{"testMaterial", gl::createTextureResource(gl::Texture{64, 64})};
+
+  auto startingCube =
+    BrushBuilder{MapFormat::Standard, worldBounds}.createCube(128.0, "") | kdl::value();
+  for (auto& face : startingCube.faces())
+  {
+    face.setMaterial(&material);
+  }
+
+  // NOTE: intentionally include the shear/multi-axis rotations which won't work properly
+  // on Standard. We're not testing alignment lock, just generating interesting faces, so
+  // it doesn't matter if alignment lock works.
+  doWithAlignmentLockTestTransforms(true, [&](const vm::mat4x4d& transform) {
+    auto cube = startingCube;
+    REQUIRE(cube.transform(worldBounds, transform, true));
+
+    for (const auto& face : cube.faces())
+    {
+      lambda(face);
+    }
+  });
+}
+
 } // namespace
 
 TEST_CASE("BrushFace")
 {
   auto taskManager = kdl::task_manager{};
+
+  SECTION("copy constructor")
+  {
+    auto material =
+      gl::Material{"testMaterial", gl::createTextureResource(gl::Texture{64, 64})};
+
+    auto face = BrushFace::create(
+                  {0, 0, 4},
+                  {1, 0, 4},
+                  {0, -1, 4},
+                  "",
+                  UvAttributes{},
+                  SurfaceAttributes{},
+                  MapFormat::Standard)
+                | kdl::value();
+    face.setMaterial(&material);
+    REQUIRE(material.usageCount() == 1u);
+
+    const auto clone = face;
+    CHECK(material.usageCount() == 2u);
+  }
+
+  SECTION("destructor")
+  {
+    auto material =
+      gl::Material{"testMaterial", gl::createTextureResource(gl::Texture{64, 64})};
+
+    {
+      auto face = BrushFace::create(
+                    {0, 0, 4},
+                    {1, 0, 4},
+                    {0, -1, 4},
+                    "",
+                    UvAttributes{},
+                    SurfaceAttributes{},
+                    MapFormat::Standard)
+                  | kdl::value();
+      face.setMaterial(&material);
+      REQUIRE(material.usageCount() == 1u);
+    }
+
+    CHECK(material.usageCount() == 0u);
+  }
 
   SECTION("create")
   {
@@ -522,8 +586,26 @@ TEST_CASE("BrushFace")
       CHECK(!BrushFace::create(
         p0, p1, p2, "", invalidUvAttributes, SurfaceAttributes{}, MapFormat::Valve));
     }
+  }
 
-    SECTION("with degenerate Valve axes")
+  SECTION("createFromStandard")
+  {
+    SECTION("with an extreme scale")
+    {
+      const auto p0 = vm::vec3d{0, 0, 4};
+      const auto p1 = vm::vec3d{1, 0, 4};
+      const auto p2 = vm::vec3d{0, -1, 4};
+      const auto extremeUvAttributes = UvAttributes{{0, 0}, {1e30f, 1e30f}, 0.0f};
+
+      // converting from Paraxial to Parallel preserves the (here, extreme) UV attributes
+      CHECK(!BrushFace::createFromStandard(
+        p0, p1, p2, "", extremeUvAttributes, SurfaceAttributes{}, MapFormat::Valve));
+    }
+  }
+
+  SECTION("createFromValve")
+  {
+    SECTION("with degenerate axes")
     {
       const auto p0 = vm::vec3d{0, 0, 4};
       const auto p1 = vm::vec3d{1, 0, 4};
@@ -542,73 +624,39 @@ TEST_CASE("BrushFace")
         uAxis,
         MapFormat::Valve));
     }
-
-    SECTION("createFromStandard with an extreme scale")
-    {
-      const auto p0 = vm::vec3d{0, 0, 4};
-      const auto p1 = vm::vec3d{1, 0, 4};
-      const auto p2 = vm::vec3d{0, -1, 4};
-      const auto extremeUvAttributes = UvAttributes{{0, 0}, {1e30f, 1e30f}, 0.0f};
-
-      // converting from Paraxial to Parallel preserves the (here, extreme) UV attributes
-      CHECK(!BrushFace::createFromStandard(
-        p0, p1, p2, "", extremeUvAttributes, SurfaceAttributes{}, MapFormat::Valve));
-    }
   }
 
-  SECTION("materialUsageCount")
+  SECTION("setMaterial")
   {
-    const auto p0 = vm::vec3d{0, 0, 4};
-    const auto p1 = vm::vec3d{1, 0, 4};
-    const auto p2 = vm::vec3d{0, -1, 4};
     auto material =
       gl::Material{"testMaterial", gl::createTextureResource(gl::Texture{64, 64})};
     auto material2 =
       gl::Material{"testMaterial2", gl::createTextureResource(gl::Texture{64, 64})};
 
+    auto face = BrushFace::create(
+                  {0, 0, 4},
+                  {1, 0, 4},
+                  {0, -1, 4},
+                  "",
+                  UvAttributes{},
+                  SurfaceAttributes{},
+                  MapFormat::Standard)
+                | kdl::value();
     CHECK(material.usageCount() == 0u);
     CHECK(material2.usageCount() == 0u);
 
-    {
-      // test constructor
-      auto face = BrushFace::create(
-                    p0,
-                    p1,
-                    p2,
-                    "",
-                    UvCoordSystem{
-                      ParaxialUvCoordSystem::createFromPoints(p0, p1, p2, UvAttributes{})
-                      | kdl::value()},
-                    SurfaceAttributes{})
-                  | kdl::value();
-      CHECK(material.usageCount() == 0u);
-
-      // test setMaterial
-      face.setMaterial(&material);
-      CHECK(material.usageCount() == 1u);
-      CHECK(material2.usageCount() == 0u);
-
-      {
-        // test copy constructor
-        const auto clone = face;
-        CHECK(material.usageCount() == 2u);
-      }
-
-      // test destructor
-      CHECK(material.usageCount() == 1u);
-
-      // test setMaterial with different material
-      face.setMaterial(&material2);
-      CHECK(material.usageCount() == 0u);
-      CHECK(material2.usageCount() == 1u);
-
-      // test setMaterial with the same material
-      face.setMaterial(&material2);
-      CHECK(material2.usageCount() == 1u);
-    }
-
-    CHECK(material.usageCount() == 0u);
+    face.setMaterial(&material);
+    CHECK(material.usageCount() == 1u);
     CHECK(material2.usageCount() == 0u);
+
+    // set a different material
+    face.setMaterial(&material2);
+    CHECK(material.usageCount() == 0u);
+    CHECK(material2.usageCount() == 1u);
+
+    // set the same material
+    face.setMaterial(&material2);
+    CHECK(material2.usageCount() == 1u);
   }
 
   SECTION("projectedArea")
@@ -692,30 +740,33 @@ TEST_CASE("BrushFace")
     }
   }
 
-  SECTION("setUvAttributes rotates the UV axes (paraxial)")
+  SECTION("setUvAttributes")
   {
-    const auto worldBounds = vm::bbox3d{8192.0};
-    const gl::Material material(
-      "testMaterial", gl::createTextureResource(gl::Texture{64, 64}));
+    SECTION("rotates the UV axes (paraxial)")
+    {
+      const auto worldBounds = vm::bbox3d{8192.0};
+      const gl::Material material(
+        "testMaterial", gl::createTextureResource(gl::Texture{64, 64}));
 
-    auto builder = BrushBuilder{MapFormat::Standard, worldBounds};
-    auto cube = builder.createCube(128.0, "") | kdl::value();
-    auto& face = cube.faces().front();
+      auto builder = BrushBuilder{MapFormat::Standard, worldBounds};
+      auto cube = builder.createCube(128.0, "") | kdl::value();
+      auto& face = cube.faces().front();
 
-    // This face's UV normal is in the same direction as the face normal
-    const auto uvNormal = vm::normalize(vm::cross(face.uAxis(), face.vAxis()));
+      // This face's UV normal is in the same direction as the face normal
+      const auto uvNormal = vm::normalize(vm::cross(face.uAxis(), face.vAxis()));
 
-    const auto rot45 = vm::quatd{uvNormal, vm::to_radians(45.0)};
-    const auto newXAxis = vm::vec3d{rot45 * face.uAxis()};
-    const auto newYAxis = vm::vec3d{rot45 * face.vAxis()};
+      const auto rot45 = vm::quatd{uvNormal, vm::to_radians(45.0)};
+      const auto newXAxis = vm::vec3d{rot45 * face.uAxis()};
+      const auto newYAxis = vm::vec3d{rot45 * face.vAxis()};
 
-    REQUIRE(face.setUvAttributes({.rotation = -45.0f}).is_success());
+      REQUIRE(face.setUvAttributes({.rotation = -45.0f}).is_success());
 
-    CHECK(face.uAxis() == vm::approx{newXAxis});
-    CHECK(face.vAxis() == vm::approx{newYAxis});
+      CHECK(face.uAxis() == vm::approx{newXAxis});
+      CHECK(face.vAxis() == vm::approx{newYAxis});
+    }
   }
 
-  SECTION("transform preserves UV alignment when locked")
+  SECTION("transform")
   {
     SECTION("paraxial UV coordinate system")
     {
@@ -756,10 +807,12 @@ TEST_CASE("BrushFace")
     }
   }
 
-  // https://github.com/TrenchBroom/TrenchBroom/issues/2001
-  SECTION("rotateUv (Valve format)")
+  SECTION("rotateUv")
   {
-    const auto data = R"(
+    // https://github.com/TrenchBroom/TrenchBroom/issues/2001
+    SECTION("rotates the UV axes of a slanted face (Valve format)")
+    {
+      const auto data = R"(
 {
   "classname" "worldspawn"
   {
@@ -773,54 +826,58 @@ TEST_CASE("BrushFace")
 }
 )";
 
-    const auto worldBounds = vm::bbox3d{4096.0};
+      const auto worldBounds = vm::bbox3d{4096.0};
 
-    auto status = TestParserStatus{};
-    auto nodes =
-      NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status, taskManager);
-    REQUIRE(nodes);
+      auto status = TestParserStatus{};
+      auto nodes =
+        NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status, taskManager);
+      REQUIRE(nodes);
 
-    auto* pyramidLight = dynamic_cast<BrushNode*>(nodes.value().at(0)->children()[0]);
-    REQUIRE(pyramidLight != nullptr);
+      auto* pyramidLight = dynamic_cast<BrushNode*>(nodes.value().at(0)->children()[0]);
+      REQUIRE(pyramidLight != nullptr);
 
-    auto brush = pyramidLight->brush();
+      auto brush = pyramidLight->brush();
 
-    // find the faces
-    BrushFace* negXFace = nullptr;
-    for (auto& face : brush.faces())
-    {
-      if (vm::get_abs_max_component_axis(face.boundary().normal) == vm::vec3d{-1, 0, 0})
+      // find the faces
+      BrushFace* negXFace = nullptr;
+      for (auto& face : brush.faces())
       {
-        REQUIRE(negXFace == nullptr);
-        negXFace = &face;
+        if (vm::get_abs_max_component_axis(face.boundary().normal) == vm::vec3d{-1, 0, 0})
+        {
+          REQUIRE(negXFace == nullptr);
+          negXFace = &face;
+        }
       }
+      REQUIRE(negXFace != nullptr);
+
+      CHECK(negXFace->uAxis() == vm::vec3d{0, 1, 0});
+      CHECK(negXFace->vAxis() == vm::vec3d{0, 0, -1});
+
+      // This face's UV normal is in the same direction as the face normal
+      const auto uvNormal =
+        vm::normalize(vm::cross(negXFace->uAxis(), negXFace->vAxis()));
+      CHECK(vm::dot(uvNormal, vm::vec3d{negXFace->boundary().normal}) > 0.0);
+
+      const auto rot45 = vm::quatd{uvNormal, vm::to_radians(45.0)};
+      const auto newXAxis = vm::vec3d{rot45 * negXFace->uAxis()};
+      const auto newYAxis = vm::vec3d{rot45 * negXFace->vAxis()};
+
+      // Rotate by 45 degrees CCW
+      CHECK(negXFace->uvAttributes().rotation == vm::approx{0.0f});
+      REQUIRE(negXFace->rotateUv(45.0).is_success());
+      CHECK(negXFace->uvAttributes().rotation == vm::approx{45.0f});
+
+      CHECK(negXFace->uAxis() == vm::approx{newXAxis});
+      CHECK(negXFace->vAxis() == vm::approx{newYAxis});
     }
-    REQUIRE(negXFace != nullptr);
-
-    CHECK(negXFace->uAxis() == vm::vec3d{0, 1, 0});
-    CHECK(negXFace->vAxis() == vm::vec3d{0, 0, -1});
-
-    // This face's UV normal is in the same direction as the face normal
-    const auto uvNormal = vm::normalize(vm::cross(negXFace->uAxis(), negXFace->vAxis()));
-    CHECK(vm::dot(uvNormal, vm::vec3d{negXFace->boundary().normal}) > 0.0);
-
-    const auto rot45 = vm::quatd{uvNormal, vm::to_radians(45.0)};
-    const auto newXAxis = vm::vec3d{rot45 * negXFace->uAxis()};
-    const auto newYAxis = vm::vec3d{rot45 * negXFace->vAxis()};
-
-    // Rotate by 45 degrees CCW
-    CHECK(negXFace->uvAttributes().rotation == vm::approx{0.0f});
-    REQUIRE(negXFace->rotateUv(45.0).is_success());
-    CHECK(negXFace->uvAttributes().rotation == vm::approx{45.0f});
-
-    CHECK(negXFace->uAxis() == vm::approx{newXAxis});
-    CHECK(negXFace->vAxis() == vm::approx{newYAxis});
   }
 
-  // https://github.com/TrenchBroom/TrenchBroom/issues/1995
   SECTION("copyUvCoordSystemFromFace")
   {
-    const auto data = R"(
+    // https://github.com/TrenchBroom/TrenchBroom/issues/1995
+    SECTION("copies the UV axes from an angled face")
+    {
+      const auto data = R"(
 {
   "classname" "worldspawn"
   {
@@ -834,149 +891,93 @@ TEST_CASE("BrushFace")
 }
 )";
 
-    const auto worldBounds = vm::bbox3d{4096.0};
+      const auto worldBounds = vm::bbox3d{4096.0};
 
-    auto status = TestParserStatus{};
+      auto status = TestParserStatus{};
 
-    auto nodes =
-      NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status, taskManager);
-    REQUIRE(nodes);
+      auto nodes =
+        NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status, taskManager);
+      REQUIRE(nodes);
 
-    auto* pyramidLight = dynamic_cast<BrushNode*>(nodes.value().at(0)->children()[0]);
-    REQUIRE(pyramidLight != nullptr);
+      auto* pyramidLight = dynamic_cast<BrushNode*>(nodes.value().at(0)->children()[0]);
+      REQUIRE(pyramidLight != nullptr);
 
-    auto brush = pyramidLight->brush();
+      auto brush = pyramidLight->brush();
 
-    // find the faces
-    BrushFace* negYFace = nullptr;
-    BrushFace* posXFace = nullptr;
-    for (auto& face : brush.faces())
-    {
-      if (vm::get_abs_max_component_axis(face.boundary().normal) == vm::vec3d{0, -1, 0})
+      // find the faces
+      BrushFace* negYFace = nullptr;
+      BrushFace* posXFace = nullptr;
+      for (auto& face : brush.faces())
       {
-        REQUIRE(negYFace == nullptr);
-        negYFace = &face;
+        if (vm::get_abs_max_component_axis(face.boundary().normal) == vm::vec3d{0, -1, 0})
+        {
+          REQUIRE(negYFace == nullptr);
+          negYFace = &face;
+        }
+        else if (
+          vm::get_abs_max_component_axis(face.boundary().normal) == vm::vec3d{1, 0, 0})
+        {
+          REQUIRE(posXFace == nullptr);
+          posXFace = &face;
+        }
       }
-      else if (
-        vm::get_abs_max_component_axis(face.boundary().normal) == vm::vec3d{1, 0, 0})
-      {
-        REQUIRE(posXFace == nullptr);
-        posXFace = &face;
-      }
+      REQUIRE(negYFace != nullptr);
+      REQUIRE(posXFace != nullptr);
+
+      CHECK(negYFace->uAxis() == vm::vec3d{1, 0, 0});
+      CHECK(negYFace->vAxis() == vm::vec3d{0, 0, -1});
+
+      auto snapshot = negYFace->takeUvCoordSystemSnapshot();
+
+      // copy texturing from the negYFace to posXFace using the rotation method
+      posXFace->copyUvCoordSystemFromFace(
+        *snapshot, negYFace->uvAttributes(), negYFace->boundary(), WrapStyle::Rotation);
+      CHECK(
+        posXFace->uAxis()
+        == vm::approx{
+          vm::vec3d{0.030303030303030123, 0.96969696969696961, -0.24242424242424243}});
+      CHECK(
+        posXFace->vAxis()
+        == vm::approx{
+          vm::vec3d{-0.0037296037296037088, -0.24242424242424243, -0.97016317016317011}});
+
+      // copy texturing from the negYFace to posXFace using the projection method
+      posXFace->copyUvCoordSystemFromFace(
+        *snapshot, negYFace->uvAttributes(), negYFace->boundary(), WrapStyle::Projection);
+      CHECK(posXFace->uAxis() == vm::approx{vm::vec3d{0, -1, 0}});
+      CHECK(posXFace->vAxis() == vm::approx{vm::vec3d{0, 0, -1}});
     }
-    REQUIRE(negYFace != nullptr);
-    REQUIRE(posXFace != nullptr);
-
-    CHECK(negYFace->uAxis() == vm::vec3d{1, 0, 0});
-    CHECK(negYFace->vAxis() == vm::vec3d{0, 0, -1});
-
-    auto snapshot = negYFace->takeUvCoordSystemSnapshot();
-
-    // copy texturing from the negYFace to posXFace using the rotation method
-    posXFace->copyUvCoordSystemFromFace(
-      *snapshot, negYFace->uvAttributes(), negYFace->boundary(), WrapStyle::Rotation);
-    CHECK(
-      posXFace->uAxis()
-      == vm::approx{
-        vm::vec3d{0.030303030303030123, 0.96969696969696961, -0.24242424242424243}});
-    CHECK(
-      posXFace->vAxis()
-      == vm::approx{
-        vm::vec3d{-0.0037296037296037088, -0.24242424242424243, -0.97016317016317011}});
-
-    // copy texturing from the negYFace to posXFace using the projection method
-    posXFace->copyUvCoordSystemFromFace(
-      *snapshot, negYFace->uvAttributes(), negYFace->boundary(), WrapStyle::Projection);
-    CHECK(posXFace->uAxis() == vm::approx{vm::vec3d{0, -1, 0}});
-    CHECK(posXFace->vAxis() == vm::approx{vm::vec3d{0, 0, -1}});
   }
 
-  // https://github.com/TrenchBroom/TrenchBroom/issues/2315
-  SECTION("moveBoundary does not corrupt a 45-degree face")
+  SECTION("convertToParaxial")
   {
-    const auto data = R"(
-// entity 0
-{
-"classname" "worldspawn"
-// brush 0
-{
-( 64 64 16 ) ( 64 64 17 ) ( 64 65 16 ) __TB_empty [ 0 1 0 0 ] [ 0 0 -1 0 ] 0 1 1
-( -64 -64 -16 ) ( -64 -64 -15 ) ( -63 -64 -16 ) __TB_empty [ 1 0 0 0 ] [ 0 0 -1 0 ] 0 1 1
-( 64 64 16 ) ( 64 65 16 ) ( 65 64 16 ) __TB_empty [ 1 0 0 0 ] [ 0 -1 0 0 ] 0 1 1
-( -64 -64 -16 ) ( -63 -64 -16 ) ( -64 -63 -16 ) __TB_empty [ -1 0 0 0 ] [ 0 -1 0 0 ] 0 1 1
-( 32 -64 16 ) ( 48 -48 16 ) ( 48 -48 144 ) __TB_empty [ -0.707107 -0.707107 0 0 ] [ 0 0 -1 0 ] 0 1 1
-}
-}
-)";
+    SECTION("preserves UVs of a face converted to parallel")
+    {
+      doWithTransformedStandardCubeFaces([](const BrushFace& standardFace) {
+        auto valveFace = standardFace;
+        REQUIRE(valveFace.convertToParallel());
 
-    const auto worldBounds = vm::bbox3d{4096.0};
-
-    auto status = TestParserStatus{};
-
-    auto nodes =
-      NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status, taskManager);
-    REQUIRE(nodes);
-
-    auto* brushNode = dynamic_cast<BrushNode*>(nodes.value().at(0)->children()[0]);
-    CHECK(brushNode != nullptr);
-
-    auto brush = brushNode->brush();
-
-    // find the face
-    const auto angledFaceIndex =
-      brush.findFace(vm::vec3d{-0.70710678118654746, 0.70710678118654746, 0});
-    REQUIRE(angledFaceIndex);
-
-    CHECK(brush.moveBoundary(
-      worldBounds,
-      *angledFaceIndex,
-      vm::vec3d{-7.9999999999999973, 7.9999999999999973, 0},
-      true));
+        auto standardFaceRoundTrip = valveFace;
+        REQUIRE(standardFaceRoundTrip.convertToParaxial());
+        CHECK(standardFaceRoundTrip.uvCoordSystem().is<ParaxialUvCoordSystem>());
+        checkFaceUvsEqual(standardFace, standardFaceRoundTrip);
+      });
+    }
   }
 
-  SECTION("converting between Standard and Valve format preserves UVs")
+  SECTION("convertToParallel")
   {
-    const auto worldBounds = vm::bbox3d{4096.0};
+    SECTION("preserves UVs")
+    {
+      doWithTransformedStandardCubeFaces([](const BrushFace& standardFace) {
+        REQUIRE(standardFace.uvCoordSystem().is<ParaxialUvCoordSystem>());
 
-    auto standardBuilder = BrushBuilder{MapFormat::Standard, worldBounds};
-
-    auto material =
-      gl::Material{"testMaterial", gl::createTextureResource(gl::Texture{64, 64})};
-
-    const auto startingCube = standardBuilder.createCube(128.0, "")
-                              | kdl::transform([&](auto&& brush) {
-                                  for (size_t i = 0; i < brush.faceCount(); ++i)
-                                  {
-                                    auto& face = brush.face(i);
-                                    face.setMaterial(&material);
-                                  }
-                                  return std::forward<decltype(brush)>(brush);
-                                })
-                              | kdl::value();
-
-    auto testTransform = [&](const auto& transform) {
-      auto standardCube = startingCube;
-      REQUIRE(standardCube.transform(worldBounds, transform, true));
-      CHECK(standardCube.face(0).uvCoordSystem().is<ParaxialUvCoordSystem>());
-
-      const auto valveCubeResult = standardCube.convertToParallel();
-      REQUIRE(valveCubeResult);
-      const auto& valveCube = valveCubeResult.value();
-      CHECK(valveCube.face(0).uvCoordSystem().is<ParallelUvCoordSystem>());
-      checkBrushUvsEqual(standardCube, valveCube);
-
-      const auto standardCubeRoundTripResult = valveCube.convertToParaxial();
-      REQUIRE(standardCubeRoundTripResult);
-      const auto& standardCubeRoundTrip = standardCubeRoundTripResult.value();
-      CHECK(standardCubeRoundTrip.face(0).uvCoordSystem().is<ParaxialUvCoordSystem>());
-      checkBrushUvsEqual(standardCube, standardCubeRoundTrip);
-    };
-
-    // NOTE: intentionally include the shear/multi-axis rotations which won't work
-    // properly on Standard. We're not testing alignment lock, just generating interesting
-    // brushes to test Standard -> Valve -> Standard round trip, so it doesn't matter if
-    // alignment lock works.
-    doWithAlignmentLockTestTransforms(true, testTransform);
+        auto valveFace = standardFace;
+        REQUIRE(valveFace.convertToParallel());
+        CHECK(valveFace.uvCoordSystem().is<ParallelUvCoordSystem>());
+        checkFaceUvsEqual(standardFace, valveFace);
+      });
+    }
   }
 
   SECTION("flipUv")
