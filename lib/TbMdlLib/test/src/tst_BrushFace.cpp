@@ -754,6 +754,21 @@ TEST_CASE("BrushFace")
       checkAlignmentLockOffWithVerticalFlip(cube);
       checkAlignmentLockOffWithScale(cube);
     }
+
+    // https://github.com/TrenchBroom/TrenchBroom/issues/5582
+    SECTION("parallel UV coordinate system keeps the rotation when translated")
+    {
+      const auto worldBounds = vm::bbox3d{8192.0};
+      auto builder = BrushBuilder{MapFormat::Valve, worldBounds};
+      auto cube = builder.createCube(128.0, "") | kdl::value();
+
+      for (auto& face : cube.faces())
+      {
+        REQUIRE(face.setUvAttributes({.rotation = 30.0f}).is_success());
+        REQUIRE(face.transform(vm::translation_matrix(vm::vec3d{16, 32, 8}), true));
+        CHECK(face.uvAttributes().rotation == vm::approx{30.0f});
+      }
+    }
   }
 
   // https://github.com/TrenchBroom/TrenchBroom/issues/2001

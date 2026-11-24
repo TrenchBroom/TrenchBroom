@@ -426,7 +426,7 @@ float ParallelUvCoordSystem::computeRotationAngle(
 
   const auto nonTextureRotation = vm::quat{oldNormal, newNormal};
   const auto newUAxis = vm::normalize(rotationScale * uAxis());
-  const auto nonUAxis = vm::normalize(nonTextureRotation * vAxis());
+  const auto nonUAxis = vm::normalize(nonTextureRotation * uAxis());
   const auto angle = vm::to_degrees(vm::measure_angle(nonUAxis, newUAxis, newNormal));
   return float(angle);
 }
