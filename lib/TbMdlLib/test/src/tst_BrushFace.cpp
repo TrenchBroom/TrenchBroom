@@ -642,15 +642,16 @@ TEST_CASE("BrushFace")
 
   SECTION("createFromStandard")
   {
-    const auto p0 = vm::vec3d{0, 0, 4};
-    const auto p1 = vm::vec3d{1, 0, 4};
-    const auto p2 = vm::vec3d{0, -1, 4};
     const auto uvAttributes =
       UvAttributes{.offset = {1, 2}, .scale = {3, 4}, .rotation = 30.0f};
     const auto surfaceAttributes = SurfaceAttributes{.flags = 1};
 
     SECTION("for a Standard format map")
     {
+      const auto p0 = vm::vec3d{0, 0, 4};
+      const auto p1 = vm::vec3d{1, 0, 4};
+      const auto p2 = vm::vec3d{0, -1, 4};
+
       const auto face =
         BrushFace::createFromStandard(
           p0, p1, p2, "material", uvAttributes, surfaceAttributes, MapFormat::Standard)
@@ -664,6 +665,10 @@ TEST_CASE("BrushFace")
 
     SECTION("for a Valve format map")
     {
+      const auto p0 = vm::vec3d{0, 0, 4};
+      const auto p1 = vm::vec3d{1, 0, 4};
+      const auto p2 = vm::vec3d{0, -1, 4};
+
       const auto face =
         BrushFace::createFromStandard(
           p0, p1, p2, "material", uvAttributes, surfaceAttributes, MapFormat::Valve)
@@ -677,6 +682,10 @@ TEST_CASE("BrushFace")
 
     SECTION("with an extreme scale")
     {
+      const auto p0 = vm::vec3d{0, 0, 4};
+      const auto p1 = vm::vec3d{1, 0, 4};
+      const auto p2 = vm::vec3d{0, -1, 4};
+
       const auto extremeUvAttributes = UvAttributes{{0, 0}, {1e30f, 1e30f}, 0.0f};
 
       // converting from Paraxial to Parallel preserves the (here, extreme) UV attributes
