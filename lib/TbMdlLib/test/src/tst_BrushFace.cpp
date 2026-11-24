@@ -18,7 +18,9 @@
  */
 
 #include "TestParserStatus.h"
+#include "base/Color.h"
 #include "gl/Material.h"
+#include "gl/MiniGl.h"
 #include "gl/Texture.h"
 #include "mdl/Brush.h"
 #include "mdl/BrushBuilder.h"
@@ -34,19 +36,26 @@
 #include "mdl/TestUtils.h"
 #include "mdl/UvAttributes.h"
 
+#include "kd/ranges/contains.h"
+#include "kd/ranges/to.h"
 #include "kd/result.h"
 #include "kd/task_manager.h"
 
 #include "vm/approx.h"
 #include "vm/mat.h"
 #include "vm/mat_ext.h"
+#include "vm/polygon.h"
+#include "vm/ray.h"
 #include "vm/vec.h"
 #include "vm/vec_io.h" // IWYU pragma: keep
 
+#include <algorithm>
 #include <limits>
+#include <optional>
 #include <vector>
 
 #include <catch2/catch_test_macros.hpp>
+#include <catch2/matchers/catch_matchers_vector.hpp>
 
 namespace tb::mdl
 {
@@ -477,6 +486,48 @@ void doWithTransformedStandardCubeFaces(L&& lambda)
   });
 }
 
+/**
+ * Creates a face in the plane z = 4 with normal +Z.
+ */
+BrushFace createHorizontalFace(
+  const MapFormat mapFormat, const UvAttributes& uvAttributes = UvAttributes{})
+{
+  return BrushFace::create(
+           {0, 0, 4},
+           {1, 0, 4},
+           {0, -1, 4},
+           "",
+           uvAttributes,
+           SurfaceAttributes{},
+           mapFormat)
+         | kdl::value();
+}
+
+/**
+ * Creates a face in the plane z = 64 + x / 2, whose normal is closest to +Z.
+ */
+BrushFace createSlantedFace(
+  const MapFormat mapFormat, const UvAttributes& uvAttributes = UvAttributes{})
+{
+  return BrushFace::create(
+           {0, 0, 64},
+           {0, 1, 64},
+           {1, 0, 64.5},
+           "",
+           uvAttributes,
+           SurfaceAttributes{},
+           mapFormat)
+         | kdl::value();
+}
+
+gl::Material createMaterial(const gl::EmbeddedDefaults& embeddedDefaults)
+{
+  return gl::Material{
+    "material",
+    gl::createTextureResource(gl::Texture{
+      64, 64, RgbaF{}, GL_RGBA, embeddedDefaults, std::vector<gl::TextureBuffer>{}})};
+}
+
 } // namespace
 
 TEST_CASE("BrushFace")
@@ -590,11 +641,41 @@ TEST_CASE("BrushFace")
 
   SECTION("createFromStandard")
   {
+    const auto p0 = vm::vec3d{0, 0, 4};
+    const auto p1 = vm::vec3d{1, 0, 4};
+    const auto p2 = vm::vec3d{0, -1, 4};
+    const auto uvAttributes =
+      UvAttributes{.offset = {1, 2}, .scale = {3, 4}, .rotation = 30.0f};
+    const auto surfaceAttributes = SurfaceAttributes{.flags = 1};
+
+    SECTION("for a Standard format map")
+    {
+      const auto face =
+        BrushFace::createFromStandard(
+          p0, p1, p2, "material", uvAttributes, surfaceAttributes, MapFormat::Standard)
+        | kdl::value();
+
+      CHECK(face.materialName() == "material");
+      CHECK(face.uvCoordSystem().is<ParaxialUvCoordSystem>());
+      CHECK(face.uvAttributes() == uvAttributes);
+      CHECK(face.surfaceAttributes() == surfaceAttributes);
+    }
+
+    SECTION("for a Valve format map")
+    {
+      const auto face =
+        BrushFace::createFromStandard(
+          p0, p1, p2, "material", uvAttributes, surfaceAttributes, MapFormat::Valve)
+        | kdl::value();
+
+      CHECK(face.materialName() == "material");
+      CHECK(face.uvCoordSystem().is<ParallelUvCoordSystem>());
+      CHECK(face.uvAttributes() == uvAttributes);
+      CHECK(face.surfaceAttributes() == surfaceAttributes);
+    }
+
     SECTION("with an extreme scale")
     {
-      const auto p0 = vm::vec3d{0, 0, 4};
-      const auto p1 = vm::vec3d{1, 0, 4};
-      const auto p2 = vm::vec3d{0, -1, 4};
       const auto extremeUvAttributes = UvAttributes{{0, 0}, {1e30f, 1e30f}, 0.0f};
 
       // converting from Paraxial to Parallel preserves the (here, extreme) UV attributes
@@ -605,11 +686,76 @@ TEST_CASE("BrushFace")
 
   SECTION("createFromValve")
   {
+    const auto p0 = vm::vec3d{0, 0, 4};
+    const auto p1 = vm::vec3d{1, 0, 4};
+    const auto p2 = vm::vec3d{0, -1, 4};
+    const auto uvAttributes = UvAttributes{.offset = {1, 2}, .scale = {3, 4}};
+
+    SECTION("for a Valve format map")
+    {
+      const auto uAxis = vm::vec3d{0.6, 0.8, 0};
+      const auto vAxis = vm::vec3d{0.8, -0.6, 0};
+
+      const auto face = BrushFace::createFromValve(
+                          p0,
+                          p1,
+                          p2,
+                          "material",
+                          uvAttributes,
+                          SurfaceAttributes{},
+                          uAxis,
+                          vAxis,
+                          MapFormat::Valve)
+                        | kdl::value();
+
+      CHECK(face.materialName() == "material");
+      CHECK(face.uvCoordSystem().is<ParallelUvCoordSystem>());
+      CHECK(face.uvAttributes() == uvAttributes);
+      CHECK(face.uAxis() == uAxis);
+      CHECK(face.vAxis() == vAxis);
+    }
+
+    SECTION("for a Standard format map")
+    {
+      const auto uAxis = vm::vec3d{0.6, 0.8, 0};
+      const auto vAxis = vm::vec3d{0.8, -0.6, 0};
+
+      const auto valveFace = BrushFace::createFromValve(
+                               p0,
+                               p1,
+                               p2,
+                               "material",
+                               uvAttributes,
+                               SurfaceAttributes{},
+                               uAxis,
+                               vAxis,
+                               MapFormat::Valve)
+                             | kdl::value();
+      const auto face = BrushFace::createFromValve(
+                          p0,
+                          p1,
+                          p2,
+                          "material",
+                          uvAttributes,
+                          SurfaceAttributes{},
+                          uAxis,
+                          vAxis,
+                          MapFormat::Standard)
+                        | kdl::value();
+
+      CHECK(face.materialName() == "material");
+      CHECK(face.uvCoordSystem().is<ParaxialUvCoordSystem>());
+
+      // the UV axes are converted to paraxial UV attributes that preserve the UVs
+      for (const auto& point : {p0, p1, p2, vm::vec3d{10, 20, 4}})
+      {
+        CAPTURE(point);
+        CHECK(face.uvCoords(point) == vm::approx{valveFace.uvCoords(point), 0.001f});
+      }
+    }
+
     SECTION("with degenerate axes")
     {
-      const auto p0 = vm::vec3d{0, 0, 4};
-      const auto p1 = vm::vec3d{1, 0, 4};
-      const auto p2 = vm::vec3d{0, -1, 4};
       const auto uAxis = vm::vec3d{1, 0, 0};
 
       // Valve format passes the axes through to ParallelUvCoordSystem unchanged
@@ -623,6 +769,24 @@ TEST_CASE("BrushFace")
         uAxis,
         uAxis,
         MapFormat::Valve));
+    }
+  }
+
+  SECTION("setMaterialName")
+  {
+    auto face = createHorizontalFace(MapFormat::Standard);
+    REQUIRE(face.materialName() == "");
+
+    SECTION("returns true if the material name changed")
+    {
+      CHECK(face.setMaterialName("material"));
+      CHECK(face.materialName() == "material");
+    }
+
+    SECTION("returns false if the material name did not change")
+    {
+      CHECK(!face.setMaterialName(""));
+      CHECK(face.materialName() == "");
     }
   }
 
@@ -657,6 +821,81 @@ TEST_CASE("BrushFace")
     // set the same material
     face.setMaterial(&material2);
     CHECK(material2.usageCount() == 1u);
+  }
+
+  SECTION("resolvedSurfaceContents")
+  {
+    auto material =
+      createMaterial(gl::Q2EmbeddedDefaults{.flags = 1, .contents = 2, .value = 3});
+    auto face = createHorizontalFace(MapFormat::Quake2);
+
+    SECTION("returns the face's contents if it has any")
+    {
+      face.setMaterial(&material);
+      face.setSurfaceAttributes({.contents = 4});
+      CHECK(face.resolvedSurfaceContents() == 4);
+    }
+
+    SECTION("returns the material's default contents if the face has none")
+    {
+      face.setMaterial(&material);
+      CHECK(face.resolvedSurfaceContents() == 2);
+    }
+
+    SECTION("returns 0 if the face has no contents and no material")
+    {
+      CHECK(face.resolvedSurfaceContents() == 0);
+    }
+  }
+
+  SECTION("resolvedSurfaceFlags")
+  {
+    auto material =
+      createMaterial(gl::Q2EmbeddedDefaults{.flags = 1, .contents = 2, .value = 3});
+    auto face = createHorizontalFace(MapFormat::Quake2);
+
+    SECTION("returns the face's flags if it has any")
+    {
+      face.setMaterial(&material);
+      face.setSurfaceAttributes({.flags = 4});
+      CHECK(face.resolvedSurfaceFlags() == 4);
+    }
+
+    SECTION("returns the material's default flags if the face has none")
+    {
+      face.setMaterial(&material);
+      CHECK(face.resolvedSurfaceFlags() == 1);
+    }
+
+    SECTION("returns 0 if the face has no flags and no material")
+    {
+      CHECK(face.resolvedSurfaceFlags() == 0);
+    }
+  }
+
+  SECTION("resolvedSurfaceValue")
+  {
+    auto material =
+      createMaterial(gl::Q2EmbeddedDefaults{.flags = 1, .contents = 2, .value = 3});
+    auto face = createHorizontalFace(MapFormat::Quake2);
+
+    SECTION("returns the face's value if it has one")
+    {
+      face.setMaterial(&material);
+      face.setSurfaceAttributes({.value = 4.0f});
+      CHECK(face.resolvedSurfaceValue() == 4.0f);
+    }
+
+    SECTION("returns the material's default value if the face has none")
+    {
+      face.setMaterial(&material);
+      CHECK(face.resolvedSurfaceValue() == 3.0f);
+    }
+
+    SECTION("returns 0 if the face has no value and no material")
+    {
+      CHECK(face.resolvedSurfaceValue() == 0.0f);
+    }
   }
 
   SECTION("projectedArea")
@@ -740,6 +979,28 @@ TEST_CASE("BrushFace")
     }
   }
 
+  SECTION("coplanarWith")
+  {
+    const auto cube =
+      BrushBuilder{MapFormat::Standard, vm::bbox3d{8192.0}}.createCube(128.0, "")
+      | kdl::value();
+    const auto faceIndex = cube.findFace(vm::vec3d{0, 0, 1});
+    REQUIRE(faceIndex);
+    const auto& face = cube.face(*faceIndex);
+
+    CHECK(face.coplanarWith(face.boundary()));
+
+    // a parallel plane
+    CHECK(!face.coplanarWith(vm::plane3d{65.0, vm::vec3d{0, 0, 1}}));
+
+    // a plane through the face's center, but with a different normal
+    CHECK(!face.coplanarWith(
+      vm::plane3d{face.center(), vm::normalize(vm::vec3d{0.1, 0, 1})}));
+
+    // the inverted plane
+    CHECK(!face.coplanarWith(face.boundary().flip()));
+  }
+
   SECTION("setUvAttributes")
   {
     SECTION("rotates the UV axes (paraxial)")
@@ -807,6 +1068,60 @@ TEST_CASE("BrushFace")
     }
   }
 
+  SECTION("restoreUvCoordSystemSnapshot")
+  {
+    auto face = createHorizontalFace(MapFormat::Valve);
+    const auto uAxis = face.uAxis();
+    const auto vAxis = face.vAxis();
+
+    const auto snapshot = face.takeUvCoordSystemSnapshot();
+    REQUIRE(snapshot);
+
+    REQUIRE(face.rotateUv(30.0f).is_success());
+    REQUIRE(face.uAxis() != uAxis);
+
+    face.restoreUvCoordSystemSnapshot(*snapshot);
+    CHECK(face.uAxis() == uAxis);
+    CHECK(face.vAxis() == vAxis);
+  }
+
+  SECTION("resetUvAxesToParaxial")
+  {
+    SECTION("resets parallel UV axes to the paraxial UV axes")
+    {
+      auto face = createHorizontalFace(MapFormat::Valve);
+      REQUIRE(face.rotateUv(30.0f).is_success());
+
+      face.resetUvAxesToParaxial();
+      CHECK(face.uAxis() == vm::approx{vm::vec3d{1, 0, 0}});
+      CHECK(face.vAxis() == vm::approx{vm::vec3d{0, -1, 0}});
+    }
+
+    SECTION("does not change paraxial UV axes")
+    {
+      auto face = createHorizontalFace(MapFormat::Standard);
+      REQUIRE(face.rotateUv(30.0f).is_success());
+      const auto uAxis = face.uAxis();
+      const auto vAxis = face.vAxis();
+
+      face.resetUvAxesToParaxial();
+      CHECK(face.uAxis() == uAxis);
+      CHECK(face.vAxis() == vAxis);
+    }
+  }
+
+  SECTION("translateUv")
+  {
+    auto face = createHorizontalFace(MapFormat::Standard);
+    REQUIRE(face.uAxis() == vm::approx{vm::vec3d{1, 0, 0}});
+    REQUIRE(face.vAxis() == vm::approx{vm::vec3d{0, -1, 0}});
+
+    // The U axis points along the camera's right axis, and the V axis points against
+    // the camera's up axis.
+    face.translateUv(vm::vec3d{0, 1, 0}, vm::vec3d{1, 0, 0}, vm::vec2f{2, 3});
+    CHECK(face.uvAttributes().offset == vm::vec2f{-2, 3});
+  }
+
   SECTION("rotateUv")
   {
     // https://github.com/TrenchBroom/TrenchBroom/issues/2001
@@ -869,6 +1184,31 @@ TEST_CASE("BrushFace")
 
       CHECK(negXFace->uAxis() == vm::approx{newXAxis});
       CHECK(negXFace->vAxis() == vm::approx{newYAxis});
+    }
+  }
+
+  SECTION("shearUv")
+  {
+    SECTION("shears parallel UV axes")
+    {
+      auto face = createHorizontalFace(MapFormat::Valve);
+      REQUIRE(face.uAxis() == vm::approx{vm::vec3d{1, 0, 0}});
+      REQUIRE(face.vAxis() == vm::approx{vm::vec3d{0, -1, 0}});
+
+      face.shearUv(vm::vec2f{0.5f, 0.25f});
+      CHECK(face.uAxis() == vm::approx{vm::vec3d{1, -0.25, 0}});
+      CHECK(face.vAxis() == vm::approx{vm::vec3d{0.5, -1, 0}});
+    }
+
+    SECTION("does not change paraxial UV axes")
+    {
+      auto face = createHorizontalFace(MapFormat::Standard);
+      const auto uAxis = face.uAxis();
+      const auto vAxis = face.vAxis();
+
+      face.shearUv(vm::vec2f{0.5f, 0.25f});
+      CHECK(face.uAxis() == uAxis);
+      CHECK(face.vAxis() == vAxis);
     }
   }
 
@@ -1025,6 +1365,12 @@ TEST_CASE("BrushFace")
         CHECK(face.uvAttributes().scale == vm::vec2f{-1, 1});
       }
 
+      SECTION("Right flip")
+      {
+        face.flipUv(cameraUp, cameraRight, vm::direction::right);
+        CHECK(face.uvAttributes().scale == vm::vec2f{-1, 1});
+      }
+
       SECTION("Up flip")
       {
         face.flipUv(cameraUp, cameraRight, vm::direction::up);
@@ -1049,6 +1395,186 @@ TEST_CASE("BrushFace")
         CHECK(face.uvAttributes().scale == vm::vec2f{-1, 1});
       }
     }
+  }
+
+  SECTION("invert")
+  {
+    auto face = createHorizontalFace(MapFormat::Standard);
+    const auto points = face.points();
+    const auto boundary = face.boundary();
+
+    face.invert();
+    CHECK(face.boundary() == boundary.flip());
+    CHECK(face.points() == BrushFace::Points{points[0], points[2], points[1]});
+  }
+
+  SECTION("updatePointsFromVertices")
+  {
+    auto cube =
+      BrushBuilder{MapFormat::Standard, vm::bbox3d{8192.0}}.createCube(128.0, "")
+      | kdl::value();
+    const auto faceIndex = cube.findFace(vm::vec3d{0, 0, 1});
+    REQUIRE(faceIndex);
+    auto& face = cube.face(*faceIndex);
+
+    const auto boundary = face.boundary();
+    const auto vertexPositions = face.vertexPositions();
+    REQUIRE(!kdl::ranges::contains(vertexPositions, face.points()[1]));
+
+    REQUIRE(face.updatePointsFromVertices().is_success());
+    CHECK(face.boundary() == boundary);
+    for (const auto& point : face.points())
+    {
+      CHECK(kdl::ranges::contains(vertexPositions, point));
+    }
+  }
+
+  SECTION("projectToBoundaryMatrix")
+  {
+    SECTION("projects along the paraxial UV normal")
+    {
+      const auto face = createSlantedFace(MapFormat::Standard);
+      CHECK(
+        face.projectToBoundaryMatrix() * vm::vec3d{10, 20, 100}
+        == vm::approx{vm::vec3d{10, 20, 69}});
+    }
+
+    SECTION("projects along the parallel UV normal")
+    {
+      // the parallel UV normal is the inverted face normal
+      const auto face = createSlantedFace(MapFormat::Valve);
+      CHECK(
+        face.projectToBoundaryMatrix() * vm::vec3d{10, 20, 100}
+        == vm::approx{vm::vec3d{22.4, 20, 75.2}});
+    }
+  }
+
+  SECTION("toUvCoordSystemMatrix")
+  {
+    const auto uvAttributes =
+      UvAttributes{.offset = {7, 3}, .scale = {0.5f, 2.0f}, .rotation = 30.0f};
+    const auto face = createSlantedFace(MapFormat::Standard, uvAttributes);
+    const auto point = vm::vec3d{10, 20, 69};
+
+    const auto uvPoint =
+      face.toUvCoordSystemMatrix(uvAttributes.offset, uvAttributes.scale) * point;
+    CHECK(vm::vec2f{uvPoint.xy()} == vm::approx{face.uvCoords(point)});
+    CHECK(uvPoint.z() == 0.0);
+  }
+
+  SECTION("fromUvCoordSystemMatrix")
+  {
+    const auto uvAttributes =
+      UvAttributes{.offset = {7, 3}, .scale = {0.5f, 2.0f}, .rotation = 30.0f};
+    const auto face = createSlantedFace(MapFormat::Standard, uvAttributes);
+    const auto toUv = face.toUvCoordSystemMatrix(uvAttributes.offset, uvAttributes.scale);
+    const auto fromUv =
+      face.fromUvCoordSystemMatrix(uvAttributes.offset, uvAttributes.scale);
+
+    // maps UV coordinates back onto the face plane
+    const auto point = vm::vec3d{10, 20, 69};
+    CHECK(fromUv * (toUv * point) == vm::approx{point});
+  }
+
+  SECTION("vertexCount")
+  {
+    const auto cube =
+      BrushBuilder{MapFormat::Standard, vm::bbox3d{8192.0}}.createCube(128.0, "")
+      | kdl::value();
+    const auto faceIndex = cube.findFace(vm::vec3d{0, 0, 1});
+    REQUIRE(faceIndex);
+    const auto& face = cube.face(*faceIndex);
+
+    CHECK(face.vertexCount() == 4u);
+  }
+
+  SECTION("edges")
+  {
+    const auto cube =
+      BrushBuilder{MapFormat::Standard, vm::bbox3d{8192.0}}.createCube(128.0, "")
+      | kdl::value();
+    const auto faceIndex = cube.findFace(vm::vec3d{0, 0, 1});
+    REQUIRE(faceIndex);
+    const auto& face = cube.face(*faceIndex);
+
+    const auto edges = face.edges() | kdl::ranges::to<std::vector>();
+    const auto hasEdge = [&](const vm::vec3d& position1, const vm::vec3d& position2) {
+      return std::ranges::any_of(edges, [&](const auto* edge) {
+        return edge->hasPositions(position1, position2);
+      });
+    };
+
+    CHECK(edges.size() == 4u);
+    CHECK(hasEdge({-64, -64, 64}, {64, -64, 64}));
+    CHECK(hasEdge({64, -64, 64}, {64, 64, 64}));
+    CHECK(hasEdge({64, 64, 64}, {-64, 64, 64}));
+    CHECK(hasEdge({-64, 64, 64}, {-64, -64, 64}));
+  }
+
+  SECTION("hasVertices")
+  {
+    const auto cube =
+      BrushBuilder{MapFormat::Standard, vm::bbox3d{8192.0}}.createCube(128.0, "")
+      | kdl::value();
+    const auto faceIndex = cube.findFace(vm::vec3d{0, 0, 1});
+    REQUIRE(faceIndex);
+    const auto& face = cube.face(*faceIndex);
+
+    const auto polygon = face.polygon();
+    CHECK(face.hasVertices(polygon));
+
+    // the vertices must be in the same order
+    auto reversedVertices = polygon.vertices();
+    std::ranges::reverse(reversedVertices);
+    CHECK(!face.hasVertices(vm::polygon3d{reversedVertices}));
+
+    // the vertices must be equal up to the given epsilon
+    CHECK(!face.hasVertices(polygon.translate(vm::vec3d{0, 0, 0.01})));
+    CHECK(face.hasVertices(polygon.translate(vm::vec3d{0, 0, 0.01}), 0.1));
+  }
+
+  SECTION("polygon")
+  {
+    const auto cube =
+      BrushBuilder{MapFormat::Standard, vm::bbox3d{8192.0}}.createCube(128.0, "")
+      | kdl::value();
+    const auto faceIndex = cube.findFace(vm::vec3d{0, 0, 1});
+    REQUIRE(faceIndex);
+    const auto& face = cube.face(*faceIndex);
+
+    CHECK_THAT(
+      face.polygon().vertices(),
+      Catch::Matchers::UnorderedEquals(std::vector<vm::vec3d>{
+        {-64, -64, 64},
+        {64, -64, 64},
+        {64, 64, 64},
+        {-64, 64, 64},
+      }));
+  }
+
+  SECTION("intersectWithRay")
+  {
+    const auto cube =
+      BrushBuilder{MapFormat::Standard, vm::bbox3d{8192.0}}.createCube(128.0, "")
+      | kdl::value();
+    const auto faceIndex = cube.findFace(vm::vec3d{0, 0, 1});
+    REQUIRE(faceIndex);
+    const auto& face = cube.face(*faceIndex);
+
+    // a ray hitting the front of the face
+    CHECK(
+      face.intersectWithRay(vm::ray3d{vm::vec3d{0, 0, 128}, vm::vec3d{0, 0, -1}})
+      == 64.0);
+
+    // a ray hitting the back of the face
+    CHECK(
+      face.intersectWithRay(vm::ray3d{vm::vec3d{0, 0, 0}, vm::vec3d{0, 0, 1}})
+      == std::nullopt);
+
+    // a ray missing the face
+    CHECK(
+      face.intersectWithRay(vm::ray3d{vm::vec3d{100, 0, 128}, vm::vec3d{0, 0, -1}})
+      == std::nullopt);
   }
 }
 
