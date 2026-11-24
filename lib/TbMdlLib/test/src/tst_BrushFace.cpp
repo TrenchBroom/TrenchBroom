@@ -52,6 +52,7 @@
 #include <algorithm>
 #include <limits>
 #include <optional>
+#include <tuple>
 #include <vector>
 
 #include <catch2/catch_test_macros.hpp>
@@ -678,6 +679,36 @@ TEST_CASE("BrushFace")
       CHECK(face.uvCoordSystem().is<ParallelUvCoordSystem>());
       CHECK(face.uvAttributes() == uvAttributes);
       CHECK(face.surfaceAttributes() == surfaceAttributes);
+    }
+
+    SECTION("keeps the Standard projection on a Valve format map")
+    {
+      using T = std::tuple<vm::vec3d, vm::vec3d, vm::vec3d>;
+
+      // the faces of a 64 unit cube, see
+      // https://github.com/TrenchBroom/TrenchBroom/issues/5580
+      const auto [p0, p1, p2] = GENERATE(values<T>({
+        {{0, 0, 0}, {0, 0, 64}, {64, 0, 0}},    // -Y
+        {{0, 64, 0}, {64, 64, 0}, {0, 64, 64}}, // +Y
+        {{0, 0, 0}, {0, 64, 0}, {0, 0, 64}},    // -X
+        {{64, 0, 0}, {64, 0, 64}, {64, 64, 0}}, // +X
+        {{0, 0, 0}, {64, 0, 0}, {0, 64, 0}},    // -Z
+        {{0, 0, 64}, {0, 64, 64}, {64, 0, 64}}, // +Z
+      }));
+
+      CAPTURE(p0, p1, p2);
+
+      const auto standardFace =
+        BrushFace::createFromStandard(
+          p0, p1, p2, "", uvAttributes, SurfaceAttributes{}, MapFormat::Standard)
+        | kdl::value();
+      const auto valveFace =
+        BrushFace::createFromStandard(
+          p0, p1, p2, "", uvAttributes, SurfaceAttributes{}, MapFormat::Valve)
+        | kdl::value();
+
+      CHECK(valveFace.uAxis() == vm::approx{standardFace.uAxis()});
+      CHECK(valveFace.vAxis() == vm::approx{standardFace.vAxis()});
     }
 
     SECTION("with an extreme scale")
