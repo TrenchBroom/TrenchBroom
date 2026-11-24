@@ -769,6 +769,52 @@ TEST_CASE("BrushFace")
         CHECK(face.uvAttributes().rotation == vm::approx{30.0f});
       }
     }
+
+    SECTION("parallel UV coordinate system rotation follows the texture when rotated")
+    {
+      // The UV normals of the -X, -Z and +Y faces point in the same direction as their
+      // face normals, the UV normals of the other faces point in the opposite direction
+      const auto data = R"(
+{
+"classname" "worldspawn"
+{
+( 16 0 0 ) ( 16 1 0 ) ( 16 0 1 ) material [ 0 1 0 0 ] [ 0 0 -1 0 ] 0 1 1
+( 16 0 0 ) ( 16 0 1 ) ( 17 0 0 ) material [ 1 0 0 0 ] [ 0 0 -1 0 ] 0 1 1
+( 16 0 0 ) ( 17 0 0 ) ( 16 1 0 ) material [ 1 0 0 0 ] [ 0 -1 0 0 ] 0 1 1
+( 80 64 64 ) ( 80 65 64 ) ( 81 64 64 ) material [ 1 0 0 0 ] [ 0 -1 0 0 ] 0 1 1
+( 80 64 64 ) ( 81 64 64 ) ( 80 64 65 ) material [ 1 0 0 0 ] [ 0 0 -1 0 ] 0 1 1
+( 80 64 64 ) ( 80 64 65 ) ( 80 65 64 ) material [ 0 1 0 0 ] [ 0 0 -1 0 ] 0 1 1
+}
+}
+)";
+
+      const auto worldBounds = vm::bbox3d{8192.0};
+
+      auto status = TestParserStatus{};
+      auto nodes =
+        NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status, taskManager);
+      REQUIRE(nodes);
+
+      auto* brushNode = dynamic_cast<BrushNode*>(nodes.value().at(0)->children()[0]);
+      REQUIRE(brushNode != nullptr);
+
+      auto brush = brushNode->brush();
+      for (auto& face : brush.faces())
+      {
+        REQUIRE(face.setUvAttributes({.rotation = 30.0f}).is_success());
+        const auto uAxis = face.uAxis();
+        const auto vAxis = face.vAxis();
+
+        const auto rotation =
+          vm::rotation_matrix(face.boundary().normal, vm::to_radians(15.0));
+        REQUIRE(face.transform(rotation, true));
+
+        // setting the rotation back to its original value undoes the rotation
+        REQUIRE(face.setUvAttributes({.rotation = 30.0f}).is_success());
+        CHECK(face.uAxis() == vm::approx{uAxis});
+        CHECK(face.vAxis() == vm::approx{vAxis});
+      }
+    }
   }
 
   // https://github.com/TrenchBroom/TrenchBroom/issues/2001
