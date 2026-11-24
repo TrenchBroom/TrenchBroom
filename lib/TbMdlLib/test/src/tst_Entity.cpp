@@ -363,6 +363,23 @@ TEST_CASE("EntityTest")
       CHECK(*entity.property("newKey") == "originalValue");
     }
 
+    SECTION("Rename existing property - name conflict with preceding property")
+    {
+      entity.setProperties({
+        {"newKey", "newValue"},
+        {"originalKey", "originalValue"},
+        {"otherKey", "otherValue"},
+      });
+
+      entity.renameProperty("originalKey", "newKey");
+      CHECK(
+        entity.properties()
+        == std::vector<EntityProperty>{
+          {"newKey", "originalValue"},
+          {"otherKey", "otherValue"},
+        });
+    }
+
     SECTION("Rename existing protected property")
     {
       entity.setProtectedProperties({"originalKey"});

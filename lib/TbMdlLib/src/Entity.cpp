@@ -298,12 +298,12 @@ void Entity::renameProperty(const std::string& oldKey, std::string newKey)
     }
 
     const auto newIt = findEntityProperty(m_properties, newKey);
+    oldIt->setKey(std::move(newKey));
+
     if (newIt != std::end(m_properties))
     {
       m_properties.erase(newIt);
     }
-
-    oldIt->setKey(std::move(newKey));
 
     m_cachedClassname = std::nullopt;
     m_cachedOrigin = std::nullopt;
