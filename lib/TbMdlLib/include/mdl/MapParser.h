@@ -45,11 +45,11 @@ public:
   virtual ~MapParser();
 
 protected: // subclassing interface for users of the parser
-  virtual void onBeginEntity(
-    const FileLocation& startLocation,
+  virtual void onBeginEntity(const FileLocation& startLocation, ParserStatus& status) = 0;
+  virtual void onEndEntity(
+    const FileLocation& endLocation,
     std::vector<EntityProperty> properties,
     ParserStatus& status) = 0;
-  virtual void onEndEntity(const FileLocation& endLocation, ParserStatus& status) = 0;
   virtual void onBeginBrush(const FileLocation& location, ParserStatus& status) = 0;
   virtual void onEndBrush(const FileLocation& endLocation, ParserStatus& status) = 0;
   virtual void onStandardBrushFace(

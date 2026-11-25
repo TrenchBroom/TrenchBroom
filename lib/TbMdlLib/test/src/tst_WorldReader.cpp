@@ -1316,6 +1316,222 @@ common/caulk
       }));
   }
 
+  SECTION("Worldspawn properties after brushes")
+  {
+    // See https://github.com/TrenchBroom/TrenchBroom/issues/5589
+
+    const auto data = R"(
+{
+{
+( 0 0 0 ) ( 0 1 0 ) ( 0 0 1 ) WALL3_4 0 0 0 1 1
+( 0 0 0 ) ( 0 0 1 ) ( 1 0 0 ) WALL3_4 0 0 0 1 1
+( 0 0 0 ) ( 1 0 0 ) ( 0 1 0 ) WALL3_4 0 0 0 1 1
+( 64 64 64 ) ( 64 65 64 ) ( 65 64 64 ) WALL3_4 0 0 0 1 1
+( 64 64 64 ) ( 65 64 64 ) ( 64 64 65 ) WALL3_4 0 0 0 1 1
+( 64 64 64 ) ( 64 64 65 ) ( 64 65 64 ) WALL3_4 0 0 0 1 1
+}
+"classname" "worldspawn"
+"message" "Properties after the brush"
+}
+)";
+
+    auto reader = WorldReader{data, mdl::MapFormat::Standard, {}};
+
+    auto worldResult = reader.read(worldBounds, status, taskManager);
+    REQUIRE(worldResult);
+
+    const auto& worldNode = worldResult.value();
+    CHECK(
+      worldNode->entity().properties()
+      == std::vector<mdl::EntityProperty>{
+        {"classname", "worldspawn"},
+        {"message", "Properties after the brush"},
+      });
+    CHECK(worldNode->lineNumber() == 2u);
+    CHECK(worldNode->lineCount() == 12u);
+
+    const auto* defaultLayerNode = worldNode->defaultLayer();
+    REQUIRE(defaultLayerNode->childCount() == 1u);
+
+    const auto* brushNode =
+      dynamic_cast<mdl::BrushNode*>(defaultLayerNode->children().front());
+    REQUIRE(brushNode != nullptr);
+    CHECK(brushNode->brush().bounds() == vm::bbox3d{{0, 0, 0}, {64, 64, 64}});
+  }
+
+  SECTION("Properties between brushes and patches")
+  {
+    const auto data = R"(
+{
+"classname" "worldspawn"
+{
+( 64 64 64 ) ( 64 -64 64 ) ( -64 64 64 ) common/caulk 0 0 0 1 1 134217728 0 0
+( 64 64 64 ) ( -64 64 64 ) ( 64 64 -64 ) common/caulk 0 0 0 1 1 134217728 0 0
+( 64 64 64 ) ( 64 64 -64 ) ( 64 -64 64 ) common/caulk 0 0 0 1 1 134217728 0 0
+( -64 -64 -64 ) ( 64 -64 -64 ) ( -64 64 -64 ) common/caulk 0 0 0 1 1 134217728 0 0
+( -64 -64 -64 ) ( -64 -64 64 ) ( 64 -64 -64 ) common/caulk 0 0 0 1 1 134217728 0 0
+( -64 -64 -64 ) ( -64 64 -64 ) ( -64 -64 64 ) common/caulk 0 0 0 1 1 134217728 0 0
+}
+"message" "Between the brush and the patch"
+{
+patchDef2
+{
+common/caulk
+( 3 3 0 0 0 )
+(
+( ( 0 0 4 0 0 ) ( 0 32 4 0 0.5 ) ( 0 64 4 0 1 ) )
+( ( 32 0 4 0.5 0 ) ( 32 32 4 0.5 0.5 ) ( 32 64 4 0.5 1 ) )
+( ( 64 0 4 1 0 ) ( 64 32 4 1 0.5 ) ( 64 64 4 1 1 ) )
+)
+}
+}
+"_keeplights" "1"
+}
+)";
+
+    auto reader = WorldReader{data, mdl::MapFormat::Quake3, {}};
+
+    auto worldResult = reader.read(worldBounds, status, taskManager);
+    REQUIRE(worldResult);
+
+    const auto& worldNode = worldResult.value();
+    CHECK(
+      worldNode->entity().properties()
+      == std::vector<mdl::EntityProperty>{
+        {"classname", "worldspawn"},
+        {"message", "Between the brush and the patch"},
+        {"_keeplights", "1"},
+      });
+
+    const auto* defaultLayerNode = worldNode->defaultLayer();
+    REQUIRE(defaultLayerNode->childCount() == 2u);
+
+    const auto* brushNode =
+      dynamic_cast<mdl::BrushNode*>(defaultLayerNode->children()[0]);
+    REQUIRE(brushNode != nullptr);
+    CHECK(brushNode->brush().bounds() == vm::bbox3d{64.0});
+
+    const auto* patchNode =
+      dynamic_cast<mdl::PatchNode*>(defaultLayerNode->children()[1]);
+    REQUIRE(patchNode != nullptr);
+    CHECK(patchNode->patch().materialName() == "common/caulk");
+    CHECK(patchNode->patch().pointRowCount() == 3);
+    CHECK(patchNode->patch().pointColumnCount() == 3);
+  }
+
+  SECTION("Duplicate properties before and after brushes")
+  {
+    const auto data = R"(
+{
+"classname" "worldspawn"
+"message" "Before the brush"
+{
+( 0 0 0 ) ( 0 1 0 ) ( 0 0 1 ) WALL3_4 0 0 0 1 1
+( 0 0 0 ) ( 0 0 1 ) ( 1 0 0 ) WALL3_4 0 0 0 1 1
+( 0 0 0 ) ( 1 0 0 ) ( 0 1 0 ) WALL3_4 0 0 0 1 1
+( 64 64 64 ) ( 64 65 64 ) ( 65 64 64 ) WALL3_4 0 0 0 1 1
+( 64 64 64 ) ( 65 64 64 ) ( 64 64 65 ) WALL3_4 0 0 0 1 1
+( 64 64 64 ) ( 64 64 65 ) ( 64 65 64 ) WALL3_4 0 0 0 1 1
+}
+"message" "After the brush"
+}
+)";
+
+    auto reader = WorldReader{data, mdl::MapFormat::Standard, {}};
+
+    auto worldResult = reader.read(worldBounds, status, taskManager);
+    REQUIRE(worldResult);
+
+    const auto& worldNode = worldResult.value();
+    CHECK(
+      worldNode->entity().properties()
+      == std::vector<mdl::EntityProperty>{
+        {"classname", "worldspawn"},
+        {"message", "Before the brush"},
+      });
+    CHECK(
+      status.messages(LogLevel::Warn)
+      == std::vector<std::string>{
+        "At line 13, column 1: Ignoring duplicate entity property 'message'",
+      });
+  }
+
+  SECTION("Malformed properties after brushes")
+  {
+    using WorldResult = Result<std::unique_ptr<mdl::WorldNode>>;
+
+    SECTION("Missing property value")
+    {
+      const auto data = R"(
+{
+"classname" "worldspawn"
+{
+( 0 0 0 ) ( 0 1 0 ) ( 0 0 1 ) WALL3_4 0 0 0 1 1
+( 0 0 0 ) ( 0 0 1 ) ( 1 0 0 ) WALL3_4 0 0 0 1 1
+( 0 0 0 ) ( 1 0 0 ) ( 0 1 0 ) WALL3_4 0 0 0 1 1
+( 64 64 64 ) ( 64 65 64 ) ( 65 64 64 ) WALL3_4 0 0 0 1 1
+( 64 64 64 ) ( 65 64 64 ) ( 64 64 65 ) WALL3_4 0 0 0 1 1
+( 64 64 64 ) ( 64 64 65 ) ( 64 65 64 ) WALL3_4 0 0 0 1 1
+}
+"message"
+}
+)";
+
+      auto reader = WorldReader{data, mdl::MapFormat::Standard, {}};
+      CHECK(
+        reader.read(worldBounds, status, taskManager)
+        == WorldResult{
+          Error{"At line 13, column 1: Expected string, but got '}' (raw data: '}')"}});
+    }
+
+    SECTION("Missing closing brace")
+    {
+      const auto data = R"(
+{
+{
+( 0 0 0 ) ( 0 1 0 ) ( 0 0 1 ) WALL3_4 0 0 0 1 1
+( 0 0 0 ) ( 0 0 1 ) ( 1 0 0 ) WALL3_4 0 0 0 1 1
+( 0 0 0 ) ( 1 0 0 ) ( 0 1 0 ) WALL3_4 0 0 0 1 1
+( 64 64 64 ) ( 64 65 64 ) ( 65 64 64 ) WALL3_4 0 0 0 1 1
+( 64 64 64 ) ( 65 64 64 ) ( 64 64 65 ) WALL3_4 0 0 0 1 1
+( 64 64 64 ) ( 64 64 65 ) ( 64 65 64 ) WALL3_4 0 0 0 1 1
+}
+"classname" "worldspawn"
+)";
+
+      auto reader = WorldReader{data, mdl::MapFormat::Standard, {}};
+      CHECK(
+        reader.read(worldBounds, status, taskManager)
+        == WorldResult{
+          Error{"At line 12, column 1: Expected string, '{', or '}', but got end of file "
+                "(raw data: '')"}});
+    }
+
+    SECTION("Unexpected token")
+    {
+      const auto data = R"(
+{
+{
+( 0 0 0 ) ( 0 1 0 ) ( 0 0 1 ) WALL3_4 0 0 0 1 1
+( 0 0 0 ) ( 0 0 1 ) ( 1 0 0 ) WALL3_4 0 0 0 1 1
+( 0 0 0 ) ( 1 0 0 ) ( 0 1 0 ) WALL3_4 0 0 0 1 1
+( 64 64 64 ) ( 64 65 64 ) ( 65 64 64 ) WALL3_4 0 0 0 1 1
+( 64 64 64 ) ( 65 64 64 ) ( 64 64 65 ) WALL3_4 0 0 0 1 1
+( 64 64 64 ) ( 64 64 65 ) ( 64 65 64 ) WALL3_4 0 0 0 1 1
+}
+( 0 0 0 )
+}
+)";
+
+      auto reader = WorldReader{data, mdl::MapFormat::Standard, {}};
+      CHECK(
+        reader.read(worldBounds, status, taskManager)
+        == WorldResult{
+          Error{"At line 11, column 1: Expected string, '{', or '}', but got '(' "
+                "(raw data: '(')"}});
+    }
+  }
+
   SECTION("Multiple classnames")
   {
     // See https://github.com/TrenchBroom/TrenchBroom/issues/1485

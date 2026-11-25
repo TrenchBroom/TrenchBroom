@@ -144,11 +144,11 @@ protected:
   Result<void> readBrushFaces(const vm::bbox3d& worldBounds, ParserStatus& status);
 
 protected: // implement MapParser interface
-  void onBeginEntity(
-    const FileLocation& location,
+  void onBeginEntity(const FileLocation& location, ParserStatus& status) override;
+  void onEndEntity(
+    const FileLocation& endLocation,
     std::vector<EntityProperty> properties,
     ParserStatus& status) override;
-  void onEndEntity(const FileLocation& endLocation, ParserStatus& status) override;
   void onBeginBrush(const FileLocation& location, ParserStatus& status) override;
   void onEndBrush(const FileLocation& endLocation, ParserStatus& status) override;
   void onStandardBrushFace(
