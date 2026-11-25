@@ -45,6 +45,18 @@
 
 ## Git History
 - Keep the git history as clean as possible.
+- Split work into commits by the kind of change, and don't mix kinds in one commit:
+  - Refactoring: changes the structure of the code without changing behavior. Existing tests should pass with at most mechanical changes, such as renames or updated signatures.
+  - Cleanup: removes dead code, unused includes or redundant checks, or fixes style, without changing behavior.
+  - Preparation: adds functions, types or parameters that a later commit needs, with their tests, without changing existing behavior.
+  - Test coverage: adds tests for existing behavior.
+  - Behavior change: a feature or bug fix, with its tests. Make one behavior change per commit.
+- If you're unsure whether a change affects behavior, treat it as a behavior change.
+- Put refactoring, cleanup, preparation and test coverage commits before the behavior change they support. The behavior change commit should then be small, and its test diff should show exactly which expectations changed.
+- Start the subject line with `Refactor:` for refactoring commits and `Cleanup:` for cleanup commits.
+- Put unrelated cleanup you notice along the way in its own commit, or leave it out. Don't fold it into a feature commit.
+- Don't reformat code you haven't otherwise changed.
+- If you don't commit yourself, hand the work over in the same order, one commit's worth at a time.
 - Avoid unnecessary churn, including changing the same code multiple times in a branch when a cleaner edit is possible.
 - Prefer changes that read like a clean transformation from the original state to the desired result.
 - When creating a series of commits, keep each commit coherent, buildable, and with the relevant tests passing when practical.
