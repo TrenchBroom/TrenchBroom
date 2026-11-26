@@ -456,6 +456,105 @@ TEST_CASE("Autosaver")
           savedMapWithOneEntity,
         }));
     }
+
+    SECTION("Backups with multi-digit numbers are not overwritten")
+    {
+      // https://github.com/TrenchBroom/TrenchBroom/issues/5579
+
+      const auto initialPaths = std::vector<std::filesystem::path>{
+        "autosave/test.1.map",
+        "autosave/test.2.map",
+        "autosave/test.3.map",
+        "autosave/test.4.map",
+        "autosave/test.5.map",
+        "autosave/test.6.map",
+        "autosave/test.7.map",
+        "autosave/test.8.map",
+        "autosave/test.9.map",
+        "autosave/test.10.map",
+      };
+
+      for (const auto& path : initialPaths)
+      {
+        env.createFile(path, path.string());
+      }
+
+      REQUIRE(map.saveAs(env.dir() / "test.map"));
+      REQUIRE(env.fileExists("test.map"));
+
+      auto autosaver = Autosaver{map, 100ms};
+
+      // modify the map
+      addNode(
+        map, *map.editorContext().currentLayer(), std::make_unique<EntityNode>(Entity{}));
+
+      std::this_thread::sleep_for(100ms);
+      autosaver.triggerAutosave();
+
+      const auto allPaths = kdl::vec_push_back(initialPaths, "autosave/test.11.map");
+
+      CHECK_THAT(env.directoryContents("autosave"), UnorderedRangeEquals(allPaths));
+      CHECK_THAT(
+        allPaths | std::views::transform(loadFile),
+        RangeEquals(std::vector<std::string>{
+          "autosave/test.1.map",
+          "autosave/test.2.map",
+          "autosave/test.3.map",
+          "autosave/test.4.map",
+          "autosave/test.5.map",
+          "autosave/test.6.map",
+          "autosave/test.7.map",
+          "autosave/test.8.map",
+          "autosave/test.9.map",
+          "autosave/test.10.map",
+          savedMapWithOneEntity,
+        }));
+    }
+
+    SECTION("Backups with the lowest numbers are deleted")
+    {
+      // https://github.com/TrenchBroom/TrenchBroom/issues/5579
+
+      const auto initialPaths = std::vector<std::filesystem::path>{
+        "autosave/test.8.map",
+        "autosave/test.9.map",
+        "autosave/test.10.map",
+        "autosave/test.11.map",
+      };
+
+      for (const auto& path : initialPaths)
+      {
+        env.createFile(path, path.string());
+      }
+
+      REQUIRE(map.saveAs(env.dir() / "test.map"));
+      REQUIRE(env.fileExists("test.map"));
+
+      auto autosaver = Autosaver{map, 100ms, maxBackups};
+
+      // modify the map
+      addNode(
+        map, *map.editorContext().currentLayer(), std::make_unique<EntityNode>(Entity{}));
+
+      std::this_thread::sleep_for(100ms);
+      autosaver.triggerAutosave();
+
+      // the two oldest backups (test.8, test.9) must be deleted
+      const auto allPaths = std::vector<std::filesystem::path>{
+        "autosave/test.1.map",
+        "autosave/test.2.map",
+        "autosave/test.3.map",
+      };
+
+      CHECK(env.directoryContents("autosave") == allPaths);
+      CHECK_THAT(
+        allPaths | std::views::transform(loadFile),
+        RangeEquals(std::vector<std::string>{
+          "autosave/test.10.map",
+          "autosave/test.11.map",
+          savedMapWithOneEntity,
+        }));
+    }
   }
 }
 

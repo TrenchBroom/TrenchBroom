@@ -56,13 +56,20 @@ Result<std::filesystem::path> ensureAutosaveDirectory(
          | kdl::transform([&](auto) { return autosavePath; });
 }
 
+size_t backupNo(const std::filesystem::path& backupPath)
+{
+  return kdl::str_to_size(backupPath.stem().extension().string().substr(1)).value_or(0u);
+}
+
 Result<std::vector<std::filesystem::path>> collectBackups(
   const std::filesystem::path& autosavePath, const std::filesystem::path& mapBasename)
 {
   return fs::Disk::find(
            autosavePath, fs::TraversalMode::Flat, makeBackupPathMatcher(mapBasename))
-         | kdl::transform(
-           [](auto backupPaths) { return kdl::vec_sort(std::move(backupPaths)); });
+         | kdl::transform([](auto backupPaths) {
+             std::ranges::sort(backupPaths, std::less{}, backupNo);
+             return backupPaths;
+           });
 }
 
 Result<std::vector<std::filesystem::path>> thinBackups(
