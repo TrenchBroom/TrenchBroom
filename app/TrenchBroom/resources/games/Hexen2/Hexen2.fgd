@@ -874,7 +874,8 @@
 @PointClass base(light, Angles) size(-8 -8 -8, 8 8 8) = light_gem : "Gem light" []
 @PointClass base(light) size(-8 -8 -8, 8 8 8) = light_globe : "Globe" []
 @PointClass base(light) model(":models/cflmtrch.mdl") size(-8 -8 -8, 8 8 8) = light_torch_castle : "Castle torch" []
-@PointClass base(light_torch_castle) model(":models/egtorch.mdl") = light_torch_egypt : "Egyptian torch" []
+// Raven misspelt this class as "eqypt" (with a Q) and so the FGD here must match it.
+@PointClass base(light_torch_castle) model(":models/egtorch.mdl") = light_torch_eqypt : "Egyptian torch" []
 @PointClass base(light_torch_castle) model(":models/mflmtrch.mdl") = light_torch_meso : "Meso torch" []
 @PointClass base(light_torch_castle)  model(":models/rflmtrch.mdl") = light_torch_rome : "Roman torch" []
 @PointClass base(light, Lightdmg) model(":models/flame.mdl") size(-10 -10 -20, 10 10 20) = light_torch_small_walltorch : "Walltorch"
@@ -1021,7 +1022,7 @@
 		1 : "Ambush" : 0
 	]
 ]
-@PointClass base(Appearflags, Targetname, Target) model(":models/eidolon.mdl") size(-100 -100 0, 100 100 666) = monster_eidolon : "Eidolon" []
+@PointClass base(Appearflags, Targetname, Target) model(":models/boss/smaleido.mdl") size(-100 -100 0, 100 100 666) = monster_eidolon : "Eidolon" []
 
 //
 // PoP Monsters!
