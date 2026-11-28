@@ -88,6 +88,7 @@
 #include "ui/SignalDelayer.h"
 
 #include "kd/contracts.h"
+#include "kd/ranges/chunk_view.h"
 #include "kd/ranges/to.h"
 #include "kd/string_compare.h"
 #include "kd/string_format.h"
@@ -1446,41 +1447,69 @@ QMenu* MapViewBase::makeEntityGroupsMenu(const mdl::EntityDefinitionType type)
 
   const auto enableMakeBrushEntity = canCreateBrushEntity();
 
+  const auto shortName = [](const mdl::EntityDefinition& definition) {
+    return QString::fromStdString(std::string{mdl::getShortName(definition)});
+  };
+
+  const auto addCreateEntityActions = [&](QMenu& entityMenu, const auto& definitions) {
+    for (const auto* definition : definitions)
+    {
+      const auto label = shortName(*definition);
+      QAction* action = nullptr;
+
+      switch (type)
+      {
+      case mdl::EntityDefinitionType::Point:
+        action =
+          entityMenu.addAction(label, this, qOverload<>(&MapViewBase::createPointEntity));
+        break;
+      case mdl::EntityDefinitionType::Brush:
+        action =
+          entityMenu.addAction(label, this, qOverload<>(&MapViewBase::createBrushEntity));
+        action->setEnabled(enableMakeBrushEntity);
+        break;
+      }
+
+      action->setData(QVariant::fromValue(QString::fromStdString(definition->name)));
+    }
+  };
+
+  constexpr auto MaxEntityMenuSize = size_t{25};
+
   const auto& map = m_document.map();
   for (const auto& group : map.entityDefinitionManager().groups())
   {
-    auto creatableDefinitions =
+    const auto creatableDefinitions =
       filterAndSort(group.definitions, type, mdl::EntityDefinitionSortOrder::Name)
       | std::views::filter([](const auto* d) {
           return !kdl::cs::str_is_equal(
             d->name, mdl::EntityPropertyValues::WorldspawnClassname);
-        });
+        })
+      | kdl::ranges::to<std::vector>();
 
-    if (!std::ranges::empty(creatableDefinitions))
+    if (!creatableDefinitions.empty())
     {
       const auto groupName = QString::fromStdString(displayName(group));
       auto* groupMenu = new QMenu{groupName};
 
-      for (const auto* definition : creatableDefinitions)
+      if (creatableDefinitions.size() <= MaxEntityMenuSize)
       {
-        const auto label =
-          QString::fromStdString(std::string{mdl::getShortName(*definition)});
-        QAction* action = nullptr;
+        addCreateEntityActions(*groupMenu, creatableDefinitions);
+      }
+      else
+      {
+        const auto chunkCount =
+          (creatableDefinitions.size() + MaxEntityMenuSize - 1) / MaxEntityMenuSize;
+        const auto chunkSize =
+          (creatableDefinitions.size() + chunkCount - 1) / chunkCount;
+        const auto separator = QString{" "} + QChar{0x2013} + QString{" "};
 
-        switch (type)
+        for (const auto& chunk : creatableDefinitions | kdl::views::chunk(chunkSize))
         {
-        case mdl::EntityDefinitionType::Point:
-          action = groupMenu->addAction(
-            label, this, qOverload<>(&MapViewBase::createPointEntity));
-          break;
-        case mdl::EntityDefinitionType::Brush:
-          action = groupMenu->addAction(
-            label, this, qOverload<>(&MapViewBase::createBrushEntity));
-          action->setEnabled(enableMakeBrushEntity);
-          break;
+          auto* chunkMenu = groupMenu->addMenu(
+            shortName(*chunk.front()) + separator + shortName(*chunk.back()));
+          addCreateEntityActions(*chunkMenu, chunk);
         }
-
-        action->setData(QVariant::fromValue(QString::fromStdString(definition->name)));
       }
 
       menu->addMenu(groupMenu);
