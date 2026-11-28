@@ -62,6 +62,22 @@ auto createUvCoordSystemFromPoints(
                | kdl::transform(UvCoordSystem::wrap);
 }
 
+auto createUvCoordSystemFromStandard(
+  const vm::vec3d& point0,
+  const vm::vec3d& point1,
+  const vm::vec3d& point2,
+  const UvAttributes& uvAttributes,
+  const MapFormat mapFormat)
+{
+  // Converting paraxial to parallel preserves the UV attributes
+  return isParallelUvCoordSystem(mapFormat)
+           ? ParallelUvCoordSystem::createFromParaxial(
+               point0, point1, point2, uvAttributes)
+               | kdl::transform(UvCoordSystem::wrap)
+           : ParaxialUvCoordSystem::createFromPoints(point0, point1, point2, uvAttributes)
+               | kdl::transform(UvCoordSystem::wrap);
+}
+
 auto createUvCoordSystemFromAxes(
   const vm::vec3d& point0,
   const vm::vec3d& point1,
@@ -187,8 +203,7 @@ Result<BrushFace> BrushFace::createFromStandard(
 {
   contract_pre(mapFormat != MapFormat::Unknown);
 
-  // Converting paraxial to parallel preserves the UV attributes
-  return createUvCoordSystemFromPoints(point0, point1, point2, uvAttributes, mapFormat)
+  return createUvCoordSystemFromStandard(point0, point1, point2, uvAttributes, mapFormat)
          | kdl::and_then([&](auto uvCoordSystem) {
              return BrushFace::create(
                point0,
