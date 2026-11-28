@@ -468,20 +468,12 @@ void BrushFace::setSurfaceAttributes(const SurfaceAttributes& surfaceAttributes)
   m_surfaceAttributes = surfaceAttributes;
 }
 
-bool BrushFace::copyAttributes(const BrushFace& other)
+Result<void> BrushFace::copyAttributes(const BrushFace& other)
 {
-  auto result = setMaterialName(other.materialName());
-  if (other.uvAttributes() != uvAttributes())
-  {
-    m_uvCoordSystem.copyUvAttributes(other.uvAttributes());
-    result = true;
-  }
-  if (other.m_surfaceAttributes != m_surfaceAttributes)
-  {
-    m_surfaceAttributes = other.m_surfaceAttributes;
-    result = true;
-  }
-  return result;
+  return setUvAttributes(other.uvAttributes()) | kdl::transform([&]() {
+           setMaterialName(other.materialName());
+           m_surfaceAttributes = other.m_surfaceAttributes;
+         });
 }
 
 namespace

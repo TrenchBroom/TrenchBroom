@@ -464,6 +464,50 @@ TEST_CASE("Brush")
       CHECK(
         !canMoveBoundary(brush1, worldBounds, *rightFaceIndex, vm::vec3d{8000, 0, 0}));
     }
+
+    // https://github.com/TrenchBroom/TrenchBroom/issues/2315
+    SECTION("Does not corrupt a 45-degree face")
+    {
+      const auto data = R"(
+// entity 0
+{
+"classname" "worldspawn"
+// brush 0
+{
+( 64 64 16 ) ( 64 64 17 ) ( 64 65 16 ) __TB_empty [ 0 1 0 0 ] [ 0 0 -1 0 ] 0 1 1
+( -64 -64 -16 ) ( -64 -64 -15 ) ( -63 -64 -16 ) __TB_empty [ 1 0 0 0 ] [ 0 0 -1 0 ] 0 1 1
+( 64 64 16 ) ( 64 65 16 ) ( 65 64 16 ) __TB_empty [ 1 0 0 0 ] [ 0 -1 0 0 ] 0 1 1
+( -64 -64 -16 ) ( -63 -64 -16 ) ( -64 -63 -16 ) __TB_empty [ -1 0 0 0 ] [ 0 -1 0 0 ] 0 1 1
+( 32 -64 16 ) ( 48 -48 16 ) ( 48 -48 144 ) __TB_empty [ -0.707107 -0.707107 0 0 ] [ 0 0 -1 0 ] 0 1 1
+}
+}
+)";
+
+      const auto worldBounds = vm::bbox3d{4096.0};
+
+      auto taskManager = kdl::task_manager{};
+      auto status = TestParserStatus{};
+
+      auto nodes =
+        NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status, taskManager);
+      REQUIRE(nodes);
+
+      auto* brushNode = dynamic_cast<BrushNode*>(nodes.value().at(0)->children()[0]);
+      CHECK(brushNode != nullptr);
+
+      auto brush = brushNode->brush();
+
+      // find the face
+      const auto angledFaceIndex =
+        brush.findFace(vm::vec3d{-0.70710678118654746, 0.70710678118654746, 0});
+      REQUIRE(angledFaceIndex);
+
+      CHECK(brush.moveBoundary(
+        worldBounds,
+        *angledFaceIndex,
+        vm::vec3d{-7.9999999999999973, 7.9999999999999973, 0},
+        true));
+    }
   }
 
   SECTION("expand")

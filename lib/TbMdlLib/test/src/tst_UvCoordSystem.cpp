@@ -26,6 +26,7 @@
 
 #include "kd/result.h"
 
+#include "vm/approx.h"
 #include "vm/mat_ext.h"
 #include "vm/plane.h"
 #include "vm/scalar.h"
@@ -225,6 +226,17 @@ TEST_CASE("ParallelUvCoordSystem")
         vm::dot(actual.value().uAxis(), actual.value().normal()), vm::Cd::almost_zero()));
       CHECK(vm::is_zero(
         vm::dot(actual.value().vAxis(), actual.value().normal()), vm::Cd::almost_zero()));
+    }
+
+    SECTION("rotates the axes CCW about the UV normal by the given angle in degrees")
+    {
+      // The face normal is -Z, so the unrotated axes are -X and -Y and the UV normal is
+      // +Z.
+      const auto actual = ParallelUvCoordSystem::createFromPoints(
+                            point0, point1, point2, UvAttributes{{1, 2}, {3, 4}, 90.0f})
+                          | kdl::value();
+      CHECK(actual.uAxis() == vm::approx{vm::vec3d{0, -1, 0}});
+      CHECK(actual.vAxis() == vm::approx{vm::vec3d{1, 0, 0}});
     }
 
     SECTION("returns an error if the points do not define a plane")

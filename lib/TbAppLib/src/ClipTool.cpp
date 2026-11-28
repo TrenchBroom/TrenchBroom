@@ -809,8 +809,9 @@ void ClipTool::updateBrushes()
         mdl::SurfaceAttributes{},
         map.worldNode().mapFormat())
         | kdl::and_then([&](mdl::BrushFace&& clipFace) {
-            setFaceAttributes(brush.faces(), clipFace);
-            return brush.clip(worldBounds, std::move(clipFace));
+            return setFaceAttributes(brush.faces(), clipFace) | kdl::and_then([&]() {
+                     return brush.clip(worldBounds, std::move(clipFace));
+                   });
           })
         | kdl::transform([&]() {
             brushMap[node->parent()].push_back(
@@ -842,7 +843,7 @@ void ClipTool::updateBrushes()
   }
 }
 
-void ClipTool::setFaceAttributes(
+Result<void> ClipTool::setFaceAttributes(
   const std::vector<mdl::BrushFace>& faces, mdl::BrushFace& toSet) const
 {
   contract_pre(!faces.empty());
@@ -865,7 +866,7 @@ void ClipTool::setFaceAttributes(
     ++faceIt;
   }
 
-  toSet.copyAttributes(*bestMatch);
+  return toSet.copyAttributes(*bestMatch);
 }
 
 void ClipTool::clearRenderers()

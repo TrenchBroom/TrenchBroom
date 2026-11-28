@@ -20,6 +20,7 @@
 #pragma once
 
 #include "base/NotifierConnection.h"
+#include "base/Result.h"
 #include "mdl/HitType.h"
 #include "ui/Tool.h"
 
@@ -153,7 +154,7 @@ private:
   void clearBrushes();
   void updateBrushes();
 
-  void setFaceAttributes(
+  Result<void> setFaceAttributes(
     const std::vector<mdl::BrushFace>& faces, mdl::BrushFace& toSet) const;
 
   void clearRenderers();
