@@ -276,6 +276,8 @@ To select objects or brush faces by their properties, type into the search box i
 
 You can type plain text such as `light` to find every object whose name, classname, properties, materials or tags contain that text, or whose layer or group name contains it, or you can write a query such as `classname is "light" && properties.light > 300` for more precise results. While the search box has focus, a popup below it shows how many objects or faces matched, along with a short syntax reference. Press #key(Return) to run the search right away instead of waiting, or to run it again after you have changed the selection, and press #key(Esc) to close the popup; it opens again when the search box gets focus. The [query language](#query_language) section explains text searches and queries in detail.
 
+While you type a name, the popup also lists the words that can complete it at that point of the query, such as the [fields](#query_fields), functions and operators like `like`. After a dot, it lists the keys of the value before the dot, such as `x`, `y` and `z` after `center.`, or the property keys that the entities in the map use after `properties.`. Press #key(Tab) to insert the first word, or select another one with #key(Up) and #key(Down) and press #key(Tab) or #key(Return) to insert it. As long as no word is selected, #key(Return) runs the search as usual, and #key(Esc) closes the list before it closes the popup.
+
 # Editing
 
 In this section, we will cover all topics related to the actual editing of a map. We begin by explaining how to set up the map itself, that is, how to set up mods, entity definitions, and material collection. Afterwards, we show you how to create new objects such as entities or brushes, how to edit and transform them, and how to delete them. After that, we explain how you can work with materials in TrenchBroom. The following section introduces the various tools at your disposal to shape brushes while the section after that focuses on entities and how to edit their properties. The goal of the final section is to help you keep an overview in your map by using layers, groups, and by various other means.
@@ -2326,13 +2328,17 @@ The following table explains the supported combinations of container and value t
 
 Container   Value     Effect
 ---------   -----     ------
+`String`    `String`  `true` if the string contains `value` as a substring.
 `Array`     any type  `true` if the array contains an element equal to `value`.
 `Map`       `String`  `true` if the map contains a key equal to `value`.
 `BBox`      `Vec3`    `true` if the box contains the point.
 `BBox`      `BBox`    `true` if the box fully contains the other box.
 
+A string is searched for the substring with case sensitivity, and the characters `*`, `?`, and `%` have no special meaning, so `"func_detail" contains "detail"` is `true`, but `"func_detail" contains "Detail"` and `"func_detail" contains "func_*"` are `false`. To search a string ignoring case or with wildcards, use `like` instead.
+
 The elements of an array are compared with `value` like `==` does, including its type conversions, so `[1, 2, 3] contains "2"` is `true`.
 
+    "asdf" contains "sd"                                                // true
     [1, 2, 3] contains 2                                                // true
     { a: 1, b: 2 } contains "a"                                         // true
     bbox(vec(0, 0, 0), vec(2, 2, 2)) contains vec(1, 1, 1)              // true
@@ -2733,7 +2739,7 @@ Syntax                                  Meaning
 `(a)`                                   Parentheses group a part of a query.
 `a is b`                                The same as `a == b`.
 `a like p`                              Whether `a` matches the pattern `p`, ignoring case; see [Pattern Matching](#el_pattern_matching).
-`a contains b`                          Whether the array, map, or bounding box `a` contains `b`.
+`a contains b`                          Whether the string, array, map, or bounding box `a` contains `b`.
 `b in a`                                The same as `a contains b`.
 `vec(x, y, z)`                          A vector.
 `bbox(min, max)`                        A bounding box with the corners `min` and `max`.
@@ -2743,7 +2749,7 @@ Syntax                                  Meaning
 Keep the following in mind when writing queries.
 
 - The functions `is`, `like`, `contains`, `in`, `distanceTo`, and `intersects` bind more tightly than any operator, so `classname is "light" && visible` works without parentheses. To negate such a term, enclose it in parentheses: `!(classname is "light")`.
-- Strings are compared case sensitively by `==`, `!=`, and `is`, but `like` ignores case.
+- Strings are compared case sensitively by `==`, `!=`, `is`, `contains`, and `in`, but `like` ignores case.
 - Property values are strings, but they are converted to numbers when compared with a number, so `properties.light > 300` works as expected.
 - A field that the object doesn't have, or a property that the entity doesn't have, evaluates to `undefined`. `undefined` is not equal to any other value, and it is less than any other value, so `properties.light < 100` also finds lights without a `light` property. To test whether an entity has a property, use `properties contains "light"`.
 - If evaluating a query for an object results in an error, or in any value other than `true`, the object doesn't match. For example, `properties.light > 300` doesn't match a light whose `light` property is not a number.

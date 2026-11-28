@@ -99,6 +99,12 @@ el::Value makeEntityLazyMap(const mdl::Entity& entity)
   return el::makeLazyMapValue(LazyEntity{entity}, entityLazyMapFields());
 }
 
+const kdl::flat_map<std::string, el::ValueType>& entityFieldTypes()
+{
+  static const auto fieldTypes = el::lazyMapFieldTypes(entityLazyMapFields());
+  return fieldTypes;
+}
+
 el::LazyMap makeEntityNodeLazyMap(const mdl::Map& map, const mdl::EntityNode& node)
 {
   return el::makeLazyMap(LazyEntityNode{map, node}, entityNodeLazyMapFields());

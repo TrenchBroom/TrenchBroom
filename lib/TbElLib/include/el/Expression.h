@@ -22,10 +22,11 @@
 #include "ExpressionNode.h"
 #include "Value.h"
 
+#include "kd/flat_map.h"
 #include "kd/reflection_decl.h"
 
 #include <map>
-#include <optional>
+#include <span>
 #include <string>
 #include <variant>
 #include <vector>
@@ -303,16 +304,43 @@ bool operator==(const CallExpression& lhs, const CallExpression& rhs);
 std::ostream& operator<<(std::ostream& lhs, const CallExpression& rhs);
 
 /**
+ * How a built-in function is usually called. Every built-in function can be called with
+ * prefix notation, as in `f(a, b)`, and one that takes two arguments can also be called
+ * with infix notation, as in `a f b`.
+ */
+enum class FunctionNotation
+{
+  Prefix,
+  Infix,
+};
+
+/**
+ * A function that an expression can call by name.
+ */
+struct BuiltinFunction
+{
+  size_t arity;
+  FunctionNotation notation;
+
+  /**
+   * The type of the values that the function returns. A function may also return
+   * undefined if an argument is undefined.
+   */
+  ValueType resultType;
+
+  Value (*evaluate)(std::span<const Value>, const ExpressionNode&);
+};
+
+/**
+ * Returns the built-in functions by name.
+ */
+const kdl::flat_map<std::string, BuiltinFunction>& builtinFunctions();
+
+/**
  * Returns the built-in function with the given name, or null if there is no such
  * function.
  */
 const BuiltinFunction* findBuiltinFunction(const std::string& name);
-
-/**
- * Returns the number of arguments of the built-in function with the given name, or
- * nothing if there is no such function.
- */
-std::optional<size_t> builtinFunctionArity(const std::string& name);
 
 
 struct SwitchExpression

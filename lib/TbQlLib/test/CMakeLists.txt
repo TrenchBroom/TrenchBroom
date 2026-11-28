@@ -12,6 +12,7 @@ target_sources(TbQlLibTest PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_NodeVariableStore.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_PatchNodeLazyMap.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_Query.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_QueryCompletion.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_QueryDomainInference.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/src/tst_WorldNodeLazyMap.cpp
 )

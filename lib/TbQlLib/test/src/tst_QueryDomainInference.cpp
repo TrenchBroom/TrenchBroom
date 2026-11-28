@@ -48,6 +48,14 @@ TEST_CASE("QueryDomainInference")
 {
   using T = QueryObjectType;
 
+  SECTION("fullDomain")
+  {
+    CHECK(
+      fullDomain()
+      == QueryDomain{
+        T::World, T::Layer, T::Group, T::Entity, T::Brush, T::Patch, T::Face});
+  }
+
   SECTION("queryFields")
   {
     const auto& fields = queryFields();

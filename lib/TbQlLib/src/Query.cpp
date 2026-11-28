@@ -163,8 +163,7 @@ bool usesOnlyKnownNames(const el::ExpressionNode& expression)
     // the name after the dot is a key, not a field
     [](const el::DotExpression& d) { return usesOnlyKnownNames(d.operand); },
     [&](const el::CallExpression& c) {
-      return el::builtinFunctionArity(c.name).has_value()
-             && allUseOnlyKnownNames(c.arguments);
+      return el::builtinFunctions().contains(c.name) && allUseOnlyKnownNames(c.arguments);
     },
     [&](const el::SwitchExpression& s) { return allUseOnlyKnownNames(s.cases); }));
 }
@@ -210,7 +209,8 @@ el::ExpressionNode quoteTypeName(const el::ExpressionNode& expression)
     [&](const auto&) { return expression; }));
 }
 
-// see parseQuery's doc comment for where type names don't need quotes
+} // namespace
+
 el::ExpressionNode quoteTypeNames(const el::ExpressionNode& expression)
 {
   const auto withLocation = [&](auto quotedExpression) {
@@ -264,6 +264,9 @@ el::ExpressionNode quoteTypeNames(const el::ExpressionNode& expression)
       return withLocation(el::SwitchExpression{quoteAll(s.cases)});
     }));
 }
+
+namespace
+{
 
 // see parseQuery's doc comment for which expressions are treated as fuzzy text; the
 // given text is the trimmed text that the expression was parsed from

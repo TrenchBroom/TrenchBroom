@@ -61,6 +61,11 @@ std::optional<QueryObjectType> queryObjectTypeFromName(const std::string& name);
 using QueryDomain = kdl::flat_set<QueryObjectType>;
 
 /**
+ * Returns every object type.
+ */
+QueryDomain fullDomain();
+
+/**
  * A field that a query can refer to.
  */
 struct QueryField

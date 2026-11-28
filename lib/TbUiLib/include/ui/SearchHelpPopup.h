@@ -21,8 +21,10 @@
 
 #include <QFrame>
 #include <QString>
+#include <QStringList>
 
 class QLabel;
+class QListWidget;
 class QWidget;
 
 namespace tb::ui
@@ -30,8 +32,9 @@ namespace tb::ui
 class AppController;
 
 /**
- * A floating panel shown below the search box while it has focus. It shows the result of
- * the last search and a short reference of the query syntax with a link to the manual.
+ * A floating panel shown below the search box while it has focus. It shows the words that
+ * complete the query being typed, the result of the last search and a short reference of
+ * the query syntax with a link to the manual.
  *
  * Unlike PopupWindow, this doesn't grab the keyboard, so the user can keep typing into
  * the search box while it is visible.
@@ -41,10 +44,35 @@ class SearchHelpPopup : public QFrame
   Q_OBJECT
 private:
   AppController& m_appController;
+  QListWidget* m_completionList = nullptr;
   QLabel* m_statusLabel = nullptr;
 
 public:
   explicit SearchHelpPopup(AppController& appController, QWidget* parent = nullptr);
+
+  QStringList completions() const;
+
+  /**
+   * Shows the given completions above the status, or hides the list of completions if
+   * there are none. None of them is selected.
+   */
+  void setCompletions(const QStringList& completions);
+
+  /**
+   * Returns the selected completion, or an empty string if none is selected.
+   */
+  QString selectedCompletion() const;
+
+  /**
+   * Selects the next completion, or the first one if none or the last one is selected.
+   */
+  void selectNextCompletion();
+
+  /**
+   * Selects the previous completion, or the last one if none or the first one is
+   * selected.
+   */
+  void selectPreviousCompletion();
 
   QString status() const;
   void setStatus(const QString& status);
@@ -53,6 +81,9 @@ public:
    * Shows this popup directly below `anchor`, at least as wide as `anchor`.
    */
   void showBelow(const QWidget& anchor);
+
+signals:
+  void completionClicked(const QString& completion);
 
 private:
   void createGui();

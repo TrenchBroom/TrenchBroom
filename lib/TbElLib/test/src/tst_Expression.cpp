@@ -26,10 +26,12 @@
 #include "el/Value.h"
 #include "el/VariableStore.h"
 
+#include "kd/ranges/to.h"
 #include "kd/result_io.h" // IWYU pragma: keep
 
 #include <fmt/ostream.h>
 
+#include <ranges>
 #include <string>
 #include <vector>
 
@@ -2096,6 +2098,18 @@ TEST_CASE("Expression")
       // a non-String rhs against a Map is simply false, not an error
       {R"({a: 1, b: 2} contains 1)",                                                 Value{false}},
 
+      // String contains String: case sensitive substring, wildcards are literal
+      {R"("asdf" contains "sd")",                                                    Value{true}},
+      {R"("asdf" contains "asdf")",                                                  Value{true}},
+      {R"("asdf" contains "")",                                                      Value{true}},
+      {R"("asdf" contains "xy")",                                                    Value{false}},
+      {R"("sd" contains "asdf")",                                                    Value{false}},
+      {R"("asdf" contains "SD")",                                                    Value{false}},
+      {R"("asdf" contains "a*f")",                                                   Value{false}},
+      {R"("a*f" contains "a*f")",                                                    Value{true}},
+      // a non-String rhs against a String is simply false, not an error
+      {R"("a1" contains 1)",                                                         Value{false}},
+
       // BBox contains Vec3: point containment
       {"bbox(vec(0, 0, 0), vec(2, 2, 2)) contains vec(1, 1, 1)",                     Value{true}},
       {"bbox(vec(0, 0, 0), vec(2, 2, 2)) contains vec(3, 3, 3)",                     Value{false}},
@@ -2138,6 +2152,9 @@ TEST_CASE("Expression")
       {R"("a" in {a: 1, b: 2})",                                               Value{true}},
       {R"("c" in {a: 1, b: 2})",                                               Value{false}},
       {"1 in {a: 1, b: 2}",                                                    Value{false}},
+
+      {R"("sd" in "asdf")",                                                    Value{true}},
+      {R"("xy" in "asdf")",                                                    Value{false}},
 
       {"vec(1, 1, 1) in bbox(vec(0, 0, 0), vec(2, 2, 2))",                     Value{true}},
       {"vec(3, 3, 3) in bbox(vec(0, 0, 0), vec(2, 2, 2))",                     Value{false}},
@@ -2586,6 +2603,45 @@ TEST_CASE("Expression")
     CAPTURE(expression);
 
     CHECK(preorderVisit(expression) == expectedVisits);
+  }
+
+  SECTION("builtinFunctions")
+  {
+    CHECK(
+      (builtinFunctions() | std::views::keys | kdl::ranges::to<std::vector>())
+      == std::vector<std::string>{
+        "bbox", "contains", "distanceTo", "in", "intersects", "is", "like", "vec"});
+
+    CHECK(builtinFunctions().at("bbox").notation == FunctionNotation::Prefix);
+    CHECK(builtinFunctions().at("vec").notation == FunctionNotation::Prefix);
+    CHECK(builtinFunctions().at("contains").notation == FunctionNotation::Infix);
+    CHECK(builtinFunctions().at("distanceTo").notation == FunctionNotation::Infix);
+    CHECK(builtinFunctions().at("in").notation == FunctionNotation::Infix);
+    CHECK(builtinFunctions().at("intersects").notation == FunctionNotation::Infix);
+    CHECK(builtinFunctions().at("is").notation == FunctionNotation::Infix);
+    CHECK(builtinFunctions().at("like").notation == FunctionNotation::Infix);
+
+    CHECK(builtinFunctions().at("bbox").resultType == ValueType::BBox);
+    CHECK(builtinFunctions().at("vec").resultType == ValueType::Vec3);
+    CHECK(builtinFunctions().at("contains").resultType == ValueType::Boolean);
+    CHECK(builtinFunctions().at("distanceTo").resultType == ValueType::Number);
+    CHECK(builtinFunctions().at("in").resultType == ValueType::Boolean);
+    CHECK(builtinFunctions().at("intersects").resultType == ValueType::Boolean);
+    CHECK(builtinFunctions().at("is").resultType == ValueType::Boolean);
+    CHECK(builtinFunctions().at("like").resultType == ValueType::Boolean);
+
+    // only a function that takes two arguments can be called with infix notation
+    for (const auto& [name, function] : builtinFunctions())
+    {
+      CAPTURE(name);
+      CHECK((function.notation != FunctionNotation::Infix || function.arity == 2u));
+    }
+  }
+
+  SECTION("findBuiltinFunction")
+  {
+    CHECK(findBuiltinFunction("vec") == &builtinFunctions().at("vec"));
+    CHECK(findBuiltinFunction("unknown") == nullptr);
   }
 }
 

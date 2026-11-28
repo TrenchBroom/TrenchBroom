@@ -73,6 +73,13 @@ namespace ql
  */
 el::ExpressionNode parseQuery(std::string_view inputText);
 
+/**
+ * Replaces every object type name that is compared with `type` without quotes by a
+ * string, as parseQuery does, so `type is brush` becomes `type is "brush"`. Type names
+ * elsewhere are left unchanged.
+ */
+el::ExpressionNode quoteTypeNames(const el::ExpressionNode& expression);
+
 using QueryResult =
   std::variant<std::vector<mdl::Node*>, std::vector<mdl::BrushFaceHandle>>;
 

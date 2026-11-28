@@ -20,11 +20,14 @@
 #include "mdl/Map_Entities.h"
 
 #include "mdl/ApplyAndSwap.h"
+#include "mdl/BrushNode.h"
 #include "mdl/Entity.h"
 #include "mdl/EntityColorPropertyValue.h"
 #include "mdl/EntityDefinition.h"
 #include "mdl/EntityNode.h"
 #include "mdl/GameInfo.h"
+#include "mdl/GroupNode.h"
+#include "mdl/LayerNode.h"
 #include "mdl/LinkedGroupUtils.h"
 #include "mdl/Map.h"
 #include "mdl/Map_Geometry.h"
@@ -32,15 +35,20 @@
 #include "mdl/Map_Nodes.h"
 #include "mdl/Map_Selection.h"
 #include "mdl/ModelUtils.h"
+#include "mdl/PatchNode.h"
 #include "mdl/Transaction.h"
 #include "mdl/WorldNode.h"
 
 #include "kd/contracts.h"
+#include "kd/flat_set.h"
 #include "kd/overload.h"
 #include "kd/ranges/contains.h"
 #include "kd/string_utils.h"
 
 #include <memory>
+#include <ranges>
+#include <string>
+#include <vector>
 
 namespace tb::mdl
 {
@@ -435,6 +443,35 @@ void setDefaultEntityProperties(Map& map, const SetDefaultPropertyMode mode)
       },
       [](Brush&) { return true; },
       [](BezierPatch&) { return true; }));
+}
+
+std::vector<std::string> allEntityPropertyKeys(const Map& map)
+{
+  auto result = kdl::flat_set<std::string>{};
+  auto addEntityKeys = [&](const auto& node) {
+    const auto keys =
+      node.entity().properties()
+      | std::views::transform([](const auto& property) { return property.key(); });
+
+    result.insert(keys.begin(), keys.end());
+  };
+
+  map.worldNode().accept(kdl::overload(
+    [&](auto&& thisLambda, const WorldNode& worldNode) {
+      addEntityKeys(worldNode);
+      worldNode.visitChildren(thisLambda);
+    },
+    [](auto&& thisLambda, const LayerNode& layerNode) {
+      layerNode.visitChildren(thisLambda);
+    },
+    [](auto&& thisLambda, const GroupNode& groupNode) {
+      groupNode.visitChildren(thisLambda);
+    },
+    [&](const EntityNode& entityNode) { addEntityKeys(entityNode); },
+    [](const BrushNode&) {},
+    [](const PatchNode&) {}));
+
+  return result.extract();
 }
 
 } // namespace tb::mdl

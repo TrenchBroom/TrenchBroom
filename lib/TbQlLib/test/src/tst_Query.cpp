@@ -221,6 +221,35 @@ TEST_CASE("Query")
     }
   }
 
+  SECTION("quoteTypeNames")
+  {
+    SECTION("a type name compared with type is quoted")
+    {
+      const auto [inputText, expectedQuery] = GENERATE(table<std::string, std::string>({
+        {"type is brush", R"(type is "brush")"},
+        {"patch != type", R"("patch" != type)"},
+        {"type in [layer, group]", R"(type in ["layer", "group"])"},
+        {"visible && type == face", R"(visible && type == "face")"},
+      }));
+      CAPTURE(inputText);
+
+      CHECK(quoteTypeNames(toQuery(inputText)) == toQuery(expectedQuery));
+    }
+
+    SECTION("other names are left unchanged")
+    {
+      const auto inputText = GENERATE(
+        "classname is brush"sv,
+        "type is brushes"sv,
+        "type < brush"sv,
+        "entity.classname"sv,
+        "[brush, patch]"sv);
+      CAPTURE(inputText);
+
+      CHECK(quoteTypeNames(toQuery(inputText)) == toQuery(inputText));
+    }
+  }
+
   SECTION("evaluateQuery")
   {
     auto fixture = mdl::MapFixture{};

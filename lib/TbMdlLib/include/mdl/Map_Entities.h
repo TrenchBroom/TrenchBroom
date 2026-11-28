@@ -24,6 +24,7 @@
 #include "vm/vec.h"
 
 #include <string>
+#include <vector>
 
 namespace tb::mdl
 {
@@ -57,5 +58,11 @@ bool clearProtectedEntityProperties(Map& map);
 bool canClearProtectedEntityProperties(const Map& map);
 
 void setDefaultEntityProperties(Map& map, SetDefaultPropertyMode mode);
+
+/**
+ * Returns the keys of the properties of all entities in the given map, including the
+ * world and the entities in groups, sorted and without duplicates.
+ */
+std::vector<std::string> allEntityPropertyKeys(const Map& map);
 
 } // namespace tb::mdl

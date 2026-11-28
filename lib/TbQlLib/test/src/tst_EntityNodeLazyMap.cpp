@@ -79,6 +79,17 @@ TEST_CASE("EntityNodeLazyMap")
     CHECK(value.lazyMapValue().at("missing") == std::nullopt);
     CHECK(
       value.lazyMapValue().keys() == std::vector<std::string>{"classname", "properties"});
+    const auto& fieldTypes = entityFieldTypes();
+    CHECK_THAT(fieldTypes | std::views::keys, RangeEquals(value.lazyMapValue().keys()));
+
+    for (const auto& [name, type] : fieldTypes)
+    {
+      CAPTURE(name);
+
+      const auto fieldValue = value.lazyMapValue().at(name);
+      REQUIRE(fieldValue != std::nullopt);
+      CHECK(fieldValue->hasType(type));
+    }
 
     const auto properties = value.lazyMapValue().at("properties").value();
     CHECK(properties.lazyMapValue().at("targetname") == el::Value{"start1"});

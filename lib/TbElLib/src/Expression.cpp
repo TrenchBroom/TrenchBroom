@@ -37,6 +37,7 @@
 
 #include <algorithm>
 #include <array>
+#include <optional>
 #include <ranges>
 #include <span>
 #include <sstream>
@@ -44,13 +45,6 @@
 
 namespace tb::el
 {
-
-struct BuiltinFunction
-{
-  size_t arity;
-  Value (*evaluate)(std::span<const Value>, const ExpressionNode&);
-};
-
 namespace
 {
 
@@ -1550,6 +1544,10 @@ Value evaluateContains(
       return evaluateEqual(element, rhs, expressionNode);
     })};
   }
+  case ValueType::String:
+    return Value{
+      rhs.hasType(ValueType::String)
+      && kdl::cs::str_contains(lhs.stringValue(), rhs.stringValue())};
   case ValueType::Map:
   case ValueType::LazyMap:
     return Value{rhs.hasType(ValueType::String) && lhs.contains(rhs.stringValue())};
@@ -1564,7 +1562,6 @@ Value evaluateContains(
     }
     return Value{false};
   case ValueType::Boolean:
-  case ValueType::String:
   case ValueType::Number:
   case ValueType::Range:
   case ValueType::Vec3:
@@ -1582,9 +1579,11 @@ bool hasUndefinedArgument(const std::span<const Value> arguments)
   });
 }
 
-const auto builtinFunctions = kdl::flat_map<std::string, BuiltinFunction>{
+const auto builtinFunctionsByName = kdl::flat_map<std::string, BuiltinFunction>{
   {"vec",
    {3,
+    FunctionNotation::Prefix,
+    ValueType::Vec3,
     [](const std::span<const Value> arguments, const ExpressionNode&) {
       if (hasUndefinedArgument(arguments))
       {
@@ -1598,6 +1597,8 @@ const auto builtinFunctions = kdl::flat_map<std::string, BuiltinFunction>{
     }}},
   {"bbox",
    {2,
+    FunctionNotation::Prefix,
+    ValueType::BBox,
     [](const std::span<const Value> arguments, const ExpressionNode&) {
       if (hasUndefinedArgument(arguments))
       {
@@ -1609,6 +1610,8 @@ const auto builtinFunctions = kdl::flat_map<std::string, BuiltinFunction>{
     }}},
   {"distanceTo",
    {2,
+    FunctionNotation::Infix,
+    ValueType::Number,
     [](const std::span<const Value> arguments, const ExpressionNode&) {
       if (hasUndefinedArgument(arguments))
       {
@@ -1620,6 +1623,8 @@ const auto builtinFunctions = kdl::flat_map<std::string, BuiltinFunction>{
     }}},
   {"intersects",
    {2,
+    FunctionNotation::Infix,
+    ValueType::Boolean,
     [](const std::span<const Value> arguments, const ExpressionNode&) {
       if (hasUndefinedArgument(arguments))
       {
@@ -1631,21 +1636,29 @@ const auto builtinFunctions = kdl::flat_map<std::string, BuiltinFunction>{
     }}},
   {"like",
    {2,
+    FunctionNotation::Infix,
+    ValueType::Boolean,
     [](const std::span<const Value> arguments, const ExpressionNode&) {
       return evaluateLike(arguments[0], arguments[1]);
     }}},
   {"contains",
    {2,
+    FunctionNotation::Infix,
+    ValueType::Boolean,
     [](const std::span<const Value> arguments, const ExpressionNode& expressionNode) {
       return evaluateContains(arguments[0], arguments[1], expressionNode);
     }}},
   {"in",
    {2,
+    FunctionNotation::Infix,
+    ValueType::Boolean,
     [](const std::span<const Value> arguments, const ExpressionNode& expressionNode) {
       return evaluateContains(arguments[1], arguments[0], expressionNode);
     }}},
   {"is",
    {2,
+    FunctionNotation::Infix,
+    ValueType::Boolean,
     [](const std::span<const Value> arguments, const ExpressionNode& expressionNode) {
       return Value{evaluateCompare(arguments[0], arguments[1], expressionNode) == 0};
     }}},
@@ -2363,16 +2376,15 @@ std::ostream& operator<<(std::ostream& lhs, const CallExpression& rhs)
   return lhs << ")";
 }
 
-const BuiltinFunction* findBuiltinFunction(const std::string& name)
+const kdl::flat_map<std::string, BuiltinFunction>& builtinFunctions()
 {
-  const auto it = builtinFunctions.find(name);
-  return it != builtinFunctions.end() ? &it->second : nullptr;
+  return builtinFunctionsByName;
 }
 
-std::optional<size_t> builtinFunctionArity(const std::string& name)
+const BuiltinFunction* findBuiltinFunction(const std::string& name)
 {
-  const auto* function = findBuiltinFunction(name);
-  return function ? std::optional{function->arity} : std::nullopt;
+  const auto it = builtinFunctionsByName.find(name);
+  return it != builtinFunctionsByName.end() ? &it->second : nullptr;
 }
 
 

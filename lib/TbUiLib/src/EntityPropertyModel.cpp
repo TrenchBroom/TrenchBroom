@@ -378,29 +378,7 @@ kdl::flat_map<std::string, PropertyRow> rowsForEntityNodes(
 
 std::vector<std::string> getAllPropertyKeys(const mdl::Map& map)
 {
-  auto result = kdl::flat_set<std::string>{};
-  auto addEntityKeys = [&](const auto& node) {
-    const auto keys =
-      node.entity().properties()
-      | std::views::transform([](const auto& property) { return property.key(); });
-
-    result.insert(keys.begin(), keys.end());
-  };
-
-  map.worldNode().accept(kdl::overload(
-    [&](auto&& thisLambda, const mdl::WorldNode& worldNode) {
-      addEntityKeys(worldNode);
-      worldNode.visitChildren(thisLambda);
-    },
-    [](auto&& thisLambda, const mdl::LayerNode& layerNode) {
-      layerNode.visitChildren(thisLambda);
-    },
-    [](auto&& thisLambda, const mdl::GroupNode& groupNode) {
-      groupNode.visitChildren(thisLambda);
-    },
-    [&](const mdl::EntityNode& entityNode) { addEntityKeys(entityNode); },
-    [](const mdl::BrushNode&) {},
-    [](const mdl::PatchNode&) {}));
+  auto result = kdl::flat_set{kdl::sorted_unique, mdl::allEntityPropertyKeys(map)};
 
   // also add keys from all loaded entity definitions
   for (const auto& entityDefinition : map.entityDefinitionManager().definitions())
