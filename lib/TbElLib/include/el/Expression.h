@@ -321,6 +321,13 @@ struct BuiltinFunction
 {
   size_t arity;
   FunctionNotation notation;
+
+  /**
+   * The type of the values that the function returns. A function may also return
+   * undefined if an argument is undefined.
+   */
+  ValueType resultType;
+
   Value (*evaluate)(std::span<const Value>, const ExpressionNode&);
 };
 

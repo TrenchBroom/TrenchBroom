@@ -2621,6 +2621,15 @@ TEST_CASE("Expression")
     CHECK(builtinFunctions().at("is").notation == FunctionNotation::Infix);
     CHECK(builtinFunctions().at("like").notation == FunctionNotation::Infix);
 
+    CHECK(builtinFunctions().at("bbox").resultType == ValueType::BBox);
+    CHECK(builtinFunctions().at("vec").resultType == ValueType::Vec3);
+    CHECK(builtinFunctions().at("contains").resultType == ValueType::Boolean);
+    CHECK(builtinFunctions().at("distanceTo").resultType == ValueType::Number);
+    CHECK(builtinFunctions().at("in").resultType == ValueType::Boolean);
+    CHECK(builtinFunctions().at("intersects").resultType == ValueType::Boolean);
+    CHECK(builtinFunctions().at("is").resultType == ValueType::Boolean);
+    CHECK(builtinFunctions().at("like").resultType == ValueType::Boolean);
+
     // only a function that takes two arguments can be called with infix notation
     for (const auto& [name, function] : builtinFunctions())
     {

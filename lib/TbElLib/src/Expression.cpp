@@ -1583,6 +1583,7 @@ const auto builtinFunctionsByName = kdl::flat_map<std::string, BuiltinFunction>{
   {"vec",
    {3,
     FunctionNotation::Prefix,
+    ValueType::Vec3,
     [](const std::span<const Value> arguments, const ExpressionNode&) {
       if (hasUndefinedArgument(arguments))
       {
@@ -1597,6 +1598,7 @@ const auto builtinFunctionsByName = kdl::flat_map<std::string, BuiltinFunction>{
   {"bbox",
    {2,
     FunctionNotation::Prefix,
+    ValueType::BBox,
     [](const std::span<const Value> arguments, const ExpressionNode&) {
       if (hasUndefinedArgument(arguments))
       {
@@ -1609,6 +1611,7 @@ const auto builtinFunctionsByName = kdl::flat_map<std::string, BuiltinFunction>{
   {"distanceTo",
    {2,
     FunctionNotation::Infix,
+    ValueType::Number,
     [](const std::span<const Value> arguments, const ExpressionNode&) {
       if (hasUndefinedArgument(arguments))
       {
@@ -1621,6 +1624,7 @@ const auto builtinFunctionsByName = kdl::flat_map<std::string, BuiltinFunction>{
   {"intersects",
    {2,
     FunctionNotation::Infix,
+    ValueType::Boolean,
     [](const std::span<const Value> arguments, const ExpressionNode&) {
       if (hasUndefinedArgument(arguments))
       {
@@ -1633,24 +1637,28 @@ const auto builtinFunctionsByName = kdl::flat_map<std::string, BuiltinFunction>{
   {"like",
    {2,
     FunctionNotation::Infix,
+    ValueType::Boolean,
     [](const std::span<const Value> arguments, const ExpressionNode&) {
       return evaluateLike(arguments[0], arguments[1]);
     }}},
   {"contains",
    {2,
     FunctionNotation::Infix,
+    ValueType::Boolean,
     [](const std::span<const Value> arguments, const ExpressionNode& expressionNode) {
       return evaluateContains(arguments[0], arguments[1], expressionNode);
     }}},
   {"in",
    {2,
     FunctionNotation::Infix,
+    ValueType::Boolean,
     [](const std::span<const Value> arguments, const ExpressionNode& expressionNode) {
       return evaluateContains(arguments[1], arguments[0], expressionNode);
     }}},
   {"is",
    {2,
     FunctionNotation::Infix,
+    ValueType::Boolean,
     [](const std::span<const Value> arguments, const ExpressionNode& expressionNode) {
       return Value{evaluateCompare(arguments[0], arguments[1], expressionNode) == 0};
     }}},
