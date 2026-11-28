@@ -87,4 +87,11 @@ add_custom_command(TARGET TbUiLibTest POST_BUILD
 )
 
 include(Catch)
-catch_discover_tests(TbUiLibTest)
+if(TB_SERIALIZE_UI_TESTS)
+  # The tests show real windows, which can take the focus from each other when ctest
+  # runs them in parallel. This keeps them from running at the same time as each other,
+  # while other tests still run alongside them.
+  catch_discover_tests(TbUiLibTest PROPERTIES RESOURCE_LOCK gui)
+else()
+  catch_discover_tests(TbUiLibTest)
+endif()
