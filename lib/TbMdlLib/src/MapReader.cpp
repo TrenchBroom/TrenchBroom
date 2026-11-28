@@ -106,21 +106,22 @@ Result<void> MapReader::readBrushFaces(
 
 // implement MapParser interface
 
-void MapReader::onBeginEntity(
-  const FileLocation& location,
-  std::vector<EntityProperty> properties,
-  ParserStatus& /* status */)
+void MapReader::onBeginEntity(const FileLocation& location, ParserStatus& /* status */)
 {
   m_currentEntityInfo = m_objectInfos.size();
-  m_objectInfos.emplace_back(EntityInfo{std::move(properties), location, std::nullopt});
+  m_objectInfos.emplace_back(EntityInfo{{}, location, std::nullopt});
 }
 
-void MapReader::onEndEntity(const FileLocation& endLocation, ParserStatus& /* status */)
+void MapReader::onEndEntity(
+  const FileLocation& endLocation,
+  std::vector<EntityProperty> properties,
+  ParserStatus& /* status */)
 {
   contract_pre(m_currentEntityInfo != std::nullopt);
   contract_pre(std::holds_alternative<EntityInfo>(m_objectInfos[*m_currentEntityInfo]));
 
   auto& entity = std::get<EntityInfo>(m_objectInfos[*m_currentEntityInfo]);
+  entity.properties = std::move(properties);
   entity.endLocation = endLocation;
 
   m_currentEntityInfo = std::nullopt;

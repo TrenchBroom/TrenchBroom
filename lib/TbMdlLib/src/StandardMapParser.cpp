@@ -255,31 +255,33 @@ void StandardMapParser::parseEntity(ParserStatus& status)
   auto token = m_tokenizer.nextToken(QuakeMapToken::OBrace | QuakeMapToken::Eof);
   if (token.hasType(QuakeMapToken::OBrace))
   {
-    const auto startLocation = token.location();
+    onBeginEntity(token.location(), status);
 
     auto properties = std::vector<EntityProperty>();
     auto propertyKeys = EntityPropertyKeys();
-    parseEntityProperties(properties, propertyKeys, status);
 
-    onBeginEntity(startLocation, properties, status);
-    parseObjects(status);
+    token = m_tokenizer.skipAndPeekToken(
+      QuakeMapToken::Comment,
+      QuakeMapToken::String | QuakeMapToken::OBrace | QuakeMapToken::CBrace);
+    while (!token.hasType(QuakeMapToken::CBrace))
+    {
+      if (token.hasType(QuakeMapToken::String))
+      {
+        parseEntityProperty(properties, propertyKeys, status);
+      }
+      else
+      {
+        parseObject(status);
+      }
 
-    token = m_tokenizer.skipAndNextToken(QuakeMapToken::Comment, QuakeMapToken::CBrace);
+      token = m_tokenizer.skipAndPeekToken(
+        QuakeMapToken::Comment,
+        QuakeMapToken::String | QuakeMapToken::OBrace | QuakeMapToken::CBrace);
+    }
 
-    onEndEntity(token.location(), status);
-  }
-}
+    token = m_tokenizer.nextToken(QuakeMapToken::CBrace);
 
-void StandardMapParser::parseEntityProperties(
-  std::vector<EntityProperty>& properties, EntityPropertyKeys& keys, ParserStatus& status)
-{
-  while (m_tokenizer
-           .skipAndPeekToken(
-             QuakeMapToken::Comment,
-             QuakeMapToken::String | QuakeMapToken::OBrace | QuakeMapToken::CBrace)
-           .hasType(QuakeMapToken::String))
-  {
-    parseEntityProperty(properties, keys, status);
+    onEndEntity(token.location(), std::move(properties), status);
   }
 }
 
@@ -303,16 +305,6 @@ void StandardMapParser::parseEntityProperty(
   else
   {
     status.warn(location, fmt::format("Ignoring duplicate entity property '{}'", name));
-  }
-}
-
-void StandardMapParser::parseObjects(ParserStatus& status)
-{
-  auto token = m_tokenizer.skipAndPeekToken(QuakeMapToken::Comment);
-  while (token.hasType(QuakeMapToken::OBrace))
-  {
-    parseObject(status);
-    token = m_tokenizer.skipAndPeekToken(QuakeMapToken::Comment);
   }
 }
 

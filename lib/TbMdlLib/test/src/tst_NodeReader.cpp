@@ -20,6 +20,7 @@
 #include "TestParserStatus.h"
 #include "mdl/BrushNode.h"
 #include "mdl/CatchConfig.h"
+#include "mdl/EntityNode.h"
 #include "mdl/GroupNode.h"
 #include "mdl/NodeReader.h"
 #include "mdl/ParaxialUvCoordSystem.h"
@@ -110,6 +111,49 @@ TEST_CASE("NodeReader")
 
     const auto brush = brushNode->brush();
     CHECK(brush.face(0).uvCoordSystem().is<ParaxialUvCoordSystem>());
+  }
+
+  SECTION("readEntityWithPropertiesAfterBrushes")
+  {
+    // https://github.com/TrenchBroom/TrenchBroom/issues/5589
+
+    const auto data = R"(
+{
+{
+( -64 -64 -16 ) ( -64 -63 -16 ) ( -64 -64 -15 ) __TB_empty 0 0 0 1 1
+( -64 -64 -16 ) ( -64 -64 -15 ) ( -63 -64 -16 ) __TB_empty 0 0 0 1 1
+( -64 -64 -16 ) ( -63 -64 -16 ) ( -64 -63 -16 ) __TB_empty 0 0 0 1 1
+( 64 64 16 ) ( 64 65 16 ) ( 65 64 16 ) __TB_empty 0 0 0 1 1
+( 64 64 16 ) ( 65 64 16 ) ( 64 64 17 ) __TB_empty 0 0 0 1 1
+( 64 64 16 ) ( 64 64 17 ) ( 64 65 16 ) __TB_empty 0 0 0 1 1
+}
+"classname" "func_door"
+{
+( 0 0 0 ) ( 0 1 0 ) ( 0 0 1 ) __TB_empty 0 0 0 1 1
+( 0 0 0 ) ( 0 0 1 ) ( 1 0 0 ) __TB_empty 0 0 0 1 1
+( 0 0 0 ) ( 1 0 0 ) ( 0 1 0 ) __TB_empty 0 0 0 1 1
+( 64 64 64 ) ( 64 65 64 ) ( 65 64 64 ) __TB_empty 0 0 0 1 1
+( 64 64 64 ) ( 65 64 64 ) ( 64 64 65 ) __TB_empty 0 0 0 1 1
+( 64 64 64 ) ( 64 64 65 ) ( 64 65 64 ) __TB_empty 0 0 0 1 1
+}
+"targetname" "door"
+}
+)";
+
+    auto nodes =
+      NodeReader::read(data, MapFormat::Standard, worldBounds, {}, status, taskManager);
+    REQUIRE(nodes);
+    REQUIRE(nodes.value().size() == 1u);
+
+    auto* entityNode = dynamic_cast<EntityNode*>(nodes.value().front().get());
+    REQUIRE(entityNode != nullptr);
+    CHECK(
+      entityNode->entity().properties()
+      == std::vector<EntityProperty>{
+        {"classname", "func_door"},
+        {"targetname", "door"},
+      });
+    CHECK(entityNode->childCount() == 2u);
   }
 
   SECTION("reportsBrushErrorsWithLocation")

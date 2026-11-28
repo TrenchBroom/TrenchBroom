@@ -115,16 +115,11 @@ protected:
 
 private:
   void parseEntity(ParserStatus& status);
-  void parseEntityProperties(
-    std::vector<EntityProperty>& properties,
-    EntityPropertyKeys& keys,
-    ParserStatus& status);
   void parseEntityProperty(
     std::vector<EntityProperty>& properties,
     EntityPropertyKeys& keys,
     ParserStatus& status);
 
-  void parseObjects(ParserStatus& status);
   void parseObject(ParserStatus& status);
   void parseBrushPrimitive(ParserStatus& status, const FileLocation& startLocation);
   void parseBrush(
